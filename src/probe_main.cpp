@@ -106,7 +106,8 @@ void process(void* userdata)
             !storage->datas[0].chunk) {
             ++data.invalidBuffers;
             data.callbackFault.store(true, std::memory_order_relaxed);
-            pw_stream_return_buffer(data.stream, buffer);
+            // Keep invalid storage out of the graph. The control loop observes
+            // callbackFault and destroys the stream, reclaiming this buffer.
         } else {
             auto& plane = storage->datas[0];
             const std::uint64_t capacity = plane.maxsize / stride;
