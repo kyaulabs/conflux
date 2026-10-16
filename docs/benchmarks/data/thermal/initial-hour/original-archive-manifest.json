@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "source_directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/soak-2026-10-16/performance-60m",
+  "raw_status_preserved": "ok",
+  "continuous_ui_load_established": false,
+  "files": {
+    "initial-hour/result.json": {
+      "bytes": 46521,
+      "sha256": "3662acfb30fb22b3b9260d4c5a94acb971ca571bdc2d4ff8f19eff00c985c71d",
+      "source_bytes": 46521,
+      "source_sha256": "3662acfb30fb22b3b9260d4c5a94acb971ca571bdc2d4ff8f19eff00c985c71d",
+      "compression": null
+    },
+    "initial-hour/audio.json": {
+      "bytes": 1501,
+      "sha256": "9d5e8342824cd34d8109accf4a79448fd7571997923c16bbb92ba1c8563a81f5",
+      "source_bytes": 1501,
+      "source_sha256": "9d5e8342824cd34d8109accf4a79448fd7571997923c16bbb92ba1c8563a81f5",
+      "compression": null
+    },
+    "initial-hour/audio.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compression": null
+    },
+    "initial-hour/ui.json": {
+      "bytes": 783,
+      "sha256": "5bd044e9a02dc85212702a8aa734f6a1233b32b85d9bd489a72f559ec12d02f2",
+      "source_bytes": 783,
+      "source_sha256": "5bd044e9a02dc85212702a8aa734f6a1233b32b85d9bd489a72f559ec12d02f2",
+      "compression": null
+    },
+    "initial-hour/ui.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compression": null
+    },
+    "initial-hour/progress.json": {
+      "bytes": 2159,
+      "sha256": "2dd6daee4f40c5e20ce07d856ac510b9f2c1ba9b57a53f5a26cbae05413702d7",
+      "source_bytes": 2159,
+      "source_sha256": "2dd6daee4f40c5e20ce07d856ac510b9f2c1ba9b57a53f5a26cbae05413702d7",
+      "compression": null
+    },
+    "initial-hour/events.jsonl.gz": {
+      "bytes": 459897,
+      "sha256": "8e3ff389ee155e5687407f3741e0b9ec5818959a7999a43701e4133e638120a8",
+      "source_bytes": 4671710,
+      "source_sha256": "eacea84bb86f352002dc56a225c1bb4af77b99d08bebc1d9dd74a455d9250bc8",
+      "compression": "gzip mtime=0; empty filename; level=6"
+    },
+    "initial-hour/native-trace.jsonl.gz": {
+      "bytes": 1528017,
+      "sha256": "472fd68c6a642be89b70b72634d26570f65e7f448eb166449ac0ba3bae165ee9",
+      "source_bytes": 46355459,
+      "source_sha256": "a1f5da6e4a0965cf0486834c92a4f43a9c941b911b0fdc94b5774d24dd0dc80c",
+      "compression": "gzip mtime=0; empty filename; level=6"
+    },
+    "before-performance-60m.json": {
+      "bytes": 1347,
+      "sha256": "8b053cdc9be23c38728190709ff6bedb1a73d89480c9dd10ad01f20d73419a03",
+      "source_bytes": 1347,
+      "source_sha256": "8b053cdc9be23c38728190709ff6bedb1a73d89480c9dd10ad01f20d73419a03",
+      "compression": null
+    },
+    "after-performance-60m.json": {
+      "bytes": 152,
+      "sha256": "8f9f11ec731e57bdee359b169ad6baaab46adb6015a47000334772452e7ec42d",
+      "source_bytes": 152,
+      "source_sha256": "8f9f11ec731e57bdee359b169ad6baaab46adb6015a47000334772452e7ec42d",
+      "compression": null
+    },
+    "monitor.jsonl": {
+      "bytes": 534450,
+      "sha256": "363d8fe68661dc753d43e2123f15ff847d6a42faddc0aea8ec7e799f711014ba",
+      "source_bytes": 534450,
+      "source_sha256": "363d8fe68661dc753d43e2123f15ff847d6a42faddc0aea8ec7e799f711014ba",
+      "compression": null
+    },
+    "initial-hour/analysis.py": {
+      "bytes": 28301,
+      "sha256": "7ab07609bad007e6984bcc8d4bca7431a50c69a0ab3df6589c96f2cda9ab997a",
+      "source_bytes": 28301,
+      "source_sha256": "7ab07609bad007e6984bcc8d4bca7431a50c69a0ab3df6589c96f2cda9ab997a",
+      "compression": null
+    },
+    "initial-hour/analysis.json.gz": {
+      "bytes": 590964,
+      "sha256": "a7218256cb92c36ae1ed5d1c2fd99137653dcd536fad99ebb4586600fe2a043b",
+      "source_bytes": 5515098,
+      "source_sha256": "209bc75a3731a951a9ad3a6d282e6cc42b0aa7a71686665aaaf691a485b80db9",
+      "compression": "gzip mtime=0; empty filename; level=6"
+    },
+    "initial-hour/strict-miss-rows.json.gz": {
+      "bytes": 42860,
+      "sha256": "c475a0bb46a028b2d24c4d00dba3b4ec92d0641b62af453b2866a8e6bfe397d0",
+      "source_bytes": 873457,
+      "source_sha256": "89ee90531fff76de62bbb0d4a827eeb9d83c2cd7ede8a20bd8787f05e4f548af",
+      "compression": "gzip mtime=0; empty filename; level=6"
+    },
+    "initial-hour/stall-summary.json": {
+      "bytes": 47344,
+      "sha256": "a54bde7d23e92208268ec6f6cf0bf7270f69eb90427514bec8aa7cb0eba696b7",
+      "source_bytes": 47344,
+      "source_sha256": "a54bde7d23e92208268ec6f6cf0bf7270f69eb90427514bec8aa7cb0eba696b7",
+      "compression": null
+    },
+    "initial-hour/kernel-graphics-journal.json": {
+      "bytes": 1074,
+      "sha256": "bf3b32d95d5a8a3639ee25f448213863427f569a2800f9da99aa5f696dba682c",
+      "source_bytes": 1074,
+      "source_sha256": "bf3b32d95d5a8a3639ee25f448213863427f569a2800f9da99aa5f696dba682c",
+      "compression": null
+    },
+    "initial-hour/driver-policy-notes.json": {
+      "bytes": 16684,
+      "sha256": "5a567abb001eac5f30dddd105e2cfb95381e02803e2af9d51a48096ed26ede4d",
+      "source_bytes": 16684,
+      "source_sha256": "5a567abb001eac5f30dddd105e2cfb95381e02803e2af9d51a48096ed26ede4d",
+      "compression": null
+    },
+    "initial-hour/independent-audit.json": {
+      "bytes": 26291,
+      "sha256": "62e5ba81d1359bd61fd320fec28075dfa42fd42ffaa2c60f81fb03b33fd1c35c",
+      "source_bytes": 26291,
+      "source_sha256": "62e5ba81d1359bd61fd320fec28075dfa42fd42ffaa2c60f81fb03b33fd1c35c",
+      "compression": null
+    },
+    "initial-hour/executed-changes.patch": {
+      "bytes": 24420,
+      "sha256": "719f1c1b30c79047130a9b4b90ac10d21f0e9819614441847abf8b66303a3e6b",
+      "source_bytes": 24420,
+      "source_sha256": "719f1c1b30c79047130a9b4b90ac10d21f0e9819614441847abf8b66303a3e6b",
+      "compression": null
+    },
+    "initial-hour/executed-stem_soak.py": {
+      "bytes": 25609,
+      "sha256": "cf12f5ab4b6715c10c510d5245357082e5474ab01a47299c715aaec1780bc54a",
+      "source_bytes": 25609,
+      "source_sha256": "cf12f5ab4b6715c10c510d5245357082e5474ab01a47299c715aaec1780bc54a",
+      "compression": null
+    },
+    "initial-hour/qualification.json": {
+      "bytes": 558,
+      "sha256": "c91af65e2ae6d8c0dd75140a689078cad1cbb51caf00b2438ac87c7dcda7d8f7"
+    }
+  }
+}

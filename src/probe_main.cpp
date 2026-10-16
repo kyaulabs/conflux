@@ -253,6 +253,8 @@ void report(const Probe& data, bool tone)
         << ", \"graph_quantum_min\": " << (data.graphQuantumMax ? data.graphQuantumMin : 0)
         << ", \"graph_quantum_max\": " << data.graphQuantumMax << "},\n"
         << "  \"streaming_seconds\": " << (data.startedNs ? (data.stoppedNs - data.startedNs) / 1.0e9 : 0)
+        << ",\n  \"streaming_started_monotonic_ns\": " << data.startedNs
+        << ",\n  \"stopped_monotonic_ns\": " << data.stoppedNs
         << ",\n  \"frames_rendered\": " << data.renderer.frameClock()
         << ",\n  \"callbacks\": " << data.callbacks
         << ",\n  \"callback_elapsed_us\": {\"p50_upper_bound\": " << percentile(data, .50)
@@ -293,7 +295,7 @@ int main(int argc, char** argv)
         if (argument == "--tone") {
             tone = true;
         } else if (argument == "--help") {
-            std::cout << "Usage: conflux-audio-probe [--seconds 1..3600] [--quantum 256|512] [--tone] [--stop-file path]\n"
+            std::cout << "Usage: conflux-audio-probe [--seconds 1..7200] [--quantum 256|512] [--tone] [--stop-file path]\n"
                          "Default output is silence. Quantum is requested without forcing the graph.\n";
             return 0;
         } else if (argument == "--stop-file" && i + 1 < argc) {
@@ -303,7 +305,7 @@ int main(int argc, char** argv)
             unsigned parsed = 0;
             const auto result = std::from_chars(value.begin(), value.end(), parsed);
             if (result.ec != std::errc{} || result.ptr != value.end() ||
-                (argument == "--seconds" ? parsed < 1 || parsed > 3600 : parsed != 256 && parsed != 512)) {
+                (argument == "--seconds" ? parsed < 1 || parsed > 7200 : parsed != 256 && parsed != 512)) {
                 std::cerr << "Invalid value for " << argument << '\n';
                 return 2;
             }

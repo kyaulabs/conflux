@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Synthetic input and Linux process sampling for the M0 worker benchmark."""
 
+import copy
 import hashlib
 import json
 import math
@@ -12,6 +13,18 @@ import time
 import wave
 
 import numpy as np
+
+
+_MEMINFO_FIELDS = ("MemTotal", "MemAvailable", "MemFree", "Buffers", "Cached",
+                   "Shmem", "SwapTotal", "SwapFree", "Dirty", "Writeback",
+                   "Slab", "SReclaimable", "Unevictable")
+_VMSTAT_FIELDS = ("pgfault", "pgmajfault", "pgpgin", "pgpgout", "pswpin", "pswpout",
+                  "pgscan_kswapd", "pgscan_direct", "pgsteal_kswapd", "pgsteal_direct",
+                  "oom_kill", "compact_stall", "workingset_refault_anon",
+                  "workingset_refault_file")
+_PRESSURE_RESOURCES = ("cpu", "memory", "io")
+_PRESSURE_FIELDS = ("avg10", "avg60", "avg300", "total")
+_TMP_FIELDS = ("total_bytes", "free_bytes", "available_bytes", "free_inodes")
 
 
 def create_fixture(path, seconds, *, seed=0, block_frames=44100):
@@ -85,14 +98,18 @@ def _read_process(pid):
     if directory.stat().st_uid != os.getuid():
         raise PermissionError("only the current user's processes may be sampled")
     status = {}
+    counters = {}
     for line in (directory / "status").read_text().splitlines():
         key, _, value = line.partition(":")
-        if key in ("VmRSS", "VmHWM"):
+        if key in ("VmRSS", "VmHWM", "VmSwap"):
             status[key] = int(value.split()[0])
+        elif key in ("voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"):
+            counters[f"status.{key}"] = int(value.strip())
     # comm may contain spaces or parentheses, so split after its final ')'.
     stat = (directory / "stat").read_text().rsplit(")", 1)[1].split()
     cpu_ticks = int(stat[11]) + int(stat[12])
     start_ticks = int(stat[19])
+    counters.update({"stat.minflt": int(stat[7]), "stat.majflt": int(stat[9])})
     clients = {}
     fd_errors = 0
     for fd in (directory / "fdinfo").iterdir():
@@ -112,6 +129,7 @@ def _read_process(pid):
             fd_errors += 1
     return {"pid": pid, "start_ticks": start_ticks,
             "process_status_kB": status, "cpu_ticks": cpu_ticks,
+            "process_counters": counters,
             "drm_clients": list(clients.values()), "fd_read_errors": fd_errors}
 
 
@@ -148,7 +166,9 @@ class ProcessSampler:
         self.interval_seconds = interval_seconds
         self._stop = threading.Event()
         self._thread = None
-        self._samples = []
+        self._processes = {}
+        self._sample_count = 0
+        self._last_sample_at = None
         self._errors = {}
         self._started = None
         self._finished = None
@@ -173,12 +193,20 @@ class ProcessSampler:
                   Path("/sys/firmware/acpi/platform_profile"): "string",
                   Path("/proc/sys/kernel/sched_schedstats"): "enabled_flag"}
         for card in sorted(Path("/sys/class/drm").glob("card[0-9]*")):
+            if re.fullmatch(r"card\d+", card.name) is None:
+                continue  # Connector device/power paths describe different devices.
             for name in ("act", "cur", "max", "min", "boost"):
                 path = card / f"gt_{name}_freq_mhz"
                 if path.exists():
                     fields[path] = "MHz"
             for path in sorted(card.glob("gt/gt*/throttle_reason_*")):
                 fields[path] = "kernel integer"
+            for path in sorted(card.glob("gt/gt*/rc6_residency_ms")):
+                fields[path] = "milliseconds"
+            for name in ("runtime_status", "runtime_active_time", "runtime_suspended_time"):
+                path = card / "device/power" / name
+                if path.exists():
+                    fields[path] = "string" if name == "runtime_status" else "milliseconds"
         for zone in sorted(Path("/sys/class/thermal").glob("thermal_zone*")):
             try:
                 kind = (zone / "type").read_text().strip()
@@ -206,16 +234,49 @@ class ProcessSampler:
                 values[str(path)] = raw if self._system_fields[path] == "string" else int(raw)
             except (OSError, ValueError) as error:
                 self._record_error(self._system_errors, str(path), error)
-        pressure = Path("/proc/pressure/cpu")
+        for resource in _PRESSURE_RESOURCES:
+            pressure = Path("/proc/pressure") / resource
+            try:
+                for line in pressure.read_text().splitlines():
+                    kind, *fields = line.split()
+                    for field in fields:
+                        key, _, raw = field.partition("=")
+                        if key in _PRESSURE_FIELDS:
+                            values[f"{pressure}:{kind}.{key}"] = (int(raw) if key == "total"
+                                                                  else float(raw))
+            except (OSError, ValueError) as error:
+                self._record_error(self._system_errors, str(pressure), error)
+        meminfo = Path("/proc/meminfo")
         try:
-            for line in pressure.read_text().splitlines():
-                kind, *fields = line.split()
-                for field in fields:
-                    key, _, raw = field.partition("=")
-                    if key == "total":
-                        values[f"{pressure}:{kind}.total"] = int(raw)
+            fields = dict(line.split(":", 1) for line in meminfo.read_text().splitlines())
+            for key in _MEMINFO_FIELDS:
+                try:
+                    raw, unit = fields[key].split()
+                    if unit != "kB":
+                        raise ValueError("unexpected meminfo unit")
+                    values[f"{meminfo}:{key}"] = int(raw)
+                except (KeyError, ValueError) as error:
+                    self._record_error(self._system_errors, f"{meminfo}:{key}", error)
         except (OSError, ValueError) as error:
-            self._record_error(self._system_errors, str(pressure), error)
+            self._record_error(self._system_errors, str(meminfo), error)
+        vmstat = Path("/proc/vmstat")
+        try:
+            fields = dict(line.split() for line in vmstat.read_text().splitlines())
+            for key in _VMSTAT_FIELDS:
+                try:
+                    values[f"{vmstat}:{key}"] = int(fields[key])
+                except (KeyError, ValueError) as error:
+                    self._record_error(self._system_errors, f"{vmstat}:{key}", error)
+        except (OSError, ValueError) as error:
+            self._record_error(self._system_errors, str(vmstat), error)
+        try:
+            scratch = os.statvfs("/tmp")
+            values.update({"/tmp:total_bytes": scratch.f_blocks * scratch.f_frsize,
+                           "/tmp:free_bytes": scratch.f_bfree * scratch.f_frsize,
+                           "/tmp:available_bytes": scratch.f_bavail * scratch.f_frsize,
+                           "/tmp:free_inodes": scratch.f_ffree})
+        except OSError as error:
+            self._record_error(self._system_errors, "/tmp statvfs", error)
         return values
 
     def _read_task_scheduling(self, pid):
@@ -269,6 +330,7 @@ class ProcessSampler:
 
     def _sample(self):
         try:
+            capture_started = time.monotonic()
             pid = self.pid_provider()
             if pid is None:
                 return
@@ -283,11 +345,49 @@ class ProcessSampler:
             sample["elapsed_seconds"] = observed_at - self._started
             if self.trace_path is not None or self.include_system:
                 sample["timestamp_monotonic"] = observed_at
-            self._samples.append(sample)
+                sample["capture_started_monotonic"] = capture_started
+                sample["capture_elapsed_ms"] = (observed_at - capture_started) * 1000
+                sample["previous_sample_gap_ms"] = ((observed_at - self._last_sample_at) * 1000
+                                                     if self._last_sample_at is not None else None)
+            self._last_sample_at = observed_at
+            self._accumulate(sample)
             self._write_trace(sample)
         except (OSError, ValueError, IndexError) as error:
             key = type(error).__name__
             self._errors[key] = self._errors.get(key, 0) + 1
+
+    def _accumulate(self, sample):
+        # Retain the report's aggregates, not every full trace row. This keeps
+        # observer memory independent of the number of samples during a soak.
+        self._sample_count += 1
+        identity = (sample["pid"], sample["start_ticks"])
+        entry = self._processes.setdefault(identity, {
+            "pid": sample["pid"], "start_ticks": sample["start_ticks"],
+            "samples": 0, "max_process_status_kB": {},
+            "drm_client_maxima": {}, "max_simultaneous_drm_clients": 0,
+            "fd_read_errors": 0,
+            "first_elapsed_seconds": sample["elapsed_seconds"],
+            "first_cpu_ticks": sample["cpu_ticks"],
+        })
+        entry["samples"] += 1
+        entry["last_elapsed_seconds"] = sample["elapsed_seconds"]
+        entry["last_cpu_ticks"] = sample["cpu_ticks"]
+        entry["fd_read_errors"] += sample["fd_read_errors"]
+        if "process_counters" in sample:
+            entry.setdefault("first_process_counters", dict(sample["process_counters"]))
+            entry["last_process_counters"] = dict(sample["process_counters"])
+        for key, value in sample["process_status_kB"].items():
+            entry["max_process_status_kB"][key] = max(
+                entry["max_process_status_kB"].get(key, 0), value)
+        clients = sample["drm_clients"]
+        entry["max_simultaneous_drm_clients"] = max(
+            entry["max_simultaneous_drm_clients"], len(clients))
+        for client in clients:
+            device = client.get("drm-pdev", client.get("drm-driver", "unknown"))
+            key = f"{device}/client-{client['drm-client-id']}"
+            maxima = entry["drm_client_maxima"].setdefault(key, {})
+            for field, raw in client.items():
+                _update_drm_maximum(maxima, field, raw)
 
     def _run(self):
         while not self._stop.is_set():
@@ -316,33 +416,7 @@ class ProcessSampler:
     def report(self):
         if self._finished is None:
             raise RuntimeError("stop the sampler before reading its report")
-        processes = {}
-        for sample in self._samples:
-            identity = (sample["pid"], sample["start_ticks"])
-            entry = processes.setdefault(identity, {
-                "pid": sample["pid"], "start_ticks": sample["start_ticks"],
-                "samples": 0, "max_process_status_kB": {},
-                "drm_client_maxima": {}, "max_simultaneous_drm_clients": 0,
-                "fd_read_errors": 0,
-                "first_elapsed_seconds": sample["elapsed_seconds"],
-                "first_cpu_ticks": sample["cpu_ticks"],
-            })
-            entry["samples"] += 1
-            entry["last_elapsed_seconds"] = sample["elapsed_seconds"]
-            entry["last_cpu_ticks"] = sample["cpu_ticks"]
-            entry["fd_read_errors"] += sample["fd_read_errors"]
-            for key, value in sample["process_status_kB"].items():
-                entry["max_process_status_kB"][key] = max(
-                    entry["max_process_status_kB"].get(key, 0), value)
-            clients = sample["drm_clients"]
-            entry["max_simultaneous_drm_clients"] = max(
-                entry["max_simultaneous_drm_clients"], len(clients))
-            for client in clients:
-                device = client.get("drm-pdev", client.get("drm-driver", "unknown"))
-                key = f"{device}/client-{client['drm-client-id']}"
-                maxima = entry["drm_client_maxima"].setdefault(key, {})
-                for field, raw in client.items():
-                    _update_drm_maximum(maxima, field, raw)
+        processes = copy.deepcopy(self._processes)
         for entry in processes.values():
             entry["observed_cpu_seconds"] = (
                 entry.pop("last_cpu_ticks") - entry.pop("first_cpu_ticks")
@@ -350,15 +424,17 @@ class ProcessSampler:
         report = {
             "interval_seconds": self.interval_seconds,
             "elapsed_seconds": self._finished - self._started,
-            "samples": len(self._samples),
+            "samples": self._sample_count,
             "sample_errors": dict(self._errors),
             "processes": list(processes.values()),
             "notes": [
-                "VmRSS and VmHWM are exact /proc/<pid>/status fields in kB.",
+                "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
                 "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
                 "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
                 "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
                 "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+                "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+                "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history.",
             ],
         }
         if self.trace_path is not None:
@@ -368,13 +444,21 @@ class ProcessSampler:
                 "errors": dict(self._trace_errors),
                 "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
                 "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+                "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone.",
             }
         if self.include_system:
             report["system_sampling"] = {
                 "fields": {**{str(path): unit for path, unit in self._system_fields.items()},
-                           "/proc/pressure/cpu:some.total": "microseconds",
-                           "/proc/pressure/cpu:full.total": "microseconds"},
+                           **{f"/proc/pressure/{resource}:{kind}.{field}":
+                              "microseconds" if field == "total" else "percent"
+                              for resource in _PRESSURE_RESOURCES for kind in ("some", "full")
+                              for field in _PRESSURE_FIELDS},
+                           **{f"/proc/meminfo:{field}": "kB" for field in _MEMINFO_FIELDS},
+                           **{f"/proc/vmstat:{field}": "cumulative kernel counter"
+                              for field in _VMSTAT_FIELDS},
+                           **{f"/tmp:{field}": "inodes" if field == "free_inodes" else "bytes"
+                              for field in _TMP_FIELDS}},
                 "read_errors": dict(self._system_errors),
-                "scope": "Host sysfs snapshots; RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings.",
+                "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled.",
             }
         return report

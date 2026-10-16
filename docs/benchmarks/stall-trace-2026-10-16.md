@@ -1,5 +1,10 @@
 # Follow-up graph stall tracing, 16 October 2026
 
+The later [60-minute audio/UI soak](thermal-2026-10-16.md) reproduces the stall
+without Mesa GPU tracing and with verified continuous rendering. Its hop p99
+is 9.769 seconds, maximum 11.795 seconds and miss count 35/1,510 continuous hops.
+The 4.095-second target remains unmet.
+
 Clean, untraced balanced-profile runs recorded hop p99 values of 2.669 seconds
 with OpenGL UI and 2.630 seconds with Vulkan UI. All 61 hops in each run stayed
 below the 4.095-second target. The investigation also reproduced a 10.813-second

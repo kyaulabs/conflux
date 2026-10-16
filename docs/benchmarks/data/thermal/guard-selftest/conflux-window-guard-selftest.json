@@ -1,0 +1,62 @@
+{
+  "command": [
+    "build/dev/conflux",
+    "--smoke-test",
+    "--smoke-seconds",
+    "20",
+    "--smoke-progress-file",
+    "/tmp/conflux-window-guard-selftest-progress.json"
+  ],
+  "started_at_utc": "2026-10-16T19:06:56.778112+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_inhibit_cookie": 9753,
+  "bus_owner": ":1.7067",
+  "ui": {
+    "pid": 1435130,
+    "start_ticks": 33899424,
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test",
+      "--smoke-seconds",
+      "20",
+      "--smoke-progress-file",
+      "/tmp/conflux-window-guard-selftest-progress.json"
+    ]
+  },
+  "script_id": 0,
+  "script_plugin": "conflux-benchmark-05574a892da1425e8882fd3521d193d4",
+  "script_path": "/tmp/conflux-window-guard-selftest.js",
+  "window_policy": {
+    "before": {
+      "pid": 1435130,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": false,
+      "onAllDesktops": false,
+      "minimized": false,
+      "desktopIds": [
+        "23f1364e-9d87-4218-860c-6fa08ac8b242"
+      ]
+    },
+    "after": {
+      "pid": 1435130,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": true,
+      "onAllDesktops": true,
+      "minimized": false,
+      "desktopIds": []
+    }
+  },
+  "applied_monotonic": 300047.042263893,
+  "restored": {
+    "reason": "owned-window-closed",
+    "after": null
+  },
+  "restored_monotonic": 300066.018889232,
+  "script_unloaded": true,
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-16T19:07:17.220092+00:00"
+}

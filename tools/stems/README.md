@@ -182,3 +182,44 @@ experiments and rerun results.
 The [follow-up stall trace](../../docs/benchmarks/stall-trace-2026-10-16.md)
 includes GPU command-buffer timings, balanced-profile comparisons and the
 guarded profile runner used when this daemon rejects a balanced hold.
+
+Run the finite thermal soak with `tools/benchmarks/stem_soak.py`. It reuses one
+loaded backend and a small repeating fixture, saturates delivery for the stated
+wall duration, and checks cancellation/seek parity every five minutes. The UI
+and audio probes receive startup/shutdown margin beyond the workload duration.
+Their monotonic timestamps verify overlap; an atomic UI heartbeat and final
+minute bins reject missing rendering coverage. Brief sampled exposure changes
+are retained; a heartbeat, frame or exposure gap over 30 seconds fails the run.
+
+On the measured KDE laptop, the benchmark-only `window_guard.py` uses the
+installed PyGObject `Gio`/`GLib` session-bus bindings and KWin scripting. It
+temporarily keeps only the owned smoke-test window above other windows on all
+desktops and holds a desktop idle inhibitor. The wrapper restores/unloads its
+window policy and releases the inhibitor on exit. The lifecycle log stays
+outside the new soak directory. Inspect that log and the final coverage checks
+before accepting a result:
+
+```sh
+soak_out="$PWD/benchmarks-local/thermal-soak"
+mkdir -p "$PWD/benchmarks-local"
+systemd-inhibit --what=sleep:idle --mode=block --who=CONFLUX \
+  --why='CONFLUX M0 thermal soak' \
+  powerprofilesctl launch --profile performance \
+  --reason 'CONFLUX M0 thermal soak' --appid com.kyaulabs.conflux \
+  python3 -B tools/benchmarks/window_guard.py \
+  --output "$soak_out-guard.json" --ui-progress "$soak_out/ui-progress.json" -- \
+  python3 -B tools/benchmarks/stem_soak.py \
+  --runtime "$stem_root/build/conflux-stem-runtime" \
+  --model /tmp/conflux-stem-m0/models/htdemucs-f16.gguf \
+  --ui build/dev/conflux --audio-probe build/dev/conflux-audio-probe \
+  --renderer opengl --seconds 3600 --control-interval 300 \
+  --request-timeout 30 --sample-interval 0.5 --output "$soak_out"
+```
+
+Use the host environment with GPU/Wayland/PipeWire access. This machine's
+restricted execution namespace hides the Vulkan device; that failed preflight
+is preserved separately. The wrapper is specific to the measured KDE desktop;
+the soak's coverage gates still require actual rendering when run directly.
+The [thermal report](../../docs/benchmarks/thermal-2026-10-16.md) records the
+failed latency target, passing control/audio checks, observation limits and
+cleanup evidence. A completed soak does not by itself mean the p99 target passed.

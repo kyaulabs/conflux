@@ -1,0 +1,34 @@
+{
+  "software_checks": [
+    {
+      "command": "cmake --build build/dev --parallel 2",
+      "result": "passed after native measurement changes"
+    },
+    {
+      "command": "ctest --test-dir build/dev --output-on-failure",
+      "result": "3/3 targets passed; worker target includes16 cases"
+    },
+    {
+      "check": "Offscreen UI rendering/atomic heartbeat and unwritable progress-path failure",
+      "result": "passed"
+    },
+    {
+      "check": "Sampler parsing, incremental aggregates and error/counter/identity handling mocks",
+      "result": "passed"
+    },
+    {
+      "check": "Soak control/parity/error cleanup and live/final UI coverage mocks",
+      "result": "passed; bounded exposure false/recovery/end, stale heartbeat/frame and scene graph cases"
+    },
+    {
+      "check": "Owned KWin window guard cleanup",
+      "result": "real20-second host UI selftest passed; lifecycle retained"
+    },
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "result": "passed; lockfile unchanged"
+    }
+  ],
+  "host_measurements": "Per-trial raw results/qualification and manifests are authoritative; real-hour latency target failed.",
+  "source_review": "Independent read-only code and numerical report reviews found no material blockers; held-chunk and ready-timestamp wording corrections incorporated."
+}

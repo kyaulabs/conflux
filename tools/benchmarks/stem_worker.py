@@ -65,12 +65,15 @@ class Load:
         self.environment.pop("QSG_RHI_BACKEND", None)
         if args.renderer == "vulkan":
             self.environment["QSG_RHI_BACKEND"] = "vulkan"
+        load_seconds = str(getattr(args, "load_seconds", 3600))
         self.commands = {
-            "ui": [str(args.ui.resolve()), "--smoke-test", "--smoke-seconds", "3600",
+            "ui": [str(args.ui.resolve()), "--smoke-test", "--smoke-seconds", load_seconds,
                    "--smoke-stop-file", str(root / "stop")],
-            "audio": [str(args.audio_probe.resolve()), "--seconds", "3600", "--quantum",
+            "audio": [str(args.audio_probe.resolve()), "--seconds", load_seconds, "--quantum",
                       str(args.quantum), "--stop-file", str(root / "stop")],
         }
+        if getattr(args, "ui_progress_file", None) is not None:
+            self.commands["ui"] += ["--smoke-progress-file", str(args.ui_progress_file)]
     def start(self):
         self.started = datetime.now(timezone.utc).isoformat()
         for name, command in self.commands.items():
