@@ -1,0 +1,14 @@
+{
+  "observed_at_utc": "2026-10-16T17:14:40.787800+00:00",
+  "timestamp_monotonic": 293309.841769827,
+  "kernel": "7.2.10-hardened1-1-hardened",
+  "powerprofiles": "* performance:\n    CpuDriver:\tintel_pstate\n    PlatformDriver:\tplatform_profile\n    Degraded:   no\n\n  balanced:\n    CpuDriver:\tintel_pstate\n    PlatformDriver:\tplatform_profile\n\n  power-saver:\n    CpuDriver:\tintel_pstate\n    PlatformDriver:\tplatform_profile",
+  "values": {
+    "/sys/devices/platform/thinkpad_acpi/dytc_lapmode": "0",
+    "/sys/devices/platform/thinkpad_acpi/palmsensor": "1",
+    "/sys/class/drm/card1/engine/rcs0/preempt_timeout_ms": "7500",
+    "/sys/class/drm/card1/engine/rcs0/heartbeat_interval_ms": "2500",
+    "/sys/class/drm/card1/engine/rcs0/timeslice_duration_ms": "1",
+    "/sys/class/drm/card1/device/driver/module/parameters/enable_guc": "PermissionError"
+  }
+}

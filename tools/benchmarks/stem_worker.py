@@ -420,9 +420,13 @@ def main():
     if root.exists() and any(root.iterdir()):
         parser.error("output must be a new or empty directory")
     root.mkdir(parents=True, exist_ok=True)
-    fixture = create_fixture(root / "source.wav", (args.hops * HOP + 12345) / RATE)
-    alternate = create_fixture(root / "replacement.wav", (6 * HOP + 77) / RATE, seed=11)
-    result = Run(args, root, fixture, alternate).execute()
+    try:
+        fixture = create_fixture(root / "source.wav", (args.hops * HOP + 12345) / RATE)
+        alternate = create_fixture(root / "replacement.wav", (6 * HOP + 77) / RATE, seed=11)
+        result = Run(args, root, fixture, alternate).execute()
+    finally:
+        for name in ("source.wav", "replacement.wav"):
+            (root / name).unlink(missing_ok=True)
     print(json.dumps({k: result[k] for k in ("status", "throughput", "controls") if k in result}, indent=2))
     return 0 if result["status"] == "ok" else 130 if result["status"] == "interrupted" else 1
 

@@ -34,9 +34,12 @@ def main():
     if root.exists() and any(root.iterdir()):
         parser.error("output must be new or empty")
     root.mkdir(parents=True, exist_ok=True)
-    fixture = create_fixture(root / "source.wav", WINDOW / RATE)
-    with wave.open(fixture["path"], "rb") as stream:
-        pcm = np.frombuffer(stream.readframes(WINDOW), dtype="<i2").reshape(-1, 2).astype(np.float32) / 32768
+    try:
+        fixture = create_fixture(root / "source.wav", WINDOW / RATE)
+        with wave.open(fixture["path"], "rb") as stream:
+            pcm = np.frombuffer(stream.readframes(WINDOW), dtype="<i2").reshape(-1, 2).astype(np.float32) / 32768
+    finally:
+        (root / "source.wav").unlink(missing_ok=True)
     mono = pcm.astype(np.float64).mean(axis=1)
     samples = (pcm - np.float32(mono.mean())) / np.float32(mono.std(ddof=1) + 1e-8)
     result = {"schema": 1, "fixture": fixture, "renderer": args.renderer,

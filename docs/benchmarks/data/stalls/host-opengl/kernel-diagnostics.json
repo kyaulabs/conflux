@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "kernel_journal": {
+    "date": "2026-10-16",
+    "local_interval": "09:40\u201310:20",
+    "timezone": "America/Los_Angeles",
+    "scope": "Kernel journal filtered for i915, drm, GPU, thermal and preempt diagnostics.",
+    "search_terms": [
+      "i915",
+      "drm",
+      "GPU",
+      "thermal",
+      "preempt"
+    ],
+    "matching_entries": 0,
+    "access_probe": {
+      "command": [
+        "journalctl",
+        "-k",
+        "-n",
+        "1"
+      ],
+      "result": "A kernel entry was returned; unrelated entry contents were not retained."
+    }
+  },
+  "drm_error_state": {
+    "path": "/sys/class/drm/card1/error",
+    "result": "Permission denied"
+  },
+  "limits": [
+    "No matching journal entries do not establish absence of a GPU, scheduling, firmware or thermal problem.",
+    "The DRM error-state file could not be inspected.",
+    "Unrelated kernel entries and private group memberships were not archived."
+  ]
+}

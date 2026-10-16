@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "source_directory": "/tmp/conflux-worker-balanced-opengl",
+  "files": {
+    "audio.json": {
+      "bytes": 1400,
+      "sha256": "f7cf461166187d0fd6e25e0d77fce494328183d55e099244f2272984a0f54d49"
+    },
+    "ui.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ui.json": {
+      "bytes": 210,
+      "sha256": "42e51f60a3335d27d94ecdb3c09b3580288576a5515c6f0248513a4b93db2d96"
+    },
+    "policy-lifecycle.json": {
+      "bytes": 1372,
+      "sha256": "3228c42549ebb35f28ff15959577e9eb4ca7c786f61d29fdefefa439bde65c4e"
+    },
+    "result.json": {
+      "bytes": 19548,
+      "sha256": "67147309a2f0717b551db4a82d5c555561bad12d9d3897e15c39b806d1dcbc90"
+    },
+    "audio.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "events.jsonl": {
+      "bytes": 113034,
+      "sha256": "910b08abf62773459a1045c8d021f63d2b877aa8bf24dc87065466cffc9717e2"
+    }
+  },
+  "command": [
+    "python3",
+    "-B",
+    "tools/benchmarks/stem_worker.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--output",
+    "/tmp/conflux-worker-balanced-opengl",
+    "--renderer",
+    "opengl",
+    "--hops",
+    "60"
+  ],
+  "profile": "balanced",
+  "trace_system": false,
+  "mesa_gpu_trace": false,
+  "fixture_cleanup_verified": true,
+  "identical_output_hops": 61,
+  "hash_reference": "docs/benchmarks/data/latency/performance-opengl/events.jsonl"
+}

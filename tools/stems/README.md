@@ -113,6 +113,10 @@ python3 tools/benchmarks/stem_worker.py \
   --output /tmp/conflux-worker-run
 ```
 
+The benchmark tools remove their generated fixture WAVs after use and retain
+raw reports, generator parameters and source hashes. This keeps repeated runs
+from filling scratch storage.
+
 Use `--renderer vulkan` for the other Qt renderer. Results cover synthetic
 fixtures, continuous/paced delivery, seeks, cancellation, source replacement,
 process memory/CPU and UI/audio reports. They do not establish musical quality,
@@ -174,3 +178,7 @@ Profiler round trips diagnose stalls; the chunk benchmark measures delivery
 against the 4.095-second p99 target. See the
 [latency profiling report](../../docs/benchmarks/latency-2026-10-16.md) for the
 experiments and rerun results.
+
+The [follow-up stall trace](../../docs/benchmarks/stall-trace-2026-10-16.md)
+includes GPU command-buffer timings, balanced-profile comparisons and the
+guarded profile runner used when this daemon rejects a balanced hold.
