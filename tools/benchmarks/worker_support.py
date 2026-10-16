@@ -2,6 +2,7 @@
 """Synthetic input and Linux process sampling for the M0 worker benchmark."""
 
 import hashlib
+import json
 import math
 import os
 from pathlib import Path
@@ -139,7 +140,8 @@ def _update_drm_maximum(maxima, field, raw):
 class ProcessSampler:
     """Sample only the backend process; preserve /proc and DRM field units."""
 
-    def __init__(self, pid_provider, interval_seconds=0.1):
+    def __init__(self, pid_provider, interval_seconds=0.1, *, trace_path=None,
+                 include_system=False):
         if not math.isfinite(interval_seconds) or interval_seconds <= 0:
             raise ValueError("sampling interval must be positive")
         self.pid_provider = pid_provider
@@ -150,10 +152,116 @@ class ProcessSampler:
         self._errors = {}
         self._started = None
         self._finished = None
+        self.trace_path = Path(trace_path) if trace_path is not None else None
+        self.include_system = include_system
+        self._trace_stream = None
+        self._trace_samples = 0
+        self._trace_errors = {}
+        self._system_fields = {}
+        self._system_errors = {}
+
+    def _record_error(self, errors, key, error):
+        label = f"{key}: {type(error).__name__}"
+        errors[label] = errors.get(label, 0) + 1
+
+    def _discover_system_fields(self):
+        # Exact paths retain the kernel's field names and units. Discover once;
+        # do not repeatedly traverse sysfs while inference is running.
+        cpu = Path("/sys/devices/system/cpu")
+        fields = {cpu / "cpu0/cpufreq/scaling_cur_freq": "kHz",
+                  cpu / "cpu0/cpufreq/energy_performance_preference": "string",
+                  Path("/sys/firmware/acpi/platform_profile"): "string",
+                  Path("/proc/sys/kernel/sched_schedstats"): "enabled_flag"}
+        for card in sorted(Path("/sys/class/drm").glob("card[0-9]*")):
+            for name in ("act", "cur", "max", "min", "boost"):
+                path = card / f"gt_{name}_freq_mhz"
+                if path.exists():
+                    fields[path] = "MHz"
+            for path in sorted(card.glob("gt/gt*/throttle_reason_*")):
+                fields[path] = "kernel integer"
+        for zone in sorted(Path("/sys/class/thermal").glob("thermal_zone*")):
+            try:
+                kind = (zone / "type").read_text().strip()
+                if kind in ("x86_pkg_temp", "TCPU"):
+                    fields[zone / "temp"] = "millidegrees_C"
+            except OSError as error:
+                self._record_error(self._system_errors, str(zone / "type"), error)
+        for domain in sorted(Path("/sys/class/powercap").glob("intel-rapl:*")):
+            for name in ("energy_uj", "max_energy_range_uj"):
+                path = domain / name
+                if path.exists():
+                    fields[path] = "microjoules"
+        for directory in sorted(cpu.glob("cpu[0-9]*/thermal_throttle")):
+            for name in ("core_throttle_count", "package_throttle_count"):
+                path = directory / name
+                if path.exists():
+                    fields[path] = "count"
+        self._system_fields = fields
+
+    def _read_system(self):
+        values = {}
+        for path in self._system_fields:
+            try:
+                raw = path.read_text().strip()
+                values[str(path)] = raw if self._system_fields[path] == "string" else int(raw)
+            except (OSError, ValueError) as error:
+                self._record_error(self._system_errors, str(path), error)
+        pressure = Path("/proc/pressure/cpu")
+        try:
+            for line in pressure.read_text().splitlines():
+                kind, *fields = line.split()
+                for field in fields:
+                    key, _, raw = field.partition("=")
+                    if key == "total":
+                        values[f"{pressure}:{kind}.total"] = int(raw)
+        except (OSError, ValueError) as error:
+            self._record_error(self._system_errors, str(pressure), error)
+        return values
+
+    def _read_task_scheduling(self, pid):
+        totals = {"runtime": 0, "runqueue_wait": 0, "timeslices": 0,
+                  "task_ids": [], "read_errors": 0}
+        try:
+            for task in (Path("/proc") / str(pid) / "task").iterdir():
+                try:
+                    runtime, wait, timeslices = map(
+                        int, (task / "schedstat").read_text().split())
+                    totals["runtime"] += runtime
+                    totals["runqueue_wait"] += wait
+                    totals["timeslices"] += timeslices
+                    totals["task_ids"].append(int(task.name))
+                except (OSError, ValueError):
+                    # A task can exit between directory iteration and the read.
+                    totals["read_errors"] += 1
+        except OSError as error:
+            self._record_error(self._trace_errors, "task schedstat", error)
+        totals["task_ids"].sort()
+        return totals
+
+    def _write_trace(self, sample):
+        if self._trace_stream is None:
+            return
+        try:
+            self._trace_stream.write(json.dumps(sample, separators=(",", ":")) + "\n")
+            self._trace_samples += 1
+        except (OSError, ValueError, TypeError) as error:
+            self._record_error(self._trace_errors, "write", error)
+            try:
+                self._trace_stream.close()
+            except OSError as close_error:
+                self._record_error(self._trace_errors, "close", close_error)
+            self._trace_stream = None
 
     def __enter__(self):
         if self._thread is not None:
             raise RuntimeError("a sampler cannot be started twice")
+        if self.include_system:
+            self._discover_system_fields()
+        if self.trace_path is not None:
+            try:
+                self._trace_stream = self.trace_path.open("x", buffering=1)
+            except (OSError, ValueError) as error:
+                self._record_error(self._trace_errors, "open", error)
         self._started = time.monotonic()
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
@@ -167,8 +275,16 @@ class ProcessSampler:
             if not isinstance(pid, int) or isinstance(pid, bool) or pid <= 0:
                 raise ValueError("pid_provider must return a positive PID or None")
             sample = _read_process(pid)
-            sample["elapsed_seconds"] = time.monotonic() - self._started
+            if self.trace_path is not None:
+                sample["task_schedstat_ns"] = self._read_task_scheduling(pid)
+            if self.include_system:
+                sample["system_values"] = self._read_system()
+            observed_at = time.monotonic()
+            sample["elapsed_seconds"] = observed_at - self._started
+            if self.trace_path is not None or self.include_system:
+                sample["timestamp_monotonic"] = observed_at
             self._samples.append(sample)
+            self._write_trace(sample)
         except (OSError, ValueError, IndexError) as error:
             key = type(error).__name__
             self._errors[key] = self._errors.get(key, 0) + 1
@@ -186,6 +302,12 @@ class ProcessSampler:
             self._thread.join()
             self._sample()
             self._finished = time.monotonic()
+            if self._trace_stream is not None:
+                try:
+                    self._trace_stream.close()
+                except OSError as error:
+                    self._record_error(self._trace_errors, "close", error)
+                self._trace_stream = None
         return self.report()
 
     def __exit__(self, *_):
@@ -225,7 +347,7 @@ class ProcessSampler:
             entry["observed_cpu_seconds"] = (
                 entry.pop("last_cpu_ticks") - entry.pop("first_cpu_ticks")
             ) / os.sysconf("SC_CLK_TCK")
-        return {
+        report = {
             "interval_seconds": self.interval_seconds,
             "elapsed_seconds": self._finished - self._started,
             "samples": len(self._samples),
@@ -239,3 +361,20 @@ class ProcessSampler:
                 "CPU seconds cover the first through last successful sample, excluding earlier process work.",
             ],
         }
+        if self.trace_path is not None:
+            report["trace"] = {
+                "path": str(self.trace_path),
+                "samples_written": self._trace_samples,
+                "errors": dict(self._trace_errors),
+                "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+                "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+            }
+        if self.include_system:
+            report["system_sampling"] = {
+                "fields": {**{str(path): unit for path, unit in self._system_fields.items()},
+                           "/proc/pressure/cpu:some.total": "microseconds",
+                           "/proc/pressure/cpu:full.total": "microseconds"},
+                "read_errors": dict(self._system_errors),
+                "scope": "Host sysfs snapshots; RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings.",
+            }
+        return report

@@ -31,6 +31,8 @@ def percentiles(values):
 def conditions():
     result = {}
     for name in ("/sys/class/power_supply/AC/online",
+                 "/sys/firmware/acpi/platform_profile",
+                 "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference",
                  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
                  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"):
         try:
@@ -348,7 +350,9 @@ class Run:
                   "lookahead_beyond_hop_end_frames": OVERLAP,
                   "normalization": "whole-source mono sample mean/std; reused on seek",
                   "numpy_version": np.__version__, "conditions_at_start": conditions()}
-        native = ProcessSampler(lambda: self.worker.backend_pid)
+        native = ProcessSampler(lambda: self.worker.backend_pid,
+                                trace_path=self.root / "native-trace.jsonl" if self.args.trace_system else None,
+                                include_system=self.args.trace_system)
         supervisor = ProcessSampler(os.getpid)
         try:
             self.load = Load(self.args, self.root)
@@ -364,6 +368,10 @@ class Run:
                            "source_statistics_reused": self.source_statistics_reused})
             if len(self.runtime) != 1:
                 raise RuntimeError("ordinary controls reloaded the native model")
+        except KeyboardInterrupt:
+            result.update({"status": "interrupted", "controls": self.controls,
+                           "runtime_ready": self.runtime,
+                           "partial_throughput_chunks": len(self.records)})
         except Exception as error:
             result.update({"status": "error", "error": str(error), "controls": self.controls,
                            "runtime_ready": self.runtime, "worker_statistics": self.worker.statistics()})
@@ -377,6 +385,8 @@ class Run:
                 try:
                     result["native_memory_cpu"] = native.report()
                     result["supervisor_memory_cpu"] = supervisor.report()
+                    if self.args.trace_system and result["native_memory_cpu"]["trace"]["errors"]:
+                        result.update(status="error", sampling_error="requested native trace was incomplete")
                 except Exception as error:
                     result.update({"status": "error", "sampling_error": str(error)})
             if self.load:
@@ -401,6 +411,8 @@ def main():
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--quantum", type=int, choices=(256, 512), default=256)
     parser.add_argument("--request-timeout", type=float, default=30)
+    parser.add_argument("--trace-system", action="store_true",
+                        help="Stream native scheduling, GPU clock and throttle observations.")
     args = parser.parse_args()
     if not 6 <= args.hops <= 600 or not 1 <= args.threads <= 64 or not math.isfinite(args.request_timeout) or args.request_timeout <= 0:
         parser.error("hops must be 6..600, threads 1..64 and timeout positive/finite")
@@ -412,7 +424,7 @@ def main():
     alternate = create_fixture(root / "replacement.wav", (6 * HOP + 77) / RATE, seed=11)
     result = Run(args, root, fixture, alternate).execute()
     print(json.dumps({k: result[k] for k in ("status", "throughput", "controls") if k in result}, indent=2))
-    return 0 if result["status"] == "ok" else 1
+    return 0 if result["status"] == "ok" else 130 if result["status"] == "interrupted" else 1
 
 
 if __name__ == "__main__":

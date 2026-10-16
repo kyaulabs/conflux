@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "source_directory": "/tmp/conflux-worker-performance-opengl-untraced",
+  "files": {
+    "result.json": {
+      "bytes": 19578,
+      "sha256": "71aa12d2a6e192ff80cde8890fba83baa596fa708085a92daae0f8178278b7c1"
+    },
+    "events.jsonl": {
+      "bytes": 113246,
+      "sha256": "d763b099fc614fe40a34ef5708c79f7c98c4f758b8c539d76a9928ed9934293d"
+    },
+    "ui.json": {
+      "bytes": 210,
+      "sha256": "b40e46dd721b4ff9586c1b68cb958d9cbde52ebd6d413ed7d03b35710857afa3"
+    },
+    "ui.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "audio.json": {
+      "bytes": 1400,
+      "sha256": "29c904d684caf12c80646b10f830f6068c80f29e3c521cad903588862b1a2bd9"
+    },
+    "audio.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "after-run-power.json": {
+      "bytes": 219,
+      "sha256": "fe29211d1b200019e730531998a1ba7f44fbf8c4f712de903d18a039b036caa5"
+    },
+    "late-policy.json": {
+      "bytes": 421,
+      "sha256": "d18868b253121298d1a8a0b25f591b446e6c430dca3c2b28ffcf2dedbcce7ca9"
+    }
+  },
+  "command": [
+    "powerprofilesctl",
+    "launch",
+    "--profile",
+    "performance",
+    "--reason",
+    "CONFLUX M0 stem benchmark",
+    "--appid",
+    "com.kyaulabs.conflux",
+    "python3",
+    "-B",
+    "tools/benchmarks/stem_worker.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--output",
+    "/tmp/conflux-worker-performance-opengl-untraced",
+    "--renderer",
+    "opengl",
+    "--hops",
+    "60"
+  ],
+  "output_hash_reference": "docs/benchmarks/data/worker/opengl/events.jsonl",
+  "identical_continuous_hops": 61,
+  "excluded_generated_inputs": [
+    "source.wav",
+    "replacement.wav",
+    "stop"
+  ]
+}

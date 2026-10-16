@@ -42,8 +42,18 @@ declares MIT licensing. To use an installed header, set
 `SPIRV_HEADERS_INCLUDE_DIR` to its include directory. CMake performs no network
 downloads and checks the pinned audio.cpp build-interface files.
 
+CMake defaults `CONFLUX_STEM_BLOCKING_WAIT` to `ON`. It verifies the pinned
+Vulkan backend SHA-256 and generates a build copy that replaces the final CPU
+polling loop with a blocking fence wait. The upstream checkout stays unchanged.
+Configure with `-DCONFLUX_STEM_BLOCKING_WAIT=OFF` to build the upstream wait
+baseline.
+
 Import `StemWorker` from `tools.stems.worker`. Sources must be nonempty,
 uncompressed stereo 44.1 kHz PCM16 WAV files. Frame positions are source frames.
+The supervisor sets `OMP_WAIT_POLICY=PASSIVE` and `GOMP_SPINCOUNT=0` only in the
+Vulkan child's environment so idle OpenMP workers sleep during GPU inference.
+CPU children inherit the caller's environment. These settings do not change
+the desktop or system power policy.
 
 | Method | Behavior |
 | --- | --- |
@@ -77,7 +87,11 @@ normalized interleaved stereo window; output is source-major interleaved
 stereo, shaped `[4, 343980, 2]`. Responses are `ready` with geometry, PID and
 settings, then `result` with ID and timings. The supervisor validates IDs,
 shapes and finite samples. Graph timing includes transfers, synchronization
-and driver work.
+and driver work. Result metadata also reports `getrusage` CPU milliseconds and
+voluntary/involuntary context switches around `separate_chunk()`. CPU time
+includes all native process threads; it excludes request file I/O and output
+packing. The `ready` metadata records the fence wait mode and child OpenMP
+environment.
 
 One native request runs at a time; newer controls replace the pending control.
 The ready queue defaults to two hops and pauses production when full.
@@ -104,3 +118,59 @@ fixtures, continuous/paced delivery, seeks, cancellation, source replacement,
 process memory/CPU and UI/audio reports. They do not establish musical quality,
 audible seams, stem playback or the thermal-soak target. Retain cold startup
 and latency spikes in the measured report.
+
+For a power-profile comparison, an installed `powerprofilesctl` can hold the
+whole machine in `performance` while the benchmark command runs. Check that
+this profile is available with `powerprofilesctl list`. Record the active
+profile and holds before and after the run:
+
+```sh
+powerprofilesctl get
+powerprofilesctl list-holds
+powerprofilesctl launch --profile performance \
+  --reason 'CONFLUX M0 stem benchmark' --appid com.kyaulabs.conflux \
+  python3 -B tools/benchmarks/stem_worker.py \
+  --runtime "$stem_root/build/conflux-stem-runtime" \
+  --model /tmp/conflux-stem-m0/models/htdemucs-f16.gguf \
+  --ui build/dev/conflux --audio-probe build/dev/conflux-audio-probe \
+  --renderer opengl --hops 60 --threads 4 --quantum 256 \
+  --output /tmp/conflux-worker-performance-run
+powerprofilesctl get
+powerprofilesctl list-holds
+```
+
+The hold is released when the command exits; verify the previous profile has
+returned. The application and worker do not request power-profile changes.
+Results capture AC status, the firmware platform profile, CPU energy-performance
+preference and governor at startup and finish. The governor alone does not
+describe the active power policy.
+
+Add `--trace-system` to record native task scheduling, CPU/GPU clocks,
+temperatures, platform profile, energy-performance preference and available
+throttle fields in `native-trace.jsonl`. The trace preserves kernel units. RAPL
+energy counters, when readable, are cumulative microjoules rather than watt
+readings. Compare scheduling deltas only when task IDs stay unchanged and reads
+succeed. A disabled `sched_schedstats` flag means wait counters cannot rule out
+scheduling contention. Tracing adds observation overhead.
+
+Use the identical-window profiler to separate graph stalls from changing input
+and chunk assembly:
+
+```sh
+python3 tools/benchmarks/stem_profile.py \
+  --runtime "$stem_root/build/conflux-stem-runtime" \
+  --model /tmp/conflux-stem-m0/models/htdemucs-f16.gguf \
+  --ui build/dev/conflux --audio-probe build/dev/conflux-audio-probe \
+  --renderer opengl --requests 30 --threads 4 --quantum 256 \
+  --passive-openmp --output /tmp/conflux-profile-run
+```
+
+The profiler always records a system trace and checks that repeated input
+produces numerically identical output. Its `--passive-openmp` flag opts into the
+worker's Vulkan child policy; without it, the profiler inherits the caller's
+OpenMP environment. For an upstream baseline, use the build with blocking waits
+disabled, omit this flag and unset caller `OMP_WAIT_POLICY`/`GOMP_SPINCOUNT`.
+Profiler round trips diagnose stalls; the chunk benchmark measures delivery
+against the 4.095-second p99 target. See the
+[latency profiling report](../../docs/benchmarks/latency-2026-10-16.md) for the
+experiments and rerun results.

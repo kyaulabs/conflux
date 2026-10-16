@@ -3,6 +3,7 @@
 """Behavior tests for the M0 supervisor, requiring neither model nor GPU."""
 
 import json
+import os
 from pathlib import Path
 import stat
 import sys
@@ -10,6 +11,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 import wave
 
 import numpy as np
@@ -383,6 +385,32 @@ else:
                     native.infer(np.zeros((WINDOW, 2), dtype=np.float32), 1)
             finally:
                 native.close()
+
+    def test_passive_openmp_is_local_to_vulkan_child_and_can_be_disabled(self):
+        executable = self.root / "runtime-environment"
+        executable.write_text(f'''#!{sys.executable}
+import json, os, sys
+keys = ("OMP_WAIT_POLICY", "GOMP_SPINCOUNT")
+print(json.dumps({{"event":"ready","sample_rate":44100,"channels":2,"segment_frames":343980,"stems":{list(STEMS)!r},"observed_environment":{{key:os.environ[key] for key in keys if key in os.environ}}}}), flush=True)
+sys.stdin.readline()
+''')
+        executable.chmod(executable.stat().st_mode | stat.S_IXUSR)
+        inherited = {"OMP_WAIT_POLICY": "ACTIVE", "GOMP_SPINCOUNT": "123"}
+        with patch.dict(os.environ, inherited):
+            for backend, passive in [("vulkan", True), ("vulkan", False),
+                                     ("cpu", True), ("cpu", False)]:
+                with self.subTest(backend=backend, passive_openmp=passive):
+                    native = NativeRuntime(executable, self.model, backend, 1, 2,
+                                           passive_openmp=passive)
+                    try:
+                        ready = native.start()
+                        expected = ({"OMP_WAIT_POLICY": "PASSIVE", "GOMP_SPINCOUNT": "0"}
+                                    if backend == "vulkan" and passive else inherited)
+                        self.assertEqual(ready["observed_environment"], expected)
+                        self.assertEqual(ready["process_environment"], expected)
+                        self.assertEqual({key: os.environ[key] for key in inherited}, inherited)
+                    finally:
+                        native.close()
 
 
 if __name__ == "__main__":

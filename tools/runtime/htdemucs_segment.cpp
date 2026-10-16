@@ -21,6 +21,11 @@
 #include <vector>
 
 #include <unistd.h>
+#include <sys/resource.h>
+
+#ifndef CONFLUX_STEM_BLOCKING_WAIT
+#define CONFLUX_STEM_BLOCKING_WAIT 0
+#endif
 
 namespace {
 namespace json = engine::io::json;
@@ -29,6 +34,11 @@ constexpr auto revision = "0097d365a00b52a6991ad7618f0a04e8d2935e47";
 
 double milliseconds(Clock::time_point start) {
     return std::chrono::duration<double, std::milli>(Clock::now() - start).count();
+}
+
+double cpu_milliseconds(const rusage& usage) {
+    return (usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) * 1000.0
+        + (usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) / 1000.0;
 }
 
 void emit(json::Value::Object object) {
@@ -126,6 +136,7 @@ int main(int argc, char** argv) {
             names.push_back(json::Value::make_string(name));
         }
         emit({{"event", json::Value::make_string("ready")},
+            {"fence_wait_mode", json::Value::make_string(CONFLUX_STEM_BLOCKING_WAIT ? "blocking" : "upstream-hybrid")},
             {"revision", json::Value::make_string(revision)},
             {"model", json::Value::make_string(std::filesystem::canonical(model).string())},
             {"backend", json::Value::make_string(backend.type == engine::core::BackendType::Vulkan ? "vulkan" : "cpu")},
@@ -172,7 +183,16 @@ int main(int argc, char** argv) {
                 }
                 // separate_chunk normalizes/mutates planar and reuses its result storage.
                 // Each call receives a fresh window; copy before the next call.
+                rusage usage_before{}, usage_after{};
+                if (getrusage(RUSAGE_SELF, &usage_before) != 0) {
+                    throw std::runtime_error("could not read inference CPU accounting");
+                }
+                const auto inference_start = Clock::now();
                 const auto& separated = pipeline.separate_chunk(planar);
+                const double inference_wall_ms = milliseconds(inference_start);
+                if (getrusage(RUSAGE_SELF, &usage_after) != 0) {
+                    throw std::runtime_error("could not read inference CPU accounting");
+                }
                 if (separated.size() != output.size()) {
                     throw std::runtime_error("separator output shape mismatch");
                 }
@@ -195,6 +215,10 @@ int main(int argc, char** argv) {
                     {"frames", json::Value::make_number(config.segment_samples)},
                     {"stems", json::Value::make_number(config.sources.size())},
                     {"elapsed_ms", json::Value::make_number(milliseconds(request_start))},
+                    {"inference_wall_ms", json::Value::make_number(inference_wall_ms)},
+                    {"inference_cpu_ms", json::Value::make_number(cpu_milliseconds(usage_after) - cpu_milliseconds(usage_before))},
+                    {"voluntary_context_switches", json::Value::make_number(usage_after.ru_nvcsw - usage_before.ru_nvcsw)},
+                    {"involuntary_context_switches", json::Value::make_number(usage_after.ru_nivcsw - usage_before.ru_nivcsw)},
                     {"frontend_ms", json::Value::make_number(timing.frontend_ms)},
                     {"graph_ms", json::Value::make_number(timing.graph_ms)},
                     {"postprocess_ms", json::Value::make_number(timing.postprocess_ms)},
