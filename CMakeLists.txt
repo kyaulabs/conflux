@@ -20,12 +20,16 @@ target_compile_options(conflux-audio-probe PRIVATE -Wall -Wextra -Wpedantic)
 install(TARGETS conflux-audio-probe RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(BUILD_TESTING)
+    find_package(Python3 3.11 REQUIRED COMPONENTS Interpreter)
     add_executable(conflux-audio-test tests/audio_test.cpp)
     target_link_libraries(conflux-audio-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME audio-render COMMAND conflux-audio-test)
     add_test(NAME probe-rejects-invalid-quantum COMMAND conflux-audio-probe --quantum 0)
     set_tests_properties(probe-rejects-invalid-quantum PROPERTIES WILL_FAIL TRUE)
+    add_test(NAME stem-worker COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_worker_test.py)
+    set_tests_properties(stem-worker PROPERTIES
+        ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
 endif()
 
 option(CONFLUX_BUILD_UI "Build the Qt Quick runtime harness" ON)

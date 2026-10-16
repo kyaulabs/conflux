@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <QCommandLineParser>
 #include <QFontDatabase>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QImage>
@@ -14,6 +15,7 @@
 #include <QTimer>
 
 #include <iostream>
+#include <memory>
 
 int main(int argc, char** argv) {
     QGuiApplication app(argc, argv);
@@ -30,9 +32,10 @@ int main(int argc, char** argv) {
     parser.addOption({"light", "Start with the light brand palette."});
     parser.addOption({"smoke-test", "Render for two seconds, report JSON and exit."});
     parser.addOption({"smoke-seconds", "Set smoke-test duration (1..3600 seconds).", "seconds", "2"});
+    parser.addOption({"smoke-stop-file", "Finish the smoke test when this file appears.", "path"});
     parser.addOption({"screenshot", "Save the smoke-test window image.", "path"});
     parser.process(app);
-    if (parser.isSet("screenshot") && !parser.isSet("smoke-test"))
+    if ((parser.isSet("screenshot") || parser.isSet("smoke-stop-file")) && !parser.isSet("smoke-test"))
         parser.showHelp(2);
     bool durationOk = false;
     const int seconds = parser.value("smoke-seconds").toInt(&durationOk);
@@ -69,7 +72,10 @@ int main(int argc, char** argv) {
                          QCoreApplication::exit(1);
                      });
     if (parser.isSet("smoke-test")) {
-        QTimer::singleShot(seconds * 1000, &app, [&] {
+        const auto finish = [&, finished = std::make_shared<bool>(false)] {
+            if (*finished)
+                return;
+            *finished = true;
             const bool rendered = window->isExposed() && window->isSceneGraphInitialized() && frames > 0;
             bool captured = true;
             if (parser.isSet("screenshot"))
@@ -84,7 +90,16 @@ int main(int argc, char** argv) {
                 {"rendered", rendered}, {"capture_ok", captured}};
             std::cout << QJsonDocument(result).toJson(QJsonDocument::Compact).constData() << '\n';
             app.exit(rendered && captured ? 0 : 1);
-        });
+        };
+        QTimer::singleShot(seconds * 1000, &app, finish);
+        if (parser.isSet("smoke-stop-file")) {
+            auto* stopPoll = new QTimer(&app);
+            QObject::connect(stopPoll, &QTimer::timeout, &app, [&, finish] {
+                if (QFileInfo::exists(parser.value("smoke-stop-file")))
+                    finish();
+            });
+            stopPoll->start(100);
+        }
     }
     return app.exec();
 }

@@ -13,6 +13,7 @@
 #include <csignal>
 #include <cstdint>
 #include <iomanip>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -65,6 +66,7 @@ struct Probe {
     spa_audio_info_raw format{};
     pw_time timing{};
     std::string failure;
+    std::string stopFile;
 };
 static_assert(std::atomic<spa_io_position*>::is_always_lock_free);
 static_assert(std::atomic<bool>::is_always_lock_free);
@@ -189,7 +191,9 @@ void tick(void* userdata, std::uint64_t)
         data.failure = "invalid output buffer or queue failure";
     if (!data.startedNs && now - data.connectedNs > 5000000000ULL)
         data.failure = "no streaming state within five seconds";
-    if (!data.failure.empty() ||
+    std::error_code stopError;
+    const bool stopRequested = !data.stopFile.empty() && std::filesystem::exists(data.stopFile, stopError);
+    if (!data.failure.empty() || stopRequested ||
         (data.startedNs && now - data.startedNs >= data.seconds * 1000000000ULL))
         pw_main_loop_quit(data.loop);
 }
@@ -283,14 +287,17 @@ int main(int argc, char** argv)
 {
     unsigned seconds = 10, quantum = 256;
     bool tone = false;
+    std::string stopFile;
     for (int i = 1; i < argc; ++i) {
         const std::string_view argument(argv[i]);
         if (argument == "--tone") {
             tone = true;
         } else if (argument == "--help") {
-            std::cout << "Usage: conflux-audio-probe [--seconds 1..3600] [--quantum 256|512] [--tone]\n"
+            std::cout << "Usage: conflux-audio-probe [--seconds 1..3600] [--quantum 256|512] [--tone] [--stop-file path]\n"
                          "Default output is silence. Quantum is requested without forcing the graph.\n";
             return 0;
+        } else if (argument == "--stop-file" && i + 1 < argc) {
+            stopFile = argv[++i];
         } else if ((argument == "--seconds" || argument == "--quantum") && i + 1 < argc) {
             const std::string_view value(argv[++i]);
             unsigned parsed = 0;
@@ -310,6 +317,7 @@ int main(int argc, char** argv)
     auto data = std::make_unique<Probe>(tone);
     data->seconds = seconds;
     data->quantum = quantum;
+    data->stopFile = std::move(stopFile);
     data->loop = pw_main_loop_new(nullptr);
     if (!data->loop) {
         std::cerr << "Cannot create PipeWire main loop\n";
