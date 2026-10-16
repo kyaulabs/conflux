@@ -118,7 +118,10 @@ class Guard:
     def __init__(self, args):
         self.args = args
         self.record = {"command": args.command, "started_at_utc": datetime.now(timezone.utc).isoformat(),
-                       "status": "starting", "ready": False, "errors": []}
+                       "status": "starting", "ready": False, "errors": [],
+                       "idle_only": args.idle_only,
+                       "window_guard": {"requested": not args.idle_only,
+                                        "status": "not_run" if args.idle_only else "pending"}}
         self.connection = None
         self.child = None
         self.cookie = None
@@ -153,8 +156,10 @@ class Guard:
                     raise RuntimeError("KWin did not apply the requested owned-window state")
                 self.record.update(status="active", ready=True, window_policy=value,
                                    applied_monotonic=time.monotonic())
+                self.record["window_guard"]["status"] = "active"
             elif method == "Restored":
                 self.record.update(ready=False, restored=value, restored_monotonic=time.monotonic())
+                self.record["window_guard"]["status"] = "restored"
             else:
                 raise RuntimeError(f"KWin script reported {value}")
             self.save()
@@ -213,11 +218,13 @@ class Guard:
                 if self.script_id is None or self.record.get("restored") or time.monotonic() - self.stop_at > 4:
                     self.loop.quit()
                     return False
-            elif not self.stopping and self.script_id is None and self.args.ui_progress.exists():
+            elif (not self.args.idle_only and not self.stopping and self.script_id is None
+                  and self.args.ui_progress.exists()):
                 pulse = json.loads(self.args.ui_progress.read_text())
                 if pulse["timestamp_monotonic_ns"] / 1e9 >= self.launched:
                     self.start_script(pulse)
-            if not self.record.get("window_policy") and time.monotonic() - self.launched > 15:
+            if (not self.args.idle_only and not self.record.get("window_policy")
+                    and time.monotonic() - self.launched > 15):
                 raise RuntimeError("owned UI did not acquire its KWin guard within 15 seconds")
             if self.stopping and time.monotonic() - self.stop_at > 20 and self.child.poll() is None:
                 os.killpg(self.child.pid, signal.SIGKILL)
@@ -232,11 +239,15 @@ class Guard:
         try:
             self.save()
             self.connection = Gio.bus_get_sync(Gio.BusType.SESSION, None)
-            self.connection.register_object(OBJECT, Gio.DBusNodeInfo.new_for_xml(XML).interfaces[0],
-                                            self.method, None, None)
+            if not self.args.idle_only:
+                self.connection.register_object(OBJECT, Gio.DBusNodeInfo.new_for_xml(XML).interfaces[0],
+                                                self.method, None, None)
             self.cookie = self.call("org.freedesktop.ScreenSaver", "/ScreenSaver", "org.freedesktop.ScreenSaver",
-                                    "Inhibit", "(ss)", ("com.kyaulabs.conflux", "CONFLUX M0 animated UI benchmark")).unpack()[0]
+                                    "Inhibit", "(ss)", ("com.kyaulabs.conflux", "CONFLUX M0 stem benchmark")).unpack()[0]
             self.record.update(idle_inhibit_cookie=self.cookie, bus_owner=self.connection.get_unique_name())
+            if self.args.idle_only:
+                self.record.update(status="active", ready=True)
+                self.save()
             self.launched = time.monotonic()
             self.child = subprocess.Popen(self.args.command, start_new_session=True)
             for sig in (signal.SIGINT, signal.SIGTERM):
@@ -292,15 +303,19 @@ class Guard:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--ui-progress", type=Path, required=True)
+    parser.add_argument("--ui-progress", type=Path)
+    parser.add_argument("--idle-only", action="store_true")
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if args.command[:1] == ["--"]:
         args.command = args.command[1:]
     if not args.command:
         parser.error("supply one owned trial command after --")
+    if not args.idle_only and args.ui_progress is None:
+        parser.error("--ui-progress is required unless --idle-only is selected")
     args.output = args.output.resolve()
-    args.ui_progress = args.ui_progress.resolve()
+    if args.ui_progress is not None:
+        args.ui_progress = args.ui_progress.resolve()
     return Guard(args).run()
 
 

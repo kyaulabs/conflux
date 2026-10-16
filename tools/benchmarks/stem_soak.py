@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Saturate one persistent stem worker under continuous audio/UI load."""
+"""Saturate one persistent stem worker with selected continuous audio/UI load."""
 
 import argparse
 from datetime import datetime, timezone
@@ -88,7 +88,9 @@ class Soak:
         self.max_alive_check_gap = 0
         self.statistics_reused = 0
         self.finished_control_attempts = 0
-        self.args.ui_progress_file = self.root / "ui-progress.json"
+        self.load_mode = getattr(args, "load_mode", "both")
+        self.selected_loads = Load.MODES[self.load_mode]
+        self.args.ui_progress_file = self.root / "ui-progress.json" if "ui" in self.selected_loads else None
         self.ui_watch_started = None
         self.ui_next_check = 0
         self.ui_last_check = None
@@ -124,6 +126,7 @@ class Soak:
         atomic_json(self.root / "progress.json", {
             "status": status, "updated_at_utc": datetime.now(timezone.utc).isoformat(),
             "elapsed_workload_seconds": self.elapsed(), "requested_seconds": self.args.seconds,
+            "load_mode": self.load_mode, "selected_loads": list(self.selected_loads),
             "timing": timing_summary(self.hops), "completed_controls": len([
                 control for control in self.controls if control.get("complete")]),
             "full_source_loops": self.source_loops, "failures": self.failures,
@@ -135,20 +138,23 @@ class Soak:
     def check_load(self):
         self.load.check()
         now = time.monotonic()
-        if self.last_alive_check is not None:
-            self.max_alive_check_gap = max(self.max_alive_check_gap, now - self.last_alive_check)
-        self.last_alive_check = now
-        self.alive_checks += 1
+        if self.selected_loads:
+            if self.last_alive_check is not None:
+                self.max_alive_check_gap = max(self.max_alive_check_gap, now - self.last_alive_check)
+            self.last_alive_check = now
+            self.alive_checks += 1
         self.check_ui_progress(now)
 
     def ui_progress_summary(self):
+        if "ui" not in self.selected_loads:
+            return {"requested": False, "status": "not_run"}
         unexposed_span = (max(0.0, (self.finished or time.monotonic()) - self.ui_unexposed_since)
                           if self.ui_unexposed_since is not None else 0.0)
         last_span = self.ui_last_unexposed_span
         if self.ui_unexposed_since is not None:
             last_span = {"started_monotonic": self.ui_unexposed_since,
                          "ended_monotonic": self.finished, "seconds": unexposed_span}
-        return {"path": str(self.args.ui_progress_file), "checks": self.ui_checks,
+        return {"requested": True, "path": str(self.args.ui_progress_file), "checks": self.ui_checks,
                 "check_interval_seconds": UI_PROGRESS_INTERVAL,
                 "startup_grace_seconds": UI_STARTUP_GRACE,
                 "maximum_allowed_gap_seconds": UI_MAX_GAP,
@@ -164,6 +170,8 @@ class Soak:
                 "gate_failure": self.ui_gate_failure}
 
     def check_ui_progress(self, now):
+        if "ui" not in self.selected_loads:
+            return
         if self.ui_watch_started is None:
             self.ui_watch_started = now
         if now < self.ui_next_check:
@@ -249,6 +257,8 @@ class Soak:
             raise RuntimeError(f"required UI progress failed: {error}") from error
 
     def ui_coverage(self, report):
+        if "ui" not in self.selected_loads:
+            return {"requested": False, "status": "not_run", "passed": None}
         observation = report.get("frame_observation", {})
         if not isinstance(observation, dict):
             observation = {}
@@ -283,13 +293,32 @@ class Soak:
                   "notification_gap_within_limit": (not isinstance(gap, bool)
                                                      and isinstance(gap, (int, float))
                                                      and 0 <= gap <= UI_MAX_GAP * 1000)}
-        return {"passed": all(checks.values()), "checks": checks,
+        passed = all(checks.values())
+        return {"requested": True, "status": "passed" if passed else "failed",
+                "passed": passed, "checks": checks,
                 "complete_minute_bins_intersecting_workload": complete,
                 "zero_complete_minute_bins_intersecting_workload": zero,
                 "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
                 "maximum_notification_gap_ms": gap,
                 "progress": progress,
                 "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"}
+
+    def audio_coverage(self, report):
+        if "audio" not in self.selected_loads:
+            return {"requested": False, "status": "not_run", "passed": None,
+                    "concurrent_workload_seconds": None}
+        boundaries = [report.get(field) for field in
+                      ("streaming_started_monotonic_ns", "stopped_monotonic_ns")]
+        valid = (all(isinstance(value, int) and not isinstance(value, bool) and value > 0
+                     for value in boundaries) and boundaries[1] >= boundaries[0])
+        overlap = None
+        if valid and self.started is not None and self.finished is not None:
+            start, stop = (value / 1e9 for value in boundaries)
+            overlap = max(0.0, min(self.finished, stop) - max(self.started, start))
+        passed = report.get("status") == "ok" and overlap is not None and overlap >= self.args.seconds
+        return {"requested": True, "status": "passed" if passed else "failed", "passed": passed,
+                "streaming_interval_valid": valid, "concurrent_workload_seconds": overlap,
+                "scope": "Independent silent audio probe streaming interval; no stem playback claim"}
 
     def event(self, timeout=0.25):
         self.check_load()
@@ -475,20 +504,25 @@ class Soak:
                   "started_at_utc": datetime.now(timezone.utc).isoformat(),
                   "host": platform.platform(), "numpy_version": np.__version__,
                   "renderer": self.args.renderer, "requested_seconds": self.args.seconds,
+                  "load_mode": self.load_mode, "selected_loads": list(self.selected_loads),
                   "control_interval_seconds": self.args.control_interval,
                   "sample_interval_seconds": self.args.sample_interval,
                   "load_seconds_fallback": self.args.load_seconds,
                   "window_frames": WINDOW, "hop_frames": HOP, "overlap_frames": OVERLAP,
                   "conditions_at_start": conditions(), "pins": {}}
-        result["ui_progress_file"] = str(self.args.ui_progress_file)
+        result["ui_progress_file"] = str(self.args.ui_progress_file) if self.args.ui_progress_file else None
         interrupted = False
         try:
-            for name, path in (("runtime", self.args.runtime), ("model", self.args.model),
-                               ("ui", self.args.ui), ("audio_probe", self.args.audio_probe),
-                               ("soak_source", Path(__file__)),
-                               ("shared_benchmark_source", Path(__file__).with_name("stem_worker.py")),
-                               ("worker_source", Path(__file__).parents[1] / "stems/worker.py"),
-                               ("sampler_source", Path(__file__).with_name("worker_support.py"))):
+            pins = [("runtime", self.args.runtime), ("model", self.args.model),
+                    ("soak_source", Path(__file__)),
+                    ("shared_benchmark_source", Path(__file__).with_name("stem_worker.py")),
+                    ("worker_source", Path(__file__).parents[1] / "stems/worker.py"),
+                    ("sampler_source", Path(__file__).with_name("worker_support.py"))]
+            if "ui" in self.selected_loads:
+                pins.append(("ui", self.args.ui))
+            if "audio" in self.selected_loads:
+                pins.append(("audio_probe", self.args.audio_probe))
+            for name, path in pins:
                 with path.open("rb") as stream:
                     result["pins"][name] = {"path": str(path.resolve()),
                                             "bytes": path.stat().st_size,
@@ -563,20 +597,18 @@ class Soak:
                           reference_hashes={str(frame): digest for frame, digest in self.hashes.items()},
                           same_grid_hash_checks=self.parity_checks, trimmed_seek_checks=self.trimmed_parity_checks,
                           stale_chunks_delivered=self.stale_chunks,
-                          load_alive_checks=self.alive_checks, maximum_load_check_gap_seconds=self.max_alive_check_gap,
-                          load_coverage_scope="UI process liveness, atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
+                          load_alive_checks=self.alive_checks if self.selected_loads else None,
+                          maximum_load_check_gap_seconds=self.max_alive_check_gap if self.selected_loads else None,
+                          load_coverage_scope="Selected child process liveness; requested UI also requires atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
                           conditions_at_finish=conditions(),
                           finished_at_utc=datetime.now(timezone.utc).isoformat())
             audio = result.get("load", {}).get("children", {}).get("audio", {}).get("report", {})
             ui = result.get("load", {}).get("children", {}).get("ui", {}).get("report", {})
             result["ui_coverage"] = self.ui_coverage(ui)
-            audio_start, audio_stop = audio.get("streaming_started_monotonic_ns"), audio.get("stopped_monotonic_ns")
-            overlap = 0.0
-            if self.started is not None and self.finished is not None and audio_start and audio_stop:
-                overlap = max(0.0, min(self.finished, audio_stop / 1e9) - max(self.started, audio_start / 1e9))
-            result["concurrent_audio_workload_seconds"] = overlap
+            result["audio_coverage"] = self.audio_coverage(audio)
+            result["concurrent_audio_workload_seconds"] = result["audio_coverage"]["concurrent_workload_seconds"]
             if result["status"] == "ok":
-                if overlap < self.args.seconds:
+                if "audio" in self.selected_loads and not result["audio_coverage"]["passed"]:
                     self.failure("audio_coverage", "actual streaming interval did not cover requested workload")
                 statistics = result["worker_statistics"]
                 if statistics["backend_start_count"] != 1 or len(self.runtime) != 1:
@@ -585,7 +617,7 @@ class Soak:
                     self.failure("telemetry", "worker telemetry events were dropped")
                 if self.args.seconds >= 60 and not any(control.get("complete") for control in self.controls):
                     self.failure("control_coverage", "no active cancellation/seek/resume batch completed")
-                if not result["ui_coverage"]["passed"]:
+                if "ui" in self.selected_loads and not result["ui_coverage"]["passed"]:
                     self.failure("ui_coverage", "required UI heartbeat/frame notification coverage was not maintained")
             result["native_trace_bytes"] = (self.root / "native-trace.jsonl").stat().st_size if (self.root / "native-trace.jsonl").exists() else 0
             result["failures"] = self.failures
@@ -594,13 +626,15 @@ class Soak:
             result["acceptance"] = {
                 "requested_wall_duration_completed": self.elapsed() >= self.args.seconds,
                 "sixty_minute_workload_completed": self.elapsed() >= 3600 and self.args.seconds >= 3600,
-                "audio_covers_requested_duration": overlap >= self.args.seconds,
+                "audio_covers_requested_duration": result["audio_coverage"]["passed"],
                 "required_UI_coverage_completed": result["ui_coverage"]["passed"],
+                "selected_load_coverage_completed": all(result[f"{name}_coverage"]["passed"] is True
+                                                        for name in self.selected_loads),
                 "controls_completed": sum(bool(control.get("complete")) for control in self.controls),
                 "observed_continuous_p99_within_target": result["timing"]["continuous"]["observed_p99_within_target"],
                 "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
                 "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
-                "scope": "synthetic saturated delivery, animated UI and independent silent audio; no stem playback/full deck or musical-quality claim",
+                "scope": f"synthetic saturated delivery with requested load={self.load_mode}; no stem playback/full deck or musical-quality claim",
             }
             try:
                 self.progress(force=True, status=result["status"])
@@ -608,14 +642,24 @@ class Soak:
                 self.failure("progress_report", error)
                 if not interrupted:
                     result["status"] = "error"
+            acceptance = result["acceptance"]
+            acceptance["full_audio_UI_soak_qualified"] = (
+                self.load_mode == "both" and result["status"] == "ok"
+                and acceptance["sixty_minute_workload_completed"]
+                and acceptance["selected_load_coverage_completed"]
+                and acceptance["controls_completed"] > 0
+                and acceptance["observed_continuous_p99_within_target"])
             atomic_json(self.root / "result.json", result)
         return result
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ("runtime", "model", "ui", "audio-probe", "output"):
+    for name in ("runtime", "model", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--ui", type=Path)
+    parser.add_argument("--audio-probe", type=Path)
+    parser.add_argument("--load", dest="load_mode", choices=tuple(Load.MODES), default="both")
     parser.add_argument("--renderer", choices=("opengl", "vulkan"), default="opengl")
     parser.add_argument("--seconds", type=float, default=3600)
     parser.add_argument("--threads", type=int, default=4)
@@ -624,6 +668,9 @@ def main():
     parser.add_argument("--control-interval", type=float)
     parser.add_argument("--sample-interval", type=float, default=1.0)
     args = parser.parse_args()
+    for name, path in (("ui", args.ui), ("audio", args.audio_probe)):
+        if name in Load.MODES[args.load_mode] and path is None:
+            parser.error(f"--{'audio-probe' if name == 'audio' else name} is required for --load {args.load_mode}")
     if (not math.isfinite(args.seconds) or args.seconds <= 0 or not 1 <= args.threads <= 64
             or not math.isfinite(args.request_timeout) or args.request_timeout <= 0
             or not math.isfinite(args.sample_interval) or args.sample_interval <= 0):

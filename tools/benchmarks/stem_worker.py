@@ -56,9 +56,14 @@ def json_event(event):
 
 
 class Load:
+    MODES = {"none": (), "audio": ("audio",), "both": ("ui", "audio"), "ui": ("ui",)}
+
     def __init__(self, args, root):
         self.root = root
         self.children = []
+        self.started = None
+        self.mode = getattr(args, "load_mode", "both")
+        self.selected = self.MODES[self.mode]
         self.renderer = args.renderer
         self.environment = dict(os.environ, QT_QPA_PLATFORM="wayland")
         self.environment.pop("QT_QUICK_BACKEND", None)
@@ -66,13 +71,14 @@ class Load:
         if args.renderer == "vulkan":
             self.environment["QSG_RHI_BACKEND"] = "vulkan"
         load_seconds = str(getattr(args, "load_seconds", 3600))
-        self.commands = {
-            "ui": [str(args.ui.resolve()), "--smoke-test", "--smoke-seconds", load_seconds,
-                   "--smoke-stop-file", str(root / "stop")],
-            "audio": [str(args.audio_probe.resolve()), "--seconds", load_seconds, "--quantum",
-                      str(args.quantum), "--stop-file", str(root / "stop")],
-        }
-        if getattr(args, "ui_progress_file", None) is not None:
+        self.commands = {}
+        if "ui" in self.selected:
+            self.commands["ui"] = [str(args.ui.resolve()), "--smoke-test", "--smoke-seconds", load_seconds,
+                                   "--smoke-stop-file", str(root / "stop")]
+        if "audio" in self.selected:
+            self.commands["audio"] = [str(args.audio_probe.resolve()), "--seconds", load_seconds, "--quantum",
+                                      str(args.quantum), "--stop-file", str(root / "stop")]
+        if "ui" in self.selected and getattr(args, "ui_progress_file", None) is not None:
             self.commands["ui"] += ["--smoke-progress-file", str(args.ui_progress_file)]
     def start(self):
         self.started = datetime.now(timezone.utc).isoformat()
@@ -95,8 +101,13 @@ class Load:
                 raise RuntimeError(f"{name} load exited early: {child.returncode}")
 
     def stop(self):
-        (self.root / "stop").touch()
-        result = {"started_at_utc": self.started, "children": {}, "errors": []}
+        if self.children:
+            (self.root / "stop").touch()
+        result = {"started_at_utc": self.started, "load_mode": self.mode,
+                  "selected_loads": list(self.selected),
+                  "launched_loads": [name for name, *_ in self.children],
+                  "not_run": [name for name in ("ui", "audio") if name not in self.selected],
+                  "children": {}, "errors": []}
         for name, child, stdout, stderr, command in self.children:
             try:
                 code = child.wait(timeout=15)

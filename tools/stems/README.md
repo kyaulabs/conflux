@@ -191,6 +191,18 @@ Their monotonic timestamps verify overlap; an atomic UI heartbeat and final
 minute bins reject missing rendering coverage. Brief sampled exposure changes
 are retained; a heartbeat, frame or exposure gap over 30 seconds fails the run.
 
+Use `--load none`, `audio`, `both` or `ui` for sustained load isolation; `both`
+is the default. Only selected probes start, and only their executable paths are
+required. Disabled probes report `not_run` with null coverage measurements.
+An isolated condition cannot qualify the full audio/UI soak. Keep worker,
+fixture, controls, sampling and power policy fixed when comparing conditions;
+disabling a benchmark child does not stop the desktop or PipeWire services.
+
+Use the guard's `--idle-only` option without `--ui-progress` when no UI probe is
+selected. This retains the same live desktop idle inhibitor while skipping
+window placement. Keep the outer `systemd-inhibit --what=sleep:idle` wrapper in
+every condition, and record each guard/profile lifecycle before comparing runs.
+
 On the measured KDE laptop, the benchmark-only `window_guard.py` uses the
 installed PyGObject `Gio`/`GLib` session-bus bindings and KWin scripting. It
 temporarily keeps only the owned smoke-test window above other windows on all
