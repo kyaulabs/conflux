@@ -106,6 +106,7 @@ class Soak:
         self.ui_unexposed_since = None
         self.ui_max_unexposed_span = 0.0
         self.ui_last_unexposed_span = None
+        self.parity_failure = None
 
     def failure(self, phase, error):
         self.failures.append({"phase": phase, "error": str(error),
@@ -355,6 +356,54 @@ class Soak:
                 return event
         raise TimeoutError("soak control did not finish before its deadline")
 
+    def capture_parity_failure(self, event, samples, reference, difference, parity):
+        record = {"event": "parity_failure", "timestamp_monotonic": time.monotonic(),
+                  "identity": {key: event[key] for key in (
+                      "generation", "request_id", "source_id", "model_id", "frame_start",
+                      "window_start_frame", "frames")},
+                  "parity": dict(parity), "format": "F32LE", "layout": "stem, frame, channel",
+                  "maximum_artifact_bytes": 4 * HOP * 2 * 4,
+                  "artifacts": {}, "capture_errors": []}
+        if not math.isfinite(record["parity"]["max_abs_difference"]):
+            record["parity"]["max_abs_difference"] = None
+        self.parity_failure = record
+        try:
+            failed = ~np.isclose(samples, reference, rtol=parity["rtol"], atol=parity["atol"])
+            record["failed_elements"] = int(np.count_nonzero(failed))
+            record["failed_elements_per_stem"] = np.count_nonzero(failed, axis=(1, 2)).tolist()
+            record["difference_element_counts"] = {
+                "finite": int(np.count_nonzero(np.isfinite(difference))),
+                "nan": int(np.count_nonzero(np.isnan(difference))),
+                "infinite": int(np.count_nonzero(np.isinf(difference)))}
+            record["difference_dtype"] = str(difference.dtype)
+            maxima = np.max(np.abs(difference), axis=(1, 2)).tolist()
+            record["max_abs_difference_per_stem"] = [value if math.isfinite(value) else None
+                                                     for value in maxima]
+        except Exception as error:
+            record["capture_errors"].append({"phase": "comparison", "error": str(error)})
+        # The compared slices contain at most one four-stem hop each. Only the
+        # first failure reaches this path; no successful PCM is retained.
+        for name, values in (("actual", samples), ("reference", reference)):
+            try:
+                path = self.root / f"parity-failure-{name}.f32"
+                artifact = {"path": str(path), "shape": list(values.shape),
+                            "bytes": values.size * 4, "written": False}
+                record["artifacts"][name] = artifact
+                if (values.ndim != 3 or values.shape[0] != 4 or values.shape[2] != 2
+                        or not 0 < values.shape[1] <= HOP):
+                    raise ValueError("parity capture exceeds its one-hop artifact bound")
+                values = np.asarray(values, dtype="<f4")
+                artifact["sha256"] = hashlib.sha256(values.tobytes()).hexdigest()
+                values.tofile(path)
+                artifact["written"] = True
+            except Exception as error:
+                record["capture_errors"].append({"phase": name, "error": str(error)})
+        try:
+            self.log.write(json.dumps(record, allow_nan=False) + "\n")
+            self.log.flush()
+        except Exception as error:
+            record["capture_errors"].append({"phase": "event_log", "error": str(error)})
+
     def accept(self, event):
         self.require(event["frame_start"] == self.expected, "noncontiguous source output")
         samples = event["samples"]
@@ -375,6 +424,11 @@ class Soak:
                       "numeric_parity": equivalent,
                       "max_abs_difference": float(np.max(np.abs(difference))),
                       "rtol": 1e-4, "atol": 1e-5}
+            if not equivalent:
+                try:
+                    self.capture_parity_failure(event, samples, reference, difference, parity)
+                except Exception as error:
+                    self.failure("parity_failure_capture", error)
             self.require(equivalent, "seek differs from continuous reference beyond tolerance")
             self.trimmed_parity_checks += 1
         elif origin in self.hashes:
@@ -602,6 +656,8 @@ class Soak:
                           load_coverage_scope="Selected child process liveness; requested UI also requires atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
                           conditions_at_finish=conditions(),
                           finished_at_utc=datetime.now(timezone.utc).isoformat())
+            if self.parity_failure is not None:
+                result["parity_failure"] = self.parity_failure
             audio = result.get("load", {}).get("children", {}).get("audio", {}).get("report", {})
             ui = result.get("load", {}).get("children", {}).get("ui", {}).get("report", {})
             result["ui_coverage"] = self.ui_coverage(ui)
