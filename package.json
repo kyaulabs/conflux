@@ -1,0 +1,9 @@
+{
+  "name": "conflux-dev-tools",
+  "private": true,
+  "packageManager": "pnpm@11.28.5",
+  "devDependencies": {
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2"
+  }
+}

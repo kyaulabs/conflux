@@ -1,0 +1,15 @@
+/* CONFLUX light — Qt Widgets starter theme. For Qt Quick bind tokens explicitly. */
+QWidget { background: #FAF9F6; color: #24252B; font-family: "Barlow"; font-size: 14px; }
+QFrame[panel="true"], QMenu { background: #FFFFFF; border: 1px solid #747A83; border-radius: 12px; }
+QPushButton { background: #FFFFFF; border: 1px solid #747A83; border-radius: 6px; padding: 8px 16px; min-height: 20px; }
+QPushButton:hover { border-color: #B92323; }
+QPushButton:focus, QLineEdit:focus { border: 2px solid #B92323; }
+QPushButton[primary="true"] { background: #C52524; color: #FFFFFF; border-color: #C52524; }
+QPushButton:disabled { color: #5D626A; background: #F0EFEB; }
+QLineEdit, QComboBox, QListView { background: #FFFFFF; border: 1px solid #747A83; border-radius: 6px; padding: 8px; selection-background-color: #C52524; selection-color: #FFFFFF; }
+QLabel[muted="true"] { color: #5D626A; }
+QSlider::groove:horizontal { height: 4px; background: #747A83; border-radius: 2px; }
+QSlider::handle:horizontal { width: 16px; margin: -6px 0; background: #24252B; border-radius: 8px; }
+QProgressBar { border: 1px solid #747A83; border-radius: 4px; text-align: center; }
+QProgressBar::chunk { background: #B92323; }
+QToolTip { background: #FFFFFF; color: #24252B; border: 1px solid #747A83; padding: 6px; }
