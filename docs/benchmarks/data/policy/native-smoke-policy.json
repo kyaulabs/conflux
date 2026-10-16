@@ -1,0 +1,54 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tools/benchmarks/native_replay.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--requests",
+    "3",
+    "--max-seconds",
+    "60",
+    "--request-timeout",
+    "30",
+    "--window-start-frame",
+    "773955",
+    "--output",
+    "benchmarks-local/policy-2026-10-16/native-smoke"
+  ],
+  "started_at_utc": "2026-10-16T22:27:44.959911+00:00",
+  "before": {
+    "observed_at_utc": "2026-10-16T22:27:44.960321+00:00",
+    "profile": "power-saver",
+    "holds": "",
+    "firmware": "low-power",
+    "cpu_epp": "power"
+  },
+  "during": {
+    "observed_at_utc": "2026-10-16T22:27:45.870572+00:00",
+    "profile": "balanced",
+    "holds": "",
+    "firmware": "balanced",
+    "cpu_epp": "balance_performance"
+  },
+  "before_restore": {
+    "observed_at_utc": "2026-10-16T22:27:52.466321+00:00",
+    "profile": "balanced",
+    "holds": "",
+    "firmware": "balanced",
+    "cpu_epp": "balance_performance"
+  },
+  "restored_by_runner": true,
+  "after": {
+    "observed_at_utc": "2026-10-16T22:27:52.818584+00:00",
+    "profile": "power-saver",
+    "holds": "",
+    "firmware": "low-power",
+    "cpu_epp": "power"
+  },
+  "benchmark_returncode": 0,
+  "runner_returncode": 0,
+  "finished_at_utc": "2026-10-16T22:27:53.462714+00:00"
+}

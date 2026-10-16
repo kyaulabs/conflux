@@ -1,0 +1,67 @@
+{
+  "at_utc": "2026-10-16T21:22:28.368942+00:00",
+  "repository_head": "c0d50578472ea6d5c52619f02a7ffe093e84fa31",
+  "profile": "power-saver",
+  "holds": "",
+  "conditions": {
+    "/sys/class/thermal/thermal_zone5/temp": "49050",
+    "/sys/class/thermal/thermal_zone7/temp": "48000",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+  },
+  "pins": {
+    "src/main.cpp": {
+      "bytes": 8007,
+      "sha256": "ca46fb40e4aae39bd4268664e482438f6d62533d959ef657bd6081c07f6d6321"
+    },
+    "src/probe_main.cpp": {
+      "bytes": 17361,
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6"
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "bytes": 36878,
+      "sha256": "f789c8a18b9eda1335086dea9bd6be1ac74836df87abf83d04484ff9238994ed"
+    },
+    "tools/benchmarks/window_guard.py": {
+      "bytes": 13771,
+      "sha256": "87b8aa9066684e9a4f9fe56a4c2359d5e3bc049eaa5024e4d40651b8278b418b"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "bytes": 22139,
+      "sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "tools/stems/worker.py": {
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "build/dev/conflux": {
+      "bytes": 1689016,
+      "sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e"
+    },
+    "build/dev/conflux-audio-probe": {
+      "bytes": 641648,
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    },
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "benchmarks-local/policy-2026-10-16/balanced-run.py": {
+      "bytes": 5108,
+      "sha256": "c0e47a521d6f8ec4969c98782035b414360c796260808fb220a35e61cf704963"
+    },
+    "benchmarks-local/policy-2026-10-16/monitor.py": {
+      "bytes": 3155,
+      "sha256": "1aca37bf4d4fb28ae401487f4cbd779ef7494b0e59c5cc42fdf3555868daf523"
+    }
+  },
+  "comparison": "Full3600s balanced workload after successful120s preflight and real interrupted-wrapper cleanup check. Same frozen native/model/UI/audio/worker/soak asperformance reference; recorded starting temperatures and memory differ."
+}

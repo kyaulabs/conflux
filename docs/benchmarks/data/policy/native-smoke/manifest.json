@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "scope": "Exact archived bytes; gzip records include uncompressed hashes. Manifests exclude only themselves. Original analysis input manifests retain historical paths separately.",
+  "files": [
+    {
+      "path": "native-trace.jsonl.gz",
+      "bytes": 4389,
+      "sha256": "392fb2846fc78a24031cec60da731804579ac406bf6ffbdc7c707b4f4efdbc37",
+      "uncompressed_bytes": 78266,
+      "uncompressed_sha256": "b48696cb91f018c3987a8791ef8dcd320d166449fe33cad56f7ff5ebc1cf6ced"
+    },
+    {
+      "path": "requests.jsonl",
+      "bytes": 2227,
+      "sha256": "15192a9aad5df7ed3b2dd924d161f914acf27bf2b0443c1ce1017bd9f2d6af61"
+    },
+    {
+      "path": "result.json",
+      "bytes": 22901,
+      "sha256": "7f626e810d65ffd9fd7e4915245b163edc71ae2fe4b0b8dc3eb75d1f45a2bf44"
+    },
+    {
+      "path": "runtime.stderr",
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    }
+  ]
+}

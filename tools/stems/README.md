@@ -223,3 +223,29 @@ the soak's coverage gates still require actual rendering when run directly.
 The [thermal report](../../docs/benchmarks/thermal-2026-10-16.md) records the
 failed latency target, passing control/audio checks, observation limits and
 cleanup evidence. A completed soak does not by itself mean the p99 target passed.
+
+The [balanced-policy comparison](../../docs/benchmarks/policy-2026-10-16.md)
+records the second hour and a native replay of its worst window. To replay that
+normalized input without the supervisor, audio or UI children, use the frozen
+runtime/model hashes required by this diagnostic:
+
+```sh
+python3 -B tools/benchmarks/native_replay.py \
+  --runtime /tmp/conflux-stem-m0/conflux-stem-runtime-blocking \
+  --model /tmp/conflux-stem-m0/models/htdemucs-f16.gguf \
+  --window-start-frame 773955 --requests 120 --max-seconds 600 \
+  --request-timeout 30 --output /tmp/conflux-native-replay
+```
+
+Run from the repository root with host Vulkan access after other benchmark
+work stops. The tool uses one persistent Vulkan process with four threads,
+blocking fence waits and PASSIVE/zero-spin OpenMP. It records exact source,
+normalized input and output hashes, native timings and a 0.5-second host trace.
+The post-ready wall budget limits request admission and response waits; setup,
+file operations and cleanup are not interrupted by that deadline. The final
+report records actual elapsed time and any overrun. The tool changes no power
+policy. Record the active profile separately; the measured replay used the
+scoped balanced wrapper archived with the report. The generated WAV is deleted,
+while normalized `input.f32` stays in the local output directory. Keep it out of
+Git. Native round trips diagnose the graph; they do not measure chunk delivery
+or establish sustained audio/UI acceptance.

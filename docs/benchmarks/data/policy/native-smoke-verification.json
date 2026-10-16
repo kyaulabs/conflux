@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "input_matches_CPU_equivalence_check": true,
+  "all_outputs_identical": true,
+  "fixture_removed": true,
+  "profile_preserved": true,
+  "runtime_ready": {
+    "stems": [
+      "drums",
+      "bass",
+      "other",
+      "vocals"
+    ],
+    "segment_frames": 343980,
+    "channels": 2,
+    "pid": 1530753,
+    "sample_rate": 44100,
+    "weight_storage": "native",
+    "threads": 4,
+    "backend": "vulkan",
+    "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+    "fence_wait_mode": "blocking",
+    "load_ms": 299.887879,
+    "event": "ready",
+    "process_environment": {
+      "OMP_WAIT_POLICY": "PASSIVE",
+      "GOMP_SPINCOUNT": "0"
+    }
+  },
+  "round_trip_percentiles_ms": {
+    "50": 1775.3239499870688,
+    "95": 1893.0601010215469,
+    "99": 1893.0601010215469
+  },
+  "graph_percentiles_ms": {
+    "50": 1718.795664,
+    "95": 1842.141122,
+    "99": 1842.141122
+  }
+}
