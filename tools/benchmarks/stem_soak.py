@@ -14,6 +14,7 @@ import signal
 import subprocess
 import sys
 import time
+import wave
 
 import numpy as np
 
@@ -39,6 +40,31 @@ def interrupted(_signum, _frame):
     raise KeyboardInterrupt
 
 
+def wav_source(path):
+    path = path.resolve()
+    before = path.stat()
+    with path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+    with wave.open(str(path), "rb") as stream:
+        if stream.getparams()[:3] != (2, 2, RATE) or stream.getcomptype() != "NONE":
+            raise ValueError("source must be stereo 44.1 kHz PCM16 WAV: " + str(path))
+        frames = stream.getnframes()
+        if frames <= 2 * HOP + 137:
+            raise ValueError("source must extend beyond the second trimmed seek: " + str(path))
+        count = 0
+        while data := stream.readframes(65536):
+            count += len(data)
+        if count != frames * 4:
+            raise RuntimeError("source WAV is truncated: " + str(path))
+    after = path.stat()
+    if ((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns)
+            != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns)):
+        raise RuntimeError("source changed during identity/geometry checks: " + str(path))
+    return {"path": str(path), "bytes": after.st_size, "sha256": digest,
+            "frames": frames, "seconds": frames / RATE, "sample_rate": RATE,
+            "channels": 2, "sample_bytes": 2}
+
+
 def timing_summary(rows):
     values = [row["hop_service_ms"] for row in rows]
     return {
@@ -58,6 +84,15 @@ class Soak:
         self.load = None
         self.log = None
         self.fixture = None
+        self.source_paths = getattr(args, "source_wav", None) or []
+        self.source_mode = "prepared_wav_corpus" if self.source_paths else "synthetic"
+        self.sources = []
+        self.source_index = 0
+        self.generated_fixture = None
+        self.hashes_by_source = {}
+        self.references_by_source = {}
+        self.source_normalization = {}
+        self.source_completions = {}
         self.native_sampler = None
         self.supervisor_sampler = None
         self.started = None
@@ -107,6 +142,14 @@ class Soak:
         self.ui_max_unexposed_span = 0.0
         self.ui_last_unexposed_span = None
         self.parity_failure = None
+
+    def select_source(self, index):
+        self.source_index = index
+        self.fixture = self.sources[index]
+        source_id = self.fixture["sha256"]
+        self.hashes = self.hashes_by_source.setdefault(source_id, {})
+        self.references = self.references_by_source.setdefault(source_id, {})
+        self.source_completions.setdefault(source_id, {"full": 0, "resumed": 0})
 
     def failure(self, phase, error):
         self.failures.append({"phase": phase, "error": str(error),
@@ -336,6 +379,13 @@ class Soak:
             self.require(len(self.runtime) == 1, "native backend reloaded during soak")
         elif event["event"] == "source_ready":
             self.statistics_reused += bool(event["reused"])
+            if event["generation"] == self.generation:
+                self.require(event["source_id"] == self.fixture["sha256"]
+                             and event["source_frames"] == self.fixture["frames"],
+                             "source preparation identity/geometry changed")
+                normalization = {key: event[key] for key in ("mean", "std", "source_frames")}
+                previous = self.source_normalization.setdefault(event["source_id"], normalization)
+                self.require(previous == normalization, "unchanged source normalization changed")
         elif event["event"] == "error":
             raise RuntimeError(event["message"])
         elif event["event"] == "chunk":
@@ -405,6 +455,7 @@ class Soak:
             record["capture_errors"].append({"phase": "event_log", "error": str(error)})
 
     def accept(self, event):
+        self.require(event["source_id"] == self.fixture["sha256"], "chunk reference source changed")
         self.require(event["frame_start"] == self.expected, "noncontiguous source output")
         samples = event["samples"]
         self.require(samples.shape == (4, event["frames"], 2), "unexpected chunk shape")
@@ -452,7 +503,7 @@ class Soak:
             if origin in (HOP, 2 * HOP):
                 self.references[origin] = samples.copy()
         row = {key: event[key] for key in (
-            "generation", "request_id", "frame_start", "frames", "window_start_frame",
+            "generation", "request_id", "source_id", "frame_start", "frames", "window_start_frame",
             "ready_at", "request_ms", "source_read_ms", "overlap_ms", "hop_service_ms",
             "control_latency_ms", "queue_delay_ms", "metrics")}
         row.update(elapsed_seconds=event["ready_at"] - self.started,
@@ -483,7 +534,9 @@ class Soak:
             self.finished_control_attempts += 1
             return
         began = time.monotonic()
+        self.require(active["source_id"] == self.fixture["sha256"], "active control source changed")
         control = {"at_workload_seconds": began - self.started,
+                   "source_id": self.fixture["sha256"],
                    "superseded_generation": self.generation,
                    "superseded_request_id": active["request_id"],
                    "started_to_cancel_ms": (began - active["timestamp"]) * 1000,
@@ -530,12 +583,19 @@ class Soak:
             if event["event"] == "chunk":
                 self.accept(event)
             elif event["event"] == "complete" and event["generation"] == self.generation:
+                self.require(event["source_id"] == self.fixture["sha256"], "completed source identity changed")
                 self.require(self.expected == self.fixture["frames"], "source ended before full coverage")
                 if self.source_start == 0:
                     self.source_loops += 1
+                    self.source_completions[self.fixture["sha256"]]["full"] += 1
                 else:
                     self.resumed_completions += 1
-                self.generation = self.worker.seek(0)
+                    self.source_completions[self.fixture["sha256"]]["resumed"] += 1
+                if self.source_paths:
+                    self.select_source((self.source_index + 1) % len(self.sources))
+                    self.generation = self.worker.load(self.fixture["path"])
+                else:
+                    self.generation = self.worker.seek(0)
                 self.expected, self.source_start = 0, 0
             elif (event["event"] == "started" and time.monotonic() >= self.next_control
                   and self.deadline - time.monotonic() > min(
@@ -597,7 +657,14 @@ class Soak:
                                       capture_output=True, check=True)
             result["repository_head"] = revision.stdout.strip()
             self.log = (self.root / "events.jsonl").open("w")
-            self.fixture = create_fixture(self.root / "source.wav", FIXTURE_FRAMES / RATE)
+            if self.source_paths:
+                self.sources = [wav_source(path) for path in self.source_paths]
+            else:
+                self.generated_fixture = self.root / "source.wav"
+                self.sources = [create_fixture(self.generated_fixture, FIXTURE_FRAMES / RATE)]
+            self.source_completions = {source["sha256"]: {"full": 0, "resumed": 0}
+                                       for source in self.sources}
+            self.select_source(0)
             result["fixture"] = self.fixture
             self.worker = StemWorker(self.args.runtime, self.args.model, threads=self.args.threads,
                                      max_ready=2, request_timeout=self.args.request_timeout)
@@ -652,7 +719,8 @@ class Soak:
                 except OSError as error:
                     self.failure("event_log_close", error)
             try:
-                (self.root / "source.wav").unlink(missing_ok=True)
+                if self.generated_fixture is not None:
+                    self.generated_fixture.unlink(missing_ok=True)
             except OSError as error:
                 self.failure("fixture_cleanup", error)
             result.update(workload_started_monotonic=self.started, workload_stopped_monotonic=self.finished,
@@ -661,6 +729,12 @@ class Soak:
                           full_source_loops=self.source_loops, resumed_source_completions=self.resumed_completions,
                           control_attempts_finished_before_cancel=self.finished_control_attempts,
                           reference_hashes={str(frame): digest for frame, digest in self.hashes.items()},
+                          source_mode=self.source_mode, sources=self.sources,
+                          current_source_id=self.fixture["sha256"] if self.fixture else None,
+                          reference_hashes_by_source={source_id: {str(frame): digest for frame, digest in hashes.items()}
+                                                      for source_id, hashes in self.hashes_by_source.items()},
+                          source_normalization_by_source=self.source_normalization,
+                          source_completions=self.source_completions,
                           same_grid_hash_checks=self.parity_checks, trimmed_seek_checks=self.trimmed_parity_checks,
                           stale_chunks_delivered=self.stale_chunks,
                           load_alive_checks=self.alive_checks if self.selected_loads else None,
@@ -702,7 +776,7 @@ class Soak:
                 "observed_continuous_p99_within_target": result["timing"]["continuous"]["observed_p99_within_target"],
                 "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
                 "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
-                "scope": f"synthetic saturated delivery with requested load={self.load_mode}; no stem playback/full deck or musical-quality claim",
+                "scope": f"{'prepared WAV corpus' if self.source_paths else 'synthetic'} saturated delivery with requested load={self.load_mode}; no stem playback/full deck or musical-quality claim",
             }
             try:
                 self.progress(force=True, status=result["status"])
@@ -727,6 +801,8 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--ui", type=Path)
     parser.add_argument("--audio-probe", type=Path)
+    parser.add_argument("--source-wav", type=Path, action="append",
+                        help="Prepared stereo 44.1 kHz PCM16 source; repeat to rotate files after completion")
     parser.add_argument("--load", dest="load_mode", choices=tuple(Load.MODES), default="both")
     parser.add_argument("--renderer", choices=("opengl", "vulkan", "software"), default="opengl")
     parser.add_argument("--seconds", type=float, default=3600)

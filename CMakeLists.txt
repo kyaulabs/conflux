@@ -30,6 +30,9 @@ if(BUILD_TESTING)
     add_test(NAME stem-worker COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_worker_test.py)
     set_tests_properties(stem-worker PROPERTIES
         ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
+    add_test(NAME stem-soak COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_soak_test.py)
+    set_tests_properties(stem-soak PROPERTIES
+        ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
 endif()
 
 option(CONFLUX_BUILD_UI "Build the Qt Quick runtime harness" ON)

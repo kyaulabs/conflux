@@ -191,6 +191,15 @@ Their monotonic timestamps verify overlap; an atomic UI heartbeat and final
 minute bins reject missing rendering coverage. Brief sampled exposure changes
 are retained; a heartbeat, frame or exposure gap over 30 seconds fails the run.
 
+To cycle prepared music files, repeat `--source-wav /absolute/path/to/track.wav`
+once per source. Each input must be stereo 44.1 kHz PCM16 WAV with more than
+516,107 frames. Files advance after completion and repeat for the stated wall
+duration; normalization and parity references remain separate by source hash.
+The worker retains one backend. External WAVs are read without modification or
+deletion. Source preparation and first-output gaps remain in the event log,
+separate from hop-service timings. This exercises repeated excerpt delivery;
+the audio probe remains an independent diagnostic stream.
+
 Use `--load none`, `audio`, `both` or `ui` for sustained load isolation; `both`
 is the default. Only selected probes start, and only their executable paths are
 required. Disabled probes report `not_run` with null coverage measurements.
