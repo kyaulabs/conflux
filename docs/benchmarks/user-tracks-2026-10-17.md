@@ -4,9 +4,10 @@ The pinned HTDemucs/audio.cpp worker completed CPU and Vulkan separation of
 four user-provided excerpts. Vulkan's sixteen continuous hops had
 5.258-second p99/maximum against the 4.095-second target, with 3/16 misses;
 CPU reached 22.505 seconds, with 16/16 misses. Saved outputs passed geometry,
-finite-value and same-grid seek checks. Detailed listening is **deferred until after 6 pm Pacific on 17 October,
-with headphones**; numerical agreement and waveform checks do not establish
-musical acceptance. Vulkan remains the
+finite-value and same-grid seek checks. The user accepted the auditioned material
+as **a starting basis for musical feasibility**. The
+[listening record](data/user-tracks-2026-10-17-listening.json) preserves that
+scope separately from the earlier benchmark evidence. Vulkan remains the
 [conditional preparation candidate](../decisions/0002-m0-stem-runtime.md).
 M0 is open and M1 has not started.
 
@@ -111,10 +112,11 @@ for [Club XL](data/user-tracks-2026-10-17/analysis/club_xl-continuous-waveforms.
 and [STFU](data/user-tracks-2026-10-17/analysis/stfu-continuous-waveforms.png)
 use one ±1 scale without per-stem normalization. They cannot establish
 audible seams, intelligibility, bleed or stereo acceptability. No player or
-device output was captured. The user confirmed hearing content from all
-stems on laptop speakers. Detailed review is deferred until headphones are
-available, after 6 pm Pacific on 17 October. Audibility alone is not a
-separation-quality or join-acceptance verdict.
+device output was captured. After confirming content from all stems, the
+user reported, "everything sounds good for a starting basis." This accepts
+the auditioned material for initial musical feasibility. The statement does not
+specify listening hardware or establish artifact-free separation, physical
+audio performance or the unmet latency target.
 A local HTML page provides audio controls and embedded waveforms after the
 Markdown viewer treated WAV embeds as images. Browser checks loaded all
 24 audio files and four plots; that does not establish audible quality.
@@ -148,5 +150,6 @@ coverage, timing and thermal reductions plus source, input and image identities.
 Eight exact references retain the unchanged producer/build sources from the
 previous archive. Original media, arrays, full tags and the local listening
 page are excluded. The archive cannot replay excluded PCM calculations or
-verify musical acceptance. Benchmarking is stopped for the listening review;
-the local playback server has no sleep or idle inhibitor.
+verify musical acceptance. The later user verdict is recorded in the linked
+sidecar without changing this execution-time archive. Benchmarking remains
+stopped; the local playback server has no sleep or idle inhibitor.

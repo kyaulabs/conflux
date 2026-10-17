@@ -3,8 +3,9 @@
 Conditionally selected for local-file preparation and continued bounded-worker development,
 17 October 2026. Use the pinned HTDemucs F16 model through audio.cpp v0.9.2's
 native Vulkan backend on the laptop. Keep CPU execution as a numerical
-reference. The user's reported preview cutouts leave musical acceptance open;
-this decision does not qualify production stem playback or live headroom.
+reference. The user accepts the auditioned material as a starting basis
+for musical feasibility; this decision does not qualify production stem
+playback or live headroom.
 M0 remains open and M1 has not started.
 
 The runtime is audio.cpp commit
@@ -30,19 +31,21 @@ verified the declared sections and gaps; raw CPU/Vulkan analysis found no
 all-output zero frames or 20 ms collapse below −60 dBFS while source RMS was
 at least −40 dBFS. Quiet individual stems remain, and these checks cannot
 exclude partial damage or missing content. Continuous stem files and shared-
-scale waveform plots support further listening. No musical acceptance or
-player/device explanation has been established.
+scale waveform plots support further listening. The original preview
+feedback alone established neither musical acceptance nor a player/device
+explanation.
 
 The [four user-track follow-up](../benchmarks/user-tracks-2026-10-17.md)
 retains the same producer artifacts and adds sixteen continuous hops per
 backend. Vulkan p99/maximum was 5.258 seconds with 3/16 target misses; CPU
 was 22.505 seconds with 16/16. All sixteen CPU/Vulkan stem lag peaks were
 zero and three completed-source Vulkan seek suffixes matched exactly.
-Review of the separate continuous files is deferred until headphones are
-available. Quiet individual
-stems and shared model behavior still require human assessment; this adds
-no musical acceptance, active-cancellation or production playback claim.
-The conditional preparation choice and open M0 status remain unchanged.
+The user accepted the auditioned material from the separate continuous files
+as a starting basis for musical feasibility. The [listening record](../benchmarks/data/user-tracks-2026-10-17-listening.json)
+preserves the exact statement and scope without changing the execution-time
+archive. This adds no active-cancellation, production playback or latency
+acceptance claim. The conditional preparation choice and open M0 status
+remain unchanged.
 
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
@@ -59,7 +62,7 @@ history prevent a causal backend or genre comparison.
 
 | Candidate | Decision and evidence limit |
 |---|---|
-| HTDemucs/audio.cpp Vulkan | Conditional preparation candidate for continued bounded-worker development. Musical acceptance, useful live headroom and production integration remain unqualified. |
+| HTDemucs/audio.cpp Vulkan | Conditional preparation candidate for continued bounded-worker development. Musical feasibility accepted as a starting basis; useful live headroom and production integration remain unqualified. |
 | Same model/runtime on CPU | Retained as the numerical reference. Its measured request times do not support treating it as a live fallback. |
 | ncnn or native ONNX Runtime WebGPU | Not exported or benchmarked. No comparative quality, operator coverage or performance claim is made. Revisit if the selected pair cannot satisfy the required workload or a better-supported model is needed. |
 
@@ -83,8 +86,8 @@ The software UI used in the successful synthetic soak is an experimental
 condition; it does not change the application's default renderer.
 
 Retain the [small shared audio-core decision](0001-m0-engine-boundary.md).
-Before closing M0, resolve the reported listening issue and record musical
-acceptance or limitations. Preserve live local-file separation as a
-product requirement; this preparation choice does not silently remove it or
+Before closing M0, address the failed music delivery target and preserve the
+scope of the user's acceptance as a starting basis. Live local-file
+separation is a product requirement; this preparation choice does not silently remove it or
 authorize remote offload. Further model/chunk/runtime work must address the
 failed music headroom result and the supported workload. M1 work has not begun.
