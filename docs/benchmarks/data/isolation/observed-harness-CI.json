@@ -1,0 +1,20 @@
+{
+  "commit": "b375522216d2d81a9d1d011017fb25474be0dacf",
+  "push": {
+    "run": 38988198622,
+    "conclusion": "success"
+  },
+  "pull_request": {
+    "run": 38988201340,
+    "conclusion": "success"
+  },
+  "signed_author": "kyau <kyau@kyau.net>",
+  "same_grid_CPU_cases": 4,
+  "existing_capture_CPU_cases": 5,
+  "observed_wrapper_CPU_cases": 14,
+  "normal_readiness_CPU_cases": 5,
+  "rejected_admission_CPU_cases": 2,
+  "thermal_capture_CPU_cases": 2,
+  "frozen_pnpm_install": "passed",
+  "no_GPU_during_tests": true
+}

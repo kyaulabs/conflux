@@ -1,0 +1,51 @@
+{"observed_at_utc": "2026-10-17T00:30:44.822631+00:00", "profile": "balanced", "holds": "", "firmware": "balanced", "cpu_epp": "balance_performance"}
+{
+  "status": "interrupted",
+  "workload_seconds": 33.19961430400144,
+  "acceptance": {
+    "requested_wall_duration_completed": false,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": false,
+    "required_UI_coverage_completed": false,
+    "selected_load_coverage_completed": false,
+    "controls_completed": 0,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "failures": [
+    {
+      "phase": "audio_ui_load",
+      "error": "ui report: Expecting value: line 1 column 1 (char 0)",
+      "timestamp_monotonic": 319510.130353984
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "ui load failed: -2",
+      "timestamp_monotonic": 319510.130365581
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "requested accelerated Wayland renderer did not render",
+      "timestamp_monotonic": 319510.13036949
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "audio report: Expecting value: line 1 column 1 (char 0)",
+      "timestamp_monotonic": 319510.130371693
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "audio load failed: -2",
+      "timestamp_monotonic": 319510.130373788
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "audio probe did not complete successfully",
+      "timestamp_monotonic": 319510.13037581
+    }
+  ]
+}
+{"restored_policy": {"observed_at_utc": "2026-10-17T00:31:22.907031+00:00", "profile": "power-saver", "holds": "", "firmware": "low-power", "cpu_epp": "power"}, "runner_returncode": 130}

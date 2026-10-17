@@ -1,0 +1,67 @@
+{
+  "AST_passed": true,
+  "checks": [
+    {
+      "case": "success",
+      "passed": true
+    },
+    {
+      "case": "guard_transition",
+      "passed": true
+    },
+    {
+      "case": "child_error",
+      "passed": true
+    },
+    {
+      "case": "cancel",
+      "passed": true
+    },
+    {
+      "case": "forcekill",
+      "passed": true
+    },
+    {
+      "case": "cleanup_observation_timeout",
+      "passed": true
+    },
+    {
+      "case": "held_before",
+      "passed": true
+    },
+    {
+      "case": "held_during",
+      "passed": true
+    },
+    {
+      "case": "not_ready",
+      "passed": true
+    },
+    {
+      "case": "checker_legacy",
+      "passed": true
+    },
+    {
+      "case": "checker_observer_transition",
+      "passed": true
+    },
+    {
+      "case": "checker_observer_not_ready",
+      "passed": true
+    },
+    {
+      "case": "checker_observer_error",
+      "passed": true
+    },
+    {
+      "case": "checker_observer_mutation",
+      "passed": true
+    }
+  ],
+  "runner_sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394",
+  "checker_sha256": "0b35d54f0a61c49ff85989807af40244e80c0e14191ba2bde016bd2215a42e00",
+  "profile_set_calls": 0,
+  "real_subprocess_or_profile_calls": 0,
+  "temporary_artifacts_removed": true,
+  "configured_cleanup_wait_budget_seconds": 15
+}

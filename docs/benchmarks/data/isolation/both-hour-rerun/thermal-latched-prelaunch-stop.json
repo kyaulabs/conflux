@@ -1,0 +1,5 @@
+{
+  "observed_at_utc": "2026-10-17T00:43:30.008079+00:00",
+  "suite_PID": 1574060,
+  "reason": "Near-start host evidence shows power-saver while thermal guard is latched; prevent requested-balanced runner overriding active thermal response. Preserve partial cooldown, await normal recovery before launch."
+}

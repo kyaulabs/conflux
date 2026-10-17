@@ -1,0 +1,43 @@
+{
+  "observed_at_utc": "2026-10-17T00:34:27.292059+00:00",
+  "scope": "Read-only thermal-policy checkpoint during cooldown",
+  "commands": [
+    {
+      "command": [
+        "systemctl",
+        "--user",
+        "show",
+        "thermal-guard.service",
+        "--property=ActiveState",
+        "--property=MainPID",
+        "--property=InvocationID",
+        "--property=ActiveEnterTimestamp"
+      ],
+      "returncode": 0,
+      "stdout": "ActiveState=active\nActiveEnterTimestamp=Mon 2026-10-12 13:57:32 PDT\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "journalctl",
+        "--user",
+        "--unit=thermal-guard.service",
+        "--lines=4",
+        "--no-pager",
+        "--output=json"
+      ],
+      "returncode": 0,
+      "stdout": "{\"_AUDIT_LOGINUID\":\"1000\",\"_SYSTEMD_UNIT\":\"user@1000.service\",\"_RUNTIME_SCOPE\":\"system\",\"__CURSOR\":\"s=e149de7772ab450385ae53715ada6055;i=126acd;b=d007264395654ff4b228cbbc15d8dc39;m=4a5a9d4243;t=65dfe5cb62645;x=a586b6cf3ec4c70c\",\"_CAP_EFFECTIVE\":\"0\",\"_EXE\":\"/usr/bin/bash\",\"_GID\":\"1000\",\"SYSLOG_FACILITY\":\"3\",\"__MONOTONIC_TIMESTAMP\":\"319347835459\",\"__SEQNUM_ID\":\"e149de7772ab450385ae53715ada6055\",\"MESSAGE\":\"2026-10-16T17:28:38-07:00 warning: CPU/ACPI temperature 85.0C; power-saver engaged (was balanced)\",\"_SYSTEMD_INVOCATION_ID\":\"59c6e791c83146139b6c252bf081bd02\",\"_SYSTEMD_USER_UNIT\":\"thermal-guard.service\",\"_HOSTNAME\":\"aura.kyaulabs\",\"_COMM\":\"bash\",\"_PID\":\"1036\",\"_MACHINE_ID\":\"437b38083e9d4fc4830145f0c7d7487e\",\"__REALTIME_TIMESTAMP\":\"1792196918781509\",\"_SYSTEMD_OWNER_UID\":\"1000\",\"PRIORITY\":\"6\",\"_CMDLINE\":\"bash /home/kyau/.local/bin/thermal-guard\",\"_BOOT_ID\":\"d007264395654ff4b228cbbc15d8dc39\",\"_TRANSPORT\":\"stdout\",\"_UID\":\"1000\",\"__SEQNUM\":\"1206989\",\"_STREAM_ID\":\"c02b49add07c42ee82b1f24f2ae2f867\",\"_SYSTEMD_USER_SLICE\":\"app.slice\",\"_SYSTEMD_CGROUP\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/thermal-guard.service\",\"SYSLOG_IDENTIFIER\":\"thermal-guard\",\"_AUDIT_SESSION\":\"3\",\"_SYSTEMD_SLICE\":\"user-1000.slice\"}\n{\"PRIORITY\":\"6\",\"_GID\":\"1000\",\"__CURSOR\":\"s=e149de7772ab450385ae53715ada6055;i=126b17;b=d007264395654ff4b228cbbc15d8dc39;m=4a61d84252;t=65dfe63f12654;x=f055453d0f1077a6\",\"__REALTIME_TIMESTAMP\":\"1792197040088660\",\"_UID\":\"1000\",\"_RUNTIME_SCOPE\":\"system\",\"_PID\":\"1036\",\"_AUDIT_LOGINUID\":\"1000\",\"SYSLOG_FACILITY\":\"3\",\"__MONOTONIC_TIMESTAMP\":\"319469142610\",\"_SYSTEMD_INVOCATION_ID\":\"59c6e791c83146139b6c252bf081bd02\",\"_SYSTEMD_SLICE\":\"user-1000.slice\",\"_CAP_EFFECTIVE\":\"0\",\"_CMDLINE\":\"bash /home/kyau/.local/bin/thermal-guard\",\"_AUDIT_SESSION\":\"3\",\"_EXE\":\"/usr/bin/bash\",\"_SYSTEMD_USER_SLICE\":\"app.slice\",\"__SEQNUM_ID\":\"e149de7772ab450385ae53715ada6055\",\"_SYSTEMD_OWNER_UID\":\"1000\",\"_TRANSPORT\":\"stdout\",\"_SYSTEMD_UNIT\":\"user@1000.service\",\"__SEQNUM\":\"1207063\",\"_MACHINE_ID\":\"437b38083e9d4fc4830145f0c7d7487e\",\"_HOSTNAME\":\"aura.kyaulabs\",\"_COMM\":\"bash\",\"_STREAM_ID\":\"c02b49add07c42ee82b1f24f2ae2f867\",\"_BOOT_ID\":\"d007264395654ff4b228cbbc15d8dc39\",\"SYSLOG_IDENTIFIER\":\"thermal-guard\",\"_SYSTEMD_CGROUP\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/thermal-guard.service\",\"MESSAGE\":\"2026-10-16T17:30:40-07:00 recovered: temperature 48.0C; balanced profile restored=1\",\"_SYSTEMD_USER_UNIT\":\"thermal-guard.service\"}\n{\"_CMDLINE\":\"bash /home/kyau/.local/bin/thermal-guard\",\"_COMM\":\"bash\",\"_UID\":\"1000\",\"__REALTIME_TIMESTAMP\":\"1792197046435910\",\"_MACHINE_ID\":\"437b38083e9d4fc4830145f0c7d7487e\",\"_SYSTEMD_SLICE\":\"user-1000.slice\",\"_RUNTIME_SCOPE\":\"system\",\"_PID\":\"1036\",\"_SYSTEMD_CGROUP\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/thermal-guard.service\",\"__MONOTONIC_TIMESTAMP\":\"319475489860\",\"__SEQNUM_ID\":\"e149de7772ab450385ae53715ada6055\",\"_TRANSPORT\":\"stdout\",\"__SEQNUM\":\"1207087\",\"_STREAM_ID\":\"c02b49add07c42ee82b1f24f2ae2f867\",\"_BOOT_ID\":\"d007264395654ff4b228cbbc15d8dc39\",\"_SYSTEMD_USER_UNIT\":\"thermal-guard.service\",\"PRIORITY\":\"6\",\"SYSLOG_IDENTIFIER\":\"thermal-guard\",\"__CURSOR\":\"s=e149de7772ab450385ae53715ada6055;i=126b2f;b=d007264395654ff4b228cbbc15d8dc39;m=4a62391c44;t=65dfe64520046;x=8a714a342fab44c3\",\"_SYSTEMD_UNIT\":\"user@1000.service\",\"MESSAGE\":\"2026-10-16T17:30:46-07:00 warning: CPU/ACPI temperature 88.0C; power-saver engaged (was balanced)\",\"_SYSTEMD_OWNER_UID\":\"1000\",\"_AUDIT_LOGINUID\":\"1000\",\"_SYSTEMD_INVOCATION_ID\":\"59c6e791c83146139b6c252bf081bd02\",\"_HOSTNAME\":\"aura.kyaulabs\",\"_SYSTEMD_USER_SLICE\":\"app.slice\",\"_AUDIT_SESSION\":\"3\",\"SYSLOG_FACILITY\":\"3\",\"_CAP_EFFECTIVE\":\"0\",\"_GID\":\"1000\",\"_EXE\":\"/usr/bin/bash\"}\n{\"_RUNTIME_SCOPE\":\"system\",\"_AUDIT_LOGINUID\":\"1000\",\"__MONOTONIC_TIMESTAMP\":\"319596884510\",\"SYSLOG_IDENTIFIER\":\"thermal-guard\",\"_TRANSPORT\":\"stdout\",\"_COMM\":\"bash\",\"MESSAGE\":\"2026-10-16T17:32:47-07:00 recovered: temperature 43.0C; balanced profile restored=1\",\"_GID\":\"1000\",\"__SEQNUM\":\"1207253\",\"_CMDLINE\":\"bash /home/kyau/.local/bin/thermal-guard\",\"PRIORITY\":\"6\",\"_BOOT_ID\":\"d007264395654ff4b228cbbc15d8dc39\",\"_SYSTEMD_UNIT\":\"user@1000.service\",\"_AUDIT_SESSION\":\"3\",\"_UID\":\"1000\",\"_SYSTEMD_SLICE\":\"user-1000.slice\",\"_HOSTNAME\":\"aura.kyaulabs\",\"_SYSTEMD_INVOCATION_ID\":\"59c6e791c83146139b6c252bf081bd02\",\"__CURSOR\":\"s=e149de7772ab450385ae53715ada6055;i=126bd5;b=d007264395654ff4b228cbbc15d8dc39;m=4a6975721e;t=65dfe6b8e5621;x=23b04b58bd79f964\",\"_CAP_EFFECTIVE\":\"0\",\"_EXE\":\"/usr/bin/bash\",\"_SYSTEMD_USER_SLICE\":\"app.slice\",\"_PID\":\"1036\",\"_MACHINE_ID\":\"437b38083e9d4fc4830145f0c7d7487e\",\"__REALTIME_TIMESTAMP\":\"1792197167830561\",\"_SYSTEMD_USER_UNIT\":\"thermal-guard.service\",\"__SEQNUM_ID\":\"e149de7772ab450385ae53715ada6055\",\"_SYSTEMD_OWNER_UID\":\"1000\",\"SYSLOG_FACILITY\":\"3\",\"_SYSTEMD_CGROUP\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/thermal-guard.service\",\"_STREAM_ID\":\"c02b49add07c42ee82b1f24f2ae2f867\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "powerprofilesctl",
+        "get"
+      ],
+      "returncode": 0,
+      "stdout": "balanced\n",
+      "stderr": ""
+    }
+  ]
+}

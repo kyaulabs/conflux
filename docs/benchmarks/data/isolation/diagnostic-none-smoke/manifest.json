@@ -1,0 +1,137 @@
+{
+  "scope": "Distinct successful120-second diagnostic none-load smoke. Preserve original v1 preflights and aborted none-hour unchanged. No new sustained result or M0 completion. No model/runtime/generated WAV/PCM committed.",
+  "source_pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 43452,
+      "sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "audit_source_sha256": "729623317292e30ab795e59dd58274972d51d2442ac30a7c9f80cfb0c5f529d4",
+  "producer_source_sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc",
+  "qualification": {
+    "raw_status": "ok",
+    "workload_seconds": 120.00021621998167,
+    "accepted_all_chunks": 57,
+    "accepted_continuous_chunks": 56,
+    "continuous_p99_ms": 2676.3534309575334,
+    "maximum_ms": 2676.3534309575334,
+    "misses": 0,
+    "completed_controls": 1,
+    "selected_loads": [],
+    "disabled_probe_scope": "audio/UI not_run/null, not measured zero-fault",
+    "diagnostic_failure_path_exercised": false,
+    "limits": [
+      "No parity failure occurred, so actual failure artifacts were not exercised by GPU smoke; dedicated CPU regression records cover those cases.",
+      "Only120seconds; does not establish sustained latency or correctness.",
+      "Portable audit replays saved lifecycle evidence, not fresh host process/policy checks."
+    ]
+  },
+  "files": {
+    "audit-executed.py": {
+      "bytes": 30716,
+      "sha256": "729623317292e30ab795e59dd58274972d51d2442ac30a7c9f80cfb0c5f529d4",
+      "source": "/tmp/conflux-load-isolation-audit.py"
+    },
+    "audit.json": {
+      "bytes": 47770,
+      "sha256": "22434a462ee3a6c612f425f3c40c5c210cce29882599df5c5941cae615a09ff7",
+      "source": "/tmp/conflux-diagnostic-none-smoke-audit.json"
+    },
+    "before.json": {
+      "bytes": 6131,
+      "sha256": "3d35f21565ee22aca3aec7e12ce808d684687e321ebeeab4c78306ca408aadb3",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/before-diagnostic-none-smoke.json"
+    },
+    "events.jsonl.gz": {
+      "bytes": 15932,
+      "sha256": "84e6e3ee520c385a3177c871fe7cdb8327800c39839743692a6276fc9d5f7df3",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke/events.jsonl",
+      "source_raw_bytes": 146778,
+      "source_raw_sha256": "fdeb134a6216d9410ce8b1087cba39627f39e0be23daaf72fae0dbb79c9ccb13",
+      "gzip_mtime": 0,
+      "gzip_original_filename": "",
+      "scope": "Exact raw JSONL, deterministic gzip header"
+    },
+    "guard.json": {
+      "bytes": 1211,
+      "sha256": "15825b34e2b64fedc6d30c8b2668638f1a33b1e165e46e1fd94aec2ca3b12c59",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke-guard.json"
+    },
+    "launch.json": {
+      "bytes": 1445,
+      "sha256": "560ed87caa8762d910ff8961c0c351f682eef8278367491bcdb00fad86542f8e",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke-launch.json"
+    },
+    "launcher.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke.stderr"
+    },
+    "launcher.stdout": {
+      "bytes": 1230,
+      "sha256": "85247731bfa0391a457fc57c1773f4f16276b725074d42ceaae832cb2875ade4",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke.stdout"
+    },
+    "native-trace.jsonl.gz": {
+      "bytes": 46258,
+      "sha256": "908fa5b655e14caacbc03aee6d67b8d6f2f2b5f2fdfcbbad70bc41b234493f10",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke/native-trace.jsonl",
+      "source_raw_bytes": 1549720,
+      "source_raw_sha256": "c0b52892bc471a69a0d1c65dcfd51a0c53027c7b88383c3153e4880eee44a01d",
+      "gzip_mtime": 0,
+      "gzip_original_filename": "",
+      "scope": "Exact raw JSONL, deterministic gzip header"
+    },
+    "policy-lifecycle.json": {
+      "bytes": 1568,
+      "sha256": "fb0142f0d76522647c171b8962b36c28375fc903267aa61bea875348b0664679",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke-policy.json"
+    },
+    "progress.json": {
+      "bytes": 2273,
+      "sha256": "d8e7c26f10d18ca1a4457546e444cec87ba028bbed32a7a3cead1c5b0326ab07",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke/progress.json"
+    },
+    "result.json": {
+      "bytes": 28292,
+      "sha256": "c9e29c433c0e78472183e09b7db10b0a5b5f4a481098f01766eaa7600353d5cc",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke/result.json"
+    },
+    "root-verification.json": {
+      "bytes": 666,
+      "sha256": "a4612081c2e606dfa2ca1e441fcdb3e4dc6db9a7c2388fe74a31bbee1d3f9c3d",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke-verification.json"
+    },
+    "stem_soak-executed.py": {
+      "bytes": 43452,
+      "sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc",
+      "source": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py"
+    }
+  }
+}

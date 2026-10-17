@@ -1,0 +1,17 @@
+{
+  "command": [
+    "journalctl",
+    "--user",
+    "--since",
+    "2026-10-17 00:30:35 UTC",
+    "--until",
+    "2026-10-17 00:31:35 UTC",
+    "--no-pager",
+    "--output=short-iso",
+    "--grep",
+    "power|profile|Power|Profile"
+  ],
+  "returncode": 0,
+  "stdout": "2026-10-16T17:30:40-07:00 aura.kyaulabs thermal-guard[1036]: 2026-10-16T17:30:40-07:00 recovered: temperature 48.0C; balanced profile restored=1\n2026-10-16T17:30:45-07:00 aura.kyaulabs conflux[1573004]: Created OpenGL context QSurfaceFormat(version 4.6, options QFlags<QSurfaceFormat::FormatOption>(DeprecatedFunctions), depthBufferSize 24, redBufferSize 8, greenBufferSize 8, blueBufferSize 8, alphaBufferSize 8, stencilBufferSize 8, samples 0, swapBehavior QSurfaceFormat::DefaultSwapBehavior, swapInterval 1, colorSpace QColorSpace(), profile  QSurfaceFormat::CompatibilityProfile)\n2026-10-16T17:30:45-07:00 aura.kyaulabs conflux[1573004]: OpenGL VENDOR: Intel RENDERER: Mesa Intel(R) Iris(R) Xe Graphics (TGL GT2) VERSION: 4.6 (Compatibility Profile) Mesa 26.2.4-arch1.1\n2026-10-16T17:30:46-07:00 aura.kyaulabs thermal-guard[1036]: 2026-10-16T17:30:46-07:00 warning: CPU/ACPI temperature 88.0C; power-saver engaged (was balanced)\n",
+  "stderr": ""
+}

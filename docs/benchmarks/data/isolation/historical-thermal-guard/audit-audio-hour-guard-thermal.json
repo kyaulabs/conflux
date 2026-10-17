@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "label": "audit-audio-hour-guard",
+  "scope": "Read-only current host observations",
+  "capture_started_at_utc": "2026-10-17T00:45:18.869358+00:00",
+  "bounds_utc": {
+    "since_inclusive": "2026-10-17T00:16:01.185429+00:00",
+    "until_inclusive": "2026-10-17T00:20:42.184588+00:00"
+  },
+  "journal_entry_limit": 512,
+  "command_timeout_seconds": 2,
+  "commands": [
+    {
+      "command": [
+        "systemctl",
+        "--user",
+        "show",
+        "thermal-guard.service",
+        "--property=ActiveState",
+        "--property=SubState",
+        "--property=MainPID",
+        "--property=InvocationID",
+        "--property=ActiveEnterTimestamp",
+        "--property=ActiveEnterTimestampMonotonic",
+        "--property=ExecMainStartTimestamp",
+        "--property=ExecMainStartTimestampMonotonic",
+        "--property=FragmentPath",
+        "--property=DropInPaths"
+      ],
+      "started_at_utc": "2026-10-17T00:45:18.869387+00:00",
+      "started_monotonic": 320347.923342264,
+      "returncode": 0,
+      "stdout_bytes": 355,
+      "stderr": "",
+      "stderr_truncated": false,
+      "finished_at_utc": "2026-10-17T00:45:18.882762+00:00",
+      "finished_monotonic": 320347.936728828
+    },
+    {
+      "command": [
+        "powerprofilesctl",
+        "get"
+      ],
+      "started_at_utc": "2026-10-17T00:45:18.883224+00:00",
+      "started_monotonic": 320347.937179504,
+      "returncode": 0,
+      "stdout_bytes": 12,
+      "stderr": "",
+      "stderr_truncated": false,
+      "finished_at_utc": "2026-10-17T00:45:19.157210+00:00",
+      "finished_monotonic": 320348.211184255
+    },
+    {
+      "command": [
+        "powerprofilesctl",
+        "list-holds"
+      ],
+      "started_at_utc": "2026-10-17T00:45:19.157239+00:00",
+      "started_monotonic": 320348.211193031,
+      "returncode": 0,
+      "stdout_bytes": 0,
+      "stderr": "",
+      "stderr_truncated": false,
+      "finished_at_utc": "2026-10-17T00:45:19.447285+00:00",
+      "finished_monotonic": 320348.501268566
+    },
+    {
+      "command": [
+        "journalctl",
+        "--user",
+        "--unit=thermal-guard.service",
+        "--output=json",
+        "--no-pager",
+        "--lines=1",
+        "--until=2026-10-17 00:16:01.185428 UTC"
+      ],
+      "started_at_utc": "2026-10-17T00:45:19.447749+00:00",
+      "started_monotonic": 320348.501708352,
+      "returncode": 0,
+      "stdout_bytes": 1232,
+      "stderr": "",
+      "stderr_truncated": false,
+      "finished_at_utc": "2026-10-17T00:45:19.455733+00:00",
+      "finished_monotonic": 320348.509703851
+    },
+    {
+      "command": [
+        "journalctl",
+        "--user",
+        "--unit=thermal-guard.service",
+        "--output=json",
+        "--no-pager",
+        "--lines=512",
+        "--since=2026-10-17 00:16:01.185429 UTC",
+        "--until=2026-10-17 00:20:42.184588 UTC"
+      ],
+      "started_at_utc": "2026-10-17T00:45:19.455884+00:00",
+      "started_monotonic": 320348.509840576,
+      "returncode": 0,
+      "stdout_bytes": 0,
+      "stderr": "",
+      "stderr_truncated": false,
+      "finished_at_utc": "2026-10-17T00:45:19.465540+00:00",
+      "finished_monotonic": 320348.51951046
+    }
+  ],
+  "errors": [],
+  "qualification": [
+    "Source/unit hashes describe files read now, not proof of historical executed bytes.",
+    "Guard messages describe logged claims; actual profile/firmware/EPP observations govern policy claims.",
+    "A recovered/restored message does not prove a successful profile command or the current private guard latch.",
+    "The single pre-range entry is context, not a complete reconstruction of prior guard state.",
+    "Current policy is observed at capture time and may differ from the requested historical journal interval."
+  ],
+  "service_identity": {
+    "ActiveState": "active",
+    "SubState": "running",
+    "MainPID": "1036",
+    "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+    "ActiveEnterTimestamp": "Mon 2026-10-12 13:57:32 PDT",
+    "ActiveEnterTimestampMonotonic": "34533548",
+    "ExecMainStartTimestamp": "Mon 2026-10-12 13:57:32 PDT",
+    "ExecMainStartTimestampMonotonic": "34532916",
+    "FragmentPath": "/home/kyau/.config/systemd/user/thermal-guard.service",
+    "DropInPaths": ""
+  },
+  "source_snapshot": {
+    "path": "/home/kyau/.local/bin/thermal-guard",
+    "observed_at_utc": "2026-10-17T00:45:18.882886+00:00",
+    "bytes": 3510,
+    "sha256": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0",
+    "mtime_ns": 1788248479207179411,
+    "mtime_utc": "2026-09-01T07:41:19.207179+00:00",
+    "stable_during_read": true
+  },
+  "unit_snapshots": [
+    {
+      "path": "/home/kyau/.config/systemd/user/thermal-guard.service",
+      "observed_at_utc": "2026-10-17T00:45:18.883074+00:00",
+      "bytes": 512,
+      "sha256": "e5c6c89f2b186b976379b2ee4ffb0d3e044e1cf9b1fca3a0cf60cc600c9b2d8f",
+      "mtime_ns": 1788246757590558890,
+      "mtime_utc": "2026-09-01T07:12:37.590559+00:00",
+      "stable_during_read": true
+    }
+  ],
+  "current_policy": {
+    "observed_at_utc": "2026-10-17T00:45:19.447326+00:00",
+    "profile": "power-saver",
+    "holds": "",
+    "guard_runtime_latch_directly_observed": false,
+    "firmware": "low-power",
+    "cpu_epp": "power"
+  },
+  "last_pre_range_guard_entry": {
+    "MESSAGE": "2026-10-16T17:14:18-07:00 warning: CPU/ACPI temperature 90.0C; power-saver engaged (was balanced)",
+    "PRIORITY": "6",
+    "__MONOTONIC_TIMESTAMP": "318487670349",
+    "__REALTIME_TIMESTAMP": "1792196058616399",
+    "_PID": "1036",
+    "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+  },
+  "in_range_guard_entries": [],
+  "journal_limit_reached_possible_truncation": false,
+  "capture_finished_at_utc": "2026-10-17T00:45:19.465577+00:00"
+}

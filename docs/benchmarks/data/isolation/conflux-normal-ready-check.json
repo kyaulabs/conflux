@@ -1,0 +1,26 @@
+{
+  "recorded_at_utc": "2026-10-17T00:47:13.155615+00:00",
+  "command": "python3 -B /tmp/conflux-normal-ready-check.py",
+  "result": "OK",
+  "tests": 5,
+  "run_seconds": 0.005,
+  "scope": "CPU fakes only. No live readiness run, actual policy command, service change, native process or GPU execution.",
+  "files": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/normal_ready.py": {
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "/tmp/conflux-normal-ready-check.py": {
+      "bytes": 5091,
+      "sha256": "0a6c98100886f0bd0c51f8a07ecdd3da072c11fdd610b963d3aea6027f13b6a9"
+    }
+  },
+  "cases": [
+    "Seven qualifying observations spanning60seconds required",
+    "Warning resets qualifying span",
+    "Finite maximum wait and existinghold failclosed",
+    "Guard PID/invocation identity change refuses",
+    "Only4read-only command forms,timeout<=2seconds,latest1journalentry"
+  ],
+  "live_scope_qualification": "Readiness infers private guard state from its latest same-service recovered claim; actualbalanced/noholds independently observed. Exact current user bus unavailable in sandbox; root executes host gate."
+}

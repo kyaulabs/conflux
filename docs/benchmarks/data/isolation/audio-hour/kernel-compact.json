@@ -1,0 +1,75 @@
+{
+  "command": [
+    "journalctl",
+    "--dmesg",
+    "--since",
+    "2026-10-17T00:16:01.738400+00:00",
+    "--until",
+    "2026-10-17T00:20:41.361561+00:00",
+    "--output=json",
+    "--no-pager"
+  ],
+  "returncode": 0,
+  "stderr": "",
+  "examined_entries": 7,
+  "matched_entries": [
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:1202!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437857127",
+      "__MONOTONIC_TIMESTAMP": "318866911077",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819265785",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819265785"
+    },
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:1200!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437857408",
+      "__MONOTONIC_TIMESTAMP": "318866911357",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819265800",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819265800"
+    },
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:1204!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437857466",
+      "__MONOTONIC_TIMESTAMP": "318866911416",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819266296",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819266296"
+    },
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:1206!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437859108",
+      "__MONOTONIC_TIMESTAMP": "318866913058",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819267303",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819267303"
+    },
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:120c!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437859315",
+      "__MONOTONIC_TIMESTAMP": "318866913265",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819268302",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819268302"
+    },
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:120a!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437859392",
+      "__MONOTONIC_TIMESTAMP": "318866913341",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819268312",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819268312"
+    },
+    {
+      "MESSAGE": "Fence expiration time out i915-0000:00:02.0:conflux-stem-ru[1568411:1208!",
+      "PRIORITY": "5",
+      "__REALTIME_TIMESTAMP": "1792196437859451",
+      "__MONOTONIC_TIMESTAMP": "318866913401",
+      "_SOURCE_MONOTONIC_TIMESTAMP": "357819268319",
+      "_SOURCE_BOOTTIME_TIMESTAMP": "357819268319"
+    }
+  ],
+  "parse_errors": [],
+  "scope": "Host kernel journal over launch-to-wrapper-exit bounds, filtered by i915/drm/fence/GPU/hang/reset; retain message, priority and timestamps only. No claim outside these bounds or about unreadable logs."
+}
