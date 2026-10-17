@@ -1,0 +1,396 @@
+{
+  "schema": 1,
+  "label": "diagnostic-vulkan",
+  "renderer": "vulkan",
+  "workload_monotonic": {
+    "start": 341029.066261894,
+    "stop": 341329.066496064,
+    "seconds": 300.00023417000193
+  },
+  "continuous_hop_timing": {
+    "chunks": 91,
+    "frames": 21265875,
+    "hop_service_percentiles_ms": {
+      "50": 2205.4848480038345,
+      "95": 6937.93742795242,
+      "99": 8719.700713991188
+    },
+    "hop_service_max_ms": 8719.700713991188,
+    "hops_above_target": 15,
+    "observed_p99_within_target": false
+  },
+  "capture_returncode": 0,
+  "capture_errors": [],
+  "counts": {
+    "retained_journal_entries": 83087,
+    "journal_entries_in_workload": 83014,
+    "process_events.started": 1,
+    "process_events.read_error": 161,
+    "process_events.identified": 1,
+    "process_events.sample": 301,
+    "process_events.finished": 1
+  },
+  "categories_in_workload": {
+    "qt.scenegraph.time.renderloop": 66411,
+    "qt.scenegraph.time.renderer": 16603
+  },
+  "journal_boot_ids": [
+    "d007264395654ff4b228cbbc15d8dc39"
+  ],
+  "qt_named_phase_distributions": {
+    "gui_frame_prepared.animations.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "gui_frame_prepared.blockedForSync.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 38.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 3.0
+    },
+    "gui_frame_prepared.lock.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 9.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "gui_frame_prepared.polish.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 4.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "gui_polishAndSync_call_interval.ms": {
+      "count": 16602,
+      "minimum": 3.0,
+      "maximum": 49.0,
+      "p50": 16.0,
+      "p95": 18.0,
+      "p99": 20.0
+    },
+    "render_frame.render.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 23.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "render_frame.swap.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 48.0,
+      "p50": 16.0,
+      "p95": 17.0,
+      "p99": 19.0
+    },
+    "render_frame.sync.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 16.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "render_frame.total.ms": {
+      "count": 16603,
+      "minimum": 1.0,
+      "maximum": 48.0,
+      "p50": 16.0,
+      "p95": 18.0,
+      "p99": 20.0
+    },
+    "render_syncAndRender_call_interval.ms": {
+      "count": 16603,
+      "minimum": 1.0,
+      "maximum": 48.0,
+      "p50": 16.0,
+      "p95": 18.0,
+      "p99": 20.0
+    },
+    "renderer.preprocess.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "renderer.rendering.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 16.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "renderer.total.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 16.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    },
+    "renderer.updates.ms": {
+      "count": 16603,
+      "minimum": 0.0,
+      "maximum": 6.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "p99": 0.0
+    }
+  },
+  "unparsed_timing_message_shapes": {},
+  "process_sample_coverage": {
+    "samples": 300,
+    "first": 341029.282435658,
+    "last": 341328.280094804,
+    "maximum_sample_gap_seconds": 1.0402021649642847
+  },
+  "process_read_errors": {
+    "FileNotFoundError": 161
+  },
+  "sched_schedstats": "0",
+  "thread_cpu_seconds_by_role": {
+    "gui": 6.93,
+    "render": 16.78,
+    "other": 4.8100000000000005
+  },
+  "threads": [
+    {
+      "tid": 1700993,
+      "start_ticks": 38327800,
+      "name": "conflux",
+      "role": "gui",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 6.93,
+      "schedstat_deltas": {
+        "runtime_ns": 6930521659,
+        "runqueue_wait_ns": 2751434280,
+        "timeslices": 48805
+      }
+    },
+    {
+      "tid": 1701000,
+      "start_ticks": 38327802,
+      "name": "QDBusConnection",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701004,
+      "start_ticks": 38327804,
+      "name": "WaylandEventThr",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 2.36,
+      "schedstat_deltas": {
+        "runtime_ns": 2359023873,
+        "runqueue_wait_ns": 1511204713,
+        "timeslices": 76482
+      }
+    },
+    {
+      "tid": 1701005,
+      "start_ticks": 38327804,
+      "name": "WaylandEventThr",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 2.45,
+      "schedstat_deltas": {
+        "runtime_ns": 2452366110,
+        "runqueue_wait_ns": 1363414452,
+        "timeslices": 50186
+      }
+    },
+    {
+      "tid": 1701006,
+      "start_ticks": 38327805,
+      "name": "QQmlThread",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701007,
+      "start_ticks": 38327810,
+      "name": "Thread (pooled)",
+      "role": "other",
+      "observed_span_seconds": 28.001410807017237,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701008,
+      "start_ticks": 38327810,
+      "name": "Thread (pooled)",
+      "role": "other",
+      "observed_span_seconds": 28.001410807017237,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701010,
+      "start_ticks": 38327811,
+      "name": "QSGRenderThread",
+      "role": "render",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 16.78,
+      "schedstat_deltas": {
+        "runtime_ns": 16782916963,
+        "runqueue_wait_ns": 2969100814,
+        "timeslices": 31929
+      }
+    },
+    {
+      "tid": 1701017,
+      "start_ticks": 38327812,
+      "name": "conflux:disk$0",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701019,
+      "start_ticks": 38327812,
+      "name": "conflu:traceq0",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701020,
+      "start_ticks": 38327812,
+      "name": "conflux:disk$1",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701021,
+      "start_ticks": 38327812,
+      "name": "conflux:disk$2",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    },
+    {
+      "tid": 1701022,
+      "start_ticks": 38327812,
+      "name": "conflux:disk$3",
+      "role": "other",
+      "observed_span_seconds": 298.99765914602904,
+      "cpu_seconds": 0.0,
+      "schedstat_deltas": {
+        "runtime_ns": 0,
+        "runqueue_wait_ns": 0,
+        "timeslices": 0
+      }
+    }
+  ],
+  "drm_clients": [
+    {
+      "device": "0000:00:02.0",
+      "client_id": "913",
+      "observed_span_seconds": 298.99765914602904,
+      "engine_deltas": {
+        "drm-engine-render": {
+          "delta": 0,
+          "unit": "ns"
+        },
+        "drm-engine-copy": {
+          "delta": 0,
+          "unit": "ns"
+        },
+        "drm-engine-video": {
+          "delta": 0,
+          "unit": "ns"
+        },
+        "drm-engine-video-enhance": {
+          "delta": 0,
+          "unit": "ns"
+        }
+      }
+    },
+    {
+      "device": "0000:00:02.0",
+      "client_id": "914",
+      "observed_span_seconds": 298.99765914602904,
+      "engine_deltas": {
+        "drm-engine-render": {
+          "delta": 3690165648,
+          "unit": "ns"
+        },
+        "drm-engine-copy": {
+          "delta": 0,
+          "unit": "ns"
+        },
+        "drm-engine-video": {
+          "delta": 0,
+          "unit": "ns"
+        },
+        "drm-engine-video-enhance": {
+          "delta": 0,
+          "unit": "ns"
+        }
+      }
+    }
+  ],
+  "scope": [
+    "Qt textual timing fields are generally integer milliseconds with quantization; zero does not mean no cost. Nested timings overlap and must not be summed. Render/swap elapsed times include CPU/driver/wait work and do not establish GPU kernel time or physical presentation latency.",
+    "Journal monotonic timestamps filter the workload interval; textual Qt time-boot prefixes are not used for alignment. Same-boot monotonic alignment assumes no clock-domain mismatch; suspend accounting can differ.",
+    "Thread CPU deltas use matching TID/start_ticks within observed first-to-last samples; lifetime portions before/after sampling or between first/last surviving samples are not counted. Disabled sched_schedstats cannot exclude runqueue contention.",
+    "DRM deltas are cumulative per-client engine accounting between samples, not isolated per-frame GPU duration or complete compositor activity.",
+    "Journal rate limiting/drops and unmatched messages prevent a complete per-frame trace claim. Diagnostic logging and sampling can perturb the measured workload."
+  ]
+}

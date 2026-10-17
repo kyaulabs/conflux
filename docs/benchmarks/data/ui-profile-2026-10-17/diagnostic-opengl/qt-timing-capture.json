@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "label": "diagnostic-opengl",
+  "pid": 1696938,
+  "ui_command": [
+    "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "--smoke-test",
+    "--smoke-seconds",
+    "420",
+    "--smoke-stop-file",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl/stop",
+    "--smoke-progress-file",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl/ui-progress.json"
+  ],
+  "launch_bounds_utc": {
+    "since": "2026-10-17T07:16:34.373376+00:00",
+    "until": "2026-10-17T07:21:38.227402+00:00"
+  },
+  "command": [
+    "journalctl",
+    "--user",
+    "_PID=1696938",
+    "--since",
+    "2026-10-17 07:16:34.373376 UTC",
+    "--until",
+    "2026-10-17 07:21:38.227402 UTC",
+    "--output=json",
+    "--no-pager"
+  ],
+  "timeout_seconds": 20,
+  "returncode": 0,
+  "examined_entries": 84834,
+  "matched_entries": 84834,
+  "timing_entries": 84832,
+  "parse_errors": 0,
+  "errors": [],
+  "output": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl-qt-timing.jsonl",
+  "scope": "User journal for final runtime-gated UI PID within launch-to-wrapper-exit bounds. Only Qt scenegraph/RHI categories and recognized Qt timing messages are retained; absent/rate-limited entries remain unobserved.",
+  "clock_scope": "Journal __MONOTONIC_TIMESTAMP is microseconds in its _BOOT_ID clock domain. UI process /proc and Python samples use monotonic time. Qt's time-boot prefix may use a different suspend accounting; compare journal monotonic fields, do not blindly align a textual prefix across suspend.",
+  "stderr": "",
+  "stderr_truncated": false,
+  "query_stdout_bytes": 139444309
+}
