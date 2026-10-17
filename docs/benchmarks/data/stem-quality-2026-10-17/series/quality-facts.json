@@ -1,0 +1,3891 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-17T20:11:51.761935+00:00",
+  "scope": "Completed local music preparation and saved-output numerical diagnostics only. No new inference, playback, host policy changes or human listening decision in this fact pack.",
+  "backends": {
+    "cpu": {
+      "status": "ok",
+      "driver_elapsed_seconds": 229.9741512609762,
+      "collection_interval_monotonic": [
+        383296.028812595,
+        383525.467134828
+      ],
+      "collection_interval_seconds": 229.43832223297795,
+      "continuous_hop_service_ms": {
+        "count": 12,
+        "minimum": 13251.650087011512,
+        "p50": 19330.908568983432,
+        "p95": 20621.551349002402,
+        "p99": 20621.551349002402,
+        "maximum": 20621.551349002402
+      },
+      "continuous_target_ms": 4095,
+      "continuous_target_misses": 12,
+      "continuous_observed_p99_within_target": false,
+      "all_collected_hop_service_ms_including_seek_suffixes": {
+        "count": 12,
+        "minimum": 13251.650087011512,
+        "p50": 19330.908568983432,
+        "p95": 20621.551349002402,
+        "p99": 20621.551349002402,
+        "maximum": 20621.551349002402
+      },
+      "tracks": [
+        {
+          "id": "parting_glass",
+          "cold_model": true,
+          "continuous": {
+            "generation": 1,
+            "start_frame": 0,
+            "frames": 1031940,
+            "chunks": 4,
+            "first_chunk": {
+              "ready_monotonic": 383315.922119605,
+              "delivered_monotonic": 383315.955099904,
+              "control_to_ready_ms": 19893.3070100029,
+              "load_to_delivered_ms": 19926.29539099289
+            },
+            "hop_service_percentiles_ms": {
+              "50": 19572.86717800889,
+              "95": 20067.220853990875,
+              "99": 20067.220853990875
+            },
+            "hop_service_max_ms": 20067.220853990875,
+            "chunk_stream_sha256": "063af243dcbf8dc2e33dcb3a29913b28339cf6b632ae9644c7342c79d693e57c",
+            "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+            "wall_seconds": 78.73514321201947,
+            "load_issued_monotonic": 383296.028804513
+          },
+          "source_preparation_ms": 21.833845996297896,
+          "source_statistics_reused": false,
+          "source_mono_mean": -1.1096830348833464e-05,
+          "source_mono_sample_std": 0.15144765377044678,
+          "first_chunk_source_read_and_normalization_ms": 4.156882991082966,
+          "per_hop_source_read_and_normalization_ms": {
+            "count": 4,
+            "minimum": 4.156882991082966,
+            "p50": 5.652763007674366,
+            "p95": 27.95885200612247,
+            "p99": 27.95885200612247,
+            "maximum": 27.95885200612247
+          },
+          "native_graph_ms": {
+            "count": 4,
+            "minimum": 18789.195704,
+            "p50": 19292.395357,
+            "p95": 19836.383489,
+            "p99": 19836.383489,
+            "maximum": 19836.383489
+          },
+          "native_frontend_ms": {
+            "count": 4,
+            "minimum": 16.005849,
+            "p50": 27.531438,
+            "p95": 50.412294,
+            "p99": 50.412294,
+            "maximum": 50.412294
+          },
+          "native_postprocess_ms": {
+            "count": 4,
+            "minimum": 44.087365,
+            "p50": 52.97998,
+            "p95": 91.382247,
+            "p99": 91.382247,
+            "maximum": 91.382247
+          },
+          "target_misses_gt_4095_ms": 4,
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/parting_glass.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "f430b656a10c592e078a95ccab2ac68f69629834fb7dc3752915921148129683"
+          },
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          }
+        },
+        {
+          "id": "funkorama",
+          "cold_model": false,
+          "continuous": {
+            "generation": 2,
+            "start_frame": 0,
+            "frames": 1031940,
+            "chunks": 4,
+            "first_chunk": {
+              "ready_monotonic": 383393.826519428,
+              "delivered_monotonic": 383393.845962508,
+              "control_to_ready_ms": 18988.074416993186,
+              "load_to_delivered_ms": 19007.534120988566
+            },
+            "hop_service_percentiles_ms": {
+              "50": 18923.842284013517,
+              "95": 20621.551349002402,
+              "99": 20621.551349002402
+            },
+            "hop_service_max_ms": 20621.551349002402,
+            "chunk_stream_sha256": "debb90db906e816f32bc465fc1ab78968c3703a2f4712afc5e3d4924a0226c94",
+            "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+            "wall_seconds": 72.25881079299143,
+            "load_issued_monotonic": 383374.838428387
+          },
+          "source_preparation_ms": 63.938044011592865,
+          "source_statistics_reused": false,
+          "source_mono_mean": -2.39426094594819e-06,
+          "source_mono_sample_std": 0.13520687818527222,
+          "first_chunk_source_read_and_normalization_ms": 3.892325039487332,
+          "per_hop_source_read_and_normalization_ms": {
+            "count": 4,
+            "minimum": 3.892325039487332,
+            "p50": 4.217926994897425,
+            "p95": 8.758855983614922,
+            "p99": 8.758855983614922,
+            "maximum": 8.758855983614922
+          },
+          "native_graph_ms": {
+            "count": 4,
+            "minimum": 13079.927316,
+            "p50": 18702.066923,
+            "p95": 20443.164124,
+            "p99": 20443.164124,
+            "maximum": 20443.164124
+          },
+          "native_frontend_ms": {
+            "count": 4,
+            "minimum": 29.337052,
+            "p50": 35.555603,
+            "p95": 38.327313,
+            "p99": 38.327313,
+            "maximum": 38.327313
+          },
+          "native_postprocess_ms": {
+            "count": 4,
+            "minimum": 34.020255,
+            "p50": 54.028684,
+            "p95": 67.230126,
+            "p99": 67.230126,
+            "maximum": 67.230126
+          },
+          "target_misses_gt_4095_ms": 4,
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/funkorama.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "d9670d224c905d80fcc98b661a85a492175b8b11d11af8ebb0febd5ad7e14e6f"
+          },
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          }
+        },
+        {
+          "id": "club_diver",
+          "cold_model": false,
+          "continuous": {
+            "generation": 3,
+            "start_frame": 0,
+            "frames": 1031940,
+            "chunks": 4,
+            "first_chunk": {
+              "ready_monotonic": 383467.796697939,
+              "delivered_monotonic": 383467.818566091,
+              "control_to_ready_ms": 20604.34996697586,
+              "load_to_delivered_ms": 20626.23530998826
+            },
+            "hop_service_percentiles_ms": {
+              "50": 19173.530093976296,
+              "95": 20539.925855002366,
+              "99": 20539.925855002366
+            },
+            "hop_service_max_ms": 20539.925855002366,
+            "chunk_stream_sha256": "bff247047f1b8b39e856e330537d1d943a3f5e1f055a8d5f3e5a41285237e44d",
+            "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+            "wall_seconds": 78.33753869100474,
+            "load_issued_monotonic": 383447.192330781
+          },
+          "source_preparation_ms": 64.1134639736265,
+          "source_statistics_reused": false,
+          "source_mono_mean": 0.001200671773403883,
+          "source_mono_sample_std": 0.21757608652114868,
+          "first_chunk_source_read_and_normalization_ms": 3.5648909979499876,
+          "per_hop_source_read_and_normalization_ms": {
+            "count": 4,
+            "minimum": 3.5648909979499876,
+            "p50": 4.179231997113675,
+            "p95": 8.672180003486574,
+            "p99": 8.672180003486574,
+            "maximum": 8.672180003486574
+          },
+          "native_graph_ms": {
+            "count": 4,
+            "minimum": 18764.676356,
+            "p50": 18963.283792,
+            "p95": 20264.432491,
+            "p99": 20264.432491,
+            "maximum": 20264.432491
+          },
+          "native_frontend_ms": {
+            "count": 4,
+            "minimum": 21.151547,
+            "p50": 24.052143,
+            "p95": 47.058629,
+            "p99": 47.058629,
+            "maximum": 47.058629
+          },
+          "native_postprocess_ms": {
+            "count": 4,
+            "minimum": 34.69966,
+            "p50": 43.844273,
+            "p95": 47.571483,
+            "p99": 47.571483,
+            "maximum": 47.571483
+          },
+          "target_misses_gt_4095_ms": 4,
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/club_diver.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "24aede83813270255f441b3909b8c48d1d460c1e92eb348d1b07f447075fc1ed"
+          },
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          }
+        }
+      ],
+      "seeks": [],
+      "native_ready": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1873191,
+        "sample_rate": 44100,
+        "weight_storage": "f32",
+        "threads": 4,
+        "backend": "cpu",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 239.721716,
+        "event": "ready",
+        "process_environment": {}
+      },
+      "native_memory_cpu": {
+        "samples": 448,
+        "elapsed_seconds": 229.8489065389731,
+        "sample_errors": {},
+        "processes": [
+          {
+            "pid": 1873191,
+            "start_ticks": 42864779,
+            "samples": 448,
+            "max_process_status_kB": {
+              "VmHWM": 934624,
+              "VmRSS": 934624,
+              "VmSwap": 0
+            },
+            "drm_client_maxima": {
+              "0000:00:02.0/client-961": {
+                "drm-driver": "i915",
+                "drm-client-id": "961",
+                "drm-pdev": "0000:00:02.0",
+                "drm-total-system0": "0",
+                "drm-shared-system0": "0",
+                "drm-active-system0": "0",
+                "drm-resident-system0": "0",
+                "drm-purgeable-system0": "0",
+                "drm-total-stolen-system0": "0",
+                "drm-shared-stolen-system0": "0",
+                "drm-active-stolen-system0": "0",
+                "drm-resident-stolen-system0": "0",
+                "drm-purgeable-stolen-system0": "0",
+                "drm-engine-render": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-copy": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-video": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-capacity-video": "2",
+                "drm-engine-video-enhance": {
+                  "value": 0,
+                  "unit": "ns"
+                }
+              }
+            },
+            "max_simultaneous_drm_clients": 1,
+            "fd_read_errors": 0,
+            "first_elapsed_seconds": 0.5065534220193513,
+            "last_elapsed_seconds": 229.2308839840116,
+            "first_process_counters": {
+              "status.voluntary_ctxt_switches": 5,
+              "status.nonvoluntary_ctxt_switches": 31,
+              "stat.minflt": 249089,
+              "stat.majflt": 0
+            },
+            "last_process_counters": {
+              "status.voluntary_ctxt_switches": 66,
+              "status.nonvoluntary_ctxt_switches": 9912,
+              "stat.minflt": 420429,
+              "stat.majflt": 0
+            },
+            "observed_cpu_seconds": 878.68
+          }
+        ],
+        "notes": [
+          "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+          "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+          "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+          "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+          "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+          "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+          "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+        ]
+      },
+      "supervisor_memory_cpu": {
+        "samples": 459,
+        "elapsed_seconds": 229.84990222903434,
+        "sample_errors": {},
+        "processes": [
+          {
+            "pid": 1873187,
+            "start_ticks": 42864751,
+            "samples": 459,
+            "max_process_status_kB": {
+              "VmHWM": 143640,
+              "VmRSS": 136464,
+              "VmSwap": 0
+            },
+            "drm_client_maxima": {},
+            "max_simultaneous_drm_clients": 0,
+            "fd_read_errors": 460,
+            "first_elapsed_seconds": 0.0012256060144864023,
+            "last_elapsed_seconds": 229.8498761189985,
+            "first_process_counters": {
+              "status.voluntary_ctxt_switches": 16,
+              "status.nonvoluntary_ctxt_switches": 33,
+              "stat.minflt": 6626,
+              "stat.majflt": 0
+            },
+            "last_process_counters": {
+              "status.voluntary_ctxt_switches": 1031,
+              "status.nonvoluntary_ctxt_switches": 121,
+              "stat.minflt": 66138,
+              "stat.majflt": 48
+            },
+            "observed_cpu_seconds": 6.88
+          }
+        ],
+        "notes": [
+          "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+          "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+          "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+          "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+          "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+          "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+          "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+        ]
+      },
+      "native_trace": {
+        "rows": 448,
+        "read_errors": {},
+        "samples_before_collection": 0,
+        "samples_inside_collection": 448,
+        "samples_after_collection": 0,
+        "first_collection_offset_seconds": 0.5055851850192994,
+        "last_collection_offset_seconds": 229.22991574701155,
+        "maximum_adjacent_snapshot_gap_seconds": 0.5553300739848055,
+        "system_read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 448,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 448,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 448,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 448
+        }
+      },
+      "thermal": {
+        "by_sensor": {
+          "/sys/class/thermal/thermal_zone5/temp": {
+            "recorded_type": "TCPU",
+            "samples": 448,
+            "valid_samples": 448,
+            "missing_or_invalid_samples": 0,
+            "peak_C": 57.05,
+            "peak_workload_offsets_seconds": [
+              131.91358729399508,
+              132.4258206259692,
+              132.93560556700686,
+              133.44558147899806
+            ],
+            "first_observed_workload_offset_seconds": 0.5055851850192994,
+            "last_observed_workload_offset_seconds": 229.22991574701155,
+            "maximum_adjacent_observation_gap_seconds": 0.5553300739848055,
+            "thresholds": {
+              "85": {
+                "threshold_C": 85.0,
+                "hot_samples": 0,
+                "episodes": [],
+                "maximum_first_to_last_hot_sample_span_seconds": 0,
+                "maximum_adjacent_cool_observation_window_seconds": null
+              },
+              "95": {
+                "threshold_C": 95.0,
+                "hot_samples": 0,
+                "episodes": [],
+                "maximum_first_to_last_hot_sample_span_seconds": 0,
+                "maximum_adjacent_cool_observation_window_seconds": null
+              }
+            }
+          },
+          "/sys/class/thermal/thermal_zone7/temp": {
+            "recorded_type": "x86_pkg_temp",
+            "samples": 448,
+            "valid_samples": 448,
+            "missing_or_invalid_samples": 0,
+            "peak_C": 100.0,
+            "peak_workload_offsets_seconds": [
+              125.27195522101829
+            ],
+            "first_observed_workload_offset_seconds": 0.5055851850192994,
+            "last_observed_workload_offset_seconds": 229.22991574701155,
+            "maximum_adjacent_observation_gap_seconds": 0.5553300739848055,
+            "thresholds": {
+              "85": {
+                "threshold_C": 85.0,
+                "hot_samples": 6,
+                "episodes": [
+                  {
+                    "first_hot_workload_offset_seconds": 1.0110392320202664,
+                    "last_hot_workload_offset_seconds": 1.5163328429916874,
+                    "first_to_last_hot_sample_span_seconds": 0.505293610971421,
+                    "hot_samples": 2,
+                    "peak_C": 93.0,
+                    "largest_between_hot_observation_gap_seconds": 0.505293610971421,
+                    "previous_observation": {
+                      "workload_offset_seconds": 0.5055851850192994,
+                      "temperature_C": 81.0,
+                      "observed_below_threshold": true
+                    },
+                    "following_observation": {
+                      "workload_offset_seconds": 2.0259686229983345,
+                      "temperature_C": 51.0,
+                      "observed_below_threshold": true
+                    },
+                    "previous_to_first_hot_gap_seconds": 0.505454047000967,
+                    "last_hot_to_following_gap_seconds": 0.5096357800066471,
+                    "adjacent_cool_observation_window_seconds": 1.520383437979035
+                  },
+                  {
+                    "first_hot_workload_offset_seconds": 123.7529593440122,
+                    "last_hot_workload_offset_seconds": 125.27195522101829,
+                    "first_to_last_hot_sample_span_seconds": 1.5189958770060912,
+                    "hot_samples": 4,
+                    "peak_C": 100.0,
+                    "largest_between_hot_observation_gap_seconds": 0.5066264620400034,
+                    "previous_observation": {
+                      "workload_offset_seconds": 123.24721881200094,
+                      "temperature_C": 43.0,
+                      "observed_below_threshold": true
+                    },
+                    "following_observation": {
+                      "workload_offset_seconds": 125.78352996299509,
+                      "temperature_C": 54.0,
+                      "observed_below_threshold": true
+                    },
+                    "previous_to_first_hot_gap_seconds": 0.5057405320112593,
+                    "last_hot_to_following_gap_seconds": 0.5115747419768013,
+                    "adjacent_cool_observation_window_seconds": 2.536311150994152
+                  }
+                ],
+                "maximum_first_to_last_hot_sample_span_seconds": 1.5189958770060912,
+                "maximum_adjacent_cool_observation_window_seconds": 2.536311150994152
+              },
+              "95": {
+                "threshold_C": 95.0,
+                "hot_samples": 3,
+                "episodes": [
+                  {
+                    "first_hot_workload_offset_seconds": 124.25900801102398,
+                    "last_hot_workload_offset_seconds": 125.27195522101829,
+                    "first_to_last_hot_sample_span_seconds": 1.0129472099943087,
+                    "hot_samples": 3,
+                    "peak_C": 100.0,
+                    "largest_between_hot_observation_gap_seconds": 0.5066264620400034,
+                    "previous_observation": {
+                      "workload_offset_seconds": 123.7529593440122,
+                      "temperature_C": 92.0,
+                      "observed_below_threshold": true
+                    },
+                    "following_observation": {
+                      "workload_offset_seconds": 125.78352996299509,
+                      "temperature_C": 54.0,
+                      "observed_below_threshold": true
+                    },
+                    "previous_to_first_hot_gap_seconds": 0.5060486670117825,
+                    "last_hot_to_following_gap_seconds": 0.5115747419768013,
+                    "adjacent_cool_observation_window_seconds": 2.0305706189828925
+                  }
+                ],
+                "maximum_first_to_last_hot_sample_span_seconds": 1.0129472099943087,
+                "maximum_adjacent_cool_observation_window_seconds": 2.0305706189828925
+              }
+            }
+          }
+        },
+        "sampled_sensor_types": {
+          "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+          "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp"
+        },
+        "mapped_but_not_sampled_sensor_types": {
+          "/sys/class/thermal/thermal_zone2/temp": "SEN1",
+          "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+          "/sys/class/thermal/thermal_zone3/temp": "SEN2",
+          "/sys/class/thermal/thermal_zone1/temp": "INT3400 Thermal",
+          "/sys/class/thermal/thermal_zone6/temp": "iwlwifi_1",
+          "/sys/class/thermal/thermal_zone4/temp": "SEN5"
+        },
+        "scope": "All retained native process snapshots, including startup and seeks; offsets reference first raw control. Samples/spans do not establish continuous temperature or a user-approved sustained threshold. Cool brackets are observation windows only."
+      },
+      "policy": {
+        "phase_counts": [
+          {
+            "firmware": "balanced",
+            "cpu0_EPP": "balance_performance",
+            "samples": 7
+          },
+          {
+            "firmware": "low-power",
+            "cpu0_EPP": "power",
+            "samples": 441
+          }
+        ],
+        "phases": [
+          {
+            "firmware": "balanced",
+            "cpu0_EPP": "balance_performance",
+            "samples": 3,
+            "first_monotonic": 383296.53439778,
+            "last_monotonic": 383297.545145438,
+            "first_collection_offset_seconds": 0.5055851850192994,
+            "last_collection_offset_seconds": 1.5163328429916874,
+            "first_to_last_observed_span_seconds": 1.010747657972388
+          },
+          {
+            "firmware": "low-power",
+            "cpu0_EPP": "power",
+            "samples": 238,
+            "first_monotonic": 383298.054781218,
+            "last_monotonic": 383419.276031407,
+            "first_collection_offset_seconds": 2.0259686229983345,
+            "last_collection_offset_seconds": 123.24721881200094,
+            "first_to_last_observed_span_seconds": 121.2212501890026
+          },
+          {
+            "firmware": "balanced",
+            "cpu0_EPP": "balance_performance",
+            "samples": 4,
+            "first_monotonic": 383419.781771939,
+            "last_monotonic": 383421.300767816,
+            "first_collection_offset_seconds": 123.7529593440122,
+            "last_collection_offset_seconds": 125.27195522101829,
+            "first_to_last_observed_span_seconds": 1.5189958770060912
+          },
+          {
+            "firmware": "low-power",
+            "cpu0_EPP": "power",
+            "samples": 203,
+            "first_monotonic": 383421.812342558,
+            "last_monotonic": 383525.258728342,
+            "first_collection_offset_seconds": 125.78352996299509,
+            "last_collection_offset_seconds": 229.22991574701155,
+            "first_to_last_observed_span_seconds": 103.44638578401646
+          }
+        ],
+        "scope": "All retained snapshots; phase spans are first-to-last observed samples, not continuous state or exact transition times."
+      },
+      "sampled_actual_gpu_frequency_mhz": {
+        "count": 448,
+        "minimum": 0,
+        "p50": 0,
+        "p95": 400,
+        "p99": 550,
+        "maximum": 900
+      },
+      "worker_statistics": {
+        "generation": 3,
+        "ready_count": 0,
+        "max_ready": 2,
+        "ready_high_water": 1,
+        "telemetry_count": 0,
+        "max_telemetry": 256,
+        "telemetry_high_water": 1,
+        "telemetry_dropped": 0,
+        "pending_latest_generation": null,
+        "inflight": null,
+        "discarded_count": 0,
+        "cancel_count": 0,
+        "backend_start_count": 1,
+        "backend_pid": null,
+        "closed": true
+      },
+      "conditions_at_start": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "balanced",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3982174",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 36050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 41000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 59000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 41050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 39050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 34000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 37050
+        }
+      },
+      "conditions_at_finish": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "low-power",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1300052",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 39050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 43000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 41000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 43050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 43050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 32000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 40050
+        }
+      },
+      "saved_numerical_quality_verified": false
+    },
+    "vulkan": {
+      "status": "ok",
+      "driver_elapsed_seconds": 68.03357210097602,
+      "collection_interval_monotonic": [
+        383619.632256233,
+        383687.222486046
+      ],
+      "collection_interval_seconds": 67.5902298130095,
+      "continuous_hop_service_ms": {
+        "count": 12,
+        "minimum": 1848.6002929857932,
+        "p50": 3514.5712490193546,
+        "p95": 4273.512156039942,
+        "p99": 4273.512156039942,
+        "maximum": 4273.512156039942
+      },
+      "continuous_target_ms": 4095,
+      "continuous_target_misses": 1,
+      "continuous_observed_p99_within_target": false,
+      "all_collected_hop_service_ms_including_seek_suffixes": {
+        "count": 20,
+        "minimum": 1795.6994969863445,
+        "p50": 3029.0191959938966,
+        "p95": 4700.44207299361,
+        "p99": 4996.099402953405,
+        "maximum": 4996.099402953405
+      },
+      "tracks": [
+        {
+          "id": "parting_glass",
+          "cold_model": true,
+          "continuous": {
+            "generation": 1,
+            "start_frame": 0,
+            "frames": 1031940,
+            "chunks": 4,
+            "first_chunk": {
+              "ready_monotonic": 383621.96021312,
+              "delivered_monotonic": 383621.982605059,
+              "control_to_ready_ms": 2327.956886962056,
+              "load_to_delivered_ms": 2350.3542770049535
+            },
+            "hop_service_percentiles_ms": {
+              "50": 1866.9041740358807,
+              "95": 2057.600215950515,
+              "99": 2057.600215950515
+            },
+            "hop_service_max_ms": 2057.600215950515,
+            "chunk_stream_sha256": "5a153051f39e4c8909cf54c80146eca6d66ddda5c9fe380de758c07912e0b232",
+            "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+            "wall_seconds": 8.153175049985293,
+            "load_issued_monotonic": 383619.632250782
+          },
+          "source_preparation_ms": 22.42082799784839,
+          "source_statistics_reused": false,
+          "source_mono_mean": -1.1096830348833464e-05,
+          "source_mono_sample_std": 0.15144765377044678,
+          "first_chunk_source_read_and_normalization_ms": 4.239710979163647,
+          "per_hop_source_read_and_normalization_ms": {
+            "count": 4,
+            "minimum": 3.402104019187391,
+            "p50": 3.6768499994650483,
+            "p95": 15.605863009113818,
+            "p99": 15.605863009113818,
+            "maximum": 15.605863009113818
+          },
+          "native_graph_ms": {
+            "count": 4,
+            "minimum": 1666.168863,
+            "p50": 1666.734763,
+            "p95": 1841.821894,
+            "p99": 1841.821894,
+            "maximum": 1841.821894
+          },
+          "native_frontend_ms": {
+            "count": 4,
+            "minimum": 9.638796,
+            "p50": 18.932346,
+            "p95": 23.826247,
+            "p99": 23.826247,
+            "maximum": 23.826247
+          },
+          "native_postprocess_ms": {
+            "count": 4,
+            "minimum": 17.199596,
+            "p50": 40.365013,
+            "p95": 44.510018,
+            "p99": 44.510018,
+            "maximum": 44.510018
+          },
+          "target_misses_gt_4095_ms": 0,
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/parting_glass.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "ad2c90155733a33b4eb54789e34dc670f027ff6b1cd3fbb22b5f92448b695379"
+          },
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          }
+        },
+        {
+          "id": "funkorama",
+          "cold_model": false,
+          "continuous": {
+            "generation": 5,
+            "start_frame": 0,
+            "frames": 1031940,
+            "chunks": 4,
+            "first_chunk": {
+              "ready_monotonic": 383660.683897402,
+              "delivered_monotonic": 383660.710817352,
+              "control_to_ready_ms": 4337.960947013926,
+              "load_to_delivered_ms": 4364.899464999326
+            },
+            "hop_service_percentiles_ms": {
+              "50": 3904.0662240004167,
+              "95": 4273.512156039942,
+              "99": 4273.512156039942
+            },
+            "hop_service_max_ms": 4273.512156039942,
+            "chunk_stream_sha256": "ebeedf73abd902a8d1d49eb781fa89fc25ba80b2dd73d459416081dccd6c394d",
+            "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+            "wall_seconds": 16.1577456620289,
+            "load_issued_monotonic": 383656.345917887
+          },
+          "source_preparation_ms": 64.11830597789958,
+          "source_statistics_reused": false,
+          "source_mono_mean": -2.39426094594819e-06,
+          "source_mono_sample_std": 0.13520687818527222,
+          "first_chunk_source_read_and_normalization_ms": 3.4741790150292218,
+          "per_hop_source_read_and_normalization_ms": {
+            "count": 4,
+            "minimum": 3.4741790150292218,
+            "p50": 3.5417929757386446,
+            "p95": 16.5464419987984,
+            "p99": 16.5464419987984,
+            "maximum": 16.5464419987984
+          },
+          "native_graph_ms": {
+            "count": 4,
+            "minimum": 3641.661981,
+            "p50": 3772.356778,
+            "p95": 4071.614997,
+            "p99": 4071.614997,
+            "maximum": 4071.614997
+          },
+          "native_frontend_ms": {
+            "count": 4,
+            "minimum": 19.259518,
+            "p50": 20.171439,
+            "p95": 22.515526,
+            "p99": 22.515526,
+            "maximum": 22.515526
+          },
+          "native_postprocess_ms": {
+            "count": 4,
+            "minimum": 42.779672,
+            "p50": 45.832983,
+            "p95": 51.648997,
+            "p99": 51.648997,
+            "maximum": 51.648997
+          },
+          "target_misses_gt_4095_ms": 1,
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/funkorama.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "ce9860494ad0aae77cf5abc00a057dca855d4b11db1fc9daf7c311768082cf24"
+          },
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          }
+        },
+        {
+          "id": "club_diver",
+          "cold_model": false,
+          "continuous": {
+            "generation": 6,
+            "start_frame": 0,
+            "frames": 1031940,
+            "chunks": 4,
+            "first_chunk": {
+              "ready_monotonic": 383676.231306998,
+              "delivered_monotonic": 383676.251444715,
+              "control_to_ready_ms": 3636.373169021681,
+              "load_to_delivered_ms": 3656.5260679926723
+            },
+            "hop_service_percentiles_ms": {
+              "50": 3514.5712490193546,
+              "95": 4064.2758770263754,
+              "99": 4064.2758770263754
+            },
+            "hop_service_max_ms": 4064.2758770263754,
+            "chunk_stream_sha256": "56a80a15f6733b18ce3f9714c8d21d29cc06c88d572f32fb156e08f2f5c1b442",
+            "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+            "wall_seconds": 14.691333406954072,
+            "load_issued_monotonic": 383672.594918647
+          },
+          "source_preparation_ms": 61.43355800304562,
+          "source_statistics_reused": false,
+          "source_mono_mean": 0.001200671773403883,
+          "source_mono_sample_std": 0.21757608652114868,
+          "first_chunk_source_read_and_normalization_ms": 3.582105040550232,
+          "per_hop_source_read_and_normalization_ms": {
+            "count": 4,
+            "minimum": 3.582105040550232,
+            "p50": 4.543711023870856,
+            "p95": 9.784656984265894,
+            "p99": 9.784656984265894,
+            "maximum": 9.784656984265894
+          },
+          "native_graph_ms": {
+            "count": 4,
+            "minimum": 3247.031897,
+            "p50": 3341.199125,
+            "p95": 3896.306727,
+            "p99": 3896.306727,
+            "maximum": 3896.306727
+          },
+          "native_frontend_ms": {
+            "count": 4,
+            "minimum": 18.758093,
+            "p50": 19.029047,
+            "p95": 31.596419,
+            "p99": 31.596419,
+            "maximum": 31.596419
+          },
+          "native_postprocess_ms": {
+            "count": 4,
+            "minimum": 41.455718,
+            "p50": 42.496273,
+            "p95": 63.78766,
+            "p99": 63.78766,
+            "maximum": 63.78766
+          },
+          "target_misses_gt_4095_ms": 0,
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/club_diver.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "d2dd9df24c82358b08d05fdedf09a134c0c14f8a2054c3061e4167358cb1f5ba"
+          },
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          }
+        }
+      ],
+      "seeks": [
+        {
+          "generation": 2,
+          "start_frame": 257984,
+          "frames": 773956,
+          "chunks": 4,
+          "first_chunk": {
+            "ready_monotonic": 383629.91934584,
+            "delivered_monotonic": 383629.92003844,
+            "control_to_ready_ms": 2047.0664409804158
+          },
+          "hop_service_percentiles_ms": {
+            "50": 1840.1438850560226,
+            "95": 2046.7829409753904,
+            "99": 2046.7829409753904
+          },
+          "hop_service_max_ms": 2046.7829409753904,
+          "chunk_stream_sha256": "98b837939c120e4915b9bbb07b226a9ffa7cf3fbdd6e95b4eb816fd46f336e11",
+          "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+          "reference_chunk_stream_sha256": "98b837939c120e4915b9bbb07b226a9ffa7cf3fbdd6e95b4eb816fd46f336e11",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rms_difference": 0.0,
+          "parity_tolerance": {
+            "rtol": 0.0001,
+            "atol": 1e-05
+          },
+          "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+          "track_id": "parting_glass",
+          "wall_seconds": 7.781810598971788
+        },
+        {
+          "generation": 3,
+          "start_frame": 343981,
+          "frames": 687959,
+          "chunks": 3,
+          "first_chunk": {
+            "ready_monotonic": 383639.58584204,
+            "delivered_monotonic": 383639.607196293,
+            "control_to_ready_ms": 3931.7360920249484
+          },
+          "hop_service_percentiles_ms": {
+            "50": 3029.0191959938966,
+            "95": 4996.099402953405,
+            "99": 4996.099402953405
+          },
+          "hop_service_max_ms": 4996.099402953405,
+          "chunk_stream_sha256": "84ba8edfa67511d34f5549614c4e3bcdf589058deb320849c7b9c00e1d3790c6",
+          "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+          "reference_chunk_stream_sha256": "84ba8edfa67511d34f5549614c4e3bcdf589058deb320849c7b9c00e1d3790c6",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rms_difference": 0.0,
+          "parity_tolerance": {
+            "rtol": 0.0001,
+            "atol": 1e-05
+          },
+          "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+          "track_id": "parting_glass",
+          "wall_seconds": 12.104033896001056
+        },
+        {
+          "generation": 4,
+          "start_frame": 1027844,
+          "frames": 4096,
+          "chunks": 1,
+          "first_chunk": {
+            "ready_monotonic": 383656.329315269,
+            "delivered_monotonic": 383656.330456431,
+            "control_to_ready_ms": 8570.997941016685
+          },
+          "hop_service_percentiles_ms": {
+            "50": 4700.44207299361,
+            "95": 4700.44207299361,
+            "99": 4700.44207299361
+          },
+          "hop_service_max_ms": 4700.44207299361,
+          "chunk_stream_sha256": "b02583df428393733898e35e04fefa1dd6bfb74aa9b0303fb1cb07ddd7f7274d",
+          "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+          "reference_chunk_stream_sha256": "b02583df428393733898e35e04fefa1dd6bfb74aa9b0303fb1cb07ddd7f7274d",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rms_difference": 0.0,
+          "parity_tolerance": {
+            "rtol": 0.0001,
+            "atol": 1e-05
+          },
+          "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+          "track_id": "parting_glass",
+          "wall_seconds": 8.586245521029923
+        }
+      ],
+      "native_ready": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1875054,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 378.938723,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "native_memory_cpu": {
+        "samples": 132,
+        "elapsed_seconds": 67.9153270899551,
+        "sample_errors": {},
+        "processes": [
+          {
+            "pid": 1875054,
+            "start_ticks": 42897139,
+            "samples": 132,
+            "max_process_status_kB": {
+              "VmHWM": 280900,
+              "VmRSS": 280900,
+              "VmSwap": 0
+            },
+            "drm_client_maxima": {
+              "0000:00:02.0/client-963": {
+                "drm-driver": "i915",
+                "drm-client-id": "963",
+                "drm-pdev": "0000:00:02.0",
+                "drm-total-system0": "0",
+                "drm-shared-system0": "0",
+                "drm-active-system0": "0",
+                "drm-resident-system0": "0",
+                "drm-purgeable-system0": "0",
+                "drm-total-stolen-system0": "0",
+                "drm-shared-stolen-system0": "0",
+                "drm-active-stolen-system0": "0",
+                "drm-resident-stolen-system0": "0",
+                "drm-purgeable-stolen-system0": "0",
+                "drm-engine-render": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-copy": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-video": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-capacity-video": "2",
+                "drm-engine-video-enhance": {
+                  "value": 0,
+                  "unit": "ns"
+                }
+              },
+              "0000:00:02.0/client-964": {
+                "drm-driver": "i915",
+                "drm-client-id": "964",
+                "drm-pdev": "0000:00:02.0",
+                "drm-total-system0": {
+                  "value": 535780,
+                  "unit": "KiB"
+                },
+                "drm-shared-system0": "0",
+                "drm-active-system0": {
+                  "observations": [
+                    "0",
+                    {
+                      "value": 534584,
+                      "unit": "KiB"
+                    }
+                  ]
+                },
+                "drm-resident-system0": {
+                  "value": 535780,
+                  "unit": "KiB"
+                },
+                "drm-purgeable-system0": {
+                  "value": 1132,
+                  "unit": "KiB"
+                },
+                "drm-total-stolen-system0": "0",
+                "drm-shared-stolen-system0": "0",
+                "drm-active-stolen-system0": "0",
+                "drm-resident-stolen-system0": "0",
+                "drm-purgeable-stolen-system0": "0",
+                "drm-engine-render": {
+                  "value": 56747041312,
+                  "unit": "ns"
+                },
+                "drm-engine-copy": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-video": {
+                  "value": 0,
+                  "unit": "ns"
+                },
+                "drm-engine-capacity-video": "2",
+                "drm-engine-video-enhance": {
+                  "value": 0,
+                  "unit": "ns"
+                }
+              }
+            },
+            "max_simultaneous_drm_clients": 2,
+            "fd_read_errors": 0,
+            "first_elapsed_seconds": 0.5062659739633091,
+            "last_elapsed_seconds": 67.52391922095558,
+            "first_process_counters": {
+              "status.voluntary_ctxt_switches": 542,
+              "status.nonvoluntary_ctxt_switches": 18,
+              "stat.minflt": 66233,
+              "stat.majflt": 0
+            },
+            "last_process_counters": {
+              "status.voluntary_ctxt_switches": 911,
+              "status.nonvoluntary_ctxt_switches": 179,
+              "stat.minflt": 70400,
+              "stat.majflt": 0
+            },
+            "observed_cpu_seconds": 5.03
+          }
+        ],
+        "notes": [
+          "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+          "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+          "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+          "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+          "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+          "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+          "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+        ]
+      },
+      "supervisor_memory_cpu": {
+        "samples": 137,
+        "elapsed_seconds": 67.91633766301675,
+        "sample_errors": {},
+        "processes": [
+          {
+            "pid": 1875050,
+            "start_ticks": 42897113,
+            "samples": 137,
+            "max_process_status_kB": {
+              "VmHWM": 193684,
+              "VmRSS": 183576,
+              "VmSwap": 0
+            },
+            "drm_client_maxima": {},
+            "max_simultaneous_drm_clients": 0,
+            "fd_read_errors": 137,
+            "first_elapsed_seconds": 0.0013380029704421759,
+            "last_elapsed_seconds": 67.91630899498705,
+            "first_process_counters": {
+              "status.voluntary_ctxt_switches": 17,
+              "status.nonvoluntary_ctxt_switches": 4,
+              "stat.minflt": 6613,
+              "stat.majflt": 0
+            },
+            "last_process_counters": {
+              "status.voluntary_ctxt_switches": 778,
+              "status.nonvoluntary_ctxt_switches": 87,
+              "stat.minflt": 129579,
+              "stat.majflt": 47
+            },
+            "observed_cpu_seconds": 5.06
+          }
+        ],
+        "notes": [
+          "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+          "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+          "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+          "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+          "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+          "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+          "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+        ]
+      },
+      "native_trace": {
+        "rows": 132,
+        "read_errors": {},
+        "samples_before_collection": 0,
+        "samples_inside_collection": 132,
+        "samples_after_collection": 0,
+        "first_collection_offset_seconds": 0.5052672259625979,
+        "last_collection_offset_seconds": 67.52292047295487,
+        "maximum_adjacent_snapshot_gap_seconds": 0.541916978021618,
+        "system_read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 132,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 132,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 132,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 132
+        }
+      },
+      "thermal": {
+        "by_sensor": {
+          "/sys/class/thermal/thermal_zone5/temp": {
+            "recorded_type": "TCPU",
+            "samples": 132,
+            "valid_samples": 132,
+            "missing_or_invalid_samples": 0,
+            "peak_C": 64.05,
+            "peak_workload_offsets_seconds": [
+              7.644016606966034,
+              8.185933584987652,
+              8.695693524961825,
+              9.204256194003392
+            ],
+            "first_observed_workload_offset_seconds": 0.5052672259625979,
+            "last_observed_workload_offset_seconds": 67.52292047295487,
+            "maximum_adjacent_observation_gap_seconds": 0.541916978021618,
+            "thresholds": {
+              "85": {
+                "threshold_C": 85.0,
+                "hot_samples": 0,
+                "episodes": [],
+                "maximum_first_to_last_hot_sample_span_seconds": 0,
+                "maximum_adjacent_cool_observation_window_seconds": null
+              },
+              "95": {
+                "threshold_C": 95.0,
+                "hot_samples": 0,
+                "episodes": [],
+                "maximum_first_to_last_hot_sample_span_seconds": 0,
+                "maximum_adjacent_cool_observation_window_seconds": null
+              }
+            }
+          },
+          "/sys/class/thermal/thermal_zone7/temp": {
+            "recorded_type": "x86_pkg_temp",
+            "samples": 132,
+            "valid_samples": 132,
+            "missing_or_invalid_samples": 0,
+            "peak_C": 90.0,
+            "peak_workload_offsets_seconds": [
+              2.0254369319882244
+            ],
+            "first_observed_workload_offset_seconds": 0.5052672259625979,
+            "last_observed_workload_offset_seconds": 67.52292047295487,
+            "maximum_adjacent_observation_gap_seconds": 0.541916978021618,
+            "thresholds": {
+              "85": {
+                "threshold_C": 85.0,
+                "hot_samples": 2,
+                "episodes": [
+                  {
+                    "first_hot_workload_offset_seconds": 1.5189307850087062,
+                    "last_hot_workload_offset_seconds": 2.0254369319882244,
+                    "first_to_last_hot_sample_span_seconds": 0.5065061469795182,
+                    "hot_samples": 2,
+                    "peak_C": 90.0,
+                    "largest_between_hot_observation_gap_seconds": 0.5065061469795182,
+                    "previous_observation": {
+                      "workload_offset_seconds": 1.0113584359642118,
+                      "temperature_C": 75.0,
+                      "observed_below_threshold": true
+                    },
+                    "following_observation": {
+                      "workload_offset_seconds": 2.535952248959802,
+                      "temperature_C": 58.0,
+                      "observed_below_threshold": true
+                    },
+                    "previous_to_first_hot_gap_seconds": 0.5075723490444943,
+                    "last_hot_to_following_gap_seconds": 0.5105153169715777,
+                    "adjacent_cool_observation_window_seconds": 1.5245938129955903
+                  }
+                ],
+                "maximum_first_to_last_hot_sample_span_seconds": 0.5065061469795182,
+                "maximum_adjacent_cool_observation_window_seconds": 1.5245938129955903
+              },
+              "95": {
+                "threshold_C": 95.0,
+                "hot_samples": 0,
+                "episodes": [],
+                "maximum_first_to_last_hot_sample_span_seconds": 0,
+                "maximum_adjacent_cool_observation_window_seconds": null
+              }
+            }
+          }
+        },
+        "sampled_sensor_types": {
+          "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+          "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp"
+        },
+        "mapped_but_not_sampled_sensor_types": {
+          "/sys/class/thermal/thermal_zone2/temp": "SEN1",
+          "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+          "/sys/class/thermal/thermal_zone3/temp": "SEN2",
+          "/sys/class/thermal/thermal_zone1/temp": "INT3400 Thermal",
+          "/sys/class/thermal/thermal_zone6/temp": "iwlwifi_1",
+          "/sys/class/thermal/thermal_zone4/temp": "SEN5"
+        },
+        "scope": "All retained native process snapshots, including startup and seeks; offsets reference first raw control. Samples/spans do not establish continuous temperature or a user-approved sustained threshold. Cool brackets are observation windows only."
+      },
+      "policy": {
+        "phase_counts": [
+          {
+            "firmware": "balanced",
+            "cpu0_EPP": "balance_performance",
+            "samples": 4
+          },
+          {
+            "firmware": "low-power",
+            "cpu0_EPP": "power",
+            "samples": 128
+          }
+        ],
+        "phases": [
+          {
+            "firmware": "balanced",
+            "cpu0_EPP": "balance_performance",
+            "samples": 4,
+            "first_monotonic": 383620.137523459,
+            "last_monotonic": 383621.657693165,
+            "first_collection_offset_seconds": 0.5052672259625979,
+            "last_collection_offset_seconds": 2.0254369319882244,
+            "first_to_last_observed_span_seconds": 1.5201697060256265
+          },
+          {
+            "firmware": "low-power",
+            "cpu0_EPP": "power",
+            "samples": 128,
+            "first_monotonic": 383622.168208482,
+            "last_monotonic": 383687.155176706,
+            "first_collection_offset_seconds": 2.535952248959802,
+            "last_collection_offset_seconds": 67.52292047295487,
+            "first_to_last_observed_span_seconds": 64.98696822399506
+          }
+        ],
+        "scope": "All retained snapshots; phase spans are first-to-last observed samples, not continuous state or exact transition times."
+      },
+      "sampled_actual_gpu_frequency_mhz": {
+        "count": 132,
+        "minimum": 0,
+        "p50": 600,
+        "p95": 1350,
+        "p99": 1350,
+        "maximum": 1350
+      },
+      "worker_statistics": {
+        "generation": 6,
+        "ready_count": 0,
+        "max_ready": 2,
+        "ready_high_water": 1,
+        "telemetry_count": 0,
+        "max_telemetry": 256,
+        "telemetry_high_water": 1,
+        "telemetry_dropped": 0,
+        "pending_latest_generation": null,
+        "inflight": null,
+        "discarded_count": 0,
+        "cancel_count": 0,
+        "backend_start_count": 1,
+        "backend_pid": null,
+        "closed": true
+      },
+      "conditions_at_start": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "balanced",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3273183",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 37050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 39000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 59000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 39050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 40050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 32000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 39050
+        }
+      },
+      "conditions_at_finish": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "low-power",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "963416",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 40050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 47000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 46000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 47050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 47050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 33000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 44050
+        }
+      },
+      "saved_numerical_quality_verified": false
+    }
+  },
+  "pins": {
+    "cpu": {
+      "manifest": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/manifest.json",
+        "bytes": 8527,
+        "sha256": "d833af135ba7c371156e7cdeb6147192ff5e570f6eb9306ba4fb4f262a419ab9"
+      },
+      "runtime": {
+        "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "bytes": 62986240,
+        "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+      },
+      "model": {
+        "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "bytes": 84059168,
+        "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+      },
+      "driver": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/quality_run.py",
+        "bytes": 16155,
+        "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+      },
+      "worker_source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+        "bytes": 24863,
+        "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+      },
+      "shared_benchmark_source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+        "bytes": 23061,
+        "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+      },
+      "sampler_source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+        "bytes": 23403,
+        "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+      }
+    },
+    "vulkan": {
+      "manifest": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/manifest.json",
+        "bytes": 8527,
+        "sha256": "d833af135ba7c371156e7cdeb6147192ff5e570f6eb9306ba4fb4f262a419ab9"
+      },
+      "runtime": {
+        "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "bytes": 62986240,
+        "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+      },
+      "model": {
+        "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "bytes": 84059168,
+        "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+      },
+      "driver": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/quality_run.py",
+        "bytes": 16155,
+        "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+      },
+      "worker_source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+        "bytes": 24863,
+        "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+      },
+      "shared_benchmark_source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+        "bytes": 23061,
+        "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+      },
+      "sampler_source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+        "bytes": 23403,
+        "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+      }
+    }
+  },
+  "matching_backend_pin_sha256": {
+    "manifest": true,
+    "runtime": true,
+    "model": true,
+    "driver": true,
+    "worker_source": true,
+    "shared_benchmark_source": true,
+    "sampler_source": true
+  },
+  "corpus": {
+    "status": "ready",
+    "excerpt_plan": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/excerpt-plan.json",
+      "bytes": 617,
+      "sha256": "f4749951bb9e7f3f0722c3debcdb6e3a0c9af06b8f1cb4b1632329df76a0f00e"
+    },
+    "tracks": [
+      {
+        "id": "parting_glass",
+        "artist": "Doxent Zsigmond",
+        "title": "The Parting Glass",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "source_page": "https://ccmixter.org/files/doxent/56347",
+        "bpm": "rubato",
+        "official_tags": [
+          "acappella",
+          "media",
+          "ccplus",
+          "sample",
+          "multiple_formats",
+          "attribution",
+          "archive",
+          "zip",
+          "audio",
+          "mp3",
+          "44k",
+          "stereo",
+          "VBR",
+          "flac",
+          "male_vocals",
+          "acoustic",
+          "traditional",
+          "chill",
+          "piano",
+          "downtempo"
+        ],
+        "attribution": "\"The Parting Glass\" by Doxent Zsigmond (ccMixter), CC BY 3.0; traditional music/lyrics. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass.mp3",
+          "bytes": 4997318,
+          "sha256": "e0791f4156a7127434dad525c654c8893d3b1df9dc3c86fbb63e2aaf0bc22b4c"
+        },
+        "input_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+          "bytes": 4127804,
+          "sha256": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464"
+        },
+        "decode": {
+          "command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass.mp3",
+            "-map",
+            "0:a:0",
+            "-ac",
+            "2",
+            "-ar",
+            "44100",
+            "-acodec",
+            "pcm_f32le",
+            "-f",
+            "f32le",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass.decoded-f32le.raw"
+          ],
+          "stderr": "",
+          "whole_decoded_frames": 8246700,
+          "whole_decoded_float32_identity": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass.decoded-f32le.raw",
+            "bytes": 65973600,
+            "sha256": "5f949802e549b93053e029007a9e4066a3590c34ded61bb9528fcefb7691c1ad"
+          },
+          "temporary_raw_retained": false,
+          "source_frame_offset": 1323000,
+          "source_offset_seconds": 30.0,
+          "frames": 1031940,
+          "duration_seconds": 23.4,
+          "source_timeline": "ffmpeg decoded and resampled stereo 44.1 kHz timeline, with decoder delay handling; no looping",
+          "decoded_excerpt_float32_sha256": "2bd4ac584c83f5631b93ef004b65bfef4849aa3c5a51dae30bd8480095912d5a",
+          "decoded_excerpt_peak": 0.9628968238830566,
+          "common_stereo_gain": 1.0,
+          "gain_required": false,
+          "attenuation_target_if_required": 0.95,
+          "scaled_excerpt_peak": 0.9628968238830566,
+          "quantization": "numpy.rint(float64(decoded_float32) * common_stereo_gain * 32767).astype('<i2'); no clipping",
+          "pcm16_min": -27210,
+          "pcm16_max": 31551,
+          "sample_rate": 44100,
+          "channels": 2,
+          "sample_bytes": 2
+        }
+      },
+      {
+        "id": "funkorama",
+        "artist": "Kevin MacLeod",
+        "title": "Funkorama",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "source_page": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100474",
+        "bpm": 101,
+        "official_tags": [
+          "Grooving",
+          "Uplifting"
+        ],
+        "attribution": "\"Funkorama\" Kevin MacLeod (incompetech.com), CC BY 4.0. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama.mp3",
+          "bytes": 8199078,
+          "sha256": "6be229815d85a0b99382b944d31098b882702c04ac7ad899e44ab7f8ba89b5ad"
+        },
+        "input_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+          "bytes": 4127804,
+          "sha256": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7"
+        },
+        "decode": {
+          "command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama.mp3",
+            "-map",
+            "0:a:0",
+            "-ac",
+            "2",
+            "-ar",
+            "44100",
+            "-acodec",
+            "pcm_f32le",
+            "-f",
+            "f32le",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama.decoded-f32le.raw"
+          ],
+          "stderr": "",
+          "whole_decoded_frames": 8884224,
+          "whole_decoded_float32_identity": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama.decoded-f32le.raw",
+            "bytes": 71073792,
+            "sha256": "734d5077105bc73de8f5162e02ce8dc092d42d4c0a5364e63a67694b653ad1cd"
+          },
+          "temporary_raw_retained": false,
+          "source_frame_offset": 1323000,
+          "source_offset_seconds": 30.0,
+          "frames": 1031940,
+          "duration_seconds": 23.4,
+          "source_timeline": "ffmpeg decoded and resampled stereo 44.1 kHz timeline, with decoder delay handling; no looping",
+          "decoded_excerpt_float32_sha256": "88119d3999b3b557dd134ca0dfc8d1a2d7bb784525114a7fa46179b2f4cf3562",
+          "decoded_excerpt_peak": 1.0094730854034424,
+          "common_stereo_gain": 0.941085021222063,
+          "gain_required": true,
+          "attenuation_target_if_required": 0.95,
+          "scaled_excerpt_peak": 0.95,
+          "quantization": "numpy.rint(float64(decoded_float32) * common_stereo_gain * 32767).astype('<i2'); no clipping",
+          "pcm16_min": -31129,
+          "pcm16_max": 24770,
+          "sample_rate": 44100,
+          "channels": 2,
+          "sample_bytes": 2
+        }
+      },
+      {
+        "id": "club_diver",
+        "artist": "Kevin MacLeod",
+        "title": "Club Diver",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "source_page": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200020",
+        "bpm": 140,
+        "official_tags": [
+          "Aggressive",
+          "Dark",
+          "Driving",
+          "Grooving",
+          "Intense",
+          "Unnerving"
+        ],
+        "attribution": "\"Club Diver\" Kevin MacLeod (incompetech.com), CC BY 4.0. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver.mp3",
+          "bytes": 5829600,
+          "sha256": "3b8d82e6ed69cbd540e69794a252b7dced75a0af838914a094182115af3effb6"
+        },
+        "input_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+          "bytes": 4127804,
+          "sha256": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88"
+        },
+        "decode": {
+          "command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver.mp3",
+            "-map",
+            "0:a:0",
+            "-ac",
+            "2",
+            "-ar",
+            "44100",
+            "-acodec",
+            "pcm_f32le",
+            "-f",
+            "f32le",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver.decoded-f32le.raw"
+          ],
+          "stderr": "",
+          "whole_decoded_frames": 6424704,
+          "whole_decoded_float32_identity": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver.decoded-f32le.raw",
+            "bytes": 51397632,
+            "sha256": "3852565dbabc1e4760c67854cbe7e2207ba5259af4f03a625d5b18c9a29e5df9"
+          },
+          "temporary_raw_retained": false,
+          "source_frame_offset": 1323000,
+          "source_offset_seconds": 30.0,
+          "frames": 1031940,
+          "duration_seconds": 23.4,
+          "source_timeline": "ffmpeg decoded and resampled stereo 44.1 kHz timeline, with decoder delay handling; no looping",
+          "decoded_excerpt_float32_sha256": "f58b12347b9151d4ba0f147068c425ab4f49fc4782e54c11ca673537fe98da29",
+          "decoded_excerpt_peak": 1.0148950815200806,
+          "common_stereo_gain": 0.9360573494721418,
+          "gain_required": true,
+          "attenuation_target_if_required": 0.95,
+          "scaled_excerpt_peak": 0.95,
+          "quantization": "numpy.rint(float64(decoded_float32) * common_stereo_gain * 32767).astype('<i2'); no clipping",
+          "pcm16_min": -30773,
+          "pcm16_max": 31129,
+          "sample_rate": 44100,
+          "channels": 2,
+          "sample_bytes": 2
+        }
+      }
+    ],
+    "download_bytes": 19025996,
+    "full_MP3_decode_timing": "Not recorded; conversion/provenance metadata does not contain decode wall time. Per-clip source preparation and first-window PCM read/normalize timings are separate above.",
+    "scope": "One CC BY3.0 and two CC BY4.0 excerpts cover a small rubato/acoustic/vocal, funk and electronic sample. Metadata tags/BPM are source assertions, not independently annotated event/tempo ground truth; this is not complete genre coverage."
+  },
+  "numerical_diagnostics": {
+    "tracks": [
+      {
+        "id": "parting_glass",
+        "cpu_vulkan": {
+          "drums": {
+            "reference_rms": 0.0003583058157056739,
+            "candidate_rms": 0.0003632198381655007,
+            "rms_error": 5.4662480283044895e-05,
+            "maximum_absolute_error": 0.003142925910651684,
+            "bias": -1.2331864206799993e-05,
+            "bias_per_channel": [
+              -1.2533318585451313e-05,
+              -1.2130409828148674e-05
+            ],
+            "rms_error_relative_to_reference": 0.1525581720614514,
+            "error_to_reference_db": -16.331290472180306,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9891164363863949
+            }
+          },
+          "bass": {
+            "reference_rms": 0.0002297089095111046,
+            "candidate_rms": 0.0002323344518135788,
+            "rms_error": 3.115287766714246e-05,
+            "maximum_absolute_error": 0.002905404078774154,
+            "bias": -1.2098555273229984e-05,
+            "bias_per_channel": [
+              -1.203221260392019e-05,
+              -1.2164897942539779e-05
+            ],
+            "rms_error_relative_to_reference": 0.13561893499667008,
+            "error_to_reference_db": -17.353593408424466,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9922676976333148
+            }
+          },
+          "other": {
+            "reference_rms": 0.13430637272607854,
+            "candidate_rms": 0.13430418295275362,
+            "rms_error": 0.00027096813091373494,
+            "maximum_absolute_error": 0.0023940950632095337,
+            "bias": -2.9668321821108336e-06,
+            "bias_per_channel": [
+              -2.790492005106297e-06,
+              -3.1431723591153697e-06
+            ],
+            "rms_error_relative_to_reference": 0.002017537406556141,
+            "error_to_reference_db": -53.90356808814939,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999979651157453
+            }
+          },
+          "vocals": {
+            "reference_rms": 0.09141857079900494,
+            "candidate_rms": 0.09141616369260025,
+            "rms_error": 0.00024076644734819945,
+            "maximum_absolute_error": 0.0037291422486305237,
+            "bias": -1.3098294488928662e-05,
+            "bias_per_channel": [
+              -1.3183952768206789e-05,
+              -1.3012636209650536e-05
+            ],
+            "rms_error_relative_to_reference": 0.0026336710937819663,
+            "error_to_reference_db": -51.5887692577551,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999965424046912
+            }
+          }
+        },
+        "recombination": {
+          "cpu": {
+            "reference_rms": 0.16611062289647616,
+            "candidate_rms": 0.16597331478837932,
+            "rms_error": 0.0024812836768037696,
+            "maximum_absolute_error": 0.05662498949095607,
+            "bias": 7.448433132067585e-05,
+            "bias_per_channel": [
+              9.874778483186856e-05,
+              5.022087780948313e-05
+            ],
+            "rms_error_relative_to_reference": 0.014937537609200111,
+            "error_to_reference_db": -36.51441976510468,
+            "exact_zero_error": false
+          },
+          "vulkan": {
+            "reference_rms": 0.16611062289647616,
+            "candidate_rms": 0.1659745005478757,
+            "rms_error": 0.0024875842520690164,
+            "maximum_absolute_error": 0.056719302432611585,
+            "bias": 3.3988785169606375e-05,
+            "bias_per_channel": [
+              5.8207808869183974e-05,
+              9.769761470028776e-06
+            ],
+            "rms_error_relative_to_reference": 0.014975467605219532,
+            "error_to_reference_db": -36.49239215981345,
+            "exact_zero_error": false
+          }
+        },
+        "references": {
+          "status": "not_supplied",
+          "stems": {}
+        },
+        "geometry_finite_full_coverage_verified": true,
+        "audition": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.mp3",
+          "bytes": 654414,
+          "sha256": "79409d054f3b7a30ea2b89050dd90c2a3bd2d56cde9fa06428c8371b61c86045",
+          "backend": "vulkan",
+          "segments": [
+            {
+              "label": "source",
+              "preview_start_seconds": 0.0,
+              "preview_end_seconds": 5.0,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "drums",
+              "preview_start_seconds": 5.25,
+              "preview_end_seconds": 10.25,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "bass",
+              "preview_start_seconds": 10.5,
+              "preview_end_seconds": 15.5,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "other",
+              "preview_start_seconds": 15.75,
+              "preview_end_seconds": 20.75,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "vocals",
+              "preview_start_seconds": 21.0,
+              "preview_end_seconds": 26.0,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "recombined",
+              "preview_start_seconds": 26.25,
+              "preview_end_seconds": 31.25,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            }
+          ],
+          "preview_pcm_frames": 1378125,
+          "preview_pcm_seconds": 31.25,
+          "decoded_frames": 1378125,
+          "gap_frames": 11025,
+          "edge_fade_frames_per_segment": 221,
+          "common_gain": 1.0,
+          "decoded_sample_peak": 0.9254862070083618,
+          "internal_join_frames_in_each_excerpt": [
+            110250,
+            196245
+          ],
+          "lossless_wav": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav",
+            "bytes": 11025092,
+            "sha256": "9a11d2224e6f5273615e884ecac74ca16866ab0554bd7cd87c1bb0ec625e73d6",
+            "codec": "pcm_f32le",
+            "exact_float32_roundtrip": true,
+            "encode_command": [
+              "/bin/ffmpeg",
+              "-nostdin",
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-y",
+              "-f",
+              "f32le",
+              "-ar",
+              "44100",
+              "-ac",
+              "2",
+              "-i",
+              "pipe:0",
+              "-codec:a",
+              "pcm_f32le",
+              "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav"
+            ],
+            "decode_command": [
+              "/bin/ffmpeg",
+              "-nostdin",
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-i",
+              "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav",
+              "-f",
+              "f32le",
+              "-acodec",
+              "pcm_f32le",
+              "-ar",
+              "44100",
+              "-ac",
+              "2",
+              "pipe:1"
+            ]
+          },
+          "scope": "Same source interval and one common attenuation for all six segments; only outer excerpt edges faded. Internal joins untouched. MP3 is lossy; raw NPY output is the numerical evidence. Sample peak check does not measure intersample true peak. No sound played."
+        }
+      },
+      {
+        "id": "funkorama",
+        "cpu_vulkan": {
+          "drums": {
+            "reference_rms": 0.07303837562920712,
+            "candidate_rms": 0.07306497247879454,
+            "rms_error": 0.0009826316484603324,
+            "maximum_absolute_error": 0.03432280570268631,
+            "bias": -9.474213385873854e-07,
+            "bias_per_channel": [
+              -2.230843101279937e-06,
+              3.360004241051665e-07
+            ],
+            "rms_error_relative_to_reference": 0.013453635023988546,
+            "error_to_reference_db": -37.423207164427204,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999095990080225
+            }
+          },
+          "bass": {
+            "reference_rms": 0.10813708238095784,
+            "candidate_rms": 0.10798013397689116,
+            "rms_error": 0.0008494702508580424,
+            "maximum_absolute_error": 0.027363136410713196,
+            "bias": -1.0128126522060613e-06,
+            "bias_per_channel": [
+              -1.2459085737782391e-06,
+              -7.797167306338834e-07
+            ],
+            "rms_error_relative_to_reference": 0.007855494453469997,
+            "error_to_reference_db": -42.096529473701736,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999701555929613
+            }
+          },
+          "other": {
+            "reference_rms": 0.037656791702982355,
+            "candidate_rms": 0.03765557722578386,
+            "rms_error": 0.0002364557842661182,
+            "maximum_absolute_error": 0.007883012294769287,
+            "bias": -1.1382222191318232e-05,
+            "bias_per_channel": [
+              -1.339179277288873e-05,
+              -9.372651609747733e-06
+            ],
+            "rms_error_relative_to_reference": 0.006279233401803354,
+            "error_to_reference_db": -44.04186747458283,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.999980332591253
+            }
+          },
+          "vocals": {
+            "reference_rms": 0.013248078620016118,
+            "candidate_rms": 0.013261791431819788,
+            "rms_error": 8.695607494804293e-05,
+            "maximum_absolute_error": 0.0026806769892573357,
+            "bias": -9.928561160114984e-06,
+            "bias_per_channel": [
+              -9.959828375193709e-06,
+              -9.897293945036259e-06
+            ],
+            "rms_error_relative_to_reference": 0.0065636744347715185,
+            "error_to_reference_db": -43.65705937105271,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999792966320294
+            }
+          }
+        },
+        "recombination": {
+          "cpu": {
+            "reference_rms": 0.1385771655551963,
+            "candidate_rms": 0.13818215077485113,
+            "rms_error": 0.004798619582733443,
+            "maximum_absolute_error": 0.15925034135580063,
+            "bias": 8.619176468277834e-05,
+            "bias_per_channel": [
+              9.63541620745984e-05,
+              7.602936729095828e-05
+            ],
+            "rms_error_relative_to_reference": 0.034627779861914676,
+            "error_to_reference_db": -29.21150704144982,
+            "exact_zero_error": false
+          },
+          "vulkan": {
+            "reference_rms": 0.1385771655551963,
+            "candidate_rms": 0.13817448948323094,
+            "rms_error": 0.004799537185943025,
+            "maximum_absolute_error": 0.15852748975157738,
+            "bias": 6.292074734055168e-05,
+            "bias_per_channel": [
+              6.952578925145779e-05,
+              5.631570542964557e-05
+            ],
+            "rms_error_relative_to_reference": 0.03463440146660623,
+            "error_to_reference_db": -29.209846264193033,
+            "exact_zero_error": false
+          }
+        },
+        "references": {
+          "status": "not_supplied",
+          "stems": {}
+        },
+        "geometry_finite_full_coverage_verified": true,
+        "audition": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.mp3",
+          "bytes": 765150,
+          "sha256": "c6a9c5aae313dc6f1be06de9fbe9c86c495b9ece2d3817e46e46dc8f312110c0",
+          "backend": "vulkan",
+          "segments": [
+            {
+              "label": "source",
+              "preview_start_seconds": 0.0,
+              "preview_end_seconds": 5.0,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "drums",
+              "preview_start_seconds": 5.25,
+              "preview_end_seconds": 10.25,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "bass",
+              "preview_start_seconds": 10.5,
+              "preview_end_seconds": 15.5,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "other",
+              "preview_start_seconds": 15.75,
+              "preview_end_seconds": 20.75,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "vocals",
+              "preview_start_seconds": 21.0,
+              "preview_end_seconds": 26.0,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "recombined",
+              "preview_start_seconds": 26.25,
+              "preview_end_seconds": 31.25,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            }
+          ],
+          "preview_pcm_frames": 1378125,
+          "preview_pcm_seconds": 31.25,
+          "decoded_frames": 1378125,
+          "gap_frames": 11025,
+          "edge_fade_frames_per_segment": 221,
+          "common_gain": 1.0,
+          "decoded_sample_peak": 0.7587097883224487,
+          "internal_join_frames_in_each_excerpt": [
+            110250,
+            196245
+          ],
+          "lossless_wav": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav",
+            "bytes": 11025092,
+            "sha256": "0e0d9bb3f3a306387152e64a44d54e3cad26484bd4c6f55f5358186d936f0593",
+            "codec": "pcm_f32le",
+            "exact_float32_roundtrip": true,
+            "encode_command": [
+              "/bin/ffmpeg",
+              "-nostdin",
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-y",
+              "-f",
+              "f32le",
+              "-ar",
+              "44100",
+              "-ac",
+              "2",
+              "-i",
+              "pipe:0",
+              "-codec:a",
+              "pcm_f32le",
+              "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav"
+            ],
+            "decode_command": [
+              "/bin/ffmpeg",
+              "-nostdin",
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-i",
+              "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav",
+              "-f",
+              "f32le",
+              "-acodec",
+              "pcm_f32le",
+              "-ar",
+              "44100",
+              "-ac",
+              "2",
+              "pipe:1"
+            ]
+          },
+          "scope": "Same source interval and one common attenuation for all six segments; only outer excerpt edges faded. Internal joins untouched. MP3 is lossy; raw NPY output is the numerical evidence. Sample peak check does not measure intersample true peak. No sound played."
+        }
+      },
+      {
+        "id": "club_diver",
+        "cpu_vulkan": {
+          "drums": {
+            "reference_rms": 0.1947393029016659,
+            "candidate_rms": 0.1946907818557548,
+            "rms_error": 0.0007662447518361585,
+            "maximum_absolute_error": 0.008087694644927979,
+            "bias": 9.644752526834217e-06,
+            "bias_per_channel": [
+              1.0551772546153993e-05,
+              8.737732507514441e-06
+            ],
+            "rms_error_relative_to_reference": 0.003934720626082736,
+            "error_to_reference_db": -48.10172196169133,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999922889149739
+            }
+          },
+          "bass": {
+            "reference_rms": 0.06156503997172826,
+            "candidate_rms": 0.061481810953875844,
+            "rms_error": 0.0006041174170493158,
+            "maximum_absolute_error": 0.009271301329135895,
+            "bias": -2.3880223266687448e-05,
+            "bias_per_channel": [
+              -2.6916414004421265e-05,
+              -2.0844032528953627e-05
+            ],
+            "rms_error_relative_to_reference": 0.009812669939412644,
+            "error_to_reference_db": -40.164256178212625,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999525222749924
+            }
+          },
+          "other": {
+            "reference_rms": 0.055658318008005796,
+            "candidate_rms": 0.055727616507336694,
+            "rms_error": 0.0005024894849268548,
+            "maximum_absolute_error": 0.004539892077445984,
+            "bias": -2.86837698295019e-05,
+            "bias_per_channel": [
+              -2.4656798052354594e-05,
+              -3.27107416066492e-05
+            ],
+            "rms_error_relative_to_reference": 0.009028111213396308,
+            "error_to_reference_db": -40.8880619935097,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9999602000529035
+            }
+          },
+          "vocals": {
+            "reference_rms": 0.0012559716586345645,
+            "candidate_rms": 0.0012410570468780616,
+            "rms_error": 4.9834714218491746e-05,
+            "maximum_absolute_error": 0.004774563014507294,
+            "bias": -1.8941296068209093e-05,
+            "bias_per_channel": [
+              -1.8984739802160135e-05,
+              -1.8897852334258052e-05
+            ],
+            "rms_error_relative_to_reference": 0.039678215567913205,
+            "error_to_reference_db": -28.028957348519754,
+            "exact_zero_error": false,
+            "lag_diagnostic": {
+              "search_limit_samples": 256,
+              "lag_samples": 0,
+              "lag_seconds": 0.0,
+              "correlation": 0.9943064997088656
+            }
+          }
+        },
+        "recombination": {
+          "cpu": {
+            "reference_rms": 0.231300601129942,
+            "candidate_rms": 0.22852928101756756,
+            "rms_error": 0.011197464722301721,
+            "maximum_absolute_error": 0.11876339616719633,
+            "bias": 0.004302847470442622,
+            "bias_per_channel": [
+              0.004503594757837542,
+              0.004102100183047701
+            ],
+            "rms_error_relative_to_reference": 0.048410876009834125,
+            "error_to_reference_db": -26.301141171889956,
+            "exact_zero_error": false
+          },
+          "vulkan": {
+            "reference_rms": 0.231300601129942,
+            "candidate_rms": 0.22851557458799354,
+            "rms_error": 0.011178664093695095,
+            "maximum_absolute_error": 0.11891843267949298,
+            "bias": 0.004240986933805058,
+            "bias_per_channel": [
+              0.00444358857852476,
+              0.004038385289085355
+            ],
+            "rms_error_relative_to_reference": 0.04832959378006567,
+            "error_to_reference_db": -26.315737103561037,
+            "exact_zero_error": false
+          }
+        },
+        "references": {
+          "status": "not_supplied",
+          "stems": {}
+        },
+        "geometry_finite_full_coverage_verified": true,
+        "audition": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.mp3",
+          "bytes": 760850,
+          "sha256": "26b2cc6b2103c646adc92ea92dc9763b3c1198daa0e3bfd70cbe195d0734142d",
+          "backend": "vulkan",
+          "segments": [
+            {
+              "label": "source",
+              "preview_start_seconds": 0.0,
+              "preview_end_seconds": 5.0,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "drums",
+              "preview_start_seconds": 5.25,
+              "preview_end_seconds": 10.25,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "bass",
+              "preview_start_seconds": 10.5,
+              "preview_end_seconds": 15.5,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "other",
+              "preview_start_seconds": 15.75,
+              "preview_end_seconds": 20.75,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "vocals",
+              "preview_start_seconds": 21.0,
+              "preview_end_seconds": 26.0,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            },
+            {
+              "label": "recombined",
+              "preview_start_seconds": 26.25,
+              "preview_end_seconds": 31.25,
+              "source_frame_interval": [
+                147735,
+                368235
+              ],
+              "source_seconds_interval": [
+                3.35,
+                8.35
+              ]
+            }
+          ],
+          "preview_pcm_frames": 1378125,
+          "preview_pcm_seconds": 31.25,
+          "decoded_frames": 1378125,
+          "gap_frames": 11025,
+          "edge_fade_frames_per_segment": 221,
+          "common_gain": 1.0,
+          "decoded_sample_peak": 0.9648075699806213,
+          "internal_join_frames_in_each_excerpt": [
+            110250,
+            196245
+          ],
+          "lossless_wav": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav",
+            "bytes": 11025092,
+            "sha256": "00d4042c639079d86f06139ca2b9e900f0ca8d4f5b05796bb418fd42f3ebf646",
+            "codec": "pcm_f32le",
+            "exact_float32_roundtrip": true,
+            "encode_command": [
+              "/bin/ffmpeg",
+              "-nostdin",
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-y",
+              "-f",
+              "f32le",
+              "-ar",
+              "44100",
+              "-ac",
+              "2",
+              "-i",
+              "pipe:0",
+              "-codec:a",
+              "pcm_f32le",
+              "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav"
+            ],
+            "decode_command": [
+              "/bin/ffmpeg",
+              "-nostdin",
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-i",
+              "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav",
+              "-f",
+              "f32le",
+              "-acodec",
+              "pcm_f32le",
+              "-ar",
+              "44100",
+              "-ac",
+              "2",
+              "pipe:1"
+            ]
+          },
+          "scope": "Same source interval and one common attenuation for all six segments; only outer excerpt edges faded. Internal joins untouched. MP3 is lossy; raw NPY output is the numerical evidence. Sample peak check does not measure intersample true peak. No sound played."
+        }
+      }
+    ],
+    "metric_definitions": {
+      "units": "Unshifted full-length linear PCM, source PCM16 divided by32768; float64 reductions over frames and both channels",
+      "cpu_vulkan": "Reference=CPU; candidate=Vulkan. Error=candidate-reference, RMS=sqrt(mean(error\u00b2)), maximum=max(abs(error)), bias=mean(error), relative RMS=error RMS/reference RMS",
+      "decibels": "20log10(relative RMS); null when reference RMS is zero or error is exactly zero. exact_zero_error distinguishes zero error",
+      "lag": "Channel-demeaned zero-padded FFT cross correlation summed across channels, normalized by full-signal energies, searched within\u00b1256samples. Positive lag means Vulkan occurs later than CPU. No signals are shifted for raw errors. Periodic or weak signals may give ambiguous peaks",
+      "recombination": "Unshifted sum of four stems minus source; bias_per_channel is DC residual. This is not a separation-quality score",
+      "joins": "At kHOP and kHOP+OVERLAP for k>=1 inside source. Jump=sample[b]-sample[b-1]; neighborhood derivatives use\u00b120ms, clipped at source edges. No pass thresholds or attribution of artifacts",
+      "references": "Only supplied aligned reference WAVs produce reference metrics; raw amplitude/phase alignment retained, no gain fitting or time shifting"
+    },
+    "cpu_vulkan_per_stem_summary": {
+      "comparisons": 12,
+      "lag_samples": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "rms_error": {
+        "count": 12,
+        "minimum": 3.115287766714246e-05,
+        "p50": 0.00024076644734819945,
+        "p95": 0.0009826316484603324,
+        "p99": 0.0009826316484603324,
+        "maximum": 0.0009826316484603324
+      },
+      "maximum_absolute_error": {
+        "count": 12,
+        "minimum": 0.0023940950632095337,
+        "p50": 0.004539892077445984,
+        "p95": 0.03432280570268631,
+        "p99": 0.03432280570268631,
+        "maximum": 0.03432280570268631
+      },
+      "relative_rms_error": {
+        "count": 12,
+        "minimum": 0.002017537406556141,
+        "p50": 0.007855494453469997,
+        "p95": 0.1525581720614514,
+        "p99": 0.1525581720614514,
+        "maximum": 0.1525581720614514
+      },
+      "correlation": {
+        "count": 12,
+        "minimum": 0.9891164363863949,
+        "p50": 0.9999602000529035,
+        "p95": 0.9999979651157453,
+        "p99": 0.9999979651157453,
+        "maximum": 0.9999979651157453
+      }
+    },
+    "join_locations": [
+      {
+        "track_id": "parting_glass",
+        "kind": "hop",
+        "frame": 257985,
+        "seconds": 5.85,
+        "source": {
+          "jump_rms": 0.016364167374080245,
+          "jump_maximum_absolute": 0.022003173828125,
+          "jump_rms_over_neighborhood_derivative_rms": 0.962969600056755
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 3.4280156092690785e-05,
+            "jump_maximum_absolute": 4.722621088149026e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.25104386626584624
+          },
+          "bass": {
+            "jump_rms": 4.9593168400286796e-05,
+            "jump_maximum_absolute": 5.3814350394532084e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8477086517902527
+          },
+          "other": {
+            "jump_rms": 0.015490209106504577,
+            "jump_maximum_absolute": 0.020707834511995316,
+            "jump_rms_over_neighborhood_derivative_rms": 1.587599314745008
+          },
+          "vocals": {
+            "jump_rms": 0.0007541921104977118,
+            "jump_maximum_absolute": 0.00088481605052948,
+            "jump_rms_over_neighborhood_derivative_rms": 0.05670200684735402
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 3.0121553770067696e-05,
+            "jump_maximum_absolute": 3.356803426868282e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.2086112895751288
+          },
+          "bass": {
+            "jump_rms": 5.4813998912632595e-05,
+            "jump_maximum_absolute": 6.074566044844687e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8808922927241143
+          },
+          "other": {
+            "jump_rms": 0.015458816265272896,
+            "jump_maximum_absolute": 0.020672522485256195,
+            "jump_rms_over_neighborhood_derivative_rms": 1.5847946698999356
+          },
+          "vocals": {
+            "jump_rms": 0.0007622501651908388,
+            "jump_maximum_absolute": 0.0008518397808074951,
+            "jump_rms_over_neighborhood_derivative_rms": 0.05732112149838361
+          }
+        }
+      },
+      {
+        "track_id": "parting_glass",
+        "kind": "overlap_exit",
+        "frame": 343980,
+        "seconds": 7.8,
+        "source": {
+          "jump_rms": 0.005051419756920047,
+          "jump_maximum_absolute": 0.00689697265625,
+          "jump_rms_over_neighborhood_derivative_rms": 0.9873951152515089
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 2.1067956764110057e-05,
+            "jump_maximum_absolute": 2.6664522010833025e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.41807036167670386
+          },
+          "bass": {
+            "jump_rms": 1.427212883563699e-05,
+            "jump_maximum_absolute": 1.670463643677067e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3918317684185666
+          },
+          "other": {
+            "jump_rms": 0.004189233250537305,
+            "jump_maximum_absolute": 0.005878552794456482,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8622522844372517
+          },
+          "vocals": {
+            "jump_rms": 0.0009356109826515792,
+            "jump_maximum_absolute": 0.0010160398669540882,
+            "jump_rms_over_neighborhood_derivative_rms": 1.2634571295341062
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 2.8046091485641364e-05,
+            "jump_maximum_absolute": 3.568496322259307e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.429880109165286
+          },
+          "bass": {
+            "jump_rms": 3.945193102340112e-05,
+            "jump_maximum_absolute": 5.0211616326123476e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.9874605872634195
+          },
+          "other": {
+            "jump_rms": 0.004133467963964264,
+            "jump_maximum_absolute": 0.005817711353302002,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8506635788426493
+          },
+          "vocals": {
+            "jump_rms": 0.0009454616275244264,
+            "jump_maximum_absolute": 0.0010295514948666096,
+            "jump_rms_over_neighborhood_derivative_rms": 1.2695227419027397
+          }
+        }
+      },
+      {
+        "track_id": "parting_glass",
+        "kind": "hop",
+        "frame": 515970,
+        "seconds": 11.7,
+        "source": {
+          "jump_rms": 0.011566524449613785,
+          "jump_maximum_absolute": 0.01165771484375,
+          "jump_rms_over_neighborhood_derivative_rms": 1.2693767357926677
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 1.4579639179176215e-05,
+            "jump_maximum_absolute": 1.5828009054530412e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.31815301002215773
+          },
+          "bass": {
+            "jump_rms": 2.316126421514251e-05,
+            "jump_maximum_absolute": 2.4284869141411036e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6666357520002579
+          },
+          "other": {
+            "jump_rms": 0.006270816127379416,
+            "jump_maximum_absolute": 0.0063707828521728516,
+            "jump_rms_over_neighborhood_derivative_rms": 1.1401071900521436
+          },
+          "vocals": {
+            "jump_rms": 0.005224112749922818,
+            "jump_maximum_absolute": 0.005522295832633972,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7185818553393788
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 2.908574775803847e-05,
+            "jump_maximum_absolute": 3.7398902350105345e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.47749244620981635
+          },
+          "bass": {
+            "jump_rms": 8.412171132086763e-07,
+            "jump_maximum_absolute": 1.1588999768719077e-06,
+            "jump_rms_over_neighborhood_derivative_rms": 0.02207691155952635
+          },
+          "other": {
+            "jump_rms": 0.006327979148265254,
+            "jump_maximum_absolute": 0.0064936429262161255,
+            "jump_rms_over_neighborhood_derivative_rms": 1.1497809361005338
+          },
+          "vocals": {
+            "jump_rms": 0.0052196463245105925,
+            "jump_maximum_absolute": 0.0055435821413993835,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7184248628692048
+          }
+        }
+      },
+      {
+        "track_id": "parting_glass",
+        "kind": "overlap_exit",
+        "frame": 601965,
+        "seconds": 13.65,
+        "source": {
+          "jump_rms": 0.0018361339058216948,
+          "jump_maximum_absolute": 0.00238037109375,
+          "jump_rms_over_neighborhood_derivative_rms": 0.3294903162329668
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 3.0177197582749603e-05,
+            "jump_maximum_absolute": 3.7127145333215594e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7295735084166397
+          },
+          "bass": {
+            "jump_rms": 1.6614188984560837e-05,
+            "jump_maximum_absolute": 1.973561302293092e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5693637669615446
+          },
+          "other": {
+            "jump_rms": 0.002846595203678054,
+            "jump_maximum_absolute": 0.003982683643698692,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5979955541024904
+          },
+          "vocals": {
+            "jump_rms": 0.0011776983430490566,
+            "jump_maximum_absolute": 0.001625182805582881,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4338526533787811
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 9.085471600484617e-05,
+            "jump_maximum_absolute": 0.00011367041588528082,
+            "jump_rms_over_neighborhood_derivative_rms": 1.5990596032830386
+          },
+          "bass": {
+            "jump_rms": 9.598279174595376e-06,
+            "jump_maximum_absolute": 1.3552176824305207e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.2944925131674817
+          },
+          "other": {
+            "jump_rms": 0.0028904207437090174,
+            "jump_maximum_absolute": 0.004047181457281113,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6070978229364643
+          },
+          "vocals": {
+            "jump_rms": 0.001168422966593379,
+            "jump_maximum_absolute": 0.0016207476146519184,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4304251418563697
+          }
+        }
+      },
+      {
+        "track_id": "parting_glass",
+        "kind": "hop",
+        "frame": 773955,
+        "seconds": 17.55,
+        "source": {
+          "jump_rms": 0.006362018476300481,
+          "jump_maximum_absolute": 0.00860595703125,
+          "jump_rms_over_neighborhood_derivative_rms": 0.6236185192443242
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 4.568764474976405e-05,
+            "jump_maximum_absolute": 6.460538133978844e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8256088229953644
+          },
+          "bass": {
+            "jump_rms": 2.5723198654809817e-05,
+            "jump_maximum_absolute": 3.45808712154394e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7448037091419192
+          },
+          "other": {
+            "jump_rms": 0.002660569416625437,
+            "jump_maximum_absolute": 0.0037553906440734863,
+            "jump_rms_over_neighborhood_derivative_rms": 0.31476931762060706
+          },
+          "vocals": {
+            "jump_rms": 0.003938449834708077,
+            "jump_maximum_absolute": 0.004882776644080877,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6891245940106546
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 1.8399134869098733e-05,
+            "jump_maximum_absolute": 1.8522085156291723e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.27730978942532025
+          },
+          "bass": {
+            "jump_rms": 5.234727242544521e-05,
+            "jump_maximum_absolute": 6.775211750209564e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 1.370402050865275
+          },
+          "other": {
+            "jump_rms": 0.0026820927690877046,
+            "jump_maximum_absolute": 0.0037764981389045715,
+            "jump_rms_over_neighborhood_derivative_rms": 0.31735437293423846
+          },
+          "vocals": {
+            "jump_rms": 0.003933687765178972,
+            "jump_maximum_absolute": 0.004914357792586088,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6883005588609268
+          }
+        }
+      },
+      {
+        "track_id": "parting_glass",
+        "kind": "overlap_exit",
+        "frame": 859950,
+        "seconds": 19.5,
+        "source": {
+          "jump_rms": 0.012356887327099986,
+          "jump_maximum_absolute": 0.016082763671875,
+          "jump_rms_over_neighborhood_derivative_rms": 0.8313751406122171
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 2.2671196916928158e-05,
+            "jump_maximum_absolute": 2.7618894819170237e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.22750240167737276
+          },
+          "bass": {
+            "jump_rms": 3.4951479131509565e-05,
+            "jump_maximum_absolute": 4.937731137033552e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6450840119373643
+          },
+          "other": {
+            "jump_rms": 0.010847113125433678,
+            "jump_maximum_absolute": 0.014824315905570984,
+            "jump_rms_over_neighborhood_derivative_rms": 1.361886852047579
+          },
+          "vocals": {
+            "jump_rms": 0.0020599460194834786,
+            "jump_maximum_absolute": 0.0027584433555603027,
+            "jump_rms_over_neighborhood_derivative_rms": 0.17145324737436304
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 1.3866470280272414e-05,
+            "jump_maximum_absolute": 1.5533703844994307e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.13128250225686564
+          },
+          "bass": {
+            "jump_rms": 1.7929002235874694e-05,
+            "jump_maximum_absolute": 2.1271960576996207e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3127110417938069
+          },
+          "other": {
+            "jump_rms": 0.01082924983609468,
+            "jump_maximum_absolute": 0.014814317226409912,
+            "jump_rms_over_neighborhood_derivative_rms": 1.359402914321894
+          },
+          "vocals": {
+            "jump_rms": 0.0020915094247673984,
+            "jump_maximum_absolute": 0.002785921096801758,
+            "jump_rms_over_neighborhood_derivative_rms": 0.17402467430137306
+          }
+        }
+      },
+      {
+        "track_id": "funkorama",
+        "kind": "hop",
+        "frame": 257985,
+        "seconds": 5.85,
+        "source": {
+          "jump_rms": 0.03838321622763907,
+          "jump_maximum_absolute": 0.043792724609375,
+          "jump_rms_over_neighborhood_derivative_rms": 0.7079092877640526
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.00035346422815143384,
+            "jump_maximum_absolute": 0.0004749596118927002,
+            "jump_rms_over_neighborhood_derivative_rms": 0.12034515337706041
+          },
+          "bass": {
+            "jump_rms": 0.000748549298774238,
+            "jump_maximum_absolute": 0.0008871480822563171,
+            "jump_rms_over_neighborhood_derivative_rms": 0.30714917398584446
+          },
+          "other": {
+            "jump_rms": 0.03570036844312932,
+            "jump_maximum_absolute": 0.038932093884795904,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7081594241274486
+          },
+          "vocals": {
+            "jump_rms": 0.0005273211083447658,
+            "jump_maximum_absolute": 0.0007316265255212784,
+            "jump_rms_over_neighborhood_derivative_rms": 0.12237278455467748
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.0004983691180909392,
+            "jump_maximum_absolute": 0.0006495937705039978,
+            "jump_rms_over_neighborhood_derivative_rms": 0.16972358216962147
+          },
+          "bass": {
+            "jump_rms": 0.0007674906542700745,
+            "jump_maximum_absolute": 0.0009024143218994141,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3150051891765445
+          },
+          "other": {
+            "jump_rms": 0.03555745115388119,
+            "jump_maximum_absolute": 0.038608911447227,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7052848474185329
+          },
+          "vocals": {
+            "jump_rms": 0.0005306334243381065,
+            "jump_maximum_absolute": 0.0007411949336528778,
+            "jump_rms_over_neighborhood_derivative_rms": 0.1231107042217589
+          }
+        }
+      },
+      {
+        "track_id": "funkorama",
+        "kind": "overlap_exit",
+        "frame": 343980,
+        "seconds": 7.8,
+        "source": {
+          "jump_rms": 0.05301914327309892,
+          "jump_maximum_absolute": 0.0550537109375,
+          "jump_rms_over_neighborhood_derivative_rms": 1.481009831936404
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.04965197685966857,
+            "jump_maximum_absolute": 0.04977552127093077,
+            "jump_rms_over_neighborhood_derivative_rms": 1.4582182650644773
+          },
+          "bass": {
+            "jump_rms": 0.00015518180176943332,
+            "jump_maximum_absolute": 0.00017501266120234504,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5991302978839027
+          },
+          "other": {
+            "jump_rms": 0.0027864893146305083,
+            "jump_maximum_absolute": 0.003898442257195711,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5602769188703794
+          },
+          "vocals": {
+            "jump_rms": 2.6445738046005636e-05,
+            "jump_maximum_absolute": 3.0109375074971467e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.2838570673231826
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.04982284090676695,
+            "jump_maximum_absolute": 0.05030577117577195,
+            "jump_rms_over_neighborhood_derivative_rms": 1.4633898770683598
+          },
+          "bass": {
+            "jump_rms": 0.00016760586733145896,
+            "jump_maximum_absolute": 0.0001757042482495308,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6435623227868698
+          },
+          "other": {
+            "jump_rms": 0.002586896779006041,
+            "jump_maximum_absolute": 0.0036371417809277773,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5193883502438944
+          },
+          "vocals": {
+            "jump_rms": 4.1397709344930976e-05,
+            "jump_maximum_absolute": 4.290569631848484e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4168583844310382
+          }
+        }
+      },
+      {
+        "track_id": "funkorama",
+        "kind": "hop",
+        "frame": 515970,
+        "seconds": 11.7,
+        "source": {
+          "jump_rms": 0.006310648509712174,
+          "jump_maximum_absolute": 0.008880615234375,
+          "jump_rms_over_neighborhood_derivative_rms": 1.425901287496905
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 5.629004419552111e-05,
+            "jump_maximum_absolute": 7.258886216732208e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8085280106842769
+          },
+          "bass": {
+            "jump_rms": 2.3494847536943617e-05,
+            "jump_maximum_absolute": 3.070983802899718e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4627442866998599
+          },
+          "other": {
+            "jump_rms": 0.006299610540185214,
+            "jump_maximum_absolute": 0.008861499140039086,
+            "jump_rms_over_neighborhood_derivative_rms": 1.414925483058492
+          },
+          "vocals": {
+            "jump_rms": 1.9017018376905464e-05,
+            "jump_maximum_absolute": 2.0347293684608303e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3572660407672226
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 3.743653264425835e-05,
+            "jump_maximum_absolute": 5.1448342674120795e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4902604604481
+          },
+          "bass": {
+            "jump_rms": 3.61726267274221e-05,
+            "jump_maximum_absolute": 4.3353415094316006e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6754241035787979
+          },
+          "other": {
+            "jump_rms": 0.006251216099941444,
+            "jump_maximum_absolute": 0.008786130929365754,
+            "jump_rms_over_neighborhood_derivative_rms": 1.4042903994232943
+          },
+          "vocals": {
+            "jump_rms": 1.2828757690166168e-05,
+            "jump_maximum_absolute": 1.4800956705585122e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.20116254693731864
+          }
+        }
+      },
+      {
+        "track_id": "funkorama",
+        "kind": "overlap_exit",
+        "frame": 601965,
+        "seconds": 13.65,
+        "source": {
+          "jump_rms": 0.061192138970667054,
+          "jump_maximum_absolute": 0.084747314453125,
+          "jump_rms_over_neighborhood_derivative_rms": 1.0589940382800747
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.0007986598104749147,
+            "jump_maximum_absolute": 0.0011178749264217913,
+            "jump_rms_over_neighborhood_derivative_rms": 0.9757280884892398
+          },
+          "bass": {
+            "jump_rms": 0.0039560365013049425,
+            "jump_maximum_absolute": 0.003988683223724365,
+            "jump_rms_over_neighborhood_derivative_rms": 1.6356906661067783
+          },
+          "other": {
+            "jump_rms": 0.05925077535694662,
+            "jump_maximum_absolute": 0.08230974525213242,
+            "jump_rms_over_neighborhood_derivative_rms": 1.0643583994490853
+          },
+          "vocals": {
+            "jump_rms": 4.579834745301463e-05,
+            "jump_maximum_absolute": 5.788232374470681e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.38585779604620185
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.0008402704884746207,
+            "jump_maximum_absolute": 0.0011808312847279012,
+            "jump_rms_over_neighborhood_derivative_rms": 1.0277338674232281
+          },
+          "bass": {
+            "jump_rms": 0.003937898444543114,
+            "jump_maximum_absolute": 0.003972664475440979,
+            "jump_rms_over_neighborhood_derivative_rms": 1.6286404440059494
+          },
+          "other": {
+            "jump_rms": 0.05952816073910199,
+            "jump_maximum_absolute": 0.08268078975379467,
+            "jump_rms_over_neighborhood_derivative_rms": 1.0692004242338224
+          },
+          "vocals": {
+            "jump_rms": 4.371053106939924e-05,
+            "jump_maximum_absolute": 5.505602166522294e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3526158324722946
+          }
+        }
+      },
+      {
+        "track_id": "funkorama",
+        "kind": "hop",
+        "frame": 773955,
+        "seconds": 17.55,
+        "source": {
+          "jump_rms": 0.05016733885526095,
+          "jump_maximum_absolute": 0.051239013671875,
+          "jump_rms_over_neighborhood_derivative_rms": 2.5578741714433577
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.042976956847631156,
+            "jump_maximum_absolute": 0.04460254590958357,
+            "jump_rms_over_neighborhood_derivative_rms": 2.548614226382109
+          },
+          "bass": {
+            "jump_rms": 0.00015997945581385252,
+            "jump_maximum_absolute": 0.00022073561558499932,
+            "jump_rms_over_neighborhood_derivative_rms": 0.06452994549474171
+          },
+          "other": {
+            "jump_rms": 0.0012859354560573772,
+            "jump_maximum_absolute": 0.001540815457701683,
+            "jump_rms_over_neighborhood_derivative_rms": 0.21321996526829837
+          },
+          "vocals": {
+            "jump_rms": 0.00014760660300381926,
+            "jump_maximum_absolute": 0.00016499900402777712,
+            "jump_rms_over_neighborhood_derivative_rms": 2.1767908351577065
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.04314462341337451,
+            "jump_maximum_absolute": 0.04474645992740989,
+            "jump_rms_over_neighborhood_derivative_rms": 2.5583129120240145
+          },
+          "bass": {
+            "jump_rms": 0.00015873444292574862,
+            "jump_maximum_absolute": 0.00021845861192559823,
+            "jump_rms_over_neighborhood_derivative_rms": 0.06413037116213403
+          },
+          "other": {
+            "jump_rms": 0.001324035579920987,
+            "jump_maximum_absolute": 0.0016512218862771988,
+            "jump_rms_over_neighborhood_derivative_rms": 0.21899028584577
+          },
+          "vocals": {
+            "jump_rms": 0.00015731346165424252,
+            "jump_maximum_absolute": 0.00017537713938509114,
+            "jump_rms_over_neighborhood_derivative_rms": 1.9027760407940812
+          }
+        }
+      },
+      {
+        "track_id": "funkorama",
+        "kind": "overlap_exit",
+        "frame": 859950,
+        "seconds": 19.5,
+        "source": {
+          "jump_rms": 0.0011445109004271958,
+          "jump_maximum_absolute": 0.001617431640625,
+          "jump_rms_over_neighborhood_derivative_rms": 0.4729615916943008
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 6.229215713661761e-05,
+            "jump_maximum_absolute": 8.384620014112443e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5364179728325567
+          },
+          "bass": {
+            "jump_rms": 1.9365048832054748e-05,
+            "jump_maximum_absolute": 2.0776409655809402e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.009686822453245003
+          },
+          "other": {
+            "jump_rms": 0.0010321750177391172,
+            "jump_maximum_absolute": 0.0014596711844205856,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7133278501015496
+          },
+          "vocals": {
+            "jump_rms": 8.092543706206478e-06,
+            "jump_maximum_absolute": 8.363203960470855e-06,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3266108026854186
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 6.714860128425515e-05,
+            "jump_maximum_absolute": 7.817010919097811e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4792493842102875
+          },
+          "bass": {
+            "jump_rms": 1.124198008893733e-05,
+            "jump_maximum_absolute": 1.2068892829120159e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.005602591832229797
+          },
+          "other": {
+            "jump_rms": 0.0010632298211207768,
+            "jump_maximum_absolute": 0.0015034060925245285,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7339104862750947
+          },
+          "vocals": {
+            "jump_rms": 1.913825105822723e-06,
+            "jump_maximum_absolute": 2.410291926935315e-06,
+            "jump_rms_over_neighborhood_derivative_rms": 0.04876709738870586
+          }
+        }
+      },
+      {
+        "track_id": "club_diver",
+        "kind": "hop",
+        "frame": 257985,
+        "seconds": 5.85,
+        "source": {
+          "jump_rms": 0.020694653559239107,
+          "jump_maximum_absolute": 0.02923583984375,
+          "jump_rms_over_neighborhood_derivative_rms": 0.44748622475043537
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.01838116727344186,
+            "jump_maximum_absolute": 0.024235427379608154,
+            "jump_rms_over_neighborhood_derivative_rms": 0.436040207160458
+          },
+          "bass": {
+            "jump_rms": 0.00012544133029979102,
+            "jump_maximum_absolute": 0.00017320923507213593,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4672440118336605
+          },
+          "other": {
+            "jump_rms": 0.006646807810034676,
+            "jump_maximum_absolute": 0.007416347041726112,
+            "jump_rms_over_neighborhood_derivative_rms": 1.12668368209961
+          },
+          "vocals": {
+            "jump_rms": 0.00011897341465663839,
+            "jump_maximum_absolute": 0.00014264858327805996,
+            "jump_rms_over_neighborhood_derivative_rms": 1.014320009657455
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.018835979933453435,
+            "jump_maximum_absolute": 0.024966299533843994,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4465328276998444
+          },
+          "bass": {
+            "jump_rms": 0.0001456318458026509,
+            "jump_maximum_absolute": 0.00020566140301525593,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5475276143869505
+          },
+          "other": {
+            "jump_rms": 0.0063467720232419185,
+            "jump_maximum_absolute": 0.0065428465604782104,
+            "jump_rms_over_neighborhood_derivative_rms": 1.0760440897244212
+          },
+          "vocals": {
+            "jump_rms": 0.0001767564336641794,
+            "jump_maximum_absolute": 0.00020239036530256271,
+            "jump_rms_over_neighborhood_derivative_rms": 1.4018226353015564
+          }
+        }
+      },
+      {
+        "track_id": "club_diver",
+        "kind": "overlap_exit",
+        "frame": 343980,
+        "seconds": 7.8,
+        "source": {
+          "jump_rms": 0.06537100665699559,
+          "jump_maximum_absolute": 0.073394775390625,
+          "jump_rms_over_neighborhood_derivative_rms": 0.8135844289536657
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.0442767671980946,
+            "jump_maximum_absolute": 0.0497988760471344,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8659190294869633
+          },
+          "bass": {
+            "jump_rms": 9.57713313468133e-05,
+            "jump_maximum_absolute": 0.00011042971163988113,
+            "jump_rms_over_neighborhood_derivative_rms": 0.05873752302198202
+          },
+          "other": {
+            "jump_rms": 0.022567843445715326,
+            "jump_maximum_absolute": 0.026148343458771706,
+            "jump_rms_over_neighborhood_derivative_rms": 0.658196470116349
+          },
+          "vocals": {
+            "jump_rms": 7.18336731813317e-05,
+            "jump_maximum_absolute": 7.220538100227714e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.42420112959856965
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.0447745006366336,
+            "jump_maximum_absolute": 0.05061100423336029,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8752012998740167
+          },
+          "bass": {
+            "jump_rms": 9.193112049563845e-05,
+            "jump_maximum_absolute": 9.201280772686005e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.056459210911632016
+          },
+          "other": {
+            "jump_rms": 0.021825207328970943,
+            "jump_maximum_absolute": 0.02509002573788166,
+            "jump_rms_over_neighborhood_derivative_rms": 0.636539746630938
+          },
+          "vocals": {
+            "jump_rms": 5.7286620669064416e-05,
+            "jump_maximum_absolute": 5.76474703848362e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3215601044794822
+          }
+        }
+      },
+      {
+        "track_id": "club_diver",
+        "kind": "hop",
+        "frame": 515970,
+        "seconds": 11.7,
+        "source": {
+          "jump_rms": 0.00605579796729,
+          "jump_maximum_absolute": 0.008453369140625,
+          "jump_rms_over_neighborhood_derivative_rms": 0.09708055924830786
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.01871683562203587,
+            "jump_maximum_absolute": 0.02162928692996502,
+            "jump_rms_over_neighborhood_derivative_rms": 0.761341897215534
+          },
+          "bass": {
+            "jump_rms": 0.0011112311116335638,
+            "jump_maximum_absolute": 0.0011756792664527893,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4592770146338318
+          },
+          "other": {
+            "jump_rms": 0.011298705369779389,
+            "jump_maximum_absolute": 0.01362244039773941,
+            "jump_rms_over_neighborhood_derivative_rms": 0.23097188764213575
+          },
+          "vocals": {
+            "jump_rms": 0.00012140241347726263,
+            "jump_maximum_absolute": 0.00016836670693010092,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6929521155809639
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.018749269602557756,
+            "jump_maximum_absolute": 0.02167857252061367,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7637023909609976
+          },
+          "bass": {
+            "jump_rms": 0.0011269959435062458,
+            "jump_maximum_absolute": 0.0011859163641929626,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4672581926779257
+          },
+          "other": {
+            "jump_rms": 0.01151859458576384,
+            "jump_maximum_absolute": 0.013865068554878235,
+            "jump_rms_over_neighborhood_derivative_rms": 0.23531167491469462
+          },
+          "vocals": {
+            "jump_rms": 0.00011748745749820827,
+            "jump_maximum_absolute": 0.00016084907110780478,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6328251945367055
+          }
+        }
+      },
+      {
+        "track_id": "club_diver",
+        "kind": "overlap_exit",
+        "frame": 601965,
+        "seconds": 13.65,
+        "source": {
+          "jump_rms": 0.0035907143750201972,
+          "jump_maximum_absolute": 0.00494384765625,
+          "jump_rms_over_neighborhood_derivative_rms": 0.19744269079253965
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.006813420960292111,
+            "jump_maximum_absolute": 0.009635334834456444,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8304495635825989
+          },
+          "bass": {
+            "jump_rms": 0.00593254622187256,
+            "jump_maximum_absolute": 0.007719267159700394,
+            "jump_rms_over_neighborhood_derivative_rms": 1.325952269668415
+          },
+          "other": {
+            "jump_rms": 0.007140266787309609,
+            "jump_maximum_absolute": 0.009700203314423561,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8524495370485623
+          },
+          "vocals": {
+            "jump_rms": 8.450746126572029e-05,
+            "jump_maximum_absolute": 0.00011339026968926191,
+            "jump_rms_over_neighborhood_derivative_rms": 0.782914731750842
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.006642353743221815,
+            "jump_maximum_absolute": 0.009393619373440742,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8105688045414424
+          },
+          "bass": {
+            "jump_rms": 0.005957033471109224,
+            "jump_maximum_absolute": 0.007739981636404991,
+            "jump_rms_over_neighborhood_derivative_rms": 1.329311518454158
+          },
+          "other": {
+            "jump_rms": 0.00717067251522166,
+            "jump_maximum_absolute": 0.009725521318614483,
+            "jump_rms_over_neighborhood_derivative_rms": 0.857693087378239
+          },
+          "vocals": {
+            "jump_rms": 6.837966156462133e-05,
+            "jump_maximum_absolute": 9.503192268311977e-05,
+            "jump_rms_over_neighborhood_derivative_rms": 0.5448559493627204
+          }
+        }
+      },
+      {
+        "track_id": "club_diver",
+        "kind": "hop",
+        "frame": 773955,
+        "seconds": 17.55,
+        "source": {
+          "jump_rms": 0.0019666679059714386,
+          "jump_maximum_absolute": 0.002777099609375,
+          "jump_rms_over_neighborhood_derivative_rms": 0.04187358966904533
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.012948864614450438,
+            "jump_maximum_absolute": 0.01729118824005127,
+            "jump_rms_over_neighborhood_derivative_rms": 0.43016327440703367
+          },
+          "bass": {
+            "jump_rms": 0.0006458483290265778,
+            "jump_maximum_absolute": 0.0008940696716308594,
+            "jump_rms_over_neighborhood_derivative_rms": 0.41352179798542144
+          },
+          "other": {
+            "jump_rms": 0.011780597798834471,
+            "jump_maximum_absolute": 0.015409150393679738,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6893603279790771
+          },
+          "vocals": {
+            "jump_rms": 0.0001048266962367743,
+            "jump_maximum_absolute": 0.00013620522804558277,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7646845463383201
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.013234299091296753,
+            "jump_maximum_absolute": 0.01777152717113495,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4399491502371314
+          },
+          "bass": {
+            "jump_rms": 0.0006201119619474492,
+            "jump_maximum_absolute": 0.0008580237627029419,
+            "jump_rms_over_neighborhood_derivative_rms": 0.40639815371633264
+          },
+          "other": {
+            "jump_rms": 0.012231961881121045,
+            "jump_maximum_absolute": 0.016017528250813484,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7134303028585134
+          },
+          "vocals": {
+            "jump_rms": 0.00012198484325919262,
+            "jump_maximum_absolute": 0.00017122796270996332,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8229330020227097
+          }
+        }
+      },
+      {
+        "track_id": "club_diver",
+        "kind": "overlap_exit",
+        "frame": 859950,
+        "seconds": 19.5,
+        "source": {
+          "jump_rms": 0.03358961706465413,
+          "jump_maximum_absolute": 0.042877197265625,
+          "jump_rms_over_neighborhood_derivative_rms": 1.0400864687549096
+        },
+        "cpu": {
+          "drums": {
+            "jump_rms": 0.02439910967125696,
+            "jump_maximum_absolute": 0.03178270161151886,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8759823344970973
+          },
+          "bass": {
+            "jump_rms": 0.0018206989228611702,
+            "jump_maximum_absolute": 0.002463473007082939,
+            "jump_rms_over_neighborhood_derivative_rms": 0.9359949737935359
+          },
+          "other": {
+            "jump_rms": 0.009091861005863023,
+            "jump_maximum_absolute": 0.010419517755508423,
+            "jump_rms_over_neighborhood_derivative_rms": 1.491228244146023
+          },
+          "vocals": {
+            "jump_rms": 0.0001713822811496997,
+            "jump_maximum_absolute": 0.0002003805711865425,
+            "jump_rms_over_neighborhood_derivative_rms": 1.7352955705331012
+          }
+        },
+        "vulkan": {
+          "drums": {
+            "jump_rms": 0.02484694450858622,
+            "jump_maximum_absolute": 0.03264394402503967,
+            "jump_rms_over_neighborhood_derivative_rms": 0.891335550121286
+          },
+          "bass": {
+            "jump_rms": 0.0018456550648368272,
+            "jump_maximum_absolute": 0.0024742428213357925,
+            "jump_rms_over_neighborhood_derivative_rms": 0.9477916703639351
+          },
+          "other": {
+            "jump_rms": 0.008918727650329939,
+            "jump_maximum_absolute": 0.0100325345993042,
+            "jump_rms_over_neighborhood_derivative_rms": 1.4655409490819655
+          },
+          "vocals": {
+            "jump_rms": 0.00014975636071682335,
+            "jump_maximum_absolute": 0.0001757302088662982,
+            "jump_rms_over_neighborhood_derivative_rms": 1.4070419152937639
+          }
+        }
+      }
+    ],
+    "join_scope": "18 time locations (3 hop boundaries plus3 overlap exits per clip), each measured in source and both backends/four stems. Actual transients can dominate derivatives; no click/quality pass threshold or causal artifact label is added.",
+    "references_supplied": false,
+    "human_listening_verdict": null
+  },
+  "lifecycle": {
+    "sequence": {
+      "status": "completed",
+      "started_at_utc": "2026-10-17T19:59:59.320061+00:00",
+      "maximum_seconds": 5000,
+      "completed_backends": [
+        "cpu",
+        "vulkan"
+      ],
+      "profile_mutation": false,
+      "scope": "Bounded sequential music quality preparation, no UI/audio playback load and no sustained latency qualification.",
+      "producer_pins": {
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "tools/stems/worker.py": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+        "tools/benchmarks/worker_support.py": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+        "tools/benchmarks/stem_worker.py": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+      },
+      "manifest_sha256": "d833af135ba7c371156e7cdeb6147192ff5e570f6eb9306ba4fb4f262a419ab9",
+      "driver_sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719",
+      "elapsed_seconds": 464.0647211379837,
+      "updated_at_utc": "2026-10-17T20:07:43.384751+00:00",
+      "stage": "report and listening pending",
+      "host": {
+        "AC": "1",
+        "lid": "b false",
+        "at_utc": "2026-10-17T20:06:34.740653+00:00"
+      },
+      "admitted_producer_pins": {
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "tools/stems/worker.py": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+        "tools/benchmarks/worker_support.py": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+        "tools/benchmarks/stem_worker.py": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+      }
+    },
+    "series_guard": {
+      "status": "ok",
+      "errors": [],
+      "ready": false,
+      "idle_only": true,
+      "idle_inhibit_released": true,
+      "child_returncode": 0,
+      "returncode": 0,
+      "finished_at_utc": "2026-10-17T20:07:43.412194+00:00"
+    },
+    "backend_closed": {
+      "cpu": true,
+      "vulkan": true
+    },
+    "backend_pid_null": {
+      "cpu": true,
+      "vulkan": true
+    },
+    "native_pid_absence_scope": "Successful host sequence checks native PIDs after each driver and completed both backends. No separate retained PID-existence snapshot or fresh host query is added here."
+  },
+  "limits": [
+    "Each backend contributes only12continuous hops; nearest-rank p95/p99 are the observed maximum. These sequential quality runs have no audio/UI load and do not establish sustained tail performance.",
+    "The music Vulkan p99/max exceeds4.095s despite the earlier synthetic software-UI hour passing. Both observations must remain visible; CPU is not viable for this live budget.",
+    "CPU uses F32 expanded weights and Vulkan native F16 storage. CPU agreement is a numerical implementation comparison, not isolated-stem ground truth or an audible quality verdict.",
+    "Same-backend seek parity is an identity/regression result. Successful seek suffixes are sample-exact; no new cancellation/preemption or end-to-end playback claim follows.",
+    "Near-silent reference stems can have high relative errors despite small absolute error. Sum-of-stems residual includes model behavior and the per-stem global-mean restoration convention.",
+    "Whole-source normalization mirrors the pinned offline session; fixed zero-padded source-grid tail planning differs from its centered-tail planning. Dataset local excerpts also set their own whole-source normalization.",
+    "Process VmRSS/VmHWM, DRM per-client maxima and sampled GPU frequency are separate observations; maxima must not be summed into a total memory peak or interpreted as continuous clocks. Denied RAPL reads are unknown, not zero.",
+    "Temperature/policy observations include startup and all seek work; samples do not prove sustained heat, and brief spikes remain acceptable to the user. Other mapped sensors remain unsampled.",
+    "MP3/WAV previews and NPY arrays remain local/excluded from Git. Lossless previews preserve the candidate samples with shared preview processing; neither preview nor numeric metrics replace the pending human listening decision."
+  ],
+  "inputs": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/sequence.json": {
+      "bytes": 1920,
+      "sha256": "290f9c3e37886292b659919f4938fb0606fa97ff4201813ddb7c845534d9d99b"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/series-guard.json": {
+      "bytes": 504,
+      "sha256": "b03d8a7407f1ce0a92db79f9c91db595c2f094c9aa8d70df89131075a5443408"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/corpus-provenance.json": {
+      "bytes": 24536,
+      "sha256": "4511757f06d02f15962707ffe9253b9be16b7aa7dd2071216ac4fb4429146afb"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/result.json": {
+      "bytes": 146839,
+      "sha256": "3cb5e2ffc08724659afbdc14923e40fc8839accddd2eabed6734b865d4662cb9"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/manifest.json": {
+      "bytes": 8527,
+      "sha256": "d833af135ba7c371156e7cdeb6147192ff5e570f6eb9306ba4fb4f262a419ab9"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/metric-selfcheck.json": {
+      "bytes": 613,
+      "sha256": "903da6f117f1dd04edb5cdf2eb6cfde7713ee6d6803c53428269cd39813335a6"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/thermal-snapshot-audit.py": {
+      "bytes": 8985,
+      "sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/result.json": {
+      "bytes": 33664,
+      "sha256": "599233047f83052dedfe6925917d21864aac40daf1906669ba50436bf7744c59"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/events.jsonl": {
+      "bytes": 22059,
+      "sha256": "4f31fa9750ac5771f6971de062242e364a49ff58c547616bd82cbaa89c7854b5"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/native-trace.jsonl": {
+      "bytes": 2676292,
+      "sha256": "5ed4b1b54481f1e0ab4cc2e20a01c87b2489afece2221458415ebd0df20fd2b1"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu-normal-ready.json": {
+      "bytes": 9929,
+      "sha256": "6f53d4f795a6b1b8a786783e34dea15844cc8687d3a48031bbf101c5c9b2a0a9"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/result.json": {
+      "bytes": 40655,
+      "sha256": "4ff3aa2ffa26b8ebf36081cb50a11b07651a91d738daea6f868ee41dcb000514"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/events.jsonl": {
+      "bytes": 37980,
+      "sha256": "380e411f10b7c6cb62a3deb306b16773c5cf17b4c68b6a1020da3c79a022276d"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/native-trace.jsonl": {
+      "bytes": 861652,
+      "sha256": "a5c771c5ffca576a8862923839e81aac75634f7dd2dd3ceb28d8bc45436ff6fe"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan-normal-ready.json": {
+      "bytes": 12135,
+      "sha256": "715fe25b064a29582031de169eced2cc81a506af82920082d59199ebfa17908c"
+    }
+  }
+}

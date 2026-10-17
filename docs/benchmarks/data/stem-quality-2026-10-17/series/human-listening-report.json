@@ -1,0 +1,6 @@
+{
+  "recorded_at_utc": "2026-10-17T20:14:16.501581+00:00",
+  "status": "investigate_reported_cutouts",
+  "user_verdict": "i hear stuff on all these samples but at various points the samples cut out and then randomly come back I think something is missing, analyze waveforms",
+  "scope": "User listening report, not acceptance. Compare original decoded previews and full raw source/CPU/Vulkan waveforms before assigning cause."
+}
