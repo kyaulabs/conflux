@@ -1,0 +1,3719 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-17T20:50:10.352752+00:00",
+  "status": "ok",
+  "analysis_source": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/summarize_runs.py",
+    "bytes": 23781,
+    "sha256": "f704971b6a70862126de8f1d91498630dd7592d9d4ba63139ad8c49ef0e18fe5"
+  },
+  "source_head": "f4dc5eef82ee42b7ebe052ab449780fd4c0a2e02",
+  "percentile_method": "Nearest rank: sorted[ceil(N*p/100)-1], matching tools/benchmarks/stem_worker.py; no interpolation or startup omission. With16 continuous samples p95=p99=max.",
+  "inputs": [
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/manifest.json",
+      "bytes": 7360,
+      "sha256": "4a0a50eb0adcdd8649189f9f6e5850c54ead9bf01b58c9f0e4bcae424414af53"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/sequence.json",
+      "bytes": 5188,
+      "sha256": "36497959d9685d9724ffad6be6332f50856ce106d3baac93c2bb93f2ab2e31b8"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/series-guard.json",
+      "bytes": 508,
+      "sha256": "38a6a19211317732c03b2598cca4f3edf0079c76da29aec9f50ccc8bb154973b"
+    }
+  ],
+  "lifecycle": {
+    "sequence_status": "completed",
+    "elapsed_seconds": 486.2216407369706,
+    "guard": {
+      "command": [
+        "python3",
+        "-B",
+        "benchmarks-local/user-tracks-2026-10-17/quality_sequence.py"
+      ],
+      "started_at_utc": "2026-10-17T20:39:35.038086+00:00",
+      "status": "ok",
+      "ready": false,
+      "errors": [],
+      "idle_only": true,
+      "window_guard": {
+        "requested": false,
+        "status": "not_run"
+      },
+      "idle_inhibit_cookie": 9823,
+      "bus_owner": ":1.49059",
+      "idle_inhibit_released": true,
+      "child_returncode": 0,
+      "returncode": 0,
+      "finished_at_utc": "2026-10-17T20:47:41.505387+00:00"
+    },
+    "launches": [
+      {
+        "stage": "normal readiness cpu",
+        "host": {
+          "AC": "1",
+          "lid": "b false",
+          "at_utc": "2026-10-17T20:39:35.190030+00:00"
+        },
+        "maximum_seconds": 620,
+        "started_monotonic": 385599.77757172,
+        "pid": 1888404,
+        "returncode": 0,
+        "finished_monotonic": 385671.486282451
+      },
+      {
+        "stage": "workload cpu",
+        "host": {
+          "AC": "1",
+          "lid": "b false",
+          "at_utc": "2026-10-17T20:40:47.019568+00:00"
+        },
+        "maximum_seconds": 1820,
+        "started_monotonic": 385671.60711337,
+        "pid": 1888745,
+        "returncode": 0,
+        "finished_monotonic": 385877.63968834
+      },
+      {
+        "stage": "normal readiness vulkan",
+        "host": {
+          "AC": "1",
+          "lid": "b false",
+          "at_utc": "2026-10-17T20:44:13.178661+00:00"
+        },
+        "maximum_seconds": 620,
+        "started_monotonic": 385877.766208936,
+        "pid": 1889567,
+        "returncode": 0,
+        "finished_monotonic": 386010.698840823
+      },
+      {
+        "stage": "workload vulkan",
+        "host": {
+          "AC": "1",
+          "lid": "b false",
+          "at_utc": "2026-10-17T20:46:26.229675+00:00"
+        },
+        "maximum_seconds": 1820,
+        "started_monotonic": 386010.81721667,
+        "pid": 1890203,
+        "returncode": 0,
+        "finished_monotonic": 386085.555743353
+      }
+    ],
+    "producer_pins": {
+      "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "tools/stems/worker.py": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "tools/benchmarks/worker_support.py": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "tools/benchmarks/stem_worker.py": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "admitted_producer_pins": {
+      "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "tools/stems/worker.py": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "tools/benchmarks/worker_support.py": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "tools/benchmarks/stem_worker.py": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "profile_mutation": false
+  },
+  "backends": {
+    "cpu": {
+      "status": "ok",
+      "inputs": [
+        {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/result.json",
+          "bytes": 31683,
+          "sha256": "56b5f98544594d8d7427e73c680ade610a6c43076caf3e9e1e82336a201f11fd"
+        },
+        {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/events.jsonl",
+          "bytes": 29271,
+          "sha256": "492d593c63a59102aa0d23727220d0fdcdac49ac029207d7a133b4601ca7488d"
+        },
+        {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/native-trace.jsonl",
+          "bytes": 2408991,
+          "sha256": "eb5efc08707ad451b2b8615d99a74783bd40d25338309c008f2e7da65f08dfa7"
+        }
+      ],
+      "pins": {
+        "manifest": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/manifest.json",
+          "bytes": 7360,
+          "sha256": "4a0a50eb0adcdd8649189f9f6e5850c54ead9bf01b58c9f0e4bcae424414af53"
+        },
+        "runtime": {
+          "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+          "bytes": 62986240,
+          "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+        },
+        "model": {
+          "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+          "bytes": 84059168,
+          "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+        },
+        "driver": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/quality_run.py",
+          "bytes": 16155,
+          "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+        },
+        "worker_source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+          "bytes": 24863,
+          "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+        },
+        "shared_benchmark_source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+          "bytes": 23061,
+          "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+        },
+        "sampler_source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+          "bytes": 23403,
+          "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+        }
+      },
+      "elapsed_seconds": 205.86946854996495,
+      "runtime_ready": [
+        {
+          "event": "runtime_ready",
+          "generation": 1,
+          "timestamp": 385672.117810882,
+          "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "runtime": {
+            "stems": [
+              "drums",
+              "bass",
+              "other",
+              "vocals"
+            ],
+            "segment_frames": 343980,
+            "channels": 2,
+            "pid": 1888749,
+            "sample_rate": 44100,
+            "weight_storage": "f32",
+            "threads": 4,
+            "backend": "cpu",
+            "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+            "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+            "fence_wait_mode": "blocking",
+            "load_ms": 243.232879,
+            "event": "ready",
+            "process_environment": {}
+          },
+          "track_id": "club_xl",
+          "scenario": "continuous",
+          "consumed_at": 385672.117856035
+        }
+      ],
+      "tracks": [
+        {
+          "id": "club_xl",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/club_xl.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "49df06fb592eebf21eb4367c80ecf3b0f09c3419518f7c9a1ce72c3b6894469f"
+          },
+          "first_load": "cold native backend",
+          "first_chunk": {
+            "ready_monotonic": 385687.027939318,
+            "delivered_monotonic": 385687.060601376,
+            "control_to_ready_ms": 15210.854556004051,
+            "load_to_delivered_ms": 15243.522521981504
+          },
+          "source_preparation_ms": 22.74122304515913,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 1,
+              "timestamp": 385672.140714527,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": false,
+              "preparation_ms": 22.74122304515913,
+              "track_id": "club_xl",
+              "scenario": "continuous",
+              "consumed_at": 385672.140924062
+            }
+          ],
+          "wall_seconds": 73.54662833199836,
+          "hop_service_percentiles_ms": {
+            "50": 19157.78237505583,
+            "95": 19728.886116994545,
+            "99": 19728.886116994545
+          },
+          "hop_service_max_ms": 19728.886116994545
+        },
+        {
+          "id": "when_the_light_breaks",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/when_the_light_breaks.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "b2e1e13add943090d2fbcad492a11cd6f46b8e9c3a0fca263b3fe4109e0ed44e"
+          },
+          "first_load": "warm persistent native backend, new source preparation",
+          "first_chunk": {
+            "ready_monotonic": 385767.292445079,
+            "delivered_monotonic": 385767.314430563,
+            "control_to_ready_ms": 21856.996649992652,
+            "load_to_delivered_ms": 21879.004071000963
+          },
+          "source_preparation_ms": 77.31425995007157,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 2,
+              "timestamp": 385745.51303699,
+              "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+              "mean": 0.00022293615620583296,
+              "std": 0.2913064956665039,
+              "reused": false,
+              "preparation_ms": 77.31425995007157,
+              "track_id": "when_the_light_breaks",
+              "scenario": "continuous",
+              "consumed_at": 385745.513426681
+            }
+          ],
+          "wall_seconds": 65.7688486049883,
+          "hop_service_percentiles_ms": {
+            "50": 12600.027435983066,
+            "95": 22505.468035000376,
+            "99": 22505.468035000376
+          },
+          "hop_service_max_ms": 22505.468035000376
+        },
+        {
+          "id": "under_my_skin",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/under_my_skin.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "1640e731df61ec22c40d9737300ae3a3b04b0cd59bd7f8cf34b46221b51c4310"
+          },
+          "first_load": "warm persistent native backend, new source preparation",
+          "first_chunk": {
+            "ready_monotonic": 385819.336921222,
+            "delivered_monotonic": 385819.34859508,
+            "control_to_ready_ms": 8087.747083976865,
+            "load_to_delivered_ms": 8099.428280023858
+          },
+          "source_preparation_ms": 38.28352497657761,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 3,
+              "timestamp": 385811.287577794,
+              "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+              "mean": 0.00012482910824473947,
+              "std": 0.3041391968727112,
+              "reused": false,
+              "preparation_ms": 38.28352497657761,
+              "track_id": "under_my_skin",
+              "scenario": "continuous",
+              "consumed_at": 385811.287857523
+            }
+          ],
+          "wall_seconds": 32.3983440460288,
+          "hop_service_percentiles_ms": {
+            "50": 8067.030448990408,
+            "95": 8133.492857974488,
+            "99": 8133.492857974488
+          },
+          "hop_service_max_ms": 8133.492857974488
+        },
+        {
+          "id": "stfu",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/stfu.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "f2517cc1bdbaa831652bbaf13f0b0a28c077056d9b584b123651ab3ea89c968a"
+          },
+          "first_load": "warm persistent native backend, new source preparation",
+          "first_chunk": {
+            "ready_monotonic": 385852.681676891,
+            "delivered_monotonic": 385852.691847762,
+            "control_to_ready_ms": 8987.19934397377,
+            "load_to_delivered_ms": 8997.379775973968
+          },
+          "source_preparation_ms": 36.711076041683555,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 4,
+              "timestamp": 385843.731319907,
+              "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+              "mean": -4.6878005377948284e-05,
+              "std": 0.2636549472808838,
+              "reused": false,
+              "preparation_ms": 36.711076041683555,
+              "track_id": "stfu",
+              "scenario": "continuous",
+              "consumed_at": 385843.731482579
+            }
+          ],
+          "wall_seconds": 33.70884327602107,
+          "hop_service_percentiles_ms": {
+            "50": 8291.350657003932,
+            "95": 8950.329642975703,
+            "99": 8950.329642975703
+          },
+          "hop_service_max_ms": 8950.329642975703
+        }
+      ],
+      "continuous_timing": {
+        "count": 16,
+        "min": 8049.304332991596,
+        "p50": 8777.753608010244,
+        "p95": 22505.468035000376,
+        "p99": 22505.468035000376,
+        "max": 22505.468035000376,
+        "unit": "ms",
+        "target_ms": 4095.0,
+        "strictly_above_target_count": 16,
+        "hops": [
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 14887.0764169842
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 19157.78237505583
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 19728.886116994545
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 19385.369812021963
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 21779.33429303812
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 22505.468035000376
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 12600.027435983066
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 8777.753608010244
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 8049.304332991596
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 8133.492857974488
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 8067.030448990408
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 8083.2947450107895
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 8950.329642975703
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 8339.218128996436
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 8291.350657003932
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 8063.511564047076
+          }
+        ]
+      },
+      "all_delivered_timing": {
+        "count": 16,
+        "min": 8049.304332991596,
+        "p50": 8777.753608010244,
+        "p95": 22505.468035000376,
+        "p99": 22505.468035000376,
+        "max": 22505.468035000376,
+        "unit": "ms",
+        "target_ms": 4095.0,
+        "strictly_above_target_count": 16,
+        "hops": [
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 14887.0764169842
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 19157.78237505583
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 19728.886116994545
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 19385.369812021963
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 21779.33429303812
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 22505.468035000376
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 12600.027435983066
+          },
+          {
+            "generation": 2,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 8777.753608010244
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 8049.304332991596
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 8133.492857974488
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 8067.030448990408
+          },
+          {
+            "generation": 3,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 8083.2947450107895
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 8950.329642975703
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 8339.218128996436
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 8291.350657003932
+          },
+          {
+            "generation": 4,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 8063.511564047076
+          }
+        ]
+      },
+      "scenarios": [
+        {
+          "generation": 1,
+          "track_id": "club_xl",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 15210.854556004051,
+          "first_raw_ready_to_consumed_ms": 30.61868599615991,
+          "first_summary_delivery_to_ready_ms": 32.6620580162853,
+          "control_monotonic": 385671.817084762,
+          "complete_monotonic": 385745.300359417,
+          "raw_control_to_complete_ms": 73483.27465500915,
+          "wall_seconds": 73.54662833199836,
+          "timing": {
+            "count": 4,
+            "min": 14887.0764169842,
+            "p50": 19157.78237505583,
+            "p95": 19728.886116994545,
+            "p99": 19728.886116994545,
+            "max": 19728.886116994545,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 4,
+            "hops": [
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 14887.0764169842
+              },
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 19157.78237505583
+              },
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 19728.886116994545
+              },
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 19385.369812021963
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 1,
+              "timestamp": 385672.140714527,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": false,
+              "preparation_ms": 22.74122304515913,
+              "track_id": "club_xl",
+              "scenario": "continuous",
+              "consumed_at": 385672.140924062
+            }
+          ]
+        },
+        {
+          "generation": 2,
+          "track_id": "when_the_light_breaks",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 21856.996649992652,
+          "first_raw_ready_to_consumed_ms": 18.832086003385484,
+          "first_summary_delivery_to_ready_ms": 21.98548399610445,
+          "control_monotonic": 385745.435448429,
+          "complete_monotonic": 385811.175947504,
+          "raw_control_to_complete_ms": 65740.49907497829,
+          "wall_seconds": 65.7688486049883,
+          "timing": {
+            "count": 4,
+            "min": 8777.753608010244,
+            "p50": 12600.027435983066,
+            "p95": 22505.468035000376,
+            "p99": 22505.468035000376,
+            "max": 22505.468035000376,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 4,
+            "hops": [
+              {
+                "generation": 2,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 21779.33429303812
+              },
+              {
+                "generation": 2,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 22505.468035000376
+              },
+              {
+                "generation": 2,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 12600.027435983066
+              },
+              {
+                "generation": 2,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 8777.753608010244
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 2,
+              "timestamp": 385745.51303699,
+              "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+              "mean": 0.00022293615620583296,
+              "std": 0.2913064956665039,
+              "reused": false,
+              "preparation_ms": 77.31425995007157,
+              "track_id": "when_the_light_breaks",
+              "scenario": "continuous",
+              "consumed_at": 385745.513426681
+            }
+          ]
+        },
+        {
+          "generation": 3,
+          "track_id": "under_my_skin",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 8087.747083976865,
+          "first_raw_ready_to_consumed_ms": 10.303788993041962,
+          "first_summary_delivery_to_ready_ms": 11.67385804001242,
+          "control_monotonic": 385811.249174138,
+          "complete_monotonic": 385843.620894796,
+          "raw_control_to_complete_ms": 32371.720657974947,
+          "wall_seconds": 32.3983440460288,
+          "timing": {
+            "count": 4,
+            "min": 8049.304332991596,
+            "p50": 8067.030448990408,
+            "p95": 8133.492857974488,
+            "p99": 8133.492857974488,
+            "max": 8133.492857974488,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 4,
+            "hops": [
+              {
+                "generation": 3,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 8049.304332991596
+              },
+              {
+                "generation": 3,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 8133.492857974488
+              },
+              {
+                "generation": 3,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 8067.030448990408
+              },
+              {
+                "generation": 3,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 8083.2947450107895
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 3,
+              "timestamp": 385811.287577794,
+              "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+              "mean": 0.00012482910824473947,
+              "std": 0.3041391968727112,
+              "reused": false,
+              "preparation_ms": 38.28352497657761,
+              "track_id": "under_my_skin",
+              "scenario": "continuous",
+              "consumed_at": 385811.287857523
+            }
+          ]
+        },
+        {
+          "generation": 4,
+          "track_id": "stfu",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 8987.19934397377,
+          "first_raw_ready_to_consumed_ms": 8.773743989877403,
+          "first_summary_delivery_to_ready_ms": 10.170870984438807,
+          "control_monotonic": 385843.694477547,
+          "complete_monotonic": 385877.375935223,
+          "raw_control_to_complete_ms": 33681.45767599344,
+          "wall_seconds": 33.70884327602107,
+          "timing": {
+            "count": 4,
+            "min": 8063.511564047076,
+            "p50": 8291.350657003932,
+            "p95": 8950.329642975703,
+            "p99": 8950.329642975703,
+            "max": 8950.329642975703,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 4,
+            "hops": [
+              {
+                "generation": 4,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 8950.329642975703
+              },
+              {
+                "generation": 4,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 8339.218128996436
+              },
+              {
+                "generation": 4,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 8291.350657003932
+              },
+              {
+                "generation": 4,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 8063.511564047076
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 4,
+              "timestamp": 385843.731319907,
+              "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+              "mean": -4.6878005377948284e-05,
+              "std": 0.2636549472808838,
+              "reused": false,
+              "preparation_ms": 36.711076041683555,
+              "track_id": "stfu",
+              "scenario": "continuous",
+              "consumed_at": 385843.731482579
+            }
+          ]
+        }
+      ],
+      "seeks_recorded": [],
+      "worker_statistics": {
+        "generation": 4,
+        "ready_count": 0,
+        "max_ready": 2,
+        "ready_high_water": 1,
+        "telemetry_count": 0,
+        "max_telemetry": 256,
+        "telemetry_high_water": 1,
+        "telemetry_dropped": 0,
+        "pending_latest_generation": null,
+        "inflight": null,
+        "discarded_count": 0,
+        "cancel_count": 0,
+        "backend_start_count": 1,
+        "backend_pid": null,
+        "closed": true
+      },
+      "event_counts": {
+        "control": 4,
+        "runtime_ready": 1,
+        "source_ready": 4,
+        "started": 16,
+        "chunk": 16,
+        "complete": 4
+      },
+      "native_sampling": {
+        "samples": 403,
+        "first_elapsed_seconds": 0.5081699640140869,
+        "last_elapsed_seconds": 205.38552814599825,
+        "sampler_elapsed_seconds": 205.74946621397976,
+        "coverage_note": "All saved native samples retained, including any startup/control/seek periods. Native process sampling begins after process discovery and ends before/at cleanup; it is not continuous sensor coverage.",
+        "max_sample_gap_seconds": 0.5241743919905275,
+        "capture_elapsed_ms": {
+          "count": 403,
+          "min": 4.73671400686726,
+          "p50": 9.300212957896292,
+          "p95": 14.256183989346027,
+          "p99": 18.146281014196575,
+          "max": 22.461558983195573
+        },
+        "phase_counts": {
+          "continuous:club_xl:g1": 143,
+          "continuous:when_the_light_breaks:g2": 129,
+          "continuous:under_my_skin:g3": 64,
+          "continuous:stfu:g4": 67
+        },
+        "policy_counts": {
+          "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 166,
+          "{\"epp\": \"power\", \"profile\": \"low-power\"}": 237
+        },
+        "policy_phase_counts": {
+          "continuous:club_xl:g1": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 5,
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 138
+          },
+          "continuous:when_the_light_breaks:g2": {
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 99,
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 30
+          },
+          "continuous:under_my_skin:g3": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 64
+          },
+          "continuous:stfu:g4": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 67
+          }
+        },
+        "policy_sample_runs": [
+          {
+            "policy": {
+              "epp": "balance_performance",
+              "profile": "balanced"
+            },
+            "samples": 5,
+            "first_elapsed_seconds": 0.5081699640140869,
+            "last_elapsed_seconds": 2.5313244389835745,
+            "observed_sample_span_seconds": 2.0231544749694876
+          },
+          {
+            "policy": {
+              "epp": "power",
+              "profile": "low-power"
+            },
+            "samples": 237,
+            "first_elapsed_seconds": 3.0411698119714856,
+            "last_elapsed_seconds": 123.81861138396198,
+            "observed_sample_span_seconds": 120.7774415719905
+          },
+          {
+            "policy": {
+              "epp": "balance_performance",
+              "profile": "balanced"
+            },
+            "samples": 161,
+            "first_elapsed_seconds": 124.32424536801409,
+            "last_elapsed_seconds": 205.38552814599825,
+            "observed_sample_span_seconds": 81.06128277798416
+          }
+        ],
+        "thermal": {
+          "/sys/class/thermal/thermal_zone5/temp": {
+            "type_from_saved_condition_snapshots": "TCPU",
+            "unit": "C",
+            "samples": 403,
+            "first_elapsed_seconds": 0.5081699640140869,
+            "last_elapsed_seconds": 205.38552814599825,
+            "max_sample_gap_seconds": 0.5241743919905275,
+            "min_C": 43.05,
+            "peak_C": 65.05,
+            "thresholds": {
+              "85": {
+                "inclusive_threshold_C": 85,
+                "hot_samples": 0,
+                "episodes": []
+              },
+              "95": {
+                "inclusive_threshold_C": 95,
+                "hot_samples": 0,
+                "episodes": []
+              }
+            }
+          },
+          "/sys/class/thermal/thermal_zone7/temp": {
+            "type_from_saved_condition_snapshots": "x86_pkg_temp",
+            "unit": "C",
+            "samples": 403,
+            "first_elapsed_seconds": 0.5081699640140869,
+            "last_elapsed_seconds": 205.38552814599825,
+            "max_sample_gap_seconds": 0.5241743919905275,
+            "min_C": 41.0,
+            "peak_C": 96.0,
+            "thresholds": {
+              "85": {
+                "inclusive_threshold_C": 85,
+                "hot_samples": 6,
+                "episodes": [
+                  {
+                    "samples": 3,
+                    "first_elapsed_seconds": 1.0152370129944757,
+                    "last_elapsed_seconds": 2.0258633919875138,
+                    "observed_hot_sample_span_seconds": 1.010626378993038,
+                    "previous_cool_elapsed_seconds": 0.5081699640140869,
+                    "following_cool_elapsed_seconds": 2.5313244389835745,
+                    "neighbor_cool_bracket_seconds": 2.0231544749694876,
+                    "peak_C": 87.0
+                  },
+                  {
+                    "samples": 3,
+                    "first_elapsed_seconds": 124.32424536801409,
+                    "last_elapsed_seconds": 125.3352742959978,
+                    "observed_hot_sample_span_seconds": 1.0110289279837161,
+                    "previous_cool_elapsed_seconds": 123.81861138396198,
+                    "following_cool_elapsed_seconds": 125.84266261896119,
+                    "neighbor_cool_bracket_seconds": 2.024051234999206,
+                    "peak_C": 96.0
+                  }
+                ]
+              },
+              "95": {
+                "inclusive_threshold_C": 95,
+                "hot_samples": 1,
+                "episodes": [
+                  {
+                    "samples": 1,
+                    "first_elapsed_seconds": 124.83014291001018,
+                    "last_elapsed_seconds": 124.83014291001018,
+                    "observed_hot_sample_span_seconds": 0.0,
+                    "previous_cool_elapsed_seconds": 124.32424536801409,
+                    "following_cool_elapsed_seconds": 125.3352742959978,
+                    "neighbor_cool_bracket_seconds": 1.0110289279837161,
+                    "peak_C": 96.0
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "snapshot_only_unsampled_sensor_types": {
+          "/sys/class/thermal/thermal_zone2": "SEN1",
+          "/sys/class/thermal/thermal_zone0": "acpitz",
+          "/sys/class/thermal/thermal_zone3": "SEN2",
+          "/sys/class/thermal/thermal_zone1": "INT3400 Thermal",
+          "/sys/class/thermal/thermal_zone6": "iwlwifi_1",
+          "/sys/class/thermal/thermal_zone4": "SEN5"
+        },
+        "frequencies": {
+          "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": {
+            "count": 403,
+            "min": 669526,
+            "p50": 1300013,
+            "p95": 3000000,
+            "p99": 4200000,
+            "max": 4300000,
+            "unit": "kHz"
+          },
+          "/sys/class/drm/card1/gt_act_freq_mhz": {
+            "count": 403,
+            "min": 0,
+            "p50": 0,
+            "p95": 400,
+            "p99": 450,
+            "max": 550,
+            "unit": "MHz"
+          },
+          "/sys/class/drm/card1/gt_cur_freq_mhz": {
+            "count": 403,
+            "min": 100,
+            "p50": 400,
+            "p95": 500,
+            "p99": 617,
+            "max": 1150,
+            "unit": "MHz"
+          }
+        },
+        "sampled_throttle_fields": {
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 403
+            }
+          },
+          "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 41212,
+            "last": 41222,
+            "observed_values": {
+              "41212": 4,
+              "41218": 1,
+              "41222": 398
+            }
+          },
+          "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192822,
+            "last": 192892,
+            "observed_values": {
+              "192822": 1,
+              "192823": 1,
+              "192826": 2,
+              "192834": 1,
+              "192839": 238,
+              "192864": 1,
+              "192880": 1,
+              "192892": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 12845,
+            "last": 12904,
+            "observed_values": {
+              "12845": 2,
+              "12848": 2,
+              "12850": 1,
+              "12851": 238,
+              "12876": 1,
+              "12892": 1,
+              "12904": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192822,
+            "last": 192892,
+            "observed_values": {
+              "192822": 1,
+              "192823": 1,
+              "192826": 2,
+              "192834": 1,
+              "192839": 238,
+              "192864": 1,
+              "192880": 1,
+              "192892": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 27080,
+            "last": 27080,
+            "observed_values": {
+              "27080": 403
+            }
+          },
+          "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192821,
+            "last": 192891,
+            "observed_values": {
+              "192821": 1,
+              "192822": 1,
+              "192825": 2,
+              "192833": 1,
+              "192838": 238,
+              "192863": 1,
+              "192879": 1,
+              "192891": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 35116,
+            "last": 35119,
+            "observed_values": {
+              "35116": 1,
+              "35117": 3,
+              "35119": 399
+            }
+          },
+          "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192822,
+            "last": 192892,
+            "observed_values": {
+              "192822": 1,
+              "192823": 1,
+              "192826": 2,
+              "192834": 1,
+              "192839": 238,
+              "192864": 1,
+              "192880": 1,
+              "192892": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 41214,
+            "last": 41224,
+            "observed_values": {
+              "41214": 4,
+              "41220": 1,
+              "41224": 398
+            }
+          },
+          "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192823,
+            "last": 192893,
+            "observed_values": {
+              "192823": 1,
+              "192824": 1,
+              "192827": 2,
+              "192835": 1,
+              "192840": 238,
+              "192865": 1,
+              "192881": 1,
+              "192893": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 12845,
+            "last": 12904,
+            "observed_values": {
+              "12845": 2,
+              "12848": 2,
+              "12850": 1,
+              "12851": 238,
+              "12876": 1,
+              "12892": 1,
+              "12904": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192821,
+            "last": 192891,
+            "observed_values": {
+              "192821": 1,
+              "192822": 1,
+              "192825": 2,
+              "192833": 1,
+              "192838": 238,
+              "192863": 1,
+              "192879": 1,
+              "192891": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 27082,
+            "last": 27082,
+            "observed_values": {
+              "27082": 403
+            }
+          },
+          "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192822,
+            "last": 192892,
+            "observed_values": {
+              "192822": 1,
+              "192823": 1,
+              "192826": 2,
+              "192834": 1,
+              "192839": 238,
+              "192864": 1,
+              "192880": 1,
+              "192892": 158
+            }
+          },
+          "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 35117,
+            "last": 35120,
+            "observed_values": {
+              "35117": 1,
+              "35118": 3,
+              "35120": 399
+            }
+          },
+          "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192824,
+            "last": 192894,
+            "observed_values": {
+              "192824": 1,
+              "192825": 1,
+              "192828": 2,
+              "192836": 1,
+              "192841": 238,
+              "192866": 1,
+              "192882": 1,
+              "192894": 158
+            }
+          }
+        },
+        "process": {
+          "pid": 1888749,
+          "start_ticks": 43102358,
+          "samples": 403,
+          "max_process_status_kB": {
+            "VmHWM": 934436,
+            "VmRSS": 934436,
+            "VmSwap": 0
+          },
+          "drm_client_maxima": {
+            "0000:00:02.0/client-966": {
+              "drm-driver": "i915",
+              "drm-client-id": "966",
+              "drm-pdev": "0000:00:02.0",
+              "drm-total-system0": "0",
+              "drm-shared-system0": "0",
+              "drm-active-system0": "0",
+              "drm-resident-system0": "0",
+              "drm-purgeable-system0": "0",
+              "drm-total-stolen-system0": "0",
+              "drm-shared-stolen-system0": "0",
+              "drm-active-stolen-system0": "0",
+              "drm-resident-stolen-system0": "0",
+              "drm-purgeable-stolen-system0": "0",
+              "drm-engine-render": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-copy": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-video": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-capacity-video": "2",
+              "drm-engine-video-enhance": {
+                "value": 0,
+                "unit": "ns"
+              }
+            }
+          },
+          "max_simultaneous_drm_clients": 1,
+          "fd_read_errors": 0,
+          "first_elapsed_seconds": 0.5081699640140869,
+          "last_elapsed_seconds": 205.38552814599825,
+          "first_process_counters": {
+            "status.voluntary_ctxt_switches": 9,
+            "status.nonvoluntary_ctxt_switches": 38,
+            "stat.minflt": 250429,
+            "stat.majflt": 3
+          },
+          "last_process_counters": {
+            "status.voluntary_ctxt_switches": 87,
+            "status.nonvoluntary_ctxt_switches": 7552,
+            "stat.minflt": 451545,
+            "stat.majflt": 3
+          },
+          "observed_cpu_seconds": 789.88
+        },
+        "supervisor": {
+          "interval_seconds": 0.5,
+          "elapsed_seconds": 205.74978938000277,
+          "samples": 412,
+          "sample_errors": {},
+          "processes": [
+            {
+              "pid": 1888745,
+              "start_ticks": 43102331,
+              "samples": 412,
+              "max_process_status_kB": {
+                "VmHWM": 143864,
+                "VmRSS": 135680,
+                "VmSwap": 0
+              },
+              "drm_client_maxima": {},
+              "max_simultaneous_drm_clients": 0,
+              "fd_read_errors": 412,
+              "first_elapsed_seconds": 0.001212467032019049,
+              "last_elapsed_seconds": 205.7497786990134,
+              "first_process_counters": {
+                "status.voluntary_ctxt_switches": 15,
+                "status.nonvoluntary_ctxt_switches": 20,
+                "stat.minflt": 6601,
+                "stat.majflt": 0
+              },
+              "last_process_counters": {
+                "status.voluntary_ctxt_switches": 1058,
+                "status.nonvoluntary_ctxt_switches": 89,
+                "stat.minflt": 82995,
+                "stat.majflt": 63
+              },
+              "observed_cpu_seconds": 5.31
+            }
+          ],
+          "notes": [
+            "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+            "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+            "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+            "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+            "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+            "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+            "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+          ]
+        },
+        "sample_errors": {},
+        "trace_errors": {},
+        "system_read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 403,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 403,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 403,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 403
+        },
+        "memory_scope": "Native and supervisor /proc status kB are separate process peaks. DRM client maxima retain exact names/units and are not summed with RSS or with each other. Observed CPU seconds exclude earlier work before the first successful process sample.",
+        "thermal_scope": "85/95 C are descriptive inclusive reporting thresholds, not new acceptance gates. Consecutive hot-sample spans and neighbor-cool brackets do not prove continuous temperature between samples or establish sustained-hot duration. Other mapped sensors are start/end snapshots only.",
+        "power_scope": "Denied RAPL energy fields are unavailable, not zero energy or power. Sampled policy/frequency changes and kernel throttle values are descriptive; no causal attribution of latency."
+      },
+      "conditions_at_start": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "balanced",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "4551617",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 37050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 43000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 70000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 43050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 42050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 35000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 39050
+        }
+      },
+      "conditions_at_finish": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "balanced",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3004530",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 44050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 65000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 59000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 65050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 56050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 33000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 47050
+        }
+      },
+      "stale_and_cancellation_scope": "All new loads/seeks followed the previous complete event. Zero discarded/cancelled events and zero cancel_count do not exercise active-request cancellation, stale-result rejection or hardware preemption. The three seeks compare recorded full suffixes to their same-backend continuous baseline; this facts helper checks their recorded parity/hashes and does not replay excluded PCM.",
+      "audio_ui_scope": "No audio playback or UI load was launched. No callback/xrun/physical-audio or UI-cadence result is supplied by these runs."
+    },
+    "vulkan": {
+      "status": "ok",
+      "inputs": [
+        {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/result.json",
+          "bytes": 38645,
+          "sha256": "6fc39cae55a8051219dd114da715b4806f8264a52b0e9c2754a5490f63104f4c"
+        },
+        {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/events.jsonl",
+          "bytes": 44981,
+          "sha256": "0b580cd2d6bda9c1ef5b5a9b9db2c951e15898473635cf3c304ef094071a9235"
+        },
+        {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/native-trace.jsonl",
+          "bytes": 940799,
+          "sha256": "ab903b5e317619513705ce8a2bd7f8097fe073975ae602f874ccc1b259906118"
+        }
+      ],
+      "pins": {
+        "manifest": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/manifest.json",
+          "bytes": 7360,
+          "sha256": "4a0a50eb0adcdd8649189f9f6e5850c54ead9bf01b58c9f0e4bcae424414af53"
+        },
+        "runtime": {
+          "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+          "bytes": 62986240,
+          "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+        },
+        "model": {
+          "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+          "bytes": 84059168,
+          "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+        },
+        "driver": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/quality_run.py",
+          "bytes": 16155,
+          "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+        },
+        "worker_source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+          "bytes": 24863,
+          "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+        },
+        "shared_benchmark_source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+          "bytes": 23061,
+          "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+        },
+        "sampler_source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+          "bytes": 23403,
+          "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+        }
+      },
+      "elapsed_seconds": 74.57247511803871,
+      "runtime_ready": [
+        {
+          "event": "runtime_ready",
+          "generation": 1,
+          "timestamp": 386011.533491635,
+          "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "runtime": {
+            "stems": [
+              "drums",
+              "bass",
+              "other",
+              "vocals"
+            ],
+            "segment_frames": 343980,
+            "channels": 2,
+            "pid": 1890207,
+            "sample_rate": 44100,
+            "weight_storage": "native",
+            "threads": 4,
+            "backend": "vulkan",
+            "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+            "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+            "fence_wait_mode": "blocking",
+            "load_ms": 443.34776,
+            "event": "ready",
+            "process_environment": {
+              "OMP_WAIT_POLICY": "PASSIVE",
+              "GOMP_SPINCOUNT": "0"
+            }
+          },
+          "track_id": "club_xl",
+          "scenario": "continuous",
+          "consumed_at": 386011.533603533
+        }
+      ],
+      "tracks": [
+        {
+          "id": "club_xl",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/club_xl.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "b9cb86e12273bf1014bf316864ae23bea332ec6abb6fd1a9bb5fba0d8955adb7"
+          },
+          "first_load": "cold native backend",
+          "first_chunk": {
+            "ready_monotonic": 386013.428459057,
+            "delivered_monotonic": 386013.436613195,
+            "control_to_ready_ms": 2396.1071749799885,
+            "load_to_delivered_ms": 2404.2687909677625
+          },
+          "source_preparation_ms": 21.459384995978326,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 1,
+              "timestamp": 386011.554995864,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": false,
+              "preparation_ms": 21.459384995978326,
+              "track_id": "club_xl",
+              "scenario": "continuous",
+              "consumed_at": 386011.555235634
+            },
+            {
+              "event": "source_ready",
+              "generation": 2,
+              "timestamp": 386018.940992676,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": true,
+              "preparation_ms": 0.01633702777326107,
+              "track_id": "club_xl",
+              "scenario": "seek",
+              "consumed_at": 386018.942140021
+            },
+            {
+              "event": "source_ready",
+              "generation": 3,
+              "timestamp": 386026.185955452,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": true,
+              "preparation_ms": 0.012244971003383398,
+              "track_id": "club_xl",
+              "scenario": "seek",
+              "consumed_at": 386026.185978973
+            },
+            {
+              "event": "source_ready",
+              "generation": 4,
+              "timestamp": 386033.454506666,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": true,
+              "preparation_ms": 0.007235037628561258,
+              "track_id": "club_xl",
+              "scenario": "seek",
+              "consumed_at": 386033.455445522
+            }
+          ],
+          "wall_seconds": 7.869674210960511,
+          "hop_service_percentiles_ms": {
+            "50": 1825.0587380025536,
+            "95": 1873.2906060176902,
+            "99": 1873.2906060176902
+          },
+          "hop_service_max_ms": 1873.2906060176902
+        },
+        {
+          "id": "when_the_light_breaks",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/when_the_light_breaks.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "3b65ab98bef3b07ba9a8e802e1c53e60c471fe53c63654decb69e486858cdafe"
+          },
+          "first_load": "warm persistent native backend, new source preparation",
+          "first_chunk": {
+            "ready_monotonic": 386039.48230309,
+            "delivered_monotonic": 386039.516456299,
+            "control_to_ready_ms": 2134.942004980985,
+            "load_to_delivered_ms": 2169.1118190065026
+          },
+          "source_preparation_ms": 72.26466399151832,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 5,
+              "timestamp": 386037.419841584,
+              "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+              "mean": 0.00022293615620583296,
+              "std": 0.2913064956665039,
+              "reused": false,
+              "preparation_ms": 72.26466399151832,
+              "track_id": "when_the_light_breaks",
+              "scenario": "continuous",
+              "consumed_at": 386037.420208595
+            }
+          ],
+          "wall_seconds": 15.335311022005044,
+          "hop_service_percentiles_ms": {
+            "50": 3010.3422719985247,
+            "95": 5258.472547982819,
+            "99": 5258.472547982819
+          },
+          "hop_service_max_ms": 5258.472547982819
+        },
+        {
+          "id": "under_my_skin",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/under_my_skin.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "9d912883c803487c61b6da737ca8d5f1eb3903006151fbfe0739e53521db4a36"
+          },
+          "first_load": "warm persistent native backend, new source preparation",
+          "first_chunk": {
+            "ready_monotonic": 386056.89024647,
+            "delivered_monotonic": 386056.914662622,
+            "control_to_ready_ms": 4082.6238759909756,
+            "load_to_delivered_ms": 4107.056679960806
+          },
+          "source_preparation_ms": 69.4412009906955,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 6,
+              "timestamp": 386052.877328866,
+              "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+              "mean": 0.00012482910824473947,
+              "std": 0.3041391968727112,
+              "reused": false,
+              "preparation_ms": 69.4412009906955,
+              "track_id": "under_my_skin",
+              "scenario": "continuous",
+              "consumed_at": 386052.877706423
+            }
+          ],
+          "wall_seconds": 15.889661527005956,
+          "hop_service_percentiles_ms": {
+            "50": 3925.8415160002187,
+            "95": 4012.8698619664647,
+            "99": 4012.8698619664647
+          },
+          "hop_service_max_ms": 4012.8698619664647
+        },
+        {
+          "id": "stfu",
+          "input": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+            "bytes": 4127804,
+            "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+            "frames": 1031940,
+            "sample_rate": 44100,
+            "channels": 2,
+            "sample_bytes": 2
+          },
+          "output": {
+            "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/stfu.npy",
+            "shape": [
+              4,
+              1031940,
+              2
+            ],
+            "dtype": "<f4",
+            "complete": true,
+            "bytes": 33022208,
+            "sha256": "7729c55db1eb6a9ae27c2b726d4f2d4e906512674f91cd78538b9c7a6cb3a80f"
+          },
+          "first_load": "warm persistent native backend, new source preparation",
+          "first_chunk": {
+            "ready_monotonic": 386072.778786915,
+            "delivered_monotonic": 386072.798491068,
+            "control_to_ready_ms": 3991.7285289848223,
+            "load_to_delivered_ms": 4011.4490120322444
+          },
+          "source_preparation_ms": 65.33449201378971,
+          "source_preparation_scope": "WAV read, statistics and worker preparation; original FLAC decoding occurred before the benchmark",
+          "source_ready_all_generations": [
+            {
+              "event": "source_ready",
+              "generation": 7,
+              "timestamp": 386068.852638759,
+              "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+              "mean": -4.6878005377948284e-05,
+              "std": 0.2636549472808838,
+              "reused": false,
+              "preparation_ms": 65.33449201378971,
+              "track_id": "stfu",
+              "scenario": "continuous",
+              "consumed_at": 386068.853047172
+            }
+          ],
+          "wall_seconds": 16.43527110404102,
+          "hop_service_percentiles_ms": {
+            "50": 3929.1142149595544,
+            "95": 4379.999618977308,
+            "99": 4379.999618977308
+          },
+          "hop_service_max_ms": 4379.999618977308
+        }
+      ],
+      "continuous_timing": {
+        "count": 16,
+        "min": 1794.6288380189799,
+        "p50": 3925.8415160002187,
+        "p95": 5258.472547982819,
+        "p99": 5258.472547982819,
+        "max": 5258.472547982819,
+        "unit": "ms",
+        "target_ms": 4095.0,
+        "strictly_above_target_count": 3,
+        "hops": [
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 1873.2906060176902
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 1835.0700619630516
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 1825.0587380025536
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 1794.6288380189799
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 2062.397716974374
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 3010.3422719985247
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 4866.223599005025
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 5258.472547982819
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 4012.8698619664647
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 3925.8415160002187
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 3887.363350018859
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 3929.681995010469
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 3926.098774012644
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 4072.175806039013
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 4379.999618977308
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 3929.1142149595544
+          }
+        ]
+      },
+      "all_delivered_timing": {
+        "count": 24,
+        "min": 1784.0429890202358,
+        "p50": 1979.4955149991438,
+        "p95": 4866.223599005025,
+        "p99": 5258.472547982819,
+        "max": 5258.472547982819,
+        "unit": "ms",
+        "target_ms": 4095.0,
+        "strictly_above_target_count": 3,
+        "hops": [
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 1873.2906060176902
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 1835.0700619630516
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 1825.0587380025536
+          },
+          {
+            "generation": 1,
+            "track_id": "club_xl",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 1794.6288380189799
+          },
+          {
+            "generation": 2,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 257984,
+            "frames": 1,
+            "hop_service_ms": 1824.3433720199391
+          },
+          {
+            "generation": 2,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 1784.757259010803
+          },
+          {
+            "generation": 2,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 1791.7281150002964
+          },
+          {
+            "generation": 2,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 1789.0278070117347
+          },
+          {
+            "generation": 3,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 343981,
+            "frames": 171989,
+            "hop_service_ms": 1784.0429890202358
+          },
+          {
+            "generation": 3,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 1813.983656000346
+          },
+          {
+            "generation": 3,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 1791.018587013241
+          },
+          {
+            "generation": 4,
+            "track_id": "club_xl",
+            "scenario": "seek",
+            "frame_start": 1027844,
+            "frames": 4096,
+            "hop_service_ms": 1979.4955149991438
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 2062.397716974374
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 3010.3422719985247
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 4866.223599005025
+          },
+          {
+            "generation": 5,
+            "track_id": "when_the_light_breaks",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 5258.472547982819
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 4012.8698619664647
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 3925.8415160002187
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 3887.363350018859
+          },
+          {
+            "generation": 6,
+            "track_id": "under_my_skin",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 3929.681995010469
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 0,
+            "frames": 257985,
+            "hop_service_ms": 3926.098774012644
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 257985,
+            "frames": 257985,
+            "hop_service_ms": 4072.175806039013
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 515970,
+            "frames": 257985,
+            "hop_service_ms": 4379.999618977308
+          },
+          {
+            "generation": 7,
+            "track_id": "stfu",
+            "scenario": "continuous",
+            "frame_start": 773955,
+            "frames": 257985,
+            "hop_service_ms": 3929.1142149595544
+          }
+        ]
+      },
+      "scenarios": [
+        {
+          "generation": 1,
+          "track_id": "club_xl",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 2396.1071749799885,
+          "first_raw_ready_to_consumed_ms": 7.300012977793813,
+          "first_summary_delivery_to_ready_ms": 8.15413799136877,
+          "control_monotonic": 386011.032351882,
+          "complete_monotonic": 386018.883389337,
+          "raw_control_to_complete_ms": 7851.03745496599,
+          "wall_seconds": 7.869674210960511,
+          "timing": {
+            "count": 4,
+            "min": 1794.6288380189799,
+            "p50": 1825.0587380025536,
+            "p95": 1873.2906060176902,
+            "p99": 1873.2906060176902,
+            "max": 1873.2906060176902,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 0,
+            "hops": [
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 1873.2906060176902
+              },
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 1835.0700619630516
+              },
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 1825.0587380025536
+              },
+              {
+                "generation": 1,
+                "track_id": "club_xl",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 1794.6288380189799
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 1,
+              "timestamp": 386011.554995864,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": false,
+              "preparation_ms": 21.459384995978326,
+              "track_id": "club_xl",
+              "scenario": "continuous",
+              "consumed_at": 386011.555235634
+            }
+          ]
+        },
+        {
+          "generation": 2,
+          "track_id": "club_xl",
+          "scenario": "seek",
+          "start_frame": 257984,
+          "frames": 773956,
+          "chunks": 4,
+          "first_control_to_ready_ms": 1824.5287060271949,
+          "first_raw_ready_to_consumed_ms": 0.18079497385770082,
+          "first_summary_delivery_to_ready_ms": 0.28070498956367373,
+          "control_monotonic": 386018.940826359,
+          "complete_monotonic": 386026.131025946,
+          "raw_control_to_complete_ms": 7190.199587028474,
+          "wall_seconds": 7.244914215989411,
+          "timing": {
+            "count": 4,
+            "min": 1784.757259010803,
+            "p50": 1789.0278070117347,
+            "p95": 1824.3433720199391,
+            "p99": 1824.3433720199391,
+            "max": 1824.3433720199391,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 0,
+            "hops": [
+              {
+                "generation": 2,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 257984,
+                "frames": 1,
+                "hop_service_ms": 1824.3433720199391
+              },
+              {
+                "generation": 2,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 1784.757259010803
+              },
+              {
+                "generation": 2,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 1791.7281150002964
+              },
+              {
+                "generation": 2,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 1789.0278070117347
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 2,
+              "timestamp": 386018.940992676,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": true,
+              "preparation_ms": 0.01633702777326107,
+              "track_id": "club_xl",
+              "scenario": "seek",
+              "consumed_at": 386018.942140021
+            }
+          ]
+        },
+        {
+          "generation": 3,
+          "track_id": "club_xl",
+          "scenario": "seek",
+          "start_frame": 343981,
+          "frames": 687959,
+          "chunks": 3,
+          "first_control_to_ready_ms": 3618.7951149768196,
+          "first_raw_ready_to_consumed_ms": 5.237719975411892,
+          "first_summary_delivery_to_ready_ms": 6.943356012925506,
+          "control_monotonic": 386026.185759166,
+          "complete_monotonic": 386033.40966231,
+          "raw_control_to_complete_ms": 7223.903143953066,
+          "wall_seconds": 7.268595679022837,
+          "timing": {
+            "count": 3,
+            "min": 1784.0429890202358,
+            "p50": 1791.018587013241,
+            "p95": 1813.983656000346,
+            "p99": 1813.983656000346,
+            "max": 1813.983656000346,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 0,
+            "hops": [
+              {
+                "generation": 3,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 343981,
+                "frames": 171989,
+                "hop_service_ms": 1784.0429890202358
+              },
+              {
+                "generation": 3,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 1813.983656000346
+              },
+              {
+                "generation": 3,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 1791.018587013241
+              }
+            ]
+          },
+          "preroll_requests": 1,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 3,
+              "timestamp": 386026.185955452,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": true,
+              "preparation_ms": 0.012244971003383398,
+              "track_id": "club_xl",
+              "scenario": "seek",
+              "consumed_at": 386026.185978973
+            }
+          ]
+        },
+        {
+          "generation": 4,
+          "track_id": "club_xl",
+          "scenario": "seek",
+          "start_frame": 1027844,
+          "frames": 4096,
+          "chunks": 1,
+          "first_control_to_ready_ms": 3877.5392799871042,
+          "first_raw_ready_to_consumed_ms": 0.52225700346753,
+          "first_summary_delivery_to_ready_ms": 0.778470013756305,
+          "control_monotonic": 386033.454359881,
+          "complete_monotonic": 386037.331983944,
+          "raw_control_to_complete_ms": 3877.624062995892,
+          "wall_seconds": 3.8916422429610975,
+          "timing": {
+            "count": 1,
+            "min": 1979.4955149991438,
+            "p50": 1979.4955149991438,
+            "p95": 1979.4955149991438,
+            "p99": 1979.4955149991438,
+            "max": 1979.4955149991438,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 0,
+            "hops": [
+              {
+                "generation": 4,
+                "track_id": "club_xl",
+                "scenario": "seek",
+                "frame_start": 1027844,
+                "frames": 4096,
+                "hop_service_ms": 1979.4955149991438
+              }
+            ]
+          },
+          "preroll_requests": 1,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 4,
+              "timestamp": 386033.454506666,
+              "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+              "mean": -5.710358527721837e-05,
+              "std": 0.30619269609451294,
+              "reused": true,
+              "preparation_ms": 0.007235037628561258,
+              "track_id": "club_xl",
+              "scenario": "seek",
+              "consumed_at": 386033.455445522
+            }
+          ]
+        },
+        {
+          "generation": 5,
+          "track_id": "when_the_light_breaks",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 2134.942004980985,
+          "first_raw_ready_to_consumed_ms": 32.313387026079,
+          "first_summary_delivery_to_ready_ms": 34.153209009673446,
+          "control_monotonic": 386037.347361085,
+          "complete_monotonic": 386052.617738451,
+          "raw_control_to_complete_ms": 15270.37736598868,
+          "wall_seconds": 15.335311022005044,
+          "timing": {
+            "count": 4,
+            "min": 2062.397716974374,
+            "p50": 3010.3422719985247,
+            "p95": 5258.472547982819,
+            "p99": 5258.472547982819,
+            "max": 5258.472547982819,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 2,
+            "hops": [
+              {
+                "generation": 5,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 2062.397716974374
+              },
+              {
+                "generation": 5,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 3010.3422719985247
+              },
+              {
+                "generation": 5,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 4866.223599005025
+              },
+              {
+                "generation": 5,
+                "track_id": "when_the_light_breaks",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 5258.472547982819
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 5,
+              "timestamp": 386037.419841584,
+              "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+              "mean": 0.00022293615620583296,
+              "std": 0.2913064956665039,
+              "reused": false,
+              "preparation_ms": 72.26466399151832,
+              "track_id": "when_the_light_breaks",
+              "scenario": "continuous",
+              "consumed_at": 386037.420208595
+            }
+          ]
+        },
+        {
+          "generation": 6,
+          "track_id": "under_my_skin",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 4082.6238759909756,
+          "first_raw_ready_to_consumed_ms": 22.10068900603801,
+          "first_summary_delivery_to_ready_ms": 24.41615198040381,
+          "control_monotonic": 386052.807622594,
+          "complete_monotonic": 386068.633498913,
+          "raw_control_to_complete_ms": 15825.876319024246,
+          "wall_seconds": 15.889661527005956,
+          "timing": {
+            "count": 4,
+            "min": 3887.363350018859,
+            "p50": 3925.8415160002187,
+            "p95": 4012.8698619664647,
+            "p99": 4012.8698619664647,
+            "max": 4012.8698619664647,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 0,
+            "hops": [
+              {
+                "generation": 6,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 4012.8698619664647
+              },
+              {
+                "generation": 6,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 3925.8415160002187
+              },
+              {
+                "generation": 6,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 3887.363350018859
+              },
+              {
+                "generation": 6,
+                "track_id": "under_my_skin",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 3929.681995010469
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 6,
+              "timestamp": 386052.877328866,
+              "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+              "mean": 0.00012482910824473947,
+              "std": 0.3041391968727112,
+              "reused": false,
+              "preparation_ms": 69.4412009906955,
+              "track_id": "under_my_skin",
+              "scenario": "continuous",
+              "consumed_at": 386052.877706423
+            }
+          ]
+        },
+        {
+          "generation": 7,
+          "track_id": "stfu",
+          "scenario": "continuous",
+          "start_frame": 0,
+          "frames": 1031940,
+          "chunks": 4,
+          "first_control_to_ready_ms": 3991.7285289848223,
+          "first_raw_ready_to_consumed_ms": 17.85428199218586,
+          "first_summary_delivery_to_ready_ms": 19.70415300456807,
+          "control_monotonic": 386068.787058386,
+          "complete_monotonic": 386085.160422583,
+          "raw_control_to_complete_ms": 16373.364196973853,
+          "wall_seconds": 16.43527110404102,
+          "timing": {
+            "count": 4,
+            "min": 3926.098774012644,
+            "p50": 3929.1142149595544,
+            "p95": 4379.999618977308,
+            "p99": 4379.999618977308,
+            "max": 4379.999618977308,
+            "unit": "ms",
+            "target_ms": 4095.0,
+            "strictly_above_target_count": 1,
+            "hops": [
+              {
+                "generation": 7,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 0,
+                "frames": 257985,
+                "hop_service_ms": 3926.098774012644
+              },
+              {
+                "generation": 7,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 257985,
+                "frames": 257985,
+                "hop_service_ms": 4072.175806039013
+              },
+              {
+                "generation": 7,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 515970,
+                "frames": 257985,
+                "hop_service_ms": 4379.999618977308
+              },
+              {
+                "generation": 7,
+                "track_id": "stfu",
+                "scenario": "continuous",
+                "frame_start": 773955,
+                "frames": 257985,
+                "hop_service_ms": 3929.1142149595544
+              }
+            ]
+          },
+          "preroll_requests": 0,
+          "source_ready": [
+            {
+              "event": "source_ready",
+              "generation": 7,
+              "timestamp": 386068.852638759,
+              "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+              "source_frames": 1031940,
+              "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+              "mean": -4.6878005377948284e-05,
+              "std": 0.2636549472808838,
+              "reused": false,
+              "preparation_ms": 65.33449201378971,
+              "track_id": "stfu",
+              "scenario": "continuous",
+              "consumed_at": 386068.853047172
+            }
+          ]
+        }
+      ],
+      "seeks_recorded": [
+        {
+          "generation": 2,
+          "start_frame": 257984,
+          "frames": 773956,
+          "chunks": 4,
+          "first_chunk": {
+            "ready_monotonic": 386020.765355065,
+            "delivered_monotonic": 386020.76563577,
+            "control_to_ready_ms": 1824.5287060271949
+          },
+          "hop_service_percentiles_ms": {
+            "50": 1789.0278070117347,
+            "95": 1824.3433720199391,
+            "99": 1824.3433720199391
+          },
+          "hop_service_max_ms": 1824.3433720199391,
+          "chunk_stream_sha256": "aee1150bbadb7dd2a666cf376f84473428d7df7af79ee24a0289c746fa21734e",
+          "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+          "reference_chunk_stream_sha256": "aee1150bbadb7dd2a666cf376f84473428d7df7af79ee24a0289c746fa21734e",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rms_difference": 0.0,
+          "parity_tolerance": {
+            "rtol": 0.0001,
+            "atol": 1e-05
+          },
+          "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+          "track_id": "club_xl",
+          "wall_seconds": 7.244914215989411
+        },
+        {
+          "generation": 3,
+          "start_frame": 343981,
+          "frames": 687959,
+          "chunks": 3,
+          "first_chunk": {
+            "ready_monotonic": 386029.804554281,
+            "delivered_monotonic": 386029.811497637,
+            "control_to_ready_ms": 3618.7951149768196
+          },
+          "hop_service_percentiles_ms": {
+            "50": 1791.018587013241,
+            "95": 1813.983656000346,
+            "99": 1813.983656000346
+          },
+          "hop_service_max_ms": 1813.983656000346,
+          "chunk_stream_sha256": "eba59a7891b05080ca587b7b3bccdfa7c6a026b0c188284c1847b766ba1564ae",
+          "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+          "reference_chunk_stream_sha256": "eba59a7891b05080ca587b7b3bccdfa7c6a026b0c188284c1847b766ba1564ae",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rms_difference": 0.0,
+          "parity_tolerance": {
+            "rtol": 0.0001,
+            "atol": 1e-05
+          },
+          "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+          "track_id": "club_xl",
+          "wall_seconds": 7.268595679022837
+        },
+        {
+          "generation": 4,
+          "start_frame": 1027844,
+          "frames": 4096,
+          "chunks": 1,
+          "first_chunk": {
+            "ready_monotonic": 386037.331899161,
+            "delivered_monotonic": 386037.332677631,
+            "control_to_ready_ms": 3877.5392799871042
+          },
+          "hop_service_percentiles_ms": {
+            "50": 1979.4955149991438,
+            "95": 1979.4955149991438,
+            "99": 1979.4955149991438
+          },
+          "hop_service_max_ms": 1979.4955149991438,
+          "chunk_stream_sha256": "2ea95c93f422b69366ba9ceec4a69bdb16934d99df581626895a1a097b133249",
+          "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+          "reference_chunk_stream_sha256": "2ea95c93f422b69366ba9ceec4a69bdb16934d99df581626895a1a097b133249",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rms_difference": 0.0,
+          "parity_tolerance": {
+            "rtol": 0.0001,
+            "atol": 1e-05
+          },
+          "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+          "track_id": "club_xl",
+          "wall_seconds": 3.8916422429610975
+        }
+      ],
+      "worker_statistics": {
+        "generation": 7,
+        "ready_count": 0,
+        "max_ready": 2,
+        "ready_high_water": 1,
+        "telemetry_count": 0,
+        "max_telemetry": 256,
+        "telemetry_high_water": 1,
+        "telemetry_dropped": 0,
+        "pending_latest_generation": null,
+        "inflight": null,
+        "discarded_count": 0,
+        "cancel_count": 0,
+        "backend_start_count": 1,
+        "backend_pid": null,
+        "closed": true
+      },
+      "event_counts": {
+        "control": 7,
+        "runtime_ready": 1,
+        "source_ready": 7,
+        "started": 26,
+        "chunk": 24,
+        "complete": 7
+      },
+      "native_sampling": {
+        "samples": 144,
+        "first_elapsed_seconds": 1.0084924229886383,
+        "last_elapsed_seconds": 73.97520030097803,
+        "sampler_elapsed_seconds": 74.4481128170155,
+        "coverage_note": "All saved native samples retained, including any startup/control/seek periods. Native process sampling begins after process discovery and ends before/at cleanup; it is not continuous sensor coverage.",
+        "max_sample_gap_seconds": 0.5159639720222913,
+        "capture_elapsed_ms": {
+          "count": 144,
+          "min": 5.64283796120435,
+          "p50": 9.492031007539481,
+          "p95": 12.120147002860904,
+          "p99": 14.616806001868099,
+          "max": 15.214329003356397
+        },
+        "phase_counts": {
+          "continuous:club_xl:g1": 14,
+          "seek:club_xl:g2": 14,
+          "seek:club_xl:g3": 14,
+          "between_controls_or_cleanup": 2,
+          "seek:club_xl:g4": 7,
+          "continuous:when_the_light_breaks:g5": 30,
+          "continuous:under_my_skin:g6": 31,
+          "continuous:stfu:g7": 32
+        },
+        "policy_counts": {
+          "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 47,
+          "{\"epp\": \"power\", \"profile\": \"low-power\"}": 97
+        },
+        "policy_phase_counts": {
+          "continuous:club_xl:g1": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 14
+          },
+          "seek:club_xl:g2": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 14
+          },
+          "seek:club_xl:g3": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 14
+          },
+          "between_controls_or_cleanup": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 1,
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 1
+          },
+          "seek:club_xl:g4": {
+            "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 4,
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 3
+          },
+          "continuous:when_the_light_breaks:g5": {
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 30
+          },
+          "continuous:under_my_skin:g6": {
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 31
+          },
+          "continuous:stfu:g7": {
+            "{\"epp\": \"power\", \"profile\": \"low-power\"}": 32
+          }
+        },
+        "policy_sample_runs": [
+          {
+            "policy": {
+              "epp": "balance_performance",
+              "profile": "balanced"
+            },
+            "samples": 47,
+            "first_elapsed_seconds": 1.0084924229886383,
+            "last_elapsed_seconds": 24.43198063701857,
+            "observed_sample_span_seconds": 23.42348821402993
+          },
+          {
+            "policy": {
+              "epp": "power",
+              "profile": "low-power"
+            },
+            "samples": 97,
+            "first_elapsed_seconds": 24.940966343972832,
+            "last_elapsed_seconds": 73.97520030097803,
+            "observed_sample_span_seconds": 49.0342339570052
+          }
+        ],
+        "thermal": {
+          "/sys/class/thermal/thermal_zone5/temp": {
+            "type_from_saved_condition_snapshots": "TCPU",
+            "unit": "C",
+            "samples": 144,
+            "first_elapsed_seconds": 1.0084924229886383,
+            "last_elapsed_seconds": 73.97520030097803,
+            "max_sample_gap_seconds": 0.5159639720222913,
+            "min_C": 41.05,
+            "peak_C": 72.05,
+            "thresholds": {
+              "85": {
+                "inclusive_threshold_C": 85,
+                "hot_samples": 0,
+                "episodes": []
+              },
+              "95": {
+                "inclusive_threshold_C": 95,
+                "hot_samples": 0,
+                "episodes": []
+              }
+            }
+          },
+          "/sys/class/thermal/thermal_zone7/temp": {
+            "type_from_saved_condition_snapshots": "x86_pkg_temp",
+            "unit": "C",
+            "samples": 144,
+            "first_elapsed_seconds": 1.0084924229886383,
+            "last_elapsed_seconds": 73.97520030097803,
+            "max_sample_gap_seconds": 0.5159639720222913,
+            "min_C": 47.0,
+            "peak_C": 78.0,
+            "thresholds": {
+              "85": {
+                "inclusive_threshold_C": 85,
+                "hot_samples": 0,
+                "episodes": []
+              },
+              "95": {
+                "inclusive_threshold_C": 95,
+                "hot_samples": 0,
+                "episodes": []
+              }
+            }
+          }
+        },
+        "snapshot_only_unsampled_sensor_types": {
+          "/sys/class/thermal/thermal_zone2": "SEN1",
+          "/sys/class/thermal/thermal_zone0": "acpitz",
+          "/sys/class/thermal/thermal_zone3": "SEN2",
+          "/sys/class/thermal/thermal_zone1": "INT3400 Thermal",
+          "/sys/class/thermal/thermal_zone6": "iwlwifi_1",
+          "/sys/class/thermal/thermal_zone4": "SEN5"
+        },
+        "frequencies": {
+          "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": {
+            "count": 144,
+            "min": 400000,
+            "p50": 980940,
+            "p95": 2400000,
+            "p99": 4100000,
+            "max": 4297944,
+            "unit": "kHz"
+          },
+          "/sys/class/drm/card1/gt_act_freq_mhz": {
+            "count": 144,
+            "min": 0,
+            "p50": 650,
+            "p95": 1350,
+            "p99": 1350,
+            "max": 1350,
+            "unit": "MHz"
+          },
+          "/sys/class/drm/card1/gt_cur_freq_mhz": {
+            "count": 144,
+            "min": 383,
+            "p50": 1350,
+            "p95": 1350,
+            "p99": 1350,
+            "max": 1350,
+            "unit": "MHz"
+          }
+        },
+        "sampled_throttle_fields": {
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 1,
+            "observed_values": {
+              "0": 61,
+              "1": 83
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 1,
+            "observed_values": {
+              "0": 61,
+              "1": 83
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+            "unit": "kernel integer",
+            "first": 0,
+            "last": 0,
+            "observed_values": {
+              "0": 144
+            }
+          },
+          "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 41222,
+            "last": 41224,
+            "observed_values": {
+              "41222": 46,
+              "41224": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192892,
+            "last": 192899,
+            "observed_values": {
+              "192892": 46,
+              "192899": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 12904,
+            "last": 12904,
+            "observed_values": {
+              "12904": 144
+            }
+          },
+          "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192892,
+            "last": 192899,
+            "observed_values": {
+              "192892": 46,
+              "192899": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 27080,
+            "last": 27080,
+            "observed_values": {
+              "27080": 144
+            }
+          },
+          "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192891,
+            "last": 192898,
+            "observed_values": {
+              "192891": 46,
+              "192898": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 35119,
+            "last": 35125,
+            "observed_values": {
+              "35119": 46,
+              "35125": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192892,
+            "last": 192899,
+            "observed_values": {
+              "192892": 46,
+              "192899": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 41224,
+            "last": 41226,
+            "observed_values": {
+              "41224": 46,
+              "41226": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192893,
+            "last": 192900,
+            "observed_values": {
+              "192893": 46,
+              "192900": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 12904,
+            "last": 12904,
+            "observed_values": {
+              "12904": 144
+            }
+          },
+          "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192891,
+            "last": 192898,
+            "observed_values": {
+              "192891": 46,
+              "192898": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 27082,
+            "last": 27082,
+            "observed_values": {
+              "27082": 144
+            }
+          },
+          "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192892,
+            "last": 192899,
+            "observed_values": {
+              "192892": 46,
+              "192899": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": {
+            "unit": "count",
+            "first": 35120,
+            "last": 35126,
+            "observed_values": {
+              "35120": 46,
+              "35126": 98
+            }
+          },
+          "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": {
+            "unit": "count",
+            "first": 192894,
+            "last": 192901,
+            "observed_values": {
+              "192894": 46,
+              "192901": 98
+            }
+          }
+        },
+        "process": {
+          "pid": 1890207,
+          "start_ticks": 43136279,
+          "samples": 144,
+          "max_process_status_kB": {
+            "VmHWM": 280696,
+            "VmRSS": 280696,
+            "VmSwap": 0
+          },
+          "drm_client_maxima": {
+            "0000:00:02.0/client-968": {
+              "drm-driver": "i915",
+              "drm-client-id": "968",
+              "drm-pdev": "0000:00:02.0",
+              "drm-total-system0": "0",
+              "drm-shared-system0": "0",
+              "drm-active-system0": "0",
+              "drm-resident-system0": "0",
+              "drm-purgeable-system0": "0",
+              "drm-total-stolen-system0": "0",
+              "drm-shared-stolen-system0": "0",
+              "drm-active-stolen-system0": "0",
+              "drm-resident-stolen-system0": "0",
+              "drm-purgeable-stolen-system0": "0",
+              "drm-engine-render": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-copy": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-video": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-capacity-video": "2",
+              "drm-engine-video-enhance": {
+                "value": 0,
+                "unit": "ns"
+              }
+            },
+            "0000:00:02.0/client-969": {
+              "drm-driver": "i915",
+              "drm-client-id": "969",
+              "drm-pdev": "0000:00:02.0",
+              "drm-total-system0": {
+                "value": 535780,
+                "unit": "KiB"
+              },
+              "drm-shared-system0": "0",
+              "drm-active-system0": {
+                "observations": [
+                  {
+                    "value": 534584,
+                    "unit": "KiB"
+                  },
+                  "0"
+                ]
+              },
+              "drm-resident-system0": {
+                "value": 535780,
+                "unit": "KiB"
+              },
+              "drm-purgeable-system0": {
+                "value": 1132,
+                "unit": "KiB"
+              },
+              "drm-total-stolen-system0": "0",
+              "drm-shared-stolen-system0": "0",
+              "drm-active-stolen-system0": "0",
+              "drm-resident-stolen-system0": "0",
+              "drm-purgeable-stolen-system0": "0",
+              "drm-engine-render": {
+                "value": 60861734839,
+                "unit": "ns"
+              },
+              "drm-engine-copy": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-video": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-capacity-video": "2",
+              "drm-engine-video-enhance": {
+                "value": 0,
+                "unit": "ns"
+              }
+            }
+          },
+          "max_simultaneous_drm_clients": 2,
+          "fd_read_errors": 0,
+          "first_elapsed_seconds": 1.0084924229886383,
+          "last_elapsed_seconds": 73.97520030097803,
+          "first_process_counters": {
+            "status.voluntary_ctxt_switches": 579,
+            "status.nonvoluntary_ctxt_switches": 45,
+            "stat.minflt": 69021,
+            "stat.majflt": 0
+          },
+          "last_process_counters": {
+            "status.voluntary_ctxt_switches": 966,
+            "status.nonvoluntary_ctxt_switches": 246,
+            "stat.minflt": 70487,
+            "stat.majflt": 0
+          },
+          "observed_cpu_seconds": 4.38
+        },
+        "supervisor": {
+          "interval_seconds": 0.5,
+          "elapsed_seconds": 74.44926225201925,
+          "samples": 150,
+          "sample_errors": {},
+          "processes": [
+            {
+              "pid": 1890203,
+              "start_ticks": 43136252,
+              "samples": 150,
+              "max_process_status_kB": {
+                "VmHWM": 192576,
+                "VmRSS": 182400,
+                "VmSwap": 0
+              },
+              "drm_client_maxima": {},
+              "max_simultaneous_drm_clients": 0,
+              "fd_read_errors": 150,
+              "first_elapsed_seconds": 0.0012400490231812,
+              "last_elapsed_seconds": 74.44923494703835,
+              "first_process_counters": {
+                "status.voluntary_ctxt_switches": 15,
+                "status.nonvoluntary_ctxt_switches": 16,
+                "stat.minflt": 6601,
+                "stat.majflt": 0
+              },
+              "last_process_counters": {
+                "status.voluntary_ctxt_switches": 853,
+                "status.nonvoluntary_ctxt_switches": 138,
+                "stat.minflt": 141509,
+                "stat.majflt": 63
+              },
+              "observed_cpu_seconds": 4.31
+            }
+          ],
+          "notes": [
+            "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+            "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+            "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+            "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+            "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+            "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+            "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+          ]
+        },
+        "sample_errors": {},
+        "trace_errors": {},
+        "system_read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 144,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 144,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 144,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 144
+        },
+        "memory_scope": "Native and supervisor /proc status kB are separate process peaks. DRM client maxima retain exact names/units and are not summed with RSS or with each other. Observed CPU seconds exclude earlier work before the first successful process sample.",
+        "thermal_scope": "85/95 C are descriptive inclusive reporting thresholds, not new acceptance gates. Consecutive hot-sample spans and neighbor-cool brackets do not prove continuous temperature between samples or establish sustained-hot duration. Other mapped sensors are start/end snapshots only.",
+        "power_scope": "Denied RAPL energy fields are unavailable, not zero energy or power. Sampled policy/frequency changes and kernel throttle values are descriptive; no causal attribution of latency."
+      },
+      "conditions_at_start": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "balanced",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "4375830",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 39050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 41000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 68000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 41050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 43050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 32000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 41050
+        }
+      },
+      "conditions_at_finish": {
+        "/sys/class/power_supply/AC/online": "1",
+        "/sys/firmware/acpi/platform_profile": "low-power",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1200029",
+        "/sys/class/thermal/thermal_zone2": {
+          "type": "SEN1",
+          "millidegrees_C": 43050
+        },
+        "/sys/class/thermal/thermal_zone0": {
+          "type": "acpitz",
+          "millidegrees_C": 50000
+        },
+        "/sys/class/thermal/thermal_zone7": {
+          "type": "x86_pkg_temp",
+          "millidegrees_C": 48000
+        },
+        "/sys/class/thermal/thermal_zone5": {
+          "type": "TCPU",
+          "millidegrees_C": 50050
+        },
+        "/sys/class/thermal/thermal_zone3": {
+          "type": "SEN2",
+          "millidegrees_C": 50050
+        },
+        "/sys/class/thermal/thermal_zone1": {
+          "type": "INT3400 Thermal",
+          "millidegrees_C": 20000
+        },
+        "/sys/class/thermal/thermal_zone6": {
+          "type": "iwlwifi_1",
+          "millidegrees_C": 33000
+        },
+        "/sys/class/thermal/thermal_zone4": {
+          "type": "SEN5",
+          "millidegrees_C": 47050
+        }
+      },
+      "stale_and_cancellation_scope": "All new loads/seeks followed the previous complete event. Zero discarded/cancelled events and zero cancel_count do not exercise active-request cancellation, stale-result rejection or hardware preemption. The three seeks compare recorded full suffixes to their same-backend continuous baseline; this facts helper checks their recorded parity/hashes and does not replay excluded PCM.",
+      "audio_ui_scope": "No audio playback or UI load was launched. No callback/xrun/physical-audio or UI-cadence result is supplied by these runs."
+    }
+  },
+  "limits": [
+    "Four23.4-second mixtures,16 continuous hops/backend; this is not a sustained music, audio/UI-load or thermal-soak qualification.",
+    "CPU precedes Vulkan and controls are sequential; sampled policy/frequency/thermal differences confound causal/backend timing comparisons.",
+    "No isolated reference stems or accepted human-listening verdict; timing/seek parity is not musical-quality acceptance.",
+    "No active cancellation, audio callback/physical audio, UI behavior or hardware preemption claim from these new runs.",
+    "Native trace sensor observations retain startup and seeks where sampled; between-sample temperatures and unmonitored source periods are unknown."
+  ],
+  "corpus_facts": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/corpus-facts.json",
+    "bytes": 21030,
+    "sha256": "df2018ee395e28a503d31685d615da924c4d30b1da1bc46168976f2a7b8f0358"
+  }
+}

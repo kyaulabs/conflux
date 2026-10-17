@@ -1,0 +1,739 @@
+{
+  "schema": 1,
+  "status": "ok",
+  "started_at_utc": "2026-10-17T20:40:47.109219+00:00",
+  "backend": "cpu",
+  "threads": 4,
+  "request_timeout_seconds": 120.0,
+  "maximum_total_seconds": 1800,
+  "work_admission_deadline_seconds": 1795,
+  "window_frames": 343980,
+  "hop_frames": 257985,
+  "overlap_frames": 85995,
+  "normalization": "Whole-source mono sample mean/std; valid samples normalized before tail zero padding; global mean restored per stem",
+  "tracks": [
+    {
+      "id": "club_xl",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "Excision & Level Up - Club XL \uff5c Subsidia.flac",
+        "source_sha256": "1e5dffcfd01a5079d6789af0f3ac1bd38cf6ac69b7d7123a5ba796be5835189e",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.7877681480674557,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/club_xl.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "49df06fb592eebf21eb4367c80ecf3b0f09c3419518f7c9a1ce72c3b6894469f"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 1,
+          "timestamp": 385672.140714527,
+          "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+          "mean": -5.710358527721837e-05,
+          "std": 0.30619269609451294,
+          "reused": false,
+          "preparation_ms": 22.74122304515913,
+          "track_id": "club_xl",
+          "scenario": "continuous",
+          "consumed_at": 385672.140924062
+        }
+      ],
+      "continuous": {
+        "generation": 1,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 385687.027939318,
+          "delivered_monotonic": 385687.060601376,
+          "control_to_ready_ms": 15210.854556004051,
+          "load_to_delivered_ms": 15243.522521981504
+        },
+        "hop_service_percentiles_ms": {
+          "50": 19157.78237505583,
+          "95": 19728.886116994545,
+          "99": 19728.886116994545
+        },
+        "hop_service_max_ms": 19728.886116994545,
+        "chunk_stream_sha256": "9671e2d6f8d2c14cdab9ad7782b6cd95a9c5a7b1f35a2b77c92ecaf44525738f",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 73.54662833199836,
+        "load_issued_monotonic": 385671.817078854
+      }
+    },
+    {
+      "id": "when_the_light_breaks",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "Said The Sky, ILLENIUM, Heather Sommer - When The Light Breaks (Lyric Video).flac",
+        "source_sha256": "5c55f8132a7f7a5c2ef1642f3eb8199ba21f2710da5bac41612b747dddb7a08c",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.9153136754509476,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/when_the_light_breaks.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "b2e1e13add943090d2fbcad492a11cd6f46b8e9c3a0fca263b3fe4109e0ed44e"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 2,
+          "timestamp": 385745.51303699,
+          "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+          "mean": 0.00022293615620583296,
+          "std": 0.2913064956665039,
+          "reused": false,
+          "preparation_ms": 77.31425995007157,
+          "track_id": "when_the_light_breaks",
+          "scenario": "continuous",
+          "consumed_at": 385745.513426681
+        }
+      ],
+      "continuous": {
+        "generation": 2,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 385767.292445079,
+          "delivered_monotonic": 385767.314430563,
+          "control_to_ready_ms": 21856.996649992652,
+          "load_to_delivered_ms": 21879.004071000963
+        },
+        "hop_service_percentiles_ms": {
+          "50": 12600.027435983066,
+          "95": 22505.468035000376,
+          "99": 22505.468035000376
+        },
+        "hop_service_max_ms": 22505.468035000376,
+        "chunk_stream_sha256": "822be653affadea48a053348c7a4b4f856850d0e58ce7f24cf00d93b9c7dbdd5",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 65.7688486049883,
+        "load_issued_monotonic": 385745.435426492
+      }
+    },
+    {
+      "id": "under_my_skin",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "SLANDER, Spiritbox, Vastive - Under My Skin.flac",
+        "source_sha256": "5759ff164b97548b65375cd67cf63771a737ae72c0210eea67722beacb6ce81c",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.828489765120225,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/under_my_skin.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "1640e731df61ec22c40d9737300ae3a3b04b0cd59bd7f8cf34b46221b51c4310"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 3,
+          "timestamp": 385811.287577794,
+          "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+          "mean": 0.00012482910824473947,
+          "std": 0.3041391968727112,
+          "reused": false,
+          "preparation_ms": 38.28352497657761,
+          "track_id": "under_my_skin",
+          "scenario": "continuous",
+          "consumed_at": 385811.287857523
+        }
+      ],
+      "continuous": {
+        "generation": 3,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 385819.336921222,
+          "delivered_monotonic": 385819.34859508,
+          "control_to_ready_ms": 8087.747083976865,
+          "load_to_delivered_ms": 8099.428280023858
+        },
+        "hop_service_percentiles_ms": {
+          "50": 8067.030448990408,
+          "95": 8133.492857974488,
+          "99": 8133.492857974488
+        },
+        "hop_service_max_ms": 8133.492857974488,
+        "chunk_stream_sha256": "a6779a9713d6aa1593d8c7e3bd07c2d3fd1a6d1548013d32db150679c206668e",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 32.3983440460288,
+        "load_issued_monotonic": 385811.2491668
+      }
+    },
+    {
+      "id": "stfu",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "T-Pain, DJ DIESEL, San Holo, NGHTMRE, Kompany, SampliFire, IVORY - STFU [Dubstep \uff5c Monstercat].flac",
+        "source_sha256": "a9647727dfddcbd09459cfd98002db51ecdc9f6d2d77463ec177c1af83831641",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 1.0,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/stfu.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "f2517cc1bdbaa831652bbaf13f0b0a28c077056d9b584b123651ab3ea89c968a"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 4,
+          "timestamp": 385843.731319907,
+          "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+          "mean": -4.6878005377948284e-05,
+          "std": 0.2636549472808838,
+          "reused": false,
+          "preparation_ms": 36.711076041683555,
+          "track_id": "stfu",
+          "scenario": "continuous",
+          "consumed_at": 385843.731482579
+        }
+      ],
+      "continuous": {
+        "generation": 4,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 385852.681676891,
+          "delivered_monotonic": 385852.691847762,
+          "control_to_ready_ms": 8987.19934397377,
+          "load_to_delivered_ms": 8997.379775973968
+        },
+        "hop_service_percentiles_ms": {
+          "50": 8291.350657003932,
+          "95": 8950.329642975703,
+          "99": 8950.329642975703
+        },
+        "hop_service_max_ms": 8950.329642975703,
+        "chunk_stream_sha256": "074856c5e6e8fae61d0720aa361dabc7fa52509d8363b294f63733b7ba24a252",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 33.70884327602107,
+        "load_issued_monotonic": 385843.694467986
+      }
+    }
+  ],
+  "seeks": [],
+  "runtime_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 385672.117810882,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1888749,
+        "sample_rate": 44100,
+        "weight_storage": "f32",
+        "threads": 4,
+        "backend": "cpu",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 243.232879,
+        "event": "ready",
+        "process_environment": {}
+      },
+      "track_id": "club_xl",
+      "scenario": "continuous",
+      "consumed_at": 385672.117856035
+    }
+  ],
+  "failures": [],
+  "musical_quality_verified": false,
+  "scope": "Sequential local music preparation; no playback/UI load or sustained-performance qualification. Same-grid tolerance is a numerical regression check, not a quality threshold.",
+  "pins": {
+    "manifest": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/manifest.json",
+      "bytes": 7360,
+      "sha256": "4a0a50eb0adcdd8649189f9f6e5850c54ead9bf01b58c9f0e4bcae424414af53"
+    },
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/quality_run.py",
+      "bytes": 16155,
+      "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "conditions_at_start": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "4551617",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 37050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 43000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 70000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 43050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 42050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 35000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 39050
+    }
+  },
+  "worker_statistics": {
+    "generation": 4,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 0,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 0,
+    "cancel_count": 0,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "native_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 205.74946621397976,
+    "samples": 403,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1888749,
+        "start_ticks": 43102358,
+        "samples": 403,
+        "max_process_status_kB": {
+          "VmHWM": 934436,
+          "VmRSS": 934436,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {
+          "0000:00:02.0/client-966": {
+            "drm-driver": "i915",
+            "drm-client-id": "966",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": "0",
+            "drm-shared-system0": "0",
+            "drm-active-system0": "0",
+            "drm-resident-system0": "0",
+            "drm-purgeable-system0": "0",
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          }
+        },
+        "max_simultaneous_drm_clients": 1,
+        "fd_read_errors": 0,
+        "first_elapsed_seconds": 0.5081699640140869,
+        "last_elapsed_seconds": 205.38552814599825,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 9,
+          "status.nonvoluntary_ctxt_switches": 38,
+          "stat.minflt": 250429,
+          "stat.majflt": 3
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 87,
+          "status.nonvoluntary_ctxt_switches": 7552,
+          "stat.minflt": 451545,
+          "stat.majflt": 3
+        },
+        "observed_cpu_seconds": 789.88
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ],
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/cpu/native-trace.jsonl",
+      "samples_written": 403,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    },
+    "system_sampling": {
+      "fields": {
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "string",
+        "/sys/firmware/acpi/platform_profile": "string",
+        "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+        "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_status": "string",
+        "/sys/class/drm/card1/device/power/runtime_active_time": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_suspended_time": "milliseconds",
+        "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+        "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+        "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+        "/proc/pressure/cpu:some.avg10": "percent",
+        "/proc/pressure/cpu:some.avg60": "percent",
+        "/proc/pressure/cpu:some.avg300": "percent",
+        "/proc/pressure/cpu:some.total": "microseconds",
+        "/proc/pressure/cpu:full.avg10": "percent",
+        "/proc/pressure/cpu:full.avg60": "percent",
+        "/proc/pressure/cpu:full.avg300": "percent",
+        "/proc/pressure/cpu:full.total": "microseconds",
+        "/proc/pressure/memory:some.avg10": "percent",
+        "/proc/pressure/memory:some.avg60": "percent",
+        "/proc/pressure/memory:some.avg300": "percent",
+        "/proc/pressure/memory:some.total": "microseconds",
+        "/proc/pressure/memory:full.avg10": "percent",
+        "/proc/pressure/memory:full.avg60": "percent",
+        "/proc/pressure/memory:full.avg300": "percent",
+        "/proc/pressure/memory:full.total": "microseconds",
+        "/proc/pressure/io:some.avg10": "percent",
+        "/proc/pressure/io:some.avg60": "percent",
+        "/proc/pressure/io:some.avg300": "percent",
+        "/proc/pressure/io:some.total": "microseconds",
+        "/proc/pressure/io:full.avg10": "percent",
+        "/proc/pressure/io:full.avg60": "percent",
+        "/proc/pressure/io:full.avg300": "percent",
+        "/proc/pressure/io:full.total": "microseconds",
+        "/proc/meminfo:MemTotal": "kB",
+        "/proc/meminfo:MemAvailable": "kB",
+        "/proc/meminfo:MemFree": "kB",
+        "/proc/meminfo:Buffers": "kB",
+        "/proc/meminfo:Cached": "kB",
+        "/proc/meminfo:Shmem": "kB",
+        "/proc/meminfo:SwapTotal": "kB",
+        "/proc/meminfo:SwapFree": "kB",
+        "/proc/meminfo:Dirty": "kB",
+        "/proc/meminfo:Writeback": "kB",
+        "/proc/meminfo:Slab": "kB",
+        "/proc/meminfo:SReclaimable": "kB",
+        "/proc/meminfo:Unevictable": "kB",
+        "/proc/vmstat:pgfault": "cumulative kernel counter",
+        "/proc/vmstat:pgmajfault": "cumulative kernel counter",
+        "/proc/vmstat:pgpgin": "cumulative kernel counter",
+        "/proc/vmstat:pgpgout": "cumulative kernel counter",
+        "/proc/vmstat:pswpin": "cumulative kernel counter",
+        "/proc/vmstat:pswpout": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_direct": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_direct": "cumulative kernel counter",
+        "/proc/vmstat:oom_kill": "cumulative kernel counter",
+        "/proc/vmstat:compact_stall": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_anon": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_file": "cumulative kernel counter",
+        "/tmp:total_bytes": "bytes",
+        "/tmp:free_bytes": "bytes",
+        "/tmp:available_bytes": "bytes",
+        "/tmp:free_inodes": "inodes"
+      },
+      "read_errors": {
+        "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 403,
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 403,
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 403,
+        "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 403
+      },
+      "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled."
+    }
+  },
+  "supervisor_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 205.74978938000277,
+    "samples": 412,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1888745,
+        "start_ticks": 43102331,
+        "samples": 412,
+        "max_process_status_kB": {
+          "VmHWM": 143864,
+          "VmRSS": 135680,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {},
+        "max_simultaneous_drm_clients": 0,
+        "fd_read_errors": 412,
+        "first_elapsed_seconds": 0.001212467032019049,
+        "last_elapsed_seconds": 205.7497786990134,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 15,
+          "status.nonvoluntary_ctxt_switches": 20,
+          "stat.minflt": 6601,
+          "stat.majflt": 0
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 1058,
+          "status.nonvoluntary_ctxt_switches": 89,
+          "stat.minflt": 82995,
+          "stat.majflt": 63
+        },
+        "observed_cpu_seconds": 5.31
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ]
+  },
+  "elapsed_seconds": 205.86946854996495,
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3004530",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 44050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 65000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 59000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 65050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 56050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 33000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 47050
+    }
+  },
+  "finished_at_utc": "2026-10-17T20:44:12.989493+00:00"
+}

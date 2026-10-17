@@ -33,6 +33,17 @@ exclude partial damage or missing content. Continuous stem files and shared-
 scale waveform plots support further listening. No musical acceptance or
 player/device explanation has been established.
 
+The [four user-track follow-up](../benchmarks/user-tracks-2026-10-17.md)
+retains the same producer artifacts and adds sixteen continuous hops per
+backend. Vulkan p99/maximum was 5.258 seconds with 3/16 target misses; CPU
+was 22.505 seconds with 16/16. All sixteen CPU/Vulkan stem lag peaks were
+zero and three completed-source Vulkan seek suffixes matched exactly.
+Review of the separate continuous files is deferred until headphones are
+available. Quiet individual
+stems and shared model behavior still require human assessment; this adds
+no musical acceptance, active-cancellation or production playback claim.
+The conditional preparation choice and open M0 status remain unchanged.
+
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
 shorter measured requests than CPU. Its twelve continuous music hops had
