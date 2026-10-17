@@ -432,6 +432,18 @@ class Soak:
             self.require(equivalent, "seek differs from continuous reference beyond tolerance")
             self.trimmed_parity_checks += 1
         elif origin in self.hashes:
+            if sample_hash != self.hashes[origin] and origin in self.references:
+                try:
+                    reference = self.references[origin]
+                    difference = samples - reference
+                    mismatch = {"kind": "same_grid_sha256", "exact": False,
+                                "numeric_parity": bool(np.allclose(samples, reference, rtol=1e-4, atol=1e-5)),
+                                "max_abs_difference": float(np.max(np.abs(difference))),
+                                "rtol": 1e-4, "atol": 1e-5,
+                                "expected_sha256": self.hashes[origin], "actual_sha256": sample_hash}
+                    self.capture_parity_failure(event, samples, reference, difference, mismatch)
+                except Exception as error:
+                    self.failure("parity_failure_capture", error)
             self.require(sample_hash == self.hashes[origin], "repeated same-grid chunk hash changed")
             parity = {"kind": "same_grid_sha256", "exact": True}
             self.parity_checks += 1
