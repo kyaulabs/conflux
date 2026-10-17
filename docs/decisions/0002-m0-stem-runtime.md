@@ -58,6 +58,19 @@ model change was needed for the short rerun. This adds no sustained music under
 audio/UI load, active-cancellation or production-playback qualification, so the
 conditional choice and open M0 status remain.
 
+The [sustained music/audio/UI hour](../benchmarks/music-load-2026-10-17.md)
+then reached 4.266-second continuous-hop p99, maximum 5.008 seconds, with
+23/1,533 misses against 4.095 seconds. All eleven active cancellation/seek
+checks passed with exact trimmed output and no stale delivery; all six
+independent silent-audio fault counters were zero and UI coverage passed.
+Every continuous source-grid hash matched the accepted listening material.
+All 7,069 native policy samples were balanced, sampled package peak was 79°C,
+and no guard warning occurred within the measured hour. Native graph
+execution/wait occupied 93.5–97.3% of miss service, with sparse low-frequency
+GPU observations that do not prove cause. The preparation choice remains
+conditional: sustained music headroom is still unmet, M0 remains open and
+M1 has not started.
+
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
 shorter measured requests than CPU. In the initial three-excerpt assessment,
