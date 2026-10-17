@@ -1,0 +1,2127 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-17T19:22:16.762461+00:00",
+  "run": "software-33ms-hour",
+  "source_scope": "Direct facts from completed saved JSON and the finite saved AC/lid monitor. Independent event/thermal/native audits already replayed raw evidence; no new host workload.",
+  "repository_head": "da9575c5c66085570653d88108e4cbdc81a92de4",
+  "renderer": "software",
+  "requested_repaint_interval_ms": 33,
+  "requested_seconds": 3600.0,
+  "workload_seconds": 3600.000226851029,
+  "workload_interval_monotonic": [
+    377259.36176064,
+    380859.361987491
+  ],
+  "started_at_utc": "2026-10-17T18:20:32.817565+00:00",
+  "finished_at_utc": "2026-10-17T19:20:35.065568+00:00",
+  "continuous": {
+    "chunks": 1615,
+    "frames": 373167495,
+    "hop_service_percentiles_ms": {
+      "50": 1932.3795840027742,
+      "95": 3485.102067992557,
+      "99": 3971.4085439918563
+    },
+    "hop_service_max_ms": 4611.940480011981,
+    "hops_above_target": 7,
+    "observed_p99_within_target": true
+  },
+  "all_delivered": {
+    "chunks": 1626,
+    "frames": 376002647,
+    "hop_service_percentiles_ms": {
+      "50": 1932.472140993923,
+      "95": 3484.8432110156864,
+      "99": 3971.4085439918563
+    },
+    "hop_service_max_ms": 4611.940480011981,
+    "hops_above_target": 7,
+    "observed_p99_within_target": true
+  },
+  "continuous_p99_seconds": 3.9714085439918563,
+  "continuous_p99_margin_below_4_095_seconds": 0.12359145600814372,
+  "all_hop_bins_300_seconds": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 300,
+      "chunks": 157,
+      "frames": 36327765,
+      "hop_service_percentiles_ms": {
+        "50": 1911.8375850375742,
+        "95": 2028.1743130180985,
+        "99": 2204.5383009826764
+      },
+      "hop_service_max_ms": 2278.2424920005724,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 300,
+      "end_seconds": 600,
+      "chunks": 146,
+      "frames": 33735237,
+      "hop_service_percentiles_ms": {
+        "50": 1933.3257859689184,
+        "95": 2209.096612990834,
+        "99": 3483.845933980774
+      },
+      "hop_service_max_ms": 3594.7847720235586,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 600,
+      "end_seconds": 900,
+      "chunks": 137,
+      "frames": 31659208,
+      "hop_service_percentiles_ms": {
+        "50": 1930.3761380142532,
+        "95": 3511.694927001372,
+        "99": 3731.0504850465804
+      },
+      "hop_service_max_ms": 3998.1351029709913,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 900,
+      "end_seconds": 1200,
+      "chunks": 134,
+      "frames": 31130697,
+      "hop_service_percentiles_ms": {
+        "50": 1931.2510790186934,
+        "95": 3464.119218988344,
+        "99": 3585.0272710085846
+      },
+      "hop_service_max_ms": 3703.986778971739,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 1200,
+      "end_seconds": 1500,
+      "chunks": 135,
+      "frames": 30897598,
+      "hop_service_percentiles_ms": {
+        "50": 1934.962555009406,
+        "95": 3485.1097720093094,
+        "99": 4066.5056200232357
+      },
+      "hop_service_max_ms": 4555.095125979278,
+      "hops_above_target": 1
+    },
+    {
+      "start_seconds": 1500,
+      "end_seconds": 1800,
+      "chunks": 133,
+      "frames": 30872712,
+      "hop_service_percentiles_ms": {
+        "50": 1932.1479270001873,
+        "95": 3679.0561610250734,
+        "99": 4032.9499510116875
+      },
+      "hop_service_max_ms": 4113.248835026752,
+      "hops_above_target": 1
+    },
+    {
+      "start_seconds": 1800,
+      "end_seconds": 2100,
+      "chunks": 132,
+      "frames": 30614923,
+      "hop_service_percentiles_ms": {
+        "50": 1937.615144008305,
+        "95": 3489.0307770110667,
+        "99": 4065.4617569525726
+      },
+      "hop_service_max_ms": 4380.483734013978,
+      "hops_above_target": 1
+    },
+    {
+      "start_seconds": 2100,
+      "end_seconds": 2400,
+      "chunks": 134,
+      "frames": 31130697,
+      "hop_service_percentiles_ms": {
+        "50": 1932.683745981194,
+        "95": 3571.0480909910984,
+        "99": 3709.103314031381
+      },
+      "hop_service_max_ms": 3763.4093249798752,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 2400,
+      "end_seconds": 2700,
+      "chunks": 129,
+      "frames": 29595328,
+      "hop_service_percentiles_ms": {
+        "50": 1941.3553479826078,
+        "95": 3445.9580130060203,
+        "99": 3852.754068968352
+      },
+      "hop_service_max_ms": 4221.294884977397,
+      "hops_above_target": 1
+    },
+    {
+      "start_seconds": 2700,
+      "end_seconds": 3000,
+      "chunks": 128,
+      "frames": 29582787,
+      "hop_service_percentiles_ms": {
+        "50": 1935.0385289872065,
+        "95": 3568.526471965015,
+        "99": 4058.7332940194756
+      },
+      "hop_service_max_ms": 4353.908795048483,
+      "hops_above_target": 1
+    },
+    {
+      "start_seconds": 3000,
+      "end_seconds": 3300,
+      "chunks": 130,
+      "frames": 30098953,
+      "hop_service_percentiles_ms": {
+        "50": 1933.9175049681216,
+        "95": 3485.102067992557,
+        "99": 3709.453563031275
+      },
+      "hop_service_max_ms": 4009.3225790187716,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 3300,
+      "end_seconds": 3600,
+      "chunks": 131,
+      "frames": 30356742,
+      "hop_service_percentiles_ms": {
+        "50": 1933.0723700113595,
+        "95": 3731.517158972565,
+        "99": 4174.994412984233
+      },
+      "hop_service_max_ms": 4611.940480011981,
+      "hops_above_target": 2
+    },
+    {
+      "start_seconds": 3600,
+      "end_seconds": 3600.000226851029,
+      "chunks": 0,
+      "frames": 0,
+      "hop_service_percentiles_ms": {},
+      "hop_service_max_ms": null,
+      "hops_above_target": 0
+    }
+  ],
+  "five_minute_summary": {
+    "nonempty_complete_bins": 12,
+    "bins_p99_at_or_below_4095_ms": 11,
+    "last_complete_bin": {
+      "start_seconds": 3300,
+      "end_seconds": 3600,
+      "chunks": 131,
+      "frames": 30356742,
+      "hop_service_percentiles_ms": {
+        "50": 1933.0723700113595,
+        "95": 3731.517158972565,
+        "99": 4174.994412984233
+      },
+      "hop_service_max_ms": 4611.940480011981,
+      "hops_above_target": 2
+    },
+    "scope": "All-hop bins include seek replacements. Full-hour continuous p99 passes despite seven misses; the final complete bin p99 exceeds the target. Per-bin values are descriptive and do not add an acceptance gate."
+  },
+  "cancellation": {
+    "complete": 11,
+    "discarded_events": 11,
+    "held_chunk_rejected": 11,
+    "ranges_ms": {
+      "started_to_cancel_ms": {
+        "min": 150.3471210016869,
+        "max": 215.4734319774434
+      },
+      "cancel_ack_ms": {
+        "min": 0.0363230356015265,
+        "max": 0.09386002784594893
+      },
+      "residual_finish_ms": {
+        "min": 1700.6003690185025,
+        "max": 3799.0171819692478
+      },
+      "resume_ack_ms": {
+        "min": 0.0189139973372221,
+        "max": 0.04762597382068634
+      },
+      "ready_after_resume_ms": {
+        "min": 3771.293122030329,
+        "max": 6933.627079997677
+      },
+      "ready_after_cancel_ms": {
+        "min": 5478.6431540269405,
+        "max": 10000.944023020566
+      },
+      "delivered_after_cancel_ms": {
+        "min": 5574.548956006765,
+        "max": 10122.051024984103
+      }
+    },
+    "recorded_parity": {
+      "exact_and_numeric": true,
+      "max_abs_difference": 0,
+      "scope": "Recorded success assertions and event hashes checked; successful PCM arrays are not retained/recomputed."
+    },
+    "range_scope": "Retained control measurements; return instants are not separately reconstructible from events.",
+    "hardware_submission_confirmed": 0,
+    "stale_chunks_delivered": 0,
+    "post_cancel_chunks": 0,
+    "scope": "Exact discarded generation/request pairs and held-chunk rejection independently validated. Logical cancellation; active native GPU work drains. Hardware submission/preemption unobserved."
+  },
+  "worker_statistics": {
+    "generation": 200,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 3,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 11,
+    "cancel_count": 11,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "worker_shutdown_ms": 150.62170097371563,
+  "audio": {
+    "pipewire_version": "1.6.9",
+    "signal": "silence",
+    "requested": {
+      "sample_rate": 48000,
+      "channels": 2,
+      "quantum_frames": 256,
+      "seconds": 3720
+    },
+    "negotiated": {
+      "format_valid": true,
+      "sample_rate": 48000,
+      "channels": 2,
+      "stream_frames_min": 256,
+      "stream_frames_max": 256,
+      "graph_quantum_min": 256,
+      "graph_quantum_max": 256
+    },
+    "callbacks": 675315,
+    "frames_rendered": 172880640,
+    "streaming_seconds_reported_rounded": 3601.791,
+    "streaming_seconds_from_monotonic_ns": 3601.790844261,
+    "callback_elapsed_us": {
+      "p50_upper_bound": 2.0,
+      "p95_upper_bound": 4.0,
+      "p99_upper_bound": 6.0,
+      "p99_9_upper_bound": 22.0,
+      "max": 1768.185,
+      "histogram_resolution": 1,
+      "at_least_100ms": 0
+    },
+    "faults": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "exact_workload_overlap_seconds": 3600.000226851029,
+    "coverage": {
+      "requested": true,
+      "status": "passed",
+      "passed": true,
+      "streaming_interval_valid": true,
+      "concurrent_workload_seconds": 3600.000226851029,
+      "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+    },
+    "measurement_scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+  },
+  "UI": {
+    "frames_swapped": 112554,
+    "graphics_api": 1,
+    "platform": "wayland",
+    "qt": "6.12.0",
+    "width": 640,
+    "height": 400,
+    "device_pixel_ratio": 2,
+    "repaint_interval_ms": 33,
+    "animation_driver": "qtimeline",
+    "reduced_motion": false,
+    "exposed": true,
+    "rendered": true,
+    "capture_ok": true,
+    "frame_rate": {
+      "complete_minute_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ],
+      "complete_minute_frames": [
+        1876,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875
+      ],
+      "complete_minute_fps": [
+        31.266666666666666,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25
+      ],
+      "complete_minute_fps_minimum": 31.25,
+      "complete_minute_fps_maximum": 31.266666666666666,
+      "complete_minute_fps_mean": 31.25027777777778,
+      "all_ui_frames": 112554,
+      "ui_observation_interval_seconds": 3601.692869630002,
+      "whole_ui_interval_average_fps": 31.25030480779516,
+      "maximum_notification_gap_ms": 48.081307
+    },
+    "motion": {
+      "unique_workload_pulses": 80,
+      "finite_indicator_position_samples": 80,
+      "indicator_x_minimum": 1.2577694543671136,
+      "indicator_x_maximum": 298.7422305456329,
+      "indicator_x_range": 297.48446109126576,
+      "final_indicator_x": 298.7422305456329,
+      "final_reduced_motion": false,
+      "scope": "Saved low-frequency GUI property observations inside the workload; not per-frame visual or physical presentation validation"
+    },
+    "coverage_checks": {
+      "progress_observed": true,
+      "runtime_gate_passed": true,
+      "observed_unexposed_spans_within_limit": true,
+      "final_observation_valid": true,
+      "observation_covers_workload": true,
+      "minute_counts_match_total": true,
+      "complete_minute_bins_nonzero": true,
+      "notification_gap_within_limit": true
+    },
+    "progress": {
+      "requested": true,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-hour/ui-progress.json",
+      "checks": 3354,
+      "check_interval_seconds": 1.0,
+      "startup_grace_seconds": 5.0,
+      "maximum_allowed_gap_seconds": 30.0,
+      "maximum_progress_age_seconds": 1.0143007779843174,
+      "maximum_frame_age_seconds": 1.032070711022243,
+      "maximum_check_gap_seconds": 1.2497424199827947,
+      "unexposed_observations": 0,
+      "maximum_observed_unexposed_span_seconds": 0.0,
+      "last_unexposed_span": null,
+      "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+      "read_errors": {
+        "FileNotFoundError": 1
+      },
+      "gate_failure": null
+    },
+    "scope": "GUI-thread frameSwapped notifications; not physical presentation latency"
+  },
+  "memory": {
+    "native_processes": [
+      {
+        "pid": 1840065,
+        "start_ticks": 42261058,
+        "samples": 7067,
+        "max_process_status_kB": {
+          "VmHWM": 280836,
+          "VmRSS": 280836,
+          "VmSwap": 0
+        },
+        "observed_cpu_seconds": 251.3,
+        "fd_read_errors": 2
+      }
+    ],
+    "supervisor_processes": [
+      {
+        "pid": 1840021,
+        "start_ticks": 42260902,
+        "samples": 7181,
+        "max_process_status_kB": {
+          "VmHWM": 166252,
+          "VmRSS": 152404,
+          "VmSwap": 0
+        },
+        "observed_cpu_seconds": 134.97,
+        "fd_read_errors": 7199
+      }
+    ],
+    "native_drm_client_maxima": [
+      {
+        "0000:00:02.0/client-957": {
+          "drm-driver": "i915",
+          "drm-client-id": "957",
+          "drm-pdev": "0000:00:02.0",
+          "drm-total-system0": "0",
+          "drm-shared-system0": "0",
+          "drm-active-system0": "0",
+          "drm-resident-system0": "0",
+          "drm-purgeable-system0": "0",
+          "drm-total-stolen-system0": "0",
+          "drm-shared-stolen-system0": "0",
+          "drm-active-stolen-system0": "0",
+          "drm-resident-stolen-system0": "0",
+          "drm-purgeable-stolen-system0": "0",
+          "drm-engine-render": {
+            "value": 0,
+            "unit": "ns"
+          },
+          "drm-engine-copy": {
+            "value": 0,
+            "unit": "ns"
+          },
+          "drm-engine-video": {
+            "value": 0,
+            "unit": "ns"
+          },
+          "drm-engine-capacity-video": "2",
+          "drm-engine-video-enhance": {
+            "value": 0,
+            "unit": "ns"
+          }
+        },
+        "0000:00:02.0/client-958": {
+          "drm-driver": "i915",
+          "drm-client-id": "958",
+          "drm-pdev": "0000:00:02.0",
+          "drm-total-system0": {
+            "value": 535780,
+            "unit": "KiB"
+          },
+          "drm-shared-system0": "0",
+          "drm-active-system0": {
+            "observations": [
+              {
+                "value": 534584,
+                "unit": "KiB"
+              },
+              "0"
+            ]
+          },
+          "drm-resident-system0": {
+            "value": 535780,
+            "unit": "KiB"
+          },
+          "drm-purgeable-system0": {
+            "value": 1132,
+            "unit": "KiB"
+          },
+          "drm-total-stolen-system0": "0",
+          "drm-shared-stolen-system0": "0",
+          "drm-active-stolen-system0": "0",
+          "drm-resident-stolen-system0": "0",
+          "drm-purgeable-stolen-system0": "0",
+          "drm-engine-render": {
+            "value": 3351435448626,
+            "unit": "ns"
+          },
+          "drm-engine-copy": {
+            "value": 0,
+            "unit": "ns"
+          },
+          "drm-engine-video": {
+            "value": 0,
+            "unit": "ns"
+          },
+          "drm-engine-capacity-video": "2",
+          "drm-engine-video-enhance": {
+            "value": 0,
+            "unit": "ns"
+          }
+        }
+      }
+    ],
+    "native_sample_errors": {},
+    "native_trace_errors": {},
+    "native_system_read_errors": {
+      "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 7067,
+      "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 7067,
+      "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 7067,
+      "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 7067
+    },
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ]
+  },
+  "native_policy": {
+    "samples": 7067,
+    "phase_counts": [
+      {
+        "firmware": "balanced",
+        "cpu0_EPP": "balance_performance",
+        "samples": 7067
+      }
+    ],
+    "transitions": [
+      {
+        "timestamp_monotonic": 377259.806252374,
+        "workload_offset_seconds": 0.4444917340297252,
+        "firmware": "balanced",
+        "cpu0_EPP": "balance_performance"
+      }
+    ],
+    "scope": "Native snapshots only; no interpolation, stable-profile or private-latch claim."
+  },
+  "native_continuous": {
+    "hops": 1615,
+    "timing_ms": {
+      "hop_service_ms": {
+        "count": 1615,
+        "minimum": 1666.1100540077314,
+        "p50": 1932.3795840027742,
+        "p95": 3485.102067992557,
+        "p99": 3971.4085439918563,
+        "maximum": 4611.940480011981
+      },
+      "graph_ms": {
+        "count": 1615,
+        "minimum": 1619.367925,
+        "p50": 1859.208264,
+        "p95": 3349.098629,
+        "p99": 3732.160594,
+        "maximum": 4455.135363
+      },
+      "queue_delay_ms": {
+        "count": 1615,
+        "minimum": 0.050264992751181126,
+        "p50": 0.21981803001835942,
+        "p95": 0.43659599032253027,
+        "p99": 0.6401619757525623,
+        "maximum": 1.8996589933522046
+      },
+      "hop_minus_graph_ms": {
+        "count": 1615,
+        "minimum": 46.742129007731364,
+        "p50": 76.09172796436656,
+        "p95": 136.13620704739014,
+        "p99": 175.7305770075227,
+        "maximum": 432.2717789773965
+      }
+    },
+    "mean_interior_gpu_mhz_per_hop": {
+      "count": 1615,
+      "minimum": 411.1111111111111,
+      "p50": 1150,
+      "p95": 1212.5,
+      "p99": 1237.5,
+      "maximum": 1350
+    },
+    "all_interior_snapshot_gpu_mhz": {
+      "count": 6914,
+      "minimum": 0,
+      "p50": 1150,
+      "p95": 1250,
+      "p99": 1350,
+      "maximum": 1350
+    },
+    "hops_without_native_snapshots": 0,
+    "frequency_missing_or_invalid": 0,
+    "policy_classes_hop_counts": {
+      "[[\"balanced\",\"balance_performance\"]]": 1615
+    }
+  },
+  "native_target_misses": {
+    "hops": 7,
+    "timing_ms": {
+      "hop_service_ms": {
+        "count": 7,
+        "minimum": 4113.248835026752,
+        "p50": 4353.908795048483,
+        "p95": 4611.940480011981,
+        "p99": 4611.940480011981,
+        "maximum": 4611.940480011981
+      },
+      "graph_ms": {
+        "count": 7,
+        "minimum": 3789.023106,
+        "p50": 4160.594334,
+        "p95": 4455.135363,
+        "p99": 4455.135363,
+        "maximum": 4455.135363
+      },
+      "queue_delay_ms": {
+        "count": 7,
+        "minimum": 0.13386399950832129,
+        "p50": 0.40178897324949503,
+        "p95": 0.5704119685105979,
+        "p99": 0.5704119685105979,
+        "maximum": 0.5704119685105979
+      },
+      "hop_minus_graph_ms": {
+        "count": 7,
+        "minimum": 129.94490197927826,
+        "p50": 181.65330602675203,
+        "p95": 432.2717789773965,
+        "p99": 432.2717789773965,
+        "maximum": 432.2717789773965
+      }
+    },
+    "mean_interior_gpu_mhz_per_hop": {
+      "count": 7,
+      "minimum": 411.1111111111111,
+      "p50": 487.5,
+      "p95": 518.75,
+      "p99": 518.75,
+      "maximum": 518.75
+    },
+    "all_interior_snapshot_gpu_mhz": {
+      "count": 58,
+      "minimum": 0,
+      "p50": 500,
+      "p95": 650,
+      "p99": 650,
+      "maximum": 650
+    },
+    "hops_without_native_snapshots": 0,
+    "frequency_missing_or_invalid": 0,
+    "policy_classes_hop_counts": {
+      "[[\"balanced\",\"balance_performance\"]]": 7
+    }
+  },
+  "native_nonmisses": {
+    "hops": 1608,
+    "timing_ms": {
+      "hop_service_ms": {
+        "count": 1608,
+        "minimum": 1666.1100540077314,
+        "p50": 1932.1479270001873,
+        "p95": 3476.032442005817,
+        "p99": 3775.6849490106106,
+        "maximum": 4066.5056200232357
+      },
+      "graph_ms": {
+        "count": 1608,
+        "minimum": 1619.367925,
+        "p50": 1858.901941,
+        "p95": 3334.594371,
+        "p99": 3621.108769,
+        "maximum": 3949.417015
+      },
+      "queue_delay_ms": {
+        "count": 1608,
+        "minimum": 0.050264992751181126,
+        "p50": 0.2198170404881239,
+        "p95": 0.43524999637156725,
+        "p99": 0.6401619757525623,
+        "maximum": 1.8996589933522046
+      },
+      "hop_minus_graph_ms": {
+        "count": 1608,
+        "minimum": 46.742129007731364,
+        "p50": 76.07314002702128,
+        "p95": 135.68018498681204,
+        "p99": 167.1170290164382,
+        "maximum": 371.38780595257276
+      }
+    },
+    "mean_interior_gpu_mhz_per_hop": {
+      "count": 1608,
+      "minimum": 431.25,
+      "p50": 1150,
+      "p95": 1212.5,
+      "p99": 1237.5,
+      "maximum": 1350
+    },
+    "all_interior_snapshot_gpu_mhz": {
+      "count": 6856,
+      "minimum": 0,
+      "p50": 1150,
+      "p95": 1300,
+      "p99": 1350,
+      "maximum": 1350
+    },
+    "hops_without_native_snapshots": 0,
+    "frequency_missing_or_invalid": 0,
+    "policy_classes_hop_counts": {
+      "[[\"balanced\",\"balance_performance\"]]": 1608
+    }
+  },
+  "thermal": {
+    "trace_samples_in_workload": 7066,
+    "trace_samples_before": 0,
+    "trace_samples_after": 1,
+    "sampled_sensor_types": {
+      "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+      "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp"
+    },
+    "mapped_but_not_sampled_sensor_types": {
+      "/sys/class/thermal/thermal_zone2/temp": "SEN1",
+      "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+      "/sys/class/thermal/thermal_zone3/temp": "SEN2",
+      "/sys/class/thermal/thermal_zone1/temp": "INT3400 Thermal",
+      "/sys/class/thermal/thermal_zone6/temp": "iwlwifi_1",
+      "/sys/class/thermal/thermal_zone4/temp": "SEN5"
+    },
+    "any_sampled_sensor": {
+      "samples": 7066,
+      "valid_samples": 7066,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 80.0,
+      "peak_workload_offsets_seconds": [
+        32.00413060199935,
+        1010.6068495879881
+      ],
+      "first_observed_workload_offset_seconds": 0.4444917340297252,
+      "last_observed_workload_offset_seconds": 3599.5589375300333,
+      "maximum_adjacent_observation_gap_seconds": 0.5866776930051856,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    },
+    "package_sensor": {
+      "path": "/sys/class/thermal/thermal_zone7/temp",
+      "recorded_type": "x86_pkg_temp",
+      "samples": 7066,
+      "valid_samples": 7066,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 80.0,
+      "peak_workload_offsets_seconds": [
+        32.00413060199935,
+        1010.6068495879881
+      ],
+      "first_observed_workload_offset_seconds": 0.4444917340297252,
+      "last_observed_workload_offset_seconds": 3599.5589375300333,
+      "maximum_adjacent_observation_gap_seconds": 0.5866776930051856,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    },
+    "by_sensor": {
+      "/sys/class/thermal/thermal_zone5/temp": {
+        "recorded_type": "TCPU",
+        "samples": 7066,
+        "valid_samples": 7066,
+        "missing_or_invalid_samples": 0,
+        "peak_C": 73.05,
+        "peak_workload_offsets_seconds": [
+          31.49581243802095,
+          32.00413060199935,
+          32.51384774403414,
+          33.021006481023505,
+          33.530238147010095,
+          34.04169358598301,
+          34.55453122203471,
+          35.06372063100571,
+          451.8729784199968,
+          452.3851687309798,
+          452.8928658380173,
+          453.40175795299,
+          453.9113929659943,
+          454.42194432002725,
+          454.9313540360308,
+          455.4411569610238,
+          482.98366315400926,
+          483.4947985080071,
+          484.004117347009,
+          484.5143609439838,
+          485.0213857900235,
+          485.52802229998633,
+          486.03758560301503,
+          486.5473363160272,
+          487.0571700290311,
+          487.5677133430145,
+          488.0768416969804,
+          488.58859014802147,
+          592.434901695,
+          592.9445751460153,
+          593.4537072019884,
+          593.9617167459801,
+          594.4701810780098,
+          594.9790463470272,
+          595.4877952000243,
+          595.9982939130277,
+          604.6602947550127,
+          605.171107851027,
+          605.6787457370083,
+          606.1914834550116,
+          606.6997203780338,
+          607.2095891109784,
+          607.7165845549898,
+          608.2260213000118,
+          608.7337583979825,
+          609.2425539480173,
+          609.7534535829909,
+          610.2633056750055,
+          697.3197748530074,
+          697.8296833439963,
+          698.3385336039937,
+          698.8468424199964,
+          699.362953562988,
+          699.871450304985,
+          700.378494810022,
+          700.887417490012,
+          720.246965015016,
+          720.7563739240286,
+          721.2636478120112,
+          721.7719034369802,
+          722.2804369120277,
+          722.7897392709856,
+          723.3001226820052,
+          723.809075371013,
+          724.3166390819824,
+          724.8264661700232,
+          725.3354925090098,
+          725.8457731209928,
+          726.3546427530237,
+          726.8645628470113,
+          727.3738674970227,
+          727.8835002440028,
+          808.3845173880109,
+          808.894720396027,
+          809.4038262940012,
+          809.9123706659884,
+          810.4217039219802,
+          810.9285016350332,
+          811.4386521999841,
+          811.9458405299811,
+          812.4570944529842,
+          812.9646542309783,
+          813.475612195034,
+          813.9854770849925,
+          814.4949454169837,
+          815.0054037370137,
+          815.5151956640184,
+          816.0257845200249,
+          816.5366139130201,
+          817.0458579300321,
+          817.5560676680179,
+          818.0656392340316,
+          818.5729085250059,
+          911.783610894985,
+          912.2945756060071,
+          912.804619211005,
+          913.3111017360352,
+          913.818716215028,
+          914.3299649939872,
+          914.8396206850302,
+          915.3499510480324,
+          915.8590201500338,
+          916.3683947069803,
+          916.8781324190204,
+          917.3881436240044,
+          917.8979228159878,
+          918.4075773360091,
+          918.9180795290158,
+          919.4279169910005,
+          919.9379637420061,
+          920.4477226909949,
+          920.9577315630158,
+          921.4682124499814,
+          1014.6850965719786,
+          1015.1957352900063,
+          1015.7025595890009,
+          1016.2132194639998,
+          1016.7267566950177,
+          1017.237219681032,
+          1017.7446673209779,
+          1018.2534974699956,
+          1018.7624219310237,
+          1019.2719563320279,
+          1019.7807854550192,
+          1020.2896179640084,
+          1026.9132018490345,
+          1027.4227812510217,
+          1027.9309784439974,
+          1028.4395747120143,
+          1101.2735338790226,
+          1101.7835809490061,
+          1102.2918196760002,
+          1102.8006592119928,
+          1103.310022420017,
+          1103.8197544830036,
+          1104.3289282610058,
+          1104.8383901370107,
+          1105.3490218850202,
+          1105.8594643020188,
+          1106.3690672729863,
+          1106.8787681069807,
+          1107.3888279580278,
+          1107.8990128129954,
+          1108.4070732960245,
+          1108.9165392820141,
+          1109.4266922560055,
+          1109.9334118969855,
+          1110.4431914970046,
+          1110.9529673299985,
+          1111.4606122589903,
+          1111.9679154399782,
+          1112.4843217299785,
+          1112.995178808982,
+          1128.2717867679894,
+          1128.7811429720023,
+          1129.2906572140055,
+          1129.8002929069917,
+          1130.309051950986,
+          1130.8181274550152,
+          1131.3266385340248,
+          1131.8362720769946,
+          1229.1033386139898,
+          1229.6120375220198,
+          1230.122139627987,
+          1230.631364942994,
+          1404.3258437240147,
+          1404.836698997009,
+          1405.3458941500285,
+          1405.85569348,
+          1406.3657897420344,
+          1406.8750339139951,
+          1407.385257609014,
+          1407.895406769996,
+          1410.4449798740097,
+          1410.954621420009,
+          1411.4654953139834,
+          1411.9749907600344,
+          1412.4854147990118,
+          1412.9960350850015,
+          1413.5058285749983,
+          1414.0158350550337,
+          1414.5253217419959,
+          1415.033894667984,
+          1415.5450384819997,
+          1416.0553056700155,
+          1499.2246433050022,
+          1499.7315028610174,
+          1500.2374949170044,
+          1500.7445818849956,
+          1501.2510378090083,
+          1501.7585088839987,
+          1502.265339264006,
+          1502.7745478950092,
+          1503.2817409830168,
+          1503.7903868450085,
+          1504.299042691011,
+          1504.8083599010133,
+          1505.319089682016,
+          1505.827926367987,
+          1506.3367581660277,
+          1506.8463802430197,
+          1507.3549749120139,
+          1507.864503144985,
+          1508.374636752007,
+          1508.8854521540343,
+          1598.1625224419986,
+          1598.669021944981,
+          1599.1774010669906,
+          1599.6837540949928,
+          1602.2277535370085,
+          1602.736189874995,
+          1603.2460241540102,
+          1603.7528854110278,
+          1604.2626327879843,
+          1604.7740914340247,
+          1605.2812965210178,
+          1605.7903478409862,
+          1606.2985064790118,
+          1606.8087865260313,
+          1607.3169055780163,
+          1607.8265338820056,
+          1608.336490356014,
+          1608.8459551890264,
+          1609.3559018450323,
+          1609.8650384100038,
+          1680.7214242070331,
+          1681.2308294139802,
+          1681.7376642359886,
+          1682.2455882779905,
+          1682.7520588840125,
+          1683.2617514309823,
+          1683.7711144450004,
+          1684.279748387984,
+          1793.7563297509914,
+          1794.2665378120146,
+          1794.7765135720256,
+          1795.2871074849973,
+          1795.7978249749867,
+          1796.3057721839868,
+          1796.8153088410036,
+          1797.323186462978,
+          1884.4344274200266,
+          1884.9431739019929,
+          1885.451669704984,
+          1885.9618797579897,
+          1894.6441203909926,
+          1895.153231950011,
+          1895.6625083769904,
+          1896.1729215329979,
+          1896.682177559007,
+          1996.0319357840344,
+          1996.5431810989976,
+          1997.0534291060176,
+          1997.5627189400257,
+          2076.09866218199,
+          2076.6057193910237,
+          2077.115211684024,
+          2077.623306696012,
+          2080.1730069839978,
+          2080.6800967879826,
+          2081.18998570001,
+          2081.6963504729792,
+          2082.206540382991,
+          2082.7145591530134,
+          2083.2250525060226,
+          2083.7354379459866,
+          2084.2454456780106,
+          2084.751975349034,
+          2085.2624719780288,
+          2085.7717728139833,
+          2086.280218909029,
+          2187.6825277089956,
+          2188.192603954987,
+          2188.6999118389795,
+          2189.2095882249996,
+          2189.7172371519846,
+          2190.2261178980116,
+          2190.734498378006,
+          2191.2445744430297,
+          2191.751236254,
+          2192.261514469981,
+          2192.7710013540345,
+          2193.2821524559986,
+          2193.7894562670263,
+          2194.295589539979,
+          2194.802573083027,
+          2195.3106262700167,
+          2195.817030303995,
+          2196.3240752579877,
+          2196.8319283819874,
+          2197.342561152007,
+          2199.8861696720123,
+          2200.39540581702,
+          2200.90510942298,
+          2201.4162856729818,
+          2201.9261661589844,
+          2202.435880789999,
+          2202.941781470028,
+          2203.4513045619824,
+          2292.541458233027,
+          2293.0506135959877,
+          2293.559438022028,
+          2294.066487525997,
+          2488.6788136879914,
+          2489.1875522460323,
+          2489.693850694981,
+          2490.199924007,
+          2678.2082144130254,
+          2678.716987497988,
+          2679.2266084090224,
+          2679.734991609992,
+          2762.86805604602,
+          2763.3771000389825,
+          2763.8844282189966,
+          2764.39095938002,
+          2764.9001580519835,
+          2765.409856312035,
+          2765.9193360329955,
+          2766.428645357024,
+          2855.586570262036,
+          2856.0963655859814,
+          2856.6058617419912,
+          2857.11585665599,
+          3053.320369027031,
+          3053.8269704600098,
+          3054.3359428250114,
+          3054.8456105749938,
+          3055.3559663090273,
+          3055.8662384449854,
+          3056.3759239999927,
+          3056.8857286369894,
+          3057.395891623979,
+          3057.9062804860296,
+          3058.415516857989,
+          3058.9254241060116,
+          3059.434753398993,
+          3059.944598957023,
+          3060.4533372200094,
+          3060.9628738799947,
+          3150.145059664035,
+          3150.654069394979,
+          3151.1635189109948,
+          3151.6711209369823,
+          3152.1818324709893,
+          3152.6894841360045,
+          3153.198435792001,
+          3153.7060660059797,
+          3154.217394805979,
+          3154.726272726024,
+          3155.23428202403,
+          3155.7405259819934,
+          3156.2503836560063,
+          3156.7607046900084,
+          3157.2691466439865,
+          3157.778693156026,
+          3248.940227155981,
+          3249.448223768035,
+          3249.956889985013,
+          3250.467055935005,
+          3250.9769011850003,
+          3255.5655916240066,
+          3256.0755999130197,
+          3256.584652382997,
+          3257.0953367120237,
+          3331.478370368015,
+          3331.9848613080103,
+          3332.494751569,
+          3333.0041011510184,
+          3333.514828337007,
+          3334.0255220060353,
+          3334.5349283990217,
+          3335.044544306991,
+          3335.5538834059844,
+          3336.0637599570327,
+          3336.573858287011,
+          3337.08350696502,
+          3337.59409800102,
+          3338.1036259150133,
+          3338.6141224679886,
+          3339.1237281840295,
+          3339.630997662025,
+          3340.138037236,
+          3340.65357851499,
+          3341.171939913009,
+          3341.6787468999973,
+          3426.2243411280215,
+          3426.7307147289976,
+          3427.241808878025,
+          3427.7514906140277,
+          3428.261785376002,
+          3428.768627383979,
+          3429.2774111360195,
+          3429.7874775539967,
+          3430.294624400034,
+          3430.8009359950083,
+          3431.3106849989854,
+          3431.8199486110243,
+          3432.329023411032,
+          3432.8397324390244,
+          3433.348947860999,
+          3433.8586032430176,
+          3434.3693247280316,
+          3434.880373110005,
+          3435.3906965440256,
+          3435.8978810069966,
+          3436.404899707006,
+          3597.522982840019,
+          3598.0329321100144,
+          3598.542853510997,
+          3599.0507815270103
+        ],
+        "first_observed_workload_offset_seconds": 0.4444917340297252,
+        "last_observed_workload_offset_seconds": 3599.5589375300333,
+        "maximum_adjacent_observation_gap_seconds": 0.5866776930051856,
+        "thresholds": {
+          "85": {
+            "threshold_C": 85.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          },
+          "95": {
+            "threshold_C": 95.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          }
+        }
+      },
+      "/sys/class/thermal/thermal_zone7/temp": {
+        "recorded_type": "x86_pkg_temp",
+        "samples": 7066,
+        "valid_samples": 7066,
+        "missing_or_invalid_samples": 0,
+        "peak_C": 80.0,
+        "peak_workload_offsets_seconds": [
+          32.00413060199935,
+          1010.6068495879881
+        ],
+        "first_observed_workload_offset_seconds": 0.4444917340297252,
+        "last_observed_workload_offset_seconds": 3599.5589375300333,
+        "maximum_adjacent_observation_gap_seconds": 0.5866776930051856,
+        "thresholds": {
+          "85": {
+            "threshold_C": 85.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          },
+          "95": {
+            "threshold_C": 95.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          }
+        }
+      }
+    },
+    "scope": "Retained native thermal snapshots inside the inclusive workload interval only. Any-sensor means the sampled and type-mapped sensors listed here, not all laptop sensors. Thresholds describe samples and do not establish sustained heat or a user-approved sustained threshold. No interpolation or continuous-duration proof; an isolated hot sample has zero first-to-last span. Adjacent cool observations bound an observation window, not the actual length of continuous heat. Missing observations break episodes; gaps between hot observations may hide recovery or further spikes."
+  },
+  "AC_lid": {
+    "all_monitor_snapshots": {
+      "snapshots": 82,
+      "mains_online_values": {
+        "1": 82
+      },
+      "lid_closed_values": {
+        "False": 82
+      },
+      "conditions_ready_count": 82,
+      "maximum_adjacent_snapshot_gap_seconds": 46.99306920001982,
+      "first_monotonic": 377184.84604474,
+      "last_monotonic": 380881.159346809,
+      "errors": []
+    },
+    "within_launch": {
+      "snapshots": 79,
+      "mains_online_values": {
+        "1": 79
+      },
+      "lid_closed_values": {
+        "False": 79
+      },
+      "conditions_ready_count": 79,
+      "maximum_adjacent_snapshot_gap_seconds": 46.99306920001982,
+      "first_monotonic": 377274.855861495,
+      "last_monotonic": 380835.636827574,
+      "errors": []
+    },
+    "within_workload": {
+      "snapshots": 79,
+      "mains_online_values": {
+        "1": 79
+      },
+      "lid_closed_values": {
+        "False": 79
+      },
+      "conditions_ready_count": 79,
+      "maximum_adjacent_snapshot_gap_seconds": 46.99306920001982,
+      "first_monotonic": 377274.855861495,
+      "last_monotonic": 380835.636827574,
+      "errors": [],
+      "start_to_first_snapshot_seconds": 15.494100855023134,
+      "last_snapshot_to_stop_seconds": 23.725159917026758
+    },
+    "monitor_terminal_records": [
+      {
+        "event": "finished",
+        "at_utc": "2026-10-17T19:20:56.844546+00:00",
+        "monotonic": 380881.432104895,
+        "reason": "result_present",
+        "returncode": 0,
+        "maximum_seconds": 5100
+      }
+    ],
+    "scope": "Sampled online/lid states and finite gaps do not establish uninterrupted AC or lid state between reads."
+  },
+  "lifecycle": {
+    "cleanup": {
+      "PIDs": [
+        1840065,
+        1840021,
+        1840027
+      ],
+      "PID_exists": {
+        "1840065": false,
+        "1840021": false,
+        "1840027": false
+      },
+      "worker_closed": true,
+      "backend_pid": null,
+      "fixture_exists": false,
+      "probe_returncodes": {
+        "ui": 0,
+        "audio": 0
+      },
+      "idle_inhibit_released": true,
+      "script_unloaded": true,
+      "window_restored": {
+        "reason": "owned-window-closed",
+        "after": null
+      },
+      "guard_errors": [],
+      "policy_runner_returncode": 0
+    },
+    "run_guard": {
+      "status": "ok",
+      "errors": [],
+      "script_unloaded": true,
+      "restored": {
+        "reason": "owned-window-closed",
+        "after": null
+      },
+      "idle_inhibit_released": true,
+      "finished_at_utc": "2026-10-17T19:20:35.998531+00:00"
+    },
+    "common_guard": {
+      "status": "ok",
+      "errors": [],
+      "idle_inhibit_released": true,
+      "finished_at_utc": "2026-10-17T19:20:59.884064+00:00"
+    },
+    "common_wait": {
+      "pid": 1820349,
+      "started_monotonic": 373746.8761534,
+      "maximum_seconds": 10800,
+      "scope": "No benchmark load; common sleep/desktop idle inhibition remains owned by the outer wrapper.",
+      "stopped_monotonic": 380884.422031213,
+      "stopped_by_file": true
+    },
+    "series_state": {
+      "status": "completed",
+      "started_at_utc": "2026-10-17T17:22:10.522723+00:00",
+      "started_monotonic": 373755.110172053,
+      "maximum_seconds": 10800,
+      "completed_runs": [
+        "vulkan-33ms-15min",
+        "software-33ms-15min",
+        "software-33ms-hour"
+      ],
+      "profile_mutation": false,
+      "repaint_ms": 33,
+      "expected_producer": {
+        "schema": 1,
+        "status": "ready",
+        "repository_head": "da9575c5c66085570653d88108e4cbdc81a92de4",
+        "pins": {
+          "runtime": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "ui": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+          "audio_probe": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+          "soak_source": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f",
+          "shared_benchmark_source": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+          "worker_source": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+        },
+        "intentional_source_changes": [
+          "soak_source",
+          "shared_benchmark_source"
+        ],
+        "scope": "Frozen signed source and artifact identities supplied by root; launching remains an explicit root action after helper review",
+        "signed_source_identity_sha256": "e164a0f9d63b41c0ed55c8b9e3c2b648787ece6910f3f22a1a952137b23ef0a8"
+      },
+      "scope": "Matched Vulkan/software 900-second trials, then a conditional software hour. The short software p99 and existing validity checks select whether to run the hour; only the full hour can assess its M0 target. Fixed order does not establish causation.",
+      "stage": "comparison complete; report pending",
+      "updated_at_utc": "2026-10-17T19:20:59.148824+00:00",
+      "elapsed_seconds": 7128.626196035999,
+      "current_run": null,
+      "renderer": "software",
+      "requested_seconds": 3600,
+      "selection": {
+        "software_900s_continuous_p99_ms": 3782.4585890048184,
+        "comparison_threshold_ms": 4095,
+        "existing_checks_valid": true,
+        "scope": "Selection of the conditional hour only; not a new acceptance gate or proof that M0 passes",
+        "run_software_hour": true
+      },
+      "software_hour_completed": true
+    },
+    "policy": {
+      "mode": "observe",
+      "profile_mutation": false,
+      "restored_by_runner": false,
+      "benchmark_returncode": 0,
+      "runner_returncode": 0,
+      "finished_at_utc": "2026-10-17T19:20:35.978388+00:00"
+    },
+    "launch_returncode": 0,
+    "kernel": {
+      "returncode": 0,
+      "parse_errors": [],
+      "matched_entries": []
+    }
+  },
+  "pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 44319,
+      "sha256": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "ui": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "bytes": 1755632,
+      "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f"
+    },
+    "audio_probe": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+      "bytes": 641648,
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    }
+  },
+  "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+  "reference_hashes": {
+    "0": "15d803bdb59d11c3ebc74f6b746ca43c11a0d859fd82b51b50fdeec5fd839f6a",
+    "257985": "c5165a7885cb9120ca65dd2b7f6ae528f122d0461a58a20230308cab71aeecc2",
+    "515970": "4148574193292122826f6b5f502075d780a561ea08f479b26064bd00593ce6a4",
+    "773955": "ef8714e52f065b86566dce7ec6ba66c7b2396a210beb1d3f2e18c6b1125d66e4",
+    "1031940": "5cc3965a2e6013e490801b6ee7b515804b35e69e27868903276b35613f731241",
+    "1289925": "aaf771455d4804fb946c403bcf548cf880ea2c8f59493304c0b94f344e70a29e",
+    "1547910": "e1b6c88e83d98a6ee2ab6a9db9ccfe3e4f76c9b353feeecd2e0d2943baf1aa9f",
+    "1805895": "ce09f362f0283de558a5ea203157966d48bdb554e3bda23b13ca74c81a82315e",
+    "2063880": "62fc2e994f21f21d7f1989b49acb050399847daba12978f8abc3a1359a915566"
+  },
+  "pin_comparison_against_prior_cadence_hour": {
+    "runtime": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "baseline_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "equal": true
+    },
+    "model": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "baseline_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "equal": true
+    },
+    "soak_source": {
+      "sha256": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f",
+      "baseline_sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "equal": false
+    },
+    "shared_benchmark_source": {
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+      "baseline_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "equal": false
+    },
+    "worker_source": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "baseline_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "equal": true
+    },
+    "sampler_source": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "baseline_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "equal": true
+    },
+    "audio_probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "baseline_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "equal": true
+    },
+    "ui": {
+      "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+      "baseline_sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+      "equal": true
+    }
+  },
+  "intentional_harness_source_changes": [
+    "shared_benchmark_source",
+    "soak_source"
+  ],
+  "short_comparisons": {
+    "vulkan-33ms-15min": {
+      "renderer": "vulkan",
+      "workload_seconds": 900.0002592730452,
+      "continuous": {
+        "chunks": 406,
+        "frames": 93933750,
+        "hop_service_percentiles_ms": {
+          "50": 2122.9029709938914,
+          "95": 2901.156115985941,
+          "99": 3916.4098739856854
+        },
+        "hop_service_max_ms": 4389.483724022284,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      "all_delivered": {
+        "chunks": 408,
+        "frames": 94449250,
+        "hop_service_percentiles_ms": {
+          "50": 2122.9029709938914,
+          "95": 2901.156115985941,
+          "99": 3916.4098739856854
+        },
+        "hop_service_max_ms": 4389.483724022284,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      "controls_complete": 2,
+      "audio_faults": {
+        "callback_execution_deadline_misses": 0,
+        "missing_buffers": 0,
+        "invalid_buffers": 0,
+        "truncated_frames": 0,
+        "observed_graph_position_discontinuities": 0,
+        "observed_position_clock_xrun_recovery_flags": 0
+      },
+      "UI_frames": 28179,
+      "cadence_status": "valid",
+      "frame_rate": {
+        "complete_minute_fps_minimum": 31.25,
+        "complete_minute_fps_maximum": 31.266666666666666,
+        "complete_minute_fps_mean": 31.25111111111111,
+        "all_ui_frames": 28179,
+        "ui_observation_interval_seconds": 901.6920851150062,
+        "whole_ui_interval_average_fps": 31.25124470445575,
+        "maximum_notification_gap_ms": 43.845426
+      },
+      "package_peak_C": 78.0,
+      "policy_phase_counts": [
+        {
+          "firmware": "balanced",
+          "cpu0_EPP": "balance_performance",
+          "samples": 1768
+        }
+      ],
+      "continuous_native_timing_ms": {
+        "hop_service_ms": {
+          "count": 406,
+          "minimum": 1849.5059920242056,
+          "p50": 2122.9029709938914,
+          "p95": 2901.156115985941,
+          "p99": 3916.4098739856854,
+          "maximum": 4389.483724022284
+        },
+        "graph_ms": {
+          "count": 406,
+          "minimum": 1796.601842,
+          "p50": 2047.9025,
+          "p95": 2806.927853,
+          "p99": 3770.098798,
+          "maximum": 4219.229167
+        },
+        "queue_delay_ms": {
+          "count": 406,
+          "minimum": 0.05678000161424279,
+          "p50": 0.2131009823642671,
+          "p95": 0.38403901271522045,
+          "p99": 0.6542149931192398,
+          "maximum": 1.3618129887618124
+        },
+        "hop_minus_graph_ms": {
+          "count": 406,
+          "minimum": 50.63133302420556,
+          "p50": 76.6095609978097,
+          "p95": 123.88098601081265,
+          "p99": 146.60243296153112,
+          "maximum": 171.5261349621219
+        }
+      },
+      "all_pin_sha256_matches_hour": {
+        "runtime": true,
+        "model": true,
+        "soak_source": true,
+        "shared_benchmark_source": true,
+        "worker_source": true,
+        "sampler_source": true,
+        "ui": true,
+        "audio_probe": true
+      },
+      "fixture_sha256_matches_hour": true,
+      "reference_hashes_match_hour": true,
+      "comparison": null
+    },
+    "software-33ms-15min": {
+      "renderer": "software",
+      "workload_seconds": 900.0004161309917,
+      "continuous": {
+        "chunks": 423,
+        "frames": 98073855,
+        "hop_service_percentiles_ms": {
+          "50": 2038.5673210257664,
+          "95": 2736.409884004388,
+          "99": 3782.4585890048184
+        },
+        "hop_service_max_ms": 3948.6941909999587,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      "all_delivered": {
+        "chunks": 425,
+        "frames": 98589355,
+        "hop_service_percentiles_ms": {
+          "50": 2040.5612230533734,
+          "95": 2820.376361021772,
+          "99": 3782.4585890048184
+        },
+        "hop_service_max_ms": 3948.6941909999587,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      "controls_complete": 2,
+      "audio_faults": {
+        "callback_execution_deadline_misses": 0,
+        "missing_buffers": 0,
+        "invalid_buffers": 0,
+        "truncated_frames": 0,
+        "observed_graph_position_discontinuities": 0,
+        "observed_position_clock_xrun_recovery_flags": 0
+      },
+      "UI_frames": 28184,
+      "cadence_status": "valid",
+      "frame_rate": {
+        "complete_minute_fps_minimum": 31.233333333333334,
+        "complete_minute_fps_maximum": 31.35,
+        "complete_minute_fps_mean": 31.25777777777778,
+        "all_ui_frames": 28184,
+        "ui_observation_interval_seconds": 901.6456480419729,
+        "whole_ui_interval_average_fps": 31.258399639819473,
+        "maximum_notification_gap_ms": 37.866088
+      },
+      "package_peak_C": 79.0,
+      "policy_phase_counts": [
+        {
+          "firmware": "balanced",
+          "cpu0_EPP": "balance_performance",
+          "samples": 1765
+        },
+        {
+          "firmware": "low-power",
+          "cpu0_EPP": "power",
+          "samples": 4
+        }
+      ],
+      "continuous_native_timing_ms": {
+        "hop_service_ms": {
+          "count": 423,
+          "minimum": 1674.1691650240682,
+          "p50": 2038.5673210257664,
+          "p95": 2736.409884004388,
+          "p99": 3782.4585890048184,
+          "maximum": 3948.6941909999587
+        },
+        "graph_ms": {
+          "count": 423,
+          "minimum": 1614.575016,
+          "p50": 1968.233386,
+          "p95": 2636.021895,
+          "p99": 3663.798324,
+          "maximum": 3812.172993
+        },
+        "queue_delay_ms": {
+          "count": 423,
+          "minimum": 0.056789955124258995,
+          "p50": 0.20890700398012996,
+          "p95": 0.36511896178126335,
+          "p99": 1.0755170369520783,
+          "maximum": 1.5515429549850523
+        },
+        "hop_minus_graph_ms": {
+          "count": 423,
+          "minimum": 48.96233795306398,
+          "p50": 75.08222698810437,
+          "p95": 105.91523903504185,
+          "p99": 143.61059599371583,
+          "maximum": 178.3231940189521
+        }
+      },
+      "all_pin_sha256_matches_hour": {
+        "runtime": true,
+        "model": true,
+        "soak_source": true,
+        "shared_benchmark_source": true,
+        "worker_source": true,
+        "sampler_source": true,
+        "ui": true,
+        "audio_probe": true
+      },
+      "fixture_sha256_matches_hour": true,
+      "reference_hashes_match_hour": true,
+      "comparison": {
+        "control": "vulkan-33ms-15min",
+        "control_renderer": "vulkan",
+        "candidate_renderer": "software",
+        "control_interval_ms": 33,
+        "UI_final_geometry_matches": true,
+        "UI_final_geometry": {
+          "control": {
+            "width": 640,
+            "height": 400,
+            "device_pixel_ratio": 2
+          },
+          "candidate": {
+            "width": 640,
+            "height": 400,
+            "device_pixel_ratio": 2
+          },
+          "scope": "Final recorded width, height and device-pixel ratio only; continuous geometry is not observed"
+        },
+        "all_common_pin_matches_including_ui": {
+          "runtime": true,
+          "model": true,
+          "soak_source": true,
+          "shared_benchmark_source": true,
+          "worker_source": true,
+          "sampler_source": true,
+          "ui": true,
+          "audio_probe": true
+        },
+        "configuration_matches": {
+          "repaint_ms": true,
+          "load_mode": true,
+          "seconds": true,
+          "diagnostic_ui_logging": true,
+          "policy_mode": true,
+          "profile_mutation": true
+        },
+        "command_option_matches": {
+          "--load": true,
+          "--seconds": true,
+          "--control-interval": true,
+          "--request-timeout": true,
+          "--sample-interval": true
+        },
+        "parent_environment_equal": true,
+        "fixture_equal": true,
+        "reference_hashes_equal": true,
+        "scope": "Recorded matched-duration configuration and artifact checks only. Renderer and its UI-only backend environment intentionally differ; run labels, output paths, PIDs and times differ. Fixed order, thermal/policy/cache history and background load prevent a causal guarantee."
+      }
+    }
+  },
+  "existing_acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": true,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 11,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": true
+  },
+  "limitations": [
+    "One full hour and fixed-order short comparisons do not establish a causal renderer speedup or repeatability across all host histories.",
+    "The software UI still runs under the Wayland compositor; only the Qt UI backend changed, while native inference remains Vulkan.",
+    "Synthetic load with independent silence and a small animated window does not establish musical-quality, audible-seam, actual stem routing, physical output latency or full-deck performance.",
+    "The final complete all-hop bin exceeds 4.095 seconds despite a passing full-hour continuous p99. No per-bin acceptance gate was added.",
+    "Short heat spikes are acceptable to the user; sampled peaks alone are not failures, unsampled sensors remain unknown, and no sustained threshold was invented.",
+    "Observed native graph timing includes execution/wait; sampled GPU frequency associations do not establish cause. Native/RSS/DRM maxima are separate and must not be summed into a total memory peak.",
+    "Logical cancellation does not demonstrate hardware submission/preemption. Successful PCM was not retained for independent numerical recomputation."
+  ],
+  "inputs": {
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour/result.json": {
+      "bytes": 50577,
+      "sha256": "11efd7384cd88278da4dc3a401bf4f60b7733ce5c51e9f7702e3b4b3b46c63d0"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-independent-audit.json": {
+      "bytes": 17812,
+      "sha256": "5eeb428d78734932c6361899c30557a6b89b6743297d62ec5cd96888f6d8244b"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-thermal-snapshot-audit.json": {
+      "bytes": 16989,
+      "sha256": "6821fc0dfd4789b1fe3d4c51feb6acce675c6b6beee972f000baf7b190f0de17"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-cadence-audit.json": {
+      "bytes": 21644,
+      "sha256": "6d7494388d84b730cabf9a67759076051fdbf666c16bef61873559b578a1d851"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-native-tail-analysis.json": {
+      "bytes": 62928,
+      "sha256": "42d758429462d6f199cd51da23809347b08d0f7dc52dc1439975074624441e6d"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour/audio.json": {
+      "bytes": 1503,
+      "sha256": "32f9215dc53fe40f59b09dd3454e5fd52593b9b43d920e259904a633a68c37fb"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour/ui.json": {
+      "bytes": 959,
+      "sha256": "5e8cc31015da11e20cf7f8b0a48474b0fc82c85ad5b5c2fda252dfc2be8cc4da"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-launch.json": {
+      "bytes": 4670,
+      "sha256": "25ac9b6a82ef3cf400badc83c482aec1dcd69fab9fc7fe0048964b18ece37691"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-cleanup.json": {
+      "bytes": 477,
+      "sha256": "f4417df44e8fe7785365ac59026e9bfe4a84776fd68130a79616f430ec45904d"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-guard.json": {
+      "bytes": 2573,
+      "sha256": "44621ef7a214c0e4bd6dca36898abc2144ece4547749b0eb3c055207894f0b84"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-policy.json": {
+      "bytes": 1642,
+      "sha256": "fa75cd2ff6ed6c7e37e6e35186a2aad3a6b463c0e18b181a709732abc278f333"
+    },
+    "benchmarks-local/software-ui-2026-10-17/series-state.json": {
+      "bytes": 2324,
+      "sha256": "e324041c46d7e7b42596db88cd9b8a60e474cc7971109b389d56ff21b2e53449"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-series-guard.json": {
+      "bytes": 503,
+      "sha256": "bd047cb2a78f4bca68d2d902fa8f52acb8b958b312589cf6c3a059cfc13fdd3b"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-series-wait.json": {
+      "bytes": 262,
+      "sha256": "b6ecdcf6c46f7f1e4ecc8be9db2629f267a124fb19fa90f62bbef76020e4d535"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-kernel.json": {
+      "bytes": 526,
+      "sha256": "ed7017db43f0715304bf2aba728c476e6407b24dc02d747803e7e2432fb0c0ae"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-AC-lid-monitor.jsonl": {
+      "bytes": 18274,
+      "sha256": "85cfd858a32a2f0c68405c23ea54f6eec37d50b5032f5cfe8391310e4c94d0d1"
+    },
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min/result.json": {
+      "bytes": 37773,
+      "sha256": "c0e5c2b65a0990f71a3635ac616f18fbd4b2cd34e49f628c9c1df9757f389600"
+    },
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-independent-audit.json": {
+      "bytes": 13521,
+      "sha256": "068bd65116479ec90e83573b95fa7af08b4ace0fea9455e589cff2e52bb57a05"
+    },
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-cadence-audit.json": {
+      "bytes": 12936,
+      "sha256": "85a81ff668ef0be77a842bedb1b540bafde4de71f05caeea34d3b14f12eb3795"
+    },
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-thermal-snapshot-audit.json": {
+      "bytes": 6083,
+      "sha256": "6d9e8d79d721235a07a3a8daba7462359c18b67d14ad88db43ed66b8679944c2"
+    },
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-native-tail-analysis.json": {
+      "bytes": 28023,
+      "sha256": "5dc564a8ada257a0fd2e98e5b0293447d6d5a96d79ae44303c3cdc1c1d415300"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-15min/result.json": {
+      "bytes": 37800,
+      "sha256": "f8b255baa7e39ebd8528bcade78ba67c4dc81a4f3dc16f1161ec74d5ad0836ac"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-15min-independent-audit.json": {
+      "bytes": 14006,
+      "sha256": "7e3cd16b8b19f005c5bbfa84fa29043761e89bef8822b7b0b4866788d240d230"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-15min-cadence-audit.json": {
+      "bytes": 15203,
+      "sha256": "e58bc1ade6ff1818b268ddca2fd545d0ff211c834efa4cb2dffb6c350e259275"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-15min-thermal-snapshot-audit.json": {
+      "bytes": 8294,
+      "sha256": "346a32d273310f0a39409cbdf66ecc60125077b3fbb8f9d34279b02e8649f738"
+    },
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-15min-native-tail-analysis.json": {
+      "bytes": 27977,
+      "sha256": "f6006d8a27a0dca6c2feba3130dbbc0e24fac382bd03af4e3d1be958e688600a"
+    }
+  }
+}

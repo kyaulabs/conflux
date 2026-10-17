@@ -1,0 +1,44 @@
+{
+  "observed_at_utc": "2026-10-17T17:17:25.210978+00:00",
+  "started_monotonic": 373469.7985171,
+  "mains_online": "1",
+  "lid_closed": "b false",
+  "profile": "balanced",
+  "holds": "",
+  "thermal_guard": "ActiveState=inactive\nSubState=dead\nInvocationID=\nMainPID=0",
+  "temperatures": {
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 32050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 37000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 49000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 37050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 35050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 32000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 33050
+    }
+  },
+  "ready_conditions": true
+}

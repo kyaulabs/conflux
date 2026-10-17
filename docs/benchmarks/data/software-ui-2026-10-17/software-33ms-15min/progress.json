@@ -1,0 +1,113 @@
+{
+  "status": "ok",
+  "updated_at_utc": "2026-10-17T18:09:13.662391+00:00",
+  "elapsed_workload_seconds": 900.0004161309917,
+  "requested_seconds": 900.0,
+  "load_mode": "both",
+  "selected_loads": [
+    "ui",
+    "audio"
+  ],
+  "timing": {
+    "chunks": 425,
+    "frames": 98589355,
+    "hop_service_percentiles_ms": {
+      "50": 2040.5612230533734,
+      "95": 2820.376361021772,
+      "99": 3782.4585890048184
+    },
+    "hop_service_max_ms": 3948.6941909999587,
+    "hops_above_target": 0,
+    "observed_p99_within_target": true
+  },
+  "completed_controls": 2,
+  "full_source_loops": 43,
+  "failures": [],
+  "worker_statistics": {
+    "generation": 50,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 2,
+    "cancel_count": 2,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "ui_progress": {
+    "requested": true,
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-15min/ui-progress.json",
+    "checks": 848,
+    "check_interval_seconds": 1.0,
+    "startup_grace_seconds": 5.0,
+    "maximum_allowed_gap_seconds": 30.0,
+    "maximum_progress_age_seconds": 1.0056195110082626,
+    "maximum_frame_age_seconds": 1.0299747859826311,
+    "maximum_check_gap_seconds": 1.2470282970461994,
+    "unexposed_observations": 0,
+    "maximum_observed_unexposed_span_seconds": 0.0,
+    "last_unexposed_span": null,
+    "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+    "read_errors": {
+      "FileNotFoundError": 1
+    },
+    "last_progress": {
+      "animation_driver": "qtimeline",
+      "exposed": true,
+      "frames_swapped": 28162,
+      "indicator_x": 295.36043927562633,
+      "last_frame_monotonic_ns": 376577482852638,
+      "pid": 1831448,
+      "reduced_motion": false,
+      "repaint_interval_ms": 33,
+      "scene_graph_initialized": true,
+      "timestamp_monotonic_ns": 376577500161645
+    },
+    "gate_failure": null
+  },
+  "conditions": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "2000000",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 72000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 74000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 72050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 65050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 39000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 58050
+    }
+  }
+}

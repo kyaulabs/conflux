@@ -1,0 +1,25 @@
+{
+  "scope": "Source preparation and syntax-only verification during the live sequence; no archive/audit, host query, trace read, build or tracked edit",
+  "expected_head": "da9575c5c66085570653d88108e4cbdc81a92de4",
+  "required_runs": [
+    "vulkan-33ms-15min",
+    "software-33ms-15min"
+  ],
+  "optional_run": "software-33ms-hour only when series-state.software_hour_completed",
+  "explicit_baseline": "benchmarks-local/cadence-2026-10-17/33ms-both-hour/result.json",
+  "replay_scope": "Three exact audits per completed run: cadence/pin, observed completed-run (900s flag or3600s default), thermal. Optional native descriptive replay when saved. No legacy-short qualification.",
+  "sources": {
+    "stage_software.py": {
+      "bytes": 20688,
+      "sha256": "20ac241e017c1082408b2f12871770ec0cf0255dc1979c1ace8791e17614471a",
+      "syntax_valid": true,
+      "executed": false
+    },
+    "replay_software.py": {
+      "bytes": 11548,
+      "sha256": "34db845c49633aa5b03b55393a23009269a5ce4ee8fdced807a0339da6b60bfe",
+      "syntax_valid": true,
+      "executed": false
+    }
+  }
+}
