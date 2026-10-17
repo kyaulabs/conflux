@@ -728,7 +728,7 @@ def main():
     parser.add_argument("--ui", type=Path)
     parser.add_argument("--audio-probe", type=Path)
     parser.add_argument("--load", dest="load_mode", choices=tuple(Load.MODES), default="both")
-    parser.add_argument("--renderer", choices=("opengl", "vulkan"), default="opengl")
+    parser.add_argument("--renderer", choices=("opengl", "vulkan", "software"), default="opengl")
     parser.add_argument("--seconds", type=float, default=3600)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--quantum", type=int, choices=(256, 512), default=256)

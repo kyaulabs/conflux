@@ -85,8 +85,11 @@ class Load:
         for name, command in self.commands.items():
             stdout = (self.root / f"{name}.json").open("wb")
             stderr = (self.root / f"{name}.stderr").open("wb")
+            environment = self.environment
+            if name == "ui" and self.renderer == "software":
+                environment = dict(environment, QT_QUICK_BACKEND="software")
             try:
-                child = subprocess.Popen(command, stdout=stdout, stderr=stderr, env=self.environment)
+                child = subprocess.Popen(command, stdout=stdout, stderr=stderr, env=environment)
             except Exception:
                 stdout.close()
                 stderr.close()
@@ -124,9 +127,10 @@ class Load:
             result["children"][name] = {"command": command, "returncode": code, "report": report}
             if code != 0:
                 result["errors"].append(f"{name} load failed: {code}")
-            if name == "ui" and (not report.get("rendered") or report.get("platform") != "wayland"
-                                  or report.get("graphics_api") != (5 if self.renderer == "vulkan" else 3)):
-                result["errors"].append("requested accelerated Wayland renderer did not render")
+            if name == "ui" and (not report.get("rendered") or not report.get("capture_ok")
+                                  or report.get("platform") != "wayland"
+                                  or report.get("graphics_api") != {"opengl": 3, "vulkan": 5, "software": 1}[self.renderer]):
+                result["errors"].append("requested Wayland renderer did not render")
             if name == "audio" and report.get("status") != "ok":
                 result["errors"].append("audio probe did not complete successfully")
             if name == "audio":
@@ -420,7 +424,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("runtime", "model", "ui", "audio-probe", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
-    parser.add_argument("--renderer", choices=("opengl", "vulkan"), default="opengl")
+    parser.add_argument("--renderer", choices=("opengl", "vulkan", "software"), default="opengl")
     parser.add_argument("--hops", type=int, default=60)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--quantum", type=int, choices=(256, 512), default=256)

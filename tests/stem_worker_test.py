@@ -10,8 +10,9 @@ import sys
 import tempfile
 import threading
 import time
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 import wave
 
 import numpy as np
@@ -19,6 +20,8 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.stems.worker import (CHANNELS, HOP, OVERLAP, RATE, STEMS, WINDOW,
                                 NativeRuntime, StemWorker)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "benchmarks"))
+from stem_worker import Load
 
 
 def fixture(path, frames, phase=0):
@@ -411,6 +414,70 @@ sys.stdin.readline()
                         self.assertEqual({key: os.environ[key] for key in inherited}, inherited)
                     finally:
                         native.close()
+
+
+class BenchmarkLoadTest(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory(prefix="conflux-load-test-")
+        self.root = Path(self.directory.name)
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def load(self, renderer, mode="both"):
+        args = SimpleNamespace(renderer=renderer, load_mode=mode, ui=self.root / "ui",
+                               audio_probe=self.root / "audio", quantum=256)
+        return Load(args, self.root)
+
+    def test_renderer_environment_is_scoped_to_load_children(self):
+        inherited = {"QT_QUICK_BACKEND": "inherited", "QSG_RHI_BACKEND": "metal"}
+        with patch.dict(os.environ, inherited):
+            for renderer in ("opengl", "vulkan", "software"):
+                with self.subTest(renderer=renderer):
+                    load = self.load(renderer)
+                    child = Mock()
+                    child.poll.return_value = None
+                    try:
+                        with patch("stem_worker.subprocess.Popen", return_value=child) as launch, \
+                             patch("stem_worker.time.sleep"):
+                            load.start()
+                        ui_env, audio_env = [call.kwargs["env"] for call in launch.call_args_list]
+                        self.assertEqual(ui_env["QT_QPA_PLATFORM"], "wayland")
+                        self.assertEqual(ui_env.get("QT_QUICK_BACKEND"),
+                                         "software" if renderer == "software" else None)
+                        self.assertNotIn("QT_QUICK_BACKEND", audio_env)
+                        for environment in (ui_env, audio_env):
+                            self.assertEqual(environment.get("QSG_RHI_BACKEND"),
+                                             "vulkan" if renderer == "vulkan" else None)
+                        self.assertEqual({key: os.environ[key] for key in inherited}, inherited)
+                    finally:
+                        for _, _, stdout, stderr, _ in load.children:
+                            stdout.close()
+                            stderr.close()
+
+    def stopped_ui(self, renderer, report):
+        load = self.load(renderer, "ui")
+        stdout = (self.root / "ui.json").open("w")
+        stdout.write(json.dumps(report))
+        stderr = (self.root / "ui.stderr").open("w")
+        child = Mock()
+        child.wait.return_value = 0
+        load.children.append(("ui", child, stdout, stderr, load.commands["ui"]))
+        return load.stop()
+
+    def test_ui_report_requires_requested_wayland_renderer_and_success(self):
+        for renderer, api in (("opengl", 3), ("vulkan", 5), ("software", 1)):
+            report = {"rendered": True, "capture_ok": True, "platform": "wayland",
+                      "graphics_api": api}
+            with self.subTest(renderer=renderer, report="valid"):
+                self.assertEqual(self.stopped_ui(renderer, report)["errors"], [])
+            for field, value in (("graphics_api", 5 if api != 5 else 3),
+                                 ("platform", "offscreen"), ("rendered", False),
+                                 ("capture_ok", False)):
+                with self.subTest(renderer=renderer, invalid_field=field):
+                    invalid = {**report, field: value}
+                    self.assertIn("requested Wayland renderer did not render",
+                                  self.stopped_ui(renderer, invalid)["errors"])
 
 
 if __name__ == "__main__":
