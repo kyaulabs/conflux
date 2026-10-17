@@ -1,0 +1,10 @@
+{
+  "run": "33ms-both-hour",
+  "renderer": "vulkan",
+  "repaint_ms": 33,
+  "profile_mutation": false,
+  "started_at_utc": "2026-10-17T15:08:50.959530+00:00",
+  "stage": "report pending",
+  "updated_at_utc": "2026-10-17T16:22:04.640143+00:00",
+  "status": "completed"
+}

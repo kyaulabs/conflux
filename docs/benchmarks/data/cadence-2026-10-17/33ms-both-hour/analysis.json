@@ -1,0 +1,1365 @@
+{
+  "schema": 1,
+  "run": "33ms-both-hour",
+  "repository_head": "d00692ffe1b7654a9946b5e2ed84f8c044586fc2",
+  "timing_validation": {
+    "exact_measurement_fields": [
+      "chunks",
+      "frames",
+      "hop_service_percentiles_ms",
+      "hop_service_max_ms",
+      "hops_above_target"
+    ],
+    "measurement_matches": {
+      "continuous": true,
+      "all_delivered": true
+    },
+    "derived_target_flag_matches": {
+      "continuous": true,
+      "all_delivered": true
+    }
+  },
+  "workload_seconds": 3600.000289613032,
+  "requested_repaint_interval_ms": 33,
+  "continuous": {
+    "chunks": 1416,
+    "frames": 327232560,
+    "hop_service_percentiles_ms": {
+      "50": 2144.022290012799,
+      "95": 4445.758506015409,
+      "99": 5086.97231602855
+    },
+    "hop_service_max_ms": 7474.529336963315,
+    "hops_above_target": 178,
+    "p99_seconds": 5.08697231602855,
+    "maximum_seconds": 7.474529336963315
+  },
+  "all_delivered": {
+    "chunks": 1427,
+    "frames": 330067712,
+    "hop_service_percentiles_ms": {
+      "50": 2143.9636290306225,
+      "95": 4436.472396017052,
+      "99": 5086.97231602855
+    },
+    "hop_service_max_ms": 7474.529336963315,
+    "hops_above_target": 178,
+    "p99_seconds": 5.08697231602855,
+    "maximum_seconds": 7.474529336963315
+  },
+  "target": {
+    "continuous_hop_p99_seconds": 4.095,
+    "passed": false,
+    "margin_seconds": -0.9919723160285503,
+    "scope": "Existing full-hour continuous-hop nearest-rank target; no per-bin gate added"
+  },
+  "all_hop_bins_300_seconds": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 300,
+      "chunks": 141,
+      "frames": 32691285,
+      "hop_service_percentiles_ms": {
+        "50": 2132.9033250221983,
+        "95": 2287.6284729572944,
+        "99": 2409.6391709754243
+      },
+      "hop_service_max_ms": 2416.815769043751,
+      "hops_above_target": 0
+    },
+    {
+      "start_seconds": 300,
+      "end_seconds": 600,
+      "chunks": 130,
+      "frames": 30098757,
+      "hop_service_percentiles_ms": {
+        "50": 2145.361515984405,
+        "95": 2432.396335992962,
+        "99": 4454.847266024444
+      },
+      "hop_service_max_ms": 5000.18250301946,
+      "hops_above_target": 6
+    },
+    {
+      "start_seconds": 600,
+      "end_seconds": 900,
+      "chunks": 116,
+      "frames": 26732803,
+      "hop_service_percentiles_ms": {
+        "50": 2147.2436449839734,
+        "95": 4500.542265013792,
+        "99": 6568.39241401758
+      },
+      "hop_service_max_ms": 7474.529336963315,
+      "hops_above_target": 14
+    },
+    {
+      "start_seconds": 900,
+      "end_seconds": 1200,
+      "chunks": 117,
+      "frames": 26990592,
+      "hop_service_percentiles_ms": {
+        "50": 2139.155386015773,
+        "95": 4317.474882001989,
+        "99": 4463.428921997547
+      },
+      "hop_service_max_ms": 4594.140400993638,
+      "hops_above_target": 17
+    },
+    {
+      "start_seconds": 1200,
+      "end_seconds": 1500,
+      "chunks": 115,
+      "frames": 26720458,
+      "hop_service_percentiles_ms": {
+        "50": 2146.478791953996,
+        "95": 4449.588744959328,
+        "99": 4824.580436979886
+      },
+      "hop_service_max_ms": 5364.537054963876,
+      "hops_above_target": 19
+    },
+    {
+      "start_seconds": 1500,
+      "end_seconds": 1800,
+      "chunks": 115,
+      "frames": 26474622,
+      "hop_service_percentiles_ms": {
+        "50": 2143.999360036105,
+        "95": 4551.230069017038,
+        "99": 5117.649772029836
+      },
+      "hop_service_max_ms": 5447.080337966327,
+      "hops_above_target": 20
+    },
+    {
+      "start_seconds": 1800,
+      "end_seconds": 2100,
+      "chunks": 117,
+      "frames": 26990788,
+      "hop_service_percentiles_ms": {
+        "50": 2140.1333539979532,
+        "95": 4480.873714026529,
+        "99": 4966.032829019241
+      },
+      "hop_service_max_ms": 5245.013720006682,
+      "hops_above_target": 15
+    },
+    {
+      "start_seconds": 2100,
+      "end_seconds": 2400,
+      "chunks": 115,
+      "frames": 26720262,
+      "hop_service_percentiles_ms": {
+        "50": 2141.4472450269386,
+        "95": 4794.496220012661,
+        "99": 5120.180718949996
+      },
+      "hop_service_max_ms": 5852.058526012115,
+      "hops_above_target": 17
+    },
+    {
+      "start_seconds": 2400,
+      "end_seconds": 2700,
+      "chunks": 117,
+      "frames": 26990788,
+      "hop_service_percentiles_ms": {
+        "50": 2138.2641789969057,
+        "95": 4522.2656760015525,
+        "99": 4618.18183097057
+      },
+      "hop_service_max_ms": 4841.807415999938,
+      "hops_above_target": 16
+    },
+    {
+      "start_seconds": 2700,
+      "end_seconds": 3000,
+      "chunks": 114,
+      "frames": 26462277,
+      "hop_service_percentiles_ms": {
+        "50": 2165.6681559979916,
+        "95": 4653.842639003415,
+        "99": 4889.329512021504
+      },
+      "hop_service_max_ms": 5159.636884985957,
+      "hops_above_target": 18
+    },
+    {
+      "start_seconds": 3000,
+      "end_seconds": 3300,
+      "chunks": 116,
+      "frames": 26732803,
+      "hop_service_percentiles_ms": {
+        "50": 2145.042283984367,
+        "95": 4470.897416002117,
+        "99": 5302.42076900322
+      },
+      "hop_service_max_ms": 5593.56343804393,
+      "hops_above_target": 19
+    },
+    {
+      "start_seconds": 3300,
+      "end_seconds": 3600,
+      "chunks": 114,
+      "frames": 26462277,
+      "hop_service_percentiles_ms": {
+        "50": 2141.78757998161,
+        "95": 4723.04599796189,
+        "99": 5170.3289989964105
+      },
+      "hop_service_max_ms": 5268.215710006189,
+      "hops_above_target": 17
+    },
+    {
+      "start_seconds": 3600,
+      "end_seconds": 3600.000289613032,
+      "chunks": 0,
+      "frames": 0,
+      "hop_service_percentiles_ms": {},
+      "hop_service_max_ms": null,
+      "hops_above_target": 0
+    }
+  ],
+  "complete_bin_summary": {
+    "nonempty_complete_bins": 12,
+    "p99_at_or_below_4095_ms": 1,
+    "first_bin_retained": true,
+    "scope": "All delivered hops, including seek replacements. Startup and every saved partial/empty bin retained above"
+  },
+  "cancellation": {
+    "complete": 11,
+    "discarded_events": 11,
+    "held_chunk_rejected": 11,
+    "ranges_ms": {
+      "started_to_cancel_ms": {
+        "min": 150.34241502871737,
+        "max": 170.4907840467058
+      },
+      "cancel_ack_ms": {
+        "min": 0.0214359606616199,
+        "max": 0.2510979538783431
+      },
+      "residual_finish_ms": {
+        "min": 1926.7570750089362,
+        "max": 2053.777636960149
+      },
+      "resume_ack_ms": {
+        "min": 0.019534025341272354,
+        "max": 0.024258974008262157
+      },
+      "ready_after_resume_ms": {
+        "min": 4186.868122022133,
+        "max": 4434.669413021766
+      },
+      "ready_after_cancel_ms": {
+        "min": 6120.805087033659,
+        "max": 6488.593771995511
+      },
+      "delivered_after_cancel_ms": {
+        "min": 6211.924921022728,
+        "max": 6570.408030995168
+      }
+    },
+    "recorded_parity": {
+      "exact_and_numeric": true,
+      "max_abs_difference": 0,
+      "scope": "Recorded success assertions and event hashes checked; successful PCM arrays are not retained/recomputed."
+    },
+    "range_scope": "Retained control measurements; return instants are not separately reconstructible from events.",
+    "hardware_submission_confirmed": 0,
+    "stale_chunks_delivered": 0,
+    "post_cancel_chunks": 0,
+    "worker_statistics": {
+      "generation": 178,
+      "ready_count": 0,
+      "max_ready": 2,
+      "ready_high_water": 1,
+      "telemetry_count": 1,
+      "max_telemetry": 256,
+      "telemetry_high_water": 3,
+      "telemetry_dropped": 0,
+      "pending_latest_generation": null,
+      "inflight": null,
+      "discarded_count": 11,
+      "cancel_count": 11,
+      "backend_start_count": 1,
+      "backend_pid": null,
+      "closed": true
+    },
+    "scope": "Independent audit validates discarded generation/request pairs and held-chunk rejection; logical cancellation only. Hardware submission/preemption unobserved"
+  },
+  "audio": {
+    "requested": {
+      "sample_rate": 48000,
+      "channels": 2,
+      "quantum_frames": 256,
+      "seconds": 3720
+    },
+    "sha256": "0e02dd2ad067db22f803301700466e15df2710d93422e2a79bd21e91b9028988",
+    "callbacks": 675297,
+    "frames": 172876032,
+    "stream_interval_seconds": [
+      366545.579720166,
+      370147.269677792
+    ],
+    "exact_workload_overlap_seconds": 3600.000289613032,
+    "faults": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "callback_elapsed_us": {
+      "p50_upper_bound": 2.0,
+      "p95_upper_bound": 4.0,
+      "p99_upper_bound": 5.0,
+      "p99_9_upper_bound": 20.0,
+      "max": 235.783,
+      "histogram_resolution": 1,
+      "at_least_100ms": 0
+    },
+    "quantum_frames": 256,
+    "scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count.",
+    "negotiated": {
+      "format_valid": true,
+      "sample_rate": 48000,
+      "channels": 2,
+      "stream_frames_min": 256,
+      "stream_frames_max": 256,
+      "graph_quantum_min": 256,
+      "graph_quantum_max": 256
+    },
+    "streaming_seconds": 3601.69,
+    "coverage": {
+      "requested": true,
+      "status": "passed",
+      "passed": true,
+      "streaming_interval_valid": true,
+      "concurrent_workload_seconds": 3600.000289613032,
+      "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+    }
+  },
+  "UI": {
+    "frames_swapped": 112549,
+    "graphics_api": 5,
+    "platform": "wayland",
+    "frame_observation": {
+      "first_frame_monotonic_ns": 366545716174914,
+      "frames_per_60_seconds": [
+        1876,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        48
+      ],
+      "last_frame_monotonic_ns": 370147175609323,
+      "maximum_notification_gap_ms": 73.540979,
+      "scope": "GUI-thread frameSwapped notifications; not physical presentation latency",
+      "started_monotonic_ns": 366545669981810,
+      "stopped_monotonic_ns": 370147200553065
+    },
+    "cadence_status": "valid",
+    "cadence_failed_checks": [],
+    "frame_rate": {
+      "complete_minute_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ],
+      "complete_minute_frames": [
+        1876,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875,
+        1875
+      ],
+      "complete_minute_fps": [
+        31.266666666666666,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25,
+        31.25
+      ],
+      "complete_minute_fps_minimum": 31.25,
+      "complete_minute_fps_maximum": 31.266666666666666,
+      "complete_minute_fps_mean": 31.25027777777778,
+      "all_ui_frames": 112549,
+      "ui_observation_interval_seconds": 3601.530571255018,
+      "whole_ui_interval_average_fps": 31.250324764223862,
+      "maximum_notification_gap_ms": 73.540979
+    },
+    "motion_summary": {
+      "unique_workload_pulses": 80,
+      "finite_indicator_position_samples": 80,
+      "indicator_x_minimum": 0,
+      "indicator_x_maximum": 300,
+      "indicator_x_range": 300,
+      "final_indicator_x": 297.34308760930327,
+      "final_reduced_motion": false,
+      "scope": "Saved low-frequency GUI property observations inside the workload; not per-frame visual or physical presentation validation"
+    },
+    "coverage": {
+      "requested": true,
+      "status": "passed",
+      "passed": true,
+      "checks": {
+        "progress_observed": true,
+        "runtime_gate_passed": true,
+        "observed_unexposed_spans_within_limit": true,
+        "final_observation_valid": true,
+        "observation_covers_workload": true,
+        "minute_counts_match_total": true,
+        "complete_minute_bins_nonzero": true,
+        "notification_gap_within_limit": true
+      },
+      "complete_minute_bins_intersecting_workload": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ],
+      "zero_complete_minute_bins_intersecting_workload": [],
+      "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
+      "maximum_notification_gap_ms": 73.540979,
+      "progress": {
+        "requested": true,
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/ui-progress.json",
+        "checks": 3405,
+        "check_interval_seconds": 1.0,
+        "startup_grace_seconds": 5.0,
+        "maximum_allowed_gap_seconds": 30.0,
+        "maximum_progress_age_seconds": 1.0064871089998633,
+        "maximum_frame_age_seconds": 1.0323609359911643,
+        "maximum_check_gap_seconds": 1.2497284759883769,
+        "unexposed_observations": 0,
+        "maximum_observed_unexposed_span_seconds": 0.0,
+        "last_unexposed_span": null,
+        "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+        "read_errors": {
+          "FileNotFoundError": 1
+        },
+        "last_progress": {
+          "animation_driver": "qtimeline",
+          "exposed": true,
+          "frames_swapped": 112496,
+          "indicator_x": 10.53352711676233,
+          "last_frame_monotonic_ns": 370145479030912,
+          "pid": 1780978,
+          "reduced_motion": false,
+          "repaint_interval_ms": 33,
+          "scene_graph_initialized": true,
+          "timestamp_monotonic_ns": 370145500177412
+        },
+        "gate_failure": null
+      },
+      "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"
+    }
+  },
+  "frozen_pins_against_prior_vulkan_hour": {
+    "runtime": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "baseline_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "equal": true
+    },
+    "model": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "baseline_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "equal": true
+    },
+    "soak_source": {
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "baseline_sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "equal": true
+    },
+    "shared_benchmark_source": {
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "baseline_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "equal": true
+    },
+    "worker_source": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "baseline_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "equal": true
+    },
+    "sampler_source": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "baseline_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "equal": true
+    },
+    "audio_probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "baseline_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "equal": true
+    }
+  },
+  "all_frozen_pins_equal": true,
+  "ui_pin_intentionally_changed": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "bytes": 1755632,
+    "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f"
+  },
+  "fixture_sha256_equal": true,
+  "reference_hashes_equal": true,
+  "prior_vulkan_hour_context": {
+    "repository_head": "38be36aba0232ba3e47691ddb091bf80274f4a7a",
+    "workload_seconds": 3600.0007311589434,
+    "continuous": {
+      "chunks": 1372,
+      "frames": 316863780,
+      "hop_service_percentiles_ms": {
+        "50": 2208.6911279475316,
+        "95": 4831.813160970341,
+        "99": 5570.165873970836
+      },
+      "hop_service_max_ms": 6296.106413996313,
+      "hops_above_target": 166,
+      "observed_p99_within_target": false
+    }
+  },
+  "native_policy": {
+    "samples": 7067,
+    "phase_counts": [
+      {
+        "firmware": "balanced",
+        "cpu0_EPP": "balance_performance",
+        "samples": 7067
+      }
+    ],
+    "transitions": [
+      {
+        "timestamp_monotonic": 366547.071245912,
+        "workload_offset_seconds": 0.04306296800496057,
+        "firmware": "balanced",
+        "cpu0_EPP": "balance_performance"
+      }
+    ],
+    "scope": "Native snapshots only; no interpolation, stable-profile or private-latch claim."
+  },
+  "policy_trace_scope": "All retained native snapshots, preserving startup and every recorded phase/transition, including offsets outside the workload; no interpolation or private-latch proof",
+  "thermal_snapshot_audit": {
+    "scope": "Retained native thermal snapshots inside the inclusive workload interval only. Any-sensor means the sampled and type-mapped sensors listed here, not all laptop sensors. Thresholds describe samples and do not establish sustained heat or a user-approved sustained threshold. No interpolation or continuous-duration proof; an isolated hot sample has zero first-to-last span. Adjacent cool observations bound an observation window, not the actual length of continuous heat. Missing observations break episodes; gaps between hot observations may hide recovery or further spikes.",
+    "run": "33ms-both-hour",
+    "load_mode": "both",
+    "workload_seconds": 3600.000289613032,
+    "workload_interval_monotonic": [
+      366547.028182944,
+      370147.028472557
+    ],
+    "trace_samples_in_workload": 7067,
+    "trace_samples_before": 0,
+    "trace_samples_after": 0,
+    "sampled_sensor_types": {
+      "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+      "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp"
+    },
+    "mapped_but_not_sampled_sensor_types": {
+      "/sys/class/thermal/thermal_zone2/temp": "SEN1",
+      "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+      "/sys/class/thermal/thermal_zone3/temp": "SEN2",
+      "/sys/class/thermal/thermal_zone1/temp": "INT3400 Thermal",
+      "/sys/class/thermal/thermal_zone6/temp": "iwlwifi_1",
+      "/sys/class/thermal/thermal_zone4/temp": "SEN5"
+    },
+    "any_sampled_sensor": {
+      "samples": 7067,
+      "valid_samples": 7067,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 80.0,
+      "peak_workload_offsets_seconds": [
+        29.571303660981357
+      ],
+      "first_observed_workload_offset_seconds": 0.04306296800496057,
+      "last_observed_workload_offset_seconds": 3599.9360713959904,
+      "maximum_adjacent_observation_gap_seconds": 0.6840872119646519,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    },
+    "package_sensor": {
+      "path": "/sys/class/thermal/thermal_zone7/temp",
+      "recorded_type": "x86_pkg_temp",
+      "samples": 7067,
+      "valid_samples": 7067,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 80.0,
+      "peak_workload_offsets_seconds": [
+        29.571303660981357
+      ],
+      "first_observed_workload_offset_seconds": 0.04306296800496057,
+      "last_observed_workload_offset_seconds": 3599.9360713959904,
+      "maximum_adjacent_observation_gap_seconds": 0.6840872119646519,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    },
+    "by_sensor": {
+      "/sys/class/thermal/thermal_zone5/temp": {
+        "recorded_type": "TCPU",
+        "samples": 7067,
+        "valid_samples": 7067,
+        "missing_or_invalid_samples": 0,
+        "peak_C": 73.05,
+        "peak_workload_offsets_seconds": [
+          833.5126721709967,
+          834.0203172570327,
+          834.5293940090341,
+          835.0358503389871,
+          835.5446493790369,
+          836.0520958430134,
+          836.561260668037,
+          837.0712724599871,
+          837.5798095139908,
+          838.0894319859799,
+          838.5979559760308,
+          839.106851804012,
+          839.6171651679906,
+          918.0586675369996,
+          918.5650077949977,
+          919.0746621459839,
+          919.5819106069976,
+          920.0926043859799,
+          920.6014452310046,
+          921.1089861069922,
+          921.6159111420275,
+          1031.6131059399922,
+          1032.1222275820328,
+          1032.6312779210275,
+          1033.139747134992,
+          1033.6491315920139,
+          1034.159153058019,
+          1034.668999053014,
+          1035.175213843002,
+          1223.0568015599856,
+          1223.5633154769894,
+          1224.0732814890216,
+          1224.5800098730251,
+          1225.0889552209992,
+          1225.5971640159842,
+          1226.1069226540276,
+          1226.6160201579914,
+          1227.1257439000183,
+          1227.6359496950172,
+          1228.1441956339986,
+          1228.6536339140148,
+          1229.1605026699835,
+          1229.6698083039955,
+          1230.178031902993,
+          1230.6892386550317,
+          1231.1981776420143,
+          1231.707117543032,
+          1232.2165587979835,
+          1232.724476532021,
+          1233.2336224259925,
+          1239.8591123329825,
+          1240.368975867983,
+          1240.8791189030162,
+          1241.3895888869883,
+          1538.4304408460157,
+          1538.9397622059914,
+          1539.4498603080283,
+          1539.9593313829973,
+          1540.4706515920116,
+          1540.9793926579878,
+          1541.4870864870027,
+          1541.9937919270014,
+          1542.5016538809869,
+          1543.0087320479797,
+          1543.5156513680122,
+          1544.0222295720014,
+          1544.5294073559926,
+          1545.0357705759816,
+          1545.5439338600263,
+          1546.0541961609852,
+          1546.5614739790326,
+          1547.0708840900334,
+          1547.5775298060034,
+          1548.0870415170211,
+          1548.594532040006,
+          1549.104001203028,
+          1549.6149344249861,
+          1550.122847184015,
+          1550.6323740649968,
+          1551.1431313150097,
+          1551.6523228230071,
+          1552.1587420590222,
+          1552.668989851023,
+          1553.1786287070136,
+          1553.6884582440252,
+          1554.1979954800336,
+          1554.7087905749795,
+          1847.716597252991,
+          1848.226762205013,
+          1848.7353606540128,
+          1849.2447067560279,
+          1849.7522459870088,
+          1850.2627991259797,
+          1850.7743081229855,
+          1851.283902717987,
+          2064.1781616880326,
+          2064.687628192012,
+          2065.1970987970126,
+          2065.7081364690093,
+          2066.217948883015,
+          2066.7284076869837,
+          2067.239332933037,
+          2067.7499324530363,
+          2068.26235992898,
+          2068.772063956014,
+          2069.284314488992,
+          2069.795245420013,
+          2154.9116970800096,
+          2155.4184862269904,
+          2155.928028582013,
+          2156.4371158360154,
+          2156.9469252009876,
+          2157.460776871012,
+          2157.9701109770103,
+          2158.4796275499975,
+          2158.988161589019,
+          2159.4947866360308,
+          2160.0011569430353,
+          2160.5075598150142,
+          2161.014551179018,
+          2161.5258279420086,
+          2162.0362331990036,
+          2162.5431894820067,
+          2163.051749175007,
+          2163.5604038420133,
+          2164.0704740830115,
+          2164.5800640209927,
+          2253.8520077890134,
+          2254.3621663459926,
+          2254.872146449983,
+          2255.3827293890063,
+          2255.892407483014,
+          2256.402202719997,
+          2256.9119939649827,
+          2257.419693096017,
+          2257.9299094330054,
+          2258.4402746190317,
+          2258.950461914006,
+          2259.459236579016,
+          2259.96823002398,
+          2260.478272267035,
+          2260.986528271984,
+          2261.4938419020036,
+          2262.0031797509873,
+          2262.5101368849864,
+          2263.016872735985,
+          2263.5256184340105,
+          2264.0323334410205,
+          2264.5387915819883,
+          2265.047627672029,
+          2265.5571533259936,
+          2266.06425086502,
+          2266.570899343991,
+          2267.0801151720225,
+          2267.589853972022,
+          2362.8899860529928,
+          2363.3996726900223,
+          2363.9088960990193,
+          2364.4169454030343,
+          2364.925625303993,
+          2365.435598238022,
+          2365.945528230979,
+          2366.4557451030123,
+          2366.967203581007,
+          2367.4773276990163,
+          2367.985955476004,
+          2368.4975926660118,
+          2369.0081946179853,
+          2557.0131209230167,
+          2557.521166516992,
+          2558.0290236810106,
+          2558.5355609160033,
+          2559.044498495001,
+          2559.5524083449855,
+          2560.0617788980016,
+          2560.5701177730225,
+          2561.079066055012,
+          2561.585533509031,
+          2562.0960438200273,
+          2562.606695717026,
+          2563.116223791032,
+          2563.6259655950125,
+          2564.1336860629963,
+          2564.641127469018,
+          2565.15153418103,
+          2565.660617084999,
+          2566.1670739179826,
+          2566.6770557540003,
+          2567.186672805983,
+          2567.696125852992,
+          2568.2052069890196,
+          2568.7148559520137,
+          2569.224347889016,
+          2569.733077295008,
+          2570.241983718006,
+          2570.7505688369856,
+          2742.4335622520302,
+          2742.9406468240195,
+          2743.4475918139797,
+          2743.9554346280056,
+          2851.444205061998,
+          2851.9523295140243,
+          2852.4627255640225,
+          2852.9722569410224,
+          3226.9644368370064,
+          3227.473885213025,
+          3227.9806559800054,
+          3228.488272066985,
+          3311.0371625110274,
+          3311.5436332179816,
+          3312.0498778850306,
+          3312.55747405102,
+          3313.0682853410253,
+          3313.576287133037,
+          3314.086731614021,
+          3314.5935932550346,
+          3315.1029856370296,
+          3315.613318972988,
+          3316.1228153200354,
+          3316.6320200450136,
+          3317.139776797034,
+          3317.6484142600093,
+          3318.1564884749823,
+          3318.667080504005,
+          3319.1759374450194,
+          3319.6850636249874,
+          3320.1941020070226,
+          3320.7035346379853,
+          3321.2135708350106,
+          3420.5792153420043,
+          3421.088840698998,
+          3421.598218664003,
+          3422.1088007999933,
+          3422.6171266660094,
+          3423.123652009992,
+          3423.6321120079956,
+          3424.1411968370085,
+          3424.64994796901,
+          3425.1585157120135,
+          3425.6681509150076,
+          3426.1776298669865,
+          3517.4008806470083,
+          3517.9114959809813,
+          3518.4211319889873,
+          3518.931408111006,
+          3519.441037625016,
+          3519.949909201998,
+          3520.460676268034,
+          3520.9710093640024,
+          3521.4813684010296,
+          3521.990367227001,
+          3522.4981831969926,
+          3523.005418243003,
+          3523.511891678034,
+          3524.0184711589827,
+          3524.526775529026,
+          3525.0346399160335,
+          3525.5439720980357,
+          3526.052160263993,
+          3526.5611866540276,
+          3527.070230888028,
+          3527.5771738680196,
+          3528.087122217985,
+          3528.6023654729943,
+          3529.1154016840155
+        ],
+        "first_observed_workload_offset_seconds": 0.04306296800496057,
+        "last_observed_workload_offset_seconds": 3599.9360713959904,
+        "maximum_adjacent_observation_gap_seconds": 0.6840872119646519,
+        "thresholds": {
+          "85": {
+            "threshold_C": 85.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          },
+          "95": {
+            "threshold_C": 95.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          }
+        }
+      },
+      "/sys/class/thermal/thermal_zone7/temp": {
+        "recorded_type": "x86_pkg_temp",
+        "samples": 7067,
+        "valid_samples": 7067,
+        "missing_or_invalid_samples": 0,
+        "peak_C": 80.0,
+        "peak_workload_offsets_seconds": [
+          29.571303660981357
+        ],
+        "first_observed_workload_offset_seconds": 0.04306296800496057,
+        "last_observed_workload_offset_seconds": 3599.9360713959904,
+        "maximum_adjacent_observation_gap_seconds": 0.6840872119646519,
+        "thresholds": {
+          "85": {
+            "threshold_C": 85.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          },
+          "95": {
+            "threshold_C": 95.0,
+            "hot_samples": 0,
+            "episodes": [],
+            "maximum_first_to_last_hot_sample_span_seconds": 0,
+            "maximum_adjacent_cool_observation_window_seconds": null
+          }
+        }
+      }
+    },
+    "source_evidence": {
+      "result_sha256": "131378a6cce9aefe69289618ceb654c2c6fe125348db6c8164f3bcb21792bc1b",
+      "trace_stored_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/native-trace.jsonl",
+      "trace_stored_sha256": "2c6f32d5de243f27a3338d5ae56263875a78c67d273a92b63f3d63d9f4596615",
+      "audit_source_sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0"
+    }
+  },
+  "AC_lid_within_workload": {
+    "samples": 79,
+    "mains_online_values": {
+      "1": 79
+    },
+    "lid_closed_values": {
+      "False": 79
+    },
+    "maximum_adjacent_snapshot_gap_seconds": 46.64853426796617,
+    "start_to_first_snapshot_seconds": 25.1354705360136,
+    "last_snapshot_to_stop_seconds": 14.075143572001252,
+    "observation_errors": []
+  },
+  "kernel": {
+    "returncode": 0,
+    "parse_errors": [],
+    "matched_entries": []
+  },
+  "profile_mutation": false,
+  "restored_by_runner": false,
+  "existing_acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": true,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 11,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "cleanup": {
+    "PIDs": [
+      1781022,
+      1780974,
+      1780978
+    ],
+    "PID_exists": {
+      "1781022": false,
+      "1780974": false,
+      "1780978": false
+    },
+    "worker_closed": true,
+    "backend_pid": null,
+    "fixture_exists": false,
+    "probe_returncodes": {
+      "ui": 0,
+      "audio": 0
+    },
+    "idle_inhibit_released": true,
+    "script_unloaded": true,
+    "window_restored": {
+      "reason": "owned-window-closed",
+      "after": null
+    },
+    "guard_errors": [],
+    "policy_runner_returncode": 0
+  },
+  "limitations": [
+    "Fixed order, differing times/background load and thermal/policy/cache history prevent a causal cadence speedup claim. Prior hour also used the original NumberAnimation rather than QTimeLine; the short 16/33 ms comparison is a separate experiment.",
+    "No warmup or first-bin deletion. Serial dependent hops use nearest-rank percentiles; per-bin excursions do not add an acceptance gate.",
+    "Cancellation validates logical request/generation behavior; active native GPU work drains. Hardware submission or preemption is not measured.",
+    "Successful PCM is not retained/recomputed; recorded same-grid hashes and exact/numeric seek assertions are audited.",
+    "Audio is independent silence on available laptop output. Physical latency, actual stem playback, musical quality and a complete graph xrun count are unmeasured; no external audio interface is required for this assessment.",
+    "Temperature and AC/lid values are sampled. Missing sensors/observations and intervening changes remain unobserved. Brief heat spikes are acceptable; peak alone is not a failure and no sustained-temperature threshold is invented.",
+    "UI observations describe GUI frameSwapped notifications and saved low-frequency position samples, not physical presentation or a global frame-rate limit."
+  ],
+  "inputs": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/result.json": {
+      "bytes": 50510,
+      "sha256": "131378a6cce9aefe69289618ceb654c2c6fe125348db6c8164f3bcb21792bc1b"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-launch.json": {
+      "bytes": 3070,
+      "sha256": "17eb46c5c5d102bb8a2afac9ab9ea76c0133b7c70c553cb153bf904faee3db06"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-cleanup.json": {
+      "bytes": 477,
+      "sha256": "ab4ea6451a7a35c37fb2433e627d21b9af1fe57edcb59075d3e45da749a34247"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-guard.json": {
+      "bytes": 2527,
+      "sha256": "75e769cb694791827cf2fc79b83fab899d9b7cb72929d161581772dc3e27c2fd"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/cadence-series-guard.json": {
+      "bytes": 499,
+      "sha256": "4431458c7f451a4dd26d627e56d118f8cd62baa2c7063062f7516cd48087ac55"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/hour-sequence.json": {
+      "bytes": 269,
+      "sha256": "d73e584995d4b944aad1e542c3582b6d454533d8bfd8c883e04da3823462aafc"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-independent-audit.json": {
+      "bytes": 17582,
+      "sha256": "b86c474d76c22824c79c60db1658eaecde8fe53dc132ddf668aea457d1e3aff3"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-thermal-snapshot-audit.json": {
+      "bytes": 12980,
+      "sha256": "f22f996c4114b7db075aa62cf67c88dbc5cf7809a969cef0bbbf61f5d47f5bc2"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-cadence-audit.json": {
+      "bytes": 20977,
+      "sha256": "1e0b2b51143192f5ef9c6fbc376e0978bea634495fd6d1f21d76a2b7ae7ffaea"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/audio.json": {
+      "bytes": 1502,
+      "sha256": "0e02dd2ad067db22f803301700466e15df2710d93422e2a79bd21e91b9028988"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/ui.json": {
+      "bytes": 960,
+      "sha256": "bb6727c8bc59e34ad537b2b9b7a08af85f6e739fa2ae40f64f53fc5729551d5a"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-kernel.json": {
+      "bytes": 526,
+      "sha256": "462fb54b52ab1082f2afd0b728288b7ed43558aa7d7566fcfd2acf0f87f0f985"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-policy.json": {
+      "bytes": 1632,
+      "sha256": "ed0cd102d58f4d939d3bb1f04e4cbfc0dbb567308497a8ed13b22210f5966ae1"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/combined-vulkan-hour/result.json": {
+      "bytes": 50290,
+      "sha256": "6048032e360724b7382a392677bb3174d102000099050f12d1b6029924de2df0"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-AC-lid-monitor.jsonl": {
+      "bytes": 21795,
+      "sha256": "983c285ef8c65d8428d70083c55a002314182d18ab4f4db50e7c9259738fd58d"
+    }
+  },
+  "analysis_source_sha256": "bc4d822f8adc1039a8c78ccf9fca7f32c68aa7b4af25808a7927acb7f09afd28"
+}

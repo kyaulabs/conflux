@@ -1,0 +1,785 @@
+{
+  "schema": 1,
+  "audited_at_utc": "2026-10-17T16:22:44.106599+00:00",
+  "run": "33ms-both-hour",
+  "status": "valid",
+  "checks": {
+    "both_loads_selected": true,
+    "native_wayland_vulkan": true,
+    "saved_ui_report_matches_result": true,
+    "requested_interval_matches_ui": true,
+    "requested_interval_matches_environment": true,
+    "qtimeline_driver": true,
+    "reduced_motion_disabled": true,
+    "pulse_driver_interval_match": true,
+    "observed_indicator_motion": true,
+    "existing_ui_coverage_passed": true,
+    "existing_audio_coverage_passed": true,
+    "zero_sampled_exposure_loss": true,
+    "complete_bins_match_existing_coverage": true,
+    "sufficient_complete_bins": true,
+    "minute_counts_match_total": true,
+    "complete_minute_fps_in_experiment_band": true,
+    "common_producer_audio_native_model_pins_frozen": true,
+    "fixture_pin_frozen": true,
+    "nine_reference_window_hashes_frozen": true,
+    "control_count_valid": true,
+    "recorded_controls_passed": true,
+    "no_stale_delivery": true,
+    "diagnostic_timing_disabled": true
+  },
+  "failed_checks": [],
+  "requested_repaint_interval_ms": 33,
+  "animation_driver": "qtimeline",
+  "cadence_scope": "QTimeLine update interval, not a global frame-rate limit; observed GUI frameSwapped notifications do not measure physical presentation",
+  "experiment_fps_band": {
+    "minimum": 25,
+    "maximum": 40,
+    "scope": "Experiment efficacy/validity band only, not a new M0 latency acceptance gate"
+  },
+  "frame_rate": {
+    "complete_minute_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59
+    ],
+    "complete_minute_frames": [
+      1876,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875
+    ],
+    "complete_minute_fps": [
+      31.266666666666666,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25
+    ],
+    "complete_minute_fps_minimum": 31.25,
+    "complete_minute_fps_maximum": 31.266666666666666,
+    "complete_minute_fps_mean": 31.25027777777778,
+    "all_ui_frames": 112549,
+    "ui_observation_interval_seconds": 3601.530571255018,
+    "whole_ui_interval_average_fps": 31.250324764223862,
+    "maximum_notification_gap_ms": 73.540979
+  },
+  "motion": {
+    "unique_workload_pulses": 80,
+    "finite_indicator_position_samples": 80,
+    "indicator_x_minimum": 0,
+    "indicator_x_maximum": 300,
+    "indicator_x_range": 300,
+    "positions": [
+      {
+        "workload_offset_seconds": 24.472275174979586,
+        "indicator_x": 14.27594213009708
+      },
+      {
+        "workload_offset_seconds": 70.47249388799537,
+        "indicator_x": 289.4664728832377
+      },
+      {
+        "workload_offset_seconds": 115.47252430900699,
+        "indicator_x": 299.99971085152646
+      },
+      {
+        "workload_offset_seconds": 161.47214573499514,
+        "indicator_x": 40.654705886788314
+      },
+      {
+        "workload_offset_seconds": 207.47261077701114,
+        "indicator_x": 149.99999999999997
+      },
+      {
+        "workload_offset_seconds": 252.47244035400217,
+        "indicator_x": 213.8668937347609
+      },
+      {
+        "workload_offset_seconds": 298.47266950597987,
+        "indicator_x": 205.2186829027018
+      },
+      {
+        "workload_offset_seconds": 343.47251942701405,
+        "indicator_x": 150.00000000000003
+      },
+      {
+        "workload_offset_seconds": 389.4726681780303,
+        "indicator_x": 47.317934110696704
+      },
+      {
+        "workload_offset_seconds": 434.47279533400433,
+        "indicator_x": 94.78131709729828
+      },
+      {
+        "workload_offset_seconds": 480.47232526697917,
+        "indicator_x": 285.72405786990294
+      },
+      {
+        "workload_offset_seconds": 525.4722575049964,
+        "indicator_x": 252.68206588930335
+      },
+      {
+        "workload_offset_seconds": 571.4719654719811,
+        "indicator_x": 0
+      },
+      {
+        "workload_offset_seconds": 617.4727569620009,
+        "indicator_x": 259.3452941132117
+      },
+      {
+        "workload_offset_seconds": 663.472878023982,
+        "indicator_x": 150.00000000000003
+      },
+      {
+        "workload_offset_seconds": 708.4728163270047,
+        "indicator_x": 86.13310626523923
+      },
+      {
+        "workload_offset_seconds": 754.4727474810206,
+        "indicator_x": 94.78131709729828
+      },
+      {
+        "workload_offset_seconds": 799.4721944300109,
+        "indicator_x": 149.99999999999997
+      },
+      {
+        "workload_offset_seconds": 845.4724402910215,
+        "indicator_x": 252.68206588930335
+      },
+      {
+        "workload_offset_seconds": 891.472743352002,
+        "indicator_x": 0
+      },
+      {
+        "workload_offset_seconds": 936.4724305170239,
+        "indicator_x": 14.27594213009708
+      },
+      {
+        "workload_offset_seconds": 982.4726303869975,
+        "indicator_x": 289.4664728832377
+      },
+      {
+        "workload_offset_seconds": 1027.472498507006,
+        "indicator_x": 300
+      },
+      {
+        "workload_offset_seconds": 1073.4725208430318,
+        "indicator_x": 40.654705886788314
+      },
+      {
+        "workload_offset_seconds": 1119.4720730329864,
+        "indicator_x": 149.99999999999997
+      },
+      {
+        "workload_offset_seconds": 1164.4721366129816,
+        "indicator_x": 213.8668937347609
+      },
+      {
+        "workload_offset_seconds": 1210.4721393060172,
+        "indicator_x": 204.94473485686188
+      },
+      {
+        "workload_offset_seconds": 1256.4719791639945,
+        "indicator_x": 14.27594213009708
+      },
+      {
+        "workload_offset_seconds": 1302.4728079020279,
+        "indicator_x": 289.4664728832377
+      },
+      {
+        "workload_offset_seconds": 1347.4721342700068,
+        "indicator_x": 300
+      },
+      {
+        "workload_offset_seconds": 1393.4724867549958,
+        "indicator_x": 40.45330103159456
+      },
+      {
+        "workload_offset_seconds": 1438.4729827279807,
+        "indicator_x": 10.53352711676233
+      },
+      {
+        "workload_offset_seconds": 1484.4724329070305,
+        "indicator_x": 213.8668937347609
+      },
+      {
+        "workload_offset_seconds": 1529.4719033170259,
+        "indicator_x": 259.54669896840545
+      },
+      {
+        "workload_offset_seconds": 1575.471957945032,
+        "indicator_x": 150.00000000000003
+      },
+      {
+        "workload_offset_seconds": 1621.472537308,
+        "indicator_x": 47.317934110696704
+      },
+      {
+        "workload_offset_seconds": 1667.4725847090012,
+        "indicator_x": 300
+      },
+      {
+        "workload_offset_seconds": 1712.472774830996,
+        "indicator_x": 285.72405786990294
+      },
+      {
+        "workload_offset_seconds": 1758.4725705180317,
+        "indicator_x": 10.53352711676233
+      },
+      {
+        "workload_offset_seconds": 1803.472381293017,
+        "indicator_x": 0
+      },
+      {
+        "workload_offset_seconds": 1849.4727552870172,
+        "indicator_x": 259.3452941132117
+      },
+      {
+        "workload_offset_seconds": 1895.472397199017,
+        "indicator_x": 150.00000000000003
+      },
+      {
+        "workload_offset_seconds": 1940.472511488013,
+        "indicator_x": 86.13310626523923
+      },
+      {
+        "workload_offset_seconds": 1986.47235451499,
+        "indicator_x": 94.78131709729828
+      },
+      {
+        "workload_offset_seconds": 2032.4724656069884,
+        "indicator_x": 285.72405786990294
+      },
+      {
+        "workload_offset_seconds": 2078.4725210380275,
+        "indicator_x": 10.53352711676233
+      },
+      {
+        "workload_offset_seconds": 2123.472733581031,
+        "indicator_x": 0
+      },
+      {
+        "workload_offset_seconds": 2170.47425878403,
+        "indicator_x": 205.2186829027018
+      },
+      {
+        "workload_offset_seconds": 2216.4724980199826,
+        "indicator_x": 14.4016060314835
+      },
+      {
+        "workload_offset_seconds": 2261.4720407759887,
+        "indicator_x": 47.317934110696704
+      },
+      {
+        "workload_offset_seconds": 2307.4719985300326,
+        "indicator_x": 300
+      },
+      {
+        "workload_offset_seconds": 2352.472665951005,
+        "indicator_x": 285.72405786990294
+      },
+      {
+        "workload_offset_seconds": 2398.472367301001,
+        "indicator_x": 10.53352711676233
+      },
+      {
+        "workload_offset_seconds": 2444.4724586320226,
+        "indicator_x": 213.8668937347609
+      },
+      {
+        "workload_offset_seconds": 2490.4727437790134,
+        "indicator_x": 204.94473485686188
+      },
+      {
+        "workload_offset_seconds": 2535.472515747999,
+        "indicator_x": 150.00000000000003
+      },
+      {
+        "workload_offset_seconds": 2581.472495638998,
+        "indicator_x": 47.317934110696704
+      },
+      {
+        "workload_offset_seconds": 2627.472148534027,
+        "indicator_x": 300
+      },
+      {
+        "workload_offset_seconds": 2673.472379238985,
+        "indicator_x": 40.654705886788314
+      },
+      {
+        "workload_offset_seconds": 2719.4720547730103,
+        "indicator_x": 149.99999999999997
+      },
+      {
+        "workload_offset_seconds": 2765.472690602008,
+        "indicator_x": 252.68206588930335
+      },
+      {
+        "workload_offset_seconds": 2810.4723515789956,
+        "indicator_x": 205.2186829027018
+      },
+      {
+        "workload_offset_seconds": 2856.4722598380176,
+        "indicator_x": 14.27594213009708
+      },
+      {
+        "workload_offset_seconds": 2901.472410240036,
+        "indicator_x": 47.317934110696704
+      },
+      {
+        "workload_offset_seconds": 2947.4728391160024,
+        "indicator_x": 300
+      },
+      {
+        "workload_offset_seconds": 2992.4727883890155,
+        "indicator_x": 285.72405786990294
+      },
+      {
+        "workload_offset_seconds": 3038.4720295610023,
+        "indicator_x": 10.53352711676233
+      },
+      {
+        "workload_offset_seconds": 3083.4726944030263,
+        "indicator_x": 0
+      },
+      {
+        "workload_offset_seconds": 3129.4723627960193,
+        "indicator_x": 259.54669896840545
+      },
+      {
+        "workload_offset_seconds": 3175.471916020033,
+        "indicator_x": 150.00000000000003
+      },
+      {
+        "workload_offset_seconds": 3220.472285402997,
+        "indicator_x": 86.13310626523923
+      },
+      {
+        "workload_offset_seconds": 3266.472458695993,
+        "indicator_x": 94.78131709729828
+      },
+      {
+        "workload_offset_seconds": 3311.472263697011,
+        "indicator_x": 149.99999999999997
+      },
+      {
+        "workload_offset_seconds": 3357.4722335620318,
+        "indicator_x": 252.68206588930335
+      },
+      {
+        "workload_offset_seconds": 3402.4728416069993,
+        "indicator_x": 204.94473485686188
+      },
+      {
+        "workload_offset_seconds": 3448.472894445993,
+        "indicator_x": 14.27594213009708
+      },
+      {
+        "workload_offset_seconds": 3494.4719689590274,
+        "indicator_x": 289.4664728832377
+      },
+      {
+        "workload_offset_seconds": 3540.4724502140307,
+        "indicator_x": 85.8667359854577
+      },
+      {
+        "workload_offset_seconds": 3585.4724989270326,
+        "indicator_x": 40.654705886788314
+      },
+      {
+        "workload_offset_seconds": 3599.4722206770093,
+        "indicator_x": 150.2945241220268
+      }
+    ],
+    "final_indicator_x": 297.34308760930327,
+    "final_reduced_motion": false,
+    "scope": "Saved low-frequency GUI property observations inside the workload; not per-frame visual or physical presentation validation"
+  },
+  "existing_ui_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "checks": {
+      "progress_observed": true,
+      "runtime_gate_passed": true,
+      "observed_unexposed_spans_within_limit": true,
+      "final_observation_valid": true,
+      "observation_covers_workload": true,
+      "minute_counts_match_total": true,
+      "complete_minute_bins_nonzero": true,
+      "notification_gap_within_limit": true
+    },
+    "complete_minute_bins_intersecting_workload": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59
+    ],
+    "zero_complete_minute_bins_intersecting_workload": [],
+    "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
+    "maximum_notification_gap_ms": 73.540979,
+    "progress": {
+      "requested": true,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/ui-progress.json",
+      "checks": 3405,
+      "check_interval_seconds": 1.0,
+      "startup_grace_seconds": 5.0,
+      "maximum_allowed_gap_seconds": 30.0,
+      "maximum_progress_age_seconds": 1.0064871089998633,
+      "maximum_frame_age_seconds": 1.0323609359911643,
+      "maximum_check_gap_seconds": 1.2497284759883769,
+      "unexposed_observations": 0,
+      "maximum_observed_unexposed_span_seconds": 0.0,
+      "last_unexposed_span": null,
+      "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+      "read_errors": {
+        "FileNotFoundError": 1
+      },
+      "last_progress": {
+        "animation_driver": "qtimeline",
+        "exposed": true,
+        "frames_swapped": 112496,
+        "indicator_x": 10.53352711676233,
+        "last_frame_monotonic_ns": 370145479030912,
+        "pid": 1780978,
+        "reduced_motion": false,
+        "repaint_interval_ms": 33,
+        "scene_graph_initialized": true,
+        "timestamp_monotonic_ns": 370145500177412
+      },
+      "gate_failure": null
+    },
+    "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"
+  },
+  "existing_audio_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "streaming_interval_valid": true,
+    "concurrent_workload_seconds": 3600.000289613032,
+    "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+  },
+  "existing_M0_acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": true,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 11,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "continuous_timing": {
+    "chunks": 1416,
+    "frames": 327232560,
+    "hop_service_percentiles_ms": {
+      "50": 2144.022290012799,
+      "95": 4445.758506015409,
+      "99": 5086.97231602855
+    },
+    "hop_service_max_ms": 7474.529336963315,
+    "hops_above_target": 178,
+    "observed_p99_within_target": false
+  },
+  "controls": {
+    "recorded_count": 11,
+    "expected_for_hour": 11,
+    "scope": "Recorded outcomes; full request/generation and event audits remain separate"
+  },
+  "frozen_pins_against_prior_vulkan_hour": {
+    "runtime": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "baseline_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "equal": true
+    },
+    "model": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "baseline_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "equal": true
+    },
+    "soak_source": {
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "baseline_sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "equal": true
+    },
+    "shared_benchmark_source": {
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "baseline_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "equal": true
+    },
+    "worker_source": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "baseline_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "equal": true
+    },
+    "sampler_source": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "baseline_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "equal": true
+    },
+    "audio_probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "baseline_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "equal": true
+    }
+  },
+  "ui_pin_intentionally_new": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "bytes": 1755632,
+    "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f"
+  },
+  "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+  "comparison": null,
+  "scope": "Saved completed evidence only. No host commands, new workload, PCM recomputation, profile mutation or new latency gate.",
+  "inputs": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/result.json": {
+      "bytes": 50510,
+      "sha256": "131378a6cce9aefe69289618ceb654c2c6fe125348db6c8164f3bcb21792bc1b"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour-launch.json": {
+      "bytes": 3070,
+      "sha256": "17eb46c5c5d102bb8a2afac9ab9ea76c0133b7c70c553cb153bf904faee3db06"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/ui.json": {
+      "bytes": 960,
+      "sha256": "bb6727c8bc59e34ad537b2b9b7a08af85f6e739fa2ae40f64f53fc5729551d5a"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/monitor.jsonl": {
+      "bytes": 968004,
+      "sha256": "576a85cb6f378e36545b1f12864423223436e51530fbd3080e7a8436cbc5c8fe"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/combined-vulkan-hour/result.json": {
+      "bytes": 50290,
+      "sha256": "6048032e360724b7382a392677bb3174d102000099050f12d1b6029924de2df0"
+    }
+  },
+  "audit_source_sha256": "f388bc32aca9c8da46903cbeb1a0b0cda51f99cb3545c1ddc4b49f8243ea2778"
+}
