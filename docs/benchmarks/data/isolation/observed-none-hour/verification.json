@@ -1,0 +1,23 @@
+{
+  "verified_at_utc": "2026-10-17T05:35:25.353871+00:00",
+  "run": "observed-none-hour",
+  "load_mode": "none",
+  "small_report_and_lifecycle_checks_passed": true,
+  "workload_seconds": 3600.0003697730135,
+  "timing": {
+    "chunks": 1692,
+    "frames": 391312860,
+    "hop_service_percentiles_ms": {
+      "50": 1961.7410600185394,
+      "95": 3333.026907988824,
+      "99": 3832.6338350307196
+    },
+    "hop_service_max_ms": 4466.085923020728,
+    "hops_above_target": 3,
+    "observed_p99_within_target": true
+  },
+  "controls": 11,
+  "audio_faults": null,
+  "selected_loads": [],
+  "scope": "Saved final report checks; full trace/event audits are separate."
+}

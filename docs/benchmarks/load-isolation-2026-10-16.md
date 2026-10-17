@@ -118,3 +118,8 @@ The final worker and probes exited, the fixture was removed, and owned window,
 desktop-idle and system sleep inhibitors were released. The next condition
 was blocked explicitly by the user pause; its scheduler exit is not a failure
 of the completed hour. No further test is scheduled or running.
+
+The three paused conditions later completed in the
+[remaining-hours report](load-isolation-resumed-2026-10-16.md). Worker-only and
+audio-only hour p99 met the target; UI-only p99 remained above it. That report
+records the continuation and final released guards. M0 remains open.

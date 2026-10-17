@@ -1,0 +1,53 @@
+{
+  "scope": "CPU-only saved-evidence thermal audit verification; no host reads, interpolation or workload.",
+  "cases": [
+    {
+      "case": "isolated_hot",
+      "passed": true
+    },
+    {
+      "case": "consecutive_hot_with_gap",
+      "passed": true
+    },
+    {
+      "case": "missing_breaks_episode",
+      "passed": true
+    },
+    {
+      "case": "all_cool",
+      "passed": true
+    },
+    {
+      "case": "observed-ui-hour",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "benchmarks-local/isolation-2026-10-16/thermal-snapshot-audit.py",
+        "--run-directory",
+        "benchmarks-local/isolation-2026-10-16/observed-ui-hour",
+        "--output",
+        "benchmarks-local/isolation-2026-10-16/observed-ui-hour-thermal-snapshot-audit.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"output\": \"benchmarks-local/isolation-2026-10-16/observed-ui-hour-thermal-snapshot-audit.json\",\n  \"run\": \"observed-ui-hour\",\n  \"samples\": 7064,\n  \"sampled_sensor_types\": {\n    \"/sys/class/thermal/thermal_zone5/temp\": \"TCPU\",\n    \"/sys/class/thermal/thermal_zone7/temp\": \"x86_pkg_temp\"\n  },\n  \"any_sampled_peak_C\": 82.0,\n  \"package_peak_C\": 82.0,\n  \"thresholds\": {\n    \"85\": {\n      \"threshold_C\": 85.0,\n      \"hot_samples\": 0,\n      \"maximum_first_to_last_hot_sample_span_seconds\": 0,\n      \"maximum_adjacent_cool_observation_window_seconds\": null\n    },\n    \"95\": {\n      \"threshold_C\": 95.0,\n      \"hot_samples\": 0,\n      \"maximum_first_to_last_hot_sample_span_seconds\": 0,\n      \"maximum_adjacent_cool_observation_window_seconds\": null\n    }\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "case": "observed-both-hour",
+      "command": [
+        "/bin/python3",
+        "-B",
+        "benchmarks-local/isolation-2026-10-16/thermal-snapshot-audit.py",
+        "--run-directory",
+        "benchmarks-local/isolation-2026-10-16/observed-both-hour",
+        "--output",
+        "benchmarks-local/isolation-2026-10-16/observed-both-hour-thermal-snapshot-audit.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"output\": \"benchmarks-local/isolation-2026-10-16/observed-both-hour-thermal-snapshot-audit.json\",\n  \"run\": \"observed-both-hour\",\n  \"samples\": 7051,\n  \"sampled_sensor_types\": {\n    \"/sys/class/thermal/thermal_zone5/temp\": \"TCPU\",\n    \"/sys/class/thermal/thermal_zone7/temp\": \"x86_pkg_temp\"\n  },\n  \"any_sampled_peak_C\": 78.0,\n  \"package_peak_C\": 78.0,\n  \"thresholds\": {\n    \"85\": {\n      \"threshold_C\": 85.0,\n      \"hot_samples\": 0,\n      \"maximum_first_to_last_hot_sample_span_seconds\": 0,\n      \"maximum_adjacent_cool_observation_window_seconds\": null\n    },\n    \"95\": {\n      \"threshold_C\": 95.0,\n      \"hot_samples\": 0,\n      \"maximum_first_to_last_hot_sample_span_seconds\": 0,\n      \"maximum_adjacent_cool_observation_window_seconds\": null\n    }\n  }\n}\n",
+      "stderr": ""
+    }
+  ],
+  "all_passed": true,
+  "script_sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0"
+}

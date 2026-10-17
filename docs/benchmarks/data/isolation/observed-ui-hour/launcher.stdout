@@ -1,0 +1,20 @@
+{"observed_at_utc": "2026-10-17T03:22:37.054568+00:00", "profile": "balanced", "holds": "", "firmware": "balanced", "cpu_epp": "balance_performance"}
+{
+  "status": "ok",
+  "workload_seconds": 3600.0003003510064,
+  "acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": true,
+    "audio_covers_requested_duration": null,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 11,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=ui; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "failures": []
+}
+{"observed_policy": {"observed_at_utc": "2026-10-17T04:22:41.423059+00:00", "profile": "balanced", "holds": "", "firmware": "balanced", "cpu_epp": "balance_performance"}, "runner_returncode": 0}

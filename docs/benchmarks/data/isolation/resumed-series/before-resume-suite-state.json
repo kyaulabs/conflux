@@ -1,0 +1,99 @@
+{
+  "harness_commit": "b375522216d2d81a9d1d011017fb25474be0dacf",
+  "completed": [
+    "interrupt-check",
+    "none-smoke",
+    "audio-smoke",
+    "both-smoke",
+    "ui-smoke"
+  ],
+  "phase": "paused by user",
+  "cooldown_session": 66185,
+  "long_run_order": [
+    "none-hour-rerun",
+    "audio-hour",
+    "both-hour",
+    "ui-hour"
+  ],
+  "completed_hours": [],
+  "next_action": "Awaitfirstcooldown; startfiniteobserved_suite.py withmandatoryrecoverygate. AllCPUworkfrozenbeforeGPUs.",
+  "series_guard_lifecycle": "series-guard.json",
+  "series_guard_stop_file": "series-stop",
+  "cleanup_required": "Touch series-stop after allhourruns, wait seriesguard exit andverify idle_inhibit_released/errorsempty.",
+  "series_guard_session": 11117,
+  "harness_CI": {
+    "push": 38978767313,
+    "pull_request": 38978772988,
+    "both_passed": true
+  },
+  "active_run": null,
+  "active_session": null,
+  "partial_run": "none-hour",
+  "partial_seconds": 1563.4323835659889,
+  "monitor_cell_completed": 677,
+  "active_mode": "ui",
+  "updated_at_utc": "2026-10-17T01:56:34.025422+00:00",
+  "sustained_attempts": [
+    {
+      "run": "none-hour-rerun",
+      "mode": "none",
+      "returncode": 1,
+      "status": "error",
+      "seconds": 590.1349293899839,
+      "failures": [
+        {
+          "phase": "workload",
+          "error": "RuntimeError: repeated same-grid chunk hash changed",
+          "timestamp_monotonic": 317983.249356358
+        }
+      ]
+    },
+    {
+      "run": "audio-hour",
+      "mode": "audio",
+      "returncode": 1,
+      "status": "error",
+      "seconds": 272.63089431700064,
+      "failures": [
+        {
+          "phase": "workload",
+          "error": "RuntimeError: repeated same-grid chunk hash changed",
+          "timestamp_monotonic": 318867.168981857
+        }
+      ]
+    },
+    {
+      "run": "observed-both-hour",
+      "mode": "both",
+      "returncode": 0,
+      "status": "ok",
+      "seconds": 3600.0004223539727,
+      "failures": []
+    }
+  ],
+  "suite_error": "cooldown failed",
+  "policy_interrupted_attempt": "both-hour",
+  "thermal_policy_amendment": "thermal-policy-amendment.json",
+  "observed_series_guard_session": 37445,
+  "observed_series_stop_file": "observed-series-stop",
+  "observed_plan_order": [
+    "observed-both-hour",
+    "observed-ui-hour",
+    "observed-none-hour",
+    "observed-audio-hour"
+  ],
+  "note": "Oldsuitesended; newobserver-onlylaunchrequiresguardreadinesswithoutprofilemutations. Originalcommonguardcleanlyreleasedafternewonewasactive.",
+  "protocol": "observe",
+  "observed_suite_session": 64698,
+  "common_guard_session": 37445,
+  "common_guard_stop": "observed-series-stop",
+  "paused_after": "observed-both-hour",
+  "remaining_unstarted": [
+    "observed-ui-hour",
+    "observed-none-hour",
+    "observed-audio-hour"
+  ],
+  "common_guard_released": true,
+  "observed_suite_exit": 1,
+  "control_exit_explanation": "Expectedpause:nextcooldownexit75;currentbenchmarkcompletedstatusok."
+}

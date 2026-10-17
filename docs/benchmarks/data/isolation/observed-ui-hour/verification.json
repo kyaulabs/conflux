@@ -1,0 +1,25 @@
+{
+  "verified_at_utc": "2026-10-17T04:22:42.437744+00:00",
+  "run": "observed-ui-hour",
+  "load_mode": "ui",
+  "small_report_and_lifecycle_checks_passed": true,
+  "workload_seconds": 3600.0003003510064,
+  "timing": {
+    "chunks": 1386,
+    "frames": 320229930,
+    "hop_service_percentiles_ms": {
+      "50": 2154.539872019086,
+      "95": 4204.681464994792,
+      "99": 4927.14932304807
+    },
+    "hop_service_max_ms": 6188.63217899343,
+    "hops_above_target": 107,
+    "observed_p99_within_target": false
+  },
+  "controls": 11,
+  "audio_faults": null,
+  "selected_loads": [
+    "ui"
+  ],
+  "scope": "Saved final report checks; full trace/event audits are separate."
+}
