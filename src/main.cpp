@@ -14,6 +14,7 @@
 #include <QQuickStyle>
 #include <QScreen>
 #include <QSaveFile>
+#include <QTimeLine>
 #include <QTimer>
 
 #include <algorithm>
@@ -50,6 +51,16 @@ int main(int argc, char** argv) {
     if (!durationOk || seconds < 1 || seconds > 7200 ||
         (parser.isSet("smoke-seconds") && !parser.isSet("smoke-test")))
         parser.showHelp(2);
+    const bool controlledRepaint = qEnvironmentVariableIsSet("CONFLUX_M0_REPAINT_MS");
+    int repaintIntervalMs = 0;
+    if (controlledRepaint) {
+        const auto interval = qgetenv("CONFLUX_M0_REPAINT_MS");
+        if (!parser.isSet("smoke-test") || (interval != "16" && interval != "33")) {
+            std::cerr << "CONFLUX_M0_REPAINT_MS requires --smoke-test and must be 16 or 33.\n";
+            return 2;
+        }
+        repaintIntervalMs = interval.toInt();
+    }
 
     for (const auto* path : {":/brand/assets/fonts/Barlow-Regular.ttf",
                              ":/brand/assets/fonts/JetBrainsMono-Regular.ttf"}) {
@@ -60,10 +71,17 @@ int main(int argc, char** argv) {
     }
 
     QQuickStyle::setStyle("Basic");
+    QTimeLine repaintTimeline(3200, &app);
+    repaintTimeline.setEasingCurve(QEasingCurve::Linear);
+    repaintTimeline.setLoopCount(0);
+    if (controlledRepaint)
+        repaintTimeline.setUpdateInterval(repaintIntervalMs);
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("platformName", QGuiApplication::platformName());
     engine.rootContext()->setContextProperty("qtVersion", QString::fromUtf8(qVersion()));
     engine.rootContext()->setContextProperty("initialDark", !parser.isSet("light"));
+    engine.rootContext()->setContextProperty("controlledRepaint", controlledRepaint);
+    engine.rootContext()->setContextProperty("repaintTimeline", &repaintTimeline);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
     engine.load(QUrl("qrc:/qml/Main.qml"));
@@ -72,6 +90,10 @@ int main(int argc, char** argv) {
     auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
     if (!window)
         return 1;
+    if (controlledRepaint) {
+        repaintTimeline.start();
+        repaintTimeline.setPaused(window->property("reducedMotion").toBool());
+    }
     const auto nowNs = []() -> std::uint64_t {
         timespec value{};
         clock_gettime(CLOCK_MONOTONIC, &value);
@@ -105,6 +127,10 @@ int main(int argc, char** argv) {
                     {"timestamp_monotonic_ns", static_cast<qint64>(nowNs())},
                     {"frames_swapped", frames},
                     {"last_frame_monotonic_ns", static_cast<qint64>(lastFrame)},
+                    {"indicator_x", window->property("indicatorPosition").toDouble()},
+                    {"reduced_motion", window->property("reducedMotion").toBool()},
+                    {"repaint_interval_ms", controlledRepaint ? QJsonValue(repaintIntervalMs) : QJsonValue()},
+                    {"animation_driver", controlledRepaint ? "qtimeline" : "number_animation"},
                     {"exposed", window->isExposed()},
                     {"scene_graph_initialized", window->isSceneGraphInitialized()}};
                 const auto bytes = QJsonDocument(snapshot).toJson(QJsonDocument::Compact);
@@ -143,6 +169,10 @@ int main(int argc, char** argv) {
                 {"desktop_id", QGuiApplication::desktopFileName()},
                 {"graphics_api", static_cast<int>(window->rendererInterface()->graphicsApi())},
                 {"frames_swapped", frames}, {"exposed", window->isExposed()},
+                {"indicator_x", window->property("indicatorPosition").toDouble()},
+                {"reduced_motion", window->property("reducedMotion").toBool()},
+                {"repaint_interval_ms", controlledRepaint ? QJsonValue(repaintIntervalMs) : QJsonValue()},
+                {"animation_driver", controlledRepaint ? "qtimeline" : "number_animation"},
                 {"width", window->width()}, {"height", window->height()},
                 {"device_pixel_ratio", window->devicePixelRatio()},
                 {"rendered", rendered}, {"capture_ok", captured},

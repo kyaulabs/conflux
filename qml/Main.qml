@@ -6,6 +6,8 @@ import "../brand/integration/qtquick" as Brand
 
 ApplicationWindow {
     id: window
+    readonly property real indicatorPosition: indicator.x
+    readonly property bool reducedMotion: Brand.ConfluxTheme.reducedMotion
     width: 640
     height: 400
     minimumWidth: 480
@@ -30,6 +32,21 @@ ApplicationWindow {
 
     Shortcut { sequence: "Ctrl+Q"; onActivated: Qt.quit() }
     Shortcut { sequence: "F6"; onActivated: themeSwitch.toggle() }
+
+    Connections {
+        target: repaintTimeline
+        enabled: controlledRepaint
+        function onValueChanged(value) {
+            indicator.x = 150 * (1 - Math.cos(2 * Math.PI * value))
+        }
+    }
+    Connections {
+        target: Brand.ConfluxTheme
+        enabled: controlledRepaint
+        function onReducedMotionChanged() {
+            repaintTimeline.setPaused(window.reducedMotion)
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -65,12 +82,13 @@ ApplicationWindow {
             Layout.preferredHeight: 4
             color: Brand.ConfluxTheme.divider
             Rectangle {
+                id: indicator
                 width: parent.width / 4
                 height: parent.height
                 color: Brand.ConfluxTheme.signal
                 SequentialAnimation on x {
                     loops: Animation.Infinite
-                    running: !Brand.ConfluxTheme.reducedMotion
+                    running: !controlledRepaint && !Brand.ConfluxTheme.reducedMotion
                     NumberAnimation { to: 300; duration: 1600; easing.type: Easing.InOutSine }
                     NumberAnimation { to: 0; duration: 1600; easing.type: Easing.InOutSine }
                 }
