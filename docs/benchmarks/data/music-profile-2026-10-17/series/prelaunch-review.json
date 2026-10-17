@@ -1,0 +1,14 @@
+{
+  "source_head": "8a61059f585947c91fef4a5606ad11fb81523daf",
+  "driver": {
+    "path": "benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+    "sha256": "d7fa3580c767696efcea61d00db782c6bb9e1e94e1892a289a2d704c511b061b"
+  },
+  "readiness_status": "matched",
+  "planned_requests": 48,
+  "post_ready_maximum_seconds": 300,
+  "outer_maximum_seconds": 360,
+  "profile_mutation": false,
+  "service_mutation": false,
+  "audio_UI_load": false
+}

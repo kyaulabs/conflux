@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "status": "error",
+  "started_at_utc": "2026-10-17T21:10:52.055588+00:00",
+  "pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+      "bytes": 18286,
+      "sha256": "d7fa3580c767696efcea61d00db782c6bb9e1e94e1892a289a2d704c511b061b"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "replay_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/native_replay.py",
+      "bytes": 14483,
+      "sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e"
+    },
+    "readiness_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/normal_ready.py",
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "music_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+      "bytes": 4127804,
+      "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf"
+    }
+  },
+  "backend": "vulkan",
+  "threads": 4,
+  "planned_requests": 48,
+  "planned_per_input": 24,
+  "order": [
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic",
+    "synthetic",
+    "music",
+    "music",
+    "synthetic"
+  ],
+  "post_ready_budget_seconds": 300,
+  "request_timeout_seconds": 30,
+  "numpy_version": "2.5.4",
+  "prepare_only": false,
+  "native_started": false,
+  "scope": "Fixed normalized-input diagnostic; one persistent backend, ABBA order. No worker controls/audio/UI load, host policy mutation or live p99 qualification.24 observations/input do not remove thermal/clock/order confounding.",
+  "budget_scope": "300s starts immediately after native readiness; includes requests, hashing and logging. Setup/readiness/startup/cleanup are outside this budget and separately recorded.",
+  "inputs": {
+    "synthetic": {
+      "normalized_sha256": "b274dcf38f97a78d161151ecba4fd11ea8db42ad1c4a52f7ee973d099e46a9c4",
+      "bytes": 2751840,
+      "shape": [
+        343980,
+        2
+      ],
+      "dtype": "<f4",
+      "immutable_in_memory": true,
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-profile-2026-10-17/replay-four-threads/own-fixture-do5dr2c0/synthetic.wav",
+        "bytes": 8304944,
+        "sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "frames": 2076225,
+        "temporary_source_removed_after_preparation": true
+      },
+      "window_start_frame": 1031940,
+      "normalization": {
+        "mean": 0.0006814675871282816,
+        "std": 0.1288195550441742,
+        "valid_frames": 343980,
+        "scope": "Whole-source mono sample statistics; normalize valid frames before padding."
+      }
+    },
+    "music": {
+      "normalized_sha256": "f806d0d3e0274b24cab7149558c6e0977cd26c18e14f953231a261280f393c6c",
+      "bytes": 2751840,
+      "shape": [
+        343980,
+        2
+      ],
+      "dtype": "<f4",
+      "immutable_in_memory": true,
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "frames": 1031940
+      },
+      "window_start_frame": 773955,
+      "normalization": {
+        "mean": 0.00022293615620583296,
+        "std": 0.2913064956665039,
+        "valid_frames": 257985,
+        "scope": "Whole-source mono sample statistics; normalize valid frames before padding."
+      }
+    }
+  },
+  "preparation_checks": [
+    "Synthetic fixture SHA matches prior replay",
+    "Explicit-frame function matches proven synthetic bytes/statistics",
+    "Music bytes match worker _read_window using copied whole-source statistics",
+    "Music valid257985 frames followed by85995 exact-zero padding frames",
+    "Two immutable finite little-endian normalized buffers",
+    "12 exact ABBA blocks,24 requests per input"
+  ],
+  "conditions_before_admission": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1187215",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 38050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 41000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 40000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 41050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 41050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 37000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 40050
+    }
+  },
+  "requests": [],
+  "completed_requests": 0,
+  "failures": [
+    {
+      "type": "ValueError",
+      "error": "Fresh <=55C/balanced/no-holds/same recovered guard admission failed"
+    }
+  ],
+  "reference_output_sha256": {},
+  "replay_started_monotonic": null,
+  "replay_stopped_monotonic": null,
+  "replay_seconds": null,
+  "finished_at_utc": "2026-10-17T21:10:54.355841+00:00",
+  "per_input": {
+    "synthetic": {
+      "requests": 0,
+      "round_trip_percentiles_ms": {},
+      "graph_percentiles_ms": {}
+    },
+    "music": {
+      "requests": 0,
+      "round_trip_percentiles_ms": {},
+      "graph_percentiles_ms": {}
+    }
+  },
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1299986",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 38050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 41000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 41000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 41050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 41050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 37000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 40050
+    }
+  }
+}

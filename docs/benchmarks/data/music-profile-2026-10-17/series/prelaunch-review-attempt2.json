@@ -1,0 +1,22 @@
+{
+  "source_head": "8a61059f585947c91fef4a5606ad11fb81523daf",
+  "driver": {
+    "path": "benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+    "sha256": "9c8a439a9b29137379aa8528e9bbff11f144a824c8b5fbcaf9f0eb6653ab0479"
+  },
+  "readiness_status": "matched",
+  "planned_requests": 48,
+  "post_ready_maximum_seconds": 300,
+  "outer_maximum_seconds": 960,
+  "profile_mutation": false,
+  "service_mutation": false,
+  "audio_UI_load": false,
+  "readiness_after_preparation": true,
+  "readiness_maximum_seconds": 600,
+  "prior_attempt": {
+    "status": "admission_refused",
+    "native_started": false,
+    "requests": 0,
+    "result": "benchmarks-local/music-profile-2026-10-17/replay-four-threads/result.json"
+  }
+}

@@ -47,16 +47,28 @@ archive. This adds no active-cancellation, production playback or latency
 acceptance claim. The conditional preparation choice and open M0 status
 remain unchanged.
 
+The [latency profile](../benchmarks/music-profile-2026-10-17.md) subsequently
+recorded a 2.161-second continuous-hop p99/maximum in a short rerun of the same
+four tracks, with zero misses across sixteen hops. All four output-file hashes
+matched the earlier Vulkan arrays. A fixed-window comparison reached
+2.346-second music and 2.082-second synthetic native p99/maximum. The earlier
+misses coincided with low sampled GPU clocks after a guard warning and policy
+transition; input order and machine history remain confounded. No runtime or
+model change was needed for the short rerun. This adds no sustained music under
+audio/UI load, active-cancellation or production-playback qualification, so the
+conditional choice and open M0 status remain.
+
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
-shorter measured requests than CPU. Its twelve continuous music hops had
+shorter measured requests than CPU. In the initial three-excerpt assessment,
+its twelve continuous music hops had
 4.274-second p99/maximum, exceeding the 4.095-second target. CPU p99/maximum
 was 20.622 seconds. With twelve samples, p95/p99 are observed maxima rather
 than sustained tail estimates. The earlier software-UI synthetic hour reached
 3.971-second p99, but that separate workload does not qualify the music runs
 or production playback. The live target remains unmet for these music
 measurements even without concurrent benchmark UI/audio load.
-Both sequential runs spent most sampled time in naturally selected low-power
+Those earlier sequential runs spent most sampled time in naturally selected low-power
 policy. No profile was changed by the runner; fixed order and policy/cache
 history prevent a causal backend or genre comparison.
 
