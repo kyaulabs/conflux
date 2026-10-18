@@ -82,6 +82,16 @@ so the conditional hour was withheld. Short-run buffered readiness does not
 qualify sustained headroom or production stem playback; the conditional
 preparation choice and open M0 status remain.
 
+The [two-thread validation](../benchmarks/two-thread-music-2026-10-17.md)
+changed only the native thread setting. Its 600-second continuous p99 was
+5.172 seconds, maximum 5.398 seconds, with 8/102 target misses. All 101
+ordinary virtual demands were ready on time; cancellation/seek, exact output
+identity and independent audio/UI coverage passed. Guard policy transitions
+still occurred, including a warning just before the first timed request.
+This lower sequential result proves neither a thermal fix nor sufficient
+headroom; the conditional hour was withheld. No producer source, binary or
+default changed. The preparation choice remains conditional and M0 stays open.
+
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
 shorter measured requests than CPU. In the initial three-excerpt assessment,

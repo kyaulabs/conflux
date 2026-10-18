@@ -1,0 +1,46 @@
+{
+  "source_head": "8ed19872d880bec4b881397c9145d4f76654a8c5",
+  "signature_status": "G",
+  "source_author": "kyau <kyau@kyau.net>",
+  "source_pins": {
+    "runtime": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+    "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "ui": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+    "audio_probe": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+    "soak_source": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d",
+    "shared_benchmark_source": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+    "worker_source": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824",
+    "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+  },
+  "native_thread_setting": 2,
+  "prior_native_thread_setting": 4,
+  "all_eight_producer_pins_match_prior": true,
+  "source_diff_from_prior_producer_empty": true,
+  "prior_producer_head": "2223d6ae5e27d0c9e4b357b4a5dc70d51daef086",
+  "verification": {
+    "existing_local_CMake_build_CTest": "Passed at prior unchanged producer: 4/4 CTest entries, 18 worker and 11 soak cases; no source edits or rebuild for this parameter-only run",
+    "current_source_CI": [
+      {
+        "conclusion": "success",
+        "databaseId": 39082279701,
+        "event": "pull_request",
+        "headSha": "8ed19872d880bec4b881397c9145d4f76654a8c5",
+        "status": "completed",
+        "url": "https://github.com/kyaulabs/conflux/actions/runs/39082279701"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 39082276909,
+        "event": "push",
+        "headSha": "8ed19872d880bec4b881397c9145d4f76654a8c5",
+        "status": "completed",
+        "url": "https://github.com/kyaulabs/conflux/actions/runs/39082276909"
+      }
+    ],
+    "new_launcher_AST": "passed",
+    "unarmed_launcher_refusal": "passed",
+    "static_launcher_and_audit_review": "passed"
+  },
+  "state": "ready_for600s_validation",
+  "scope": "Native thread setting also controls FFT preparation/reconstruction; it does not cap all driver threads. Natural machine history prevents a causal inference from sequential outcomes."
+}

@@ -1,0 +1,103 @@
+{
+  "command": [
+    "/bin/python3",
+    "-B",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-policy.json",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "--audio-probe",
+    "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+    "--load",
+    "both",
+    "--delivery-mode",
+    "playback-paced",
+    "--renderer",
+    "software",
+    "--seconds",
+    "600",
+    "--control-interval",
+    "300",
+    "--threads",
+    "2",
+    "--quantum",
+    "256",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav"
+  ],
+  "started_at_utc": "2026-10-18T02:28:19.270903+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_only": false,
+  "window_guard": {
+    "requested": true,
+    "status": "restored"
+  },
+  "idle_inhibit_cookie": 9834,
+  "bus_owner": ":1.55078",
+  "ui": {
+    "pid": 1978396,
+    "start_ticks": 45187619,
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "--smoke-test",
+      "--smoke-seconds",
+      "720",
+      "--smoke-stop-file",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/stop",
+      "--smoke-progress-file",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/ui-progress.json"
+    ]
+  },
+  "script_id": 0,
+  "script_plugin": "conflux-benchmark-0fb060d7cf214015b161936bb873eef2",
+  "script_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-guard.js",
+  "window_policy": {
+    "before": {
+      "pid": 1978396,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": false,
+      "onAllDesktops": false,
+      "minimized": false,
+      "desktopIds": [
+        "23f1364e-9d87-4218-860c-6fa08ac8b242"
+      ]
+    },
+    "after": {
+      "pid": 1978396,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": true,
+      "onAllDesktops": true,
+      "minimized": false,
+      "desktopIds": []
+    }
+  },
+  "applied_monotonic": 400339.966216628,
+  "restored": {
+    "reason": "owned-window-closed",
+    "after": null
+  },
+  "restored_monotonic": 400940.812837525,
+  "script_unloaded": true,
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-18T02:38:23.558692+00:00"
+}

@@ -1,0 +1,120 @@
+{
+  "status": "ok",
+  "updated_at_utc": "2026-10-18T02:38:22.012729+00:00",
+  "elapsed_workload_seconds": 600.0001794709824,
+  "requested_seconds": 600.0,
+  "load_mode": "both",
+  "selected_loads": [
+    "ui",
+    "audio"
+  ],
+  "timing": {
+    "chunks": 103,
+    "frames": 26572122,
+    "hop_service_percentiles_ms": {
+      "50": 1897.4825849873014,
+      "95": 4530.508062976878,
+      "99": 5172.213348967489
+    },
+    "hop_service_max_ms": 5397.535792028066,
+    "hops_above_target": 8,
+    "observed_p99_within_target": false
+  },
+  "completed_controls": 1,
+  "full_source_loops": 24,
+  "failures": [],
+  "delivery_mode": "playback-paced",
+  "playback": {
+    "ordinary_demands": 101,
+    "ready_deadline_misses": 0,
+    "epochs": 2,
+    "source_admissions": 26
+  },
+  "worker_statistics": {
+    "generation": 28,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 2,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 4,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "ui_progress": {
+    "requested": true,
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/ui-progress.json",
+    "checks": 591,
+    "check_interval_seconds": 1.0,
+    "startup_grace_seconds": 5.0,
+    "maximum_allowed_gap_seconds": 30.0,
+    "maximum_progress_age_seconds": 0.9993816229980439,
+    "maximum_frame_age_seconds": 1.0281299910275266,
+    "maximum_check_gap_seconds": 1.2046874950174242,
+    "unexposed_observations": 0,
+    "maximum_observed_unexposed_span_seconds": 0.0,
+    "last_unexposed_span": null,
+    "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+    "read_errors": {
+      "FileNotFoundError": 1
+    },
+    "last_progress": {
+      "animation_driver": "qtimeline",
+      "exposed": true,
+      "frames_swapped": 18802,
+      "indicator_x": 69.37746074568915,
+      "last_frame_monotonic_ns": 400939978834461,
+      "pid": 1978396,
+      "reduced_motion": false,
+      "repaint_interval_ms": 33,
+      "scene_graph_initialized": true,
+      "timestamp_monotonic_ns": 400940000749797
+    },
+    "gate_failure": null
+  },
+  "conditions": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1268929",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 45050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 49000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 48000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 49050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 53050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 42000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 49050
+    }
+  }
+}
