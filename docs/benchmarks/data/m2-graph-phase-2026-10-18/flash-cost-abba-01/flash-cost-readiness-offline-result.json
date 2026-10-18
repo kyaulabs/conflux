@@ -1,0 +1,16 @@
+{
+  "status": "passed_offline_readiness_and_unarmed_checks",
+  "checks": [
+    "synthetic_current_same_label_record_accepted_by_actual_validator",
+    "stale_rejected",
+    "future_rejected",
+    "wrong_label_rejected",
+    "unconfirmed_Codex_minimized_rejected",
+    "unarmed_configuration_rejected_before_host_or_native"
+  ],
+  "synthetic_files_removed": true,
+  "real_human_readiness_created": false,
+  "native_executed": false,
+  "physical_conditions_queried": false,
+  "scope": "Actual rendered nested human validator with temporary synthetic fixtures only, plus unarmed launcher rejection. No physical readiness is inferred or recorded."
+}

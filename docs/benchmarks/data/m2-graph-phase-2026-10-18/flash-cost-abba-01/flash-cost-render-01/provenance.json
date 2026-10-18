@@ -1,0 +1,12 @@
+{
+  "adapter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_runtime.py",
+  "adapter_sha256": "ca0ad3468d20c2ae28d06476b995f50d49823c64ed6c57106aea059bf65baf71",
+  "frozen_runtime_sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3",
+  "frozen_launcher_sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf",
+  "rendered_runtime_sha256": "b389c49c834b1a70d2d28b6c847bdaab0623bdbfedcf470e1b8c10c8a615e927",
+  "rendered_request_loop_sha256": "f1b01f1f55fd41aaef2f562372605ff2dde3bdd1930a268eca79f96b8150142e",
+  "scope": "Executed in-memory narrow adaptations of frozen sources; not the original byte-identical scripts.",
+  "launcher_adapter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_launch.py",
+  "launcher_adapter_sha256": "b00ed06fe1fb28965c2d6272f35040899b407e4a693eef71256392671ccefd98",
+  "rendered_launcher_sha256": "a92e8f39d4780fdfd1784271b22b1bca7a1b3fd47a8f335ecfe68a370f7d0063"
+}

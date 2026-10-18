@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "source_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
-  "status": "loaded_diagnostic_completed_service_p99_target_unmet",
+  "status": "flash_ordinary_cost_screen_completed_loaded_validation_pending",
   "latency_target_ms": 4095,
   "latency_target_operator": "continuous request-service p99 < target",
   "live_release_gate": "unmet; unchanged mandatory M2 blocker",
@@ -1214,9 +1214,289 @@
     "flash-f32-01/human-listening.json": {
       "bytes": 1921,
       "sha256": "679e3dfec2c66aae4fc52fc232015a8e65bb97f44160b41e02cb6c059286eeed"
+    },
+    "flash-cost-abba-01/flash-cost-expected-pins.json": {
+      "bytes": 1722,
+      "sha256": "4eda9d4a6f1023fb11ef8ef2005ff78e90ab952145c7b03c8f4a812c3e5776e2"
+    },
+    "flash-cost-abba-01/flash-cost-expected-pins.template.json": {
+      "bytes": 1491,
+      "sha256": "3c3ac97e5e3096c978030a5fcb005939171bf5bd71cfdab452f6239a32d46015"
+    },
+    "flash-cost-abba-01/flash-cost-source-pins.json": {
+      "bytes": 9973,
+      "sha256": "d816e77b49ff5888d7c263bd399345424a2d95704ba8688f628e348acd51c534"
+    },
+    "flash-cost-abba-01/flash-cost-human-readiness.json": {
+      "bytes": 530,
+      "sha256": "994ebbef10011c73b28f831d473bc90ce934a655c8f058906cf05079ea935297"
+    },
+    "flash-cost-abba-01/flash-cost-human-readiness.template.json": {
+      "bytes": 478,
+      "sha256": "f576a61e201dd2b31761d8f225ad93d75c1316b8a60d5a3a8b472eb4b1ac1a6d"
+    },
+    "flash-cost-abba-01/flash-cost-preparation-verification.json": {
+      "bytes": 2515,
+      "sha256": "da9304a18665f7937cee41926554b72eb2012eccf54933009c568195df417847"
+    },
+    "flash-cost-abba-01/flash-cost-offline-check-result.json": {
+      "bytes": 1794,
+      "sha256": "28927a4ee6559495b9275c698594286fbcd75a00efc9ec618389aad76397147f"
+    },
+    "flash-cost-abba-01/flash-cost-readiness-offline-result.json": {
+      "bytes": 646,
+      "sha256": "a05165df277ba3a1b3c8230ed5862181e3cce41a6ffdb36dc0ac5fcd295e11e3"
+    },
+    "flash-cost-abba-01/flash-cost-abba-laptop-01-independent-audit.json": {
+      "bytes": 14117,
+      "sha256": "460611d643e0f5abdf0518cbf077a7f4d4e413d1de799c99d9ab87f506d1274f"
+    },
+    "flash-cost-abba-01/flash-cost-abba-laptop-01-independent-timing-analysis.json": {
+      "bytes": 74393,
+      "sha256": "a41016ef3f0f3224cb0dedf935f91637a51a59f5c9af957cf7949dddbd6b019d"
+    },
+    "flash-cost-abba-01/flash-cost-abba-laptop-01-gitleaks.log": {
+      "bytes": 145,
+      "sha256": "733015447bfaa7249aa5b9c471058e5efe935821a1faffafb5a1dd9fca002d98"
+    },
+    "flash-cost-abba-01/flash_cost_runtime.py": {
+      "bytes": 13623,
+      "sha256": "ca0ad3468d20c2ae28d06476b995f50d49823c64ed6c57106aea059bf65baf71"
+    },
+    "flash-cost-abba-01/flash_cost_launch.py": {
+      "bytes": 7150,
+      "sha256": "b00ed06fe1fb28965c2d6272f35040899b407e4a693eef71256392671ccefd98"
+    },
+    "flash-cost-abba-01/flash_cost_offline_check.py": {
+      "bytes": 10535,
+      "sha256": "48cec456838b204769b7857f1a071a9ea495f40709963a583c8c101d41bfd9dc"
+    },
+    "flash-cost-abba-01/analyze_flash_cost_abba.py": {
+      "bytes": 13246,
+      "sha256": "0302b963b169c99b225449dcb105db4e1708b3ce0ec1f185ccb7c58352dc640c"
+    },
+    "flash-cost-abba-01/archive_flash_cost_abba.py": {
+      "bytes": 11957,
+      "sha256": "8da7218775ec85e790a57b871a71592cbdb55f4566c2e722c77c2c1d5b04981c"
+    },
+    "flash-cost-abba-01/counterbalanced_runtime.py": {
+      "bytes": 18784,
+      "sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3"
+    },
+    "flash-cost-abba-01/counterbalanced_launch.py": {
+      "bytes": 20005,
+      "sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf"
+    },
+    "flash-cost-abba-01/compare_runtime.py": {
+      "bytes": 25672,
+      "sha256": "5022aeed8eaf932adead05404f80b94c7d992f4b6f68dc81d05edb6126077e5b"
+    },
+    "flash-cost-abba-01/graph_order_compare.py": {
+      "bytes": 8019,
+      "sha256": "28d2712ba427d0f480ad63f8ff3128f0d3999010e7ecf225185c41734861a3e7"
+    },
+    "flash-cost-abba-01/graph_order_compare_launch.py": {
+      "bytes": 21324,
+      "sha256": "f3a7073e0774f62597d24e5b9e6e49a594f13c0e6429a339947b467cd5a6a6b4"
+    },
+    "flash-cost-abba-01/observed_launch.py": {
+      "bytes": 24548,
+      "sha256": "511bb712d2f7af01abb1ab25ca92b001c6f82af4ee6f42547a5b43fa32b237d6"
+    },
+    "flash-cost-abba-01/flash-cost-render-01/runtime.py": {
+      "bytes": 19263,
+      "sha256": "b389c49c834b1a70d2d28b6c847bdaab0623bdbfedcf470e1b8c10c8a615e927"
+    },
+    "flash-cost-abba-01/flash-cost-render-01/request-loop.py": {
+      "bytes": 5600,
+      "sha256": "f1b01f1f55fd41aaef2f562372605ff2dde3bdd1930a268eca79f96b8150142e"
+    },
+    "flash-cost-abba-01/flash-cost-render-01/launcher.py": {
+      "bytes": 20754,
+      "sha256": "a92e8f39d4780fdfd1784271b22b1bca7a1b3fd47a8f335ecfe68a370f7d0063"
+    },
+    "flash-cost-abba-01/flash-cost-render-01/provenance.json": {
+      "bytes": 1032,
+      "sha256": "da638799ee1411afb992917cfa1532903bf24ad70c91c53c352b1c18e20b892b"
+    },
+    "flash-cost-abba-01/run/session.json": {
+      "bytes": 38849,
+      "sha256": "78023a5a89ed6b28b15b4ccadf7309686cee8568c5a838bcc22a4182577acff6"
+    },
+    "flash-cost-abba-01/run/AC-lid-monitor.jsonl.gz": {
+      "bytes": 1198,
+      "sha256": "6371b6cd425b2e97e49fd29544bcc9be96a38750b1d6207f523b447287f663a9"
+    },
+    "flash-cost-abba-01/run/A1.stdout": {
+      "bytes": 168,
+      "sha256": "baeeb21e5f31fbae0db43aac34df49576f00d229eb47a3ae3a106dfd9603ea1b"
+    },
+    "flash-cost-abba-01/run/A1.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/A1/result.json": {
+      "bytes": 94201,
+      "sha256": "2c6225b0db82cc5c140fec3a7f037d2a492965725112b96d380e6afa5815f5b0"
+    },
+    "flash-cost-abba-01/run/A1/diagnostic.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "flash-cost-abba-01/run/A1/native-trace.jsonl.gz": {
+      "bytes": 4965,
+      "sha256": "dddc4618e76416e55285114295895fd6cb6bfcc13b500883090d3272a315b472"
+    },
+    "flash-cost-abba-01/run/A1-admission/stdout": {
+      "bytes": 226,
+      "sha256": "d0afd377d00bb08ea7fe94fdb72083037298acc06c0a46aa0e84d8dbb83d8fc1"
+    },
+    "flash-cost-abba-01/run/A1-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/A1-admission/admission-normal-ready.json": {
+      "bytes": 20186,
+      "sha256": "6ffc6a4ae47936ff031d8f65cc2b7356b9850f581b5dada7adb7d9e2721e2b45"
+    },
+    "flash-cost-abba-01/run/A1-admission/admission-normal-ready.jsonl.gz": {
+      "bytes": 1573,
+      "sha256": "ea4b9bdb8454206cf0b4662facd90c66ca0c7504d844520a820a8d296cd448bb"
+    },
+    "flash-cost-abba-01/run/A1-admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "675fc762b11d4a1f705bec35006fc84addc36d98d60c058facea36ab84d1a1a2"
+    },
+    "flash-cost-abba-01/run/B1.stdout": {
+      "bytes": 168,
+      "sha256": "1c2aecb7369f12bfcfc54e8dbcd0a4a41189cad0e5ba8a16f7ab6622305892d7"
+    },
+    "flash-cost-abba-01/run/B1.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/B1/result.json": {
+      "bytes": 95080,
+      "sha256": "946d64a1cb5b8ea54d7218fa6b1e28de92f08065125fa8fd760e2ec105222b5b"
+    },
+    "flash-cost-abba-01/run/B1/diagnostic.stderr": {
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    "flash-cost-abba-01/run/B1/native-trace.jsonl.gz": {
+      "bytes": 4836,
+      "sha256": "1c97c954a016d51faa722cf2cbf826ac6d77341568040a54e964e3aa9a3ae684"
+    },
+    "flash-cost-abba-01/run/B1-admission/stdout": {
+      "bytes": 226,
+      "sha256": "d943b8e8646e476ebdaff312939210cce86c0960447fba21c9d5d88245edac5b"
+    },
+    "flash-cost-abba-01/run/B1-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/B1-admission/admission-normal-ready.json": {
+      "bytes": 25846,
+      "sha256": "ffa5cd231c7c599c5bb0e130d4e6d646ed8475778b73bc4e521a11e111e960eb"
+    },
+    "flash-cost-abba-01/run/B1-admission/admission-normal-ready.jsonl.gz": {
+      "bytes": 1902,
+      "sha256": "128a9b2ae6a5ab9b335cc623d70e5a40c341d0079edd7c89d0f6f47434a55ab7"
+    },
+    "flash-cost-abba-01/run/B1-admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "39a6260c3c72b07807fe7dc0a56ec6b014ba9069088526a65aa158af5ffe516e"
+    },
+    "flash-cost-abba-01/run/B2.stdout": {
+      "bytes": 168,
+      "sha256": "9945139b6c10e41da2f9e47670bb5e28544154be2a190cd2df80162cab10e38b"
+    },
+    "flash-cost-abba-01/run/B2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/B2/result.json": {
+      "bytes": 95090,
+      "sha256": "67adf098b65dd036c1dd5e05018c0db08effceab3922ef5a95eefd57f0933069"
+    },
+    "flash-cost-abba-01/run/B2/diagnostic.stderr": {
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    "flash-cost-abba-01/run/B2/native-trace.jsonl.gz": {
+      "bytes": 4556,
+      "sha256": "d7356d71d053fb0ed467fe19dae6df457d8d75c8a8bab56249584c37a9419b36"
+    },
+    "flash-cost-abba-01/run/B2-admission/stdout": {
+      "bytes": 226,
+      "sha256": "42758c83059846a6bb8f3bc6ea7bb6046c04098177f5aa14a6b6eb290ac65821"
+    },
+    "flash-cost-abba-01/run/B2-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/B2-admission/admission-normal-ready.json": {
+      "bytes": 9935,
+      "sha256": "746daa8e94ce8f737998eee40b5cdfc43179fb01b68fe4f98a726b23fe973ce8"
+    },
+    "flash-cost-abba-01/run/B2-admission/admission-normal-ready.jsonl.gz": {
+      "bytes": 1030,
+      "sha256": "76234d18450e7b57d665eaf54c93304c2912900d7da6024ef51bd349067557e4"
+    },
+    "flash-cost-abba-01/run/B2-admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "c9f820deaa0c4dd9d1c0c31e2e2e3213cca73357b7a164bc337392f4f792dc2f"
+    },
+    "flash-cost-abba-01/run/A2.stdout": {
+      "bytes": 168,
+      "sha256": "e201ecf4edb8067fd799e12fed0fc9db04c2329cf164960706efb110da9a1b9a"
+    },
+    "flash-cost-abba-01/run/A2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/A2/result.json": {
+      "bytes": 94202,
+      "sha256": "5e2f72ab5cdd0ae42c43b6e448d6b0f7476dca0b570724e08a42fe598d3261fc"
+    },
+    "flash-cost-abba-01/run/A2/diagnostic.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "flash-cost-abba-01/run/A2/native-trace.jsonl.gz": {
+      "bytes": 5284,
+      "sha256": "2cb381a04a53e80e3b59a670b9cf6dff3aa585700dcf40db93119f260cb6317c"
+    },
+    "flash-cost-abba-01/run/A2-admission/stdout": {
+      "bytes": 226,
+      "sha256": "0a77daf79faecc5b1b3e2663710de474760beeb86290ea17a79aa951c4f0b926"
+    },
+    "flash-cost-abba-01/run/A2-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-cost-abba-01/run/A2-admission/admission-normal-ready.json": {
+      "bytes": 28108,
+      "sha256": "74d08ef035bb4d2cb878be8bd4763ee51cf63acaea3ed76bea2430bcce51baf4"
+    },
+    "flash-cost-abba-01/run/A2-admission/admission-normal-ready.jsonl.gz": {
+      "bytes": 2009,
+      "sha256": "ac4cc6ae8ea7b736a71ac497fb1cfafc4eeef6018aad83e763f8865716ae5784"
+    },
+    "flash-cost-abba-01/run/A2-admission/fresh-admission.json": {
+      "bytes": 1801,
+      "sha256": "b20cb6b50762bee4a75cd61e8e1dcbf72287343617f9d3effdde59b0d2a65fad"
+    },
+    "flash-cost-abba-01/manifest.json": {
+      "bytes": 37276,
+      "sha256": "4619aa76ea61290136b0ee373166b37934e3a771df1aad8e4386fa99a4a2b230"
+    },
+    "flash-cost-abba-01/verification.json": {
+      "bytes": 22455,
+      "sha256": "c88e99115023c641347b7e1dea529ce8201dc438aa77232f81b0942417e694d1"
     }
   },
-  "pending": "Prepare an ordinary-cost ABBA Flash screen using each arm own closed PCM proof and obtain fresh minimized/AC/lid readiness. The strict 4095 ms service p99, sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. Human acceptance applies to the tested excerpts and adds no performance or release pass.",
+  "pending": "Run the 600-second loaded Flash diagnostic after fresh minimized/AC/open-lid/visible-Harness readiness. The ordinary-cost ABBA screen is complete, but A2 low-power observations confound the pooled timing difference. The strict 4095 ms service p99, sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. Latest completed loaded service p99 remains 5674.156680 ms.",
   "previous_retained_completed_live_validation_p99_ms": 5172.2,
   "latest_retained_completed_live_validation_p99_ms": 5674.156680004671,
   "initial_loaded_preflight": {
@@ -1673,7 +1953,7 @@
     "next_action": "Deprioritize graph ordering: exact PCM and essentially unchanged ordinary-profile cost without a positive efficiency signal. Low-clock loaded behavior remains unknown; skip its 600-second test for now. Investigate Flash attention support and effective precision/numerical output before a new candidate benchmark. Keep the exact-PCM graph-order binary and pins available; product defaults and the 4095ms target stay unchanged."
   },
   "flash_attention_candidate": {
-    "status": "tested_excerpts_human_accepted_ordinary_cost_screen_pending",
+    "status": "tested_excerpts_human_accepted_ordinary_cost_screen_complete_loaded_pending",
     "repository_head": "aee5c42cd254fd23c8e2bff29b9d67e8d5c12ee0",
     "runtime_sha256": "6f311e461e7af5f12ff38f90ddb8720179c2c3dce23d593437d2b34524dffd9d",
     "model_weight_storage": "existing F16 weights, unchanged",
@@ -1733,6 +2013,209 @@
       "verdict": "accepted_for_tested_excerpts",
       "user_answer": "Flash sounds as acceptable as baseline",
       "record": "flash-f32-01/human-listening.json"
+    },
+    "ordinary_cost_screen": {
+      "status": "ordinary_cost_screen_complete_loaded_diagnostic_pending",
+      "repository_head": "c6a6d8cd7e98fb60666ddb7b7b0d91da89a0e548",
+      "order": [
+        "A1",
+        "B1",
+        "B2",
+        "A2"
+      ],
+      "completed_requests": 16,
+      "source_start_frame": 257985,
+      "requests_per_leg": 4,
+      "elapsed_seconds": 731.7157994759618,
+      "all_observations_included": true,
+      "own_arm_PCM_repeat_exact": true,
+      "cross_arm_exact_pcm": false,
+      "request_wall_ms": {
+        "A": {
+          "count": 8,
+          "mean": 1738.111641992873,
+          "median": 1752.0703414920717,
+          "minimum": 1624.529741005972,
+          "maximum": 1857.9025369836017
+        },
+        "B": {
+          "count": 8,
+          "mean": 1572.4119786173105,
+          "median": 1535.0614744820632,
+          "minimum": 1517.709042003844,
+          "maximum": 1776.005043007899
+        },
+        "mean_effect": {
+          "A": 1738.111641992873,
+          "B": 1572.4119786173105,
+          "B_minus_A": -165.69966337556252,
+          "B_relative_change_percent": -9.533315316015933
+        },
+        "median_effect": {
+          "A": 1752.0703414920717,
+          "B": 1535.0614744820632,
+          "B_minus_A": -217.00886701000854,
+          "B_relative_change_percent": -12.385853573961114
+        }
+      },
+      "graph_compute_ms": {
+        "A": {
+          "count": 8,
+          "mean": 1619.877328625,
+          "median": 1622.554924,
+          "minimum": 1576.696368,
+          "maximum": 1668.033589
+        },
+        "B": {
+          "count": 8,
+          "mean": 1493.4525725,
+          "median": 1471.325518,
+          "minimum": 1466.805272,
+          "maximum": 1640.182052
+        },
+        "mean_effect": {
+          "A": 1619.877328625,
+          "B": 1493.4525725,
+          "B_minus_A": -126.42475612499993,
+          "B_relative_change_percent": -7.804588279058944
+        },
+        "median_effect": {
+          "A": 1622.554924,
+          "B": 1471.325518,
+          "B_minus_A": -151.22940599999993,
+          "B_relative_change_percent": -9.32044911165053
+        }
+      },
+      "paired_cases": {
+        "club_xl:257985": {
+          "input_sha256": "18182094f2b40017ba2b8445f8cbe4192ce2c45c04619edcaa3da3e4b82f3861",
+          "output_sha256_by_arm": {
+            "A": "00f76b03837fb48bc662b0680ec352be17ec8103709244cadd8d90377aac3e82",
+            "B": "e3dd10681d94efd2ebfbd3f98c34d74cbb25595559047c39156ba2388b73a856"
+          },
+          "cross_arm_exact_pcm": false,
+          "mean_effects": {
+            "request_wall_ms": {
+              "A": 1790.3227164933924,
+              "B": 1691.795105492929,
+              "B_minus_A": -98.52761100046337,
+              "B_relative_change_percent": -5.503343620274448
+            },
+            "graph_compute_ms": {
+              "A": 1635.6697519999998,
+              "B": 1563.4230120000002,
+              "B_minus_A": -72.24673999999959,
+              "B_relative_change_percent": -4.416951521641854
+            }
+          }
+        },
+        "when_the_light_breaks:257985": {
+          "input_sha256": "01abba6f0ea2e8f1974b4ff8d66e194e9700d94fe81b83a937823535510305b7",
+          "output_sha256_by_arm": {
+            "A": "454954db6583b5ba221eeca3b77835ed71afb3719a97bd566974a5543cd7628d",
+            "B": "ab48ee56c158422ab26a0deed6aab08190fb31b1887e35001e47a0e8525751d6"
+          },
+          "cross_arm_exact_pcm": false,
+          "mean_effects": {
+            "request_wall_ms": {
+              "A": 1742.049650492845,
+              "B": 1545.1562344969716,
+              "B_minus_A": -196.8934159958735,
+              "B_relative_change_percent": -11.30239978752443
+            },
+            "graph_compute_ms": {
+              "A": 1615.551509,
+              "B": 1473.364477,
+              "B_minus_A": -142.18703199999982,
+              "B_relative_change_percent": -8.80114507076356
+            }
+          }
+        },
+        "under_my_skin:257985": {
+          "input_sha256": "47011fdd067d70ab40c58e239701cfb3489eead10aa278f116b75f7be31be163",
+          "output_sha256_by_arm": {
+            "A": "49fd67e3d78c958b9322e595c3bc6f11c1648c4b5f50c41d964e60fef151ce13",
+            "B": "f13528f8610023c62f929cd4cef84275280f712b076bdd5673d5735b19941e06"
+          },
+          "cross_arm_exact_pcm": false,
+          "mean_effects": {
+            "request_wall_ms": {
+              "A": 1709.7970214963425,
+              "B": 1528.5253509646282,
+              "B_minus_A": -181.27167053171434,
+              "B_relative_change_percent": -10.601940946947785
+            },
+            "graph_compute_ms": {
+              "A": 1609.9901645,
+              "B": 1468.427299,
+              "B_minus_A": -141.56286550000004,
+              "B_relative_change_percent": -8.792778280354518
+            }
+          }
+        },
+        "stfu:257985": {
+          "input_sha256": "2c5497d3cceb3690aa98478b14230013b719242679df96383b067ca596419e40",
+          "output_sha256_by_arm": {
+            "A": "dc59befad05afb921d8b35e7dd2e97cbebfef7d4a0229afae36715a488e808fb",
+            "B": "79c7e9ffe57cad03c1e64d3167e143ab1a203d4de5125fc14fc69565fc9bf953"
+          },
+          "cross_arm_exact_pcm": false,
+          "mean_effects": {
+            "request_wall_ms": {
+              "A": 1710.2771794889122,
+              "B": 1524.1712235147133,
+              "B_minus_A": -186.10595597419888,
+              "B_relative_change_percent": -10.88162540003098
+            },
+            "graph_compute_ms": {
+              "A": 1618.297889,
+              "B": 1468.5955020000001,
+              "B_minus_A": -149.70238699999982,
+              "B_relative_change_percent": -9.250607568456138
+            }
+          }
+        }
+      },
+      "startup_by_arm_ms": {
+        "A": {
+          "count": 2,
+          "mean": 345.84772199741565,
+          "median": 345.84772199741565,
+          "minimum": 298.1469280202873,
+          "maximum": 393.548515974544
+        },
+        "B": {
+          "count": 2,
+          "mean": 330.76355399680324,
+          "median": 330.76355399680324,
+          "minimum": 323.1868069851771,
+          "maximum": 338.3403010084294
+        }
+      },
+      "native_profile_point_counts": {
+        "balanced": 41,
+        "low-power": 16
+      },
+      "confound": "All A2 native profile points are low-power; A1/B1/B2 points are balanced. Pooled timing is descriptive and does not isolate Flash causally.",
+      "native_telemetry_samples": 57,
+      "supervisor_samples": 4,
+      "startup_native_samples": 0,
+      "telemetry_scope": "GPU/profile/temperature values are sparse read-only point observations. Capture intervals can cross request boundaries; contained/overlapping/timestamp counts are separate. Capture elapsed is observer wall time, not CPU cost or a measured overhead effect. Native startup may be entirely unsampled. Package readings are not the guard's complete sensor set.",
+      "independent_audit_checks": 51,
+      "sources_unchanged": true,
+      "cleanup_complete": true,
+      "latest_completed_loaded_service_p99_ms": 5674.156680004671,
+      "strict_service_target_ms": 4095,
+      "loaded_p99_pass": false,
+      "audio_load": false,
+      "UI_load": false,
+      "cancellation_tested": false,
+      "scope": "Sixteen direct native requests, four short legs, same-start windows. All first requests/startups retained. No p99, loaded worker service, audio, cancellation, sustained thermal, musical-equivalence or causal qualification.",
+      "next_action": "Run the 600-second loaded Flash diagnostic after fresh minimized/AC/open-lid/visible-Harness readiness. The ordinary-cost ABBA screen is complete, but A2 low-power observations confound the pooled timing difference. The strict 4095 ms service p99, sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. Latest completed loaded service p99 remains 5674.156680 ms.",
+      "session": "flash-cost-abba-01/run/session.json",
+      "analysis": "flash-cost-abba-01/flash-cost-abba-laptop-01-independent-timing-analysis.json",
+      "independent_audit": "flash-cost-abba-01/flash-cost-abba-laptop-01-independent-audit.json",
+      "verification": "flash-cost-abba-01/verification.json"
     }
   }
 }
