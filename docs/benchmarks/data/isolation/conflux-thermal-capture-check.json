@@ -1,0 +1,18 @@
+{
+  "AST_passed": true,
+  "checks": [
+    {
+      "case": "filtered_success",
+      "passed": true,
+      "mocked_commands": 5
+    },
+    {
+      "case": "journal_timeout",
+      "passed": true,
+      "mocked_commands": 5
+    }
+  ],
+  "source_sha256": "e95236df3e777fac30d35bd8696790cf4306d74f3bd415e8a52c1ce47a20a441",
+  "real_host_commands": 0,
+  "temporary_outputs_removed": true
+}

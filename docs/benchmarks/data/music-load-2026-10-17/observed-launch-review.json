@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "status": "static_review_passed_no_blocker_found",
+  "reviewed_at_utc": "2026-10-17T21:49:07.939403+00:00",
+  "launcher": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/observed_launch.py",
+    "bytes": 19525,
+    "sha256": "a0360e723e7d28f3c3ef40de8e871baa7d4ab9c29d6ce05a9b2cbb8a998bd2be"
+  },
+  "pending_config_at_review": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/expected-pins.json",
+    "bytes": 875,
+    "sha256": "2e18113c89892245eb69fd6cafc9d1fb8d758057dd8757b4f574cecfb9033dff"
+  },
+  "scope": "Targeted read-only review; no execution/inference/host query or tracked edit.",
+  "checks": [
+    "Unarmed status/missing HEAD/hash rejected before output creation, readiness or child launch. Frozen runtime/model/UI/audio/shared-worker-sampler pins cannot be changed through config; soak source hash is supplied only with armed signed source HEAD.",
+    "All source hashes/signatures, four WAV geometry/identities, helper imports and command/environment setup precede bounded normal readiness and reviewed fresh70C sameguard/noerrors/balanced/noholds/recovered/AC/openlid admission.",
+    "Repeated four --source-wav flags reach unchanged observed-run REMAINDER forwarding and new stem_soak append parser. Fixed software renderer,33ms UI interval,fourthreads,256quantum,.5s sampling and90/20 or3600/300 controls retained. Load clears renderer selectors globally then sets software only for UI; audio/native do not receive the UI-only software selector.",
+    "45s AC/lid monitor records read errors/ready and aborts on nonready. Progress/UI-pulse read failures also fail closed. Total monotonic bound is seconds+750 with30s cleanup reserve; readiness child also limited620s.",
+    "Guard child and nested observer/soak use owned sessions. SIGINT forwarded, descendant PID/starttick/group identities tracked, residual still-matching owned groups killed with unsafe current group refused. Cleanup verifies child reaping/no known remaining identities and guard restoration/script unload/idle inhibit release."
+  ],
+  "limits": [
+    "Static review does not prove runtime behavior or actual policy/load coverage. Root owns pin arming, guarded execution and completed-evidence audit.",
+    "AC/lid observations are sampled45s apart, not continuous proof. Descendant identity snapshots are periodic, while normal signal unwinding also relies on pinned guard/observer handlers.",
+    "Final70C admission and prior55C/60s sampled readiness are distinct; no source/audio acceptance or latency target change is implied."
+  ]
+}

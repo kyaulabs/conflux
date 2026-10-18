@@ -1,0 +1,17 @@
+family=htdemucs
+task=sep
+mode=offline
+audio_out[drums]=/tmp/conflux-stem-m0/vulkan/run-1/stems/drums.wav
+audio_out[bass]=/tmp/conflux-stem-m0/vulkan/run-1/stems/bass.wav
+audio_out[other]=/tmp/conflux-stem-m0/vulkan/run-1/stems/other.wav
+audio_out[vocals]=/tmp/conflux-stem-m0/vulkan/run-1/stems/vocals.wav
+metrics.wall_ms=3530.66
+metrics.memory.peak_rss_mb=389
+metrics.memory.peak_footprint_mb=2938
+metrics.memory.peak_footprint_source=linux_vsize
+metrics.audio_duration_ms=5850
+metrics.rtf=0.603532
+metrics.x_realtime=1.65691
+metrics.audio_duration_source=input
+metrics.sample_rate=44100
+metrics.channels=2

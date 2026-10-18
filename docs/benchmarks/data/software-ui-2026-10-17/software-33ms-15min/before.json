@@ -1,0 +1,119 @@
+{
+  "observed_at_utc": "2026-10-17T17:54:10.487954+00:00",
+  "scope": "Host snapshot; collected outside the restricted namespace",
+  "label": "before-software-33ms-15min",
+  "pins": {
+    "src/main.cpp": {
+      "sha256": "302847b129ecc31215e7f3ee9fa91708b64bdc1cdca320b98c6e78e6769e17eb",
+      "bytes": 9787
+    },
+    "qml/Main.qml": {
+      "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb",
+      "bytes": 4257
+    },
+    "src/probe_main.cpp": {
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+      "bytes": 17361
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "sha256": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f",
+      "bytes": 44319
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+      "bytes": 23061
+    },
+    "tools/benchmarks/window_guard.py": {
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "bytes": 14613
+    },
+    "tools/benchmarks/worker_support.py": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "bytes": 23403
+    },
+    "tools/stems/worker.py": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "bytes": 24863
+    },
+    "build/dev/conflux": {
+      "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+      "bytes": 1755632
+    },
+    "build/dev/conflux-audio-probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "bytes": 641648
+    },
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "bytes": 62986240
+    },
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "bytes": 84059168
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py": {
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394",
+      "bytes": 4720
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed_launch.py": {
+      "sha256": "98132cfc4664b64d234d251dfb4decf7d828d68d344c188e83998036522a225e",
+      "bytes": 9724
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/monitor.py": {
+      "sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "bytes": 3198
+    }
+  },
+  "read_errors": {},
+  "head": "da9575c5c66085570653d88108e4cbdc81a92de4",
+  "profile": "balanced",
+  "holds": "",
+  "/proc/meminfo": "MemTotal:       16064416 kB\nMemFree:         1737108 kB\nMemAvailable:    4610844 kB\nBuffers:          173156 kB\nCached:          4956804 kB\nSwapCached:       510092 kB\nActive:          6103112 kB\nInactive:        5631092 kB\nActive(anon):    5311384 kB\nInactive(anon):  3497960 kB\nActive(file):     791728 kB\nInactive(file):  2133132 kB\nUnevictable:      471648 kB\nMlocked:            1732 kB\nSwapTotal:      16777212 kB\nSwapFree:        7769408 kB\nZswap:            867356 kB\nZswapped:        2216592 kB\nDirty:              4856 kB\nWriteback:             0 kB\nAnonPages:       6585384 kB\nMapped:          1727624 kB\nShmem:           2131884 kB\nKReclaimable:     379364 kB\nSlab:             853764 kB\nSReclaimable:     379364 kB\nSUnreclaim:       474400 kB\nKernelStack:       35120 kB\nPageTables:       175152 kB\nSecPageTables:      4148 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    24809420 kB\nCommitted_AS:   54123936 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       79584 kB\nVmallocChunk:          0 kB\nPercpu:             7040 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:   239616 kB\nShmemPmdMapped:        0 kB\nFileHugePages:      6144 kB\nFilePmdMapped:      2048 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nGPUActive:             0 kB\nGPUReclaim:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      280000 kB\nDirectMap2M:    15144960 kB\nDirectMap1G:     2097152 kB",
+  "/proc/swaps": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n/dev/dm-1                               partition\t16777212\t9007804\t\t-1",
+  "/sys/firmware/acpi/platform_profile": "balanced",
+  "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+  "/sys/class/thermal/thermal_zone2": {
+    "type": "SEN1",
+    "millidegrees_C": 36050
+  },
+  "/sys/class/thermal/thermal_zone0": {
+    "type": "acpitz",
+    "millidegrees_C": 40000
+  },
+  "/sys/class/thermal/thermal_zone7": {
+    "type": "x86_pkg_temp",
+    "millidegrees_C": 56000
+  },
+  "/sys/class/thermal/thermal_zone5": {
+    "type": "TCPU",
+    "millidegrees_C": 40050
+  },
+  "/sys/class/thermal/thermal_zone3": {
+    "type": "SEN2",
+    "millidegrees_C": 39050
+  },
+  "/sys/class/thermal/thermal_zone1": {
+    "type": "INT3400 Thermal",
+    "millidegrees_C": 20000
+  },
+  "/sys/class/thermal/thermal_zone6": {
+    "type": "iwlwifi_1",
+    "millidegrees_C": 33000
+  },
+  "/sys/class/thermal/thermal_zone4": {
+    "type": "SEN5",
+    "millidegrees_C": 38050
+  },
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:002/type": "USB",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:002/online": "1",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:002/status": "Charging",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:001/type": "USB",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:001/online": "0",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:001/status": "Not charging",
+  "/sys/class/power_supply/BAT0/type": "Battery",
+  "/sys/class/power_supply/BAT0/status": "Not charging",
+  "/sys/class/power_supply/AC/type": "Mains",
+  "/sys/class/power_supply/AC/online": "1",
+  "scratch": "Filesystem               1B-blocks        Used   Available Use% Mounted on\ntmpfs                   4294967296  3652542464   642424832  86% /tmp\n/dev/mapper/aura-home 109232971776 76095078400 27541856256  74% /home\n"
+}

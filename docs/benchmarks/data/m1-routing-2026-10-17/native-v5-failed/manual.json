@@ -1,0 +1,371 @@
+{
+    "applied": 160,
+    "audio_settings_apply": {
+        "completed_sessions_after": 5,
+        "completed_sessions_before": 4,
+        "paused_a_source_frame_after": 0,
+        "paused_a_source_frame_before": 0,
+        "playing_b_source_frame_after": 280288,
+        "playing_b_source_frame_before": 277472,
+        "preserved_transport_cue_selection_and_gains": true,
+        "routing_after": {
+            "cueError": "",
+            "cueLeft": "",
+            "cueReady": false,
+            "cueRight": "",
+            "defaultSink": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink",
+            "masterError": "",
+            "masterLeft": "",
+            "masterReady": true,
+            "masterRight": "",
+            "ports": [
+                {
+                    "key": "61:2452:113:2445",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI3__sink · playback_FR [FR]"
+                },
+                {
+                    "key": "118:2455:68:2446",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI2__sink · playback_FL [FL]"
+                },
+                {
+                    "key": "132:2456:68:2446",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI2__sink · playback_FR [FR]"
+                },
+                {
+                    "key": "141:2451:113:2445",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI3__sink · playback_FL [FL]"
+                },
+                {
+                    "key": "149:2460:69:2447",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI1__sink · playback_FR [FR]"
+                },
+                {
+                    "key": "153:2459:69:2447",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI1__sink · playback_FL [FL]"
+                },
+                {
+                    "key": "154:2464:70:2448",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink · playback_FR [FR]"
+                },
+                {
+                    "key": "158:2463:70:2448",
+                    "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink · playback_FL [FL]"
+                }
+            ]
+        },
+        "scope": "Actual QML settings button applies existing default master with cue disabled; no explicit hardware or cue endpoint is selected."
+    },
+    "checks": [
+        "Manual QML loaded",
+        "Manual window created",
+        "Deck A loads paused at frame zero",
+        "Real decoded source publishes a bounded finite normalized overview",
+        "Loading B preserves A transport and installs B paused",
+        "80 actions acknowledged in one session without a 32-action lifetime limit",
+        "Paused seeks hold exact source frames while output clock advances",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer CUE sets the exact paused render cursor",
+        "Loaded deck exposes an enabled real CUE button",
+        "Loaded deck exposes an enabled real CUE button",
+        "Held pointer CUE auditions without changing requested play state",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer release returns preview to stored cue and pauses",
+        "Controller accepts cue preview",
+        "PLAY latches preview; later CUE release keeps playing",
+        "Controller accepts back-cue",
+        "CUE during playback returns to stored cue and pauses",
+        "Controller accepts preview before seek",
+        "Seek cancels audition and preserves stored cue",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer CUE sets the exact paused render cursor",
+        "Loaded deck exposes an enabled real CUE button",
+        "Loaded deck exposes an enabled real CUE button",
+        "Held pointer CUE auditions without changing requested play state",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer release returns preview to stored cue and pauses",
+        "Controller accepts cue preview",
+        "PLAY latches preview; later CUE release keeps playing",
+        "Controller accepts back-cue",
+        "CUE during playback returns to stored cue and pauses",
+        "Controller accepts preview before seek",
+        "Seek cancels audition and preserves stored cue",
+        "Controller accepts preview before queue pressure",
+        "Full transport queue retains CUE release until a later poll can submit it",
+        "Queue-pressure recovery returns to the exact cue without a stuck audition",
+        "Decode failure preserves loaded decks and active output",
+        "Replacing A resets its cue and preserves B transport and cue after stream quiescence",
+        "Controller accepts B back-cue before replacement check",
+        "Controller accepts B audition before replacing A",
+        "Replacing a source cancels peer audition and preserves its stored cue",
+        "Snapshot backpressure drops telemetry while later controls recover",
+        "Fresh temporary recording directory created",
+        "Actual UI control is enabled",
+        "Mixer CUE selects the actual pre-fader headphone bus",
+        "Actual UI control is enabled",
+        "Actual UI control is enabled",
+        "Mixer CUE selects the actual pre-fader headphone bus",
+        "Actual headphone level control is enabled",
+        "Real headphone level keyboard control decreases cue gain",
+        "Unrouted nonzero headphone cue remains disabled while master is muted",
+        "Source replacement preserves the same recording path, writer prefix and peer transport",
+        "Recording detaches, drains and finalizes without an overflow or disk error",
+        "Independent nonempty stereo 48 kHz WAV readback is all zero despite nonzero cue",
+        "Five-second steady source interval advances playback without new unavailable frames or read errors",
+        "Actual UI control is enabled",
+        "Actual audio settings drawer found",
+        "Audio settings Apply uses only existing default master and disabled cue",
+        "Actual UI control is enabled",
+        "Real audio settings Apply reinstalls output and preserves exact cue, selection, gain and play requests",
+        "Default-size audio settings screenshot saved",
+        "Minimum-size audio settings screenshot saved",
+        "Actual UI control is enabled",
+        "Dark screenshot saved",
+        "Theme control found",
+        "Light screenshot saved",
+        "Minimum-size screenshot saved",
+        "No scene-graph errors during live audio"
+    ],
+    "elapsed_ms": 20293,
+    "error": "GUI frames continued rendering alongside live audio",
+    "frames_swapped": 1,
+    "passed": false,
+    "pending_recorder_open_close": {
+    },
+    "recording": {
+        "cue_meter_nonzero_before_recording": true,
+        "final_state": {
+            "acceptedFrames": 14848,
+            "active": false,
+            "error": "",
+            "overflowFrames": 0,
+            "path": "/tmp/conflux-manual-audio-check-xrZWAx/muted-master.wav",
+            "status": "Complete",
+            "writtenFrames": 14848
+        },
+        "master_meter_zero_before_recording": true,
+        "readback": {
+            "all_samples_zero": true,
+            "bytes": 118872,
+            "channels": 2,
+            "encoding": "IEEE float32",
+            "frames": 14848,
+            "sample_rate": 48000,
+            "sha256": "a9cfd64e07a6acb45ff0365dc734e4930f80ebff6f0f684607d766f62035d7d2"
+        },
+        "replacement_before": {
+            "acceptedFrames": 4864,
+            "active": true,
+            "error": "",
+            "overflowFrames": 0,
+            "path": "/tmp/conflux-manual-audio-check-xrZWAx/muted-master.wav",
+            "status": "Recording",
+            "writtenFrames": 4864
+        },
+        "replacement_policy": "One writer retains accepted PCM across source replacement. Output pauses while the session is replaced; wall-time interruption is omitted, not padded or measured as continuous recording."
+    },
+    "routing": {
+        "cueError": "",
+        "cueLeft": "",
+        "cueReady": false,
+        "cueRight": "",
+        "defaultSink": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink",
+        "masterError": "",
+        "masterLeft": "",
+        "masterReady": true,
+        "masterRight": "",
+        "ports": [
+            {
+                "key": "61:2452:113:2445",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI3__sink · playback_FR [FR]"
+            },
+            {
+                "key": "118:2455:68:2446",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI2__sink · playback_FL [FL]"
+            },
+            {
+                "key": "132:2456:68:2446",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI2__sink · playback_FR [FR]"
+            },
+            {
+                "key": "141:2451:113:2445",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI3__sink · playback_FL [FL]"
+            },
+            {
+                "key": "149:2460:69:2447",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI1__sink · playback_FR [FR]"
+            },
+            {
+                "key": "153:2459:69:2447",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI1__sink · playback_FL [FL]"
+            },
+            {
+                "key": "154:2464:70:2448",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink · playback_FR [FR]"
+            },
+            {
+                "key": "158:2463:70:2448",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink · playback_FL [FL]"
+            }
+        ]
+    },
+    "scene_errors": [
+    ],
+    "session_timing": [
+        {
+            "at_least_100ms": 0,
+            "callbacks": 20,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 18,
+            "execution_p95_upper_us": 40,
+            "execution_p999_upper_us": 69,
+            "execution_p99_upper_us": 69,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 68262,
+            "session_index": 0,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 1128,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 21,
+            "execution_p95_upper_us": 45,
+            "execution_p999_upper_us": 63,
+            "execution_p99_upper_us": 55,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 87147,
+            "session_index": 1,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 34,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 15,
+            "execution_p95_upper_us": 28,
+            "execution_p999_upper_us": 41,
+            "execution_p99_upper_us": 41,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 40368,
+            "session_index": 2,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 185,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 20,
+            "execution_p95_upper_us": 41,
+            "execution_p999_upper_us": 55,
+            "execution_p99_upper_us": 54,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 54471,
+            "session_index": 3,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 1093,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 25,
+            "execution_p95_upper_us": 42,
+            "execution_p999_upper_us": 70,
+            "execution_p99_upper_us": 57,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 70881,
+            "session_index": 4,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 1164,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 25,
+            "execution_p95_upper_us": 50,
+            "execution_p999_upper_us": 63,
+            "execution_p99_upper_us": 56,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 320713,
+            "session_index": 5,
+            "xrun_recovery_flags": 0
+        }
+    ],
+    "source_read_failures": 0,
+    "steady_source_delivery": {
+        "observation_ms": 5000,
+        "output_frame_after": 266752,
+        "output_frame_before": 27136,
+        "scope": "Five-second no-control quiet playback after 200 ms settling; separate from whole-run seek/priming counters.",
+        "session_index": 4,
+        "settling_ms": 200,
+        "source_frames_after": [
+            0,
+            265184
+        ],
+        "source_frames_before": [
+            0,
+            25568
+        ],
+        "starved_frames_after": [
+            0,
+            256
+        ],
+        "starved_frames_before": [
+            0,
+            256
+        ],
+        "starved_frames_delta": [
+            0,
+            0
+        ]
+    },
+    "submitted": 160
+}

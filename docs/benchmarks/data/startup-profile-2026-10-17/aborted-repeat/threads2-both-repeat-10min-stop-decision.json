@@ -1,0 +1,22 @@
+{
+  "reason": "User explicitly selected entering M1 manual audio with the failed live-stem target retained as M2 blocker; additional M0 repeat no longer needed. Stop during readiness, before measured workload launch.",
+  "decision": "Enter M1 manual audio; retain M2 live-stem blocker (Recommended)",
+  "captured_monotonic": 402466.639912042,
+  "state_status": "normal_readiness",
+  "child_started": false,
+  "owned_launcher": {
+    "pid": 1991591,
+    "start_ticks": 45370497,
+    "args": [
+      "python3",
+      "-B",
+      "benchmarks-local/two-thread-music-2026-10-17/observed_launch.py",
+      "threads2-both-repeat-10min",
+      "--seconds",
+      "600",
+      "--control-interval",
+      "300"
+    ]
+  },
+  "signal": "SIGINT"
+}

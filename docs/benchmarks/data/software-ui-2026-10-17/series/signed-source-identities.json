@@ -1,0 +1,37 @@
+{
+  "repository_head": "da9575c5c66085570653d88108e4cbdc81a92de4",
+  "pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "ui": {
+      "path": "build/dev/conflux",
+      "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f"
+    },
+    "audio_probe": {
+      "path": "build/dev/conflux-audio-probe",
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    },
+    "soak_source": {
+      "path": "tools/benchmarks/stem_soak.py",
+      "sha256": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f"
+    },
+    "shared_benchmark_source": {
+      "path": "tools/benchmarks/stem_worker.py",
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "worker_source": {
+      "path": "tools/stems/worker.py",
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "tools/benchmarks/worker_support.py",
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  }
+}

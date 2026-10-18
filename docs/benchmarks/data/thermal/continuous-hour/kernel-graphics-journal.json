@@ -1,0 +1,24 @@
+{
+  "captured_utc": "2026-10-16T21:04:07.054232+00:00",
+  "command": [
+    "journalctl",
+    "--utc",
+    "--no-pager",
+    "-k",
+    "--since",
+    "2026-10-16 20:03:00 UTC",
+    "--until",
+    "2026-10-16 21:04:00 UTC",
+    "-g",
+    "i915|drm|GPU|gpu|preempt|hang|reset"
+  ],
+  "host_read": true,
+  "returncode": 1,
+  "stdout": "-- No entries --\n",
+  "stderr": "",
+  "limits": [
+    "Only matching messages in the accessible kernel journal for this bounded interval are captured.",
+    "Absent messages do not prove absence of driver scheduling events, throttling, firmware action or hardware resets.",
+    "Root-only i915 error-state and tracefs diagnostics remain unavailable; no permissions/settings were changed."
+  ]
+}

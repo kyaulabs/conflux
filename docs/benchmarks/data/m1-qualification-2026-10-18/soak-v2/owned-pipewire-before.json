@@ -1,0 +1,536 @@
+{
+  "pid": 2152879,
+  "objects": [
+    {
+      "id": 65,
+      "type": "PipeWire:Interface:Client",
+      "version": 3,
+      "permissions": [
+        "r",
+        "w",
+        "x",
+        "m"
+      ],
+      "info": {
+        "change-mask": [
+          "props"
+        ],
+        "props": {
+          "application.language": "en_US.UTF-8",
+          "application.name": "conflux-manual-playback-soak",
+          "application.process.binary": "conflux-manual-playback-soak",
+          "application.process.host": "aura.kyaulabs",
+          "application.process.id": 2152879,
+          "application.process.session-id": 2,
+          "application.process.user": "kyau",
+          "clock.power-of-two-quantum": true,
+          "core.name": "pipewire-kyau-2152879",
+          "core.version": "1.6.9",
+          "cpu.max-align": 64,
+          "default.clock.max-quantum": 2048,
+          "default.clock.min-quantum": 32,
+          "default.clock.quantum": 1024,
+          "default.clock.quantum-floor": 4,
+          "default.clock.quantum-limit": 8192,
+          "default.clock.rate": 48000,
+          "default.video.height": 480,
+          "default.video.rate.denom": 1,
+          "default.video.rate.num": 25,
+          "default.video.width": 640,
+          "link.max-buffers": 64,
+          "log.level": 0,
+          "media.category": "Filter",
+          "media.class": "Stream/Output/Audio",
+          "media.name": "CONFLUX manual audio",
+          "media.role": "DSP",
+          "media.type": "Audio",
+          "mem.allow-mlock": true,
+          "mem.warn-mlock": false,
+          "module.id": 2,
+          "node.autoconnect": false,
+          "node.dont-reconnect": true,
+          "node.latency": "256/48000",
+          "node.name": "conflux-manual-audio",
+          "node.rate": "1/48000",
+          "node.want-driver": true,
+          "object.id": 65,
+          "object.serial": 4475,
+          "pipewire.access": "unrestricted",
+          "pipewire.access.effective": "unrestricted",
+          "pipewire.protocol": "protocol-native",
+          "pipewire.sec.gid": 1000,
+          "pipewire.sec.pid": 2152879,
+          "pipewire.sec.socket": "pipewire-0",
+          "pipewire.sec.uid": 1000,
+          "settings.check-quantum": false,
+          "settings.check-rate": false,
+          "window.x11.display": ":0"
+        }
+      }
+    },
+    {
+      "id": 166,
+      "type": "PipeWire:Interface:Node",
+      "version": 3,
+      "permissions": [
+        "r",
+        "w",
+        "x",
+        "m"
+      ],
+      "info": {
+        "max-input-ports": 4294967295,
+        "max-output-ports": 4294967295,
+        "change-mask": [
+          "input-ports",
+          "output-ports",
+          "state",
+          "props",
+          "params"
+        ],
+        "n-input-ports": 0,
+        "n-output-ports": 4,
+        "state": "running",
+        "error": null,
+        "props": {
+          "client.id": 65,
+          "media.category": "Filter",
+          "media.class": "Stream/Output/Audio",
+          "media.name": "CONFLUX manual audio",
+          "media.role": "DSP",
+          "media.type": "Audio",
+          "node.autoconnect": false,
+          "node.dont-reconnect": true,
+          "node.driver-id": 70,
+          "node.latency": "256/48000",
+          "node.name": "conflux-manual-audio",
+          "node.rate": "1/48000",
+          "node.want-driver": true,
+          "object.id": 166,
+          "object.serial": 4476
+        },
+        "params": {
+          "PropInfo": [],
+          "Props": [],
+          "ProcessLatency": [],
+          "EnumFormat": [],
+          "Format": []
+        }
+      }
+    },
+    {
+      "id": 66,
+      "type": "PipeWire:Interface:Port",
+      "version": 3,
+      "permissions": [
+        "r",
+        "x",
+        "m"
+      ],
+      "info": {
+        "direction": "output",
+        "change-mask": [
+          "props",
+          "params"
+        ],
+        "props": {
+          "audio.channel": "FL",
+          "format.dsp": "32 bit float mono audio",
+          "node.id": 166,
+          "object.id": 66,
+          "object.path": "conflux-manual-audio:output_0",
+          "object.serial": 4477,
+          "port.alias": "conflux-manual-audio:master_FL",
+          "port.direction": "out",
+          "port.group": "master",
+          "port.id": 0,
+          "port.name": "master_FL"
+        },
+        "params": {
+          "EnumFormat": [
+            {
+              "mediaType": "audio",
+              "mediaSubtype": "dsp",
+              "format": "F32P"
+            }
+          ],
+          "Meta": [],
+          "IO": [
+            {
+              "id": "Buffers",
+              "size": 8
+            },
+            {
+              "id": "AsyncBuffers",
+              "size": 8
+            }
+          ],
+          "Format": [
+            {
+              "mediaType": "audio",
+              "mediaSubtype": "dsp",
+              "format": "F32P"
+            }
+          ],
+          "Buffers": [
+            {
+              "buffers": {
+                "default": 1,
+                "min": 1,
+                "max": 64
+              },
+              "blocks": 1,
+              "size": {
+                "default": 32768,
+                "min": 4,
+                "max": 32768,
+                "step": 4
+              },
+              "stride": 4
+            }
+          ],
+          "Latency": [
+            {
+              "direction": "Input",
+              "minQuantum": 1.0,
+              "maxQuantum": 1.0,
+              "minRate": 24,
+              "maxRate": 24,
+              "minNs": 0,
+              "maxNs": 0
+            },
+            {
+              "direction": "Output",
+              "minQuantum": 0.0,
+              "maxQuantum": 0.0,
+              "minRate": 0,
+              "maxRate": 0,
+              "minNs": 0,
+              "maxNs": 0
+            }
+          ],
+          "Tag": [
+            {
+              "direction": "Input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 162,
+      "type": "PipeWire:Interface:Port",
+      "version": 3,
+      "permissions": [
+        "r",
+        "x",
+        "m"
+      ],
+      "info": {
+        "direction": "output",
+        "change-mask": [
+          "props",
+          "params"
+        ],
+        "props": {
+          "audio.channel": "FR",
+          "format.dsp": "32 bit float mono audio",
+          "node.id": 166,
+          "object.id": 162,
+          "object.path": "conflux-manual-audio:output_1",
+          "object.serial": 4478,
+          "port.alias": "conflux-manual-audio:master_FR",
+          "port.direction": "out",
+          "port.group": "master",
+          "port.id": 1,
+          "port.name": "master_FR"
+        },
+        "params": {
+          "EnumFormat": [
+            {
+              "mediaType": "audio",
+              "mediaSubtype": "dsp",
+              "format": "F32P"
+            }
+          ],
+          "Meta": [],
+          "IO": [
+            {
+              "id": "Buffers",
+              "size": 8
+            },
+            {
+              "id": "AsyncBuffers",
+              "size": 8
+            }
+          ],
+          "Format": [
+            {
+              "mediaType": "audio",
+              "mediaSubtype": "dsp",
+              "format": "F32P"
+            }
+          ],
+          "Buffers": [
+            {
+              "buffers": {
+                "default": 1,
+                "min": 1,
+                "max": 64
+              },
+              "blocks": 1,
+              "size": {
+                "default": 32768,
+                "min": 4,
+                "max": 32768,
+                "step": 4
+              },
+              "stride": 4
+            }
+          ],
+          "Latency": [
+            {
+              "direction": "Input",
+              "minQuantum": 1.0,
+              "maxQuantum": 1.0,
+              "minRate": 24,
+              "maxRate": 24,
+              "minNs": 0,
+              "maxNs": 0
+            },
+            {
+              "direction": "Output",
+              "minQuantum": 0.0,
+              "maxQuantum": 0.0,
+              "minRate": 0,
+              "maxRate": 0,
+              "minNs": 0,
+              "maxNs": 0
+            }
+          ],
+          "Tag": [
+            {
+              "direction": "Input"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": 168,
+      "type": "PipeWire:Interface:Port",
+      "version": 3,
+      "permissions": [
+        "r",
+        "x",
+        "m"
+      ],
+      "info": {
+        "direction": "output",
+        "change-mask": [
+          "props",
+          "params"
+        ],
+        "props": {
+          "audio.channel": "FL",
+          "format.dsp": "32 bit float mono audio",
+          "node.id": 166,
+          "object.id": 168,
+          "object.path": "conflux-manual-audio:output_2",
+          "object.serial": 4479,
+          "port.alias": "conflux-manual-audio:cue_FL",
+          "port.direction": "out",
+          "port.group": "cue",
+          "port.id": 2,
+          "port.name": "cue_FL"
+        },
+        "params": {
+          "EnumFormat": [
+            {
+              "mediaType": "audio",
+              "mediaSubtype": "dsp",
+              "format": "F32P"
+            }
+          ],
+          "Meta": [],
+          "IO": [
+            {
+              "id": "Buffers",
+              "size": 8
+            },
+            {
+              "id": "AsyncBuffers",
+              "size": 8
+            }
+          ],
+          "Format": [],
+          "Buffers": [
+            {
+              "buffers": {
+                "default": 1,
+                "min": 1,
+                "max": 64
+              },
+              "blocks": 1,
+              "size": {
+                "default": 32768,
+                "min": 4,
+                "max": 32768,
+                "step": 4
+              },
+              "stride": 4
+            }
+          ],
+          "Latency": [],
+          "Tag": []
+        }
+      }
+    },
+    {
+      "id": 64,
+      "type": "PipeWire:Interface:Port",
+      "version": 3,
+      "permissions": [
+        "r",
+        "x",
+        "m"
+      ],
+      "info": {
+        "direction": "output",
+        "change-mask": [
+          "props",
+          "params"
+        ],
+        "props": {
+          "audio.channel": "FR",
+          "format.dsp": "32 bit float mono audio",
+          "node.id": 166,
+          "object.id": 64,
+          "object.path": "conflux-manual-audio:output_3",
+          "object.serial": 4480,
+          "port.alias": "conflux-manual-audio:cue_FR",
+          "port.direction": "out",
+          "port.group": "cue",
+          "port.id": 3,
+          "port.name": "cue_FR"
+        },
+        "params": {
+          "EnumFormat": [
+            {
+              "mediaType": "audio",
+              "mediaSubtype": "dsp",
+              "format": "F32P"
+            }
+          ],
+          "Meta": [],
+          "IO": [
+            {
+              "id": "Buffers",
+              "size": 8
+            },
+            {
+              "id": "AsyncBuffers",
+              "size": 8
+            }
+          ],
+          "Format": [],
+          "Buffers": [
+            {
+              "buffers": {
+                "default": 1,
+                "min": 1,
+                "max": 64
+              },
+              "blocks": 1,
+              "size": {
+                "default": 32768,
+                "min": 4,
+                "max": 32768,
+                "step": 4
+              },
+              "stride": 4
+            }
+          ],
+          "Latency": [],
+          "Tag": []
+        }
+      }
+    },
+    {
+      "id": 129,
+      "type": "PipeWire:Interface:Link",
+      "version": 3,
+      "permissions": [
+        "r",
+        "x"
+      ],
+      "info": {
+        "output-node-id": 166,
+        "output-port-id": 66,
+        "input-node-id": 70,
+        "input-port-id": 158,
+        "change-mask": [
+          "state",
+          "format",
+          "props"
+        ],
+        "state": "active",
+        "error": null,
+        "format": {
+          "mediaType": "audio",
+          "mediaSubtype": "dsp",
+          "format": "F32P"
+        },
+        "props": {
+          "client.id": 65,
+          "factory.id": 21,
+          "link.input.node": 70,
+          "link.input.port": 158,
+          "link.output.node": 166,
+          "link.output.port": 66,
+          "object.id": 129,
+          "object.linger": false,
+          "object.serial": 4481
+        }
+      }
+    },
+    {
+      "id": 126,
+      "type": "PipeWire:Interface:Link",
+      "version": 3,
+      "permissions": [
+        "r",
+        "x"
+      ],
+      "info": {
+        "output-node-id": 166,
+        "output-port-id": 162,
+        "input-node-id": 70,
+        "input-port-id": 154,
+        "change-mask": [
+          "state",
+          "format",
+          "props"
+        ],
+        "state": "active",
+        "error": null,
+        "format": {
+          "mediaType": "audio",
+          "mediaSubtype": "dsp",
+          "format": "F32P"
+        },
+        "props": {
+          "client.id": 65,
+          "factory.id": 21,
+          "link.input.node": 70,
+          "link.input.port": 154,
+          "link.output.node": 166,
+          "link.output.port": 162,
+          "object.id": 126,
+          "object.linger": false,
+          "object.serial": 4482
+        }
+      }
+    }
+  ]
+}

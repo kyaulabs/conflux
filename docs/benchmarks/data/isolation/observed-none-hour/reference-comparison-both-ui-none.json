@@ -1,0 +1,83 @@
+{
+  "scope": "Cross-run comparison of recorded golden window hashes, fixture and producer pins only; no fresh PCM arrays or cross-run numerical difference recomputation. A matching hash checks retained hash identity, not unobserved playback quality.",
+  "baseline": "observed-both-hour",
+  "runs": {
+    "observed-both-hour": {
+      "repository_head": "b375522216d2d81a9d1d011017fb25474be0dacf",
+      "reference_window_count": 9,
+      "reference_differences_vs_both": [],
+      "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "pins": {
+        "runtime": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+        "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "soak_source": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+        "shared_benchmark_source": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+        "worker_source": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+        "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+        "ui": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+        "audio_probe": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+      }
+    },
+    "observed-ui-hour": {
+      "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+      "reference_window_count": 9,
+      "reference_differences_vs_both": [],
+      "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "pins": {
+        "runtime": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+        "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "soak_source": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+        "shared_benchmark_source": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+        "worker_source": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+        "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+        "ui": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e"
+      }
+    },
+    "observed-none-hour": {
+      "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+      "reference_window_count": 9,
+      "reference_differences_vs_both": [],
+      "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "pins": {
+        "runtime": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+        "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "soak_source": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+        "shared_benchmark_source": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+        "worker_source": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+        "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+      }
+    }
+  },
+  "shared_pin_names": [
+    "model",
+    "runtime",
+    "sampler_source",
+    "shared_benchmark_source",
+    "soak_source",
+    "worker_source"
+  ],
+  "shared_pin_differences": {},
+  "source_pin_names": [
+    "sampler_source",
+    "shared_benchmark_source",
+    "soak_source",
+    "worker_source"
+  ],
+  "source_pin_differences": {},
+  "all_recorded_reference_hashes_identical": true,
+  "all_fixture_hashes_identical": true,
+  "source_evidence": {
+    "observed-both-hour": {
+      "path": "benchmarks-local/isolation-2026-10-16/observed-both-hour/result.json",
+      "sha256": "821069eaf207d8c4a21e09650841ccce88eb748c6a04afcb1e73be2d44e06fcb"
+    },
+    "observed-ui-hour": {
+      "path": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/result.json",
+      "sha256": "1e7ecb9597d1d0822f7c306b36674680901e0d9933861080079a52482bf0fe71"
+    },
+    "observed-none-hour": {
+      "path": "benchmarks-local/isolation-2026-10-16/observed-none-hour/result.json",
+      "sha256": "4b355bc6471949b7a462f65e8e6d7f31cff34562ecbf410fd2ccc709943a0c1a"
+    }
+  }
+}

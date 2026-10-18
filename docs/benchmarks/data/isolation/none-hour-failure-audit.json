@@ -1,0 +1,873 @@
+{
+  "qualification": "ABORTED_PARTIAL_FAILURE; no full-hour or passing-parity claim",
+  "run_directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour",
+  "raw_status": "error",
+  "requested_seconds": 3600.0,
+  "workload_seconds": 1563.4323835659889,
+  "raw_failures": [
+    {
+      "phase": "workload",
+      "error": "RuntimeError: seek differs from continuous reference beyond tolerance",
+      "timestamp_monotonic": 316091.291972412
+    }
+  ],
+  "raw_acceptance": {
+    "requested_wall_duration_completed": false,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": null,
+    "required_UI_coverage_completed": null,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 4,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=none; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "counts": {
+    "events": 2084,
+    "returned_chunk_events": 618,
+    "accepted_soak_hops": 617,
+    "unaccepted_returned_chunks": 1,
+    "controls_started": 5,
+    "controls_complete": 4,
+    "controls_incomplete": 1,
+    "event_types": {
+      "control": 77,
+      "runtime_ready": 1,
+      "source_ready": 72,
+      "started": 628,
+      "chunk": 618,
+      "soak_hop": 617,
+      "complete": 66,
+      "discarded": 5
+    }
+  },
+  "timing": {
+    "accepted_all": {
+      "chunks": 617,
+      "frames": 142963565,
+      "p50_ms": 2017.1442470164038,
+      "p95_ms": 3790.800146991387,
+      "p99_ms": 10324.866725015454,
+      "max_ms": 17033.866816025693,
+      "above4095ms": 25
+    },
+    "accepted_continuous": {
+      "chunks": 613,
+      "frames": 141932565,
+      "p50_ms": 2017.1442470164038,
+      "p95_ms": 3790.800146991387,
+      "p99_ms": 10324.866725015454,
+      "max_ms": 17033.866816025693,
+      "above4095ms": 25
+    },
+    "returned_all_including_rejected": {
+      "chunks": 618,
+      "frames": 143221217,
+      "p50_ms": 2017.1442470164038,
+      "p95_ms": 3815.347859985195,
+      "p99_ms": 10733.693779038731,
+      "max_ms": 20168.56356395874,
+      "above4095ms": 26
+    }
+  },
+  "control_timeline": [
+    {
+      "number": 1,
+      "complete": true,
+      "target_frame": 258318,
+      "superseded_request_id": 155,
+      "superseded_generation": 18,
+      "cancel_generation": 19,
+      "resume_generation": 20,
+      "started_to_cancel_ms": 167.48707502847537,
+      "cancel_ack_ms": 0.053216004744172096,
+      "held_request_id": 154,
+      "held_current_generation_before_cancel": true,
+      "held_rejected_reported": true,
+      "residual_drain_ms_recomputed": 1803.95564698847,
+      "resume_ack_ms": 0.022205000277608633,
+      "returned_request_id": 157,
+      "returned_ready_after_cancel_ms": 5687.147357966751,
+      "returned_ready_after_seek_event_ms": 3882.9836749937385,
+      "returned_matches_seek_frame": true,
+      "returned_was_accepted": true,
+      "starts": [
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314831.926073942,
+          "request_id": 156,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 0,
+          "preroll": true,
+          "consumed_at": 314831.926200161
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314833.978791892,
+          "request_id": 157,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 257985,
+          "preroll": false,
+          "consumed_at": 314833.978945497
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314835.810315607,
+          "request_id": 158,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 515970,
+          "preroll": false,
+          "consumed_at": 314835.890666367
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314837.857836595,
+          "request_id": 159,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 773955,
+          "preroll": false,
+          "consumed_at": 314837.874169046
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314839.69213487,
+          "request_id": 160,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1031940,
+          "preroll": false,
+          "consumed_at": 314839.708398875
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314841.745886989,
+          "request_id": 161,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1289925,
+          "preroll": false,
+          "consumed_at": 314841.762216046
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314843.565583038,
+          "request_id": 162,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1547910,
+          "preroll": false,
+          "consumed_at": 314843.582892377
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314845.639538104,
+          "request_id": 163,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1805895,
+          "preroll": false,
+          "consumed_at": 314845.656364604
+        },
+        {
+          "event": "started",
+          "generation": 20,
+          "timestamp": 314847.482383312,
+          "request_id": 164,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 2063880,
+          "preroll": false,
+          "consumed_at": 314847.499364106
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "complete": true,
+      "target_frame": 516107,
+      "superseded_request_id": 299,
+      "superseded_generation": 35,
+      "cancel_generation": 36,
+      "resume_generation": 37,
+      "started_to_cancel_ms": 179.16356900241226,
+      "cancel_ack_ms": 0.04799896851181984,
+      "held_request_id": 298,
+      "held_current_generation_before_cancel": true,
+      "held_rejected_reported": true,
+      "residual_drain_ms_recomputed": 3665.90153996367,
+      "resume_ack_ms": 0.033855962101370096,
+      "returned_request_id": 301,
+      "returned_ready_after_cancel_ms": 8257.878795964643,
+      "returned_ready_after_seek_event_ms": 4591.729691950604,
+      "returned_matches_seek_frame": true,
+      "returned_was_accepted": true,
+      "starts": [
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315133.957889227,
+          "request_id": 300,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 257985,
+          "preroll": true,
+          "consumed_at": 315133.958048582
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315136.666888529,
+          "request_id": 301,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 515970,
+          "preroll": false,
+          "consumed_at": 315136.66704963
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315138.54824155,
+          "request_id": 302,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 773955,
+          "preroll": false,
+          "consumed_at": 315138.640025159
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315140.510631126,
+          "request_id": 303,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1031940,
+          "preroll": false,
+          "consumed_at": 315140.528391039
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315142.425695476,
+          "request_id": 304,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1289925,
+          "preroll": false,
+          "consumed_at": 315142.443128125
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315144.324896223,
+          "request_id": 305,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1547910,
+          "preroll": false,
+          "consumed_at": 315144.341559027
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315146.278819662,
+          "request_id": 306,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1805895,
+          "preroll": false,
+          "consumed_at": 315146.29563577
+        },
+        {
+          "event": "started",
+          "generation": 37,
+          "timestamp": 315148.132859467,
+          "request_id": 307,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 2063880,
+          "preroll": false,
+          "consumed_at": 315148.151862826
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "complete": true,
+      "target_frame": 258318,
+      "superseded_request_id": 433,
+      "superseded_generation": 51,
+      "cancel_generation": 52,
+      "resume_generation": 53,
+      "started_to_cancel_ms": 186.36538600549102,
+      "cancel_ack_ms": 0.0595090095885098,
+      "held_request_id": 432,
+      "held_current_generation_before_cancel": true,
+      "held_rejected_reported": true,
+      "residual_drain_ms_recomputed": 3138.0991979967803,
+      "resume_ack_ms": 0.030964030884206295,
+      "returned_request_id": 435,
+      "returned_ready_after_cancel_ms": 9924.573491967749,
+      "returned_ready_after_seek_event_ms": 6786.257403960917,
+      "returned_matches_seek_frame": true,
+      "returned_was_accepted": true,
+      "starts": [
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315432.159921681,
+          "request_id": 434,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 0,
+          "preroll": true,
+          "consumed_at": 315432.160114455
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315435.56344387,
+          "request_id": 435,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 257985,
+          "preroll": false,
+          "consumed_at": 315435.563612586
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315438.946960426,
+          "request_id": 436,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 515970,
+          "preroll": false,
+          "consumed_at": 315439.082875336
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315442.580707465,
+          "request_id": 437,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 773955,
+          "preroll": false,
+          "consumed_at": 315442.613534596
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315446.132068655,
+          "request_id": 438,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1031940,
+          "preroll": false,
+          "consumed_at": 315446.170719762
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315448.527133684,
+          "request_id": 439,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1289925,
+          "preroll": false,
+          "consumed_at": 315448.544148221
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315450.450759138,
+          "request_id": 440,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1547910,
+          "preroll": false,
+          "consumed_at": 315450.467941665
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315452.368219742,
+          "request_id": 441,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1805895,
+          "preroll": false,
+          "consumed_at": 315452.384514273
+        },
+        {
+          "event": "started",
+          "generation": 53,
+          "timestamp": 315454.227582781,
+          "request_id": 442,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 2063880,
+          "preroll": false,
+          "consumed_at": 315454.245392735
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "complete": true,
+      "target_frame": 516107,
+      "superseded_request_id": 523,
+      "superseded_generation": 62,
+      "cancel_generation": 63,
+      "resume_generation": 64,
+      "started_to_cancel_ms": 175.0937780016102,
+      "cancel_ack_ms": 0.03395002568140626,
+      "held_request_id": 522,
+      "held_current_generation_before_cancel": true,
+      "held_rejected_reported": true,
+      "residual_drain_ms_recomputed": 2263.7403280241415,
+      "resume_ack_ms": 0.029439979698508978,
+      "returned_request_id": 525,
+      "returned_ready_after_cancel_ms": 6790.986104984768,
+      "returned_ready_after_seek_event_ms": 4527.078512008302,
+      "returned_matches_seek_frame": true,
+      "returned_was_accepted": true,
+      "starts": [
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315731.592857303,
+          "request_id": 524,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 257985,
+          "preroll": true,
+          "consumed_at": 315731.592958356
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315734.091969793,
+          "request_id": 525,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 515970,
+          "preroll": false,
+          "consumed_at": 315734.092115111
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315736.120300636,
+          "request_id": 526,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 773955,
+          "preroll": false,
+          "consumed_at": 315736.210407112
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315738.134431121,
+          "request_id": 527,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1031940,
+          "preroll": false,
+          "consumed_at": 315738.153322039
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315740.149455385,
+          "request_id": 528,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1289925,
+          "preroll": false,
+          "consumed_at": 315740.169875928
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315742.162241463,
+          "request_id": 529,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1547910,
+          "preroll": false,
+          "consumed_at": 315742.180390458
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315744.526721385,
+          "request_id": 530,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1805895,
+          "preroll": false,
+          "consumed_at": 315744.550106794
+        },
+        {
+          "event": "started",
+          "generation": 64,
+          "timestamp": 315746.583858788,
+          "request_id": 531,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 2063880,
+          "preroll": false,
+          "consumed_at": 315746.601672993
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "complete": false,
+      "target_frame": 258318,
+      "superseded_request_id": 626,
+      "superseded_generation": 75,
+      "cancel_generation": 76,
+      "resume_generation": 77,
+      "started_to_cancel_ms": 225.5679530207999,
+      "cancel_ack_ms": 0.057497003581374884,
+      "held_request_id": 625,
+      "held_current_generation_before_cancel": true,
+      "held_rejected_reported": true,
+      "residual_drain_ms_recomputed": 20035.25149996858,
+      "resume_ack_ms": 0.06982404738664627,
+      "returned_request_id": 628,
+      "returned_ready_after_cancel_ms": 60492.10716295056,
+      "returned_ready_after_seek_event_ms": 40456.377497990616,
+      "returned_matches_seek_frame": true,
+      "returned_was_accepted": false,
+      "starts": [
+        {
+          "event": "started",
+          "generation": 77,
+          "timestamp": 316050.572685556,
+          "request_id": 627,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 0,
+          "preroll": true,
+          "consumed_at": 316050.573096909
+        },
+        {
+          "event": "started",
+          "generation": 77,
+          "timestamp": 316070.858528288,
+          "request_id": 628,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 257985,
+          "preroll": false,
+          "consumed_at": 316070.858837503
+        }
+      ]
+    }
+  ],
+  "unaccepted_failure_chunks": [
+    {
+      "chunk": {
+        "event": "chunk",
+        "generation": 77,
+        "timestamp": 316091.022011494,
+        "ready_at": 316091.022011494,
+        "request_id": 628,
+        "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "source_frames": 2076225,
+        "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "frame_start": 258318,
+        "window_start_frame": 257985,
+        "frames": 257652,
+        "sample_rate": 44100,
+        "channels": 2,
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "request_ms": 20151.17210004246,
+        "metrics": {
+          "graph_ms": 20047.141942,
+          "involuntary_context_switches": 40,
+          "voluntary_context_switches": 56,
+          "inference_wall_ms": 20120.99917,
+          "elapsed_ms": 20134.138492,
+          "graph_rebuild_ms": 0,
+          "frontend_ms": 47.550377,
+          "stems": 4,
+          "postprocess_ms": 26.305367,
+          "inference_cpu_ms": 195.8859999999986,
+          "frames": 343980,
+          "id": 628,
+          "event": "result"
+        },
+        "source_read_ms": 5.03036001464352,
+        "overlap_ms": 10.896344960201532,
+        "hop_service_ms": 20168.56356395874,
+        "control_latency_ms": 40456.377497990616,
+        "ready_queue_depth": 1,
+        "queue_delay_ms": 0.06809603655710816,
+        "samples_sha256": "e742bfff9a5e79d2d24615e08e5cd3e3002eefd66eb0e41c177bfe6267f42559",
+        "consumed_at": 316091.028466706
+      },
+      "started_event": {
+        "event": "started",
+        "generation": 77,
+        "timestamp": 316070.858528288,
+        "request_id": 628,
+        "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "window_start_frame": 257985,
+        "preroll": false,
+        "consumed_at": 316070.858837503
+      },
+      "trim_frames": 333,
+      "expected_same_target_accepted_hashes": [
+        "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+      ],
+      "matches_same_target_accepted_hash": false,
+      "matches_other_known_trim_target": false,
+      "failure_after_ready_ms": 269.9609179981053,
+      "failure_after_consumed_ms": 263.50570598151535,
+      "parity_event_recorded": false,
+      "numeric_difference_retained": false,
+      "compared_PCM_retained": false
+    }
+  ],
+  "source_currentness": {
+    "source_model_identities": [
+      [
+        "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+      ]
+    ],
+    "generation_stale_chunks": [],
+    "frame_contiguity_errors": [],
+    "source_ready_count": 72,
+    "all_source_statistics_equal": true,
+    "normalization_values": [
+      [
+        0.0006814675871282816,
+        0.1288195550441742
+      ]
+    ],
+    "last_source_ready": {
+      "event": "source_ready",
+      "generation": 77,
+      "timestamp": 316050.566340474,
+      "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "source_frames": 2076225,
+      "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour/source.wav",
+      "mean": 0.0006814675871282816,
+      "std": 0.1288195550441742,
+      "reused": true,
+      "preparation_ms": 0.3772689960896969,
+      "consumed_at": 316050.566947841
+    },
+    "scope": "Event-order checks cover returned chunks, including rejected request628. Instrumented accept failed after currentness/source/shape checks; arrays are not archived."
+  },
+  "parity": {
+    "accepted_grid_hash_counts": {
+      "0": 1,
+      "257985": 1,
+      "515970": 1,
+      "773955": 1,
+      "1031940": 1,
+      "1289925": 1,
+      "1547910": 1,
+      "1805895": 1,
+      "2063880": 1
+    },
+    "all_accepted_grid_hashes_match_golden": true,
+    "accepted_trimmed_hashes_by_target": {
+      "258318": [
+        "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+      ],
+      "516107": [
+        "23be93526c9a29838f08bf684fc657ae8276a6c6721da000a51b91bb85915f3d"
+      ]
+    },
+    "all_accepted_trimmed_numeric_checks_exact": true,
+    "reference_comparisons": {
+      "benchmarks-local/isolation-2026-10-16/none-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/audio-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/both-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/ui-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/soak-2026-10-16/continuous-hour": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ],
+          "516107": [
+            "23be93526c9a29838f08bf684fc657ae8276a6c6721da000a51b91bb85915f3d"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/policy-2026-10-16/balanced-hour": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ],
+          "516107": [
+            "23be93526c9a29838f08bf684fc657ae8276a6c6721da000a51b91bb85915f3d"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      }
+    },
+    "limitation": "Mismatch is established by failed allclose assertion and changed same-target hash. No saved max difference, reference-array hash at failure or compared PCM exists, so mismatch magnitude/location and exact source of divergence cannot be recovered."
+  },
+  "worker_statistics_before_shutdown": {
+    "generation": 77,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": {
+      "generation": 77,
+      "request_id": 629,
+      "window_start_frame": 515970
+    },
+    "discarded_count": 5,
+    "cancel_count": 5,
+    "backend_start_count": 1,
+    "backend_pid": 1548274,
+    "closed": false
+  },
+  "worker_statistics_after_shutdown": {
+    "generation": 77,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 5,
+    "cancel_count": 5,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "backend_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 314527.813073649,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1548274,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 500.560985,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "consumed_at": 314527.813137081
+    }
+  ],
+  "worker_shutdown_ms": 149.26064398605376,
+  "reported_sampler_errors": {
+    "sample_errors": {},
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour/native-trace.jsonl",
+      "samples_written": 3064,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    }
+  },
+  "raw_pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 40001,
+      "sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "analysis_scope": "Only result/events and small reference event logs read; no native full trace parsed, no producer edits or GPU work. Request629 is reported in flight at failure but its started event was not consumed before the consumer exception; telemetry_dropped remains0.",
+  "script_sha256": "b750f0d865fe5ded36584f61d195d28a5866eeda84cfd77ff2fe0c18941d944e",
+  "evidence": {
+    "result.json": {
+      "bytes": 33659,
+      "sha256": "2536e6e40cd6d833ab4e32826a2944b3c31bbfa84bddec33813d472bfece99a8"
+    },
+    "events.jsonl": {
+      "bytes": 1579364,
+      "sha256": "6f95707177fd66de50ddf10e850233eb94a63ed1b0e17e039f5654919f954ba8"
+    }
+  }
+}

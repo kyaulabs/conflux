@@ -1,0 +1,16 @@
+{
+  "/sys/class/power_supply/AC/online": "1",
+  "/sys/firmware/acpi/platform_profile": "low-power",
+  "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+  "lid": "b false",
+  "profile": "power-saver",
+  "holds": "",
+  "at_utc": "2026-10-17T19:52:46.190715+00:00",
+  "repository_head": "fd4aee1bba0c529277b20ae15ffc4484ca8d7dc7",
+  "pins": {
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "tools/stems/worker.py": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+    "tools/benchmarks/worker_support.py": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+  }
+}

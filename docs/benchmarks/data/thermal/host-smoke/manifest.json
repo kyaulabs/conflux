@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "scope": "All files within this directory except this manifest itself; historical input manifests retain executed source paths.",
+  "files": [
+    {
+      "path": "audio.json",
+      "bytes": 1494,
+      "sha256": "13da55398086ee6b5b1f13a94da3c858d78b997f89f0b9815b58f953342b3cb2"
+    },
+    {
+      "path": "audio.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "events.jsonl.gz",
+      "bytes": 15981,
+      "sha256": "9e3f420e589154db27238d327f2a09cf909a075054d5b4fe1ac8a04beec0ab5a",
+      "uncompressed_bytes": 139445,
+      "uncompressed_sha256": "567931e0cf0f1425aa23d59cfd952acf95016141978fece484f6eb85b641b7c8"
+    },
+    {
+      "path": "native-trace.jsonl.gz",
+      "bytes": 49179,
+      "sha256": "6d63d32abe1e9024e420d9d185ee6bd6842bc0a96199da1d9ee85562502a9106",
+      "uncompressed_bytes": 1537846,
+      "uncompressed_sha256": "29afc243b2e6de8b9de18e0fc6c0afebd0c12c8d4630bf7b30a9b95d54c02c98"
+    },
+    {
+      "path": "progress.json",
+      "bytes": 2156,
+      "sha256": "dcff26f327f7d9e525de7b2f943c099c875d7538f2f99c1936b276cfe68deca8"
+    },
+    {
+      "path": "result.json",
+      "bytes": 33687,
+      "sha256": "55f2e2b3596c0f855b3f646d7f68e0ca985deb09253ba820f791368122c39ad3"
+    },
+    {
+      "path": "ui.json",
+      "bytes": 556,
+      "sha256": "f0b87cdacbd254c353719e46b72f13165cac0189e18621f2c2a3450bc5c37276"
+    },
+    {
+      "path": "ui.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

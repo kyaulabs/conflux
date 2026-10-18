@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "status": "static_admission_delta_review_passed_no_blocker_found",
+  "reviewed_at_utc": "2026-10-17T21:12:59.138634+00:00",
+  "before": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-profile-2026-10-17/interleaved_replay-attempt1.py",
+    "bytes": 18286,
+    "sha256": "d7fa3580c767696efcea61d00db782c6bb9e1e94e1892a289a2d704c511b061b"
+  },
+  "after": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+    "bytes": 19899,
+    "sha256": "9c8a439a9b29137379aa8528e9bbff11f144a824c8b5fbcaf9f0eb6653ab0479"
+  },
+  "scope": "Only diff from preserved initially reviewed driver; no execution/inference/host queries or broad tests. Original normalization/order/native/request-loop blocks unchanged.",
+  "findings": [
+    "Post-normalization unchanged normal_ready.run(\"admission\",output) has600s maximum and stores local readiness proof/JSONL; nonzero readiness fails before native creation.",
+    "Fresh admission uses that local matched proof, rechecks actual sameguard identity/balanced/noholds/package<=55C and AC/openlid, and refuses native spawn on failure.",
+    "Full live fresh-admission record is written in finally and linked from result even when a live condition rejects admission. An unmatched normal-ready wait instead retains its own proof/rows and exits before invoking fresh capture.",
+    "AC/lid helper now returns diagnostic errors/ready; caller explicitly requires ready both before native spawn and before first request.",
+    "Root supplies existing owned process guard plus outer960-second timeout. The driver separately bounds600s readiness,30s native readiness/response,300s postready request budget and12s live capture; setup/IO/cleanup are not absorbed into postready time."
+  ],
+  "limits": [
+    "Same-service recovered journal plus sampled temperature/policy is inferred readiness, not direct thermal-guard latch observation.",
+    "A live policy can still change after admission; collection must report actual sampled state without assuming readiness persists."
+  ]
+}

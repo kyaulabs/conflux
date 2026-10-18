@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "manifest_sha256": "c267a05fb9e2dcd2c16e54e6401370d2be8d7fad93d15c3504f68a7652bb3543",
+  "files": 46,
+  "stored_bytes": 811216,
+  "raw_bytes": 4289076,
+  "jsonl_records": {
+    "cpu/events.jsonl.gz": 34,
+    "cpu/native-trace.jsonl.gz": 448,
+    "series/cpu-normal-ready.jsonl.gz": 8,
+    "series/vulkan-normal-ready.jsonl.gz": 10,
+    "vulkan/events.jsonl.gz": 61,
+    "vulkan/native-trace.jsonl.gz": 132
+  },
+  "runs": {
+    "cpu": {
+      "event_records": 34,
+      "native_trace_records": 448,
+      "continuous_tracks": 3,
+      "seek_controls": 0,
+      "collected_generations": 3,
+      "raw_controls_verified": true,
+      "saved_latency_reductions_match": true,
+      "first_control_latency_recomputed": true
+    },
+    "vulkan": {
+      "event_records": 61,
+      "native_trace_records": 132,
+      "continuous_tracks": 3,
+      "seek_controls": 3,
+      "collected_generations": 6,
+      "raw_controls_verified": true,
+      "saved_latency_reductions_match": true,
+      "first_control_latency_recomputed": true
+    }
+  },
+  "scope": "Archive identity and saved-event/geometry/control audit only. Original MP3/WAV/NPY, runtime/model binaries and raw site dumps are excluded. Saved sample/output hashes are identities, not reconstructed samples. Numerical metrics, sample finiteness, audio quality and audible seams cannot be independently replayed from this media-free archive.",
+  "numerical_metrics_replayed": false,
+  "human_listening_verified_by_this_audit": false
+}

@@ -1,0 +1,49 @@
+Refreshing run status every 10 seconds. Press Ctrl+C to quit.
+
+* feat/kyau-a9f872-m0-audio-harness Build kyaulabs/conflux#1 · 39042588568
+Triggered via push less than a minute ago
+
+JOBS
+* linux (ID 117424888620)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  * Install build dependencies
+  * Configure
+  * Build
+  * Test core
+  * Test QML with software rendering
+  * Post Run actions/checkout@v4
+Refreshing run status every 10 seconds. Press Ctrl+C to quit.
+
+* feat/kyau-a9f872-m0-audio-harness Build kyaulabs/conflux#1 · 39042588568
+Triggered via push less than a minute ago
+
+JOBS
+* linux (ID 117424888620)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Install build dependencies
+  ✓ Configure
+  ✓ Build
+  * Test core
+  * Test QML with software rendering
+  * Post Run actions/checkout@v4
+✓ feat/kyau-a9f872-m0-audio-harness Build kyaulabs/conflux#1 · 39042588568
+Triggered via push less than a minute ago
+
+JOBS
+✓ linux in 44s (ID 117424888620)
+  ✓ Set up job
+  ✓ Run actions/checkout@v4
+  ✓ Install build dependencies
+  ✓ Configure
+  ✓ Build
+  ✓ Test core
+  ✓ Test QML with software rendering
+  ✓ Post Run actions/checkout@v4
+  ✓ Complete job
+
+ANNOTATIONS
+! Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+linux: .github#2
+

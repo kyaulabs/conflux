@@ -1,0 +1,111 @@
+{
+  "observed_at_utc": "2026-10-17T05:35:25.449799+00:00",
+  "scope": "Host snapshot; collected outside the restricted namespace",
+  "label": "after-observed-none-hour",
+  "pins": {
+    "src/main.cpp": {
+      "sha256": "ca46fb40e4aae39bd4268664e482438f6d62533d959ef657bd6081c07f6d6321",
+      "bytes": 8007
+    },
+    "src/probe_main.cpp": {
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+      "bytes": 17361
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "bytes": 44307
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "bytes": 22802
+    },
+    "tools/benchmarks/window_guard.py": {
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "bytes": 14613
+    },
+    "tools/benchmarks/worker_support.py": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "bytes": 23403
+    },
+    "tools/stems/worker.py": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "bytes": 24863
+    },
+    "build/dev/conflux": {
+      "sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+      "bytes": 1689016
+    },
+    "build/dev/conflux-audio-probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "bytes": 641648
+    },
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "bytes": 62986240
+    },
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "bytes": 84059168
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/balanced-run.py": {
+      "sha256": "c0e47a521d6f8ec4969c98782035b414360c796260808fb220a35e61cf704963",
+      "bytes": 5108
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/monitor.py": {
+      "sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "bytes": 3198
+    }
+  },
+  "read_errors": {},
+  "head": "aec8501bf0db4487d3a851b5106372574b191942",
+  "profile": "balanced",
+  "holds": "",
+  "/proc/meminfo": "MemTotal:       16064416 kB\nMemFree:         1954040 kB\nMemAvailable:    4802796 kB\nBuffers:          137532 kB\nCached:          4866008 kB\nSwapCached:       529432 kB\nActive:          7605888 kB\nInactive:        3755204 kB\nActive(anon):    6270140 kB\nInactive(anon):  2255720 kB\nActive(file):    1335748 kB\nInactive(file):  1499484 kB\nUnevictable:      403464 kB\nMlocked:            1732 kB\nSwapTotal:      16777212 kB\nSwapFree:        7860932 kB\nZswap:           1047212 kB\nZswapped:        2411860 kB\nDirty:              5788 kB\nWriteback:             0 kB\nAnonPages:       6257720 kB\nMapped:          1634732 kB\nShmem:           2095068 kB\nKReclaimable:     377860 kB\nSlab:             856020 kB\nSReclaimable:     377860 kB\nSUnreclaim:       478160 kB\nKernelStack:       35024 kB\nPageTables:       175208 kB\nSecPageTables:      4148 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    24809420 kB\nCommitted_AS:   54146304 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       79520 kB\nVmallocChunk:          0 kB\nPercpu:             7040 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:   225280 kB\nShmemPmdMapped:        0 kB\nFileHugePages:      6144 kB\nFilePmdMapped:      2048 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nGPUActive:             0 kB\nGPUReclaim:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      280000 kB\nDirectMap2M:    15144960 kB\nDirectMap1G:     2097152 kB",
+  "/proc/swaps": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n/dev/dm-1                               partition\t16777212\t8916280\t\t-1",
+  "/sys/firmware/acpi/platform_profile": "balanced",
+  "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+  "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+  "/sys/class/thermal/thermal_zone2": {
+    "type": "SEN1",
+    "millidegrees_C": 51050
+  },
+  "/sys/class/thermal/thermal_zone0": {
+    "type": "acpitz",
+    "millidegrees_C": 70000
+  },
+  "/sys/class/thermal/thermal_zone7": {
+    "type": "x86_pkg_temp",
+    "millidegrees_C": 67000
+  },
+  "/sys/class/thermal/thermal_zone5": {
+    "type": "TCPU",
+    "millidegrees_C": 70050
+  },
+  "/sys/class/thermal/thermal_zone3": {
+    "type": "SEN2",
+    "millidegrees_C": 69050
+  },
+  "/sys/class/thermal/thermal_zone1": {
+    "type": "INT3400 Thermal",
+    "millidegrees_C": 20000
+  },
+  "/sys/class/thermal/thermal_zone6": {
+    "type": "iwlwifi_1",
+    "millidegrees_C": 43000
+  },
+  "/sys/class/thermal/thermal_zone4": {
+    "type": "SEN5",
+    "millidegrees_C": 60050
+  },
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:002/type": "USB",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:002/online": "1",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:002/status": "Charging",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:001/type": "USB",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:001/online": "0",
+  "/sys/class/power_supply/ucsi-source-psy-USBC000:001/status": "Not charging",
+  "/sys/class/power_supply/BAT0/type": "Battery",
+  "/sys/class/power_supply/BAT0/status": "Not charging",
+  "/sys/class/power_supply/AC/type": "Mains",
+  "/sys/class/power_supply/AC/online": "1",
+  "scratch": "Filesystem               1B-blocks        Used   Available Use% Mounted on\ntmpfs                   4294967296  3650330624   644636672  85% /tmp\n/dev/mapper/aura-home 109232971776 75746398208 27890536448  74% /home\n"
+}

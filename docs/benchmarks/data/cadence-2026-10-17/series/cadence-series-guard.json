@@ -1,0 +1,22 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "benchmarks-local/cadence-2026-10-17/series_wait.py"
+  ],
+  "started_at_utc": "2026-10-17T14:51:14.102111+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_only": true,
+  "window_guard": {
+    "requested": false,
+    "status": "not_run"
+  },
+  "idle_inhibit_cookie": 9813,
+  "bus_owner": ":1.37541",
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-17T16:22:05.429701+00:00"
+}

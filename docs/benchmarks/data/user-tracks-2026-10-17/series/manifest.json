@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "excerpt_plan": {
+    "schema": 1,
+    "status": "declared_before_decoding",
+    "declared_at_utc": "2026-10-17T20:37:58.362384+00:00",
+    "preparation_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/prepare_user_tracks.py",
+      "bytes": 13611,
+      "sha256": "d089a098d4843f2c8335d8b4184baeb0b78de5f4c85ec453671024870cc79694"
+    },
+    "source_directory": "/home/kyau/temp/tracks",
+    "scope": "Four user-provided mixtures; filenames are user-provided labels, embedded tags unverified. No license or isolated-reference-stem claim. No downloads, inference or playback.",
+    "source_offset_seconds": 30.0,
+    "source_offset_frames": 1323000,
+    "duration_seconds": 23.4,
+    "excerpt_frames": 1031940,
+    "frames": 1031940,
+    "sample_rate": 44100,
+    "rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2,
+    "looping": false,
+    "crop_timeline": "After ffmpeg conversion to stereo 44100 Hz, half-open frames [1323000,2354940); no input seek",
+    "normalization": "Common stereo gain 0.95/decoded_excerpt_peak only when peak > 1.0; otherwise 1.0",
+    "quantization": "numpy.rint(float64(decoded_float32) * common_stereo_gain * 32767).astype('<i2'); reject clipping",
+    "storage": "Only four prepared WAV excerpts; no full-track copies or saved decoded full tracks. Original paths, tags and excerpts stay local.",
+    "decode_timeout_seconds_per_track": 120,
+    "id_revision": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/id-revision.json",
+      "bytes": 5690,
+      "sha256": "4dbf158c8843fd41c61ff2ed8dd9adfd4428a0f87b81a8759ecd58b3f56c1440"
+    },
+    "initial_decoder_source_preserved_as": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/prepare_user_tracks-attempt1.py",
+      "bytes": 13611,
+      "sha256": "d089a098d4843f2c8335d8b4184baeb0b78de5f4c85ec453671024870cc79694"
+    },
+    "corrected_preparation_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/prepare_user_tracks.py",
+      "bytes": 13959,
+      "sha256": "194f9ee353f0955d3e52d3f249454b6951981afabd13b6cd3d2ce58066def59b"
+    }
+  },
+  "tracks": [
+    {
+      "id": "club_xl",
+      "input_wav": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+      "input_pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "Excision & Level Up - Club XL ｜ Subsidia.flac",
+        "source_sha256": "1e5dffcfd01a5079d6789af0f3ac1bd38cf6ac69b7d7123a5ba796be5835189e",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.7877681480674557,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      }
+    },
+    {
+      "id": "when_the_light_breaks",
+      "input_wav": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+      "input_pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "Said The Sky, ILLENIUM, Heather Sommer - When The Light Breaks (Lyric Video).flac",
+        "source_sha256": "5c55f8132a7f7a5c2ef1642f3eb8199ba21f2710da5bac41612b747dddb7a08c",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.9153136754509476,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      }
+    },
+    {
+      "id": "under_my_skin",
+      "input_wav": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+      "input_pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "SLANDER, Spiritbox, Vastive - Under My Skin.flac",
+        "source_sha256": "5759ff164b97548b65375cd67cf63771a737ae72c0210eea67722beacb6ce81c",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.828489765120225,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      }
+    },
+    {
+      "id": "stfu",
+      "input_wav": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+      "input_pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "source_kind": "User-provided FLAC mixture",
+        "source_filename": "T-Pain, DJ DIESEL, San Holo, NGHTMRE, Kompany, SampliFire, IVORY - STFU [Dubstep ｜ Monstercat].flac",
+        "source_sha256": "a9647727dfddcbd09459cfd98002db51ecdc9f6d2d77463ec177c1af83831641",
+        "source_labels": "Filename supplied by user; artist/title and embedded tags not independently verified",
+        "license": "Not specified by user; no redistribution or CC-license assertion",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 1.0,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      }
+    }
+  ]
+}

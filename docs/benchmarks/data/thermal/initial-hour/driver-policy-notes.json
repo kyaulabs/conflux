@@ -1,0 +1,418 @@
+{
+  "scope": "Read-only stall investigation. No GPU work, settings changes, or package installation. Current observations do not reconstruct conditions at prior request 94.",
+  "captured_utc": "2026-10-16T17:55:32.013464+00:00",
+  "current_policy_and_driver_sysfs": {
+    "/sys/firmware/acpi/platform_profile": {
+      "value": "balanced"
+    },
+    "/sys/firmware/acpi/platform_profile_choices": {
+      "value": "low-power balanced performance"
+    },
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": {
+      "value": "balance_performance"
+    },
+    "/sys/class/drm/card1/gt/gt0/rc6_enable": {
+      "value": "1"
+    },
+    "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": {
+      "value": "268136609"
+    },
+    "/sys/class/drm/card1/device/power/runtime_status": {
+      "value": "active"
+    },
+    "/sys/class/drm/card1/device/power/runtime_active_time": {
+      "value": "284019409"
+    },
+    "/sys/class/drm/card1/device/power/runtime_suspended_time": {
+      "value": "11733651"
+    },
+    "/sys/class/power_supply/AC/online": {
+      "value": "1"
+    },
+    "/sys/class/power_supply/BAT0/status": {
+      "value": "Not charging"
+    },
+    "/sys/class/power_supply/BAT0/capacity": {
+      "value": "85"
+    },
+    "/sys/class/drm/card1/engine/rcs0/preempt_timeout_ms": {
+      "value": "7500"
+    },
+    "/sys/class/drm/card1/engine/rcs0/heartbeat_interval_ms": {
+      "value": "2500"
+    },
+    "/sys/class/drm/card1/engine/rcs0/timeslice_duration_ms": {
+      "value": "1"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+      "value": "0"
+    },
+    "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+      "value": "0"
+    }
+  },
+  "sysfs_units": {
+    "rc6_residency_ms": "cumulative milliseconds in RC6",
+    "runtime_active_time": "cumulative milliseconds",
+    "runtime_suspended_time": "cumulative milliseconds",
+    "preempt_timeout_ms": "milliseconds allowed for resident context to leave after higher-priority preemption, not a normal command duration limit",
+    "throttle_reason_*": "boolean reason bit, not power measurement"
+  },
+  "rapl_static_constraints": {
+    "/sys/class/powercap/intel-rapl:0": {
+      "constraint_0_max_power_uw": {
+        "value": "28000000"
+      },
+      "constraint_0_name": {
+        "value": "long_term"
+      },
+      "constraint_0_power_limit_uw": {
+        "value": "64000000"
+      },
+      "constraint_0_time_window_us": {
+        "value": "27983872"
+      },
+      "constraint_1_max_power_uw": {
+        "value": "0"
+      },
+      "constraint_1_name": {
+        "value": "short_term"
+      },
+      "constraint_1_power_limit_uw": {
+        "value": "64000000"
+      },
+      "constraint_1_time_window_us": {
+        "value": "2440"
+      },
+      "constraint_2_max_power_uw": {
+        "value": "0"
+      },
+      "constraint_2_name": {
+        "value": "peak_power"
+      },
+      "constraint_2_power_limit_uw": {
+        "value": "121000000"
+      },
+      "constraint_2_time_window_us": {
+        "error": "OSError",
+        "errno": 61
+      },
+      "enabled": {
+        "value": "1"
+      },
+      "energy_uj": {
+        "error": "PermissionError",
+        "errno": 13
+      },
+      "max_energy_range_uj": {
+        "value": "262143328850"
+      },
+      "name": {
+        "value": "package-0"
+      }
+    },
+    "/sys/class/powercap/intel-rapl:0:0": {
+      "constraint_0_max_power_uw": {
+        "error": "OSError",
+        "errno": 61
+      },
+      "constraint_0_name": {
+        "value": "long_term"
+      },
+      "constraint_0_power_limit_uw": {
+        "value": "0"
+      },
+      "constraint_0_time_window_us": {
+        "value": "976"
+      },
+      "enabled": {
+        "value": "0"
+      },
+      "energy_uj": {
+        "error": "PermissionError",
+        "errno": 13
+      },
+      "max_energy_range_uj": {
+        "value": "262143328850"
+      },
+      "name": {
+        "value": "core"
+      }
+    },
+    "/sys/class/powercap/intel-rapl:0:1": {
+      "constraint_0_max_power_uw": {
+        "error": "OSError",
+        "errno": 61
+      },
+      "constraint_0_name": {
+        "value": "long_term"
+      },
+      "constraint_0_power_limit_uw": {
+        "value": "0"
+      },
+      "constraint_0_time_window_us": {
+        "value": "976"
+      },
+      "enabled": {
+        "value": "0"
+      },
+      "energy_uj": {
+        "error": "PermissionError",
+        "errno": 13
+      },
+      "max_energy_range_uj": {
+        "value": "262143328850"
+      },
+      "name": {
+        "value": "uncore"
+      }
+    },
+    "/sys/class/powercap/intel-rapl:1": {
+      "constraint_0_max_power_uw": {
+        "error": "OSError",
+        "errno": 61
+      },
+      "constraint_0_name": {
+        "value": "long_term"
+      },
+      "constraint_0_power_limit_uw": {
+        "value": "100000000"
+      },
+      "constraint_0_time_window_us": {
+        "value": "27983872"
+      },
+      "constraint_1_max_power_uw": {
+        "error": "OSError",
+        "errno": 61
+      },
+      "constraint_1_name": {
+        "value": "short_term"
+      },
+      "constraint_1_power_limit_uw": {
+        "value": "100000000"
+      },
+      "constraint_1_time_window_us": {
+        "value": "976"
+      },
+      "enabled": {
+        "value": "1"
+      },
+      "energy_uj": {
+        "error": "PermissionError",
+        "errno": 13
+      },
+      "max_energy_range_uj": {
+        "value": "262143328850"
+      },
+      "name": {
+        "value": "psys"
+      }
+    }
+  },
+  "rapl_caveat": "Configured constraints, not actual watt readings or proof of the active firmware limit. energy_uj is permission-restricted; max_power_uw and power_limit_uw can differ. No cause assertion from flags or registers.",
+  "relevant_configuration": {
+    "/var/lib/power-profiles-daemon/state.ini": {
+      "value": "[State]\nbattery_aware=true\nCpuDriver=intel_pstate\nPlatformDriver=platform_profile\nProfile=balanced\n\n[Actions]\ntrickle_charge=true\namdgpu_panel_power=false\namdgpu_dpm=false"
+    },
+    "/home/kyau/.config/powerdevilrc": {
+      "value": "[AC][Display]\nDisplayBrightness=100\nTurnOffDisplayIdleTimeoutSec=900\nUseProfileSpecificDisplayBrightness=true\n\n[AC][Performance]\nPowerProfile=balanced\n\n[AC][SuspendAndShutdown]\nAutoSuspendAction=0\nAutoSuspendIdleTimeoutSec=1800\n\n[Battery][Display]\nUseProfileSpecificDisplayBrightness=true\n\n[Battery][Performance]\nPowerProfile=power-saver\n\n[LowBattery][Performance]\nPowerProfile=power-saver"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "powerprofilesctl",
+        "get"
+      ],
+      "captured_utc": "2026-10-16T17:55:32.118212+00:00",
+      "returncode": 0,
+      "stdout": "balanced\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "powerprofilesctl",
+        "query-battery-aware"
+      ],
+      "captured_utc": "2026-10-16T17:55:32.209904+00:00",
+      "returncode": 0,
+      "stdout": "Dynamic changes from charger and battery events: True\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "powerprofilesctl",
+        "list-holds"
+      ],
+      "captured_utc": "2026-10-16T17:55:32.298398+00:00",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "systemctl",
+        "--user",
+        "--no-pager",
+        "--full",
+        "status",
+        "plasma-powerdevil.service"
+      ],
+      "captured_utc": "2026-10-16T17:55:32.304231+00:00",
+      "returncode": 0,
+      "stdout": "\u25cf plasma-powerdevil.service - Powerdevil\n     Loaded: loaded (/usr/lib/systemd/user/plasma-powerdevil.service; static)\n     Active: active (running) since Mon 2026-10-12 13:57:37 PDT; 3 days ago\n Invocation: 88fd67ddb2c2445e9f9683131854cbf5\n   Main PID: 1338 (org_kde_powerde)\n      Tasks: 11 (limit: 18753)\n     Memory: 8.3M (peak: 14.1M, swap: 5.3M, swap peak: 5.3M, zswap: 1.4M)\n        CPU: 1min 45.391s\n     CGroup: /user.slice/user-1000.slice/user@1000.service/background.slice/plasma-powerdevil.service\n             \u2514\u25001338 /usr/lib/org_kde_powerdevil\n\nOct 15 17:00:07 aura.kyaulabs org_kde_powerdevil[1338]: [  1422][270150.783579] (ldbus_handle_message)Received dbus signal PrepareForSleep(true=prepare)\nOct 15 19:55:26 aura.kyaulabs org_kde_powerdevil[1338]: [  1422][280669.392433] (ldbus_handle_message)Received dbus signal PrepareForSleep(false=resume)\nOct 16 05:48:37 aura.kyaulabs org_kde_powerdevil[1338]: [  1422][316260.597067] (ldbus_handle_message)Received dbus signal PrepareForSleep(true=prepare)\nOct 16 05:50:19 aura.kyaulabs org_kde_powerdevil[1338]: [  1422][316363.077696] (ldbus_handle_message)Received dbus signal PrepareForSleep(false=resume)\nOct 16 05:50:30 aura.kyaulabs org_kde_powerdevil[1338]: [  1422][316373.452672] (ldbus_handle_message)Received dbus signal PrepareForSleep(true=prepare)\nOct 16 06:37:07 aura.kyaulabs org_kde_powerdevil[1338]: [  1422][319170.853008] (ldbus_handle_message)Received dbus signal PrepareForSleep(false=resume)\nNotice: journal has been rotated since unit was started, output may be incomplete.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "journalctl",
+        "--user",
+        "--no-pager",
+        "-u",
+        "plasma-powerdevil.service",
+        "--since",
+        "2026-10-16 09:00:00",
+        "--until",
+        "2026-10-16 12:00:00"
+      ],
+      "captured_utc": "2026-10-16T17:55:32.306166+00:00",
+      "returncode": 0,
+      "stdout": "-- No entries --\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "journalctl",
+        "--no-pager",
+        "-u",
+        "power-profiles-daemon.service",
+        "--since",
+        "2026-10-16 09:00:00",
+        "--until",
+        "2026-10-16 12:00:00"
+      ],
+      "captured_utc": "2026-10-16T17:55:32.308191+00:00",
+      "returncode": 0,
+      "stdout": "-- No entries --\n",
+      "stderr": ""
+    }
+  ],
+  "earlier_snapshot": {
+    "captured_utc": "2026-10-16T17:54:36.501899+00:00",
+    "AC_online": 1,
+    "BAT0_status": "Not charging",
+    "BAT0_capacity_percent": 85,
+    "USB_C_002_online": 1,
+    "limits": "No timestamped charger/profile transition found; snapshots cannot establish which component wrote a profile."
+  },
+  "interpretation": [
+    "PowerDevil is an active plausible profile writer: configured AC=balanced, Battery/LowBattery=power-saver. No timestamped trigger identified.",
+    "PPD BatteryAware=true means listening to UPower adapter/battery changes; do not infer an ActiveProfile switch from this alone.",
+    "Relevant service journals returned no entries for the requested interval; rotation warnings limit negative evidence.",
+    "The official PPD HoldProfile API accepts performance or power-saver; power-saver holds take precedence, and a user ActiveProfile change can cancel holds. A performance hold is temporary but is not an immutable lock.",
+    "Record current profile, EPP, firmware profile, holds, AC online and battery status at soak boundaries; existing periodic EPP/firmware/profile telemetry can expose drift.",
+    "RC6/runtime-PM deltas can distinguish idle/residency during a stall but cannot attribute contention or identify why a client was descheduled.",
+    "Prior 7500ms rcs0 preemption timeout similarity is not proof: no reset/preemption-timeout journal evidence was available, and busy counter advanced throughout the prior low-clock interval."
+  ],
+  "primary_sources": [
+    {
+      "url": "https://upower.pages.freedesktop.org/power-profiles-daemon/gdbus-org.freedesktop.UPower.PowerProfiles.html",
+      "supports": "BatteryAware, HoldProfile, ActiveProfile and hold precedence/cancellation semantics"
+    },
+    {
+      "url": "https://docs.kde.org/stable_kf6/en/powerdevil/kcontrol/powerdevil/",
+      "supports": "PowerDevil applies selected power profile when switching AC/battery/low-battery states; UI shortcuts can also change profile"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/master/drivers/gpu/drm/i915/gt/sysfs_engines.c",
+      "supports": "preempt_timeout_ms meaning in sysfs source"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/drivers/gpu/drm/i915/gt/intel_gt_sysfs_pm.c",
+      "supports": "throttle_reason PL1/PL2/PL4 masks; actual/requested clocks distinct"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/master/drivers/gpu/drm/i915/gt/intel_rps.c",
+      "supports": "Gen12 actual-frequency zero in RC6; request and actual frequency semantics"
+    },
+    {
+      "url": "https://docs.kernel.org/gpu/drm-usage-stats.html#utilization",
+      "supports": "per-client engine busy counters are residency/busy-time, not arithmetic work or frequency-normalized"
+    },
+    {
+      "url": "https://docs.kernel.org/accounting/psi.html",
+      "supports": "memory/IO pressure cumulative totals capture stalls; some/full definitions"
+    },
+    {
+      "url": "https://docs.kernel.org/filesystems/tmpfs.html",
+      "supports": "tmpfs uses page cache and optional swap; filesystem limit is distinct from global memory pressure"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/drivers/gpu/drm/i915/gem/i915_gem_shmem.c",
+      "supports": "Upstream lines 93\u2013140: retrieve shmem backing pages, own buffer shrink, then reclaim retry"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/mm/shmem.c",
+      "supports": "Upstream lines 2169\u20132173 condition PGMAJFAULT on fault_type; 5564\u20135573 shmem_read_folio_gfp passes NULL fault_type"
+    },
+    {
+      "url": "https://docs.kernel.org/power/powercap/powercap.html",
+      "supports": "RAPL limits and time windows units; peak-power time window inapplicable; RAPL has energy counter rather than instantaneous power_uw"
+    }
+  ],
+  "code_paths": [
+    {
+      "path": "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/models/demucs/pipeline.cpp",
+      "lines": "1647-1670",
+      "observation": "graph span includes tensor uploads, backend graph compute, backend synchronization, output tensor readbacks"
+    },
+    {
+      "path": "tools/runtime/BlockingVulkanWait.cmake",
+      "observation": "Hash-checked build-directory copy changes CPU spin fence wait to checked blocking wait only; does not change graph math or GPU scheduling priority"
+    },
+    {
+      "path": "tools/stems/worker.py",
+      "observation": "Vulkan child gets passive OpenMP wait policy; does not force a machine power profile"
+    }
+  ],
+  "next_diagnostics": [
+    "Root-owned unchanged-binary 60-minute saturated performance hold with audio/UI and 0.5-second memory/PSI/native faults/RC6 runtime telemetry. No Mesa GPU trace in this target validation.",
+    "If a long graph recurs, join strict interior samples and compare per-process faults + system reclaim/PSI, engine busy, actual/requested frequency, RC6, firmware/EPP, throttle reason flags. Correlation is insufficient for causal root cause.",
+    "Do not enable INTEL_DEBUG=sync, force queue priority, change preemption timeout or power limits without evidence requiring that distinct experiment."
+  ],
+  "additional_readonly_checks": {
+    "captured_utc": "2026-10-16T17:56:16.141865+00:00",
+    "kernel_release": "7.2.10-hardened1-1-hardened",
+    "kernel_release_command": [
+      "uname",
+      "-r"
+    ],
+    "i915_enable_guc": "PermissionError errno 13",
+    "i915_enable_dc": "PermissionError errno 13",
+    "i915_enable_psr": "PermissionError errno 13",
+    "i915_module_version": "FileNotFoundError errno 2",
+    "limit": "Upstream v6.18 and master sources explain mechanisms; exact installed hardened source has not been verified."
+  },
+  "memory_interpretation_limit": "Zero native major-fault or system pgmajfault delta alone cannot exclude kernel GEM shmem swap retrieval: upstream i915 shmem_sg_alloc_table invokes shmem_read_folio_gfp, which passes NULL fault_type; upstream shmem_swapin_folio increments PGMAJFAULT only when fault_type is non-NULL. PSI, pswpin and reclaim deltas should also be considered. This is a possible mechanism, not evidence it occurred in the prior stall."
+}

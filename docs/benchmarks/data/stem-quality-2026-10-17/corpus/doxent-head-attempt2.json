@@ -1,0 +1,22 @@
+{
+  "requested_url": "https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3",
+  "method": "HEAD",
+  "request_headers": {
+    "User-agent": "Mozilla/5.0",
+    "Referer": "https://ccmixter.org/files/doxent/56347"
+  },
+  "retrieved_at_utc": "2026-10-17T19:58:11.026550+00:00",
+  "status": 200,
+  "resolved_url": "https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3",
+  "headers": {
+    "Date": "Sat, 17 Oct 2026 19:58:11 GMT",
+    "Server": "Apache/2.2.22 (Debian) PHP/5.4.36-0+deb7u3 mod_ssl/2.2.22 OpenSSL/1.0.1e",
+    "Vary": "Origin",
+    "Last-Modified": "Wed, 02 Aug 2017 09:28:22 GMT",
+    "ETag": "\"4081c0e-4c40c6-555c1e298dbae\"",
+    "Accept-Ranges": "bytes",
+    "Content-Length": "4997318",
+    "Connection": "close",
+    "Content-Type": "audio/mpeg"
+  }
+}

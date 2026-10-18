@@ -1,0 +1,162 @@
+[
+  {
+    "requested_url": "https://ccmixter.org/files/doxent/56347",
+    "resolved_url": "https://ccmixter.org/files/doxent/56347",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:48 GMT",
+      "Server": "Apache/2.2.22 (Debian) PHP/5.4.36-0+deb7u3 mod_ssl/2.2.22 OpenSSL/1.0.1e",
+      "Vary": "Origin,Accept-Encoding",
+      "X-Powered-By": "PHP/5.4.36-0+deb7u3",
+      "Last-Modified": "Sat, 17 Oct 2026 19:54:52 GMT",
+      "ETag": "\"49060755103bc0bbf269576f7e7e1478\"",
+      "Expires": "Mon, 26 Jul 1997 05:00:00 GMT",
+      "Cache-Control": "must-revalidate",
+      "Connection": "close",
+      "Transfer-Encoding": "chunked",
+      "Content-Type": "text/html"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:48.316602+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:49.231095+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/parting-glass-page.html",
+    "bytes": 40472,
+    "sha256": "9916ea6dc9599e28440424000148c8ea5ef6fd8cb1c580c6fb8652d8611143b1"
+  },
+  {
+    "requested_url": "https://ccmixter.org/api/query/api?ids=56347&f=json&dataview=links_dl",
+    "resolved_url": "https://ccmixter.org/api/query/api?ids=56347&f=json&dataview=links_dl",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:49 GMT",
+      "Server": "Apache/2.2.22 (Debian) PHP/5.4.36-0+deb7u3 mod_ssl/2.2.22 OpenSSL/1.0.1e",
+      "Vary": "Origin,Accept-Encoding",
+      "X-Powered-By": "PHP/5.4.36-0+deb7u3",
+      "Last-Modified": "Sat, 17 Oct 2026 19:54:52 GMT",
+      "ETag": "\"49060755103bc0bbf269576f7e7e1478\"",
+      "Expires": "Mon, 26 Jul 1997 05:00:00 GMT",
+      "Cache-Control": "must-revalidate",
+      "X-JSON": "[{\"upload_id\" : 56347, \"upload_name\" : \"The Parting Glass\", \"file_page_url\" : \"https://ccmixter.org/files/doxent/56347\", \"user_name\" : \"doxent\", \"files\" : [{\"file_id\" : 91504, \"file_upload\" : 56347, \"file_name\" : \"doxent_-_The_Parting_Glass.zip\", \"file_nicname\" : \"Acapella\", \"file_format_info\" : {\"media-type\" : \"archive\", \"format-name\" : \"archive-zip-\", \"default-ext\" : \"zip\", \"mime_type\" : \"application/zip\", \"zipdir\" : {\"files\" : [\"/parting-glass-vocal-fx.aif  (48.66MB)\"]}}, \"file_extra\" : {\"sha1\" : \"YHD5PYMVJC4JSIFN3PJR3PRVYOSZED5X\", \"ccud\" : \"acappella,media\", \"type\" : \"pella\"}, \"file_filesize\" : \" (40.41MB)\", \"file_order\" : 0, \"file_is_remote\" : 0, \"file_num_download\" : 0, \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.zip\", \"local_path\" : \"/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass.zip\", \"file_rawsize\" : 42370152}, {\"file_id\" : 91505, \"file_upload\" : 56347, \"file_name\" : \"doxent_-_The_Parting_Glass.mp3\", \"file_nicname\" : \"Preview\", \"file_format_info\" : {\"media-type\" : \"audio\", \"format-name\" : \"audio-mp3-mp3\", \"default-ext\" : \"mp3\", \"mime_type\" : \"audio/mpeg\", \"sr\" : \"44k\", \"ch\" : \"stereo\", \"ps\" : \"3:07\", \"br\" : \"VBR\"}, \"file_extra\" : {\"sha1\" : \"VZKLCWMTLUWSGAST5NATUIVJBRUEKOZB\"}, \"file_filesize\" : \" (4.77MB)\", \"file_order\" : 1, \"file_is_remote\" : 0, \"file_num_download\" : 0, \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3\", \"local_path\" : \"/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass.mp3\", \"file_rawsize\" : 4997318}, {\"file_id\" : 91506, \"file_upload\" : 56347, \"file_name\" : \"doxent_-_The_Parting_Glass_1.zip\", \"file_nicname\" : \"Sample\", \"file_format_info\" : {\"media-type\" : \"archive\", \"format-name\" : \"archive-zip-\", \"default-ext\" : \"zip\", \"mime_type\" : \"application/zip\", \"zipdir\" : {\"files\" : [\"/parting-glass-piano.aif  (48.41MB)\"]}}, \"file_extra\" : {\"ccud\" : \"sample,media\", \"type\" : \"samples\", \"sha1\" : \"UP3GLUWKTGXBVVFZGKWPE2GKZ5G7XHSL\"}, \"file_filesize\" : \" (43.46MB)\", \"file_order\" : 2, \"file_is_remote\" : 0, \"file_num_download\" : 0, \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass_1.zip\", \"local_path\" : \"/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass_1.zip\", \"file_rawsize\" : 45568472}, {\"file_id\" : 91507, \"file_upload\" : 56347, \"file_name\" : \"doxent_-_The_Parting_Glass_2.zip\", \"file_nicname\" : \"Vocal dry\", \"file_format_info\" : {\"media-type\" : \"archive\", \"format-name\" : \"archive-zip-\", \"default-ext\" : \"zip\", \"mime_type\" : \"application/zip\", \"zipdir\" : {\"files\" : [\"/parting-glass-vocal-dry.aif  (48.91MB)\"]}}, \"file_extra\" : {\"ccud\" : \"acappella,media\", \"type\" : \"pella\", \"sha1\" : \"MP6AYE23BSXMRDTW3VOQ3OPU6IV3PPPY\"}, \"file_filesize\" : \" (20.44MB)\", \"file_order\" : 3, \"file_is_remote\" : 0, \"file_num_download\" : 0, \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass_2.zip\", \"local_path\" : \"/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass_2.zip\", \"file_rawsize\" : 21429432}, {\"file_id\" : 91508, \"file_upload\" : 56347, \"file_name\" : \"doxent_-_The_Parting_Glass_3.zip\", \"file_nicname\" : \"Midi\", \"file_format_info\" : {\"media-type\" : \"archive\", \"format-name\" : \"archive-zip-\", \"default-ext\" : \"zip\", \"mime_type\" : \"application/zip\", \"zipdir\" : {\"files\" : [\"/parting glass-midi.mid  (9.24KB)\"]}}, \"file_extra\" : {\"ccud\" : \"sample,media\", \"type\" : \"samples\", \"sha1\" : \"NNNRIU7EUWGUZM7AIQE6XB63HU2ER4V2\"}, \"file_filesize\" : \" (5KB)\", \"file_order\" : 4, \"file_is_remote\" : 0, \"file_num_download\" : 0, \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass_3.zip\", \"local_path\" : \"/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass_3.zip\", \"file_rawsize\" : 5407}, {\"file_id\" : 91509, \"file_upload\" : 56347, \"file_name\" : \"doxent_-_The_Parting_Glass.flac\", \"file_nicname\" : \"Altnerate File Format\", \"file_format_info\" : {\"media-type\" : \"audio\", \"format-name\" : \"audio-flac-flac\", \"default-ext\" : \"flac\", \"mime_type\" : \"audio/x-flac\", \"sr\" : \"44k\", \"ch\" : \"stereo\", \"ps\" : \"3:07\", \"br\" : \"VBR\"}, \"file_extra\" : {\"ccud\" : \"multiple_formats\", \"type\" : \"multiple_formats\", \"sha1\" : \"2UQGJUZRHTY6GFQEIPK6D73NEXIJZQUX\"}, \"file_filesize\" : \" (12.36MB)\", \"file_order\" : 5, \"file_is_remote\" : 0, \"file_num_download\" : 0, \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.flac\", \"local_path\" : \"/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass.flac\", \"file_rawsize\" : 12959530}], \"download_url\" : \"https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.zip\"}]",
+      "Content-Length": "4554",
+      "Connection": "close",
+      "Content-Type": "text/plain"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:49.237680+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:49.850986+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/parting-glass-official-api.json",
+    "bytes": 4554,
+    "sha256": "3fbc248dd49a31e3f2670d63d7c1b31830c547d3f738cb6d2ab650d0e3db13dc"
+  },
+  {
+    "requested_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100474",
+    "resolved_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100474",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:50 GMT",
+      "Server": "Apache/2.4.56 (Debian)",
+      "Accept-Ranges": "bytes",
+      "Link": "https://incompetech.com/.well-known/openapi.yaml; rel=\"describedby\"",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+      "Connection": "close",
+      "Transfer-Encoding": "chunked",
+      "Content-Type": "text/html"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:49.851396+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:50.190027+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/funkorama-page.html",
+    "bytes": 26826,
+    "sha256": "0aaccc3d496fc4ae189e27e3fe2d4f5216266e3bcccf2e0ba77fb1b57a28fa94"
+  },
+  {
+    "requested_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200020",
+    "resolved_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200020",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:50 GMT",
+      "Server": "Apache/2.4.56 (Debian)",
+      "Accept-Ranges": "bytes",
+      "Link": "https://incompetech.com/.well-known/openapi.yaml; rel=\"describedby\"",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+      "Connection": "close",
+      "Transfer-Encoding": "chunked",
+      "Content-Type": "text/html"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:50.193736+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:50.593456+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/club-diver-page.html",
+    "bytes": 26826,
+    "sha256": "0aaccc3d496fc4ae189e27e3fe2d4f5216266e3bcccf2e0ba77fb1b57a28fa94"
+  },
+  {
+    "requested_url": "https://incompetech.com/music/royalty-free/pieces.json",
+    "resolved_url": "https://incompetech.com/music/royalty-free/pieces.json",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:50 GMT",
+      "Server": "Apache/2.4.56 (Debian)",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "881512",
+      "Vary": "Accept-Encoding",
+      "Link": "https://incompetech.com/.well-known/openapi.yaml; rel=\"describedby\"",
+      "Expires": "Thu, 1 Jan 1970 00:00:00 GMT",
+      "Pragma": "no-cache",
+      "Cache-Control": "max-age=0, no-cache, no-store, must-revalidate",
+      "Connection": "close",
+      "Content-Type": "application/json"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:50.596837+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:51.823265+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/incompetech-pieces.json",
+    "bytes": 881512,
+    "sha256": "54802ad340562624b9d1c9c97aa9f005e2b9bf79001f8a1a07ed857e68b2164a"
+  },
+  {
+    "requested_url": "https://creativecommons.org/licenses/by/3.0/",
+    "resolved_url": "https://creativecommons.org/licenses/by/3.0/",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:52 GMT",
+      "Content-Type": "text/html",
+      "Transfer-Encoding": "chunked",
+      "Connection": "close",
+      "Server": "cloudflare",
+      "Last-Modified": "Thu, 01 Oct 2026 17:09:56 GMT",
+      "cf-cache-status": "HIT",
+      "Age": "5806",
+      "Vary": "Accept-Encoding",
+      "Access-Control-Allow-Origin": "*",
+      "CF-RAY": "a4c1de78fec2b9b2-SEA"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:51.826809+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:52.056893+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/cc-by-3.0.html",
+    "bytes": 31824,
+    "sha256": "befae005d7dc8701eed58fe2080fda2889c3749272d6c8aba8e8310114112095"
+  },
+  {
+    "requested_url": "https://creativecommons.org/licenses/by/4.0/",
+    "resolved_url": "https://creativecommons.org/licenses/by/4.0/",
+    "status": 200,
+    "headers": {
+      "Date": "Sat, 17 Oct 2026 19:56:52 GMT",
+      "Content-Type": "text/html",
+      "Transfer-Encoding": "chunked",
+      "Connection": "close",
+      "Server": "cloudflare",
+      "Last-Modified": "Thu, 01 Oct 2026 17:09:56 GMT",
+      "cf-cache-status": "HIT",
+      "Age": "6148",
+      "Vary": "Accept-Encoding",
+      "Access-Control-Allow-Origin": "*",
+      "CF-RAY": "a4c1de79af99df09-SEA"
+    },
+    "retrieval_start_utc": "2026-10-17T19:56:52.057850+00:00",
+    "retrieval_end_utc": "2026-10-17T19:56:52.150200+00:00",
+    "snapshot": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/source-evidence/cc-by-4.0.html",
+    "bytes": 31950,
+    "sha256": "8dda1ccec4be91fc80821d4e4fd5c568072b9a3a74b2fdc07c249a27e920ef01"
+  }
+]

@@ -1,0 +1,195 @@
+{
+  "schema": "conflux.m1-handoff-verification.v1",
+  "client_date": "2026-10-17 America/Los_Angeles",
+  "status": "unit_ui_and_private_virtual_passed_native_and_soak_not_run",
+  "source_base_head": "0c61d2cf2c3786e8649965ba8f6be5dd0fe77f85",
+  "source_scope": "WIP after the signed base, not implementation already present at that base. Exact pre-private pins cover 76 source/resources and 23 binaries; source snapshots remain ignored locally. CTest has 15 pre-test source hashes; its full binary set was captured later, before the private check.",
+  "runs": {
+    "ctest": {
+      "passed": 22,
+      "failed": 0,
+      "elapsed_seconds": 27.43,
+      "report": "ctest-initial.log",
+      "pretest_source_pins": "initial-source-pins.json"
+    },
+    "private_v1": {
+      "passed": true,
+      "assertions": 82,
+      "pin_report": "private-v1/pins-before.json",
+      "result": "private-v1/result.json",
+      "check": "private-v1/check.stdout.json",
+      "warmup_min_frames": 1024,
+      "warmup_scope": "Receiver constant-sample validation and recorder attachment start only after ready and at least 1024 output frames. Startup fade samples are excluded; analytic ramp correctness is covered by core tests, not click-free qualification here. Receiver counters are never reset.",
+      "source_handoff": {
+        "report": "private-v1/source-handoff.json",
+        "swaps": 2,
+        "callbacks": 52,
+        "output_frames": 13312,
+        "recorded_frames": 9984,
+        "recorded_seconds": 0.208,
+        "generation_ack_output_frames": [
+          3840,
+          10496
+        ],
+        "scope": "Two bounded callback source handoffs on one private virtual graph; muted target, exact audible peer, master recording attached continuously. Startup fade excluded after at least 1024 output frames. Hardware and sustained qualification remain separate.",
+        "fault_scope": "Helper assertions passed for exact nonzero peer samples, zero invalid buffers, rejected controls, execution misses, starvation and read failures. The focused raw summary emits no separate wrong-sample/fault counters."
+      },
+      "late_cue_removal": {
+        "report": "private-v1/cue-removal.json",
+        "after_session_start_us": 5206877,
+        "master_zero_samples": [
+          0,
+          0
+        ],
+        "unready_observations": 0
+      },
+      "cleanup": {
+        "raw_dump": "private-v1/cleanup-pw-dump.json",
+        "remaining_owned_nodes_ports_links": 0,
+        "daemon_reaped": true
+      }
+    },
+    "native_current": {
+      "status": "not_run",
+      "reason": "Pending human visibility confirmation; no current native pass claimed."
+    },
+    "sustained_current": {
+      "status": "not_run",
+      "reason": "Harness preparation only; no soak qualification or listening verdict."
+    },
+    "soak_harness": {
+      "status": "built_and_offline_checks_passed",
+      "report": "soak-harness-verification.json",
+      "fixture_metadata": "soak-fixtures.json",
+      "offline_checks": 4,
+      "scope": "Build, syntax, CLI rejection and offline thermal-summary checks only. No native audio/UI or cancellation qualification run.",
+      "fixture_readback": [
+        {
+          "local_path": "benchmarks-local/m1-handoff-2026-10-17/quiet-soak-0.wav",
+          "peak_integer": 96,
+          "identical_15_second_blocks": 32,
+          "normalized_stereo_float_bytes": 184320000
+        },
+        {
+          "local_path": "benchmarks-local/m1-handoff-2026-10-17/quiet-soak-1.wav",
+          "peak_integer": 96,
+          "identical_15_second_blocks": 32,
+          "normalized_stereo_float_bytes": 184320000
+        }
+      ],
+      "scope_limit": "No native audio/UI, cancellation or sustained run was executed."
+    }
+  },
+  "recording_readback": [
+    {
+      "local_path": "benchmarks-local/m1-handoff-2026-10-17/private-v1/recordings/one-four-channel-sink.wav",
+      "bytes": 32856,
+      "sha256": "0fb298419bc0c4201ed48f69c48b9fad8c9a3a45541c268aea2841cd41bd32a7",
+      "format": "WAV IEEE float32 stereo 48000 Hz",
+      "frames": 4096,
+      "seconds": 0.08533333333333333,
+      "expected_stereo_sample": [
+        0.0390625,
+        -0.05859375
+      ],
+      "mismatching_frames": 0,
+      "included_in_git": false
+    },
+    {
+      "local_path": "benchmarks-local/m1-handoff-2026-10-17/private-v1/recordings/two-stereo-sinks.wav",
+      "bytes": 32856,
+      "sha256": "d63db253f8aabfbf8570b977feb1d5350783d582252a294c315ade8b0b63a4e6",
+      "format": "WAV IEEE float32 stereo 48000 Hz",
+      "frames": 4096,
+      "seconds": 0.08533333333333333,
+      "expected_stereo_sample": [
+        0.0390625,
+        -0.05859375
+      ],
+      "mismatching_frames": 0,
+      "included_in_git": false
+    },
+    {
+      "local_path": "benchmarks-local/m1-handoff-2026-10-17/private-v1/recordings/source-handoff.wav",
+      "bytes": 79960,
+      "sha256": "3c4a444b704df2c0b2b1f16cf5e264442a1a3cf1a93090bb3f283e875b66f619",
+      "format": "WAV IEEE float32 stereo 48000 Hz",
+      "frames": 9984,
+      "seconds": 0.208,
+      "expected_stereo_sample": [
+        0.0390625,
+        -0.05859375
+      ],
+      "mismatching_frames": 0,
+      "included_in_git": false
+    }
+  ],
+  "prior_failed_native": {
+    "path": "../m1-routing-2026-10-17/verification.json",
+    "sha256": "a734029531f2045dc9f81d26cbcad94505090a5755b4209b3c8e2f7768267fe0",
+    "scope": "Prior native v5 failed its frameSwapped/presentation gate; retained unchanged, not promoted to a pass."
+  },
+  "limits": [
+    "Private daemon only: no ALSA, session manager, D-Bus, host graph discovery or physical output.",
+    "Startup fade is excluded from exact receiver/WAV validation after at least 1024 output frames; analytic ramps have unit coverage, not click-free listening qualification.",
+    "The handoff target is muted; exact peer samples and a continuously attached recorder verify this software path, not audible replacement quality or physical continuity.",
+    "Virtual receiver callback spacing is not physical latency or proof of uninterrupted audio.",
+    "No current native UI playback, human listening, sustained thermal soak, physical headphone isolation or separate-device drift qualification.",
+    "The failed 4.095-second live-stem p99 target remains a mandatory M2 blocker before a usable release.",
+    "Only focused text/JSON/config evidence and hashes are copied; recordings, binaries, screenshots, frozen source copies and full daemon logs remain outside Git."
+  ],
+  "artifacts": {
+    "ctest-initial.log": {
+      "bytes": 2388,
+      "sha256": "a8542bdb8e60e995ad54114b644338179607e598dba7645ad2c927e47142e344"
+    },
+    "initial-source-pins.json": {
+      "bytes": 1509,
+      "sha256": "0196082e38973d7eb8759b878028d3ee2c3642b950ab8f5e14550e391ed78d48"
+    },
+    "private-v1/check.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "private-v1/check.stdout.json": {
+      "bytes": 8054,
+      "sha256": "28198b6aca82fa9264fd80e95369f4ed60262f79bd9f0c7727ebf6d791a514d9"
+    },
+    "private-v1/cleanup-pw-dump.json": {
+      "bytes": 12303,
+      "sha256": "c4ec7fe989279f01c5da544f86540eb6775a400a881056d861bc0df27584bcb3"
+    },
+    "private-v1/cue-removal.json": {
+      "bytes": 3151,
+      "sha256": "b6dc0e56ec4ef383b67b2f382a171160fe9411203afb1aa0876ce4fcfe5912c0"
+    },
+    "private-v1/pins-before.json": {
+      "bytes": 19886,
+      "sha256": "bfd56f2657c7f396b2c52662079f69a36755564502e5efe08f0a89f933e03e4a"
+    },
+    "private-v1/private-client.conf": {
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "private-v1/private-daemon.conf": {
+      "bytes": 1071,
+      "sha256": "bfbca8034c50a7d8daf13e7cacd6f07debca5408cc43f7b222b7845d055b4728"
+    },
+    "private-v1/result.json": {
+      "bytes": 9790,
+      "sha256": "e3ae55b8bf4eb05121c372c0d9274722d60f5eb9c40b2323122285bb0660827c"
+    },
+    "private-v1/source-handoff.json": {
+      "bytes": 927,
+      "sha256": "9b9f5b8f6ad097b754890d2715d5a03a63fc6010d7c5b57d107e86737b2434be"
+    },
+    "soak-fixtures.json": {
+      "bytes": 1058,
+      "sha256": "93da2c0d706e48d91f77b62fb7fb2ecd6fe1eb52f714e1dbadb2d3a2466fecbf"
+    },
+    "soak-harness-verification.json": {
+      "bytes": 1958,
+      "sha256": "80c0b0a08155775031fd550a303c66754fb469dc6af8fb37e65b05887a421dd7"
+    }
+  }
+}

@@ -1,0 +1,553 @@
+{
+  "schema": 1,
+  "script": {
+    "path": "benchmarks-local/ui-profile-2026-10-17/baseline-stage-audit.py",
+    "bytes": 6195,
+    "sha256": "63a62297731da3e235affef7f3ddfc43efa359b6628d3b85200ee54bc39c08ff"
+  },
+  "scope": [
+    "CPU-only replay of completed saved evidence; no host probes or benchmarks.",
+    "Nearest-rank percentiles; consecutive hops are not independent tail samples.",
+    "Per-hop interior snapshots span ready_at minus hop_service_ms through ready_at, inclusive; no interpolation.",
+    "Balanced-only means every available interior snapshot reads balanced, not proof of continuous policy between snapshots.",
+    "Within-hop GPU frequency is the arithmetic mean of sampled gt_act_freq_mhz, including sampled zero values.",
+    "Trace covers native worker and host values, not GUI/KWin processes. No causal attribution to GUI updates versus rendering.",
+    "Fixed run order, background activity, power history and roughly 0.5-second sampling limit causal conclusions.",
+    "Missing thermal flags are counted separately; zero observations are not continuous thermal proof.",
+    "GPU utilization is intentionally not derived from fdinfo counters; prior combined trace contains an implausible delta."
+  ],
+  "runs": {
+    "both": {
+      "inputs": [
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-both-hour/result.json",
+          "bytes": 50265,
+          "sha256": "821069eaf207d8c4a21e09650841ccce88eb748c6a04afcb1e73be2d44e06fcb"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-both-hour/events.jsonl",
+          "bytes": 3350226,
+          "sha256": "62efc58bbd31fa80b78201432b54d73e9183ef97e733c91a1ce0c386925acd92"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-both-hour/native-trace.jsonl",
+          "bytes": 46178423,
+          "sha256": "2c5759130dab8b831536e6061d8c6a5ca7a97d36b48d73038d9f017b0b2c85d4"
+        }
+      ],
+      "repository_head": "b375522216d2d81a9d1d011017fb25474be0dacf",
+      "continuous": {
+        "hops": 1296,
+        "misses_above_4095_ms": 228,
+        "hop_service_ms": {
+          "count": 1296,
+          "p50": 2194.3267270107754,
+          "p95": 4789.880516007543,
+          "p99": 5941.170825972222,
+          "maximum": 7475.6683629821055
+        }
+      },
+      "sampled_hops": 1296,
+      "all_interior_samples_balanced": {
+        "hops": 1260,
+        "misses_above_4095_ms": 203,
+        "hop_service_ms": {
+          "count": 1260,
+          "p50": 2193.3247900451533,
+          "p95": 4695.845510985237,
+          "p99": 5941.170825972222,
+          "maximum": 7475.6683629821055
+        }
+      },
+      "last_55_minutes": {
+        "hops": 1186,
+        "misses_above_4095_ms": 203,
+        "hop_service_ms": {
+          "count": 1186,
+          "p50": 2197.409930988215,
+          "p95": 4760.1967850350775,
+          "p99": 5983.9728500228375,
+          "maximum": 7475.6683629821055
+        }
+      },
+      "graph_ms": {
+        "count": 1296,
+        "p50": 2117.637225,
+        "p95": 4623.964886,
+        "p99": 5547.16964,
+        "maximum": 7089.7492
+      },
+      "queue_delay_ms": {
+        "count": 1296,
+        "p50": 0.1889229752123356,
+        "p95": 0.5438310327008367,
+        "p99": 2.0423370297066867,
+        "maximum": 4.541977017652243
+      },
+      "hop_minus_graph_ms": {
+        "count": 1296,
+        "p50": 80.69286802534225,
+        "p95": 181.77086700548944,
+        "p99": 298.5609049467139,
+        "maximum": 803.7356140122729
+      },
+      "top_one_percent_graph_share_percent": {
+        "hops": 13,
+        "minimum": 89.4381184315658,
+        "median": 95.83011170612326,
+        "maximum": 97.26577342304932
+      },
+      "sampled_frequency_groups": {
+        "misses": {
+          "hops": 228,
+          "mean_sampled_gpu_mhz": {
+            "count": 228,
+            "p50": 538.8888888888889,
+            "p95": 600,
+            "p99": 600,
+            "maximum": 606.25
+          },
+          "maximum_sampled_package_C": {
+            "count": 228,
+            "p50": 60.0,
+            "p95": 65.0,
+            "p99": 66.0,
+            "maximum": 73.0
+          }
+        },
+        "under_3000_ms": {
+          "hops": 986,
+          "mean_sampled_gpu_mhz": {
+            "count": 986,
+            "p50": 1137.5,
+            "p95": 1187.5,
+            "p99": 1220,
+            "maximum": 1350
+          },
+          "maximum_sampled_package_C": {
+            "count": 986,
+            "p50": 73.0,
+            "p95": 75.0,
+            "p99": 77.0,
+            "maximum": 78.0
+          }
+        }
+      },
+      "mean_gpu_at_most_650_mhz": {
+        "hops": 297,
+        "misses_above_4095_ms": 228,
+        "hop_service_ms": {
+          "count": 297,
+          "p50": 4254.69577597687,
+          "p95": 5769.222808012273,
+          "p99": 7159.925731946714,
+          "maximum": 7475.6683629821055
+        }
+      },
+      "graph_vs_mean_sampled_gpu_pearson_r": -0.9154384503077533,
+      "trace_samples": 7052,
+      "pl1_nonzero_samples": 6685,
+      "gpu_thermal_nonzero_samples": 0,
+      "gpu_thermal_present_samples": 7052
+    },
+    "ui": {
+      "inputs": [
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/result.json",
+          "bytes": 47048,
+          "sha256": "1e7ecb9597d1d0822f7c306b36674680901e0d9933861080079a52482bf0fe71"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/events.jsonl",
+          "bytes": 3581032,
+          "sha256": "6b4b3e43f6ffea431bafacb70e0962049b822b86bcdcb1654e98967ed26ac195"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/native-trace.jsonl",
+          "bytes": 46259561,
+          "sha256": "94b945e657ac7e793af3b80fe02bc9bf1cafbc7c4dd146000ace1a071074ce54"
+        }
+      ],
+      "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+      "continuous": {
+        "hops": 1386,
+        "misses_above_4095_ms": 107,
+        "hop_service_ms": {
+          "count": 1386,
+          "p50": 2154.539872019086,
+          "p95": 4204.681464994792,
+          "p99": 4927.14932304807,
+          "maximum": 6188.63217899343
+        }
+      },
+      "sampled_hops": 1386,
+      "all_interior_samples_balanced": {
+        "hops": 1358,
+        "misses_above_4095_ms": 80,
+        "hop_service_ms": {
+          "count": 1358,
+          "p50": 2151.355672045611,
+          "p95": 4126.234096009284,
+          "p99": 4526.617273979355,
+          "maximum": 6132.045610982459
+        }
+      },
+      "last_55_minutes": {
+        "hops": 1272,
+        "misses_above_4095_ms": 80,
+        "hop_service_ms": {
+          "count": 1272,
+          "p50": 2157.428918988444,
+          "p95": 4140.167378995102,
+          "p99": 4597.307768999599,
+          "maximum": 6132.045610982459
+        }
+      },
+      "graph_ms": {
+        "count": 1386,
+        "p50": 2078.177813,
+        "p95": 4059.624438,
+        "p99": 4769.051582,
+        "maximum": 5997.015819
+      },
+      "queue_delay_ms": {
+        "count": 1386,
+        "p50": 0.21119602024555206,
+        "p95": 0.44601899571716785,
+        "p99": 0.6712240283377469,
+        "maximum": 12.3992909793742
+      },
+      "hop_minus_graph_ms": {
+        "count": 1386,
+        "p50": 78.07675600290668,
+        "p95": 145.85587796420214,
+        "p99": 180.82674397812752,
+        "maximum": 341.22299603798183
+      },
+      "top_one_percent_graph_share_percent": {
+        "hops": 14,
+        "minimum": 94.15356138222043,
+        "median": 96.67298309301313,
+        "maximum": 97.79796497696265
+      },
+      "sampled_frequency_groups": {
+        "misses": {
+          "hops": 107,
+          "mean_sampled_gpu_mhz": {
+            "count": 107,
+            "p50": 572.2222222222222,
+            "p95": 612.5,
+            "p99": 625,
+            "maximum": 627.7777777777778
+          },
+          "maximum_sampled_package_C": {
+            "count": 107,
+            "p50": 58.0,
+            "p95": 63.0,
+            "p99": 69.0,
+            "maximum": 79.0
+          }
+        },
+        "under_3000_ms": {
+          "hops": 1087,
+          "mean_sampled_gpu_mhz": {
+            "count": 1087,
+            "p50": 1162.5,
+            "p95": 1212.5,
+            "p99": 1350,
+            "maximum": 1350
+          },
+          "maximum_sampled_package_C": {
+            "count": 1087,
+            "p50": 73.0,
+            "p95": 75.0,
+            "p99": 77.0,
+            "maximum": 82.0
+          }
+        }
+      },
+      "mean_gpu_at_most_650_mhz": {
+        "hops": 280,
+        "misses_above_4095_ms": 107,
+        "hop_service_ms": {
+          "count": 280,
+          "p50": 4024.4635329581797,
+          "p95": 4856.49558797013,
+          "p99": 5918.183423986193,
+          "maximum": 6188.63217899343
+        }
+      },
+      "graph_vs_mean_sampled_gpu_pearson_r": -0.9160143087509993,
+      "trace_samples": 7065,
+      "pl1_nonzero_samples": 6685,
+      "gpu_thermal_nonzero_samples": 0,
+      "gpu_thermal_present_samples": 7065
+    },
+    "none": {
+      "inputs": [
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-none-hour/result.json",
+          "bytes": 41699,
+          "sha256": "4b355bc6471949b7a462f65e8e6d7f31cff34562ecbf410fd2ccc709943a0c1a"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-none-hour/events.jsonl",
+          "bytes": 4362024,
+          "sha256": "bbf46d4d1fd3b114bcac8bc5eb1961811d6646869c57430b050c0375631b76c1"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-none-hour/native-trace.jsonl",
+          "bytes": 46272673,
+          "sha256": "aa49413506d2fe64661ac6eb62b67722300f6e38da9b4c3bfb68b4112a7b0dd5"
+        }
+      ],
+      "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+      "continuous": {
+        "hops": 1692,
+        "misses_above_4095_ms": 3,
+        "hop_service_ms": {
+          "count": 1692,
+          "p50": 1961.7410600185394,
+          "p95": 3333.026907988824,
+          "p99": 3832.6338350307196,
+          "maximum": 4466.085923020728
+        }
+      },
+      "sampled_hops": 1692,
+      "all_interior_samples_balanced": {
+        "hops": 1692,
+        "misses_above_4095_ms": 3,
+        "hop_service_ms": {
+          "count": 1692,
+          "p50": 1961.7410600185394,
+          "p95": 3333.026907988824,
+          "p99": 3832.6338350307196,
+          "maximum": 4466.085923020728
+        }
+      },
+      "last_55_minutes": {
+        "hops": 1536,
+        "misses_above_4095_ms": 3,
+        "hop_service_ms": {
+          "count": 1536,
+          "p50": 1968.8247549929656,
+          "p95": 3349.021870002616,
+          "p99": 3844.66441499535,
+          "maximum": 4466.085923020728
+        }
+      },
+      "graph_ms": {
+        "count": 1692,
+        "p50": 1886.897256,
+        "p95": 3219.396953,
+        "p99": 3696.65945,
+        "maximum": 4290.168524
+      },
+      "queue_delay_ms": {
+        "count": 1692,
+        "p50": 0.23697299184277654,
+        "p95": 0.40572701254859567,
+        "p99": 0.5105900345370173,
+        "maximum": 1.4549950137734413
+      },
+      "hop_minus_graph_ms": {
+        "count": 1692,
+        "p50": 74.32516103299531,
+        "p95": 116.79863597898157,
+        "p99": 148.00496499534984,
+        "maximum": 221.30632399046
+      },
+      "top_one_percent_graph_share_percent": {
+        "hops": 17,
+        "minimum": 94.8419147967108,
+        "median": 96.51371599239468,
+        "maximum": 97.4139242943412
+      },
+      "sampled_frequency_groups": {
+        "misses": {
+          "hops": 3,
+          "mean_sampled_gpu_mhz": {
+            "count": 3,
+            "p50": 518.75,
+            "p95": 537.5,
+            "p99": 537.5,
+            "maximum": 537.5
+          },
+          "maximum_sampled_package_C": {
+            "count": 3,
+            "p50": 61.0,
+            "p95": 62.0,
+            "p99": 62.0,
+            "maximum": 62.0
+          }
+        },
+        "under_3000_ms": {
+          "hops": 1543,
+          "mean_sampled_gpu_mhz": {
+            "count": 1543,
+            "p50": 1187.5,
+            "p95": 1225,
+            "p99": 1325,
+            "maximum": 1350
+          },
+          "maximum_sampled_package_C": {
+            "count": 1543,
+            "p50": 74.0,
+            "p95": 77.0,
+            "p99": 78.0,
+            "maximum": 80.0
+          }
+        }
+      },
+      "mean_gpu_at_most_650_mhz": {
+        "hops": 84,
+        "misses_above_4095_ms": 3,
+        "hop_service_ms": {
+          "count": 84,
+          "p50": 3459.668978000991,
+          "p95": 3999.51836100081,
+          "p99": 4466.085923020728,
+          "maximum": 4466.085923020728
+        }
+      },
+      "graph_vs_mean_sampled_gpu_pearson_r": -0.7913762247463823,
+      "trace_samples": 7066,
+      "pl1_nonzero_samples": 6506,
+      "gpu_thermal_nonzero_samples": 0,
+      "gpu_thermal_present_samples": 7066
+    },
+    "audio": {
+      "inputs": [
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-audio-hour/result.json",
+          "bytes": 44900,
+          "sha256": "729d5b9a5fa1d50289b11b15912678d3f18a55eb406ba8c6a01a54bd7f9658b7"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-audio-hour/events.jsonl",
+          "bytes": 4253669,
+          "sha256": "3f8cfea9e2001e3f8f709dbf9110071224617bb7f61a422404fe4166795d47dc"
+        },
+        {
+          "path": "benchmarks-local/isolation-2026-10-16/observed-audio-hour/native-trace.jsonl",
+          "bytes": 46273402,
+          "sha256": "bb38d896d1ae77d5fabf90c684579bd7357f91e6752bb15e46d9888601ed40b4"
+        }
+      ],
+      "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+      "continuous": {
+        "hops": 1649,
+        "misses_above_4095_ms": 9,
+        "hop_service_ms": {
+          "count": 1649,
+          "p50": 1992.4007739755325,
+          "p95": 3423.9453229820356,
+          "p99": 3914.9376100394875,
+          "maximum": 4610.978554002941
+        }
+      },
+      "sampled_hops": 1649,
+      "all_interior_samples_balanced": {
+        "hops": 1649,
+        "misses_above_4095_ms": 9,
+        "hop_service_ms": {
+          "count": 1649,
+          "p50": 1992.4007739755325,
+          "p95": 3423.9453229820356,
+          "p99": 3914.9376100394875,
+          "maximum": 4610.978554002941
+        }
+      },
+      "last_55_minutes": {
+        "hops": 1494,
+        "misses_above_4095_ms": 9,
+        "hop_service_ms": {
+          "count": 1494,
+          "p50": 1999.837550043594,
+          "p95": 3448.10595799936,
+          "p99": 3956.7362099769525,
+          "maximum": 4610.978554002941
+        }
+      },
+      "graph_ms": {
+        "count": 1649,
+        "p50": 1914.340362,
+        "p95": 3303.674768,
+        "p99": 3785.739988,
+        "maximum": 4385.781124
+      },
+      "queue_delay_ms": {
+        "count": 1649,
+        "p50": 0.22643001284450293,
+        "p95": 0.42075401870533824,
+        "p99": 0.5468230228871107,
+        "maximum": 5.875670991372317
+      },
+      "hop_minus_graph_ms": {
+        "count": 1649,
+        "p50": 74.66903499226623,
+        "p95": 124.08669496537277,
+        "p99": 150.9536319806598,
+        "maximum": 409.0520569464038
+      },
+      "top_one_percent_graph_share_percent": {
+        "hops": 17,
+        "minimum": 89.81980035345745,
+        "median": 96.85198598965135,
+        "maximum": 97.47188927731402
+      },
+      "sampled_frequency_groups": {
+        "misses": {
+          "hops": 9,
+          "mean_sampled_gpu_mhz": {
+            "count": 9,
+            "p50": 500,
+            "p95": 525,
+            "p99": 525,
+            "maximum": 525
+          },
+          "maximum_sampled_package_C": {
+            "count": 9,
+            "p50": 59.0,
+            "p95": 62.0,
+            "p99": 62.0,
+            "maximum": 62.0
+          }
+        },
+        "under_3000_ms": {
+          "hops": 1454,
+          "mean_sampled_gpu_mhz": {
+            "count": 1454,
+            "p50": 1183.3333333333333,
+            "p95": 1225,
+            "p99": 1350,
+            "maximum": 1350
+          },
+          "maximum_sampled_package_C": {
+            "count": 1454,
+            "p50": 74.0,
+            "p95": 77.0,
+            "p99": 78.0,
+            "maximum": 85.0
+          }
+        }
+      },
+      "mean_gpu_at_most_650_mhz": {
+        "hops": 108,
+        "misses_above_4095_ms": 9,
+        "hop_service_ms": {
+          "count": 108,
+          "p50": 3520.8619449986145,
+          "p95": 4248.551102005877,
+          "p99": 4503.959671012126,
+          "maximum": 4610.978554002941
+        }
+      },
+      "graph_vs_mean_sampled_gpu_pearson_r": -0.8329893673846109,
+      "trace_samples": 7066,
+      "pl1_nonzero_samples": 6529,
+      "gpu_thermal_nonzero_samples": 0,
+      "gpu_thermal_present_samples": 7066
+    }
+  }
+}

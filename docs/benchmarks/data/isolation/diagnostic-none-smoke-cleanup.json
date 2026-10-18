@@ -1,0 +1,9 @@
+{
+  "host_scope": true,
+  "pid_exists": {
+    "1559240": false,
+    "1559224": false
+  },
+  "source_fixture_exists": false,
+  "worker_closed": true
+}

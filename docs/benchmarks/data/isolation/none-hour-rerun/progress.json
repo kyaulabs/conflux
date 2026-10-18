@@ -1,0 +1,89 @@
+{
+  "status": "error",
+  "updated_at_utc": "2026-10-17T00:05:54.433685+00:00",
+  "elapsed_workload_seconds": 590.1349293899839,
+  "requested_seconds": 3600.0,
+  "load_mode": "none",
+  "selected_loads": [],
+  "timing": {
+    "chunks": 197,
+    "frames": 45664272,
+    "hop_service_percentiles_ms": {
+      "50": 2033.06360199349,
+      "95": 5477.387032005936,
+      "99": 16996.21173698688
+    },
+    "hop_service_max_ms": 19711.656467989087,
+    "hops_above_target": 11,
+    "observed_p99_within_target": false
+  },
+  "completed_controls": 1,
+  "full_source_loops": 20,
+  "failures": [
+    {
+      "phase": "workload",
+      "error": "RuntimeError: repeated same-grid chunk hash changed",
+      "timestamp_monotonic": 317983.249356358
+    }
+  ],
+  "worker_statistics": {
+    "generation": 24,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "ui_progress": {
+    "requested": false,
+    "status": "not_run"
+  },
+  "conditions": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "799965",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 58000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 58000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 58050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 59050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 42000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 57050
+    }
+  }
+}

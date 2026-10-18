@@ -1,0 +1,133 @@
+{
+  "schema": "conflux.m1-qualification-independent-media-readback.v1",
+  "passed": true,
+  "scope": "Offline bounded file hashing and raw RIFF/PCM/PNG inspection after all workloads ended. No playback, build, tests, host queries or physical-audio claims.",
+  "float_wav_read_buffer_bytes": 1048576,
+  "recordings": {
+    "cancellation-v1": {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/cancellation-v1/master.wav",
+      "bytes": 6172760,
+      "sha256": "917683f6de2629266b4525cedc652acd3fa6f7228e34c269c1067e57ec919b09",
+      "encoding": "RIFF IEEE float32",
+      "channels": 2,
+      "sample_rate": 48000,
+      "frames": 771584,
+      "seconds": 16.074666666666666,
+      "nonzero_samples": 1532449,
+      "peak_left": 1.0907649993896484e-05,
+      "peak_right": 1.1026859283447266e-05,
+      "nonfinite_samples": 0,
+      "header_and_entire_pcm_match_native_report": true,
+      "scope": "Independent bounded raw RIFF/float scan, not libsndfile readback or sample-exact source alignment; no media is included in Git."
+    },
+    "soak-v1": {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/soak-v1/master.wav",
+      "bytes": 347480152,
+      "sha256": "99392c942454c848aeadedea3c5916ff8479f5914f13178ff95a8f9e3e49b334",
+      "encoding": "RIFF IEEE float32",
+      "channels": 2,
+      "sample_rate": 48000,
+      "frames": 43435008,
+      "seconds": 904.896,
+      "nonzero_samples": 86204559,
+      "peak_left": 1.1324882507324219e-05,
+      "peak_right": 1.1265277862548828e-05,
+      "nonfinite_samples": 0,
+      "header_and_entire_pcm_match_native_report": true,
+      "scope": "Independent bounded raw RIFF/float scan, not libsndfile readback or sample-exact source alignment; no media is included in Git."
+    },
+    "soak-v2": {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/soak-v2/master.wav",
+      "bytes": 691216472,
+      "sha256": "9570cf3bf19173bb7d931095a2012f2e83e9c0c357d9da3284cb01cfe3c53c82",
+      "encoding": "RIFF IEEE float32",
+      "channels": 2,
+      "sample_rate": 48000,
+      "frames": 86402048,
+      "seconds": 1800.0426666666667,
+      "nonzero_samples": 171422683,
+      "peak_left": 1.1324882507324219e-05,
+      "peak_right": 1.1265277862548828e-05,
+      "nonfinite_samples": 0,
+      "header_and_entire_pcm_match_native_report": true,
+      "scope": "Independent bounded raw RIFF/float scan, not libsndfile readback or sample-exact source alignment; no media is included in Git."
+    }
+  },
+  "fixture_checks": [
+    {
+      "short_local_path": "benchmarks-local/cdj-ui-2026-10-17/quiet-0.wav",
+      "short_pin": {
+        "bytes": 4320044,
+        "sha256": "0d3dc20d18d00c0598b9c788b9aded0f869c1fd4d7617d8ed98ecff25b5a5663"
+      },
+      "soak_local_path": "benchmarks-local/m1-handoff-2026-10-17/quiet-soak-0.wav",
+      "soak_pin": {
+        "bytes": 138240044,
+        "sha256": "853c3f503da287ce6304f8a7e1ca97495f6c58d953446bf00a163b458038a5bd"
+      },
+      "peak_integer": 96,
+      "identical_15_second_blocks_in_soak_file": 32,
+      "normalized_float_bytes_per_soak_deck": 184320000
+    },
+    {
+      "short_local_path": "benchmarks-local/cdj-ui-2026-10-17/quiet-1.wav",
+      "short_pin": {
+        "bytes": 4320044,
+        "sha256": "765d9725f0e1f6418ef3be518886bd39c684ca94741d83317800a0a26d027c5a"
+      },
+      "soak_local_path": "benchmarks-local/m1-handoff-2026-10-17/quiet-soak-1.wav",
+      "soak_pin": {
+        "bytes": 138240044,
+        "sha256": "872d8a954ee7af61e520c81d7a0469cbfe65a5ef18b7a532accd02389cbec9d9"
+      },
+      "peak_integer": 96,
+      "identical_15_second_blocks_in_soak_file": 32,
+      "normalized_float_bytes_per_soak_deck": 184320000
+    }
+  ],
+  "image_pins": [
+    {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/controls-dark.png",
+      "bytes": 559516,
+      "sha256": "682680492e91adde5f9622d05aa6e83da5df13c1f7a3c306573418bda2b33bbb",
+      "width_px": 3360,
+      "height_px": 2040
+    },
+    {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/controls-light.png",
+      "bytes": 563847,
+      "sha256": "3d004bb0c0d05358b7b5c63aebe9eebfda166ee687ac0fa2a8bb9a68e6341690",
+      "width_px": 3360,
+      "height_px": 2040
+    },
+    {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/controls-minimum.png",
+      "bytes": 439480,
+      "sha256": "a047c1977f64348daf223c5197db556fa0e34650176d001f617cb3249eba27cd",
+      "width_px": 2360,
+      "height_px": 1520
+    },
+    {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/controls-settings-default.png",
+      "bytes": 726116,
+      "sha256": "8b7124ce5749f9c7c141ad1aab0080cd6350f4fa5b0fc30067c45f61cf3509c5",
+      "width_px": 3360,
+      "height_px": 2040
+    },
+    {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/controls-settings-minimum.png",
+      "bytes": 574122,
+      "sha256": "ff4c8fc3a281724522bcaef57ab66c286ec8a4713bdeac1b74e6fedf87a2884e",
+      "width_px": 2360,
+      "height_px": 1520
+    },
+    {
+      "local_path": "benchmarks-local/m1-qualification-2026-10-18/smoke-wayland.png",
+      "bytes": 75216,
+      "sha256": "0c45a202df009d9a9a4c60cc007b2c807e8f76fd2728896e748baddf445393e6",
+      "width_px": 1280,
+      "height_px": 800
+    }
+  ],
+  "controls_temporary_wav_scope": "The controls helper removed its temporary WAVs after independent RIFF parsing during the run. Their raw readback reports/hashes are retained; those deleted files are not independently re-read here."
+}

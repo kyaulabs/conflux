@@ -1,0 +1,17 @@
+{
+  "scope": "Independent saved result/event/probe audit and native policy fields only. Raw archive has separate manifest. No new benchmark, PCM recalculation or runtime edits.",
+  "files": [
+    {
+      "path": "independent-audit.py",
+      "source": "/tmp/conflux-observed-both-hour-audit.py",
+      "bytes": 9405,
+      "sha256": "f68c9a243f3cc17a7b898b677183c75f0ca5bfaefa01971bf03883d1a48d9aec"
+    },
+    {
+      "path": "independent-audit.json",
+      "source": "/tmp/conflux-observed-both-hour-audit.json",
+      "bytes": 20453,
+      "sha256": "09d778c336931dd90c1c818f2f810e55bf74b026d1a6819de33829ecbf3a62a5"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "source_head": "8a61059f585947c91fef4a5606ad11fb81523daf",
+  "driver": {
+    "path": "benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+    "sha256": "72d202f04fd787ab8f0871854c8c6feeb8dc6aa4f00c2cbb84359389779441ee"
+  },
+  "readiness_status": "matched",
+  "planned_requests": 48,
+  "post_ready_maximum_seconds": 300,
+  "outer_maximum_seconds": 960,
+  "profile_mutation": false,
+  "service_mutation": false,
+  "audio_UI_load": false,
+  "readiness_after_preparation": true,
+  "readiness_maximum_seconds": 600,
+  "prior_attempt": {
+    "status": "admission_refused",
+    "native_started": false,
+    "requests": 0,
+    "result": "benchmarks-local/music-profile-2026-10-17/replay-four-threads/result.json"
+  },
+  "completed_normal_readiness_package_limit_millidegrees_C": 55000,
+  "final_fresh_package_limit_millidegrees_C": 70000,
+  "final_fresh_threshold_basis": "Inspected thermal-guard recovery threshold; complete60s <=55C readiness remains unchanged.",
+  "prior_attempts": [
+    {
+      "path": "benchmarks-local/music-profile-2026-10-17/replay-four-threads/result.json",
+      "status": "error",
+      "native_started": false,
+      "completed_requests": 0
+    },
+    {
+      "path": "benchmarks-local/music-profile-2026-10-17/abba-48/result.json",
+      "status": "error",
+      "native_started": false,
+      "completed_requests": 0
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "benchmarks-local/user-tracks-2026-10-17/quality_sequence.py"
+  ],
+  "started_at_utc": "2026-10-17T20:39:35.038086+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_only": true,
+  "window_guard": {
+    "requested": false,
+    "status": "not_run"
+  },
+  "idle_inhibit_cookie": 9823,
+  "bus_owner": ":1.49059",
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-17T20:47:41.505387+00:00"
+}

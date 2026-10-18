@@ -1,0 +1,20 @@
+{
+    "callbacks": 337705,
+    "elapsed_ms": 1803571,
+    "frames_presented": 105357,
+    "monotonic_ns": 457778212138472,
+    "output_frame": 86452480,
+    "output_ready": true,
+    "phase": "steady",
+    "pid": 2152879,
+    "recording": {
+        "acceptedFrames": 86401536,
+        "active": true,
+        "error": "",
+        "overflowFrames": 0,
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/soak-v2/master.wav",
+        "status": "Recording",
+        "writtenFrames": 86401536
+    },
+    "window_exposed": true
+}

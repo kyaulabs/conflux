@@ -1,0 +1,1238 @@
+{
+  "schema": 1,
+  "status": "ok",
+  "command": [
+    "/bin/python3",
+    "tools/benchmarks/stem_soak.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--load",
+    "audio",
+    "--renderer",
+    "opengl",
+    "--seconds",
+    "3600",
+    "--control-interval",
+    "300",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-audio-hour"
+  ],
+  "started_at_utc": "2026-10-17T05:48:56.318310+00:00",
+  "host": "Linux-7.2.10-hardened1-1-hardened-x86_64-with-glibc2.44",
+  "numpy_version": "2.5.4",
+  "renderer": "opengl",
+  "requested_seconds": 3600.0,
+  "load_mode": "audio",
+  "selected_loads": [
+    "audio"
+  ],
+  "control_interval_seconds": 300.0,
+  "sample_interval_seconds": 0.5,
+  "load_seconds_fallback": 3720,
+  "window_frames": 343980,
+  "hop_frames": 257985,
+  "overlap_frames": 85995,
+  "conditions_at_start": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "4194206",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 39050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 41000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 72000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 41050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 43050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 39000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 41050
+    }
+  },
+  "pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 44307,
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "audio_probe": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+      "bytes": 641648,
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    }
+  },
+  "ui_progress_file": null,
+  "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+  "fixture": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-audio-hour/source.wav",
+    "sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+    "frames": 2076225,
+    "seconds": 47.07993197278912,
+    "sample_rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2,
+    "seed": 0,
+    "generator": "conflux-m0-worker-fixture-v1",
+    "numpy_version": "2.5.4",
+    "unquantized_peak_absolute": 0.5205581388398524,
+    "annotations": {
+      "tempo_map": [
+        {
+          "frame": 0,
+          "bpm": 120
+        },
+        {
+          "frame": 1038112,
+          "bpm": 138
+        }
+      ],
+      "transient_frames": [
+        5512,
+        314212,
+        622912,
+        931612,
+        1240312,
+        1549012,
+        1857712
+      ],
+      "melody_change_interval_frames": 88200,
+      "description": "Synthetic bass, kick, noise hats, changing tones and asymmetric clicks.",
+      "quality_corpus": false
+    }
+  },
+  "load_started_monotonic": 335263.998887578,
+  "worker_statistics_before_shutdown": {
+    "generation": 202,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 0,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": {
+      "generation": 202,
+      "request_id": 1683,
+      "window_start_frame": 1031940
+    },
+    "discarded_count": 11,
+    "cancel_count": 11,
+    "backend_start_count": 1,
+    "backend_pid": 1673636,
+    "closed": false
+  },
+  "worker_shutdown_ms": 155.04871198209003,
+  "worker_statistics": {
+    "generation": 202,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 11,
+    "cancel_count": 11,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "native_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 3600.7017797420267,
+    "samples": 7066,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1673636,
+        "start_ticks": 37751450,
+        "samples": 7066,
+        "max_process_status_kB": {
+          "VmHWM": 280920,
+          "VmRSS": 280920,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {
+          "0000:00:02.0/client-905": {
+            "drm-driver": "i915",
+            "drm-client-id": "905",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": "0",
+            "drm-shared-system0": "0",
+            "drm-active-system0": "0",
+            "drm-resident-system0": "0",
+            "drm-purgeable-system0": "0",
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          },
+          "0000:00:02.0/client-906": {
+            "drm-driver": "i915",
+            "drm-client-id": "906",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-shared-system0": "0",
+            "drm-active-system0": {
+              "observations": [
+                "0",
+                {
+                  "value": 534584,
+                  "unit": "KiB"
+                }
+              ]
+            },
+            "drm-resident-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-purgeable-system0": {
+              "value": 1132,
+              "unit": "KiB"
+            },
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 3241885355221,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          }
+        },
+        "max_simultaneous_drm_clients": 2,
+        "fd_read_errors": 4,
+        "first_elapsed_seconds": 0.5050983020337299,
+        "last_elapsed_seconds": 3600.4514002529904,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 553,
+          "status.nonvoluntary_ctxt_switches": 19,
+          "stat.minflt": 62587,
+          "stat.majflt": 12
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 26483,
+          "status.nonvoluntary_ctxt_switches": 14007,
+          "stat.minflt": 121884,
+          "stat.majflt": 12
+        },
+        "observed_cpu_seconds": 248.09
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ],
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-audio-hour/native-trace.jsonl",
+      "samples_written": 7066,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    },
+    "system_sampling": {
+      "fields": {
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "string",
+        "/sys/firmware/acpi/platform_profile": "string",
+        "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+        "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_status": "string",
+        "/sys/class/drm/card1/device/power/runtime_active_time": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_suspended_time": "milliseconds",
+        "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+        "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+        "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+        "/proc/pressure/cpu:some.avg10": "percent",
+        "/proc/pressure/cpu:some.avg60": "percent",
+        "/proc/pressure/cpu:some.avg300": "percent",
+        "/proc/pressure/cpu:some.total": "microseconds",
+        "/proc/pressure/cpu:full.avg10": "percent",
+        "/proc/pressure/cpu:full.avg60": "percent",
+        "/proc/pressure/cpu:full.avg300": "percent",
+        "/proc/pressure/cpu:full.total": "microseconds",
+        "/proc/pressure/memory:some.avg10": "percent",
+        "/proc/pressure/memory:some.avg60": "percent",
+        "/proc/pressure/memory:some.avg300": "percent",
+        "/proc/pressure/memory:some.total": "microseconds",
+        "/proc/pressure/memory:full.avg10": "percent",
+        "/proc/pressure/memory:full.avg60": "percent",
+        "/proc/pressure/memory:full.avg300": "percent",
+        "/proc/pressure/memory:full.total": "microseconds",
+        "/proc/pressure/io:some.avg10": "percent",
+        "/proc/pressure/io:some.avg60": "percent",
+        "/proc/pressure/io:some.avg300": "percent",
+        "/proc/pressure/io:some.total": "microseconds",
+        "/proc/pressure/io:full.avg10": "percent",
+        "/proc/pressure/io:full.avg60": "percent",
+        "/proc/pressure/io:full.avg300": "percent",
+        "/proc/pressure/io:full.total": "microseconds",
+        "/proc/meminfo:MemTotal": "kB",
+        "/proc/meminfo:MemAvailable": "kB",
+        "/proc/meminfo:MemFree": "kB",
+        "/proc/meminfo:Buffers": "kB",
+        "/proc/meminfo:Cached": "kB",
+        "/proc/meminfo:Shmem": "kB",
+        "/proc/meminfo:SwapTotal": "kB",
+        "/proc/meminfo:SwapFree": "kB",
+        "/proc/meminfo:Dirty": "kB",
+        "/proc/meminfo:Writeback": "kB",
+        "/proc/meminfo:Slab": "kB",
+        "/proc/meminfo:SReclaimable": "kB",
+        "/proc/meminfo:Unevictable": "kB",
+        "/proc/vmstat:pgfault": "cumulative kernel counter",
+        "/proc/vmstat:pgmajfault": "cumulative kernel counter",
+        "/proc/vmstat:pgpgin": "cumulative kernel counter",
+        "/proc/vmstat:pgpgout": "cumulative kernel counter",
+        "/proc/vmstat:pswpin": "cumulative kernel counter",
+        "/proc/vmstat:pswpout": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_direct": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_direct": "cumulative kernel counter",
+        "/proc/vmstat:oom_kill": "cumulative kernel counter",
+        "/proc/vmstat:compact_stall": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_anon": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_file": "cumulative kernel counter",
+        "/tmp:total_bytes": "bytes",
+        "/tmp:free_bytes": "bytes",
+        "/tmp:available_bytes": "bytes",
+        "/tmp:free_inodes": "inodes"
+      },
+      "read_errors": {
+        "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 7066,
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 7066,
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 7066,
+        "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 7066
+      },
+      "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled."
+    }
+  },
+  "supervisor_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 3600.7021751150023,
+    "samples": 7182,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1673616,
+        "start_ticks": 37751292,
+        "samples": 7182,
+        "max_process_status_kB": {
+          "VmHWM": 166396,
+          "VmRSS": 152444,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {},
+        "max_simultaneous_drm_clients": 0,
+        "fd_read_errors": 7207,
+        "first_elapsed_seconds": 0.003356091969180852,
+        "last_elapsed_seconds": 3600.702156727959,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 28,
+          "status.nonvoluntary_ctxt_switches": 18,
+          "stat.minflt": 19107,
+          "stat.majflt": 5
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 19406,
+          "status.nonvoluntary_ctxt_switches": 4770,
+          "stat.minflt": 220424,
+          "stat.majflt": 5
+        },
+        "observed_cpu_seconds": 131.66
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ]
+  },
+  "load": {
+    "started_at_utc": "2026-10-17T05:48:56.725526+00:00",
+    "load_mode": "audio",
+    "selected_loads": [
+      "audio"
+    ],
+    "launched_loads": [
+      "audio"
+    ],
+    "not_run": [
+      "ui"
+    ],
+    "children": {
+      "audio": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+          "--seconds",
+          "3720",
+          "--quantum",
+          "256",
+          "--stop-file",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-audio-hour/stop"
+        ],
+        "returncode": 0,
+        "report": {
+          "schema": 1,
+          "pipewire_version": "1.6.9",
+          "status": "ok",
+          "error": "",
+          "signal": "silence",
+          "requested": {
+            "sample_rate": 48000,
+            "channels": 2,
+            "quantum_frames": 256,
+            "seconds": 3720
+          },
+          "negotiated": {
+            "format_valid": true,
+            "sample_rate": 48000,
+            "channels": 2,
+            "stream_frames_min": 256,
+            "stream_frames_max": 256,
+            "graph_quantum_min": 256,
+            "graph_quantum_max": 256
+          },
+          "streaming_seconds": 3601.79,
+          "streaming_started_monotonic_ns": 335263015422316,
+          "stopped_monotonic_ns": 338864805922009,
+          "frames_rendered": 172878080,
+          "callbacks": 675305,
+          "callback_elapsed_us": {
+            "p50_upper_bound": 2.0,
+            "p95_upper_bound": 4.0,
+            "p99_upper_bound": 5.0,
+            "p99_9_upper_bound": 23.0,
+            "max": 372.847,
+            "histogram_resolution": 1,
+            "at_least_100ms": 0
+          },
+          "callback_execution_deadline_misses": 0,
+          "missing_buffers": 0,
+          "invalid_buffers": 0,
+          "truncated_frames": 0,
+          "observed_graph_position_discontinuities": 0,
+          "observed_position_clock_xrun_recovery_flags": 0,
+          "telemetry_capabilities": {
+            "clock_cycle": true,
+            "discontinuity_flag": true,
+            "xrun_recovery_flags": true,
+            "graph_position_observed": true
+          },
+          "pipewire_time_snapshot": {
+            "valid": true,
+            "now_ns": 338864801814525,
+            "rate_num": 1,
+            "rate_denom": 48000,
+            "ticks": 172878080,
+            "delay_ticks": 280,
+            "queued_frames": 0,
+            "buffered_frames": 0
+          },
+          "measurement_scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+        }
+      }
+    },
+    "errors": [],
+    "audio_fault_counters": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "finished_at_utc": "2026-10-17T06:48:58.548443+00:00"
+  },
+  "workload_started_monotonic": 335264.55067571,
+  "workload_stopped_monotonic": 338864.550861544,
+  "workload_seconds": 3600.000185833953,
+  "timing": {
+    "all_delivered": {
+      "chunks": 1660,
+      "frames": 384282857,
+      "hop_service_percentiles_ms": {
+        "50": 1991.4600260090083,
+        "95": 3423.9453229820356,
+        "99": 3914.9376100394875
+      },
+      "hop_service_max_ms": 4610.978554002941,
+      "hops_above_target": 9,
+      "observed_p99_within_target": true
+    },
+    "continuous": {
+      "chunks": 1649,
+      "frames": 381447705,
+      "hop_service_percentiles_ms": {
+        "50": 1992.4007739755325,
+        "95": 3423.9453229820356,
+        "99": 3914.9376100394875
+      },
+      "hop_service_max_ms": 4610.978554002941,
+      "hops_above_target": 9,
+      "observed_p99_within_target": true
+    },
+    "first_window": {
+      "seconds": 300.0,
+      "chunks": 155,
+      "frames": 35811795,
+      "hop_service_percentiles_ms": {
+        "50": 1908.5096510243602,
+        "95": 2119.1400759853423,
+        "99": 2334.1749670216814
+      },
+      "hop_service_max_ms": 2420.21264298819,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "last_window": {
+      "seconds": 300.0,
+      "chunks": 139,
+      "frames": 32174982,
+      "hop_service_percentiles_ms": {
+        "50": 2014.0897550154477,
+        "95": 3367.7391770179383,
+        "99": 3736.8587009841576
+      },
+      "hop_service_max_ms": 4069.1739119938575,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "bins_300_seconds": [
+      {
+        "start_seconds": 0,
+        "end_seconds": 300,
+        "chunks": 155,
+        "frames": 35811795,
+        "hop_service_percentiles_ms": {
+          "50": 1908.5096510243602,
+          "95": 2119.1400759853423,
+          "99": 2334.1749670216814
+        },
+        "hop_service_max_ms": 2420.21264298819,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 300,
+        "end_seconds": 600,
+        "chunks": 140,
+        "frames": 32432967,
+        "hop_service_percentiles_ms": {
+          "50": 1987.7045830362476,
+          "95": 3423.9453229820356,
+          "99": 3908.09042903129
+        },
+        "hop_service_max_ms": 4018.1142919464037,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 600,
+        "end_seconds": 900,
+        "chunks": 138,
+        "frames": 31917193,
+        "hop_service_percentiles_ms": {
+          "50": 2001.9243030110374,
+          "95": 3422.0414179726504,
+          "99": 4248.551102005877
+        },
+        "hop_service_max_ms": 4346.69713198673,
+        "hops_above_target": 2,
+        "observed_p99_within_target": false
+      },
+      {
+        "start_seconds": 900,
+        "end_seconds": 1200,
+        "chunks": 138,
+        "frames": 31916997,
+        "hop_service_percentiles_ms": {
+          "50": 1993.0694580543786,
+          "95": 3520.8619449986145,
+          "99": 3948.6919560004026
+        },
+        "hop_service_max_ms": 4456.949106010143,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 1200,
+        "end_seconds": 1500,
+        "chunks": 132,
+        "frames": 30614923,
+        "hop_service_percentiles_ms": {
+          "50": 2001.6017809975892,
+          "95": 3527.8041129931808,
+          "99": 3890.6818149844185
+        },
+        "hop_service_max_ms": 4222.967674955726,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 1500,
+        "end_seconds": 1800,
+        "chunks": 139,
+        "frames": 32174982,
+        "hop_service_percentiles_ms": {
+          "50": 2004.5798909850419,
+          "95": 3486.945637036115,
+          "99": 3847.976960998494
+        },
+        "hop_service_max_ms": 3956.7362099769525,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 1800,
+        "end_seconds": 2100,
+        "chunks": 132,
+        "frames": 30614923,
+        "hop_service_percentiles_ms": {
+          "50": 2021.2863779743202,
+          "95": 3448.10595799936,
+          "99": 3686.6033709957264
+        },
+        "hop_service_max_ms": 3813.290117017459,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 2100,
+        "end_seconds": 2400,
+        "chunks": 138,
+        "frames": 31916997,
+        "hop_service_percentiles_ms": {
+          "50": 1966.3721019751392,
+          "95": 3694.983455003239,
+          "99": 4503.959671012126
+        },
+        "hop_service_max_ms": 4610.978554002941,
+        "hops_above_target": 3,
+        "observed_p99_within_target": false
+      },
+      {
+        "start_seconds": 2400,
+        "end_seconds": 2700,
+        "chunks": 138,
+        "frames": 31917193,
+        "hop_service_percentiles_ms": {
+          "50": 1993.1114270002581,
+          "95": 3413.7868370162323,
+          "99": 3508.380223007407
+        },
+        "hop_service_max_ms": 3798.393593984656,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 2700,
+        "end_seconds": 3000,
+        "chunks": 131,
+        "frames": 30356742,
+        "hop_service_percentiles_ms": {
+          "50": 2001.5446239849553,
+          "95": 3724.048702046275,
+          "99": 4081.8492179969326
+        },
+        "hop_service_max_ms": 4353.26244099997,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 3000,
+        "end_seconds": 3300,
+        "chunks": 140,
+        "frames": 32433163,
+        "hop_service_percentiles_ms": {
+          "50": 1981.9763719569892,
+          "95": 3377.6153119979426,
+          "99": 3629.093089955859
+        },
+        "hop_service_max_ms": 4164.995884988457,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 3300,
+        "end_seconds": 3600,
+        "chunks": 139,
+        "frames": 32174982,
+        "hop_service_percentiles_ms": {
+          "50": 2014.0897550154477,
+          "95": 3367.7391770179383,
+          "99": 3736.8587009841576
+        },
+        "hop_service_max_ms": 4069.1739119938575,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 3600,
+        "end_seconds": 3600.000185833953,
+        "chunks": 0,
+        "frames": 0,
+        "hop_service_percentiles_ms": {},
+        "hop_service_max_ms": null,
+        "hops_above_target": 0,
+        "observed_p99_within_target": false
+      }
+    ],
+    "headroom_target_ms": 4094.9999999999995,
+    "percentile_method": "nearest rank; consecutive windows are not independent tail samples"
+  },
+  "controls": [
+    {
+      "at_workload_seconds": 300.21454095299123,
+      "superseded_generation": 18,
+      "superseded_request_id": 157,
+      "started_to_cancel_ms": 166.08801303664222,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.04195596557110548,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1651.014357979875,
+      "resume_ack_ms": 0.021217972971498966,
+      "generation": 20,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3863.796181976795,
+      "ready_after_cancel_ms": 5515.027666988317,
+      "delivered_after_cancel_ms": 5580.9454069822095,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 600.5975160499802,
+      "superseded_generation": 35,
+      "superseded_request_id": 299,
+      "started_to_cancel_ms": 168.19435899378732,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.040642975363880396,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1639.1648779972456,
+      "resume_ack_ms": 0.020247010979801416,
+      "generation": 37,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 3849.233179993462,
+      "ready_after_cancel_ms": 5488.6036069947295,
+      "delivered_after_cancel_ms": 5592.0329979853705,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 900.5699135129689,
+      "superseded_generation": 52,
+      "superseded_request_id": 439,
+      "started_to_cancel_ms": 166.4286259911023,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.04479498602449894,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1640.767692006193,
+      "resume_ack_ms": 0.02158602001145482,
+      "generation": 54,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3907.1709870477207,
+      "ready_after_cancel_ms": 5548.14842203632,
+      "delivered_after_cancel_ms": 5656.40421397984,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 1200.5205462719896,
+      "superseded_generation": 69,
+      "superseded_request_id": 579,
+      "started_to_cancel_ms": 165.38425802718848,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03450800431892276,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1643.7115549924783,
+      "resume_ack_ms": 0.030255992896854877,
+      "generation": 71,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 3876.767485984601,
+      "ready_after_cancel_ms": 5520.705316972453,
+      "delivered_after_cancel_ms": 5635.212137014605,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 1501.9083983720047,
+      "superseded_generation": 85,
+      "superseded_request_id": 713,
+      "started_to_cancel_ms": 167.94407000998035,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.04063697997480631,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1752.207727986388,
+      "resume_ack_ms": 0.02070603659376502,
+      "generation": 87,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3796.971623029094,
+      "ready_after_cancel_ms": 5549.359379976522,
+      "delivered_after_cancel_ms": 5664.688385964837,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 1800.9022460199776,
+      "superseded_generation": 102,
+      "superseded_request_id": 854,
+      "started_to_cancel_ms": 168.02471497794613,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03923801705241203,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1642.950352979824,
+      "resume_ack_ms": 0.025433022528886795,
+      "generation": 104,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 3873.963513993658,
+      "ready_after_cancel_ms": 5517.171447980218,
+      "delivered_after_cancel_ms": 5616.938765975647,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 2100.5904305469594,
+      "superseded_generation": 118,
+      "superseded_request_id": 988,
+      "started_to_cancel_ms": 167.765774007421,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.08524901932105422,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1623.734652006533,
+      "resume_ack_ms": 0.040140002965927124,
+      "generation": 120,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3827.3471830179915,
+      "ready_after_cancel_ms": 5451.221980038099,
+      "delivered_after_cancel_ms": 5561.358280014247,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 2400.2809801219846,
+      "superseded_generation": 135,
+      "superseded_request_id": 1128,
+      "started_to_cancel_ms": 166.2959969835356,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03485096385702491,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1655.3279419895262,
+      "resume_ack_ms": 0.019291008356958628,
+      "generation": 137,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 3877.758215996437,
+      "ready_after_cancel_ms": 5533.232799964026,
+      "delivered_after_cancel_ms": 5617.048418964259,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 2701.497946944961,
+      "superseded_generation": 152,
+      "superseded_request_id": 1268,
+      "started_to_cancel_ms": 165.18250096123666,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.020278035663068295,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 2617.8977150120772,
+      "resume_ack_ms": 0.04520697984844446,
+      "generation": 154,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 6572.862447996158,
+      "ready_after_cancel_ms": 9191.07168802293,
+      "delivered_after_cancel_ms": 9323.493022006005,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 3001.0183380369563,
+      "superseded_generation": 168,
+      "superseded_request_id": 1401,
+      "started_to_cancel_ms": 165.09926895378157,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.025496003217995167,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1629.331631003879,
+      "resume_ack_ms": 0.018435996025800705,
+      "generation": 170,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 3880.295972980093,
+      "ready_after_cancel_ms": 5509.8307260195725,
+      "delivered_after_cancel_ms": 5595.362343010493,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 3301.632356520975,
+      "superseded_generation": 185,
+      "superseded_request_id": 1543,
+      "started_to_cancel_ms": 167.6819520071149,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03462802851572633,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1689.2908589798026,
+      "resume_ack_ms": 0.019671977497637272,
+      "generation": 187,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3793.4144799946807,
+      "ready_after_cancel_ms": 5482.926762022544,
+      "delivered_after_cancel_ms": 5596.293229027651,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    }
+  ],
+  "runtime_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 335264.504336467,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1673636,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 425.206411,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "consumed_at": 335264.504409526
+    }
+  ],
+  "source_statistics_reused": 190,
+  "full_source_loops": 168,
+  "resumed_source_completions": 11,
+  "control_attempts_finished_before_cancel": 0,
+  "reference_hashes": {
+    "0": "15d803bdb59d11c3ebc74f6b746ca43c11a0d859fd82b51b50fdeec5fd839f6a",
+    "257985": "c5165a7885cb9120ca65dd2b7f6ae528f122d0461a58a20230308cab71aeecc2",
+    "515970": "4148574193292122826f6b5f502075d780a561ea08f479b26064bd00593ce6a4",
+    "773955": "ef8714e52f065b86566dce7ec6ba66c7b2396a210beb1d3f2e18c6b1125d66e4",
+    "1031940": "5cc3965a2e6013e490801b6ee7b515804b35e69e27868903276b35613f731241",
+    "1289925": "aaf771455d4804fb946c403bcf548cf880ea2c8f59493304c0b94f344e70a29e",
+    "1547910": "e1b6c88e83d98a6ee2ab6a9db9ccfe3e4f76c9b353feeecd2e0d2943baf1aa9f",
+    "1805895": "ce09f362f0283de558a5ea203157966d48bdb554e3bda23b13ca74c81a82315e",
+    "2063880": "62fc2e994f21f21d7f1989b49acb050399847daba12978f8abc3a1359a915566"
+  },
+  "same_grid_hash_checks": 1640,
+  "trimmed_seek_checks": 11,
+  "stale_chunks_delivered": 0,
+  "load_alive_checks": 17553,
+  "maximum_load_check_gap_seconds": 0.32925030996557325,
+  "load_coverage_scope": "Selected child process liveness; requested UI also requires atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1850781",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 71000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 70000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 71050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 68050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 44000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 60050
+    }
+  },
+  "finished_at_utc": "2026-10-17T06:48:58.578947+00:00",
+  "ui_coverage": {
+    "requested": false,
+    "status": "not_run",
+    "passed": null
+  },
+  "audio_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "streaming_interval_valid": true,
+    "concurrent_workload_seconds": 3600.000185833953,
+    "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+  },
+  "concurrent_audio_workload_seconds": 3600.000185833953,
+  "native_trace_bytes": 46273402,
+  "failures": [],
+  "acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": true,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": null,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 11,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=audio; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  }
+}

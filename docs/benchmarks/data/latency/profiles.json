@@ -1,0 +1,86 @@
+{
+  "hybrid": {
+    "trace_uncompressed_bytes": 4004039,
+    "trace_uncompressed_sha256": "e83dd2baddc3d673b2a1c72fce8d6aba6750c67f03f2202e5feaf7ab60c614ba",
+    "native_environment_override": {},
+    "command_common": [
+      "python3",
+      "-B",
+      "tools/benchmarks/stem_profile.py",
+      "--renderer",
+      "opengl",
+      "--requests",
+      "30",
+      "--threads",
+      "4",
+      "--quantum",
+      "256"
+    ],
+    "fence_wait_mode": "upstream-hybrid",
+    "note": "Actual run used inherited OpenMP environment except listed override; profiler predates explicit passive_openmp CLI flag. No cadence waits."
+  },
+  "blocking": {
+    "trace_uncompressed_bytes": 3990062,
+    "trace_uncompressed_sha256": "263dae486843270a464d1617a8596535252823b68e7b3379a29cac32a701e148",
+    "native_environment_override": {},
+    "command_common": [
+      "python3",
+      "-B",
+      "tools/benchmarks/stem_profile.py",
+      "--renderer",
+      "opengl",
+      "--requests",
+      "30",
+      "--threads",
+      "4",
+      "--quantum",
+      "256"
+    ],
+    "fence_wait_mode": "blocking",
+    "note": "Actual run used inherited OpenMP environment except listed override; profiler predates explicit passive_openmp CLI flag. No cadence waits."
+  },
+  "passive": {
+    "trace_uncompressed_bytes": 2333927,
+    "trace_uncompressed_sha256": "abcc86e486590b4935f41ffc92f14e7907373a144db0d7de6d3fcb4a75177ec1",
+    "native_environment_override": {
+      "OMP_WAIT_POLICY": "PASSIVE"
+    },
+    "command_common": [
+      "python3",
+      "-B",
+      "tools/benchmarks/stem_profile.py",
+      "--renderer",
+      "opengl",
+      "--requests",
+      "30",
+      "--threads",
+      "4",
+      "--quantum",
+      "256"
+    ],
+    "fence_wait_mode": "blocking",
+    "note": "Actual run used inherited OpenMP environment except listed override; profiler predates explicit passive_openmp CLI flag. No cadence waits."
+  },
+  "passive-hybrid": {
+    "trace_uncompressed_bytes": 5153630,
+    "trace_uncompressed_sha256": "d2c10500e33cba320e1725f80bf3124187ce70a8d970cc3dc551f2f9c5c26ad3",
+    "native_environment_override": {
+      "OMP_WAIT_POLICY": "PASSIVE"
+    },
+    "command_common": [
+      "python3",
+      "-B",
+      "tools/benchmarks/stem_profile.py",
+      "--renderer",
+      "opengl",
+      "--requests",
+      "30",
+      "--threads",
+      "4",
+      "--quantum",
+      "256"
+    ],
+    "fence_wait_mode": "upstream-hybrid",
+    "note": "Actual run used inherited OpenMP environment except listed override; profiler predates explicit passive_openmp CLI flag. No cadence waits."
+  }
+}

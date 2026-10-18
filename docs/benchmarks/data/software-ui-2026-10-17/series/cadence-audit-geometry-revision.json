@@ -1,0 +1,10 @@
+{
+  "recorded_at_utc": "2026-10-17T17:34:08.644816+00:00",
+  "source": "benchmarks-local/software-ui-2026-10-17/cadence_audit.py",
+  "previous_sha256": "d9b281cc076e8c2e0f462317b0c929b11611957262100799db44cbef5914f9e5",
+  "sha256": "b93f19b12e45ef963e3d22b8fb5403f27d583ddddbd5837ac7e6739390d441e8",
+  "bytes": 14755,
+  "syntax_valid": true,
+  "change": "Matched comparison now requires final width, height and device_pixel_ratio present, finite, positive and equal; records comparison.UI_final_geometry_matches and matching validity check. Missing data fails closed.",
+  "scope": "Final saved geometry only; no claim of continuously observed geometry and no new M0 latency acceptance gate. Source/syntax preparation before either900second audit; no audit, trace read, host query, build or workload execution."
+}

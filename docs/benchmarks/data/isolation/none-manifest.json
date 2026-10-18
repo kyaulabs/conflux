@@ -1,0 +1,88 @@
+{
+  "recorded_at_utc": "2026-10-16T23:39:02.540246+00:00",
+  "scope": "Completed partial none-hour post-run analysis; no producers/settings/repository files changed; no GPU work launched.",
+  "reproduction_commands": [
+    "python3 -B /tmp/conflux-isolation-none-analysis.py RUN_DIRECTORY --output /tmp/conflux-isolation-none-analysis.json --clock-ticks-per-second 100",
+    "python3 -B /tmp/conflux-isolation-none-focus.py RUN_DIRECTORY --analyzer /tmp/conflux-isolation-none-analysis.py --kernel-journal /tmp/conflux-isolation-none-kernel.json --output /tmp/conflux-isolation-none-focus.json",
+    "python3 -B /tmp/conflux-isolation-none-summary.py --analysis /tmp/conflux-isolation-none-analysis.json --focus /tmp/conflux-isolation-none-focus.json --sources /tmp/conflux-isolation-none-kernel-sources/manifest.json --output /tmp/conflux-isolation-none-summary.json"
+  ],
+  "portability": "Source paths supplied by CLI; both JSONL readers support plain or gzip. Recorded original model/runtime pin paths are informational and not opened. Clock-tick rate100 explicitly supplied for laptop CPU tick conversion. Kernel journal is retained observation input, not requeried by analysis.",
+  "quiescence_observations": [
+    {
+      "command": "ps -p 1548274 -o pid,ppid,stat,etime,comm",
+      "observed_at_utc": "2026-10-16T23:37:01Z",
+      "returncode": 1,
+      "result": "Header only; named native PID absent."
+    },
+    {
+      "command": "journalctl -k --since '2026-10-16 23:35:00 UTC' --until '2026-10-16 23:37:10 UTC' --no-pager --output=short-iso --grep 'i915|drm|GPU HANG|reset|wedg|preempt|thermal|oom|out of memory|hardware error|mce'",
+      "returncode": 1,
+      "result": "-- No entries --",
+      "scope": "No matching readable records in this later interval; not proof of global queue idleness or a complete journal."
+    }
+  ],
+  "permission_limits": [
+    {
+      "path": "/sys/module/i915/parameters/request_timeout_ms",
+      "error": "PermissionError [Errno13] Permission denied"
+    },
+    {
+      "path": "/sys/module/i915/parameters/enable_hangcheck",
+      "error": "PermissionError [Errno13] Permission denied"
+    },
+    {
+      "path": "/sys/class/drm/card1/error",
+      "error": "PermissionError [Errno13] Permission denied"
+    }
+  ],
+  "artifacts": {
+    "/tmp/conflux-isolation-none-analysis.py": {
+      "bytes": 29062,
+      "sha256": "d747f6e488805f80e69569e8303b0a1f277b399200ae08a7016d9c0794ee127b"
+    },
+    "/tmp/conflux-isolation-none-analysis.json": {
+      "bytes": 9358961,
+      "sha256": "bef32508d52f665fc5a5ca5c6cb44fbb27972aa3a8db80712d242788ebd0b169"
+    },
+    "/tmp/conflux-isolation-none-focus.py": {
+      "bytes": 11619,
+      "sha256": "917e2d4b83016218bd57ffac8fa3b13b24a88f1c3e558f4f0bbdc605daa14353"
+    },
+    "/tmp/conflux-isolation-none-focus.json": {
+      "bytes": 3061705,
+      "sha256": "2760f5cdb787cb372e1cbb7c4c5ee53d8ab7b84444e7b182ce203a38ba6079c9"
+    },
+    "/tmp/conflux-isolation-none-summary.py": {
+      "bytes": 7736,
+      "sha256": "43136e7550b4b2ea4b546ef3281b2dbf1fb7cabc8bd894fc6e2b8cf52b3fb5c2"
+    },
+    "/tmp/conflux-isolation-none-summary.json": {
+      "bytes": 78569,
+      "sha256": "bccfd0ff719305ad79716ebd3de5d90aab38b2229c19c8e1e1e435b9aef145fa"
+    },
+    "/tmp/conflux-isolation-none-kernel.json": {
+      "bytes": 14085,
+      "sha256": "efd0397a3091ff825450231e316287eeb4e3a8be216591e8b42ecdb33ea81514"
+    },
+    "/tmp/conflux-isolation-none-kernel-sources/manifest.json": {
+      "bytes": 1913,
+      "sha256": "155ebf46d06f9d18deaf9148a9ef702169a5c699f8d88b532f0d940ec51b145e"
+    },
+    "/tmp/conflux-isolation-none-kernel-sources/intel_context.c": {
+      "bytes": 14868,
+      "sha256": "8ab3e70aae0dd95b3f58eff080e714af67d466649c99afe3569db60c8dac8540"
+    },
+    "/tmp/conflux-isolation-none-kernel-sources/i915_params.c": {
+      "bytes": 7027,
+      "sha256": "32e80e830516075006785ca88fddb29abb4b916b9446a0e84837436c10bd86bb"
+    },
+    "/tmp/conflux-isolation-none-kernel-sources/i915_request.c": {
+      "bytes": 68143,
+      "sha256": "69f6c2a1035af9b17393ada6666c242d10bc0ebf519081593f8bd647c6848b53"
+    },
+    "/tmp/conflux-isolation-none-kernel-sources/intel_gt_requests.c": {
+      "bytes": 6764,
+      "sha256": "e3266c31fbe09301c86fbec3c48d7978acfad3ce2bed6b8ea2e744bd384a2c15"
+    }
+  }
+}

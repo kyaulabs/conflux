@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "scope": "Packaged default executable loaded the CDJ QML surface and stayed in its event loop for two seconds without diagnostics; test terminated it with no files or audio loaded.",
+  "stdout": "",
+  "stderr": "",
+  "returncode": -15
+}

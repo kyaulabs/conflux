@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "pipewire_version": "1.6.9",
+  "status": "ok",
+  "error": "",
+  "signal": "silence",
+  "requested": {"sample_rate": 48000, "channels": 2, "quantum_frames": 256, "seconds": 3600},
+  "negotiated": {"format_valid": true, "sample_rate": 48000, "channels": 2, "stream_frames_min": 256, "stream_frames_max": 256, "graph_quantum_min": 256, "graph_quantum_max": 256},
+  "streaming_seconds": 112.870,
+  "frames_rendered": 5416960,
+  "callbacks": 21160,
+  "callback_elapsed_us": {"p50_upper_bound": 3.000, "p95_upper_bound": 5.000, "p99_upper_bound": 10.000, "p99_9_upper_bound": 29.000, "max": 443.590, "histogram_resolution": 1, "at_least_100ms": 0},
+  "callback_execution_deadline_misses": 0,
+  "missing_buffers": 0,
+  "invalid_buffers": 0,
+  "truncated_frames": 0,
+  "observed_graph_position_discontinuities": 0,
+  "observed_position_clock_xrun_recovery_flags": 0,
+  "telemetry_capabilities": {"clock_cycle": true, "discontinuity_flag": true, "xrun_recovery_flags": true, "graph_position_observed": true},
+  "pipewire_time_snapshot": {"valid": true, "now_ns": 289916363576818, "rate_num": 1, "rate_denom": 48000, "ticks": 5417728, "delay_ticks": 280, "queued_frames": 0, "buffered_frames": 0},
+  "measurement_scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+}

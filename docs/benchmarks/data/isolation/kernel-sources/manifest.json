@@ -1,0 +1,32 @@
+{
+  "upstream_repository": "https://github.com/torvalds/linux",
+  "commit": "70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56",
+  "exact_measured_hardened_source": false,
+  "qualification": "Upstream source mechanism cross-check only; local kernel reports7.2.10-hardened1-1-hardened, exact build source unavailable. No equivalence of exact build asserted.",
+  "files": {
+    "drivers/gpu/drm/i915/gt/intel_gt_requests.c": {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56/drivers/gpu/drm/i915/gt/intel_gt_requests.c",
+      "local_path": "/tmp/conflux-isolation-none-kernel-sources/intel_gt_requests.c",
+      "sha256": "e3266c31fbe09301c86fbec3c48d7978acfad3ce2bed6b8ea2e744bd384a2c15",
+      "bytes": 6764
+    },
+    "drivers/gpu/drm/i915/i915_request.c": {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56/drivers/gpu/drm/i915/i915_request.c",
+      "local_path": "/tmp/conflux-isolation-none-kernel-sources/i915_request.c",
+      "sha256": "69f6c2a1035af9b17393ada6666c242d10bc0ebf519081593f8bd647c6848b53",
+      "bytes": 68143
+    },
+    "drivers/gpu/drm/i915/i915_params.c": {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56/drivers/gpu/drm/i915/i915_params.c",
+      "local_path": "/tmp/conflux-isolation-none-kernel-sources/i915_params.c",
+      "sha256": "32e80e830516075006785ca88fddb29abb4b916b9446a0e84837436c10bd86bb",
+      "bytes": 7027
+    },
+    "drivers/gpu/drm/i915/gt/intel_context.c": {
+      "url": "https://raw.githubusercontent.com/torvalds/linux/70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56/drivers/gpu/drm/i915/gt/intel_context.c",
+      "local_path": "/tmp/conflux-isolation-none-kernel-sources/intel_context.c",
+      "sha256": "8ab3e70aae0dd95b3f58eff080e714af67d466649c99afe3569db60c8dac8540",
+      "bytes": 14868
+    }
+  }
+}

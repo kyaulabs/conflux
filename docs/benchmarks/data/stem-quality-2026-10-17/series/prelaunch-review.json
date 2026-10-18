@@ -1,0 +1,13 @@
+{
+  "at_utc": "2026-10-17T19:58:15.837412+00:00",
+  "status": "ready_for_manifest",
+  "reviewed_driver": "Root checked worker source contract, data shapes, bounded generation-current collection, seeks, memory sampling and cleanup",
+  "independent_wrapper_review": "Both process-group cleanup and per-backend producer-pin blockers corrected before any execution; targeted recheck found no further blocker",
+  "shared_helper_pin_added": true,
+  "source_syntax_valid": true,
+  "pins": {
+    "quality_sequence.py": "f5af7cb08207b381a9e5ca4e91103dc2ceebc70d7fbad80fcc3ff0455bb70b6d",
+    "quality_run.py": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719",
+    "normal_ready.py": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+  }
+}

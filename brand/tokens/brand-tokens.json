@@ -1,0 +1,126 @@
+{
+  "name": "CONFLUX",
+  "version": "1.1",
+  "date": "2026-10-15",
+  "root": ".",
+  "direction": "Approved 01-C refinement: two matching orbital currents related by 180-degree rotation about (256,250), with a centered rounded flat-top hexagonal core. Signal-red upper current, charcoal lower current/core, and custom tall CONFLUX wordmark with a Signal-red diamond inside X.",
+  "tagline": "Music, directed.",
+  "description": "An open-source Linux DJ application for arranging tracks with AI while the performer shapes EQ and effects. Brand application examples are concepts, not a shipped application.",
+  "colors": {
+    "signal": "#FF3030",
+    "charcoal": "#24252B",
+    "ivory": "#FAF9F6",
+    "white": "#FFFFFF",
+    "darkCanvas": "#111317",
+    "darkSurface": "#1A1D22",
+    "darkRaised": "#24282F",
+    "darkText": "#F5F4F0",
+    "darkMuted": "#B5B7BE",
+    "darkAccent": "#FF877D",
+    "darkBorder": "#505660",
+    "lightCanvas": "#FAF9F6",
+    "lightSurface": "#FFFFFF",
+    "lightRaised": "#F0EFEB",
+    "lightText": "#24252B",
+    "lightMuted": "#5D626A",
+    "lightAccent": "#B92323",
+    "lightBorder": "#747A83",
+    "lightPrimary": "#C52524",
+    "darkPrimary": "#FF5B50",
+    "deckALight": "#00786F",
+    "deckADark": "#58D6C3",
+    "deckBLight": "#9A5E00",
+    "deckBDark": "#F2C568",
+    "successLight": "#197B59",
+    "successDark": "#6ED9AE",
+    "warningLight": "#92620A",
+    "warningDark": "#F5C469",
+    "darkControlBorder": "#78808A"
+  },
+  "fonts": {
+    "display": "Barlow Condensed",
+    "ui": "Barlow",
+    "mono": "JetBrains Mono",
+    "wordmark": "CONFLUX custom outlined artwork; not a font"
+  },
+  "assets": {
+    "logos": [
+      "assets/logos/conflux-symbol-light.svg",
+      "assets/logos/conflux-symbol-dark.svg",
+      "assets/logos/conflux-symbol-black.svg",
+      "assets/logos/conflux-symbol-white.svg",
+      "assets/logos/conflux-wordmark-light.svg",
+      "assets/logos/conflux-wordmark-dark.svg",
+      "assets/logos/conflux-stacked-light.svg",
+      "assets/logos/conflux-stacked-dark.svg",
+      "assets/logos/conflux-horizontal-light.svg",
+      "assets/logos/conflux-horizontal-dark.svg"
+    ],
+    "appIcons": "assets/app-icons/conflux-app-dark-512.png and conflux-app-light-512.png; all sizes 16,22,24,32,48,64,128,256,512,1024",
+    "favicons": "assets/favicons/favicon.svg, favicon.ico, apple-touch-icon.png, android-chrome-192x192.png, android-chrome-512x512.png, site.webmanifest",
+    "fonts": "assets/fonts/Barlow-Regular.ttf, Barlow-Medium.ttf, Barlow-SemiBold.ttf, BarlowCondensed-SemiBold.ttf, JetBrainsMono-Regular.ttf plus OFL licenses",
+    "guide": "CONFLUX-brand-guide.pdf",
+    "tokens": "tokens/brand-tokens.json, tokens/brand.css, tokens/conflux.qss",
+    "website": "index.html"
+  },
+  "rules": {
+    "clearSpace": "x = hexagonal core flat-to-flat height (approximately 174.94 master units); minimum external clear space = 0.5x.",
+    "logoMinimum": "Horizontal lockup 180 px / 40 mm. Stacked lockup 140 px / 32 mm. Wordmark 120 px / 28 mm. Standard symbol 32 px; simplified symbolic mark 16-24 px.",
+    "icon": "Use the supplied launcher tile without another frame. Where the host applies a mask, use the full-bleed maskable asset and preserve its safe area.",
+    "ownership": "DIRECTOR: selection, cues, transport, timing and crossfade. LIVE MIX: performer EQ and effects.",
+    "motion": "160 ms micro interactions; 240 ms panel transitions; respect prefers-reduced-motion; no perpetual logo spin."
+  },
+  "guidePlan": [
+    "Identity / cover",
+    "Brand idea and principles",
+    "Logo anatomy and masters",
+    "Clear space, sizing and misuse",
+    "Primary and supporting palette",
+    "Light and dark theme recipes",
+    "Accessibility and verified contrast",
+    "Typography and hierarchy",
+    "Application icons and small sizes",
+    "Website icons, favicon and social",
+    "UI components and interaction",
+    "DJ application concept",
+    "Website expression",
+    "Voice and product language",
+    "Linux / Qt integration",
+    "Assets, licenses and handoff"
+  ],
+  "sources": [
+    {
+      "title": "Barlow and Barlow Condensed",
+      "url": "https://github.com/jpt/barlow"
+    },
+    {
+      "title": "JetBrains Mono",
+      "url": "https://github.com/JetBrains/JetBrainsMono"
+    },
+    {
+      "title": "KDE icon guidance",
+      "url": "https://develop.kde.org/hig/icons/"
+    },
+    {
+      "title": "Freedesktop icon theme",
+      "url": "https://specifications.freedesktop.org/icon-theme/latest/"
+    }
+  ],
+  "geometry": {
+    "masterViewBox": [
+      0,
+      0,
+      512,
+      500
+    ],
+    "center": [
+      256,
+      250
+    ],
+    "outerSymmetry": "180-degree rotation about center",
+    "core": "regular flat-top hexagon with quadratic rounded corners",
+    "hexRadius": 101,
+    "cornerSetback": 18,
+    "coreFlatToFlatHeight": 174.9371315644566
+  }
+}

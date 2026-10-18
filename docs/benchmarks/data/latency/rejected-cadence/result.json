@@ -1,0 +1,516 @@
+{
+  "schema": 1,
+  "started_at_utc": "2026-10-16T16:27:51.974630+00:00",
+  "host": "Linux-7.2.10-hardened1-1-hardened-x86_64-with-glibc2.44",
+  "renderer": "opengl",
+  "fixture": {
+    "path": "/tmp/conflux-worker-paced-opengl/source.wav",
+    "sha256": "e7048d2a675657bc1b5bb1494d4ae92833c3cc2f30d2fad71859cda888ed615c",
+    "frames": 15491445,
+    "seconds": 351.27993197278914,
+    "sample_rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2,
+    "seed": 0,
+    "generator": "conflux-m0-worker-fixture-v1",
+    "numpy_version": "2.5.4",
+    "unquantized_peak_absolute": 0.5014489804035301,
+    "annotations": {
+      "tempo_map": [
+        {
+          "frame": 0,
+          "bpm": 120
+        },
+        {
+          "frame": 7745722,
+          "bpm": 138
+        }
+      ],
+      "transient_frames": [
+        5512,
+        314212,
+        622912,
+        931612,
+        1240312,
+        1549012,
+        1857712,
+        2166412,
+        2475112,
+        2783812,
+        3092512,
+        3401212,
+        3709912,
+        4018612,
+        4327312,
+        4636012,
+        4944712,
+        5253412,
+        5562112,
+        5870812,
+        6179512,
+        6488212,
+        6796912,
+        7105612,
+        7414312,
+        7723012,
+        8031712,
+        8340412,
+        8649112,
+        8957812,
+        9266512,
+        9575212,
+        9883912,
+        10192612,
+        10501312,
+        10810012,
+        11118712,
+        11427412,
+        11736112,
+        12044812,
+        12353512,
+        12662212,
+        12970912,
+        13279612,
+        13588312,
+        13897012,
+        14205712,
+        14514412,
+        14823112,
+        15131812,
+        15440512
+      ],
+      "melody_change_interval_frames": 88200,
+      "description": "Synthetic bass, kick, noise hats, changing tones and asymmetric clicks.",
+      "quality_corpus": false
+    }
+  },
+  "replacement_fixture": {
+    "path": "/tmp/conflux-worker-paced-opengl/replacement.wav",
+    "sha256": "2e72a782875d9b30065aed0fe75ee8b1655eb6e46c4ddf663bdafa99516c6a8b",
+    "frames": 1547987,
+    "seconds": 35.10174603174603,
+    "sample_rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2,
+    "seed": 11,
+    "generator": "conflux-m0-worker-fixture-v1",
+    "numpy_version": "2.5.4",
+    "unquantized_peak_absolute": 0.503862864496024,
+    "annotations": {
+      "tempo_map": [
+        {
+          "frame": 0,
+          "bpm": 120
+        },
+        {
+          "frame": 773993,
+          "bpm": 138
+        }
+      ],
+      "transient_frames": [
+        5512,
+        314212,
+        622912,
+        931612,
+        1240312
+      ],
+      "melody_change_interval_frames": 88200,
+      "description": "Synthetic bass, kick, noise hats, changing tones and asymmetric clicks.",
+      "quality_corpus": false
+    }
+  },
+  "window_frames": 343980,
+  "hop_frames": 257985,
+  "dispatch_interval_seconds": 3.5,
+  "first_hop_input_horizon_frames": 343980,
+  "lookahead_beyond_hop_end_frames": 85995,
+  "normalization": "whole-source mono sample mean/std; reused on seek",
+  "numpy_version": "2.5.4",
+  "conditions_at_start": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1300000",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 45050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 57000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 50000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 57050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 39000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 47050
+    }
+  },
+  "native_memory_cpu": {
+    "interval_seconds": 0.1,
+    "elapsed_seconds": 248.7277767819469,
+    "samples": 2248,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1380062,
+        "start_ticks": 32945065,
+        "samples": 2248,
+        "max_process_status_kB": {
+          "VmHWM": 281464,
+          "VmRSS": 281464
+        },
+        "drm_client_maxima": {
+          "0000:00:02.0/client-746": {
+            "drm-driver": "i915",
+            "drm-client-id": "746",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": "0",
+            "drm-shared-system0": "0",
+            "drm-active-system0": "0",
+            "drm-resident-system0": "0",
+            "drm-purgeable-system0": "0",
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          },
+          "0000:00:02.0/client-747": {
+            "drm-driver": "i915",
+            "drm-client-id": "747",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-shared-system0": "0",
+            "drm-active-system0": {
+              "observations": [
+                "0",
+                {
+                  "value": 534584,
+                  "unit": "KiB"
+                }
+              ]
+            },
+            "drm-resident-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-purgeable-system0": {
+              "value": 1132,
+              "unit": "KiB"
+            },
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 161328954280,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          }
+        },
+        "max_simultaneous_drm_clients": 2,
+        "fd_read_errors": 1,
+        "first_elapsed_seconds": 1.0106740439659916,
+        "last_elapsed_seconds": 248.72750618396094,
+        "observed_cpu_seconds": 12.28
+      }
+    ],
+    "notes": [
+      "VmRSS and VmHWM are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work."
+    ],
+    "trace": {
+      "path": "/tmp/conflux-worker-paced-opengl/native-trace.jsonl",
+      "samples_written": 2248,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors."
+    },
+    "system_sampling": {
+      "fields": {
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+        "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+        "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+        "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+        "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+        "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+        "/proc/pressure/cpu:some.total": "microseconds",
+        "/proc/pressure/cpu:full.total": "microseconds"
+      },
+      "read_errors": {
+        "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 2248,
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 2248,
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 2248,
+        "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 2248
+      },
+      "scope": "Host sysfs snapshots; RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings."
+    }
+  },
+  "supervisor_memory_cpu": {
+    "interval_seconds": 0.1,
+    "elapsed_seconds": 248.69914672104642,
+    "samples": 2434,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1379997,
+        "start_ticks": 32944654,
+        "samples": 2434,
+        "max_process_status_kB": {
+          "VmHWM": 189584,
+          "VmRSS": 189584
+        },
+        "drm_client_maxima": {},
+        "max_simultaneous_drm_clients": 0,
+        "fd_read_errors": 2460,
+        "first_elapsed_seconds": 0.002735136018600315,
+        "last_elapsed_seconds": 248.699136114039,
+        "observed_cpu_seconds": 25.98
+      }
+    ],
+    "notes": [
+      "VmRSS and VmHWM are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work."
+    ]
+  },
+  "load": {
+    "started_at_utc": "2026-10-16T16:27:51.991629+00:00",
+    "children": {
+      "ui": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--smoke-test",
+          "--smoke-seconds",
+          "3600",
+          "--smoke-stop-file",
+          "/tmp/conflux-worker-paced-opengl/stop"
+        ],
+        "returncode": 0,
+        "report": {
+          "capture_ok": true,
+          "desktop_id": "com.kyaulabs.conflux",
+          "device_pixel_ratio": 2,
+          "exposed": true,
+          "frames_swapped": 14817,
+          "graphics_api": 3,
+          "height": 400,
+          "platform": "wayland",
+          "qt": "6.12.0",
+          "rendered": true,
+          "width": 640
+        }
+      },
+      "audio": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+          "--seconds",
+          "3600",
+          "--quantum",
+          "256",
+          "--stop-file",
+          "/tmp/conflux-worker-paced-opengl/stop"
+        ],
+        "returncode": 0,
+        "report": {
+          "schema": 1,
+          "pipewire_version": "1.6.9",
+          "status": "ok",
+          "error": "",
+          "signal": "silence",
+          "requested": {
+            "sample_rate": 48000,
+            "channels": 2,
+            "quantum_frames": 256,
+            "seconds": 3600
+          },
+          "negotiated": {
+            "format_valid": true,
+            "sample_rate": 48000,
+            "channels": 2,
+            "stream_frames_min": 256,
+            "stream_frames_max": 256,
+            "graph_quantum_min": 256,
+            "graph_quantum_max": 256
+          },
+          "streaming_seconds": 250.57,
+          "frames_rendered": 12025856,
+          "callbacks": 46976,
+          "callback_elapsed_us": {
+            "p50_upper_bound": 3.0,
+            "p95_upper_bound": 5.0,
+            "p99_upper_bound": 9.0,
+            "p99_9_upper_bound": 30.0,
+            "max": 71.858,
+            "histogram_resolution": 1,
+            "at_least_100ms": 0
+          },
+          "callback_execution_deadline_misses": 0,
+          "missing_buffers": 0,
+          "invalid_buffers": 0,
+          "truncated_frames": 0,
+          "observed_graph_position_discontinuities": 0,
+          "observed_position_clock_xrun_recovery_flags": 0,
+          "telemetry_capabilities": {
+            "clock_cycle": true,
+            "discontinuity_flag": true,
+            "xrun_recovery_flags": true,
+            "graph_position_observed": true
+          },
+          "pipewire_time_snapshot": {
+            "valid": true,
+            "now_ns": 290751656153469,
+            "rate_num": 1,
+            "rate_denom": 48000,
+            "ticks": 12026624,
+            "delay_ticks": 280,
+            "queued_frames": 0,
+            "buffered_frames": 0
+          },
+          "measurement_scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+        }
+      }
+    },
+    "errors": [],
+    "audio_fault_counters": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "finished_at_utc": "2026-10-16T16:32:02.673278+00:00"
+  },
+  "finished_at_utc": "2026-10-16T16:32:02.673308+00:00",
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "900018",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 44050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 50000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 49000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 50050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 50050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 40000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 48050
+    }
+  }
+}

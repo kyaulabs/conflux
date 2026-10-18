@@ -1,0 +1,735 @@
+{
+  "qualification": "ABORTED_PARTIAL_FAILURE; no full-hour or passing-parity claim",
+  "run_directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun",
+  "raw_status": "error",
+  "requested_seconds": 3600.0,
+  "workload_seconds": 590.1349293899839,
+  "raw_failures": [
+    {
+      "phase": "workload",
+      "error": "RuntimeError: repeated same-grid chunk hash changed",
+      "timestamp_monotonic": 317983.249356358
+    }
+  ],
+  "raw_acceptance": {
+    "requested_wall_duration_completed": false,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": null,
+    "required_UI_coverage_completed": null,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 1,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=none; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "counts": {
+    "events": 665,
+    "returned_chunk_events": 198,
+    "accepted_soak_hops": 197,
+    "unaccepted_returned_chunks": 1,
+    "controls_started": 1,
+    "controls_complete": 1,
+    "controls_incomplete": 0,
+    "event_types": {
+      "control": 24,
+      "runtime_ready": 1,
+      "source_ready": 23,
+      "started": 200,
+      "chunk": 198,
+      "soak_hop": 197,
+      "complete": 21,
+      "discarded": 1
+    }
+  },
+  "timing": {
+    "accepted_all": {
+      "chunks": 197,
+      "frames": 45664272,
+      "p50_ms": 2033.06360199349,
+      "p95_ms": 5477.387032005936,
+      "p99_ms": 16996.21173698688,
+      "max_ms": 19711.656467989087,
+      "above4095ms": 11
+    },
+    "accepted_continuous": {
+      "chunks": 196,
+      "frames": 45406620,
+      "p50_ms": 2032.9741300083697,
+      "p95_ms": 5477.387032005936,
+      "p99_ms": 16996.21173698688,
+      "max_ms": 19711.656467989087,
+      "above4095ms": 11
+    },
+    "returned_all_including_rejected": {
+      "chunks": 198,
+      "frames": 45922257,
+      "p50_ms": 2033.06360199349,
+      "p95_ms": 5815.686830028426,
+      "p99_ms": 19711.656467989087,
+      "max_ms": 20318.01019096747,
+      "above4095ms": 12
+    }
+  },
+  "control_timeline": [
+    {
+      "number": 1,
+      "complete": true,
+      "target_frame": 258318,
+      "superseded_request_id": 144,
+      "superseded_generation": 16,
+      "cancel_generation": 17,
+      "resume_generation": 18,
+      "started_to_cancel_ms": 200.95094002317637,
+      "cancel_ack_ms": 0.08191802771762013,
+      "held_request_id": 143,
+      "held_current_generation_before_cancel": true,
+      "held_rejected_reported": true,
+      "residual_drain_ms_recomputed": 12254.112488008104,
+      "resume_ack_ms": 0.05772797157987952,
+      "returned_request_id": 146,
+      "returned_ready_after_cancel_ms": 21571.277684997767,
+      "returned_ready_after_seek_event_ms": 9316.80150696775,
+      "returned_matches_seek_frame": true,
+      "returned_was_accepted": true,
+      "starts": [
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317707.892733406,
+          "request_id": 145,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 0,
+          "preroll": true,
+          "consumed_at": 317707.892981266
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317714.217829268,
+          "request_id": 146,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 257985,
+          "preroll": false,
+          "consumed_at": 317714.217989776
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317717.207728746,
+          "request_id": 147,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 515970,
+          "preroll": false,
+          "consumed_at": 317717.276345845
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317720.305504311,
+          "request_id": 148,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 773955,
+          "preroll": false,
+          "consumed_at": 317720.323843123
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317723.293448543,
+          "request_id": 149,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1031940,
+          "preroll": false,
+          "consumed_at": 317723.312240908
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317726.377459614,
+          "request_id": 150,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1289925,
+          "preroll": false,
+          "consumed_at": 317726.401710586
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317729.567065191,
+          "request_id": 151,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1547910,
+          "preroll": false,
+          "consumed_at": 317729.584482986
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317732.78803766,
+          "request_id": 152,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 1805895,
+          "preroll": false,
+          "consumed_at": 317732.806566865
+        },
+        {
+          "event": "started",
+          "generation": 18,
+          "timestamp": 317736.472117246,
+          "request_id": 153,
+          "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+          "window_start_frame": 2063880,
+          "preroll": false,
+          "consumed_at": 317736.495348265
+        }
+      ]
+    }
+  ],
+  "unaccepted_failure_chunks": [
+    {
+      "failure_kind": "same_grid_exact_sha256",
+      "numeric_tolerance_comparison_performed": false,
+      "chunk": {
+        "event": "chunk",
+        "generation": 24,
+        "timestamp": 317983.182855587,
+        "ready_at": 317983.182855587,
+        "request_id": 200,
+        "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "source_frames": 2076225,
+        "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "frame_start": 257985,
+        "window_start_frame": 257985,
+        "frames": 257985,
+        "sample_rate": 44100,
+        "channels": 2,
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "request_ms": 20259.85908799339,
+        "metrics": {
+          "graph_ms": 20064.630323,
+          "involuntary_context_switches": 80,
+          "voluntary_context_switches": 55,
+          "inference_wall_ms": 20185.129157,
+          "elapsed_ms": 20234.926776,
+          "graph_rebuild_ms": 0,
+          "frontend_ms": 34.57691,
+          "stems": 4,
+          "postprocess_ms": 85.92006,
+          "inference_cpu_ms": 351.8060000000005,
+          "frames": 343980,
+          "id": 200,
+          "event": "result"
+        },
+        "source_read_ms": 5.920937983319163,
+        "overlap_ms": 48.789357009809464,
+        "hop_service_ms": 20318.01019096747,
+        "control_latency_ms": 40030.01306595979,
+        "ready_queue_depth": 1,
+        "queue_delay_ms": 0.24300802033394575,
+        "samples_sha256": "160667996f489d65543eee679ff7c9f0444338ba79f9ac00608e72efbecf7df6",
+        "consumed_at": 317983.216355176
+      },
+      "started_event": {
+        "event": "started",
+        "generation": 24,
+        "timestamp": 317962.870809886,
+        "request_id": 200,
+        "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "window_start_frame": 257985,
+        "preroll": false,
+        "consumed_at": 317962.921329662
+      },
+      "trim_frames": 0,
+      "expected_same_target_accepted_hashes": [
+        "c5165a7885cb9120ca65dd2b7f6ae528f122d0461a58a20230308cab71aeecc2"
+      ],
+      "matches_same_target_accepted_hash": false,
+      "matches_other_known_trim_target": false,
+      "failure_after_ready_ms": 66.50077103404328,
+      "failure_after_consumed_ms": 33.00118201877922,
+      "parity_event_recorded": false,
+      "numeric_difference_retained": false,
+      "compared_PCM_retained": false
+    }
+  ],
+  "source_currentness": {
+    "source_model_identities": [
+      [
+        "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+      ]
+    ],
+    "generation_stale_chunks": [],
+    "frame_contiguity_errors": [],
+    "source_ready_count": 23,
+    "all_source_statistics_equal": true,
+    "normalization_values": [
+      [
+        0.0006814675871282816,
+        0.1288195550441742
+      ]
+    ],
+    "last_source_ready": {
+      "event": "source_ready",
+      "generation": 24,
+      "timestamp": 317943.153060905,
+      "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "source_frames": 2076225,
+      "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun/source.wav",
+      "mean": 0.0006814675871282816,
+      "std": 0.1288195550441742,
+      "reused": true,
+      "preparation_ms": 0.014440971426665783,
+      "consumed_at": 317943.153391096
+    },
+    "scope": "Event-order checks cover returned chunks, including rejected request200. Instrumented accept failed after currentness/source/shape checks; arrays are not archived."
+  },
+  "parity": {
+    "accepted_grid_hash_counts": {
+      "0": 1,
+      "257985": 1,
+      "515970": 1,
+      "773955": 1,
+      "1031940": 1,
+      "1289925": 1,
+      "1547910": 1,
+      "1805895": 1,
+      "2063880": 1
+    },
+    "all_accepted_grid_hashes_match_golden": true,
+    "accepted_trimmed_hashes_by_target": {
+      "258318": [
+        "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+      ]
+    },
+    "all_accepted_trimmed_numeric_checks_exact": true,
+    "reference_comparisons": {
+      "benchmarks-local/isolation-2026-10-16/none-hour": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ],
+          "516107": [
+            "23be93526c9a29838f08bf684fc657ae8276a6c6721da000a51b91bb85915f3d"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/none-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/audio-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/both-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/ui-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/diagnostic-none-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      }
+    },
+    "limitation": "Same-grid exact-SHA mismatch is established by changed hash and rejection; no allclose/tolerance comparison was performed on this branch. No max difference, reference-array hash at failure or compared PCM is retained, so numeric significance, magnitude and divergence source cannot be recovered."
+  },
+  "worker_statistics_before_shutdown": {
+    "generation": 24,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": {
+      "generation": 24,
+      "request_id": 201,
+      "window_start_frame": 515970
+    },
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": 1563562,
+    "closed": false
+  },
+  "worker_statistics_after_shutdown": {
+    "generation": 24,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "backend_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 317393.068138275,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1563562,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 393.143706,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "consumed_at": 317393.068187714
+    }
+  ],
+  "worker_shutdown_ms": 208.91540101729333,
+  "reported_sampler_errors": {
+    "sample_errors": {},
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun/native-trace.jsonl",
+      "samples_written": 1155,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    }
+  },
+  "raw_pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 43452,
+      "sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "analysis_scope": "Only result/events, small lifecycle records and reference event logs read; no native full trace parsed, no producer edits or GPU work. Request201 is reported in flight at failure but its started event was not consumed before the consumer exception; telemetry_dropped remains0.",
+  "script_sha256": "c7eeaf9f00f28d4439ab0d8271773101fadf0f18ca8487c4b97032ee6eae61c6",
+  "evidence": {
+    "result.json": {
+      "bytes": 28868,
+      "sha256": "5214408ff766beba5056eb65c08e76b4d9dab014e7af9833bd0f0129acede930"
+    },
+    "events.jsonl": {
+      "bytes": 504456,
+      "sha256": "9bf2a7d7abf0514adaaa560bfbc1a45763794998b629a974bd933604eee28a1c"
+    }
+  },
+  "cleanup_lifecycle": {
+    "policy_record": {
+      "command": [
+        "python3",
+        "-B",
+        "tools/benchmarks/stem_soak.py",
+        "--runtime",
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "--model",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "--ui",
+        "build/dev/conflux",
+        "--audio-probe",
+        "build/dev/conflux-audio-probe",
+        "--load",
+        "none",
+        "--renderer",
+        "opengl",
+        "--seconds",
+        "3600",
+        "--control-interval",
+        "300",
+        "--request-timeout",
+        "30",
+        "--sample-interval",
+        "0.5",
+        "--output",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun"
+      ],
+      "started_at_utc": "2026-10-16T23:56:00.894901+00:00",
+      "before": {
+        "observed_at_utc": "2026-10-16T23:56:00.895285+00:00",
+        "profile": "power-saver",
+        "holds": "",
+        "firmware": "low-power",
+        "cpu_epp": "power"
+      },
+      "during": {
+        "observed_at_utc": "2026-10-16T23:56:01.865290+00:00",
+        "profile": "balanced",
+        "holds": "",
+        "firmware": "balanced",
+        "cpu_epp": "balance_performance"
+      },
+      "before_restore": {
+        "observed_at_utc": "2026-10-17T00:05:54.586100+00:00",
+        "profile": "balanced",
+        "holds": "",
+        "firmware": "balanced",
+        "cpu_epp": "balance_performance"
+      },
+      "restored_by_runner": true,
+      "after": {
+        "observed_at_utc": "2026-10-17T00:05:56.275871+00:00",
+        "profile": "power-saver",
+        "holds": "",
+        "firmware": "low-power",
+        "cpu_epp": "power"
+      },
+      "benchmark_returncode": 1,
+      "runner_returncode": 1,
+      "finished_at_utc": "2026-10-17T00:05:57.502208+00:00"
+    },
+    "guard_record": {
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/balanced-run.py",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun-policy.json",
+        "--runtime",
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "--model",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "--ui",
+        "build/dev/conflux",
+        "--audio-probe",
+        "build/dev/conflux-audio-probe",
+        "--load",
+        "none",
+        "--renderer",
+        "opengl",
+        "--seconds",
+        "3600",
+        "--control-interval",
+        "300",
+        "--request-timeout",
+        "30",
+        "--sample-interval",
+        "0.5",
+        "--output",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun"
+      ],
+      "started_at_utc": "2026-10-16T23:56:00.778986+00:00",
+      "status": "error",
+      "ready": false,
+      "errors": [],
+      "idle_only": true,
+      "window_guard": {
+        "requested": false,
+        "status": "not_run"
+      },
+      "idle_inhibit_cookie": 9787,
+      "bus_owner": ":1.20403",
+      "idle_inhibit_released": true,
+      "child_returncode": 1,
+      "returncode": 1,
+      "finished_at_utc": "2026-10-17T00:05:57.630445+00:00"
+    },
+    "host_cleanup_record": {
+      "native_and_probe_PIDs": [
+        1563562,
+        1563546
+      ],
+      "PID_exists": {
+        "1563562": false,
+        "1563546": false
+      },
+      "worker_closed": true,
+      "probe_returncodes": {},
+      "fixture_exists": false,
+      "idle_inhibit_released": true,
+      "guard_errors": [],
+      "policy_lifecycle": {
+        "command": [
+          "python3",
+          "-B",
+          "tools/benchmarks/stem_soak.py",
+          "--runtime",
+          "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+          "--model",
+          "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+          "--ui",
+          "build/dev/conflux",
+          "--audio-probe",
+          "build/dev/conflux-audio-probe",
+          "--load",
+          "none",
+          "--renderer",
+          "opengl",
+          "--seconds",
+          "3600",
+          "--control-interval",
+          "300",
+          "--request-timeout",
+          "30",
+          "--sample-interval",
+          "0.5",
+          "--output",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun"
+        ],
+        "started_at_utc": "2026-10-16T23:56:00.894901+00:00",
+        "before": {
+          "observed_at_utc": "2026-10-16T23:56:00.895285+00:00",
+          "profile": "power-saver",
+          "holds": "",
+          "firmware": "low-power",
+          "cpu_epp": "power"
+        },
+        "during": {
+          "observed_at_utc": "2026-10-16T23:56:01.865290+00:00",
+          "profile": "balanced",
+          "holds": "",
+          "firmware": "balanced",
+          "cpu_epp": "balance_performance"
+        },
+        "before_restore": {
+          "observed_at_utc": "2026-10-17T00:05:54.586100+00:00",
+          "profile": "balanced",
+          "holds": "",
+          "firmware": "balanced",
+          "cpu_epp": "balance_performance"
+        },
+        "restored_by_runner": true,
+        "after": {
+          "observed_at_utc": "2026-10-17T00:05:56.275871+00:00",
+          "profile": "power-saver",
+          "holds": "",
+          "firmware": "low-power",
+          "cpu_epp": "power"
+        },
+        "benchmark_returncode": 1,
+        "runner_returncode": 1,
+        "finished_at_utc": "2026-10-17T00:05:57.502208+00:00"
+      }
+    },
+    "checks": {
+      "restored_by_runner": true,
+      "no_holds_at_stages": true,
+      "during_balanced": true,
+      "prior_profile_restored": true,
+      "prior_firmware_restored": true,
+      "prior_EPP_restored": true,
+      "idle_guard_only": true,
+      "idle_inhibitor_released": true,
+      "expected_failure_returncode": true,
+      "worker_closed": true,
+      "all_recorded_PIDs_absent": true,
+      "fixture_absent": true,
+      "guard_errors_empty": true
+    },
+    "scope": "Expected failing benchmark return is preserved; cleanup qualification does not turn partial correctness failure into a pass. Portable audit reads saved timestamped host observations, not live /proc or policy."
+  },
+  "disabled_probes": {
+    "load_mode": "none",
+    "selected_loads": [],
+    "children": [],
+    "coverage": {
+      "audio": {
+        "requested": false,
+        "status": "not_run",
+        "passed": null,
+        "concurrent_workload_seconds": null
+      },
+      "ui": {
+        "requested": false,
+        "status": "not_run",
+        "passed": null
+      }
+    },
+    "unexpected_artifacts": [],
+    "scope": "Audio/UI are not_run/null, not measured no-fault. Same-grid failure is outside trimmed-only capture branch, so no PCM capture is expected.",
+    "checks": {
+      "mode_none": true,
+      "no_selected_children": true,
+      "audio_and_UI_not_run_null": true,
+      "no_disabled_or_capture_artifacts": true
+    }
+  }
+}

@@ -1,0 +1,758 @@
+{
+  "schema": 1,
+  "client_date": "2026-10-17 America/Los_Angeles",
+  "source_base_head": "98795bbc55b699f675c0712d82fb343febdc0ae5",
+  "source_pin_captured_utc": "2026-10-18T05:04:32.960436+00:00",
+  "build_scope": "Built working-tree source hashes on the signed source base; streaming/preparation and standalone recording changes were not already in that base. Pins were captured before next-slice edits. Source hashes describe the frozen built slice, not later worktree changes.",
+  "build_type": "RelWithDebInfo",
+  "source_pins": {
+    ".github/workflows/build.yml": {
+      "path": ".github/workflows/build.yml",
+      "bytes": 1145,
+      "sha256": "01c3018e27234b4aa66721c51e80b93dd53fc98b96dad6200a3a5e7e8eacc89a"
+    },
+    "CMakeLists.txt": {
+      "path": "CMakeLists.txt",
+      "bytes": 8873,
+      "sha256": "83d414de941beb26c196865111f084375cce352cdd2fa2cd237277cd8e321a87"
+    },
+    "brand/assets/app-icons/conflux-app-dark.svg": {
+      "path": "brand/assets/app-icons/conflux-app-dark.svg",
+      "bytes": 992,
+      "sha256": "8e56e0c51ac5245edd7196fa95d86ccffde7571c25e3151ba3eb575799c89c3a"
+    },
+    "brand/assets/fonts/Barlow-OFL.txt": {
+      "path": "brand/assets/fonts/Barlow-OFL.txt",
+      "bytes": 4377,
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    "brand/assets/fonts/Barlow-Regular.ttf": {
+      "path": "brand/assets/fonts/Barlow-Regular.ttf",
+      "bytes": 104068,
+      "sha256": "95aa02c7c43096e0dd44d787ba6216864a67157e402adab59b35572e0c1577ea"
+    },
+    "brand/assets/fonts/BarlowCondensed-OFL.txt": {
+      "path": "brand/assets/fonts/BarlowCondensed-OFL.txt",
+      "bytes": 4377,
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    "brand/assets/fonts/BarlowCondensed-SemiBold.ttf": {
+      "path": "brand/assets/fonts/BarlowCondensed-SemiBold.ttf",
+      "bytes": 109428,
+      "sha256": "7b619d14bc2327509a9ef32b0890f709626f7ecc9ff61191c2a4314c5499d2d9"
+    },
+    "brand/assets/fonts/JetBrainsMono-OFL.txt": {
+      "path": "brand/assets/fonts/JetBrainsMono-OFL.txt",
+      "bytes": 4399,
+      "sha256": "a76abf002c49097d146e86740a3105a5d00450b1592e820a1109a8c5680cd697"
+    },
+    "brand/assets/fonts/JetBrainsMono-Regular.ttf": {
+      "path": "brand/assets/fonts/JetBrainsMono-Regular.ttf",
+      "bytes": 270224,
+      "sha256": "e6fd0d7e91550b3ed2b735d4312474362c4716edc4fc0577a0f61ed782d5aed1"
+    },
+    "brand/assets/logos/conflux-horizontal-dark.svg": {
+      "path": "brand/assets/logos/conflux-horizontal-dark.svg",
+      "bytes": 2244,
+      "sha256": "845e4a8af20984d7960e61a11a0092f666e2cea150f0942383e5e5f58868ea2e"
+    },
+    "brand/assets/logos/conflux-horizontal-light.svg": {
+      "path": "brand/assets/logos/conflux-horizontal-light.svg",
+      "bytes": 2244,
+      "sha256": "ed9b8d598c799fc70ab64eaa51e66e864f97ad154b1be21fc48411e7e3011181"
+    },
+    "brand/integration/qtquick/ConfluxTheme.qml": {
+      "path": "brand/integration/qtquick/ConfluxTheme.qml",
+      "bytes": 1577,
+      "sha256": "1fe3e376c7e98e799a19519e95a5080740c13880315191d7fe6e1993fbb28c27"
+    },
+    "brand/integration/qtquick/qmldir": {
+      "path": "brand/integration/qtquick/qmldir",
+      "bytes": 65,
+      "sha256": "1461bc7948b3bf027f9d33dcdeda93aca53f1f2461c04d511c6b9f9e587b4e4a"
+    },
+    "qml/DeckButton.qml": {
+      "path": "qml/DeckButton.qml",
+      "bytes": 7855,
+      "sha256": "5284e393df72ed42b0fd440c9c547591e8698df8c4af25b428b3914e04cab5ab"
+    },
+    "qml/DeckSurface.qml": {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 22943,
+      "sha256": "8337128c4a8c6f9d7ec668cf7a3e5b685e2211cfca78c120834315b90e057585"
+    },
+    "qml/Harness.qml": {
+      "path": "qml/Harness.qml",
+      "bytes": 4257,
+      "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb"
+    },
+    "qml/Main.qml": {
+      "path": "qml/Main.qml",
+      "bytes": 12745,
+      "sha256": "422b4d0eb1792a78011f6c173ab1fbf99840dbd9cc52289a20ac47d2ce4a75a6"
+    },
+    "qml/MixerSurface.qml": {
+      "path": "qml/MixerSurface.qml",
+      "bytes": 18435,
+      "sha256": "a40401fa787a30c2b8393dc562abdaa9414e509d0301cd952bad5402ab49a2f7"
+    },
+    "qml/SurfaceKnob.qml": {
+      "path": "qml/SurfaceKnob.qml",
+      "bytes": 3641,
+      "sha256": "beb451229c116bf7e780f9c7c94349ba6c383d94e167a1310d5441c925565e14"
+    },
+    "src/audio/AudioFile.cpp": {
+      "path": "src/audio/AudioFile.cpp",
+      "bytes": 10964,
+      "sha256": "0e6790cfa3ea67d8010e3053ad861f7b55ec681e7e9236d6aeb70b537d43e335"
+    },
+    "src/audio/AudioFile.hpp": {
+      "path": "src/audio/AudioFile.hpp",
+      "bytes": 2809,
+      "sha256": "1ee59f44ddf9a91f1f61f4e4cc15be5447d0fd33643ed777afab9a78630e48a2"
+    },
+    "src/audio/AudioSource.hpp": {
+      "path": "src/audio/AudioSource.hpp",
+      "bytes": 1147,
+      "sha256": "b78ac2e70e18966c3dbe118ba4397c140c514dd17a3fe97dbad59e76373f986c"
+    },
+    "src/audio/LiveSession.cpp": {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 17498,
+      "sha256": "7655215f2708c7324b8f0b7454f08c35238c8a9a734c646e12dd4de169fa05a4"
+    },
+    "src/audio/LiveSession.hpp": {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 3210,
+      "sha256": "82e7d8ffc4bcdf31bf6289f10dbc964c5933eadbf88e8c51895ceac9e85834e2"
+    },
+    "src/audio/PcmReadAhead.cpp": {
+      "path": "src/audio/PcmReadAhead.cpp",
+      "bytes": 12446,
+      "sha256": "f9e438214ee8ff4bd367c594aad688bc224c0b43dc6f1b26a1df48a16a2efd0b"
+    },
+    "src/audio/PcmReadAhead.hpp": {
+      "path": "src/audio/PcmReadAhead.hpp",
+      "bytes": 1427,
+      "sha256": "6d15bbe4ed713c6c4b5359627b17484c9cfd068ef4d20d2293b41aee3e4dc104"
+    },
+    "src/audio/RenderCore.cpp": {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 11467,
+      "sha256": "7bbe55abd7c2f4188cdb85fb2ac6ba5caf2f26ca61edd5559cbc3454a527392e"
+    },
+    "src/audio/RenderCore.hpp": {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 5353,
+      "sha256": "26bfc8b2358ccc94bd688f24dfa122ae886215c2fb24803fe085efcbae187f40"
+    },
+    "src/audio/StereoRecorder.cpp": {
+      "path": "src/audio/StereoRecorder.cpp",
+      "bytes": 10444,
+      "sha256": "239f25c2b59089533f56e3e12fe8dc2b603fc240eec0e10f9c8b1ac561d8961a"
+    },
+    "src/audio/StereoRecorder.hpp": {
+      "path": "src/audio/StereoRecorder.hpp",
+      "bytes": 1962,
+      "sha256": "0dd93ec785529f09b0c23003ad799fc5bf77a6b4148f62fe237ab5d8bc1675bd"
+    },
+    "src/audio/TransportQueue.hpp": {
+      "path": "src/audio/TransportQueue.hpp",
+      "bytes": 1518,
+      "sha256": "84b2a1ba0ac25f9d97ddb82fcedb337b89115e970c152be2fccc1c0d72607f21"
+    },
+    "src/main.cpp": {
+      "path": "src/main.cpp",
+      "bytes": 10487,
+      "sha256": "6669dd1ae0bc3794ea2fc39c9b3ba3dc65845ddd0b951b4a1ea7301d4ea6e256"
+    },
+    "src/probe_main.cpp": {
+      "path": "src/probe_main.cpp",
+      "bytes": 33738,
+      "sha256": "a150fb079bb7cb94853d81882d0b315a9034ce9dbd318e68db42165717c8f4a6"
+    },
+    "src/ui/DeckController.cpp": {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 12526,
+      "sha256": "732ca0361dcb3da474b6f84a50a98afbc89f3f57e623ae1bac539f88395a6bb6"
+    },
+    "src/ui/DeckController.hpp": {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 4103,
+      "sha256": "9d51e1642c5301ab9945b979959773b33d4931641fb5ed9fbcb67b2ca562d38d"
+    },
+    "tests/audio_cue_test.cpp": {
+      "path": "tests/audio_cue_test.cpp",
+      "bytes": 14311,
+      "sha256": "ad625c229e4e48eaf7b50259ab1cf82bb8df8a1b88d1e605fce43bee63ee3070"
+    },
+    "tests/audio_file_test.cpp": {
+      "path": "tests/audio_file_test.cpp",
+      "bytes": 19391,
+      "sha256": "4badf2a28a4596e93e671a4f8a597b700ac8c1847e74c7a1694a09fa531b7224"
+    },
+    "tests/audio_preparation_test.cpp": {
+      "path": "tests/audio_preparation_test.cpp",
+      "bytes": 17145,
+      "sha256": "b07d1136493e56efb34a89c40cb45bdd7e69d37991f16591ce14f69579aa4fb7"
+    },
+    "tests/audio_probe_cli_test.py": {
+      "path": "tests/audio_probe_cli_test.py",
+      "bytes": 7342,
+      "sha256": "9f5d9e40291659557dcbfa671d2b2156e7a38d1d2ce00ded7de63e0e5bc198d6"
+    },
+    "tests/audio_read_ahead_test.cpp": {
+      "path": "tests/audio_read_ahead_test.cpp",
+      "bytes": 12999,
+      "sha256": "a42b26a7954826c33adff9a20391edfeefbb14e8a3c6e2a1c846033605717f9c"
+    },
+    "tests/audio_recorder_test.cpp": {
+      "path": "tests/audio_recorder_test.cpp",
+      "bytes": 13762,
+      "sha256": "466b2c0f47f7d9e40d56463c15dee5e10bb2de02de9cf3a279cee693be7cdb66"
+    },
+    "tests/audio_source_test.cpp": {
+      "path": "tests/audio_source_test.cpp",
+      "bytes": 18102,
+      "sha256": "ceb94671a6a5118555a191832f3592b2d95053004956635d0bb4a564ecad46f2"
+    },
+    "tests/audio_test.cpp": {
+      "path": "tests/audio_test.cpp",
+      "bytes": 2827,
+      "sha256": "8f747fc8cdabb3f92b5c17ee3a34e3fc5ee0588f0adad4f8b20d356a0e2fe37a"
+    },
+    "tests/audio_transport_test.cpp": {
+      "path": "tests/audio_transport_test.cpp",
+      "bytes": 21307,
+      "sha256": "724cc2fee5aed84925b9f279b0dfa1034da2bad01fd250064a281e4e4f822a6c"
+    },
+    "tests/deck_controller_test.cpp": {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 13059,
+      "sha256": "6a48a0e3ceb0340aa7af6c7b05a709b823e69ee21a78f61c73faa4e89ac3b77a"
+    },
+    "tests/live_session_test.cpp": {
+      "path": "tests/live_session_test.cpp",
+      "bytes": 7418,
+      "sha256": "f0951895ada40064cf96866ce56ae6429cbc69c72a71751aa2f470d6813b4d3f"
+    },
+    "tests/manual_ui_test.cpp": {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 27875,
+      "sha256": "855c56664fc774a8b7e21fbc7ec31cba64daf828b85d69e3354980467630d19d"
+    },
+    "tests/stem_soak_test.py": {
+      "path": "tests/stem_soak_test.py",
+      "bytes": 23251,
+      "sha256": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e"
+    },
+    "tests/stem_worker_test.py": {
+      "path": "tests/stem_worker_test.py",
+      "bytes": 22905,
+      "sha256": "b1b010bd79c2dd09c0e0a834ae5e470b4767ef1d2c350605670037254b5dfc85"
+    },
+    "tools/benchmarks/native_replay.py": {
+      "path": "tools/benchmarks/native_replay.py",
+      "bytes": 14483,
+      "sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e"
+    },
+    "tools/benchmarks/stem_profile.py": {
+      "path": "tools/benchmarks/stem_profile.py",
+      "bytes": 5741,
+      "sha256": "a8f91123b7470cc8c15cca4e12e9a94995846c1243f35f14f8cd922c763ab3b2"
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "path": "tools/benchmarks/stem_soak.py",
+      "bytes": 64246,
+      "sha256": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "path": "tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "tools/benchmarks/stems.py": {
+      "path": "tools/benchmarks/stems.py",
+      "bytes": 6975,
+      "sha256": "9febfe87d7fcd264b7687d320ca6cfdb8945960353c1add6ceae8d60c6050a05"
+    },
+    "tools/benchmarks/window_guard.py": {
+      "path": "tools/benchmarks/window_guard.py",
+      "bytes": 14613,
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "path": "tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "tools/experiments/manual_audio_check.cpp": {
+      "path": "tools/experiments/manual_audio_check.cpp",
+      "bytes": 17169,
+      "sha256": "a60f1dd1c49d66d9437bc88c99cfa772cd127246a3df5d9eeffdb4377bfcc3fc"
+    },
+    "tools/experiments/prepare_audio_check.cpp": {
+      "path": "tools/experiments/prepare_audio_check.cpp",
+      "bytes": 9136,
+      "sha256": "ceb4e408e93fc7bddde029049be4e488a4ee01747020bb8268af105ab2f95401"
+    },
+    "tools/stems/worker.py": {
+      "path": "tools/stems/worker.py",
+      "bytes": 25077,
+      "sha256": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824"
+    }
+  },
+  "binaries": {
+    "build/dev/conflux": {
+      "path": "build/dev/conflux",
+      "bytes": 4616552,
+      "sha256": "500fa45c38a57b559c7cbda848bd62250d2286c1a2fd5a6570c6f39f8ecc502d"
+    },
+    "build/dev/conflux-audio-cue-test": {
+      "path": "build/dev/conflux-audio-cue-test",
+      "bytes": 359296,
+      "sha256": "84c85e307876adfc87ccef0ca16b4adc5cf6f505c475b20010d68e1a9f9a7da9"
+    },
+    "build/dev/conflux-audio-file-test": {
+      "path": "build/dev/conflux-audio-file-test",
+      "bytes": 1345832,
+      "sha256": "6d92ce83b0e8f541099a8a05a0fd36c2bff28ba21a87189b16a1eda15bd852e6"
+    },
+    "build/dev/conflux-audio-preparation-test": {
+      "path": "build/dev/conflux-audio-preparation-test",
+      "bytes": 1063136,
+      "sha256": "7895769ab4b12502bf410aad6dbb31d503462eb9e3c09897d0e4cc9813ea7450"
+    },
+    "build/dev/conflux-audio-probe": {
+      "path": "build/dev/conflux-audio-probe",
+      "bytes": 1316720,
+      "sha256": "d724effe6cd53c89cdf1129378266cbe7813200bf6a983b9b886dbf9556ff823"
+    },
+    "build/dev/conflux-audio-read-ahead-test": {
+      "path": "build/dev/conflux-audio-read-ahead-test",
+      "bytes": 475168,
+      "sha256": "590ac20d5cbb833289dbe6e154daf5882a41f3eee2dc80e0314be6ad66968d19"
+    },
+    "build/dev/conflux-audio-recorder-test": {
+      "path": "build/dev/conflux-audio-recorder-test",
+      "bytes": 1130648,
+      "sha256": "7e30a6dcf861b29af1511bea5e643df725e363b6ac3688ea8a206ae4fa77e5a2"
+    },
+    "build/dev/conflux-audio-source-test": {
+      "path": "build/dev/conflux-audio-source-test",
+      "bytes": 312440,
+      "sha256": "9853f8affc3dc8be176ee6cf7102d0aeb228dcb32c06153fa1666358462c2f32"
+    },
+    "build/dev/conflux-audio-test": {
+      "path": "build/dev/conflux-audio-test",
+      "bytes": 193584,
+      "sha256": "ffd0e988ef824883ec2b22a1a0887435bf68fa33c26e67fd2b0f66de249dfdb7"
+    },
+    "build/dev/conflux-audio-transport-test": {
+      "path": "build/dev/conflux-audio-transport-test",
+      "bytes": 603544,
+      "sha256": "3f81c88f2239ac8c5b4d02d87085d85002d9ebecc060cc48f16a1f9b01571408"
+    },
+    "build/dev/conflux-deck-controller-test": {
+      "path": "build/dev/conflux-deck-controller-test",
+      "bytes": 4239824,
+      "sha256": "27eb558a14b04776ec77508bfbc2acfb6e5d1913af198430647685512734c959"
+    },
+    "build/dev/conflux-live-session-test": {
+      "path": "build/dev/conflux-live-session-test",
+      "bytes": 1124904,
+      "sha256": "1a151132735cb27cd96019aed2f59a8e9f56a47975f31e14d15284ed4b93b8b2"
+    },
+    "build/dev/conflux-manual-audio-check": {
+      "path": "build/dev/conflux-manual-audio-check",
+      "bytes": 4373520,
+      "sha256": "b16863ea3ac2227ca4964937174379b0bc00830d7881b8c04d1947e7fdaac539"
+    },
+    "build/dev/conflux-manual-ui-test": {
+      "path": "build/dev/conflux-manual-ui-test",
+      "bytes": 2980904,
+      "sha256": "2724e5fb18c4447f0c0ebfe7d510408b8369ab0abdbca30caabcd4caa0f25b73"
+    },
+    "build/dev/conflux-prepare-audio-check": {
+      "path": "build/dev/conflux-prepare-audio-check",
+      "bytes": 1629344,
+      "sha256": "52f737cb2f9814a64379992bab073a3eb3c0de5c119a96a590e7fa318d24d9f8"
+    }
+  },
+  "excluded_unbuilt_sources": [
+    "src/audio/CallbackTiming.cpp",
+    "src/audio/CallbackTiming.hpp",
+    "tests/audio_timing_test.cpp"
+  ],
+  "fixtures": [
+    {
+      "path": "benchmarks-local/cdj-ui-2026-10-17/quiet-0.wav",
+      "bytes": 4320044,
+      "sha256": "0d3dc20d18d00c0598b9c788b9aded0f869c1fd4d7617d8ed98ecff25b5a5663",
+      "deck": 0,
+      "frames": 720000,
+      "channels": 2,
+      "sample_rate": 48000,
+      "encoding": "PCM24 little endian",
+      "peak_integer": 96,
+      "peak_bound": 1.1444091796875e-05,
+      "recipe": {
+        "t": "frame / 48000",
+        "envelope": "(.18 + .82 * abs(sin(t * 2.2))) * (.25 + .75 * abs(sin(t * 11.3)))",
+        "left_frequency_hz": 220,
+        "right_frequency_hz": 329,
+        "left_phase": 0,
+        "right_phase": 0.3,
+        "sample": "round(96 * envelope * sin(2*pi*frequency*t + phase))"
+      }
+    },
+    {
+      "path": "benchmarks-local/cdj-ui-2026-10-17/quiet-1.wav",
+      "bytes": 4320044,
+      "sha256": "765d9725f0e1f6418ef3be518886bd39c684ca94741d83317800a0a26d027c5a",
+      "deck": 1,
+      "frames": 720000,
+      "channels": 2,
+      "sample_rate": 48000,
+      "encoding": "PCM24 little endian",
+      "peak_integer": 96,
+      "peak_bound": 1.1444091796875e-05,
+      "recipe": {
+        "t": "frame / 48000",
+        "envelope": "(.18 + .82 * abs(sin(t * 2.6))) * (.25 + .75 * abs(sin(t * 11.3)))",
+        "left_frequency_hz": 293,
+        "right_frequency_hz": 390,
+        "left_phase": 0,
+        "right_phase": 0.3,
+        "sample": "round(96 * envelope * sin(2*pi*frequency*t + phase))"
+      }
+    }
+  ],
+  "fixtures_provenance": "Quiet generated PCM24 fixtures and complete regeneration recipes retained from docs/benchmarks/data/m1-cue-2026-10-17/verification.json; their bytes were rehashed at freeze. Media is not copied into this archive.",
+  "artifacts": {
+    "manual.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/manual.json",
+      "bytes": 3896,
+      "sha256": "9e04132e882be3f6b179f4419879f238c354f58ffc29ba79532717459288817a"
+    },
+    "manual.stderr": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/manual.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "host-run.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/host-run.json",
+      "bytes": 1374,
+      "sha256": "ff177ba9509274950b50d132d7565b5b42b1e56b05e74efa510b38816b89884d"
+    },
+    "cleanup.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/cleanup.json",
+      "bytes": 100,
+      "sha256": "db6727a6527ab8e279230db2f57a8aeaa7d5c67cf04569f5416bbe964b7c6217"
+    },
+    "smoke-wayland.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/smoke-wayland.json",
+      "bytes": 666,
+      "sha256": "adb5141a778e3aaa858ff25f2efa4527087a41f281723c536729670ec1fa7e5f"
+    },
+    "smoke-wayland.stderr": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/smoke-wayland.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "corpus.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/corpus.json",
+      "bytes": 4424,
+      "sha256": "1a5535ca82d66a655c21210ccf5d7df2b3ffcb8d5c074b2a7d5ba68202dbe04f"
+    },
+    "corpus.stderr": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/corpus.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "corpus-run.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/corpus-run.json",
+      "bytes": 1866,
+      "sha256": "03c529fb55ae68ea738360738c7371c951ebd6bb1b4770cecfd4110e2ac10d77"
+    },
+    "ctest.log": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/ctest.log",
+      "bytes": 1666,
+      "sha256": "6aebb99a1da0f6a816a8555a7e6e00b5d47f239ea5d515e34160164aa317745f"
+    },
+    "native-diagnostic-failure/manual.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/native-diagnostic-failure/manual.json",
+      "bytes": 3052,
+      "sha256": "ef786ae31b2ce63bc82f0389c23b2efbe563b7902873af9d3905d63c1fa91751"
+    },
+    "native-diagnostic-failure/manual.stderr": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/native-diagnostic-failure/manual.stderr",
+      "bytes": 52,
+      "sha256": "9ec49cc26a520318cd5d92e1ea5e4540638d82c75d992f631f75acb4f30782c3"
+    },
+    "native-diagnostic-failure/host-run.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/native-diagnostic-failure/host-run.json",
+      "bytes": 1000,
+      "sha256": "c3497377d499e11e36ada9c03604cc157f088183b9c7ec560f36d695342ad923"
+    },
+    "native-diagnostic-failure/cleanup.json": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/native-diagnostic-failure/cleanup.json",
+      "bytes": 87,
+      "sha256": "361bd2cda965aa866ec4205a39281dc34829974073e2a0319dbeabe6bfd94c00"
+    },
+    "run-host.py": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/run-host.py",
+      "bytes": 3101,
+      "sha256": "9c3d61add68cd3ac5097628e1a2a766e869c391fc33f2d2846288683c599694b"
+    },
+    "run-corpus.py": {
+      "path": "docs/benchmarks/data/m1-stream-2026-10-17/run-corpus.py",
+      "bytes": 1748,
+      "sha256": "354374b0b9139a812bce3c7a15b58251f8386793742419c333bd13d52175d5f0"
+    }
+  },
+  "screenshots_local_only": {
+    "smoke-wayland.png": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-stream-2026-10-17/smoke-wayland.png",
+      "bytes": 75243,
+      "sha256": "6ddd0bfc46e1077622cce43c7f0745190080e8785ac75ff2b85486779df02b33"
+    },
+    "stream-dark.png": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-stream-2026-10-17/stream-dark.png",
+      "bytes": 581138,
+      "sha256": "c793ba353a8537e574dbdc11b9dcf6a579f6cd637bd3825d41b3282712a2629a"
+    },
+    "stream-light.png": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-stream-2026-10-17/stream-light.png",
+      "bytes": 578171,
+      "sha256": "6538e84b2e3e33312a01e5a4da579147ac1f7503c27e6a4b9e4d49cd01f70965"
+    },
+    "stream-minimum.png": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-stream-2026-10-17/stream-minimum.png",
+      "bytes": 450580,
+      "sha256": "797ee07be0975d468d900134d7e1bba57a32598ce330563e503a6cdd76fd37a0"
+    }
+  },
+  "versions": {
+    "PipeWire": "1.6.9",
+    "SndFile": "1.2.2",
+    "SampleRate": "0.2.2",
+    "Qt": "6.12.0"
+  },
+  "ctest": {
+    "entries": 15,
+    "passed": true,
+    "elapsed_seconds": 20.98,
+    "new_coverage": [
+      "Normalized preparation with bounded memory, anonymous FD lifecycle, rate conversion and cancellation/error paths",
+      "Finite bounded read-ahead and source buffering/seek behavior",
+      "Standalone bounded stereo recorder, exact accepted prefix, overflow and real file-write errors"
+    ]
+  },
+  "native": {
+    "applied": 155,
+    "callback_execution_deadline_misses": 0,
+    "callbacks": 2724,
+    "checks": [
+      "Manual QML loaded",
+      "Manual window created",
+      "Deck A loads paused at frame zero",
+      "Real decoded source publishes a bounded finite normalized overview",
+      "Loading B preserves A transport and installs B paused",
+      "80 actions acknowledged in one session without a 32-action lifetime limit",
+      "Paused seeks hold exact source frames while output clock advances",
+      "Loaded deck exposes an enabled real CUE button",
+      "Pointer CUE sets the exact paused render cursor",
+      "Loaded deck exposes an enabled real CUE button",
+      "Loaded deck exposes an enabled real CUE button",
+      "Held pointer CUE auditions without changing requested play state",
+      "Loaded deck exposes an enabled real CUE button",
+      "Pointer release returns preview to stored cue and pauses",
+      "Controller accepts cue preview",
+      "PLAY latches preview; later CUE release keeps playing",
+      "Controller accepts back-cue",
+      "CUE during playback returns to stored cue and pauses",
+      "Controller accepts preview before seek",
+      "Seek cancels audition and preserves stored cue",
+      "Loaded deck exposes an enabled real CUE button",
+      "Pointer CUE sets the exact paused render cursor",
+      "Loaded deck exposes an enabled real CUE button",
+      "Loaded deck exposes an enabled real CUE button",
+      "Held pointer CUE auditions without changing requested play state",
+      "Loaded deck exposes an enabled real CUE button",
+      "Pointer release returns preview to stored cue and pauses",
+      "Controller accepts cue preview",
+      "PLAY latches preview; later CUE release keeps playing",
+      "Controller accepts back-cue",
+      "CUE during playback returns to stored cue and pauses",
+      "Controller accepts preview before seek",
+      "Seek cancels audition and preserves stored cue",
+      "Controller accepts preview before queue pressure",
+      "Full transport queue retains CUE release until a later poll can submit it",
+      "Queue-pressure recovery returns to the exact cue without a stuck audition",
+      "Decode failure preserves loaded decks and active output",
+      "Replacing A resets its cue and preserves B transport and cue after stream quiescence",
+      "Controller accepts B back-cue before replacement check",
+      "Controller accepts B audition before replacing A",
+      "Replacing a source cancels peer audition and preserves its stored cue",
+      "Snapshot backpressure drops telemetry while later controls recover",
+      "Dark screenshot saved",
+      "Theme control found",
+      "Light screenshot saved",
+      "Minimum-size screenshot saved",
+      "No scene-graph errors during live audio",
+      "GUI frames continued rendering alongside live audio",
+      "Tail preview press accepted before immediate shutdown",
+      "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across four sessions",
+      "Immediate shutdown retains accepted tail controls and cancels held audition"
+    ],
+    "elapsed_ms": 15408,
+    "frames_swapped": 249,
+    "invalid_buffers": 0,
+    "last_session_callbacks": 1534,
+    "last_session_frames_max": 256,
+    "last_session_frames_min": 256,
+    "last_session_output_frames": 392704,
+    "last_session_snapshot_drops": 395,
+    "maximum_callback_execution_ns": 60417,
+    "passed": true,
+    "platform": "wayland",
+    "qt": "6.12.0",
+    "rejected": 0,
+    "scope": "Short generated quiet-file UI/audio integration; no physical latency, acoustic or sustained qualification",
+    "sessions": 4,
+    "source_read_failures": 0,
+    "source_starved_frames_including_seek_priming": 3840,
+    "submitted": 155
+  },
+  "native_source_delivery": {
+    "source_unavailable_frames_including_seeks": 3840,
+    "source_read_failures": 0,
+    "phase_breakdown_available": false,
+    "interpretation": "The 3840 unavailable source frames are aggregated across sessions and include seek priming. The evidence does not separate initial/seek refill from sustained playback shortages and does not establish zero underruns."
+  },
+  "host": {
+    "started_utc": "2026-10-18T05:00:17.578993+00:00",
+    "before": {
+      "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+      "profile": "power-saver\n"
+    },
+    "runs": [
+      {
+        "name": "manual",
+        "pid": 2039133,
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-audio-check",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cdj-ui-2026-10-17/quiet-0.wav",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cdj-ui-2026-10-17/quiet-1.wav",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-stream-2026-10-17/stream"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 15.824846855015494
+      },
+      {
+        "name": "smoke-wayland",
+        "pid": 2039634,
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--smoke-test",
+          "--screenshot",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-stream-2026-10-17/smoke-wayland.png"
+        ],
+        "returncode": 0,
+        "elapsed_seconds": 2.574411957990378
+      }
+    ],
+    "after": {
+      "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+      "profile": "power-saver\n"
+    },
+    "stopped_utc": "2026-10-18T05:00:36.870800+00:00"
+  },
+  "cleanup": {
+    "owned_pids": [
+      2039133,
+      2039634
+    ],
+    "still_present": [],
+    "pipewire_objects": []
+  },
+  "guard_identity_unchanged": true,
+  "runner_changed_power_profile": false,
+  "offline_corpus": {
+    "files": 4,
+    "prepared_frames": 41323277,
+    "compared_samples": 82646554,
+    "mismatched_samples": 0,
+    "temporary_pcm_bytes_total_sequential": 330586216,
+    "elapsed_ms": 7205.256863,
+    "process_elapsed_seconds": 7.247648597985972,
+    "peak_child_rss_kib": 19484,
+    "rss_scope": "19,484 KiB is the peak child RSS of one sequential offline preparation/read-ahead/sample-comparison process, not the GUI, simultaneous two-deck playback, operating-system page cache or a sustained real-time memory qualification. Each file is primed before every offline render block.",
+    "cache_bytes_per_source": 1048576,
+    "output_sample_rate": 48000,
+    "output_channels": 2,
+    "all_samples_exact": true,
+    "originals_unchanged": true,
+    "spool_files_remaining": [],
+    "spool_filesystem": "ext4",
+    "audio_output_opened": false,
+    "realtime_delivery_measured": false
+  },
+  "corpus_originals_local_only": [
+    {
+      "path": "/home/kyau/temp/tracks/Excision & Level Up - Club XL ｜ Subsidia.flac",
+      "bytes": 39520388,
+      "sha256": "1e5dffcfd01a5079d6789af0f3ac1bd38cf6ac69b7d7123a5ba796be5835189e"
+    },
+    {
+      "path": "/home/kyau/temp/tracks/SLANDER, Spiritbox, Vastive - Under My Skin.flac",
+      "bytes": 66821081,
+      "sha256": "5759ff164b97548b65375cd67cf63771a737ae72c0210eea67722beacb6ce81c"
+    },
+    {
+      "path": "/home/kyau/temp/tracks/Said The Sky, ILLENIUM, Heather Sommer - When The Light Breaks (Lyric Video).flac",
+      "bytes": 50791591,
+      "sha256": "5c55f8132a7f7a5c2ef1642f3eb8199ba21f2710da5bac41612b747dddb7a08c"
+    },
+    {
+      "path": "/home/kyau/temp/tracks/T-Pain, DJ DIESEL, San Holo, NGHTMRE, Kompany, SampliFire, IVORY - STFU [Dubstep ｜ Monstercat].flac",
+      "bytes": 51852514,
+      "sha256": "a9647727dfddcbd09459cfd98002db51ecdc9f6d2d77463ec177c1af83831641"
+    }
+  ],
+  "diagnostic_failed_attempt": {
+    "path": "native-diagnostic-failure",
+    "passed": false,
+    "host_returncode": 1,
+    "frames_swapped": 1,
+    "scene_errors": [],
+    "error": "GUI frames continued rendering alongside live audio",
+    "submitted": 152,
+    "applied": 152,
+    "source_read_failures": 0,
+    "classification": "Diagnostic failed native UI observation: only one GUI frameSwapped notification was observed. It remains failed evidence; a later passing repeat does not resolve its cause.",
+    "same_binary_provenance": "Parent agent recorded that this diagnostic attempt and the passing repeat used the same compiled helper. The raw failed-attempt record has no historical helper hash, so this identity is a session provenance statement, not independently established by that raw record. The frozen helper hash identifies the current executable used for the passing evidence.",
+    "current_frozen_helper_sha256": "b16863ea3ac2227ca4964937174379b0bc00830d7881b8c04d1947e7fdaac539"
+  },
+  "not_archived": {
+    "native-initial-failure": "Earliest failed native attempt has no helper pin and remains ignored/local; no attribution to the frozen helper.",
+    "ctest-initial-failure.log": "Superseded pre-fix test output remains ignored/local; final 15/15 test log is archived.",
+    "media": "No user tracks, generated audio, temporary PCM, screenshots or executables copied."
+  },
+  "mix_peak_bound": 2.288818359375e-05,
+  "recording_status": "StereoRecorder is a standalone module with unit coverage; it is not connected to LiveSession, UI or a user recording control in this slice.",
+  "limitations": [
+    "Short quiet generated-file native integration only; no sustained playback, physical/acoustic latency, graph-xrun or click-free musical qualification.",
+    "Callback execution deadline timing measures callback execution, not scheduler lateness or physical presentation latency.",
+    "3840 source-unavailable frames including seeks were recorded; no phase attribution or zero-underrun claim is supported.",
+    "The four real tracks were processed sequentially offline with a control-thread prime before every block; zero shortages there does not measure real-time delivery.",
+    "All four corpus inputs were stereo 48 kHz. Mono/rate-conversion coverage comes from unit tests, not this corpus comparison.",
+    "The one-frame native diagnostic failure remains unexplained despite the passing same-binary repeat.",
+    "Snapshot drops under deliberate GUI delay/screenshot capture can occur; the final session recorded 395 dropped telemetry snapshots.",
+    "Local files are fully normalized into bounded anonymous temporary disk storage before installation; this is disk streaming playback, not incremental compressed decode in the audio callback.",
+    "Cooperative preparation cancellation and teardown join exist; a kernel-blocked regular-file read/write has no hard cancellation deadline.",
+    "Headphone cue routing, metering, jog and UI recording remain unfinished M1 work.",
+    "M1 remains incomplete; the failed 4.095-second live-stem service p99 target remains a mandatory M2 blocker before a usable release."
+  ]
+}
