@@ -24,9 +24,11 @@ build/coverage-venv/bin/python tools/coverage/run.py --private-routing
 ```
 
 `--private-routing` also requires `pipewire` and `pw-dump` (`pipewire-bin` on
-Ubuntu). It runs the existing routing, cue-loss, recorder and source-handoff
-checks on a private virtual daemon. It uses no hardware output or host session
-manager. The coverage run selects functional-only mode: sample, routing,
+Ubuntu). It runs the routing, cue-loss, recorder, source-handoff and preparation
+controller checks on private virtual daemons. The preparation check verifies
+queued-completion cancellation, exact peer-deck samples, cached retry and
+immediate shutdown from a completion notification. It uses no hardware output
+or host session manager. The coverage run selects functional-only mode: sample, routing,
 buffer, command and cleanup assertions remain active; execution-deadline
 checks are skipped and reported as such. Normal private-routing checks retain
 their deadline gates.
@@ -61,17 +63,19 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [18 October baseline](benchmarks/data/coverage-baseline-2026-10-18.json)
-passed 22/22 CTest entries, the offscreen smoke and 82 private-routing checks.
-It measured the following with GCC/gcov 16.2.1, gcovr 8.7 and coverage.py 7.16.2:
+The [M2 preparation measurement](benchmarks/data/m2-preparation-2026-10-18/coverage.json)
+passed 23/23 CTest entries, the offscreen smoke, 82 private-routing checks and
+15 private preparation checks. It measured the following with GCC/gcov 16.2.1,
+gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 2,449 / 3,321 (73.74%) | 2,525 / 5,332 (47.36%) |
+| C++ `src/` | 2,918 / 3,735 (78.13%) | 3,201 / 6,448 (49.64%) |
 | Python `tools/stems/` | 387 / 416 (93.03%) | 89 / 110 (80.91%) |
 
-The C++ line target remains unmet. Its largest uncovered areas are the
-standalone probe and successful controller playback paths. Core render tests
+The C++ line target remains unmet, up from 73.74% in the
+[initial baseline](benchmarks/data/coverage-baseline-2026-10-18.json). Its largest
+uncovered areas are the standalone probe and controller. Core render tests
 cover every reported render-core line, including transport, mixing and ramps;
 that narrower result does not replace the full C++ denominator. Coverage
 counts depend on the compiler and configuration, so compare results with their

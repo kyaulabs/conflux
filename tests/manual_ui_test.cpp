@@ -33,6 +33,7 @@ class UiEndpoint final : public QObject {
     Q_PROPERTY(QVariantMap meters READ meters NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap preparation READ preparation NOTIFY stateChanged)
 public:
     static QVariantMap silentMeter()
     {
@@ -57,6 +58,8 @@ public:
                     {"defaultSink", "Laptop Speakers"}, {"masterError", ""}, {"cueError", ""}};
         recording_ = {{"status", "Idle"}, {"path", ""}, {"error", ""}, {"active", false},
                       {"acceptedFrames", 0}, {"writtenFrames", 0}, {"overflowFrames", 0}};
+        preparation_ = {{"status", "Idle"}, {"deck", -1}, {"name", ""},
+                        {"cancellable", false}, {"cacheHit", false}};
     }
     QVariantList decks() const { return decks_; }
     bool busy() const { return busy_; }
@@ -67,6 +70,16 @@ public:
     QVariantMap meters() const { return meters_; }
     QVariantMap audioRouting() const { return routing_; }
     QVariantMap recording() const { return recording_; }
+    QVariantMap preparation() const { return preparation_; }
+    void setPreparation(const QString& status, int deck = -1, bool cancellable = false,
+                        bool cacheHit = false)
+    {
+        preparation_ = {{"status", status}, {"deck", deck},
+                        {"name", deck < 0 ? QString{} : QString("Pending %1.wav").arg(deck)},
+                        {"cancellable", cancellable}, {"cacheHit", cacheHit}};
+        busy_ = status != "Idle";
+        emit stateChanged();
+    }
     void setBusy(bool value) { busy_ = value; emit stateChanged(); }
     void setReady(bool value) { ready_ = value; emit stateChanged(); }
     void setError(const QString& value) { error_ = value; emit stateChanged(); }
@@ -123,6 +136,15 @@ public:
     }
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url)
     { calls.append(QVariantMap{{"action", "load"}, {"deck", deck}, {"url", url}}); }
+    Q_INVOKABLE bool cancelPreparation()
+    {
+        calls.append(QVariantMap{{"action", "cancelPreparation"}, {"deck", preparation_["deck"]}});
+        if (!preparation_["cancellable"].toBool()) return false;
+        preparation_["status"] = "Cancelling";
+        preparation_["cancellable"] = false;
+        emit stateChanged();
+        return true;
+    }
     Q_INVOKABLE void setPlaying(int deck, bool playing)
     {
         auto state = decks_[deck].toMap();
@@ -225,7 +247,7 @@ signals:
     void stateChanged();
 private:
     QVariantList decks_;
-    QVariantMap meters_, routing_, recording_;
+    QVariantMap meters_, routing_, recording_, preparation_;
     bool busy_ = false, ready_ = false;
     bool acceptCue_ = true, acceptJog_ = true;
     QString error_;
@@ -402,6 +424,100 @@ private slots:
             QVERIFY(!call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Play"));
         }
+    }
+
+    void libraryPreparationCancellation_data()
+    {
+        QTest::addColumn<bool>("keyboard");
+        QTest::newRow("pointer") << false;
+        QTest::newRow("keyboard") << true;
+    }
+
+    void libraryPreparationCancellation()
+    {
+        QFETCH(bool, keyboard);
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openLibrary(1));
+        auto* cancel = ui_->item("preparationCancel");
+        auto* status = ui_->item("preparationStatus");
+        QVERIFY(cancel);
+        QVERIFY(status);
+        QVERIFY(!cancel->isVisible() || !cancel->isEnabled());
+        QVERIFY(ui_->item("deck0Path")->setProperty("text", "/tmp/a.wav"));
+        QVERIFY(ui_->item("deck1Path")->setProperty("text", "/tmp/b.wav"));
+        ui_->endpoint.setPreparation("Preparing", 1, true);
+        QTRY_VERIFY(cancel->isVisible() && cancel->isEnabled());
+        QTRY_VERIFY(status->property("text").toString().contains("Preparing"));
+        QVERIFY(status->property("text").toString().contains("Deck B", Qt::CaseInsensitive));
+        QVERIFY(status->property("text").toString().contains("Pending 1.wav"));
+        QVERIFY(!ui_->item("deck0Load")->isEnabled());
+        QVERIFY(!ui_->item("deck1Load")->isEnabled());
+        for (const auto* name : {"deck0Play", "deck1Play", "deck0Seek", "deck1Seek",
+                                 "deck0Gain", "deck1Gain", "masterGain"})
+            QVERIFY2(ui_->item(name)->isEnabled(), name);
+        if (keyboard) {
+            cancel->forceActiveFocus();
+            QTRY_VERIFY(cancel->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cancel));
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap().value("action").toString(), QString("cancelPreparation"));
+        QCOMPARE(ui_->endpoint.calls.first().toMap().value("deck").toInt(), 1);
+        QVERIFY(ui_->endpoint.busy());
+        QTRY_VERIFY(!cancel->isEnabled());
+        QTRY_VERIFY(status->property("text").toString().contains("Cancelling"));
+        if (cancel->isVisible())
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cancel));
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QVERIFY(!ui_->item("deck0Load")->isEnabled());
+        QVERIFY(!ui_->item("deck1Load")->isEnabled());
+        QVERIFY(ui_->closeLibrary());
+        auto* play = ui_->item("deck0Play");
+        play->forceActiveFocus();
+        QTRY_VERIFY(play->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls.last().toMap().value("action").toString(), QString("playing"));
+        QCOMPARE(ui_->endpoint.calls.last().toMap().value("deck").toInt(), 0);
+        QVERIFY(ui_->endpoint.busy());
+    }
+
+    void libraryCloseAndInstallingDoNotCancelPreparation()
+    {
+        ui_->endpoint.setPreparation("Preparing", 0, true);
+        QVERIFY(ui_->openLibrary(0));
+        auto* cancel = ui_->item("preparationCancel");
+        auto* status = ui_->item("preparationStatus");
+        QVERIFY(cancel);
+        QVERIFY(status);
+        QTRY_VERIFY(cancel->isVisible() && cancel->isEnabled());
+        QVERIFY(ui_->closeLibrary());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QVERIFY(ui_->endpoint.preparation().value("cancellable").toBool());
+        QVERIFY(ui_->openLibrary(0));
+        cancel->forceActiveFocus();
+        QTRY_VERIFY(cancel->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!ui_->object("libraryDrawer")->property("visible").toBool());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QVERIFY(ui_->endpoint.preparation().value("cancellable").toBool());
+        QVERIFY(ui_->endpoint.busy());
+
+        ui_->endpoint.setPreparation("Installing", 0, false, true);
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(!cancel->isEnabled());
+        QTRY_VERIFY(status->property("text").toString().contains("Installing"));
+        if (cancel->isVisible())
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cancel));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QVERIFY(ui_->endpoint.busy());
+        QCOMPARE(ui_->endpoint.preparation().value("status").toString(), QString("Installing"));
+        QVERIFY(ui_->closeLibrary());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
     }
 
     void jogKeyboardAndWheelUseRelativeRenderCommands()

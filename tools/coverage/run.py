@@ -40,7 +40,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--private-routing", action="store_true",
-                        help="also run the existing isolated, hardware-free PipeWire routing suite")
+                        help="also run isolated PipeWire routing and preparation controller checks")
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("--jobs must be positive")
@@ -60,7 +60,7 @@ def main():
     errors = []
     summary = {
         "schema": 1,
-        "scope": "Instrumented existing CTest suite, offscreen smoke and optional private routing suite; not a latency, native-device or QML coverage measurement.",
+        "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
         "private_routing_requested": args.private_routing,
         "private_routing_execution_deadline_gate": False,
         "interpreter": sys.executable,
@@ -157,28 +157,30 @@ def main():
                                     "QT_QUICK_CONTROLS_STYLE": "Basic"}
             run("smoke", [str(BUILD / "conflux"), "--smoke-test"], env=smoke_env, timeout=30)
             if args.private_routing:
-                with tempfile.TemporaryDirectory(prefix="conflux-coverage-routing-") as temporary:
-                    evidence = Path(temporary) / "evidence"
-                    try:
-                        # Raise a graceful timeout into the ownership wrapper's
-                        # existing finally so its separately sessioned daemon
-                        # is reaped rather than orphaned by an immediate kill.
-                        launcher = (
-                            "import runpy, signal, sys\n"
-                            "def stop(*_):\n"
-                            "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
-                            "    raise InterruptedError('Coverage stage timed out')\n"
-                            "signal.signal(signal.SIGTERM, stop)\n"
-                            "sys.argv = sys.argv[1:]\n"
-                            "runpy.run_path(sys.argv[0], run_name='__main__')\n")
-                        run("private-routing", [sys.executable, "-c", launcher,
-                            str(ROOT / "tools" / "experiments" / "private_routing_check.py"),
-                            str(BUILD / "conflux-manual-routing-check"), str(evidence), "--functional-only"],
-                            env=test_env, timeout=180)
-                    finally:
-                        if evidence.exists():
-                            shutil.copytree(evidence, REPORTS / "private-routing",
-                                            ignore=shutil.ignore_patterns("*.wav"))
+                for stage, binary in [("private-routing", "conflux-manual-routing-check"),
+                                      ("private-preparation", "conflux-preparation-controller-check")]:
+                    with tempfile.TemporaryDirectory(prefix=f"conflux-coverage-{stage}-") as temporary:
+                        evidence = Path(temporary) / "evidence"
+                        try:
+                            # Raise a graceful timeout into the ownership wrapper's
+                            # existing finally so its separately sessioned daemon
+                            # is reaped rather than orphaned by an immediate kill.
+                            launcher = (
+                                "import runpy, signal, sys\n"
+                                "def stop(*_):\n"
+                                "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
+                                "    raise InterruptedError('Coverage stage timed out')\n"
+                                "signal.signal(signal.SIGTERM, stop)\n"
+                                "sys.argv = sys.argv[1:]\n"
+                                "runpy.run_path(sys.argv[0], run_name='__main__')\n")
+                            run(stage, [sys.executable, "-c", launcher,
+                                str(ROOT / "tools" / "experiments" / "private_routing_check.py"),
+                                str(BUILD / binary), str(evidence), "--functional-only"],
+                                env=test_env, timeout=180)
+                        finally:
+                            if evidence.exists():
+                                shutil.copytree(evidence, REPORTS / stage,
+                                                ignore=shutil.ignore_patterns("*.wav"))
 
         # Scan both .gcno and .gcda, including test objects that instantiate
         # production inline headers. Only the report is filtered to src/.
