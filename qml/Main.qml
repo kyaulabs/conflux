@@ -229,7 +229,7 @@ ApplicationWindow {
                 }
             }
             Label {
-                text: "Mono/stereo local files, 8–192 kHz · up to 11m39s per track. Tracks are prepared before playback. Installing a track briefly interrupts shared output."
+                text: "Mono/stereo local files, 8–192 kHz · up to 11m39s per track. Tracks are prepared before playback. Replacing a track keeps the other deck and recording running."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.muted
                 Layout.fillWidth: true
@@ -579,7 +579,7 @@ ApplicationWindow {
             spacing: 16
             Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 24; color: Brand.ConfluxTheme.text }
             Label {
-                text: "Load, play/pause, temporary CUE, position seek, channel/master levels, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. Mixer CUE selects the pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display.\n\nHot cues, jog manipulation, tempo, loops, sync, EQ and effects await their audio features. Their panel controls are inactive. Decks C/D are reserved."
+                text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. Mixer CUE selects the pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Jog moves the track position; it does not scratch or change playback speed.\n\nHot cues, tempo, loops, sync, EQ and effects await their audio features. Their panel controls are inactive. Decks C/D are reserved."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.text
                 Layout.fillWidth: true

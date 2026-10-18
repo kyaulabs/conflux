@@ -1,0 +1,27 @@
+{
+  "request_monotonic_ns": 454875787958642,
+  "before": {
+    "callbacks": 3114,
+    "elapsed_ms": 17842,
+    "frames_presented": 1001,
+    "monotonic_ns": 454875772639801,
+    "output_frame": 797184,
+    "output_ready": true,
+    "phase": "steady",
+    "pid": 2147559,
+    "recording": {
+      "acceptedFrames": 770304,
+      "active": true,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/cancellation-v1/master.wav",
+      "status": "Recording",
+      "writtenFrames": 770304
+    },
+    "window_exposed": true
+  },
+  "reason": "Authorized graceful-cancellation preflight after five seconds steady",
+  "runner_result_observed_monotonic_ns": 454876039126929,
+  "runner_result_observed": true,
+  "observed_stop_to_runner_result_ms": 251.168287
+}
