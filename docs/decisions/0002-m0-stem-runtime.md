@@ -71,6 +71,17 @@ GPU observations that do not prove cause. The preparation choice remains
 conditional: sustained music headroom is still unmet, M0 remains open and
 M1 has not started.
 
+The [playback-paced validation](../benchmarks/paced-music-2026-10-17.md)
+then kept all 101 ordinary virtual demands ready on time over 600 seconds,
+while continuous service p99 reached 6.822 seconds, maximum 7.446 seconds,
+with 21/102 target misses. The active cancellation/seek check, exact output
+identity and independent audio/UI coverage passed. All misses had low-power
+interior samples following guard policy changes; passing hops also used that
+policy. Brief sampled heat adds no failure gate. The service target failed,
+so the conditional hour was withheld. Short-run buffered readiness does not
+qualify sustained headroom or production stem playback; the conditional
+preparation choice and open M0 status remain.
+
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
 shorter measured requests than CPU. In the initial three-excerpt assessment,

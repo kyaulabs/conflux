@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "status": "captured",
+  "query": [
+    "journalctl",
+    "--user",
+    "--unit=thermal-guard.service",
+    "--since=2026-10-18 00:02:26.699162 UTC",
+    "--until=2026-10-18 00:13:43.462159 UTC",
+    "--output=json",
+    "--no-pager",
+    "--output-fields=MESSAGE,__MONOTONIC_TIMESTAMP,__REALTIME_TIMESTAMP,__CURSOR,_PID,_SYSTEMD_INVOCATION_ID,_BOOT_ID,_SYSTEMD_USER_UNIT"
+  ],
+  "returncode": 0,
+  "stderr": "",
+  "since_utc": "2026-10-18T00:02:26.699162+00:00",
+  "until_utc": "2026-10-18T00:13:43.462159+00:00",
+  "raw": {
+    "path": "benchmarks-local/paced-music-2026-10-17/guard-journal.jsonl",
+    "bytes": 2812,
+    "sha256": "a4c08c3a2d78a3e88fbc7ef41c1607a1604d1177de6c5bff88893b747c498d65",
+    "records": 5
+  },
+  "known_guard_identity": {
+    "pid": "1036",
+    "invocation": "59c6e791c83146139b6c252bf081bd02"
+  },
+  "identity_counts": {
+    "1036:59c6e791c83146139b6c252bf081bd02": 5
+  },
+  "events": [
+    {
+      "kind": "warning",
+      "message": "2026-10-17T17:05:02-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+      "at_utc": "2026-10-18T00:05:02.677554+00:00",
+      "monotonic_seconds": 397927.265086,
+      "phase": "measured workload",
+      "logged_temperature_C": 86.0,
+      "pid": "1036",
+      "invocation": "59c6e791c83146139b6c252bf081bd02",
+      "expected_identity": true
+    },
+    {
+      "kind": "recovered",
+      "message": "2026-10-17T17:07:04-07:00 recovered: temperature 47.0C; balanced profile restored=1",
+      "at_utc": "2026-10-18T00:07:04.089628+00:00",
+      "monotonic_seconds": 398048.67716,
+      "phase": "measured workload",
+      "logged_temperature_C": 47.0,
+      "pid": "1036",
+      "invocation": "59c6e791c83146139b6c252bf081bd02",
+      "expected_identity": true
+    },
+    {
+      "kind": "warning",
+      "message": "2026-10-17T17:09:55-07:00 warning: CPU/ACPI temperature 91.0C; power-saver engaged (was balanced)",
+      "at_utc": "2026-10-18T00:09:55.451401+00:00",
+      "monotonic_seconds": 398220.038933,
+      "phase": "measured workload",
+      "logged_temperature_C": 91.0,
+      "pid": "1036",
+      "invocation": "59c6e791c83146139b6c252bf081bd02",
+      "expected_identity": true
+    },
+    {
+      "kind": "recovered",
+      "message": "2026-10-17T17:11:56-07:00 recovered: temperature 54.0C; balanced profile restored=1",
+      "at_utc": "2026-10-18T00:11:56.929318+00:00",
+      "monotonic_seconds": 398341.51685,
+      "phase": "measured workload",
+      "logged_temperature_C": 54.0,
+      "pid": "1036",
+      "invocation": "59c6e791c83146139b6c252bf081bd02",
+      "expected_identity": true
+    },
+    {
+      "kind": "warning",
+      "message": "2026-10-17T17:13:25-07:00 warning: CPU/ACPI temperature 92.0C; power-saver engaged (was balanced)",
+      "at_utc": "2026-10-18T00:13:25.862411+00:00",
+      "monotonic_seconds": 398430.449943,
+      "phase": "measured workload",
+      "logged_temperature_C": 92.0,
+      "pid": "1036",
+      "invocation": "59c6e791c83146139b6c252bf081bd02",
+      "expected_identity": true
+    }
+  ],
+  "warning_to_next_recovery_message_spacings": [
+    {
+      "warning_utc": "2026-10-18T00:05:02.677554+00:00",
+      "phase": "measured workload",
+      "next_recovery_utc": "2026-10-18T00:07:04.089628+00:00",
+      "message_spacing_seconds": 121.41207399999257
+    },
+    {
+      "warning_utc": "2026-10-18T00:09:55.451401+00:00",
+      "phase": "measured workload",
+      "next_recovery_utc": "2026-10-18T00:11:56.929318+00:00",
+      "message_spacing_seconds": 121.47791700001108
+    },
+    {
+      "warning_utc": "2026-10-18T00:13:25.862411+00:00",
+      "phase": "measured workload",
+      "next_recovery_utc": null,
+      "message_spacing_seconds": null
+    }
+  ],
+  "scope": "Literal logged temperatures and message times. Saved monotonic workload bounds determine phase. Message spacing describes policy latching, not continuous hot duration, exact sensor identity, action success or a causal effect. No thermal acceptance gate."
+}
