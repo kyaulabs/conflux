@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/RenderCore.hpp"
+#include "audio/AudioFile.hpp"
 
 #include <pipewire/pipewire.h>
 #include <spa/node/io.h>
@@ -12,11 +13,13 @@
 #include <cmath>
 #include <csignal>
 #include <cstdint>
+#include <exception>
 #include <iomanip>
 #include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <time.h>
@@ -45,6 +48,7 @@ std::uint64_t nowNs() noexcept
 
 struct Probe {
     explicit Probe(bool tone) : renderer(tone) {}
+    explicit Probe(std::span<const float> samples) : renderer(samples) {}
     RenderCore renderer;
     pw_main_loop* loop = nullptr;
     pw_stream* stream = nullptr;
@@ -67,6 +71,9 @@ struct Probe {
     pw_time timing{};
     std::string failure;
     std::string stopFile;
+    std::string inputFile;
+    std::uint64_t initialSourceFrame = 0;
+    double decodeMs = 0;
 };
 static_assert(std::atomic<spa_io_position*>::is_always_lock_free);
 static_assert(std::atomic<bool>::is_always_lock_free);
@@ -243,7 +250,8 @@ void report(const Probe& data, bool tone)
         << "{\n  \"schema\": 1,\n  \"pipewire_version\": " << jsonString(pw_get_library_version())
         << ",\n  \"status\": " << jsonString(data.failure.empty() ? "ok" : "error")
         << ",\n  \"error\": " << jsonString(data.failure)
-        << ",\n  \"signal\": " << jsonString(tone ? "440 Hz stereo, amplitude 0.01" : "silence")
+        << ",\n  \"signal\": " << jsonString(!data.inputFile.empty() ? "local file" :
+            tone ? "440 Hz stereo, amplitude 0.01" : "silence")
         << ",\n  \"requested\": {\"sample_rate\": 48000, \"channels\": 2, \"quantum_frames\": "
         << data.quantum << ", \"seconds\": " << data.seconds << "},\n"
         << "  \"negotiated\": {\"format_valid\": " << (data.formatValid ? "true" : "false")
@@ -256,7 +264,20 @@ void report(const Probe& data, bool tone)
         << ",\n  \"streaming_started_monotonic_ns\": " << data.startedNs
         << ",\n  \"stopped_monotonic_ns\": " << data.stoppedNs
         << ",\n  \"frames_rendered\": " << data.renderer.frameClock()
-        << ",\n  \"callbacks\": " << data.callbacks
+        << ",\n  \"file_input\": ";
+    if (data.inputFile.empty()) {
+        std::cout << "null";
+    } else {
+        std::cout << "{\"path\": " << jsonString(data.inputFile)
+            << ", \"decoded_frames\": " << data.renderer.sourceFrames()
+            << ", \"decoded_bytes\": " << data.renderer.sourceFrames() * stride
+            << ", \"decode_ms\": " << data.decodeMs
+            << ", \"initial_source_frame\": " << data.initialSourceFrame
+            << ", \"final_source_frame\": " << data.renderer.sourceFrame()
+            << ", \"eof\": " << (data.renderer.sourceFrame() == data.renderer.sourceFrames() ? "true" : "false")
+            << "}";
+    }
+    std::cout << ",\n  \"callbacks\": " << data.callbacks
         << ",\n  \"callback_elapsed_us\": {\"p50_upper_bound\": " << percentile(data, .50)
         << ", \"p95_upper_bound\": " << percentile(data, .95)
         << ", \"p99_upper_bound\": " << percentile(data, .99)
@@ -288,16 +309,32 @@ void report(const Probe& data, bool tone)
 int main(int argc, char** argv)
 {
     unsigned seconds = 10, quantum = 256;
-    bool tone = false;
-    std::string stopFile;
+    bool tone = false, startFrameSet = false;
+    std::uint64_t startFrame = 0;
+    std::string stopFile, inputFile;
     for (int i = 1; i < argc; ++i) {
         const std::string_view argument(argv[i]);
         if (argument == "--tone") {
             tone = true;
         } else if (argument == "--help") {
-            std::cout << "Usage: conflux-audio-probe [--seconds 1..7200] [--quantum 256|512] [--tone] [--stop-file path]\n"
-                         "Default output is silence. Quantum is requested without forcing the graph.\n";
+            std::cout << "Usage: conflux-audio-probe [--seconds 1..7200] [--quantum 256|512] [--tone | --input path] [--start-frame N] [--stop-file path]\n"
+                         "Default output is silence. Input requires stereo 48000 Hz audio, preloaded within 64 MiB.\n"
+                         "Start frame applies only to file input. EOF renders silence. Quantum is requested without forcing the graph.\n";
             return 0;
+        } else if (argument == "--input" && i + 1 < argc) {
+            inputFile = argv[++i];
+            if (inputFile.empty()) {
+                std::cerr << "Input path must not be empty\n";
+                return 2;
+            }
+        } else if (argument == "--start-frame" && i + 1 < argc) {
+            const std::string_view value(argv[++i]);
+            const auto result = std::from_chars(value.begin(), value.end(), startFrame);
+            if (result.ec != std::errc{} || result.ptr != value.end()) {
+                std::cerr << "Invalid value for --start-frame\n";
+                return 2;
+            }
+            startFrameSet = true;
         } else if (argument == "--stop-file" && i + 1 < argc) {
             stopFile = argv[++i];
         } else if ((argument == "--seconds" || argument == "--quantum") && i + 1 < argc) {
@@ -315,8 +352,34 @@ int main(int argc, char** argv)
             return 2;
         }
     }
+    if ((!inputFile.empty() && tone) || (startFrameSet && inputFile.empty())) {
+        std::cerr << "--input and --tone are exclusive; --start-frame requires --input\n";
+        return 2;
+    }
+    // PCM is owned outside the callback and outlives both renderer and stream.
+    std::optional<conflux::audio::DecodedAudio> decoded;
+    std::unique_ptr<Probe> data;
+    try {
+        if (!inputFile.empty()) {
+            const auto began = nowNs();
+            decoded.emplace(conflux::audio::decodeAudioFile(inputFile));
+            const double decodeMs = (nowNs() - began) / 1.0e6;
+            data = std::make_unique<Probe>(decoded->samples());
+            data->decodeMs = decodeMs;
+            data->inputFile = inputFile;
+            data->initialSourceFrame = startFrame;
+            if (!data->renderer.seek(startFrame)) {
+                std::cerr << "Start frame exceeds decoded file length\n";
+                return 2;
+            }
+        } else {
+            data = std::make_unique<Probe>(tone);
+        }
+    } catch (const std::exception& error) {
+        std::cerr << "Cannot prepare audio: " << error.what() << '\n';
+        return 1;
+    }
     pw_init(nullptr, nullptr);
-    auto data = std::make_unique<Probe>(tone);
     data->seconds = seconds;
     data->quantum = quantum;
     data->stopFile = std::move(stopFile);

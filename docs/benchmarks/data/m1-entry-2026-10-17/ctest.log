@@ -1,0 +1,15 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+    Start 1: audio-render
+1/5 Test #1: audio-render .....................   Passed    0.01 sec
+    Start 2: audio-file
+2/5 Test #2: audio-file .......................   Passed    0.01 sec
+    Start 3: probe-rejects-invalid-quantum
+3/5 Test #3: probe-rejects-invalid-quantum ....   Passed    0.01 sec
+    Start 4: stem-worker
+4/5 Test #4: stem-worker ......................   Passed    4.84 sec
+    Start 5: stem-soak
+5/5 Test #5: stem-soak ........................   Passed    5.20 sec
+
+100% tests passed out of 5
+
+Total Test time (real) =  10.09 sec

@@ -93,7 +93,6 @@ The [evidence manifest](data/startup-profile-2026-10-17/archive-manifest.json)
 binds the diagnostic, source pins, independent audit, guard inspection and
 interrupted-repeat evidence. Models, binaries, music, PCM and arrays remain
 outside source history. M0 closes as feasibility under the user's approved
-scope change; the failed live-stem target remains explicit. M1 manual audio is
-next, beginning with one local file decoded outside the callback and rendered
-through the shared live/offline core, followed by stereo, partition, seek, EOF
-and laptop playback checks. This entry does not mark M1 complete.
+scope change; the failed live-stem target remains explicit. The first
+[M1 file-playback slice](../M1.md) subsequently passed stereo, partition, seek,
+EOF and short laptop checks. This entry does not mark M1 complete.

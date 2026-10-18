@@ -157,8 +157,8 @@ virtual demands being ready. Their eleven and one active cancellation/seek
 checks passed exactly, and both recorded all six independent audio fault
 counters at zero.
 
-M1 manual audio is next. It begins with local-file decoding outside the callback
-and the shared live/offline render core. M2 must address the failed 4.095-second
+M1 manual audio has begun with [local-file decoding and shared rendering](../M1.md)
+outside the callback. M2 must address the failed 4.095-second
 service p99 target, sustained workload, stem delivery and approved fallback
 behavior before the first usable release. Preserve the user's listening
 acceptance as a starting basis. This decision approves neither production stem
