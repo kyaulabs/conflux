@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "source_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+  "status": "pcm_equivalence_passed_loaded_diagnostic_pending",
+  "latency_target_ms": 4095,
+  "latency_target_operator": "continuous request-service p99 < target",
+  "latest_retained_completed_live_validation_p99_ms": 5172.2,
+  "live_release_gate": "unmet; unchanged mandatory M2 blocker",
+  "pcm_comparison": {
+    "status": "passed",
+    "backend": "vulkan",
+    "threads": 2,
+    "runtime_order": [
+      "baseline",
+      "diagnostic"
+    ],
+    "requests_per_runtime": 16,
+    "completed_requests": 32,
+    "paired_exact_output_matches": 16,
+    "inputs_match": true,
+    "phase_fields_finite_nonnegative": true,
+    "pins_unchanged": true,
+    "driver_elapsed_seconds": 163.6181104379939,
+    "owned_native_cleanup_complete": true,
+    "native_exit_scope": "Both persistent runtimes are killed/reaped by NativeRuntime.close; their -9 exit is cleanup, not a graceful normal exit.",
+    "scope": "Exact raw PCM equivalence for the tested four excerpts/windows only. Fixed runtime order and thermal/startup differences prevent causal timing-overhead, live service-latency, perceptual-quality or GPU-timestamp claims."
+  },
+  "loaded_diagnostic": {
+    "status": "not_started",
+    "requested_workload_seconds": 600,
+    "preflight_status": "interrupted",
+    "launcher_exit_code": 130,
+    "samples": 43,
+    "sampled_package_peak_C": 80.0,
+    "largest_observed_stable_span_seconds": 30.699328392976895,
+    "required_stable_span_seconds": 60,
+    "preflight_package_limit_C": 55,
+    "observed_profiles": [
+      "balanced",
+      "power-saver"
+    ],
+    "human_readiness_age_at_stop_seconds": 929.154397,
+    "reason": "Stop preflight once the original readiness is older than 900 seconds; a 600-second workload no longer fits the accepted approximately 25-minute session. Await the pending fresh minimize/AC/lid/window reply.",
+    "owned_processes_remaining": {},
+    "last_child_reaped": true,
+    "final_readiness_proof_present": false,
+    "proof_scope": "The readiness trace is retained. Its final proof file was not produced before interruption; no completed admission outcome is inferred.",
+    "latency_result": null,
+    "worker_cancellation_result": null,
+    "audio_result": null,
+    "UI_result": null,
+    "scope": "Preflight observations only. No loaded worker/audio/UI run started; no thermal-soak pass/fail or release qualification is inferred."
+  },
+  "ambient_observation": {
+    "scope": "Two-second ambient CPU snapshot during preflight only; no native workload active. No processes or settings changed.",
+    "sample_seconds": 2.1132858330383897,
+    "desktop_ChatGPT_process_cpu_percent": 450.0,
+    "inference_started": false,
+    "causal_scope": "One short ambient snapshot cannot attribute every spike or quantify the process during a future workload. No applications or settings were changed."
+  },
+  "coverage_CI": {
+    "run": "https://github.com/kyaulabs/conflux/actions/runs/39161712607",
+    "all_stages_passed": true,
+    "cpp_lines": {
+      "covered": 3086,
+      "total": 3913,
+      "percent": 78.86532072578584
+    },
+    "python_worker_lines": {
+      "covered": 397,
+      "total": 426,
+      "percent": 93.1924882629108
+    },
+    "cpp_above_80_goal_met": false,
+    "unmeasured": [
+      "QML",
+      "native stem adapter"
+    ],
+    "scope": "Separate CI instrumented functional run, not hardware timing or whole-product coverage."
+  },
+  "files": {
+    "build-verification.json": {
+      "bytes": 4672,
+      "sha256": "724c04860c4c46a996bbcb47732327ca5f81d0e0fcf177853013e4d07cda7303"
+    },
+    "pcm-comparison.json": {
+      "bytes": 105418,
+      "sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3"
+    },
+    "pcm-comparison-launch.json": {
+      "bytes": 16152,
+      "sha256": "34c00de2e069748314557dc76a07f9a6a9c70e94b73096ebc23e995c1733d19d"
+    },
+    "preflight-launch.json": {
+      "bytes": 13747,
+      "sha256": "4b0f59ee9cf4ecf790f2493bda1f37f1ab999a765ddcd2b4d4cca1bd079abd73"
+    },
+    "preflight-trace.jsonl": {
+      "bytes": 40132,
+      "sha256": "7dea44e7d467d03808cd08980abd964afaf42a88625f2717a61bacc00e5b226c"
+    },
+    "preflight-stop.json": {
+      "bytes": 499,
+      "sha256": "d91305ea656c9e8721596f1b0f45513b021e2910298bdc558006472f42e06c92"
+    }
+  },
+  "pending": "Fresh minimize/AC/lid/visible-window reply is required for a new bounded loaded-test attempt. Preserve all existing readiness/power/thermal/window gates."
+}

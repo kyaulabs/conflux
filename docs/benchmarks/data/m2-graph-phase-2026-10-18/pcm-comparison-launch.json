@@ -1,0 +1,378 @@
+{
+  "schema": 1,
+  "status": "completed",
+  "started_at_utc": "2026-10-18T20:06:00.556712+00:00",
+  "started_monotonic": 463798.711649081,
+  "expected_producer": {
+    "schema": 1,
+    "status": "ready",
+    "repository_head": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+    "source_checkpoint_base": "c3bcdccbd7175b0390a06505eaf838be86e1d4dd",
+    "pins": {
+      "runtime": "ded9cb2c1000af78917a784e281d905da201d735338221519958d9d7df1d681f",
+      "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "ui": "e6d9bc6ec91617bbfe241674eeebba0fe5c377a755f69305ed0a5bc7c827317f",
+      "audio_probe": "7734e58ac88292d17420bbc492eb4e51e1cec506a4d5cfe00578a6c52c87796f",
+      "soak_source": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d",
+      "shared_benchmark_source": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+      "worker_source": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824",
+      "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "launcher_adapted_from": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/observed_launch.py",
+      "sha256": "e0af0d85c41288974b7ace69326c3c70ca007eb731aadc95bf8c8e7a40944580"
+    },
+    "producer_scope": "Current normal C3 UI and probe are snapshotted in normal-producers-c3; these differ from historical M0 binaries. UI --smoke-test loads unchanged Harness.qml without creating DeckController. Audio probe receives no tone/input arguments and outputs independent silence.",
+    "intentional_changes": [
+      "Runtime exposes existing graph upload/compute/readback CPU wall intervals; no added clock/sync/model/precision changes.",
+      "Current normal UI/probe binary identities differ from historical M0; actual matching current main/probe and Harness source paths are pinned."
+    ],
+    "required_before_run": [
+      "Run owner must provide actual built runtime hash and exact current source HEAD/base, then mark status ready.",
+      "Completed two-thread exact baseline/diagnostic PCM comparison must pass with matching runtime/model pins.",
+      "Fresh human reply for the exact run label must confirm AC, open lid and visible window within 15 minutes; old answers cannot be reused."
+    ],
+    "scope": "Single 600-second diagnostic only, unchanged readiness/policy/window/AC/lid gates. No GPU execution occurs by default. No latency or quality qualification claim.",
+    "runtime_build_verification_sha256": "724c04860c4c46a996bbcb47732327ca5f81d0e0fcf177853013e4d07cda7303",
+    "runtime_source_base": "fed0d3fa85e5e34db1870d0adc0250ca2e699a0d",
+    "source_checkpoint_note": "Signed graph source HEAD is the exact repository pin; C3 is the preserved normal UI/probe binary checkpoint. Native runtime build source was unchanged through this commit."
+  },
+  "human_readiness_before_setup": {
+    "record": {
+      "schema": 1,
+      "decision": "ready",
+      "ready_for_run": "phase-timing-laptop-01",
+      "recorded_at_utc": "2026-10-18T20:05:58.360571+00:00",
+      "AC_power": true,
+      "lid_open": true,
+      "visible_window": true,
+      "human_reply": "Ready\u2014AC connected, lid open; run both checks",
+      "question": "The timing build is ready for a fresh laptop check: compare baseline/diagnostic audio output, then run a 10-minute audio/UI test with cancellation. Can you keep the laptop on AC, lid open, and the benchmark window visible for about 25 minutes? I need these physical test conditions before starting."
+    },
+    "age_seconds": 2.194553,
+    "maximum_age_seconds": 900,
+    "pin": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/human-readiness.json",
+      "bytes": 596,
+      "sha256": "228b1f3c5c0bea876c5e08b8f4be742240192fdec89bb8a74a68307dab5f6e0b"
+    },
+    "window_required_for_this_phase": false
+  },
+  "child_started": true,
+  "pins": {
+    "retained_launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/observed_launch.py",
+      "bytes": 24548,
+      "sha256": "511bb712d2f7af01abb1ab25ca92b001c6f82af4ee6f42547a5b43fa32b237d6"
+    },
+    "comparison_driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/compare_runtime.py",
+      "bytes": 25672,
+      "sha256": "5022aeed8eaf932adead05404f80b94c7d992f4b6f68dc81d05edb6126077e5b"
+    },
+    "admission_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+      "bytes": 20670,
+      "sha256": "72d202f04fd787ab8f0871854c8c6feeb8dc6aa4f00c2cbb84359389779441ee"
+    },
+    "readiness_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/normal_ready.py",
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "native_replay_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/native_replay.py",
+      "bytes": 14483,
+      "sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 25077,
+      "sha256": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/compare_launch.py",
+      "bytes": 17132,
+      "sha256": "338a42325617a19f72771239b00de17f4d12b822949e06966d598af95f5be7a8"
+    },
+    "expected_pins_file": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/expected-pins.json",
+      "bytes": 2672,
+      "sha256": "d9bee86950b056be81c8816ef0ca4b372e0954526b984283ee6693c2a12fa9ed"
+    },
+    "source_pins_file": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/comparison-source-pins.json",
+      "bytes": 2379,
+      "sha256": "fb666d9480367e2012c1ae9022764a9ad899bcfb12b6fefa9bf4dc35517b90e4"
+    },
+    "human_readiness_file": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/human-readiness.json",
+      "bytes": 596,
+      "sha256": "228b1f3c5c0bea876c5e08b8f4be742240192fdec89bb8a74a68307dab5f6e0b"
+    }
+  },
+  "failures": [],
+  "UI_load": false,
+  "window_guard": false,
+  "maximum_total_seconds": 1980,
+  "profile_mutation": false,
+  "service_mutation": false,
+  "scope": "Sequential two-thread baseline/diagnostic exact PCM check with fresh normal readiness and AC/lid monitoring. Driver verifies exact source/runtime/model/assets. No UI, playback, latency, GPU timestamp or perceptual qualification.",
+  "elapsed_seconds": 469.19390603603097,
+  "updated_at_utc": "2026-10-18T20:13:49.750612+00:00",
+  "host_conditions_before_admission": {
+    "AC": "1",
+    "lid": "b false",
+    "started_monotonic": 463799.078130116,
+    "errors": [],
+    "ready": true,
+    "finished_monotonic": 463799.086341835,
+    "at_utc": "2026-10-18T20:06:00.931403+00:00"
+  },
+  "readiness_command": [
+    "/bin/python3",
+    "-B",
+    "-c",
+    "import runpy,sys;from pathlib import Path;sys.exit(runpy.run_path(sys.argv[1])['run']('admission',Path(sys.argv[2])))",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/normal_ready.py",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison-admission"
+  ],
+  "readiness_returncode": 0,
+  "human_readiness_before_comparison": {
+    "record": {
+      "schema": 1,
+      "decision": "ready",
+      "ready_for_run": "phase-timing-laptop-01",
+      "recorded_at_utc": "2026-10-18T20:05:58.360571+00:00",
+      "AC_power": true,
+      "lid_open": true,
+      "visible_window": true,
+      "human_reply": "Ready\u2014AC connected, lid open; run both checks",
+      "question": "The timing build is ready for a fresh laptop check: compare baseline/diagnostic audio output, then run a 10-minute audio/UI test with cancellation. Can you keep the laptop on AC, lid open, and the benchmark window visible for about 25 minutes? I need these physical test conditions before starting."
+    },
+    "age_seconds": 307.255785,
+    "maximum_age_seconds": 900,
+    "pin": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/human-readiness.json",
+      "bytes": 596,
+      "sha256": "228b1f3c5c0bea876c5e08b8f4be742240192fdec89bb8a74a68307dab5f6e0b"
+    },
+    "window_required_for_this_phase": false
+  },
+  "admission": {
+    "started_monotonic": 464103.771763137,
+    "ready": true,
+    "proof": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison-admission/admission-normal-ready.json",
+      "bytes": 34898,
+      "sha256": "3a213b5635f62530a4a699c07440a6987bef9e37eec3052677aa8fe2c564bb81"
+    },
+    "live_normal_readiness": {
+      "at_utc": "2026-10-18T20:11:05.621515+00:00",
+      "started_monotonic": 464103.776475447,
+      "errors": [],
+      "package_millidegrees_C": 42000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:09:42-07:00 recovered: temperature 42.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "464020195969",
+        "__REALTIME_TIMESTAMP": "1792354182041025",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 464103.973506864,
+      "finished_at_utc": "2026-10-18T20:11:05.818566+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true
+    },
+    "same_guard_service_identity": {
+      "MainPID": "1036",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+    },
+    "fresh_package_limit_millidegrees_C": 70000,
+    "completed_readiness_package_limit_millidegrees_C": 55000,
+    "AC_lid": {
+      "AC": "1",
+      "lid": "b false",
+      "started_monotonic": 464103.973694534,
+      "errors": [],
+      "ready": true,
+      "finished_monotonic": 464103.97685474,
+      "at_utc": "2026-10-18T20:11:05.821912+00:00"
+    },
+    "finished_monotonic": 464103.976874509
+  },
+  "comparison_command": [
+    "systemd-inhibit",
+    "--what=sleep:idle",
+    "--mode=block",
+    "--who=CONFLUX",
+    "--why=Bounded PCM instrumentation comparison",
+    "/bin/python3",
+    "-B",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/compare_runtime.py",
+    "--run",
+    "--diagnostic-sha256",
+    "ded9cb2c1000af78917a784e281d905da201d735338221519958d9d7df1d681f",
+    "--source-pins",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/comparison-source-pins.json",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison",
+    "--request-timeout",
+    "30",
+    "--max-seconds",
+    "1200"
+  ],
+  "owned_comparison_process_group": 2216705,
+  "comparison_returncode": 0,
+  "comparison": {
+    "pin": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison/result.json",
+      "bytes": 105418,
+      "sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3"
+    },
+    "status": "passed",
+    "exact_pcm_match": true,
+    "threads": 2
+  },
+  "host_conditions_after_comparison": {
+    "AC": "1",
+    "lid": "b false",
+    "started_monotonic": 464267.894916287,
+    "errors": [],
+    "ready": true,
+    "finished_monotonic": 464267.899108743,
+    "at_utc": "2026-10-18T20:13:49.744170+00:00"
+  },
+  "cleanup": {
+    "owned_process_identities": {
+      "2214468": {
+        "start_ticks": 51533650,
+        "process_group": 2214468
+      },
+      "2214568": {
+        "start_ticks": 51534733,
+        "process_group": 2214468
+      },
+      "2214626": {
+        "start_ticks": 51535827,
+        "process_group": 2214468
+      },
+      "2214669": {
+        "start_ticks": 51536907,
+        "process_group": 2214468
+      },
+      "2214824": {
+        "start_ticks": 51539028,
+        "process_group": 2214468
+      },
+      "2215143": {
+        "start_ticks": 51543161,
+        "process_group": 2214468
+      },
+      "2215383": {
+        "start_ticks": 51545255,
+        "process_group": 2214468
+      },
+      "2215411": {
+        "start_ticks": 51546343,
+        "process_group": 2214468
+      },
+      "2215573": {
+        "start_ticks": 51548469,
+        "process_group": 2214468
+      },
+      "2215740": {
+        "start_ticks": 51550565,
+        "process_group": 2214468
+      },
+      "2215802": {
+        "start_ticks": 51551655,
+        "process_group": 2214468
+      },
+      "2215898": {
+        "start_ticks": 51553754,
+        "process_group": 2214468
+      },
+      "2215954": {
+        "start_ticks": 51554855,
+        "process_group": 2214468
+      },
+      "2216326": {
+        "start_ticks": 51558984,
+        "process_group": 2214468
+      },
+      "2216681": {
+        "start_ticks": 51564086,
+        "process_group": 2214468
+      },
+      "2216705": {
+        "start_ticks": 51564139,
+        "process_group": 2216705
+      },
+      "2216709": {
+        "start_ticks": 51564140,
+        "process_group": 2216705
+      },
+      "2216727": {
+        "start_ticks": 51564227,
+        "process_group": 2216705
+      },
+      "2217063": {
+        "start_ticks": 51569373,
+        "process_group": 2216705
+      }
+    },
+    "remaining_owned_processes": {},
+    "last_child_reaped": true
+  },
+  "fresh_admission_capture": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison-admission/fresh-admission.json",
+    "bytes": 1807,
+    "sha256": "afb4dfff1646a8c0bc37c404ff299eecfca3303ed4c0134efa44d21c2d73781e"
+  },
+  "readiness_proof": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison-admission/admission-normal-ready.json",
+    "bytes": 34898,
+    "sha256": "3a213b5635f62530a4a699c07440a6987bef9e37eec3052677aa8fe2c564bb81"
+  },
+  "comparison_result": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison/result.json",
+    "bytes": 105418,
+    "sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3"
+  },
+  "stdout": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison.stdout",
+    "bytes": 192,
+    "sha256": "8d5e33279244acb3459bfb343e983efe66c8305f718a3d994419c1083dc82d3b"
+  },
+  "stderr": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "AC_lid_monitor": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-01-comparison-AC-lid-monitor.jsonl",
+    "bytes": 3646,
+    "sha256": "42ae7a96cc4f4192979e47216e4ad3c65df393e25e402f4cdd0a41567a66d5fd"
+  },
+  "finished_at_utc": "2026-10-18T20:13:49.750605+00:00"
+}
