@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/RenderCore.hpp"
 #include "audio/AudioFile.hpp"
+#include "audio/TransportQueue.hpp"
 
 #include <pipewire/pipewire.h>
 #include <spa/node/io.h>
@@ -14,18 +15,23 @@
 #include <csignal>
 #include <cstdint>
 #include <exception>
+#include <fstream>
 #include <iomanip>
 #include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <time.h>
 
 namespace {
 using conflux::audio::RenderCore;
+using conflux::audio::TransportQueue;
 constexpr std::uint32_t stride = sizeof(float) * RenderCore::channels;
 #ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
 constexpr bool xrunFlagsAvailable = true;
@@ -46,14 +52,106 @@ std::uint64_t nowNs() noexcept
     return static_cast<std::uint64_t>(time.tv_sec) * 1000000000ULL + time.tv_nsec;
 }
 
+struct TimedControl {
+    std::uint64_t milliseconds = 0;
+    RenderCore::Command command;
+};
+
+bool unsignedValue(std::string_view text, std::uint64_t& value)
+{
+    const auto parsed = std::from_chars(text.begin(), text.end(), value);
+    return parsed.ec == std::errc{} && parsed.ptr == text.end();
+}
+
+bool gainValue(std::string_view text, float& value)
+{
+    const auto parsed = std::from_chars(text.begin(), text.end(), value);
+    return parsed.ec == std::errc{} && parsed.ptr == text.end() &&
+        std::isfinite(value) && value >= 0 && value <= 1;
+}
+
+std::vector<TimedControl> readControls(const std::filesystem::path& path, unsigned seconds,
+                                     const std::array<std::uint64_t, 2>& sourceFrames)
+{
+    constexpr std::size_t maximumBytes = 16384;
+    if (!std::filesystem::is_regular_file(path))
+        throw std::invalid_argument("Control script must be a regular local file");
+    std::ifstream file(path, std::ios::binary);
+    std::array<char, maximumBytes + 1> bytes{};
+    file.read(bytes.data(), bytes.size());
+    if (file.bad() || !file.is_open() || file.gcount() > static_cast<std::streamsize>(maximumBytes))
+        throw std::invalid_argument("Cannot read control script within 16 KiB");
+    std::istringstream lines(std::string(bytes.data(), static_cast<std::size_t>(file.gcount())));
+    std::vector<TimedControl> controls;
+    std::string line;
+    while (std::getline(lines, line)) {
+        std::istringstream fields(line);
+        std::string when, deck, action, value, extra;
+        if (!(fields >> when))
+            continue;
+        if (!(fields >> deck >> action) || controls.size() == TransportQueue::capacity)
+            throw std::invalid_argument("Control script requires at most 32 rows: milliseconds a|b|master action [value]");
+        TimedControl row;
+        if (!unsignedValue(when, row.milliseconds) || row.milliseconds >= seconds * 1000ULL ||
+            (!controls.empty() && row.milliseconds < controls.back().milliseconds))
+            throw std::invalid_argument("Control times must be ordered and precede the requested stream duration");
+        using Type = RenderCore::Command::Type;
+        row.command.id = static_cast<std::uint32_t>(controls.size() + 1);
+        if (deck == "master") {
+            if (action != "gain" || !(fields >> value) || !gainValue(value, row.command.gain))
+                throw std::invalid_argument("Master control requires gain in [0,1]");
+            row.command.type = Type::MasterGain;
+        } else {
+            if (deck != "a" && deck != "b")
+                throw std::invalid_argument("Control deck must be a, b or master");
+            row.command.deck = deck == "a" ? 0 : 1;
+            if (!sourceFrames[row.command.deck])
+                throw std::invalid_argument("Control requires a loaded deck");
+            if (action == "play" || action == "pause") {
+                row.command.type = action == "play" ? Type::Play : Type::Pause;
+            } else if (action == "seek") {
+                row.command.type = Type::Seek;
+                if (!(fields >> value) || !unsignedValue(value, row.command.frame) ||
+                    row.command.frame > sourceFrames[row.command.deck])
+                    throw std::invalid_argument("Control seek exceeds decoded deck length");
+            } else if (action == "gain") {
+                row.command.type = Type::DeckGain;
+                if (!(fields >> value) || !gainValue(value, row.command.gain))
+                    throw std::invalid_argument("Deck control requires gain in [0,1]");
+            } else {
+                throw std::invalid_argument("Unknown transport action");
+            }
+        }
+        if (fields >> extra)
+            throw std::invalid_argument("Unexpected control-script field");
+        controls.push_back(row);
+    }
+    if (controls.empty())
+        throw std::invalid_argument("Control script contains no actions");
+    return controls;
+}
+
+struct ControlReceipt {
+    std::uint32_t id = 0;
+    std::uint64_t outputFrame = 0;
+    std::array<std::uint64_t, 2> sourceFrames{};
+    std::array<bool, 2> playing{};
+    std::array<float, 2> gains{};
+    float masterGain = 1;
+    bool applied = false;
+};
+
 struct Probe {
     explicit Probe(bool tone) : renderer(tone) {}
     explicit Probe(std::span<const float> samples) : renderer(samples) {}
+    Probe(std::span<const float> first, std::span<const float> second) : renderer(first, second) {}
     RenderCore renderer;
+    TransportQueue transport;
     pw_main_loop* loop = nullptr;
     pw_stream* stream = nullptr;
     std::atomic<spa_io_position*> position{nullptr};
     std::atomic<bool> callbackFault{false};
+    std::atomic<bool> transportFault{false};
     // Written only by the data thread; read only after pw_stream_destroy stops it.
     std::array<std::uint64_t, 100001> histogram{};
     std::uint64_t callbacks = 0, maxNs = 0, deadlineMisses = 0;
@@ -71,12 +169,42 @@ struct Probe {
     pw_time timing{};
     std::string failure;
     std::string stopFile;
-    std::string inputFile;
-    std::uint64_t initialSourceFrame = 0;
-    double decodeMs = 0;
+    std::array<std::string, 2> inputFiles;
+    std::array<std::uint64_t, 2> initialSourceFrames{};
+    std::array<double, 2> decodeMs{};
+    std::vector<TimedControl> controls;
+    std::size_t submittedControls = 0;
+    std::array<ControlReceipt, TransportQueue::capacity> receipts{};
+    std::size_t receiptCount = 0;
+    std::uint64_t appliedControls = 0, rejectedControls = 0;
 };
 static_assert(std::atomic<spa_io_position*>::is_always_lock_free);
 static_assert(std::atomic<bool>::is_always_lock_free);
+
+void consumeControls(Probe& data) noexcept
+{
+    for (std::size_t count = 0; count < TransportQueue::capacity; ++count) {
+        RenderCore::Command command;
+        if (!data.transport.tryPop(command))
+            break;
+        const bool applied = data.renderer.apply(command);
+        applied ? ++data.appliedControls : ++data.rejectedControls;
+        if (!applied || data.receiptCount == data.receipts.size())
+            data.transportFault.store(true, std::memory_order_relaxed);
+        if (data.receiptCount < data.receipts.size()) {
+            auto& receipt = data.receipts[data.receiptCount++];
+            receipt.id = command.id;
+            receipt.outputFrame = data.renderer.frameClock();
+            receipt.applied = applied;
+            receipt.masterGain = data.renderer.masterGain();
+            for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
+                receipt.sourceFrames[deck] = data.renderer.sourceFrame(deck);
+                receipt.playing[deck] = data.renderer.isPlaying(deck);
+                receipt.gains[deck] = data.renderer.deckGain(deck);
+            }
+        }
+    }
+}
 
 void process(void* userdata)
 {
@@ -127,8 +255,11 @@ void process(void* userdata)
             data.framesMax = std::max(data.framesMax, frames);
             if (deadlineNs == 0)
                 deadlineNs = 1.0e9 * frames / RenderCore::sampleRate;
-            data.renderer.render({static_cast<float*>(plane.data),
-                                  static_cast<std::size_t>(frames * RenderCore::channels)});
+            if (frames)
+                consumeControls(data);
+            if (!data.renderer.render({static_cast<float*>(plane.data),
+                                       static_cast<std::size_t>(frames * RenderCore::channels)}))
+                data.callbackFault.store(true, std::memory_order_relaxed);
             plane.chunk->offset = 0;
             plane.chunk->stride = stride;
             plane.chunk->size = static_cast<std::uint32_t>(frames * stride);
@@ -196,6 +327,19 @@ void tick(void* userdata, std::uint64_t)
     }
     if (data.callbackFault.load(std::memory_order_relaxed))
         data.failure = "invalid output buffer or queue failure";
+    if (data.transportFault.load(std::memory_order_relaxed))
+        data.failure = "render rejected a transport command or receipt capacity was exceeded";
+    if (data.startedNs && data.failure.empty()) {
+        const auto elapsedMs = (now - data.startedNs) / 1000000ULL;
+        while (data.submittedControls < data.controls.size() &&
+               data.controls[data.submittedControls].milliseconds <= elapsedMs) {
+            if (!data.transport.tryPush(data.controls[data.submittedControls].command)) {
+                data.failure = "transport command queue is full";
+                break;
+            }
+            ++data.submittedControls;
+        }
+    }
     if (!data.startedNs && now - data.connectedNs > 5000000000ULL)
         data.failure = "no streaming state within five seconds";
     std::error_code stopError;
@@ -244,14 +388,75 @@ std::string jsonString(std::string_view value)
     return result + '"';
 }
 
+void reportDeck(const Probe& data, std::size_t deck)
+{
+    if (data.inputFiles[deck].empty()) {
+        std::cout << "null";
+        return;
+    }
+    std::cout << "{\"path\": " << jsonString(data.inputFiles[deck])
+        << ", \"decoded_frames\": " << data.renderer.sourceFrames(deck)
+        << ", \"decoded_bytes\": " << data.renderer.sourceFrames(deck) * stride
+        << ", \"decode_ms\": " << data.decodeMs[deck]
+        << ", \"initial_source_frame\": " << data.initialSourceFrames[deck]
+        << ", \"final_source_frame\": " << data.renderer.sourceFrame(deck)
+        << ", \"playing\": " << (data.renderer.isPlaying(deck) ? "true" : "false")
+        << ", \"gain\": " << std::defaultfloat << std::setprecision(std::numeric_limits<float>::max_digits10)
+        << data.renderer.deckGain(deck) << std::fixed << std::setprecision(3)
+        << ", \"eof\": " << (data.renderer.sourceFrame(deck) == data.renderer.sourceFrames(deck) ? "true" : "false")
+        << "}";
+}
+
+void reportControls(const Probe& data)
+{
+    std::cout << std::defaultfloat << std::setprecision(std::numeric_limits<float>::max_digits10)
+        << "{\"planned\": " << data.controls.size()
+        << ", \"submitted\": " << data.submittedControls
+        << ", \"applied\": " << data.appliedControls
+        << ", \"rejected\": " << data.rejectedControls
+        << ", \"receipts\": [";
+    for (std::size_t index = 0; index < data.receiptCount; ++index) {
+        const auto& receipt = data.receipts[index];
+        const auto& planned = data.controls[index];
+        using Type = RenderCore::Command::Type;
+        const auto type = planned.command.type;
+        const std::string_view action = type == Type::Play ? "play" : type == Type::Pause ? "pause" :
+            type == Type::Seek ? "seek" : "gain";
+        if (index)
+            std::cout << ",";
+        std::cout << "{\"id\": " << receipt.id << ", \"requested_ms\": " << planned.milliseconds
+            << ", \"deck\": " << jsonString(type == Type::MasterGain ? "master" : planned.command.deck ? "b" : "a")
+            << ", \"action\": " << jsonString(action)
+            << ", \"requested_frame\": ";
+        if (type == Type::Seek)
+            std::cout << planned.command.frame;
+        else
+            std::cout << "null";
+        std::cout << ", \"requested_gain\": ";
+        if (type == Type::DeckGain || type == Type::MasterGain)
+            std::cout << planned.command.gain;
+        else
+            std::cout << "null";
+        std::cout << ", \"applied\": " << (receipt.applied ? "true" : "false")
+            << ", \"output_frame\": " << receipt.outputFrame
+            << ", \"source_frames\": [" << receipt.sourceFrames[0] << "," << receipt.sourceFrames[1] << "]"
+            << ", \"playing\": [" << (receipt.playing[0] ? "true" : "false")
+            << "," << (receipt.playing[1] ? "true" : "false") << "]"
+            << ", \"deck_gains\": [" << receipt.gains[0] << "," << receipt.gains[1] << "]"
+            << ", \"master_gain\": " << receipt.masterGain << "}";
+    }
+    std::cout << "], \"scope\": \"Requested times use the stream-state wall clock; receipts identify render callback boundaries. No sample-exact wall-time scheduling or click-free transport claim.\"}"
+        << std::fixed << std::setprecision(3);
+}
+
 void report(const Probe& data, bool tone)
 {
     std::cout << std::fixed << std::setprecision(3)
         << "{\n  \"schema\": 1,\n  \"pipewire_version\": " << jsonString(pw_get_library_version())
         << ",\n  \"status\": " << jsonString(data.failure.empty() ? "ok" : "error")
         << ",\n  \"error\": " << jsonString(data.failure)
-        << ",\n  \"signal\": " << jsonString(!data.inputFile.empty() ? "local file" :
-            tone ? "440 Hz stereo, amplitude 0.01" : "silence")
+        << ",\n  \"signal\": " << jsonString(!data.inputFiles[1].empty() ? "two local files" :
+            !data.inputFiles[0].empty() ? "local file" : tone ? "440 Hz stereo, amplitude 0.01" : "silence")
         << ",\n  \"requested\": {\"sample_rate\": 48000, \"channels\": 2, \"quantum_frames\": "
         << data.quantum << ", \"seconds\": " << data.seconds << "},\n"
         << "  \"negotiated\": {\"format_valid\": " << (data.formatValid ? "true" : "false")
@@ -265,18 +470,16 @@ void report(const Probe& data, bool tone)
         << ",\n  \"stopped_monotonic_ns\": " << data.stoppedNs
         << ",\n  \"frames_rendered\": " << data.renderer.frameClock()
         << ",\n  \"file_input\": ";
-    if (data.inputFile.empty()) {
-        std::cout << "null";
-    } else {
-        std::cout << "{\"path\": " << jsonString(data.inputFile)
-            << ", \"decoded_frames\": " << data.renderer.sourceFrames()
-            << ", \"decoded_bytes\": " << data.renderer.sourceFrames() * stride
-            << ", \"decode_ms\": " << data.decodeMs
-            << ", \"initial_source_frame\": " << data.initialSourceFrame
-            << ", \"final_source_frame\": " << data.renderer.sourceFrame()
-            << ", \"eof\": " << (data.renderer.sourceFrame() == data.renderer.sourceFrames() ? "true" : "false")
-            << "}";
-    }
+    reportDeck(data, 0);
+    std::cout << ",\n  \"deck_inputs\": [";
+    reportDeck(data, 0);
+    std::cout << ",";
+    reportDeck(data, 1);
+    std::cout << "],\n  \"master_gain\": " << std::defaultfloat
+        << std::setprecision(std::numeric_limits<float>::max_digits10) << data.renderer.masterGain()
+        << std::fixed << std::setprecision(3)
+        << ",\n  \"transport\": ";
+    reportControls(data);
     std::cout << ",\n  \"callbacks\": " << data.callbacks
         << ",\n  \"callback_elapsed_us\": {\"p50_upper_bound\": " << percentile(data, .50)
         << ", \"p95_upper_bound\": " << percentile(data, .95)
@@ -309,32 +512,61 @@ void report(const Probe& data, bool tone)
 int main(int argc, char** argv)
 {
     unsigned seconds = 10, quantum = 256;
-    bool tone = false, startFrameSet = false;
-    std::uint64_t startFrame = 0;
-    std::string stopFile, inputFile;
+    bool tone = false;
+    std::array<bool, 2> startFrameSet{}, gainSet{};
+    std::array<std::uint64_t, 2> startFrames{};
+    std::array<float, 2> gains{1.0F, 1.0F};
+    float masterGain = 1.0F;
+    std::string stopFile, controlScript;
+    std::array<std::string, 2> inputFiles;
     for (int i = 1; i < argc; ++i) {
         const std::string_view argument(argv[i]);
         if (argument == "--tone") {
             tone = true;
         } else if (argument == "--help") {
-            std::cout << "Usage: conflux-audio-probe [--seconds 1..7200] [--quantum 256|512] [--tone | --input path] [--start-frame N] [--stop-file path]\n"
-                         "Default output is silence. Input requires stereo 48000 Hz audio, preloaded within 64 MiB.\n"
-                         "Start frame applies only to file input. EOF renders silence. Quantum is requested without forcing the graph.\n";
+            std::cout << "Usage: conflux-audio-probe [--seconds 1..7200] [--quantum 256|512] [--tone | --input path [--input-b path]]\n"
+                         "       [--start-frame N] [--start-frame-b N] [--gain-a 0..1] [--gain-b 0..1] [--master-gain 0..1]\n"
+                         "       [--controls path] [--stop-file path]\n"
+                         "Default output is silence. Inputs require stereo 48000 Hz audio, preloaded within 64 MiB per deck.\n"
+                         "Loaded decks start playing. Gains are linear; the sum has no limiter. EOF renders silence.\n"
+                         "Controls: up to 32 ordered rows of milliseconds a|b|master play|pause|seek|gain [value].\n"
+                         "Control times precede --seconds; the main loop submits actions for a following callback boundary.\n"
+                         "Quantum is requested without forcing the graph.\n";
             return 0;
-        } else if (argument == "--input" && i + 1 < argc) {
-            inputFile = argv[++i];
-            if (inputFile.empty()) {
+        } else if ((argument == "--input" || argument == "--input-b") && i + 1 < argc) {
+            auto& path = inputFiles[argument == "--input" ? 0 : 1];
+            path = argv[++i];
+            if (path.empty()) {
                 std::cerr << "Input path must not be empty\n";
                 return 2;
             }
-        } else if (argument == "--start-frame" && i + 1 < argc) {
+        } else if ((argument == "--start-frame" || argument == "--start-frame-b") && i + 1 < argc) {
+            const auto deck = argument == "--start-frame" ? 0 : 1;
             const std::string_view value(argv[++i]);
-            const auto result = std::from_chars(value.begin(), value.end(), startFrame);
-            if (result.ec != std::errc{} || result.ptr != value.end()) {
-                std::cerr << "Invalid value for --start-frame\n";
+            if (!unsignedValue(value, startFrames[deck])) {
+                std::cerr << "Invalid value for " << argument << '\n';
                 return 2;
             }
-            startFrameSet = true;
+            startFrameSet[deck] = true;
+        } else if ((argument == "--gain-a" || argument == "--gain-b" || argument == "--master-gain") && i + 1 < argc) {
+            float gain = 0;
+            if (!gainValue(argv[++i], gain)) {
+                std::cerr << "Gain must be finite and in [0,1]\n";
+                return 2;
+            }
+            if (argument == "--master-gain") {
+                masterGain = gain;
+            } else {
+                const auto deck = argument == "--gain-a" ? 0 : 1;
+                gains[deck] = gain;
+                gainSet[deck] = true;
+            }
+        } else if (argument == "--controls" && i + 1 < argc) {
+            controlScript = argv[++i];
+            if (controlScript.empty()) {
+                std::cerr << "Control script path must not be empty\n";
+                return 2;
+            }
         } else if (argument == "--stop-file" && i + 1 < argc) {
             stopFile = argv[++i];
         } else if ((argument == "--seconds" || argument == "--quantum") && i + 1 < argc) {
@@ -352,32 +584,58 @@ int main(int argc, char** argv)
             return 2;
         }
     }
-    if ((!inputFile.empty() && tone) || (startFrameSet && inputFile.empty())) {
-        std::cerr << "--input and --tone are exclusive; --start-frame requires --input\n";
+    if ((!inputFiles[0].empty() && tone) || (!inputFiles[1].empty() && inputFiles[0].empty()) ||
+        (!controlScript.empty() && inputFiles[0].empty())) {
+        std::cerr << "--input and --tone are exclusive; --input-b and --controls require --input\n";
         return 2;
     }
+    for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
+        if (inputFiles[deck].empty() && (startFrameSet[deck] || gainSet[deck])) {
+            std::cerr << "Starting frame and deck gain require that deck's input\n";
+            return 2;
+        }
+    }
     // PCM is owned outside the callback and outlives both renderer and stream.
-    std::optional<conflux::audio::DecodedAudio> decoded;
+    std::array<std::optional<conflux::audio::DecodedAudio>, 2> decoded;
     std::unique_ptr<Probe> data;
     try {
-        if (!inputFile.empty()) {
-            const auto began = nowNs();
-            decoded.emplace(conflux::audio::decodeAudioFile(inputFile));
-            const double decodeMs = (nowNs() - began) / 1.0e6;
-            data = std::make_unique<Probe>(decoded->samples());
+        if (!inputFiles[0].empty()) {
+            std::array<double, 2> decodeMs{};
+            for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
+                if (inputFiles[deck].empty())
+                    continue;
+                const auto began = nowNs();
+                decoded[deck].emplace(conflux::audio::decodeAudioFile(inputFiles[deck]));
+                decodeMs[deck] = (nowNs() - began) / 1.0e6;
+            }
+            data = std::make_unique<Probe>(decoded[0]->samples(),
+                decoded[1] ? decoded[1]->samples() : std::span<const float>{});
             data->decodeMs = decodeMs;
-            data->inputFile = inputFile;
-            data->initialSourceFrame = startFrame;
-            if (!data->renderer.seek(startFrame)) {
-                std::cerr << "Start frame exceeds decoded file length\n";
-                return 2;
+            data->inputFiles = inputFiles;
+            data->initialSourceFrames = startFrames;
+            for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
+                if (decoded[deck] && (!data->renderer.seek(deck, startFrames[deck]) ||
+                                      !data->renderer.setDeckGain(deck, gains[deck]))) {
+                    std::cerr << "Starting frame exceeds decoded deck length\n";
+                    return 2;
+                }
             }
         } else {
             data = std::make_unique<Probe>(tone);
         }
+        data->renderer.setMasterGain(masterGain);
     } catch (const std::exception& error) {
         std::cerr << "Cannot prepare audio: " << error.what() << '\n';
         return 1;
+    }
+    if (!controlScript.empty()) {
+        try {
+            data->controls = readControls(controlScript, seconds,
+                {data->renderer.sourceFrames(0), data->renderer.sourceFrames(1)});
+        } catch (const std::exception& error) {
+            std::cerr << "Invalid controls: " << error.what() << '\n';
+            return 2;
+        }
     }
     pw_init(nullptr, nullptr);
     data->seconds = seconds;
@@ -439,6 +697,13 @@ int main(int argc, char** argv)
         data->missingBuffers || data->invalidBuffers || data->truncatedFrames ||
         data->callbackFault.load(std::memory_order_relaxed)))
         data->failure = "probe produced no valid callbacks or observed a buffer fault";
+    if (data->failure.empty() && (data->submittedControls != data->controls.size() ||
+        data->appliedControls != data->controls.size() || data->rejectedControls ||
+        data->receiptCount != data->controls.size()))
+        data->failure = "probe ended before every planned control was applied";
+    for (std::size_t index = 0; index < data->receiptCount && index < data->controls.size(); ++index)
+        if (data->receipts[index].id != data->controls[index].command.id)
+            data->failure = "transport receipt order differs from submitted actions";
     report(*data, tone);
     pw_deinit();
     return data->failure.empty() ? 0 : 1;

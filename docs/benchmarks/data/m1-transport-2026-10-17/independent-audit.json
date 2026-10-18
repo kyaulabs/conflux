@@ -1,0 +1,549 @@
+{
+  "schema": "conflux.m1-transport-independent-audit.v1",
+  "status": "passed",
+  "scope": "Offline audit of existing short quiet functional evidence; no build, host query or audio run executed. Not sustained M1, physical latency, audible quality, click-free transport, live stems or sample-exact wall scheduling qualification.",
+  "checks": [
+    {
+      "name": "source_pin:CMakeLists.txt",
+      "passed": true
+    },
+    {
+      "name": "source_pin:src/audio/AudioFile.hpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:src/audio/AudioFile.cpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:src/audio/RenderCore.hpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:src/audio/RenderCore.cpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:src/audio/TransportQueue.hpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:src/probe_main.cpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:tests/audio_transport_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "source_pin:tests/audio_probe_cli_test.py",
+      "passed": true
+    },
+    {
+      "name": "artifact_pin:binary",
+      "passed": true
+    },
+    {
+      "name": "artifact_pin:controls",
+      "passed": true
+    },
+    {
+      "name": "artifact_pin:fixture_a",
+      "passed": true
+    },
+    {
+      "name": "artifact_pin:fixture_b",
+      "passed": true
+    },
+    {
+      "name": "verification_passed_and_scoped",
+      "passed": true
+    },
+    {
+      "name": "dual:ok",
+      "passed": true
+    },
+    {
+      "name": "dual:48k_stereo_256",
+      "passed": true
+    },
+    {
+      "name": "dual:six_zero_fault_counters",
+      "passed": true
+    },
+    {
+      "name": "dual:clock_matches_callback_frames",
+      "passed": true
+    },
+    {
+      "name": "dual:verification_reduction_matches",
+      "passed": true
+    },
+    {
+      "name": "dual:duration_rounding_consistent",
+      "passed": true
+    },
+    {
+      "name": "dual:inputs_match_command",
+      "passed": true
+    },
+    {
+      "name": "single:ok",
+      "passed": true
+    },
+    {
+      "name": "single:48k_stereo_256",
+      "passed": true
+    },
+    {
+      "name": "single:six_zero_fault_counters",
+      "passed": true
+    },
+    {
+      "name": "single:clock_matches_callback_frames",
+      "passed": true
+    },
+    {
+      "name": "single:verification_reduction_matches",
+      "passed": true
+    },
+    {
+      "name": "single:duration_rounding_consistent",
+      "passed": true
+    },
+    {
+      "name": "single:inputs_match_command",
+      "passed": true
+    },
+    {
+      "name": "silence:ok",
+      "passed": true
+    },
+    {
+      "name": "silence:48k_stereo_256",
+      "passed": true
+    },
+    {
+      "name": "silence:six_zero_fault_counters",
+      "passed": true
+    },
+    {
+      "name": "silence:clock_matches_callback_frames",
+      "passed": true
+    },
+    {
+      "name": "silence:verification_reduction_matches",
+      "passed": true
+    },
+    {
+      "name": "silence:duration_rounding_consistent",
+      "passed": true
+    },
+    {
+      "name": "silence:inputs_match_command",
+      "passed": true
+    },
+    {
+      "name": "fixture_a:geometry",
+      "passed": true
+    },
+    {
+      "name": "fixture_a:generated_samples_exact",
+      "passed": true
+    },
+    {
+      "name": "fixture_b:geometry",
+      "passed": true
+    },
+    {
+      "name": "fixture_b:generated_samples_exact",
+      "passed": true
+    },
+    {
+      "name": "quiet_combined_bound",
+      "passed": true
+    },
+    {
+      "name": "dual:all18_planned_submitted_applied",
+      "passed": true
+    },
+    {
+      "name": "dual:receipt_fifo_ids",
+      "passed": true
+    },
+    {
+      "name": "dual:requests_match_script",
+      "passed": true
+    },
+    {
+      "name": "dual:every_receipt_state_recomputed_from_prior_boundary",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "name": "dual:final_state_and_independent_eof",
+      "passed": true
+    },
+    {
+      "name": "dual:same_time_start_gains_applied_before_first_pcm",
+      "passed": true
+    },
+    {
+      "name": "dual:paused_seek_preserves_pause_and_peer_position",
+      "passed": true
+    },
+    {
+      "name": "dual:muted_playing_deck_advances",
+      "passed": true
+    },
+    {
+      "name": "dual:master_mute_preserves_advancing_sources",
+      "passed": true
+    },
+    {
+      "name": "dual:both_paused_clock_advances_without_source_motion",
+      "passed": true
+    },
+    {
+      "name": "dual:same_time_seeks_retain_fifo_and_pause",
+      "passed": true
+    },
+    {
+      "name": "single:legacy_file_reaches_eof",
+      "passed": true
+    },
+    {
+      "name": "silence:default_has_no_decks",
+      "passed": true
+    },
+    {
+      "name": "single:no_controls",
+      "passed": true
+    },
+    {
+      "name": "silence:no_controls",
+      "passed": true
+    },
+    {
+      "name": "guard:same_active_service_identity",
+      "passed": true
+    },
+    {
+      "name": "guard:policy_change_explicit",
+      "passed": true
+    },
+    {
+      "name": "ctest:seven_entries_passed",
+      "passed": true
+    },
+    {
+      "name": "ctest:76_cli_rejections_logged",
+      "passed": true
+    },
+    {
+      "name": "ctest:worker_and_soak_regressions_passed",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "dual": {
+      "streaming_seconds": 10.073,
+      "callbacks": 1872,
+      "callback_p99_9_upper_us": 44.0,
+      "callback_max_us": 58.058
+    },
+    "single": {
+      "streaming_seconds": 3.07,
+      "callbacks": 575,
+      "callback_p99_9_upper_us": 42.0,
+      "callback_max_us": 41.235
+    },
+    "silence": {
+      "streaming_seconds": 2.086,
+      "callbacks": 391,
+      "callback_p99_9_upper_us": 6.0,
+      "callback_max_us": 5.1
+    }
+  },
+  "fixtures": {
+    "a": {
+      "frames": 96000,
+      "maximum_absolute_integer": 1,
+      "maximum_absolute_float": 3.0517578125e-05
+    },
+    "b": {
+      "frames": 144000,
+      "maximum_absolute_integer": 1,
+      "maximum_absolute_float": 3.0517578125e-05
+    }
+  },
+  "receipt_state_reduction": [
+    {
+      "id": 1,
+      "output_frame": 0,
+      "expected_source_frames": [
+        0,
+        0
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    },
+    {
+      "id": 2,
+      "output_frame": 0,
+      "expected_source_frames": [
+        0,
+        0
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    },
+    {
+      "id": 3,
+      "output_frame": 0,
+      "expected_source_frames": [
+        0,
+        0
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    },
+    {
+      "id": 4,
+      "output_frame": 13568,
+      "expected_source_frames": [
+        13568,
+        13568
+      ],
+      "expected_playing": [
+        true,
+        false
+      ]
+    },
+    {
+      "id": 5,
+      "output_frame": 23040,
+      "expected_source_frames": [
+        23040,
+        24000
+      ],
+      "expected_playing": [
+        true,
+        false
+      ]
+    },
+    {
+      "id": 6,
+      "output_frame": 32768,
+      "expected_source_frames": [
+        32768,
+        24000
+      ],
+      "expected_playing": [
+        false,
+        false
+      ]
+    },
+    {
+      "id": 7,
+      "output_frame": 42240,
+      "expected_source_frames": [
+        32768,
+        24000
+      ],
+      "expected_playing": [
+        false,
+        true
+      ]
+    },
+    {
+      "id": 8,
+      "output_frame": 51968,
+      "expected_source_frames": [
+        4800,
+        33728
+      ],
+      "expected_playing": [
+        false,
+        true
+      ]
+    },
+    {
+      "id": 9,
+      "output_frame": 61440,
+      "expected_source_frames": [
+        4800,
+        43200
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    },
+    {
+      "id": 10,
+      "output_frame": 71168,
+      "expected_source_frames": [
+        14528,
+        52928
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    },
+    {
+      "id": 11,
+      "output_frame": 80640,
+      "expected_source_frames": [
+        24000,
+        62400
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    },
+    {
+      "id": 12,
+      "output_frame": 90368,
+      "expected_source_frames": [
+        33728,
+        72128
+      ],
+      "expected_playing": [
+        false,
+        true
+      ]
+    },
+    {
+      "id": 13,
+      "output_frame": 99840,
+      "expected_source_frames": [
+        33728,
+        81600
+      ],
+      "expected_playing": [
+        false,
+        false
+      ]
+    },
+    {
+      "id": 14,
+      "output_frame": 109568,
+      "expected_source_frames": [
+        33728,
+        81600
+      ],
+      "expected_playing": [
+        false,
+        false
+      ]
+    },
+    {
+      "id": 15,
+      "output_frame": 119040,
+      "expected_source_frames": [
+        0,
+        81600
+      ],
+      "expected_playing": [
+        false,
+        false
+      ]
+    },
+    {
+      "id": 16,
+      "output_frame": 119040,
+      "expected_source_frames": [
+        0,
+        0
+      ],
+      "expected_playing": [
+        false,
+        false
+      ]
+    },
+    {
+      "id": 17,
+      "output_frame": 128768,
+      "expected_source_frames": [
+        0,
+        0
+      ],
+      "expected_playing": [
+        true,
+        false
+      ]
+    },
+    {
+      "id": 18,
+      "output_frame": 138240,
+      "expected_source_frames": [
+        9472,
+        0
+      ],
+      "expected_playing": [
+        true,
+        true
+      ]
+    }
+  ],
+  "guard": {
+    "before": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036",
+      "NRestarts": "0"
+    },
+    "after": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036",
+      "NRestarts": "0"
+    },
+    "policy_before": "power-saver",
+    "policy_after": "balanced",
+    "limitation": "Before/after service identity matches and restart count is zero. No continuous guard/policy/temperature trace was captured in these short checks; do not claim policy stayed unchanged."
+  },
+  "evidence_pins": {
+    "verification.json": {
+      "bytes": 7813,
+      "sha256": "a445ef9d2b9f74d6cf57ae340c64ddf451ab9eb4b9942909dc1cca0de4b4378a"
+    },
+    "dual.json": {
+      "bytes": 7099,
+      "sha256": "b152aeb6a78f7c1d60b0ebc5df662b034c2710c18278589c8a474cfded583de2"
+    },
+    "single.json": {
+      "bytes": 2345,
+      "sha256": "bffa0f088800b1f7c4c8d361ff6024221dca93167ddc87570333cac3a0756d20"
+    },
+    "silence.json": {
+      "bytes": 1823,
+      "sha256": "3c9af2f9c1bb2980991d35730638c7257fbe9e2a26496cfd45b70df21bb2cc88"
+    },
+    "controls.txt": {
+      "bytes": 256,
+      "sha256": "d166cf60b1c833168af24d867c6e7e7ea49e38e53508a50366a43da77bf6b431"
+    },
+    "ctest.log": {
+      "bytes": 3282,
+      "sha256": "372e5e06f9da854c0e0eb5273c9506dfa9b8c79f947793753f993c23794818b9"
+    }
+  },
+  "limitations": [
+    "Source-state receipt reconstruction uses recorded callback output boundaries; requested wall milliseconds are not used as sample-exact application times.",
+    "Final source positions and EOF validate state progression, not physical sound or decoded/rendered sample values in PipeWire output.",
+    "Fixture samples are independently verified and quiet; code/headless tests cover mixing sample behavior. No physical loopback recording was captured.",
+    "Current source/binary/fixture hashes match the recorded working tree. They are not asserted to be part of source_base_head."
+  ]
+}
