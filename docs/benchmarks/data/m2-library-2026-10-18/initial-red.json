@@ -1,0 +1,68 @@
+{
+  "schema": "conflux.m2-library-red.v1",
+  "observed_at_utc": "2026-10-18T19:40:36.869723+00:00",
+  "base_commit": "164e827634da86087ce0ec4aaba6e352c3c48dfe",
+  "builds_passed": true,
+  "ctest_exit": 8,
+  "expected_missing_behavior": "Catalog read/upsert throw, controller import/library APIs are nonfunctional, and QML import/list controls are absent.",
+  "observed": {
+    "catalog": {
+      "passed": 2,
+      "failed": 27
+    },
+    "controller_logged_assertion_failures": 4,
+    "ui_logged_assertion_failures": 3,
+    "controller_and_ui_timeout_seconds": 30
+  },
+  "scope": "Expected functional RED with logged missing-feature assertions. Controller/UI additionally exhausted the pre-existing 30s suite timeout; their complete tallies are unavailable and no timing failure is treated as the feature contract.",
+  "private_helper": {
+    "passed": false,
+    "execution_deadline_gate": false,
+    "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+    "preflight_dump": {
+      "exit": 0,
+      "timed_out": false
+    },
+    "check_exit": 1,
+    "check": {
+      "checks": [
+        "Expected failure cannot create a core dump",
+        "Preparation cache is confined to the private runtime",
+        "Persistent library data is confined to the private runtime",
+        "Generated fixtures have a private temporary owner",
+        "Exact private master pair is configured with cue disabled",
+        "Generated A loads on the private output",
+        "Steady A matches independent asymmetric PCM samples",
+        "Library startup finishes empty without disturbing active A playback",
+        "Private cache lock gates import while GUI polling stays active"
+      ],
+      "error": "Library import starts without targeting a playback deck",
+      "execution_deadline_gate": false,
+      "observations": {},
+      "passed": false,
+      "scope": "Private virtual PipeWire graph; generated PCM, private cache and private library data only. Functional import/preparation/cancellation/reentrancy checks, no hardware or latency qualification."
+    },
+    "cleanup_dump": {
+      "exit": 0,
+      "timed_out": false
+    },
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true
+  },
+  "raw_log_sha256": "7d805ceaaa665a5e60d7245db90b029386292c72c03c124539c5d1dc709e4f94",
+  "source_sha256": {
+    "CMakeLists.txt": "e00a987060b8f0d31aa128980f8ece0a327ea24d12f24e31c1323e2ae5c4f724",
+    "src/library/LibraryCatalog.hpp": "b13fa3d10fd0b1c4312c5bf659513e0b98f8e9d309d5c5d361c4a0d3a97c44dd",
+    "src/library/LibraryCatalog.cpp": "261ef28f2c7e67cfc923e14c7b380b9c0da79c6abca2117d0a5e3a2bf7c09ea8",
+    "src/ui/DeckController.hpp": "25b36b16b5db1d7757638d960952d3cbc9ccf066c78ecdbc0a9e4fa474fb591d",
+    "src/ui/DeckController.cpp": "31b3dcf794c2530ead8ce8e0a109360d9b3346dafa48c771e3e068719c807161",
+    "tests/library_catalog_test.cpp": "669edf47d7cd54d07f48f025e12d20cd790670c747c9a8b79a21d75d1d2ee5df",
+    "tests/deck_controller_test.cpp": "34b07272135974816805a55ac012fd87f7d11aded56cccbde3e3989c2d0ed5aa",
+    "tests/manual_ui_test.cpp": "a8f4bd5018532f6d74272dd4d5d027823854f308236ae01f41e69ffc97f74944",
+    "qml/Main.qml": "f403400ab4f9b81a2047e7fe622bb77c1ab1400b67ce3f03f39808920503acb8",
+    "tools/experiments/preparation_controller_check.cpp": "635171f8b7461aa9741469b9c21349dc74593aa547562b5734eb77a3f125c19d"
+  }
+}

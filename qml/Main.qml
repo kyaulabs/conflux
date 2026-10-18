@@ -166,6 +166,7 @@ ApplicationWindow {
                 text: deckController.busy ? (library.preparation.status === "Preparing" ? "Preparing source…"
                                              : library.preparation.status === "Cancelling" ? "Cancelling preparation…"
                                              : library.preparation.status === "Installing" ? "Installing source…"
+                                             : library.preparation.status === "Saving" ? "Saving library…"
                                              : "Updating audio…")
                       : (deckController.outputReady ? "AUDIO READY" : "OPEN LIBRARY TO LOAD A TRACK")
                 font.family: Brand.ConfluxTheme.displayFont
@@ -201,18 +202,40 @@ ApplicationWindow {
         id: library
         objectName: "libraryDrawer"
         property int selectedDeck: 0
+        property string selectedId: ""
+        readonly property var selectedTrack: {
+            const tracks = deckController.libraryTracks
+            for (let index = 0; index < tracks.length; ++index)
+                if (tracks[index].id === selectedId) return tracks[index]
+            return null
+        }
         readonly property var preparation: deckController.preparation
         readonly property string preparationText: {
             if (preparation.status === "Idle") return ""
-            const target = preparation.deck === 0 ? "Deck A" : preparation.deck === 1 ? "Deck B" : ""
+            const target = preparation.deck === 0 ? "Deck A" : preparation.deck === 1 ? "Deck B" : "Library import"
             const parts = [preparation.status, target, preparation.name]
                 .filter(function(part) { return Boolean(part) })
             if (preparation.cacheHit && preparation.status === "Complete") parts.push("Reused prepared audio")
             return parts.join(" · ")
         }
+        function selectTrack(track) {
+            selectedId = track.id
+            sourceA.text = track.path
+            sourceB.text = track.path
+        }
+        function canLoad(path) {
+            if (deckController.busy) return false
+            if (selectedId.length > 0)
+                return deckController.libraryReady && selectedTrack !== null && selectedTrack.available
+            return path.trim().length > 0
+        }
+        function load(deck) {
+            if (selectedId.length > 0) deckController.loadLibraryTrack(deck, selectedId)
+            else deckController.loadDeck(deck, window.localUrl(deck === 0 ? sourceA.text : sourceB.text))
+        }
         edge: Qt.BottomEdge
         width: window.width
-        height: 384
+        height: Math.min(window.height - 48, 650)
         modal: true
         padding: 24
         background: Rectangle {
@@ -221,7 +244,7 @@ ApplicationWindow {
         }
         ColumnLayout {
             anchors.fill: parent
-            spacing: 16
+            spacing: 12
             RowLayout {
                 Layout.fillWidth: true
                 Label {
@@ -241,7 +264,7 @@ ApplicationWindow {
                 }
             }
             Label {
-                text: "Mono/stereo local files, 8–192 kHz · up to 11m39s per track. Tracks are prepared before playback. Replacing a track keeps the other deck and recording running."
+                text: "Import a local file to save it in the library, or load a path directly. Mono/stereo, 8–192 kHz · up to 11m39s per track. Replacing a track keeps the other deck and recording running."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.muted
                 Layout.fillWidth: true
@@ -264,17 +287,27 @@ ApplicationWindow {
                     selectByMouse: true
                     Layout.fillWidth: true
                     Layout.minimumHeight: 44
-                    onAccepted: if (loadA.enabled) deckController.loadDeck(0, window.localUrl(text))
+                    onTextEdited: library.selectedId = ""
+                    onAccepted: if (loadA.enabled) library.load(0)
                     Accessible.name: "Deck A local audio path"
+                }
+                Button {
+                    objectName: "deck0Import"
+                    text: "IMPORT"
+                    enabled: deckController.libraryReady && !deckController.busy && sourceA.text.trim().length > 0
+                    Layout.minimumWidth: 100
+                    Layout.minimumHeight: 44
+                    onClicked: deckController.importTrack(window.localUrl(sourceA.text))
+                    Accessible.name: "Import Deck A path into local library"
                 }
                 Button {
                     id: loadA
                     objectName: "deck0Load"
                     text: "LOAD A"
-                    enabled: !deckController.busy && sourceA.text.trim().length > 0
+                    enabled: library.canLoad(sourceA.text)
                     Layout.minimumWidth: 116
                     Layout.minimumHeight: 44
-                    onClicked: deckController.loadDeck(0, window.localUrl(sourceA.text))
+                    onClicked: library.load(0)
                     Accessible.name: "Load Deck A"
                 }
             }
@@ -296,18 +329,89 @@ ApplicationWindow {
                     selectByMouse: true
                     Layout.fillWidth: true
                     Layout.minimumHeight: 44
-                    onAccepted: if (loadB.enabled) deckController.loadDeck(1, window.localUrl(text))
+                    onTextEdited: library.selectedId = ""
+                    onAccepted: if (loadB.enabled) library.load(1)
                     Accessible.name: "Deck B local audio path"
+                }
+                Button {
+                    objectName: "deck1Import"
+                    text: "IMPORT"
+                    enabled: deckController.libraryReady && !deckController.busy && sourceB.text.trim().length > 0
+                    Layout.minimumWidth: 100
+                    Layout.minimumHeight: 44
+                    onClicked: deckController.importTrack(window.localUrl(sourceB.text))
+                    Accessible.name: "Import Deck B path into local library"
                 }
                 Button {
                     id: loadB
                     objectName: "deck1Load"
                     text: "LOAD B"
-                    enabled: !deckController.busy && sourceB.text.trim().length > 0
+                    enabled: library.canLoad(sourceB.text)
                     Layout.minimumWidth: 116
                     Layout.minimumHeight: 44
-                    onClicked: deckController.loadDeck(1, window.localUrl(sourceB.text))
+                    onClicked: library.load(1)
                     Accessible.name: "Load Deck B"
+                }
+            }
+            Label {
+                objectName: "libraryStatus"
+                text: deckController.libraryError.length > 0 ? deckController.libraryError
+                      : !deckController.libraryReady ? "Loading saved library…"
+                      : deckController.libraryTracks.length === 0 ? "Library is empty. Import a path to save your first track."
+                      : library.selectedId.length > 0 && (library.selectedTrack === null || !library.selectedTrack.available)
+                        ? "Selected source is missing. Edit a path to load another file."
+                      : "Select a saved track, then LOAD A or LOAD B. Analysis: unknown."
+                textFormat: Text.PlainText
+                color: deckController.libraryError.length > 0 ? Brand.ConfluxTheme.accent : Brand.ConfluxTheme.muted
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Accessible.name: text
+            }
+            ListView {
+                id: savedTracks
+                objectName: "libraryTracks"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.minimumHeight: 100
+                clip: true
+                model: deckController.libraryTracks
+                spacing: 4
+                ScrollBar.vertical: ScrollBar { }
+                delegate: ItemDelegate {
+                    required property var modelData
+                    required property int index
+                    objectName: "libraryTrack" + index
+                    width: savedTracks.width
+                    height: 56
+                    highlighted: library.selectedId === modelData.id
+                    onClicked: library.selectTrack(modelData)
+                    Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
+                    Accessible.description: "Select this track for Load A or Load B. Analysis unknown."
+                    background: Rectangle {
+                        radius: 3
+                        color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
+                        border.color: parent.activeFocus || parent.highlighted
+                                      ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.divider
+                    }
+                    contentItem: RowLayout {
+                        spacing: 16
+                        Label {
+                            objectName: "libraryTrack" + index + "Name"
+                            text: modelData.name
+                            textFormat: Text.PlainText
+                            elide: Text.ElideRight
+                            color: Brand.ConfluxTheme.text
+                            Layout.fillWidth: true
+                        }
+                        Label {
+                            text: modelData.available
+                                  ? Math.floor(modelData.durationSeconds / 60) + ":"
+                                    + String(Math.floor(modelData.durationSeconds % 60)).padStart(2, "0")
+                                  : "MISSING"
+                            color: modelData.available ? Brand.ConfluxTheme.muted : Brand.ConfluxTheme.accent
+                            font.family: Brand.ConfluxTheme.monoFont
+                        }
+                    }
                 }
             }
             RowLayout {
@@ -318,6 +422,7 @@ ApplicationWindow {
                 Label {
                     objectName: "preparationStatus"
                     text: library.preparationText
+                    textFormat: Text.PlainText
                     color: Brand.ConfluxTheme.muted
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
@@ -332,16 +437,16 @@ ApplicationWindow {
                     visible: library.preparation.status === "Preparing"
                              || library.preparation.status === "Cancelling"
                              || library.preparation.status === "Installing"
+                             || library.preparation.status === "Saving"
                     enabled: library.preparation.cancellable
                     Layout.minimumWidth: 220
                     Layout.minimumHeight: 44
                     onClicked: deckController.cancelPreparation()
-                    Accessible.name: "Cancel audio preparation for "
-                                     + (library.preparation.deck === 0 ? "Deck A" : "Deck B")
-                    Accessible.description: "Stops preparation before installation. Current playback continues."
+                    Accessible.name: library.preparation.deck < 0 ? "Cancel library import"
+                                     : "Cancel audio preparation for " + (library.preparation.deck === 0 ? "Deck A" : "Deck B")
+                    Accessible.description: "Stops preparation before installation or saving. Current playback continues."
                 }
             }
-            Item { Layout.fillHeight: true }
         }
     }
 

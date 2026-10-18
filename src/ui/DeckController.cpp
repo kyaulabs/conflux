@@ -33,12 +33,23 @@ QVariantMap meterMap(const audio::RenderCore::StereoMeter& meter)
 DeckController::DeckController(QObject* parent) : QObject(parent)
 {
     connect(&loader_, &QFutureWatcher<LoadResult>::finished, this, &DeckController::loaded);
+    connect(&catalogJob_, &QFutureWatcher<CatalogResult>::finished, this, &DeckController::catalogFinished);
     connect(&installer_, &QFutureWatcher<std::shared_ptr<InstallResult>>::finished, this, &DeckController::installed);
     connect(&retirer_, &QFutureWatcher<void>::finished, this, &DeckController::retired);
     connect(&recordingStarter_, &QFutureWatcher<RecordingStart>::finished, this, &DeckController::recordingStarted);
     connect(&recordingFinalizer_, &QFutureWatcher<RecordingCompletion>::finished, this, &DeckController::recordingFinished);
     connect(&pollTimer_, &QTimer::timeout, this, &DeckController::poll);
     pollTimer_.start(50);
+    const auto data = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    libraryPath_ = data.isEmpty() ? QString{} : data + "/library.json";
+    catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_]() -> CatalogResult {
+        try {
+            if (path.isEmpty()) throw std::runtime_error("Cannot find the local library directory");
+            return {library::LibraryCatalog(path).read(), {}, false};
+        } catch (const std::exception& error) {
+            return {{}, QString::fromUtf8(error.what()), false};
+        }
+    }));
 }
 
 DeckController::~DeckController()
@@ -53,6 +64,7 @@ void DeckController::shutdown()
     closing_ = true;
     pollTimer_.stop();
     disconnect(&loader_, nullptr, this, nullptr);
+    disconnect(&catalogJob_, nullptr, this, nullptr);
     disconnect(&installer_, nullptr, this, nullptr);
     disconnect(&retirer_, nullptr, this, nullptr);
     disconnect(&recordingStarter_, nullptr, this, nullptr);
@@ -63,6 +75,7 @@ void DeckController::shutdown()
     // Preparation checks cancellation between bounded reads/conversion/writes.
     // Join before releasing the controller and decoded owners.
     loader_.waitForFinished();
+    catalogJob_.waitForFinished();
     installer_.waitForFinished();
     retirer_.waitForFinished();
     if (loader_.future().resultCount() > 0) {
@@ -178,10 +191,70 @@ void DeckController::fail(const QString& error)
 QVariantMap DeckController::preparation() const
 {
     const bool idle = preparationStatus_ == "Idle";
-    return {{"status", preparationStatus_}, {"deck", idle ? -1 : pendingDeck_},
+    return {{"status", preparationStatus_}, {"deck", idle || pendingImport_ ? -1 : pendingDeck_},
             {"name", idle ? QString{} : pendingName_},
             {"cancellable", !closing_ && preparationStatus_ == "Preparing"},
             {"cacheHit", preparationCacheHit_}};
+}
+
+QVariantList DeckController::libraryTracks() const { return libraryTracks_; }
+bool DeckController::libraryReady() const { return libraryReady_; }
+QString DeckController::libraryError() const { return libraryError_; }
+
+void DeckController::catalogFinished()
+{
+    if (closing_) return;
+    auto result = catalogJob_.result();
+    libraryError_ = result.error;
+    if (result.error.isEmpty()) {
+        libraryEntries_ = std::move(result.tracks);
+        libraryTracks_.clear();
+        libraryTracks_.reserve(qsizetype(libraryEntries_.size()));
+        for (const auto& track : libraryEntries_)
+            libraryTracks_.append(QVariantMap{{"id", track.sourceSha256}, {"name", track.name},
+                {"path", track.sourcePath}, {"durationSeconds", track.frames / 48000.0},
+                {"available", track.available}});
+        libraryReady_ = true;
+    }
+    // Startup reads do not own transport/preparation state. Only the save of
+    // an accepted import owns busy and its terminal preparation phase.
+    if (result.saving) {
+        busy_ = false;
+        preparationStatus_ = result.error.isEmpty() ? "Complete" : "Failed";
+        error_ = result.error;
+    }
+    emit libraryChanged();
+    if (!closing_) emit stateChanged();
+}
+
+void DeckController::importTrack(const QUrl& url)
+{
+    if (closing_) return;
+    if (!libraryReady_) {
+        fail(libraryError_.isEmpty() ? "Wait for the library to finish opening."
+                                     : "Library unavailable: " + libraryError_);
+        return;
+    }
+    // The live session still polls handoffs during metadata-only import.
+    // Keep its internal deck index valid; expose -1 through preparation().
+    beginPreparation(0, url, true);
+}
+
+void DeckController::loadLibraryTrack(int deck, const QString& sourceId)
+{
+    if (closing_) return;
+    if (!libraryReady_) {
+        fail("The local library is not available.");
+        return;
+    }
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceId;
+    });
+    if (found == libraryEntries_.end()) {
+        fail("This track is not in the local library.");
+        return;
+    }
+    beginPreparation(deck, QUrl::fromLocalFile(found->sourcePath), false, found->sourceSha256);
 }
 
 bool DeckController::cancelPreparation()
@@ -195,6 +268,11 @@ bool DeckController::cancelPreparation()
 
 void DeckController::loadDeck(int deck, const QUrl& url)
 {
+    beginPreparation(deck, url, false);
+}
+
+void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly, const QString& expectedSource)
+{
     if (closing_)
         return;
     if (deck < 0 || deck >= int(clips_.size())) {
@@ -206,7 +284,7 @@ void DeckController::loadDeck(int deck, const QUrl& url)
         return;
     }
     if (!url.isLocalFile() || (!url.host().isEmpty() && url.host() != "localhost") ||
-        !QFileInfo(url.toLocalFile()).isAbsolute()) {
+        !QFileInfo(url.toLocalFile()).isAbsolute() || url.toLocalFile().contains(QChar(u'\0'))) {
         fail("Enter an absolute local file path.");
         return;
     }
@@ -225,11 +303,19 @@ void DeckController::loadDeck(int deck, const QUrl& url)
     loadCancellation_ = std::stop_source{};
     preparationStatus_ = "Preparing";
     preparationCacheHit_ = false;
-    loader_.setFuture(QtConcurrent::run([path, cache, stop = loadCancellation_.get_token()]() -> LoadResult {
+    pendingImport_ = importOnly;
+    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache);
             auto track = store.prepare(path, stop);
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
+            if (!expectedSource.isEmpty() && track.sourceSha256 != expectedSource)
+                throw std::runtime_error("Source changed; import this file again before loading its library entry.");
+            if (importOnly) {
+                library::LibraryTrack entry{track.sourceSha256, path, QFileInfo(path).fileName(),
+                    track.artifactKey, track.audio.frames(), true};
+                return {nullptr, {}, std::move(entry), track.cacheHit};
+            }
             QVariantList waveform;
             waveform.reserve(qsizetype(track.audio.peaks().size()));
             for (const auto peak : track.audio.peaks()) waveform.append(peak);
@@ -241,11 +327,11 @@ void DeckController::loadDeck(int deck, const QUrl& url)
             if (!prepared->reader->prime(0, std::chrono::seconds(2)))
                 throw std::runtime_error("Cannot prime the prepared track: " + prepared->reader->error());
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
-            return {std::move(prepared), {}};
+            return {std::move(prepared), {}, {}, track.cacheHit};
         } catch (const std::exception& error) {
-            return {{}, QString::fromUtf8(error.what())};
+            return {{}, QString::fromUtf8(error.what()), {}, false};
         } catch (...) {
-            return {{}, "Audio decoding failed."};
+            return {{}, "Audio decoding failed.", {}, false};
         }
     }));
     // A direct observer may cancel or shut down from stateChanged. Publish
@@ -299,6 +385,21 @@ void DeckController::loaded()
         // The watcher shares PreparedLoad with this result. Remove both owners
         // from it, then join/close on the existing retirement worker.
         retireReader(std::move(reader), std::move(clip));
+        return;
+    }
+    if (result.imported) {
+        preparationStatus_ = "Saving";
+        preparationCacheHit_ = result.cacheHit;
+        // Own the write before a direct observer can shut down from Saving.
+        // Cancellation has ended; shutdown joins this accepted atomic save.
+        catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_, track = *result.imported]() -> CatalogResult {
+            try {
+                return {library::LibraryCatalog(path).upsert(track), {}, true};
+            } catch (const std::exception& error) {
+                return {{}, QString::fromUtf8(error.what()), true};
+            }
+        }));
+        emit stateChanged();
         return;
     }
     if (!result.prepared) {

@@ -11,7 +11,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLockFile>
 #include <QSaveFile>
+#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QThreadPool>
@@ -205,6 +207,8 @@ int main(int argc, char** argv)
         validatePrivate(runtime, output);
         require(qputenv("XDG_CACHE_HOME", QByteArray::fromStdString((runtime / "cache").string())),
                 "Preparation cache is confined to the private runtime");
+        require(qputenv("XDG_DATA_HOME", QByteArray::fromStdString((runtime / "data").string())),
+                "Persistent library data is confined to the private runtime");
         QCoreApplication app(argc, argv);
         app.setOrganizationName("CONFLUX");
         app.setApplicationName("preparation-controller-check");
@@ -240,10 +244,103 @@ int main(int argc, char** argv)
         sink.validate(true);
         wait([&] { return sink.received(0) >= 1024 && sink.received(1) >= 1024; }, "Steady private samples did not arrive");
         require(!sink.wrong() && !sink.zeros(), "Steady A matches independent asymmetric PCM samples");
+        wait([&] { return controller.libraryReady(); }, "Private library startup did not finish");
+        require(controller.libraryError().isEmpty() && controller.libraryTracks().isEmpty(),
+                "Library startup finishes empty without disturbing active A playback");
+        const auto catalogPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/library.json";
+        const auto catalogSnapshot = [&] {
+            QFile file(catalogPath);
+            if (!file.exists()) return std::pair{false, QByteArray{}};
+            if (!file.open(QIODevice::ReadOnly)) throw std::runtime_error("Cannot read the private library catalog");
+            const auto bytes = file.readAll();
+            if (file.error() != QFileDevice::NoError) throw std::runtime_error("Cannot read the private library catalog");
+            return std::pair{true, bytes};
+        };
+        const auto catalogBefore = catalogSnapshot();
+        const auto importBefore = controller.audioState();
+        const auto importSessions = controller.completedSessions();
+        const auto importCommands = controller.submittedCommands();
+        const auto importReceived = sink.received(0);
+        QLockFile importGate(QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation))
+                                 .filePath("prepared/v1/.lock"));
+        require(importGate.tryLock(0), "Private cache lock gates import while GUI polling stays active");
+        controller.importTrack(QUrl::fromLocalFile(b));
+        require(controller.busy() && controller.preparation()["deck"].toInt() == -1,
+                "Library import starts without targeting a playback deck");
+        wait([&] {
+            if (!controller.busy() || controller.preparation()["status"].toString() != "Preparing")
+                throw std::runtime_error("Import did not remain Preparing behind the private cache lock");
+            return controller.audioState().outputFrame >= importBefore.outputFrame + 1024;
+        }, "A snapshot did not advance while import waited on the private cache lock");
+        const auto gatedImport = controller.audioState();
+        require(controller.busy() && controller.preparation()["status"].toString() == "Preparing" &&
+                controller.preparation()["cancellable"].toBool() && controller.outputReady() &&
+                controller.completedSessions() == importSessions && controller.submittedCommands() == importCommands &&
+                gatedImport.playing[0] && gatedImport.sourceGeneration == importBefore.sourceGeneration &&
+                gatedImport.sourceFrame[0] - importBefore.sourceFrame[0] == gatedImport.outputFrame - importBefore.outputFrame &&
+                !gatedImport.invalidBuffers && !gatedImport.rejected && !gatedImport.sourceReadErrorObserved[0] &&
+                !gatedImport.sourceReadError[0] && !gatedImport.starvedFrames[0] && !sink.wrong() && !sink.zeros(),
+                "GUI polling during pending import preserves the same healthy advancing A session");
+        importGate.unlock();
+        require(QThreadPool::globalInstance()->waitForDone(8000),
+                "B import preparation finishes while GUI completion remains queued");
+        wait([&] { return sink.received(0) >= importReceived + 1024; },
+             "A did not render while import completion was withheld", false);
+        require(controller.preparation()["cancellable"].toBool() && controller.libraryTracks().isEmpty() &&
+                !controller.decks()[1].toMap()["loaded"].toBool(),
+                "Completed import remains cancellable before any catalog or deck acceptance");
+        require(controller.cancelPreparation(), "Queued B import cancellation is accepted");
+        require(controller.busy(), "Import cancellation stays busy until candidate cleanup");
+        wait([&] { return !controller.busy() && controller.audioState().outputFrame >= importBefore.outputFrame + 1024; },
+             "Cancelled import cleanup or advancing A snapshot timed out");
+        const auto cancelledImport = controller.audioState();
+        require(controller.preparation()["status"].toString() == "Cancelled" && controller.libraryTracks().isEmpty() &&
+                catalogSnapshot() == catalogBefore && !controller.decks()[1].toMap()["loaded"].toBool() &&
+                controller.outputReady() && controller.completedSessions() == importSessions &&
+                controller.submittedCommands() == importCommands && cancelledImport.playing[0] &&
+                cancelledImport.sourceGeneration == importBefore.sourceGeneration &&
+                cancelledImport.sourceFrame[0] > importBefore.sourceFrame[0] &&
+                cancelledImport.sourceFrame[0] - importBefore.sourceFrame[0] == cancelledImport.outputFrame - importBefore.outputFrame,
+                "Cancelling queued import leaves catalog and decks unchanged on the same advancing A session");
+        require(!cancelledImport.invalidBuffers && !cancelledImport.rejected &&
+                !cancelledImport.sourceReadErrorObserved[0] && !cancelledImport.sourceReadError[0] && !cancelledImport.starvedFrames[0] &&
+                !sink.wrong() && !sink.zeros(),
+                "Import cancellation preserves exact A samples without source or output failures");
+        controller.importTrack(QUrl::fromLocalFile(b));
+        wait([&] { return !controller.busy() && controller.audioState().outputFrame >= cancelledImport.outputFrame + 1024; },
+             "Retried B import saving or advancing A snapshot timed out");
+        const auto imported = controller.audioState();
+        require(controller.preparation()["status"].toString() == "Complete" &&
+                controller.libraryError().isEmpty() && controller.libraryTracks().size() == 1,
+                "Retried import completes one persistent library record");
+        const auto row = controller.libraryTracks()[0].toMap();
+        const auto libraryId = row["id"].toString();
+        const auto idBytes = libraryId.toLatin1();
+        const auto savedCatalog = catalogSnapshot();
+        require(idBytes.size() == 64 && std::ranges::all_of(idBytes, [](char value) {
+                    return (value >= '0' && value <= '9') || (value >= 'a' && value <= 'f');
+                }) && row["path"].toString() == b && row["name"].toString() == "generated-b.wav" &&
+                row["durationSeconds"].toDouble() == 60.0 && row["available"].toBool() &&
+                savedCatalog.first && savedCatalog != catalogBefore,
+                "Saved B row exposes its content id, local path, duration and availability");
+        require(!controller.decks()[1].toMap()["loaded"].toBool() && controller.outputReady() &&
+                controller.completedSessions() == importSessions && controller.submittedCommands() == importCommands &&
+                imported.playing[0] && imported.sourceGeneration == importBefore.sourceGeneration &&
+                imported.sourceFrame[0] > cancelledImport.sourceFrame[0] &&
+                imported.sourceFrame[0] - cancelledImport.sourceFrame[0] == imported.outputFrame - cancelledImport.outputFrame &&
+                !imported.invalidBuffers && !imported.rejected && !imported.sourceReadErrorObserved[0] &&
+                !imported.sourceReadError[0] && !imported.starvedFrames[0] && !sink.wrong() && !sink.zeros(),
+                "Import saves metadata without installing B or changing commands, exact A samples or the shared session");
+        observations["library_import"] = QJsonObject{
+            {"gated_at_output_frame", qint64(gatedImport.outputFrame)},
+            {"cancelled_at_output_frame", qint64(cancelledImport.outputFrame)},
+            {"saved_at_output_frame", qint64(imported.outputFrame)}, {"id", libraryId},
+            {"catalog_records", qint64(controller.libraryTracks().size())}, {"b_loaded", false},
+            {"commands_before", qint64(importCommands)}, {"commands_after", qint64(controller.submittedCommands())}};
         const auto before = controller.audioState();
         const auto sessions = controller.completedSessions();
         const auto received = sink.received(0);
-        controller.loadDeck(1, QUrl::fromLocalFile(b));
+        controller.loadLibraryTrack(1, libraryId);
         require(QThreadPool::globalInstance()->waitForDone(8000), "B preparation finishes while GUI completion remains queued");
         wait([&] { return sink.received(0) >= received + 1024; }, "A did not render while GUI completion was withheld", false);
         require(controller.preparation()["cancellable"].toBool() && !controller.decks()[1].toMap()["loaded"].toBool(),
@@ -255,6 +352,8 @@ int main(int argc, char** argv)
         const auto cancelled = controller.audioState();
         require(controller.preparation()["status"].toString() == "Cancelled" &&
                 !controller.decks()[1].toMap()["loaded"].toBool() && controller.outputReady() &&
+                controller.libraryTracks().size() == 1 && controller.libraryTracks()[0].toMap()["id"].toString() == libraryId &&
+                catalogSnapshot() == savedCatalog &&
                 controller.completedSessions() == sessions && cancelled.playing[0] &&
                 cancelled.sourceFrame[0] > before.sourceFrame[0] &&
                 cancelled.sourceFrame[0] - before.sourceFrame[0] == cancelled.outputFrame - before.outputFrame,
@@ -291,7 +390,7 @@ int main(int argc, char** argv)
             completion["shutdown_returned"] = true;
             phaseSaved = save(phasePath, completion) && phaseSaved;
         }, Qt::DirectConnection);
-        controller.loadDeck(1, QUrl::fromLocalFile(b));
+        controller.loadLibraryTrack(1, libraryId);
         // On the unfixed controller this delivers first-B Complete inside
         // poll()->settleReplacement()->retired(), then dereferences session_
         // after the direct shutdown cleared it. The wrapper preserves RED.
@@ -309,6 +408,8 @@ int main(int argc, char** argv)
                 completion["wrong_samples"].toInteger() == 0 && completion["zero_samples"].toInteger() == 0,
                 "Retry reuses persisted B preparation while A remains exact and B installs paused on the same clock");
         require(controller.completedSessions() == sessions + 1, "Only explicit shutdown completes the shared playback session");
+        require(catalogSnapshot() == savedCatalog,
+                "Loading and shutting down preserve the persistent imported library record");
         observations["completion"] = completion;
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         passed = true;
@@ -317,7 +418,7 @@ int main(int argc, char** argv)
     }
     const QJsonObject result{{"passed", passed}, {"error", error}, {"checks", checks},
         {"execution_deadline_gate", false}, {"observations", observations},
-        {"scope", "Private virtual PipeWire graph; generated PCM and private cache only. Functional preparation/cancellation/reentrancy checks, no hardware or latency qualification."}};
+        {"scope", "Private virtual PipeWire graph; generated PCM, private cache and private library data only. Functional import/preparation/cancellation/reentrancy checks, no hardware or latency qualification."}};
     std::cout << QJsonDocument(result).toJson(QJsonDocument::Compact).constData() << '\n';
     return passed ? 0 : 1;
 }

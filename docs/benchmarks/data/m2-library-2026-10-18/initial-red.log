@@ -1,0 +1,122 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+    Start 21: library-catalog
+1/3 Test #21: library-catalog ..................***Failed    0.07 sec
+********* Start testing of LibraryCatalogTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : LibraryCatalogTest::initTestCase()
+FAIL!  : LibraryCatalogTest::missingCatalogIsEmptyWithoutCreatingFiles() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::restartPreservesMetadataAndRefreshesAvailability() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::contentAliasesUpdateOneEntryAndKeepOrder() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::changedContentAtSamePathReplacesIdentity() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+Unexpected rejection: Persistent library catalog is not implemented
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::unsafeCatalogFileFailsClosed(symbolic-link) 'readRejected' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(249)]
+Unexpected rejection: Persistent library catalog is not implemented
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::unsafeCatalogFileFailsClosed(writerless-fifo) 'readRejected' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(249)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(truncated) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(version) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(duplicate-id) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(duplicate-path) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(relative-path) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(invalid-name) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(invalid-hash) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(zero-frames) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(excess-frames) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(extra-field) 'rejects<std::runtime_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(295)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(oversized) 'rejects<std::length_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(291)]
+Unexpected rejection: Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::malformedCatalogIsPreserved(too-many) 'rejects<std::length_error>(read, "catalog")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(291)]
+FAIL!  : LibraryCatalogTest::invalidIncomingRecordPreservesCatalog(relative-path) Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::invalidIncomingRecordPreservesCatalog(embedded-nul) Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::invalidIncomingRecordPreservesCatalog(non-basename) Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::invalidIncomingRecordPreservesCatalog(bad-hash) Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::invalidIncomingRecordPreservesCatalog(zero-frames) Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::capacityRejectsNewEntryAndAllowsExistingUpdate() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+FAIL!  : LibraryCatalogTest::failedAtomicSavePreservesOriginalBytes() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+Persistent library catalog is not implemented
+FAIL!  : LibraryCatalogTest::concurrentWritersMergeBothEntries() 'boundedChild([&] { std::latch ready(2), start(1); auto writer = [&](const LibraryTrack& incoming) { ready.count_down(); start.wait(); return LibraryCatalog(path).upsert(incoming); }; auto a = std::async(std::launch::async, [&] { return writer(first); }); auto b = std::async(std::launch::async, [&] { return writer(second); }); ready.wait(); start.count_down(); if (a.get().empty() || b.get().empty()) return false; const auto merged = LibraryCatalog(path).read(); return merged.size() == 2 && std::ranges::count_if(merged, [&](const auto& value) { return equalMetadata(value, first); }) == 1 && std::ranges::count_if(merged, [&](const auto& value) { return equalMetadata(value, second); }) == 1; })' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(395)]
+FAIL!  : LibraryCatalogTest::heldLockFailsWithinBoundAndPreservesCatalog() Persistent library catalog is not implemented
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/library_catalog_test.cpp(38)]
+PASS   : LibraryCatalogTest::cleanupTestCase()
+Totals: 2 passed, 27 failed, 0 skipped, 0 blacklisted, 65ms
+********* Finished testing of LibraryCatalogTest *********
+
+    Start 23: deck-controller
+2/3 Test #23: deck-controller ..................***Timeout  30.02 sec
+********* Start testing of DeckControllerTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : DeckControllerTest::initTestCase()
+FAIL!  : DeckControllerTest::catalogStartupDoesNotFinishAnActivePreparation() 'startupObserved' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/deck_controller_test.cpp(109)]
+FAIL!  : DeckControllerTest::libraryImportPersistsAndRevalidatesBeforeLoading() 'controller.busy()' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/deck_controller_test.cpp(136)]
+FAIL!  : DeckControllerTest::queuedImportCancellationPreservesCatalogAndEndsAtSaving() 'controller.busy()' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/deck_controller_test.cpp(194)]
+FAIL!  : DeckControllerTest::savingSignalShutdownOwnsTheCatalogWrite() 'stopped' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/deck_controller_test.cpp(242)]
+
+    Start 24: manual-ui
+3/3 Test #24: manual-ui ........................***Timeout  30.03 sec
+********* Start testing of ManualUiTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : ManualUiTest::initTestCase()
+PASS   : ManualUiTest::unloadedAndBusyControls()
+PASS   : ManualUiTest::keyboardPlayPauseRoutesBothDecks()
+PASS   : ManualUiTest::libraryPreparationCancellation(pointer)
+PASS   : ManualUiTest::libraryPreparationCancellation(keyboard)
+PASS   : ManualUiTest::libraryCloseAndInstallingDoNotCancelPreparation()
+FAIL!  : ManualUiTest::libraryImportsLiteralPaths(A-pointer) 'importButton' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(564)]
+FAIL!  : ManualUiTest::libraryImportsLiteralPaths(B-keyboard) 'importButton' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(564)]
+FAIL!  : ManualUiTest::librarySelectionLoadsByIdAndEditingRestoresRawPath() 'ui_->item("libraryTrack0")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(594)]
+
+
+0% tests passed, 3 tests failed out of 3
+
+Total Test time (real) =  60.12 sec
+
+The following tests FAILED:
+	 21 - library-catalog (Failed)
+	 23 - deck-controller (Timeout)
+	 24 - manual-ui (Timeout)
+Errors while running CTest

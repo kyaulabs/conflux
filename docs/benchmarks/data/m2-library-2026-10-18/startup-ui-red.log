@@ -1,0 +1,9 @@
+********* Start testing of ManualUiTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : ManualUiTest::initTestCase()
+FAIL!  : ManualUiTest::libraryReadinessAndBusyPreserveRawLoadingAndTransport() 'status->property("text").toString().contains("Cannot read saved library: permission denied")' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(673)]
+PASS   : ManualUiTest::libraryImportCancellationStopsBeforeSaving()
+PASS   : ManualUiTest::cleanupTestCase()
+Totals: 3 passed, 1 failed, 0 skipped, 0 blacklisted, 16257ms
+********* Finished testing of ManualUiTest *********

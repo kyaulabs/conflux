@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <QGuiApplication>
+#include <QAccessible>
 #include <QFontDatabase>
 #include <QKeyEvent>
+#include <QInputMethodEvent>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
@@ -34,6 +36,9 @@ class UiEndpoint final : public QObject {
     Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap preparation READ preparation NOTIFY stateChanged)
+    Q_PROPERTY(QVariantList libraryTracks READ libraryTracks NOTIFY libraryChanged)
+    Q_PROPERTY(bool libraryReady READ libraryReady NOTIFY libraryChanged)
+    Q_PROPERTY(QString libraryError READ libraryError NOTIFY libraryChanged)
 public:
     static QVariantMap silentMeter()
     {
@@ -71,13 +76,23 @@ public:
     QVariantMap audioRouting() const { return routing_; }
     QVariantMap recording() const { return recording_; }
     QVariantMap preparation() const { return preparation_; }
+    QVariantList libraryTracks() const { return library_; }
+    bool libraryReady() const { return libraryReady_; }
+    QString libraryError() const { return libraryError_; }
+    void setLibrary(const QVariantList& tracks, bool ready = true, const QString& error = {})
+    {
+        library_ = tracks;
+        libraryReady_ = ready;
+        libraryError_ = error;
+        emit libraryChanged();
+    }
     void setPreparation(const QString& status, int deck = -1, bool cancellable = false,
-                        bool cacheHit = false)
+                        bool cacheHit = false, const QString& name = {})
     {
         preparation_ = {{"status", status}, {"deck", deck},
-                        {"name", deck < 0 ? QString{} : QString("Pending %1.wav").arg(deck)},
+                        {"name", !name.isEmpty() ? name : deck < 0 ? QString{} : QString("Pending %1.wav").arg(deck)},
                         {"cancellable", cancellable}, {"cacheHit", cacheHit}};
-        busy_ = status != "Idle";
+        busy_ = status == "Preparing" || status == "Cancelling" || status == "Installing" || status == "Saving";
         emit stateChanged();
     }
     void setBusy(bool value) { busy_ = value; emit stateChanged(); }
@@ -136,6 +151,10 @@ public:
     }
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url)
     { calls.append(QVariantMap{{"action", "load"}, {"deck", deck}, {"url", url}}); }
+    Q_INVOKABLE void importTrack(const QUrl& url)
+    { calls.append(QVariantMap{{"action", "import"}, {"url", url}}); }
+    Q_INVOKABLE void loadLibraryTrack(int deck, const QString& id)
+    { calls.append(QVariantMap{{"action", "libraryLoad"}, {"deck", deck}, {"id", id}}); }
     Q_INVOKABLE bool cancelPreparation()
     {
         calls.append(QVariantMap{{"action", "cancelPreparation"}, {"deck", preparation_["deck"]}});
@@ -245,12 +264,16 @@ public:
     QVariantList calls;
 signals:
     void stateChanged();
+    void libraryChanged();
 private:
     QVariantList decks_;
+    QVariantList library_;
     QVariantMap meters_, routing_, recording_, preparation_;
     bool busy_ = false, ready_ = false;
+    bool libraryReady_ = true;
     bool acceptCue_ = true, acceptJog_ = true;
     QString error_;
+    QString libraryError_;
     double master_ = .5;
     double cue_ = .5;
 };
@@ -518,6 +541,223 @@ private slots:
         QCOMPARE(ui_->endpoint.preparation().value("status").toString(), QString("Installing"));
         QVERIFY(ui_->closeLibrary());
         QCOMPARE(ui_->endpoint.calls.size(), 0);
+    }
+
+    void libraryImportsLiteralPaths_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<bool>("keyboard");
+        QTest::newRow("A-pointer") << 0 << false;
+        QTest::newRow("B-keyboard") << 1 << true;
+    }
+
+    void libraryImportsLiteralPaths()
+    {
+        QFETCH(int, deck);
+        QFETCH(bool, keyboard);
+        QVERIFY(ui_->openLibrary(deck));
+        const auto pathName = QString("deck%1Path").arg(deck).toUtf8();
+        const auto importName = QString("deck%1Import").arg(deck).toUtf8();
+        auto* path = ui_->item(pathName.constData());
+        auto* importButton = ui_->item(importName.constData());
+        QVERIFY(path);
+        QVERIFY(importButton);
+        const QString local = QString::fromUtf8("/tmp/Música Set/夜 #part%.wav");
+        path->forceActiveFocus();
+        QTRY_VERIFY(path->hasActiveFocus());
+        QInputMethodEvent edit;
+        edit.setCommitString(local);
+        QGuiApplication::sendEvent(ui_->window, &edit);
+        QTRY_COMPARE(path->property("text").toString(), local);
+        QTRY_VERIFY(importButton->isEnabled());
+        if (keyboard) {
+            importButton->forceActiveFocus();
+            QTRY_VERIFY(importButton->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.first().toMap();
+        QCOMPARE(call["action"].toString(), QString("import"));
+        QVERIFY(call["url"].toUrl().isLocalFile());
+        QCOMPARE(call["url"].toUrl().toLocalFile(), local);
+    }
+
+    void librarySelectionLoadsByIdAndEditingRestoresRawPath()
+    {
+        const QString id(64, QLatin1Char('a'));
+        const QString saved = QString::fromUtf8("/tmp/Música Set/Saved #%.wav");
+        ui_->endpoint.setLibrary({QVariantMap{{"id", id}, {"name", "Saved track"}, {"path", saved},
+                                             {"durationSeconds", 75.0}, {"available", true}}});
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        auto* row = ui_->item("libraryTrack0");
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
+        for (const auto* name : {"deck0Path", "deck1Path"})
+            QTRY_COMPARE(ui_->item(name)->property("text").toString(), saved);
+        auto* loadA = ui_->item("deck0Load");
+        auto* loadB = ui_->item("deck1Load");
+        QTRY_VERIFY(loadA->isEnabled() && loadB->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(loadA));
+        loadB->forceActiveFocus();
+        QTRY_VERIFY(loadB->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto call = ui_->endpoint.calls[deck].toMap();
+            QCOMPARE(call["action"].toString(), QString("libraryLoad"));
+            QCOMPARE(call["deck"].toInt(), deck);
+            QCOMPARE(call["id"].toString(), id);
+        }
+
+        // A real edit must clear the saved ID; Enter then follows the raw path.
+        auto* path = ui_->item("deck0Path");
+        path->forceActiveFocus();
+        QTRY_VERIFY(path->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_A, Qt::ControlModifier);
+        const QString edited = QString::fromUtf8("/tmp/New 夜 #%.wav");
+        QInputMethodEvent edit;
+        edit.setCommitString(edited);
+        QGuiApplication::sendEvent(ui_->window, &edit);
+        QTRY_COMPARE(path->property("text").toString(), edited);
+        QTest::keyClick(ui_->window, Qt::Key_Return);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        const auto raw = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(raw["action"].toString(), QString("load"));
+        QCOMPARE(raw["deck"].toInt(), 0);
+        QCOMPARE(raw["url"].toUrl().toLocalFile(), edited);
+    }
+
+    void libraryMissingRowsArePlainTextAndCannotLoad()
+    {
+        const QString untrusted = "<b>Missing & track</b>.wav";
+        ui_->endpoint.setLibrary({QVariantMap{{"id", QString(64, QLatin1Char('b'))}, {"name", untrusted},
+                                             {"path", "/tmp/missing.wav"}, {"durationSeconds", 12.0},
+                                             {"available", false}}});
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        auto* name = ui_->item("libraryTrack0Name");
+        QVERIFY(name);
+        QCOMPARE(name->property("text").toString(), untrusted);
+        QCOMPARE(name->property("textFormat").toInt(), int(Qt::PlainText));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_VERIFY(!ui_->item("deck0Load")->isEnabled());
+        QVERIFY(!ui_->item("deck1Load")->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Load")));
+        ui_->item("deck1Path")->forceActiveFocus();
+        QTest::keyClick(ui_->window, Qt::Key_Return);
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QVERIFY(ui_->item("libraryStatus"));
+        QVERIFY(ui_->item("libraryStatus")->property("text").toString().contains("missing", Qt::CaseInsensitive));
+    }
+
+    void libraryReadinessAndBusyPreserveRawLoadingAndTransport()
+    {
+        const QVariantList tracks{QVariantMap{{"id", QString(64, QLatin1Char('c'))}, {"name", "Ready track"},
+                                              {"path", "/tmp/ready.wav"}, {"durationSeconds", 30.0},
+                                              {"available", true}}};
+        ui_->endpoint.setLibrary({}, false);
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openLibrary(0));
+        auto* importButton = ui_->item("deck0Import");
+        auto* status = ui_->item("libraryStatus");
+        QVERIFY(importButton);
+        QVERIFY(status);
+        QVERIFY(ui_->item("deck0Path")->setProperty("text", "/tmp/raw.wav"));
+        QTRY_VERIFY(ui_->item("deck0Load")->isEnabled());
+        QVERIFY(!importButton->isEnabled());
+        QVERIFY(status->property("text").toString().contains("loading", Qt::CaseInsensitive));
+        ui_->endpoint.setLibrary({}, false, "Cannot read saved library: permission denied");
+        QTRY_VERIFY(status->property("text").toString().contains("Cannot read saved library: permission denied"));
+        QVERIFY(!importButton->isEnabled());
+        QVERIFY(ui_->item("deck0Load")->isEnabled());
+        ui_->endpoint.setLibrary({}, false);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Load")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("load"));
+        ui_->endpoint.calls.clear();
+
+        ui_->endpoint.setLibrary(tracks);
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_VERIFY(ui_->item("deck0Load")->isEnabled() && importButton->isEnabled());
+        ui_->endpoint.setBusy(true);
+        QTRY_VERIFY(!importButton->isEnabled());
+        QVERIFY(!ui_->item("deck1Import")->isEnabled());
+        QVERIFY(!ui_->item("deck0Load")->isEnabled());
+        QVERIFY(!ui_->item("deck1Load")->isEnabled());
+        QVERIFY(ui_->closeLibrary());
+        auto* play = ui_->item("deck0Play");
+        play->forceActiveFocus();
+        QTRY_VERIFY(play->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("playing"));
+        QVERIFY(ui_->endpoint.busy());
+
+        ui_->endpoint.setBusy(false);
+        ui_->endpoint.setLibrary({}, true, "Cannot read saved library");
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(status->property("text").toString().contains("Cannot read saved library"));
+        ui_->endpoint.setLibrary({});
+        QTRY_VERIFY(status->property("text").toString().contains("empty", Qt::CaseInsensitive));
+    }
+
+    void libraryImportCancellationStopsBeforeSaving()
+    {
+        ui_->endpoint.setPreparation("Preparing", -1, true, false, "Import #%.wav");
+        QVERIFY(ui_->openLibrary(0));
+        auto* cancel = ui_->item("preparationCancel");
+        auto* status = ui_->item("preparationStatus");
+        QVERIFY(cancel);
+        QVERIFY(status);
+        QTRY_VERIFY(cancel->isVisible() && cancel->isEnabled());
+        QVERIFY(status->property("text").toString().contains("Library import", Qt::CaseInsensitive));
+        QVERIFY(status->property("text").toString().contains("Import #%.wav"));
+        // Query the interface exposed to assistive technology. Accessible is
+        // a QML attached type, not a regular dotted QObject property path.
+        auto* accessible = QAccessible::queryAccessibleInterface(cancel);
+        QVERIFY(accessible);
+        QCOMPARE(accessible->text(QAccessible::Name), QString("Cancel library import"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cancel));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("cancelPreparation"));
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["deck"].toInt(), -1);
+        QVERIFY(ui_->endpoint.busy());
+        QVERIFY(!cancel->isEnabled());
+        ui_->endpoint.setPreparation("Saving", -1, false, false, "Import #%.wav");
+        QTRY_VERIFY(status->property("text").toString().contains("Saving"));
+        QVERIFY(!cancel->isEnabled());
+        QVERIFY(ui_->closeLibrary());
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.preparation()["status"].toString(), QString("Saving"));
+    }
+
+    void libraryLongListScrollsWithinDrawer()
+    {
+        QVariantList tracks;
+        for (int index = 0; index < 40; ++index)
+            tracks.append(QVariantMap{{"id", QString::number(index)}, {"name", QString("Track %1").arg(index)},
+                                      {"path", QString("/tmp/track-%1.wav").arg(index)},
+                                      {"durationSeconds", 60.0 + index}, {"available", true}});
+        ui_->endpoint.setLibrary(tracks);
+        ui_->window->resize(1180, 760);
+        QVERIFY(ui_->openLibrary(0));
+        auto* list = ui_->item("libraryTracks");
+        QVERIFY(list);
+        QTRY_VERIFY(list->isVisible() && list->height() > 0);
+        QVERIFY(list->clip());
+        QTRY_VERIFY(list->property("contentHeight").toDouble() > list->height());
+        verifyControlsFit({"deck0Path", "deck0Import", "deck0Load", "deck1Path", "deck1Import", "deck1Load",
+                           "libraryTracks", "libraryClose"});
+        const auto before = list->property("contentY").toDouble();
+        const auto point = ui_->center(list);
+        QWheelEvent wheel(QPointF(point), QPointF(ui_->window->mapToGlobal(point)), {}, {0, -720},
+                          Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+        QGuiApplication::sendEvent(ui_->window, &wheel);
+        QTRY_VERIFY(list->property("contentY").toDouble() > before);
     }
 
     void jogKeyboardAndWheelUseRelativeRenderCommands()
@@ -1125,6 +1365,7 @@ int main(int argc, char** argv)
     QGuiApplication application(argc, argv);
     application.setQuitOnLastWindowClosed(false);
     QQuickStyle::setStyle("Basic");
+    QAccessible::setActive(true);
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/Barlow-Regular.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/BarlowCondensed-SemiBold.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/JetBrainsMono-Regular.ttf"));
