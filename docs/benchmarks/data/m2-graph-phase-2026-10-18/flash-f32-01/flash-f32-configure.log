@@ -1,0 +1,55 @@
+-- The C compiler identification is GNU 16.2.1
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found OpenMP_CXX: -fopenmp (found version "5.2")
+-- Found OpenMP: TRUE (found version "5.2") found components: CXX
+-- Using ggml source: /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml
+-- The ASM compiler identification is GNU
+-- Found assembler: /bin/cc
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- CMAKE_SYSTEM_PROCESSOR: x86_64
+-- GGML_SYSTEM_ARCH: x86
+-- Including CPU backend
+-- Found OpenMP_C: -fopenmp (found version "5.2")
+-- Found OpenMP_CXX: -fopenmp (found version "5.2")
+-- Found OpenMP: TRUE (found version "5.2")
+-- x86 detected
+-- Adding CPU backend variant ggml-cpu: -march=native 
+-- Found Vulkan: /usr/lib/libvulkan.so (found version "1.4.363") found components: glslc glslangValidator
+-- Vulkan found
+-- GL_KHR_cooperative_matrix supported by glslc
+-- GL_NV_cooperative_matrix2 supported by glslc
+-- GL_EXT_integer_dot_product supported by glslc
+-- GL_EXT_bfloat16 supported by glslc
+-- Including Vulkan backend
+-- ggml version: 0.12.0
+-- ggml commit:  unknown
+CMake Warning (deprecated) at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/CMakeLists.txt:15 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- VERSION: 0.2.1
+-- audio.cpp model composite: custom selected [demucs] linked [demucs]
+-- Conflux Vulkan fence wait: blocking (upstream source unchanged)
+-- Conflux HTDemucs graph phase timing: existing CPU wall clocks (upstream sources unchanged)
+-- Conflux numerical candidate: ten Vulkan Flash nodes; existing scalar full-F32 shader; no graph reorder
+-- Configuring done (13.1s)
+-- Generating done (0.5s)
+-- Build files have been written to: /tmp/conflux-stem-flash-f32-2026-10-18/build

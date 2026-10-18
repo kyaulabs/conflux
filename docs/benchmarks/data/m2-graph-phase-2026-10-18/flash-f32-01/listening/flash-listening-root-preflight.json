@@ -1,0 +1,16 @@
+{
+  "status": "passed_preflight_without_native_or_host",
+  "checks": [
+    "flash_listening.py:default_dry",
+    "flash_listening_launch.py:default_dry",
+    "unarmed_template_rejected",
+    "HTML_44_separate_players_no_autoplay_or_partial_links"
+  ],
+  "source_pin_count": 44,
+  "artifact_pin_count": 59,
+  "config_sha256": "5ec5df53d9ee5087967a6612b492f025c699f87968826bb6f2e32dacd5781887",
+  "source_configuration_sha256": "ec6765bd9c5a7f341a2835b05b91ef4b0f1d253916b68587d7ee44ce1c267afe",
+  "driver_sha256": "5bf72db0e7be85b1f0aabafcd843b00ebc57ea31013819b667a301c4749e2f35",
+  "launcher_sha256": "501580fc4414451af0a6803582ed58a877da9e8d40cc4bd2d0a36707fd8bc8a9",
+  "scope": "AST, dry/unarmed, source/artifact pins and synthetic HTML only. Existing worker/media behavior is verified by the actual preparation; no mock musical verdict."
+}

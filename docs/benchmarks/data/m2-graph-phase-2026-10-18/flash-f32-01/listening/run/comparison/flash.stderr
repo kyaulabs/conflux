@@ -1,0 +1,14 @@
+ggml_vulkan: Found 1 Vulkan devices:
+ggml_vulkan: 0 = Intel(R) Iris(R) Xe Graphics (TGL GT2) (Intel open-source Mesa driver) | uma: 1 | fp16: 1 | bf16: 0 | warp size: 32 | shared memory: 49152 | int dot: 1 | matrix cores: none
+conflux_flash_f32_node index=576 q=64,2688,8,1 k=64,2688,8,1 v=64,2688,8,1 out=64,8,2688,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1229 q=64,1344,8,1 k=64,1344,8,1 v=64,1344,8,1 out=64,8,1344,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1278 q=64,2688,8,1 k=64,1344,8,1 v=64,1344,8,1 out=64,8,2688,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1331 q=64,2688,8,1 k=64,2688,8,1 v=64,2688,8,1 out=64,8,2688,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1406 q=64,1344,8,1 k=64,2688,8,1 v=64,2688,8,1 out=64,8,1344,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1459 q=64,1344,8,1 k=64,1344,8,1 v=64,1344,8,1 out=64,8,1344,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1508 q=64,2688,8,1 k=64,1344,8,1 v=64,1344,8,1 out=64,8,2688,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=1561 q=64,2688,8,1 k=64,2688,8,1 v=64,2688,8,1 out=64,8,2688,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=2206 q=64,1344,8,1 k=64,2688,8,1 v=64,2688,8,1 out=64,8,1344,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_node index=2259 q=64,1344,8,1 k=64,1344,8,1 v=64,1344,8,1 out=64,8,1344,1 scale=0.125 precision=f32 supported=1
+conflux_flash_f32_graph nodes=2871 flash_nodes=10 self1344=3 self2688=3 cross2688to1344=2 cross1344to2688=2
+conflux_flash_f32_pipeline shader=flash_attn_f32_f16_fp32 path=scalar intermediate_bytes=4 accumulation_bytes=4 hsk=64 hsv=64 Br=4 Bc=32 workgroup=128 subgroup=0 k=f32 v=f32

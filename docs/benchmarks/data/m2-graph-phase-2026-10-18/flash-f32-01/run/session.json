@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "status": "comparison_complete",
+  "started_at_utc": "2026-10-18T22:14:35.223016+00:00",
+  "started_monotonic": 471513.345454928,
+  "deadline_monotonic": 472113.345454928,
+  "maximum_total_seconds": 600,
+  "driver_started": true,
+  "native_started": true,
+  "errors": [],
+  "pins_before": {
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality.py",
+      "bytes": 26050,
+      "sha256": "cec1a694a32da562be9ed79d35cfda7e2ee1943b9b7dfd10daf1ed2259fc7495",
+      "device": 65033,
+      "inode": 5530592,
+      "mtime_ns": 1792361239345022308,
+      "ctime_ns": 1792361239345022308
+    },
+    "launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality_launch.py",
+      "bytes": 13985,
+      "sha256": "ab912a468791b13ca283bacd84ce30163ed1c7a0576fd099dc859fd4670294c4",
+      "device": 65033,
+      "inode": 5530598,
+      "mtime_ns": 1792361243391985841,
+      "ctime_ns": 1792361243391985841
+    },
+    "config": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-expected-pins.json",
+      "bytes": 1406,
+      "sha256": "a6c9e5497bc240d8156b19130ead9d1220accd957c80d29b8a3e8d970c478199",
+      "device": 65033,
+      "inode": 5533707,
+      "mtime_ns": 1792361668213171883,
+      "ctime_ns": 1792361668213171883
+    },
+    "sources": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-source-pins.json",
+      "bytes": 6702,
+      "sha256": "c0d929be346355a8f8bb1d1f3841eb1740e7411b86c3cc7fef9ef88c9f9cf719",
+      "device": 65033,
+      "inode": 5533706,
+      "mtime_ns": 1792361668212439400,
+      "ctime_ns": 1792361668212439400
+    }
+  },
+  "pins_after": {
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality.py",
+      "bytes": 26050,
+      "sha256": "cec1a694a32da562be9ed79d35cfda7e2ee1943b9b7dfd10daf1ed2259fc7495",
+      "device": 65033,
+      "inode": 5530592,
+      "mtime_ns": 1792361239345022308,
+      "ctime_ns": 1792361239345022308
+    },
+    "launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality_launch.py",
+      "bytes": 13985,
+      "sha256": "ab912a468791b13ca283bacd84ce30163ed1c7a0576fd099dc859fd4670294c4",
+      "device": 65033,
+      "inode": 5530598,
+      "mtime_ns": 1792361243391985841,
+      "ctime_ns": 1792361243391985841
+    },
+    "config": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-expected-pins.json",
+      "bytes": 1406,
+      "sha256": "a6c9e5497bc240d8156b19130ead9d1220accd957c80d29b8a3e8d970c478199",
+      "device": 65033,
+      "inode": 5533707,
+      "mtime_ns": 1792361668213171883,
+      "ctime_ns": 1792361668213171883
+    },
+    "sources": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-source-pins.json",
+      "bytes": 6702,
+      "sha256": "c0d929be346355a8f8bb1d1f3841eb1740e7411b86c3cc7fef9ef88c9f9cf719",
+      "device": 65033,
+      "inode": 5533706,
+      "mtime_ns": 1792361668212439400,
+      "ctime_ns": 1792361668212439400
+    }
+  },
+  "profile_mutation": false,
+  "service_mutation": false,
+  "UI_load": false,
+  "audio_load": false,
+  "musical_quality": "not_assessed",
+  "latency_qualification": "not_attempted",
+  "scope": "Parent-owned workspace spool and owned process group. Actual AC/lid checks before/through/after; no minimized-window or thermal admission gate for numerical math.",
+  "spool": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/native-temp/flash-quality-hxjlh0gj",
+  "baseline_spool_expected_bytes": 176117760,
+  "command": [
+    "systemd-inhibit",
+    "--what=sleep:idle",
+    "--mode=block",
+    "--who=CONFLUX",
+    "--why=Bounded native numerical PCM comparison",
+    "/bin/python3",
+    "-B",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality.py",
+    "--run",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-laptop-01/comparison",
+    "--spool",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/native-temp/flash-quality-hxjlh0gj",
+    "--expected-pins",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-expected-pins.json",
+    "--source-pins",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-source-pins.json",
+    "--deadline-monotonic",
+    "472113.345454928"
+  ],
+  "owned_group": 2275129,
+  "elapsed_seconds": 102.79990338400239,
+  "updated_at_utc": "2026-10-18T22:16:17.990416+00:00",
+  "driver_returncode": 0,
+  "result_pin": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-laptop-01/comparison/result.json",
+    "bytes": 251465,
+    "sha256": "917104a1cc8ca2522eef38bae6d620c972fdb2be826876b2dee88e67dd7a497a",
+    "device": 65033,
+    "inode": 5533729,
+    "mtime_ns": 1792361777859364112,
+    "ctime_ns": 1792361777860773358
+  },
+  "reported_status": "comparison_complete",
+  "completed_requests": 32,
+  "process_cleanup_complete": true,
+  "cleanup": {
+    "owned_identities": {
+      "2275129": {
+        "start_ticks": 52305080,
+        "group": 2275129
+      },
+      "2275133": {
+        "start_ticks": 52305083,
+        "group": 2275129
+      },
+      "2275165": {
+        "start_ticks": 52305327,
+        "group": 2275129
+      },
+      "2275704": {
+        "start_ticks": 52311085,
+        "group": 2275129
+      }
+    },
+    "remaining_observed": {}
+  },
+  "spool_removed": true,
+  "cleanup_complete": true,
+  "finished_at_utc": "2026-10-18T22:16:17.990397+00:00"
+}
