@@ -10,6 +10,7 @@ for this isolated experiment, not the application build.
 """
 
 from collections import deque
+from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 import hashlib
 import json
@@ -42,28 +43,35 @@ class NativeRuntime:
 
     def __init__(self, runtime, model, backend, threads, timeout, *, passive_openmp=True):
         self.timeout = timeout
-        self.directory = tempfile.TemporaryDirectory(prefix="conflux-stem-worker-")
-        self.root = Path(self.directory.name)
-        self.stderr = (self.root / "runtime.stderr").open("wb")
-        environment = os.environ.copy()
-        if backend == "vulkan" and passive_openmp:
-            # CPU workers should sleep while the integrated GPU runs. Keep this
-            # policy local to the separator; CPU inference inherits the caller.
-            environment.update(OMP_WAIT_POLICY="PASSIVE", GOMP_SPINCOUNT="0")
-        self.process_environment = {key: environment[key] for key in
-                                    ("OMP_WAIT_POLICY", "GOMP_SPINCOUNT") if key in environment}
+        self._cleanup = ExitStack()
         try:
+            self.directory = tempfile.TemporaryDirectory(prefix="conflux-stem-worker-")
+            self._cleanup.callback(self.directory.cleanup)
+            self.root = Path(self.directory.name)
+            self.stderr = self._cleanup.enter_context((self.root / "runtime.stderr").open("wb"))
+            environment = os.environ.copy()
+            if backend == "vulkan" and passive_openmp:
+                # CPU workers should sleep while the integrated GPU runs. Keep this
+                # policy local to the separator; CPU inference inherits the caller.
+                environment.update(OMP_WAIT_POLICY="PASSIVE", GOMP_SPINCOUNT="0")
+            self.process_environment = {key: environment[key] for key in
+                                        ("OMP_WAIT_POLICY", "GOMP_SPINCOUNT") if key in environment}
             self.process = subprocess.Popen(
                 [str(runtime), "--model", str(model), "--backend", backend,
                  "--threads", str(threads)], stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=self.stderr, bufsize=0, env=environment)
-        except Exception:
-            self.stderr.close()
-            self.directory.cleanup()
+            self._cleanup.callback(self.process.stdout.close)
+            self._cleanup.callback(self.process.stdin.close)
+            self._cleanup.callback(self._close_process)
+            self.selector = selectors.DefaultSelector()
+            self._cleanup.callback(self.selector.close)
+            self.selector.register(self.process.stdout, selectors.EVENT_READ)
+            self.buffer = bytearray()
+        except BaseException:
+            # Cleanup failures must not replace the original startup error.
+            with suppress(Exception):
+                self._cleanup.close()
             raise
-        self.selector = selectors.DefaultSelector()
-        self.selector.register(self.process.stdout, selectors.EVENT_READ)
-        self.buffer = bytearray()
 
     def _receive(self):
         deadline = time.monotonic() + self.timeout
@@ -125,15 +133,13 @@ class NativeRuntime:
         except ProcessLookupError:
             pass
 
-    def close(self):
+    def _close_process(self):
         if self.process.poll() is None:
             self.abort()
         self.process.wait(timeout=2)
-        self.selector.close()
-        self.process.stdin.close()
-        self.process.stdout.close()
-        self.stderr.close()
-        self.directory.cleanup()
+
+    def close(self):
+        self._cleanup.close()
 
 
 @dataclass(frozen=True)
