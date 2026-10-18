@@ -163,7 +163,10 @@ ApplicationWindow {
                 color: deckController.outputReady ? Brand.ConfluxTheme.success : Brand.ConfluxTheme.muted
             }
             Label {
-                text: deckController.busy ? "Preparing source…"
+                text: deckController.busy ? (library.preparation.status === "Preparing" ? "Preparing source…"
+                                             : library.preparation.status === "Cancelling" ? "Cancelling preparation…"
+                                             : library.preparation.status === "Installing" ? "Installing source…"
+                                             : "Updating audio…")
                       : (deckController.outputReady ? "AUDIO READY" : "OPEN LIBRARY TO LOAD A TRACK")
                 font.family: Brand.ConfluxTheme.displayFont
                 font.pixelSize: 13
@@ -198,9 +201,18 @@ ApplicationWindow {
         id: library
         objectName: "libraryDrawer"
         property int selectedDeck: 0
+        readonly property var preparation: deckController.preparation
+        readonly property string preparationText: {
+            if (preparation.status === "Idle") return ""
+            const target = preparation.deck === 0 ? "Deck A" : preparation.deck === 1 ? "Deck B" : ""
+            const parts = [preparation.status, target, preparation.name]
+                .filter(function(part) { return Boolean(part) })
+            if (preparation.cacheHit && preparation.status === "Complete") parts.push("Reused prepared audio")
+            return parts.join(" · ")
+        }
         edge: Qt.BottomEdge
         width: window.width
-        height: 320
+        height: 384
         modal: true
         padding: 24
         background: Rectangle {
@@ -296,6 +308,37 @@ ApplicationWindow {
                     Layout.minimumHeight: 44
                     onClicked: deckController.loadDeck(1, window.localUrl(sourceB.text))
                     Accessible.name: "Load Deck B"
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.minimumHeight: 44
+                spacing: 16
+                visible: library.preparation.status !== "Idle"
+                Label {
+                    objectName: "preparationStatus"
+                    text: library.preparationText
+                    color: Brand.ConfluxTheme.muted
+                    elide: Text.ElideMiddle
+                    Layout.fillWidth: true
+                    Accessible.name: text
+                    ToolTip.visible: preparationHover.hovered && text.length > 0
+                    ToolTip.text: text
+                    HoverHandler { id: preparationHover }
+                }
+                Button {
+                    objectName: "preparationCancel"
+                    text: "CANCEL PREPARATION"
+                    visible: library.preparation.status === "Preparing"
+                             || library.preparation.status === "Cancelling"
+                             || library.preparation.status === "Installing"
+                    enabled: library.preparation.cancellable
+                    Layout.minimumWidth: 220
+                    Layout.minimumHeight: 44
+                    onClicked: deckController.cancelPreparation()
+                    Accessible.name: "Cancel audio preparation for "
+                                     + (library.preparation.deck === 0 ? "Deck A" : "Deck B")
+                    Accessible.description: "Stops preparation before installation. Current playback continues."
                 }
             }
             Item { Layout.fillHeight: true }

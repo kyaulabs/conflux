@@ -1,0 +1,31 @@
+{
+    "a_source_frame": 15104,
+    "b_playing": false,
+    "b_source_frame": 0,
+    "b_source_generation": 1,
+    "busy": false,
+    "cache_hit": true,
+    "cancelled_at_output_frame": 11776,
+    "checked_samples_left": 10496,
+    "checked_samples_right": 10496,
+    "checks": [
+        "Expected failure cannot create a core dump",
+        "Preparation cache is confined to the private runtime",
+        "Generated fixtures have a private temporary owner",
+        "Exact private master pair is configured with cue disabled",
+        "Generated A loads on the private output",
+        "Steady A matches independent asymmetric PCM samples",
+        "B preparation finishes while GUI completion remains queued",
+        "Completed B preparation remains cancellable before GUI installation",
+        "Queued B preparation cancellation is accepted",
+        "Cancellation keeps ownership busy until cleanup",
+        "Cancelling queued B preserves unloaded B and the same advancing A/output clock",
+        "Cancellation preserves exact A samples without invalid buffers or source failures"
+    ],
+    "execution_deadline_gate": false,
+    "output_frame": 16640,
+    "shutdown_returned": true,
+    "stage": "direct-shutdown-returned-awaiting-poll-return",
+    "wrong_samples": 0,
+    "zero_samples": 0
+}

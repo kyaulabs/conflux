@@ -8,6 +8,7 @@
 #include <QPointer>
 #include <QSignalSpy>
 #include <QTemporaryDir>
+#include <QThreadPool>
 #include <QtTest>
 
 #include <limits>
@@ -110,6 +111,92 @@ private slots:
             QVERIFY(!controller.error().isEmpty());
             verifyNoPlayback(controller);
         }
+    }
+
+    void cancellationBeforeQueuedCompletion()
+    {
+        for (const bool waitForWorker : {false, true}) {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("cancel-before-install.wav");
+            QVERIFY(writeWave(path, 2, 48000, 480));
+            conflux::DeckController controller;
+            const auto original = controller.decks();
+            QVERIFY(!controller.cancelPreparation());
+            controller.loadDeck(0, QUrl::fromLocalFile(path));
+            QVERIFY(controller.busy());
+            if (waitForWorker)
+                QVERIFY(QThreadPool::globalInstance()->waitForDone(5000));
+            // No GUI events have run: even a completed worker cannot install
+            // its source before the caller can cancel the queued completion.
+            QVERIFY(controller.cancelPreparation());
+            QVERIFY(controller.busy());
+            QVERIFY(!controller.cancelPreparation());
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QCOMPARE(controller.decks(), original);
+            QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+            QVERIFY(!controller.outputReady());
+            QVERIFY(!controller.cancelPreparation());
+        }
+    }
+
+    void directPreparationSignalCanCancelNewJob()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto path = directory.filePath("direct-cancellation.wav");
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        conflux::DeckController controller;
+        bool accepted = false;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (controller.preparation()["cancellable"].toBool())
+                accepted = controller.cancelPreparation();
+        }, Qt::DirectConnection);
+        controller.loadDeck(1, QUrl::fromLocalFile(path));
+        QVERIFY(accepted);
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        verifyNoPlayback(controller);
+    }
+
+    void cancellationRetainsTrackAndEndsAtInstallation()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        const auto first = directory.filePath("kept-track.wav");
+        const auto second = directory.filePath("cancelled-replacement.wav");
+        QVERIFY(writeWave(first, 2, 48000, 480));
+        QVERIFY(writeWave(second, 2, 48000, 960));
+        conflux::DeckController controller;
+        bool installationObserved = false, lateAccepted = true;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (!installationObserved && controller.preparation()["status"].toString() == "Installing") {
+                installationObserved = true;
+                lateAccepted = controller.cancelPreparation();
+            }
+        }, Qt::DirectConnection);
+        controller.loadDeck(0, QUrl::fromLocalFile(first));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(installationObserved);
+        QVERIFY(!lateAccepted);
+        const auto original = controller.decks();
+        QVERIFY(original[0].toMap()["loaded"].toBool());
+        const auto submitted = controller.submittedCommands();
+        controller.loadDeck(0, QUrl::fromLocalFile(second));
+        QVERIFY(controller.cancelPreparation());
+        controller.loadDeck(1, QUrl::fromLocalFile(first));
+        QVERIFY(controller.busy());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks(), original);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        controller.loadDeck(1, QUrl::fromLocalFile(second));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[1].toMap()["name"].toString(), QString("cancelled-replacement.wav"));
     }
 
     void actualDecodeFailures()

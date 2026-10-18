@@ -33,6 +33,7 @@ class DeckController final : public QObject {
     Q_PROPERTY(QVariantMap meters READ meters NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap preparation READ preparation NOTIFY stateChanged)
 public:
     explicit DeckController(QObject* parent = nullptr);
     ~DeckController() override;
@@ -45,7 +46,9 @@ public:
     QVariantMap meters() const;
     QVariantMap audioRouting() const;
     QVariantMap recording() const;
+    QVariantMap preparation() const;
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url);
+    Q_INVOKABLE bool cancelPreparation();
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
     Q_INVOKABLE bool jogFrames(int deck, qint64 deltaFrames);
@@ -83,6 +86,7 @@ private:
         std::shared_ptr<const audio::PreparedAudio> audio;
         QVariantList waveform;
         std::unique_ptr<audio::PcmReadAhead> reader;
+        bool cacheHit = false;
     };
     struct LoadResult {
         std::shared_ptr<PreparedLoad> prepared;
@@ -149,6 +153,8 @@ private:
     QTimer pollTimer_;
     QString error_;
     QString pendingName_;
+    QString preparationStatus_ = "Idle";
+    bool preparationCacheHit_ = false;
     int pendingDeck_ = 0;
     bool busy_ = false;
     bool ready_ = false;

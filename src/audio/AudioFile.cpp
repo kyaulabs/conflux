@@ -12,6 +12,7 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <memory>
 #include <stdexcept>
@@ -20,6 +21,29 @@
 
 namespace conflux::audio {
 namespace {
+class Descriptor {
+public:
+    explicit Descriptor(int value) noexcept : value_(value) {}
+    ~Descriptor() { if (value_ >= 0) close(value_); }
+    Descriptor(const Descriptor&) = delete;
+    Descriptor& operator=(const Descriptor&) = delete;
+    int get() const noexcept { return value_; }
+    int release() noexcept { return std::exchange(value_, -1); }
+private:
+    int value_;
+};
+
+int openSource(const std::filesystem::path& path)
+{
+    Descriptor source(open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
+    if (source.get() < 0)
+        throw std::runtime_error(std::string("Cannot open audio source: ") + std::strerror(errno));
+    struct stat status{};
+    if (fstat(source.get(), &status) != 0 || !S_ISREG(status.st_mode))
+        throw std::invalid_argument("Audio input must be a regular local file");
+    return source.release();
+}
+
 // Owned by the decode job. The library callback is never an audio callback.
 struct DecodeInput {
     SNDFILE* file;
@@ -56,18 +80,24 @@ void checkStop(std::stop_token stop)
 // Both in-memory probe input and disk-backed deck input use this conversion.
 // Every codec/converter/sink call runs on the preparing owner, never in render.
 template<class Sink>
-std::uint64_t convertFile(const std::filesystem::path& path, std::size_t maximumBytes,
+std::uint64_t convertFile(int sourceDescriptor, std::size_t maximumBytes,
                           std::stop_token stop, Sink&& sink)
 {
     constexpr auto frameBytes = RenderCore::channels * sizeof(float);
     if (maximumBytes < frameBytes)
         throw std::invalid_argument("Audio budget must hold at least one stereo frame");
     checkStop(stop);
-    std::error_code fileError;
-    if (!std::filesystem::is_regular_file(path, fileError))
+    struct stat status{};
+    if (fstat(sourceDescriptor, &status) != 0 || !S_ISREG(status.st_mode))
         throw std::invalid_argument("Audio input must be a regular local file");
+    Descriptor decoderDescriptor(fcntl(sourceDescriptor, F_DUPFD_CLOEXEC, 0));
+    if (decoderDescriptor.get() < 0 || lseek(decoderDescriptor.get(), 0, SEEK_SET) != 0)
+        throw std::runtime_error("Cannot rewind the audio source descriptor");
     SF_INFO info{};
-    std::unique_ptr<SNDFILE, decltype(&sf_close)> file(sf_open(path.c_str(), SFM_READ, &info), sf_close);
+    // The duplicate shares the caller's offset. Source hashing uses pread;
+    // conversion has exclusive worker ownership and explicitly rewinds above.
+    std::unique_ptr<SNDFILE, decltype(&sf_close)> file(
+        sf_open_fd(decoderDescriptor.get(), SFM_READ, &info, SF_FALSE), sf_close);
     if (!file)
         throw std::runtime_error(std::string("Cannot open audio file: ") + sf_strerror(nullptr));
     if (info.samplerate < 8000 || info.samplerate > 192000 || (info.channels != 1 && info.channels != 2))
@@ -137,9 +167,10 @@ std::uint64_t DecodedAudio::frames() const noexcept
 
 DecodedAudio decodeAudioFile(const std::filesystem::path& path, std::size_t maxDecodedBytes)
 {
+    Descriptor source(openSource(path));
     std::vector<float> samples;
     const auto maximumSamples = std::min(maxDecodedBytes / sizeof(float), samples.max_size()) / 2 * 2;
-    convertFile(path, maxDecodedBytes, {}, [&](std::span<const float> block) {
+    convertFile(source.get(), maxDecodedBytes, {}, [&](std::span<const float> block) {
         const auto needed = samples.size() + block.size();
         if (needed > maximumSamples)
             throw std::length_error("Audio file exceeds the decoded PCM byte budget");
@@ -171,6 +202,14 @@ PreparedAudio prepareAudioFile(const std::filesystem::path& path, std::size_t ma
                                const std::filesystem::path& spoolDirectory)
 {
     checkStop(stop);
+    Descriptor source(openSource(path));
+    return prepareAudioFile(source.get(), maximumBytes, stop, spoolDirectory);
+}
+
+PreparedAudio prepareAudioFile(int sourceDescriptor, std::size_t maximumBytes, std::stop_token stop,
+                               const std::filesystem::path& spoolDirectory)
+{
+    checkStop(stop);
     if (maximumBytes > static_cast<std::uint64_t>(std::numeric_limits<off_t>::max()))
         throw std::invalid_argument("Prepared PCM budget exceeds the addressable file size");
     const auto directory = spoolDirectory.empty() ? std::filesystem::temp_directory_path() : spoolDirectory;
@@ -184,7 +223,7 @@ PreparedAudio prepareAudioFile(const std::filesystem::path& path, std::size_t ma
     // crash/close cannot leave a named cache file containing the user's music.
     if (unlink(pattern.c_str()) < 0)
         throw std::runtime_error("Cannot unlink temporary prepared PCM file");
-    result.frames_ = convertFile(path, maximumBytes, stop, [&](std::span<const float> block) {
+    result.frames_ = convertFile(sourceDescriptor, maximumBytes, stop, [&](std::span<const float> block) {
         auto* bytes = reinterpret_cast<const char*>(block.data());
         auto remaining = block.size_bytes();
         while (remaining) {
@@ -225,6 +264,32 @@ PreparedAudio prepareAudioFile(const std::filesystem::path& path, std::size_t ma
     }
     if (maximum > 0)
         for (auto& peak : result.peaks_) peak /= maximum;
+    return result;
+}
+
+PreparedAudio reopenPreparedAudio(int pcmDescriptor, std::uint64_t frames,
+                                 std::span<const float> peaks, std::size_t maximumBytes)
+{
+    constexpr auto frameBytes = RenderCore::channels * sizeof(float);
+    if (!frames || frames > maximumBytes / frameBytes ||
+        frames > std::uint64_t(std::numeric_limits<off_t>::max()) / frameBytes)
+        throw std::invalid_argument("Prepared PCM size exceeds its frame budget");
+    struct stat status{};
+    const auto flags = fcntl(pcmDescriptor, F_GETFL);
+    if (fstat(pcmDescriptor, &status) != 0 || !S_ISREG(status.st_mode) || flags < 0 ||
+        (flags & O_ACCMODE) != O_RDONLY)
+        throw std::invalid_argument("Prepared PCM must be a read-only regular file");
+    if (status.st_size < 0 || std::uint64_t(status.st_size) != frames * frameBytes)
+        throw std::invalid_argument("Prepared PCM file size differs from its advertised frames");
+    if (peaks.size() != std::min<std::uint64_t>(512, frames) ||
+        std::ranges::any_of(peaks, [](float value) { return !std::isfinite(value) || value < 0 || value > 1; }))
+        throw std::invalid_argument("Prepared PCM overview has invalid geometry or non-finite values");
+    Descriptor owned(fcntl(pcmDescriptor, F_DUPFD_CLOEXEC, 0));
+    if (owned.get() < 0)
+        throw std::runtime_error("Cannot duplicate prepared PCM descriptor");
+    PreparedAudio result(owned.release());
+    result.frames_ = frames;
+    result.peaks_.assign(peaks.begin(), peaks.end());
     return result;
 }
 

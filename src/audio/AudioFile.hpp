@@ -57,10 +57,26 @@ private:
     std::vector<float> peaks_;
     friend PreparedAudio prepareAudioFile(const std::filesystem::path&, std::size_t, std::stop_token,
                                           const std::filesystem::path&);
+    friend PreparedAudio prepareAudioFile(int, std::size_t, std::stop_token, const std::filesystem::path&);
+    friend PreparedAudio reopenPreparedAudio(int, std::uint64_t, std::span<const float>, std::size_t);
 };
 
 PreparedAudio prepareAudioFile(const std::filesystem::path& path,
     std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes, std::stop_token stop = {},
     const std::filesystem::path& spoolDirectory = {});
+
+// Borrow an already-open regular source; rewind before decoding and never close
+// the caller's descriptor. Hashing must use pread rather than its shared offset.
+PreparedAudio prepareAudioFile(int sourceDescriptor,
+    std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes, std::stop_token stop = {},
+    const std::filesystem::path& spoolDirectory = {});
+
+// Borrow a read-only regular PCM descriptor already opened beneath the cache
+// directory without following symlinks. Validate exact size and finite normalized
+// overview geometry, then return a CLOEXEC duplicate without reopening a path.
+// The store verifies PCM digest/finiteness through this returned descriptor
+// before handing it to a reader; the caller retains its original descriptor.
+PreparedAudio reopenPreparedAudio(int pcmDescriptor, std::uint64_t frames,
+    std::span<const float> peaks, std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes);
 
 } // namespace conflux::audio

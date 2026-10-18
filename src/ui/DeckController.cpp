@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
+#include "library/PreparedTrackStore.hpp"
 
 #include <QFileInfo>
 #include <QFile>
+#include <QSignalBlocker>
 #include <QStandardPaths>
 #include <QtConcurrentRun>
 #include <algorithm>
@@ -105,6 +107,8 @@ void DeckController::shutdown()
         recordingFinalizationPending_ = false;
     }
     busy_ = false;
+    preparationStatus_ = "Idle";
+    preparationCacheHit_ = false;
 }
 
 QVariantList DeckController::decks() const
@@ -171,6 +175,24 @@ void DeckController::fail(const QString& error)
     emit stateChanged();
 }
 
+QVariantMap DeckController::preparation() const
+{
+    const bool idle = preparationStatus_ == "Idle";
+    return {{"status", preparationStatus_}, {"deck", idle ? -1 : pendingDeck_},
+            {"name", idle ? QString{} : pendingName_},
+            {"cancellable", !closing_ && preparationStatus_ == "Preparing"},
+            {"cacheHit", preparationCacheHit_}};
+}
+
+bool DeckController::cancelPreparation()
+{
+    if (closing_ || preparationStatus_ != "Preparing") return false;
+    preparationStatus_ = "Cancelling";
+    loadCancellation_.request_stop();
+    emit stateChanged();
+    return true;
+}
+
 void DeckController::loadDeck(int deck, const QUrl& url)
 {
     if (closing_)
@@ -191,29 +213,29 @@ void DeckController::loadDeck(int deck, const QUrl& url)
     pendingDeck_ = deck;
     const auto path = url.toLocalFile();
     pendingName_ = QFileInfo(path).fileName();
-    busy_ = true;
-    error_.clear();
-    emit stateChanged();
-    loadCancellation_ = std::stop_source{};
     const auto baseCache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     if (baseCache.isEmpty()) {
-        busy_ = false;
+        preparationStatus_ = "Failed";
         fail("Cannot find a local cache directory for audio preparation.");
         return;
     }
-    const auto cache = baseCache + "/pcm";
+    const auto cache = baseCache + "/prepared/v1";
+    busy_ = true;
+    error_.clear();
+    loadCancellation_ = std::stop_source{};
+    preparationStatus_ = "Preparing";
+    preparationCacheHit_ = false;
     loader_.setFuture(QtConcurrent::run([path, cache, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
-            // QFile::encodeName preserves the platform's filesystem encoding.
-            const auto encoded = QFile::encodeName(path);
-            const auto encodedCache = QFile::encodeName(cache);
-            auto decoded = audio::prepareAudioFile(std::filesystem::path(encoded.constData()),
-                audio::PreparedAudio::defaultMaxPreparedBytes, stop, std::filesystem::path(encodedCache.constData()));
+            library::PreparedTrackStore store(cache);
+            auto track = store.prepare(path, stop);
+            if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
             QVariantList waveform;
-            waveform.reserve(qsizetype(decoded.peaks().size()));
-            for (const auto peak : decoded.peaks()) waveform.append(peak);
+            waveform.reserve(qsizetype(track.audio.peaks().size()));
+            for (const auto peak : track.audio.peaks()) waveform.append(peak);
             auto prepared = std::make_shared<PreparedLoad>();
-            prepared->audio = std::make_shared<const audio::PreparedAudio>(std::move(decoded));
+            prepared->cacheHit = track.cacheHit;
+            prepared->audio = std::make_shared<const audio::PreparedAudio>(std::move(track.audio));
             prepared->waveform = std::move(waveform);
             prepared->reader = std::make_unique<audio::PcmReadAhead>(prepared->audio->descriptor(), prepared->audio->frames());
             if (!prepared->reader->prime(0, std::chrono::seconds(2)))
@@ -226,10 +248,16 @@ void DeckController::loadDeck(int deck, const QUrl& url)
             return {{}, "Audio decoding failed."};
         }
     }));
+    // A direct observer may cancel or shut down from stateChanged. Publish
+    // cancellability only after this job owns its new token and future.
+    emit stateChanged();
 }
 
 void DeckController::stopSession()
 {
+    // Retirement can complete synchronously. Observers must see teardown only
+    // after the stopped session's accounting and ownership are consistent.
+    const QSignalBlocker notifications(this);
     if (session_) {
         session_->stop();
         state_ = session_->stoppedState();
@@ -259,11 +287,31 @@ void DeckController::loaded()
     if (closing_)
         return;
     const auto result = loader_.result();
+    if (loadCancellation_.stop_requested()) {
+        error_.clear();
+        preparationCacheHit_ = false;
+        std::unique_ptr<audio::PcmReadAhead> reader;
+        std::shared_ptr<const audio::PreparedAudio> clip;
+        if (result.prepared) {
+            reader = std::move(result.prepared->reader);
+            clip = std::move(result.prepared->audio);
+        }
+        // The watcher shares PreparedLoad with this result. Remove both owners
+        // from it, then join/close on the existing retirement worker.
+        retireReader(std::move(reader), std::move(clip));
+        return;
+    }
     if (!result.prepared) {
         busy_ = false;
+        preparationStatus_ = "Failed";
         fail(result.error);
         return;
     }
+    // This is the cancellation cutoff, before metadata or live handoff changes.
+    preparationStatus_ = "Installing";
+    preparationCacheHit_ = result.prepared->cacheHit;
+    emit stateChanged();
+    if (closing_) return;
     pendingLoad_ = result.prepared;
     if (session_) {
         replacing_[pendingDeck_] = true;
@@ -353,6 +401,7 @@ void DeckController::collectReplacement()
         replacementPublished_ = replacementAcknowledged_ = false;
         pendingGeneration_ = 0;
         replacementSnapshot_.reset();
+        preparationStatus_ = "Failed";
         retireReader(std::move(result->retiredReader), std::move(clip));
         if (!closing_ && session_->ready())
             fail("The prepared track could not be installed; the previous track remains loaded.");
@@ -369,6 +418,7 @@ void DeckController::settleReplacement(bool stopped)
         replacing_[pendingDeck_] = false;
         pendingGeneration_ = 0;
         replacementSnapshot_.reset();
+        preparationStatus_ = "Failed";
         retireReader(std::move(reader), std::move(clip));
         return;
     }
@@ -399,7 +449,11 @@ void DeckController::retireReader(std::unique_ptr<audio::PcmReadAhead> reader,
 void DeckController::retired()
 {
     if (!retirer_.isRunning() && !pendingLoad_ &&
-        !replacing_[0] && !replacing_[1]) busy_ = false;
+        !replacing_[0] && !replacing_[1]) {
+        busy_ = false;
+        if (preparationStatus_ == "Cancelling") preparationStatus_ = "Cancelled";
+        else if (preparationStatus_ == "Installing") preparationStatus_ = "Complete";
+    }
     if (!closing_) emit stateChanged();
 }
 
@@ -408,7 +462,10 @@ void DeckController::installed()
     if (closing_) return;
     const auto result = installer_.result();
     busy_ = false;
+    const bool installingPreparation = preparationStatus_ == "Installing";
+    if (installingPreparation) preparationStatus_ = "Complete";
     if (!result->session) {
+        if (installingPreparation) preparationStatus_ = "Failed";
         recordingStopRequested_ = true;
         pollRecording();
         fail(result->error);
@@ -422,6 +479,7 @@ void DeckController::installed()
         if (recorder_ && !recordingStopRequested_)
             session_->requestRecorder(recorder_.get());
         if (!session_->start(error, routingConfig_)) {
+            if (installingPreparation) preparationStatus_ = "Failed";
             stopSession();
             recordingStopRequested_ = true;
             pollRecording();
@@ -429,6 +487,7 @@ void DeckController::installed()
             return;
         }
     } catch (const std::exception& error) {
+        if (installingPreparation) preparationStatus_ = "Failed";
         stopSession();
         recordingStopRequested_ = true;
         pollRecording();
@@ -461,8 +520,11 @@ void DeckController::poll()
         else state_ = snapshot;
     }
     collectReplacement();
+    if (closing_ || !session_) return;
     if (replacementAcknowledged_ && replacementSnapshot_) state_ = *replacementSnapshot_;
     settleReplacement();
+    // Completion can notify a direct observer that shuts down this controller.
+    if (closing_ || !session_) return;
     const auto error = session_->error();
     if (!error.empty()) {
         stopSession();
