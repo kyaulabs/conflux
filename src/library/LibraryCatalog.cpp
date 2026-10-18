@@ -190,7 +190,9 @@ std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
     file.setDirectWriteFallback(false);
     if (!file.open(QIODevice::WriteOnly)) saveError(file);
     if (!file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner)) saveError(file);
-    if (file.write(bytes) != bytes.size()) {
+    // Qt 6.4 can miss buffered flush errors inside commit(). Detect them
+    // before the temporary file can replace the existing catalog.
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
         file.cancelWriting();
         saveError(file);
     }
