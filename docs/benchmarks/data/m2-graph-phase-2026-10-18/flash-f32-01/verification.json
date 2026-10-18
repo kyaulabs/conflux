@@ -194,6 +194,10 @@
     "listening/verification.json": {
       "bytes": 1705,
       "sha256": "d46e33bc25aff81313426b560c0ad57d560e0385cc32d408db514704aea66d67"
+    },
+    "human-listening.json": {
+      "bytes": 1921,
+      "sha256": "679e3dfec2c66aae4fc52fc232015a8e65bb97f44160b41e02cb6c059286eeed"
     }
   },
   "independent_audit_checks": 137,
@@ -205,5 +209,6 @@
   "source_mapping": "Run pins retain original paths. run/ is a byte-exact copy of the closed raw run; no raw PCM, model, binary or user FLAC is archived. Overlay and generated diffs bind the isolated source copy. Historical preparation/build receipts preserve their original pre-inference scope.",
   "musical_quality": "not_assessed",
   "latency_qualification": "not_attempted",
-  "listening_preview_status": "44 continuous files verified; human listening pending"
+  "listening_preview_status": "human acceptance recorded for tested excerpts; performance unqualified",
+  "human_listening": "human-listening.json"
 }

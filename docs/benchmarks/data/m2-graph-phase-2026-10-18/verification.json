@@ -1140,8 +1140,8 @@
       "sha256": "5102c1572b54764d410c351282f57fe1a338a52679aee8268923c259727f6577"
     },
     "flash-f32-01/verification.json": {
-      "bytes": 8155,
-      "sha256": "af679302c3158fc46176b1cbb2bf2173b25612e93d148557df78cfe66c154d88"
+      "bytes": 8358,
+      "sha256": "bdf6004df595319aae9c4b47c67ae67ccc4dd63684cc682a2de2d9c436f385ec"
     },
     "flash-f32-01/verify_flash_f32_overlay.py": {
       "bytes": 12324,
@@ -1210,9 +1210,13 @@
     "flash-f32-01/listening/verification.json": {
       "bytes": 1705,
       "sha256": "d46e33bc25aff81313426b560c0ad57d560e0385cc32d408db514704aea66d67"
+    },
+    "flash-f32-01/human-listening.json": {
+      "bytes": 1921,
+      "sha256": "679e3dfec2c66aae4fc52fc232015a8e65bb97f44160b41e02cb6c059286eeed"
     }
   },
-  "pending": "Obtain human listening verdict for continuous baseline/Flash stems and joins before a new Flash candidate performance experiment. The unchanged strict 4095 ms service p99, sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. Earlier bit-identical instrumentation/graph-order results do not establish Flash musical acceptance.",
+  "pending": "Prepare an ordinary-cost ABBA Flash screen using each arm own closed PCM proof and obtain fresh minimized/AC/lid readiness. The strict 4095 ms service p99, sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. Human acceptance applies to the tested excerpts and adds no performance or release pass.",
   "previous_retained_completed_live_validation_p99_ms": 5172.2,
   "latest_retained_completed_live_validation_p99_ms": 5674.156680004671,
   "initial_loaded_preflight": {
@@ -1669,7 +1673,7 @@
     "next_action": "Deprioritize graph ordering: exact PCM and essentially unchanged ordinary-profile cost without a positive efficiency signal. Low-clock loaded behavior remains unknown; skip its 600-second test for now. Investigate Flash attention support and effective precision/numerical output before a new candidate benchmark. Keep the exact-PCM graph-order binary and pins available; product defaults and the 4095ms target stay unchanged."
   },
   "flash_attention_candidate": {
-    "status": "numerical_comparison_and_continuous_listening_preparation_complete_human_listening_pending",
+    "status": "tested_excerpts_human_accepted_ordinary_cost_screen_pending",
     "repository_head": "aee5c42cd254fd23c8e2bff29b9d67e8d5c12ee0",
     "runtime_sha256": "6f311e461e7af5f12ff38f90ddb8720179c2c3dce23d593437d2b34524dffd9d",
     "model_weight_storage": "existing F16 weights, unchanged",
@@ -1698,14 +1702,14 @@
       56.804545371159534
     ],
     "quiet_stem_priority": "When the Light Breaks drums, excerpt 0\u201313.65 seconds; Club XL bass 17.55\u201323.4 seconds; Club XL drums/transients 11.7\u201319.5 seconds. Numerical errors are in normalized native units; padded context remains separate.",
-    "musical_quality": "not_assessed",
+    "musical_quality": "human accepted tested continuous excerpts relative to baseline",
     "latency_qualification": "not_attempted",
     "audio_load": false,
     "UI_load": false,
     "cancellation_tested": false,
     "scope": "Silent fixed-order numerical comparison only, with automatic sampled AC/lid checks. No minimized-desktop or thermal admission requirement for this math check. Relative errors and baseline-difference SNR are not ground-truth separation metrics or acceptance thresholds. No speedup, loaded-p99 or musical-equivalence claim. Product defaults remain unchanged.",
     "listening_preparation": {
-      "status": "44_continuous_files_verified_human_listening_pending",
+      "status": "44_continuous_files_verified_human_acceptance_recorded",
       "fresh_requests": 32,
       "all_match_closed_quality_hashes": true,
       "frames_per_signal": 1031940,
@@ -1724,6 +1728,11 @@
       "verification": "flash-f32-01/listening/verification.json",
       "result": "flash-f32-01/listening/run/comparison/result.json",
       "scope": "Production worker OLA/denormalization, continuous source/baseline/Flash stems/recombination, no montage/fades/inserted gaps/autoplay. Join diagnostics use samples before listening gain. Human listening, latency, cancellation and audio/UI qualification remain unassessed."
+    },
+    "human_listening": {
+      "verdict": "accepted_for_tested_excerpts",
+      "user_answer": "Flash sounds as acceptable as baseline",
+      "record": "flash-f32-01/human-listening.json"
     }
   }
 }
