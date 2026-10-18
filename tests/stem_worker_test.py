@@ -202,6 +202,13 @@ class WorkerTest(unittest.TestCase):
         worker, fake = self.worker(FakeRuntime(blocked=True))
         old = worker.load(self.path)
         self.assertTrue(fake.wait_call(1))
+        observed = self.event(worker, "started", old)
+        inflight = worker.statistics()["inflight"]
+        self.assertEqual(inflight, {key: observed[key] for key in (
+            "generation", "request_id", "window_start_frame", "source_id", "timestamp", "preroll")})
+        # Observing an active request must not let the consumer change it.
+        inflight["generation"] = -1
+        self.assertEqual(worker.statistics()["inflight"]["generation"], old)
         started = time.monotonic()
         worker.seek(HOP + 7)
         worker.seek(3)

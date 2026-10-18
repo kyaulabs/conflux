@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
-"""Saturate one persistent stem worker with selected continuous audio/UI load."""
+"""Exercise one persistent stem worker with selected continuous audio/UI load."""
 
 import argparse
 from datetime import datetime, timezone
@@ -142,6 +142,116 @@ class Soak:
         self.ui_max_unexposed_span = 0.0
         self.ui_last_unexposed_span = None
         self.parity_failure = None
+        self.delivery_mode = getattr(args, "delivery_mode", "saturated")
+        self.playback_epochs = []
+        self.playback_demands = []
+        self.playback_next_deadline = None
+        self.playback_pending_demand = None
+        self.source_admissions = {}
+
+    def playback_summary(self):
+        if self.delivery_mode != "playback-paced":
+            return {"requested": False, "status": "not_run"}
+        demands = self.playback_demands
+        late = [row for row in demands if row["ready_late_ms"] > 0]
+        # A late demand can overlap another late demand. Merge the intervals
+        # rather than counting the same virtual missing-audio time twice.
+        intervals = []
+        for row in late:
+            start, end = row["deadline_monotonic"], row["ready_at"]
+            if intervals and start <= intervals[-1][1]:
+                intervals[-1][1] = max(intervals[-1][1], end)
+            else:
+                intervals.append([start, end])
+        pending = self.playback_pending_demand
+        unfulfilled = bool(pending and self.deadline is not None
+                          and pending["deadline_monotonic"] < self.deadline)
+        return {"requested": True, "mode": self.delivery_mode,
+                "scope": "Virtual frame-clock consumption with one held playing chunk and at most two worker-ready chunks; independent silent audio probe, no physical stem playback",
+                "clock": "First initial/recovery delivery anchors an epoch; every ordinary deadline advances by actual delivered frames / sample rate, including source rotations and late output",
+                "ordinary_demands": len(demands),
+                "ready_deadline_misses": len(late),
+                "unfulfilled_due_demands": int(unfulfilled),
+                "ordinary_deadline_failures": len(late) + int(unfulfilled),
+                "ready_lateness_percentiles_ms": percentiles([row["ready_late_ms"] for row in demands]),
+                "maximum_ready_lateness_ms": max((row["ready_late_ms"] for row in demands), default=None),
+                "consumer_wake_lateness_percentiles_ms": percentiles([row["consumer_wake_late_ms"] for row in demands]),
+                "delivery_lateness_percentiles_ms": percentiles([row["delivery_late_ms"] for row in demands]),
+                "queue_residence_percentiles_ms": percentiles([row["queue_residence_ms"] for row in demands]),
+                "ready_count_at_demand": {str(count): sum(row["ready_count_at_demand"] == count for row in demands)
+                                          for count in range(3)},
+                "virtual_starvation_union_seconds": sum(end - start for start, end in intervals),
+                "virtual_starvation_intervals": intervals,
+                "virtual_starvation_interval_scope": "Union of completed ordinary demands' deadline-to-ready intervals; any unfulfilled final demand is reported separately with readiness censored at workload stop",
+                "maximum_held_chunks": 1 if self.playback_epochs else 0,
+                "unfulfilled_final_demand": pending,
+                "epochs": self.playback_epochs,
+                "source_admissions": list(self.source_admissions.values())}
+
+    def playback_deliver(self, event, *, reason=None, wake=None, statistics=None):
+        consumed = event["consumed_at"]
+        if reason is not None:
+            self.playback_epochs.append({"epoch": len(self.playback_epochs) + 1,
+                "reason": reason, "started_monotonic": consumed,
+                "first_ready_at": event["ready_at"], "generation": event["generation"],
+                "source_id": event["source_id"], "first_frame": event["frame_start"]})
+            if reason == "initial_priming":
+                self.playback_epochs[-1]["priming_after_workload_start_ms"] = (consumed - self.started) * 1000
+            self.playback_next_deadline = consumed
+        self.require(self.playback_next_deadline is not None, "playback epoch has no anchor")
+        deadline = self.playback_next_deadline
+        row = {"epoch": self.playback_epochs[-1]["epoch"], "kind": reason or "ordinary",
+               "generation": event["generation"], "request_id": event["request_id"],
+               "source_id": event["source_id"], "frame_start": event["frame_start"],
+               "frames": event["frames"], "ready_at": event["ready_at"],
+               "consumed_monotonic": consumed, "deadline_monotonic": deadline,
+               "queue_residence_ms": max(0, (consumed - event["ready_at"]) * 1000)}
+        if reason is None:
+            self.require(wake is not None and statistics is not None, "ordinary demand has no observation")
+            row.update(consumer_wake_monotonic=wake,
+                       ready_late_ms=max(0, (event["ready_at"] - deadline) * 1000),
+                       consumer_wake_late_ms=max(0, (wake - deadline) * 1000),
+                       delivery_late_ms=max(0, (consumed - deadline) * 1000),
+                       ready_count_at_demand=statistics["ready_count"])
+            self.playback_demands.append(row)
+            self.playback_pending_demand = None
+        self.playback_next_deadline = deadline + event["frames"] / RATE
+        row["next_deadline_monotonic"] = self.playback_next_deadline
+        self.hops[-1]["playback"] = row
+        self.log.write(json.dumps({"event": "playback_delivery", **row}) + "\n")
+        admission = self.source_admissions.get(event["generation"])
+        if admission is not None and "first_ready_at" not in admission:
+            admission.update(first_ready_at=event["ready_at"], first_delivered_at=consumed,
+                             first_ready_after_load_ms=(event["ready_at"] - admission["load_issued_monotonic"]) * 1000,
+                             first_delivered_after_load_ms=(consumed - admission["load_issued_monotonic"]) * 1000,
+                             playback_epoch=row["epoch"], first_kind=row["kind"])
+            self.log.write(json.dumps({"event": "playback_source_first_output", **admission}) + "\n")
+        self.log.flush()
+
+    def playback_load(self):
+        issued = time.monotonic()
+        self.generation = self.worker.load(self.fixture["path"])
+        self.source_admissions[self.generation] = {"generation": self.generation,
+            "source_id": self.fixture["sha256"], "load_issued_monotonic": issued}
+
+    def source_complete(self, event):
+        self.require(event["source_id"] == self.fixture["sha256"], "completed source identity changed")
+        self.require(self.expected == self.fixture["frames"], "source ended before full coverage")
+        if self.source_start == 0:
+            self.source_loops += 1
+            self.source_completions[self.fixture["sha256"]]["full"] += 1
+        else:
+            self.resumed_completions += 1
+            self.source_completions[self.fixture["sha256"]]["resumed"] += 1
+        if self.source_paths:
+            self.select_source((self.source_index + 1) % len(self.sources))
+            if self.delivery_mode == "playback-paced":
+                self.playback_load()
+            else:
+                self.generation = self.worker.load(self.fixture["path"])
+        else:
+            self.generation = self.worker.seek(0)
+        self.expected, self.source_start = 0, 0
 
     def select_source(self, index):
         self.source_index = index
@@ -174,6 +284,11 @@ class Soak:
             "timing": timing_summary(self.hops), "completed_controls": len([
                 control for control in self.controls if control.get("complete")]),
             "full_source_loops": self.source_loops, "failures": self.failures,
+            "delivery_mode": self.delivery_mode,
+            "playback": {"ordinary_demands": len(self.playback_demands),
+                         "ready_deadline_misses": sum(row["ready_late_ms"] > 0 for row in self.playback_demands),
+                         "epochs": len(self.playback_epochs),
+                         "source_admissions": len(self.source_admissions)},
             "worker_statistics": self.worker.statistics() if self.worker else None,
             "ui_progress": self.ui_progress_summary(),
             "conditions": conditions(),
@@ -367,11 +482,14 @@ class Soak:
     def event(self, timeout=0.25):
         self.check_load()
         event = self.worker.poll(timeout)
+        consumed = time.monotonic() if self.delivery_mode == "playback-paced" else None
         self.progress()
         if event is None:
             return None
         record = json_event(event)
-        record["consumed_at"] = time.monotonic()
+        record["consumed_at"] = consumed if consumed is not None else time.monotonic()
+        if self.delivery_mode == "playback-paced":
+            event["consumed_at"] = record["consumed_at"]
         self.log.write(json.dumps(record) + "\n")
         self.log.flush()
         if event["event"] == "runtime_ready":
@@ -386,6 +504,10 @@ class Soak:
                 normalization = {key: event[key] for key in ("mean", "std", "source_frames")}
                 previous = self.source_normalization.setdefault(event["source_id"], normalization)
                 self.require(previous == normalization, "unchanged source normalization changed")
+                admission = self.source_admissions.get(event["generation"])
+                if admission is not None:
+                    admission.update(source_ready_at=event["timestamp"],
+                                     source_preparation_ms=event.get("preparation_ms"))
         elif event["event"] == "error":
             raise RuntimeError(event["message"])
         elif event["event"] == "chunk":
@@ -530,7 +652,10 @@ class Soak:
         inflight = self.worker.statistics()["inflight"]
         if (not inflight or inflight["request_id"] != active["request_id"]
                 or inflight["generation"] != self.generation
-                or active["generation"] != self.generation):
+                or active["generation"] != self.generation
+                or (self.delivery_mode == "playback-paced"
+                    and (time.monotonic() >= self.playback_next_deadline
+                         or self.held is None or not self.worker.is_current(self.held)))):
             self.finished_control_attempts += 1
             return
         began = time.monotonic()
@@ -542,6 +667,15 @@ class Soak:
                    "started_to_cancel_ms": (began - active["timestamp"]) * 1000,
                    "hardware_submission_confirmed": False, "complete": False}
         self.controls.append(control)
+        if self.delivery_mode == "playback-paced":
+            self.require(self.held is not None and self.worker.is_current(self.held),
+                         "paced cancellation has no current held playing chunk")
+            self.playback_epochs[-1].update(ended_monotonic=began, end_reason="explicit_cancel",
+                                            interrupted_next_deadline=self.playback_next_deadline)
+            self.log.write(json.dumps({"event": "playback_interruption",
+                "epoch": self.playback_epochs[-1]["epoch"], "timestamp_monotonic": began,
+                "next_deadline_monotonic": self.playback_next_deadline,
+                "superseded_generation": self.generation}) + "\n")
         self.generation = self.worker.cancel()
         control["cancel_ack_ms"] = (time.monotonic() - began) * 1000
         control["held_chunk_rejected"] = self.held is None or not self.worker.is_current(self.held)
@@ -560,6 +694,8 @@ class Soak:
                           and event["generation"] == self.generation,
                           self.args.request_timeout * 2 + 5)
         self.accept(chunk)
+        if self.delivery_mode == "playback-paced":
+            self.playback_deliver(chunk, reason="seek_recovery")
         control.update(ready_after_resume_ms=(chunk["ready_at"] - resumed) * 1000,
                        ready_after_cancel_ms=(chunk["ready_at"] - began) * 1000,
                        delivered_after_cancel_ms=(time.monotonic() - began) * 1000,
@@ -568,7 +704,102 @@ class Soak:
             self.next_control += self.args.control_interval
         self.progress(force=True)
 
+    def paced_workload(self):
+        self.playback_load()
+        first = self.wait(lambda event: event["event"] == "started",
+                          self.args.request_timeout * 2 + 5)
+        self.started = first["timestamp"]
+        self.deadline = self.started + self.args.seconds
+        self.next_control = self.started + self.args.control_interval
+        self.progress(force=True)
+        first_chunk = self.wait(lambda event: event["event"] == "chunk",
+                                self.args.request_timeout * 2 + 5)
+        self.accept(first_chunk)
+        self.playback_deliver(first_chunk, reason="initial_priming")
+        while time.monotonic() < self.deadline:
+            # After consuming the final source chunk, process only its trailing
+            # complete event. The following source can prepare while that held
+            # chunk plays; the ordinary playback clock is never re-anchored.
+            if self.expected == self.fixture["frames"]:
+                complete = self.wait(lambda event: event["event"] == "complete"
+                                     and event["generation"] == self.generation,
+                                     self.args.request_timeout + 2)
+                self.source_complete(complete)
+            now = time.monotonic()
+            if now >= self.deadline:
+                break
+            if now < self.playback_next_deadline:
+                self.check_load()
+                self.progress()
+                if (now >= self.next_control
+                        and self.playback_next_deadline - now >= 0.20
+                        and self.deadline - now > min(self.args.request_timeout * 3 + 10,
+                                                     self.args.seconds / 2)
+                        and HOP in self.references and 2 * HOP in self.references
+                        and self.held is not None and self.worker.is_current(self.held)):
+                    active = self.worker.statistics()["inflight"]
+                    if (active and active["generation"] == self.generation
+                            and active["source_id"] == self.fixture["sha256"]):
+                        self.active_control(active)
+                        continue
+                time.sleep(max(0, min(0.25, self.playback_next_deadline - time.monotonic(),
+                                     self.deadline - time.monotonic())))
+                continue
+            wake = now
+            statistics = self.worker.statistics()
+            self.require(statistics["ready_count"] <= 2 and statistics["ready_high_water"] <= 2,
+                         "ready output exceeded its two-hop bound")
+            self.playback_pending_demand = {"epoch": self.playback_epochs[-1]["epoch"],
+                "deadline_monotonic": self.playback_next_deadline,
+                "consumer_wake_monotonic": wake, "generation": self.generation,
+                "source_id": self.fixture["sha256"], "frame_start": self.expected,
+                "ready_count_at_demand": statistics["ready_count"]}
+            self.log.write(json.dumps({"event": "playback_demand", **self.playback_pending_demand}) + "\n")
+            self.log.flush()
+            while time.monotonic() < self.deadline:
+                event = self.event(min(0.25, max(0, self.deadline - time.monotonic())))
+                if event is not None and event["event"] == "chunk":
+                    self.accept(event)
+                    self.playback_deliver(event, wake=wake, statistics=statistics)
+                    break
+        self.check_load()
+        self.finished = time.monotonic()
+        if (self.playback_pending_demand is None and self.playback_next_deadline is not None
+                and self.playback_next_deadline < self.deadline):
+            rotation_pending = self.expected == self.fixture["frames"]
+            next_source = (self.sources[(self.source_index + 1) % len(self.sources)]
+                           if rotation_pending and self.source_paths else self.fixture)
+            self.playback_pending_demand = {"epoch": self.playback_epochs[-1]["epoch"],
+                "deadline_monotonic": self.playback_next_deadline,
+                "consumer_wake_monotonic": None,
+                "generation": None if rotation_pending else self.generation,
+                "source_id": next_source["sha256"],
+                "frame_start": 0 if rotation_pending else self.expected,
+                "ready_count_at_demand": None, "request_not_issued": True,
+                "next_source_not_admitted": rotation_pending,
+                "loaded_generation_at_terminal": self.generation,
+                "loaded_source_id_at_terminal": self.fixture["sha256"],
+                "loaded_expected_frame_at_terminal": self.expected}
+        if self.playback_pending_demand is not None:
+            pending = self.playback_pending_demand
+            wake = pending["consumer_wake_monotonic"]
+            pending.update(workload_stopped_monotonic=self.finished,
+                workload_planned_stop_monotonic=self.deadline,
+                terminal_observed_monotonic=self.finished,
+                request_not_issued=pending.get("request_not_issued", False),
+                next_source_not_admitted=pending.get("next_source_not_admitted", False),
+                observed_wait_seconds=max(0, self.finished - wake) if wake is not None else None,
+                scope="Unfulfilled final virtual clock obligation due before planned stop; readiness censored. If request_not_issued, wake/queue/wait are unknown. If next_source_not_admitted, source/frame describe the planned next traversal and generation is unknown; loaded state is recorded separately")
+            self.log.write(json.dumps({"event": "playback_unfulfilled_demand", **self.playback_pending_demand}) + "\n")
+            self.log.flush()
+        if self.playback_epochs:
+            self.playback_epochs[-1].update(ended_monotonic=self.finished,
+                                            end_reason="workload_stop")
+        self.require(self.elapsed() >= self.args.seconds, "workload ended before requested duration")
+
     def workload(self):
+        if self.delivery_mode == "playback-paced":
+            return self.paced_workload()
         self.generation = self.worker.load(self.fixture["path"])
         first = self.wait(lambda event: event["event"] == "started",
                           self.args.request_timeout * 2 + 5)
@@ -583,20 +814,7 @@ class Soak:
             if event["event"] == "chunk":
                 self.accept(event)
             elif event["event"] == "complete" and event["generation"] == self.generation:
-                self.require(event["source_id"] == self.fixture["sha256"], "completed source identity changed")
-                self.require(self.expected == self.fixture["frames"], "source ended before full coverage")
-                if self.source_start == 0:
-                    self.source_loops += 1
-                    self.source_completions[self.fixture["sha256"]]["full"] += 1
-                else:
-                    self.resumed_completions += 1
-                    self.source_completions[self.fixture["sha256"]]["resumed"] += 1
-                if self.source_paths:
-                    self.select_source((self.source_index + 1) % len(self.sources))
-                    self.generation = self.worker.load(self.fixture["path"])
-                else:
-                    self.generation = self.worker.seek(0)
-                self.expected, self.source_start = 0, 0
+                self.source_complete(event)
             elif (event["event"] == "started" and time.monotonic() >= self.next_control
                   and self.deadline - time.monotonic() > min(
                       self.args.request_timeout * 3 + 10, self.args.seconds / 2)
@@ -630,6 +848,7 @@ class Soak:
                   "started_at_utc": datetime.now(timezone.utc).isoformat(),
                   "host": platform.platform(), "numpy_version": np.__version__,
                   "renderer": self.args.renderer, "requested_seconds": self.args.seconds,
+                  "delivery_mode": self.delivery_mode,
                   "load_mode": self.load_mode, "selected_loads": list(self.selected_loads),
                   "control_interval_seconds": self.args.control_interval,
                   "sample_interval_seconds": self.args.sample_interval,
@@ -742,6 +961,7 @@ class Soak:
                           load_coverage_scope="Selected child process liveness; requested UI also requires atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
                           conditions_at_finish=conditions(),
                           finished_at_utc=datetime.now(timezone.utc).isoformat())
+            result["playback"] = self.playback_summary()
             if self.parity_failure is not None:
                 result["parity_failure"] = self.parity_failure
             audio = result.get("load", {}).get("children", {}).get("audio", {}).get("report", {})
@@ -774,9 +994,12 @@ class Soak:
                                                         for name in self.selected_loads),
                 "controls_completed": sum(bool(control.get("complete")) for control in self.controls),
                 "observed_continuous_p99_within_target": result["timing"]["continuous"]["observed_p99_within_target"],
+                "ordinary_playback_ready_deadlines_met": (not self.playback_pending_demand and
+                    all(row["ready_late_ms"] == 0 for row in self.playback_demands))
+                    if self.delivery_mode == "playback-paced" else None,
                 "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
                 "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
-                "scope": f"{'prepared WAV corpus' if self.source_paths else 'synthetic'} saturated delivery with requested load={self.load_mode}; no stem playback/full deck or musical-quality claim",
+                "scope": f"{'prepared WAV corpus' if self.source_paths else 'synthetic'} {self.delivery_mode} delivery with requested load={self.load_mode}; no stem playback/full deck or musical-quality claim",
             }
             try:
                 self.progress(force=True, status=result["status"])
@@ -790,7 +1013,9 @@ class Soak:
                 and acceptance["sixty_minute_workload_completed"]
                 and acceptance["selected_load_coverage_completed"]
                 and acceptance["controls_completed"] > 0
-                and acceptance["observed_continuous_p99_within_target"])
+                and acceptance["observed_continuous_p99_within_target"]
+                and (self.delivery_mode != "playback-paced" or
+                     acceptance["ordinary_playback_ready_deadlines_met"]))
             atomic_json(self.root / "result.json", result)
         return result
 
@@ -803,6 +1028,8 @@ def main():
     parser.add_argument("--audio-probe", type=Path)
     parser.add_argument("--source-wav", type=Path, action="append",
                         help="Prepared stereo 44.1 kHz PCM16 source; repeat to rotate files after completion")
+    parser.add_argument("--delivery-mode", choices=("saturated", "playback-paced"), default="saturated",
+                        help="Consume immediately, or hold each chunk for its actual audio duration")
     parser.add_argument("--load", dest="load_mode", choices=tuple(Load.MODES), default="both")
     parser.add_argument("--renderer", choices=("opengl", "vulkan", "software"), default="opengl")
     parser.add_argument("--seconds", type=float, default=3600)

@@ -183,10 +183,10 @@ The [follow-up stall trace](../../docs/benchmarks/stall-trace-2026-10-16.md)
 includes GPU command-buffer timings, balanced-profile comparisons and the
 guarded profile runner used when this daemon rejects a balanced hold.
 
-Run the finite thermal soak with `tools/benchmarks/stem_soak.py`. It reuses one
-loaded backend and a small repeating fixture, saturates delivery for the stated
-wall duration, and checks cancellation/seek parity every five minutes. The UI
-and audio probes receive startup/shutdown margin beyond the workload duration.
+Run the finite thermal soak with `tools/benchmarks/stem_soak.py`. By default it
+reuses one loaded backend and a small repeating fixture, saturates delivery for
+the stated wall duration, and checks cancellation/seek parity every five minutes.
+The UI and audio probes receive startup/shutdown margin beyond the workload duration.
 Their monotonic timestamps verify overlap; an atomic UI heartbeat and final
 minute bins reject missing rendering coverage. Brief sampled exposure changes
 are retained; a heartbeat, frame or exposure gap over 30 seconds fails the run.
@@ -199,6 +199,15 @@ The worker retains one backend. External WAVs are read without modification or
 deletion. Source preparation and first-output gaps remain in the event log,
 separate from hop-service timings. This exercises repeated excerpt delivery;
 the audio probe remains an independent diagnostic stream.
+
+Use `--delivery-mode playback-paced` to consume chunks on a virtual playback
+clock with the existing two-hop queue. Deadlines advance by each chunk's actual
+frame count across source changes and late arrivals. Initial startup and
+explicit cancellation/seek recovery are recorded as separate priming epochs.
+Availability misses, consumer scheduling lateness and intentional queue
+residence are separate from native hop-service latency. Paced qualification
+requires both the unchanged service p99 target and no missed ordinary playback
+demands. This mode still uses the independent diagnostic audio stream.
 
 Use `--load none`, `audio`, `both` or `ui` for sustained load isolation; `both`
 is the default. Only selected probes start, and only their executable paths are

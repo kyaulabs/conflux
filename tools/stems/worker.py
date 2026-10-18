@@ -263,7 +263,8 @@ class StemWorker:
                     "telemetry_count": len(self._events), "max_telemetry": self._events.maxlen,
                     "telemetry_high_water": self._telemetry_high_water,
                     "telemetry_dropped": self._telemetry_dropped,
-                    "pending_latest_generation": pending, "inflight": self._inflight,
+                    "pending_latest_generation": pending,
+                    "inflight": dict(self._inflight) if self._inflight is not None else None,
                     "discarded_count": self._discarded, "cancel_count": self._cancelled,
                     "backend_start_count": self._backend_starts,
                     "backend_pid": self._backend_pid, "closed": self._closed}
@@ -459,10 +460,12 @@ class StemWorker:
             request_id = self._request_id
             started = time.monotonic()
             self._emit("started", command.generation, request_id=request_id,
-                       source_id=source.identity, window_start_frame=start, preroll=preroll)
+                       source_id=source.identity, window_start_frame=start, preroll=preroll,
+                       timestamp=started)
             with self._condition:
                 self._inflight = {"generation": command.generation, "request_id": request_id,
-                                  "window_start_frame": start}
+                                  "window_start_frame": start, "source_id": source.identity,
+                                  "timestamp": started, "preroll": preroll}
             try:
                 output, metrics = self._native.infer(samples, request_id)
             finally:
