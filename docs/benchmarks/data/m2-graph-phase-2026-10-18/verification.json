@@ -631,6 +631,18 @@
       "bytes": 4672,
       "sha256": "724c04860c4c46a996bbcb47732327ca5f81d0e0fcf177853013e4d07cda7303"
     },
+    "candidate-build-verification.json": {
+      "bytes": 5550,
+      "sha256": "4884a9829e799398032b6fe460b4f9b018043a48ff3239887df08b3f88a9df39"
+    },
+    "candidate-generated.diff": {
+      "bytes": 2904,
+      "sha256": "577032edcdb0def6e6954d2664c610c3a7a5dd0efdca6506164294c6c3278a94"
+    },
+    "candidate-overlay.cmake": {
+      "bytes": 6900,
+      "sha256": "4050c8d7c67065121ade02b22f0c75d961442610123992fb9b34b1e4dcb06900"
+    },
     "loaded-02/audio.json": {
       "bytes": 1840,
       "sha256": "c68651e0b9eee85845e33fe8ef4cdd43c5853d76096e06e23e485cd610c5cb9e"
@@ -690,6 +702,38 @@
     "loaded-02-policy.json": {
       "bytes": 2494,
       "sha256": "b614bda9699ef7d5574e8110af37f8794fc6a42a5738d8a9e0c1eb19dc927a36"
+    },
+    "operation-01/admission/admission-normal-ready.json": {
+      "bytes": 34957,
+      "sha256": "ed447184f7f0a7bf48a6c7f1e87996f935ceade93455867fc50f870ecf74cf61"
+    },
+    "operation-01/admission/admission-normal-ready.jsonl": {
+      "bytes": 28219,
+      "sha256": "08ac8fda8d6b3b6a003070ef95b60d875ed894c88840a8de4be6bc3326ed497a"
+    },
+    "operation-01/admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "f964fe944ff73d72d5d8e658f8cb364e843c88c6b2db1b12cb012d34e3b67737"
+    },
+    "operation-01/native.stderr": {
+      "bytes": 38168,
+      "sha256": "ef6d4bde0572587acd0ae8589b931c921db8942716fd10ad9522c658691eebc6"
+    },
+    "operation-01/result.json": {
+      "bytes": 63780,
+      "sha256": "78fbb9f0b55ed4600926901f35356b97d4b60c1c5e7b8c56a8fec352d77ea489"
+    },
+    "operation-01-analysis.json": {
+      "bytes": 37313,
+      "sha256": "02ae596e26c3c2b6d4ef447198800d3dec77a6fd684551eca58408c8dd20b018"
+    },
+    "operation-01-gitleaks.log": {
+      "bytes": 146,
+      "sha256": "0ce11a6b40ad7a8c403c3f8f041c5a23d266f3bcbe3d74415b978a068915cfda"
+    },
+    "operation-01-independent-audit.json": {
+      "bytes": 10630,
+      "sha256": "f6fafb6390964aa240c4b3756d516fa1763e116bd7603e778f114b67e568800c"
     },
     "pcm-comparison-launch.json": {
       "bytes": 16152,
@@ -774,5 +818,207 @@
     "command": "gitleaks dir benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-02 --redact --no-color --max-target-megabytes 10",
     "scanned_bytes_reported": 8144397,
     "scope": "Uncompressed local retry-02 result directory, including the 7.68 MB native trace; separate from the commit hook scan."
+  },
+  "operation_profile": {
+    "status": "passed_diagnostic_only",
+    "repository_head": "6a9fddc4f8bd1ee40fb4598dee51178f0a67206c",
+    "runtime_implementation_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+    "completed_requests": 6,
+    "distinct_windows": 2,
+    "repetitions_per_window": 3,
+    "request_wall_ms_min": 1632.2177110123448,
+    "request_wall_ms_max": 1744.745850970503,
+    "profile_elapsed_seconds": 10.439105483994354,
+    "total_elapsed_seconds": 317.89686190598877,
+    "exact_output_matches": 6,
+    "input_hashes_match_immutable_proof": true,
+    "stable_pins": 32,
+    "pins_unchanged": true,
+    "stderr_bytes": 38168,
+    "stderr_truncated": false,
+    "rows_per_table": 89,
+    "operation_invocations_per_table": 1587,
+    "category_summary": [
+      {
+        "category": "MUL_MAT f16",
+        "requests": 6,
+        "mean_share_percent": 34.208472270049725,
+        "min_share_percent": 34.054245000975584,
+        "max_share_percent": 34.3776486275901
+      },
+      {
+        "category": "SOFT_MAX",
+        "requests": 6,
+        "mean_share_percent": 12.192685241510238,
+        "min_share_percent": 12.089362478836362,
+        "max_share_percent": 12.254198313706363
+      },
+      {
+        "category": "MUL_MAT f32",
+        "requests": 6,
+        "mean_share_percent": 10.169375935246682,
+        "min_share_percent": 10.101537014593749,
+        "max_share_percent": 10.246551192401862
+      },
+      {
+        "category": "ADD",
+        "requests": 6,
+        "mean_share_percent": 9.658779741382366,
+        "min_share_percent": 9.579181903437163,
+        "max_share_percent": 9.734023279320056
+      },
+      {
+        "category": "CONT",
+        "requests": 6,
+        "mean_share_percent": 6.788766146683453,
+        "min_share_percent": 6.662073412008622,
+        "max_share_percent": 6.932735821149162
+      },
+      {
+        "category": "MUL",
+        "requests": 6,
+        "mean_share_percent": 5.841572110409837,
+        "min_share_percent": 5.785827128479806,
+        "max_share_percent": 5.905980026317964
+      },
+      {
+        "category": "IM2COL",
+        "requests": 6,
+        "mean_share_percent": 4.460753624800879,
+        "min_share_percent": 4.263128786385857,
+        "max_share_percent": 4.700467645596389
+      },
+      {
+        "category": "REPEAT",
+        "requests": 6,
+        "mean_share_percent": 3.347547975829789,
+        "min_share_percent": 3.320661375494867,
+        "max_share_percent": 3.4215786047040826
+      },
+      {
+        "category": "NORM",
+        "requests": 6,
+        "mean_share_percent": 3.091543479884893,
+        "min_share_percent": 3.061947684694238,
+        "max_share_percent": 3.1503620309331435
+      },
+      {
+        "category": "SCALE",
+        "requests": 6,
+        "mean_share_percent": 2.858227520422357,
+        "min_share_percent": 2.8387472384992543,
+        "max_share_percent": 2.886241095301606
+      },
+      {
+        "category": "MUL_MAT_VEC f16",
+        "requests": 6,
+        "mean_share_percent": 1.697396884833596,
+        "min_share_percent": 1.6887820027268596,
+        "max_share_percent": 1.710635632958
+      },
+      {
+        "category": "MEAN",
+        "requests": 6,
+        "mean_share_percent": 1.1968578879928682,
+        "min_share_percent": 1.1842070480422455,
+        "max_share_percent": 1.2106372771802254
+      },
+      {
+        "category": "SIGMOID",
+        "requests": 6,
+        "mean_share_percent": 1.1872970355563517,
+        "min_share_percent": 1.1809069332929356,
+        "max_share_percent": 1.1956746997908547
+      },
+      {
+        "category": "GELU_ERF",
+        "requests": 6,
+        "mean_share_percent": 0.9324092996256897,
+        "min_share_percent": 0.896447439182563,
+        "max_share_percent": 0.9688557289299601
+      },
+      {
+        "category": "DIV",
+        "requests": 6,
+        "mean_share_percent": 0.7075314953231508,
+        "min_share_percent": 0.7014746886034202,
+        "max_share_percent": 0.7147465030550927
+      },
+      {
+        "category": "SUB",
+        "requests": 6,
+        "mean_share_percent": 0.7026036485136444,
+        "min_share_percent": 0.6968171146959045,
+        "max_share_percent": 0.7106059935652295
+      },
+      {
+        "category": "COL2IM_1D",
+        "requests": 6,
+        "mean_share_percent": 0.6958299989156673,
+        "min_share_percent": 0.6861676348965579,
+        "max_share_percent": 0.706434138417097
+      },
+      {
+        "category": "PAD",
+        "requests": 6,
+        "mean_share_percent": 0.15742778016635733,
+        "min_share_percent": 0.15521616807547786,
+        "max_share_percent": 0.1602293604226131
+      },
+      {
+        "category": "CONCAT",
+        "requests": 6,
+        "mean_share_percent": 0.06878858773007969,
+        "min_share_percent": 0.06786399884190054,
+        "max_share_percent": 0.07177747970528965
+      },
+      {
+        "category": "CPY",
+        "requests": 6,
+        "mean_share_percent": 0.02107865449672337,
+        "min_share_percent": 0.011021950707851525,
+        "max_share_percent": 0.048217848578495856
+      },
+      {
+        "category": "SQRT",
+        "requests": 6,
+        "mean_share_percent": 0.008607963085833233,
+        "min_share_percent": 0.00833795819295462,
+        "max_share_percent": 0.009774422366425185
+      },
+      {
+        "category": "MULTI_ADD ADD",
+        "requests": 6,
+        "mean_share_percent": 0.006441150187127863,
+        "min_share_percent": 0.005031855999493847,
+        "max_share_percent": 0.00730829924758875
+      }
+    ],
+    "independent_audit_checks": 60,
+    "cleanup": {
+      "readiness_reaped": true,
+      "native_started": true,
+      "native_constructed": true,
+      "native_pid": 2237331,
+      "native_reaped": true,
+      "native_returncode": -9,
+      "normal_close_returned": true,
+      "native_resources_closed": true,
+      "temporary_directory_removed": true,
+      "watchdog_joined": true
+    },
+    "cleanup_complete": true,
+    "UI_load": false,
+    "audio_load": false,
+    "cancellation_tested": false,
+    "scope": "Six intentionally perturbed GPU-operation profiles only. No prior stall reproduction, loaded service p99, causal profiling-overhead, musical listening, physical latency or audio/cancellation qualification. Per-operation categories use rounded printed TOTAL columns; mean shares are descriptive and not predicted savings. Native -9 means killed/reaped cleanup."
+  },
+  "graph_order_candidate": {
+    "status": "built_inference_not_run",
+    "binary_sha256": "e50d0f5d0b7e3ba81d2fedb7ccaf0366b6418673c01d11f500936f075f37e720",
+    "overlay_sha256": "4050c8d7c67065121ade02b22f0c75d961442610123992fb9b34b1e4dcb06900",
+    "source_copy_runtime_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+    "source_pin_checks_passed": 6,
+    "scope": "Isolated generated-source candidate only. No product default change, GPU inference, PCM equivalence, memory or latency result."
   }
 }
