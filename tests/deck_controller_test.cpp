@@ -252,7 +252,13 @@ private slots:
         controller.configureAudioRouting("missing", "missing", {}, {});
         QVERIFY(!controller.error().isEmpty());
         controller.refreshAudioRouting();
-        QCOMPARE(controller.audioRouting(), initialRouting);
+        const auto unavailableRouting = controller.audioRouting();
+        // A development-only PipeWire installation can lack client.conf and
+        // fail discovery immediately. Retain that diagnostic; rejected routing
+        // must preserve selection/readiness without assuming a host setup.
+        for (const auto* key : {"ports", "masterReady", "cueReady", "masterLeft", "masterRight",
+                               "cueLeft", "cueRight", "defaultSink", "cueError"})
+            QCOMPARE(unavailableRouting[key], initialRouting[key]);
         QCOMPARE(controller.meters(), initialMeters);
         verifyNoPlayback(controller);
         QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
