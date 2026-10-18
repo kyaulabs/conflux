@@ -221,6 +221,9 @@ int main(int argc, char** argv) {
                     {"involuntary_context_switches", json::Value::make_number(usage_after.ru_nivcsw - usage_before.ru_nivcsw)},
                     {"frontend_ms", json::Value::make_number(timing.frontend_ms)},
                     {"graph_ms", json::Value::make_number(timing.graph_ms)},
+                    {"graph_upload_ms", json::Value::make_number(timing.graph_upload_ms)},
+                    {"graph_compute_ms", json::Value::make_number(timing.graph_compute_ms)},
+                    {"graph_readback_ms", json::Value::make_number(timing.graph_readback_ms)},
                     {"postprocess_ms", json::Value::make_number(timing.postprocess_ms)},
                     {"graph_rebuild_ms", json::Value::make_number(timing.graph_rebuild_ms)}});
             } catch (const std::exception& error) {
