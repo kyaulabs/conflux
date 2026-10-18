@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <QGuiApplication>
 #include <QFontDatabase>
+#include <QKeyEvent>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
@@ -30,6 +31,7 @@ public:
         for (int deck = 0; deck < 2; ++deck)
             decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"playing", false},
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
+                                      {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"waveform", QVariantList{}}});
     }
     QVariantList decks() const { return decks_; }
@@ -40,12 +42,21 @@ public:
     void setBusy(bool value) { busy_ = value; emit stateChanged(); }
     void setReady(bool value) { ready_ = value; emit stateChanged(); }
     void setError(const QString& value) { error_ = value; emit stateChanged(); }
+    void setCueAccepted(bool value) { acceptCue_ = value; }
     void loadState(int deck, double position = 2.0)
     {
         decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)},
                                    {"playing", false}, {"gain", .5},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
+                                   {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                    {"waveform", QVariantList{.15, .5, .9, .3, .1}}};
+        emit stateChanged();
+    }
+    void unloadState(int deck)
+    {
+        auto state = decks_[deck].toMap();
+        state["loaded"] = false;
+        decks_[deck] = state;
         emit stateChanged();
     }
     void snapshotPosition(int deck, double position)
@@ -59,8 +70,9 @@ public:
     { calls.append(QVariantMap{{"action", "load"}, {"deck", deck}, {"url", url}}); }
     Q_INVOKABLE void setPlaying(int deck, bool playing)
     {
-        calls.append(QVariantMap{{"action", "playing"}, {"deck", deck}, {"value", playing}});
         auto state = decks_[deck].toMap();
+        calls.append(QVariantMap{{"action", "playing"}, {"deck", deck}, {"value", playing},
+                                 {"previewBefore", state["cuePreview"]}});
         state["playing"] = playing;
         decks_[deck] = state;
         emit stateChanged();
@@ -84,12 +96,34 @@ public:
         master_ = gain;
         emit stateChanged();
     }
+    Q_INVOKABLE bool cuePress(int deck)
+    {
+        calls.append(QVariantMap{{"action", "cuePress"}, {"deck", deck}});
+        if (!acceptCue_)
+            return false;
+        auto state = decks_[deck].toMap();
+        state["cueHeld"] = true;
+        state["cuePreview"] = true;
+        decks_[deck] = state;
+        emit stateChanged();
+        return true;
+    }
+    Q_INVOKABLE void cueRelease(int deck)
+    {
+        calls.append(QVariantMap{{"action", "cueRelease"}, {"deck", deck}});
+        auto state = decks_[deck].toMap();
+        state["cueHeld"] = false;
+        state["cuePreview"] = false;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
     QVariantList calls;
 signals:
     void stateChanged();
 private:
     QVariantList decks_;
     bool busy_ = false, ready_ = false;
+    bool acceptCue_ = true;
     QString error_;
     double master_ = .5;
 };
@@ -172,8 +206,8 @@ private slots:
         ui_->load();
         QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
         QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
-        for (const auto* name : {"deck0Browse", "deck0Play", "deck0Seek", "deck0Gain",
-                                 "deck1Browse", "deck1Play", "deck1Seek", "deck1Gain",
+        for (const auto* name : {"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain",
+                                 "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain",
                                  "masterGain", "audioError"})
             QVERIFY2(ui_->item(name), name);
         QVERIFY(ui_->object("libraryDrawer"));
@@ -187,10 +221,12 @@ private slots:
 
     void unloadedAndBusyControls()
     {
-        for (const auto* name : {"deck0Play", "deck0Seek", "deck0Gain", "deck1Play", "deck1Seek",
+        for (const auto* name : {"deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck1Cue", "deck1Play", "deck1Seek",
                                  "deck1Gain", "masterGain"})
             QVERIFY2(!ui_->item(name)->isEnabled(), name);
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Play")));
+        for (const auto* name : {"deck0Cue", "deck1Cue"})
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item(name)));
         QCOMPARE(ui_->endpoint.calls.size(), 0);
         QVERIFY(ui_->openLibrary(0));
         QVERIFY(ui_->item("deck0Path"));
@@ -206,11 +242,13 @@ private slots:
         QTRY_VERIFY(!ui_->item("deck0Load")->isEnabled());
         QVERIFY(ui_->closeLibrary());
         QVERIFY(ui_->item("deck0Play")->isEnabled());
+        QVERIFY(ui_->item("deck0Cue")->isEnabled());
         QVERIFY(ui_->item("deck0Seek")->isEnabled());
         QVERIFY(ui_->item("deck0Gain")->isEnabled());
         QVERIFY(ui_->item("masterGain")->isEnabled());
         ui_->endpoint.setReady(false);
         QTRY_VERIFY(!ui_->item("deck0Play")->isEnabled());
+        QVERIFY(!ui_->item("deck0Cue")->isEnabled());
         QVERIFY(!ui_->item("masterGain")->isEnabled());
     }
 
@@ -239,6 +277,171 @@ private slots:
             QCOMPARE(call.value("deck").toInt(), deck);
             QVERIFY(!call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Play"));
+        }
+    }
+
+    void pointerCueHoldRoutesBothDecks()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto name = QString("deck%1Cue").arg(deck).toUtf8();
+            auto* cue = ui_->item(name.constData());
+            QTRY_VERIFY(cue->isEnabled());
+            const auto before = ui_->endpoint.calls.size();
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            verifyCueCall(before, "cuePress", deck);
+            QVERIFY(ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before + 1);
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
+            verifyCueCall(before + 1, "cueRelease", deck);
+            QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+        }
+    }
+
+    void keyboardCueHold_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<int>("key");
+        for (int deck = 0; deck < 2; ++deck)
+            for (const auto key : {Qt::Key_Space, Qt::Key_Return, Qt::Key_Enter})
+                QTest::newRow(qPrintable(QString("deck%1-key%2").arg(deck).arg(int(key)))) << deck << int(key);
+    }
+
+    void keyboardCueHold()
+    {
+        QFETCH(int, deck);
+        QFETCH(int, key);
+        ui_->endpoint.loadState(deck);
+        ui_->endpoint.setReady(true);
+        const auto name = QString("deck%1Cue").arg(deck).toUtf8();
+        auto* cue = ui_->item(name.constData());
+        QTRY_VERIFY(cue->isEnabled());
+        cue->forceActiveFocus();
+        QTRY_VERIFY(cue->hasActiveFocus());
+        QTest::keyPress(ui_->window, Qt::Key(key));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", deck);
+        // OS key repetition includes synthetic release/press pairs. Neither
+        // edge may end the held preview or issue another accepted press.
+        QKeyEvent repeatedRelease(QEvent::KeyRelease, key, Qt::NoModifier, QString(), true, 1);
+        QKeyEvent repeatedPress(QEvent::KeyPress, key, Qt::NoModifier, QString(), true, 1);
+        QCoreApplication::sendEvent(ui_->window, &repeatedRelease);
+        QCoreApplication::sendEvent(ui_->window, &repeatedPress);
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QTest::keyRelease(ui_->window, Qt::Key(key));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        verifyCueCall(1, "cueRelease", deck);
+        QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+    }
+
+    void cueCancellation_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<QString>("reason");
+        for (int deck = 0; deck < 2; ++deck)
+            for (const auto* reason : {"pointer-ungrab", "keyboard-focus", "output-loss", "unload", "hidden"})
+                QTest::newRow(qPrintable(QString("deck%1-%2").arg(deck).arg(reason))) << deck << QString(reason);
+    }
+
+    void cueCancellation()
+    {
+        QFETCH(int, deck);
+        QFETCH(QString, reason);
+        ui_->endpoint.loadState(deck);
+        ui_->endpoint.setReady(true);
+        const auto name = QString("deck%1Cue").arg(deck).toUtf8();
+        auto* cue = ui_->item(name.constData());
+        QTRY_VERIFY(cue->isEnabled());
+        const auto point = ui_->center(cue);
+        const bool keyboard = reason == "keyboard-focus";
+        if (keyboard) {
+            cue->forceActiveFocus();
+            QTRY_VERIFY(cue->hasActiveFocus());
+            QTest::keyPress(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", deck);
+        if (reason == "pointer-ungrab")
+            cue->ungrabMouse();
+        else if (reason == "keyboard-focus")
+            ui_->item("masterGain")->forceActiveFocus();
+        else if (reason == "output-loss")
+            ui_->endpoint.setReady(false);
+        else if (reason == "unload")
+            ui_->endpoint.unloadState(deck);
+        else
+            cue->parentItem()->setVisible(false);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        verifyCueCall(1, "cueRelease", deck);
+        QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+        if (keyboard)
+            QTest::keyRelease(ui_->window, Qt::Key_Space);
+        else
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+    }
+
+    void rejectedCuePressHasNoRelease()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.setCueAccepted(false);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto name = QString("deck%1Cue").arg(deck).toUtf8();
+            auto* cue = ui_->item(name.constData());
+            QTRY_VERIFY(cue->isEnabled());
+            const auto before = ui_->endpoint.calls.size();
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            verifyCueCall(before, "cuePress", deck);
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before + 1);
+            QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+        }
+    }
+
+    void playPressPrecedesHeldCueFocusCleanup()
+    {
+        ui_->endpoint.loadState(0, 0);
+        ui_->endpoint.loadState(1, 0);
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto cueName = QString("deck%1Cue").arg(deck).toUtf8();
+            const auto playName = QString("deck%1Play").arg(deck).toUtf8();
+            auto* cue = ui_->item(cueName.constData());
+            auto* play = ui_->item(playName.constData());
+            QTRY_VERIFY(cue->isEnabled() && play->isEnabled());
+            cue->forceActiveFocus();
+            QTRY_VERIFY(cue->hasActiveFocus());
+            const auto before = ui_->endpoint.calls.size();
+            QTest::keyPress(ui_->window, Qt::Key_Space);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            verifyCueCall(before, "cuePress", deck);
+            const auto playPoint = ui_->center(play);
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, playPoint);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 3);
+            const auto playing = ui_->endpoint.calls[before + 1].toMap();
+            QCOMPARE(playing["action"].toString(), QString("playing"));
+            QCOMPARE(playing["deck"].toInt(), deck);
+            QVERIFY(playing["value"].toBool());
+            QVERIFY(playing["previewBefore"].toBool());
+            verifyCueCall(before + 2, "cueRelease", deck);
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, playPoint);
+            QTest::keyRelease(ui_->window, Qt::Key_Space);
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before + 3);
+            QVERIFY(ui_->endpoint.decks()[deck].toMap()["playing"].toBool());
+            QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
         }
     }
 
@@ -370,8 +573,8 @@ private slots:
         QTRY_COMPARE(ui_->window->size(), viewport);
         // Check usable control geometry, without constraining colors, artwork,
         // control dimensions, or decorative elements inside the deck surfaces.
-        verifyControlsFit({"deck0Browse", "deck0Play", "deck0Seek", "deck0Gain",
-                           "deck1Browse", "deck1Play", "deck1Seek", "deck1Gain",
+        verifyControlsFit({"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain",
+                           "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain",
                            "masterGain", "themeToggle"});
         QVERIFY(ui_->openLibrary(0));
         verifyControlsFit({"deck0Path", "deck0Load", "deck1Path", "deck1Load", "libraryClose"});
@@ -379,6 +582,14 @@ private slots:
     }
 
 private:
+    void verifyCueCall(qsizetype index, const char* action, int deck)
+    {
+        QVERIFY(index >= 0 && index < ui_->endpoint.calls.size());
+        const auto call = ui_->endpoint.calls[index].toMap();
+        QCOMPARE(call.value("action").toString(), QString::fromUtf8(action));
+        QCOMPARE(call.value("deck").toInt(), deck);
+    }
+
     void verifyControlsFit(const QStringList& names)
     {
         const QRectF viewport(QPointF(0, 0), ui_->window->size());

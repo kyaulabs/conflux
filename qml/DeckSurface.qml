@@ -167,7 +167,7 @@ Item {
             x: 14
             y: 107
             visible: display.height >= 210
-            text: surface.deck.loaded ? (surface.deck.playing ? "PLAYING" : "PAUSED") + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
+            text: surface.deck.loaded ? (surface.deck.cuePreview ? "CUE PREVIEW" : (surface.deck.playing ? "PLAYING" : "PAUSED")) + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 9
@@ -420,7 +420,7 @@ Item {
                 spacing: 4
                 Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deckName.toUpperCase(); color: surface.displayAccent; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 12 }
                 Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deck.loaded ? surface.timeText(surface.deck.positionSeconds) : "—:—"; color: "#EFF8F6"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: jog.width >= 330 ? 23 : 17 }
-                Label { anchors.horizontalCenter: parent.horizontalCenter; text: !surface.deck.loaded ? "EMPTY" : (surface.deck.playing ? "PLAYING" : "PAUSED"); color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: !surface.deck.loaded ? "EMPTY" : (surface.deck.cuePreview ? "CUE PREVIEW" : (surface.deck.playing ? "PLAYING" : "PAUSED")); color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
             }
         }
     }
@@ -430,13 +430,42 @@ Item {
         y: surface.height - 151
         spacing: 10
         DeckButton {
+            id: cue
+            property bool acceptedCue: false
             width: 56
             height: 56
             round: true
             text: "CUE"
+            buttonObjectName: "deck" + surface.deckIndex + "Cue"
+            accessibleName: "Cue " + surface.deckName
+            holdAction: true
             indicatorColor: Brand.ConfluxTheme.warning
-            available: false
-            unavailableReason: "Cue points are not implemented. Use the overview slider to return to a position."
+            indicatorOn: surface.canControl && (Boolean(surface.deck.cueHeld) || Boolean(surface.deck.cuePreview)
+                         || (!surface.deck.playing && Math.abs(Number(surface.deck.positionSeconds)
+                                                               - Number(surface.deck.cueSeconds)) < 1 / 48000))
+            available: surface.canControl
+            unavailableReason: "Load a track and wait for audio output to use CUE."
+            actionDescription: "Cue point " + surface.timeText(surface.deck.cueSeconds)
+                               + ". Set while paused; return while playing. Hold to preview; release to return."
+            function releaseCue() {
+                if (!acceptedCue)
+                    return
+                acceptedCue = false
+                surface.controller.cueRelease(surface.deckIndex)
+            }
+            onPressed: {
+                if (acceptedCue || !surface.canControl)
+                    return
+                if (!surface.controller.cuePress(surface.deckIndex))
+                    return
+                acceptedCue = true
+                // A synchronous controller update may have disabled/canceled
+                // the physical press before cuePress returned its acceptance.
+                if (!held || !surface.canControl)
+                    releaseCue()
+            }
+            onReleased: releaseCue()
+            onCanceled: releaseCue()
         }
         DeckButton {
             width: 56
@@ -451,7 +480,7 @@ Item {
             indicatorOn: Boolean(surface.deck.playing)
             available: surface.canControl
             unavailableReason: "Load a track and wait for audio output to use playback."
-            onClicked: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
+            onPressed: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
         }
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 9 }
     }

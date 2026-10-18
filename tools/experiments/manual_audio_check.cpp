@@ -109,6 +109,57 @@ int main(int argc, char** argv)
                 held.sourceFrame[0] == 6000 && held.sourceFrame[1] == 12000 &&
                 controller.audioState().outputFrame > held.outputFrame,
                 "Paused seeks hold exact source frames while output clock advances");
+        auto cuePoint = [&](int deck) {
+            auto* item = window->findChild<QQuickItem*>(QString("deck%1Cue").arg(deck));
+            require(item && item->isEnabled(), "Loaded deck exposes an enabled real CUE button");
+            return item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint();
+        };
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto cue = held.sourceFrame[deck];
+            command([&] { QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cuePoint(deck)); });
+            require(controller.audioState().cueFrame[deck] == cue && controller.audioState().cueHeld[deck] &&
+                    !controller.audioState().cuePreview[deck], "Pointer CUE sets the exact paused render cursor");
+            command([&] { QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cuePoint(deck)); });
+            command([&] { QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cuePoint(deck)); });
+            wait([&] { return controller.audioState().cuePreview[deck] && controller.audioState().sourceFrame[deck] > cue; });
+            require(!controller.audioState().playing[deck], "Held pointer CUE auditions without changing requested play state");
+            command([&] { QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cuePoint(deck)); });
+            require(controller.audioState().sourceFrame[deck] == cue && !controller.audioState().cueHeld[deck] &&
+                    !controller.audioState().cuePreview[deck], "Pointer release returns preview to stored cue and pauses");
+            command([&] { require(controller.cuePress(deck), "Controller accepts cue preview"); });
+            command([&] { controller.setPlaying(deck, true); });
+            command([&] { controller.cueRelease(deck); });
+            require(controller.audioState().playing[deck] && !controller.audioState().cuePreview[deck] &&
+                    controller.audioState().sourceFrame[deck] > cue, "PLAY latches preview; later CUE release keeps playing");
+            command([&] { require(controller.cuePress(deck), "Controller accepts back-cue"); });
+            require(!controller.audioState().playing[deck] && controller.audioState().sourceFrame[deck] == cue,
+                    "CUE during playback returns to stored cue and pauses");
+            command([&] { controller.cueRelease(deck); });
+            command([&] { require(controller.cuePress(deck), "Controller accepts preview before seek"); });
+            command([&] { controller.seekSeconds(deck, 0.5); });
+            command([&] { controller.cueRelease(deck); });
+            require(controller.audioState().cueFrame[deck] == cue && controller.audioState().sourceFrame[deck] == 24000 &&
+                    !controller.audioState().cuePreview[deck], "Seek cancels audition and preserves stored cue");
+            command([&] { controller.seekSeconds(deck, cue / 48000.0); });
+        }
+        // Saturate the real bounded queue while previewing. A release that
+        // cannot enter immediately must survive and outrank later GUI controls.
+        bool deferredRelease = false;
+        for (int attempt = 0; attempt < 20 && !deferredRelease; ++attempt) {
+            command([&] { require(controller.cuePress(0), "Controller accepts preview before queue pressure"); });
+            for (int index = 0; index < 4096; ++index) {
+                controller.setMasterGain(0.5);
+                if (!controller.error().isEmpty())
+                    break;
+            }
+            controller.cueRelease(0);
+            deferredRelease = controller.error() == "Cue release is waiting for the audio control queue.";
+            wait([&] { return !controller.audioState().cueHeld[0] && !controller.audioState().cuePreview[0]; });
+        }
+        require(deferredRelease, "Full transport queue retains CUE release until a later poll can submit it");
+        command([&] { controller.setMasterGain(0.5); });
+        require(controller.audioState().sourceFrame[0] == held.sourceFrame[0],
+                "Queue-pressure recovery returns to the exact cue without a stuck audition");
         const auto names = controller.decks();
         controller.loadDeck(0, QUrl::fromLocalFile(QStringLiteral("/missing-conflux-manual-check.wav")));
         wait([&] { return !controller.busy(); });
@@ -119,8 +170,20 @@ int main(int argc, char** argv)
         controller.loadDeck(0, a);
         wait([&] { return !controller.busy() && controller.outputReady(); });
         require(!controller.audioState().playing[0] && controller.audioState().sourceFrame[0] == 0 &&
+                controller.audioState().cueFrame[0] == 0 && controller.audioState().cueFrame[1] == held.sourceFrame[1] &&
                 controller.audioState().playing[1] && controller.audioState().sourceFrame[1] >= beforeReplace,
-                "Replacing A preserves B transport after stream quiescence");
+                "Replacing A resets its cue and preserves B transport and cue after stream quiescence");
+        command([&] { require(controller.cuePress(1), "Controller accepts B back-cue before replacement check"); });
+        command([&] { controller.cueRelease(1); });
+        command([&] { require(controller.cuePress(1), "Controller accepts B audition before replacing A"); });
+        wait([&] { return controller.audioState().cuePreview[1]; });
+        controller.loadDeck(0, a);
+        wait([&] { return !controller.busy() && controller.outputReady(); });
+        require(!controller.audioState().cueHeld[1] && !controller.audioState().cuePreview[1] &&
+                !controller.audioState().playing[1] && controller.audioState().sourceFrame[1] == held.sourceFrame[1] &&
+                controller.audioState().cueFrame[1] == held.sourceFrame[1],
+                "Replacing a source cancels peer audition and preserves its stored cue");
+        command([&] { controller.setPlaying(1, true); });
         // Deliberately stall GUI snapshot consumption for longer than the
         // 32-slot queue covers. Audio must continue and later controls recover.
         QTest::qSleep(400);
@@ -146,14 +209,16 @@ int main(int argc, char** argv)
         // accepted tail that has not yet reached a callback boundary.
         controller.setPlaying(1, false);
         controller.setMasterGain(0.25);
+        require(controller.cuePress(0), "Tail preview press accepted before immediate shutdown");
         controller.shutdown();
         require(controller.completedApplied() == controller.submittedCommands() &&
                 controller.completedRejected() == 0 && controller.completedInvalidBuffers() == 0 &&
                 controller.completedDeadlineMisses() == 0,
-                "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across three sessions");
+                "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across four sessions");
         const auto final = controller.audioState();
-        require(!final.playing[1] && final.masterGain == 0.25F,
-                "Immediate shutdown retains accepted tail control state");
+        require(!final.playing[1] && final.masterGain == 0.25F && final.sourceFrame[0] == final.cueFrame[0] &&
+                !final.cueHeld[0] && !final.cuePreview[0],
+                "Immediate shutdown retains accepted tail controls and cancels held audition");
         const QJsonObject result{
             {"passed", true}, {"platform", QGuiApplication::platformName()}, {"qt", qVersion()},
             {"elapsed_ms", elapsed.elapsed()}, {"frames_swapped", qint64(swapped)},

@@ -87,6 +87,7 @@ int main()
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};
         LiveSession::InitialState initial;
         initial.sourceFrame = {1, 2};
+        initial.cueFrame = {0, 1};
         initial.playing = {true, false};
         initial.deckGain = {.5F, .25F};
         initial.masterGain = .75F;
@@ -94,6 +95,8 @@ int main()
         state = restored.stoppedState();
         passed &= require(state.sourceFrame == initial.sourceFrame && state.sourceFrames == std::array<std::uint64_t, 2>{2, 3} &&
                           state.playing == initial.playing && state.deckGain == initial.deckGain &&
+                          state.cueFrame == initial.cueFrame && !state.cueHeld[0] && !state.cueHeld[1] &&
+                          !state.cuePreview[0] && !state.cuePreview[1] &&
                           state.masterGain == initial.masterGain && state.outputFrame == 0 && state.callbacks == 0,
                           "initial source positions/gains/playing state were not restored");
         restored.stop();
@@ -108,6 +111,12 @@ int main()
         auto invalid = initial;
         invalid.sourceFrame[0] = 3;
         passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "initial seek beyond EOF was accepted");
+        invalid = initial;
+        invalid.cueFrame[0] = 3;
+        passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "initial cue beyond EOF was accepted");
+        invalid = {};
+        invalid.cueFrame[1] = 1;
+        passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial cue was accepted");
         invalid = initial;
         invalid.playing[1] = true;
         passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial deck was accepted playing");

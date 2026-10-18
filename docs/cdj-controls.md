@@ -27,17 +27,35 @@ the C/D strips must say they are unavailable.
 | Hardware group and position | CONFLUX behavior in this redraw |
 | --- | --- |
 | Display and browse area, top | Show the loaded filename, actual elapsed/total time, playback state and load status. The Library drawer accepts absolute local paths; LOAD calls `loadDeck`. Indexed library browsing, playlists and media-source selection remain unavailable. |
-| Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. The operation has no beat quantization, cue preview or scratch semantics. |
-| PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state with `setPlaying`. Show the requested PAUSED/PLAYING state in text as well as color; source time clamps at EOF. |
+| Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview and preserves the stored cue. Beat quantization and scratch semantics remain unavailable. |
+| PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
 | MASTER LEVEL, mixer | Call `setMasterGain` in [0,1]. The deck's hardware MASTER button selects a sync master and must remain disabled. |
 | Jog, jog mode/adjust and brake | Disabled: scratch, temporary pitch bend/nudge, jog frame search and brake processing are not implemented. Do not animate rotation as a claim of jog interaction. |
-| CUE, Hot Cues A–H and cue memory | Disabled: cue points and cue audition are not implemented. Do not turn CUE into an unlabeled seek-to-zero action or draw stored cue positions. |
+| CUE, lower left | One temporary cue per deck, initially frame zero. Press while paused away from the cue to replace it; press during playback to return and pause. Hold at the paused cue to preview. Indicators use acknowledged cue/preview state. |
+| Hot Cues A–H and cue memory | Disabled: Hot Cues, persistent cue memory and memory navigation are not implemented. |
 | SEARCH/TRACK SEARCH and direction | Disabled: held fast search, track navigation, reverse and slip playback are not implemented. Use the explicit position rail for current seeking. |
 | Loop IN/OUT/RELOOP, 4/8 BEAT LOOP and BEAT JUMP | Disabled: loops, beat analysis and quantized beat navigation are not implemented. |
 | TEMPO rail/range/reset, MASTER TEMPO and KEY SYNC | Disabled: tempo/pitch processing and key matching are not implemented. Keep deck gain off the tempo rail. |
 | BEAT SYNC, MASTER, QUANTIZE and SLIP | Disabled: beat synchronization, quantization and slip transport are not implemented. |
 | Mixer EQ, filter, FX, crossfader, headphone cue and meters | Disabled: their processing, routing or measurement is not implemented. Do not illuminate fictitious level bars. |
+
+The [operating instructions, pages 51–52](https://downloads.support.alphatheta.com/manuals/dj-players/CDJ-3000/CDJ-3000_DRI1586A_manual.pdf#page=51)
+describe paused cue setting, return-and-pause during playback, and preview while
+CUE is held. CONFLUX returns a released preview to the stored cue and pauses;
+the cited pages do not separately specify that release position. Pressing PLAY
+while previewing keeps the current position and latches normal playback.
+Release-return and the PLAY latch are explicit CONFLUX policies, not claims
+proved by those pages.
+
+CUE accepts pointer/touch holds and focused Space, Return or Enter holds;
+auto-repeat adds no press. An accepted hold requests one release on physical
+release, cancellation, focus loss, disable/hide, window deactivation or
+destruction. Same-window focus/cancel cleanup waits one event turn so a PLAY
+press can precede it; deferred cleanup cannot release a newer hold. Physical
+release, disable/hide, window deactivation and destruction request cleanup
+without that deferral. Queue pressure retains the release for retry before
+later transport commands.
 
 BPM, key and beatgrid remain unavailable. The overview uses at most 512
 buckets of `max(abs(left), abs(right))` from decoded PCM, normalized to the
@@ -46,7 +64,7 @@ Analysis runs in the existing decode job, outside the GUI and audio callbacks. K
 invent analysis progress, AI ownership or recorded audio states. Use approved
 CONFLUX assets and theme tokens, without reproducing the hardware's logo.
 
-Retain keyboard focus order through path, LOAD, PLAY/PAUSE, POSITION and
+Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION and
 CHANNEL LEVEL for each deck, then MASTER LEVEL. Enter loads the path; focused
 buttons accept Space/Enter; focused sliders accept arrow keys. Pointer and
 touch use the same actions. Keep controls large enough to operate at the

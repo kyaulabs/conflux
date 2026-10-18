@@ -36,6 +36,8 @@ public:
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
     Q_INVOKABLE void setDeckGain(int deck, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
+    Q_INVOKABLE bool cuePress(int deck);
+    Q_INVOKABLE void cueRelease(int deck);
     // Called after output has stopped by the host integration check as well as
     // destruction. Repeated shutdown is safe; decoded owners stay alive.
     void shutdown();
@@ -58,12 +60,14 @@ private:
     };
     void loaded();
     void poll();
-    void submit(audio::RenderCore::Command command);
+    bool submit(audio::RenderCore::Command command);
+    bool flushCueReleases();
     void stopSession();
     void fail(const QString& error);
     std::array<std::shared_ptr<const audio::DecodedAudio>, 2> clips_{};
     std::array<QString, 2> names_{};
     std::array<QVariantList, 2> waveforms_{};
+    std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::unique_ptr<audio::LiveSession> session_;
     audio::LiveSession::State state_{};
     QFutureWatcher<LoadResult> loader_;

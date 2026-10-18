@@ -18,7 +18,7 @@ public:
     static constexpr std::size_t deckCount = 2;
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -42,6 +42,16 @@ public:
     bool setPlaying(std::size_t deck, bool playing) noexcept;
     bool setDeckGain(std::size_t deck, float gain) noexcept;
     bool setMasterGain(float gain) noexcept;
+    // CUE uses the owner's exact cursor. Press during playback returns to cue
+    // and pauses; a paused press away from cue sets it, otherwise it auditions.
+    // Release returns an unlatched audition to cue. PLAY latches the audition;
+    // PAUSE/SEEK cancel it at the current/new cursor without changing the cue.
+    bool cuePress(std::size_t deck) noexcept;
+    bool cueRelease(std::size_t deck) noexcept;
+    // Restore a stored cue before/after streaming, without seeking or playing.
+    // Newly constructed decks have a temporary cue at frame zero, including
+    // leading silence. EOF is a valid stored cue, as it is for source seeks.
+    bool setCueFrame(std::size_t deck, std::uint64_t frame) noexcept;
     bool apply(const Command& command) noexcept;
     [[nodiscard]] std::uint64_t frameClock() const noexcept { return frameClock_; }
     [[nodiscard]] std::uint64_t sourceFrame(std::size_t deck = 0) const noexcept
@@ -50,6 +60,12 @@ public:
     { return deck < deckCount ? decks_[deck].source.size() / channels : 0; }
     [[nodiscard]] bool isPlaying(std::size_t deck = 0) const noexcept
     { return deck < deckCount && decks_[deck].playing; }
+    [[nodiscard]] std::uint64_t cueFrame(std::size_t deck = 0) const noexcept
+    { return deck < deckCount ? decks_[deck].cueFrame : 0; }
+    [[nodiscard]] bool isCueHeld(std::size_t deck = 0) const noexcept
+    { return deck < deckCount && decks_[deck].cueHeld; }
+    [[nodiscard]] bool isCuePreviewing(std::size_t deck = 0) const noexcept
+    { return deck < deckCount && decks_[deck].cuePreviewing; }
     [[nodiscard]] float deckGain(std::size_t deck = 0) const noexcept
     { return deck < deckCount && !decks_[deck].source.empty() ? decks_[deck].gain : 0.0F; }
     [[nodiscard]] float masterGain() const noexcept { return masterGain_; }
@@ -58,8 +74,11 @@ private:
     struct Deck {
         std::span<const float> source{};
         std::uint64_t frame = 0;
+        std::uint64_t cueFrame = 0;
         float gain = 1.0F;
         bool playing = false;
+        bool cueHeld = false;
+        bool cuePreviewing = false;
     };
     std::array<float, sampleRate> tone_{};
     std::array<Deck, deckCount> decks_{};

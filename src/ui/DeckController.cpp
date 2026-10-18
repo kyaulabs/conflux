@@ -44,6 +44,8 @@ QVariantList DeckController::decks() const
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"waveform", waveforms_[deck]},
             {"playing", state_.playing[deck]},
+            {"cueSeconds", state_.cueFrame[deck] / double(audio::RenderCore::sampleRate)},
+            {"cueHeld", state_.cueHeld[deck]}, {"cuePreview", state_.cuePreview[deck]},
             {"positionSeconds", state_.sourceFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"durationSeconds", state_.sourceFrames[deck] / double(audio::RenderCore::sampleRate)},
             {"gain", state_.deckGain[deck]}});
@@ -125,6 +127,8 @@ void DeckController::stopSession()
         session_.reset();
     }
     ready_ = false;
+    cueDown_.fill(false);
+    cueReleasePending_.fill(false);
 }
 
 void DeckController::loaded()
@@ -143,6 +147,7 @@ void DeckController::loaded()
     names_[pendingDeck_] = pendingName_;
     waveforms_[pendingDeck_] = result.waveform;
     state_.sourceFrame[pendingDeck_] = 0;
+    state_.cueFrame[pendingDeck_] = 0;
     state_.sourceFrames[pendingDeck_] = result.audio->frames();
     state_.playing[pendingDeck_] = false;
     state_.deckGain[pendingDeck_] = 1.0F;
@@ -151,6 +156,7 @@ void DeckController::loaded()
     };
     audio::LiveSession::InitialState initial;
     initial.sourceFrame = state_.sourceFrame;
+    initial.cueFrame = state_.cueFrame;
     initial.playing = state_.playing;
     initial.deckGain = state_.deckGain;
     initial.masterGain = state_.masterGain;
@@ -176,6 +182,7 @@ void DeckController::poll()
 {
     if (!session_)
         return;
+    flushCueReleases();
     audio::LiveSession::State snapshot;
     // The queue is bounded; GUI delay can drop intermediate snapshots. Drain at
     // most its capacity, keeping the newest complete published state.
@@ -191,18 +198,74 @@ void DeckController::poll()
     emit stateChanged();
 }
 
-void DeckController::submit(audio::RenderCore::Command command)
+bool DeckController::submit(audio::RenderCore::Command command)
 {
     if (closing_ || !ready_ || !session_) {
         fail("Audio output is not ready.");
-        return;
+        return false;
+    }
+    // Release has priority over later slider/play events. Never lose a release
+    // just because the bounded transport queue was full at pointer-up.
+    if (!flushCueReleases()) {
+        fail("Cue release is waiting for the audio control queue.");
+        return false;
     }
     if (!session_->submit(command)) {
         fail("Audio control queue is full. Try the control again.");
-        return;
+        return false;
     }
     ++submitted_;
     error_.clear();
+    return true;
+}
+
+bool DeckController::flushCueReleases()
+{
+    for (std::size_t deck = 0; deck < cueReleasePending_.size(); ++deck) {
+        if (!cueReleasePending_[deck])
+            continue;
+        audio::RenderCore::Command command;
+        command.type = audio::RenderCore::Command::Type::CueRelease;
+        command.deck = std::uint32_t(deck);
+        if (!session_ || !session_->submit(command))
+            return false;
+        cueReleasePending_[deck] = false;
+        ++submitted_;
+    }
+    if (error_ == "Cue release is waiting for the audio control queue.")
+        error_.clear();
+    return true;
+}
+
+bool DeckController::cuePress(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) {
+        fail("Load this deck before using cue.");
+        return false;
+    }
+    if (cueDown_[deck])
+        return false;
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::CuePress;
+    command.deck = std::uint32_t(deck);
+    if (!submit(command))
+        return false;
+    cueDown_[deck] = true;
+    return true;
+}
+
+void DeckController::cueRelease(int deck)
+{
+    if (deck < 0 || deck >= int(cueDown_.size())) {
+        fail("Invalid cue deck.");
+        return;
+    }
+    if (!cueDown_[deck])
+        return;
+    cueDown_[deck] = false;
+    cueReleasePending_[deck] = true;
+    if (!flushCueReleases())
+        fail("Cue release is waiting for the audio control queue.");
 }
 
 void DeckController::setPlaying(int deck, bool playing)

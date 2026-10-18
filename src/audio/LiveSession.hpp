@@ -17,6 +17,7 @@ class LiveSession {
 public:
     struct InitialState {
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{};
+        std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<float, RenderCore::deckCount> deckGain{1.0F, 1.0F};
         float masterGain = 1.0F;
@@ -25,7 +26,9 @@ public:
     struct State {
         std::uint64_t outputFrame = 0;
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{}, sourceFrames{};
+        std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
+        std::array<bool, RenderCore::deckCount> cueHeld{}, cuePreview{};
         std::array<float, RenderCore::deckCount> deckGain{};
         float masterGain = 1.0F;
         std::uint64_t applied = 0, rejected = 0, lastCommandId = 0;

@@ -300,7 +300,7 @@ ApplicationWindow {
             spacing: 16
             Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 24; color: Brand.ConfluxTheme.text }
             Label {
-                text: "Load, play/pause, position seek, channel level and master level are active. Waveform overviews show actual source peaks, normalized for display.\n\nCue, hot cues, jog manipulation, tempo, loops, sync, EQ, effects and cue routing await their audio features. Their panel controls are inactive. Decks C/D are reserved."
+                text: "Load, play/pause, temporary CUE, position seek, channel level and master level are active. Pause and press CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. Waveform overviews show actual source peaks, normalized for display.\n\nHot cues, jog manipulation, tempo, loops, sync, EQ, effects and headphone cue routing await their audio features. Their panel controls are inactive. Decks C/D are reserved."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.text
                 Layout.fillWidth: true

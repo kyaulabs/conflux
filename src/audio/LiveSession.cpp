@@ -61,11 +61,12 @@ public:
             if (!std::isfinite(initial.deckGain[deck]) || initial.deckGain[deck] < 0 || initial.deckGain[deck] > 1)
                 throw std::invalid_argument("Invalid initial deck gain");
             if (!renderer_.sourceFrames(deck)) {
-                if (initial.sourceFrame[deck] || initial.playing[deck])
+                if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck])
                     throw std::invalid_argument("Unloaded deck cannot have a source position or playing request");
                 continue;
             }
-            if (!renderer_.seek(deck, initial.sourceFrame[deck]) ||
+            if (!renderer_.setCueFrame(deck, initial.cueFrame[deck]) ||
+                !renderer_.seek(deck, initial.sourceFrame[deck]) ||
                 !renderer_.setDeckGain(deck, initial.deckGain[deck]) ||
                 !renderer_.setPlaying(deck, initial.playing[deck]))
                 throw std::invalid_argument("Invalid initial deck position");
@@ -134,7 +135,10 @@ public:
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
             state.sourceFrame[deck] = renderer_.sourceFrame(deck);
             state.sourceFrames[deck] = renderer_.sourceFrames(deck);
+            state.cueFrame[deck] = renderer_.cueFrame(deck);
             state.playing[deck] = renderer_.isPlaying(deck);
+            state.cueHeld[deck] = renderer_.isCueHeld(deck);
+            state.cuePreview[deck] = renderer_.isCuePreviewing(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
         }
         state.masterGain = renderer_.masterGain();
@@ -298,6 +302,11 @@ public:
             loop_ = nullptr;
         }
         consumeCommands();
+        // A held audition is a GUI gesture, never state to resurrect after
+        // shutdown or source replacement. Pending accepted commands run first.
+        for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck)
+            if (renderer_.sourceFrames(deck))
+                renderer_.cueRelease(deck);
         State discarded;
         while (states_.pop(discarded)) {}
         stopped_ = capture();

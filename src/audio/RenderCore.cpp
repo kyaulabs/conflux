@@ -43,6 +43,7 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
     if (deck >= deckCount || decks_[deck].source.empty() || frame > sourceFrames(deck))
         return false;
     decks_[deck].frame = frame;
+    decks_[deck].cuePreviewing = false;
     return true;
 }
 
@@ -51,6 +52,7 @@ bool RenderCore::setPlaying(std::size_t deck, bool playing) noexcept
     if (deck >= deckCount || decks_[deck].source.empty())
         return false;
     decks_[deck].playing = playing;
+    decks_[deck].cuePreviewing = false;
     return true;
 }
 
@@ -71,6 +73,48 @@ bool RenderCore::setMasterGain(float gain) noexcept
     return true;
 }
 
+bool RenderCore::cuePress(std::size_t deck) noexcept
+{
+    if (deck >= deckCount || decks_[deck].source.empty())
+        return false;
+    auto& state = decks_[deck];
+    if (state.cueHeld)
+        return true;
+    state.cueHeld = true;
+    if (state.playing) {
+        state.frame = state.cueFrame;
+        state.playing = false;
+    } else if (state.frame != state.cueFrame) {
+        state.cueFrame = state.frame;
+    } else {
+        state.cuePreviewing = true;
+    }
+    return true;
+}
+
+bool RenderCore::cueRelease(std::size_t deck) noexcept
+{
+    if (deck >= deckCount || decks_[deck].source.empty())
+        return false;
+    auto& state = decks_[deck];
+    if (!state.cueHeld)
+        return true;
+    state.cueHeld = false;
+    if (state.cuePreviewing) {
+        state.frame = state.cueFrame;
+        state.cuePreviewing = false;
+    }
+    return true;
+}
+
+bool RenderCore::setCueFrame(std::size_t deck, std::uint64_t frame) noexcept
+{
+    if (deck >= deckCount || decks_[deck].source.empty() || frame > sourceFrames(deck))
+        return false;
+    decks_[deck].cueFrame = frame;
+    return true;
+}
+
 bool RenderCore::apply(const Command& command) noexcept
 {
     switch (command.type) {
@@ -79,6 +123,8 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::Seek: return seek(command.deck, command.frame);
     case Command::Type::DeckGain: return setDeckGain(command.deck, command.gain);
     case Command::Type::MasterGain: return setMasterGain(command.gain);
+    case Command::Type::CuePress: return cuePress(command.deck);
+    case Command::Type::CueRelease: return cueRelease(command.deck);
     }
     return false;
 }
@@ -93,7 +139,7 @@ bool RenderCore::render(std::span<float> interleaved) noexcept
         const auto frames = interleaved.size() / channels;
         std::array<std::uint64_t, deckCount> available{};
         for (std::size_t index = 0; index < deckCount; ++index)
-            if (decks_[index].playing)
+            if (decks_[index].playing || decks_[index].cuePreviewing)
                 available[index] = std::min<std::uint64_t>(frames, sourceFrames(index) - decks_[index].frame);
         for (std::size_t frame = 0; frame < frames; ++frame) {
             double left = 0.0, right = 0.0;

@@ -50,6 +50,10 @@ void verifyNoPlayback(const conflux::DeckController& controller)
         QVERIFY(!deck.value("playing").toBool());
         QCOMPARE(deck.value("positionSeconds").toDouble(), 0.0);
         QCOMPARE(deck.value("durationSeconds").toDouble(), 0.0);
+        QVERIFY(deck.contains("cueSeconds") && deck.contains("cueHeld") && deck.contains("cuePreview"));
+        QCOMPARE(deck.value("cueSeconds").toDouble(), 0.0);
+        QVERIFY(!deck.value("cueHeld").toBool());
+        QVERIFY(!deck.value("cuePreview").toBool());
     }
 }
 
@@ -156,6 +160,27 @@ private slots:
         QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
     }
 
+    void rejectsCueWithoutLoadedOutput()
+    {
+        conflux::DeckController controller;
+        for (const int deck : {-1, 0, 1, 2}) {
+            QVERIFY(!controller.cuePress(deck));
+            QVERIFY(!controller.error().isEmpty());
+            // Releases are cleanup, including a late or duplicate release
+            // after output is gone. They must not start a session or command.
+            controller.cueRelease(deck);
+            controller.cueRelease(deck);
+            verifyNoPlayback(controller);
+            QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+            QCOMPARE(controller.completedSessions(), std::uint64_t(0));
+        }
+        controller.shutdown();
+        QVERIFY(!controller.cuePress(0));
+        controller.cueRelease(0);
+        verifyNoPlayback(controller);
+        QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+    }
+
     void closeWithPendingDecode()
     {
         QTemporaryDir directory;
@@ -213,6 +238,17 @@ private slots:
         const std::array<double, 4> expected{32.0 / 87, 19.0 / 87, 53.0 / 87, 1.0};
         for (std::size_t i = 0; i < expected.size(); ++i)
             QVERIFY(std::abs(peaks[qsizetype(i)].toDouble() - expected[i]) < 1e-6);
+        // The private, unavailable server lets a valid deck be loaded without
+        // reaching host audio. A cue press still needs ready output.
+        QVERIFY(!controller.outputReady());
+        QVERIFY(!controller.cuePress(0));
+        controller.cueRelease(0);
+        controller.cueRelease(0);
+        const auto unavailable = controller.decks()[0].toMap();
+        QCOMPARE(unavailable["cueSeconds"].toDouble(), 0.0);
+        QVERIFY(!unavailable["cueHeld"].toBool());
+        QVERIFY(!unavailable["cuePreview"].toBool());
+        QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
         controller.shutdown();
         QVERIFY(!controller.outputReady());
     }
