@@ -11,6 +11,8 @@
 
 #include <limits>
 #include <memory>
+#include <array>
+#include <cmath>
 
 namespace {
 
@@ -170,6 +172,49 @@ private slots:
         QVERIFY(observer.isNull());
         QCoreApplication::sendPostedEvents();
         QCoreApplication::processEvents();
+    }
+
+    void overviewUsesDecodedStereoPeaks()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        // No test may reach the laptop's output server. Keep the environment
+        // until the controller/session has been destroyed.
+        struct RestoreEnvironment {
+            std::array<const char*, 3> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE"};
+            std::array<QByteArray, 3> values;
+            std::array<bool, 3> present;
+            RestoreEnvironment() {
+                for (std::size_t i = 0; i < names.size(); ++i) {
+                    values[i] = qgetenv(names[i]);
+                    present[i] = qEnvironmentVariableIsSet(names[i]);
+                }
+            }
+            ~RestoreEnvironment() {
+                for (std::size_t i = 0; i < names.size(); ++i)
+                    if (present[i]) qputenv(names[i], values[i]); else qunsetenv(names[i]);
+            }
+        } restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        const auto path = directory.filePath("peaks.wav");
+        QVERIFY(writeUnsupportedWave(path, 2, 48000));
+        conflux::DeckController controller;
+        controller.loadDeck(0, QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto deck = controller.decks()[0].toMap();
+        QVERIFY(deck["loaded"].toBool());
+        const auto peaks = deck["waveform"].toList();
+        QCOMPARE(peaks.size(), 4);
+        // Independent fixture channel pairs are [-32,-15], [2,19], [36,53],
+        // [70,87]; use max(abs(L),abs(R)) per source frame, then normalize.
+        const std::array<double, 4> expected{32.0 / 87, 19.0 / 87, 53.0 / 87, 1.0};
+        for (std::size_t i = 0; i < expected.size(); ++i)
+            QVERIFY(std::abs(peaks[qsizetype(i)].toDouble() - expected[i]) < 1e-6);
+        controller.shutdown();
+        QVERIFY(!controller.outputReady());
     }
 };
 

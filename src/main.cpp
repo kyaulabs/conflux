@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
     }
 
     for (const auto* path : {":/brand/assets/fonts/Barlow-Regular.ttf",
+                             ":/brand/assets/fonts/BarlowCondensed-SemiBold.ttf",
                              ":/brand/assets/fonts/JetBrainsMono-Regular.ttf"}) {
         if (QFontDatabase::addApplicationFont(QString::fromUtf8(path)) < 0) {
             std::cerr << "Cannot load bundled font: " << path << '\n';

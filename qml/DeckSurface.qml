@@ -1,0 +1,512 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import QtQuick
+import QtQuick.Controls
+import "../brand/integration/qtquick" as Brand
+
+Item {
+    id: surface
+    required property int deckIndex
+    required property var controller
+    readonly property var deck: controller.decks[deckIndex]
+    readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady
+    readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
+    readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
+    readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
+    readonly property real edge: width >= 560 ? 22 : 16
+    readonly property real sideWidth: width >= 560 ? 76 : 66
+    readonly property real screenHeight: Math.max(174, Math.min(250, height * 0.28))
+    readonly property real hotCueTop: 40 + screenHeight + 20
+    readonly property real loopTop: hotCueTop + 52
+    readonly property real jogTop: loopTop + 60
+    readonly property real jogDiameter: Math.max(220, Math.min(390, width - 152, height - jogTop - 30))
+    property var cachedWaveform: []
+    signal browseRequested(int deck)
+    implicitWidth: 470
+    implicitHeight: 670
+
+    function timeText(seconds) {
+        const value = Math.max(0, Math.floor(Number(seconds) || 0))
+        return Math.floor(value / 60) + ":" + String(value % 60).padStart(2, "0")
+    }
+    function refreshWaveform() {
+        const next = deck.waveform || []
+        let unchanged = next.length === cachedWaveform.length
+        for (let index = 0; unchanged && index < next.length; ++index)
+            unchanged = Number(next[index]) === Number(cachedWaveform[index])
+        if (unchanged)
+            return
+        const copy = []
+        for (let index = 0; index < next.length; ++index)
+            copy.push(Number(next[index]))
+        cachedWaveform = copy
+        waveform.requestPaint()
+    }
+    Component.onCompleted: refreshWaveform()
+    Connections {
+        target: surface.controller
+        function onStateChanged() { surface.refreshWaveform() }
+    }
+    Connections {
+        target: Brand.ConfluxTheme
+        function onDarkChanged() {
+            waveform.requestPaint()
+            knurl.requestPaint()
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        radius: 12
+        border.width: 1
+        border.color: Brand.ConfluxTheme.dark ? "#52585F" : "#92948F"
+        gradient: Gradient {
+            GradientStop { position: 0; color: Qt.lighter(Brand.ConfluxTheme.surface, 1.2) }
+            GradientStop { position: 0.44; color: Brand.ConfluxTheme.surface }
+            GradientStop { position: 1; color: Qt.darker(Brand.ConfluxTheme.surface, 1.18) }
+        }
+        Rectangle {
+            x: 2
+            y: parent.height - 12
+            width: parent.width - 4
+            height: 10
+            radius: 3
+            color: Brand.ConfluxTheme.dark ? "#0A0C0F" : "#B3B4AF"
+        }
+    }
+    Repeater {
+        model: 4
+        Rectangle {
+            required property int index
+            x: index % 2 === 0 ? 9 : surface.width - 15
+            y: index < 2 ? 10 : surface.height - 24
+            width: 6
+            height: 6
+            radius: 3
+            color: Brand.ConfluxTheme.dark ? "#0B0D10" : "#898E92"
+            border.color: Brand.ConfluxTheme.dark ? "#555B63" : "#D3D5D2"
+            Rectangle { anchors.centerIn: parent; width: 4; height: 1; color: Brand.ConfluxTheme.dark ? "#555B63" : "#454B50"; rotation: 28 }
+        }
+    }
+    Label {
+        x: surface.edge
+        y: 13
+        text: surface.deckName.toUpperCase() + "  /  LOCAL PLAYER"
+        font.family: Brand.ConfluxTheme.displayFont
+        font.pixelSize: 14
+        font.letterSpacing: 1.2
+        color: Brand.ConfluxTheme.text
+    }
+    Rectangle {
+        x: surface.width - surface.edge - 8
+        y: 16
+        width: 7
+        height: 7
+        radius: 3.5
+        color: surface.deck.loaded ? surface.deckColor : Brand.ConfluxTheme.divider
+    }
+
+    Rectangle {
+        id: display
+        x: surface.edge
+        y: 40
+        width: surface.width - 2 * surface.edge - surface.sideWidth - 14
+        height: surface.screenHeight
+        radius: 5
+        color: "#050A0B"
+        border.color: Brand.ConfluxTheme.dark ? "#626B70" : "#848F92"
+        border.width: 2
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: 4
+            color: "transparent"
+            border.width: 1
+            border.color: "#19272B"
+        }
+        Label {
+            x: 14
+            y: 12
+            text: surface.deck.loaded ? "LOCAL FILE" : "NO TRACK LOADED"
+            color: surface.displayAccent
+            font.family: Brand.ConfluxTheme.monoFont
+            font.pixelSize: 10
+            font.letterSpacing: 0.5
+        }
+        Label {
+            x: 14
+            y: 32
+            width: parent.width - 28
+            text: surface.deck.loaded ? surface.deck.name : "Browse a local track"
+            elide: Text.ElideMiddle
+            color: "#EFF8F6"
+            font.family: Brand.ConfluxTheme.displayFont
+            font.pixelSize: surface.width >= 560 ? 26 : 22
+            Accessible.name: surface.deckName + " track: " + text
+        }
+        Label {
+            x: 14
+            y: 65
+            text: surface.deck.loaded ? surface.timeText(seek.pressed ? seek.value : surface.deck.positionSeconds) : "—:—"
+            color: "#F2F8F4"
+            font.family: Brand.ConfluxTheme.monoFont
+            font.pixelSize: surface.width >= 560 ? 36 : 29
+        }
+        Column {
+            anchors.right: parent.right
+            anchors.rightMargin: 14
+            y: 67
+            spacing: 4
+            Label { text: "REMAIN"; color: "#8EAAA7"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 9 }
+            Label {
+                text: surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
+                color: surface.displayAccent
+                font.family: Brand.ConfluxTheme.monoFont
+                font.pixelSize: surface.width >= 560 ? 21 : 16
+            }
+        }
+        Label {
+            x: 14
+            y: 107
+            visible: display.height >= 210
+            text: surface.deck.loaded ? (surface.deck.playing ? "PLAYING" : "PAUSED") + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
+            color: "#8EAAA7"
+            font.family: Brand.ConfluxTheme.monoFont
+            font.pixelSize: 9
+        }
+        Canvas {
+            id: waveform
+            x: 14
+            y: parent.height - 71
+            width: parent.width - 28
+            height: 47
+            onWidthChanged: requestPaint()
+            onHeightChanged: requestPaint()
+            onPaint: {
+                const ctx = getContext("2d")
+                ctx.reset()
+                ctx.strokeStyle = "#304545"
+                ctx.lineWidth = 1
+                ctx.beginPath()
+                ctx.moveTo(0, height / 2)
+                ctx.lineTo(width, height / 2)
+                ctx.stroke()
+                const values = surface.cachedWaveform
+                if (!values.length)
+                    return
+                const step = width / values.length
+                ctx.fillStyle = surface.displayAccent
+                for (let index = 0; index < values.length; ++index) {
+                    const peak = Math.max(0, Math.min(1, Number(values[index]) || 0))
+                    const bar = peak * (height - 6)
+                    if (bar > 0)
+                        ctx.fillRect(index * step, (height - bar) / 2, Math.max(1, step * 0.72), bar)
+                }
+            }
+        }
+        Slider {
+            id: seek
+            objectName: "deck" + surface.deckIndex + "Seek"
+            x: 10
+            y: waveform.y - 4
+            width: parent.width - 20
+            height: 55
+            leftPadding: 4
+            rightPadding: 4
+            from: 0
+            to: Math.max(0.001, Number(surface.deck.durationSeconds) || 0)
+            stepSize: 0.1
+            enabled: surface.canControl
+            property real pendingSeek: 0
+            property bool dragged: false
+            Accessible.name: surface.deckName + " overview position"
+            Accessible.description: "Seek within the loaded track. Overview peaks are normalized to that source."
+            onMoved: {
+                pendingSeek = value
+                if (pressed)
+                    dragged = true
+                else if (surface.canControl)
+                    surface.controller.seekSeconds(surface.deckIndex, value)
+            }
+            onPressedChanged: {
+                if (pressed) {
+                    dragged = false
+                } else if (dragged) {
+                    if (surface.canControl)
+                        surface.controller.seekSeconds(surface.deckIndex, pendingSeek)
+                    dragged = false
+                }
+            }
+            Binding {
+                target: seek
+                property: "value"
+                value: Number(surface.deck.positionSeconds) || 0
+                when: !seek.pressed
+                restoreMode: Binding.RestoreNone
+            }
+            background: Rectangle {
+                x: seek.leftPadding
+                y: 1
+                width: seek.availableWidth
+                height: seek.height - 2
+                color: "transparent"
+                radius: 2
+                border.color: seek.activeFocus ? Brand.ConfluxTheme.primary : "transparent"
+                border.width: 2
+            }
+            handle: Rectangle {
+                x: seek.leftPadding + seek.visualPosition * (seek.availableWidth - width)
+                y: 4
+                width: 3
+                height: seek.height - 8
+                color: surface.canControl ? "#F4FBF6" : "#596664"
+                Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: 0; width: 9; height: 3; color: parent.color }
+            }
+        }
+        Label {
+            x: 14
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+            text: surface.cachedWaveform.length ? "OVERVIEW · SOURCE PEAK" : "NO OVERVIEW"
+            color: "#8EAAA7"
+            font.family: Brand.ConfluxTheme.monoFont
+            font.pixelSize: 8
+        }
+    }
+
+    Column {
+        x: surface.width - surface.edge - surface.sideWidth
+        y: 43
+        width: surface.sideWidth
+        spacing: 7
+        DeckButton {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 54
+            height: 54
+            round: true
+            text: "Browse"
+            displayText: "≡"
+            fontPixelSize: 27
+            buttonObjectName: "deck" + surface.deckIndex + "Browse"
+            accessibleName: "Browse " + surface.deckName
+            onClicked: surface.browseRequested(surface.deckIndex)
+        }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BROWSE"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 11; color: Brand.ConfluxTheme.text }
+        DeckButton {
+            width: parent.width
+            height: 44
+            text: "LOAD"
+            accessibleName: "Choose a file for " + surface.deckName
+            onClicked: surface.browseRequested(surface.deckIndex)
+        }
+        DeckButton {
+            width: parent.width
+            height: 34
+            text: "SOURCE"
+            available: false
+            unavailableReason: "Source switching is not implemented. Use Browse for a local file."
+        }
+    }
+
+    Label {
+        x: surface.edge
+        y: surface.hotCueTop - 16
+        text: "HOT CUE"
+        font.family: Brand.ConfluxTheme.displayFont
+        font.pixelSize: 10
+        font.letterSpacing: 1
+        color: Brand.ConfluxTheme.muted
+    }
+    Row {
+        x: surface.edge
+        y: surface.hotCueTop
+        spacing: 5
+        Repeater {
+            model: 8
+            DeckButton {
+                required property int index
+                width: (surface.width - 2 * surface.edge - 35) / 8
+                height: 36
+                text: String.fromCharCode(65 + index)
+                indicatorColor: surface.deckColor
+                available: false
+                unavailableReason: "Hot cues are not implemented in this milestone."
+            }
+        }
+    }
+    Row {
+        x: surface.edge
+        y: surface.loopTop
+        spacing: 5
+        DeckButton { width: 44; height: 36; text: "IN"; indicatorColor: Brand.ConfluxTheme.warning; available: false; unavailableReason: "Loop in/out points are not implemented." }
+        DeckButton { width: 44; height: 36; text: "OUT"; indicatorColor: Brand.ConfluxTheme.warning; available: false; unavailableReason: "Loop in/out points are not implemented." }
+        DeckButton { width: 62; height: 36; text: "RELOOP"; available: false; unavailableReason: "Loop recall is not implemented." }
+        DeckButton { width: 45; height: 36; text: "CALL ◀"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
+        DeckButton { width: 45; height: 36; text: "CALL ▶"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
+    }
+    DeckButton {
+        x: surface.width - surface.edge - 66
+        y: surface.loopTop
+        width: 66
+        height: 36
+        text: "MASTER\nTEMPO"
+        fontPixelSize: 9
+        available: false
+        unavailableReason: "Pitch-independent tempo adjustment is not implemented."
+    }
+
+    Item {
+        id: jog
+        x: (surface.width - width) / 2
+        y: surface.jogTop
+        width: surface.jogDiameter
+        height: width
+        Accessible.role: Accessible.StaticText
+        Accessible.name: surface.deckName + " position display, " + surface.timeText(surface.deck.positionSeconds) + " of " + surface.timeText(surface.deck.durationSeconds)
+        Accessible.description: "Use the overview slider to seek. Jog manipulation is not implemented."
+        Rectangle {
+            anchors.fill: parent
+            radius: width / 2
+            border.width: 1
+            border.color: Brand.ConfluxTheme.dark ? "#77828B" : "#697276"
+            gradient: Gradient {
+                GradientStop { position: 0; color: Brand.ConfluxTheme.dark ? "#68727C" : "#CDD0CC" }
+                GradientStop { position: 0.28; color: Brand.ConfluxTheme.dark ? "#272E36" : "#7E878C" }
+                GradientStop { position: 0.72; color: Brand.ConfluxTheme.dark ? "#14191F" : "#9AA1A0" }
+                GradientStop { position: 1; color: Brand.ConfluxTheme.dark ? "#68737E" : "#DBDED8" }
+            }
+        }
+        Canvas {
+            id: knurl
+            anchors.fill: parent
+            onWidthChanged: requestPaint()
+            onHeightChanged: requestPaint()
+            onPaint: {
+                const ctx = getContext("2d")
+                ctx.reset()
+                const radius = width / 2
+                ctx.strokeStyle = Brand.ConfluxTheme.dark ? "#14191F" : "#5A6268"
+                ctx.lineWidth = Math.max(2, width / 110)
+                for (let index = 0; index < 72; ++index) {
+                    const angle = index * Math.PI * 2 / 72
+                    ctx.beginPath()
+                    ctx.moveTo(radius + Math.cos(angle) * radius * 0.91, radius + Math.sin(angle) * radius * 0.91)
+                    ctx.lineTo(radius + Math.cos(angle) * radius * 0.985, radius + Math.sin(angle) * radius * 0.985)
+                    ctx.stroke()
+                }
+            }
+        }
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: parent.width * 0.065
+            radius: width / 2
+            border.color: "#76838A"
+            border.width: 2
+            gradient: Gradient {
+                GradientStop { position: 0; color: "#252B31" }
+                GradientStop { position: 0.45; color: "#0B0F14" }
+                GradientStop { position: 1; color: "#151B22" }
+            }
+            Rectangle { anchors.fill: parent; anchors.margins: 11; radius: width / 2; color: "transparent"; border.color: "#2A353B" }
+        }
+        Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * 0.37
+            height: width
+            radius: width / 2
+            color: "#071014"
+            border.color: surface.displayAccent
+            border.width: surface.deck.playing ? 4 : 2
+            Column {
+                anchors.centerIn: parent
+                spacing: 4
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deckName.toUpperCase(); color: surface.displayAccent; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 12 }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deck.loaded ? surface.timeText(surface.deck.positionSeconds) : "—:—"; color: "#EFF8F6"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: jog.width >= 330 ? 23 : 17 }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: !surface.deck.loaded ? "EMPTY" : (surface.deck.playing ? "PLAYING" : "PAUSED"); color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
+            }
+        }
+    }
+
+    Column {
+        x: surface.edge
+        y: surface.height - 151
+        spacing: 10
+        DeckButton {
+            width: 56
+            height: 56
+            round: true
+            text: "CUE"
+            indicatorColor: Brand.ConfluxTheme.warning
+            available: false
+            unavailableReason: "Cue points are not implemented. Use the overview slider to return to a position."
+        }
+        DeckButton {
+            width: 56
+            height: 56
+            round: true
+            text: surface.deck.playing ? "Pause" : "Play"
+            displayText: surface.deck.playing ? "Ⅱ" : "▶"
+            fontPixelSize: 22
+            buttonObjectName: "deck" + surface.deckIndex + "Play"
+            accessibleName: text + " " + surface.deckName
+            indicatorColor: Brand.ConfluxTheme.success
+            indicatorOn: Boolean(surface.deck.playing)
+            available: surface.canControl
+            unavailableReason: "Load a track and wait for audio output to use playback."
+            onClicked: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
+        }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 9 }
+    }
+
+    Item {
+        x: surface.width - surface.edge - 48
+        y: surface.jogTop + 5
+        width: 48
+        height: Math.max(180, surface.height - y - 53)
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "TEMPO"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 10 }
+        Slider {
+            id: tempo
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 25
+            width: 44
+            height: parent.height - 48
+            orientation: Qt.Vertical
+            from: -1
+            to: 1
+            value: 0
+            enabled: false
+            opacity: 0.48
+            background: Item {
+                x: 0
+                y: tempo.topPadding
+                width: tempo.width
+                height: tempo.availableHeight
+                Rectangle { anchors.horizontalCenter: parent.horizontalCenter; width: 5; height: parent.height; color: Brand.ConfluxTheme.dark ? "#080C10" : "#7A8284"; border.color: Brand.ConfluxTheme.divider }
+                Repeater {
+                    model: 11
+                    Rectangle {
+                        required property int index
+                        x: index === 5 ? 0 : 7
+                        y: index * (parent.height - 1) / 10
+                        width: index === 5 ? 15 : 8
+                        height: 1
+                        color: Brand.ConfluxTheme.muted
+                    }
+                }
+            }
+            handle: Rectangle {
+                x: 3
+                y: tempo.topPadding + tempo.visualPosition * (tempo.availableHeight - height)
+                width: tempo.width - 6
+                height: 19
+                radius: 2
+                color: Brand.ConfluxTheme.raised
+                border.color: Brand.ConfluxTheme.controlBorder
+                Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: parent.height / 2; width: parent.width - 5; height: 1; color: Brand.ConfluxTheme.muted }
+            }
+        }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; anchors.bottom: parent.bottom; text: "INACTIVE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 8 }
+        MouseArea { id: tempoHover; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
+        ToolTip.visible: tempoHover.containsMouse
+        ToolTip.delay: 450
+        ToolTip.text: "Tempo adjustment is not implemented in this milestone."
+    }
+}

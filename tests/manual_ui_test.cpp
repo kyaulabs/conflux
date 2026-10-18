@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <QGuiApplication>
+#include <QFontDatabase>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
@@ -28,7 +29,8 @@ public:
     {
         for (int deck = 0; deck < 2; ++deck)
             decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"playing", false},
-                                      {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0}});
+                                      {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
+                                      {"waveform", QVariantList{}}});
     }
     QVariantList decks() const { return decks_; }
     bool busy() const { return busy_; }
@@ -42,7 +44,8 @@ public:
     {
         decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)},
                                    {"playing", false}, {"gain", .5},
-                                   {"positionSeconds", position}, {"durationSeconds", 10.0}};
+                                   {"positionSeconds", position}, {"durationSeconds", 10.0},
+                                   {"waveform", QVariantList{.15, .5, .9, .3, .1}}};
         emit stateChanged();
     }
     void snapshotPosition(int deck, double position)
@@ -127,17 +130,37 @@ struct UiFixture {
         if (!engine.rootObjects().isEmpty()) {
             window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
             if (window) {
-                // Keep every tested control in the viewport. Small-window
-                // scrolling is a separate visual/layout check.
-                window->resize(1080, 1100);
+                window->resize(1680, 1020);
                 window->requestActivate();
             }
         }
     }
     QQuickItem* item(const char* name) const
     { return window ? visualItem(window->contentItem(), QString::fromUtf8(name)) : nullptr; }
+    QObject* object(const char* name) const
+    { return window ? window->findChild<QObject*>(QString::fromUtf8(name)) : nullptr; }
     QPoint center(QQuickItem* item) const
     { return item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint(); }
+
+    bool openLibrary(int deck)
+    {
+        const auto name = QString("deck%1Browse").arg(deck).toUtf8();
+        auto* browse = item(name.constData());
+        auto* drawer = object("libraryDrawer");
+        if (!browse || !drawer)
+            return false;
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, center(browse));
+        return QTest::qWaitFor([drawer] { return drawer->property("opened").toBool(); });
+    }
+    bool closeLibrary()
+    {
+        auto* close = item("libraryClose");
+        auto* drawer = object("libraryDrawer");
+        if (!close || !drawer)
+            return false;
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, center(close));
+        return QTest::qWaitFor([drawer] { return !drawer->property("visible").toBool(); });
+    }
 };
 
 class ManualUiTest final : public QObject {
@@ -149,10 +172,11 @@ private slots:
         ui_->load();
         QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
         QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
-        for (const auto* name : {"deck0Path", "deck0Load", "deck0Play", "deck0Seek", "deck0Gain",
-                                 "deck1Path", "deck1Load", "deck1Play", "deck1Seek", "deck1Gain",
+        for (const auto* name : {"deck0Browse", "deck0Play", "deck0Seek", "deck0Gain",
+                                 "deck1Browse", "deck1Play", "deck1Seek", "deck1Gain",
                                  "masterGain", "audioError"})
             QVERIFY2(ui_->item(name), name);
+        QVERIFY(ui_->object("libraryDrawer"));
     }
     void cleanup()
     {
@@ -168,6 +192,9 @@ private slots:
             QVERIFY2(!ui_->item(name)->isEnabled(), name);
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Play")));
         QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QVERIFY(ui_->openLibrary(0));
+        QVERIFY(ui_->item("deck0Path"));
+        QVERIFY(ui_->item("deck0Load"));
         QVERIFY(ui_->item("deck0Path")->setProperty("text", "/tmp/a.wav"));
         QTRY_VERIFY(ui_->item("deck0Load")->isEnabled());
 
@@ -177,6 +204,7 @@ private slots:
         QVERIFY(!ui_->item("deck1Play")->isEnabled());
         ui_->endpoint.setBusy(true);
         QTRY_VERIFY(!ui_->item("deck0Load")->isEnabled());
+        QVERIFY(ui_->closeLibrary());
         QVERIFY(ui_->item("deck0Play")->isEnabled());
         QVERIFY(ui_->item("deck0Seek")->isEnabled());
         QVERIFY(ui_->item("deck0Gain")->isEnabled());
@@ -228,7 +256,7 @@ private slots:
                 QTRY_VERIFY(slider->hasActiveFocus());
                 const auto initial = slider->property("value").toDouble();
                 const auto before = ui_->endpoint.calls.size();
-                QTest::keyClick(ui_->window, Qt::Key_Right);
+                QTest::keyClick(ui_->window, QString(suffix) == "Gain" ? Qt::Key_Up : Qt::Key_Right);
                 QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
                 const auto call = ui_->endpoint.calls.last().toMap();
                 QCOMPARE(call.value("action").toString(), QString(suffix) == "Seek" ? QString("seek") : QString("gain"));
@@ -287,7 +315,9 @@ private slots:
 
     void pathEnterRoutesLocalUrl()
     {
+        QVERIFY(ui_->openLibrary(1));
         auto* path = ui_->item("deck1Path");
+        QVERIFY(path);
         const QString local = "/tmp/Music Set/A #part%.wav";
         QVERIFY(path->setProperty("text", local));
         QTRY_VERIFY(ui_->item("deck1Load")->isEnabled());
@@ -301,9 +331,74 @@ private slots:
         const auto url = call.value("url").toUrl();
         QVERIFY(url.isLocalFile());
         QCOMPARE(url.toLocalFile(), local);
+        QVERIFY(ui_->object("libraryDrawer")->property("opened").toBool());
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!ui_->object("libraryDrawer")->property("visible").toBool());
+    }
+
+    void loadButtonRoutesLocalUrl()
+    {
+        QVERIFY(ui_->openLibrary(0));
+        auto* path = ui_->item("deck0Path");
+        auto* load = ui_->item("deck0Load");
+        QVERIFY(path);
+        QVERIFY(load);
+        const QString local = "/tmp/Music Set/Deck A.wav";
+        QVERIFY(path->setProperty("text", local));
+        QTRY_VERIFY(load->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(load));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(call.value("action").toString(), QString("load"));
+        QCOMPARE(call.value("deck").toInt(), 0);
+        QCOMPARE(call.value("url").toUrl().toLocalFile(), local);
+        QVERIFY(ui_->object("libraryDrawer")->property("opened").toBool());
+        QVERIFY(ui_->closeLibrary());
+    }
+
+    void viewportControlsFit_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::newRow("minimum") << QSize(1180, 760);
+        QTest::newRow("default") << QSize(1680, 1020);
+    }
+
+    void viewportControlsFit()
+    {
+        QFETCH(QSize, viewport);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        // Check usable control geometry, without constraining colors, artwork,
+        // control dimensions, or decorative elements inside the deck surfaces.
+        verifyControlsFit({"deck0Browse", "deck0Play", "deck0Seek", "deck0Gain",
+                           "deck1Browse", "deck1Play", "deck1Seek", "deck1Gain",
+                           "masterGain", "themeToggle"});
+        QVERIFY(ui_->openLibrary(0));
+        verifyControlsFit({"deck0Path", "deck0Load", "deck1Path", "deck1Load", "libraryClose"});
+        QVERIFY(ui_->closeLibrary());
     }
 
 private:
+    void verifyControlsFit(const QStringList& names)
+    {
+        const QRectF viewport(QPointF(0, 0), ui_->window->size());
+        QList<QRectF> bounds;
+        for (const auto& name : names) {
+            auto* control = ui_->item(name.toUtf8().constData());
+            QVERIFY2(control, qPrintable(name));
+            QTRY_VERIFY2(control->isVisible(), qPrintable(name));
+            QTRY_VERIFY2(control->width() > 0 && control->height() > 0, qPrintable(name));
+            QTRY_VERIFY2(viewport.adjusted(-.5, -.5, .5, .5).contains(
+                             control->mapRectToScene(QRectF(0, 0, control->width(), control->height()))),
+                         qPrintable(name + " falls outside the viewport"));
+            const auto rect = control->mapRectToScene(QRectF(0, 0, control->width(), control->height()));
+            for (int previous = 0; previous < bounds.size(); ++previous)
+                QVERIFY2(!rect.intersects(bounds[previous]),
+                         qPrintable(name + " overlaps " + names[previous]));
+            bounds.append(rect);
+        }
+    }
+
     std::unique_ptr<UiFixture> ui_;
 };
 
@@ -314,6 +409,9 @@ int main(int argc, char** argv)
     QGuiApplication application(argc, argv);
     application.setQuitOnLastWindowClosed(false);
     QQuickStyle::setStyle("Basic");
+    QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/Barlow-Regular.ttf"));
+    QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/BarlowCondensed-SemiBold.ttf"));
+    QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/JetBrainsMono-Regular.ttf"));
     ManualUiTest test;
     return QTest::qExec(&test, argc, argv);
 }

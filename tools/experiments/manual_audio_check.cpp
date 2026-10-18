@@ -15,6 +15,8 @@
 #include <QQuickWindow>
 #include <QTest>
 #include <functional>
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 
@@ -27,6 +29,7 @@ int main(int argc, char** argv)
     }
     QQuickStyle::setStyle("Basic");
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/Barlow-Regular.ttf"));
+    QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/BarlowCondensed-SemiBold.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/JetBrainsMono-Regular.ttf"));
     conflux::DeckController controller;
     QQmlApplicationEngine engine;
@@ -66,6 +69,10 @@ int main(int argc, char** argv)
         wait([&] { return !controller.busy() && controller.outputReady(); });
         require(controller.error().isEmpty() && !controller.audioState().playing[0] &&
                 controller.audioState().sourceFrame[0] == 0, "Deck A loads paused at frame zero");
+        const auto waveform = controller.decks()[0].toMap()["waveform"].toList();
+        require(waveform.size() == 512 && std::all_of(waveform.begin(), waveform.end(), [](const QVariant& peak) {
+                    return std::isfinite(peak.toDouble()) && peak.toDouble() >= 0 && peak.toDouble() <= 1;
+                }), "Real decoded source publishes a bounded finite normalized overview");
         auto command = [&](const std::function<void()>& action) {
             const auto count = controller.audioState().applied + 1;
             action();
@@ -131,6 +138,9 @@ int main(int argc, char** argv)
         QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, point);
         QTest::qWait(200);
         require(window->grabWindow().save(prefix + "-light.png"), "Light screenshot saved");
+        window->resize(1180, 760);
+        QTest::qWait(200);
+        require(window->grabWindow().save(prefix + "-minimum.png"), "Minimum-size screenshot saved");
         require(!sceneError && swapped > 20, "GUI frames rendered alongside live audio without scene errors");
         // Do not wait for a GUI acknowledgement: stop must preserve even the
         // accepted tail that has not yet reached a callback boundary.

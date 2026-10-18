@@ -42,6 +42,7 @@ QVariantList DeckController::decks() const
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
+            {"waveform", waveforms_[deck]},
             {"playing", state_.playing[deck]},
             {"positionSeconds", state_.sourceFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"durationSeconds", state_.sourceFrames[deck] / double(audio::RenderCore::sampleRate)},
@@ -84,11 +85,27 @@ void DeckController::loadDeck(int deck, const QUrl& url)
             // QFile::encodeName preserves the platform's filesystem encoding.
             const auto encoded = QFile::encodeName(path);
             auto decoded = audio::decodeAudioFile(std::filesystem::path(encoded.constData()));
-            return {std::make_shared<const audio::DecodedAudio>(std::move(decoded)), {}};
+            // A bounded overview of actual source peaks. Compute outside both
+            // GUI and audio threads; normalization affects display only.
+            const auto bins = std::min<std::uint64_t>(512, decoded.frames());
+            std::vector<float> peaks(bins, 0.0F);
+            float maximum = 0.0F;
+            const auto pcm = decoded.samples();
+            for (std::uint64_t frame = 0; frame < decoded.frames(); ++frame) {
+                const auto peak = std::max(std::abs(pcm[frame * 2]), std::abs(pcm[frame * 2 + 1]));
+                auto& bin = peaks[frame * bins / decoded.frames()];
+                bin = std::max(bin, peak);
+                maximum = std::max(maximum, peak);
+            }
+            QVariantList waveform;
+            waveform.reserve(qsizetype(bins));
+            for (const auto peak : peaks)
+                waveform.append(maximum > 0.0F ? peak / maximum : 0.0F);
+            return {std::make_shared<const audio::DecodedAudio>(std::move(decoded)), {}, waveform};
         } catch (const std::exception& error) {
-            return {{}, QString::fromUtf8(error.what())};
+            return {{}, QString::fromUtf8(error.what()), {}};
         } catch (...) {
-            return {{}, "Audio decoding failed."};
+            return {{}, "Audio decoding failed.", {}};
         }
     }));
 }
@@ -124,6 +141,7 @@ void DeckController::loaded()
     // No callback can refer to the old owner after stopSession returns.
     clips_[pendingDeck_] = result.audio;
     names_[pendingDeck_] = pendingName_;
+    waveforms_[pendingDeck_] = result.waveform;
     state_.sourceFrame[pendingDeck_] = 0;
     state_.sourceFrames[pendingDeck_] = result.audio->frames();
     state_.playing[pendingDeck_] = false;

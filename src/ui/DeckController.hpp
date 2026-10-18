@@ -54,6 +54,7 @@ private:
     struct LoadResult {
         std::shared_ptr<const audio::DecodedAudio> audio;
         QString error;
+        QVariantList waveform;
     };
     void loaded();
     void poll();
@@ -62,6 +63,7 @@ private:
     void fail(const QString& error);
     std::array<std::shared_ptr<const audio::DecodedAudio>, 2> clips_{};
     std::array<QString, 2> names_{};
+    std::array<QVariantList, 2> waveforms_{};
     std::unique_ptr<audio::LiveSession> session_;
     audio::LiveSession::State state_{};
     QFutureWatcher<LoadResult> loader_;

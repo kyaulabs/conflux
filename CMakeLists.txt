@@ -71,6 +71,10 @@ if(CONFLUX_BUILD_UI)
     target_compile_options(conflux PRIVATE -Wall -Wextra -Wpedantic)
     qt_add_resources(conflux runtime-assets PREFIX "/" FILES
         qml/Main.qml
+        qml/DeckSurface.qml
+        qml/DeckButton.qml
+        qml/MixerSurface.qml
+        qml/SurfaceKnob.qml
         qml/Harness.qml
         brand/integration/qtquick/qmldir
         brand/integration/qtquick/ConfluxTheme.qml
@@ -78,6 +82,7 @@ if(CONFLUX_BUILD_UI)
         brand/assets/logos/conflux-horizontal-light.svg
         brand/assets/app-icons/conflux-app-dark.svg
         brand/assets/fonts/Barlow-Regular.ttf
+        brand/assets/fonts/BarlowCondensed-SemiBold.ttf
         brand/assets/fonts/JetBrainsMono-Regular.ttf
     )
     if(BUILD_TESTING)
@@ -101,7 +106,7 @@ if(CONFLUX_BUILD_UI)
     install(FILES brand/assets/app-icons/conflux-app-dark.svg
         DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps
         RENAME com.kyaulabs.conflux.svg)
-    install(FILES brand/assets/fonts/Barlow-OFL.txt brand/assets/fonts/JetBrainsMono-OFL.txt
+    install(FILES brand/assets/fonts/Barlow-OFL.txt brand/assets/fonts/BarlowCondensed-OFL.txt brand/assets/fonts/JetBrainsMono-OFL.txt
         DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/conflux/fonts)
 endif()
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/conflux)
