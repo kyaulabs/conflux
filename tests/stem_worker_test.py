@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Behavior tests for the M0 supervisor, requiring neither model nor GPU."""
 
+import io
 import json
 import os
 from pathlib import Path
@@ -84,6 +85,116 @@ class FakeRuntime:
         with self.condition:
             self.closed = True
             self.condition.notify_all()
+
+
+class NativeRuntimeConstructionTest(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory(prefix="conflux-native-init-test-")
+        self.root = Path(self.directory.name)
+        self.addCleanup(self.directory.cleanup)
+
+    def resources(self):
+        # Keep strong references after the failed constructor, so GC/finalizers
+        # cannot hide a missing explicit cleanup in NativeRuntime.__init__.
+        real_directory = tempfile.TemporaryDirectory
+        created = []
+        def make_directory(*args, **kwargs):
+            directory = real_directory(*args, dir=self.root, **kwargs)
+            created.append(directory)
+            self.addCleanup(directory.cleanup)
+            return directory
+        actions = []
+        child = Mock()
+        child.stdin, child.stdout = io.BytesIO(), io.BytesIO()
+        self.addCleanup(child.stdin.close)
+        self.addCleanup(child.stdout.close)
+        child.poll.return_value = None
+        child.kill.side_effect = lambda: actions.append("kill")
+        def wait(*, timeout):
+            actions.append("wait")
+            self.assertGreater(timeout, 0)
+            self.assertLessEqual(timeout, 2)
+            return -9
+        child.wait.side_effect = wait
+        launch = Mock(return_value=child)
+        return make_directory, created, child, actions, launch
+
+    def assert_files_cleaned(self, created, launch):
+        self.assertEqual(len(created), 1)
+        self.assertFalse(Path(created[0].name).exists(), "failed startup retained its temporary directory")
+        self.assertTrue(launch.call_args.kwargs["stderr"].closed, "failed startup retained its stderr file")
+
+    def assert_child_cleaned(self, child, actions):
+        child.kill.assert_called_once_with()
+        child.wait.assert_called_once()
+        self.assertEqual(actions, ["kill", "wait"], "startup cleanup must terminate and reap the owned child")
+        self.assertTrue(child.stdin.closed, "failed startup retained child stdin")
+        self.assertTrue(child.stdout.closed, "failed startup retained child stdout")
+
+    def test_selector_creation_failure_reaps_spawned_child_and_closes_resources(self):
+        factory, created, child, actions, launch = self.resources()
+        original = OSError("injected selector allocation failure")
+        with patch("tools.stems.worker.tempfile.TemporaryDirectory", side_effect=factory), \
+             patch("tools.stems.worker.subprocess.Popen", launch), \
+             patch("tools.stems.worker.selectors.DefaultSelector", side_effect=original) as selector:
+            with self.assertRaises(OSError) as caught:
+                NativeRuntime("unused-runtime", "unused-model", "cpu", 1, 2)
+        self.assertIs(caught.exception, original)
+        launch.assert_called_once()
+        selector.assert_called_once_with()
+        self.assert_child_cleaned(child, actions)
+        self.assert_files_cleaned(created, launch)
+
+    def test_selector_registration_failure_reaps_spawned_child_and_closes_selector(self):
+        factory, created, child, actions, launch = self.resources()
+        original = OSError("injected selector registration failure")
+        selector = Mock()
+        selector.register.side_effect = original
+        with patch("tools.stems.worker.tempfile.TemporaryDirectory", side_effect=factory), \
+             patch("tools.stems.worker.subprocess.Popen", launch), \
+             patch("tools.stems.worker.selectors.DefaultSelector", return_value=selector):
+            with self.assertRaises(OSError) as caught:
+                NativeRuntime("unused-runtime", "unused-model", "cpu", 1, 2)
+        self.assertIs(caught.exception, original)
+        selector.register.assert_called_once()
+        self.assertIs(selector.register.call_args.args[0], child.stdout)
+        selector.close.assert_called_once_with()
+        self.assert_child_cleaned(child, actions)
+        self.assert_files_cleaned(created, launch)
+
+    def test_popen_failure_closes_stderr_and_temporary_directory_without_selector(self):
+        factory, created, child, actions, launch = self.resources()
+        original = OSError("injected process creation failure")
+        launch.side_effect = original
+        with patch("tools.stems.worker.tempfile.TemporaryDirectory", side_effect=factory), \
+             patch("tools.stems.worker.subprocess.Popen", launch), \
+             patch("tools.stems.worker.selectors.DefaultSelector") as selector:
+            with self.assertRaises(OSError) as caught:
+                NativeRuntime("unused-runtime", "unused-model", "cpu", 1, 2)
+        self.assertIs(caught.exception, original)
+        launch.assert_called_once()
+        selector.assert_not_called()
+        child.kill.assert_not_called()
+        child.wait.assert_not_called()
+        self.assertEqual(actions, [])
+        self.assert_files_cleaned(created, launch)
+
+    def test_selector_cleanup_failure_preserves_startup_error_and_cleans_other_resources(self):
+        factory, created, child, actions, launch = self.resources()
+        original = OSError("injected selector registration failure")
+        selector = Mock()
+        selector.register.side_effect = original
+        selector.close.side_effect = OSError("injected selector cleanup failure")
+        with patch("tools.stems.worker.tempfile.TemporaryDirectory", side_effect=factory), \
+             patch("tools.stems.worker.subprocess.Popen", launch), \
+             patch("tools.stems.worker.selectors.DefaultSelector", return_value=selector):
+            with self.assertRaises(OSError) as caught:
+                NativeRuntime("unused-runtime", "unused-model", "cpu", 1, 2)
+        self.assertIs(caught.exception, original)
+        selector.register.assert_called_once()
+        selector.close.assert_called_once_with()
+        self.assert_child_cleaned(child, actions)
+        self.assert_files_cleaned(created, launch)
 
 
 class WorkerTest(unittest.TestCase):
