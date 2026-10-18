@@ -5,6 +5,7 @@
 #include "audio/LiveSession.hpp"
 #include "audio/AudioRouting.hpp"
 #include "audio/StereoRecorder.hpp"
+#include "library/LibraryCatalog.hpp"
 
 #include <QFutureWatcher>
 #include <QObject>
@@ -34,6 +35,9 @@ class DeckController final : public QObject {
     Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap preparation READ preparation NOTIFY stateChanged)
+    Q_PROPERTY(QVariantList libraryTracks READ libraryTracks NOTIFY libraryChanged)
+    Q_PROPERTY(bool libraryReady READ libraryReady NOTIFY libraryChanged)
+    Q_PROPERTY(QString libraryError READ libraryError NOTIFY libraryChanged)
 public:
     explicit DeckController(QObject* parent = nullptr);
     ~DeckController() override;
@@ -47,7 +51,12 @@ public:
     QVariantMap audioRouting() const;
     QVariantMap recording() const;
     QVariantMap preparation() const;
+    QVariantList libraryTracks() const;
+    bool libraryReady() const;
+    QString libraryError() const;
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url);
+    Q_INVOKABLE void importTrack(const QUrl& url);
+    Q_INVOKABLE void loadLibraryTrack(int deck, const QString& sourceId);
     Q_INVOKABLE bool cancelPreparation();
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
@@ -81,6 +90,7 @@ public:
     const std::vector<audio::CallbackTiming::Summary>& completedTiming() const { return completedTiming_; }
 signals:
     void stateChanged();
+    void libraryChanged();
 private:
     struct PreparedLoad {
         std::shared_ptr<const audio::PreparedAudio> audio;
@@ -91,6 +101,13 @@ private:
     struct LoadResult {
         std::shared_ptr<PreparedLoad> prepared;
         QString error;
+        std::optional<library::LibraryTrack> imported;
+        bool cacheHit = false;
+    };
+    struct CatalogResult {
+        std::vector<library::LibraryTrack> tracks;
+        QString error;
+        bool saving = false;
     };
     struct InstallResult {
         std::unique_ptr<audio::LiveSession> session;
@@ -105,6 +122,8 @@ private:
         std::uint64_t accepted = 0, written = 0, overflows = 0, overflowFrames = 0;
     };
     void loaded();
+    void catalogFinished();
+    void beginPreparation(int deck, const QUrl& url, bool importOnly, const QString& expectedSource = {});
     void installed();
     void installSession();
     void publishReplacement();
@@ -141,6 +160,11 @@ private:
     std::uint64_t completedStarvedFrames_ = 0, completedReadFailures_ = 0;
     std::vector<audio::CallbackTiming::Summary> completedTiming_;
     QFutureWatcher<LoadResult> loader_;
+    QFutureWatcher<CatalogResult> catalogJob_;
+    std::vector<library::LibraryTrack> libraryEntries_;
+    QVariantList libraryTracks_;
+    QString libraryPath_, libraryError_;
+    bool libraryReady_ = false;
     QFutureWatcher<std::shared_ptr<InstallResult>> installer_;
     QFutureWatcher<void> retirer_;
     QFutureWatcher<RecordingStart> recordingStarter_;
@@ -155,6 +179,7 @@ private:
     QString pendingName_;
     QString preparationStatus_ = "Idle";
     bool preparationCacheHit_ = false;
+    bool pendingImport_ = false;
     int pendingDeck_ = 0;
     bool busy_ = false;
     bool ready_ = false;

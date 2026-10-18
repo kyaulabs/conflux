@@ -3,10 +3,13 @@
 
 #include <QCoreApplication>
 #include <QDataStream>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QLockFile>
 #include <QPointer>
 #include <QSignalSpy>
+#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QThreadPool>
 #include <QtTest>
@@ -42,9 +45,9 @@ bool writeWave(const QString& path, quint16 channels, quint32 rate, quint32 fram
 }
 
 struct RestoreEnvironment {
-    std::array<const char*, 3> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE"};
-    std::array<QByteArray, 3> values;
-    std::array<bool, 3> present;
+    std::array<const char*, 4> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE", "XDG_DATA_HOME"};
+    std::array<QByteArray, 4> values;
+    std::array<bool, 4> present;
     RestoreEnvironment() {
         for (std::size_t i = 0; i < names.size(); ++i) {
             values[i] = qgetenv(names[i]);
@@ -81,6 +84,203 @@ void verifyNoPlayback(const conflux::DeckController& controller)
 class DeckControllerTest final : public QObject {
     Q_OBJECT
 private slots:
+    void catalogStartupDoesNotFinishAnActivePreparation()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        const auto path = directory.filePath("held-preparation.wav");
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        const auto root = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+        QVERIFY(QDir().mkpath(root));
+        QLockFile cacheLock(root + "/.lock");
+        QVERIFY(cacheLock.tryLock(0));
+        conflux::DeckController controller;
+        bool startupObserved = false, coherent = false;
+        connect(&controller, &conflux::DeckController::libraryChanged, &controller, [&] {
+            if (!startupObserved && controller.libraryReady()) {
+                startupObserved = true;
+                coherent = controller.busy() &&
+                    controller.preparation()["status"].toString() == "Preparing";
+            }
+        }, Qt::DirectConnection);
+        controller.loadDeck(0, QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(startupObserved, 1500);
+        QVERIFY(coherent);
+        QVERIFY(controller.busy());
+        QVERIFY(controller.cancelPreparation());
+        cacheLock.unlock();
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        verifyNoPlayback(controller);
+    }
+
+    void libraryImportPersistsAndRevalidatesBeforeLoading()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        const auto path = directory.filePath(QString::fromUtf8("Été #1 % mix.wav"));
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        QString sourceId;
+        {
+            conflux::DeckController controller;
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+            QVERIFY(controller.libraryTracks().isEmpty());
+            controller.importTrack(QUrl::fromLocalFile(path));
+            QVERIFY(controller.busy());
+            QCOMPARE(controller.preparation()["deck"].toInt(), -1);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QVERIFY2(controller.libraryError().isEmpty(), qPrintable(controller.libraryError()));
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Complete"));
+            QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+            const auto track = controller.libraryTracks().front().toMap();
+            sourceId = track["id"].toString();
+            QCOMPARE(sourceId.size(), qsizetype(64));
+            QCOMPARE(track["path"].toString(), path);
+            QCOMPARE(track["name"].toString(), QFileInfo(path).fileName());
+            QCOMPARE(track["durationSeconds"].toDouble(), .01);
+            QVERIFY(track["available"].toBool());
+            verifyNoPlayback(controller);
+            QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+        }
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks().size(), qsizetype(1));
+        QCOMPARE(reopened.libraryTracks().front().toMap()["id"].toString(), sourceId);
+        reopened.loadLibraryTrack(1, sourceId);
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(reopened.decks()[1].toMap()["loaded"].toBool());
+        QCOMPARE(reopened.decks()[1].toMap()["durationSeconds"].toDouble(), .01);
+        const auto previous = reopened.decks();
+        const auto commands = reopened.submittedCommands();
+        QVERIFY(writeWave(path, 2, 48000, 960));
+        reopened.loadLibraryTrack(0, sourceId);
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(reopened.error().contains("changed", Qt::CaseInsensitive));
+        QCOMPARE(reopened.decks(), previous);
+        QCOMPARE(reopened.submittedCommands(), commands);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["id"].toString(), sourceId);
+        reopened.importTrack(QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QCOMPARE(reopened.libraryTracks().size(), qsizetype(1));
+        QVERIFY(reopened.libraryTracks().front().toMap()["id"].toString() != sourceId);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["durationSeconds"].toDouble(), .02);
+        const auto updatedId = reopened.libraryTracks().front().toMap()["id"].toString();
+        QVERIFY(QFile::remove(path));
+        reopened.loadLibraryTrack(0, updatedId);
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(!reopened.error().isEmpty());
+        QCOMPARE(reopened.decks(), previous);
+        QCOMPARE(reopened.submittedCommands(), commands);
+    }
+
+    void queuedImportCancellationPreservesCatalogAndEndsAtSaving()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        const auto path = directory.filePath("queued-library-import.wav");
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        controller.importTrack(QUrl::fromLocalFile(path));
+        QVERIFY(controller.busy());
+        QVERIFY(QThreadPool::globalInstance()->waitForDone(5000));
+        QVERIFY(controller.cancelPreparation());
+        QVERIFY(controller.busy());
+        controller.importTrack(QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        QVERIFY(controller.libraryTracks().isEmpty());
+        verifyNoPlayback(controller);
+        {
+            conflux::DeckController reopened;
+            QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+            QVERIFY(reopened.libraryTracks().isEmpty());
+        }
+        bool savingObserved = false, lateAccepted = true;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (!savingObserved && controller.preparation()["status"].toString() == "Saving") {
+                savingObserved = true;
+                lateAccepted = controller.cancelPreparation();
+            }
+        }, Qt::DirectConnection);
+        controller.importTrack(QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(savingObserved);
+        QVERIFY(!lateAccepted);
+        QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+        QVERIFY(controller.preparation()["cacheHit"].toBool());
+        verifyNoPlayback(controller);
+    }
+
+    void savingSignalShutdownOwnsTheCatalogWrite()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        const auto path = directory.filePath("save-before-shutdown.wav");
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        bool stopped = false;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (!stopped && controller.preparation()["status"].toString() == "Saving") {
+                stopped = true;
+                controller.shutdown();
+            }
+        }, Qt::DirectConnection);
+        controller.importTrack(QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(stopped, 5000);
+        QVERIFY(!controller.busy());
+        verifyNoPlayback(controller);
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks().size(), qsizetype(1));
+        QCOMPARE(reopened.libraryTracks().front().toMap()["path"].toString(), path);
+    }
+
+    void damagedCatalogFailsClosedWithoutBlockingRawLoad()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        const auto data = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QVERIFY(QDir().mkpath(data));
+        QFile catalog(data + "/library.json");
+        QVERIFY(catalog.open(QIODevice::WriteOnly));
+        const QByteArray damaged("{\"version\":1,\"tracks\":[broken");
+        QCOMPARE(catalog.write(damaged), qint64(damaged.size()));
+        catalog.close();
+        const auto path = directory.filePath("still-playable.wav");
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.libraryError().isEmpty(), 5000);
+        QVERIFY(!controller.libraryReady());
+        controller.importTrack(QUrl::fromLocalFile(path));
+        QVERIFY(!controller.busy());
+        QVERIFY(catalog.open(QIODevice::ReadOnly));
+        QCOMPARE(catalog.readAll(), damaged);
+        catalog.close();
+        controller.loadDeck(0, QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+        QVERIFY(!controller.libraryError().isEmpty());
+    }
+
     void initialState()
     {
         conflux::DeckController controller;
@@ -496,8 +696,10 @@ int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
     QTemporaryDir cache;
-    if (!cache.isValid()) return 2;
+    QTemporaryDir data;
+    if (!cache.isValid() || !data.isValid()) return 2;
     qputenv("XDG_CACHE_HOME", cache.path().toUtf8());
+    qputenv("XDG_DATA_HOME", data.path().toUtf8());
     DeckControllerTest test;
     return QTest::qExec(&test, argc, argv);
 }

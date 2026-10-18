@@ -44,8 +44,8 @@ Separate physical headphone isolation and device-clock behavior remain
 unverified where the required interfaces are unavailable. See the
 [M1 results and listening record](docs/M1.md).
 
-**M2 is in progress: library preparation and stems.** Its first slice adds
-[persistent source preparation and cancellation](docs/M2.md). The live-stem
+**M2 is in progress: library preparation and stems.** Its first slices add
+[persistent preparation, cancellation and local library import/load](docs/M2.md). The live-stem
 service target remains a release blocker: the latest completed validation measured
 **5.1722 seconds p99 against a 4.095-second target**. The approved
 [M0 feasibility decision](docs/decisions/0002-m0-stem-runtime.md) retains that
@@ -92,6 +92,9 @@ The current preparation limit is 256 MiB per track, about 11 minutes 39 seconds
 of stereo 48 kHz float audio. Playback uses a 48 kHz graph.
 Prepared audio is cached between loads. **CANCEL PREPARATION** leaves current
 playback intact; cancellation ends when installation starts.
+Choose **IMPORT** to keep a track in the library, then select its saved row
+and use **LOAD A** or **LOAD B**. Import cancellation ends when saving starts.
+Changed files must be imported again; musical analysis remains pending.
 
 Use **AUDIO / REC** to select outputs or record the master mix to a new absolute
 `.wav` path. Default master playback works with a stereo output; separate

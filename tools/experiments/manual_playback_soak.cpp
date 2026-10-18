@@ -17,6 +17,7 @@
 #include <QQuickWindow>
 #include <QSaveFile>
 #include <QTest>
+#include <QTemporaryDir>
 #include <QTimer>
 #include <algorithm>
 #include <array>
@@ -118,6 +119,8 @@ int main(int argc, char** argv)
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/Barlow-Regular.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/BarlowCondensed-SemiBold.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/JetBrainsMono-Regular.ttf"));
+    QTemporaryDir appData;
+    if (!appData.isValid() || !qputenv("XDG_DATA_HOME", appData.path().toUtf8())) return 2;
     conflux::DeckController controller;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("deckController", &controller);
