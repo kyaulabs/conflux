@@ -631,6 +631,18 @@
       "bytes": 4672,
       "sha256": "724c04860c4c46a996bbcb47732327ca5f81d0e0fcf177853013e4d07cda7303"
     },
+    "candidate-build-verification.json": {
+      "bytes": 5550,
+      "sha256": "4884a9829e799398032b6fe460b4f9b018043a48ff3239887df08b3f88a9df39"
+    },
+    "candidate-generated.diff": {
+      "bytes": 2904,
+      "sha256": "577032edcdb0def6e6954d2664c610c3a7a5dd0efdca6506164294c6c3278a94"
+    },
+    "candidate-overlay.cmake": {
+      "bytes": 6900,
+      "sha256": "4050c8d7c67065121ade02b22f0c75d961442610123992fb9b34b1e4dcb06900"
+    },
     "loaded-02/audio.json": {
       "bytes": 1840,
       "sha256": "c68651e0b9eee85845e33fe8ef4cdd43c5853d76096e06e23e485cd610c5cb9e"
@@ -691,6 +703,38 @@
       "bytes": 2494,
       "sha256": "b614bda9699ef7d5574e8110af37f8794fc6a42a5738d8a9e0c1eb19dc927a36"
     },
+    "operation-01/admission/admission-normal-ready.json": {
+      "bytes": 34957,
+      "sha256": "ed447184f7f0a7bf48a6c7f1e87996f935ceade93455867fc50f870ecf74cf61"
+    },
+    "operation-01/admission/admission-normal-ready.jsonl": {
+      "bytes": 28219,
+      "sha256": "08ac8fda8d6b3b6a003070ef95b60d875ed894c88840a8de4be6bc3326ed497a"
+    },
+    "operation-01/admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "f964fe944ff73d72d5d8e658f8cb364e843c88c6b2db1b12cb012d34e3b67737"
+    },
+    "operation-01/native.stderr": {
+      "bytes": 38168,
+      "sha256": "ef6d4bde0572587acd0ae8589b931c921db8942716fd10ad9522c658691eebc6"
+    },
+    "operation-01/result.json": {
+      "bytes": 63780,
+      "sha256": "78fbb9f0b55ed4600926901f35356b97d4b60c1c5e7b8c56a8fec352d77ea489"
+    },
+    "operation-01-analysis.json": {
+      "bytes": 37313,
+      "sha256": "02ae596e26c3c2b6d4ef447198800d3dec77a6fd684551eca58408c8dd20b018"
+    },
+    "operation-01-gitleaks.log": {
+      "bytes": 146,
+      "sha256": "0ce11a6b40ad7a8c403c3f8f041c5a23d266f3bcbe3d74415b978a068915cfda"
+    },
+    "operation-01-independent-audit.json": {
+      "bytes": 10630,
+      "sha256": "f6fafb6390964aa240c4b3756d516fa1763e116bd7603e778f114b67e568800c"
+    },
     "pcm-comparison-launch.json": {
       "bytes": 16152,
       "sha256": "34c00de2e069748314557dc76a07f9a6a9c70e94b73096ebc23e995c1733d19d"
@@ -710,6 +754,266 @@
     "preflight-trace.jsonl": {
       "bytes": 40132,
       "sha256": "7dea44e7d467d03808cd08980abd964afaf42a88625f2717a61bacc00e5b226c"
+    },
+    "graph-order-01/AC-lid-monitor.jsonl": {
+      "bytes": 1400,
+      "sha256": "dbd29ea1123a4d57a669007d88b0345c43134694bf04664334b3eedbf22df316"
+    },
+    "graph-order-01/admission/admission-normal-ready.json": {
+      "bytes": 9934,
+      "sha256": "80b5e1d0a5eef7922cc3bb1668e7e1ea700b7be861e951c33c7a2136c2c83e97"
+    },
+    "graph-order-01/admission/admission-normal-ready.jsonl": {
+      "bytes": 7488,
+      "sha256": "0d327f85a4bccab3081f5078e9835097e56075356b37b190d8c2b22a19438c15"
+    },
+    "graph-order-01/admission/fresh-admission.json": {
+      "bytes": 1806,
+      "sha256": "a9ca3c4b893078a3bd5270e299b45f0013f667cf3127a4ffb7e313e7a245ca9f"
+    },
+    "graph-order-01/analysis.json": {
+      "bytes": 3605,
+      "sha256": "dac3aba8a23f3fa7340c5b0e00e4618eed7e3979fa15463b631e9391ff6b54c7"
+    },
+    "graph-order-01/baseline.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "graph-order-01/diagnostic.stderr": {
+      "bytes": 308,
+      "sha256": "fed079a3cef237bc83b8a886fd2a156b4e7d2775135f6e312063d913c060bf39"
+    },
+    "graph-order-01/expected-pins.json": {
+      "bytes": 1301,
+      "sha256": "a9b2e08fe2fa9236b3e130dc31eaf43f935d9bddffc4d8c2a5ba3281d61659cb"
+    },
+    "graph-order-01/gitleaks.log": {
+      "bytes": 146,
+      "sha256": "d177d48f1b35b7b5415c645cd8e4451283231ac6753c24731ef6cf3356174911"
+    },
+    "graph-order-01/independent-audit.json": {
+      "bytes": 8185,
+      "sha256": "149736f2bd262800024be5570127ae00dbfcd40200e7857b3b1929eaf1f8600c"
+    },
+    "graph-order-01/launch.json": {
+      "bytes": 16492,
+      "sha256": "6b05fe8cdad12ef8cb9a8bc3025583683bdc3c11fe8bc64f415fe7f19168f9bf"
+    },
+    "graph-order-01/offline-review.json": {
+      "bytes": 3751,
+      "sha256": "850c829f9c2029d77a4aa19d17bf9559ecb00bf4c5f084ec5ac76d06cff16874"
+    },
+    "graph-order-01/result.json": {
+      "bytes": 129553,
+      "sha256": "83dd6835a18ed71a8781341e163c34134bf56a9c787a4848236c7a2f04a83396"
+    },
+    "graph-order-01/source-pins.json": {
+      "bytes": 4363,
+      "sha256": "edac0bf92c3a943903684c274c43933f30adf69eb180660aa169e164f52ae2e6"
+    },
+    "graph-order-abba-01/AC-lid-monitor.jsonl": {
+      "bytes": 9058,
+      "sha256": "8e538b54a2221098bb72ea5eafb63e683dc11092b6668ed462966f4b1234c909"
+    },
+    "graph-order-abba-01/analysis.json": {
+      "bytes": 12138,
+      "sha256": "ec269815db5ca8d976e11b134f06ac11e89beb9a661f1fbba0633fb9953a1412"
+    },
+    "graph-order-abba-01/session.json": {
+      "bytes": 34947,
+      "sha256": "2dc52e3f14505e6dda94094950e5185be5c42d6d3b532cba3f57fe5db6f3e59a"
+    },
+    "graph-order-abba-01/A1.stdout": {
+      "bytes": 169,
+      "sha256": "3ade83688cb8d520d3334dd6accf7324938392b163a66609cab8ac3779186031"
+    },
+    "graph-order-abba-01/B1.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/A2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/source-pins.json": {
+      "bytes": 5055,
+      "sha256": "e1ae9265f58ce77dc3c9b1633cb69b5f9214bd340b56e69a01f44cd137eeb401"
+    },
+    "graph-order-abba-01/gitleaks.log": {
+      "bytes": 145,
+      "sha256": "d777d5387ab2234c6cb79ae69410a6014eb867b723d2d7addffb9f7a947ee75a"
+    },
+    "graph-order-abba-01/driver-offline-mocks.json": {
+      "bytes": 1809,
+      "sha256": "b66ffbf9e271e393e0d2c0c0ced746cb983856cdcc8a305df041f2e8753bf13d"
+    },
+    "graph-order-abba-01/preparation-verification.json": {
+      "bytes": 3572,
+      "sha256": "9bb80b69bb0491a1687ef63b564a7ba4b9ae12f99d00150919f3f750fbc79613"
+    },
+    "graph-order-abba-01/A2.stdout": {
+      "bytes": 169,
+      "sha256": "9da1fae30b23451d4f3d3b7fbd753bbcb39e29188379789fa53efb8714f6c6d9"
+    },
+    "graph-order-abba-01/A1.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/expected-pins.json": {
+      "bytes": 1477,
+      "sha256": "cbb02157c6ee3f01684e3a0448415443aac5765c9689cf4c231602acd15c4530"
+    },
+    "graph-order-abba-01/launcher-offline-mocks.json": {
+      "bytes": 1712,
+      "sha256": "d079b33a23af123e8da24a3341d7021b28ab5d694774baab7b6be4b934bd204a"
+    },
+    "graph-order-abba-01/B1.stdout": {
+      "bytes": 169,
+      "sha256": "05adaaea5b993f0043c0fad5587edc2fe77952d012c9e9eb6c1e7316736eb4b3"
+    },
+    "graph-order-abba-01/B2.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/B2.stdout": {
+      "bytes": 169,
+      "sha256": "c6bb482d0636f8f133cc479b77eb152ece6bd18cc07c07f8bc8ab2232c81b916"
+    },
+    "graph-order-abba-01/B2/diagnostic.stderr": {
+      "bytes": 308,
+      "sha256": "fed079a3cef237bc83b8a886fd2a156b4e7d2775135f6e312063d913c060bf39"
+    },
+    "graph-order-abba-01/B2/result.json": {
+      "bytes": 65496,
+      "sha256": "12296c87d10fdce9ab56212d03f517f8e664bb49ddd16b2edd6f252b9d0b0881"
+    },
+    "graph-order-abba-01/B2/native-trace.jsonl.gz": {
+      "bytes": 5205,
+      "sha256": "ece6b1c246909b06a8cf3e22b6687f12bd1cb44c572ced416b7eaf21bf8d066b"
+    },
+    "graph-order-abba-01/B1/diagnostic.stderr": {
+      "bytes": 308,
+      "sha256": "fed079a3cef237bc83b8a886fd2a156b4e7d2775135f6e312063d913c060bf39"
+    },
+    "graph-order-abba-01/B1/result.json": {
+      "bytes": 65511,
+      "sha256": "37c6ea51be39963b4aa4ed330da98e967b74c8c50a343eac6e85fdf84ae53dce"
+    },
+    "graph-order-abba-01/B1/native-trace.jsonl.gz": {
+      "bytes": 5368,
+      "sha256": "a7cfbd206bff97a0e49c4ed33346f4985ef9192e33826dcf28f7f6d75aa20d94"
+    },
+    "graph-order-abba-01/B2-admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "144f0a222cbfcd5d42bfa48ec914f1226bceca7ed8f5b12873217ffff5603d0a"
+    },
+    "graph-order-abba-01/B2-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/B2-admission/stdout": {
+      "bytes": 227,
+      "sha256": "100e1b7efbdd9066a386713401827ed3089d7a9b9a9103ddf347c0615e824547"
+    },
+    "graph-order-abba-01/B2-admission/admission-normal-ready.jsonl": {
+      "bytes": 29179,
+      "sha256": "e2d80d48685316eabd797145968eefa57338835690714c3c04bdc64686a85447"
+    },
+    "graph-order-abba-01/B2-admission/admission-normal-ready.json": {
+      "bytes": 36111,
+      "sha256": "f41e3aad75e160dbba0e559b7fe64076a64faef6b2f96b1b2259905afe3d05bd"
+    },
+    "graph-order-abba-01/A2-admission/fresh-admission.json": {
+      "bytes": 1804,
+      "sha256": "7e87d7ded47b81150ad9dfbe94454def8b390aaf1be60dae2f27fac111fb245b"
+    },
+    "graph-order-abba-01/A2-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/A2-admission/stdout": {
+      "bytes": 227,
+      "sha256": "f2c9372027f0802fffcbb6c7d8df9effff195b1efbac8b03d91d002c7e7641ff"
+    },
+    "graph-order-abba-01/A2-admission/admission-normal-ready.jsonl": {
+      "bytes": 8410,
+      "sha256": "4f7f5bcd0e66c0bd5a7614929c6349eaa89d4bc666b06ecc80f16c6d821f2afc"
+    },
+    "graph-order-abba-01/A2-admission/admission-normal-ready.json": {
+      "bytes": 11053,
+      "sha256": "2301500e026e6c68303a8439aae170e08b667f8c111e502451dc79662d16f108"
+    },
+    "graph-order-abba-01/A2/diagnostic.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "graph-order-abba-01/A2/result.json": {
+      "bytes": 64655,
+      "sha256": "121995108464140a5dee885d6eb19ac742610d552cf4d595078c42df187b0ad1"
+    },
+    "graph-order-abba-01/A2/native-trace.jsonl.gz": {
+      "bytes": 5266,
+      "sha256": "5be244057d9e3f07d82284c860460d50648bfe4a3d47a82a65c9e27098df7f49"
+    },
+    "graph-order-abba-01/A1-admission/fresh-admission.json": {
+      "bytes": 1802,
+      "sha256": "e41a9f78432a9f918ca1d94e3391e0a9753784e59c27913a43a3f3d78b0db81b"
+    },
+    "graph-order-abba-01/A1-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/A1-admission/stdout": {
+      "bytes": 227,
+      "sha256": "cb342ebc6c5ed8179914ea4811ddae839f32f9fb8f12d89e1ecc02246866ff58"
+    },
+    "graph-order-abba-01/A1-admission/admission-normal-ready.jsonl": {
+      "bytes": 12157,
+      "sha256": "e328d1e81cd4042b8f8c91638cc029758fef90aa8287ed449035b0ba6668f031"
+    },
+    "graph-order-abba-01/A1-admission/admission-normal-ready.json": {
+      "bytes": 15580,
+      "sha256": "cedcf9386861516537fa5778094aa49fcb58b635a55a55e47b59bbc8bdf88ecb"
+    },
+    "graph-order-abba-01/A1/diagnostic.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "graph-order-abba-01/A1/result.json": {
+      "bytes": 64647,
+      "sha256": "39e2b6846343c4c64704bae7d658be4e5334e3510c670e7021b5bf76b9c1056d"
+    },
+    "graph-order-abba-01/A1/native-trace.jsonl.gz": {
+      "bytes": 5201,
+      "sha256": "fdaa614209b8839306787321bf31e0208a4c796b1af103d4786c2326331a4ffb"
+    },
+    "graph-order-abba-01/B1-admission/fresh-admission.json": {
+      "bytes": 1803,
+      "sha256": "0350cfd9c22487ed84d33590a560c3cf883662c046b29c5c67c28176a56a9aec"
+    },
+    "graph-order-abba-01/B1-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "graph-order-abba-01/B1-admission/stdout": {
+      "bytes": 227,
+      "sha256": "0439027babb678a631444a8474db43e5eb40a1e1adb1be1c1faf8ae50270c5c2"
+    },
+    "graph-order-abba-01/B1-admission/admission-normal-ready.jsonl": {
+      "bytes": 19719,
+      "sha256": "54b3a3c714b66d587ede342879cee47d2cf31bae1c51557249526edc8b78733a"
+    },
+    "graph-order-abba-01/B1-admission/admission-normal-ready.json": {
+      "bytes": 24702,
+      "sha256": "03212e5502f4b81c7706f43f95efc1f92b4f8b69a04cc218a0d6271deb377675"
+    },
+    "graph-order-abba-01/independent-audit.json": {
+      "bytes": 22027,
+      "sha256": "d5b4b3a897f84384402af37da08589f783a71eebe911754fab872efa45411cd4"
+    },
+    "graph-order-abba-01/independent-timing-analysis.json": {
+      "bytes": 61662,
+      "sha256": "a8eeb7ec03b3cb8ba2c4273f843b7e5a0e95e7b871da9a237047f2abcbffa985"
     }
   },
   "pending": "Optimize/investigate graph compute/wait stalls under the unchanged 4095 ms target. Sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. No user listening reapproval is needed for the bit-identical instrumentation comparison.",
@@ -774,5 +1078,398 @@
     "command": "gitleaks dir benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-02 --redact --no-color --max-target-megabytes 10",
     "scanned_bytes_reported": 8144397,
     "scope": "Uncompressed local retry-02 result directory, including the 7.68 MB native trace; separate from the commit hook scan."
+  },
+  "operation_profile": {
+    "status": "passed_diagnostic_only",
+    "repository_head": "6a9fddc4f8bd1ee40fb4598dee51178f0a67206c",
+    "runtime_implementation_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+    "completed_requests": 6,
+    "distinct_windows": 2,
+    "repetitions_per_window": 3,
+    "request_wall_ms_min": 1632.2177110123448,
+    "request_wall_ms_max": 1744.745850970503,
+    "profile_elapsed_seconds": 10.439105483994354,
+    "total_elapsed_seconds": 317.89686190598877,
+    "exact_output_matches": 6,
+    "input_hashes_match_immutable_proof": true,
+    "stable_pins": 32,
+    "pins_unchanged": true,
+    "stderr_bytes": 38168,
+    "stderr_truncated": false,
+    "rows_per_table": 89,
+    "operation_invocations_per_table": 1587,
+    "category_summary": [
+      {
+        "category": "MUL_MAT f16",
+        "requests": 6,
+        "mean_share_percent": 34.208472270049725,
+        "min_share_percent": 34.054245000975584,
+        "max_share_percent": 34.3776486275901
+      },
+      {
+        "category": "SOFT_MAX",
+        "requests": 6,
+        "mean_share_percent": 12.192685241510238,
+        "min_share_percent": 12.089362478836362,
+        "max_share_percent": 12.254198313706363
+      },
+      {
+        "category": "MUL_MAT f32",
+        "requests": 6,
+        "mean_share_percent": 10.169375935246682,
+        "min_share_percent": 10.101537014593749,
+        "max_share_percent": 10.246551192401862
+      },
+      {
+        "category": "ADD",
+        "requests": 6,
+        "mean_share_percent": 9.658779741382366,
+        "min_share_percent": 9.579181903437163,
+        "max_share_percent": 9.734023279320056
+      },
+      {
+        "category": "CONT",
+        "requests": 6,
+        "mean_share_percent": 6.788766146683453,
+        "min_share_percent": 6.662073412008622,
+        "max_share_percent": 6.932735821149162
+      },
+      {
+        "category": "MUL",
+        "requests": 6,
+        "mean_share_percent": 5.841572110409837,
+        "min_share_percent": 5.785827128479806,
+        "max_share_percent": 5.905980026317964
+      },
+      {
+        "category": "IM2COL",
+        "requests": 6,
+        "mean_share_percent": 4.460753624800879,
+        "min_share_percent": 4.263128786385857,
+        "max_share_percent": 4.700467645596389
+      },
+      {
+        "category": "REPEAT",
+        "requests": 6,
+        "mean_share_percent": 3.347547975829789,
+        "min_share_percent": 3.320661375494867,
+        "max_share_percent": 3.4215786047040826
+      },
+      {
+        "category": "NORM",
+        "requests": 6,
+        "mean_share_percent": 3.091543479884893,
+        "min_share_percent": 3.061947684694238,
+        "max_share_percent": 3.1503620309331435
+      },
+      {
+        "category": "SCALE",
+        "requests": 6,
+        "mean_share_percent": 2.858227520422357,
+        "min_share_percent": 2.8387472384992543,
+        "max_share_percent": 2.886241095301606
+      },
+      {
+        "category": "MUL_MAT_VEC f16",
+        "requests": 6,
+        "mean_share_percent": 1.697396884833596,
+        "min_share_percent": 1.6887820027268596,
+        "max_share_percent": 1.710635632958
+      },
+      {
+        "category": "MEAN",
+        "requests": 6,
+        "mean_share_percent": 1.1968578879928682,
+        "min_share_percent": 1.1842070480422455,
+        "max_share_percent": 1.2106372771802254
+      },
+      {
+        "category": "SIGMOID",
+        "requests": 6,
+        "mean_share_percent": 1.1872970355563517,
+        "min_share_percent": 1.1809069332929356,
+        "max_share_percent": 1.1956746997908547
+      },
+      {
+        "category": "GELU_ERF",
+        "requests": 6,
+        "mean_share_percent": 0.9324092996256897,
+        "min_share_percent": 0.896447439182563,
+        "max_share_percent": 0.9688557289299601
+      },
+      {
+        "category": "DIV",
+        "requests": 6,
+        "mean_share_percent": 0.7075314953231508,
+        "min_share_percent": 0.7014746886034202,
+        "max_share_percent": 0.7147465030550927
+      },
+      {
+        "category": "SUB",
+        "requests": 6,
+        "mean_share_percent": 0.7026036485136444,
+        "min_share_percent": 0.6968171146959045,
+        "max_share_percent": 0.7106059935652295
+      },
+      {
+        "category": "COL2IM_1D",
+        "requests": 6,
+        "mean_share_percent": 0.6958299989156673,
+        "min_share_percent": 0.6861676348965579,
+        "max_share_percent": 0.706434138417097
+      },
+      {
+        "category": "PAD",
+        "requests": 6,
+        "mean_share_percent": 0.15742778016635733,
+        "min_share_percent": 0.15521616807547786,
+        "max_share_percent": 0.1602293604226131
+      },
+      {
+        "category": "CONCAT",
+        "requests": 6,
+        "mean_share_percent": 0.06878858773007969,
+        "min_share_percent": 0.06786399884190054,
+        "max_share_percent": 0.07177747970528965
+      },
+      {
+        "category": "CPY",
+        "requests": 6,
+        "mean_share_percent": 0.02107865449672337,
+        "min_share_percent": 0.011021950707851525,
+        "max_share_percent": 0.048217848578495856
+      },
+      {
+        "category": "SQRT",
+        "requests": 6,
+        "mean_share_percent": 0.008607963085833233,
+        "min_share_percent": 0.00833795819295462,
+        "max_share_percent": 0.009774422366425185
+      },
+      {
+        "category": "MULTI_ADD ADD",
+        "requests": 6,
+        "mean_share_percent": 0.006441150187127863,
+        "min_share_percent": 0.005031855999493847,
+        "max_share_percent": 0.00730829924758875
+      }
+    ],
+    "independent_audit_checks": 60,
+    "cleanup": {
+      "readiness_reaped": true,
+      "native_started": true,
+      "native_constructed": true,
+      "native_pid": 2237331,
+      "native_reaped": true,
+      "native_returncode": -9,
+      "normal_close_returned": true,
+      "native_resources_closed": true,
+      "temporary_directory_removed": true,
+      "watchdog_joined": true
+    },
+    "cleanup_complete": true,
+    "UI_load": false,
+    "audio_load": false,
+    "cancellation_tested": false,
+    "scope": "Six intentionally perturbed GPU-operation profiles only. No prior stall reproduction, loaded service p99, causal profiling-overhead, musical listening, physical latency or audio/cancellation qualification. Per-operation categories use rounded printed TOTAL columns; mean shares are descriptive and not predicted savings. Native -9 means killed/reaped cleanup."
+  },
+  "graph_order_candidate": {
+    "status": "deprioritized_exact_PCM_no_positive_efficiency_signal",
+    "binary_sha256": "e50d0f5d0b7e3ba81d2fedb7ccaf0366b6418673c01d11f500936f075f37e720",
+    "overlay_sha256": "4050c8d7c67065121ade02b22f0c75d961442610123992fb9b34b1e4dcb06900",
+    "source_copy_runtime_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+    "source_pin_checks_passed": 6,
+    "scope": "Fixed baseline16 then candidate16 without audio/UI/cancellation. Descriptive timing and per-child process peak RSS only; order and unmeasured in-run thermal/clock conditions confound causal timing. No loaded p99 qualification, all-GPU-memory measurement or new audio/cancellation/musical-quality result. Product runtime defaults remain unchanged. Historical build verification is retained verbatim at its pre-inference checkpoint.",
+    "comparison": {
+      "recorded_repository_head": "8e255bcea583e71c9c124bb276abf1ff33346e75",
+      "shared_worker_cleanup_commit": "e2ca892de4e9a3b0d6ebd7ce4beb42117264fa09",
+      "completed_requests": 32,
+      "paired_exact_outputs": 16,
+      "stable_artifact_records": 35,
+      "current_source_hashes_verified": 27,
+      "independent_audit_checks": 38,
+      "result": "graph-order-01/result.json",
+      "launch": "graph-order-01/launch.json",
+      "analysis": "graph-order-01/analysis.json",
+      "independent_audit": "graph-order-01/independent-audit.json",
+      "run_order": [
+        "baseline",
+        "diagnostic"
+      ],
+      "graph_nodes": 2941,
+      "moved_positions": 2849,
+      "candidate_graph_buffer_bytes": 379841952,
+      "baseline_graph_buffer_bytes": null,
+      "runtime_observations": {
+        "baseline": {
+          "requests": 16,
+          "request_wall_ms": {
+            "min": 1625.3640939830802,
+            "median": 1635.9240204910748,
+            "max": 1764.8303290479816
+          },
+          "startup_wall_ms": 334.547804959584,
+          "native_memory_before_close": {
+            "pid": 2251103,
+            "started_monotonic": 468667.402302528,
+            "available": true,
+            "VmHWM_KiB": 280532,
+            "scope": "This native process peak resident memory; not GPU or graph-buffer memory.",
+            "start_ticks": 52017796,
+            "finished_monotonic": 468667.402528461
+          }
+        },
+        "diagnostic": {
+          "requests": 16,
+          "request_wall_ms": {
+            "min": 1650.946985988412,
+            "median": 1805.5582030210644,
+            "max": 2094.0386559814215
+          },
+          "startup_wall_ms": 475.5575759918429,
+          "native_memory_before_close": {
+            "pid": 2251268,
+            "started_monotonic": 468697.514083895,
+            "available": true,
+            "VmHWM_KiB": 281088,
+            "scope": "This native process peak resident memory; not GPU or graph-buffer memory.",
+            "start_ticks": 52020505,
+            "finished_monotonic": 468697.514266744
+          }
+        }
+      },
+      "observed_median_change_percent": 10.369319137392985,
+      "median_method": "statistics.median: arithmetic mean of two central observations for an even sample",
+      "cleanup_complete": true,
+      "secret_scan": {
+        "command": "gitleaks dir docs/benchmarks/data/m2-graph-phase-2026-10-18/graph-order-01 --redact --no-color --max-target-megabytes 10",
+        "exit_code": 0,
+        "log": "graph-order-01/gitleaks.log"
+      }
+    },
+    "counterbalanced": {
+      "status": "completed_exact_PCM_passed_no_loaded_qualification",
+      "recorded_repository_head": "8e4d588a35d89f02a42ffce49b13f7822c8cb143",
+      "runtime_source_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+      "order": [
+        "A1",
+        "B1",
+        "B2",
+        "A2"
+      ],
+      "elapsed_seconds": 763.1171769470093,
+      "completed_requests": 16,
+      "exact_PCM_four_case_quadruplets": 4,
+      "source_hashes": 31,
+      "stable_artifact_records_per_leg": [
+        44,
+        44,
+        44,
+        44
+      ],
+      "all_phase_fields_valid": true,
+      "all_pins_unchanged": true,
+      "all_cleanup_complete": true,
+      "offline_driver_checks": 19,
+      "offline_launcher_checks": 16,
+      "session": "graph-order-abba-01/session.json",
+      "analysis": "graph-order-abba-01/analysis.json",
+      "arms": {
+        "A": {
+          "wall_ms": {
+            "count": 8,
+            "min": 1639.766808017157,
+            "mean": 1685.067693615565,
+            "median": 1671.012086502742,
+            "max": 1778.3660929999314
+          },
+          "graph_compute_ms": {
+            "count": 8,
+            "min": 1571.764272,
+            "mean": 1585.836362125,
+            "median": 1580.1671295,
+            "max": 1611.4063
+          }
+        },
+        "B": {
+          "wall_ms": {
+            "count": 8,
+            "min": 1649.713744991459,
+            "mean": 1690.0866773794405,
+            "median": 1657.7814725169446,
+            "max": 1786.806821997743
+          },
+          "graph_compute_ms": {
+            "count": 8,
+            "min": 1576.08182,
+            "mean": 1589.432448625,
+            "median": 1583.7899499999999,
+            "max": 1614.941652
+          }
+        }
+      },
+      "B_vs_A_mean_wall_change_percent": 0.2978505719913427,
+      "B_vs_A_mean_compute_change_percent": 0.22676277236961528,
+      "native_point_observations": {
+        "rows": 59,
+        "firmware_profile_counts": {
+          "balanced": 59
+        },
+        "actual_GPU_clock_MHz_counts": {
+          "1350": 51,
+          "1300": 1,
+          "0": 7
+        },
+        "package_temperature_C_min": 48,
+        "package_temperature_C_max": 75,
+        "trace_errors": {},
+        "process_sample_errors": {},
+        "optional_energy_fields_denied": 4,
+        "scope": "Exact PID/start identities, native point observations only. Capture intervals can overlap phases. Zero-MHz points do not show sustained low-clock inference. No whole-request clock, continuous temperature or energy claim.",
+        "optional_energy_permission_errors": 252,
+        "supervisor_fd_read_errors": 4,
+        "native_fd_read_errors": 0
+      },
+      "secret_scan": {
+        "exit_code": 0,
+        "uncompressed_bytes_scanned": 877555,
+        "log": "graph-order-abba-01/gitleaks.log"
+      },
+      "archive_transforms": [
+        {
+          "archive": "graph-order-abba-01/B2/native-trace.jsonl.gz",
+          "raw_bytes": 103266,
+          "raw_sha256": "2577fc7d15a15aa5c5f449eb100594a23cf73afb4c76a423efe6293b4c11ba1a",
+          "archived_bytes": 5205,
+          "archived_sha256": "ece6b1c246909b06a8cf3e22b6687f12bd1cb44c572ced416b7eaf21bf8d066b"
+        },
+        {
+          "archive": "graph-order-abba-01/B1/native-trace.jsonl.gz",
+          "raw_bytes": 103219,
+          "raw_sha256": "ba19554f84c118d2b3cbc6bf5ec6c0b95b1ba7e3227ee2a4a6537c7bcb24dede",
+          "archived_bytes": 5368,
+          "archived_sha256": "a7cfbd206bff97a0e49c4ed33346f4985ef9192e33826dcf28f7f6d75aa20d94"
+        },
+        {
+          "archive": "graph-order-abba-01/A2/native-trace.jsonl.gz",
+          "raw_bytes": 103266,
+          "raw_sha256": "f355cfc9807e9825db24858787a75d07200af7ef57b71089fb6282f1205547f7",
+          "archived_bytes": 5266,
+          "archived_sha256": "5be244057d9e3f07d82284c860460d50648bfe4a3d47a82a65c9e27098df7f49"
+        },
+        {
+          "archive": "graph-order-abba-01/A1/native-trace.jsonl.gz",
+          "raw_bytes": 96714,
+          "raw_sha256": "827589d30c35a96bbb2facf59d4ffaa8313b17bb8c3ef954b2da06547cd3b351",
+          "archived_bytes": 5201,
+          "archived_sha256": "fdaa614209b8839306787321bf31e0208a4c796b1af103d4786c2326331a4ffb"
+        }
+      ],
+      "scope": "All sixteen requests and startup costs retained; no tail exclusions. Four same-start windows repeated per arm in ABBA order. Descriptive observations only, no p99 qualification or causal speed/thermal result. Silent no-load run adds no audio/UI/cancellation result; latest completed loaded service p99 remains5674.156680ms against strict4095ms. Product runtime defaults remain unchanged; no useful graph-order speedup is established.",
+      "independent_audit_checks": 96,
+      "independent_audit": "graph-order-abba-01/independent-audit.json",
+      "independent_timing_analysis": "graph-order-abba-01/independent-timing-analysis.json"
+    },
+    "next_action": "Deprioritize graph ordering: exact PCM and essentially unchanged ordinary-profile cost without a positive efficiency signal. Low-clock loaded behavior remains unknown; skip its 600-second test for now. Investigate Flash attention support and effective precision/numerical output before a new candidate benchmark. Keep the exact-PCM graph-order binary and pins available; product defaults and the 4095ms target stay unchanged."
   }
 }

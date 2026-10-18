@@ -1,0 +1,61 @@
+--- phase/pipeline.cpp
++++ graph-order/pipeline.cpp
+@@ -22,6 +22,11 @@
+ #include "engine/framework/core/constant_tensor_cache.h"
+ 
+ #include <ggml-backend.h>
++#include <ggml-backend-impl.h>
++#include <ggml-vulkan.h>
++#include <array>
++#include <cstdio>
++#include <functional>
+ #include <ggml.h>
+ #include <algorithm>
+ #include <cmath>
+@@ -1403,9 +1408,46 @@
+             ggml_set_output(output);
+             ggml_build_forward_expand(graph_, output);
+         }
++        const bool reorder_vulkan = ggml_backend_is_vk(backend_);
++        size_t moved_positions = 0;
++        if (reorder_vulkan) {
++            if (backend_->iface.graph_optimize == nullptr) {
++                throw std::runtime_error("Vulkan graph order callback is unavailable");
++            }
++            const int original_count = ggml_graph_n_nodes(graph_);
++            auto ** original_array = ggml_graph_nodes(graph_);
++            std::vector<ggml_tensor *> original_nodes(original_array, original_array + original_count);
++            std::array<size_t, GGML_OP_COUNT> original_ops{};
++            for (auto * node : original_nodes) {
++                ++original_ops[node->op];
++            }
++            backend_->iface.graph_optimize(backend_, graph_);
++            if (ggml_graph_n_nodes(graph_) != original_count) {
++                throw std::runtime_error("Vulkan graph order changed node count");
++            }
++            auto ** reordered_array = ggml_graph_nodes(graph_);
++            std::array<size_t, GGML_OP_COUNT> reordered_ops{};
++            for (int i = 0; i < original_count; ++i) {
++                moved_positions += original_nodes[i] != reordered_array[i];
++                ++reordered_ops[reordered_array[i]->op];
++            }
++            if (original_ops != reordered_ops) {
++                throw std::runtime_error("Vulkan graph order changed operation counts");
++            }
++            std::vector<ggml_tensor *> reordered_nodes(reordered_array, reordered_array + original_count);
++            std::sort(original_nodes.begin(), original_nodes.end(), std::less<ggml_tensor *>{});
++            std::sort(reordered_nodes.begin(), reordered_nodes.end(), std::less<ggml_tensor *>{});
++            if (original_nodes != reordered_nodes) {
++                throw std::runtime_error("Vulkan graph order changed node membership");
++            }
++        }
+         gallocr_ = ggml_gallocr_new(ggml_backend_get_default_buffer_type(backend_));
+         if (gallocr_ == nullptr || !ggml_gallocr_alloc_graph(gallocr_, graph_)) {
+             throw std::runtime_error("failed to allocate HTDemucs graph buffer");
++        }
++        if (reorder_vulkan) {
++            std::fprintf(stderr, "conflux_graph_order nodes=%d moved_positions=%zu graph_buffer_bytes=%zu\n",
++                         ggml_graph_n_nodes(graph_), moved_positions, ggml_gallocr_get_buffer_size(gallocr_, 0));
+         }
+     }
+ 

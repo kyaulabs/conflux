@@ -1,0 +1,1335 @@
+{
+  "schema": 1,
+  "status": "derived",
+  "result_sha256": "78fbb9f0b55ed4600926901f35356b97d4b60c1c5e7b8c56a8fec352d77ea489",
+  "stderr_sha256": "ef6d4bde0572587acd0ae8589b931c921db8942716fd10ad9522c658691eebc6",
+  "requests": [
+    {
+      "request_id": 1,
+      "case_id": "club_xl:257985",
+      "profiled_gpu_interval_total_us": 1588810.0,
+      "printed_rows_sum_us": 1588812.589,
+      "printed_rounding_difference_us": 2.5889999999199063,
+      "profile_rows": 89,
+      "operation_count": 1587,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "printed_total_us": 541057.2500000001,
+          "percent_of_reported_total": 34.054245000975584,
+          "count": 128
+        },
+        {
+          "category": "SOFT_MAX",
+          "printed_total_us": 192077.0,
+          "percent_of_reported_total": 12.089362478836362,
+          "count": 10
+        },
+        {
+          "category": "MUL_MAT f32",
+          "printed_total_us": 162798.23,
+          "percent_of_reported_total": 10.246551192401862,
+          "count": 28
+        },
+        {
+          "category": "ADD",
+          "printed_total_us": 152195.0,
+          "percent_of_reported_total": 9.579181903437163,
+          "count": 305
+        },
+        {
+          "category": "CONT",
+          "printed_total_us": 110148.0,
+          "percent_of_reported_total": 6.932735821149162,
+          "count": 225
+        },
+        {
+          "category": "MUL",
+          "printed_total_us": 91925.8,
+          "percent_of_reported_total": 5.785827128479806,
+          "count": 232
+        },
+        {
+          "category": "IM2COL",
+          "printed_total_us": 74681.5,
+          "percent_of_reported_total": 4.700467645596389,
+          "count": 92
+        },
+        {
+          "category": "REPEAT",
+          "printed_total_us": 52759.0,
+          "percent_of_reported_total": 3.320661375494867,
+          "count": 92
+        },
+        {
+          "category": "NORM",
+          "printed_total_us": 49029.1,
+          "percent_of_reported_total": 3.0859007684996946,
+          "count": 68
+        },
+        {
+          "category": "SCALE",
+          "printed_total_us": 45102.3,
+          "percent_of_reported_total": 2.8387472384992543,
+          "count": 47
+        },
+        {
+          "category": "MUL_MAT_VEC f16",
+          "printed_total_us": 27178.75,
+          "percent_of_reported_total": 1.710635632958,
+          "count": 8
+        },
+        {
+          "category": "MEAN",
+          "printed_total_us": 18814.8,
+          "percent_of_reported_total": 1.1842070480422455,
+          "count": 128
+        },
+        {
+          "category": "SIGMOID",
+          "printed_total_us": 18771.0,
+          "percent_of_reported_total": 1.1814502678104997,
+          "count": 48
+        },
+        {
+          "category": "GELU_ERF",
+          "printed_total_us": 14578.5,
+          "percent_of_reported_total": 0.9175735298745602,
+          "count": 56
+        },
+        {
+          "category": "DIV",
+          "printed_total_us": 11145.1,
+          "percent_of_reported_total": 0.7014746886034202,
+          "count": 32
+        },
+        {
+          "category": "SUB",
+          "printed_total_us": 11071.1,
+          "percent_of_reported_total": 0.6968171146959045,
+          "count": 32
+        },
+        {
+          "category": "COL2IM_1D",
+          "printed_total_us": 10901.9,
+          "percent_of_reported_total": 0.6861676348965579,
+          "count": 8
+        },
+        {
+          "category": "PAD",
+          "printed_total_us": 2466.09,
+          "percent_of_reported_total": 0.15521616807547786,
+          "count": 4
+        },
+        {
+          "category": "CONCAT",
+          "printed_total_us": 1078.23,
+          "percent_of_reported_total": 0.06786399884190054,
+          "count": 3
+        },
+        {
+          "category": "CPY",
+          "printed_total_us": 766.09,
+          "percent_of_reported_total": 0.048217848578495856,
+          "count": 8
+        },
+        {
+          "category": "SQRT",
+          "printed_total_us": 155.297,
+          "percent_of_reported_total": 0.009774422366425185,
+          "count": 32
+        },
+        {
+          "category": "MULTI_ADD ADD",
+          "printed_total_us": 112.552,
+          "percent_of_reported_total": 0.007084044032955483,
+          "count": 1
+        }
+      ],
+      "largest_shape_rows": [
+        {
+          "operation": "SOFT_MAX",
+          "count": 10,
+          "printed_total_us": 192077.0
+        },
+        {
+          "operation": "ADD",
+          "count": 305,
+          "printed_total_us": 152195.0
+        },
+        {
+          "operation": "CONT",
+          "count": 225,
+          "printed_total_us": 110148.0
+        },
+        {
+          "operation": "MUL",
+          "count": 232,
+          "printed_total_us": 91925.8
+        },
+        {
+          "operation": "IM2COL",
+          "count": 92,
+          "printed_total_us": 74681.5
+        },
+        {
+          "operation": "REPEAT",
+          "count": 92,
+          "printed_total_us": 52759.0
+        },
+        {
+          "operation": "NORM",
+          "count": 68,
+          "printed_total_us": 49029.1
+        },
+        {
+          "operation": "MUL_MAT f16 m=172032 n=96 k=432",
+          "count": 1,
+          "printed_total_us": 47974.1
+        },
+        {
+          "operation": "MUL_MAT f16 m=2048 n=2688 k=512",
+          "count": 5,
+          "printed_total_us": 46954.0
+        },
+        {
+          "operation": "MUL_MAT f32 m=2688 n=2688 k=64 batch=8",
+          "count": 3,
+          "printed_total_us": 46526.2
+        }
+      ]
+    },
+    {
+      "request_id": 2,
+      "case_id": "stfu:515970",
+      "profiled_gpu_interval_total_us": 1580550.0,
+      "printed_rows_sum_us": 1580554.611,
+      "printed_rounding_difference_us": 4.611000000033528,
+      "profile_rows": 89,
+      "operation_count": 1587,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "printed_total_us": 539992.586,
+          "percent_of_reported_total": 34.16485312074911,
+          "count": 128
+        },
+        {
+          "category": "SOFT_MAX",
+          "printed_total_us": 192666.0,
+          "percent_of_reported_total": 12.189807345544272,
+          "count": 10
+        },
+        {
+          "category": "MUL_MAT f32",
+          "printed_total_us": 161086.33,
+          "percent_of_reported_total": 10.191789566922905,
+          "count": 28
+        },
+        {
+          "category": "ADD",
+          "printed_total_us": 152734.0,
+          "percent_of_reported_total": 9.663345038119642,
+          "count": 305
+        },
+        {
+          "category": "CONT",
+          "printed_total_us": 107632.0,
+          "percent_of_reported_total": 6.809781405207048,
+          "count": 225
+        },
+        {
+          "category": "MUL",
+          "printed_total_us": 92918.4,
+          "percent_of_reported_total": 5.878864952073645,
+          "count": 232
+        },
+        {
+          "category": "IM2COL",
+          "printed_total_us": 70681.4,
+          "percent_of_reported_total": 4.471949637784315,
+          "count": 92
+        },
+        {
+          "category": "REPEAT",
+          "printed_total_us": 52737.1,
+          "percent_of_reported_total": 3.3366296542342857,
+          "count": 92
+        },
+        {
+          "category": "NORM",
+          "printed_total_us": 48520.2,
+          "percent_of_reported_total": 3.069830122425738,
+          "count": 68
+        },
+        {
+          "category": "SCALE",
+          "printed_total_us": 45241.6,
+          "percent_of_reported_total": 2.8623960013919207,
+          "count": 47
+        },
+        {
+          "category": "MUL_MAT_VEC f16",
+          "printed_total_us": 26927.92,
+          "percent_of_reported_total": 1.703705672076176,
+          "count": 8
+        },
+        {
+          "category": "MEAN",
+          "printed_total_us": 19006.4,
+          "percent_of_reported_total": 1.2025181107842209,
+          "count": 128
+        },
+        {
+          "category": "SIGMOID",
+          "printed_total_us": 18792.3,
+          "percent_of_reported_total": 1.1889721932238777,
+          "count": 48
+        },
+        {
+          "category": "GELU_ERF",
+          "printed_total_us": 14168.8,
+          "percent_of_reported_total": 0.896447439182563,
+          "count": 56
+        },
+        {
+          "category": "DIV",
+          "printed_total_us": 11251.2,
+          "percent_of_reported_total": 0.7118534687292398,
+          "count": 32
+        },
+        {
+          "category": "SUB",
+          "printed_total_us": 11106.1,
+          "percent_of_reported_total": 0.7026731201164151,
+          "count": 32
+        },
+        {
+          "category": "COL2IM_1D",
+          "printed_total_us": 11061.1,
+          "percent_of_reported_total": 0.6998260099332511,
+          "count": 8
+        },
+        {
+          "category": "PAD",
+          "printed_total_us": 2483.54,
+          "percent_of_reported_total": 0.15713137831767424,
+          "count": 4
+        },
+        {
+          "category": "CONCAT",
+          "printed_total_us": 1078.18,
+          "percent_of_reported_total": 0.06821549460630794,
+          "count": 3
+        },
+        {
+          "category": "CPY",
+          "printed_total_us": 257.705,
+          "percent_of_reported_total": 0.01630476732782892,
+          "count": 8
+        },
+        {
+          "category": "SQRT",
+          "printed_total_us": 132.219,
+          "percent_of_reported_total": 0.008365379140172725,
+          "count": 32
+        },
+        {
+          "category": "MULTI_ADD ADD",
+          "printed_total_us": 79.531,
+          "percent_of_reported_total": 0.005031855999493847,
+          "count": 1
+        }
+      ],
+      "largest_shape_rows": [
+        {
+          "operation": "SOFT_MAX",
+          "count": 10,
+          "printed_total_us": 192666.0
+        },
+        {
+          "operation": "ADD",
+          "count": 305,
+          "printed_total_us": 152734.0
+        },
+        {
+          "operation": "CONT",
+          "count": 225,
+          "printed_total_us": 107632.0
+        },
+        {
+          "operation": "MUL",
+          "count": 232,
+          "printed_total_us": 92918.4
+        },
+        {
+          "operation": "IM2COL",
+          "count": 92,
+          "printed_total_us": 70681.4
+        },
+        {
+          "operation": "REPEAT",
+          "count": 92,
+          "printed_total_us": 52737.1
+        },
+        {
+          "operation": "NORM",
+          "count": 68,
+          "printed_total_us": 48520.2
+        },
+        {
+          "operation": "MUL_MAT f16 m=172032 n=96 k=432",
+          "count": 1,
+          "printed_total_us": 47369.5
+        },
+        {
+          "operation": "MUL_MAT f16 m=2048 n=2688 k=512",
+          "count": 5,
+          "printed_total_us": 46553.5
+        },
+        {
+          "operation": "SCALE",
+          "count": 47,
+          "printed_total_us": 45241.6
+        }
+      ]
+    },
+    {
+      "request_id": 3,
+      "case_id": "club_xl:257985",
+      "profiled_gpu_interval_total_us": 1584240.0,
+      "printed_rows_sum_us": 1584240.348,
+      "printed_rounding_difference_us": 0.34799999999813735,
+      "profile_rows": 89,
+      "operation_count": 1587,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "printed_total_us": 542398.4690000003,
+          "percent_of_reported_total": 34.237140142907656,
+          "count": 128
+        },
+        {
+          "category": "SOFT_MAX",
+          "printed_total_us": 193339.0,
+          "percent_of_reported_total": 12.20389587436247,
+          "count": 10
+        },
+        {
+          "category": "MUL_MAT f32",
+          "printed_total_us": 160032.59000000003,
+          "percent_of_reported_total": 10.101537014593749,
+          "count": 28
+        },
+        {
+          "category": "ADD",
+          "printed_total_us": 152689.0,
+          "percent_of_reported_total": 9.63799676816644,
+          "count": 305
+        },
+        {
+          "category": "CONT",
+          "printed_total_us": 108004.0,
+          "percent_of_reported_total": 6.817401403827703,
+          "count": 225
+        },
+        {
+          "category": "MUL",
+          "printed_total_us": 92676.6,
+          "percent_of_reported_total": 5.849909104681109,
+          "count": 232
+        },
+        {
+          "category": "IM2COL",
+          "printed_total_us": 71197.9,
+          "percent_of_reported_total": 4.494135989496541,
+          "count": 92
+        },
+        {
+          "category": "REPEAT",
+          "printed_total_us": 52621.9,
+          "percent_of_reported_total": 3.321586375801646,
+          "count": 92
+        },
+        {
+          "category": "NORM",
+          "printed_total_us": 48508.6,
+          "percent_of_reported_total": 3.061947684694238,
+          "count": 68
+        },
+        {
+          "category": "SCALE",
+          "printed_total_us": 45249.4,
+          "percent_of_reported_total": 2.8562212796041004,
+          "count": 47
+        },
+        {
+          "category": "MUL_MAT_VEC f16",
+          "printed_total_us": 26754.36,
+          "percent_of_reported_total": 1.6887820027268596,
+          "count": 8
+        },
+        {
+          "category": "MEAN",
+          "printed_total_us": 19179.4,
+          "percent_of_reported_total": 1.2106372771802254,
+          "count": 128
+        },
+        {
+          "category": "SIGMOID",
+          "printed_total_us": 18708.4,
+          "percent_of_reported_total": 1.1809069332929356,
+          "count": 48
+        },
+        {
+          "category": "GELU_ERF",
+          "printed_total_us": 15349.0,
+          "percent_of_reported_total": 0.9688557289299601,
+          "count": 56
+        },
+        {
+          "category": "DIV",
+          "printed_total_us": 11323.3,
+          "percent_of_reported_total": 0.7147465030550927,
+          "count": 32
+        },
+        {
+          "category": "SUB",
+          "printed_total_us": 11100.5,
+          "percent_of_reported_total": 0.7006829773266676,
+          "count": 32
+        },
+        {
+          "category": "COL2IM_1D",
+          "printed_total_us": 11021.5,
+          "percent_of_reported_total": 0.6956963591375044,
+          "count": 8
+        },
+        {
+          "category": "PAD",
+          "printed_total_us": 2474.58,
+          "percent_of_reported_total": 0.1561998182093622,
+          "count": 4
+        },
+        {
+          "category": "CONCAT",
+          "printed_total_us": 1079.63,
+          "percent_of_reported_total": 0.06814813412109277,
+          "count": 3
+        },
+        {
+          "category": "CPY",
+          "printed_total_us": 283.486,
+          "percent_of_reported_total": 0.017894132202191586,
+          "count": 8
+        },
+        {
+          "category": "SQRT",
+          "printed_total_us": 132.952,
+          "percent_of_reported_total": 0.008392162803615615,
+          "count": 32
+        },
+        {
+          "category": "MULTI_ADD ADD",
+          "printed_total_us": 115.781,
+          "percent_of_reported_total": 0.00730829924758875,
+          "count": 1
+        }
+      ],
+      "largest_shape_rows": [
+        {
+          "operation": "SOFT_MAX",
+          "count": 10,
+          "printed_total_us": 193339.0
+        },
+        {
+          "operation": "ADD",
+          "count": 305,
+          "printed_total_us": 152689.0
+        },
+        {
+          "operation": "CONT",
+          "count": 225,
+          "printed_total_us": 108004.0
+        },
+        {
+          "operation": "MUL",
+          "count": 232,
+          "printed_total_us": 92676.6
+        },
+        {
+          "operation": "IM2COL",
+          "count": 92,
+          "printed_total_us": 71197.9
+        },
+        {
+          "operation": "REPEAT",
+          "count": 92,
+          "printed_total_us": 52621.9
+        },
+        {
+          "operation": "NORM",
+          "count": 68,
+          "printed_total_us": 48508.6
+        },
+        {
+          "operation": "MUL_MAT f16 m=172032 n=96 k=432",
+          "count": 1,
+          "printed_total_us": 47405.0
+        },
+        {
+          "operation": "MUL_MAT f16 m=2048 n=2688 k=512",
+          "count": 5,
+          "printed_total_us": 46377.7
+        },
+        {
+          "operation": "SCALE",
+          "count": 47,
+          "printed_total_us": 45249.4
+        }
+      ]
+    },
+    {
+      "request_id": 4,
+      "case_id": "stfu:515970",
+      "profiled_gpu_interval_total_us": 1573070.0,
+      "printed_rows_sum_us": 1573069.412,
+      "printed_rounding_difference_us": -0.5879999999888241,
+      "profile_rows": 89,
+      "operation_count": 1587,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "printed_total_us": 538232.453,
+          "percent_of_reported_total": 34.21541654217549,
+          "count": 128
+        },
+        {
+          "category": "SOFT_MAX",
+          "printed_total_us": 192331.0,
+          "percent_of_reported_total": 12.226474346341867,
+          "count": 10
+        },
+        {
+          "category": "MUL_MAT f32",
+          "printed_total_us": 159700.35,
+          "percent_of_reported_total": 10.152145168365044,
+          "count": 28
+        },
+        {
+          "category": "ADD",
+          "printed_total_us": 153123.0,
+          "percent_of_reported_total": 9.734023279320056,
+          "count": 305
+        },
+        {
+          "category": "CONT",
+          "printed_total_us": 106128.0,
+          "percent_of_reported_total": 6.7465529188148015,
+          "count": 225
+        },
+        {
+          "category": "MUL",
+          "printed_total_us": 92905.2,
+          "percent_of_reported_total": 5.905980026317964,
+          "count": 232
+        },
+        {
+          "category": "IM2COL",
+          "printed_total_us": 67062.0,
+          "percent_of_reported_total": 4.263128786385857,
+          "count": 92
+        },
+        {
+          "category": "REPEAT",
+          "printed_total_us": 52679.1,
+          "percent_of_reported_total": 3.3488083810637796,
+          "count": 92
+        },
+        {
+          "category": "NORM",
+          "printed_total_us": 49557.4,
+          "percent_of_reported_total": 3.1503620309331435,
+          "count": 68
+        },
+        {
+          "category": "SCALE",
+          "printed_total_us": 45059.7,
+          "percent_of_reported_total": 2.8644434131983956,
+          "count": 47
+        },
+        {
+          "category": "MUL_MAT_VEC f16",
+          "printed_total_us": 26691.21,
+          "percent_of_reported_total": 1.696759203341237,
+          "count": 8
+        },
+        {
+          "category": "SIGMOID",
+          "printed_total_us": 18808.8,
+          "percent_of_reported_total": 1.1956746997908547,
+          "count": 48
+        },
+        {
+          "category": "MEAN",
+          "printed_total_us": 18787.6,
+          "percent_of_reported_total": 1.194327016598117,
+          "count": 128
+        },
+        {
+          "category": "GELU_ERF",
+          "printed_total_us": 14772.0,
+          "percent_of_reported_total": 0.939055477505769,
+          "count": 56
+        },
+        {
+          "category": "DIV",
+          "printed_total_us": 11121.3,
+          "percent_of_reported_total": 0.7069806175186101,
+          "count": 32
+        },
+        {
+          "category": "SUB",
+          "printed_total_us": 11070.3,
+          "percent_of_reported_total": 0.7037385494606089,
+          "count": 32
+        },
+        {
+          "category": "COL2IM_1D",
+          "printed_total_us": 10973.2,
+          "percent_of_reported_total": 0.6975659061580222,
+          "count": 8
+        },
+        {
+          "category": "PAD",
+          "printed_total_us": 2520.52,
+          "percent_of_reported_total": 0.1602293604226131,
+          "count": 4
+        },
+        {
+          "category": "CONCAT",
+          "printed_total_us": 1129.11,
+          "percent_of_reported_total": 0.07177747970528965,
+          "count": 3
+        },
+        {
+          "category": "CPY",
+          "printed_total_us": 173.383,
+          "percent_of_reported_total": 0.011021950707851525,
+          "count": 8
+        },
+        {
+          "category": "SQRT",
+          "printed_total_us": 131.443,
+          "percent_of_reported_total": 0.008355826504859925,
+          "count": 32
+        },
+        {
+          "category": "MULTI_ADD ADD",
+          "printed_total_us": 112.343,
+          "percent_of_reported_total": 0.007141640232157502,
+          "count": 1
+        }
+      ],
+      "largest_shape_rows": [
+        {
+          "operation": "SOFT_MAX",
+          "count": 10,
+          "printed_total_us": 192331.0
+        },
+        {
+          "operation": "ADD",
+          "count": 305,
+          "printed_total_us": 153123.0
+        },
+        {
+          "operation": "CONT",
+          "count": 225,
+          "printed_total_us": 106128.0
+        },
+        {
+          "operation": "MUL",
+          "count": 232,
+          "printed_total_us": 92905.2
+        },
+        {
+          "operation": "IM2COL",
+          "count": 92,
+          "printed_total_us": 67062.0
+        },
+        {
+          "operation": "REPEAT",
+          "count": 92,
+          "printed_total_us": 52679.1
+        },
+        {
+          "operation": "NORM",
+          "count": 68,
+          "printed_total_us": 49557.4
+        },
+        {
+          "operation": "MUL_MAT f16 m=172032 n=96 k=432",
+          "count": 1,
+          "printed_total_us": 47415.7
+        },
+        {
+          "operation": "MUL_MAT f16 m=2048 n=2688 k=512",
+          "count": 5,
+          "printed_total_us": 46923.0
+        },
+        {
+          "operation": "SCALE",
+          "count": 47,
+          "printed_total_us": 45059.7
+        }
+      ]
+    },
+    {
+      "request_id": 5,
+      "case_id": "club_xl:257985",
+      "profiled_gpu_interval_total_us": 1582030.0,
+      "printed_rows_sum_us": 1582025.713,
+      "printed_rounding_difference_us": -4.287000000011176,
+      "profile_rows": 89,
+      "operation_count": 1587,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "printed_total_us": 541078.4680000001,
+          "percent_of_reported_total": 34.2015301859004,
+          "count": 128
+        },
+        {
+          "category": "SOFT_MAX",
+          "printed_total_us": 192887.0,
+          "percent_of_reported_total": 12.192373090270095,
+          "count": 10
+        },
+        {
+          "category": "MUL_MAT f32",
+          "printed_total_us": 161052.81,
+          "percent_of_reported_total": 10.180136280601506,
+          "count": 28
+        },
+        {
+          "category": "ADD",
+          "printed_total_us": 153264.0,
+          "percent_of_reported_total": 9.687806173081421,
+          "count": 305
+        },
+        {
+          "category": "CONT",
+          "printed_total_us": 105396.0,
+          "percent_of_reported_total": 6.662073412008622,
+          "count": 225
+        },
+        {
+          "category": "MUL",
+          "printed_total_us": 92372.1,
+          "percent_of_reported_total": 5.838833650436465,
+          "count": 232
+        },
+        {
+          "category": "IM2COL",
+          "printed_total_us": 70375.9,
+          "percent_of_reported_total": 4.448455465446293,
+          "count": 92
+        },
+        {
+          "category": "REPEAT",
+          "printed_total_us": 54130.4,
+          "percent_of_reported_total": 3.4215786047040826,
+          "count": 92
+        },
+        {
+          "category": "NORM",
+          "printed_total_us": 49005.3,
+          "percent_of_reported_total": 3.0976214104663,
+          "count": 68
+        },
+        {
+          "category": "SCALE",
+          "printed_total_us": 45661.2,
+          "percent_of_reported_total": 2.886241095301606,
+          "count": 47
+        },
+        {
+          "category": "MUL_MAT_VEC f16",
+          "printed_total_us": 26775.870000000003,
+          "percent_of_reported_total": 1.6925007743215998,
+          "count": 8
+        },
+        {
+          "category": "MEAN",
+          "printed_total_us": 18909.9,
+          "percent_of_reported_total": 1.1952933888737889,
+          "count": 128
+        },
+        {
+          "category": "SIGMOID",
+          "printed_total_us": 18893.2,
+          "percent_of_reported_total": 1.1942377831014583,
+          "count": 48
+        },
+        {
+          "category": "GELU_ERF",
+          "printed_total_us": 14596.7,
+          "percent_of_reported_total": 0.9226563339506836,
+          "count": 56
+        },
+        {
+          "category": "SUB",
+          "printed_total_us": 11242.0,
+          "percent_of_reported_total": 0.7106059935652295,
+          "count": 32
+        },
+        {
+          "category": "COL2IM_1D",
+          "printed_total_us": 11176.0,
+          "percent_of_reported_total": 0.706434138417097,
+          "count": 8
+        },
+        {
+          "category": "DIV",
+          "printed_total_us": 11142.9,
+          "percent_of_reported_total": 0.7043418898503822,
+          "count": 32
+        },
+        {
+          "category": "PAD",
+          "printed_total_us": 2506.35,
+          "percent_of_reported_total": 0.15842619925033027,
+          "count": 4
+        },
+        {
+          "category": "CONCAT",
+          "printed_total_us": 1088.49,
+          "percent_of_reported_total": 0.06880337288167734,
+          "count": 3
+        },
+        {
+          "category": "CPY",
+          "printed_total_us": 259.581,
+          "percent_of_reported_total": 0.016408095927384438,
+          "count": 8
+        },
+        {
+          "category": "SQRT",
+          "printed_total_us": 131.909,
+          "percent_of_reported_total": 0.00833795819295462,
+          "count": 32
+        },
+        {
+          "category": "MULTI_ADD ADD",
+          "printed_total_us": 79.635,
+          "percent_of_reported_total": 0.005033722495780738,
+          "count": 1
+        }
+      ],
+      "largest_shape_rows": [
+        {
+          "operation": "SOFT_MAX",
+          "count": 10,
+          "printed_total_us": 192887.0
+        },
+        {
+          "operation": "ADD",
+          "count": 305,
+          "printed_total_us": 153264.0
+        },
+        {
+          "operation": "CONT",
+          "count": 225,
+          "printed_total_us": 105396.0
+        },
+        {
+          "operation": "MUL",
+          "count": 232,
+          "printed_total_us": 92372.1
+        },
+        {
+          "operation": "IM2COL",
+          "count": 92,
+          "printed_total_us": 70375.9
+        },
+        {
+          "operation": "REPEAT",
+          "count": 92,
+          "printed_total_us": 54130.4
+        },
+        {
+          "operation": "NORM",
+          "count": 68,
+          "printed_total_us": 49005.3
+        },
+        {
+          "operation": "MUL_MAT f16 m=172032 n=96 k=432",
+          "count": 1,
+          "printed_total_us": 46688.0
+        },
+        {
+          "operation": "MUL_MAT f16 m=2048 n=2688 k=512",
+          "count": 5,
+          "printed_total_us": 46391.7
+        },
+        {
+          "operation": "SCALE",
+          "count": 47,
+          "printed_total_us": 45661.2
+        }
+      ]
+    },
+    {
+      "request_id": 6,
+      "case_id": "stfu:515970",
+      "profiled_gpu_interval_total_us": 1578610.0,
+      "printed_rows_sum_us": 1578606.816,
+      "printed_rounding_difference_us": -3.1839999998919666,
+      "profile_rows": 89,
+      "operation_count": 1587,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "printed_total_us": 542688.9990000001,
+          "percent_of_reported_total": 34.3776486275901,
+          "count": 128
+        },
+        {
+          "category": "SOFT_MAX",
+          "printed_total_us": 193446.0,
+          "percent_of_reported_total": 12.254198313706363,
+          "count": 10
+        },
+        {
+          "category": "MUL_MAT f32",
+          "printed_total_us": 160135.72,
+          "percent_of_reported_total": 10.14409638859503,
+          "count": 28
+        },
+        {
+          "category": "ADD",
+          "printed_total_us": 152341.0,
+          "percent_of_reported_total": 9.650325286169478,
+          "count": 305
+        },
+        {
+          "category": "CONT",
+          "printed_total_us": 106778.0,
+          "percent_of_reported_total": 6.764051919093379,
+          "count": 225
+        },
+        {
+          "category": "MUL",
+          "printed_total_us": 91401.8,
+          "percent_of_reported_total": 5.790017800470034,
+          "count": 232
+        },
+        {
+          "category": "IM2COL",
+          "printed_total_us": 69243.9,
+          "percent_of_reported_total": 4.386384224095881,
+          "count": 92
+        },
+        {
+          "category": "REPEAT",
+          "printed_total_us": 52662.8,
+          "percent_of_reported_total": 3.336023463680073,
+          "count": 92
+        },
+        {
+          "category": "NORM",
+          "printed_total_us": 48678.0,
+          "percent_of_reported_total": 3.0835988622902426,
+          "count": 68
+        },
+        {
+          "category": "SCALE",
+          "printed_total_us": 44853.3,
+          "percent_of_reported_total": 2.8413160945388665,
+          "count": 47
+        },
+        {
+          "category": "MUL_MAT_VEC f16",
+          "printed_total_us": 26710.05,
+          "percent_of_reported_total": 1.6919980235777043,
+          "count": 8
+        },
+        {
+          "category": "MEAN",
+          "printed_total_us": 18851.2,
+          "percent_of_reported_total": 1.194164486478611,
+          "count": 128
+        },
+        {
+          "category": "SIGMOID",
+          "printed_total_us": 18667.7,
+          "percent_of_reported_total": 1.182540336118484,
+          "count": 48
+        },
+        {
+          "category": "GELU_ERF",
+          "printed_total_us": 14994.7,
+          "percent_of_reported_total": 0.9498672883106024,
+          "count": 56
+        },
+        {
+          "category": "DIV",
+          "printed_total_us": 11141.7,
+          "percent_of_reported_total": 0.7057918041821603,
+          "count": 32
+        },
+        {
+          "category": "SUB",
+          "printed_total_us": 11067.7,
+          "percent_of_reported_total": 0.7011041359170409,
+          "count": 32
+        },
+        {
+          "category": "COL2IM_1D",
+          "printed_total_us": 10881.2,
+          "percent_of_reported_total": 0.6892899449515714,
+          "count": 8
+        },
+        {
+          "category": "PAD",
+          "printed_total_us": 2484.16,
+          "percent_of_reported_total": 0.1573637567226864,
+          "count": 4
+        },
+        {
+          "category": "CONCAT",
+          "printed_total_us": 1072.24,
+          "percent_of_reported_total": 0.0679230462242099,
+          "count": 3
+        },
+        {
+          "category": "CPY",
+          "printed_total_us": 262.446,
+          "percent_of_reported_total": 0.016625132236587885,
+          "count": 8
+        },
+        {
+          "category": "SQRT",
+          "printed_total_us": 132.951,
+          "percent_of_reported_total": 0.008422029506971322,
+          "count": 32
+        },
+        {
+          "category": "MULTI_ADD ADD",
+          "printed_total_us": 111.25,
+          "percent_of_reported_total": 0.0070473391147908605,
+          "count": 1
+        }
+      ],
+      "largest_shape_rows": [
+        {
+          "operation": "SOFT_MAX",
+          "count": 10,
+          "printed_total_us": 193446.0
+        },
+        {
+          "operation": "ADD",
+          "count": 305,
+          "printed_total_us": 152341.0
+        },
+        {
+          "operation": "CONT",
+          "count": 225,
+          "printed_total_us": 106778.0
+        },
+        {
+          "operation": "MUL",
+          "count": 232,
+          "printed_total_us": 91401.8
+        },
+        {
+          "operation": "IM2COL",
+          "count": 92,
+          "printed_total_us": 69243.9
+        },
+        {
+          "operation": "REPEAT",
+          "count": 92,
+          "printed_total_us": 52662.8
+        },
+        {
+          "operation": "NORM",
+          "count": 68,
+          "printed_total_us": 48678.0
+        },
+        {
+          "operation": "MUL_MAT f16 m=172032 n=96 k=432",
+          "count": 1,
+          "printed_total_us": 47195.0
+        },
+        {
+          "operation": "MUL_MAT f16 m=2048 n=2688 k=512",
+          "count": 5,
+          "printed_total_us": 46476.3
+        },
+        {
+          "operation": "MUL_MAT f16 m=512 n=2688 k=2048",
+          "count": 5,
+          "printed_total_us": 45001.6
+        }
+      ]
+    }
+  ],
+  "category_summary": [
+    {
+      "category": "MUL_MAT f16",
+      "requests": 6,
+      "mean_share_percent": 34.208472270049725,
+      "min_share_percent": 34.054245000975584,
+      "max_share_percent": 34.3776486275901
+    },
+    {
+      "category": "SOFT_MAX",
+      "requests": 6,
+      "mean_share_percent": 12.192685241510238,
+      "min_share_percent": 12.089362478836362,
+      "max_share_percent": 12.254198313706363
+    },
+    {
+      "category": "MUL_MAT f32",
+      "requests": 6,
+      "mean_share_percent": 10.169375935246682,
+      "min_share_percent": 10.101537014593749,
+      "max_share_percent": 10.246551192401862
+    },
+    {
+      "category": "ADD",
+      "requests": 6,
+      "mean_share_percent": 9.658779741382366,
+      "min_share_percent": 9.579181903437163,
+      "max_share_percent": 9.734023279320056
+    },
+    {
+      "category": "CONT",
+      "requests": 6,
+      "mean_share_percent": 6.788766146683453,
+      "min_share_percent": 6.662073412008622,
+      "max_share_percent": 6.932735821149162
+    },
+    {
+      "category": "MUL",
+      "requests": 6,
+      "mean_share_percent": 5.841572110409837,
+      "min_share_percent": 5.785827128479806,
+      "max_share_percent": 5.905980026317964
+    },
+    {
+      "category": "IM2COL",
+      "requests": 6,
+      "mean_share_percent": 4.460753624800879,
+      "min_share_percent": 4.263128786385857,
+      "max_share_percent": 4.700467645596389
+    },
+    {
+      "category": "REPEAT",
+      "requests": 6,
+      "mean_share_percent": 3.347547975829789,
+      "min_share_percent": 3.320661375494867,
+      "max_share_percent": 3.4215786047040826
+    },
+    {
+      "category": "NORM",
+      "requests": 6,
+      "mean_share_percent": 3.091543479884893,
+      "min_share_percent": 3.061947684694238,
+      "max_share_percent": 3.1503620309331435
+    },
+    {
+      "category": "SCALE",
+      "requests": 6,
+      "mean_share_percent": 2.858227520422357,
+      "min_share_percent": 2.8387472384992543,
+      "max_share_percent": 2.886241095301606
+    },
+    {
+      "category": "MUL_MAT_VEC f16",
+      "requests": 6,
+      "mean_share_percent": 1.697396884833596,
+      "min_share_percent": 1.6887820027268596,
+      "max_share_percent": 1.710635632958
+    },
+    {
+      "category": "MEAN",
+      "requests": 6,
+      "mean_share_percent": 1.1968578879928682,
+      "min_share_percent": 1.1842070480422455,
+      "max_share_percent": 1.2106372771802254
+    },
+    {
+      "category": "SIGMOID",
+      "requests": 6,
+      "mean_share_percent": 1.1872970355563517,
+      "min_share_percent": 1.1809069332929356,
+      "max_share_percent": 1.1956746997908547
+    },
+    {
+      "category": "GELU_ERF",
+      "requests": 6,
+      "mean_share_percent": 0.9324092996256897,
+      "min_share_percent": 0.896447439182563,
+      "max_share_percent": 0.9688557289299601
+    },
+    {
+      "category": "DIV",
+      "requests": 6,
+      "mean_share_percent": 0.7075314953231508,
+      "min_share_percent": 0.7014746886034202,
+      "max_share_percent": 0.7147465030550927
+    },
+    {
+      "category": "SUB",
+      "requests": 6,
+      "mean_share_percent": 0.7026036485136444,
+      "min_share_percent": 0.6968171146959045,
+      "max_share_percent": 0.7106059935652295
+    },
+    {
+      "category": "COL2IM_1D",
+      "requests": 6,
+      "mean_share_percent": 0.6958299989156673,
+      "min_share_percent": 0.6861676348965579,
+      "max_share_percent": 0.706434138417097
+    },
+    {
+      "category": "PAD",
+      "requests": 6,
+      "mean_share_percent": 0.15742778016635733,
+      "min_share_percent": 0.15521616807547786,
+      "max_share_percent": 0.1602293604226131
+    },
+    {
+      "category": "CONCAT",
+      "requests": 6,
+      "mean_share_percent": 0.06878858773007969,
+      "min_share_percent": 0.06786399884190054,
+      "max_share_percent": 0.07177747970528965
+    },
+    {
+      "category": "CPY",
+      "requests": 6,
+      "mean_share_percent": 0.02107865449672337,
+      "min_share_percent": 0.011021950707851525,
+      "max_share_percent": 0.048217848578495856
+    },
+    {
+      "category": "SQRT",
+      "requests": 6,
+      "mean_share_percent": 0.008607963085833233,
+      "min_share_percent": 0.00833795819295462,
+      "max_share_percent": 0.009774422366425185
+    },
+    {
+      "category": "MULTI_ADD ADD",
+      "requests": 6,
+      "mean_share_percent": 0.006441150187127863,
+      "min_share_percent": 0.005031855999493847,
+      "max_share_percent": 0.00730829924758875
+    }
+  ],
+  "scope": "Rounded printed per-operation GPU intervals from six deliberately perturbed requests. Intervals include profiler synchronization/internal work and are not exclusive kernels, p99 qualification, causal-overhead estimates or reproduction of the prior stall. No UI/audio/cancellation workload was requested."
+}
