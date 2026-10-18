@@ -1,0 +1,695 @@
+{
+  "schema": 1,
+  "status": "passed_closed_ABBA_audit",
+  "audited_at_utc": "2026-10-18T21:56:54.983505+00:00",
+  "checks_passed": 96,
+  "checks": [
+    {
+      "name": "session completed declaredABBA order16requests without failures",
+      "passed": true
+    },
+    {
+      "name": "one original1800second deadline retained and actual elapsed within cap",
+      "passed": true
+    },
+    {
+      "name": "frozen driverf905 and launcherf9 source bytes bind session",
+      "passed": true
+    },
+    {
+      "name": "all31 source hashes match source map exactly now",
+      "passed": true
+    },
+    {
+      "name": "session original8pin metadata unchanged and maps bind expected config",
+      "passed": true
+    },
+    {
+      "name": "recorded exactHEAD matches every configured session identity",
+      "passed": true
+    },
+    {
+      "name": "immutable original PCMproof exact and complete",
+      "passed": true
+    },
+    {
+      "name": "session no UI/audio/profile/service changes and minimized scope is attestation",
+      "passed": true
+    },
+    {
+      "name": "all8 groups disappeared with no observed or known residuals",
+      "passed": true
+    },
+    {
+      "name": "A1: passed exactfour requests and actual native flags without errors",
+      "passed": true
+    },
+    {
+      "name": "A1: result source and model/runtime/proof pins agree and44artifacts stable",
+      "passed": true
+    },
+    {
+      "name": "A1:44artifact identities also match all earlier legs",
+      "passed": true
+    },
+    {
+      "name": "A1: fixedfour-track cases exact input normalization and output proof",
+      "passed": true
+    },
+    {
+      "name": "A1: both arms validate finite phases and exact runtime protocol",
+      "passed": true
+    },
+    {
+      "name": "A1: four nonoverlapping returned monotonic request intervals align IDs",
+      "passed": true
+    },
+    {
+      "name": "A1: closed trace counts and producer error gates reconcile",
+      "passed": true
+    },
+    {
+      "name": "A1: trace timestamps monotonic and capture/gap units recompute",
+      "passed": true
+    },
+    {
+      "name": "A1: native and supervisor identities separated and consistent with owner cleanup",
+      "passed": true
+    },
+    {
+      "name": "A1: required fields present every native row with explicit MHz/millidegree/string units",
+      "passed": true
+    },
+    {
+      "name": "A1: process aggregate sample and memory maxima match raw identities",
+      "passed": true
+    },
+    {
+      "name": "A1: optional denied energy fields explicitly retained separately",
+      "passed": true
+    },
+    {
+      "name": "A1: complete stderr identity and graph movement exactly for B arms",
+      "passed": true
+    },
+    {
+      "name": "A1: own native memory and killed/reaped temporary cleanup agree",
+      "passed": true
+    },
+    {
+      "name": "A1: fresh per-leg55C60second normal admission proof exact",
+      "passed": true
+    },
+    {
+      "name": "A1: same original human readiness fresh with AC lid minimized attestation",
+      "passed": true
+    },
+    {
+      "name": "A1:180second work and60afterpin bounded leg completes inside250second outer allowance",
+      "passed": true
+    },
+    {
+      "name": "A1: paired club_xl:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A1: paired when_the_light_breaks:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A1: paired under_my_skin:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A1: paired stfu:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B1: passed exactfour requests and actual native flags without errors",
+      "passed": true
+    },
+    {
+      "name": "B1: result source and model/runtime/proof pins agree and44artifacts stable",
+      "passed": true
+    },
+    {
+      "name": "B1:44artifact identities also match all earlier legs",
+      "passed": true
+    },
+    {
+      "name": "B1: fixedfour-track cases exact input normalization and output proof",
+      "passed": true
+    },
+    {
+      "name": "B1: both arms validate finite phases and exact runtime protocol",
+      "passed": true
+    },
+    {
+      "name": "B1: four nonoverlapping returned monotonic request intervals align IDs",
+      "passed": true
+    },
+    {
+      "name": "B1: closed trace counts and producer error gates reconcile",
+      "passed": true
+    },
+    {
+      "name": "B1: trace timestamps monotonic and capture/gap units recompute",
+      "passed": true
+    },
+    {
+      "name": "B1: native and supervisor identities separated and consistent with owner cleanup",
+      "passed": true
+    },
+    {
+      "name": "B1: required fields present every native row with explicit MHz/millidegree/string units",
+      "passed": true
+    },
+    {
+      "name": "B1: process aggregate sample and memory maxima match raw identities",
+      "passed": true
+    },
+    {
+      "name": "B1: optional denied energy fields explicitly retained separately",
+      "passed": true
+    },
+    {
+      "name": "B1: complete stderr identity and graph movement exactly for B arms",
+      "passed": true
+    },
+    {
+      "name": "B1: own native memory and killed/reaped temporary cleanup agree",
+      "passed": true
+    },
+    {
+      "name": "B1: fresh per-leg55C60second normal admission proof exact",
+      "passed": true
+    },
+    {
+      "name": "B1: same original human readiness fresh with AC lid minimized attestation",
+      "passed": true
+    },
+    {
+      "name": "B1:180second work and60afterpin bounded leg completes inside250second outer allowance",
+      "passed": true
+    },
+    {
+      "name": "B1: paired club_xl:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B1: paired when_the_light_breaks:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B1: paired under_my_skin:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B1: paired stfu:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B2: passed exactfour requests and actual native flags without errors",
+      "passed": true
+    },
+    {
+      "name": "B2: result source and model/runtime/proof pins agree and44artifacts stable",
+      "passed": true
+    },
+    {
+      "name": "B2:44artifact identities also match all earlier legs",
+      "passed": true
+    },
+    {
+      "name": "B2: fixedfour-track cases exact input normalization and output proof",
+      "passed": true
+    },
+    {
+      "name": "B2: both arms validate finite phases and exact runtime protocol",
+      "passed": true
+    },
+    {
+      "name": "B2: four nonoverlapping returned monotonic request intervals align IDs",
+      "passed": true
+    },
+    {
+      "name": "B2: closed trace counts and producer error gates reconcile",
+      "passed": true
+    },
+    {
+      "name": "B2: trace timestamps monotonic and capture/gap units recompute",
+      "passed": true
+    },
+    {
+      "name": "B2: native and supervisor identities separated and consistent with owner cleanup",
+      "passed": true
+    },
+    {
+      "name": "B2: required fields present every native row with explicit MHz/millidegree/string units",
+      "passed": true
+    },
+    {
+      "name": "B2: process aggregate sample and memory maxima match raw identities",
+      "passed": true
+    },
+    {
+      "name": "B2: optional denied energy fields explicitly retained separately",
+      "passed": true
+    },
+    {
+      "name": "B2: complete stderr identity and graph movement exactly for B arms",
+      "passed": true
+    },
+    {
+      "name": "B2: own native memory and killed/reaped temporary cleanup agree",
+      "passed": true
+    },
+    {
+      "name": "B2: fresh per-leg55C60second normal admission proof exact",
+      "passed": true
+    },
+    {
+      "name": "B2: same original human readiness fresh with AC lid minimized attestation",
+      "passed": true
+    },
+    {
+      "name": "B2:180second work and60afterpin bounded leg completes inside250second outer allowance",
+      "passed": true
+    },
+    {
+      "name": "B2: paired club_xl:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B2: paired when_the_light_breaks:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B2: paired under_my_skin:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "B2: paired stfu:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A2: passed exactfour requests and actual native flags without errors",
+      "passed": true
+    },
+    {
+      "name": "A2: result source and model/runtime/proof pins agree and44artifacts stable",
+      "passed": true
+    },
+    {
+      "name": "A2:44artifact identities also match all earlier legs",
+      "passed": true
+    },
+    {
+      "name": "A2: fixedfour-track cases exact input normalization and output proof",
+      "passed": true
+    },
+    {
+      "name": "A2: both arms validate finite phases and exact runtime protocol",
+      "passed": true
+    },
+    {
+      "name": "A2: four nonoverlapping returned monotonic request intervals align IDs",
+      "passed": true
+    },
+    {
+      "name": "A2: closed trace counts and producer error gates reconcile",
+      "passed": true
+    },
+    {
+      "name": "A2: trace timestamps monotonic and capture/gap units recompute",
+      "passed": true
+    },
+    {
+      "name": "A2: native and supervisor identities separated and consistent with owner cleanup",
+      "passed": true
+    },
+    {
+      "name": "A2: required fields present every native row with explicit MHz/millidegree/string units",
+      "passed": true
+    },
+    {
+      "name": "A2: process aggregate sample and memory maxima match raw identities",
+      "passed": true
+    },
+    {
+      "name": "A2: optional denied energy fields explicitly retained separately",
+      "passed": true
+    },
+    {
+      "name": "A2: complete stderr identity and graph movement exactly for B arms",
+      "passed": true
+    },
+    {
+      "name": "A2: own native memory and killed/reaped temporary cleanup agree",
+      "passed": true
+    },
+    {
+      "name": "A2: fresh per-leg55C60second normal admission proof exact",
+      "passed": true
+    },
+    {
+      "name": "A2: same original human readiness fresh with AC lid minimized attestation",
+      "passed": true
+    },
+    {
+      "name": "A2:180second work and60afterpin bounded leg completes inside250second outer allowance",
+      "passed": true
+    },
+    {
+      "name": "A2: paired club_xl:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A2: paired when_the_light_breaks:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A2: paired under_my_skin:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "A2: paired stfu:257985 retains exact immutable hashes",
+      "passed": true
+    },
+    {
+      "name": "four exact PCM quadruplets match launcher paired hash table",
+      "passed": true
+    },
+    {
+      "name": "allperiodic AC/lid observations ready with no errors",
+      "passed": true
+    },
+    {
+      "name": "AC/lid observation precedes each of8owned phase launches",
+      "passed": true
+    }
+  ],
+  "recorded_HEAD": "8e4d588a35d89f02a42ffce49b13f7822c8cb143",
+  "evidence": {
+    "session": {
+      "bytes": 34947,
+      "sha256": "2dc52e3f14505e6dda94094950e5185be5c42d6d3b532cba3f57fe5db6f3e59a"
+    },
+    "expected": {
+      "bytes": 1477,
+      "sha256": "cbb02157c6ee3f01684e3a0448415443aac5765c9689cf4c231602acd15c4530"
+    },
+    "source_pins": {
+      "bytes": 5055,
+      "sha256": "e1ae9265f58ce77dc3c9b1633cb69b5f9214bd340b56e69a01f44cd137eeb401"
+    },
+    "proof": {
+      "bytes": 105418,
+      "sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3"
+    },
+    "driver": {
+      "bytes": 18784,
+      "sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3"
+    },
+    "launcher": {
+      "bytes": 20005,
+      "sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf"
+    },
+    "A1/result": {
+      "bytes": 64647,
+      "sha256": "39e2b6846343c4c64704bae7d658be4e5334e3510c670e7021b5bf76b9c1056d"
+    },
+    "A1/stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "A1/trace": {
+      "bytes": 96714,
+      "sha256": "827589d30c35a96bbb2facf59d4ffaa8313b17bb8c3ef954b2da06547cd3b351"
+    },
+    "A1/ready": {
+      "bytes": 15580,
+      "sha256": "cedcf9386861516537fa5778094aa49fcb58b635a55a55e47b59bbc8bdf88ecb"
+    },
+    "A1/ready_trace": {
+      "bytes": 12157,
+      "sha256": "e328d1e81cd4042b8f8c91638cc029758fef90aa8287ed449035b0ba6668f031"
+    },
+    "A1/fresh": {
+      "bytes": 1802,
+      "sha256": "e41a9f78432a9f918ca1d94e3391e0a9753784e59c27913a43a3f3d78b0db81b"
+    },
+    "B1/result": {
+      "bytes": 65511,
+      "sha256": "37c6ea51be39963b4aa4ed330da98e967b74c8c50a343eac6e85fdf84ae53dce"
+    },
+    "B1/stderr": {
+      "bytes": 308,
+      "sha256": "fed079a3cef237bc83b8a886fd2a156b4e7d2775135f6e312063d913c060bf39"
+    },
+    "B1/trace": {
+      "bytes": 103219,
+      "sha256": "ba19554f84c118d2b3cbc6bf5ec6c0b95b1ba7e3227ee2a4a6537c7bcb24dede"
+    },
+    "B1/ready": {
+      "bytes": 24702,
+      "sha256": "03212e5502f4b81c7706f43f95efc1f92b4f8b69a04cc218a0d6271deb377675"
+    },
+    "B1/ready_trace": {
+      "bytes": 19719,
+      "sha256": "54b3a3c714b66d587ede342879cee47d2cf31bae1c51557249526edc8b78733a"
+    },
+    "B1/fresh": {
+      "bytes": 1803,
+      "sha256": "0350cfd9c22487ed84d33590a560c3cf883662c046b29c5c67c28176a56a9aec"
+    },
+    "B2/result": {
+      "bytes": 65496,
+      "sha256": "12296c87d10fdce9ab56212d03f517f8e664bb49ddd16b2edd6f252b9d0b0881"
+    },
+    "B2/stderr": {
+      "bytes": 308,
+      "sha256": "fed079a3cef237bc83b8a886fd2a156b4e7d2775135f6e312063d913c060bf39"
+    },
+    "B2/trace": {
+      "bytes": 103266,
+      "sha256": "2577fc7d15a15aa5c5f449eb100594a23cf73afb4c76a423efe6293b4c11ba1a"
+    },
+    "B2/ready": {
+      "bytes": 36111,
+      "sha256": "f41e3aad75e160dbba0e559b7fe64076a64faef6b2f96b1b2259905afe3d05bd"
+    },
+    "B2/ready_trace": {
+      "bytes": 29179,
+      "sha256": "e2d80d48685316eabd797145968eefa57338835690714c3c04bdc64686a85447"
+    },
+    "B2/fresh": {
+      "bytes": 1802,
+      "sha256": "144f0a222cbfcd5d42bfa48ec914f1226bceca7ed8f5b12873217ffff5603d0a"
+    },
+    "A2/result": {
+      "bytes": 64655,
+      "sha256": "121995108464140a5dee885d6eb19ac742610d552cf4d595078c42df187b0ad1"
+    },
+    "A2/stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "A2/trace": {
+      "bytes": 103266,
+      "sha256": "f355cfc9807e9825db24858787a75d07200af7ef57b71089fb6282f1205547f7"
+    },
+    "A2/ready": {
+      "bytes": 11053,
+      "sha256": "2301500e026e6c68303a8439aae170e08b667f8c111e502451dc79662d16f108"
+    },
+    "A2/ready_trace": {
+      "bytes": 8410,
+      "sha256": "4f7f5bcd0e66c0bd5a7614929c6349eaa89d4bc666b06ecc80f16c6d821f2afc"
+    },
+    "A2/fresh": {
+      "bytes": 1804,
+      "sha256": "7e87d7ded47b81150ad9dfbe94454def8b390aaf1be60dae2f27fac111fb245b"
+    },
+    "AC_lid_monitor": {
+      "bytes": 9058,
+      "sha256": "8e538b54a2221098bb72ea5eafb63e683dc11092b6668ed462966f4b1234c909"
+    }
+  },
+  "completed_legs": [
+    "A1",
+    "B1",
+    "B2",
+    "A2"
+  ],
+  "completed_requests": 16,
+  "exact_PCM_quadruplets": 4,
+  "stable_artifacts_per_leg": 44,
+  "current_source_text_hashes_verified": 31,
+  "elapsed_seconds": 763.1171769470093,
+  "total_trace_rows": 63,
+  "total_native_rows": 59,
+  "total_supervisor_rows": 4,
+  "optional_energy_permission_errors": 252,
+  "AC_lid_observations": 34,
+  "leg_reductions": {
+    "A1": {
+      "sampler_rows": 15,
+      "supervisor_rows": 1,
+      "native_rows": 14,
+      "required_field_rows": 14,
+      "optional_energy_permission_errors": 60,
+      "supervisor_fd_read_errors": 1,
+      "native_fd_read_errors": 0,
+      "native_first_timestamp_ms_after_constructor": 518.7990489648655,
+      "native_last_timestamp_ms_after_last_return": 17.646797001361847,
+      "fully_contained_samples_per_request": [
+        4,
+        3,
+        3,
+        3
+      ],
+      "max_capture_elapsed_ms": 11.960455973166972,
+      "max_sample_gap_ms": 512.3181630042382,
+      "native_gpu_act_MHz_minmax": [
+        0,
+        1350
+      ],
+      "native_package_C_minmax": [
+        53.0,
+        68.0
+      ],
+      "native_profiles": {
+        "balanced": 14
+      },
+      "normal_admission_samples": 13,
+      "normal_admission_ready_span_seconds": 61.15810723899631,
+      "human_age_seconds": 126.008103,
+      "fresh_package_C": 43.0,
+      "startup_observed_ms": 323.944951989688,
+      "median_request_wall_ms": 1661.7597279837355,
+      "VmHWM_KiB": 280580
+    },
+    "B1": {
+      "sampler_rows": 16,
+      "supervisor_rows": 1,
+      "native_rows": 15,
+      "required_field_rows": 15,
+      "optional_energy_permission_errors": 64,
+      "supervisor_fd_read_errors": 1,
+      "native_fd_read_errors": 0,
+      "native_first_timestamp_ms_after_constructor": 515.7923129736446,
+      "native_last_timestamp_ms_after_last_return": 20.032159984111786,
+      "fully_contained_samples_per_request": [
+        4,
+        3,
+        3,
+        4
+      ],
+      "max_capture_elapsed_ms": 10.870179976336658,
+      "max_sample_gap_ms": 514.1305029974319,
+      "native_gpu_act_MHz_minmax": [
+        0,
+        1350
+      ],
+      "native_package_C_minmax": [
+        48.0,
+        73.0
+      ],
+      "native_profiles": {
+        "balanced": 15
+      },
+      "normal_admission_samples": 21,
+      "normal_admission_ready_span_seconds": 61.13589343603235,
+      "human_age_seconds": 343.024928,
+      "fresh_package_C": 44.0,
+      "startup_observed_ms": 379.76702000014484,
+      "median_request_wall_ms": 1676.2538460025098,
+      "VmHWM_KiB": 280188
+    },
+    "B2": {
+      "sampler_rows": 16,
+      "supervisor_rows": 1,
+      "native_rows": 15,
+      "required_field_rows": 15,
+      "optional_energy_permission_errors": 64,
+      "supervisor_fd_read_errors": 1,
+      "native_fd_read_errors": 0,
+      "native_first_timestamp_ms_after_constructor": 516.2183369975537,
+      "native_last_timestamp_ms_after_last_return": 19.766751036513597,
+      "fully_contained_samples_per_request": [
+        4,
+        3,
+        3,
+        4
+      ],
+      "max_capture_elapsed_ms": 10.381185973528773,
+      "max_sample_gap_ms": 510.7910959632136,
+      "native_gpu_act_MHz_minmax": [
+        0,
+        1350
+      ],
+      "native_package_C_minmax": [
+        49.0,
+        75.0
+      ],
+      "native_profiles": {
+        "balanced": 15
+      },
+      "normal_admission_samples": 31,
+      "normal_admission_ready_span_seconds": 61.146864421025384,
+      "human_age_seconds": 667.500831,
+      "fresh_package_C": 38.0,
+      "startup_observed_ms": 372.4746520165354,
+      "median_request_wall_ms": 1656.5708694979548,
+      "VmHWM_KiB": 281496
+    },
+    "A2": {
+      "sampler_rows": 16,
+      "supervisor_rows": 1,
+      "native_rows": 15,
+      "required_field_rows": 15,
+      "optional_energy_permission_errors": 64,
+      "supervisor_fd_read_errors": 1,
+      "native_fd_read_errors": 0,
+      "native_first_timestamp_ms_after_constructor": 511.3189179683104,
+      "native_last_timestamp_ms_after_last_return": 20.409933000337332,
+      "fully_contained_samples_per_request": [
+        4,
+        3,
+        3,
+        4
+      ],
+      "max_capture_elapsed_ms": 9.658353985287249,
+      "max_sample_gap_ms": 509.96634998591617,
+      "native_gpu_act_MHz_minmax": [
+        0,
+        1350
+      ],
+      "native_package_C_minmax": [
+        48.0,
+        71.0
+      ],
+      "native_profiles": {
+        "balanced": 15
+      },
+      "normal_admission_samples": 9,
+      "normal_admission_ready_span_seconds": 61.12852484895848,
+      "human_age_seconds": 757.848066,
+      "fresh_package_C": 43.0,
+      "startup_observed_ms": 367.0001510181464,
+      "median_request_wall_ms": 1671.012086502742,
+      "VmHWM_KiB": 280560
+    }
+  },
+  "issues": [],
+  "scope": [
+    "Independent closed JSON/JSONL/stderr/source-text audit only. No native/host/build/tests/Git/media/model/binary reads. PCM bytes were not read; recorded input/output hashes were compared within four quadruplets and to immutable previously audited proof.",
+    "Sampler traces are first hashed into this independent receipt after close; original producer trace integrity binds counts/errors and reductions, not a producer-time trace digest.",
+    "Native/supervisor PID/start identities remain separate. Raw units retained: MHz, millidegrees_C, milliseconds, kB/KiB and DRM units. Do not add RSS and per-client DRM maxima as total GPU memory.",
+    "All63 trace rows have4 denied RAPL energy fields,252 PermissionErrors total; no energy or power inference. Each initial supervisor row has1 fd read error; native rows have0. Other sample/trace errors are0.",
+    "Only59 native rows sampled every~0.5s. First native observations begin~0.51s after construction; startup transients, unseen temperature peaks and continuous clocks/temperatures are not resolved. Capture intervals crossing request boundaries must not be assigned wholly to one request.",
+    "The fixed ABBA order reduces one order confound but does not establish generalizable speed/causality, loaded p99, sustained/thermal qualification, physical audio/display latency, musical quality, or cancellation behavior. No UI/audio/cancellation workload was requested.",
+    "Fresh readiness is verified before each leg with the same original human record; minimized state is attested, not automatically observed. Native-9 exits denote killed/reaped cleanup."
+  ]
+}

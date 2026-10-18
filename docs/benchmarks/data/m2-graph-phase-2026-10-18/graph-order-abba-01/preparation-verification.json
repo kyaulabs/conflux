@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "status": "ready_pending_fresh_human_readiness",
+  "repository_head": "8e4d588a35d89f02a42ffce49b13f7822c8cb143",
+  "run_label": "graph-order-abba-laptop-01",
+  "offline_driver_checks": 19,
+  "offline_launcher_checks": 16,
+  "order": [
+    "A1",
+    "B1",
+    "B2",
+    "A2"
+  ],
+  "requests_per_leg": 4,
+  "pins": {
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced_runtime.py",
+      "bytes": 18784,
+      "sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3"
+    },
+    "launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced_launch.py",
+      "bytes": 20005,
+      "sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf"
+    },
+    "expected": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-expected-pins.json",
+      "bytes": 1477,
+      "sha256": "cbb02157c6ee3f01684e3a0448415443aac5765c9689cf4c231602acd15c4530"
+    },
+    "sources": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-source-pins.json",
+      "bytes": 5055,
+      "sha256": "e1ae9265f58ce77dc3c9b1633cb69b5f9214bd340b56e69a01f44cd137eeb401"
+    },
+    "driver_mocks": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-driver-offline-mock-result.json",
+      "bytes": 1809,
+      "sha256": "b66ffbf9e271e393e0d2c0c0ced746cb983856cdcc8a305df041f2e8753bf13d"
+    },
+    "launcher_mocks": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-launcher-offline-mock-result.json",
+      "bytes": 1712,
+      "sha256": "d079b33a23af123e8da24a3341d7021b28ab5d694774baab7b6be4b934bd204a"
+    },
+    "root_checks": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-root-offline-check.json",
+      "bytes": 784,
+      "sha256": "5f6292624a32242ecd0502ac92ca98b520c8fdbc5d8baaaf4c0b86d8516b8121"
+    },
+    "armed_negative": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-armed-negative.json",
+      "bytes": 376,
+      "sha256": "1da61163d69bdeaac5a5bc43878df83f7be33b416c5923edbf81e05148d02cfb"
+    },
+    "plan": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced-laptop-01-plan.json",
+      "bytes": 1092,
+      "sha256": "4d55b71ea7ee3ddc223734d3b16ceecd36da9a2ed4770fd16578f5c38dee475b"
+    },
+    "runtime_A": {
+      "path": "/tmp/conflux-stem-phase-timing-2026-10-18/build/conflux-stem-runtime",
+      "bytes": 62986240,
+      "sha256": "ded9cb2c1000af78917a784e281d905da201d735338221519958d9d7df1d681f"
+    },
+    "runtime_B": {
+      "path": "/tmp/conflux-stem-graph-order-2026-10-18/build/conflux-stem-runtime",
+      "bytes": 62994880,
+      "sha256": "e50d0f5d0b7e3ba81d2fedb7ccaf0366b6418673c01d11f500936f075f37e720"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    }
+  },
+  "scope": "Prepared and reviewed only. No ABBA native/audio/UI workload has run; fresh same-label human AC/lid/minimized readiness remains required. Latest retained loaded p99 remains5674.156680ms against strict4095ms."
+}

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "passed_offline_mocks",
+  "driver_sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3",
+  "helper_sha256": "5022aeed8eaf932adead05404f80b94c7d992f4b6f68dc81d05edb6126077e5b",
+  "checks_passed": 19,
+  "checks": [
+    "SIGINT deferred until callbacks exist, then sampler/native closed before reraising",
+    "SIGTERM deferred until callbacks exist, then sampler/native closed before reraising",
+    "Infer successful result interval retained",
+    "Infer failure identity and unfinished result interval retained",
+    "Complete matching parsed/written/sampled trace accepted",
+    "trace write failure rejects telemetry success",
+    "process sample failure rejects telemetry success",
+    "parsed count failure rejects telemetry success",
+    "written count failure rejects telemetry success",
+    "Optional system field denial remains explicit without fabricating total observation failure",
+    "All four immutable input metadata rows accepted unchanged",
+    "Changed input_sha256 rejected before native launch",
+    "Changed normalization rejected before native launch",
+    "Changed shape rejected before native launch",
+    "Changed dtype rejected before native launch",
+    "A: diagnostic validator checks all four exact input/output/phase results",
+    "A: diagnostic validator rejects missing compute phase and still cleans up",
+    "B: diagnostic validator checks all four exact input/output/phase results",
+    "B: diagnostic validator rejects missing compute phase and still cleans up"
+  ],
+  "scope": "Extracted reviewed AST, fake processes/signals/files/sampler and tiny byte buffers only. No driver import, native launch, host query, media/model/binary read or build. These checks do not qualify actual timing, thermal coverage or cleanup."
+}
