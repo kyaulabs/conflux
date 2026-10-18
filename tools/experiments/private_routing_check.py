@@ -17,6 +17,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path, help="new evidence directory; must not exist")
+    parser.add_argument("--functional-only", action="store_true",
+                        help="skip only execution deadline assertions for instrumented functional checks")
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)
     output = args.output.absolute()
@@ -26,7 +28,8 @@ def main():
     for name in ("pipewire", "pw-dump"):
         if not shutil.which(name):
             raise SystemExit(f"Required installed program is unavailable: {name}")
-    result = {"passed": False, "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery or hardware output"}
+    result = {"passed": False, "execution_deadline_gate": not args.functional_only,
+              "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"}
     with tempfile.TemporaryDirectory(prefix="conflux-routing-private-") as temporary:
         runtime = Path(temporary)
         runtime.chmod(0o700)
@@ -139,8 +142,11 @@ context.modules = [
                     raise RuntimeError("Private pw-dump preflight failed before any filter clients; see preflight logs")
                 with (output / "check.stdout.json").open("wb") as stdout, (
                         output / "check.stderr.log").open("wb") as stderr:
+                    command = [str(binary), str(runtime), str(recordings)]
+                    if args.functional_only:
+                        command.append("--functional-only")
                     checker = subprocess.Popen(
-                        [str(binary), str(runtime), str(recordings)], env=environment,
+                        command, env=environment,
                         stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)
                     deadline = time.monotonic() + 90
                     failure_captured = False

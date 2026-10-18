@@ -42,6 +42,7 @@ constexpr std::array<float, 2> cueValue{.046875F, .0234375F};
 constexpr std::uint64_t startupWarmupFrames = 1024;
 std::vector<std::string> checks;
 std::filesystem::path diagnosticDirectory;
+bool executionDeadlineGate = true;
 void require(bool condition, const std::string& description)
 {
     if (!condition) throw std::runtime_error(description);
@@ -85,10 +86,12 @@ void failureDiagnostic(LiveSession& session, const char* stage, const char* mess
         const auto temporary = diagnosticDirectory / "live-failure.json.tmp";
         std::ofstream output(temporary);
         output << "{\"stage\":" << json(stage) << ",\"error\":" << json(message)
+               << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
                << ",\"session_ready\":" << (session.ready() ? "true" : "false")
                << ",\"state_observed\":" << (observed ? "true" : "false")
                << ",\"state\":{\"callbacks\":" << state.callbacks << ",\"output_frame\":" << state.outputFrame
                << ",\"graph_rate\":" << state.graphRate << ",\"invalid_buffers\":" << state.invalidBuffers
+               << ",\"execution_deadline_misses\":" << state.deadlineMisses
                << ",\"applied\":" << state.applied << ",\"rejected\":" << state.rejected
                << ",\"snapshot_drops\":" << state.snapshotDrops << ",\"source_frames\":["
                << state.sourceFrame[0] << ',' << state.sourceFrame[1] << "]}"
@@ -303,6 +306,7 @@ struct ScenarioResult {
     std::uint64_t graphDiscontinuities = 0, recoveryFlags = 0;
     bool recoveryFlagsAvailable = false;
     std::array<std::uint64_t, 4> warmupFrames{};
+    std::uint64_t deadlineMisses = 0;
 };
 ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevices,
                            std::span<const float> a, std::span<const float> b)
@@ -480,8 +484,10 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
     const auto final = session.stoppedState();
     require(final.outputFrame > 0 && final.sourceFrame[0] == final.outputFrame && final.sourceFrame[1] == final.outputFrame,
             label + ": two buses advance each source exactly once per output frame");
-    require(!final.invalidBuffers && !final.rejected && !final.deadlineMisses,
-            label + ": no invalid output buffers, rejected controls or execution deadline misses");
+    require(!final.invalidBuffers && !final.rejected,
+            label + ": no invalid output buffers or rejected controls");
+    if (executionDeadlineGate)
+        require(!final.deadlineMisses, label + ": no execution deadline misses");
     require(!session.recorderChangePending() && !session.recorderAttached(), label + ": stopped session releases recorder tap");
     const auto timing = session.stoppedTimingSummary();
 
@@ -510,7 +516,8 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
         rejectedCue.stop();
     }
     return {label, final.outputFrame, final.callbacks, recorded, timing.counters.graphDiscontinuities,
-            timing.counters.xrunRecoveryFlags, timing.capabilities.xrunRecoveryFlag != 0, warmupFrames};
+            timing.counters.xrunRecoveryFlags, timing.capabilities.xrunRecoveryFlag != 0, warmupFrames,
+            final.deadlineMisses};
 }
 
 struct HandoffStep {
@@ -520,15 +527,18 @@ struct HandoffStep {
 };
 struct HandoffResult {
     std::uint64_t warmupFrames = 0, frames = 0, callbacks = 0, recorded = 0;
+    std::uint64_t deadlineMisses = 0;
     std::array<HandoffStep, 2> steps{};
     std::array<std::uint64_t, 2> zeroSamples{}, maxSignalGapNs{};
 };
 void writeHandoff(std::ostream& output, const HandoffResult& result, bool passed, std::string_view error = {})
 {
     output << "{\"passed\":" << (passed ? "true" : "false") << ",\"error\":" << json(error)
+           << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
            << ",\"scope\":\"Two bounded callback source handoffs on one private virtual graph; muted target, exact audible peer, master recording attached continuously. Startup fade excluded after at least 1024 output frames. Hardware and sustained qualification remain separate.\""
            << ",\"warmup_output_frames\":" << result.warmupFrames << ",\"output_frames\":" << result.frames
            << ",\"callbacks\":" << result.callbacks << ",\"recorded_frames\":" << result.recorded
+           << ",\"execution_deadline_misses\":" << (result.frames ? std::to_string(result.deadlineMisses) : "null")
            << ",\"zero_samples_after_signal\":[" << result.zeroSamples[0] << ',' << result.zeroSamples[1]
            << "],\"maximum_virtual_receiver_signal_gap_ns\":[" << result.maxSignalGapNs[0] << ',' << result.maxSignalGapNs[1]
            << "],\"steps\":[";
@@ -697,12 +707,15 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
         session.stop();
         const auto final = session.stoppedState();
         result.frames = final.outputFrame; result.callbacks = final.callbacks;
+        result.deadlineMisses = final.deadlineMisses;
         require(final.sourceFrame[1] == final.outputFrame && final.sourceGeneration[0] == 2 &&
-                !final.invalidBuffers && !final.rejected && !final.deadlineMisses &&
+                !final.invalidBuffers && !final.rejected &&
                 !final.sourceReadErrorObserved[0] && !final.sourceReadErrorObserved[1] &&
                 !final.sourceReadError[0] && !final.sourceReadError[1] &&
                 !final.starvedFrames[0] && !final.starvedFrames[1],
-            "source-handoff: one peer/output clock advances without invalid buffers, deadline misses or source failures");
+            "source-handoff: one peer/output clock advances without invalid buffers, rejected controls or source failures");
+        if (executionDeadlineGate)
+            require(!final.deadlineMisses, "source-handoff: no execution deadline misses");
         save(true);
         return result;
     } catch (const std::exception& error) {
@@ -732,7 +745,9 @@ int main(int argc, char** argv)
 {
     std::vector<ScenarioResult> results;
     try {
-        if (argc != 3) throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY");
+        if (argc != 3 && (argc != 4 || std::string_view(argv[3]) != "--functional-only"))
+            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only]");
+        executionDeadlineGate = argc == 3;
         validatePrivateEnvironment(argv[1]);
         const std::filesystem::path output(argv[2]);
         diagnosticDirectory = output.parent_path();
@@ -748,6 +763,7 @@ int main(int argc, char** argv)
         results.push_back(runTopology(output, true, a, b));
         const auto handoff = runSourceHandoff(output, a);
         std::cout << "{\"passed\":true,\"scope\":\"Private virtual PipeWire graph only; no physical routing, latency or sustained qualification\""
+                  << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
                   << ",\"startup_sample_scope\":\"Receiver constant-sample validation and recorder attachment start only after ready and at least 1024 output frames. Startup fade samples are excluded; analytic ramp correctness is covered by core tests, not click-free qualification here. Receiver counters are never reset.\""
                   << ",\"startup_warmup_min_output_frames\":" << startupWarmupFrames
                   << ",\"startup_warmup_order\":[\"main\",\"disabled\",\"overlap\",\"missing\"],\"scenarios\":[";
@@ -756,6 +772,7 @@ int main(int argc, char** argv)
             const auto& value = results[i];
             std::cout << "{\"name\":" << json(value.name) << ",\"output_frames\":" << value.frames
                       << ",\"callbacks\":" << value.callbacks << ",\"recorded_frames\":" << value.recorded
+                      << ",\"execution_deadline_misses\":" << value.deadlineMisses
                       << ",\"driver_position_discontinuities\":" << value.graphDiscontinuities
                       << ",\"driver_recovery_flags\":" << value.recoveryFlags
                       << ",\"driver_recovery_flags_available\":" << (value.recoveryFlagsAvailable ? "true" : "false")
@@ -773,7 +790,8 @@ int main(int argc, char** argv)
         std::cout << "]}\n";
         return 0;
     } catch (const std::exception& error) {
-        std::cout << "{\"passed\":false,\"error\":" << json(error.what()) << ",\"completed_checks\":" << checks.size() << ",\"checks\":";
+        std::cout << "{\"passed\":false,\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
+                  << ",\"error\":" << json(error.what()) << ",\"completed_checks\":" << checks.size() << ",\"checks\":";
         writeChecks(std::cout);
         std::cout << "}\n";
         std::cerr << error.what() << '\n';

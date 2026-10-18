@@ -5,6 +5,7 @@
 #include <array>
 #include <bit>
 #include <cerrno>
+#include <chrono>
 #include <cmath>
 #include <csignal>
 #include <cstdint>
@@ -18,6 +19,7 @@
 #include <stdexcept>
 #include <stop_token>
 #include <string>
+#include <thread>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -364,6 +366,54 @@ bool actualDiskFailure(const std::filesystem::path& input)
     return require(result == child && WIFEXITED(status) && WEXITSTATUS(status) == 0,
                    "Isolated preparation RLIMIT_FSIZE disk-error test failed");
 }
+
+bool specialFileRejection(const std::filesystem::path& directory)
+{
+    const auto fifo = directory / "audio-input.fifo";
+    if (mkfifo(fifo.c_str(), 0600) != 0)
+        throw std::runtime_error("Cannot create special-file input fixture");
+    bool passed = true;
+    for (const bool prepare : {false, true}) {
+        const auto child = fork();
+        if (child < 0)
+            throw std::runtime_error("Cannot fork special-file rejection test");
+        if (!child) {
+            try {
+                const auto before = descriptorCount();
+                bool rejected = false;
+                try {
+                    if (prepare)
+                        prepareAudioFile(fifo, PreparedAudio::defaultMaxPreparedBytes, {}, directory);
+                    else
+                        conflux::audio::decodeAudioFile(fifo);
+                } catch (const std::invalid_argument& error) {
+                    rejected = std::string(error.what()).find("regular local file") != std::string::npos;
+                }
+                _exit(rejected && descriptorCount() == before ? 0 : 1);
+            } catch (...) {
+                _exit(2);
+            }
+        }
+        // With no FIFO writer, an accidental open-for-read blocks indefinitely.
+        // Bound and reap each API independently so this regression cannot hang CI.
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+        int status = 0;
+        pid_t result = 0;
+        while ((result = waitpid(child, &status, WNOHANG)) == 0 || (result < 0 && errno == EINTR)) {
+            if (std::chrono::steady_clock::now() >= deadline) {
+                kill(child, SIGKILL);
+                do { result = waitpid(child, &status, 0); } while (result < 0 && errno == EINTR);
+                passed &= require(false, prepare ? "Preparation blocked on a FIFO input" : "Decode blocked on a FIFO input");
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        passed &= require(result == child && WIFEXITED(status) && WEXITSTATUS(status) == 0,
+                          prepare ? "Preparation did not reject the FIFO without leaking descriptors"
+                                  : "Decode did not reject the FIFO without leaking descriptors");
+    }
+    return passed;
+}
 } // namespace
 
 int main()
@@ -375,7 +425,8 @@ int main()
         const bool conversion = monoConversion(directory.path);
         const bool ownership = ownershipAndFailures(directory.path);
         const bool diskFailure = actualDiskFailure(longPath);
-        return bypass && conversion && ownership && diskFailure ? 0 : 1;
+        const bool specialFiles = specialFileRejection(directory.path);
+        return bypass && conversion && ownership && diskFailure && specialFiles ? 0 : 1;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

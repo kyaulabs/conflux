@@ -388,13 +388,55 @@ else:
 '''
             executable.write_text(script)
             executable.chmod(executable.stat().st_mode | stat.S_IXUSR)
-            native = NativeRuntime(executable, self.model, "cpu", 1, 0.2)
+            native = NativeRuntime(executable, self.model, "cpu", 1, 2)
             try:
                 native.start()
+                native.timeout = 0.2
                 with self.assertRaises((RuntimeError, TimeoutError, json.JSONDecodeError)):
                     native.infer(np.zeros((WINDOW, 2), dtype=np.float32), 1)
             finally:
                 native.close()
+
+    def test_native_rejects_oversized_lines_and_nonfinite_pcm_and_cleans_up(self):
+        # Real pipes and files exercise protocol bounds and sample validation,
+        # without loading a model. A late invalid sample follows a valid prefix.
+        for mode in ("oversized", "nan", "inf"):
+            with self.subTest(mode=mode):
+                executable = self.root / f"runtime-{mode}"
+                executable.write_text(f'''#!{sys.executable}
+import json, struct, sys
+print(json.dumps({{"event":"ready","sample_rate":44100,"channels":2,"segment_frames":343980,"stems":{list(STEMS)!r}}}), flush=True)
+request = json.loads(sys.stdin.readline())
+mode = {mode!r}
+if mode == "oversized":
+    print("x" * 65537, flush=True)
+else:
+    size = {len(STEMS) * WINDOW * CHANNELS * 4}
+    with open(request["output"], "wb") as output:
+        output.truncate(size)
+        output.seek(size - 4)
+        output.write(struct.pack("<f", float(mode)))
+    print(json.dumps({{"event":"result","id":request["id"],"frames":343980,"stems":4}}), flush=True)
+# Stay alive so NativeRuntime.close must terminate and reap the faulty child.
+sys.stdin.readline()
+''')
+                executable.chmod(executable.stat().st_mode | stat.S_IXUSR)
+                native = NativeRuntime(executable, self.model, "cpu", 1, 2)
+                runtime_directory = native.root
+                try:
+                    native.start()
+                    reason = "protocol line exceeds limit" if mode == "oversized" else "non-finite samples"
+                    with self.assertRaisesRegex(RuntimeError, reason):
+                        native.infer(np.zeros((WINDOW, 2), dtype=np.float32), 1)
+                finally:
+                    native.close()
+                self.assertIsNotNone(native.process.returncode)
+                with self.assertRaises(ChildProcessError):
+                    os.waitpid(native.process.pid, os.WNOHANG)
+                self.assertTrue(native.process.stdin.closed)
+                self.assertTrue(native.process.stdout.closed)
+                self.assertTrue(native.stderr.closed)
+                self.assertFalse(runtime_directory.exists())
 
     def test_passive_openmp_is_local_to_vulkan_child_and_can_be_disabled(self):
         executable = self.root / "runtime-environment"
