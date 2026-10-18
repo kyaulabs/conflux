@@ -1014,9 +1014,205 @@
     "graph-order-abba-01/independent-timing-analysis.json": {
       "bytes": 61662,
       "sha256": "a8eeb7ec03b3cb8ba2c4273f843b7e5a0e95e7b871da9a237047f2abcbffa985"
+    },
+    "flash-f32-01/audit_flash_quality_result.py": {
+      "bytes": 21826,
+      "sha256": "3c86333190796c4094cd97b82e1546ce03dbae874e7f29e10655a660b76b596f"
+    },
+    "flash-f32-01/flash-f32-build-verification.json": {
+      "bytes": 2837,
+      "sha256": "9c7d503af0b0c9b4c1b4e7e8c533fe888376c2a45f19942529f2e01247d7053d"
+    },
+    "flash-f32-01/flash-f32-build.log": {
+      "bytes": 77319,
+      "sha256": "ee8032fb3b0aa9f4f570fb16d6f96c877ee5e730c90c6c822087ba57f0142ab1"
+    },
+    "flash-f32-01/flash-f32-compile-mapping-verification.json": {
+      "bytes": 1348,
+      "sha256": "2b365dfcac59388b53ffce693ff1c9d6d1ced480b42b10e314c44f09791db333"
+    },
+    "flash-f32-01/flash-f32-configure.log": {
+      "bytes": 2645,
+      "sha256": "00cf3d678e89b031d13c8c71ec9f37bc30a9e9264793c0b26dd922e7a342d139"
+    },
+    "flash-f32-01/flash-f32-generated-pipeline.diff": {
+      "bytes": 5207,
+      "sha256": "7f86c9cdff6173bf0d9b5420f93055d5608f04abaf2d6345cc34c780dc9e2c6e"
+    },
+    "flash-f32-01/flash-f32-generated-source-verification.json": {
+      "bytes": 473,
+      "sha256": "55fc867435b5178fd2be4dd2757899134414477fc5c9f1098c8d22920fe59f08"
+    },
+    "flash-f32-01/flash-f32-generated-vulkan.diff": {
+      "bytes": 3140,
+      "sha256": "1d94599981b920b2dc45ec34cf52ae749e8d4ebebf487e5694091d936c681d36"
+    },
+    "flash-f32-01/flash-f32-source-copy-verification.json": {
+      "bytes": 1346,
+      "sha256": "36508dad069407c806d304f5a56754f600cc0a07c14596f65df68daa5c235bb4"
+    },
+    "flash-f32-01/flash-quality-expected-pins.json": {
+      "bytes": 1406,
+      "sha256": "a6c9e5497bc240d8156b19130ead9d1220accd957c80d29b8a3e8d970c478199"
+    },
+    "flash-f32-01/flash-quality-expected-pins.template.json": {
+      "bytes": 1034,
+      "sha256": "f940d7ebadfa7d654656fc6070908d2cf993e0fdf4c57f6e746e347fadef82bf"
+    },
+    "flash-f32-01/flash-quality-laptop-01-gitleaks.log": {
+      "bytes": 146,
+      "sha256": "d1e89c433ccab8ceded02f6a961a8672ada02671c1bc5a3429a90f627024ef6a"
+    },
+    "flash-f32-01/flash-quality-laptop-01-independent-audit.json": {
+      "bytes": 17531,
+      "sha256": "bdcfafecd7afaf3f1cf72b5f44460d581bebe7526d6e0fbf07c816b29c54c117"
+    },
+    "flash-f32-01/flash-quality-laptop-01-numerical-summary.json": {
+      "bytes": 20448,
+      "sha256": "9c12b6bcdf548f8343d59241592547cde5d6e9e5ef482fc476e7595055f4c1ce"
+    },
+    "flash-f32-01/flash-quality-launcher-offline-mock-result.json": {
+      "bytes": 1825,
+      "sha256": "359a02c0b7380226928fcb3e5ddc2e6d576195b678eb31462b883e176f5536a7"
+    },
+    "flash-f32-01/flash-quality-root-preflight.json": {
+      "bytes": 866,
+      "sha256": "bcdbdb86df4beea276e38487771b2217287a5d403177431f327d706366c7b753"
+    },
+    "flash-f32-01/flash-quality-source-pins.json": {
+      "bytes": 6702,
+      "sha256": "c0d929be346355a8f8bb1d1f3841eb1740e7411b86c3cc7fef9ef88c9f9cf719"
+    },
+    "flash-f32-01/flash_f32_overlay.cmake": {
+      "bytes": 14274,
+      "sha256": "a4951aadce8272b103e31a12c121c237ca8545b926690ebcc60708d979e7eb15"
+    },
+    "flash-f32-01/flash_quality.py": {
+      "bytes": 26050,
+      "sha256": "cec1a694a32da562be9ed79d35cfda7e2ee1943b9b7dfd10daf1ed2259fc7495"
+    },
+    "flash-f32-01/flash_quality_launch.py": {
+      "bytes": 13985,
+      "sha256": "ab912a468791b13ca283bacd84ce30163ed1c7a0576fd099dc859fd4670294c4"
+    },
+    "flash-f32-01/flash_quality_launcher_review_mocks.py": {
+      "bytes": 9684,
+      "sha256": "0ff61a3f56c0efe438e2c6f36f77d9f34ba0134d1f6c0caea02c07407d6ec003"
+    },
+    "flash-f32-01/flash_quality_offline_check.py": {
+      "bytes": 7638,
+      "sha256": "1d2efb3399d99892be59f158c0fb9f9d982159684b70a465101a3466d2f4ef91"
+    },
+    "flash-f32-01/overlay-check-result.json": {
+      "bytes": 4786,
+      "sha256": "a1a4cdc91d88b3e58ef8354c0196a043db6f4280b924a4e157622c3e6e0a90b4"
+    },
+    "flash-f32-01/run/AC-lid-monitor.jsonl": {
+      "bytes": 4431,
+      "sha256": "0c277f5f2e7ac4adb2ae930d51559dcbc0ee7f2489d01e561dfb15dd31a2b847"
+    },
+    "flash-f32-01/run/comparison/baseline.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "flash-f32-01/run/comparison/flash.stderr": {
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    "flash-f32-01/run/comparison/result.json": {
+      "bytes": 251465,
+      "sha256": "917104a1cc8ca2522eef38bae6d620c972fdb2be826876b2dee88e67dd7a497a"
+    },
+    "flash-f32-01/run/driver.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-f32-01/run/driver.stdout": {
+      "bytes": 200,
+      "sha256": "e9c0a8d94ebe70768a01d49d685abb753c5e56a5f38f69bf3e386018b0406278"
+    },
+    "flash-f32-01/run/session.json": {
+      "bytes": 5976,
+      "sha256": "83ab6466076ddbabd6388e9c6e43f17f7c4619dbb20ec7fb6d5f488981dcc7cd"
+    },
+    "flash-f32-01/summarize_flash_quality.py": {
+      "bytes": 10776,
+      "sha256": "5102c1572b54764d410c351282f57fe1a338a52679aee8268923c259727f6577"
+    },
+    "flash-f32-01/verification.json": {
+      "bytes": 8155,
+      "sha256": "af679302c3158fc46176b1cbb2bf2173b25612e93d148557df78cfe66c154d88"
+    },
+    "flash-f32-01/verify_flash_f32_overlay.py": {
+      "bytes": 12324,
+      "sha256": "0515b98edbeca43c96ab0adeaed76ac853bfedf5e7e5a71377e041edad3def2a"
+    },
+    "flash-f32-01/listening/flash-listening-expected-pins.json": {
+      "bytes": 1616,
+      "sha256": "5ec5df53d9ee5087967a6612b492f025c699f87968826bb6f2e32dacd5781887"
+    },
+    "flash-f32-01/listening/flash-listening-expected-pins.template.json": {
+      "bytes": 1234,
+      "sha256": "4b1518c9ee71b113c433d80f652ac52069eaf4aacf42ea429689b8ac504ebbb4"
+    },
+    "flash-f32-01/listening/flash-listening-laptop-01-root-verification.json": {
+      "bytes": 1191,
+      "sha256": "48916c120f41a87e8f2c4a8b2e7d83ea4bf553194b71313a89c4e385ec379e1c"
+    },
+    "flash-f32-01/listening/flash-listening-root-preflight.json": {
+      "bytes": 844,
+      "sha256": "b0ec2308f54d6bc285967824d8baacf825abf673528995d9e3cf6611b49ca625"
+    },
+    "flash-f32-01/listening/flash-listening-server.json": {
+      "bytes": 330,
+      "sha256": "1a50169ee21d710a1e6647df24361d6ce792aff802a6add325d53087547b9a6a"
+    },
+    "flash-f32-01/listening/flash-listening-source-pins.json": {
+      "bytes": 7383,
+      "sha256": "ec6765bd9c5a7f341a2835b05b91ef4b0f1d253916b68587d7ee44ce1c267afe"
+    },
+    "flash-f32-01/listening/flash_listening.py": {
+      "bytes": 23934,
+      "sha256": "5bf72db0e7be85b1f0aabafcd843b00ebc57ea31013819b667a301c4749e2f35"
+    },
+    "flash-f32-01/listening/flash_listening_launch.py": {
+      "bytes": 1443,
+      "sha256": "501580fc4414451af0a6803582ed58a877da9e8d40cc4bd2d0a36707fd8bc8a9"
+    },
+    "flash-f32-01/listening/run/AC-lid-monitor.jsonl": {
+      "bytes": 4434,
+      "sha256": "c529049ef5bf19b43a7b7833abb4bd60964f1c0e11c6dbd22900a91b3c100da3"
+    },
+    "flash-f32-01/listening/run/comparison/baseline.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "flash-f32-01/listening/run/comparison/flash.stderr": {
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    "flash-f32-01/listening/run/comparison/result.json": {
+      "bytes": 292163,
+      "sha256": "248138d69cf92ae523a6e033da6cf7c74fa9dfd464b49710e2d18a06208f6c81"
+    },
+    "flash-f32-01/listening/run/driver.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "flash-f32-01/listening/run/driver.stdout": {
+      "bytes": 225,
+      "sha256": "ce55bb3b4d79970d6277761f08e1ea5a01cf4b76401fa539c802f1dfe44049db"
+    },
+    "flash-f32-01/listening/run/session.json": {
+      "bytes": 6084,
+      "sha256": "be1c18deb0cc9737796dc5159044e01e82e6d7ed230e65882631a1fc6d9a1f97"
+    },
+    "flash-f32-01/listening/verification.json": {
+      "bytes": 1705,
+      "sha256": "d46e33bc25aff81313426b560c0ad57d560e0385cc32d408db514704aea66d67"
     }
   },
-  "pending": "Optimize/investigate graph compute/wait stalls under the unchanged 4095 ms target. Sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. No user listening reapproval is needed for the bit-identical instrumentation comparison.",
+  "pending": "Obtain human listening verdict for continuous baseline/Flash stems and joins before a new Flash candidate performance experiment. The unchanged strict 4095 ms service p99, sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. Earlier bit-identical instrumentation/graph-order results do not establish Flash musical acceptance.",
   "previous_retained_completed_live_validation_p99_ms": 5172.2,
   "latest_retained_completed_live_validation_p99_ms": 5674.156680004671,
   "initial_loaded_preflight": {
@@ -1471,5 +1667,63 @@
       "independent_timing_analysis": "graph-order-abba-01/independent-timing-analysis.json"
     },
     "next_action": "Deprioritize graph ordering: exact PCM and essentially unchanged ordinary-profile cost without a positive efficiency signal. Low-clock loaded behavior remains unknown; skip its 600-second test for now. Investigate Flash attention support and effective precision/numerical output before a new candidate benchmark. Keep the exact-PCM graph-order binary and pins available; product defaults and the 4095ms target stay unchanged."
+  },
+  "flash_attention_candidate": {
+    "status": "numerical_comparison_and_continuous_listening_preparation_complete_human_listening_pending",
+    "repository_head": "aee5c42cd254fd23c8e2bff29b9d67e8d5c12ee0",
+    "runtime_sha256": "6f311e461e7af5f12ff38f90ddb8720179c2c3dce23d593437d2b34524dffd9d",
+    "model_weight_storage": "existing F16 weights, unchanged",
+    "attention_intermediates_and_accumulation": "F32 scalar path; ten actual runtime nodes verified",
+    "graph_order": false,
+    "requests": 32,
+    "baseline_requests_matching_immutable_proof": 16,
+    "candidate_bit_identical_pairs": 0,
+    "all_outputs_finite": true,
+    "source_hashes": 40,
+    "stable_artifact_records": 51,
+    "cleanup_complete": true,
+    "source_pins_unchanged": true,
+    "independent_audit_checks": 137,
+    "elapsed_seconds": 102.79990338400239,
+    "result": "flash-f32-01/run/comparison/result.json",
+    "session": "flash-f32-01/run/session.json",
+    "numerical_summary": "flash-f32-01/flash-quality-laptop-01-numerical-summary.json",
+    "independent_audit": "flash-f32-01/flash-quality-laptop-01-independent-audit.json",
+    "valid_relative_l2_range": [
+      0.0014446835624878224,
+      0.0038995578364023663
+    ],
+    "valid_difference_snr_dB_range": [
+      48.179692680480564,
+      56.804545371159534
+    ],
+    "quiet_stem_priority": "When the Light Breaks drums, excerpt 0\u201313.65 seconds; Club XL bass 17.55\u201323.4 seconds; Club XL drums/transients 11.7\u201319.5 seconds. Numerical errors are in normalized native units; padded context remains separate.",
+    "musical_quality": "not_assessed",
+    "latency_qualification": "not_attempted",
+    "audio_load": false,
+    "UI_load": false,
+    "cancellation_tested": false,
+    "scope": "Silent fixed-order numerical comparison only, with automatic sampled AC/lid checks. No minimized-desktop or thermal admission requirement for this math check. Relative errors and baseline-difference SNR are not ground-truth separation metrics or acceptance thresholds. No speedup, loaded-p99 or musical-equivalence claim. Product defaults remain unchanged.",
+    "listening_preparation": {
+      "status": "44_continuous_files_verified_human_listening_pending",
+      "fresh_requests": 32,
+      "all_match_closed_quality_hashes": true,
+      "frames_per_signal": 1031940,
+      "sample_rate": 44100,
+      "channels": 2,
+      "WAVs_exact_float32_roundtrip": 44,
+      "one_shared_gain_per_track": true,
+      "join_positions_per_track": 6,
+      "all_HTML_links_and_HTTP_files_verified": true,
+      "source_hashes": 44,
+      "stable_artifact_records": 59,
+      "pins_unchanged": true,
+      "cleanup_complete": true,
+      "audio_played_by_preparation": false,
+      "media_archived": false,
+      "verification": "flash-f32-01/listening/verification.json",
+      "result": "flash-f32-01/listening/run/comparison/result.json",
+      "scope": "Production worker OLA/denormalization, continuous source/baseline/Flash stems/recombination, no montage/fades/inserted gaps/autoplay. Join diagnostics use samples before listening gain. Human listening, latency, cancellation and audio/UI qualification remain unassessed."
+    }
   }
 }

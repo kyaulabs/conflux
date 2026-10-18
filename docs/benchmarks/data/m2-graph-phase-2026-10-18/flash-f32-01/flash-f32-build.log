@@ -1,0 +1,703 @@
+[0/2] Re-checking globbed directories...
+[1/598] Creating directories for 'vulkan-shaders-gen'
+[2/598] No download step for 'vulkan-shaders-gen'
+[3/598] No update step for 'vulkan-shaders-gen'
+[4/598] No patch step for 'vulkan-shaders-gen'
+[5/598] Performing configure step for 'vulkan-shaders-gen'
+-- The C compiler identification is GNU 16.2.1
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Enabling coopmat glslc support
+-- Enabling coopmat2 glslc support
+-- Enabling dot glslc support
+-- Enabling bfloat16 glslc support
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/conflux-stem-flash-f32-2026-10-18/build/audiocpp/ggml/src/ggml-vulkan/vulkan-shaders-gen-prefix/src/vulkan-shaders-gen-build
+[6/598] Building C object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml.c.o
+[7/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml.cpp.o
+[8/598] Building C object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml-alloc.c.o
+[9/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml-backend.cpp.o
+[10/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml-backend-meta.cpp.o
+[11/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml-opt.cpp.o
+[12/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml-threading.cpp.o
+[13/598] Performing build step for 'vulkan-shaders-gen'
+[1/2] Building CXX object CMakeFiles/vulkan-shaders-gen.dir/vulkan-shaders-gen.cpp.o
+[2/2] Linking CXX executable vulkan-shaders-gen
+[14/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/gguf.cpp.o
+[15/598] Performing install step for 'vulkan-shaders-gen'
+-- Installing: /tmp/conflux-stem-flash-f32-2026-10-18/build/Release/vulkan-shaders-gen
+[16/598] Completed 'vulkan-shaders-gen'
+[17/598] Building C object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ggml-cpu.c.o
+[18/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ggml-cpu.cpp.o
+[19/598] Building C object audiocpp/ggml/src/CMakeFiles/ggml-base.dir/ggml-quants.c.o
+[20/598] Linking CXX static library audiocpp/ggml/src/libggml-base.a
+[21/598] Generate vulkan shaders header
+[22/598] Generate vulkan shaders for abs.comp
+[23/598] Generate vulkan shaders for acc.comp
+[24/598] Generate vulkan shaders for add.comp
+[25/598] Generate vulkan shaders for add1.comp
+[26/598] Generate vulkan shaders for add_id.comp
+[27/598] Generate vulkan shaders for arange.comp
+[28/598] Generate vulkan shaders for argmax.comp
+[29/598] Generate vulkan shaders for argsort.comp
+[30/598] Generate vulkan shaders for argsort_large.comp
+[31/598] Generate vulkan shaders for ceil.comp
+[32/598] Generate vulkan shaders for clamp.comp
+[33/598] Generate vulkan shaders for col2im_1d.comp
+[34/598] Generate vulkan shaders for concat.comp
+[35/598] Generate vulkan shaders for contig_copy.comp
+[36/598] Generate vulkan shaders for conv2d_dw.comp
+[37/598] Generate vulkan shaders for conv2d_mm.comp
+[38/598] Generate vulkan shaders for conv_transpose_1d.comp
+[39/598] Generate vulkan shaders for copy.comp
+[40/598] Generate vulkan shaders for copy_from_quant.comp
+[41/598] Generate vulkan shaders for copy_to_quant.comp
+[42/598] Generate vulkan shaders for copy_transpose.comp
+[43/598] Generate vulkan shaders for cos.comp
+[44/598] Generate vulkan shaders for count_equal.comp
+[45/598] Generate vulkan shaders for count_experts.comp
+[46/598] Generate vulkan shaders for cumsum.comp
+[47/598] Generate vulkan shaders for cumsum_multipass1.comp
+[48/598] Generate vulkan shaders for cumsum_multipass2.comp
+[49/598] Generate vulkan shaders for dequant_f32.comp
+[50/598] Generate vulkan shaders for dequant_iq1_m.comp
+[51/598] Generate vulkan shaders for dequant_iq1_s.comp
+[52/598] Generate vulkan shaders for dequant_iq2_s.comp
+[53/598] Generate vulkan shaders for dequant_iq2_xs.comp
+[54/598] Generate vulkan shaders for dequant_iq2_xxs.comp
+[55/598] Generate vulkan shaders for dequant_iq3_s.comp
+[56/598] Generate vulkan shaders for dequant_iq3_xxs.comp
+[57/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/repack.cpp.o
+[58/598] Generate vulkan shaders for dequant_iq4_nl.comp
+[59/598] Generate vulkan shaders for dequant_iq4_xs.comp
+[60/598] Generate vulkan shaders for dequant_mxfp4.comp
+[61/598] Generate vulkan shaders for dequant_nvfp4.comp
+[62/598] Generate vulkan shaders for dequant_q1_0.comp
+[63/598] Generate vulkan shaders for dequant_q2_k.comp
+[64/598] Generate vulkan shaders for dequant_q3_k.comp
+[65/598] Generate vulkan shaders for dequant_q4_0.comp
+[66/598] Generate vulkan shaders for dequant_q4_1.comp
+[67/598] Generate vulkan shaders for dequant_q4_k.comp
+[68/598] Generate vulkan shaders for dequant_q5_0.comp
+[69/598] Generate vulkan shaders for dequant_q5_1.comp
+[70/598] Generate vulkan shaders for dequant_q6_k.comp
+[71/598] Generate vulkan shaders for dequant_q5_k.comp
+[72/598] Generate vulkan shaders for dequant_q8_0.comp
+[73/598] Generate vulkan shaders for diag.comp
+[74/598] Generate vulkan shaders for diag_mask_inf.comp
+[75/598] Generate vulkan shaders for div.comp
+[76/598] Generate vulkan shaders for elu.comp
+[77/598] Generate vulkan shaders for fill.comp
+[78/598] Generate vulkan shaders for exp.comp
+[79/598] Generate vulkan shaders for flash_attn_cm1.comp
+[80/598] Generate vulkan shaders for flash_attn_cm2.comp
+[81/598] Generate vulkan shaders for flash_attn.comp
+[82/598] Generate vulkan shaders for flash_attn_mask_opt.comp
+[83/598] Generate vulkan shaders for flash_attn_split_k_reduce.comp
+[84/598] Generate vulkan shaders for floor.comp
+[85/598] Generate vulkan shaders for gated_delta_net.comp
+[86/598] Generate vulkan shaders for geglu.comp
+[87/598] Generate vulkan shaders for geglu_erf.comp
+[88/598] Generate vulkan shaders for geglu_quick.comp
+[89/598] Generate vulkan shaders for gelu.comp
+[90/598] Generate vulkan shaders for gelu_erf.comp
+[91/598] Generate vulkan shaders for gelu_quick.comp
+[92/598] Generate vulkan shaders for get_rows.comp
+[93/598] Generate vulkan shaders for group_norm.comp
+[94/598] Generate vulkan shaders for hardsigmoid.comp
+[95/598] Generate vulkan shaders for hardswish.comp
+[96/598] Generate vulkan shaders for im2col.comp
+[97/598] Generate vulkan shaders for get_rows_quant.comp
+[98/598] Generate vulkan shaders for im2col_3d.comp
+[99/598] Generate vulkan shaders for l2_norm.comp
+[100/598] Generate vulkan shaders for leaky_relu.comp
+[101/598] Generate vulkan shaders for log.comp
+[102/598] Generate vulkan shaders for mul_mat_split_k_reduce.comp
+[103/598] Generate vulkan shaders for mul.comp
+[104/598] Generate vulkan shaders for mul_mat_vec_iq1_m.comp
+[105/598] Generate vulkan shaders for mul_mat_vec_iq1_s.comp
+[106/598] Generate vulkan shaders for mul_mat_vec_iq2_s.comp
+[107/598] Generate vulkan shaders for mul_mat_vec_iq2_xs.comp
+[108/598] Generate vulkan shaders for mul_mat_vec_iq2_xxs.comp
+[109/598] Generate vulkan shaders for mul_mat_vec_iq3_s.comp
+[110/598] Generate vulkan shaders for mul_mat_vec_iq3_xxs.comp
+[111/598] Generate vulkan shaders for mul_mat_vec.comp
+[112/598] Generate vulkan shaders for mul_mat_vec_nc.comp
+[113/598] Generate vulkan shaders for mul_mat_vec_p021.comp
+[114/598] Generate vulkan shaders for mul_mat_vec_q2_k.comp
+[115/598] Generate vulkan shaders for mul_mat_vec_q3_k.comp
+[116/598] Generate vulkan shaders for mul_mat_vec_q4_k.comp
+[117/598] Generate vulkan shaders for mul_mat_vec_q5_k.comp
+[118/598] Generate vulkan shaders for mul_mat_vec_q6_k.comp
+[119/598] Generate vulkan shaders for mul_mat_vecq.comp
+[120/598] Generate vulkan shaders for mul_mm_cm2.comp
+[121/598] Generate vulkan shaders for mul_mmq.comp
+[122/598] Generate vulkan shaders for multi_add.comp
+[123/598] Generate vulkan shaders for neg.comp
+[124/598] Generate vulkan shaders for norm.comp
+[125/598] Generate vulkan shaders for opt_step_adamw.comp
+[126/598] Generate vulkan shaders for opt_step_sgd.comp
+[127/598] Generate vulkan shaders for pad.comp
+[128/598] Generate vulkan shaders for pad_reflect_1d.comp
+[129/598] Generate vulkan shaders for pool2d.comp
+[130/598] Generate vulkan shaders for quantize_q8_1.comp
+[131/598] Generate vulkan shaders for reglu.comp
+[132/598] Generate vulkan shaders for relu.comp
+[133/598] Generate vulkan shaders for repeat.comp
+[134/598] Generate vulkan shaders for repeat_back.comp
+[135/598] Generate vulkan shaders for rms_norm.comp
+[136/598] Generate vulkan shaders for rms_norm_back.comp
+[137/598] Generate vulkan shaders for rms_norm_partials.comp
+[138/598] Generate vulkan shaders for roll.comp
+[139/598] Generate vulkan shaders for rope_multi.comp
+[140/598] Generate vulkan shaders for rope_neox.comp
+[141/598] Generate vulkan shaders for rope_norm.comp
+[142/598] Generate vulkan shaders for rope_vision.comp
+[143/598] Generate vulkan shaders for round.comp
+[144/598] Generate vulkan shaders for round_bf16.comp
+[145/598] Generate vulkan shaders for round_bf16_strided.comp
+[146/598] Generate vulkan shaders for scale.comp
+[147/598] Generate vulkan shaders for sgn.comp
+[148/598] Generate vulkan shaders for sigmoid.comp
+[149/598] Generate vulkan shaders for sigmoid_strided.comp
+[150/598] Generate vulkan shaders for silu.comp
+[151/598] Generate vulkan shaders for silu_back.comp
+[152/598] Generate vulkan shaders for sin.comp
+[153/598] Generate vulkan shaders for soft_max.comp
+[154/598] Generate vulkan shaders for soft_max_back.comp
+[155/598] Generate vulkan shaders for soft_max_large1.comp
+[156/598] Generate vulkan shaders for soft_max_large2.comp
+[157/598] Generate vulkan shaders for soft_max_large3.comp
+[158/598] Generate vulkan shaders for softplus.comp
+[159/598] Generate vulkan shaders for solve_tri.comp
+[160/598] Generate vulkan shaders for sqrt.comp
+[161/598] Generate vulkan shaders for square.comp
+[162/598] Generate vulkan shaders for ssm_conv.comp
+[163/598] Generate vulkan shaders for ssm_scan.comp
+[164/598] Generate vulkan shaders for ssm_scan_mamba1.comp
+[165/598] Generate vulkan shaders for step.comp
+[166/598] Generate vulkan shaders for sub.comp
+[167/598] Generate vulkan shaders for sum_rows.comp
+[168/598] Generate vulkan shaders for swiglu.comp
+[169/598] Generate vulkan shaders for swiglu_oai.comp
+[170/598] Generate vulkan shaders for tanh.comp
+[171/598] Generate vulkan shaders for timestep_embedding.comp
+[172/598] Generate vulkan shaders for topk_argsort.comp
+[173/598] Generate vulkan shaders for topk_moe.comp
+[174/598] Generate vulkan shaders for topk_nary_search.comp
+[175/598] Generate vulkan shaders for tri.comp
+[176/598] Generate vulkan shaders for trunc.comp
+[177/598] Generate vulkan shaders for upscale.comp
+[178/598] Generate vulkan shaders for wkv6.comp
+[179/598] Generate vulkan shaders for wkv7.comp
+[180/598] Generate vulkan shaders for xielu.comp
+[181/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/hbm.cpp.o
+[182/598] Building C object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/quants.c.o
+[183/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/traits.cpp.o
+[184/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/amx/amx.cpp.o
+[185/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/amx/mmq.cpp.o
+[186/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/binary-ops.cpp.o
+[187/598] Generate vulkan shaders for mul_mm.comp
+[188/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/vec.cpp.o
+[189/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/unary-ops.cpp.o
+[190/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/llamafile/sgemm.cpp.o
+[191/598] Building C object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/arch/x86/quants.c.o
+[192/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ops.cpp.o
+[193/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/abs.comp.cpp.o
+[194/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/acc.comp.cpp.o
+[195/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/add.comp.cpp.o
+[196/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/add1.comp.cpp.o
+[197/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/add_id.comp.cpp.o
+[198/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/arange.comp.cpp.o
+[199/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/argmax.comp.cpp.o
+[200/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/argsort.comp.cpp.o
+[201/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/argsort_large.comp.cpp.o
+[202/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/ceil.comp.cpp.o
+[203/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/clamp.comp.cpp.o
+[204/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/col2im_1d.comp.cpp.o
+[205/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/concat.comp.cpp.o
+[206/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/contig_copy.comp.cpp.o
+[207/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/conv2d_dw.comp.cpp.o
+[208/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/conv2d_mm.comp.cpp.o
+[209/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/conv_transpose_1d.comp.cpp.o
+[210/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/copy.comp.cpp.o
+[211/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/copy_from_quant.comp.cpp.o
+[212/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/copy_to_quant.comp.cpp.o
+[213/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/copy_transpose.comp.cpp.o
+[214/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/cos.comp.cpp.o
+[215/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/count_equal.comp.cpp.o
+[216/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/count_experts.comp.cpp.o
+[217/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/cumsum.comp.cpp.o
+[218/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/cumsum_multipass1.comp.cpp.o
+[219/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/cumsum_multipass2.comp.cpp.o
+[220/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_f32.comp.cpp.o
+[221/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq1_m.comp.cpp.o
+[222/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq1_s.comp.cpp.o
+[223/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq2_s.comp.cpp.o
+[224/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq2_xs.comp.cpp.o
+[225/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/arch/x86/repack.cpp.o
+[226/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq2_xxs.comp.cpp.o
+[227/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq3_s.comp.cpp.o
+[228/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq4_nl.comp.cpp.o
+[229/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq3_xxs.comp.cpp.o
+[230/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_mxfp4.comp.cpp.o
+[231/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_iq4_xs.comp.cpp.o
+[232/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q1_0.comp.cpp.o
+[233/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_nvfp4.comp.cpp.o
+[234/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q2_k.comp.cpp.o
+[235/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q3_k.comp.cpp.o
+[236/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q4_1.comp.cpp.o
+[237/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q4_0.comp.cpp.o
+[238/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q4_k.comp.cpp.o
+[239/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q5_0.comp.cpp.o
+[240/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q5_1.comp.cpp.o
+[241/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q5_k.comp.cpp.o
+[242/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q6_k.comp.cpp.o
+[243/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/dequant_q8_0.comp.cpp.o
+[244/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/diag.comp.cpp.o
+[245/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/diag_mask_inf.comp.cpp.o
+[246/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/div.comp.cpp.o
+[247/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/elu.comp.cpp.o
+[248/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/exp.comp.cpp.o
+[249/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/fill.comp.cpp.o
+[250/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/flash_attn_cm1.comp.cpp.o
+[251/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/flash_attn_cm2.comp.cpp.o
+[252/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/flash_attn.comp.cpp.o
+[253/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/flash_attn_mask_opt.comp.cpp.o
+[254/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/floor.comp.cpp.o
+[255/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/flash_attn_split_k_reduce.comp.cpp.o
+[256/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/gated_delta_net.comp.cpp.o
+[257/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/geglu.comp.cpp.o
+[258/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/geglu_erf.comp.cpp.o
+[259/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/geglu_quick.comp.cpp.o
+[260/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/gelu.comp.cpp.o
+[261/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/gelu_erf.comp.cpp.o
+[262/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/gelu_quick.comp.cpp.o
+[263/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/get_rows.comp.cpp.o
+[264/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/group_norm.comp.cpp.o
+[265/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/hardsigmoid.comp.cpp.o
+[266/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/hardswish.comp.cpp.o
+[267/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/get_rows_quant.comp.cpp.o
+[268/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/im2col_3d.comp.cpp.o
+[269/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/im2col.comp.cpp.o
+[270/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/leaky_relu.comp.cpp.o
+[271/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/l2_norm.comp.cpp.o
+[272/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/log.comp.cpp.o
+[273/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul.comp.cpp.o
+[274/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_split_k_reduce.comp.cpp.o
+[275/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq1_m.comp.cpp.o
+[276/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq1_s.comp.cpp.o
+[277/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq2_s.comp.cpp.o
+[278/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq2_xs.comp.cpp.o
+[279/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq2_xxs.comp.cpp.o
+[280/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq3_s.comp.cpp.o
+[281/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec.comp.cpp.o
+[282/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_nc.comp.cpp.o
+[283/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_p021.comp.cpp.o
+[284/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_iq3_xxs.comp.cpp.o
+[285/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_q2_k.comp.cpp.o
+[286/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_q3_k.comp.cpp.o
+[287/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_q4_k.comp.cpp.o
+[288/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_q5_k.comp.cpp.o
+[289/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vec_q6_k.comp.cpp.o
+[290/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mat_vecq.comp.cpp.o
+[291/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mm_cm2.comp.cpp.o
+[292/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mmq.comp.cpp.o
+[293/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/multi_add.comp.cpp.o
+[294/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/neg.comp.cpp.o
+[295/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/norm.comp.cpp.o
+[296/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/opt_step_adamw.comp.cpp.o
+[297/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/opt_step_sgd.comp.cpp.o
+[298/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/pad.comp.cpp.o
+[299/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/pad_reflect_1d.comp.cpp.o
+[300/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/pool2d.comp.cpp.o
+[301/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/quantize_q8_1.comp.cpp.o
+[302/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/reglu.comp.cpp.o
+[303/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/relu.comp.cpp.o
+[304/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/repeat.comp.cpp.o
+[305/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/repeat_back.comp.cpp.o
+[306/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rms_norm.comp.cpp.o
+[307/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rms_norm_back.comp.cpp.o
+[308/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rms_norm_partials.comp.cpp.o
+[309/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/roll.comp.cpp.o
+[310/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rope_multi.comp.cpp.o
+[311/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rope_neox.comp.cpp.o
+[312/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rope_norm.comp.cpp.o
+[313/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/rope_vision.comp.cpp.o
+[314/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/round.comp.cpp.o
+[315/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/round_bf16.comp.cpp.o
+[316/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/round_bf16_strided.comp.cpp.o
+[317/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/scale.comp.cpp.o
+[318/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sgn.comp.cpp.o
+[319/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sigmoid.comp.cpp.o
+[320/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sigmoid_strided.comp.cpp.o
+[321/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/silu.comp.cpp.o
+[322/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/silu_back.comp.cpp.o
+[323/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sin.comp.cpp.o
+[324/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/soft_max.comp.cpp.o
+[325/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/soft_max_back.comp.cpp.o
+[326/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/soft_max_large1.comp.cpp.o
+[327/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/soft_max_large2.comp.cpp.o
+[328/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/soft_max_large3.comp.cpp.o
+[329/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/softplus.comp.cpp.o
+[330/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/solve_tri.comp.cpp.o
+[331/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sqrt.comp.cpp.o
+[332/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/square.comp.cpp.o
+[333/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/ssm_conv.comp.cpp.o
+[334/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/ssm_scan.comp.cpp.o
+[335/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/ssm_scan_mamba1.comp.cpp.o
+[336/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/step.comp.cpp.o
+[337/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sub.comp.cpp.o
+[338/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/sum_rows.comp.cpp.o
+[339/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/swiglu.comp.cpp.o
+[340/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/swiglu_oai.comp.cpp.o
+[341/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/tanh.comp.cpp.o
+[342/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/timestep_embedding.comp.cpp.o
+[343/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/topk_argsort.comp.cpp.o
+[344/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/topk_moe.comp.cpp.o
+[345/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/topk_nary_search.comp.cpp.o
+[346/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/tri.comp.cpp.o
+[347/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/trunc.comp.cpp.o
+[348/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/upscale.comp.cpp.o
+[349/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/wkv6.comp.cpp.o
+[350/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/wkv7.comp.cpp.o
+[351/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/xielu.comp.cpp.o
+[352/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/mul_mm.comp.cpp.o
+[353/598] Building C object audiocpp/CMakeFiles/cjson_vendor.dir/external/cJSON/cJSON.c.o
+[354/598] Building C object audiocpp/CMakeFiles/yaml_vendor.dir/external/libyaml/src/api.c.o
+[355/598] Building C object audiocpp/CMakeFiles/yaml_vendor.dir/external/libyaml/src/reader.c.o
+[356/598] Building C object audiocpp/CMakeFiles/yaml_vendor.dir/external/libyaml/src/scanner.c.o
+[357/598] Building C object audiocpp/CMakeFiles/yaml_vendor.dir/external/libyaml/src/parser.c.o
+[358/598] Building C object audiocpp/CMakeFiles/yaml_vendor.dir/external/libyaml/src/loader.c.o
+[359/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml.dir/ggml-backend-dl.cpp.o
+[360/598] Building CXX object audiocpp/ggml/src/CMakeFiles/ggml.dir/ggml-backend-reg.cpp.o
+[361/598] Linking CXX static library audiocpp/ggml/src/libggml-cpu.a
+[362/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/arena.cc.o
+[363/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/arenastring.cc.o
+[364/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/bytestream.cc.o
+[365/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/coded_stream.cc.o
+[366/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/common.cc.o
+[367/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/extension_set.cc.o
+[368/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/generated_enum_util.cc.o
+[369/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/generated_message_table_driven_lite.cc.o
+[370/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/generated_message_util.cc.o
+[371/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/implicit_weak_message.cc.o
+[372/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/int128.cc.o
+[373/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/io_win32.cc.o
+[374/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/message_lite.cc.o
+[375/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/parse_context.cc.o
+[376/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/repeated_field.cc.o
+In file included from /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/repeated_field.cc:35:
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = bool]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = bool]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = bool]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = bool]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = bool]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset 0 is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = int]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset [0, 3] is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = unsigned int]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset [0, 3] is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = long int]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = long int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = long int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = long int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = long int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset [0, 7] is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = long unsigned int]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = long unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = long unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = long unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = long unsigned int]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset [0, 7] is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = float]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = float]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = float]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = float]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = float]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset [0, 3] is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In member function ‘void google::protobuf::internal::ElementCopier<Element, true>::operator()(Element*, const Element*, int) [with Element = double]’,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::CopyArray(Element*, const Element*, int) [with Element = double]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1624:37,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::MoveArray(Element*, Element*, int) [with Element = double]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1618:12,
+    inlined from ‘void google::protobuf::RepeatedField<Element>::Reserve(int) [with Element = double]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1599:14,
+    inlined from ‘google::protobuf::RepeatedField<Element>::RepeatedField(const google::protobuf::RepeatedField<Element>&) [with Element = double]’ at /tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1194:12:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/src/../third_party/protobuf-lite/google/protobuf/repeated_field.h:1639:11: warning: ‘void* memcpy(void*, const void*, size_t)’ offset [0, 7] is out of the bounds [0, 0] [-Warray-bounds=]
+ 1639 |     memcpy(to, from, static_cast<size_t>(array_size) * sizeof(Element));
+      |     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[377/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/status.cc.o
+[378/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/statusor.cc.o
+[379/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/stringpiece.cc.o
+[380/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/stringprintf.cc.o
+[381/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/structurally_valid.cc.o
+[382/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/strutil.cc.o
+[383/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/time.cc.o
+[384/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/wire_format_lite.cc.o
+[385/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/zero_copy_stream.cc.o
+[386/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/zero_copy_stream_impl.cc.o
+[387/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/protobuf-lite/zero_copy_stream_impl_lite.cc.o
+[388/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/builtin_pb/sentencepiece.pb.cc.o
+[389/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/builtin_pb/sentencepiece_model.pb.cc.o
+[390/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/bpe_model.cc.o
+[391/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/char_model.cc.o
+[392/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/error.cc.o
+[393/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/filesystem.cc.o
+[394/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/model_factory.cc.o
+[395/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/model_interface.cc.o
+[396/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/normalizer.cc.o
+[397/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/sentencepiece_processor.cc.o
+[398/598] Building CXX object audiocpp/ggml/src/ggml-vulkan/CMakeFiles/ggml-vulkan.dir/__/__/__/__/conflux-flash-f32/ggml-vulkan.cpp.o
+[399/598] Linking CXX static library audiocpp/ggml/src/ggml-vulkan/libggml-vulkan.a
+[400/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/unigram_model.cc.o
+[401/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/util.cc.o
+[402/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/word_model.cc.o
+[403/598] Building CXX object audiocpp/external/sentencepiece/src/CMakeFiles/sentencepiece-static.dir/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/sentencepiece/third_party/absl/flags/flag.cc.o
+[404/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/assets/resource_bundle.cpp.o
+[405/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/model_spec/options.cpp.o
+[406/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/model_spec/package.cpp.o
+[407/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/model_spec/schema.cpp.o
+[408/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/assets/weight_norm_folding.cpp.o
+[409/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/assets/tensor_source.cpp.o
+[410/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/assets/lora_tensor_source.cpp.o
+[411/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/module.cpp.o
+[412/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/backend.cpp.o
+[413/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/assets/torch_bin.cpp.o
+[414/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/attention_fallback.cpp.o
+[415/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/execution_context.cpp.o
+[416/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/host_memory.cpp.o
+[417/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/deferred_tensor_writer.cpp.o
+[418/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/core/load_progress.cpp.o
+[419/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/model.cpp.o
+[420/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/model_spec/metadata.cpp.o
+[421/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/session.cpp.o
+[422/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/partial_text.cpp.o
+[423/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/task_vocabulary.cpp.o
+[424/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/cache.cpp.o
+[425/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/artifacts.cpp.o
+[426/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/graph_executor.cpp.o
+[427/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/graph_optimizer.cpp.o
+[428/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/host_ops.cpp.o
+[429/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/kv_cache.cpp.o
+[430/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/bounded_static_kv_decode.cpp.o
+[431/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/options.cpp.o
+[432/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/greedy_causal_decoder.cpp.o
+[433/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/session_base.cpp.o
+[434/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/workspace.cpp.o
+[435/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/filesystem.cpp.o
+[436/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/espeak_phonemizer.cpp.o
+[437/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/midi/midi_file.cpp.o
+[438/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/config.cpp.o
+[439/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/espeak_data.cpp.o
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/text/espeak_data.cpp: In function ‘std::filesystem::__cxx11::path engine::audio::materialize_espeak_data(const std::filesystem::__cxx11::path&)’:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/text/espeak_data.cpp:165:44: warning: ignoring attributes on template argument ‘int (*)(FILE*)’ [-Wignored-attributes]
+  165 |     std::unique_ptr<FILE, decltype(&fclose)> input(fopen(package.c_str(), "rb"), fclose);
+      |                                            ^
+[440/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/text.cpp.o
+[441/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/json.cpp.o
+[442/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/chinese_variant.cpp.o
+[443/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/chunking.cpp.o
+[444/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/subtitle.cpp.o
+[445/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/chinese_normalization.cpp.o
+[446/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/moss_tts_normalization.cpp.o
+[447/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/unicode_normalization.cpp.o
+[448/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/yaml.cpp.o
+[449/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/binary.cpp.o
+[450/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/text/text_normalization.cpp.o
+[451/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/io/safetensors.cpp.o
+[452/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/debug/profiler.cpp.o
+[453/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/debug/trace.cpp.o
+[454/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/rknn/engine.cpp.o
+[455/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/moss_tts_delay/config.cpp.o
+[456/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/moss_tts_delay/delay_decoder.cpp.o
+[457/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/moss_tts_delay/backbone.cpp.o
+[458/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/moss_tts_delay/prompt.cpp.o
+[459/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/tdt_decoder_runner.cpp.o
+[460/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/moss_tts_delay/heads.cpp.o
+[461/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/tdt_decoder_greedy_customized.cpp.o
+[462/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/tdt_decoder_greedy_duration_loop.cpp.o
+[463/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/decoders/tdt_decoder_greedy_separate_heads.cpp.o
+[464/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/linear_module.cpp.o
+[465/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/convnext_modules.cpp.o
+[466/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/packed_linear_weights.cpp.o
+[467/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/primitive_modules.cpp.o
+[468/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/activation_modules.cpp.o
+[469/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/vocoders/vocos_vocoder.cpp.o
+[470/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/norm_modules.cpp.o
+[471/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/lookup_modules.cpp.o
+[472/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/structural_modules.cpp.o
+[473/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/multi_codebook_embedding.cpp.o
+[474/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/asr_helpers.cpp.o
+[475/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/conv_modules.cpp.o
+[476/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/zipformer_modules.cpp.o
+[477/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/whisper_embedding.cpp.o
+[478/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/whisper_frontend.cpp.o
+[479/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speaker_encoders/campplus_encoder.cpp.o
+[480/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/s3_tokenizer.cpp.o
+[481/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/wan_video_vae_runtime.cpp.o
+[482/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/nemo_nano_codec_runtime.cpp.o
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/codecs/nemo_nano_codec_runtime.cpp: In function ‘engine::modules::Snake1dWeights engine::modules::{anonymous}::load_half_snake_alpha(engine::core::BackendWeightStore&, const engine::assets::TensorSource&, const std::string&, int64_t)’:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/codecs/nemo_nano_codec_runtime.cpp:183:83: warning: missing initializer for member ‘engine::modules::Snake1dWeights::inverse_alpha’ [-Wmissing-field-initializers]
+  183 |     return {store.make_f32(core::TensorShape::from_dims({snake_channels}), values)};
+      |                                                                                   ^
+[483/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/pitch_extractors/rmvpe_pitch_extractor.cpp.o
+[484/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/vocoders/bigvgan_vocoder.cpp.o
+[485/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/vocoders/hifigan_vocoder.cpp.o
+[486/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/vocoders/hift_vocoder.cpp.o
+[487/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/wav2vec2_encoder.cpp.o
+[488/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/wav2vec2_bert_encoder.cpp.o
+[489/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/sanm.cpp.o
+[490/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/optimizations/fast_conv_modules.cpp.o
+[491/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/optimizations/fast_projection_modules.cpp.o
+[492/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/recurrent_modules.cpp.o
+[493/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/streaming_conv_modules.cpp.o
+[494/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/wavlm_encoder.cpp.o
+[495/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/positional_encoding.cpp.o
+[496/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/feed_forward_modules.cpp.o
+[497/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/self_attention.cpp.o
+[498/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/longformer_attention_gpu.cpp.o
+[499/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/longformer_attention.cpp.o
+[500/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/relative_attention.cpp.o
+[501/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/common_relative_attention.cpp.o
+[502/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/grouped_query_attention.cpp.o
+[503/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/scaled_dot_product_attention.cpp.o
+[504/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/streaming_frame_attention_cache.cpp.o
+[505/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/projected_grouped_self_attention.cpp.o
+[506/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/transformers/decoder.cpp.o
+[507/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/transformers/causal_decoder.cpp.o
+[508/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/transformers/causal_decoder_runtime.cpp.o
+[509/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/transformers/qwen35_decoder_runtime.cpp.o
+[510/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/text_encoders/qwen3_vl_encoder_runtime.cpp.o
+[511/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speech_encoders/qwen3_audio_encoder_runtime.cpp.o
+[512/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/attention/cross_attention.cpp.o
+[513/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/transformers/transformer_blocks.cpp.o
+[514/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/conditioning_modules.cpp.o
+[515/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/ebranchformer_modules.cpp.o
+[516/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/conformer_modules.cpp.o
+[517/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/predictor_modules.cpp.o
+[518/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/positional_modules.cpp.o
+[519/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/text_encoders/t5_base_encoder.cpp.o
+[520/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/text_encoders/t5_gemma_encoder.cpp.o
+[521/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/sampling/flow_sampler_runtime.cpp.o
+[522/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/optimizations/fast_kv_modules.cpp.o
+[523/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/tokenizers/hf_tokenizer_json.cpp.o
+[524/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/transformers/gemma_decoder.cpp.o
+[525/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/tokenizers/qwen_bpe_bundle.cpp.o
+[526/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/tokenizers/llama_bpe.cpp.o
+[527/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/external/llama_tokenizer/bpe-core.cpp.o
+[528/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/external/llama_tokenizer/unicode-data.cpp.o
+[529/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/tokenizers/sentencepiece.cpp.o
+[530/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/external/llama_tokenizer/unicode.cpp.o
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/llama_tokenizer/unicode.cpp:22:20: warning: ‘std::string unicode_cpts_to_utf8(const std::vector<unsigned int>&)’ defined but not used [-Wunused-function]
+   22 | static std::string unicode_cpts_to_utf8(const std::vector<uint32_t> & cps) {
+      |                    ^~~~~~~~~~~~~~~~~~~~
+[531/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/kaldi_fbank.cpp.o
+[532/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/activity.cpp.o
+[533/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/probability_segmenter.cpp.o
+[534/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/activity_graph.cpp.o
+[535/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/fft.cpp.o
+[536/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/conversion.cpp.o
+[537/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/chunking.cpp.o
+[538/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/dsp.cpp.o
+[539/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/utilities/deepfilternet2.cpp.o
+[540/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/nemo_mel_frontend.cpp.o
+[541/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/mel_spectrogram_frontend.cpp.o
+[542/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/reference_audio_frontend.cpp.o
+[543/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/utilities/flashsr.cpp.o
+[544/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/utilities/gtcrn.cpp.o
+[545/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/istft_graph.cpp.o
+[546/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/mixing.cpp.o
+[547/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/output.cpp.o
+[548/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/resampling.cpp.o
+[549/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/utilities/utility_api.cpp.o
+[550/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/waveform_ops.cpp.o
+[551/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/utilities/rnnoise.cpp.o
+[552/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/wav_reader.cpp.o
+[553/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/wav_writer.cpp.o
+[554/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/runtime/flow_kv_cache.cpp.o
+[555/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/audio/utilities/zipenhancer.cpp.o
+[556/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speaker_encoders/ecapa_tdnn_runtime.cpp.o
+[557/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/modules/speaker_encoders/titanet_runtime.cpp.o
+[558/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/fsq_audio_codec_runtime.cpp.o
+[559/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/mel_latent_vae44k_runtime.cpp.o
+[560/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/fish_dac_codec_runtime.cpp.o
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/codecs/fish_dac_codec_runtime.cpp: In function ‘engine::modules::Snake1dWeights engine::codecs::{anonymous}::load_snake(engine::core::BackendWeightStore&, const engine::assets::TensorSource&, const std::string&, int64_t)’:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/codecs/fish_dac_codec_runtime.cpp:742:63: warning: missing initializer for member ‘engine::modules::Snake1dWeights::inverse_alpha’ [-Wmissing-field-initializers]
+  742 |         source.require_f32(name + ".alpha", {1, channels, 1}))};
+      |                                                               ^
+[561/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/mimi_codec_runtime.cpp.o
+[562/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/moss_audio_tokenizer_codec_runtime.cpp.o
+[563/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/neural_audio.cpp.o
+[564/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/oobleck_audio_vae_runtime.cpp.o
+[565/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/redae_codec_runtime.cpp.o
+[566/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/snac_decoder_runtime.cpp.o
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/codecs/snac_decoder_runtime.cpp: In function ‘engine::modules::Snake1dWeights engine::codecs::{anonymous}::load_snake(engine::core::BackendWeightStore&, const engine::assets::TensorSource&, const std::string&, int64_t)’:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/codecs/snac_decoder_runtime.cpp:88:74: warning: missing initializer for member ‘engine::modules::Snake1dWeights::inverse_alpha’ [-Wmissing-field-initializers]
+   88 |                               source.require_f32(name, {1, channels, 1}))};
+      |                                                                          ^
+[567/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/codecs/s3gen_runtime.cpp.o
+[568/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/conditioners/clap_audio_conditioner_runtime.cpp.o
+[569/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/conditioners/cav_mae_st_conditioner_runtime.cpp.o
+[570/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/conditioners/musicgen_style_conditioner_runtime.cpp.o
+[571/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/conditioners/open_clip_conditioner_runtime.cpp.o
+[572/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/conditioners/synchformer_conditioner_runtime.cpp.o
+[573/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/sampling/greedy_decode.cpp.o
+[574/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/sampling/diffusion_math.cpp.o
+[575/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/models/controlfoley/flow_denoiser.cpp.o
+[576/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/sampling/hf_sampler.cpp.o
+[577/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/sampling/noise.cpp.o
+[578/598] Building CXX object audiocpp/CMakeFiles/engine_core.dir/src/framework/sampling/torch_random.cpp.o
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/sampling/torch_random.cpp: In function ‘void engine::sampling::torch_cuda_sample_topk_exponential_pairs(const void*, int64_t, int64_t, float, int64_t, const uint64_t*, const uint64_t*, uint64_t, const TorchCudaSamplingPolicy&, int32_t*)’:
+/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/sampling/torch_random.cpp:457:14: warning: unused parameter ‘offset_step_blocks’ [-Wunused-parameter]
+  457 |     uint64_t offset_step_blocks,
+      |     ~~~~~~~~~^~~~~~~~~~~~~~~~~~
+[579/598] Building CXX object audiocpp/CMakeFiles/engine_model_silero_vad.dir/src/models/silero_vad/assets.cpp.o
+[580/598] Building CXX object audiocpp/CMakeFiles/engine_model_silero_vad.dir/src/models/silero_vad/session.cpp.o
+[581/598] Building CXX object audiocpp/CMakeFiles/engine_model_silero_vad.dir/src/models/silero_vad/runtime.cpp.o
+[582/598] Building CXX object audiocpp/CMakeFiles/engine_model_marblenet_vad.dir/src/models/marblenet_vad/assets.cpp.o
+[583/598] Building CXX object audiocpp/CMakeFiles/engine_model_marblenet_vad.dir/src/models/marblenet_vad/runtime.cpp.o
+[584/598] Building CXX object audiocpp/CMakeFiles/engine_model_demucs.dir/src/models/demucs/assets.cpp.o
+[585/598] Building CXX object audiocpp/CMakeFiles/engine_model_marblenet_vad.dir/src/models/marblenet_vad/session.cpp.o
+[586/598] Building CXX object audiocpp/CMakeFiles/engine_model_demucs.dir/src/models/demucs/frontend.cpp.o
+[587/598] Building CXX object audiocpp/CMakeFiles/engine_model_demucs.dir/src/models/demucs/postprocess.cpp.o
+[588/598] Building CXX object audiocpp/CMakeFiles/engine_model_demucs.dir/src/models/demucs/session.cpp.o
+[589/598] Building CXX object audiocpp/CMakeFiles/engine_model_demucs.dir/__/conflux-flash-f32/pipeline.cpp.o
+[590/598] Linking C static library audiocpp/libcjson_vendor.a
+[591/598] Linking C static library audiocpp/libyaml_vendor.a
+[592/598] Linking CXX static library audiocpp/ggml/src/libggml.a
+[593/598] Linking CXX static library audiocpp/external/sentencepiece/src/libsentencepiece.a
+[594/598] Building CXX object audiocpp/CMakeFiles/engine_runtime.dir/src/framework/runtime/registry.cpp.o
+[595/598] Linking CXX static library audiocpp/libengine_runtime.a
+[596/598] Building CXX object CMakeFiles/conflux-stem-runtime.dir/htdemucs_segment.cpp.o
+[597/598] Linking CXX executable conflux-stem-runtime

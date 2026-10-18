@@ -1,0 +1,17 @@
+{
+  "status": "passed_compile_source_mapping",
+  "compile_entries": 1230,
+  "affected_translation_units": [
+    "/tmp/conflux-stem-flash-f32-2026-10-18/source/htdemucs_segment.cpp",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/models/demucs/assets.cpp",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/models/demucs/frontend.cpp",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/models/demucs/postprocess.cpp",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/models/demucs/session.cpp",
+    "/tmp/conflux-stem-flash-f32-2026-10-18/build/conflux-flash-f32/pipeline.cpp",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/framework/runtime/registry.cpp"
+  ],
+  "identical_phase_header": "/tmp/conflux-stem-flash-f32-2026-10-18/build/conflux-graph-phase-timing/include/engine/models/demucs/pipeline.h",
+  "phase_header_sha256": "7f48bbd4964ebcce721f7544a84303c568b460bf21c24090899ccc8b983833cd",
+  "intended_source_replacements": 2,
+  "scope": "Compilation plan/source mapping only. No compiler or runtime execution by this check. The first checker selected only five model-directory sources; corrected check includes the adapter and registry, all seven affected translation units."
+}
