@@ -754,6 +754,62 @@
     "preflight-trace.jsonl": {
       "bytes": 40132,
       "sha256": "7dea44e7d467d03808cd08980abd964afaf42a88625f2717a61bacc00e5b226c"
+    },
+    "graph-order-01/AC-lid-monitor.jsonl": {
+      "bytes": 1400,
+      "sha256": "dbd29ea1123a4d57a669007d88b0345c43134694bf04664334b3eedbf22df316"
+    },
+    "graph-order-01/admission/admission-normal-ready.json": {
+      "bytes": 9934,
+      "sha256": "80b5e1d0a5eef7922cc3bb1668e7e1ea700b7be861e951c33c7a2136c2c83e97"
+    },
+    "graph-order-01/admission/admission-normal-ready.jsonl": {
+      "bytes": 7488,
+      "sha256": "0d327f85a4bccab3081f5078e9835097e56075356b37b190d8c2b22a19438c15"
+    },
+    "graph-order-01/admission/fresh-admission.json": {
+      "bytes": 1806,
+      "sha256": "a9ca3c4b893078a3bd5270e299b45f0013f667cf3127a4ffb7e313e7a245ca9f"
+    },
+    "graph-order-01/analysis.json": {
+      "bytes": 3605,
+      "sha256": "dac3aba8a23f3fa7340c5b0e00e4618eed7e3979fa15463b631e9391ff6b54c7"
+    },
+    "graph-order-01/baseline.stderr": {
+      "bytes": 227,
+      "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+    },
+    "graph-order-01/diagnostic.stderr": {
+      "bytes": 308,
+      "sha256": "fed079a3cef237bc83b8a886fd2a156b4e7d2775135f6e312063d913c060bf39"
+    },
+    "graph-order-01/expected-pins.json": {
+      "bytes": 1301,
+      "sha256": "a9b2e08fe2fa9236b3e130dc31eaf43f935d9bddffc4d8c2a5ba3281d61659cb"
+    },
+    "graph-order-01/gitleaks.log": {
+      "bytes": 146,
+      "sha256": "d177d48f1b35b7b5415c645cd8e4451283231ac6753c24731ef6cf3356174911"
+    },
+    "graph-order-01/independent-audit.json": {
+      "bytes": 8185,
+      "sha256": "149736f2bd262800024be5570127ae00dbfcd40200e7857b3b1929eaf1f8600c"
+    },
+    "graph-order-01/launch.json": {
+      "bytes": 16492,
+      "sha256": "6b05fe8cdad12ef8cb9a8bc3025583683bdc3c11fe8bc64f415fe7f19168f9bf"
+    },
+    "graph-order-01/offline-review.json": {
+      "bytes": 3751,
+      "sha256": "850c829f9c2029d77a4aa19d17bf9559ecb00bf4c5f084ec5ac76d06cff16874"
+    },
+    "graph-order-01/result.json": {
+      "bytes": 129553,
+      "sha256": "83dd6835a18ed71a8781341e163c34134bf56a9c787a4848236c7a2f04a83396"
+    },
+    "graph-order-01/source-pins.json": {
+      "bytes": 4363,
+      "sha256": "edac0bf92c3a943903684c274c43933f30adf69eb180660aa169e164f52ae2e6"
     }
   },
   "pending": "Optimize/investigate graph compute/wait stalls under the unchanged 4095 ms target. Sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. No user listening reapproval is needed for the bit-identical instrumentation comparison.",
@@ -1014,11 +1070,78 @@
     "scope": "Six intentionally perturbed GPU-operation profiles only. No prior stall reproduction, loaded service p99, causal profiling-overhead, musical listening, physical latency or audio/cancellation qualification. Per-operation categories use rounded printed TOTAL columns; mean shares are descriptive and not predicted savings. Native -9 means killed/reaped cleanup."
   },
   "graph_order_candidate": {
-    "status": "built_inference_not_run",
+    "status": "built_exact_pcm_comparison_passed_loaded_latency_unqualified",
     "binary_sha256": "e50d0f5d0b7e3ba81d2fedb7ccaf0366b6418673c01d11f500936f075f37e720",
     "overlay_sha256": "4050c8d7c67065121ade02b22f0c75d961442610123992fb9b34b1e4dcb06900",
     "source_copy_runtime_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
     "source_pin_checks_passed": 6,
-    "scope": "Isolated generated-source candidate only. No product default change, GPU inference, PCM equivalence, memory or latency result."
+    "scope": "Fixed baseline16 then candidate16 without audio/UI/cancellation. Descriptive timing and per-child process peak RSS only; order and unmeasured in-run thermal/clock conditions confound causal timing. No loaded p99 qualification, all-GPU-memory measurement or new audio/cancellation/musical-quality result. Product runtime defaults remain unchanged. Historical build verification is retained verbatim at its pre-inference checkpoint.",
+    "comparison": {
+      "recorded_repository_head": "8e255bcea583e71c9c124bb276abf1ff33346e75",
+      "shared_worker_cleanup_commit": "e2ca892de4e9a3b0d6ebd7ce4beb42117264fa09",
+      "completed_requests": 32,
+      "paired_exact_outputs": 16,
+      "stable_artifact_records": 35,
+      "current_source_hashes_verified": 27,
+      "independent_audit_checks": 38,
+      "result": "graph-order-01/result.json",
+      "launch": "graph-order-01/launch.json",
+      "analysis": "graph-order-01/analysis.json",
+      "independent_audit": "graph-order-01/independent-audit.json",
+      "run_order": [
+        "baseline",
+        "diagnostic"
+      ],
+      "graph_nodes": 2941,
+      "moved_positions": 2849,
+      "candidate_graph_buffer_bytes": 379841952,
+      "baseline_graph_buffer_bytes": null,
+      "runtime_observations": {
+        "baseline": {
+          "requests": 16,
+          "request_wall_ms": {
+            "min": 1625.3640939830802,
+            "median": 1635.9240204910748,
+            "max": 1764.8303290479816
+          },
+          "startup_wall_ms": 334.547804959584,
+          "native_memory_before_close": {
+            "pid": 2251103,
+            "started_monotonic": 468667.402302528,
+            "available": true,
+            "VmHWM_KiB": 280532,
+            "scope": "This native process peak resident memory; not GPU or graph-buffer memory.",
+            "start_ticks": 52017796,
+            "finished_monotonic": 468667.402528461
+          }
+        },
+        "diagnostic": {
+          "requests": 16,
+          "request_wall_ms": {
+            "min": 1650.946985988412,
+            "median": 1805.5582030210644,
+            "max": 2094.0386559814215
+          },
+          "startup_wall_ms": 475.5575759918429,
+          "native_memory_before_close": {
+            "pid": 2251268,
+            "started_monotonic": 468697.514083895,
+            "available": true,
+            "VmHWM_KiB": 281088,
+            "scope": "This native process peak resident memory; not GPU or graph-buffer memory.",
+            "start_ticks": 52020505,
+            "finished_monotonic": 468697.514266744
+          }
+        }
+      },
+      "observed_median_change_percent": 10.369319137392985,
+      "median_method": "statistics.median: arithmetic mean of two central observations for an even sample",
+      "cleanup_complete": true,
+      "secret_scan": {
+        "command": "gitleaks dir docs/benchmarks/data/m2-graph-phase-2026-10-18/graph-order-01 --redact --no-color --max-target-megabytes 10",
+        "exit_code": 0,
+        "log": "graph-order-01/gitleaks.log"
+      }
+    }
   }
 }

@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "status": "passed_source_and_offline_mocks",
+  "source_sha256": {
+    "adapter": "28d2712ba427d0f480ad63f8ff3128f0d3999010e7ecf225185c41734861a3e7",
+    "launcher": "f3a7073e0774f62597d24e5b9e6e49a594f13c0e6429a339947b467cd5a6a6b4",
+    "frozen_helper": "5022aeed8eaf932adead05404f80b94c7d992f4b6f68dc81d05edb6126077e5b"
+  },
+  "offline_mock_checks_passed": 19,
+  "offline_mock_checks": [
+    "construction site 1 defers SIGINT until child and group assignment",
+    "construction site 1 defers SIGTERM until child and group assignment",
+    "construction site 2 defers SIGINT until child and group assignment",
+    "construction site 2 defers SIGTERM until child and group assignment",
+    "known group killed and disappearance observed with exited direct leader",
+    "known group killed and disappearance observed with no current leader reference",
+    "lingering known group fails bounded cleanup and remains in evidence",
+    "unsafe or unknown group 123 refused before signalling",
+    "unsafe or unknown group 1 refused before signalling",
+    "unsafe or unknown group 999999 refused before signalling",
+    "valid one-finalization graph log accepted without requiring one log per request",
+    "graph-order missing evidence rejected",
+    "graph-order zero-movement evidence rejected",
+    "graph-order malformed evidence rejected",
+    "graph-order excessive evidence rejected",
+    "graph-order truncated evidence rejected",
+    "empty inherited GGML_VK_PERF_LOGGER refused",
+    "empty inherited GGML_VULKAN_FOO refused",
+    "empty inherited INTEL_DEBUG refused"
+  ],
+  "source_review": {
+    "dry_run": "Adapter verifies/imports only the exact frozen Python driver; its dry branch never reaches NumPy/worker, output creation or native start. Launcher dry branch reads local expected JSON only and returns before helper imports, host checks and path creation.",
+    "pins": "Candidate path is overridden explicitly; mandatory source pins include both adapters, overlay, copied four runtime sources, generated candidate pipeline and used interfaces. Launcher checks exact helper hashes, expected HEAD/source/model map, fresh run-labelled human readiness, original normal readiness and post-readiness signatures.",
+    "bounds": "Direct adapter caps requests at30 seconds and total driver at600 seconds. Launcher normal readiness620, comparison600 plus60 after-pins and10 outer slack, bounded by1320 total with30-second cleanup reserve. Native wait2 seconds and group disappearance2 seconds remain bounded cleanup operations.",
+    "signals": "No inherited pthread signal masks; handlers defer only Popen construction until direct child/group ownership is published. Known group cleanup runs independent of leader.poll and retains an unresolved group as failure.",
+    "memory": "Per-owned-child /proc VmHWM snapshot before close, identity-checked across read; resident-memory high water only, no GPU-memory or successful-memory-threshold claim. Missing VmHWM is explicitly unavailable.",
+    "graph_order": "Requires complete bounded pinned stderr,1..16 correctly formatted finalization records, positive node/movement/buffer counts. No assumption of one graph per request or baseline graph-buffer equivalent."
+  },
+  "limits": [
+    "All mocks execute extracted reviewed AST only, with fake Popen/signals/process groups and in-memory stderr. No native/host/build/Git commands or media/model/binary reads.",
+    "No physical readiness, actual group cleanup, PCM equivalence, memory improvement or latency qualification was exercised by this review.",
+    "Candidate/source-pin map and expected HEAD still need root arming/final offline negatives; this receipt does not hash the candidate binary."
+  ],
+  "blockers": []
+}
