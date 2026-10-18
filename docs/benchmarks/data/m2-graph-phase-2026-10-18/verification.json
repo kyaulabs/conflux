@@ -1,0 +1,778 @@
+{
+  "schema": 1,
+  "source_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+  "status": "loaded_diagnostic_completed_service_p99_target_unmet",
+  "latency_target_ms": 4095,
+  "latency_target_operator": "continuous request-service p99 < target",
+  "live_release_gate": "unmet; unchanged mandatory M2 blocker",
+  "pcm_comparison": {
+    "status": "passed",
+    "backend": "vulkan",
+    "threads": 2,
+    "runtime_order": [
+      "baseline",
+      "diagnostic"
+    ],
+    "requests_per_runtime": 16,
+    "completed_requests": 32,
+    "paired_exact_output_matches": 16,
+    "inputs_match": true,
+    "phase_fields_finite_nonnegative": true,
+    "pins_unchanged": true,
+    "driver_elapsed_seconds": 163.6181104379939,
+    "owned_native_cleanup_complete": true,
+    "native_exit_scope": "Both persistent runtimes are killed/reaped by NativeRuntime.close; their -9 exit is cleanup, not a graceful normal exit.",
+    "scope": "Exact raw PCM equivalence for the tested four excerpts/windows only. Fixed runtime order and thermal/startup differences prevent causal timing-overhead, live service-latency, perceptual-quality or GPU-timestamp claims."
+  },
+  "loaded_diagnostic": {
+    "status": "completed",
+    "run_label": "phase-timing-laptop-02",
+    "repository_head": "15845d077f45442105decdf74c2f62a4aeb83ed0",
+    "runtime_implementation_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+    "user_reported_desktop_state": "Codex minimized; AC connected, lid open; keep CONFLUX benchmark visible.",
+    "workload_seconds": 600.0001128200092,
+    "configuration": {
+      "load": "both",
+      "delivery": "playback-paced",
+      "UI": "software Harness.qml animation, 33 ms requested repaint interval",
+      "native_threads": 2,
+      "audio": "independent silence, 48 kHz stereo/256 frames",
+      "control_interval_seconds": 300,
+      "source_corpus": "Four prepared 23.4-second excerpts repeated in retained order; no full-track playback."
+    },
+    "continuous_service": {
+      "chunks": 100,
+      "frames": 25798500,
+      "hop_service_ms": {
+        "samples": 100,
+        "percentiles": {
+          "50": 1702.8466369956732,
+          "95": 5008.568663033657,
+          "99": 5674.156680004671
+        },
+        "min": 1664.6090800059028,
+        "max": 5843.822185997851
+      },
+      "pass_lt_4095ms": 86,
+      "miss_ge_4095ms": 14,
+      "equal_4095ms": 0,
+      "producer_hops_above_target_gt_4095ms": 14,
+      "observed_p99_within_target": false
+    },
+    "all_delivered_service": {
+      "chunks": 101,
+      "frames": 26056152,
+      "hop_service_ms": {
+        "samples": 101,
+        "percentiles": {
+          "50": 1708.887735963799,
+          "95": 5008.568663033657,
+          "99": 5674.156680004671
+        },
+        "min": 1664.6090800059028,
+        "max": 5843.822185997851
+      },
+      "pass_lt_4095ms": 86,
+      "miss_ge_4095ms": 15,
+      "equal_4095ms": 0,
+      "producer_hops_above_target_gt_4095ms": 15,
+      "observed_p99_within_target": false
+    },
+    "seek_first_service": {
+      "chunks": 1,
+      "frames": 257652,
+      "hop_service_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 4314.70097694546,
+          "95": 4314.70097694546,
+          "99": 4314.70097694546
+        },
+        "min": 4314.70097694546,
+        "max": 4314.70097694546
+      },
+      "pass_lt_4095ms": 0,
+      "miss_ge_4095ms": 1,
+      "equal_4095ms": 0,
+      "producer_hops_above_target_gt_4095ms": 1,
+      "observed_p99_within_target": false
+    },
+    "graph_phases_continuous": {
+      "overall": {
+        "rows": 100,
+        "fields_ms": {
+          "graph_upload_ms": {
+            "samples": 100,
+            "percentiles": {
+              "50": 3.276623,
+              "95": 8.379012,
+              "99": 8.850285
+            },
+            "min": 2.080055,
+            "max": 57.736399,
+            "missing_rows": 0
+          },
+          "graph_compute_ms": {
+            "samples": 100,
+            "percentiles": {
+              "50": 1613.568368,
+              "95": 4758.660766,
+              "99": 5372.537882
+            },
+            "min": 1600.862492,
+            "max": 5516.082546,
+            "missing_rows": 0
+          },
+          "graph_readback_ms": {
+            "samples": 100,
+            "percentiles": {
+              "50": 8.129912,
+              "95": 18.652648,
+              "99": 24.774257
+            },
+            "min": 4.944402,
+            "max": 44.750103,
+            "missing_rows": 0
+          }
+        },
+        "all_phase_fields_observed": true
+      },
+      "pass": {
+        "rows": 86,
+        "fields_ms": {
+          "graph_upload_ms": {
+            "samples": 86,
+            "percentiles": {
+              "50": 3.151633,
+              "95": 7.308603,
+              "99": 57.736399
+            },
+            "min": 2.080055,
+            "max": 57.736399,
+            "missing_rows": 0
+          },
+          "graph_compute_ms": {
+            "samples": 86,
+            "percentiles": {
+              "50": 1610.967808,
+              "95": 2887.368441,
+              "99": 3845.143649
+            },
+            "min": 1600.862492,
+            "max": 3845.143649,
+            "missing_rows": 0
+          },
+          "graph_readback_ms": {
+            "samples": 86,
+            "percentiles": {
+              "50": 6.709564,
+              "95": 17.059417,
+              "99": 44.750103
+            },
+            "min": 4.944402,
+            "max": 44.750103,
+            "missing_rows": 0
+          }
+        },
+        "all_phase_fields_observed": true
+      },
+      "miss": {
+        "rows": 14,
+        "fields_ms": {
+          "graph_upload_ms": {
+            "samples": 14,
+            "percentiles": {
+              "50": 4.881815,
+              "95": 8.850285,
+              "99": 8.850285
+            },
+            "min": 4.061911,
+            "max": 8.850285,
+            "missing_rows": 0
+          },
+          "graph_compute_ms": {
+            "samples": 14,
+            "percentiles": {
+              "50": 4260.297605,
+              "95": 5516.082546,
+              "99": 5516.082546
+            },
+            "min": 3884.277507,
+            "max": 5516.082546,
+            "missing_rows": 0
+          },
+          "graph_readback_ms": {
+            "samples": 14,
+            "percentiles": {
+              "50": 16.454339,
+              "95": 21.295654,
+              "99": 21.295654
+            },
+            "min": 14.199894,
+            "max": 21.295654,
+            "missing_rows": 0
+          }
+        },
+        "all_phase_fields_observed": true
+      }
+    },
+    "graph_phase_scope": "CPU-wall upload/compute/readback intervals of accepted delivered requests; compute includes explicit backend wait. Empty/missing fields are null/unavailable, never zero-filled. Comparison timings are excluded.",
+    "cancellation": {
+      "attempts_recorded": 1,
+      "completed": 1,
+      "timings_ms": {
+        "cancel_ack_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 0.10645098518580198,
+            "95": 0.10645098518580198,
+            "99": 0.10645098518580198
+          },
+          "min": 0.10645098518580198,
+          "max": 0.10645098518580198
+        },
+        "residual_finish_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 4955.801539006643,
+            "95": 4955.801539006643,
+            "99": 4955.801539006643
+          },
+          "min": 4955.801539006643,
+          "max": 4955.801539006643
+        },
+        "resume_ack_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 0.05609501386061311,
+            "95": 0.05609501386061311,
+            "99": 0.05609501386061311
+          },
+          "min": 0.05609501386061311,
+          "max": 0.05609501386061311
+        },
+        "ready_after_resume_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 9463.445117988158,
+            "95": 9463.445117988158,
+            "99": 9463.445117988158
+          },
+          "min": 9463.445117988158,
+          "max": 9463.445117988158
+        },
+        "ready_after_cancel_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 14430.347772955429,
+            "95": 14430.347772955429,
+            "99": 14430.347772955429
+          },
+          "min": 14430.347772955429,
+          "max": 14430.347772955429
+        },
+        "delivered_after_cancel_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 14600.021509977523,
+            "95": 14600.021509977523,
+            "99": 14600.021509977523
+          },
+          "min": 14600.021509977523,
+          "max": 14600.021509977523
+        },
+        "started_to_cancel_ms": {
+          "samples": 1,
+          "percentiles": {
+            "50": 184.6100949915126,
+            "95": 184.6100949915126,
+            "99": 184.6100949915126
+          },
+          "min": 184.6100949915126,
+          "max": 184.6100949915126
+        }
+      },
+      "held_chunks_rejected_all_completed": true,
+      "post_cancel_chunks_all_completed": 0,
+      "stale_chunks_delivered": 0,
+      "controls": [
+        {
+          "at_workload_seconds": 306.3620609170175,
+          "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+          "superseded_generation": 14,
+          "superseded_request_id": 55,
+          "started_to_cancel_ms": 184.6100949915126,
+          "hardware_submission_confirmed": false,
+          "complete": true,
+          "cancel_ack_ms": 0.10645098518580198,
+          "held_chunk_rejected": true,
+          "residual_finish_ms": 4955.801539006643,
+          "resume_ack_ms": 0.05609501386061311,
+          "generation": 16,
+          "target_frame": 258318,
+          "ready_after_resume_ms": 9463.445117988158,
+          "ready_after_cancel_ms": 14430.347772955429,
+          "delivered_after_cancel_ms": 14600.021509977523,
+          "post_cancel_chunks": 0,
+          "parity": {
+            "kind": "trimmed_seek",
+            "exact": true,
+            "numeric_parity": true,
+            "max_abs_difference": 0.0,
+            "rtol": 0.0001,
+            "atol": 1e-05
+          }
+        }
+      ],
+      "scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed."
+    },
+    "virtual_playback": {
+      "ordinary_demands": 99,
+      "ready_deadline_misses": 0,
+      "unfulfilled_due_demands": 0,
+      "starvation_union_seconds": 0,
+      "scope": "Virtual frame-clock consumption with one held playing chunk and at most two worker-ready chunks; independent silent audio probe, no physical stem playback"
+    },
+    "audio": {
+      "status": "ok",
+      "signal": "silence",
+      "callbacks": 112800,
+      "streaming_seconds": 601.691,
+      "frames_rendered": 28876800,
+      "negotiated": {
+        "format_valid": true,
+        "sample_rate": 48000,
+        "channels": 2,
+        "stream_frames_min": 256,
+        "stream_frames_max": 256,
+        "graph_quantum_min": 256,
+        "graph_quantum_max": 256
+      },
+      "callback_elapsed_us": {
+        "p50_upper_bound": 10.0,
+        "p95_upper_bound": 26.0,
+        "p99_upper_bound": 40.0,
+        "p99_9_upper_bound": 55.0,
+        "max": 594.5,
+        "histogram_resolution": 1,
+        "at_least_100ms": 0
+      },
+      "fault_counters": {
+        "callback_execution_deadline_misses": 0,
+        "missing_buffers": 0,
+        "invalid_buffers": 0,
+        "truncated_frames": 0,
+        "observed_graph_position_discontinuities": 0,
+        "observed_position_clock_xrun_recovery_flags": 0
+      },
+      "all_six_fault_counters_observed_zero": true,
+      "telemetry_capabilities": {
+        "clock_cycle": true,
+        "discontinuity_flag": true,
+        "xrun_recovery_flags": true,
+        "graph_position_observed": true
+      },
+      "coverage": {
+        "requested": true,
+        "status": "passed",
+        "passed": true,
+        "streaming_interval_valid": true,
+        "concurrent_workload_seconds": 600.0001128200092,
+        "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+      },
+      "scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count.",
+      "signal_scope": "Independent silent audio probe. No physical latency, complete graph-xrun, stem playback or musical-quality inference."
+    },
+    "UI": {
+      "platform": "wayland",
+      "graphics_api": 1,
+      "rendered": true,
+      "capture_ok": true,
+      "frames_swapped": 18800,
+      "frame_observation": {
+        "first_frame_monotonic_ns": 465489154248423,
+        "frames_per_60_seconds": [
+          1876,
+          1875,
+          1875,
+          1875,
+          1875,
+          1875,
+          1875,
+          1875,
+          1875,
+          1875,
+          49
+        ],
+        "last_frame_monotonic_ns": 466090686316078,
+        "maximum_notification_gap_ms": 46.859338,
+        "scope": "GUI-thread frameSwapped notifications; not physical presentation latency",
+        "started_monotonic_ns": 465489148024532,
+        "stopped_monotonic_ns": 466090700709604
+      },
+      "coverage": {
+        "requested": true,
+        "status": "passed",
+        "passed": true,
+        "checks": {
+          "progress_observed": true,
+          "runtime_gate_passed": true,
+          "observed_unexposed_spans_within_limit": true,
+          "final_observation_valid": true,
+          "observation_covers_workload": true,
+          "minute_counts_match_total": true,
+          "complete_minute_bins_nonzero": true,
+          "notification_gap_within_limit": true
+        },
+        "complete_minute_bins_intersecting_workload": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "zero_complete_minute_bins_intersecting_workload": [],
+        "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
+        "maximum_notification_gap_ms": 46.859338,
+        "progress": {
+          "requested": true,
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-02/ui-progress.json",
+          "checks": 590,
+          "check_interval_seconds": 1.0,
+          "startup_grace_seconds": 5.0,
+          "maximum_allowed_gap_seconds": 30.0,
+          "maximum_progress_age_seconds": 1.005379548005294,
+          "maximum_frame_age_seconds": 1.0282792340149172,
+          "maximum_check_gap_seconds": 1.2436173760215752,
+          "unexposed_observations": 0,
+          "maximum_observed_unexposed_span_seconds": 0.0,
+          "last_unexposed_span": null,
+          "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+          "read_errors": {
+            "FileNotFoundError": 1
+          },
+          "last_progress": {
+            "animation_driver": "qtimeline",
+            "exposed": true,
+            "frames_swapped": 18778,
+            "indicator_x": 139.99360993500738,
+            "last_frame_monotonic_ns": 466089982900012,
+            "pid": 2225025,
+            "reduced_motion": false,
+            "repaint_interval_ms": 33,
+            "scene_graph_initialized": true,
+            "timestamp_monotonic_ns": 466090000171511
+          },
+          "gate_failure": null
+        },
+        "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"
+      },
+      "scope": "GUI heartbeat/frameSwapped notifications and sampled exposure; not physical display presentation latency."
+    },
+    "thermal": {
+      "status": "observed",
+      "trace_samples": 1178,
+      "temperature_fields_declared": 2,
+      "temperature_fields_observed": 2,
+      "trace_span_monotonic": [
+        465491.034017994,
+        466090.419911667
+      ],
+      "workload_span_monotonic": [
+        465490.569095182,
+        466090.569208002
+      ],
+      "trace_samples_within_workload": 1178,
+      "sensors": {
+        "/sys/class/thermal/thermal_zone5/temp": {
+          "samples": 1178,
+          "missing_samples": 0,
+          "min_C": 43.05,
+          "peak_C": 65.05,
+          "samples_ge_85C": 0,
+          "sampled_high_runs": 0,
+          "maximum_consecutive_high_sample_span_seconds": null,
+          "maximum_fully_bracketed_row_timestamp_span_seconds": null,
+          "maximum_capture_conservative_bracket_seconds": null,
+          "unbracketed_high_runs": 0,
+          "longest_five_sampled_high_runs": []
+        },
+        "/sys/class/thermal/thermal_zone7/temp": {
+          "samples": 1178,
+          "missing_samples": 0,
+          "min_C": 44.0,
+          "peak_C": 87.0,
+          "samples_ge_85C": 4,
+          "sampled_high_runs": 4,
+          "maximum_consecutive_high_sample_span_seconds": 0.0,
+          "maximum_fully_bracketed_row_timestamp_span_seconds": 1.0195855899946764,
+          "maximum_capture_conservative_bracket_seconds": 1.026681654038839,
+          "unbracketed_high_runs": 0,
+          "longest_five_sampled_high_runs": [
+            {
+              "first_high": 465516.395349783,
+              "last_high": 465516.395349783,
+              "samples": 1,
+              "preceding_below_at": 465515.887841547,
+              "preceding_below_capture_started_at": 465515.880745483,
+              "observed_span_seconds": 0.0,
+              "following_below_at": 465516.907427137,
+              "row_timestamp_bracket_seconds": 1.0195855899946764,
+              "capture_conservative_bracket_seconds": 1.026681654038839
+            },
+            {
+              "first_high": 465658.042197588,
+              "last_high": 465658.042197588,
+              "samples": 1,
+              "preceding_below_at": 465657.535686021,
+              "preceding_below_capture_started_at": 465657.528186805,
+              "observed_span_seconds": 0.0,
+              "following_below_at": 465658.548772468,
+              "row_timestamp_bracket_seconds": 1.0130864470265806,
+              "capture_conservative_bracket_seconds": 1.020585662976373
+            },
+            {
+              "first_high": 465671.221653025,
+              "last_high": 465671.221653025,
+              "samples": 1,
+              "preceding_below_at": 465670.715770695,
+              "preceding_below_capture_started_at": 465670.708929848,
+              "observed_span_seconds": 0.0,
+              "following_below_at": 465671.729709261,
+              "row_timestamp_bracket_seconds": 1.0139385659713298,
+              "capture_conservative_bracket_seconds": 1.0207794129964896
+            },
+            {
+              "first_high": 465999.614961257,
+              "last_high": 465999.614961257,
+              "samples": 1,
+              "preceding_below_at": 465999.107024962,
+              "preceding_below_capture_started_at": 465999.10161022,
+              "observed_span_seconds": 0.0,
+              "following_below_at": 466000.124141739,
+              "row_timestamp_bracket_seconds": 1.0171167769585736,
+              "capture_conservative_bracket_seconds": 1.0225315190036781
+            }
+          ]
+        }
+      },
+      "firmware_profile_sample_counts": {
+        "balanced": 660,
+        "low-power": 518
+      },
+      "maximum_trace_sample_gap_seconds": 0.5441009479691274,
+      "scope": "All retained native-trace samples, including any startup/shutdown outside the stated workload span. 85C counts describe observations, not an added thermal pass gate. Consecutive spans and row brackets use timestamps recorded after capture, not precise sensor-read times. Capture-conservative brackets run from preceding below-threshold capture start to following below-threshold row timestamp; missing capture starts remain unavailable. Brackets describe sampled excursions, not continuous temperature or all unseen peaks; gaps are not filled or asserted safe."
+    },
+    "cleanup": {
+      "remaining_owned_processes": {},
+      "last_child_reaped": true,
+      "guard": {
+        "status": "ok",
+        "errors": [],
+        "idle_inhibit_released": true,
+        "script_unloaded": true,
+        "restored": {
+          "reason": "owned-window-closed",
+          "after": null
+        }
+      }
+    },
+    "source_acceptance": {
+      "requested_wall_duration_completed": true,
+      "sixty_minute_workload_completed": false,
+      "audio_covers_requested_duration": true,
+      "required_UI_coverage_completed": true,
+      "selected_load_coverage_completed": true,
+      "controls_completed": 1,
+      "observed_continuous_p99_within_target": false,
+      "ordinary_playback_ready_deadlines_met": true,
+      "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+      "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+      "scope": "prepared WAV corpus playback-paced delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+      "full_audio_UI_soak_qualified": false
+    },
+    "scope": "Observed 600-second diagnostic only. Target unmet. Generic animated Harness UI plus independent silent audio; no actual CDJ stem playback, physical audio latency, musical-quality, GPU-preemption or sustained-hour qualification claim. Brief sampled heat is reported without adding a thermal gate."
+  },
+  "ambient_observation": {
+    "scope": "Two-second ambient CPU snapshot during preflight only; no native workload active. No processes or settings changed.",
+    "sample_seconds": 2.1132858330383897,
+    "desktop_ChatGPT_process_cpu_percent": 450.0,
+    "inference_started": false,
+    "causal_scope": "One short ambient snapshot cannot attribute every spike or quantify the process during a future workload. No applications or settings were changed."
+  },
+  "coverage_CI": {
+    "run": "https://github.com/kyaulabs/conflux/actions/runs/39161712607",
+    "all_stages_passed": true,
+    "cpp_lines": {
+      "covered": 3086,
+      "total": 3913,
+      "percent": 78.86532072578584
+    },
+    "python_worker_lines": {
+      "covered": 397,
+      "total": 426,
+      "percent": 93.1924882629108
+    },
+    "cpp_above_80_goal_met": false,
+    "unmeasured": [
+      "QML",
+      "native stem adapter"
+    ],
+    "scope": "Separate CI instrumented functional run, not hardware timing or whole-product coverage.",
+    "repository_head": "419607fa78cdadd13a6d1ce4743a564e9c9687e9"
+  },
+  "files": {
+    "build-verification.json": {
+      "bytes": 4672,
+      "sha256": "724c04860c4c46a996bbcb47732327ca5f81d0e0fcf177853013e4d07cda7303"
+    },
+    "loaded-02/audio.json": {
+      "bytes": 1840,
+      "sha256": "c68651e0b9eee85845e33fe8ef4cdd43c5853d76096e06e23e485cd610c5cb9e"
+    },
+    "loaded-02/events.jsonl.gz": {
+      "bytes": 46899,
+      "sha256": "a0baa7e17b34fafb856c5053322a30262ed365391784a0f6870c454ac0a01b32"
+    },
+    "loaded-02/native-trace.jsonl.gz": {
+      "bytes": 223401,
+      "sha256": "6997abaa7f020a7105fe191e4f049a20ab6c8f124c3f7df40188bc5e148b5d55"
+    },
+    "loaded-02/progress.json": {
+      "bytes": 3572,
+      "sha256": "cac965af8aa02d272ac9c093c83797d51618a050a2cfc74715c0055cb6381f88"
+    },
+    "loaded-02/result.json": {
+      "bytes": 58418,
+      "sha256": "e7a76a17f95f49e332700ce859bf45e1d5d7944a6714869fada52031ddecefcb"
+    },
+    "loaded-02/ui-progress.json": {
+      "bytes": 279,
+      "sha256": "bb092b567b1ead22883a7a69e1f7d8678cd2917e735a9fb2f5e73641e823dcde"
+    },
+    "loaded-02/ui.json": {
+      "bytes": 709,
+      "sha256": "39165875d87c92b8750b5944cb48de5c457c4c051660b1a2f84296e3c306b7f2"
+    },
+    "loaded-02-AC-lid-monitor.jsonl": {
+      "bytes": 50390,
+      "sha256": "8c0bf856808aa6748f862b90667c22e4deea28f632e34b2832c27343d6e5cd2f"
+    },
+    "loaded-02-admission-normal-ready.json": {
+      "bytes": 14501,
+      "sha256": "8e2597fba0fdac303884fd7e894c4615abad6f7713dbeb363c9b2d2a66f284ba"
+    },
+    "loaded-02-analysis.json": {
+      "bytes": 63303,
+      "sha256": "a423a70cec3e58752c4e209dec931b44363902a3f091d79e19f683c779397e50"
+    },
+    "loaded-02-fresh-admission.json": {
+      "bytes": 1796,
+      "sha256": "83f855f24140d5477833d4e9b9f22b24f9bb83bda36e01ea2c6c98a1f0564b3f"
+    },
+    "loaded-02-gitleaks.log": {
+      "bytes": 144,
+      "sha256": "de9ccbd0ef4063ab05ada315b6dad0f8f69bbc430a5df0998db71c36787d14e4"
+    },
+    "loaded-02-guard.json": {
+      "bytes": 3505,
+      "sha256": "a3a0975dd402c04a2e42f1f2bfdaf4258edb6b3838b602c6fd6047dc6e2a2955"
+    },
+    "loaded-02-launch.json": {
+      "bytes": 22214,
+      "sha256": "fa24e983b07d73121f2e1f032825a7069501bdd92aed72eb28c5eee360853cfe"
+    },
+    "loaded-02-policy.json": {
+      "bytes": 2494,
+      "sha256": "b614bda9699ef7d5574e8110af37f8794fc6a42a5738d8a9e0c1eb19dc927a36"
+    },
+    "pcm-comparison-launch.json": {
+      "bytes": 16152,
+      "sha256": "34c00de2e069748314557dc76a07f9a6a9c70e94b73096ebc23e995c1733d19d"
+    },
+    "pcm-comparison.json": {
+      "bytes": 105418,
+      "sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3"
+    },
+    "preflight-launch.json": {
+      "bytes": 13747,
+      "sha256": "4b0f59ee9cf4ecf790f2493bda1f37f1ab999a765ddcd2b4d4cca1bd079abd73"
+    },
+    "preflight-stop.json": {
+      "bytes": 499,
+      "sha256": "d91305ea656c9e8721596f1b0f45513b021e2910298bdc558006472f42e06c92"
+    },
+    "preflight-trace.jsonl": {
+      "bytes": 40132,
+      "sha256": "7dea44e7d467d03808cd08980abd964afaf42a88625f2717a61bacc00e5b226c"
+    }
+  },
+  "pending": "Optimize/investigate graph compute/wait stalls under the unchanged 4095 ms target. Sustained qualification, integrated stem playback/fallback and remaining M2 musical analysis/cue work stay open. No user listening reapproval is needed for the bit-identical instrumentation comparison.",
+  "previous_retained_completed_live_validation_p99_ms": 5172.2,
+  "latest_retained_completed_live_validation_p99_ms": 5674.156680004671,
+  "initial_loaded_preflight": {
+    "status": "not_started",
+    "requested_workload_seconds": 600,
+    "preflight_status": "interrupted",
+    "launcher_exit_code": 130,
+    "samples": 43,
+    "sampled_package_peak_C": 80.0,
+    "largest_observed_stable_span_seconds": 30.699328392976895,
+    "required_stable_span_seconds": 60,
+    "preflight_package_limit_C": 55,
+    "observed_profiles": [
+      "balanced",
+      "power-saver"
+    ],
+    "human_readiness_age_at_stop_seconds": 929.154397,
+    "reason": "Preflight was stopped once original readiness was older than 900 seconds; a 600-second workload no longer fitted the accepted approximately 25-minute session. The later fresh user reply authorized retry 02.",
+    "owned_processes_remaining": {},
+    "last_child_reaped": true,
+    "final_readiness_proof_present": false,
+    "proof_scope": "The readiness trace is retained. Its final proof file was not produced before interruption; no completed admission outcome is inferred.",
+    "latency_result": null,
+    "worker_cancellation_result": null,
+    "audio_result": null,
+    "UI_result": null,
+    "scope": "Preflight observations only. No loaded worker/audio/UI run started; no thermal-soak pass/fail or release qualification is inferred."
+  },
+  "derivation": {
+    "analyzer_sha256": "44188eb171a5309403380c7a02c3ca96c31e6532923afaf9d5fce870607c9092",
+    "percentile_method": "nearest rank ceil(n*p/100)-1, matching stem_worker.percentiles; consecutive requests are not independent tail samples",
+    "deduplication": "Accepted soak_hop records only, matched to source chunk/started events; continuous population excludes the explicit seek-first delivery.",
+    "thermal_precision": "Row timestamp brackets and capture-conservative brackets are separate. The latter uses preceding below-threshold capture start to following below-threshold row timestamp; neither proves absence of unseen peaks.",
+    "compressed_raw_artifacts": {
+      "events.jsonl": {
+        "raw": {
+          "bytes": 398825,
+          "sha256": "69472c6d271ae0fe5d403ab60eccad4780f91486763973994ed7922002e9b962"
+        },
+        "gzip": {
+          "bytes": 46899,
+          "sha256": "a0baa7e17b34fafb856c5053322a30262ed365391784a0f6870c454ac0a01b32"
+        }
+      },
+      "native-trace.jsonl": {
+        "raw": {
+          "bytes": 7680754,
+          "sha256": "8804d0232642cae805f6873a94a2809846f4576a5015db67dbd46f6f34a0e942"
+        },
+        "gzip": {
+          "bytes": 223401,
+          "sha256": "6997abaa7f020a7105fe191e4f049a20ab6c8f124c3f7df40188bc5e148b5d55"
+        }
+      }
+    }
+  },
+  "secret_scan": {
+    "status": "passed",
+    "command": "gitleaks dir benchmarks-local/m2-graph-phase-2026-10-18/phase-timing-laptop-02 --redact --no-color --max-target-megabytes 10",
+    "scanned_bytes_reported": 8144397,
+    "scope": "Uncompressed local retry-02 result directory, including the 7.68 MB native trace; separate from the commit hook scan."
+  }
+}
