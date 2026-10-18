@@ -30,12 +30,13 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
         float gain = 1.0F;
         std::uint32_t id = 0;
+        std::int64_t deltaFrames = 0;
     };
 
     explicit RenderCore(bool tone = false);
@@ -47,6 +48,9 @@ public:
     // are bounded to 1024 stereo frames and never allocate, block or perform I/O.
     explicit RenderCore(AudioSource source);
     RenderCore(AudioSource deckA, AudioSource deckB);
+    // Configure before the first nonempty render. Zero preserves exact legacy
+    // samples; live output uses 240 frames (5 ms), bounded here to one second.
+    bool configureRamps(std::uint32_t frames) noexcept;
     // Reject incomplete stereo frames without writing or advancing the clock.
     // Mix with double intermediates, preserving headroom above +/-1. Only
     // representation overflow saturates at the finite float limits.
@@ -58,6 +62,13 @@ public:
     // The output frame clock remains monotonic across source seeks and EOF.
     bool seek(std::uint64_t frame) noexcept;
     bool seek(std::size_t deck, std::uint64_t frame) noexcept;
+    // Positional search, not scratch or speed control. Clamp from the owner's
+    // current cursor; preserve play request/cue and cancel temporary preview.
+    bool jog(std::size_t deck, std::int64_t deltaFrames) noexcept;
+    // Caller validates finite PCM and retains its owner. Only an inactive deck
+    // whose decay has completed may swap; no scan, allocation or ownership here.
+    bool replaceSource(std::size_t deck, AudioSource source) noexcept;
+    [[nodiscard]] bool isDeckSilentForReplacement(std::size_t deck) const noexcept;
     bool setPlaying(std::size_t deck, bool playing) noexcept;
     bool setDeckGain(std::size_t deck, float gain) noexcept;
     bool setMasterGain(float gain) noexcept;
@@ -102,17 +113,29 @@ public:
     { return deck < deckCount && decks_[deck].cueSelected; }
     [[nodiscard]] float cueGain() const noexcept { return cueGain_; }
     // Peak/RMS cover the last nonempty block, including silence in its RMS
-    // denominator. Decks measure delivered pre-fader PCM; buses measure actual
+    // denominator. Decks measure pre-fader PCM including transport decay; buses measure actual
     // post-gain float output. abs(sample)>1 counts accumulate for this renderer.
     [[nodiscard]] const Meters& meters() const noexcept { return meters_; }
 
 private:
+    struct GainRamp {
+        double current = 1.0, start = 1.0, target = 1.0;
+        std::uint32_t position = 0;
+        void set(double value, std::uint32_t frames) noexcept;
+        double next(std::uint32_t frames) noexcept;
+        void snap(double value) noexcept;
+    };
     struct Deck {
         AudioSource source{};
         std::uint64_t frame = 0;
         std::uint64_t cueFrame = 0;
         std::uint64_t starvedFrames = 0;
         float gain = 1.0F;
+        GainRamp gainRamp{};
+        GainRamp cueRamp{0.0, 0.0, 0.0, 0};
+        std::array<float, channels> last{}, transitionStart{};
+        std::uint32_t transitionPosition = 0;
+        bool transition = false, available = false;
         bool playing = false;
         bool cueHeld = false;
         bool cuePreviewing = false;
@@ -121,6 +144,10 @@ private:
         bool cueSelected = false;
     };
     void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
+    void transition(Deck& deck) noexcept;
+    void mixDeck(std::size_t index, bool available, float left, float right,
+                 double& masterLeft, double& masterRight, double& cueLeft, double& cueRight,
+                 bool& contributed, bool& cueContributed) noexcept;
     bool renderInternal(std::span<float> master, std::span<float> cue) noexcept;
     bool renderSources(std::span<float> master, std::span<float> cue) noexcept;
     void beginMeters(std::size_t frames) noexcept;
@@ -137,6 +164,8 @@ private:
     std::uint32_t phase_ = 0;
     float masterGain_ = 1.0F;
     float cueGain_ = 1.0F;
+    GainRamp masterRamp_{}, cueRamp_{};
+    std::uint32_t rampFrames_ = 0;
     bool audible_;
 };
 

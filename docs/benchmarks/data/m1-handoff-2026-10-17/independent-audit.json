@@ -1,0 +1,37 @@
+{
+  "schema": "conflux.m1-handoff-independent-audit.v1",
+  "status": "passed",
+  "verification_sha256": "356f732b7756a3fd643fb4773666f68205ff7857b038f0d6bccb79dabb649d1a",
+  "scope": "Offline audit only; no build, host query, Git command or audio execution. Private raw assertions remain software-only observations.",
+  "audit_script_local": {
+    "path": "benchmarks-local/m1-handoff-2026-10-17/package-handoff.py",
+    "bytes": 13989,
+    "sha256": "14dba12697d5993a0495984553443d5d7dba5592227cba2d055e4879a543b370"
+  },
+  "checks": {
+    "copied_artifacts_exact": true,
+    "frozen_source_hashes": true,
+    "existing_binary_hashes": true,
+    "initial_ctest_source_subset_matches": true,
+    "soak_harness_pins_and_offline_scope": true,
+    "quiet_soak_fixture_hashes_geometry_repeat_and_peak": true,
+    "ctest_report_22_pass": true,
+    "private_run_binding_and_82_checks": true,
+    "topologies_and_startup_scope": true,
+    "handoff_arithmetic_and_generation_acks": true,
+    "independent_wav_samples_and_geometry": true,
+    "late_cue_removal_scope": true,
+    "private_cleanup_report_and_raw_dump": true
+  },
+  "source_files_rehashed": 76,
+  "existing_binaries_rehashed": 23,
+  "ctest_pretest_sources_reconciled": 15,
+  "copied_artifacts_rehashed": 13,
+  "harness_pins_rehashed": 4,
+  "planned_soak_fixtures_rehashed_and_read": 2,
+  "local_private_wavs_independently_read": 3,
+  "source_mismatches": [],
+  "binary_mismatches": [],
+  "initial_source_mismatches": [],
+  "harness_mismatches": []
+}

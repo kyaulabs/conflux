@@ -10,9 +10,13 @@
 #include <QQuickWindow>
 #include <QUrl>
 #include <QVariantList>
+#include <QWheelEvent>
 #include <QtTest>
 
 #include <memory>
+#include <algorithm>
+#include <array>
+#include <cmath>
 
 namespace {
 
@@ -38,7 +42,7 @@ public:
     UiEndpoint()
     {
         for (int deck = 0; deck < 2; ++deck)
-            decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"playing", false},
+            decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"playing", false}, {"replacing", false},
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"cueSelected", false}, {"meter", silentMeter()},
@@ -67,6 +71,14 @@ public:
     void setReady(bool value) { ready_ = value; emit stateChanged(); }
     void setError(const QString& value) { error_ = value; emit stateChanged(); }
     void setCueAccepted(bool value) { acceptCue_ = value; }
+    void setJogAccepted(bool value) { acceptJog_ = value; }
+    void setReplacing(int deck, bool value)
+    {
+        auto state = decks_[deck].toMap();
+        state["replacing"] = value;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
     void setMeters(const QVariantMap& master, const QVariantMap& cue, const QVariantMap& deck)
     {
         meters_["master"] = master;
@@ -87,7 +99,7 @@ public:
     }
     void loadState(int deck, double position = 2.0)
     {
-        decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)},
+        decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)}, {"replacing", false},
                                    {"playing", false}, {"gain", .5},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
@@ -124,6 +136,16 @@ public:
     {
         calls.append(QVariantMap{{"action", "seek"}, {"deck", deck}, {"value", seconds}});
         snapshotPosition(deck, seconds);
+    }
+    Q_INVOKABLE bool jogFrames(int deck, qint64 frames)
+    {
+        calls.append(QVariantMap{{"action", "jog"}, {"deck", deck}, {"frames", frames}});
+        if (!acceptJog_)
+            return false;
+        const auto state = decks_[deck].toMap();
+        snapshotPosition(deck, std::clamp(state["positionSeconds"].toDouble() + frames / 48000.0,
+                                         0.0, state["durationSeconds"].toDouble()));
+        return true;
     }
     Q_INVOKABLE void setDeckGain(int deck, double gain)
     {
@@ -205,7 +227,7 @@ private:
     QVariantList decks_;
     QVariantMap meters_, routing_, recording_;
     bool busy_ = false, ready_ = false;
-    bool acceptCue_ = true;
+    bool acceptCue_ = true, acceptJog_ = true;
     QString error_;
     double master_ = .5;
     double cue_ = .5;
@@ -307,8 +329,8 @@ private slots:
         ui_->load();
         QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
         QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
-        for (const auto* name : {"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain",
-                                 "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain",
+        for (const auto* name : {"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck0Jog",
+                                 "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain", "deck1Jog",
                                  "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect",
                                  "deck0Meter", "deck1Meter", "masterMeter", "cueMeter", "audioSettingsOpen", "audioError"})
             QVERIFY2(ui_->item(name), name);
@@ -323,8 +345,8 @@ private slots:
 
     void unloadedAndBusyControls()
     {
-        for (const auto* name : {"deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck1Cue", "deck1Play", "deck1Seek",
-                                 "deck1Gain", "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect"})
+        for (const auto* name : {"deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck0Jog", "deck1Cue", "deck1Play", "deck1Seek",
+                                 "deck1Gain", "deck1Jog", "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect"})
             QVERIFY2(!ui_->item(name)->isEnabled(), name);
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Play")));
         for (const auto* name : {"deck0Cue", "deck1Cue"})
@@ -380,6 +402,117 @@ private slots:
             QVERIFY(!call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Play"));
         }
+    }
+
+    void jogKeyboardAndWheelUseRelativeRenderCommands()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto name = QString("deck%1Jog").arg(deck).toUtf8();
+            auto* jog = ui_->item(name.constData());
+            QVERIFY(jog->isEnabled());
+            jog->forceActiveFocus();
+            QTRY_VERIFY(jog->hasActiveFocus());
+            ui_->endpoint.calls.clear();
+            QTest::keyClick(ui_->window, Qt::Key_Right);
+            QTest::keyClick(ui_->window, Qt::Key_Left);
+            QTest::keyClick(ui_->window, Qt::Key_Up, Qt::ShiftModifier);
+            QTest::keyClick(ui_->window, Qt::Key_Down, Qt::ShiftModifier);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+            const std::array<qint64, 4> expected{480, -480, 48000, -48000};
+            for (int index = 0; index < 4; ++index) {
+                const auto call = ui_->endpoint.calls[index].toMap();
+                QCOMPARE(call["action"].toString(), QString("jog"));
+                QCOMPARE(call["deck"].toInt(), deck);
+                QCOMPARE(call["frames"].toLongLong(), expected[index]);
+            }
+            ui_->endpoint.snapshotPosition(deck, 7.0);
+            QCOMPARE(ui_->endpoint.calls.size(), 4); // Telemetry never submits a seek.
+            const auto point = ui_->center(jog);
+            auto wheel = [&](QPoint pixelDelta, QPoint angleDelta, Qt::KeyboardModifiers modifiers) {
+                QWheelEvent event(QPointF(point), QPointF(ui_->window->mapToGlobal(point)),
+                                  pixelDelta, angleDelta, Qt::NoButton, modifiers, Qt::NoScrollPhase, false);
+                QGuiApplication::sendEvent(ui_->window, &event);
+                QCoreApplication::processEvents();
+            };
+            wheel({}, {0, 120}, Qt::NoModifier);
+            wheel({}, {0, -120}, Qt::ShiftModifier);
+            wheel({0, 20}, {}, Qt::NoModifier);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 7);
+            QCOMPARE(ui_->endpoint.calls[4].toMap()["frames"].toLongLong(), qint64(480));
+            QCOMPARE(ui_->endpoint.calls[5].toMap()["frames"].toLongLong(), qint64(-48000));
+            QCOMPARE(ui_->endpoint.calls[6].toMap()["frames"].toLongLong(), qint64(240));
+            QVERIFY(!ui_->endpoint.decks()[deck].toMap()["playing"].toBool());
+            QTest::keyClick(ui_->window, Qt::Key_Right, Qt::ControlModifier);
+            QCOMPARE(ui_->endpoint.calls.size(), 7);
+        }
+    }
+
+    void jogDragWrapsAngleAndStopsAfterRejectedMotion()
+    {
+        ui_->endpoint.loadState(0, 5.0);
+        ui_->endpoint.setReady(true);
+        auto* jog = ui_->item("deck0Jog");
+        auto point = [jog](double angle) {
+            const auto radius = jog->width() * .35;
+            return jog->mapToScene(QPointF(jog->width() / 2 + std::cos(angle) * radius,
+                                          jog->height() / 2 + std::sin(angle) * radius)).toPoint();
+        };
+        constexpr double pi = 3.14159265358979323846;
+        auto totalFrames = [&] {
+            qint64 frames = 0;
+            for (const auto& item : ui_->endpoint.calls) {
+                const auto call = item.toMap();
+                if (call["action"].toString() == "jog") frames += call["frames"].toLongLong();
+            }
+            return frames;
+        };
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(-pi / 2));
+        QTest::mouseMove(ui_->window, point(0));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QTRY_VERIFY(!ui_->endpoint.calls.isEmpty());
+        QVERIFY(std::abs(totalFrames() - 24000) < 500);
+        ui_->endpoint.calls.clear();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(pi - .15));
+        QTest::mouseMove(ui_->window, point(-pi + .15));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(-pi + .15));
+        QTRY_VERIFY(!ui_->endpoint.calls.isEmpty());
+        QVERIFY(totalFrames() > 3000 && totalFrames() < 6000); // Crosses atan2's seam once.
+        ui_->endpoint.calls.clear();
+        ui_->endpoint.setJogAccepted(false);
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QTest::mouseMove(ui_->window, point(.3));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        ui_->endpoint.setJogAccepted(true);
+        QTest::mouseMove(ui_->window, point(.6));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(.6));
+        QCOMPARE(ui_->endpoint.calls.size(), 1); // A rejected drag needs a fresh press.
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jog));
+        QTest::mouseMove(ui_->window, point(0));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QCOMPARE(ui_->endpoint.calls.size(), 1); // Leaving the dead zone never jumps.
+    }
+
+    void replacementGatesOnlyItsDeckAndCancelsJogGesture()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        auto* jog = ui_->item("deck0Jog");
+        const auto start = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, start);
+        ui_->endpoint.setReplacing(0, true);
+        for (const auto* name : {"deck0Jog", "deck0Play", "deck0Seek", "deck0Gain", "deck0Cue", "deck0CueSelect"})
+            QTRY_VERIFY2(!ui_->item(name)->isEnabled(), name);
+        for (const auto* name : {"deck1Jog", "deck1Play", "deck1Gain", "deck1CueSelect", "masterGain", "cueGain"})
+            QVERIFY2(ui_->item(name)->isEnabled(), name);
+        ui_->endpoint.setReplacing(0, false);
+        QTRY_VERIFY(jog->isEnabled());
+        QTest::mouseMove(ui_->window, ui_->center(jog));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jog));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
     }
 
     void pointerCueHoldRoutesBothDecks()

@@ -11,7 +11,7 @@ Item {
     required property int deckIndex
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
-    readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady
+    readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
     readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
     readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
@@ -358,13 +358,39 @@ Item {
 
     Item {
         id: jog
+        objectName: "deck" + surface.deckIndex + "Jog"
         x: (surface.width - width) / 2
         y: surface.jogTop
         width: surface.jogDiameter
         height: width
-        Accessible.role: Accessible.StaticText
-        Accessible.name: surface.deckName + " position display, " + surface.timeText(surface.deck.positionSeconds) + " of " + surface.timeText(surface.deck.durationSeconds)
-        Accessible.description: "Use the overview slider to seek. Jog manipulation is not implemented."
+        enabled: surface.canControl
+        activeFocusOnTab: true
+        readonly property real value: Number(surface.deck.positionSeconds) || 0
+        readonly property real minimumValue: 0
+        readonly property real maximumValue: Number(surface.deck.durationSeconds) || 0
+        readonly property real stepSize: 0.01
+        Accessible.role: Accessible.Dial
+        Accessible.focusable: true
+        Accessible.name: surface.deckName + " jog search"
+        Accessible.description: "Search the track while keeping its play or pause state. Drag clockwise to move forward, two seconds per turn. Arrow keys or wheel move 10 milliseconds; hold Shift for one second."
+        Accessible.onIncreaseAction: jog.step(480)
+        Accessible.onDecreaseAction: jog.step(-480)
+        function step(frames) {
+            return surface.canControl && surface.controller.jogFrames(surface.deckIndex, frames)
+        }
+        Keys.onPressed: event => {
+            if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
+                return
+            let direction = 0
+            if (event.key === Qt.Key_Right || event.key === Qt.Key_Up)
+                direction = 1
+            else if (event.key === Qt.Key_Left || event.key === Qt.Key_Down)
+                direction = -1
+            if (direction) {
+                jog.step(direction * ((event.modifiers & Qt.ShiftModifier) ? 48000 : 480))
+                event.accepted = true
+            }
+        }
         Rectangle {
             anchors.fill: parent
             radius: width / 2
@@ -376,6 +402,13 @@ Item {
                 GradientStop { position: 0.72; color: Brand.ConfluxTheme.dark ? "#14191F" : "#9AA1A0" }
                 GradientStop { position: 1; color: Brand.ConfluxTheme.dark ? "#68737E" : "#DBDED8" }
             }
+        }
+        Rectangle {
+            anchors.fill: parent
+            radius: width / 2
+            color: "transparent"
+            border.width: 3
+            border.color: jog.activeFocus ? Brand.ConfluxTheme.primary : "transparent"
         }
         Canvas {
             id: knurl
@@ -426,6 +459,78 @@ Item {
                 Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.transportStatus; color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
             }
         }
+        MouseArea {
+            id: jogInput
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton
+            preventStealing: true
+            property bool dragging: false
+            property bool angleValid: false
+            property real previousAngle: 0
+            property real fractionalFrames: 0
+            function radiusAt(x, y) { return Math.hypot(x - width / 2, y - height / 2) }
+            function resetDrag() {
+                dragging = false
+                angleValid = false
+                fractionalFrames = 0
+            }
+            onPressed: mouse => {
+                if (radiusAt(mouse.x, mouse.y) > width / 2) {
+                    mouse.accepted = false
+                    return
+                }
+                jog.forceActiveFocus(Qt.MouseFocusReason)
+                dragging = true
+                fractionalFrames = 0
+                angleValid = radiusAt(mouse.x, mouse.y) >= width * 0.15
+                previousAngle = Math.atan2(mouse.y - height / 2, mouse.x - width / 2)
+            }
+            onPositionChanged: mouse => {
+                if (!pressed || !dragging)
+                    return
+                if (radiusAt(mouse.x, mouse.y) < width * 0.15) {
+                    angleValid = false
+                    return
+                }
+                const next = Math.atan2(mouse.y - height / 2, mouse.x - width / 2)
+                let angle = next - previousAngle
+                previousAngle = next
+                if (!angleValid) {
+                    angleValid = true
+                    return
+                }
+                if (angle > Math.PI)
+                    angle -= 2 * Math.PI
+                else if (angle < -Math.PI)
+                    angle += 2 * Math.PI
+                fractionalFrames += angle * 96000 / (2 * Math.PI)
+                const frames = Math.trunc(fractionalFrames)
+                fractionalFrames -= frames
+                if (frames && !jog.step(frames))
+                    resetDrag()
+            }
+            onReleased: resetDrag()
+            onCanceled: resetDrag()
+            onEnabledChanged: { if (!enabled) resetDrag() }
+            onVisibleChanged: { if (!visible) resetDrag() }
+            onWheel: wheel => {
+                const steps = wheel.pixelDelta.y ? wheel.pixelDelta.y / 40 : wheel.angleDelta.y / 120
+                if (!steps) {
+                    wheel.accepted = false
+                    return
+                }
+                jog.forceActiveFocus(Qt.MouseFocusReason)
+                const frames = Math.round(steps * ((wheel.modifiers & Qt.ShiftModifier) ? 48000 : 480))
+                if (frames)
+                    jog.step(frames)
+                wheel.accepted = true
+            }
+        }
+        onActiveFocusChanged: { if (!activeFocus) jogInput.resetDrag() }
+        ToolTip.visible: jogInput.containsMouse && !jogInput.pressed
+        ToolTip.delay: 650
+        ToolTip.text: "JOG SEARCH · Drag: 2 s per turn · Arrows/wheel: 10 ms · Shift: 1 s"
     }
 
     Column {

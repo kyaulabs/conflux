@@ -14,13 +14,14 @@
 #include <QVariantMap>
 #include <array>
 #include <memory>
+#include <optional>
 #include <stop_token>
 #include <vector>
 
 namespace conflux {
 
-// GUI-thread owner. Decoding uses one background job; PCM replacement happens
-// only after LiveSession::stop has quiesced the borrowed spans.
+// GUI-thread owner. One preparation job feeds a bounded callback-boundary
+// source handoff; retired readers are joined outside the GUI/render threads.
 class DeckController final : public QObject {
     Q_OBJECT
     Q_PROPERTY(QVariantList decks READ decks NOTIFY stateChanged)
@@ -47,6 +48,7 @@ public:
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url);
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
+    Q_INVOKABLE bool jogFrames(int deck, qint64 deltaFrames);
     Q_INVOKABLE void setDeckGain(int deck, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
     Q_INVOKABLE void setCueGain(double gain);
@@ -77,10 +79,14 @@ public:
 signals:
     void stateChanged();
 private:
-    struct LoadResult {
+    struct PreparedLoad {
         std::shared_ptr<const audio::PreparedAudio> audio;
-        QString error;
         QVariantList waveform;
+        std::unique_ptr<audio::PcmReadAhead> reader;
+    };
+    struct LoadResult {
+        std::shared_ptr<PreparedLoad> prepared;
+        QString error;
     };
     struct InstallResult {
         std::unique_ptr<audio::LiveSession> session;
@@ -97,6 +103,12 @@ private:
     void loaded();
     void installed();
     void installSession();
+    void publishReplacement();
+    void collectReplacement();
+    void settleReplacement(bool stopped = false);
+    void retireReader(std::unique_ptr<audio::PcmReadAhead> reader,
+                      std::shared_ptr<const audio::PreparedAudio> clip = {});
+    void retired();
     void recordingStarted();
     void recordingFinished();
     void pollRecording();
@@ -111,6 +123,12 @@ private:
     std::array<QString, 2> names_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
+    std::array<bool, 2> replacing_{};
+    std::shared_ptr<PreparedLoad> pendingLoad_;
+    std::unique_ptr<audio::PcmReadAhead> pendingRetired_;
+    std::optional<audio::LiveSession::State> replacementSnapshot_;
+    bool replacementPublished_ = false, replacementAcknowledged_ = false;
+    std::uint64_t nextSourceGeneration_ = 0, pendingGeneration_ = 0;
     std::unique_ptr<audio::LiveSession> session_;
     std::unique_ptr<audio::LiveSession> discovery_;
     audio::RoutingConfig routingConfig_;
@@ -120,6 +138,7 @@ private:
     std::vector<audio::CallbackTiming::Summary> completedTiming_;
     QFutureWatcher<LoadResult> loader_;
     QFutureWatcher<std::shared_ptr<InstallResult>> installer_;
+    QFutureWatcher<void> retirer_;
     QFutureWatcher<RecordingStart> recordingStarter_;
     QFutureWatcher<RecordingCompletion> recordingFinalizer_;
     std::shared_ptr<audio::StereoRecorder> recorder_;

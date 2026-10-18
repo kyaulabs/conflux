@@ -10,6 +10,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -28,6 +29,8 @@
 using namespace std::chrono_literals;
 using conflux::audio::CueRouteStatus;
 using conflux::audio::LiveSession;
+using conflux::audio::PcmReadAhead;
+using conflux::audio::RenderCore;
 using conflux::audio::RoutePair;
 using conflux::audio::RoutingConfig;
 using conflux::audio::RoutingSnapshot;
@@ -36,6 +39,7 @@ using conflux::audio::StereoRecorder;
 namespace {
 constexpr std::array<float, 2> masterValue{.0390625F, -.05859375F};
 constexpr std::array<float, 2> cueValue{.046875F, .0234375F};
+constexpr std::uint64_t startupWarmupFrames = 1024;
 std::vector<std::string> checks;
 std::filesystem::path diagnosticDirectory;
 void require(bool condition, const std::string& description)
@@ -166,20 +170,22 @@ public:
     std::uint64_t zerosAfterSignal(std::size_t channel) const { return zerosAfterSignal_[channel].load(); }
     std::uint64_t maxSignalCallbackGapNs(std::size_t channel) const { return maxSignalGapNs_[channel].load(); }
     std::uint64_t wrong() const { return wrong_.load(); }
+    void validateSamples(bool armed) { validationArmed_.store(armed, std::memory_order_release); }
 private:
     static void process(void* data, spa_io_position* position) noexcept
     {
         auto& self = *static_cast<Sink*>(data);
         if (!position || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
+        const bool validate = self.validationArmed_.load(std::memory_order_acquire);
         for (std::size_t channel = 0; channel < self.channels_; ++channel) {
             const auto* samples = static_cast<const float*>(pw_filter_get_dsp_buffer(self.ports_[channel], frames));
-            if (!samples) continue;
+            if (!samples || !validate) continue;
             std::uint64_t nonzero = 0, wrong = 0, zeros = 0;
             bool signalObserved = self.received_[channel].load(std::memory_order_relaxed) != 0;
             for (std::size_t frame = 0; frame < frames; ++frame) {
-                // Graph startup and fail-closed output legitimately contain
-                // zeros; every delivered nonzero sample must be exact.
+                // Constant-sample validation is armed only after startup
+                // settles. Fail-closed output can legitimately contain zeros.
                 if (samples[frame] == 0.F) { zeros += signalObserved; continue; }
                 signalObserved = true;
                 ++nonzero;
@@ -211,6 +217,7 @@ private:
     std::array<std::atomic<std::uint64_t>, 4> received_{};
     std::array<std::atomic<std::uint64_t>, 4> zerosAfterSignal_{}, lastSignalNs_{}, maxSignalGapNs_{};
     std::atomic<std::uint64_t> wrong_{0};
+    std::atomic<bool> validationArmed_{false};
     pw_thread_loop* loop_ = nullptr;
     pw_filter* filter_ = nullptr;
     bool started_ = false;
@@ -252,6 +259,23 @@ void awaitReady(LiveSession& session)
         throw;
     }
 }
+std::uint64_t awaitSteadySamples(LiveSession& session)
+{
+    awaitReady(session);
+    LiveSession::State state{};
+    try {
+        wait([&] {
+            const auto error = session.error();
+            if (!error.empty()) throw std::runtime_error(error);
+            while (session.pollState(state)) {}
+            return session.ready() && state.outputFrame >= startupWarmupFrames;
+        }, "Private startup fade did not reach the steady validation window");
+    } catch (const std::exception& error) {
+        failureDiagnostic(session, "startup-warmup", error.what());
+        throw;
+    }
+    return state.outputFrame;
+}
 void verifyRecording(const std::filesystem::path& path, std::uint64_t frames)
 {
     SF_INFO info{};
@@ -278,6 +302,7 @@ struct ScenarioResult {
     std::uint64_t frames = 0, callbacks = 0, recorded = 0;
     std::uint64_t graphDiscontinuities = 0, recoveryFlags = 0;
     bool recoveryFlagsAvailable = false;
+    std::array<std::uint64_t, 4> warmupFrames{};
 };
 ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevices,
                            std::span<const float> a, std::span<const float> b)
@@ -294,20 +319,23 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
     const auto path = directory / (label + ".wav");
     auto recorder = std::make_unique<StereoRecorder>(path);
     LiveSession session(a, b, initial);
-    require(session.requestRecorder(recorder.get()), label + ": initial recorder attachment accepted");
     std::string error;
     const auto sessionStarted = std::chrono::steady_clock::now();
     require(session.start(error, routing), label + ": explicit session connects");
-    awaitReady(session);
+    std::array<std::uint64_t, 4> warmupFrames{};
+    warmupFrames[0] = awaitSteadySamples(session);
+    master.validateSamples(true);
+    if (cue) cue->validateSamples(true);
+    require(session.requestRecorder(recorder.get()), label + ": steady recorder attachment accepted after startup warmup");
     wait([&] {
         if (!session.error().empty()) throw std::runtime_error(session.error());
         return master.received(0) >= 4096 && master.received(1) >= 4096 &&
             (cue ? cue->received(0) >= 4096 && cue->received(1) >= 4096 :
                    master.received(2) >= 4096 && master.received(3) >= 4096) &&
-            !session.recorderChangePending() && session.recorderAttached();
+            !session.recorderChangePending() && session.recorderAttached() && recorder->acceptedFrames() >= 4096;
     }, "Private master/cue samples or recorder acknowledgement timed out");
     require(master.wrong() == 0 && (!cue || cue->wrong() == 0),
-            label + ": every nonzero master/cue channel sample matches independent asymmetric sums");
+            label + ": every validated steady nonzero master/cue sample matches independent asymmetric sums");
     require(session.requestRecorder(nullptr), label + ": recorder detach accepted");
     wait([&] { return !session.recorderChangePending() && !session.recorderAttached(); }, "Recorder detach timed out");
     const auto recorded = recorder->acceptedFrames();
@@ -446,6 +474,8 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
         }
         require(true, label + ": cue removal fails closed and master recovers with exact advancing samples");
     }
+    master.validateSamples(false);
+    if (cue) cue->validateSamples(false);
     session.stop();
     const auto final = session.stoppedState();
     require(final.outputFrame > 0 && final.sourceFrame[0] == final.outputFrame && final.sourceFrame[1] == final.outputFrame,
@@ -457,6 +487,7 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
 
     // Separate sessions isolate each failure policy. No invalid cue selection
     // may redirect cue into the still-valid master pair.
+    std::size_t warmupIndex = 1;
     for (const auto mode : {"disabled", "overlap", "missing"}) {
         RoutingConfig config{routing.master, {}};
         CueRouteStatus expected = CueRouteStatus::Disabled;
@@ -466,16 +497,219 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
         }
         LiveSession rejectedCue(a, b, initial);
         require(rejectedCue.start(error, config), label + ": " + mode + " cue session connects");
-        awaitReady(rejectedCue);
+        warmupFrames[warmupIndex++] = awaitSteadySamples(rejectedCue);
         const auto status = rejectedCue.routingSnapshot();
         require(!status.cueReady && status.cueStatus == expected && rejectedCue.error().empty(),
                 label + ": " + mode + " cue stays disabled with valid independent master");
+        const std::array receivedBefore{master.received(0), master.received(1)};
+        master.validateSamples(true);
         std::this_thread::sleep_for(30ms);
-        require(!master.wrong(), label + ": " + mode + " cue cannot contaminate master samples");
+        require(!master.wrong() && master.received(0) > receivedBefore[0] && master.received(1) > receivedBefore[1],
+                label + ": " + mode + " cue cannot contaminate fresh steady master samples");
+        master.validateSamples(false);
         rejectedCue.stop();
     }
     return {label, final.outputFrame, final.callbacks, recorded, timing.counters.graphDiscontinuities,
-            timing.counters.xrunRecoveryFlags, timing.capabilities.xrunRecoveryFlag != 0};
+            timing.counters.xrunRecoveryFlags, timing.capabilities.xrunRecoveryFlag != 0, warmupFrames};
+}
+
+struct HandoffStep {
+    std::uint64_t generation = 0, beforeFrame = 0, ackFrame = 0, afterFrame = 0;
+    std::uint64_t retiredSourceFrame = 0, recordedBefore = 0, recordedAfter = 0;
+    bool retiredReaderFreed = false;
+};
+struct HandoffResult {
+    std::uint64_t warmupFrames = 0, frames = 0, callbacks = 0, recorded = 0;
+    std::array<HandoffStep, 2> steps{};
+    std::array<std::uint64_t, 2> zeroSamples{}, maxSignalGapNs{};
+};
+void writeHandoff(std::ostream& output, const HandoffResult& result, bool passed, std::string_view error = {})
+{
+    output << "{\"passed\":" << (passed ? "true" : "false") << ",\"error\":" << json(error)
+           << ",\"scope\":\"Two bounded callback source handoffs on one private virtual graph; muted target, exact audible peer, master recording attached continuously. Startup fade excluded after at least 1024 output frames. Hardware and sustained qualification remain separate.\""
+           << ",\"warmup_output_frames\":" << result.warmupFrames << ",\"output_frames\":" << result.frames
+           << ",\"callbacks\":" << result.callbacks << ",\"recorded_frames\":" << result.recorded
+           << ",\"zero_samples_after_signal\":[" << result.zeroSamples[0] << ',' << result.zeroSamples[1]
+           << "],\"maximum_virtual_receiver_signal_gap_ns\":[" << result.maxSignalGapNs[0] << ',' << result.maxSignalGapNs[1]
+           << "],\"steps\":[";
+    for (std::size_t index = 0; index < result.steps.size(); ++index) {
+        if (index) output << ',';
+        const auto& step = result.steps[index];
+        output << "{\"generation\":" << step.generation << ",\"before_output_frame\":" << step.beforeFrame
+               << ",\"callback_end_ack_output_frame\":" << step.ackFrame << ",\"after_output_frame\":" << step.afterFrame
+               << ",\"retired_source_frame\":" << step.retiredSourceFrame
+               << ",\"retired_reader_freed_while_running\":" << (step.retiredReaderFreed ? "true" : "false")
+               << ",\"recorded_before\":" << step.recordedBefore << ",\"recorded_after\":" << step.recordedAfter << '}';
+    }
+    output << "]}";
+}
+
+std::unique_ptr<PcmReadAhead> primedSyntheticSource(std::uint64_t frames, float left, float right)
+{
+    const auto closeFile = [](std::FILE* file) { if (file) (void)std::fclose(file); };
+    const auto file = std::unique_ptr<std::FILE, decltype(closeFile)>(std::tmpfile(), closeFile);
+    if (!file) throw std::runtime_error("Cannot create anonymous private handoff PCM");
+    std::array<float, 8192> block{};
+    for (std::size_t sample = 0; sample < block.size(); sample += 2) {
+        block[sample] = left; block[sample + 1] = right;
+    }
+    for (std::uint64_t first = 0; first < frames;) {
+        const auto count = std::size_t(std::min<std::uint64_t>(block.size() / 2, frames - first));
+        if (std::fwrite(block.data(), sizeof(float), count * 2, file.get()) != count * 2)
+            throw std::runtime_error("Cannot write anonymous private handoff PCM");
+        first += count;
+    }
+    if (std::fflush(file.get())) throw std::runtime_error("Cannot flush anonymous private handoff PCM");
+    auto reader = std::make_unique<PcmReadAhead>(fileno(file.get()), frames);
+    if (!reader->prime(0, 2s)) throw std::runtime_error("Cannot prime private handoff source: " + reader->error());
+    return reader; // The reader owns its duplicate; no named spool is retained.
+}
+
+HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span<const float> oldTarget)
+{
+    HandoffResult result;
+    Sink master("conflux-routing-check-source-handoff-master", 2);
+    const auto snapshot = discover(2);
+    const RoutingConfig routing{pair(snapshot, master.name(), 0), {}};
+    std::vector<float> peer(oldTarget.size());
+    for (std::size_t sample = 0; sample < peer.size(); sample += 2) {
+        peer[sample] = masterValue[0]; peer[sample + 1] = masterValue[1];
+    }
+    const auto path = directory / "source-handoff.wav";
+    auto recorder = std::make_unique<StereoRecorder>(path);
+    LiveSession::InitialState initial;
+    initial.playing = {true, true}; initial.deckGain = {0.F, 1.F}; initial.masterGain = 1.F;
+    initial.cueFrame[0] = 96;
+    LiveSession session(oldTarget, peer, initial);
+    auto save = [&](bool passed, std::string_view error = {}) {
+        std::ofstream output(diagnosticDirectory / "source-handoff.json");
+        writeHandoff(output, result, passed, error);
+        output << '\n';
+    };
+    try {
+        std::string error;
+        require(session.start(error, routing), "source-handoff: one private session connects with cue disabled");
+        result.warmupFrames = awaitSteadySamples(session);
+        master.validateSamples(true);
+        require(session.requestRecorder(recorder.get()), "source-handoff: recorder attachment accepted after startup warmup");
+        LiveSession::State state{};
+        auto observe = [&] {
+            const auto error = session.error();
+            if (!error.empty()) throw std::runtime_error(error);
+            while (session.pollState(state)) {}
+            if (master.wrong()) throw std::runtime_error("Source handoff changed the exact audible peer samples");
+        };
+        wait([&] {
+            observe();
+            return !session.recorderChangePending() && session.recorderAttached() &&
+                recorder->acceptedFrames() >= 2048 && master.received(0) >= 2048 && master.received(1) >= 2048;
+        }, "Handoff recorder/peer did not enter steady playback");
+        std::uint32_t commandId = 1000;
+        for (std::size_t index = 0; index < result.steps.size(); ++index) {
+            const auto generation = std::uint64_t(index + 1);
+            if (index) {
+                // The installed deck starts at gain1, paused. Set its gain to0
+                // and let that control ramp settle BEFORE playing its reader.
+                require(session.submit({RenderCore::Command::Type::DeckGain, 0, 0, 0.F, ++commandId}),
+                    "source-handoff: installed target accepts mute while paused");
+                wait([&] { observe(); return state.lastCommandId == commandId && state.deckGain[0] == 0.F; },
+                    "Installed target mute was not applied");
+                const auto mutedAt = state.outputFrame;
+                wait([&] { observe(); return state.outputFrame >= mutedAt + startupWarmupFrames; },
+                    "Installed target gain ramp did not settle");
+                require(session.submit({RenderCore::Command::Type::Play, 0, 0, 1.F, ++commandId}),
+                    "source-handoff: first installed reader starts while muted");
+                wait([&] { observe(); return state.sourceGeneration[0] == 1 && state.sourceFrame[0] >= 4096; },
+                    "First installed reader did not actually deliver frames before replacement");
+                require(!state.buffering[0] && !state.starvedFrames[0] && !state.sourceReadError[0] &&
+                        !state.sourceReadErrorObserved[0], "source-handoff: first installed reader runs without starvation/read failure");
+            }
+            auto candidate = primedSyntheticSource(oldTarget.size() / 2, index ? -.3125F : .1875F, index ? .4375F : -.375F);
+            auto* const identity = candidate.get();
+            require(!session.requestSourceReplacement(index ? 0 : 2, candidate, index ? 1 : generation) &&
+                    candidate.get() == identity, "source-handoff: rejected deck/generation request retains candidate ownership");
+            require(session.submit({RenderCore::Command::Type::CueRelease, 0, 0, 1.F, ++commandId}),
+                "source-handoff: old target CUE release enters FIFO before source publication");
+            observe();
+            auto& step = result.steps[index];
+            step.generation = generation; step.beforeFrame = state.outputFrame;
+            step.recordedBefore = recorder->acceptedFrames();
+            const auto oldCursor = state.sourceFrame[0];
+            const std::array receivedBefore{master.received(0), master.received(1)};
+            require(session.requestSourceReplacement(0, candidate, generation) && !candidate,
+                "source-handoff: accepted publication consumes only the candidate owner");
+            require(!session.submit({RenderCore::Command::Type::Play, 0, 0, 1.F, ++commandId}),
+                "source-handoff: target transport is rejected until its handoff acknowledgement is collected");
+            require(session.submit({RenderCore::Command::Type::Play, 1, 0, 1.F, ++commandId}) &&
+                    session.submit({RenderCore::Command::Type::MasterGain, 0, 0, 1.F, ++commandId}),
+                "source-handoff: peer and global commands remain accepted while target is pending");
+            bool acknowledged = false;
+            wait([&] {
+                observe();
+                if (!acknowledged) {
+                    auto completion = session.takeSourceReplacementResult();
+                    if (completion) {
+                        require(completion->completion.installed && completion->completion.deck == 0 &&
+                                completion->completion.generation == generation &&
+                                completion->completion.outputFrame > step.beforeFrame &&
+                                completion->completion.retired.sourceFrame >= oldCursor &&
+                                !completion->completion.retired.starvedFrames && !completion->completion.retired.readFailed,
+                            "source-handoff: callback-end acknowledgement retains exact generation/boundary and clean retired state");
+                        require(bool(completion->retiredReader) == bool(index),
+                            "source-handoff: only the second swap retires the first installed file reader");
+                        step.ackFrame = completion->completion.outputFrame;
+                        step.retiredSourceFrame = completion->completion.retired.sourceFrame;
+                        completion->retiredReader.reset(); // free immediately while the graph keeps running
+                        step.retiredReaderFreed = index != 0;
+                        acknowledged = true;
+                    }
+                }
+                return acknowledged && state.sourceGeneration[0] == generation &&
+                    master.received(0) >= receivedBefore[0] + 1024 && master.received(1) >= receivedBefore[1] + 1024 &&
+                    recorder->acceptedFrames() >= step.recordedBefore + 1024;
+            }, "Source handoff/continuous peer or recorder progress timed out");
+            require(!session.sourceReplacementPending() && session.ready() && session.recorderAttached() &&
+                    state.outputFrame >= step.ackFrame &&
+                    !session.recorderChangePending() && state.sourceFrame[0] == 0 && !state.playing[0] &&
+                    state.cueFrame[0] == 0 && !state.cueHeld[0] && !state.cuePreview[0] && !state.cueSelected[0] &&
+                    state.deckGain[0] == 1.F && state.sourceFrame[1] == state.outputFrame && state.playing[1] &&
+                    state.deckGain[1] == 1.F && state.masterGain == 1.F && !state.sourceReadError[0] &&
+                    !state.sourceReadErrorObserved[0] && !state.starvedFrames[0],
+                "source-handoff: target reset and peer/output/recording state remain coherent on one live session");
+            step.afterFrame = state.outputFrame; step.recordedAfter = recorder->acceptedFrames();
+        }
+        require(session.requestRecorder(nullptr), "source-handoff: recorder detaches after both live source swaps");
+        wait([&] { observe(); return !session.recorderChangePending() && !session.recorderAttached(); },
+            "Handoff recorder detach timed out");
+        result.recorded = recorder->acceptedFrames();
+        std::this_thread::sleep_for(40ms);
+        require(recorder->acceptedFrames() == result.recorded, "source-handoff: acknowledged detach stops all later recorder writes");
+        recorder->stop();
+        require(!recorder->failed() && !recorder->overflowCount() && recorder->writtenFrames() == result.recorded,
+            "source-handoff: continuous recording drains without overflow/storage failure");
+        verifyRecording(path, result.recorded);
+        observe();
+        result.zeroSamples = {master.zerosAfterSignal(0), master.zerosAfterSignal(1)};
+        result.maxSignalGapNs = {master.maxSignalCallbackGapNs(0), master.maxSignalCallbackGapNs(1)};
+        require(!master.wrong() && !result.zeroSamples[0] && !result.zeroSamples[1],
+            "source-handoff: all validated peer samples remain exact and nonzero through both replacements");
+        master.validateSamples(false);
+        session.stop();
+        const auto final = session.stoppedState();
+        result.frames = final.outputFrame; result.callbacks = final.callbacks;
+        require(final.sourceFrame[1] == final.outputFrame && final.sourceGeneration[0] == 2 &&
+                !final.invalidBuffers && !final.rejected && !final.deadlineMisses &&
+                !final.sourceReadErrorObserved[0] && !final.sourceReadErrorObserved[1] &&
+                !final.sourceReadError[0] && !final.sourceReadError[1] &&
+                !final.starvedFrames[0] && !final.starvedFrames[1],
+            "source-handoff: one peer/output clock advances without invalid buffers, deadline misses or source failures");
+        save(true);
+        return result;
+    } catch (const std::exception& error) {
+        save(false, error.what());
+        failureDiagnostic(session, "source-handoff", error.what());
+        throw;
+    }
 }
 
 void validatePrivateEnvironment(const std::filesystem::path& runtime)
@@ -512,7 +746,11 @@ int main(int argc, char** argv)
         }
         results.push_back(runTopology(output, false, a, b));
         results.push_back(runTopology(output, true, a, b));
-        std::cout << "{\"passed\":true,\"scope\":\"Private virtual PipeWire graph only; no physical routing, latency or sustained qualification\",\"scenarios\":[";
+        const auto handoff = runSourceHandoff(output, a);
+        std::cout << "{\"passed\":true,\"scope\":\"Private virtual PipeWire graph only; no physical routing, latency or sustained qualification\""
+                  << ",\"startup_sample_scope\":\"Receiver constant-sample validation and recorder attachment start only after ready and at least 1024 output frames. Startup fade samples are excluded; analytic ramp correctness is covered by core tests, not click-free qualification here. Receiver counters are never reset.\""
+                  << ",\"startup_warmup_min_output_frames\":" << startupWarmupFrames
+                  << ",\"startup_warmup_order\":[\"main\",\"disabled\",\"overlap\",\"missing\"],\"scenarios\":[";
         for (std::size_t i = 0; i < results.size(); ++i) {
             if (i) std::cout << ',';
             const auto& value = results[i];
@@ -520,9 +758,17 @@ int main(int argc, char** argv)
                       << ",\"callbacks\":" << value.callbacks << ",\"recorded_frames\":" << value.recorded
                       << ",\"driver_position_discontinuities\":" << value.graphDiscontinuities
                       << ",\"driver_recovery_flags\":" << value.recoveryFlags
-                      << ",\"driver_recovery_flags_available\":" << (value.recoveryFlagsAvailable ? "true" : "false") << '}';
+                      << ",\"driver_recovery_flags_available\":" << (value.recoveryFlagsAvailable ? "true" : "false")
+                      << ",\"startup_warmup_observed_output_frames\":[";
+            for (std::size_t index = 0; index < value.warmupFrames.size(); ++index) {
+                if (index) std::cout << ',';
+                std::cout << value.warmupFrames[index];
+            }
+            std::cout << "]}";
         }
-        std::cout << "],\"checks\":[";
+        std::cout << "],\"source_handoff\":";
+        writeHandoff(std::cout, handoff, true);
+        std::cout << ",\"checks\":[";
         for (std::size_t i = 0; i < checks.size(); ++i) { if (i) std::cout << ','; std::cout << json(checks[i]); }
         std::cout << "]}\n";
         return 0;

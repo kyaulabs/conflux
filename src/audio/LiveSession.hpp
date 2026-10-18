@@ -4,10 +4,13 @@
 #include "audio/RenderCore.hpp"
 #include "audio/AudioRouting.hpp"
 #include "audio/CallbackTiming.hpp"
+#include "audio/PcmReadAhead.hpp"
+#include "audio/SourceHandoff.hpp"
 
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 
@@ -32,6 +35,7 @@ public:
     struct State {
         std::uint64_t outputFrame = 0;
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{}, sourceFrames{};
+        std::array<std::uint64_t, RenderCore::deckCount> sourceGeneration{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<bool, RenderCore::deckCount> cueHeld{}, cuePreview{};
@@ -76,6 +80,18 @@ public:
     [[nodiscard]] std::string error();
     bool submit(const RenderCore::Command& command) noexcept;
     bool pollState(State& state) noexcept;
+    struct SourceReplacementResult {
+        SourceHandoff::Completion completion;
+        std::unique_ptr<PcmReadAhead> retiredReader;
+    };
+    // One control-owner request. Prime the candidate at frame zero off the GUI.
+    // Generations increase across requests in this session. Rejection leaves
+    // it owned by the caller. Collect completion before another
+    // request; stop/join its retired reader away from the GUI and render threads.
+    bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PcmReadAhead>& candidate,
+                                  std::uint64_t generation) noexcept;
+    [[nodiscard]] bool sourceReplacementPending() const noexcept;
+    std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept;
     // Control owner only. Current exact endpoint identities and route status;
     // stale selections stay muted until explicitly selected in a new session.
     [[nodiscard]] RoutingSnapshot routingSnapshot() const;

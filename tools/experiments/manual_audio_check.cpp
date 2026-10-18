@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPointer>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickItem>
@@ -18,6 +19,7 @@
 #include <QTest>
 #include <QTemporaryDir>
 #include <QtEndian>
+#include <QWheelEvent>
 #include <functional>
 #include <algorithm>
 #include <cmath>
@@ -123,7 +125,9 @@ int main(int argc, char** argv)
     engine.rootContext()->setContextProperty("platformName", QGuiApplication::platformName());
     QJsonArray checks;
     QJsonArray sceneErrors;
-    QJsonObject recordingResult, steadyDelivery, routingResult, pendingOpenClose, settingsApply;
+    QJsonObject recordingResult, steadyDelivery, routingResult, pendingOpenClose, settingsApply, initialWindow;
+    QJsonArray sourceHandoffs, jogResults;
+    QPointer<QQuickWindow> observedWindow;
     std::uint64_t swapped = 0;
     bool sceneError = false;
     QElapsedTimer elapsed;
@@ -141,18 +145,32 @@ int main(int argc, char** argv)
         if (!predicate())
             throw std::runtime_error("Timed out waiting for decode/output/command acknowledgement");
     };
+    auto windowState = [&]() -> QJsonObject {
+        if (!observedWindow) return {{"available", false}};
+        const auto visibility = observedWindow->visibility();
+        const auto label = visibility == QWindow::Windowed ? "windowed" :
+            visibility == QWindow::Minimized ? "minimized" : visibility == QWindow::Maximized ? "maximized" :
+            visibility == QWindow::FullScreen ? "fullscreen" : visibility == QWindow::Hidden ? "hidden" : "automatic";
+        return {{"available", true}, {"active", observedWindow->isActive()},
+                {"exposed", observedWindow->isExposed()}, {"visible", observedWindow->isVisible()},
+                {"visibility", int(visibility)}, {"visibility_name", label}};
+    };
     try {
         engine.load(QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/qml/Main.qml")));
         require(!engine.rootObjects().isEmpty(), "Manual QML loaded");
         auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
         require(window, "Manual window created");
+        observedWindow = window;
         QObject::connect(window, &QQuickWindow::frameSwapped, &app, [&] { ++swapped; });
         QObject::connect(window, &QQuickWindow::sceneGraphError, &app,
             [&](QQuickWindow::SceneGraphError code, const QString& message) {
                 sceneError = true;
                 sceneErrors.append(QJsonObject{{"code", int(code)}, {"message", message}});
             });
+        window->raise();
+        window->requestActivate();
         wait([&] { return window->isExposed() && swapped > 0; });
+        initialWindow = windowState();
         const auto a = QUrl::fromLocalFile(QString::fromLocal8Bit(argv[1]));
         const auto b = QUrl::fromLocalFile(QString::fromLocal8Bit(argv[2]));
         controller.loadDeck(0, a);
@@ -170,14 +188,41 @@ int main(int argc, char** argv)
             if (!controller.error().isEmpty())
                 throw std::runtime_error(controller.error().toStdString());
         };
+        auto handoff = [&](int target, const conflux::audio::LiveSession::State& before,
+                           std::uint64_t sessions, const char* description) {
+            const auto after = controller.audioState();
+            const auto peer = std::size_t(1 - target);
+            const auto outputAdvance = after.outputFrame - before.outputFrame;
+            const auto peerAdvance = after.sourceFrame[peer] - before.sourceFrame[peer];
+            require(controller.completedSessions() == sessions && after.outputFrame > before.outputFrame &&
+                    after.sourceGeneration[target] != before.sourceGeneration[target] &&
+                    after.sourceGeneration[peer] == before.sourceGeneration[peer] &&
+                    !after.playing[target] && after.sourceFrame[target] == 0 && after.cueFrame[target] == 0 &&
+                    !after.cueHeld[target] && !after.cuePreview[target] && !after.cueSelected[target] &&
+                    after.deckGain[target] == 1 && !after.sourceReadError[target] &&
+                    after.playing[peer] == before.playing[peer] && after.cueFrame[peer] == before.cueFrame[peer] &&
+                    after.cueHeld[peer] == before.cueHeld[peer] && after.cuePreview[peer] == before.cuePreview[peer] &&
+                    after.cueSelected[peer] == before.cueSelected[peer] && after.deckGain[peer] == before.deckGain[peer] &&
+                    ((before.playing[peer] || before.cuePreview[peer]) ? peerAdvance == outputAdvance : peerAdvance == 0),
+                    description);
+            sourceHandoffs.append(QJsonObject{{"target_deck", target}, {"completed_sessions", qint64(sessions)},
+                {"output_frame_before", qint64(before.outputFrame)}, {"output_frame_after", qint64(after.outputFrame)},
+                {"target_generation_before", qint64(before.sourceGeneration[target])},
+                {"target_generation_after", qint64(after.sourceGeneration[target])},
+                {"peer_source_frame_before", qint64(before.sourceFrame[peer])},
+                {"peer_source_frame_after", qint64(after.sourceFrame[peer])},
+                {"peer_preview_preserved", after.cuePreview[peer] == before.cuePreview[peer]},
+                {"scope", "Shared software session/output clock stays active; no physical continuity measurement."}});
+            return after;
+        };
         command([&] { controller.setPlaying(0, true); });
         wait([&] { return controller.audioState().sourceFrame[0] > 0; });
-        const auto beforeLoad = controller.audioState().sourceFrame[0];
+        const auto beforeLoad = controller.audioState();
+        const auto loadSessions = controller.completedSessions();
         controller.loadDeck(1, b);
         wait([&] { return !controller.busy() && controller.outputReady(); });
-        require(controller.audioState().playing[0] && controller.audioState().sourceFrame[0] >= beforeLoad &&
-                !controller.audioState().playing[1] && controller.audioState().sourceFrame[1] == 0,
-                "Loading B preserves A transport and installs B paused");
+        handoff(1, beforeLoad, loadSessions, "Loading B hands off into the existing output session and preserves advancing A");
+        const auto beforeBatch = controller.audioState().applied;
         for (int index = 0; index < 80; ++index) {
             switch (index % 5) {
             case 0: command([&] { controller.setDeckGain(index % 2, 0.25 + (index % 3) * 0.25); }); break;
@@ -187,7 +232,7 @@ int main(int argc, char** argv)
             case 4: command([&] { controller.setPlaying(index % 2, true); }); break;
             }
         }
-        require(controller.audioState().applied == 80 && controller.audioState().rejected == 0,
+        require(controller.audioState().applied == beforeBatch + 80 && controller.audioState().rejected == 0,
                 "80 actions acknowledged in one session without a 32-action lifetime limit");
         command([&] { controller.setPlaying(0, false); });
         command([&] { controller.setPlaying(1, false); });
@@ -199,6 +244,39 @@ int main(int argc, char** argv)
                 held.sourceFrame[0] == 6000 && held.sourceFrame[1] == 12000 &&
                 controller.audioState().outputFrame > held.outputFrame,
                 "Paused seeks hold exact source frames while output clock advances");
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto beforeJog = controller.audioState();
+            command([&] { require(controller.jogFrames(deck, 240), "Controller accepts a positive positional jog"); });
+            require(controller.audioState().sourceFrame[deck] == held.sourceFrame[deck] + 240 &&
+                    !controller.audioState().playing[deck] && controller.audioState().cueFrame[deck] == beforeJog.cueFrame[deck],
+                    "Paused positive jog moves the exact cursor and preserves the stored cue");
+            command([&] { require(controller.jogFrames(deck, -240), "Controller accepts a negative positional jog"); });
+            require(controller.audioState().sourceFrame[deck] == held.sourceFrame[deck],
+                    "Signed controller jog returns to the exact paused source frame");
+            auto* jog = visualItem(window->contentItem(), QString("deck%1Jog").arg(deck));
+            require(jog && jog->isEnabled(), "Actual deck jog control is enabled");
+            command([&] {
+                jog->forceActiveFocus();
+                QTest::keyClick(window, Qt::Key_Right);
+            });
+            require(controller.audioState().sourceFrame[deck] == held.sourceFrame[deck] + 480,
+                    "Actual jog Right key advances the paused cursor by 480 frames");
+            command([&] {
+                const auto local = jog->mapToScene(QPointF(jog->width() / 2, jog->height() / 2));
+                QWheelEvent wheel(local, window->mapToGlobal(local.toPoint()), QPoint(), QPoint(0, -120),
+                                  Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+                QCoreApplication::sendEvent(window, &wheel);
+            });
+            const auto afterJog = controller.audioState();
+            require(afterJog.sourceFrame[deck] == held.sourceFrame[deck] && !afterJog.playing[deck] &&
+                    afterJog.cueFrame[deck] == beforeJog.cueFrame[deck] && afterJog.outputFrame > beforeJog.outputFrame,
+                    "Actual negative jog wheel returns to the paused cursor without resetting the output clock");
+            jogResults.append(QJsonObject{{"deck", deck}, {"source_frame_before", qint64(beforeJog.sourceFrame[deck])},
+                {"source_frame_after", qint64(afterJog.sourceFrame[deck])}, {"controller_delta_frames", 240},
+                {"keyboard_delta_frames", 480}, {"wheel_delta_frames", -480},
+                {"cue_frame", qint64(afterJog.cueFrame[deck])},
+                {"scope", "Positional search with paused source; no scratch, pitch bend or physical jog hardware qualification."}});
+        }
         auto cuePoint = [&](int deck) {
             auto* item = window->findChild<QQuickItem*>(QString("deck%1Cue").arg(deck));
             require(item && item->isEnabled(), "Loaded deck exposes an enabled real CUE button");
@@ -256,23 +334,28 @@ int main(int argc, char** argv)
         require(!controller.error().isEmpty() && controller.outputReady() && controller.decks() == names,
                 "Decode failure preserves loaded decks and active output");
         command([&] { controller.setPlaying(1, true); });
-        const auto beforeReplace = controller.audioState().sourceFrame[1];
+        QTest::qWait(100);
+        const auto beforeReplace = controller.audioState();
+        const auto replaceSessions = controller.completedSessions();
         controller.loadDeck(0, a);
         wait([&] { return !controller.busy() && controller.outputReady(); });
-        require(!controller.audioState().playing[0] && controller.audioState().sourceFrame[0] == 0 &&
-                controller.audioState().cueFrame[0] == 0 && controller.audioState().cueFrame[1] == held.sourceFrame[1] &&
-                controller.audioState().playing[1] && controller.audioState().sourceFrame[1] >= beforeReplace,
-                "Replacing A resets its cue and preserves B transport and cue after stream quiescence");
+        handoff(0, beforeReplace, replaceSessions, "Replacing A resets its source/cue while B and the shared output keep advancing");
         command([&] { require(controller.cuePress(1), "Controller accepts B back-cue before replacement check"); });
         command([&] { controller.cueRelease(1); });
-        command([&] { require(controller.cuePress(1), "Controller accepts B audition before replacing A"); });
+        command([&] { QTest::mousePress(window, Qt::LeftButton, Qt::NoModifier, cuePoint(1)); });
         wait([&] { return controller.audioState().cuePreview[1]; });
+        QTest::qWait(200);
+        wait([&] { return controller.audioState().sourceFrame[1] > controller.audioState().cueFrame[1]; });
+        const auto beforePreviewReplace = controller.audioState();
+        const auto previewSessions = controller.completedSessions();
         controller.loadDeck(0, a);
         wait([&] { return !controller.busy() && controller.outputReady(); });
+        handoff(0, beforePreviewReplace, previewSessions, "Replacing A preserves the peer's physically held audition and advancing cursor");
+        command([&] { QTest::mouseRelease(window, Qt::LeftButton, Qt::NoModifier, cuePoint(1)); });
         require(!controller.audioState().cueHeld[1] && !controller.audioState().cuePreview[1] &&
                 !controller.audioState().playing[1] && controller.audioState().sourceFrame[1] == held.sourceFrame[1] &&
                 controller.audioState().cueFrame[1] == held.sourceFrame[1],
-                "Replacing a source cancels peer audition and preserves its stored cue");
+                "Physical peer CUE release after replacement returns to its preserved cue");
         command([&] { controller.setPlaying(1, true); });
         // Deliberately stall GUI snapshot consumption for longer than the
         // 32-slot queue covers. Audio must continue and later controls recover.
@@ -321,15 +404,18 @@ int main(int argc, char** argv)
         wait([&] { return controller.recording()["status"].toString() == "Recording"; });
         wait([&] { return controller.recording()["acceptedFrames"].toULongLong() >= 4800; });
         const auto beforeRecordingReplacement = controller.recording();
-        const auto replacementBFrame = controller.audioState().sourceFrame[1];
+        const auto beforeRecordingHandoff = controller.audioState();
+        const auto recordingSessions = controller.completedSessions();
         controller.loadDeck(0, a);
         wait([&] { return !controller.busy() && controller.outputReady() &&
                          controller.recording()["status"].toString() == "Recording" &&
                          controller.recording()["acceptedFrames"].toULongLong() >
                              beforeRecordingReplacement["acceptedFrames"].toULongLong(); });
+        const auto afterRecordingHandoff = handoff(0, beforeRecordingHandoff, recordingSessions,
+            "Recording source handoff keeps the same shared output and advancing peer clock");
         require(controller.recording()["path"].toString() == recordingPath &&
                 controller.audioState().masterGain == 0 && controller.audioState().playing[1] &&
-                controller.audioState().sourceFrame[1] >= replacementBFrame && controller.audioState().cueSelected[1],
+                controller.audioState().cueSelected[1],
                 "Source replacement preserves the same recording path, writer prefix and peer transport");
         wait([&] { return controller.audioState().meters.cue.peak[0] > 0; });
         QTest::qWait(150);
@@ -346,7 +432,9 @@ int main(int argc, char** argv)
         recordingResult["final_state"] = QJsonObject::fromVariantMap(recorded);
         recordingResult["readback"] = readback;
         recordingResult["replacement_before"] = QJsonObject::fromVariantMap(beforeRecordingReplacement);
-        recordingResult["replacement_policy"] = "One writer retains accepted PCM across source replacement. Output pauses while the session is replaced; wall-time interruption is omitted, not padded or measured as continuous recording.";
+        recordingResult["replacement_output_frame_before"] = qint64(beforeRecordingHandoff.outputFrame);
+        recordingResult["replacement_output_frame_after"] = qint64(afterRecordingHandoff.outputFrame);
+        recordingResult["replacement_policy"] = "One writer and shared output session remain active during callback-boundary target source handoff. The peer and output sample clocks continue; this is software evidence, not a physical continuity measurement.";
 
         // Separate steady delivery from seek/cache priming. Restore only the
         // existing quiet master level, then allow 200 ms after the last seek.
@@ -476,6 +564,8 @@ int main(int argc, char** argv)
         const QJsonObject result{
             {"passed", true}, {"platform", QGuiApplication::platformName()}, {"qt", qVersion()},
             {"elapsed_ms", elapsed.elapsed()}, {"frames_swapped", qint64(swapped)},
+            {"window_at_start", initialWindow}, {"window", windowState()},
+            {"frame_observation_scope", "GUI-thread frameSwapped notifications; visibility state is diagnostic, not physical presentation latency."},
             {"sessions", qint64(controller.completedSessions())},
             {"submitted", qint64(controller.submittedCommands())},
             {"applied", qint64(controller.completedApplied())},
@@ -498,6 +588,7 @@ int main(int argc, char** argv)
             {"recording", recordingResult},
             {"pending_recorder_open_close", pendingOpenClose},
             {"audio_settings_apply", settingsApply},
+            {"source_handoffs", sourceHandoffs}, {"jog", jogResults},
             {"checks", checks},
             {"scope", "Short generated quiet-file UI/audio integration; no physical latency, acoustic or sustained qualification"}};
         std::cout << QJsonDocument(result).toJson().constData();
@@ -507,11 +598,18 @@ int main(int argc, char** argv)
         std::cerr << error.what() << '\n';
         const QJsonObject result{{"passed", false}, {"error", QString::fromUtf8(error.what())}, {"checks", checks},
             {"frames_swapped", qint64(swapped)}, {"scene_errors", sceneErrors}, {"elapsed_ms", elapsed.elapsed()},
+            {"platform", QGuiApplication::platformName()}, {"qt", qVersion()},
+            {"window_at_start", initialWindow}, {"window", windowState()},
+            {"frame_observation_scope", "GUI-thread frameSwapped notifications; visibility state is diagnostic, not physical presentation latency."},
             {"submitted", qint64(controller.submittedCommands())}, {"applied", qint64(controller.completedApplied())},
+            {"sessions", qint64(controller.completedSessions())}, {"callbacks", qint64(controller.completedCallbacks())},
+            {"invalid_buffers", qint64(controller.completedInvalidBuffers())},
+            {"rejected", qint64(controller.completedRejected())},
+            {"source_starved_frames_including_seek_priming", qint64(controller.completedStarvedFrames())},
             {"source_read_failures", qint64(controller.completedReadFailures())},
             {"session_timing", timingResults(controller)}, {"steady_source_delivery", steadyDelivery},
             {"routing", routingResult}, {"recording", recordingResult}, {"pending_recorder_open_close", pendingOpenClose},
-            {"audio_settings_apply", settingsApply}};
+            {"audio_settings_apply", settingsApply}, {"source_handoffs", sourceHandoffs}, {"jog", jogResults}};
         std::cout << QJsonDocument(result).toJson().constData();
         return 1;
     }

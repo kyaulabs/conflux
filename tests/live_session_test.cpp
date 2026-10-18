@@ -4,6 +4,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -75,6 +76,7 @@ int main()
         LiveSession empty;
         auto state = empty.stoppedState();
         passed &= require(!state.ready && state.outputFrame == 0 && state.sourceFrames == std::array<std::uint64_t, 2>{} &&
+                          state.sourceGeneration == std::array<std::uint64_t, 2>{} &&
                           state.playing == std::array<bool, 2>{} && state.masterGain == 1,
                           "empty session did not start in stopped silence");
         RenderCore::Command play{RenderCore::Command::Type::Play, 0, 0, 1, 99};
@@ -93,6 +95,26 @@ int main()
         empty.stop();
         passed &= require(!empty.recorderChangePending() && !empty.recorderAttached(),
                           "stopping did not quiesce a pending recorder change");
+
+        // A rejected handoff must retain the primed worker and its owner. This
+        // uses only an anonymous regular file; no output server is contacted.
+        const auto closeFile = [](std::FILE* file) { std::fclose(file); };
+        const auto raw = std::unique_ptr<std::FILE, decltype(closeFile)>(std::tmpfile(), closeFile);
+        const std::array<float, 4> replacementPcm{.125F, -.25F, .5F, -.75F};
+        if (!raw || std::fwrite(replacementPcm.data(), sizeof(float), replacementPcm.size(), raw.get()) != replacementPcm.size() ||
+            std::fflush(raw.get()) != 0)
+            throw std::runtime_error("Cannot prepare private handoff PCM");
+        auto candidate = std::make_unique<conflux::audio::PcmReadAhead>(fileno(raw.get()), replacementPcm.size() / 2);
+        if (!candidate->prime(0, std::chrono::seconds(1)))
+            throw std::runtime_error("Cannot prime private handoff PCM");
+        auto* const candidateIdentity = candidate.get();
+        passed &= require(!empty.requestSourceReplacement(0, candidate, 1) && candidate.get() == candidateIdentity &&
+                          !empty.sourceReplacementPending() && !empty.takeSourceReplacementResult(),
+                          "stopped session stole a rejected candidate or invented completion");
+        empty.stop();
+        passed &= require(candidate.get() == candidateIdentity && !candidate->errorCode(),
+                          "repeated stopped-session cleanup changed rejected reader ownership");
+        candidate.reset();
 
         const std::array<float, 4> a{.25F, -.5F, .75F, -.25F};
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};

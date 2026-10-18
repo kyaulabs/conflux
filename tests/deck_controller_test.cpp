@@ -66,6 +66,8 @@ void verifyNoPlayback(const conflux::DeckController& controller)
         QVERIFY(!deck.value("loaded").toBool());
         QVERIFY(deck.value("name").toString().isEmpty());
         QVERIFY(!deck.value("playing").toBool());
+        QVERIFY(deck.contains("replacing") && !deck.value("replacing").toBool());
+        QCOMPARE(deck.value("sourceGeneration").toULongLong(), qulonglong(0));
         QCOMPARE(deck.value("positionSeconds").toDouble(), 0.0);
         QCOMPARE(deck.value("durationSeconds").toDouble(), 0.0);
         QVERIFY(deck.contains("cueSeconds") && deck.contains("cueHeld") && deck.contains("cuePreview"));
@@ -161,6 +163,9 @@ private slots:
     {
         conflux::DeckController controller;
         controller.setPlaying(0, true);
+        QVERIFY(!controller.jogFrames(0, 1));
+        QVERIFY(!controller.jogFrames(-1, -1));
+        QVERIFY(!controller.jogFrames(2, std::numeric_limits<qint64>::max()));
         QVERIFY(!controller.error().isEmpty());
         controller.seekSeconds(0, 1.0);
         controller.setDeckGain(0, .5);
@@ -176,6 +181,35 @@ private slots:
         }
         verifyNoPlayback(controller);
         QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+    }
+
+    void failedPreparationRetainsLoadedTrack()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        const auto original = directory.filePath("original.wav");
+        QVERIFY(writeWave(original, 2, 48000, 8));
+        conflux::DeckController controller;
+        controller.loadDeck(0, QUrl::fromLocalFile(original));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto retained = controller.decks()[0].toMap();
+        QVERIFY(retained["loaded"].toBool());
+        QVERIFY(!retained["replacing"].toBool());
+        controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing-next.wav")));
+        QVERIFY(controller.busy());
+        QCOMPARE(controller.decks()[0].toMap(), retained);
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(!controller.error().isEmpty());
+        QCOMPARE(controller.decks()[0].toMap(), retained);
+        QVERIFY(!controller.jogFrames(0, std::numeric_limits<qint64>::min()));
+        QCOMPARE(controller.decks()[0].toMap(), retained);
+        QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+        controller.shutdown();
     }
 
     void rejectsCueWithoutLoadedOutput()

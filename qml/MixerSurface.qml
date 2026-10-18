@@ -78,7 +78,7 @@ Rectangle {
                     required property var modelData
                     readonly property int audioDeck: modelData.audioDeck
                     readonly property var deck: audioDeck >= 0 ? root.controller.decks[audioDeck] : null
-                    readonly property bool available: audioDeck >= 0 && Boolean(deck.loaded) && root.controller.outputReady
+                    readonly property bool available: audioDeck >= 0 && Boolean(deck.loaded) && root.controller.outputReady && !deck.replacing
                     readonly property color deckColor: audioDeck === 0 ? Brand.ConfluxTheme.deckA
                                                        : audioDeck === 1 ? Brand.ConfluxTheme.deckB : root.etched
                     Layout.fillWidth: true

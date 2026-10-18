@@ -124,6 +124,7 @@ public:
         if (!renderer_.setMasterGain(initial.masterGain) || !renderer_.setCueGain(initial.cueGain))
             throw std::invalid_argument("Invalid initial master or cue gain");
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
+            activeReaders_[deck] = readers_[deck].get();
             if (!std::isfinite(initial.deckGain[deck]) || initial.deckGain[deck] < 0 || initial.deckGain[deck] > 1)
                 throw std::invalid_argument("Invalid initial deck gain");
             if (!renderer_.sourceFrames(deck)) {
@@ -138,6 +139,8 @@ public:
                 !renderer_.setCueSelected(deck, initial.cueSelected[deck]))
                 throw std::invalid_argument("Invalid initial deck state");
         }
+        if (!renderer_.configureRamps(240))
+            throw std::invalid_argument("Cannot configure live transport ramps");
         for (std::size_t index = 0; index < owned_.size(); ++index) {
             owned_[index].self = this;
             owned_[index].index = index;
@@ -601,6 +604,38 @@ public:
             lastCommandId_ = command.id;
         }
     }
+    bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PcmReadAhead>& candidate,
+                                  std::uint64_t generation) noexcept
+    {
+        if (!ready() || !candidate || replacementReader_ || handoff_.busy() ||
+            deck >= RenderCore::deckCount || generation <= lastRequestedGeneration_)
+            return false;
+        const auto source = candidate->sourceRef();
+        if (!handoff_.request({deck, source, candidate.get(), generation})) return false;
+        replacementDeck_ = deck;
+        lastRequestedGeneration_ = generation;
+        replacementReader_ = std::move(candidate);
+        return true;
+    }
+    std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept
+    {
+        SourceHandoff::Completion completion;
+        if (!handoff_.takeCompletion(completion)) return std::nullopt;
+        std::unique_ptr<PcmReadAhead> retired;
+        if (completion.installed) {
+            retired = std::move(readers_[completion.deck]);
+            readers_[completion.deck] = std::move(replacementReader_);
+        } else retired = std::move(replacementReader_);
+        return SourceReplacementResult{completion, std::move(retired)};
+    }
+    bool submit(const RenderCore::Command& command) noexcept
+    {
+        if (!ready()) return false;
+        const bool global = command.type == RenderCore::Command::Type::MasterGain ||
+                            command.type == RenderCore::Command::Type::CueGain;
+        if (!global && handoff_.busy() && command.deck == replacementDeck_) return false;
+        return commands_.tryPush(command);
+    }
     State capture() const noexcept
     {
         State state;
@@ -608,6 +643,7 @@ public:
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
             state.sourceFrame[deck] = renderer_.sourceFrame(deck);
             state.sourceFrames[deck] = renderer_.sourceFrames(deck);
+            state.sourceGeneration[deck] = sourceGeneration_[deck];
             state.cueFrame[deck] = renderer_.cueFrame(deck);
             state.playing[deck] = renderer_.isPlaying(deck);
             state.cueHeld[deck] = renderer_.isCueHeld(deck);
@@ -616,7 +652,7 @@ public:
             state.buffering[deck] = renderer_.isBuffering(deck);
             state.starvedFrames[deck] = renderer_.starvedFrames(deck);
             state.sourceReadErrorObserved[deck] = renderer_.readFailed(deck);
-            state.sourceReadError[deck] = readers_[deck] ? bool(readers_[deck]->errorCode()) : renderer_.readFailed(deck);
+            state.sourceReadError[deck] = activeReaders_[deck] ? bool(activeReaders_[deck]->errorCode()) : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
         }
         state.masterGain = renderer_.masterGain(); state.cueGain = renderer_.cueGain(); state.meters = meters_;
@@ -659,6 +695,10 @@ public:
         auto& self = *static_cast<Impl*>(data);
         const auto began = Clock::now();
         self.tap_.beginBlock();
+        SourceHandoff::Request replacement;
+        const bool replacementPending = self.handoff_.readPending(replacement);
+        bool replacementCompleted = false, replacementInstalled = false;
+        SourceHandoff::RetiredState retiredState;
         ++self.callbacks_;
         CallbackTiming::DriverClock clock;
         if (position) {
@@ -710,6 +750,26 @@ public:
             ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
         } else if (self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
+            if (replacementPending) {
+                if (self.stagedGeneration_ != replacement.generation) {
+                    if (self.renderer_.sourceFrames(replacement.deck)) {
+                        (void)self.renderer_.cueRelease(replacement.deck);
+                        (void)self.renderer_.setPlaying(replacement.deck, false);
+                    }
+                    self.stagedGeneration_ = replacement.generation;
+                }
+                if (self.renderer_.isDeckSilentForReplacement(replacement.deck)) {
+                    retiredState = {self.renderer_.sourceFrame(replacement.deck),
+                        self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
+                        (self.activeReaders_[replacement.deck] && self.activeReaders_[replacement.deck]->errorCode())};
+                    replacementInstalled = self.renderer_.replaceSource(replacement.deck, replacement.source);
+                    replacementCompleted = true;
+                    if (replacementInstalled) {
+                        self.activeReaders_[replacement.deck] = replacement.reader;
+                        self.sourceGeneration_[replacement.deck] = replacement.generation;
+                    }
+                }
+            }
             for (std::uint32_t offset = 0; offset < frames;) {
                 const auto count = std::min<std::uint32_t>(scratchFrames, frames - offset);
                 auto master = std::span(self.masterScratch_).first(count * 2U);
@@ -756,6 +816,8 @@ public:
             self.playbackInitialized_.store(true, std::memory_order_release);
         self.tap_.endBlock();
         if (!self.states_.push(self.capture())) ++self.snapshotDrops_;
+        if (replacementCompleted)
+            (void)self.handoff_.complete(replacementInstalled, retiredState, self.renderer_.frameClock());
         const auto elapsed = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now()-began).count());
         self.timing_.observe(elapsed, rendered, position ? &clock : nullptr);
     }
@@ -867,15 +929,23 @@ public:
         if (loopStarted_) { pw_thread_loop_unlock(loop_); pw_thread_loop_stop(loop_); loopStarted_=false; }
         if (loop_) { pw_thread_loop_destroy(loop_); loop_=nullptr; }
         tap_.quiesce();
+        handoff_.quiesce();
         consumeCommands();
         for (std::size_t deck=0;deck<RenderCore::deckCount;++deck)
             if (renderer_.sourceFrames(deck)) renderer_.cueRelease(deck);
         for (auto& reader:readers_) if (reader) { reader->stop(); readersStopped_=true; }
+        if (replacementReader_) { replacementReader_->stop(); readersStopped_=true; }
         State discarded; while (states_.pop(discarded)) {}
         stopped_=capture();
     }
 
     std::array<std::unique_ptr<PcmReadAhead>,RenderCore::deckCount> readers_;
+    std::array<PcmReadAhead*,RenderCore::deckCount> activeReaders_{};
+    std::array<std::uint64_t,RenderCore::deckCount> sourceGeneration_{};
+    SourceHandoff handoff_;
+    std::unique_ptr<PcmReadAhead> replacementReader_;
+    std::size_t replacementDeck_ = 0;
+    std::uint64_t stagedGeneration_ = 0, lastRequestedGeneration_ = 0;
     RenderCore renderer_;
     RecorderTap tap_;
     CallbackTiming timing_{clockCapabilities()};
@@ -919,7 +989,12 @@ bool LiveSession::start(std::string& error,const RoutingConfig& routing) { retur
 bool LiveSession::startDiscovery(std::string& error) { return impl_->start(error,{},true); }
 bool LiveSession::ready()const noexcept { return impl_->ready(); }
 std::string LiveSession::error() { return impl_->currentError(); }
-bool LiveSession::submit(const RenderCore::Command& command)noexcept { return impl_->ready()&&impl_->commands_.tryPush(command); }
+bool LiveSession::submit(const RenderCore::Command& command)noexcept { return impl_->submit(command); }
+bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<PcmReadAhead>& candidate,std::uint64_t generation)noexcept
+{ return impl_->requestSourceReplacement(deck,candidate,generation); }
+bool LiveSession::sourceReplacementPending()const noexcept { return impl_->handoff_.busy(); }
+std::optional<LiveSession::SourceReplacementResult> LiveSession::takeSourceReplacementResult()noexcept
+{ return impl_->takeSourceReplacementResult(); }
 bool LiveSession::pollState(State& state)noexcept
 {
     if (!impl_->states_.pop(state)) return false;

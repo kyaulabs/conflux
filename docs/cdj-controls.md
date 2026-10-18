@@ -6,8 +6,10 @@ The [CDJ-3000 operating instructions, pages 14–16](https://downloads.support.a
 identify the controls; pages 47–49 distinguish tempo, Master Tempo and jog
 operations. This inventory covers the visual redesign and the existing manual
 audio functions, including independent headphone cue, metering and stereo
-recording. Source-peak overviews leave audio PCM unchanged. Jog, ramps and
-sustained playback qualification remain unfinished M1 work.
+recording. Source-peak overviews leave audio PCM unchanged. The current working
+tree adds positional jog, 5 ms live ramps and source handoffs within the same
+output session. Human listening and sustained playback qualification remain
+pending M1 work.
 
 Both deck faces have the same orientation. Put the display across the upper
 third, eight Hot Cue buttons immediately beneath it, and the large jog in the
@@ -35,7 +37,7 @@ the C/D strips must say they are unavailable.
 | Mixer CUE and CUE LEVEL | Toggle A/B `setCueSelected` for the separate pre-fader headphone bus; `setCueGain` controls its independent level in [0,1]. Selection follows the deck's transport and does not start a paused deck. This is separate from the temporary transport CUE button. C/D remain disabled. |
 | Stereo meters beside channel faders and master/cue controls | Show actual pre-fader A/B and post-gain master/cue peak markers and RMS fills, from −60 to 0 dBFS. OVR reflects cumulative samples above ±1 in the current render session. Hover/accessibility text gives numeric values. Internal cue metering can be nonzero while CUE UNROUTED shows that no headphone audio is routed. |
 | AUDIO / REC, top bar | Refresh playback ports and select explicit stereo master/cue pairs. Default selection applies only to master; cue requires four distinct destination ports across the two pairs. Record the post-master mix to a new absolute `.wav` path, with visible recording/finalization/error state and saved path. |
-| Jog, jog mode/adjust and brake | Disabled: scratch, temporary pitch bend/nudge, jog frame search and brake processing are not implemented. Do not animate rotation as a claim of jog interaction. |
+| Jog, jog mode/adjust and brake | The jog performs positional search with `jogFrames`: drag clockwise/backward at two seconds per revolution, use Right/Up or Left/Down for ±10 ms, or use the wheel at 10 ms per notch. Shift changes key/wheel steps to one second. Search clamps at source boundaries, preserves playing request/stored cue and cancels preview. Scratch, pitch bend, jog-mode adjustment and brake processing remain unavailable. |
 | CUE, lower left | One temporary cue per deck, initially frame zero. Press while paused away from the cue to replace it; press during playback to return and pause. Hold at the paused cue to preview. Indicators use acknowledged cue/preview state. |
 | Hot Cues A–H and cue memory | Disabled: Hot Cues, persistent cue memory and memory navigation are not implemented. |
 | SEARCH/TRACK SEARCH and direction | Disabled: held fast search, track navigation, reverse and slip playback are not implemented. Use the explicit position rail for current seeking. |
@@ -81,9 +83,18 @@ preserving values above ±1. The target is created exclusively and existing
 files are never overwritten. A bounded queue feeds a background disk writer;
 stopping detaches after the callback's last use, drains and finalizes before
 showing Complete or Failed. Overflow or disk errors stop recording with a
-visible error while playback can continue. Source replacement retains the
-same writer, but the replacement's wall-time interruption is omitted from the
-file. Closing joins pending open/finalization work after audio stops.
+visible error while playback can continue. Source replacement keeps the same
+filter, output clock and writer. Only the target fades and swaps; peer audio,
+including held preview, and recording continue through the shared callbacks.
+Physical continuity remains unverified. Applying output settings still rebuilds
+the session and requires recording to stop. Closing joins pending
+open/finalization work after audio stops.
+
+The live adapter uses 240-frame (5 ms) ramps for gains, headphone selection
+and transport transitions, including seek/jog, CUE, EOF and data loss/recovery.
+Pre-fader deck meters include those transport transitions. The ramps do not
+implement a limiter or normalize the audio, and human listening review remains
+pending.
 
 BPM, key and beatgrid remain unavailable. The overview uses at most 512
 buckets of `max(abs(left), abs(right))` from decoded PCM, normalized to the
@@ -93,12 +104,15 @@ Keep preparation and output errors near the affected deck. Recording state
 comes from the writer lifecycle; do not invent analysis progress or AI ownership. Use approved
 CONFLUX assets and theme tokens, without reproducing the hardware's logo.
 
-Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION and
+Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION, JOG and
 CHANNEL LEVEL for each deck, then mixer CUE, MASTER LEVEL and CUE LEVEL. Audio
 settings expose keyboard-operable port selectors and recording controls. Enter loads the path; focused
 buttons accept Space/Enter; focused sliders accept arrow keys. Pointer and
 touch use the same actions. Keep controls large enough to operate at the
 laptop's logical resolution, with visible focus and accessible names that
 include the deck. Disable transport until that deck is loaded and output is
-ready, and disable loading while a decode is pending. Explain inactive groups
+ready. A source handoff gates only the target's controls until its new name,
+duration, overview and source-generation snapshot agree; peer and global
+controls remain available. Disable loading throughout preparation, priming and
+off-GUI retirement of the old reader. Explain inactive groups
 with visible text or focus-accessible help, rather than hover or color alone.
