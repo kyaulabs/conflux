@@ -11,17 +11,18 @@
 
 #include <limits>
 #include <memory>
+#include <algorithm>
 #include <array>
 #include <cmath>
+#include <utility>
 
 namespace {
 
-bool writeUnsupportedWave(const QString& path, quint16 channels, quint32 rate)
+bool writeWave(const QString& path, quint16 channels, quint32 rate, quint32 frames = 4)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
         return false;
-    constexpr quint32 frames = 4;
     const quint32 payloadBytes = frames * channels * sizeof(qint16);
     QDataStream stream(&file);
     stream.setByteOrder(QDataStream::LittleEndian);
@@ -37,6 +38,22 @@ bool writeUnsupportedWave(const QString& path, quint16 channels, quint32 rate)
         stream << qint16(sample * 17 - 32);
     return stream.status() == QDataStream::Ok && file.flush();
 }
+
+struct RestoreEnvironment {
+    std::array<const char*, 3> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE"};
+    std::array<QByteArray, 3> values;
+    std::array<bool, 3> present;
+    RestoreEnvironment() {
+        for (std::size_t i = 0; i < names.size(); ++i) {
+            values[i] = qgetenv(names[i]);
+            present[i] = qEnvironmentVariableIsSet(names[i]);
+        }
+    }
+    ~RestoreEnvironment() {
+        for (std::size_t i = 0; i < names.size(); ++i)
+            if (present[i]) qputenv(names[i], values[i]); else qunsetenv(names[i]);
+    }
+};
 
 void verifyNoPlayback(const conflux::DeckController& controller)
 {
@@ -101,11 +118,11 @@ private slots:
         QVERIFY(file.open(QIODevice::WriteOnly));
         QCOMPARE(file.write("RIFF", 4), qint64(4));
         file.close();
-        const auto mono = directory.filePath("mono.wav");
-        const auto otherRate = directory.filePath("44100.wav");
-        QVERIFY(writeUnsupportedWave(mono, 1, 48000));
-        QVERIFY(writeUnsupportedWave(otherRate, 2, 44100));
-        const QStringList paths{directory.filePath("missing.wav"), corrupt, mono, otherRate};
+        const auto multichannel = directory.filePath("multichannel.wav");
+        const auto otherRate = directory.filePath("7999.wav");
+        QVERIFY(writeWave(multichannel, 3, 48000));
+        QVERIFY(writeWave(otherRate, 2, 7999));
+        const QStringList paths{directory.filePath("missing.wav"), corrupt, multichannel, otherRate};
         for (const auto& path : paths) {
             conflux::DeckController controller;
             QSignalSpy changed(&controller, &conflux::DeckController::stateChanged);
@@ -124,7 +141,7 @@ private slots:
         QTemporaryDir directory;
         QVERIFY(directory.isValid());
         const auto first = directory.filePath("first-unsupported.wav");
-        QVERIFY(writeUnsupportedWave(first, 1, 48000));
+        QVERIFY(writeWave(first, 3, 48000));
         conflux::DeckController controller;
         controller.loadDeck(0, QUrl::fromLocalFile(first));
         // The worker may already have decoded, but its queued completion has
@@ -185,8 +202,8 @@ private slots:
     {
         QTemporaryDir directory;
         QVERIFY(directory.isValid());
-        const auto path = directory.filePath("unsupported.wav");
-        QVERIFY(writeUnsupportedWave(path, 2, 44100));
+        const auto path = directory.filePath("converting-mono.wav");
+        QVERIFY(writeWave(path, 1, 44100, 441));
         auto controller = std::make_unique<conflux::DeckController>();
         QPointer<conflux::DeckController> observer(controller.get());
         controller->loadDeck(0, QUrl::fromLocalFile(path));
@@ -206,26 +223,12 @@ private slots:
         QVERIFY(directory.isValid() && runtime.isValid());
         // No test may reach the laptop's output server. Keep the environment
         // until the controller/session has been destroyed.
-        struct RestoreEnvironment {
-            std::array<const char*, 3> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE"};
-            std::array<QByteArray, 3> values;
-            std::array<bool, 3> present;
-            RestoreEnvironment() {
-                for (std::size_t i = 0; i < names.size(); ++i) {
-                    values[i] = qgetenv(names[i]);
-                    present[i] = qEnvironmentVariableIsSet(names[i]);
-                }
-            }
-            ~RestoreEnvironment() {
-                for (std::size_t i = 0; i < names.size(); ++i)
-                    if (present[i]) qputenv(names[i], values[i]); else qunsetenv(names[i]);
-            }
-        } restore;
+        RestoreEnvironment restore;
         qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
         qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
         qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
         const auto path = directory.filePath("peaks.wav");
-        QVERIFY(writeUnsupportedWave(path, 2, 48000));
+        QVERIFY(writeWave(path, 2, 48000));
         conflux::DeckController controller;
         controller.loadDeck(0, QUrl::fromLocalFile(path));
         QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
@@ -252,9 +255,57 @@ private slots:
         controller.shutdown();
         QVERIFY(!controller.outputReady());
     }
+
+    void acceptsConvertedSourcesWithoutHostAudio()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        for (const auto& geometry : {std::pair<quint16, quint32>{1, 44100}, {2, 96000}}) {
+            const auto [channels, rate] = geometry;
+            const auto path = directory.filePath(QString("converted-%1-%2.wav").arg(channels).arg(rate));
+            QVERIFY(writeWave(path, channels, rate, rate / 100));
+            conflux::DeckController controller;
+            controller.loadDeck(0, QUrl::fromLocalFile(path));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            const auto deck = controller.decks()[0].toMap();
+            QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+            const auto frames = controller.audioState().sourceFrames[0];
+            QVERIFY(frames >= 479 && frames <= 481);
+            QCOMPARE(deck["durationSeconds"].toDouble(), frames / 48000.0);
+            QCOMPARE(deck["positionSeconds"].toDouble(), 0.0);
+            QCOMPARE(deck["cueSeconds"].toDouble(), 0.0);
+            QVERIFY(!deck["playing"].toBool());
+            const auto peaks = deck["waveform"].toList();
+            QCOMPARE(peaks.size(), qsizetype(frames));
+            double maximum = 0;
+            for (const auto& value : peaks) {
+                const auto peak = value.toDouble();
+                QVERIFY(std::isfinite(peak) && peak >= 0 && peak <= 1);
+                maximum = std::max(maximum, peak);
+            }
+            QCOMPARE(maximum, 1.0);
+            QVERIFY(!controller.outputReady());
+            QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+            controller.shutdown();
+            QVERIFY(!controller.outputReady());
+        }
+    }
 };
 
 } // namespace
 
-QTEST_GUILESS_MAIN(DeckControllerTest)
+int main(int argc, char** argv)
+{
+    QCoreApplication app(argc, argv);
+    QTemporaryDir cache;
+    if (!cache.isValid()) return 2;
+    qputenv("XDG_CACHE_HOME", cache.path().toUtf8());
+    DeckControllerTest test;
+    return QTest::qExec(&test, argc, argv);
+}
 #include "deck_controller_test.moc"

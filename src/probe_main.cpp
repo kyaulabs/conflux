@@ -527,7 +527,7 @@ int main(int argc, char** argv)
             std::cout << "Usage: conflux-audio-probe [--seconds 1..7200] [--quantum 256|512] [--tone | --input path [--input-b path]]\n"
                          "       [--start-frame N] [--start-frame-b N] [--gain-a 0..1] [--gain-b 0..1] [--master-gain 0..1]\n"
                          "       [--controls path] [--stop-file path]\n"
-                         "Default output is silence. Inputs require stereo 48000 Hz audio, preloaded within 64 MiB per deck.\n"
+                         "Default output is silence. Mono/stereo 8–192 kHz inputs prepare stereo 48000 Hz PCM within 64 MiB per deck.\n"
                          "Loaded decks start playing. Gains are linear; the sum has no limiter. EOF renders silence.\n"
                          "Controls: up to 32 ordered rows of milliseconds a|b|master play|pause|seek|gain [value].\n"
                          "Control times precede --seconds; the main loop submits actions for a following callback boundary.\n"

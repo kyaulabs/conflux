@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
+#include "audio/AudioSource.hpp"
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -31,6 +33,10 @@ public:
     explicit RenderCore(std::span<const float> pcm);
     // One deck may be empty/unloaded; at least one must contain valid PCM.
     RenderCore(std::span<const float> deckA, std::span<const float> deckB);
+    // Borrow validated sources for the renderer's whole lifetime. Stream reads
+    // are bounded to 1024 stereo frames and never allocate, block or perform I/O.
+    explicit RenderCore(AudioSource source);
+    RenderCore(AudioSource deckA, AudioSource deckB);
     // Reject incomplete stereo frames without writing or advancing the clock.
     // Mix with double intermediates, preserving headroom above +/-1. Only
     // representation overflow saturates at the finite float limits.
@@ -57,7 +63,7 @@ public:
     [[nodiscard]] std::uint64_t sourceFrame(std::size_t deck = 0) const noexcept
     { return deck < deckCount ? decks_[deck].frame : 0; }
     [[nodiscard]] std::uint64_t sourceFrames(std::size_t deck = 0) const noexcept
-    { return deck < deckCount ? decks_[deck].source.size() / channels : 0; }
+    { return deck < deckCount ? decks_[deck].source.frames : 0; }
     [[nodiscard]] bool isPlaying(std::size_t deck = 0) const noexcept
     { return deck < deckCount && decks_[deck].playing; }
     [[nodiscard]] std::uint64_t cueFrame(std::size_t deck = 0) const noexcept
@@ -67,21 +73,34 @@ public:
     [[nodiscard]] bool isCuePreviewing(std::size_t deck = 0) const noexcept
     { return deck < deckCount && decks_[deck].cuePreviewing; }
     [[nodiscard]] float deckGain(std::size_t deck = 0) const noexcept
-    { return deck < deckCount && !decks_[deck].source.empty() ? decks_[deck].gain : 0.0F; }
+    { return deck < deckCount && decks_[deck].source.frames ? decks_[deck].gain : 0.0F; }
+    [[nodiscard]] bool isBuffering(std::size_t deck = 0) const noexcept
+    { return deck < deckCount && decks_[deck].buffering; }
+    [[nodiscard]] std::uint64_t starvedFrames(std::size_t deck = 0) const noexcept
+    { return deck < deckCount ? decks_[deck].starvedFrames : 0; }
+    [[nodiscard]] bool readFailed(std::size_t deck = 0) const noexcept
+    { return deck < deckCount && decks_[deck].readFailed; }
     [[nodiscard]] float masterGain() const noexcept { return masterGain_; }
 
 private:
     struct Deck {
-        std::span<const float> source{};
+        AudioSource source{};
         std::uint64_t frame = 0;
         std::uint64_t cueFrame = 0;
+        std::uint64_t starvedFrames = 0;
         float gain = 1.0F;
         bool playing = false;
         bool cueHeld = false;
         bool cuePreviewing = false;
+        bool buffering = false;
+        bool readFailed = false;
     };
+    void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
+    bool renderSources(std::span<float> interleaved) noexcept;
+    static constexpr std::size_t sourceBlockFrames = 1024;
     std::array<float, sampleRate> tone_{};
     std::array<Deck, deckCount> decks_{};
+    std::array<std::array<float, sourceBlockFrames * channels>, deckCount> sourceScratch_{};
     std::uint64_t frameClock_ = 0;
     std::uint32_t phase_ = 0;
     float masterGain_ = 1.0F;

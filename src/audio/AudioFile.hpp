@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <span>
+#include <stop_token>
 #include <vector>
 
 namespace conflux::audio {
@@ -29,10 +30,37 @@ private:
     friend DecodedAudio decodeAudioFile(const std::filesystem::path&, std::size_t);
 };
 
-// This first playback slice accepts nonempty stereo 48 kHz files. The byte limit
-// bounds decoded PCM, independently of compressed file size. Performs file I/O
-// and allocation; never call from the audio callback.
+// Accept mono/stereo 8–192 kHz files; prepare stereo 48 kHz float PCM. Stereo
+// 48 kHz bypasses conversion; other rates use persistent best-quality sinc.
+// The byte limit bounds final PCM, independently of compressed/input size.
+// Performs file I/O, conversion and allocation outside the audio callback.
 DecodedAudio decodeAudioFile(const std::filesystem::path& path,
                             std::size_t maxDecodedBytes = DecodedAudio::defaultMaxDecodedBytes);
+
+// Sequentially prepared, anonymous temporary stereo 48 kHz float file. Only
+// workers read its descriptor; a renderer must use bounded PCM read-ahead.
+class PreparedAudio {
+public:
+    static constexpr std::size_t defaultMaxPreparedBytes = 256U * 1024U * 1024U;
+    ~PreparedAudio();
+    PreparedAudio(PreparedAudio&&) noexcept;
+    PreparedAudio& operator=(PreparedAudio&&) noexcept;
+    PreparedAudio(const PreparedAudio&) = delete;
+    PreparedAudio& operator=(const PreparedAudio&) = delete;
+    [[nodiscard]] int descriptor() const noexcept { return descriptor_; }
+    [[nodiscard]] std::uint64_t frames() const noexcept { return frames_; }
+    [[nodiscard]] std::span<const float> peaks() const noexcept { return peaks_; }
+private:
+    explicit PreparedAudio(int descriptor) noexcept;
+    int descriptor_ = -1;
+    std::uint64_t frames_ = 0;
+    std::vector<float> peaks_;
+    friend PreparedAudio prepareAudioFile(const std::filesystem::path&, std::size_t, std::stop_token,
+                                          const std::filesystem::path&);
+};
+
+PreparedAudio prepareAudioFile(const std::filesystem::path& path,
+    std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes, std::stop_token stop = {},
+    const std::filesystem::path& spoolDirectory = {});
 
 } // namespace conflux::audio

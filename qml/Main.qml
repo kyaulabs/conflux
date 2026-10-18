@@ -147,7 +147,7 @@ ApplicationWindow {
                 color: deckController.outputReady ? Brand.ConfluxTheme.success : Brand.ConfluxTheme.muted
             }
             Label {
-                text: deckController.busy ? "Loading source…"
+                text: deckController.busy ? "Preparing source…"
                       : (deckController.outputReady ? "AUDIO READY" : "OPEN LIBRARY TO LOAD A TRACK")
                 font.family: Brand.ConfluxTheme.displayFont
                 font.pixelSize: 13
@@ -213,7 +213,7 @@ ApplicationWindow {
                 }
             }
             Label {
-                text: "Stereo 48 kHz local files · up to 174 seconds / 64 MiB per deck. Installing a file briefly interrupts shared output."
+                text: "Mono/stereo local files, 8–192 kHz · up to 11m39s per track. Tracks are prepared before playback. Installing a track briefly interrupts shared output."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.muted
                 Layout.fillWidth: true

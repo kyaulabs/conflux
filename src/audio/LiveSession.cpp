@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/LiveSession.hpp"
 #include "audio/TransportQueue.hpp"
+#include "audio/AudioFile.hpp"
+#include "audio/PcmReadAhead.hpp"
 
 #include <pipewire/pipewire.h>
 #include <spa/param/audio/format-utils.h>
@@ -54,6 +56,32 @@ class LiveSession::Impl {
 public:
     Impl(std::span<const float> a, std::span<const float> b, const InitialState& initial)
         : renderer_(a.empty() && b.empty() ? RenderCore(false) : RenderCore(a, b))
+    { initialize(initial); }
+
+    static auto makeReaders(PreparedSources sources, const InitialState& initial)
+    {
+        std::array<std::unique_ptr<PcmReadAhead>, RenderCore::deckCount> readers;
+        for (std::size_t deck = 0; deck < readers.size(); ++deck) {
+            if (!sources[deck]) continue;
+            readers[deck] = std::make_unique<PcmReadAhead>(sources[deck]->descriptor(), sources[deck]->frames());
+            if (!readers[deck]->prime(initial.sourceFrame[deck], std::chrono::seconds(2)))
+                throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + readers[deck]->error());
+        }
+        return readers;
+    }
+
+    static RenderCore makeRenderer(const std::array<std::unique_ptr<PcmReadAhead>, RenderCore::deckCount>& readers)
+    {
+        if (!readers[0] && !readers[1]) return RenderCore(false);
+        return RenderCore(readers[0] ? readers[0]->sourceRef() : AudioSource{},
+                          readers[1] ? readers[1]->sourceRef() : AudioSource{});
+    }
+
+    Impl(PreparedSources sources, const InitialState& initial)
+        : readers_(makeReaders(sources, initial)), renderer_(makeRenderer(readers_))
+    { initialize(initial); }
+
+    void initialize(const InitialState& initial)
     {
         if (!renderer_.setMasterGain(initial.masterGain))
             throw std::invalid_argument("Invalid initial master gain");
@@ -139,6 +167,10 @@ public:
             state.playing[deck] = renderer_.isPlaying(deck);
             state.cueHeld[deck] = renderer_.isCueHeld(deck);
             state.cuePreview[deck] = renderer_.isCuePreviewing(deck);
+            state.buffering[deck] = renderer_.isBuffering(deck);
+            state.starvedFrames[deck] = renderer_.starvedFrames(deck);
+            state.sourceReadErrorObserved[deck] = renderer_.readFailed(deck);
+            state.sourceReadError[deck] = readers_[deck] ? bool(readers_[deck]->errorCode()) : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
         }
         state.masterGain = renderer_.masterGain();
@@ -208,6 +240,10 @@ public:
     bool start(std::string& error)
     {
         error.clear();
+        if (readersStopped_) {
+            error = "A stopped streamed session must be reconstructed before restarting";
+            return false;
+        }
         if (loop_) {
             error = currentError();
             if (error.empty())
@@ -307,12 +343,19 @@ public:
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck)
             if (renderer_.sourceFrames(deck))
                 renderer_.cueRelease(deck);
+        for (auto& reader : readers_)
+            if (reader) {
+                reader->stop();
+                readersStopped_ = true;
+            }
         State discarded;
         while (states_.pop(discarded)) {}
         stopped_ = capture();
     }
 
+    std::array<std::unique_ptr<PcmReadAhead>, RenderCore::deckCount> readers_;
     RenderCore renderer_;
+    bool readersStopped_ = false;
     TransportQueue commands_;
     StateQueue states_;
     pw_thread_loop* loop_ = nullptr;
@@ -335,6 +378,9 @@ LiveSession::LiveSession(std::span<const float> a, std::span<const float> b)
 
 LiveSession::LiveSession(std::span<const float> a, std::span<const float> b, const InitialState& initial)
     : impl_(std::make_unique<Impl>(a, b, initial)) {}
+
+LiveSession::LiveSession(PreparedSources sources, const InitialState& initial)
+    : impl_(std::make_unique<Impl>(sources, initial)) {}
 
 LiveSession::~LiveSession() = default;
 

@@ -11,6 +11,7 @@
 #include <QVariantList>
 #include <array>
 #include <memory>
+#include <stop_token>
 
 namespace conflux {
 
@@ -50,27 +51,37 @@ public:
     std::uint64_t completedCallbacks() const { return completedCallbacks_; }
     std::uint64_t completedDeadlineMisses() const { return completedDeadlineMisses_; }
     std::uint64_t maximumCallbackNs() const { return maximumCallbackNs_; }
+    std::uint64_t completedStarvedFrames() const { return completedStarvedFrames_; }
+    std::uint64_t completedReadFailures() const { return completedReadFailures_; }
 signals:
     void stateChanged();
 private:
     struct LoadResult {
-        std::shared_ptr<const audio::DecodedAudio> audio;
+        std::shared_ptr<const audio::PreparedAudio> audio;
         QString error;
         QVariantList waveform;
     };
+    struct InstallResult {
+        std::unique_ptr<audio::LiveSession> session;
+        QString error;
+    };
     void loaded();
+    void installed();
     void poll();
     bool submit(audio::RenderCore::Command command);
     bool flushCueReleases();
     void stopSession();
     void fail(const QString& error);
-    std::array<std::shared_ptr<const audio::DecodedAudio>, 2> clips_{};
+    std::array<std::shared_ptr<const audio::PreparedAudio>, 2> clips_{};
+    std::stop_source loadCancellation_;
     std::array<QString, 2> names_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::unique_ptr<audio::LiveSession> session_;
     audio::LiveSession::State state_{};
+    std::uint64_t completedStarvedFrames_ = 0, completedReadFailures_ = 0;
     QFutureWatcher<LoadResult> loader_;
+    QFutureWatcher<std::shared_ptr<InstallResult>> installer_;
     QTimer pollTimer_;
     QString error_;
     QString pendingName_;

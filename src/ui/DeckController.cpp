@@ -3,6 +3,7 @@
 
 #include <QFileInfo>
 #include <QFile>
+#include <QStandardPaths>
 #include <QtConcurrentRun>
 #include <algorithm>
 #include <cmath>
@@ -13,6 +14,7 @@ namespace conflux {
 DeckController::DeckController(QObject* parent) : QObject(parent)
 {
     connect(&loader_, &QFutureWatcher<LoadResult>::finished, this, &DeckController::loaded);
+    connect(&installer_, &QFutureWatcher<std::shared_ptr<InstallResult>>::finished, this, &DeckController::installed);
     connect(&pollTimer_, &QTimer::timeout, this, &DeckController::poll);
     pollTimer_.start(50);
 }
@@ -29,11 +31,18 @@ void DeckController::shutdown()
     closing_ = true;
     pollTimer_.stop();
     disconnect(&loader_, nullptr, this, nullptr);
-    // QtConcurrent::run cannot cancel a running decoder. The decoder accepts
-    // regular files and bounds its PCM allocation; wait before releasing state.
-    loader_.waitForFinished();
-    busy_ = false;
+    disconnect(&installer_, nullptr, this, nullptr);
+    loadCancellation_.request_stop();
     stopSession();
+    // Preparation checks cancellation between bounded reads/conversion/writes.
+    // Join before releasing the controller and decoded owners.
+    loader_.waitForFinished();
+    installer_.waitForFinished();
+    if (installer_.future().resultCount() > 0) {
+        const auto pending = installer_.result();
+        if (pending && pending->session) pending->session->stop();
+    }
+    busy_ = false;
 }
 
 QVariantList DeckController::decks() const
@@ -46,6 +55,8 @@ QVariantList DeckController::decks() const
             {"playing", state_.playing[deck]},
             {"cueSeconds", state_.cueFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"cueHeld", state_.cueHeld[deck]}, {"cuePreview", state_.cuePreview[deck]},
+            {"buffering", state_.buffering[deck]}, {"sourceReadError", state_.sourceReadError[deck]},
+            {"starvedFrames", QVariant::fromValue<qulonglong>(state_.starvedFrames[deck])},
             {"positionSeconds", state_.sourceFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"durationSeconds", state_.sourceFrames[deck] / double(audio::RenderCore::sampleRate)},
             {"gain", state_.deckGain[deck]}});
@@ -82,28 +93,25 @@ void DeckController::loadDeck(int deck, const QUrl& url)
     busy_ = true;
     error_.clear();
     emit stateChanged();
-    loader_.setFuture(QtConcurrent::run([path]() -> LoadResult {
+    loadCancellation_ = std::stop_source{};
+    const auto baseCache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    if (baseCache.isEmpty()) {
+        busy_ = false;
+        fail("Cannot find a local cache directory for audio preparation.");
+        return;
+    }
+    const auto cache = baseCache + "/pcm";
+    loader_.setFuture(QtConcurrent::run([path, cache, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             // QFile::encodeName preserves the platform's filesystem encoding.
             const auto encoded = QFile::encodeName(path);
-            auto decoded = audio::decodeAudioFile(std::filesystem::path(encoded.constData()));
-            // A bounded overview of actual source peaks. Compute outside both
-            // GUI and audio threads; normalization affects display only.
-            const auto bins = std::min<std::uint64_t>(512, decoded.frames());
-            std::vector<float> peaks(bins, 0.0F);
-            float maximum = 0.0F;
-            const auto pcm = decoded.samples();
-            for (std::uint64_t frame = 0; frame < decoded.frames(); ++frame) {
-                const auto peak = std::max(std::abs(pcm[frame * 2]), std::abs(pcm[frame * 2 + 1]));
-                auto& bin = peaks[frame * bins / decoded.frames()];
-                bin = std::max(bin, peak);
-                maximum = std::max(maximum, peak);
-            }
+            const auto encodedCache = QFile::encodeName(cache);
+            auto decoded = audio::prepareAudioFile(std::filesystem::path(encoded.constData()),
+                audio::PreparedAudio::defaultMaxPreparedBytes, stop, std::filesystem::path(encodedCache.constData()));
             QVariantList waveform;
-            waveform.reserve(qsizetype(bins));
-            for (const auto peak : peaks)
-                waveform.append(maximum > 0.0F ? peak / maximum : 0.0F);
-            return {std::make_shared<const audio::DecodedAudio>(std::move(decoded)), {}, waveform};
+            waveform.reserve(qsizetype(decoded.peaks().size()));
+            for (const auto peak : decoded.peaks()) waveform.append(peak);
+            return {std::make_shared<const audio::PreparedAudio>(std::move(decoded)), {}, waveform};
         } catch (const std::exception& error) {
             return {{}, QString::fromUtf8(error.what()), {}};
         } catch (...) {
@@ -124,6 +132,10 @@ void DeckController::stopSession()
         completedCallbacks_ += state_.callbacks;
         completedDeadlineMisses_ += state_.deadlineMisses;
         maximumCallbackNs_ = std::max(maximumCallbackNs_, state_.maxExecutionNs);
+        for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
+            completedStarvedFrames_ += state_.starvedFrames[deck];
+            completedReadFailures_ += state_.sourceReadErrorObserved[deck] || state_.sourceReadError[deck] ? 1 : 0;
+        }
         session_.reset();
     }
     ready_ = false;
@@ -136,8 +148,8 @@ void DeckController::loaded()
     if (closing_)
         return;
     const auto result = loader_.result();
-    busy_ = false;
     if (!result.audio) {
+        busy_ = false;
         fail(result.error);
         return;
     }
@@ -148,20 +160,47 @@ void DeckController::loaded()
     waveforms_[pendingDeck_] = result.waveform;
     state_.sourceFrame[pendingDeck_] = 0;
     state_.cueFrame[pendingDeck_] = 0;
+    state_.cueHeld[pendingDeck_] = state_.cuePreview[pendingDeck_] = false;
+    state_.buffering[pendingDeck_] = state_.sourceReadError[pendingDeck_] = false;
+    state_.sourceReadErrorObserved[pendingDeck_] = false;
+    state_.starvedFrames[pendingDeck_] = 0;
     state_.sourceFrames[pendingDeck_] = result.audio->frames();
     state_.playing[pendingDeck_] = false;
     state_.deckGain[pendingDeck_] = 1.0F;
-    const auto span = [&](std::size_t deck) {
-        return clips_[deck] ? clips_[deck]->samples() : std::span<const float>{};
-    };
     audio::LiveSession::InitialState initial;
     initial.sourceFrame = state_.sourceFrame;
     initial.cueFrame = state_.cueFrame;
     initial.playing = state_.playing;
     initial.deckGain = state_.deckGain;
     initial.masterGain = state_.masterGain;
+    // Capture the exact quiesced cursor first. Priming can involve slow storage,
+    // so keep the installing stage busy and construct its readers off the GUI.
+    installer_.setFuture(QtConcurrent::run([clips = clips_, initial]() {
+        auto result = std::make_shared<InstallResult>();
+        try {
+            result->session = std::make_unique<audio::LiveSession>(
+                audio::LiveSession::PreparedSources{clips[0].get(), clips[1].get()}, initial);
+        } catch (const std::exception& error) {
+            result->error = QString::fromUtf8(error.what());
+        } catch (...) {
+            result->error = "Cannot install prepared audio";
+        }
+        return result;
+    }));
+    emit stateChanged();
+}
+
+void DeckController::installed()
+{
+    if (closing_) return;
+    const auto result = installer_.result();
+    busy_ = false;
+    if (!result->session) {
+        fail(result->error);
+        return;
+    }
     try {
-        session_ = std::make_unique<audio::LiveSession>(span(0), span(1), initial);
+        session_ = std::move(result->session);
         state_ = session_->stoppedState();
         std::string error;
         if (!session_->start(error)) {

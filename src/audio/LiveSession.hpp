@@ -10,6 +10,7 @@
 #include <string>
 
 namespace conflux::audio {
+class PreparedAudio;
 
 // One control-thread owner; process callbacks own DSP while running. Borrowed
 // immutable PCM must outlive the session. Source replacement requires stop.
@@ -29,6 +30,9 @@ public:
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<bool, RenderCore::deckCount> cueHeld{}, cuePreview{};
+        std::array<bool, RenderCore::deckCount> buffering{}, sourceReadError{};
+        std::array<bool, RenderCore::deckCount> sourceReadErrorObserved{};
+        std::array<std::uint64_t, RenderCore::deckCount> starvedFrames{};
         std::array<float, RenderCore::deckCount> deckGain{};
         float masterGain = 1.0F;
         std::uint64_t applied = 0, rejected = 0, lastCommandId = 0;
@@ -40,6 +44,10 @@ public:
 
     explicit LiveSession(std::span<const float> a = {}, std::span<const float> b = {});
     LiveSession(std::span<const float> a, std::span<const float> b, const InitialState& initial);
+    using PreparedSources = std::array<const PreparedAudio*, RenderCore::deckCount>;
+    // Duplicated file readers own fixed read-ahead caches, prime before output,
+    // and stop after callbacks. Prepared owners may then be released safely.
+    LiveSession(PreparedSources sources, const InitialState& initial);
     ~LiveSession();
     LiveSession(const LiveSession&) = delete;
     LiveSession& operator=(const LiveSession&) = delete;

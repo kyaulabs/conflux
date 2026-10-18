@@ -38,6 +38,9 @@ int main(int argc, char** argv)
     engine.rootContext()->setContextProperty("qtVersion", QString::fromUtf8(qVersion()));
     engine.rootContext()->setContextProperty("platformName", QGuiApplication::platformName());
     QJsonArray checks;
+    QJsonArray sceneErrors;
+    std::uint64_t swapped = 0;
+    bool sceneError = false;
     QElapsedTimer elapsed;
     elapsed.start();
     auto require = [&](bool value, const char* description) {
@@ -58,10 +61,12 @@ int main(int argc, char** argv)
         require(!engine.rootObjects().isEmpty(), "Manual QML loaded");
         auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
         require(window, "Manual window created");
-        std::uint64_t swapped = 0;
-        bool sceneError = false;
         QObject::connect(window, &QQuickWindow::frameSwapped, &app, [&] { ++swapped; });
-        QObject::connect(window, &QQuickWindow::sceneGraphError, &app, [&] { sceneError = true; });
+        QObject::connect(window, &QQuickWindow::sceneGraphError, &app,
+            [&](QQuickWindow::SceneGraphError code, const QString& message) {
+                sceneError = true;
+                sceneErrors.append(QJsonObject{{"code", int(code)}, {"message", message}});
+            });
         wait([&] { return window->isExposed() && swapped > 0; });
         const auto a = QUrl::fromLocalFile(QString::fromLocal8Bit(argv[1]));
         const auto b = QUrl::fromLocalFile(QString::fromLocal8Bit(argv[2]));
@@ -204,7 +209,8 @@ int main(int argc, char** argv)
         window->resize(1180, 760);
         QTest::qWait(200);
         require(window->grabWindow().save(prefix + "-minimum.png"), "Minimum-size screenshot saved");
-        require(!sceneError && swapped > 20, "GUI frames rendered alongside live audio without scene errors");
+        require(!sceneError, "No scene-graph errors during live audio");
+        require(swapped > 20, "GUI frames continued rendering alongside live audio");
         // Do not wait for a GUI acknowledgement: stop must preserve even the
         // accepted tail that has not yet reached a callback boundary.
         controller.setPlaying(1, false);
@@ -213,7 +219,7 @@ int main(int argc, char** argv)
         controller.shutdown();
         require(controller.completedApplied() == controller.submittedCommands() &&
                 controller.completedRejected() == 0 && controller.completedInvalidBuffers() == 0 &&
-                controller.completedDeadlineMisses() == 0,
+                controller.completedDeadlineMisses() == 0 && controller.completedReadFailures() == 0,
                 "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across four sessions");
         const auto final = controller.audioState();
         require(!final.playing[1] && final.masterGain == 0.25F && final.sourceFrame[0] == final.cueFrame[0] &&
@@ -230,6 +236,8 @@ int main(int argc, char** argv)
             {"callbacks", qint64(controller.completedCallbacks())},
             {"callback_execution_deadline_misses", qint64(controller.completedDeadlineMisses())},
             {"maximum_callback_execution_ns", qint64(controller.maximumCallbackNs())},
+            {"source_starved_frames_including_seek_priming", qint64(controller.completedStarvedFrames())},
+            {"source_read_failures", qint64(controller.completedReadFailures())},
             {"last_session_callbacks", qint64(final.callbacks)},
             {"last_session_output_frames", qint64(final.outputFrame)},
             {"last_session_snapshot_drops", qint64(final.snapshotDrops)},
@@ -242,7 +250,10 @@ int main(int argc, char** argv)
     } catch (const std::exception& error) {
         controller.shutdown();
         std::cerr << error.what() << '\n';
-        const QJsonObject result{{"passed", false}, {"error", QString::fromUtf8(error.what())}, {"checks", checks}};
+        const QJsonObject result{{"passed", false}, {"error", QString::fromUtf8(error.what())}, {"checks", checks},
+            {"frames_swapped", qint64(swapped)}, {"scene_errors", sceneErrors}, {"elapsed_ms", elapsed.elapsed()},
+            {"submitted", qint64(controller.submittedCommands())}, {"applied", qint64(controller.completedApplied())},
+            {"source_read_failures", qint64(controller.completedReadFailures())}};
         std::cout << QJsonDocument(result).toJson().constData();
         return 1;
     }

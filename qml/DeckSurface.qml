@@ -5,6 +5,9 @@ import "../brand/integration/qtquick" as Brand
 
 Item {
     id: surface
+    readonly property string transportStatus: !deck.loaded ? "EMPTY" : deck.sourceReadError ? "READ ERROR"
+                                             : deck.buffering ? "BUFFERING" : deck.cuePreview ? "CUE PREVIEW"
+                                             : deck.playing ? "PLAYING" : "PAUSED"
     required property int deckIndex
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
@@ -167,7 +170,7 @@ Item {
             x: 14
             y: 107
             visible: display.height >= 210
-            text: surface.deck.loaded ? (surface.deck.cuePreview ? "CUE PREVIEW" : (surface.deck.playing ? "PLAYING" : "PAUSED")) + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
+            text: surface.deck.loaded ? surface.transportStatus + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 9
@@ -420,7 +423,7 @@ Item {
                 spacing: 4
                 Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deckName.toUpperCase(); color: surface.displayAccent; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 12 }
                 Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deck.loaded ? surface.timeText(surface.deck.positionSeconds) : "—:—"; color: "#EFF8F6"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: jog.width >= 330 ? 23 : 17 }
-                Label { anchors.horizontalCenter: parent.horizontalCenter; text: !surface.deck.loaded ? "EMPTY" : (surface.deck.cuePreview ? "CUE PREVIEW" : (surface.deck.playing ? "PLAYING" : "PAUSED")); color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.transportStatus; color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
             }
         }
     }
