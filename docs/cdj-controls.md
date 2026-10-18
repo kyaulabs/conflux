@@ -6,10 +6,11 @@ The [CDJ-3000 operating instructions, pages 14–16](https://downloads.support.a
 identify the controls; pages 47–49 distinguish tempo, Master Tempo and jog
 operations. This inventory covers the visual redesign and the existing manual
 audio functions, including independent headphone cue, metering and stereo
-recording. Source-peak overviews leave audio PCM unchanged. The current working
-tree adds positional jog, 5 ms live ramps and source handoffs within the same
-output session. Human listening and sustained playback qualification remain
-pending M1 work.
+recording. Source-peak overviews leave audio PCM unchanged. Positional jog,
+5 ms live ramps and source handoffs use the same output session. M1's sustained
+playback run and speaker listening acceptance are complete within the
+[tested manual-audio scope](M1.md). Physical headphone isolation remains
+unverified where the required hardware was unavailable.
 
 Both deck faces have the same orientation. Put the display across the upper
 third, eight Hot Cue buttons immediately beneath it, and the large jog in the
@@ -93,8 +94,8 @@ open/finalization work after audio stops.
 The live adapter uses 240-frame (5 ms) ramps for gains, headphone selection
 and transport transitions, including seek/jog, CUE, EOF and data loss/recovery.
 Pre-fader deck meters include those transport transitions. The ramps do not
-implement a limiter or normalize the audio, and human listening review remains
-pending.
+implement a limiter or normalize the audio. The user accepted the current
+speaker test without reported clicks or playback issues.
 
 BPM, key and beatgrid remain unavailable. The overview uses at most 512
 buckets of `max(abs(left), abs(right))` from decoded PCM, normalized to the
