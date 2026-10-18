@@ -3,15 +3,19 @@
 
 #include "audio/AudioFile.hpp"
 #include "audio/LiveSession.hpp"
+#include "audio/AudioRouting.hpp"
+#include "audio/StereoRecorder.hpp"
 
 #include <QFutureWatcher>
 #include <QObject>
 #include <QTimer>
 #include <QUrl>
 #include <QVariantList>
+#include <QVariantMap>
 #include <array>
 #include <memory>
 #include <stop_token>
+#include <vector>
 
 namespace conflux {
 
@@ -24,6 +28,10 @@ class DeckController final : public QObject {
     Q_PROPERTY(bool outputReady READ outputReady NOTIFY stateChanged)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
+    Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap meters READ meters NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
 public:
     explicit DeckController(QObject* parent = nullptr);
     ~DeckController() override;
@@ -32,11 +40,23 @@ public:
     bool outputReady() const { return ready_; }
     QString error() const { return error_; }
     double masterGain() const { return state_.masterGain; }
+    double cueGain() const { return state_.cueGain; }
+    QVariantMap meters() const;
+    QVariantMap audioRouting() const;
+    QVariantMap recording() const;
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url);
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
     Q_INVOKABLE void setDeckGain(int deck, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
+    Q_INVOKABLE void setCueGain(double gain);
+    Q_INVOKABLE void setCueSelected(int deck, bool selected);
+    Q_INVOKABLE void refreshAudioRouting();
+    // Empty master keys select the current default; empty cue keys disable cue.
+    Q_INVOKABLE void configureAudioRouting(const QString& masterLeft, const QString& masterRight,
+                                          const QString& cueLeft, const QString& cueRight);
+    Q_INVOKABLE void startRecording(const QUrl& url);
+    Q_INVOKABLE void stopRecording();
     Q_INVOKABLE bool cuePress(int deck);
     Q_INVOKABLE void cueRelease(int deck);
     // Called after output has stopped by the host integration check as well as
@@ -53,6 +73,7 @@ public:
     std::uint64_t maximumCallbackNs() const { return maximumCallbackNs_; }
     std::uint64_t completedStarvedFrames() const { return completedStarvedFrames_; }
     std::uint64_t completedReadFailures() const { return completedReadFailures_; }
+    const std::vector<audio::CallbackTiming::Summary>& completedTiming() const { return completedTiming_; }
 signals:
     void stateChanged();
 private:
@@ -65,8 +86,21 @@ private:
         std::unique_ptr<audio::LiveSession> session;
         QString error;
     };
+    struct RecordingStart {
+        std::shared_ptr<audio::StereoRecorder> writer;
+        QString error;
+    };
+    struct RecordingCompletion {
+        QString error;
+        std::uint64_t accepted = 0, written = 0, overflows = 0, overflowFrames = 0;
+    };
     void loaded();
     void installed();
+    void installSession();
+    void recordingStarted();
+    void recordingFinished();
+    void pollRecording();
+    void finalizeRecording();
     void poll();
     bool submit(audio::RenderCore::Command command);
     bool flushCueReleases();
@@ -78,10 +112,21 @@ private:
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::unique_ptr<audio::LiveSession> session_;
+    std::unique_ptr<audio::LiveSession> discovery_;
+    audio::RoutingConfig routingConfig_;
+    audio::RoutingSnapshot routingSnapshot_;
     audio::LiveSession::State state_{};
     std::uint64_t completedStarvedFrames_ = 0, completedReadFailures_ = 0;
+    std::vector<audio::CallbackTiming::Summary> completedTiming_;
     QFutureWatcher<LoadResult> loader_;
     QFutureWatcher<std::shared_ptr<InstallResult>> installer_;
+    QFutureWatcher<RecordingStart> recordingStarter_;
+    QFutureWatcher<RecordingCompletion> recordingFinalizer_;
+    std::shared_ptr<audio::StereoRecorder> recorder_;
+    RecordingCompletion lastRecording_;
+    QString recordingPath_, recordingStatus_ = "Idle", recordingError_;
+    bool recordingStopRequested_ = false;
+    bool recordingStartPending_ = false, recordingFinalizationPending_ = false;
     QTimer pollTimer_;
     QString error_;
     QString pendingName_;

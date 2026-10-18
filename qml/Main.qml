@@ -93,6 +93,22 @@ ApplicationWindow {
                 Accessible.name: "Open local file library (Control O)"
             }
             Button {
+                objectName: "audioSettingsOpen"
+                text: deckController.recording.active ? "AUDIO / REC ●" : "AUDIO / REC"
+                font.family: Brand.ConfluxTheme.displayFont
+                font.pixelSize: 15
+                Layout.minimumWidth: 116
+                Layout.minimumHeight: 44
+                onClicked: audioSettings.open()
+                Accessible.name: "Audio outputs and stereo recording"
+                background: Rectangle {
+                    radius: 3
+                    color: parent.down ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.surface
+                    border.color: parent.activeFocus || deckController.recording.active
+                                  ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
+                }
+            }
+            Button {
                 id: themeButton
                 objectName: "themeToggle"
                 text: Brand.ConfluxTheme.dark ? "LIGHT" : "DARK"
@@ -286,6 +302,269 @@ ApplicationWindow {
         }
     }
 
+    Drawer {
+        id: audioSettings
+        objectName: "audioSettingsDrawer"
+        edge: Qt.RightEdge
+        width: Math.min(620, window.width - 24)
+        height: window.height
+        modal: true
+        padding: 20
+        property string masterLeft: ""
+        property string masterRight: ""
+        property string cueLeft: ""
+        property string cueRight: ""
+        readonly property var masterOptions: [{key: "", label: "Default master"}].concat(deckController.audioRouting.ports)
+        readonly property var cueOptions: [{key: "", label: "Cue disabled"}].concat(deckController.audioRouting.ports)
+        readonly property bool completePairs: (masterLeft.length === 0) === (masterRight.length === 0)
+                                             && (cueLeft.length === 0) === (cueRight.length === 0)
+        readonly property bool distinctPorts: {
+            const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(function(key) { return key.length > 0 })
+            return keys.every(function(key, index) { return keys.indexOf(key) === index })
+        }
+        function optionIndex(options, key) {
+            for (let i = 0; i < options.length; ++i)
+                if (options[i].key === key) return i
+            return -1
+        }
+        onOpened: {
+            masterLeft = deckController.audioRouting.masterLeft
+            masterRight = deckController.audioRouting.masterRight
+            cueLeft = deckController.audioRouting.cueLeft
+            cueRight = deckController.audioRouting.cueRight
+            deckController.refreshAudioRouting()
+        }
+        background: Rectangle {
+            color: Brand.ConfluxTheme.surface
+            border.color: Brand.ConfluxTheme.divider
+        }
+        ColumnLayout {
+            anchors.fill: parent
+            spacing: 14
+            RowLayout {
+                Layout.fillWidth: true
+                Label {
+                    text: "AUDIO / RECORDING"
+                    color: Brand.ConfluxTheme.text
+                    font.family: Brand.ConfluxTheme.displayFont
+                    font.pixelSize: 24
+                }
+                Item { Layout.fillWidth: true }
+                Button {
+                    objectName: "audioSettingsClose"
+                    text: "CLOSE ×"
+                    Layout.minimumHeight: 44
+                    onClicked: audioSettings.close()
+                    Accessible.name: "Close audio and recording settings (Escape)"
+                }
+            }
+            ScrollView {
+                id: audioScroll
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                contentWidth: availableWidth
+                ColumnLayout {
+                    width: audioScroll.availableWidth
+                    spacing: 12
+                    Label {
+                        text: "OUTPUTS"
+                        font.family: Brand.ConfluxTheme.displayFont
+                        font.pixelSize: 18
+                        color: Brand.ConfluxTheme.text
+                    }
+                    Label {
+                        text: "Refresh playback ports, then choose your outputs. You can save outputs before loading a track. Applying during playback briefly interrupts audio, then restores transport. Headphone cue needs four distinct ports across master and cue; it never falls back to the default master."
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.muted
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        text: "Default master: " + (deckController.audioRouting.defaultSink || "not discovered")
+                        wrapMode: Text.WrapAnywhere
+                        color: Brand.ConfluxTheme.muted
+                        Layout.fillWidth: true
+                    }
+                    GridLayout {
+                        columns: 2
+                        columnSpacing: 12
+                        rowSpacing: 8
+                        Layout.fillWidth: true
+                        Label { text: "MASTER LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
+                        ComboBox {
+                            objectName: "masterLeftPort"
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: 40
+                            textRole: "label"
+                            model: audioSettings.masterOptions
+                            currentIndex: audioSettings.optionIndex(model, audioSettings.masterLeft)
+                            onActivated: function(index) { audioSettings.masterLeft = model[index].key }
+                            Accessible.name: "Master left playback port"
+                        }
+                        Label { text: "MASTER RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
+                        ComboBox {
+                            objectName: "masterRightPort"
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: 40
+                            textRole: "label"
+                            model: audioSettings.masterOptions
+                            currentIndex: audioSettings.optionIndex(model, audioSettings.masterRight)
+                            onActivated: function(index) { audioSettings.masterRight = model[index].key }
+                            Accessible.name: "Master right playback port"
+                        }
+                        Label { text: "CUE LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
+                        ComboBox {
+                            objectName: "cueLeftPort"
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: 40
+                            textRole: "label"
+                            model: audioSettings.cueOptions
+                            currentIndex: audioSettings.optionIndex(model, audioSettings.cueLeft)
+                            onActivated: function(index) { audioSettings.cueLeft = model[index].key }
+                            Accessible.name: "Headphone cue left playback port"
+                        }
+                        Label { text: "CUE RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
+                        ComboBox {
+                            objectName: "cueRightPort"
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: 40
+                            textRole: "label"
+                            model: audioSettings.cueOptions
+                            currentIndex: audioSettings.optionIndex(model, audioSettings.cueRight)
+                            onActivated: function(index) { audioSettings.cueRight = model[index].key }
+                            Accessible.name: "Headphone cue right playback port"
+                        }
+                    }
+                    Label {
+                        objectName: "routingValidation"
+                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts
+                        text: !audioSettings.completePairs ? "Select both channels of each pair, or leave both empty."
+                                                          : "Master and cue must use distinct playback ports."
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.accent
+                        Layout.fillWidth: true
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Button {
+                            objectName: "audioRoutingRefresh"
+                            text: "REFRESH"
+                            Layout.minimumHeight: 44
+                            enabled: !deckController.busy
+                            onClicked: deckController.refreshAudioRouting()
+                            Accessible.name: "Refresh playback ports"
+                        }
+                        Button {
+                            objectName: "audioRoutingApply"
+                            text: "APPLY OUTPUTS"
+                            Layout.minimumHeight: 44
+                            enabled: !deckController.busy && !deckController.recording.active
+                                     && audioSettings.completePairs && audioSettings.distinctPorts
+                            onClicked: deckController.configureAudioRouting(audioSettings.masterLeft, audioSettings.masterRight,
+                                                                           audioSettings.cueLeft, audioSettings.cueRight)
+                            Accessible.name: "Apply master and headphone cue outputs"
+                        }
+                    }
+                    Label {
+                        objectName: "routingStatus"
+                        text: "Master " + (deckController.audioRouting.masterReady ? "ready" : "unavailable")
+                              + " · Cue " + (deckController.audioRouting.cueReady ? "ready" : "unrouted")
+                        color: Brand.ConfluxTheme.text
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        objectName: "routingError"
+                        text: [deckController.audioRouting.masterError, deckController.audioRouting.cueError, deckController.error]
+                              .filter(function(error, index, all) { return Boolean(error) && all.indexOf(error) === index }).join("\n")
+                        visible: text.length > 0
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.accent
+                        Layout.fillWidth: true
+                    }
+                    Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Brand.ConfluxTheme.divider }
+                    Label {
+                        text: "STEREO RECORDING"
+                        font.family: Brand.ConfluxTheme.displayFont
+                        font.pixelSize: 18
+                        color: Brand.ConfluxTheme.text
+                    }
+                    Label {
+                        text: "Records the post-master mix to a new stereo WAV file. Headphone cue is excluded. Enter a new absolute .wav path; existing files are never overwritten. Stop recording before applying outputs."
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.muted
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: recordingPath
+                        objectName: "recordingPath"
+                        Layout.fillWidth: true
+                        Layout.minimumHeight: 44
+                        placeholderText: "/home/you/Music/my-set.wav"
+                        selectByMouse: true
+                        enabled: !deckController.recording.active
+                        onAccepted: if (recordStart.enabled) deckController.startRecording(window.localUrl(text))
+                        Accessible.name: "New absolute stereo WAV recording path"
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Button {
+                            id: recordStart
+                            objectName: "recordingStart"
+                            text: "RECORD MASTER"
+                            Layout.minimumHeight: 44
+                            enabled: deckController.outputReady && !deckController.busy && !deckController.recording.active
+                                     && (recordingPath.text.trim().startsWith("/") || recordingPath.text.trim().startsWith("file:///"))
+                                     && recordingPath.text.trim().toLowerCase().endsWith(".wav")
+                            onClicked: deckController.startRecording(window.localUrl(recordingPath.text))
+                            Accessible.name: "Start stereo master recording to a new file"
+                        }
+                        Button {
+                            objectName: "recordingStop"
+                            text: "STOP / SAVE"
+                            Layout.minimumHeight: 44
+                            enabled: deckController.recording.active && deckController.recording.status !== "Stopping"
+                                     && deckController.recording.status !== "Finalizing"
+                            onClicked: deckController.stopRecording()
+                            Accessible.name: "Stop and finalize stereo recording"
+                        }
+                    }
+                    Label {
+                        objectName: "recordingStatus"
+                        text: "Recording: " + deckController.recording.status
+                        color: deckController.recording.active ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.text
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        objectName: "recordingSavedPath"
+                        text: deckController.recording.path
+                        visible: text.length > 0
+                        wrapMode: Text.WrapAnywhere
+                        color: Brand.ConfluxTheme.text
+                        Layout.fillWidth: true
+                        Accessible.name: "Recording file: " + text
+                    }
+                    Label {
+                        text: "Captured " + (deckController.recording.acceptedFrames / 48000).toFixed(1) + " s · saved "
+                              + (deckController.recording.writtenFrames / 48000).toFixed(1) + " s"
+                              + (deckController.recording.overflowFrames > 0 ? " · stopped: recording incomplete" : "")
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.muted
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        objectName: "recordingError"
+                        text: deckController.recording.error
+                        visible: text.length > 0
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.accent
+                        Layout.fillWidth: true
+                        Accessible.name: "Recording error: " + text
+                    }
+                }
+            }
+        }
+    }
+
     Popup {
         id: controlStatus
         anchors.centerIn: parent
@@ -300,7 +579,7 @@ ApplicationWindow {
             spacing: 16
             Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 24; color: Brand.ConfluxTheme.text }
             Label {
-                text: "Load, play/pause, temporary CUE, position seek, channel level and master level are active. Pause and press CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. Waveform overviews show actual source peaks, normalized for display.\n\nHot cues, jog manipulation, tempo, loops, sync, EQ, effects and headphone cue routing await their audio features. Their panel controls are inactive. Decks C/D are reserved."
+                text: "Load, play/pause, temporary CUE, position seek, channel/master levels, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. Mixer CUE selects the pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display.\n\nHot cues, jog manipulation, tempo, loops, sync, EQ and effects await their audio features. Their panel controls are inactive. Decks C/D are reserved."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.text
                 Layout.fillWidth: true

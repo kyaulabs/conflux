@@ -99,6 +99,22 @@ bool RenderCore::setMasterGain(float gain) noexcept
     return true;
 }
 
+bool RenderCore::setCueSelected(std::size_t deck, bool selected) noexcept
+{
+    if (deck >= deckCount || !decks_[deck].source.frames)
+        return false;
+    decks_[deck].cueSelected = selected;
+    return true;
+}
+
+bool RenderCore::setCueGain(float gain) noexcept
+{
+    if (!std::isfinite(gain) || gain < 0.0F || gain > 1.0F)
+        return false;
+    cueGain_ = gain;
+    return true;
+}
+
 bool RenderCore::cuePress(std::size_t deck) noexcept
 {
     if (deck >= deckCount || !decks_[deck].source.frames)
@@ -151,22 +167,90 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::MasterGain: return setMasterGain(command.gain);
     case Command::Type::CuePress: return cuePress(command.deck);
     case Command::Type::CueRelease: return cueRelease(command.deck);
+    case Command::Type::CueOn: return setCueSelected(command.deck, true);
+    case Command::Type::CueOff: return setCueSelected(command.deck, false);
+    case Command::Type::CueGain: return setCueGain(command.gain);
     }
     return false;
 }
 
 bool RenderCore::render(std::span<float> interleaved) noexcept
 {
+    return renderInternal(interleaved, {});
+}
+
+bool RenderCore::renderBuses(std::span<float> master, std::span<float> cue) noexcept
+{
+    if (master.size() != cue.size() || master.size() % channels != 0)
+        return false;
+    if (master.empty())
+        return true;
+    const auto first = reinterpret_cast<std::uintptr_t>(master.data());
+    const auto second = reinterpret_cast<std::uintptr_t>(cue.data());
+    if (first <= second ? second - first < master.size_bytes() : first - second < cue.size_bytes())
+        return false;
+    return renderInternal(master, cue);
+}
+
+void RenderCore::beginMeters(std::size_t frames) noexcept
+{
+    meters_.blockFrames = frames;
+    for (auto* meter : {&meters_.deck[0], &meters_.deck[1], &meters_.master, &meters_.cue}) {
+        meter->peak = {};
+        meter->rms = {};
+    }
+}
+
+void RenderCore::finishMeters() noexcept
+{
+    for (auto* meter : {&meters_.deck[0], &meters_.deck[1], &meters_.master, &meters_.cue})
+        for (auto& square : meter->rms)
+            square = std::sqrt(square / meters_.blockFrames);
+}
+
+void RenderCore::measure(StereoMeter& meter, float left, float right) noexcept
+{
+    const std::array<double, channels> samples{left, right};
+    for (std::size_t channel = 0; channel < channels; ++channel) {
+        const auto magnitude = std::abs(samples[channel]);
+        meter.peak[channel] = std::max(meter.peak[channel], magnitude);
+        meter.rms[channel] += samples[channel] * samples[channel];
+        if (magnitude > 1.0)
+            ++meter.overrangeSamples[channel];
+    }
+}
+
+void RenderCore::writeBuses(std::span<float> master, std::span<float> cue, std::size_t frame,
+                          double left, double right, double cueLeft, double cueRight) noexcept
+{
+    constexpr auto limit = static_cast<double>(std::numeric_limits<float>::max());
+    const auto masterLeft = static_cast<float>(std::clamp(left * masterGain_, -limit, limit));
+    const auto masterRight = static_cast<float>(std::clamp(right * masterGain_, -limit, limit));
+    const auto headphoneLeft = static_cast<float>(std::clamp(cueLeft * cueGain_, -limit, limit));
+    const auto headphoneRight = static_cast<float>(std::clamp(cueRight * cueGain_, -limit, limit));
+    master[frame * channels] = masterLeft;
+    master[frame * channels + 1] = masterRight;
+    if (!cue.empty()) {
+        cue[frame * channels] = headphoneLeft;
+        cue[frame * channels + 1] = headphoneRight;
+    }
+    measure(meters_.master, masterLeft, masterRight);
+    measure(meters_.cue, headphoneLeft, headphoneRight);
+}
+
+bool RenderCore::renderInternal(std::span<float> interleaved, std::span<float> cue) noexcept
+{
     if (interleaved.size() % channels != 0)
         return false;
     if (interleaved.empty())
         return true;
+    beginMeters(interleaved.size() / channels);
     for (auto& deck : decks_)
         deck.buffering = false;
     if (decks_[0].source.frames || decks_[1].source.frames) {
         if ((decks_[0].source.frames && !decks_[0].source.isMemory()) ||
             (decks_[1].source.frames && !decks_[1].source.isMemory()))
-            return renderSources(interleaved);
+            return renderSources(interleaved, cue);
         const auto frames = interleaved.size() / channels;
         std::array<std::uint64_t, deckCount> available{};
         for (std::size_t index = 0; index < deckCount; ++index)
@@ -174,14 +258,17 @@ bool RenderCore::render(std::span<float> interleaved) noexcept
                 available[index] = std::min<std::uint64_t>(frames, sourceFrames(index) - decks_[index].frame);
         for (std::size_t frame = 0; frame < frames; ++frame) {
             double left = 0.0, right = 0.0;
-            bool contributed = false;
+            double cueLeft = 0.0, cueRight = 0.0;
+            bool contributed = false, cueContributed = false;
             for (std::size_t index = 0; index < deckCount; ++index) {
                 if (frame >= available[index])
                     continue;
                 const auto& deck = decks_[index];
                 const auto source = (deck.frame + frame) * channels;
-                const auto deckLeft = static_cast<double>(deck.source.memory[source]) * deck.gain;
-                const auto deckRight = static_cast<double>(deck.source.memory[source + 1]) * deck.gain;
+                const auto rawLeft = deck.source.memory[source], rawRight = deck.source.memory[source + 1];
+                measure(meters_.deck[index], rawLeft, rawRight);
+                const auto deckLeft = static_cast<double>(rawLeft) * deck.gain;
+                const auto deckRight = static_cast<double>(rawRight) * deck.gain;
                 if (contributed) {
                     left += deckLeft;
                     right += deckRight;
@@ -190,27 +277,40 @@ bool RenderCore::render(std::span<float> interleaved) noexcept
                     right = deckRight;
                     contributed = true;
                 }
+                if (deck.cueSelected) {
+                    if (cueContributed) {
+                        cueLeft += rawLeft;
+                        cueRight += rawRight;
+                    } else {
+                        cueLeft = rawLeft;
+                        cueRight = rawRight;
+                        cueContributed = true;
+                    }
+                }
             }
-            constexpr auto limit = static_cast<double>(std::numeric_limits<float>::max());
-            interleaved[frame * channels] = static_cast<float>(std::clamp(left * masterGain_, -limit, limit));
-            interleaved[frame * channels + 1] = static_cast<float>(std::clamp(right * masterGain_, -limit, limit));
+            writeBuses(interleaved, cue, frame, left, right, cueLeft, cueRight);
         }
         for (std::size_t index = 0; index < deckCount; ++index)
             decks_[index].frame += available[index];
         frameClock_ += frames;
+        finishMeters();
         return true;
     }
     for (std::size_t i = 0; i < interleaved.size(); i += channels) {
         const float sample = audible_ ? tone_[phase_] * masterGain_ : 0.0F;
         interleaved[i] = interleaved[i + 1] = sample;
+        if (!cue.empty())
+            cue[i] = cue[i + 1] = 0.0F;
+        measure(meters_.master, sample, sample);
         if (++phase_ == sampleRate)
             phase_ = 0;
     }
     frameClock_ += interleaved.size() / channels;
+    finishMeters();
     return true;
 }
 
-bool RenderCore::renderSources(std::span<float> interleaved) noexcept
+bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cue) noexcept
 {
     const auto frames = interleaved.size() / channels;
     std::array<std::uint64_t, deckCount> needed{}, delivered{};
@@ -250,12 +350,15 @@ bool RenderCore::renderSources(std::span<float> interleaved) noexcept
 
         for (std::size_t frame = 0; frame < count; ++frame) {
             double left = 0.0, right = 0.0;
-            bool contributed = false;
+            double cueLeft = 0.0, cueRight = 0.0;
+            bool contributed = false, cueContributed = false;
             for (std::size_t index = 0; index < deckCount; ++index) {
                 if (frame >= available[index])
                     continue;
-                const auto deckLeft = static_cast<double>(samples[index][frame * channels]) * decks_[index].gain;
-                const auto deckRight = static_cast<double>(samples[index][frame * channels + 1]) * decks_[index].gain;
+                const auto rawLeft = samples[index][frame * channels], rawRight = samples[index][frame * channels + 1];
+                measure(meters_.deck[index], rawLeft, rawRight);
+                const auto deckLeft = static_cast<double>(rawLeft) * decks_[index].gain;
+                const auto deckRight = static_cast<double>(rawRight) * decks_[index].gain;
                 if (contributed) {
                     left += deckLeft;
                     right += deckRight;
@@ -264,10 +367,18 @@ bool RenderCore::renderSources(std::span<float> interleaved) noexcept
                     right = deckRight;
                     contributed = true;
                 }
+                if (decks_[index].cueSelected) {
+                    if (cueContributed) {
+                        cueLeft += rawLeft;
+                        cueRight += rawRight;
+                    } else {
+                        cueLeft = rawLeft;
+                        cueRight = rawRight;
+                        cueContributed = true;
+                    }
+                }
             }
-            constexpr auto limit = static_cast<double>(std::numeric_limits<float>::max());
-            interleaved[(offset + frame) * channels] = static_cast<float>(std::clamp(left * masterGain_, -limit, limit));
-            interleaved[(offset + frame) * channels + 1] = static_cast<float>(std::clamp(right * masterGain_, -limit, limit));
+            writeBuses(interleaved, cue, offset + frame, left, right, cueLeft, cueRight);
         }
         for (std::size_t index = 0; index < deckCount; ++index) {
             decks_[index].frame += available[index];
@@ -282,6 +393,7 @@ bool RenderCore::renderSources(std::span<float> interleaved) noexcept
         deck.starvedFrames += missing;
     }
     frameClock_ += frames;
+    finishMeters();
     return true;
 }
 

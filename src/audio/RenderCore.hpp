@@ -19,8 +19,18 @@ public:
     static constexpr float amplitude = 0.01F;
     static constexpr std::size_t deckCount = 2;
 
+    struct StereoMeter {
+        std::array<double, channels> peak{}, rms{};
+        std::array<std::uint64_t, channels> overrangeSamples{};
+    };
+    struct Meters {
+        std::array<StereoMeter, deckCount> deck{};
+        StereoMeter master{}, cue{};
+        std::uint64_t blockFrames = 0;
+    };
+
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -41,6 +51,9 @@ public:
     // Mix with double intermediates, preserving headroom above +/-1. Only
     // representation overflow saturates at the finite float limits.
     bool render(std::span<float> interleaved) noexcept;
+    // Separate stereo buses in one engine pass. Buffers must be equal-sized,
+    // complete stereo and disjoint; invalid/empty calls preserve all state.
+    bool renderBuses(std::span<float> master, std::span<float> cue) noexcept;
     // Only the render owner may seek, between render calls or before streaming.
     // The output frame clock remains monotonic across source seeks and EOF.
     bool seek(std::uint64_t frame) noexcept;
@@ -48,6 +61,10 @@ public:
     bool setPlaying(std::size_t deck, bool playing) noexcept;
     bool setDeckGain(std::size_t deck, float gain) noexcept;
     bool setMasterGain(float gain) noexcept;
+    // Headphone cue is independent of temporary transport CUE: selected active
+    // decks sum before channel/master gains, then receive this global cue gain.
+    bool setCueSelected(std::size_t deck, bool selected) noexcept;
+    bool setCueGain(float gain) noexcept;
     // CUE uses the owner's exact cursor. Press during playback returns to cue
     // and pauses; a paused press away from cue sets it, otherwise it auditions.
     // Release returns an unlatched audition to cue. PLAY latches the audition;
@@ -81,6 +98,13 @@ public:
     [[nodiscard]] bool readFailed(std::size_t deck = 0) const noexcept
     { return deck < deckCount && decks_[deck].readFailed; }
     [[nodiscard]] float masterGain() const noexcept { return masterGain_; }
+    [[nodiscard]] bool isCueSelected(std::size_t deck = 0) const noexcept
+    { return deck < deckCount && decks_[deck].cueSelected; }
+    [[nodiscard]] float cueGain() const noexcept { return cueGain_; }
+    // Peak/RMS cover the last nonempty block, including silence in its RMS
+    // denominator. Decks measure delivered pre-fader PCM; buses measure actual
+    // post-gain float output. abs(sample)>1 counts accumulate for this renderer.
+    [[nodiscard]] const Meters& meters() const noexcept { return meters_; }
 
 private:
     struct Deck {
@@ -94,16 +118,25 @@ private:
         bool cuePreviewing = false;
         bool buffering = false;
         bool readFailed = false;
+        bool cueSelected = false;
     };
     void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
-    bool renderSources(std::span<float> interleaved) noexcept;
+    bool renderInternal(std::span<float> master, std::span<float> cue) noexcept;
+    bool renderSources(std::span<float> master, std::span<float> cue) noexcept;
+    void beginMeters(std::size_t frames) noexcept;
+    void finishMeters() noexcept;
+    static void measure(StereoMeter& meter, float left, float right) noexcept;
+    void writeBuses(std::span<float> master, std::span<float> cue, std::size_t frame,
+                    double left, double right, double cueLeft, double cueRight) noexcept;
     static constexpr std::size_t sourceBlockFrames = 1024;
     std::array<float, sampleRate> tone_{};
     std::array<Deck, deckCount> decks_{};
     std::array<std::array<float, sourceBlockFrames * channels>, deckCount> sourceScratch_{};
+    Meters meters_{};
     std::uint64_t frameClock_ = 0;
     std::uint32_t phase_ = 0;
     float masterGain_ = 1.0F;
+    float cueGain_ = 1.0F;
     bool audible_;
 };
 

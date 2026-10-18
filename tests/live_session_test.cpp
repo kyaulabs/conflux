@@ -80,8 +80,19 @@ int main()
         RenderCore::Command play{RenderCore::Command::Type::Play, 0, 0, 1, 99};
         passed &= require(!empty.submit(play) && !empty.pollState(state) && empty.error().empty(),
                           "stopped session accepted transport or invented a snapshot/error");
+        const auto routes = empty.routingSnapshot();
+        passed &= require(routes.playbackPorts.empty() && !routes.masterReady && !routes.cueReady &&
+                          routes.cueStatus == conflux::audio::CueRouteStatus::Disabled &&
+                          !state.cueReady && state.graphRate == 0 && state.meters.blockFrames == 0 &&
+                          empty.stoppedTimingSummary().counters.callbacks == 0,
+                          "stopped session invented a route, meter block or timing observation");
+        passed &= require(empty.requestRecorder(nullptr) && empty.recorderChangePending() &&
+                          !empty.requestRecorder(nullptr) && !empty.recorderAttached(),
+                          "stopped recorder change did not enforce a single pending acknowledgement");
         empty.stop();
         empty.stop();
+        passed &= require(!empty.recorderChangePending() && !empty.recorderAttached(),
+                          "stopping did not quiesce a pending recorder change");
 
         const std::array<float, 4> a{.25F, -.5F, .75F, -.25F};
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};
@@ -91,13 +102,16 @@ int main()
         initial.playing = {true, false};
         initial.deckGain = {.5F, .25F};
         initial.masterGain = .75F;
+        initial.cueSelected = {true, false};
+        initial.cueGain = .625F;
         LiveSession restored(a, b, initial);
         state = restored.stoppedState();
         passed &= require(state.sourceFrame == initial.sourceFrame && state.sourceFrames == std::array<std::uint64_t, 2>{2, 3} &&
                           state.playing == initial.playing && state.deckGain == initial.deckGain &&
                           state.cueFrame == initial.cueFrame && !state.cueHeld[0] && !state.cueHeld[1] &&
                           !state.cuePreview[0] && !state.cuePreview[1] &&
-                          state.masterGain == initial.masterGain && state.outputFrame == 0 && state.callbacks == 0,
+                          state.masterGain == initial.masterGain && state.cueGain == initial.cueGain &&
+                          state.cueSelected == initial.cueSelected && state.outputFrame == 0 && state.callbacks == 0,
                           "initial source positions/gains/playing state were not restored");
         restored.stop();
         passed &= require(restored.stoppedState().sourceFrame == initial.sourceFrame && !restored.ready(),
@@ -117,6 +131,9 @@ int main()
         invalid = {};
         invalid.cueFrame[1] = 1;
         passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial cue was accepted");
+        invalid = {};
+        invalid.cueSelected[1] = true;
+        passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial cue selection was accepted");
         invalid = initial;
         invalid.playing[1] = true;
         passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial deck was accepted playing");
@@ -128,6 +145,9 @@ int main()
             invalid = initial;
             invalid.masterGain = gain;
             passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "invalid initial master gain was accepted");
+            invalid = initial;
+            invalid.cueGain = gain;
+            passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "invalid initial cue gain was accepted");
         }
         const std::array<float, 1> incomplete{0};
         passed &= rejects([&] { LiveSession rejected(incomplete); }, "incomplete PCM was accepted");
@@ -141,6 +161,8 @@ int main()
         std::string error;
         const bool started = unavailable.start(error);
         if (started) {
+            passed &= rejects([&] { (void)unavailable.stoppedTimingSummary(); },
+                              "running session allowed a percentile scan of mutable timing storage");
             const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(6);
             while (error.empty() && !unavailable.ready() && std::chrono::steady_clock::now() < deadline) {
                 error = unavailable.error();
@@ -154,6 +176,23 @@ int main()
         passed &= require(!unavailable.submit(play) && !state.ready && state.outputFrame == 0 &&
                           state.sourceFrame == initial.sourceFrame && state.applied == 0 && state.rejected == 0,
                           "failed/stopped output changed source state or accepted transport");
+        passed &= require(unavailable.stoppedTimingSummary().counters.callbacks == 0,
+                          "unreachable playback invented process callbacks");
+        LiveSession discovery;
+        error.clear();
+        if (discovery.startDiscovery(error)) {
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(6);
+            while (error.empty() && std::chrono::steady_clock::now() < deadline) {
+                error = discovery.error();
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        }
+        passed &= require(!error.empty() && !discovery.ready() && !discovery.routingSnapshot().cueReady,
+                          "unreachable discovery mode became ready or hid its failure");
+        discovery.stop();
+        passed &= require(discovery.stoppedState().callbacks == 0 &&
+                          discovery.stoppedTimingSummary().counters.callbacks == 0,
+                          "inactive routing discovery advanced an audio callback");
         std::cout << "Live session initialization, validation and private-server failure checks completed\n";
         return passed ? 0 : 1;
     } catch (const std::exception& error) {

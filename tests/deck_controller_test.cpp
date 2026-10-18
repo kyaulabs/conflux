@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QDataStream>
 #include <QFile>
+#include <QFileInfo>
 #include <QPointer>
 #include <QSignalSpy>
 #include <QTemporaryDir>
@@ -196,6 +197,71 @@ private slots:
         controller.cueRelease(0);
         verifyNoPlayback(controller);
         QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+    }
+
+    void routingRecordingAndMetersWithoutOutput()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto recordingPath = directory.filePath("must-not-be-created.wav");
+        conflux::DeckController controller;
+        QCOMPARE(controller.cueGain(), 1.0);
+        const auto initialRouting = controller.audioRouting();
+        QVERIFY(initialRouting["ports"].toList().isEmpty());
+        QVERIFY(!initialRouting["masterReady"].toBool());
+        QVERIFY(!initialRouting["cueReady"].toBool());
+        const auto initialMeters = controller.meters();
+        QCOMPARE(initialMeters["blockFrames"].toULongLong(), qulonglong(0));
+        for (const auto& meterName : {"master", "cue"}) {
+            const auto meter = initialMeters[meterName].toMap();
+            for (const auto& channel : {"peakLeft", "peakRight", "rmsLeft", "rmsRight"})
+                QCOMPARE(meter[channel].toDouble(), 0.0);
+            QCOMPARE(meter["overrangeLeft"].toULongLong(), qulonglong(0));
+            QCOMPARE(meter["overrangeRight"].toULongLong(), qulonglong(0));
+        }
+        for (const auto& deckValue : controller.decks()) {
+            const auto deck = deckValue.toMap();
+            QVERIFY(!deck["cueSelected"].toBool());
+            QCOMPARE(deck["meter"].toMap(), initialMeters["master"].toMap());
+        }
+        const auto initialRecording = controller.recording();
+        QCOMPARE(initialRecording["status"].toString(), QString("Idle"));
+        QVERIFY(!initialRecording["active"].toBool());
+        QCOMPARE(initialRecording["acceptedFrames"].toULongLong(), qulonglong(0));
+        QCOMPARE(initialRecording["writtenFrames"].toULongLong(), qulonglong(0));
+        controller.startRecording(QUrl::fromLocalFile(recordingPath));
+        const auto rejectedRecording = controller.recording();
+        QVERIFY(!rejectedRecording["error"].toString().isEmpty());
+        QVERIFY(!rejectedRecording["active"].toBool());
+        QCOMPARE(rejectedRecording["status"].toString(), QString("Idle"));
+        QVERIFY(!QFileInfo::exists(recordingPath));
+        controller.stopRecording();
+        controller.stopRecording();
+
+        for (const auto gain : {-.1, .5, 1.1, std::numeric_limits<double>::infinity(),
+                                std::numeric_limits<double>::quiet_NaN()}) {
+            controller.setCueGain(gain);
+            QCOMPARE(controller.cueGain(), 1.0);
+            QVERIFY(!controller.error().isEmpty());
+        }
+        for (const int deck : {-1, 0, 1, 2}) {
+            controller.setCueSelected(deck, true);
+            controller.setCueSelected(deck, false);
+            QVERIFY(!controller.error().isEmpty());
+        }
+        controller.configureAudioRouting("missing", "missing", {}, {});
+        QVERIFY(!controller.error().isEmpty());
+        controller.refreshAudioRouting();
+        QCOMPARE(controller.audioRouting(), initialRouting);
+        QCOMPARE(controller.meters(), initialMeters);
+        verifyNoPlayback(controller);
+        QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+        QCOMPARE(controller.completedSessions(), std::uint64_t(0));
+        controller.shutdown();
+        controller.shutdown();
+        controller.stopRecording();
+        QVERIFY(!controller.recording()["active"].toBool());
+        QVERIFY(!QFileInfo::exists(recordingPath));
     }
 
     void closeWithPendingDecode()

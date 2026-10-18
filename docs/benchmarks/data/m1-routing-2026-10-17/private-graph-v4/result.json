@@ -1,0 +1,96 @@
+{
+  "passed": true,
+  "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery or hardware output",
+  "preflight_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "check_exit": 0,
+  "check": {
+    "passed": true,
+    "scope": "Private virtual PipeWire graph only; no physical routing, latency or sustained qualification",
+    "scenarios": [
+      {
+        "name": "one-four-channel-sink",
+        "output_frames": 7424,
+        "callbacks": 29,
+        "recorded_frames": 4096,
+        "driver_position_discontinuities": 0,
+        "driver_recovery_flags": 0,
+        "driver_recovery_flags_available": true
+      },
+      {
+        "name": "two-stereo-sinks",
+        "output_frames": 250880,
+        "callbacks": 980,
+        "recorded_frames": 4096,
+        "driver_position_discontinuities": 0,
+        "driver_recovery_flags": 0,
+        "driver_recovery_flags_available": true
+      }
+    ],
+    "checks": [
+      "Explicit private runtime environment validated",
+      "Private runtime is owned and mode 0700",
+      "Explicit private daemon socket exists and is owned by this user",
+      "Fresh absolute recording output directory validated",
+      "Inactive private discovery session connects",
+      "one-four-channel-sink: initial recorder attachment accepted",
+      "one-four-channel-sink: explicit session connects",
+      "one-four-channel-sink: every nonzero master/cue channel sample matches independent asymmetric sums",
+      "one-four-channel-sink: recorder detach accepted",
+      "one-four-channel-sink: acknowledged detach prevents later callback writes",
+      "one-four-channel-sink: recorder drains and closes without overflow or storage error",
+      "Post-master recording reopens after acknowledged detach",
+      "Recording geometry and drained frame count match accepted master PCM",
+      "Every recorded sample equals the independent post-master expectation, excluding cue",
+      "one-four-channel-sink: independent cue route is ready",
+      "one-four-channel-sink: two buses advance each source exactly once per output frame",
+      "one-four-channel-sink: no invalid output buffers, rejected controls or execution deadline misses",
+      "one-four-channel-sink: stopped session releases recorder tap",
+      "one-four-channel-sink: disabled cue session connects",
+      "one-four-channel-sink: disabled cue stays disabled with valid independent master",
+      "one-four-channel-sink: disabled cue cannot contaminate master samples",
+      "one-four-channel-sink: overlap cue session connects",
+      "one-four-channel-sink: overlap cue stays disabled with valid independent master",
+      "one-four-channel-sink: overlap cue cannot contaminate master samples",
+      "one-four-channel-sink: missing cue session connects",
+      "one-four-channel-sink: missing cue stays disabled with valid independent master",
+      "one-four-channel-sink: missing cue cannot contaminate master samples",
+      "Inactive private discovery session connects",
+      "two-stereo-sinks: initial recorder attachment accepted",
+      "two-stereo-sinks: explicit session connects",
+      "two-stereo-sinks: every nonzero master/cue channel sample matches independent asymmetric sums",
+      "two-stereo-sinks: recorder detach accepted",
+      "two-stereo-sinks: acknowledged detach prevents later callback writes",
+      "two-stereo-sinks: recorder drains and closes without overflow or storage error",
+      "Post-master recording reopens after acknowledged detach",
+      "Recording geometry and drained frame count match accepted master PCM",
+      "Every recorded sample equals the independent post-master expectation, excluding cue",
+      "two-stereo-sinks: independent cue route is ready",
+      "two-stereo-sinks: exact private master/cue playback continues past the startup deadline",
+      "two-stereo-sinks: cue removal fails closed and master recovers with exact advancing samples",
+      "two-stereo-sinks: two buses advance each source exactly once per output frame",
+      "two-stereo-sinks: no invalid output buffers, rejected controls or execution deadline misses",
+      "two-stereo-sinks: stopped session releases recorder tap",
+      "two-stereo-sinks: disabled cue session connects",
+      "two-stereo-sinks: disabled cue stays disabled with valid independent master",
+      "two-stereo-sinks: disabled cue cannot contaminate master samples",
+      "two-stereo-sinks: overlap cue session connects",
+      "two-stereo-sinks: overlap cue stays disabled with valid independent master",
+      "two-stereo-sinks: overlap cue cannot contaminate master samples",
+      "two-stereo-sinks: missing cue session connects",
+      "two-stereo-sinks: missing cue stays disabled with valid independent master",
+      "two-stereo-sinks: missing cue cannot contaminate master samples"
+    ]
+  },
+  "cleanup_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "cleanup": {
+    "remaining_nodes_or_links": [],
+    "only_dummy_driver_remains": true
+  },
+  "daemon_reaped": true
+}

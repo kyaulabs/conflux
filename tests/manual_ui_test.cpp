@@ -25,30 +25,73 @@ class UiEndpoint final : public QObject {
     Q_PROPERTY(bool outputReady READ outputReady NOTIFY stateChanged)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
+    Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap meters READ meters NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
+    Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
 public:
+    static QVariantMap silentMeter()
+    {
+        return {{"peakLeft", 0.0}, {"peakRight", 0.0}, {"rmsLeft", 0.0}, {"rmsRight", 0.0},
+                {"overrangeLeft", 0}, {"overrangeRight", 0}};
+    }
     UiEndpoint()
     {
         for (int deck = 0; deck < 2; ++deck)
             decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"playing", false},
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
+                                      {"cueSelected", false}, {"meter", silentMeter()},
                                       {"waveform", QVariantList{}}});
+        meters_ = {{"master", silentMeter()}, {"cue", silentMeter()}, {"blockFrames", 256}};
+        QVariantList ports;
+        for (int port = 1; port <= 4; ++port)
+            ports.append(QVariantMap{{"key", QString("port%1").arg(port)},
+                                      {"label", QString("Interface output %1").arg(port)}});
+        routing_ = {{"ports", ports}, {"masterReady", false}, {"cueReady", false},
+                    {"masterLeft", ""}, {"masterRight", ""}, {"cueLeft", ""}, {"cueRight", ""},
+                    {"defaultSink", "Laptop Speakers"}, {"masterError", ""}, {"cueError", ""}};
+        recording_ = {{"status", "Idle"}, {"path", ""}, {"error", ""}, {"active", false},
+                      {"acceptedFrames", 0}, {"writtenFrames", 0}, {"overflowFrames", 0}};
     }
     QVariantList decks() const { return decks_; }
     bool busy() const { return busy_; }
     bool outputReady() const { return ready_; }
     QString error() const { return error_; }
     double masterGain() const { return master_; }
+    double cueGain() const { return cue_; }
+    QVariantMap meters() const { return meters_; }
+    QVariantMap audioRouting() const { return routing_; }
+    QVariantMap recording() const { return recording_; }
     void setBusy(bool value) { busy_ = value; emit stateChanged(); }
     void setReady(bool value) { ready_ = value; emit stateChanged(); }
     void setError(const QString& value) { error_ = value; emit stateChanged(); }
     void setCueAccepted(bool value) { acceptCue_ = value; }
+    void setMeters(const QVariantMap& master, const QVariantMap& cue, const QVariantMap& deck)
+    {
+        meters_["master"] = master;
+        meters_["cue"] = cue;
+        auto state = decks_[0].toMap();
+        state["meter"] = deck;
+        decks_[0] = state;
+        emit stateChanged();
+    }
+    void setRoutingError(const QString& error)
+    { routing_["cueError"] = error; emit stateChanged(); }
+    void setRecording(const QString& status, bool active, const QString& error = {})
+    {
+        recording_["status"] = status;
+        recording_["active"] = active;
+        recording_["error"] = error;
+        emit stateChanged();
+    }
     void loadState(int deck, double position = 2.0)
     {
         decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)},
                                    {"playing", false}, {"gain", .5},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
+                                   {"cueSelected", false}, {"meter", silentMeter()},
                                    {"waveform", QVariantList{.15, .5, .9, .3, .1}}};
         emit stateChanged();
     }
@@ -96,6 +139,44 @@ public:
         master_ = gain;
         emit stateChanged();
     }
+    Q_INVOKABLE void setCueGain(double gain)
+    {
+        calls.append(QVariantMap{{"action", "cueGain"}, {"value", gain}});
+        cue_ = gain;
+        emit stateChanged();
+    }
+    Q_INVOKABLE void setCueSelected(int deck, bool selected)
+    {
+        calls.append(QVariantMap{{"action", "cueSelected"}, {"deck", deck}, {"value", selected}});
+        auto state = decks_[deck].toMap();
+        state["cueSelected"] = selected;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
+    Q_INVOKABLE void refreshAudioRouting()
+    { calls.append(QVariantMap{{"action", "refreshRouting"}}); }
+    Q_INVOKABLE void configureAudioRouting(const QString& masterLeft, const QString& masterRight,
+                                          const QString& cueLeft, const QString& cueRight)
+    {
+        calls.append(QVariantMap{{"action", "routing"}, {"masterLeft", masterLeft}, {"masterRight", masterRight},
+                                 {"cueLeft", cueLeft}, {"cueRight", cueRight}});
+        routing_["masterLeft"] = masterLeft;
+        routing_["masterRight"] = masterRight;
+        routing_["cueLeft"] = cueLeft;
+        routing_["cueRight"] = cueRight;
+        emit stateChanged();
+    }
+    Q_INVOKABLE void startRecording(const QUrl& url)
+    {
+        calls.append(QVariantMap{{"action", "recordStart"}, {"url", url}});
+        recording_["path"] = url.toLocalFile();
+        setRecording("Recording", true);
+    }
+    Q_INVOKABLE void stopRecording()
+    {
+        calls.append(QVariantMap{{"action", "recordStop"}});
+        setRecording("Finalizing", true);
+    }
     Q_INVOKABLE bool cuePress(int deck)
     {
         calls.append(QVariantMap{{"action", "cuePress"}, {"deck", deck}});
@@ -122,10 +203,12 @@ signals:
     void stateChanged();
 private:
     QVariantList decks_;
+    QVariantMap meters_, routing_, recording_;
     bool busy_ = false, ready_ = false;
     bool acceptCue_ = true;
     QString error_;
     double master_ = .5;
+    double cue_ = .5;
 };
 
 // Repeater delegates live in the visual tree; their QObject ownership need
@@ -195,6 +278,24 @@ struct UiFixture {
         QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, center(close));
         return QTest::qWaitFor([drawer] { return !drawer->property("visible").toBool(); });
     }
+    bool openAudioSettings()
+    {
+        auto* open = item("audioSettingsOpen");
+        auto* drawer = object("audioSettingsDrawer");
+        if (!open || !drawer)
+            return false;
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, center(open));
+        return QTest::qWaitFor([drawer] { return drawer->property("opened").toBool(); });
+    }
+    bool closeAudioSettings()
+    {
+        auto* close = item("audioSettingsClose");
+        auto* drawer = object("audioSettingsDrawer");
+        if (!close || !drawer)
+            return false;
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, center(close));
+        return QTest::qWaitFor([drawer] { return !drawer->property("visible").toBool(); });
+    }
 };
 
 class ManualUiTest final : public QObject {
@@ -208,7 +309,8 @@ private slots:
         QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
         for (const auto* name : {"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain",
                                  "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain",
-                                 "masterGain", "audioError"})
+                                 "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect",
+                                 "deck0Meter", "deck1Meter", "masterMeter", "cueMeter", "audioSettingsOpen", "audioError"})
             QVERIFY2(ui_->item(name), name);
         QVERIFY(ui_->object("libraryDrawer"));
     }
@@ -222,7 +324,7 @@ private slots:
     void unloadedAndBusyControls()
     {
         for (const auto* name : {"deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck1Cue", "deck1Play", "deck1Seek",
-                                 "deck1Gain", "masterGain"})
+                                 "deck1Gain", "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect"})
             QVERIFY2(!ui_->item(name)->isEnabled(), name);
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Play")));
         for (const auto* name : {"deck0Cue", "deck1Cue"})
@@ -516,6 +618,144 @@ private slots:
         QCOMPARE(error->property("text").toString(), QString("Cannot decode this file"));
     }
 
+    void headphoneCueAndLevelRouteActualControls()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto name = QString("deck%1CueSelect").arg(deck).toUtf8();
+            auto* cue = ui_->item(name.constData());
+            QTRY_VERIFY(cue->isEnabled());
+            cue->forceActiveFocus();
+            QTRY_VERIFY(cue->hasActiveFocus());
+            const auto before = ui_->endpoint.calls.size();
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            auto call = ui_->endpoint.calls.last().toMap();
+            QCOMPARE(call["action"].toString(), QString("cueSelected"));
+            QCOMPARE(call["deck"].toInt(), deck);
+            QVERIFY(call["value"].toBool());
+            QTRY_VERIFY(cue->property("checked").toBool());
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
+            QVERIFY(!ui_->endpoint.calls.last().toMap()["value"].toBool());
+            QTRY_VERIFY(!cue->property("checked").toBool());
+        }
+        auto* gain = ui_->item("cueGain");
+        gain->forceActiveFocus();
+        QTRY_VERIFY(gain->hasActiveFocus());
+        const auto before = ui_->endpoint.calls.size();
+        QTest::keyClick(ui_->window, Qt::Key_Right);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("cueGain"));
+        QVERIFY(ui_->endpoint.cueGain() > .5);
+        QCOMPARE(gain->property("value").toDouble(), ui_->endpoint.cueGain());
+    }
+
+    void actualMetersFollowSnapshotsAndShowOverrange()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setReady(true);
+        QVariantMap master{{"peakLeft", 1.25}, {"peakRight", .75}, {"rmsLeft", .4}, {"rmsRight", .2},
+                           {"overrangeLeft", 3}, {"overrangeRight", 0}};
+        QVariantMap cue{{"peakLeft", .125}, {"peakRight", .25}, {"rmsLeft", .04}, {"rmsRight", .08},
+                        {"overrangeLeft", 0}, {"overrangeRight", 0}};
+        QVariantMap deck{{"peakLeft", .5}, {"peakRight", .8}, {"rmsLeft", .1}, {"rmsRight", .3},
+                         {"overrangeLeft", 0}, {"overrangeRight", 1}};
+        ui_->endpoint.setMeters(master, cue, deck);
+        auto* masterMeter = ui_->item("masterMeter");
+        auto* cueMeter = ui_->item("cueMeter");
+        auto* deckMeter = ui_->item("deck0Meter");
+        QTRY_COMPARE(masterMeter->property("peakLeft").toDouble(), 1.25);
+        QCOMPARE(masterMeter->property("rmsRight").toDouble(), .2);
+        QTRY_VERIFY(masterMeter->property("overrange").toBool());
+        QCOMPARE(ui_->item("masterMeterOverrange")->property("text").toString(), QString("OVR"));
+        QTRY_COMPARE(cueMeter->property("peakRight").toDouble(), .25);
+        QCOMPARE(cueMeter->property("rmsLeft").toDouble(), .04);
+        QVERIFY(!cueMeter->property("overrange").toBool());
+        QTRY_COMPARE(deckMeter->property("peakLeft").toDouble(), .5);
+        QVERIFY(deckMeter->property("overrange").toBool());
+        ui_->endpoint.setMeters(UiEndpoint::silentMeter(), UiEndpoint::silentMeter(), UiEndpoint::silentMeter());
+        QTRY_COMPARE(masterMeter->property("peakLeft").toDouble(), 0.0);
+        QVERIFY(!masterMeter->property("overrange").toBool());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+    }
+
+    void audioSettingsRejectIncompleteOrDuplicatePairsAndRouteKeys()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openAudioSettings());
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("refreshRouting"));
+        ui_->endpoint.calls.clear();
+        auto* apply = ui_->item("audioRoutingApply");
+        QVERIFY(apply);
+        QTRY_VERIFY(apply->isEnabled());
+        choosePort("masterLeftPort", 1);
+        QTRY_VERIFY(!apply->isEnabled());
+        QVERIFY(ui_->item("routingValidation")->isVisible());
+        choosePort("masterRightPort", 2);
+        QTRY_VERIFY(apply->isEnabled());
+        choosePort("cueLeftPort", 3);
+        QTRY_VERIFY(!apply->isEnabled());
+        choosePort("cueRightPort", 2);
+        QVERIFY(!apply->isEnabled());
+        choosePort("cueRightPort", 4);
+        QTRY_VERIFY(apply->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(apply));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(call["action"].toString(), QString("routing"));
+        QCOMPARE(call["masterLeft"].toString(), QString("port1"));
+        QCOMPARE(call["masterRight"].toString(), QString("port2"));
+        QCOMPARE(call["cueLeft"].toString(), QString("port3"));
+        QCOMPARE(call["cueRight"].toString(), QString("port4"));
+        ui_->endpoint.setRoutingError("Cue device disconnected");
+        QTRY_COMPARE(ui_->item("routingError")->property("text").toString(), QString("Cue device disconnected"));
+        QVERIFY(ui_->closeAudioSettings());
+    }
+
+    void recordingControlsUseLocalPathAndWaitForFinalization()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openAudioSettings());
+        ui_->endpoint.calls.clear();
+        auto* path = ui_->item("recordingPath");
+        auto* start = ui_->item("recordingStart");
+        auto* stop = ui_->item("recordingStop");
+        QVERIFY(path && start && stop);
+        QVERIFY(!start->isEnabled());
+        QVERIFY(!stop->isEnabled());
+        path->setProperty("text", "relative.wav");
+        QVERIFY(!start->isEnabled());
+        const QString file = "/tmp/Music Set/New #mix%.wav";
+        path->setProperty("text", file);
+        QTRY_VERIFY(start->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(start));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(call["action"].toString(), QString("recordStart"));
+        QCOMPARE(call["url"].toUrl().toLocalFile(), file);
+        QTRY_VERIFY(!start->isEnabled() && !path->isEnabled() && stop->isEnabled());
+        QVERIFY(!ui_->item("audioRoutingApply")->isEnabled());
+        QCOMPARE(ui_->item("recordingStatus")->property("text").toString(), QString("Recording: Recording"));
+        QCOMPARE(ui_->item("recordingSavedPath")->property("text").toString(), file);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(stop));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("recordStop"));
+        QTRY_VERIFY(!start->isEnabled() && !stop->isEnabled());
+        ui_->endpoint.setRecording("Complete", false);
+        QTRY_VERIFY(start->isEnabled() && path->isEnabled());
+        QCOMPARE(ui_->item("recordingStatus")->property("text").toString(), QString("Recording: Complete"));
+        ui_->endpoint.setRecording("Failed", false, "Cannot write WAV file: disk full");
+        QTRY_VERIFY(ui_->item("recordingError")->isVisible());
+        QCOMPARE(ui_->item("recordingError")->property("text").toString(), QString("Cannot write WAV file: disk full"));
+        QVERIFY(ui_->closeAudioSettings());
+    }
+
     void pathEnterRoutesLocalUrl()
     {
         QVERIFY(ui_->openLibrary(1));
@@ -575,13 +815,29 @@ private slots:
         // control dimensions, or decorative elements inside the deck surfaces.
         verifyControlsFit({"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain",
                            "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain",
-                           "masterGain", "themeToggle"});
+                           "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect", "audioSettingsOpen", "themeToggle"});
         QVERIFY(ui_->openLibrary(0));
         verifyControlsFit({"deck0Path", "deck0Load", "deck1Path", "deck1Load", "libraryClose"});
         QVERIFY(ui_->closeLibrary());
+        QVERIFY(ui_->openAudioSettings());
+        verifyControlsFit({"masterLeftPort", "masterRightPort", "cueLeftPort", "cueRightPort",
+                           "audioRoutingRefresh", "audioRoutingApply", "audioSettingsClose"});
+        QVERIFY(ui_->closeAudioSettings());
     }
 
 private:
+    void choosePort(const char* name, int index)
+    {
+        auto* combo = ui_->item(name);
+        QVERIFY(combo);
+        combo->forceActiveFocus();
+        QTRY_VERIFY(combo->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Home);
+        for (int step = 0; step < index; ++step)
+            QTest::keyClick(ui_->window, Qt::Key_Down);
+        QTRY_COMPARE(combo->property("currentIndex").toInt(), index);
+    }
+
     void verifyCueCall(qsizetype index, const char* action, int deck)
     {
         QVERIFY(index >= 0 && index < ui_->endpoint.calls.size());

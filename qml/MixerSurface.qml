@@ -126,25 +126,38 @@ Rectangle {
                             }
                         }
 
-                        Rectangle {
+                        Button {
+                            id: headphoneCue
+                            objectName: strip.audioDeck >= 0 ? "deck" + strip.audioDeck + "CueSelect" : "reserved" + strip.modelData.name + "CueSelect"
                             Layout.fillWidth: true
                             Layout.preferredHeight: 25
-                            radius: 3
-                            color: Brand.ConfluxTheme.dark ? "#292D33" : "#CACDCB"
-                            border.color: Brand.ConfluxTheme.dark ? "#535A64" : "#8B9295"
-                            Accessible.name: "Channel " + strip.modelData.name + " headphone cue unavailable"
-                            Accessible.description: "Separate headphone cue routing is not implemented."
-                            Text {
-                                anchors.centerIn: parent
-                                text: "CUE"
-                                color: root.etched
+                            text: "CUE"
+                            checkable: true
+                            checked: strip.audioDeck >= 0 && Boolean(strip.deck.cueSelected)
+                            enabled: strip.available
+                            focusPolicy: Qt.StrongFocus
+                            onClicked: root.controller.setCueSelected(strip.audioDeck, !Boolean(strip.deck.cueSelected))
+                            Accessible.name: "Deck " + strip.modelData.name + " headphone cue"
+                            Accessible.description: "Select the pre-fader deck for the separate headphone output."
+                            contentItem: Text {
+                                text: headphoneCue.text
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                color: headphoneCue.checked ? Brand.ConfluxTheme.primaryText : root.etched
                                 font.family: Brand.ConfluxTheme.displayFont
                                 font.pixelSize: 12
                                 font.weight: Font.DemiBold
                             }
-                            HoverHandler { id: cueHover }
-                            ToolTip.visible: cueHover.hovered
-                            ToolTip.text: "Separate headphone cue routing is not implemented."
+                            background: Rectangle {
+                                radius: 3
+                                color: headphoneCue.checked ? Brand.ConfluxTheme.primary
+                                                      : Brand.ConfluxTheme.dark ? "#292D33" : "#CACDCB"
+                                border.color: headphoneCue.activeFocus ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
+                            }
+                            ToolTip.visible: hovered || activeFocus
+                            ToolTip.text: strip.audioDeck < 0 ? "Additional decks are not implemented."
+                                         : root.controller.audioRouting.cueReady ? "Pre-fader headphone cue for Deck " + strip.modelData.name
+                                         : "Select separate headphone outputs in AUDIO / REC. Cue stays silent until routed."
                         }
 
                         Text {
@@ -157,86 +170,100 @@ Rectangle {
                             font.weight: Font.DemiBold
                         }
 
-                        Slider {
-                            id: levelFader
-                            objectName: strip.audioDeck >= 0 ? "deck" + strip.audioDeck + "Gain" : "reserved" + strip.modelData.name + "Gain"
+                        RowLayout {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             Layout.minimumHeight: 100
-                            orientation: Qt.Vertical
-                            from: 0
-                            to: 1
-                            stepSize: 0.01
-                            value: strip.audioDeck >= 0 ? strip.deck.gain : 0
-                            enabled: strip.available
-                            focusPolicy: Qt.StrongFocus
-                            leftPadding: 3
-                            rightPadding: 3
-                            topPadding: 8
-                            bottomPadding: 8
-                            Accessible.name: "Deck " + strip.modelData.name + " gain"
-                            Accessible.description: strip.audioDeck < 0 ? "Additional decks are not implemented."
-                                                       : "Linear channel level, zero to one hundred percent."
-                            onMoved: root.controller.setDeckGain(strip.audioDeck, value)
-                            ToolTip.visible: hovered || activeFocus
-                            ToolTip.text: strip.audioDeck < 0 ? "Additional decks are not implemented."
-                                         : !strip.deck.loaded ? "Load Deck " + strip.modelData.name + " to change its level."
-                                         : "Channel level " + Math.round(value * 100) + "%"
+                            spacing: 2
+                            Slider {
+                                id: levelFader
+                                objectName: strip.audioDeck >= 0 ? "deck" + strip.audioDeck + "Gain" : "reserved" + strip.modelData.name + "Gain"
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                Layout.minimumHeight: 100
+                                orientation: Qt.Vertical
+                                from: 0
+                                to: 1
+                                stepSize: 0.01
+                                value: strip.audioDeck >= 0 ? strip.deck.gain : 0
+                                enabled: strip.available
+                                focusPolicy: Qt.StrongFocus
+                                leftPadding: 3
+                                rightPadding: 3
+                                topPadding: 8
+                                bottomPadding: 8
+                                Accessible.name: "Deck " + strip.modelData.name + " gain"
+                                Accessible.description: strip.audioDeck < 0 ? "Additional decks are not implemented."
+                                                           : "Linear channel level, zero to one hundred percent."
+                                onMoved: root.controller.setDeckGain(strip.audioDeck, value)
+                                ToolTip.visible: hovered || activeFocus
+                                ToolTip.text: strip.audioDeck < 0 ? "Additional decks are not implemented."
+                                             : !strip.deck.loaded ? "Load Deck " + strip.modelData.name + " to change its level."
+                                             : "Channel level " + Math.round(value * 100) + "%"
 
-                            background: Item {
-                                x: levelFader.leftPadding
-                                y: levelFader.topPadding
-                                width: levelFader.availableWidth
-                                height: levelFader.availableHeight
-                                Repeater {
-                                    model: 9
-                                    Rectangle {
-                                        required property int index
-                                        x: index % 2 === 0 ? 1 : 5
-                                        y: index * (parent.height - 1) / 8
-                                        width: parent.width - x * 2
-                                        height: 1
-                                        color: root.etched
-                                        opacity: 0.65
+                                background: Item {
+                                    x: levelFader.leftPadding
+                                    y: levelFader.topPadding
+                                    width: levelFader.availableWidth
+                                    height: levelFader.availableHeight
+                                    Repeater {
+                                        model: 9
+                                        Rectangle {
+                                            required property int index
+                                            x: index % 2 === 0 ? 1 : 5
+                                            y: index * (parent.height - 1) / 8
+                                            width: parent.width - x * 2
+                                            height: 1
+                                            color: root.etched
+                                            opacity: 0.65
+                                        }
                                     }
-                                }
-                                Rectangle {
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    width: 8
-                                    height: parent.height
-                                    radius: 4
-                                    color: Brand.ConfluxTheme.dark ? "#080A0D" : "#777E83"
-                                    border.color: Brand.ConfluxTheme.dark ? "#424954" : "#F2F2ED"
                                     Rectangle {
                                         anchors.horizontalCenter: parent.horizontalCenter
-                                        width: 2
-                                        height: parent.height - 4
-                                        y: 2
-                                        color: "#050608"
+                                        width: 8
+                                        height: parent.height
+                                        radius: 4
+                                        color: Brand.ConfluxTheme.dark ? "#080A0D" : "#777E83"
+                                        border.color: Brand.ConfluxTheme.dark ? "#424954" : "#F2F2ED"
+                                        Rectangle {
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            width: 2
+                                            height: parent.height - 4
+                                            y: 2
+                                            color: "#050608"
+                                        }
+                                    }
+                                }
+                                handle: Rectangle {
+                                    x: levelFader.leftPadding + (levelFader.availableWidth - width) / 2
+                                    y: levelFader.topPadding + levelFader.visualPosition * (levelFader.availableHeight - height)
+                                    width: Math.min(36, levelFader.availableWidth)
+                                    height: 25
+                                    radius: 3
+                                    opacity: strip.available ? 1 : 0.5
+                                    border.width: levelFader.activeFocus ? 2 : 1
+                                    border.color: levelFader.activeFocus ? Brand.ConfluxTheme.primary : "#777E86"
+                                    gradient: Gradient {
+                                        GradientStop { position: 0; color: "#E3E5E2" }
+                                        GradientStop { position: 0.4; color: "#8D9398" }
+                                        GradientStop { position: 0.48; color: "#C9CDCD" }
+                                        GradientStop { position: 1; color: "#555D65" }
+                                    }
+                                    Rectangle {
+                                        anchors.centerIn: parent
+                                        width: parent.width - 5
+                                        height: 2
+                                        color: "#15191E"
                                     }
                                 }
                             }
-                            handle: Rectangle {
-                                x: levelFader.leftPadding + (levelFader.availableWidth - width) / 2
-                                y: levelFader.topPadding + levelFader.visualPosition * (levelFader.availableHeight - height)
-                                width: Math.min(36, levelFader.availableWidth)
-                                height: 25
-                                radius: 3
-                                opacity: strip.available ? 1 : 0.5
-                                border.width: levelFader.activeFocus ? 2 : 1
-                                border.color: levelFader.activeFocus ? Brand.ConfluxTheme.primary : "#777E86"
-                                gradient: Gradient {
-                                    GradientStop { position: 0; color: "#E3E5E2" }
-                                    GradientStop { position: 0.4; color: "#8D9398" }
-                                    GradientStop { position: 0.48; color: "#C9CDCD" }
-                                    GradientStop { position: 1; color: "#555D65" }
-                                }
-                                Rectangle {
-                                    anchors.centerIn: parent
-                                    width: parent.width - 5
-                                    height: 2
-                                    color: "#15191E"
-                                }
+                            StereoMeter {
+                                objectName: strip.audioDeck >= 0 ? "deck" + strip.audioDeck + "Meter" : "reserved" + strip.modelData.name + "Meter"
+                                Layout.preferredWidth: 17
+                                Layout.fillHeight: true
+                                meter: strip.audioDeck >= 0 ? strip.deck.meter : ({})
+                                active: strip.available
+                                caption: "Deck " + strip.modelData.name + " pre-fader peak and RMS"
                             }
                         }
 
@@ -276,57 +303,56 @@ Rectangle {
                     font.family: Brand.ConfluxTheme.monoFont
                     font.pixelSize: 13
                 }
-                Rectangle {
+                Text {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 66
-                    color: Brand.ConfluxTheme.dark ? "#0B1114" : "#CCD1CF"
-                    border.color: Brand.ConfluxTheme.controlBorder
-                    radius: 2
-                    Text {
-                        anchors.fill: parent
-                        anchors.margins: 4
-                        text: "METERS\nUNAVAILABLE"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        font.family: Brand.ConfluxTheme.displayFont
-                        font.pixelSize: 10
-                        color: Brand.ConfluxTheme.muted
-                    }
-                    HoverHandler { id: meterHover }
-                    ToolTip.visible: meterHover.hovered
-                    ToolTip.text: "Audio level metering is not implemented."
+                    text: "MASTER"
+                    horizontalAlignment: Text.AlignHCenter
+                    font.family: Brand.ConfluxTheme.displayFont
+                    font.pixelSize: 11
+                    color: root.etched
+                }
+                StereoMeter {
+                    objectName: "masterMeter"
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: 36
+                    Layout.preferredHeight: 70
+                    meter: root.controller.meters.master
+                    active: root.controller.outputReady
+                    caption: "Post-gain master peak and RMS"
+                }
+                SurfaceKnob {
+                    Layout.fillWidth: true
+                    knobDiameter: 34
+                    caption: "CUE LEVEL"
+                    dialObjectName: "cueGain"
+                    activeControl: root.controller.outputReady
+                    value: root.controller.cueGain
+                    indicatorColor: Brand.ConfluxTheme.primary
+                    helpText: "Separate headphone level " + Math.round(root.controller.cueGain * 100) + "%. No cue audio is sent to the master output."
+                    onMoved: function(newValue) { root.controller.setCueGain(newValue) }
+                }
+                StereoMeter {
+                    objectName: "cueMeter"
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredWidth: 36
+                    Layout.preferredHeight: 70
+                    meter: root.controller.meters.cue
+                    active: root.controller.audioRouting.cueReady
+                    caption: "Post-gain headphone cue peak and RMS"
                 }
                 Text {
                     Layout.fillWidth: true
-                    text: "BEAT FX"
+                    text: root.controller.audioRouting.cueReady ? "CUE ROUTED" : "CUE UNROUTED"
                     horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 13
-                    font.weight: Font.DemiBold
-                    color: root.etched
-                }
-                SurfaceKnob {
-                    Layout.fillWidth: true
-                    knobDiameter: 34
-                    caption: "SELECT"
-                    helpText: "Beat effects are not implemented."
-                }
-                SurfaceKnob {
-                    Layout.fillWidth: true
-                    knobDiameter: 34
-                    caption: "TIME"
-                    helpText: "Effect timing is not implemented."
-                }
-                SurfaceKnob {
-                    Layout.fillWidth: true
-                    knobDiameter: 34
-                    caption: "LEVEL / DEPTH"
-                    helpText: "Effect level and depth are not implemented."
+                    font.pixelSize: 11
+                    color: root.controller.audioRouting.cueReady ? Brand.ConfluxTheme.success : root.etched
                 }
                 Item { Layout.fillHeight: true }
                 Text {
                     Layout.fillWidth: true
-                    text: "FX / CUE\nINACTIVE"
+                    text: "BEAT FX\nINACTIVE"
                     horizontalAlignment: Text.AlignHCenter
                     font.family: Brand.ConfluxTheme.displayFont
                     font.pixelSize: 11
@@ -378,7 +404,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             Layout.preferredHeight: 24
-            text: "A / B LEVEL + MASTER ACTIVE\nEQ · FILTER · CUE · FX INACTIVE"
+            text: "A / B LEVEL · HEADPHONE CUE · METERS\nEQ · FILTER · FX INACTIVE"
             horizontalAlignment: Text.AlignHCenter
             color: root.etched
             font.family: Brand.ConfluxTheme.displayFont

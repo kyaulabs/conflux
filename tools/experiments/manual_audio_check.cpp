@@ -2,7 +2,9 @@
 // Explicit host integration check; not a CI test because it needs PipeWire and
 // a window system. Inputs must be generated quiet fixtures, never user music.
 #include "ui/DeckController.hpp"
+#include <QCryptographicHash>
 #include <QElapsedTimer>
+#include <QFile>
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QJsonArray>
@@ -14,11 +16,92 @@
 #include <QQuickStyle>
 #include <QQuickWindow>
 #include <QTest>
+#include <QTemporaryDir>
+#include <QtEndian>
 #include <functional>
 #include <algorithm>
 #include <cmath>
+#include <bit>
 #include <iostream>
 #include <stdexcept>
+
+namespace {
+QQuickItem* visualItem(QQuickItem* root, const QString& name)
+{
+    if (root->objectName() == name) return root;
+    for (auto* child : root->childItems())
+        if (auto* found = visualItem(child, name)) return found;
+    return nullptr;
+}
+
+// Independent RIFF parsing deliberately avoids the production decoder/writer.
+QJsonObject readMutedRecording(const QString& path, bool requireNonempty)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly) || file.size() > 32 * 1024 * 1024)
+        throw std::runtime_error("Cannot read the bounded recording check WAV");
+    const auto bytes = file.readAll();
+    auto u16 = [&](qsizetype offset) { return qFromLittleEndian<quint16>(bytes.constData() + offset); };
+    auto u32 = [&](qsizetype offset) { return qFromLittleEndian<quint32>(bytes.constData() + offset); };
+    if (bytes.size() < 44 || bytes.first(4) != "RIFF" || bytes.mid(8, 4) != "WAVE" ||
+        quint64(u32(4)) + 8 != quint64(bytes.size()))
+        throw std::runtime_error("Recording has an invalid RIFF/WAVE header or final size");
+    bool format = false, dataFound = false, allZero = true;
+    quint64 frames = 0;
+    for (qsizetype offset = 12; offset + 8 <= bytes.size();) {
+        const auto length = u32(offset + 4);
+        const auto begin = offset + 8;
+        if (quint64(begin) + length > quint64(bytes.size()))
+            throw std::runtime_error("Recording contains a truncated WAV chunk");
+        const auto tag = bytes.mid(offset, 4);
+        if (tag == "fmt ") {
+            if (format || length < 16 || u16(begin) != 3 || u16(begin + 2) != 2 ||
+                u32(begin + 4) != 48000 || u32(begin + 8) != 384000 ||
+                u16(begin + 12) != 8 || u16(begin + 14) != 32)
+                throw std::runtime_error("Recording is not stereo 48000 Hz float32 WAV");
+            format = true;
+        } else if (tag == "data") {
+            if (dataFound || length % 8)
+                throw std::runtime_error("Recording has duplicate or incomplete stereo data");
+            dataFound = true;
+            frames = length / 8;
+            for (quint32 sample = 0; sample < length; sample += 4)
+                allZero = allZero && std::bit_cast<float>(u32(begin + sample)) == 0.F;
+        }
+        offset = begin + length + (length & 1U);
+    }
+    if (!format || !dataFound || !allZero || (requireNonempty && !frames))
+        throw std::runtime_error("Muted post-master recording is missing, empty or contains nonzero audio");
+    return {{"frames", qint64(frames)}, {"channels", 2}, {"sample_rate", 48000},
+            {"encoding", "IEEE float32"}, {"all_samples_zero", allZero},
+            {"bytes", qint64(bytes.size())},
+            {"sha256", QString::fromLatin1(QCryptographicHash::hash(bytes, QCryptographicHash::Sha256).toHex())}};
+}
+
+QJsonArray timingResults(const conflux::DeckController& controller)
+{
+    QJsonArray result;
+    for (const auto& summary : controller.completedTiming()) {
+        const auto& counters = summary.counters;
+        result.append(QJsonObject{
+            {"session_index", int(result.size())}, {"callbacks", qint64(counters.callbacks)},
+            {"maximum_execution_ns", qint64(counters.maxExecutionNs)},
+            {"execution_deadline_misses", qint64(counters.deadlineMisses)},
+            {"execution_p50_upper_us", summary.p50UpperUs}, {"execution_p95_upper_us", summary.p95UpperUs},
+            {"execution_p99_upper_us", summary.p99UpperUs}, {"execution_p999_upper_us", summary.p999UpperUs},
+            {"at_least_100ms", qint64(summary.atLeast100ms)},
+            {"graph_position_observed", counters.graphPositionObserved},
+            {"graph_quantum_min", qint64(counters.graphQuantumMin)},
+            {"graph_quantum_max", qint64(counters.graphQuantumMax)},
+            {"graph_discontinuities", qint64(counters.graphDiscontinuities)},
+            {"xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
+            {"capabilities", QJsonObject{{"cycle", summary.capabilities.cycle},
+                {"discontinuity_flag_mask", qint64(summary.capabilities.discontinuityFlag)},
+                {"xrun_recovery_flag_mask", qint64(summary.capabilities.xrunRecoveryFlag)}}}});
+    }
+    return result;
+}
+} // namespace
 
 int main(int argc, char** argv)
 {
@@ -31,6 +114,7 @@ int main(int argc, char** argv)
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/Barlow-Regular.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/BarlowCondensed-SemiBold.ttf"));
     QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/JetBrainsMono-Regular.ttf"));
+    QTemporaryDir recordings;
     conflux::DeckController controller;
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("deckController", &controller);
@@ -39,6 +123,7 @@ int main(int argc, char** argv)
     engine.rootContext()->setContextProperty("platformName", QGuiApplication::platformName());
     QJsonArray checks;
     QJsonArray sceneErrors;
+    QJsonObject recordingResult, steadyDelivery, routingResult, pendingOpenClose, settingsApply;
     std::uint64_t swapped = 0;
     bool sceneError = false;
     QElapsedTimer elapsed;
@@ -196,9 +281,149 @@ int main(int argc, char** argv)
         command([&] { controller.setDeckGain(1, 0.5); });
         require(controller.audioState().deckGain[1] == 0.5F,
                 "Snapshot backpressure drops telemetry while later controls recover");
-        // Let normal GUI updates and audio processing overlap for five seconds.
+        require(recordings.isValid(), "Fresh temporary recording directory created");
+        command([&] { controller.setMasterGain(0.0); });
+        auto controlPoint = [&](const QString& name) {
+            auto* item = visualItem(window->contentItem(), name);
+            require(item && item->isEnabled(), "Actual UI control is enabled");
+            return item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint();
+        };
+        for (int deck = 0; deck < 2; ++deck) {
+            command([&] {
+                QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier,
+                    controlPoint(QString("deck%1CueSelect").arg(deck)));
+            });
+            require(controller.audioState().cueSelected[deck], "Mixer CUE selects the actual pre-fader headphone bus");
+            if (deck == 0)
+                command([&] { QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, controlPoint("deck0CueSelect")); });
+        }
+        auto* cueGain = visualItem(window->contentItem(), "cueGain");
+        require(cueGain && cueGain->isEnabled(), "Actual headphone level control is enabled");
+        const auto cueGainBefore = controller.cueGain();
+        command([&] {
+            cueGain->forceActiveFocus();
+            QTest::keyClick(window, Qt::Key_Left);
+        });
+        require(controller.cueGain() < cueGainBefore && controller.cueGain() >= 0,
+                "Real headphone level keyboard control decreases cue gain");
+        wait([&] { return controller.audioState().meters.cue.peak[0] > 0 &&
+                         controller.audioState().meters.master.peak[0] == 0 &&
+                         controller.audioState().meters.master.peak[1] == 0; });
+        const auto routing = controller.audioRouting();
+        require(!controller.audioState().cueReady && !routing["cueReady"].toBool() &&
+                routing["cueLeft"].toString().isEmpty() && routing["cueRight"].toString().isEmpty(),
+                "Unrouted nonzero headphone cue remains disabled while master is muted");
+        routingResult = QJsonObject::fromVariantMap(routing);
+        recordingResult["cue_meter_nonzero_before_recording"] = true;
+        recordingResult["master_meter_zero_before_recording"] = true;
+        const auto recordingPath = recordings.filePath("muted-master.wav");
+        controller.startRecording(QUrl::fromLocalFile(recordingPath));
+        wait([&] { return controller.recording()["status"].toString() == "Recording"; });
+        wait([&] { return controller.recording()["acceptedFrames"].toULongLong() >= 4800; });
+        const auto beforeRecordingReplacement = controller.recording();
+        const auto replacementBFrame = controller.audioState().sourceFrame[1];
+        controller.loadDeck(0, a);
+        wait([&] { return !controller.busy() && controller.outputReady() &&
+                         controller.recording()["status"].toString() == "Recording" &&
+                         controller.recording()["acceptedFrames"].toULongLong() >
+                             beforeRecordingReplacement["acceptedFrames"].toULongLong(); });
+        require(controller.recording()["path"].toString() == recordingPath &&
+                controller.audioState().masterGain == 0 && controller.audioState().playing[1] &&
+                controller.audioState().sourceFrame[1] >= replacementBFrame && controller.audioState().cueSelected[1],
+                "Source replacement preserves the same recording path, writer prefix and peer transport");
+        wait([&] { return controller.audioState().meters.cue.peak[0] > 0; });
+        QTest::qWait(150);
+        controller.stopRecording();
+        wait([&] { return !controller.recording()["active"].toBool(); });
+        const auto recorded = controller.recording();
+        require(recorded["status"].toString() == "Complete" && recorded["error"].toString().isEmpty() &&
+                recorded["overflowFrames"].toULongLong() == 0 &&
+                recorded["acceptedFrames"].toULongLong() == recorded["writtenFrames"].toULongLong(),
+                "Recording detaches, drains and finalizes without an overflow or disk error");
+        const auto readback = readMutedRecording(recordingPath, true);
+        require(readback["frames"].toInteger() == qint64(recorded["writtenFrames"].toULongLong()),
+                "Independent nonempty stereo 48 kHz WAV readback is all zero despite nonzero cue");
+        recordingResult["final_state"] = QJsonObject::fromVariantMap(recorded);
+        recordingResult["readback"] = readback;
+        recordingResult["replacement_before"] = QJsonObject::fromVariantMap(beforeRecordingReplacement);
+        recordingResult["replacement_policy"] = "One writer retains accepted PCM across source replacement. Output pauses while the session is replaced; wall-time interruption is omitted, not padded or measured as continuous recording.";
+
+        // Separate steady delivery from seek/cache priming. Restore only the
+        // existing quiet master level, then allow 200 ms after the last seek.
+        command([&] { controller.setMasterGain(0.5); });
+        command([&] { controller.seekSeconds(1, 0.25); });
+        command([&] { controller.setPlaying(1, true); });
+        QTest::qWait(200);
+        const auto steadyBefore = controller.audioState();
+        const auto steadySessions = controller.completedSessions();
+        QElapsedTimer steadyElapsed;
+        steadyElapsed.start();
         QTest::qWait(5000);
+        const auto steadyAfter = controller.audioState();
+        QJsonArray beforeStarved, afterStarved, starvationDelta, sourceBefore, sourceAfter;
+        bool noNewShortage = true;
+        for (std::size_t deck = 0; deck < 2; ++deck) {
+            beforeStarved.append(qint64(steadyBefore.starvedFrames[deck]));
+            afterStarved.append(qint64(steadyAfter.starvedFrames[deck]));
+            starvationDelta.append(qint64(steadyAfter.starvedFrames[deck] - steadyBefore.starvedFrames[deck]));
+            sourceBefore.append(qint64(steadyBefore.sourceFrame[deck]));
+            sourceAfter.append(qint64(steadyAfter.sourceFrame[deck]));
+            noNewShortage &= steadyAfter.starvedFrames[deck] == steadyBefore.starvedFrames[deck] &&
+                            !steadyAfter.sourceReadError[deck];
+        }
+        steadyDelivery = {{"session_index", qint64(steadySessions)}, {"settling_ms", 200}, {"observation_ms", steadyElapsed.elapsed()},
+            {"starved_frames_before", beforeStarved}, {"starved_frames_after", afterStarved},
+            {"starved_frames_delta", starvationDelta}, {"source_frames_before", sourceBefore},
+            {"source_frames_after", sourceAfter}, {"output_frame_before", qint64(steadyBefore.outputFrame)},
+            {"output_frame_after", qint64(steadyAfter.outputFrame)},
+            {"scope", "Five-second no-control quiet playback after 200 ms settling; separate from whole-run seek/priming counters."}};
+        require(controller.completedSessions() == steadySessions && steadyBefore.playing[1] && steadyAfter.playing[1] &&
+                steadyAfter.sourceFrame[1] > steadyBefore.sourceFrame[1] &&
+                steadyAfter.sourceFrame[1] < steadyAfter.sourceFrames[1] && noNewShortage,
+                "Five-second steady source interval advances playback without new unavailable frames or read errors");
         const auto prefix = QString::fromLocal8Bit(argv[3]);
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, controlPoint("audioSettingsOpen"));
+        auto* settings = window->findChild<QObject*>("audioSettingsDrawer");
+        require(settings, "Actual audio settings drawer found");
+        wait([&] { return settings->property("opened").toBool(); });
+        const auto beforeApply = controller.audioState();
+        const auto sessionsBeforeApply = controller.completedSessions();
+        const auto routeBeforeApply = controller.audioRouting();
+        require(routeBeforeApply["masterLeft"].toString().isEmpty() &&
+                routeBeforeApply["masterRight"].toString().isEmpty() &&
+                routeBeforeApply["cueLeft"].toString().isEmpty() &&
+                routeBeforeApply["cueRight"].toString().isEmpty(),
+                "Audio settings Apply uses only existing default master and disabled cue");
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, controlPoint("audioRoutingApply"));
+        wait([&] { return controller.completedSessions() == sessionsBeforeApply + 1 &&
+                         !controller.busy() && controller.outputReady(); });
+        const auto afterApply = controller.audioState();
+        require(controller.error().isEmpty() && afterApply.playing == beforeApply.playing &&
+                afterApply.cueFrame == beforeApply.cueFrame && afterApply.cueSelected == beforeApply.cueSelected &&
+                afterApply.deckGain == beforeApply.deckGain && afterApply.masterGain == beforeApply.masterGain &&
+                afterApply.cueGain == beforeApply.cueGain && afterApply.sourceFrames == beforeApply.sourceFrames &&
+                !afterApply.playing[0] && afterApply.sourceFrame[0] == beforeApply.sourceFrame[0] &&
+                afterApply.playing[1] && afterApply.sourceFrame[1] >= beforeApply.sourceFrame[1] &&
+                !afterApply.cueHeld[0] && !afterApply.cueHeld[1] && !afterApply.cueReady,
+                "Real audio settings Apply reinstalls output and preserves exact cue, selection, gain and play requests");
+        settingsApply = {{"completed_sessions_before", qint64(sessionsBeforeApply)},
+            {"completed_sessions_after", qint64(controller.completedSessions())},
+            {"paused_a_source_frame_before", qint64(beforeApply.sourceFrame[0])},
+            {"paused_a_source_frame_after", qint64(afterApply.sourceFrame[0])},
+            {"playing_b_source_frame_before", qint64(beforeApply.sourceFrame[1])},
+            {"playing_b_source_frame_after", qint64(afterApply.sourceFrame[1])},
+            {"routing_after", QJsonObject::fromVariantMap(controller.audioRouting())},
+            {"preserved_transport_cue_selection_and_gains", true},
+            {"scope", "Actual QML settings button applies existing default master with cue disabled; no explicit hardware or cue endpoint is selected."}};
+        QTest::qWait(150);
+        require(window->grabWindow().save(prefix + "-settings-default.png"), "Default-size audio settings screenshot saved");
+        window->resize(1180, 760);
+        QTest::qWait(200);
+        require(window->grabWindow().save(prefix + "-settings-minimum.png"), "Minimum-size audio settings screenshot saved");
+        QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, controlPoint("audioSettingsClose"));
+        wait([&] { return !settings->property("visible").toBool(); });
+        window->resize(1680, 1020);
+        QTest::qWait(150);
         require(window->grabWindow().save(prefix + "-dark.png"), "Dark screenshot saved");
         auto* theme = window->findChild<QQuickItem*>("themeToggle");
         require(theme, "Theme control found");
@@ -220,11 +445,34 @@ int main(int argc, char** argv)
         require(controller.completedApplied() == controller.submittedCommands() &&
                 controller.completedRejected() == 0 && controller.completedInvalidBuffers() == 0 &&
                 controller.completedDeadlineMisses() == 0 && controller.completedReadFailures() == 0,
-                "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across four sessions");
+                "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across completed sessions");
         const auto final = controller.audioState();
         require(!final.playing[1] && final.masterGain == 0.25F && final.sourceFrame[0] == final.cueFrame[0] &&
                 !final.cueHeld[0] && !final.cuePreview[0],
                 "Immediate shutdown retains accepted tail controls and cancels held audition");
+        // Isolated lifecycle scenario: its source stays paused, so this does
+        // not add to speaker output. Close before the asynchronous opener's
+        // completion can be delivered to the controller, then inspect its file.
+        {
+            conflux::DeckController pending;
+            pending.loadDeck(0, a);
+            wait([&] { return !pending.busy() && pending.outputReady(); });
+            const auto pendingPath = recordings.filePath("pending-open-close.wav");
+            pending.startRecording(QUrl::fromLocalFile(pendingPath));
+            require(pending.recording()["status"].toString() == "Starting",
+                    "Separate paused controller exposes pending recorder opener before immediate close");
+            pending.shutdown();
+            const auto state = pending.recording();
+            const auto closedReadback = readMutedRecording(pendingPath, false);
+            require(!state["active"].toBool() && state["status"].toString() == "Complete" &&
+                    state["error"].toString().isEmpty() && state["acceptedFrames"].toULongLong() == 0 &&
+                    state["writtenFrames"].toULongLong() == 0 && closedReadback["frames"].toInteger() == 0 &&
+                    pending.completedInvalidBuffers() == 0 && pending.completedRejected() == 0,
+                    "Immediate close joins pending recorder open and finalizes a valid empty WAV without attachment");
+            pendingOpenClose = {{"final_state", QJsonObject::fromVariantMap(state)},
+                {"readback", closedReadback}, {"session_timing", timingResults(pending)},
+                {"scope", "Paused quiet source; opener completion not delivered before shutdown. Does not claim a timed disk-operation cancellation or pending-finalizer race."}};
+        }
         const QJsonObject result{
             {"passed", true}, {"platform", QGuiApplication::platformName()}, {"qt", qVersion()},
             {"elapsed_ms", elapsed.elapsed()}, {"frames_swapped", qint64(swapped)},
@@ -243,6 +491,13 @@ int main(int argc, char** argv)
             {"last_session_snapshot_drops", qint64(final.snapshotDrops)},
             {"last_session_frames_min", qint64(final.streamFramesMin)},
             {"last_session_frames_max", qint64(final.streamFramesMax)},
+            {"session_timing", timingResults(controller)},
+            {"timing_scope", "Per-session stopped execution histograms and graph-clock observations; percentiles are not combined across sessions. Unsupported flag masks mean unavailable. No scheduler-lateness, physical latency, separate-device drift or sustained qualification."},
+            {"steady_source_delivery", steadyDelivery},
+            {"routing", routingResult},
+            {"recording", recordingResult},
+            {"pending_recorder_open_close", pendingOpenClose},
+            {"audio_settings_apply", settingsApply},
             {"checks", checks},
             {"scope", "Short generated quiet-file UI/audio integration; no physical latency, acoustic or sustained qualification"}};
         std::cout << QJsonDocument(result).toJson().constData();
@@ -253,7 +508,10 @@ int main(int argc, char** argv)
         const QJsonObject result{{"passed", false}, {"error", QString::fromUtf8(error.what())}, {"checks", checks},
             {"frames_swapped", qint64(swapped)}, {"scene_errors", sceneErrors}, {"elapsed_ms", elapsed.elapsed()},
             {"submitted", qint64(controller.submittedCommands())}, {"applied", qint64(controller.completedApplied())},
-            {"source_read_failures", qint64(controller.completedReadFailures())}};
+            {"source_read_failures", qint64(controller.completedReadFailures())},
+            {"session_timing", timingResults(controller)}, {"steady_source_delivery", steadyDelivery},
+            {"routing", routingResult}, {"recording", recordingResult}, {"pending_recorder_open_close", pendingOpenClose},
+            {"audio_settings_apply", settingsApply}};
         std::cout << QJsonDocument(result).toJson().constData();
         return 1;
     }

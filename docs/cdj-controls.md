@@ -5,8 +5,9 @@ DJM-900NXS2 arrangement in the [supplied photograph](handoff/references/pioneer-
 The [CDJ-3000 operating instructions, pages 14–16](https://downloads.support.alphatheta.com/manuals/dj-players/CDJ-3000/CDJ-3000_DRI1586A_manual.pdf#page=14)
 identify the controls; pages 47–49 distinguish tempo, Master Tempo and jog
 operations. This inventory covers the visual redesign and the existing manual
-audio functions. It adds a bounded source-peak overview without changing audio
-PCM or marking M1 complete.
+audio functions, including independent headphone cue, metering and stereo
+recording. Source-peak overviews leave audio PCM unchanged. Jog, ramps and
+sustained playback qualification remain unfinished M1 work.
 
 Both deck faces have the same orientation. Put the display across the upper
 third, eight Hot Cue buttons immediately beneath it, and the large jog in the
@@ -31,6 +32,9 @@ the C/D strips must say they are unavailable.
 | PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
 | MASTER LEVEL, mixer | Call `setMasterGain` in [0,1]. The deck's hardware MASTER button selects a sync master and must remain disabled. |
+| Mixer CUE and CUE LEVEL | Toggle A/B `setCueSelected` for the separate pre-fader headphone bus; `setCueGain` controls its independent level in [0,1]. Selection follows the deck's transport and does not start a paused deck. This is separate from the temporary transport CUE button. C/D remain disabled. |
+| Stereo meters beside channel faders and master/cue controls | Show actual pre-fader A/B and post-gain master/cue peak markers and RMS fills, from −60 to 0 dBFS. OVR reflects cumulative samples above ±1 in the current render session. Hover/accessibility text gives numeric values. Internal cue metering can be nonzero while CUE UNROUTED shows that no headphone audio is routed. |
+| AUDIO / REC, top bar | Refresh playback ports and select explicit stereo master/cue pairs. Default selection applies only to master; cue requires four distinct destination ports across the two pairs. Record the post-master mix to a new absolute `.wav` path, with visible recording/finalization/error state and saved path. |
 | Jog, jog mode/adjust and brake | Disabled: scratch, temporary pitch bend/nudge, jog frame search and brake processing are not implemented. Do not animate rotation as a claim of jog interaction. |
 | CUE, lower left | One temporary cue per deck, initially frame zero. Press while paused away from the cue to replace it; press during playback to return and pause. Hold at the paused cue to preview. Indicators use acknowledged cue/preview state. |
 | Hot Cues A–H and cue memory | Disabled: Hot Cues, persistent cue memory and memory navigation are not implemented. |
@@ -38,7 +42,7 @@ the C/D strips must say they are unavailable.
 | Loop IN/OUT/RELOOP, 4/8 BEAT LOOP and BEAT JUMP | Disabled: loops, beat analysis and quantized beat navigation are not implemented. |
 | TEMPO rail/range/reset, MASTER TEMPO and KEY SYNC | Disabled: tempo/pitch processing and key matching are not implemented. Keep deck gain off the tempo rail. |
 | BEAT SYNC, MASTER, QUANTIZE and SLIP | Disabled: beat synchronization, quantization and slip transport are not implemented. |
-| Mixer EQ, filter, FX, crossfader, headphone cue and meters | Disabled: their processing, routing or measurement is not implemented. Do not illuminate fictitious level bars. |
+| Mixer EQ, filter, FX and crossfader | Disabled: their processing is not implemented. |
 
 The [operating instructions, pages 51–52](https://downloads.support.alphatheta.com/manuals/dj-players/CDJ-3000/CDJ-3000_DRI1586A_manual.pdf#page=51)
 describe paused cue setting, return-and-pause during playback, and preview while
@@ -57,15 +61,41 @@ release, disable/hide, window deactivation and destruction request cleanup
 without that deferral. Queue pressure retains the release for retry before
 later transport commands.
 
+Audio settings can discover ports before loading a track through an inactive,
+unlinked filter. The live session renders master and cue once through four
+mono `pw_filter` outputs, with automatic linking disabled. Each stereo pair
+uses two distinct ports of one sink. Cue may use another pair on a four-channel
+interface or a separate stereo sink; physical clock drift and DAC alignment
+remain unverified. The graph must run at 48 kHz or output is muted with an
+error. Source-rate conversion does not change that graph requirement.
+
+Default master resolves the default sink's FL/FR ports at session start. Cue
+never uses a default fallback. Port selections use runtime IDs and serials;
+after removal or identity change, refresh and select the ports again. Cue loss
+mutes cue while a valid master continues. Master loss stops output and allows
+rediscovery/reselection. Applying outputs briefly interrupts playback and
+restores the stopped transport state. Stop recording before applying outputs.
+
+Recording captures only the post-master bus as stereo 48 kHz float WAV,
+preserving values above ±1. The target is created exclusively and existing
+files are never overwritten. A bounded queue feeds a background disk writer;
+stopping detaches after the callback's last use, drains and finalizes before
+showing Complete or Failed. Overflow or disk errors stop recording with a
+visible error while playback can continue. Source replacement retains the
+same writer, but the replacement's wall-time interruption is omitted from the
+file. Closing joins pending open/finalization work after audio stops.
+
 BPM, key and beatgrid remain unavailable. The overview uses at most 512
 buckets of `max(abs(left), abs(right))` from decoded PCM, normalized to the
 source peak for display only. Its playhead shows the actual source position.
-Analysis runs in the existing decode job, outside the GUI and audio callbacks. Keep preparation and output errors near the affected deck; do not
-invent analysis progress, AI ownership or recorded audio states. Use approved
+Analysis runs in the existing decode job, outside the GUI and audio callbacks.
+Keep preparation and output errors near the affected deck. Recording state
+comes from the writer lifecycle; do not invent analysis progress or AI ownership. Use approved
 CONFLUX assets and theme tokens, without reproducing the hardware's logo.
 
 Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION and
-CHANNEL LEVEL for each deck, then MASTER LEVEL. Enter loads the path; focused
+CHANNEL LEVEL for each deck, then mixer CUE, MASTER LEVEL and CUE LEVEL. Audio
+settings expose keyboard-operable port selectors and recording controls. Enter loads the path; focused
 buttons accept Space/Enter; focused sliders accept arrow keys. Pointer and
 touch use the same actions. Keep controls large enough to operate at the
 laptop's logical resolution, with visible focus and accessible names that

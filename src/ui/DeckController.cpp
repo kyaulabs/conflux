@@ -10,11 +10,28 @@
 #include <filesystem>
 
 namespace conflux {
+namespace {
+QString portKey(const audio::PortIdentity& port)
+{
+    return QString::number(port.globalId) + ":" + QString::number(port.serial) + ":" +
+        QString::number(port.nodeId) + ":" + QString::number(port.nodeSerial);
+}
+
+QVariantMap meterMap(const audio::RenderCore::StereoMeter& meter)
+{
+    return {{"peakLeft", meter.peak[0]}, {"peakRight", meter.peak[1]},
+            {"rmsLeft", meter.rms[0]}, {"rmsRight", meter.rms[1]},
+            {"overrangeLeft", QVariant::fromValue<qulonglong>(meter.overrangeSamples[0])},
+            {"overrangeRight", QVariant::fromValue<qulonglong>(meter.overrangeSamples[1])}};
+}
+} // namespace
 
 DeckController::DeckController(QObject* parent) : QObject(parent)
 {
     connect(&loader_, &QFutureWatcher<LoadResult>::finished, this, &DeckController::loaded);
     connect(&installer_, &QFutureWatcher<std::shared_ptr<InstallResult>>::finished, this, &DeckController::installed);
+    connect(&recordingStarter_, &QFutureWatcher<RecordingStart>::finished, this, &DeckController::recordingStarted);
+    connect(&recordingFinalizer_, &QFutureWatcher<RecordingCompletion>::finished, this, &DeckController::recordingFinished);
     connect(&pollTimer_, &QTimer::timeout, this, &DeckController::poll);
     pollTimer_.start(50);
 }
@@ -32,8 +49,11 @@ void DeckController::shutdown()
     pollTimer_.stop();
     disconnect(&loader_, nullptr, this, nullptr);
     disconnect(&installer_, nullptr, this, nullptr);
+    disconnect(&recordingStarter_, nullptr, this, nullptr);
+    disconnect(&recordingFinalizer_, nullptr, this, nullptr);
     loadCancellation_.request_stop();
     stopSession();
+    discovery_.reset();
     // Preparation checks cancellation between bounded reads/conversion/writes.
     // Join before releasing the controller and decoded owners.
     loader_.waitForFinished();
@@ -41,6 +61,33 @@ void DeckController::shutdown()
     if (installer_.future().resultCount() > 0) {
         const auto pending = installer_.result();
         if (pending && pending->session) pending->session->stop();
+    }
+    // stopSession() acknowledged detachment after callback quiescence. Neither
+    // a pending open nor a finalizer may outlive shutdown or its writer owner.
+    recordingStarter_.waitForFinished();
+    if (recordingStartPending_ && recordingStarter_.future().resultCount() > 0) {
+        const auto result = recordingStarter_.result();
+        recorder_ = result.writer;
+        if (!recorder_) {
+            recordingError_ = result.error;
+            recordingStatus_ = "Failed";
+        }
+        recordingStartPending_ = false;
+    }
+    if (recorder_) {
+        recorder_->stop();
+        lastRecording_ = {QString::fromStdString(recorder_->error()), recorder_->acceptedFrames(),
+            recorder_->writtenFrames(), recorder_->overflowCount(), recorder_->overflowFrames()};
+        recorder_.reset();
+        recordingError_ = lastRecording_.error;
+        recordingStatus_ = recordingError_.isEmpty() ? "Complete" : "Failed";
+    }
+    recordingFinalizer_.waitForFinished();
+    if (recordingFinalizationPending_ && recordingFinalizer_.future().resultCount() > 0) {
+        lastRecording_ = recordingFinalizer_.result();
+        recordingError_ = lastRecording_.error;
+        recordingStatus_ = recordingError_.isEmpty() ? "Complete" : "Failed";
+        recordingFinalizationPending_ = false;
     }
     busy_ = false;
 }
@@ -53,6 +100,8 @@ QVariantList DeckController::decks() const
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"waveform", waveforms_[deck]},
             {"playing", state_.playing[deck]},
+            {"cueSelected", state_.cueSelected[deck]},
+            {"meter", meterMap(state_.meters.deck[deck])},
             {"cueSeconds", state_.cueFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"cueHeld", state_.cueHeld[deck]}, {"cuePreview", state_.cuePreview[deck]},
             {"buffering", state_.buffering[deck]}, {"sourceReadError", state_.sourceReadError[deck]},
@@ -62,6 +111,41 @@ QVariantList DeckController::decks() const
             {"gain", state_.deckGain[deck]}});
     }
     return result;
+}
+
+QVariantMap DeckController::meters() const
+{
+    return {{"master", meterMap(state_.meters.master)}, {"cue", meterMap(state_.meters.cue)},
+            {"blockFrames", QVariant::fromValue<qulonglong>(state_.meters.blockFrames)}};
+}
+
+QVariantMap DeckController::audioRouting() const
+{
+    QVariantList ports;
+    for (const auto& port : routingSnapshot_.playbackPorts) {
+        if (!audio::isPlaybackPort(port)) continue;
+        ports.append(QVariantMap{{"key", portKey(port)},
+            {"label", QString::fromStdString(port.nodeName + " · " + port.portName + " [" + port.channel + "]")}});
+    }
+    return {{"ports", ports}, {"masterReady", ready_ && routingSnapshot_.masterReady},
+        {"cueReady", ready_ && state_.cueReady},
+        {"masterLeft", routingConfig_.master ? portKey(routingConfig_.master->left) : QString{}},
+        {"masterRight", routingConfig_.master ? portKey(routingConfig_.master->right) : QString{}},
+        {"cueLeft", routingConfig_.cue ? portKey(routingConfig_.cue->left) : QString{}},
+        {"cueRight", routingConfig_.cue ? portKey(routingConfig_.cue->right) : QString{}},
+        {"defaultSink", QString::fromStdString(routingSnapshot_.defaultSinkName)},
+        {"masterError", QString::fromStdString(routingSnapshot_.masterError)},
+        {"cueError", QString::fromStdString(routingSnapshot_.cueError)}};
+}
+
+QVariantMap DeckController::recording() const
+{
+    return {{"status", recordingStatus_}, {"path", recordingPath_}, {"error", recordingError_},
+        {"active", bool(recorder_) || recordingStatus_ == "Starting" || recordingStatus_ == "Stopping" ||
+                   recordingStatus_ == "Finalizing"},
+        {"acceptedFrames", QVariant::fromValue<qulonglong>(recorder_ ? recorder_->acceptedFrames() : lastRecording_.accepted)},
+        {"writtenFrames", QVariant::fromValue<qulonglong>(recorder_ ? recorder_->writtenFrames() : lastRecording_.written)},
+        {"overflowFrames", QVariant::fromValue<qulonglong>(recorder_ ? recorder_->overflowFrames() : lastRecording_.overflowFrames)}};
 }
 
 void DeckController::fail(const QString& error)
@@ -125,6 +209,7 @@ void DeckController::stopSession()
     if (session_) {
         session_->stop();
         state_ = session_->stoppedState();
+        completedTiming_.push_back(session_->stoppedTimingSummary());
         ++completedSessions_;
         completedApplied_ += state_.applied;
         completedRejected_ += state_.rejected;
@@ -167,12 +252,20 @@ void DeckController::loaded()
     state_.sourceFrames[pendingDeck_] = result.audio->frames();
     state_.playing[pendingDeck_] = false;
     state_.deckGain[pendingDeck_] = 1.0F;
+    state_.cueSelected[pendingDeck_] = false;
+    installSession();
+}
+
+void DeckController::installSession()
+{
     audio::LiveSession::InitialState initial;
     initial.sourceFrame = state_.sourceFrame;
     initial.cueFrame = state_.cueFrame;
     initial.playing = state_.playing;
     initial.deckGain = state_.deckGain;
     initial.masterGain = state_.masterGain;
+    initial.cueSelected = state_.cueSelected;
+    initial.cueGain = state_.cueGain;
     // Capture the exact quiesced cursor first. Priming can involve slow storage,
     // so keep the installing stage busy and construct its readers off the GUI.
     installer_.setFuture(QtConcurrent::run([clips = clips_, initial]() {
@@ -196,20 +289,29 @@ void DeckController::installed()
     const auto result = installer_.result();
     busy_ = false;
     if (!result->session) {
+        recordingStopRequested_ = true;
+        pollRecording();
         fail(result->error);
         return;
     }
     try {
+        discovery_.reset();
         session_ = std::move(result->session);
         state_ = session_->stoppedState();
         std::string error;
-        if (!session_->start(error)) {
+        if (recorder_ && !recordingStopRequested_)
+            session_->requestRecorder(recorder_.get());
+        if (!session_->start(error, routingConfig_)) {
             stopSession();
+            recordingStopRequested_ = true;
+            pollRecording();
             fail(QString::fromStdString(error));
             return;
         }
     } catch (const std::exception& error) {
         stopSession();
+        recordingStopRequested_ = true;
+        pollRecording();
         fail(QString::fromUtf8(error.what()));
         return;
     }
@@ -219,8 +321,16 @@ void DeckController::installed()
 
 void DeckController::poll()
 {
-    if (!session_)
+    if (!session_) {
+        if (discovery_) {
+            routingSnapshot_ = discovery_->routingSnapshot();
+            const auto error = discovery_->error();
+            if (!error.empty()) routingSnapshot_.masterError = error;
+            emit stateChanged();
+        }
+        pollRecording();
         return;
+    }
     flushCueReleases();
     audio::LiveSession::State snapshot;
     // The queue is bounded; GUI delay can drop intermediate snapshots. Drain at
@@ -230,10 +340,14 @@ void DeckController::poll()
     const auto error = session_->error();
     if (!error.empty()) {
         stopSession();
+        recordingStopRequested_ = true;
+        pollRecording();
         fail(QString::fromStdString(error));
         return;
     }
     ready_ = session_->ready();
+    routingSnapshot_ = session_->routingSnapshot();
+    pollRecording();
     emit stateChanged();
 }
 
@@ -359,5 +473,209 @@ void DeckController::setMasterGain(double gain)
     command.type = audio::RenderCore::Command::Type::MasterGain;
     command.gain = float(gain);
     submit(command);
+}
+
+void DeckController::setCueGain(double gain)
+{
+    if (!std::isfinite(gain) || gain < 0 || gain > 1) {
+        fail("Headphone cue level must be between zero and one.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::CueGain;
+    command.gain = float(gain);
+    submit(command);
+}
+
+void DeckController::setCueSelected(int deck, bool selected)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) {
+        fail("Load this deck before selecting headphone cue.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = selected ? audio::RenderCore::Command::Type::CueOn : audio::RenderCore::Command::Type::CueOff;
+    command.deck = std::uint32_t(deck);
+    submit(command);
+}
+
+void DeckController::refreshAudioRouting()
+{
+    if (closing_) return;
+    if (session_) {
+        routingSnapshot_ = session_->routingSnapshot();
+    } else {
+        try {
+            if (discovery_ && !discovery_->error().empty()) discovery_.reset();
+            if (!discovery_) {
+                discovery_ = std::make_unique<audio::LiveSession>();
+                std::string error;
+                if (!discovery_->startDiscovery(error)) {
+                    routingSnapshot_.masterError = error;
+                    discovery_.reset();
+                }
+            }
+            if (discovery_) routingSnapshot_ = discovery_->routingSnapshot();
+        } catch (const std::exception& error) {
+            routingSnapshot_.masterError = error.what();
+            discovery_.reset();
+        }
+    }
+    emit stateChanged();
+}
+
+void DeckController::configureAudioRouting(const QString& masterLeft, const QString& masterRight,
+                                         const QString& cueLeft, const QString& cueRight)
+{
+    if (closing_) return;
+    if (busy_) {
+        fail("Wait for preparation before applying audio outputs.");
+        return;
+    }
+    if (session_) routingSnapshot_ = session_->routingSnapshot();
+    else if (discovery_) routingSnapshot_ = discovery_->routingSnapshot();
+    auto find = [&](const QString& key) -> std::optional<audio::PortIdentity> {
+        for (const auto& port : routingSnapshot_.playbackPorts)
+            if (audio::isPlaybackPort(port) && portKey(port) == key) return port;
+        return std::nullopt;
+    };
+    audio::RoutingConfig config;
+    auto pair = [&](const QString& left, const QString& right, std::optional<audio::RoutePair>& output) {
+        if (left.isEmpty() && right.isEmpty()) return true;
+        const auto l = find(left), r = find(right);
+        if (!l || !r) return false;
+        output = audio::RoutePair{*l, *r};
+        return true;
+    };
+    if (!pair(masterLeft, masterRight, config.master) || !pair(cueLeft, cueRight, config.cue)) {
+        fail("An output port is missing. Refresh and select both channels again.");
+        return;
+    }
+    const auto resolved = audio::resolveAudioRouting(routingSnapshot_, config);
+    if (!resolved.master || (config.cue && !resolved.cue)) {
+        fail(QString::fromStdString(!resolved.master ? resolved.masterError : resolved.cueError));
+        return;
+    }
+    // Runtime identities protect against ID reuse. Reconfiguration intentionally
+    // interrupts output, then restores the exact stopped transport state.
+    routingConfig_ = std::move(config);
+    if (!clips_[0] && !clips_[1]) {
+        error_.clear();
+        emit stateChanged();
+        return;
+    }
+    busy_ = true;
+    stopSession();
+    discovery_.reset();
+    installSession();
+}
+
+void DeckController::startRecording(const QUrl& url)
+{
+    if (closing_) return;
+    if (busy_ || !ready_ || !session_) {
+        recordingError_ = "Audio output must be ready before recording.";
+        emit stateChanged();
+        return;
+    }
+    if (recorder_ || recordingStartPending_ || recordingFinalizationPending_) {
+        recordingError_ = "Wait for the current recording to finish.";
+        emit stateChanged();
+        return;
+    }
+    if (!url.isLocalFile() || (!url.host().isEmpty() && url.host() != "localhost") ||
+        !QFileInfo(url.toLocalFile()).isAbsolute()) {
+        recordingError_ = "Enter a new absolute local WAV path.";
+        emit stateChanged();
+        return;
+    }
+    recordingPath_ = url.toLocalFile();
+    recordingError_.clear();
+    recordingStatus_ = "Starting";
+    recordingStopRequested_ = false;
+    recordingStartPending_ = true;
+    lastRecording_ = {};
+    const auto path = recordingPath_;
+    recordingStarter_.setFuture(QtConcurrent::run([path]() -> RecordingStart {
+        try {
+            const auto encoded = QFile::encodeName(path);
+            return {std::make_shared<audio::StereoRecorder>(std::filesystem::path(encoded.constData())), {}};
+        } catch (const std::exception& error) {
+            return {{}, QString::fromUtf8(error.what())};
+        } catch (...) { return {{}, "Cannot create a recording."}; }
+    }));
+    emit stateChanged();
+}
+
+void DeckController::recordingStarted()
+{
+    if (closing_) return;
+    const auto result = recordingStarter_.result();
+    recordingStartPending_ = false;
+    recorder_ = result.writer;
+    if (!recorder_) {
+        recordingError_ = result.error;
+        recordingStatus_ = "Failed";
+    } else {
+        if (!session_ || !ready_) recordingStopRequested_ = true;
+        pollRecording();
+    }
+    emit stateChanged();
+}
+
+void DeckController::stopRecording()
+{
+    if (closing_) return;
+    if (!recorder_ && !recordingStartPending_) return;
+    recordingStopRequested_ = true;
+    recordingStatus_ = "Stopping";
+    pollRecording();
+    emit stateChanged();
+}
+
+void DeckController::pollRecording()
+{
+    if (!recorder_) return;
+    if (recorder_->failed()) {
+        recordingError_ = QString::fromStdString(recorder_->error());
+        recordingStopRequested_ = true;
+    }
+    if (recordingStopRequested_) {
+        recordingStatus_ = "Stopping";
+        if (!session_) {
+            finalizeRecording();
+        } else if (!session_->recorderChangePending()) {
+            if (session_->recorderAttached()) session_->requestRecorder(nullptr);
+            else finalizeRecording();
+        }
+    } else if (session_ && !session_->recorderChangePending()) {
+        if (session_->recorderAttached()) recordingStatus_ = "Recording";
+        else session_->requestRecorder(recorder_.get());
+    }
+}
+
+void DeckController::finalizeRecording()
+{
+    // The old session is quiescent, or a detach has completed at callback exit.
+    // Joining the disk writer belongs to a worker, never the GUI/audio thread.
+    auto writer = std::move(recorder_);
+    if (!writer) return;
+    recordingStatus_ = "Finalizing";
+    recordingFinalizationPending_ = true;
+    recordingFinalizer_.setFuture(QtConcurrent::run([writer = std::move(writer)]() -> RecordingCompletion {
+        writer->stop();
+        return {QString::fromStdString(writer->error()), writer->acceptedFrames(), writer->writtenFrames(),
+                writer->overflowCount(), writer->overflowFrames()};
+    }));
+}
+
+void DeckController::recordingFinished()
+{
+    if (closing_) return;
+    recordingFinalizationPending_ = false;
+    lastRecording_ = recordingFinalizer_.result();
+    recordingError_ = lastRecording_.error;
+    recordingStatus_ = recordingError_.isEmpty() ? "Complete" : "Failed";
+    emit stateChanged();
 }
 } // namespace conflux

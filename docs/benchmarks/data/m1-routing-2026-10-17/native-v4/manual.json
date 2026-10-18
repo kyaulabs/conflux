@@ -1,0 +1,349 @@
+{
+    "applied": 231,
+    "callback_execution_deadline_misses": 0,
+    "callbacks": 2681,
+    "checks": [
+        "Manual QML loaded",
+        "Manual window created",
+        "Deck A loads paused at frame zero",
+        "Real decoded source publishes a bounded finite normalized overview",
+        "Loading B preserves A transport and installs B paused",
+        "80 actions acknowledged in one session without a 32-action lifetime limit",
+        "Paused seeks hold exact source frames while output clock advances",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer CUE sets the exact paused render cursor",
+        "Loaded deck exposes an enabled real CUE button",
+        "Loaded deck exposes an enabled real CUE button",
+        "Held pointer CUE auditions without changing requested play state",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer release returns preview to stored cue and pauses",
+        "Controller accepts cue preview",
+        "PLAY latches preview; later CUE release keeps playing",
+        "Controller accepts back-cue",
+        "CUE during playback returns to stored cue and pauses",
+        "Controller accepts preview before seek",
+        "Seek cancels audition and preserves stored cue",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer CUE sets the exact paused render cursor",
+        "Loaded deck exposes an enabled real CUE button",
+        "Loaded deck exposes an enabled real CUE button",
+        "Held pointer CUE auditions without changing requested play state",
+        "Loaded deck exposes an enabled real CUE button",
+        "Pointer release returns preview to stored cue and pauses",
+        "Controller accepts cue preview",
+        "PLAY latches preview; later CUE release keeps playing",
+        "Controller accepts back-cue",
+        "CUE during playback returns to stored cue and pauses",
+        "Controller accepts preview before seek",
+        "Seek cancels audition and preserves stored cue",
+        "Controller accepts preview before queue pressure",
+        "Controller accepts preview before queue pressure",
+        "Controller accepts preview before queue pressure",
+        "Full transport queue retains CUE release until a later poll can submit it",
+        "Queue-pressure recovery returns to the exact cue without a stuck audition",
+        "Decode failure preserves loaded decks and active output",
+        "Replacing A resets its cue and preserves B transport and cue after stream quiescence",
+        "Controller accepts B back-cue before replacement check",
+        "Controller accepts B audition before replacing A",
+        "Replacing a source cancels peer audition and preserves its stored cue",
+        "Snapshot backpressure drops telemetry while later controls recover",
+        "Fresh temporary recording directory created",
+        "Actual mixer control is enabled",
+        "Mixer CUE selects the actual pre-fader headphone bus",
+        "Actual mixer control is enabled",
+        "Actual mixer control is enabled",
+        "Mixer CUE selects the actual pre-fader headphone bus",
+        "Actual headphone level control is enabled",
+        "Real headphone level keyboard control decreases cue gain",
+        "Unrouted nonzero headphone cue remains disabled while master is muted",
+        "Source replacement preserves the same recording path, writer prefix and peer transport",
+        "Recording detaches, drains and finalizes without an overflow or disk error",
+        "Independent nonempty stereo 48 kHz WAV readback is all zero despite nonzero cue",
+        "Five-second steady source interval advances playback without new unavailable frames or read errors",
+        "Dark screenshot saved",
+        "Theme control found",
+        "Light screenshot saved",
+        "Minimum-size screenshot saved",
+        "No scene-graph errors during live audio",
+        "GUI frames continued rendering alongside live audio",
+        "Tail preview press accepted before immediate shutdown",
+        "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across completed sessions",
+        "Immediate shutdown retains accepted tail controls and cancels held audition",
+        "Separate paused controller exposes pending recorder opener before immediate close",
+        "Immediate close joins pending recorder open and finalizes a valid empty WAV without attachment"
+    ],
+    "elapsed_ms": 14765,
+    "frames_swapped": 298,
+    "invalid_buffers": 0,
+    "last_session_callbacks": 1271,
+    "last_session_frames_max": 256,
+    "last_session_frames_min": 256,
+    "last_session_output_frames": 325376,
+    "last_session_snapshot_drops": 68,
+    "maximum_callback_execution_ns": 80703,
+    "passed": true,
+    "pending_recorder_open_close": {
+        "final_state": {
+            "acceptedFrames": 0,
+            "active": false,
+            "error": "",
+            "overflowFrames": 0,
+            "path": "/tmp/conflux-manual-audio-check-yzTjrX/pending-open-close.wav",
+            "status": "Complete",
+            "writtenFrames": 0
+        },
+        "readback": {
+            "all_samples_zero": true,
+            "bytes": 88,
+            "channels": 2,
+            "encoding": "IEEE float32",
+            "frames": 0,
+            "sample_rate": 48000,
+            "sha256": "c81643ed427398fe8f09291f1740a7f7052dc580d9ed9b014f1224f392707890"
+        },
+        "scope": "Paused quiet source; opener completion not delivered before shutdown. Does not claim a timed disk-operation cancellation or pending-finalizer race.",
+        "session_timing": [
+            {
+                "at_least_100ms": 0,
+                "callbacks": 9,
+                "capabilities": {
+                    "cycle": true,
+                    "discontinuity_flag_mask": 16,
+                    "xrun_recovery_flag_mask": 2
+                },
+                "execution_deadline_misses": 0,
+                "execution_p50_upper_us": 8,
+                "execution_p95_upper_us": 12,
+                "execution_p999_upper_us": 12,
+                "execution_p99_upper_us": 12,
+                "graph_discontinuities": 0,
+                "graph_position_observed": true,
+                "graph_quantum_max": 256,
+                "graph_quantum_min": 256,
+                "maximum_execution_ns": 11989,
+                "session_index": 0,
+                "xrun_recovery_flags": 0
+            }
+        ]
+    },
+    "platform": "wayland",
+    "qt": "6.12.0",
+    "recording": {
+        "cue_meter_nonzero_before_recording": true,
+        "final_state": {
+            "acceptedFrames": 16128,
+            "active": false,
+            "error": "",
+            "overflowFrames": 0,
+            "path": "/tmp/conflux-manual-audio-check-yzTjrX/muted-master.wav",
+            "status": "Complete",
+            "writtenFrames": 16128
+        },
+        "master_meter_zero_before_recording": true,
+        "readback": {
+            "all_samples_zero": true,
+            "bytes": 129112,
+            "channels": 2,
+            "encoding": "IEEE float32",
+            "frames": 16128,
+            "sample_rate": 48000,
+            "sha256": "3a79dfd87434980a40f0e096513c6c9c9af28efc3aba3e979759b9dabc513706"
+        },
+        "replacement_before": {
+            "acceptedFrames": 4864,
+            "active": true,
+            "error": "",
+            "overflowFrames": 0,
+            "path": "/tmp/conflux-manual-audio-check-yzTjrX/muted-master.wav",
+            "status": "Recording",
+            "writtenFrames": 4864
+        },
+        "replacement_policy": "One writer retains accepted PCM across source replacement. Output pauses while the session is replaced; wall-time interruption is omitted, not padded or measured as continuous recording."
+    },
+    "rejected": 0,
+    "routing": {
+        "cueError": "",
+        "cueLeft": "",
+        "cueReady": false,
+        "cueRight": "",
+        "defaultSink": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink",
+        "masterError": "",
+        "masterLeft": "",
+        "masterReady": true,
+        "masterRight": "",
+        "ports": [
+            {
+                "key": "61:2452:113:2445",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI3__sink · playback_FR [FR]"
+            },
+            {
+                "key": "118:2455:68:2446",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI2__sink · playback_FL [FL]"
+            },
+            {
+                "key": "132:2456:68:2446",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI2__sink · playback_FR [FR]"
+            },
+            {
+                "key": "141:2451:113:2445",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI3__sink · playback_FL [FL]"
+            },
+            {
+                "key": "149:2460:69:2447",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI1__sink · playback_FR [FR]"
+            },
+            {
+                "key": "153:2459:69:2447",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__HDMI1__sink · playback_FL [FL]"
+            },
+            {
+                "key": "154:2464:70:2448",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink · playback_FR [FR]"
+            },
+            {
+                "key": "158:2463:70:2448",
+                "label": "alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink · playback_FL [FL]"
+            }
+        ]
+    },
+    "scope": "Short generated quiet-file UI/audio integration; no physical latency, acoustic or sustained qualification",
+    "session_timing": [
+        {
+            "at_least_100ms": 0,
+            "callbacks": 22,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 11,
+            "execution_p95_upper_us": 22,
+            "execution_p999_upper_us": 24,
+            "execution_p99_upper_us": 24,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 23993,
+            "session_index": 0,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 1170,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 33,
+            "execution_p95_upper_us": 50,
+            "execution_p999_upper_us": 77,
+            "execution_p99_upper_us": 59,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 80703,
+            "session_index": 1,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 41,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 16,
+            "execution_p95_upper_us": 25,
+            "execution_p999_upper_us": 26,
+            "execution_p99_upper_us": 26,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 25268,
+            "session_index": 2,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 177,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 18,
+            "execution_p95_upper_us": 32,
+            "execution_p999_upper_us": 48,
+            "execution_p99_upper_us": 43,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 47273,
+            "session_index": 3,
+            "xrun_recovery_flags": 0
+        },
+        {
+            "at_least_100ms": 0,
+            "callbacks": 1271,
+            "capabilities": {
+                "cycle": true,
+                "discontinuity_flag_mask": 16,
+                "xrun_recovery_flag_mask": 2
+            },
+            "execution_deadline_misses": 0,
+            "execution_p50_upper_us": 18,
+            "execution_p95_upper_us": 29,
+            "execution_p999_upper_us": 44,
+            "execution_p99_upper_us": 37,
+            "graph_discontinuities": 0,
+            "graph_position_observed": true,
+            "graph_quantum_max": 256,
+            "graph_quantum_min": 256,
+            "maximum_execution_ns": 61641,
+            "session_index": 4,
+            "xrun_recovery_flags": 0
+        }
+    ],
+    "sessions": 5,
+    "source_read_failures": 0,
+    "source_starved_frames_including_seek_priming": 4096,
+    "steady_source_delivery": {
+        "observation_ms": 5001,
+        "output_frame_after": 268544,
+        "output_frame_before": 28416,
+        "scope": "Five-second no-control quiet playback after 200 ms settling; separate from whole-run seek/priming counters.",
+        "settling_ms": 200,
+        "source_frames_after": [
+            0,
+            265440
+        ],
+        "source_frames_before": [
+            0,
+            25312
+        ],
+        "starved_frames_after": [
+            0,
+            256
+        ],
+        "starved_frames_before": [
+            0,
+            256
+        ],
+        "starved_frames_delta": [
+            0,
+            0
+        ]
+    },
+    "submitted": 231,
+    "timing_scope": "Per-session stopped execution histograms and graph-clock observations; percentiles are not combined across sessions. Unsupported flag masks mean unavailable. No scheduler-lateness, physical latency, separate-device drift or sustained qualification."
+}
