@@ -1,0 +1,678 @@
+{
+  "schema": 1,
+  "scope": "Closed startup diagnostic reduction, not a sustained or causal qualification. Explicit baseline pauses differ from the earlier paced test.",
+  "inputs": {
+    "startup-observe/result.json": {
+      "bytes": 20255,
+      "sha256": "6800729db5df55cb953be2b5cdba73087c88fac5d8fad3e56bf2dd57649673db"
+    },
+    "startup-observe/events.jsonl": {
+      "bytes": 8515,
+      "sha256": "ae2906ebdde4fa7888b836d7ce201446eab8da203d935f4c50cdd5a2008eb951"
+    },
+    "startup-observe/host-trace.jsonl": {
+      "bytes": 434515,
+      "sha256": "9b7086ba1fbc061d1e9a7e7036ff33bc004d969833f5b2c695a5f08941e59c2e"
+    },
+    "startup-observe/native-trace.jsonl": {
+      "bytes": 162919,
+      "sha256": "1fb5ed23083f5217a274d9045b39874f01b021b350675ef2e5df68f9bdff398e"
+    },
+    "startup-observe/supervisor-trace.jsonl": {
+      "bytes": 74976,
+      "sha256": "55d7ce23b47fa3148a1cc4254c34f79fe18757c31551dd6821fae848a252bf36"
+    },
+    "startup-observe-guard-after.json": {
+      "bytes": 852,
+      "sha256": "268f174c17557b8fdfef417dab35600997eba1ba5e724c3d79c928062b0bc393"
+    },
+    "startup-observe-guard-journal.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "status": "ok",
+  "diagnostic_coverage": {
+    "status": "usable",
+    "errors": [],
+    "minimum_successful_native_supervisor_samples": 1,
+    "minimum_successful_samples_per_guard_sensor": 10,
+    "maximum_guard_sensor_sample_gap_seconds": 1,
+    "scope": "Coverage QA for startup phase observations only. A captured subset with missing coverage is diagnostically unusable for attributing startup heat; even usable sparse snapshots do not identify cause or prove continuous temperature."
+  },
+  "phases": [
+    {
+      "phase": "ambient_with_observer",
+      "start_elapsed_seconds": 0.0,
+      "end_elapsed_seconds": 2.0003817620454356,
+      "wall_seconds": 2.0003817620454356,
+      "host_rows": 8,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": 73000,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 1,
+      "process_CPU_top_observed": [
+        {
+          "pid": 1290,
+          "start_ticks": 3804,
+          "name": "plasmashell",
+          "included_cpu_seconds": 0.07,
+          "maximum_one_core_percent": 6.694497689118567,
+          "included_windows": 1
+        },
+        {
+          "pid": 649853,
+          "start_ticks": 9199228,
+          "name": "ChatGPT",
+          "included_cpu_seconds": 0.05,
+          "maximum_one_core_percent": 4.7817840636561195,
+          "included_windows": 1
+        },
+        {
+          "pid": 1160,
+          "start_ticks": 3522,
+          "name": "baloo_file",
+          "included_cpu_seconds": 0.03,
+          "maximum_one_core_percent": 2.8690704381936714,
+          "included_windows": 1
+        },
+        {
+          "pid": 1990134,
+          "start_ticks": 45355607,
+          "name": "python3",
+          "included_cpu_seconds": 0.03,
+          "maximum_one_core_percent": 2.8690704381936714,
+          "included_windows": 1
+        },
+        {
+          "pid": 1162,
+          "start_ticks": 3522,
+          "name": "kwin_wayland",
+          "included_cpu_seconds": 0.02,
+          "maximum_one_core_percent": 1.9127136254624473,
+          "included_windows": 1
+        }
+      ]
+    },
+    {
+      "phase": "imports",
+      "start_elapsed_seconds": 2.0003817620454356,
+      "end_elapsed_seconds": 2.0686661130166613,
+      "wall_seconds": 0.06828435097122565,
+      "host_rows": 0,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": null,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "policy_and_idle_worker_setup",
+      "start_elapsed_seconds": 2.0686661130166613,
+      "end_elapsed_seconds": 2.2505062050186098,
+      "wall_seconds": 0.1818400920019485,
+      "host_rows": 1,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": 64000,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "audio_UI_load_start",
+      "start_elapsed_seconds": 2.2505062050186098,
+      "end_elapsed_seconds": 3.251317674003076,
+      "wall_seconds": 1.000811468984466,
+      "host_rows": 4,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": 71000,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "audio_UI_loaded_baseline",
+      "start_elapsed_seconds": 3.2514929070021026,
+      "end_elapsed_seconds": 13.25168708601268,
+      "wall_seconds": 10.000194179010577,
+      "host_rows": 38,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": 70000,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 8,
+      "process_CPU_top_observed": [
+        {
+          "pid": 1162,
+          "start_ticks": 3522,
+          "name": "kwin_wayland",
+          "included_cpu_seconds": 0.75,
+          "maximum_one_core_percent": 12.447236952880528,
+          "included_windows": 8
+        },
+        {
+          "pid": 1290,
+          "start_ticks": 3804,
+          "name": "plasmashell",
+          "included_cpu_seconds": 0.71,
+          "maximum_one_core_percent": 10.409828691143819,
+          "included_windows": 8
+        },
+        {
+          "pid": 649522,
+          "start_ticks": 9198832,
+          "name": "ChatGPT",
+          "included_cpu_seconds": 0.47,
+          "maximum_one_core_percent": 16.277156015305305,
+          "included_windows": 6
+        },
+        {
+          "pid": 1160,
+          "start_ticks": 3522,
+          "name": "baloo_file",
+          "included_cpu_seconds": 0.32999999999999996,
+          "maximum_one_core_percent": 5.678088376987538,
+          "included_windows": 8
+        },
+        {
+          "pid": 649853,
+          "start_ticks": 9199228,
+          "name": "ChatGPT",
+          "included_cpu_seconds": 0.29000000000000004,
+          "maximum_one_core_percent": 7.659838124849555,
+          "included_windows": 7
+        }
+      ]
+    },
+    {
+      "phase": "source_load_to_native_constructor_including_model_identity_hash",
+      "start_elapsed_seconds": 13.252016268030275,
+      "end_elapsed_seconds": 13.323483878048137,
+      "wall_seconds": 0.07146761001786217,
+      "host_rows": 0,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": null,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "native_initialization",
+      "start_elapsed_seconds": 13.323483878048137,
+      "end_elapsed_seconds": 13.690193894028198,
+      "wall_seconds": 0.36671001598006114,
+      "host_rows": 1,
+      "native_rows": 1,
+      "maximum_guard_sensor_millidegrees_C": 53000,
+      "native_sampled_TID_counts": [
+        1
+      ],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "source_preparation_after_native_ready",
+      "start_elapsed_seconds": 13.690193894028198,
+      "end_elapsed_seconds": 13.713588286016602,
+      "wall_seconds": 0.023394391988404095,
+      "host_rows": 0,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": null,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "first_native_infer",
+      "start_elapsed_seconds": 13.71864988800371,
+      "end_elapsed_seconds": 15.546263080032077,
+      "wall_seconds": 1.827613192028366,
+      "host_rows": 7,
+      "native_rows": 4,
+      "maximum_guard_sensor_millidegrees_C": 64000,
+      "native_sampled_TID_counts": [
+        12
+      ],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "first_output_overlap_and_delivery",
+      "start_elapsed_seconds": 15.546263080032077,
+      "end_elapsed_seconds": 15.592871226021089,
+      "wall_seconds": 0.04660814598901197,
+      "host_rows": 1,
+      "native_rows": 0,
+      "maximum_guard_sensor_millidegrees_C": 60000,
+      "native_sampled_TID_counts": [],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    },
+    {
+      "phase": "cancelled_request_drain",
+      "start_elapsed_seconds": 15.601712316041812,
+      "end_elapsed_seconds": 17.31514125299873,
+      "wall_seconds": 1.713428936956916,
+      "host_rows": 6,
+      "native_rows": 3,
+      "maximum_guard_sensor_millidegrees_C": 69000,
+      "native_sampled_TID_counts": [
+        12
+      ],
+      "process_CPU_windows_fully_contained": 1,
+      "process_CPU_top_observed": [
+        {
+          "pid": 1162,
+          "start_ticks": 3522,
+          "name": "kwin_wayland",
+          "included_cpu_seconds": 0.09,
+          "maximum_one_core_percent": 8.467396596578258,
+          "included_windows": 1
+        },
+        {
+          "pid": 1290,
+          "start_ticks": 3804,
+          "name": "plasmashell",
+          "included_cpu_seconds": 0.08,
+          "maximum_one_core_percent": 7.526574752514008,
+          "included_windows": 1
+        },
+        {
+          "pid": 1990134,
+          "start_ticks": 45355607,
+          "name": "python3",
+          "included_cpu_seconds": 0.05,
+          "maximum_one_core_percent": 4.704109220321255,
+          "included_windows": 1
+        },
+        {
+          "pid": 1160,
+          "start_ticks": 3522,
+          "name": "baloo_file",
+          "included_cpu_seconds": 0.04,
+          "maximum_one_core_percent": 3.763287376257004,
+          "included_windows": 1
+        },
+        {
+          "pid": 1200,
+          "start_ticks": 3594,
+          "name": "pipewire",
+          "included_cpu_seconds": 0.03,
+          "maximum_one_core_percent": 2.8224655321927528,
+          "included_windows": 1
+        }
+      ]
+    },
+    {
+      "phase": "idle_after_discard",
+      "start_elapsed_seconds": 17.316373928042594,
+      "end_elapsed_seconds": 60.00013655005023,
+      "wall_seconds": 42.683762622007634,
+      "host_rows": 162,
+      "native_rows": 85,
+      "maximum_guard_sensor_millidegrees_C": 67000,
+      "native_sampled_TID_counts": [
+        12
+      ],
+      "process_CPU_windows_fully_contained": 39,
+      "process_CPU_top_observed": [
+        {
+          "pid": 1162,
+          "start_ticks": 3522,
+          "name": "kwin_wayland",
+          "included_cpu_seconds": 3.7099999999999995,
+          "maximum_one_core_percent": 13.387798736299725,
+          "included_windows": 39
+        },
+        {
+          "pid": 1290,
+          "start_ticks": 3804,
+          "name": "plasmashell",
+          "included_cpu_seconds": 3.150000000000001,
+          "maximum_one_core_percent": 24.59059012959655,
+          "included_windows": 39
+        },
+        {
+          "pid": 649522,
+          "start_ticks": 9198832,
+          "name": "ChatGPT",
+          "included_cpu_seconds": 2.4200000000000004,
+          "maximum_one_core_percent": 19.84779112741057,
+          "included_windows": 28
+        },
+        {
+          "pid": 649853,
+          "start_ticks": 9199228,
+          "name": "ChatGPT",
+          "included_cpu_seconds": 1.7400000000000007,
+          "maximum_one_core_percent": 20.099206948079846,
+          "included_windows": 35
+        },
+        {
+          "pid": 1990134,
+          "start_ticks": 45355607,
+          "name": "python3",
+          "included_cpu_seconds": 1.6200000000000008,
+          "maximum_one_core_percent": 5.70522917364366,
+          "included_windows": 39
+        }
+      ]
+    },
+    {
+      "phase": "cleanup",
+      "start_elapsed_seconds": 60.00013655005023,
+      "end_elapsed_seconds": 60.42658946104348,
+      "wall_seconds": 0.4264529109932482,
+      "host_rows": 1,
+      "native_rows": 1,
+      "maximum_guard_sensor_millidegrees_C": 74000,
+      "native_sampled_TID_counts": [
+        12
+      ],
+      "process_CPU_windows_fully_contained": 0,
+      "process_CPU_top_observed": []
+    }
+  ],
+  "native_startup": {
+    "constructor_to_ready_ms": 366.71001598006114,
+    "popen_to_ready_ms": 365.88977702194825,
+    "first_sampler_pause_ms": 0.688687025103718,
+    "start_receive_ms": 365.17427902435884,
+    "reported_load_ms": 363.982259,
+    "source_preparation_ms": 23.26044801156968,
+    "load_to_first_consumed_ms": 2340.932546998374,
+    "first_hop_service_ms": 1879.0231489692815,
+    "first_sample_elapsed_seconds": 13.324903424014337,
+    "first_sample_cpu_ticks": 0,
+    "first_sample_TIDs": 1,
+    "initialization_interior_process_samples": 1,
+    "post_ready_first_process_sample_lag_ms": 137.51301896991208,
+    "sampled_native_cpu_seconds": 0.45,
+    "sampled_TID_count_histogram": {
+      "1": 1,
+      "12": 93
+    },
+    "max_task_read_errors": 0,
+    "fd_read_errors": 1,
+    "caution": "Only the initial pre-work process snapshot falls inside native initialization; next snapshot is after ready. Transient initialization task creation and phase CPU use cannot be resolved at0.5s. Native first snapshot is after Popen and may omit sub-tick work."
+  },
+  "thermal": {
+    "peaks_by_sensor": {
+      "/sys/class/thermal/thermal_zone0/temp": {
+        "kind": "acpitz",
+        "peak_millidegrees_C": 51000,
+        "peak_first_elapsed_seconds": 19.55573647201527,
+        "peak_last_elapsed_seconds": 23.263251254044008,
+        "peak_observations": 15
+      },
+      "/sys/class/thermal/thermal_zone7/temp": {
+        "kind": "x86_pkg_temp",
+        "peak_millidegrees_C": 73000,
+        "peak_first_elapsed_seconds": 0.019158031034749,
+        "peak_last_elapsed_seconds": 0.019158031034749,
+        "peak_observations": 1
+      },
+      "/sys/class/thermal/thermal_zone5/temp": {
+        "kind": "TCPU",
+        "peak_millidegrees_C": 51050,
+        "peak_first_elapsed_seconds": 19.55573647201527,
+        "peak_last_elapsed_seconds": 23.263251254044008,
+        "peak_observations": 15
+      },
+      "/sys/class/hwmon/hwmon5/temp3_input": {
+        "kind": "coretemp",
+        "peak_millidegrees_C": 51000,
+        "peak_first_elapsed_seconds": 15.571000654017553,
+        "peak_last_elapsed_seconds": 16.374324664997403,
+        "peak_observations": 4
+      },
+      "/sys/class/hwmon/hwmon5/temp4_input": {
+        "kind": "coretemp",
+        "peak_millidegrees_C": 68000,
+        "peak_first_elapsed_seconds": 2.897058572038077,
+        "peak_last_elapsed_seconds": 3.702339819050394,
+        "peak_observations": 4
+      },
+      "/sys/class/hwmon/hwmon5/temp1_input": {
+        "kind": "coretemp",
+        "peak_millidegrees_C": 70000,
+        "peak_first_elapsed_seconds": 2.897058572038077,
+        "peak_last_elapsed_seconds": 3.702339819050394,
+        "peak_observations": 4
+      },
+      "/sys/class/hwmon/hwmon5/temp5_input": {
+        "kind": "coretemp",
+        "peak_millidegrees_C": 74000,
+        "peak_first_elapsed_seconds": 60.208029064000584,
+        "peak_last_elapsed_seconds": 60.208029064000584,
+        "peak_observations": 1
+      },
+      "/sys/class/hwmon/hwmon5/temp2_input": {
+        "kind": "coretemp",
+        "peak_millidegrees_C": 55000,
+        "peak_first_elapsed_seconds": 15.571000654017553,
+        "peak_last_elapsed_seconds": 16.374324664997403,
+        "peak_observations": 4
+      }
+    },
+    "maximum_guard_sensor_millidegrees_C": 74000,
+    "rows_with_any_guard_sensor_at_or_above85C": 0,
+    "sensor_readings": 1832,
+    "sampled_policy": [
+      {
+        "profile": "balanced",
+        "cpu_epp": "balance_performance",
+        "samples": 229
+      }
+    ],
+    "GPU_active_frequency_MHz_range": [
+      0,
+      1350
+    ],
+    "scope": "Eight independently read sensors per sparse host snapshot; maxima may differ in time, and reads within one snapshot are not simultaneous. No continuous hot-duration or effective-clock claim."
+  },
+  "traces": {
+    "host": {
+      "rows": 229,
+      "maximum_gap_seconds": 0.2905158529756591,
+      "p99_gap_seconds": 0.28476447402499616,
+      "capture_ms_p50": 8.783553028479218,
+      "capture_ms_p99": 34.50822999002412,
+      "capture_ms_maximum": 40.086374967359006
+    },
+    "native": {
+      "rows": 94,
+      "maximum_gap_seconds": 0.5083895690040663,
+      "p99_gap_seconds": 0.5083895690040663,
+      "capture_ms_p50": 2.132505993358791,
+      "capture_ms_p99": 8.097530051600188,
+      "capture_ms_maximum": 8.097530051600188
+    },
+    "supervisor": {
+      "rows": 117,
+      "maximum_gap_seconds": 0.5053768070065416,
+      "p99_gap_seconds": 0.5043932999833487,
+      "capture_ms_p50": 1.5856950194574893,
+      "capture_ms_p99": 3.9761810330674052,
+      "capture_ms_maximum": 5.148262018337846
+    }
+  },
+  "observer_overhead": {
+    "host": {
+      "thread_cpu_seconds_including_output": 1.8139441369999991,
+      "active_wall_seconds_including_output": 3.167999665485695,
+      "process_scan_thread_cpu_seconds": 1.1454605670000007,
+      "process_scan_active_wall_seconds": 1.1781696042744443
+    },
+    "native": {
+      "observer_cpu_seconds_including_output": 0.20883346100000003,
+      "observer_active_wall_seconds_including_output": 0.21956047910498455
+    },
+    "supervisor": {
+      "observer_cpu_seconds_including_output": 0.18261310000000014,
+      "observer_active_wall_seconds_including_output": 0.1928305888432078
+    },
+    "supervisor_sampled_process_cpu_seconds": 2.41,
+    "caution": "Host process-scan cost is a subset of host observer. Observer thread costs are included in supervisor process CPU; do not add nested values. All observers change scheduling and CPU load.",
+    "read_limitations": {
+      "native_fd_read_errors": 1,
+      "supervisor_fd_read_errors": 119,
+      "scope": "fdinfo reads can fail for transient/inaccessible descriptors. These are reported separately from sample/trace failures; DRM observation is incomplete. Process CPU/status and task snapshots remain available."
+    }
+  },
+  "top_CPU_observations": [
+    {
+      "pid": 1162,
+      "start_ticks": 3522,
+      "name": "kwin_wayland",
+      "included_cpu_seconds": 5.41,
+      "maximum_one_core_percent": 13.387798736299725,
+      "included_windows": 57
+    },
+    {
+      "pid": 1290,
+      "start_ticks": 3804,
+      "name": "plasmashell",
+      "included_cpu_seconds": 4.709999999999999,
+      "maximum_one_core_percent": 24.59059012959655,
+      "included_windows": 57
+    },
+    {
+      "pid": 649522,
+      "start_ticks": 9198832,
+      "name": "ChatGPT",
+      "included_cpu_seconds": 3.5799999999999996,
+      "maximum_one_core_percent": 19.85217244304365,
+      "included_windows": 43
+    },
+    {
+      "pid": 649853,
+      "start_ticks": 9199228,
+      "name": "ChatGPT",
+      "included_cpu_seconds": 2.58,
+      "maximum_one_core_percent": 20.099206948079846,
+      "included_windows": 51
+    },
+    {
+      "pid": 1990134,
+      "start_ticks": 45355607,
+      "name": "python3",
+      "included_cpu_seconds": 2.5500000000000003,
+      "maximum_one_core_percent": 12.296213540736742,
+      "included_windows": 57
+    },
+    {
+      "pid": 1160,
+      "start_ticks": 3522,
+      "name": "baloo_file",
+      "included_cpu_seconds": 2.310000000000001,
+      "maximum_one_core_percent": 9.48976010167345,
+      "included_windows": 56
+    },
+    {
+      "pid": 1716,
+      "start_ticks": 4957,
+      "name": "onedrive",
+      "included_cpu_seconds": 1.3300000000000005,
+      "maximum_one_core_percent": 10.445558101063398,
+      "included_windows": 26
+    },
+    {
+      "pid": 81,
+      "start_ticks": 159,
+      "name": "irq/9-acpi",
+      "included_cpu_seconds": 1.1500000000000006,
+      "maximum_one_core_percent": 3.771553724777725,
+      "included_windows": 54
+    },
+    {
+      "pid": 1990154,
+      "start_ticks": 45355836,
+      "name": "conflux",
+      "included_cpu_seconds": 1.1000000000000008,
+      "maximum_one_core_percent": 2.8630609022917533,
+      "included_windows": 41
+    },
+    {
+      "pid": 1200,
+      "start_ticks": 3594,
+      "name": "pipewire",
+      "included_cpu_seconds": 0.9000000000000006,
+      "maximum_one_core_percent": 2.87598572670539,
+      "included_windows": 44
+    },
+    {
+      "pid": 1233,
+      "start_ticks": 3734,
+      "name": "Xwayland",
+      "included_cpu_seconds": 0.42000000000000004,
+      "maximum_one_core_percent": 3.8299190624247776,
+      "included_windows": 16
+    },
+    {
+      "pid": 649469,
+      "start_ticks": 9198648,
+      "name": "ChatGPT",
+      "included_cpu_seconds": 0.39000000000000007,
+      "maximum_one_core_percent": 17.023762596548195,
+      "included_windows": 7
+    },
+    {
+      "pid": 1990243,
+      "start_ticks": 45356943,
+      "name": "conflux-stem-ru",
+      "included_cpu_seconds": 0.24,
+      "maximum_one_core_percent": 8.561668041858013,
+      "included_windows": 3
+    },
+    {
+      "pid": 139057,
+      "start_ticks": 2491364,
+      "name": "Discord",
+      "included_cpu_seconds": 0.22,
+      "maximum_one_core_percent": 2.854025035983653,
+      "included_windows": 9
+    },
+    {
+      "pid": 1146,
+      "start_ticks": 3485,
+      "name": "dbus-broker",
+      "included_cpu_seconds": 0.17,
+      "maximum_one_core_percent": 1.8952854000559083,
+      "included_windows": 11
+    }
+  ],
+  "top_CPU_scope": "Sum only recorded top-ten1s process windows. Missing/short-lived/new processes and CPU outside top ten are omitted; these are lower bounds, not full host accounting. Phase table includes only windows conservatively fully contained within that phase; crossing windows are excluded. Names are comm, no command lines or environment.",
+  "guard_after": {
+    "captured_monotonic": 402087.269083578,
+    "service": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036",
+      "NRestarts": "0",
+      "ExecMainStartTimestampMonotonic": "34532916"
+    },
+    "pid": 1036,
+    "start_ticks": 3453,
+    "journal_command": [
+      "journalctl",
+      "--user",
+      "--unit",
+      "thermal-guard.service",
+      "--since",
+      "2026-10-18T02:55:08.106985+00:00",
+      "--until",
+      "now",
+      "--output",
+      "json",
+      "--no-pager"
+    ],
+    "journal_records": 0,
+    "same_as_inspection": true,
+    "sources": {
+      "/home/kyau/.local/bin/thermal-guard": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0",
+      "/home/kyau/.config/systemd/user/thermal-guard.service": "e5c6c89f2b186b976379b2ee4ffb0d3e044e1cf9b1fca3a0cf60cc600c9b2d8f"
+    }
+  },
+  "conclusion": "No guard warning or95C startup spike reproduced. Native initialization was0.367s and first output service1.879s. Current trace does not justify changing native initialization concurrency or thermal policy. Initial/cleanup higher temperatures and active background processes reinforce that an isolated spike cannot be attributed to native work. This diagnostic alone does not clear the prior p99 failures or authorize M1 qualification."
+}

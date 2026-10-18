@@ -1,12 +1,18 @@
 # M0 stem runtime decision
 
-Conditionally selected for local-file preparation and continued bounded-worker development,
+Selected for local-file preparation and continued bounded-worker development,
 17 October 2026. Use the pinned HTDemucs F16 model through audio.cpp v0.9.2's
 native Vulkan backend on the laptop. Keep CPU execution as a numerical
 reference. The user accepts the auditioned material as a starting basis
 for musical feasibility; this decision does not qualify production stem
-playback or live headroom.
-M0 remains open and M1 has not started.
+playback or live headroom. On 17 October 2026 the user approved closing M0
+feasibility and entering M1 manual audio. The failed **4.095-second live-stem
+service p99 target remains a mandatory M2 blocker before a first usable
+release**. Prepared stems and on-demand local-file separation remain product
+requirements.
+
+The measurements below retain their status when reported. Earlier open-M0
+statements are historical; the approved decision here and at the end is current.
 
 The runtime is audio.cpp commit
 `0097d365a00b52a6991ad7618f0a04e8d2935e47`, built with the existing blocking
@@ -92,6 +98,15 @@ This lower sequential result proves neither a thermal fix nor sufficient
 headroom; the conditional hour was withheld. No producer source, binary or
 default changed. The preparation choice remains conditional and M0 stays open.
 
+The [startup investigation](../benchmarks/startup-profile-2026-10-17.md)
+did not reproduce the earlier 95°C transition. Native construction to readiness
+took 0.367 seconds and first-hop service took 1.879 seconds. The unchanged guard
+logged no warning during that diagnostic. A subsequent two-thread repeat was
+stopped during readiness when the user approved M1 entry; no measured workload
+started. Readiness included a 92°C warning without a native worker, so native
+startup is not necessary for a warning. The cause remains unresolved, and no
+thermal fix or sustained headroom pass follows from these observations.
+
 Vulkan is the useful preparation candidate because it executes the pinned
 graph on Iris Xe, retains one backend across controls and has substantially
 shorter measured requests than CPU. In the initial three-excerpt assessment,
@@ -108,7 +123,7 @@ history prevent a causal backend or genre comparison.
 
 | Candidate | Decision and evidence limit |
 |---|---|
-| HTDemucs/audio.cpp Vulkan | Conditional preparation candidate for continued bounded-worker development. Musical feasibility accepted as a starting basis; useful live headroom and production integration remain unqualified. |
+| HTDemucs/audio.cpp Vulkan | Selected for preparation and continued bounded-worker development. Musical feasibility accepted as a starting basis; failed live headroom remains an M2 release blocker and production integration remains unqualified. |
 | Same model/runtime on CPU | Retained as the numerical reference. Its measured request times do not support treating it as a live fallback. |
 | ncnn or native ONNX Runtime WebGPU | Not exported or benchmarked. No comparative quality, operator coverage or performance claim is made. Revisit if the selected pair cannot satisfy the required workload or a better-supported model is needed. |
 
@@ -132,8 +147,19 @@ The software UI used in the successful synthetic soak is an experimental
 condition; it does not change the application's default renderer.
 
 Retain the [small shared audio-core decision](0001-m0-engine-boundary.md).
-Before closing M0, address the failed music delivery target and preserve the
-scope of the user's acceptance as a starting basis. Live local-file
-separation is a product requirement; this preparation choice does not silently remove it or
-authorize remote offload. Further model/chunk/runtime work must address the
-failed music headroom result and the supported workload. M1 work has not begun.
+The user approved M0 feasibility closure with the failed live target explicitly
+carried into M2. This replaces the later requirement to pass sustained music
+headroom before M1; it follows the original feasibility exit requiring a
+reasoned runtime choice and reported failed live targets. The measured hour
+still has 4.2655-second p99 with 23/1,533 misses. The latest completed two-thread
+validation still has 5.1722-second p99 with 8/102 misses, despite all 101 ordinary
+virtual demands being ready. Their eleven and one active cancellation/seek
+checks passed exactly, and both recorded all six independent audio fault
+counters at zero.
+
+M1 manual audio is next. It begins with local-file decoding outside the callback
+and the shared live/offline render core. M2 must address the failed 4.095-second
+service p99 target, sustained workload, stem delivery and approved fallback
+behavior before the first usable release. Preserve the user's listening
+acceptance as a starting basis. This decision approves neither production stem
+playback, a CPU live fallback nor remote offload, and it does not mark M1 complete.

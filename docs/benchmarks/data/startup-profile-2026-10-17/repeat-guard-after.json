@@ -1,0 +1,86 @@
+{
+  "captured_monotonic": 402553.360590028,
+  "repeat_status": "interrupted",
+  "child_started": false,
+  "launcher_cleanup": {
+    "owned_process_identities": {
+      "1991600": {
+        "start_ticks": 45370564,
+        "process_group": 1991600
+      }
+    },
+    "remaining_owned_processes": {},
+    "last_child_reaped": true
+  },
+  "checked_owned_identities": {
+    "1991600": {
+      "start_ticks": 45370564,
+      "process_group": 1991600
+    },
+    "1991591": {
+      "pid": 1991591,
+      "start_ticks": 45370497,
+      "args": [
+        "python3",
+        "-B",
+        "benchmarks-local/two-thread-music-2026-10-17/observed_launch.py",
+        "threads2-both-repeat-10min",
+        "--seconds",
+        "600",
+        "--control-interval",
+        "300"
+      ]
+    },
+    "1989728": {
+      "start_ticks": 45348395,
+      "process_group": 1989728
+    },
+    "1990124": {
+      "start_ticks": 45355598,
+      "process_group": 1990124
+    },
+    "1990128": {
+      "start_ticks": 45355599,
+      "process_group": 1990124
+    },
+    "1990134": {
+      "start_ticks": 45355607,
+      "process_group": 1990134
+    },
+    "1990155": {
+      "start_ticks": 45355836,
+      "process_group": 1990134
+    },
+    "1990154": {
+      "start_ticks": 45355836,
+      "process_group": 1990134
+    },
+    "1990243": {
+      "start_ticks": 45356943
+    }
+  },
+  "remaining_matching_owned": [],
+  "no_CONFLUX_inhibitors": true,
+  "guard_service": {
+    "ActiveState": "active",
+    "SubState": "running",
+    "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+    "MainPID": "1036",
+    "NRestarts": "0"
+  },
+  "journal_command": [
+    "journalctl",
+    "--user",
+    "--unit",
+    "thermal-guard.service",
+    "--since",
+    "2026-10-18T02:58:49.543876+00:00",
+    "--until",
+    "now",
+    "--output",
+    "json",
+    "--no-pager"
+  ],
+  "journal_records": 3,
+  "listening_HTTP_status": 200
+}

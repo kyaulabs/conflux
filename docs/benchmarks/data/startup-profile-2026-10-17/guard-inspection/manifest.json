@@ -1,0 +1,22 @@
+{
+  "inspection.json": {
+    "sha256": "296506c69670dde039f1bd60c10f2a6a32cd1c10eda419fe19076dea780b45c7",
+    "bytes": 5811
+  },
+  "recent-journal.json": {
+    "sha256": "9d11f662262fced444a1d47c0b152a618a837a7838d8e84b6b3a511db4ab53ea",
+    "bytes": 11917
+  },
+  "service-show.txt": {
+    "sha256": "c5ec9c5faa1c649c5155193742d831e40571de13d26fd2c817beb195ed469897",
+    "bytes": 596
+  },
+  "thermal-guard": {
+    "sha256": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0",
+    "bytes": 3510
+  },
+  "thermal-guard.service": {
+    "sha256": "e5c6c89f2b186b976379b2ee4ffb0d3e044e1cf9b1fca3a0cf60cc600c9b2d8f",
+    "bytes": 512
+  }
+}
