@@ -16,6 +16,7 @@
 #include <QSaveFile>
 #include <QTimeLine>
 #include <QTimer>
+#include "ui/DeckController.hpp"
 
 #include <algorithm>
 #include <array>
@@ -33,7 +34,7 @@ int main(int argc, char** argv) {
     QGuiApplication::setWindowIcon(QIcon(":/brand/assets/app-icons/conflux-app-dark.svg"));
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("CONFLUX M0 Wayland rendering harness");
+    parser.setApplicationDescription("CONFLUX manual audio window and M0 rendering harness");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOption({"light", "Start with the light brand palette."});
@@ -76,7 +77,14 @@ int main(int argc, char** argv) {
     repaintTimeline.setLoopCount(0);
     if (controlledRepaint)
         repaintTimeline.setUpdateInterval(repaintIntervalMs);
+    // Smoke mode keeps the original rendering workload and creates no audio or
+    // decoder worker. Normal startup owns the live manual audio controller.
+    std::unique_ptr<conflux::DeckController> deckController;
     QQmlApplicationEngine engine;
+    if (!parser.isSet("smoke-test")) {
+        deckController = std::make_unique<conflux::DeckController>();
+        engine.rootContext()->setContextProperty("deckController", deckController.get());
+    }
     engine.rootContext()->setContextProperty("platformName", QGuiApplication::platformName());
     engine.rootContext()->setContextProperty("qtVersion", QString::fromUtf8(qVersion()));
     engine.rootContext()->setContextProperty("initialDark", !parser.isSet("light"));
@@ -84,7 +92,7 @@ int main(int argc, char** argv) {
     engine.rootContext()->setContextProperty("repaintTimeline", &repaintTimeline);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
-    engine.load(QUrl("qrc:/qml/Main.qml"));
+    engine.load(QUrl(parser.isSet("smoke-test") ? "qrc:/qml/Harness.qml" : "qrc:/qml/Main.qml"));
     if (engine.rootObjects().isEmpty())
         return 1;
     auto* window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
@@ -190,5 +198,8 @@ int main(int argc, char** argv) {
             stopPoll->start(100);
         }
     }
-    return app.exec();
+    const auto result = app.exec();
+    if (deckController)
+        deckController->shutdown();
+    return result;
 }
