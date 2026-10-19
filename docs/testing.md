@@ -99,6 +99,15 @@ that narrower result does not replace the full C++ denominator. Coverage
 counts depend on the compiler and configuration, so compare results with their
 recorded toolchain.
 
+The subsequent [native-player diagnostic](benchmarks/data/m2-native-live-playback-2026-10-19/verification.json)
+changes benchmark support code and leaves these product coverage counts
+unchanged. Its actual-model retry completed two minutes but failed the service
+target and steady-playback gate; callback deadline counters and recording
+overflow remained zero. The retained evidence separates intentional recovery
+gaps, incomplete cleanup proof and converter CPU diagnostics from qualification.
+Private cancellation/replay checks and 12 synthetic process-history checks
+verify the harness fixes; they do not replace a new physical playback run.
+
 Coverage instrumentation changes execution costs. Never use this build for
 callback latency, live-stem service targets, thermal qualification or audio
 acceptance. The retained M0/M1 benchmark evidence belongs to its pinned normal
