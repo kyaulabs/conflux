@@ -14,6 +14,7 @@
 #include <limits>
 #include <utility>
 #include <stdexcept>
+#include <thread>
 
 namespace conflux {
 namespace {
@@ -110,38 +111,62 @@ void DeckController::shutdown()
     disconnect(&recordingStarter_, nullptr, this, nullptr);
     disconnect(&recordingFinalizer_, nullptr, this, nullptr);
     loadCancellation_.request_stop();
+    installCancellation_.request_stop();
+    // Qt's unfinished-future wait may steal its QRunnable onto this caller.
+    // Never execute queued preparation, owner joins or writer cleanup on GUI.
+    // Shutdown may block, but does not pump events or borrow another scheduler.
+    const auto waitForWorker = [](auto& watcher) {
+        while (!watcher.isFinished()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        watcher.waitForFinished(); // Already complete: exception/result semantics only.
+    };
     stopSession();
     discovery_.reset();
-    // Preparation checks cancellation between bounded reads/conversion/writes.
-    // Join before releasing the controller and decoded owners.
-    loader_.waitForFinished();
-    catalogJob_.waitForFinished();
-    installer_.waitForFinished();
-    retirer_.waitForFinished();
-    retiringPcmIdentity_ = nullptr;
-    retiringPcmBytes_ = 0;
+    // Both jobs own cancellation independently. An old cancelled load token
+    // must not cancel a later routing rebuild. Join before gathering results.
+    waitForWorker(loader_);
+    waitForWorker(catalogJob_);
+    waitForWorker(installer_);
     installationPending_ = false;
-    if (loader_.future().resultCount() > 0) {
-        const auto loaded = loader_.result();
-        if (loaded.prepared && (loaded.prepared->playback || loaded.prepared->audio)) {
-            auto playback = std::move(loaded.prepared->playback);
-            auto clip = std::move(loaded.prepared->audio);
-            auto cleanup = QtConcurrent::run([playback = std::move(playback), clip = std::move(clip)]() mutable {
-                playback.reset();
-                clip.reset();
-            });
-            cleanup.waitForFinished();
-        }
-    }
-    pendingLoad_.reset();
-    pendingRetired_.reset();
     if (installer_.future().resultCount() > 0) {
         const auto pending = installer_.result();
-        if (pending && pending->session) pending->session->stop();
+        if (pending && pending->session) {
+            auto stopped = pending->session->stopAndTakePlaybacks();
+            // An unstarted installer cannot have accepted a replacement.
+            if (stopped.replacement) throw std::logic_error("Unexpected installer replacement owner");
+            for (std::size_t deck = 0; deck < stoppedPlaybacks_.size(); ++deck) {
+                if (stoppedPlaybacks_[deck]) throw std::logic_error("Playback owner already parked");
+                stoppedPlaybacks_[deck] = std::move(stopped.active[deck]);
+            }
+            pending->session.reset(); // Detached; no producer stop/join here.
+        }
+    }
+    // Finish the prior ordinary/deferred retirement before the final bounded
+    // teardown. Each completion can launch at most one fixed deferred batch.
+    while (retirementPending_) {
+        waitForWorker(retirer_);
+        retired();
+    }
+    if (loader_.future().resultCount() > 0) {
+        const auto loaded = loader_.result();
+        if (loaded.prepared)
+            retirePlayback(std::move(loaded.prepared->playback), std::move(loaded.prepared->audio));
+    }
+    // The loader result and pendingLoad_ may be the same shared PreparedLoad;
+    // moving its fields above leaves these empty rather than duplicating them.
+    if (pendingLoad_)
+        retirePlayback(std::move(pendingLoad_->playback), std::move(pendingLoad_->audio));
+    pendingLoad_.reset();
+    retirePlayback(std::move(pendingRetired_));
+    for (std::size_t deck = 0; deck < stoppedPlaybacks_.size(); ++deck)
+        if (stoppedPlaybacks_[deck])
+            retirePlayback(std::move(stoppedPlaybacks_[deck]), clips_[deck]);
+    while (retirementPending_) {
+        waitForWorker(retirer_);
+        retired();
     }
     // stopSession() acknowledged detachment after callback quiescence. Neither
     // a pending open nor a finalizer may outlive shutdown or its writer owner.
-    recordingStarter_.waitForFinished();
+    waitForWorker(recordingStarter_);
     if (recordingStartPending_ && recordingStarter_.future().resultCount() > 0) {
         const auto result = recordingStarter_.result();
         recorder_ = result.writer;
@@ -151,15 +176,8 @@ void DeckController::shutdown()
         }
         recordingStartPending_ = false;
     }
-    if (recorder_) {
-        recorder_->stop();
-        lastRecording_ = {QString::fromStdString(recorder_->error()), recorder_->acceptedFrames(),
-            recorder_->writtenFrames(), recorder_->overflowCount(), recorder_->overflowFrames()};
-        recorder_.reset();
-        recordingError_ = lastRecording_.error;
-        recordingStatus_ = recordingError_.isEmpty() ? "Complete" : "Failed";
-    }
-    recordingFinalizer_.waitForFinished();
+    if (recorder_) finalizeRecording();
+    waitForWorker(recordingFinalizer_);
     if (recordingFinalizationPending_ && recordingFinalizer_.future().resultCount() > 0) {
         lastRecording_ = recordingFinalizer_.result();
         recordingError_ = lastRecording_.error;
@@ -241,24 +259,43 @@ void DeckController::fail(const QString& error)
 
 std::uint64_t DeckController::retainedPcmBytes() const
 {
-    std::array<std::pair<const PreparedPcm*, std::uint64_t>, 5> owners{};
+    // Bound raw references before dedup: clips2 + pending1 + ready loader1 +
+    // active retirement3 + deferred retirement3. Distinct physical owners are
+    // fewer; repeated references must not be allowed to overrun this storage.
+    std::array<std::pair<const PreparedPcm*, std::uint64_t>, 10> owners{};
     std::size_t count = 0;
+    auto append = [&](const PreparedPcm* identity, std::uint64_t bytes) {
+        if (!identity) return true;
+        for (std::size_t index = 0; index < count; ++index)
+            if (owners[index].first == identity) {
+                // A completed worker's charge snapshot can outlive its clip
+                // until the GUI slot runs. Address reuse must overcount safely.
+                owners[index].second = std::max(owners[index].second, bytes);
+                return true;
+            }
+        if (count == owners.size()) return false;
+        owners[count++] = {identity, bytes};
+        return true;
+    };
     for (const auto& clip : clips_)
-        if (clip) owners[count++] = {clip.get(), clip->bytes()};
-    if (pendingLoad_ && pendingLoad_->audio)
-        owners[count++] = {pendingLoad_->audio.get(), pendingLoad_->audio->bytes()};
+        if (clip && !append(clip.get(), clip->bytes())) return std::numeric_limits<std::uint64_t>::max();
+    if (pendingLoad_ && pendingLoad_->audio &&
+        !append(pendingLoad_->audio.get(), pendingLoad_->audio->bytes()))
+        return std::numeric_limits<std::uint64_t>::max();
     if (loader_.future().resultCount() > 0) {
         const auto result = loader_.result();
-        if (result.prepared && result.prepared->audio)
-            owners[count++] = {result.prepared->audio.get(), result.prepared->audio->bytes()};
+        if (result.prepared && result.prepared->audio &&
+            !append(result.prepared->audio.get(), result.prepared->audio->bytes()))
+            return std::numeric_limits<std::uint64_t>::max();
     }
-    if (retiringPcmIdentity_) owners[count++] = {retiringPcmIdentity_, retiringPcmBytes_};
+    for (const auto& [identity, bytes] : retiringPcm_)
+        if (!append(identity, bytes)) return std::numeric_limits<std::uint64_t>::max();
+    for (std::size_t index = 0; index < deferredRetirement_.count; ++index) {
+        const auto& clip = deferredRetirement_.groups[index].clip;
+        if (clip && !append(clip.get(), clip->bytes())) return std::numeric_limits<std::uint64_t>::max();
+    }
     std::uint64_t total = 0;
     for (std::size_t index = 0; index < count; ++index) {
-        bool duplicate = false;
-        for (std::size_t previous = 0; previous < index; ++previous)
-            duplicate |= owners[previous].first == owners[index].first;
-        if (duplicate) continue;
         if (owners[index].second > std::numeric_limits<std::uint64_t>::max() - total)
             return std::numeric_limits<std::uint64_t>::max();
         total += owners[index].second;
@@ -460,10 +497,16 @@ void DeckController::stopSession()
     // after the stopped session's accounting and ownership are consistent.
     const QSignalBlocker notifications(this);
     if (session_) {
-        session_->stop();
+        auto stopped = session_->stopAndTakePlaybacks();
         state_ = session_->stoppedState();
-        collectReplacement();
+        acceptReplacement(std::move(stopped.replacement));
         settleReplacement(true);
+        // Replacement metadata has now committed against the exact stopped
+        // generation. Park precisely those corresponding active whole owners.
+        for (std::size_t deck = 0; deck < stoppedPlaybacks_.size(); ++deck) {
+            if (stoppedPlaybacks_[deck]) throw std::logic_error("Playback owner already parked");
+            stoppedPlaybacks_[deck] = std::move(stopped.active[deck]);
+        }
         completedTiming_.push_back(session_->stoppedTimingSummary());
         ++completedSessions_;
         completedApplied_ += state_.applied;
@@ -558,10 +601,11 @@ void DeckController::loaded()
     state_.playing[pendingDeck_] = false;
     state_.deckGain[pendingDeck_] = 1.0F;
     state_.cueSelected[pendingDeck_] = false;
-    installSession(std::move(oldClip));
+    installSession(std::move(stoppedPlaybacks_[pendingDeck_]), std::move(oldClip));
 }
 
-void DeckController::installSession(std::shared_ptr<const PreparedPcm> retiredClip)
+void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> retiredPlayback,
+                                    std::shared_ptr<const PreparedPcm> retiredClip)
 {
     installationPending_ = true;
     audio::LiveSession::InitialState initial;
@@ -574,21 +618,25 @@ void DeckController::installSession(std::shared_ptr<const PreparedPcm> retiredCl
     initial.cueGain = state_.cueGain;
     for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck)
         if (state_.stemBank[deck]) initial.stemGain[deck] = state_.stemGain[deck];
-    // Capture the exact quiesced cursor first. Priming can involve slow storage,
-    // so keep the installing stage busy and construct its readers off the GUI.
-    std::unique_ptr<audio::PreparedPlayback> unusedPlayback;
-    if (pendingLoad_) unusedPlayback = std::move(pendingLoad_->playback);
+    // Reuse both exact stopped owners and the prepared first-load candidate.
+    // Reset/prime belongs to LiveSession's existing worker-side constructor.
+    auto playbacks = std::move(stoppedPlaybacks_);
+    if (pendingLoad_) {
+        if (playbacks[pendingDeck_]) throw std::logic_error("Candidate deck still has a parked owner");
+        playbacks[pendingDeck_] = std::move(pendingLoad_->playback);
+    }
     pendingLoad_.reset();
-    installer_.setFuture(QtConcurrent::run([clips = clips_, initial, unusedPlayback = std::move(unusedPlayback)]() mutable {
+    installCancellation_ = std::stop_source{};
+    installer_.setFuture(QtConcurrent::run([clips = clips_, initial, playbacks = std::move(playbacks),
+                                           stop = installCancellation_.get_token()]() mutable {
         auto result = std::make_shared<InstallResult>();
         try {
-            // First-load/reconfiguration constructors prime their own readers.
-            // Dispose of an unused candidate on this same worker, not the GUI.
-            unusedPlayback.reset();
-            audio::LiveSession::PlaybackSources playbacks;
+            // A prior constructor/prime exception may have consumed its file
+            // readers on this worker. Only finite PreparedPcm can be recreated
+            // here; a future live source requires explicit reprepare instead.
             for (std::size_t deck = 0; deck < clips.size(); ++deck)
-                if (clips[deck]) playbacks[deck] = clips[deck]->makePlayback();
-            result->session = std::make_unique<audio::LiveSession>(std::move(playbacks), initial);
+                if (clips[deck] && !playbacks[deck]) playbacks[deck] = clips[deck]->makePlayback();
+            result->session = std::make_unique<audio::LiveSession>(std::move(playbacks), initial, stop);
         } catch (const std::exception& error) {
             result->error = QString::fromUtf8(error.what());
         } catch (...) {
@@ -596,7 +644,9 @@ void DeckController::installSession(std::shared_ptr<const PreparedPcm> retiredCl
         }
         return result;
     }));
-    if (retiredClip) retirePlayback({}, std::move(retiredClip));
+    // Establish installer ownership before allowing a completion notification.
+    if (retiredPlayback || retiredClip)
+        retirePlayback(std::move(retiredPlayback), std::move(retiredClip));
     emit stateChanged();
 }
 
@@ -612,7 +662,11 @@ void DeckController::publishReplacement()
 void DeckController::collectReplacement()
 {
     if (!session_) return;
-    auto result = session_->takeSourceReplacementResult();
+    acceptReplacement(session_->takeSourceReplacementResult());
+}
+
+void DeckController::acceptReplacement(std::optional<audio::LiveSession::SourceReplacementResult> result)
+{
     if (!result) return;
     if (result->completion.installed) {
         completedStarvedFrames_ += result->completion.retired.starvedFrames;
@@ -665,21 +719,48 @@ void DeckController::retirePlayback(std::unique_ptr<audio::PreparedPlayback> pla
                                 std::shared_ptr<const PreparedPcm> clip)
 {
     if (!playback && !clip) { retired(); return; }
-    retiringPcmIdentity_ = clip.get();
-    retiringPcmBytes_ = clip ? clip->bytes() : 0;
-    retirer_.setFuture(QtConcurrent::run([playback = std::move(playback), clip = std::move(clip)]() mutable {
-        playback.reset(); // stop/join and close every duplicated FD on this worker
-        clip.reset();
+    if (retirementPending_) {
+        if (deferredRetirement_.count == deferredRetirement_.groups.size())
+            throw std::logic_error("Playback retirement batch capacity exceeded");
+        deferredRetirement_.groups[deferredRetirement_.count++] = {std::move(playback), std::move(clip)};
+        return;
+    }
+    RetirementBatch batch;
+    batch.groups[0] = {std::move(playback), std::move(clip)};
+    batch.count = 1;
+    startRetirement(std::move(batch));
+}
+
+void DeckController::startRetirement(RetirementBatch batch)
+{
+    if (retirementPending_ || !batch.count || batch.count > batch.groups.size())
+        throw std::logic_error("Invalid playback retirement batch");
+    retiringPcm_.fill({});
+    for (std::size_t index = 0; index < batch.count; ++index) {
+        const auto& clip = batch.groups[index].clip;
+        retiringPcm_[index] = {clip.get(), clip ? clip->bytes() : 0};
+    }
+    retirementPending_ = true;
+    retirer_.setFuture(QtConcurrent::run([batch = std::move(batch)]() mutable {
+        for (std::size_t index = 0; index < batch.count; ++index) {
+            batch.groups[index].playback.reset(); // Whole stop/join on this worker.
+            batch.groups[index].clip.reset();
+        }
     }));
 }
 
 void DeckController::retired()
 {
-    if (!retirer_.isRunning()) {
-        retiringPcmIdentity_ = nullptr;
-        retiringPcmBytes_ = 0;
+    if (retirementPending_ && retirer_.isFinished()) {
+        retirementPending_ = false;
+        retiringPcm_.fill({});
+        if (deferredRetirement_.count) {
+            auto batch = std::move(deferredRetirement_);
+            deferredRetirement_ = {};
+            startRetirement(std::move(batch));
+        }
     }
-    if (!retirer_.isRunning() && !installationPending_ && !pendingLoad_ &&
+    if (!retirementPending_ && !deferredRetirement_.count && !installationPending_ && !pendingLoad_ &&
         !replacing_[0] && !replacing_[1]) {
         busy_ = false;
         if (preparationStatus_ == "Cancelling") preparationStatus_ = "Cancelled";
@@ -693,11 +774,7 @@ void DeckController::installed()
     if (closing_) return;
     const auto result = installer_.result();
     installationPending_ = false;
-    busy_ = retirer_.isRunning();
-    if (!busy_) {
-        retiringPcmIdentity_ = nullptr;
-        retiringPcmBytes_ = 0;
-    }
+    busy_ = retirementPending_ || deferredRetirement_.count != 0;
     const bool installingPreparation = preparationStatus_ == "Installing";
     if (installingPreparation && !busy_) preparationStatus_ = "Complete";
     if (!result->session) {

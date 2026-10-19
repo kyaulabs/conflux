@@ -18,6 +18,7 @@
 #include <memory>
 #include <optional>
 #include <stop_token>
+#include <utility>
 #include <vector>
 
 namespace conflux {
@@ -154,12 +155,23 @@ private:
                           const QString& expectedSource = {}, bool stems = false);
     void loadLibrary(int deck, const QString& sourceId, bool stems);
     void installed();
-    void installSession(std::shared_ptr<const PreparedPcm> retiredClip = {});
+    void installSession(std::unique_ptr<audio::PreparedPlayback> retiredPlayback = {},
+                        std::shared_ptr<const PreparedPcm> retiredClip = {});
     void publishReplacement();
     void collectReplacement();
+    void acceptReplacement(std::optional<audio::LiveSession::SourceReplacementResult> result);
     void settleReplacement(bool stopped = false);
     void retirePlayback(std::unique_ptr<audio::PreparedPlayback> playback,
                       std::shared_ptr<const PreparedPcm> clip = {});
+    struct RetirementGroup {
+        std::unique_ptr<audio::PreparedPlayback> playback;
+        std::shared_ptr<const PreparedPcm> clip;
+    };
+    struct RetirementBatch {
+        std::array<RetirementGroup, 3> groups{};
+        std::size_t count = 0;
+    };
+    void startRetirement(RetirementBatch batch);
     void retired();
     void recordingStarted();
     void recordingFinished();
@@ -172,11 +184,15 @@ private:
     void fail(const QString& error);
     std::array<std::shared_ptr<const PreparedPcm>, 2> clips_{};
     PreparationOptions preparationOptions_;
-    // Identity/bytes only, not another owner. Clear after the retirement lambda
-    // explicitly destroyed both reader and PCM descriptor owners.
-    const PreparedPcm* retiringPcmIdentity_ = nullptr;
-    std::uint64_t retiringPcmBytes_ = 0;
-    std::stop_source loadCancellation_;
+    // Active worker charges remain until its whole batch has been destroyed.
+    // One bounded deferred batch can wait behind an ordinary retirement; never
+    // overwrite its watcher/future or drop a waiting owner's charge.
+    std::array<std::pair<const PreparedPcm*, std::uint64_t>, 3> retiringPcm_{};
+    RetirementBatch deferredRetirement_{};
+    bool retirementPending_ = false;
+    std::stop_source loadCancellation_, installCancellation_;
+    // Exact quiesced owners, empty while the session/installer owns them.
+    audio::LiveSession::PlaybackSources stoppedPlaybacks_{};
     std::array<QString, 2> names_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};

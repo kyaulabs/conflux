@@ -1,0 +1,210 @@
+{
+  "schema": "conflux.m2-controller-owner-verification.v1",
+  "status": "whole_owner_controller_adoption_regressions_passed",
+  "base_commit": "19dabb942d839e1eeb2c562cdef4381c0c7ce1d7",
+  "normal_ctest_passed": 35,
+  "instrumented_ctest_passed": 35,
+  "source_pins": 89,
+  "source_stable": true,
+  "verification_approach": "Private ownership refactor reuses existing behavior/failure tests; one approved rejected-route assertion extends the existing successful private preparation/recording scenario. No new missing-API RED/GREEN claim.",
+  "behavior": [
+    "Stopped session moves exact whole playback owners and settles stopped replacement metadata before parking",
+    "Installer reuses the prepared candidate and parked peer; independent installer cancellation; failed output retains stopped owners",
+    "Bounded active/deferred retirement preserves owner charges and never replaces an unfinished future",
+    "Shutdown passively observes Qt future completion before waits/results so queued cleanup cannot be stolen onto GUI",
+    "Rejected route leaves source clocks/generations, selected stems, output selection, retained PCM and same recording writer intact",
+    "Existing exact generated master prefix/tail oracle remains strict and excludes intentional route-rebuild gap/startup"
+  ],
+  "private_regressions": {
+    "normal": {
+      "routing": {
+        "checks": 130,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": true
+      },
+      "preparation": {
+        "checks": 46,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": false
+      }
+    },
+    "instrumented": {
+      "routing": {
+        "checks": 124,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false
+      },
+      "preparation": {
+        "checks": 46,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false
+      }
+    }
+  },
+  "coverage": {
+    "cpp": {
+      "line": {
+        "covered": 4899,
+        "total": 5794,
+        "percent": 84.55298584742837,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 6408,
+        "total": 12362,
+        "percent": 51.83627244782398,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    }
+  },
+  "scope": "Current finite prepared PCM and prepared banks through real controller/private virtual PipeWire. Persistent live identity through the controller awaits bridge integration; live-job admission is not supplied by PCM accounting. No real separator/model, physical audio, integrated service latency or sustained thermal qualification.",
+  "live_service_target_ms": 4095,
+  "M2_qualified": false,
+  "raw_secret_scan_exit": 0,
+  "files": {
+    "controller-whole-owner-implementation-freeze.json": {
+      "bytes": 6045,
+      "sha256": "3d81410f86b82ac6a26ab0db9738b3eafd6fc32e40f556071904906001823800"
+    },
+    "controller-source-pins.json": {
+      "bytes": 12560,
+      "sha256": "340623f1fe4af9877758e3cf3d677ad4f6c176db9efc82ca07f2ac65243c2ac1"
+    },
+    "controller-source-stable.json": {
+      "bytes": 52,
+      "sha256": "e5e5a68ec6e013b4a4bf63e0d65636e848f577de9572cc9ba23f3e54820fe77e"
+    },
+    "controller-functional-result.json": {
+      "bytes": 2586,
+      "sha256": "ddc5280a0b2678acfcf59e9e58d01c914f92ee073bf99132744dc1114d2e579b"
+    },
+    "controller-focused-build.log.gz": {
+      "bytes": 839,
+      "sha256": "827c8a961c57767692c23e3961f5559fa92ebbdda7099cb1458c5621c73ce341"
+    },
+    "controller-targeted.log.gz": {
+      "bytes": 203,
+      "sha256": "4f85ed402103571dbe9f26d67b9771db194a64a908c199c7f0560b7ec4ae721e"
+    },
+    "controller-full-build.log.gz": {
+      "bytes": 188,
+      "sha256": "a17ab351478e2837d2ca930192ccf37350e03efee8a9db1ce6a97cb9b3fec118"
+    },
+    "controller-ctest.log.gz": {
+      "bytes": 845,
+      "sha256": "7587c22f627c00ae05609b595969cfc96ccbe1bceb2025cfcab30181e65325aa"
+    },
+    "controller-smoke.log.gz": {
+      "bytes": 422,
+      "sha256": "0057ff001ca012050235505a61b47a46babcca5c7d4d7d8467f0774f7f429a26"
+    },
+    "controller-coverage.log.gz": {
+      "bytes": 2005,
+      "sha256": "c0d2b85999546391ebbe8098e4f4d71d8707eb56243361fdb998eed9855ef211"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 4831,
+      "sha256": "1a44de9485fcfa3465d97f99436cf7e9afc1a80205ba422183bef00cef48b1ab"
+    },
+    "coverage.json": {
+      "bytes": 7874,
+      "sha256": "2b25b65588f743eca65175e71639a0433e3ddb442194ea3c81a53fc7b2e3790d"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 872,
+      "sha256": "9387fe552536227079e829efa759cf2e8a4555534543db317899c4856f07668f"
+    },
+    "normal-routing.json": {
+      "bytes": 14295,
+      "sha256": "131fd9ca5dd6b6717268a470b153539552e3286229a1c7861edf56fe490408a9"
+    },
+    "normal-preparation.json": {
+      "bytes": 11322,
+      "sha256": "b749b0536966208fa719af42854b74c4df3c830d1b0dbade3f4b5e2fe04043b2"
+    },
+    "instrumented-routing.json": {
+      "bytes": 13944,
+      "sha256": "be8d0313ede6ddfc63c79e433f849f3f2abb7f20fc6f811cf5e648e36ad97cdd"
+    },
+    "instrumented-preparation.json": {
+      "bytes": 11287,
+      "sha256": "7e428802ecf620503438e960da8679f9948069a92aeff6457c75ed82bd1a6f9b"
+    }
+  },
+  "uncompressed": {
+    "controller-focused-build.log.gz": {
+      "bytes": 2753,
+      "sha256": "48a1f676ef18dedc612568d8f09cab8469e8ef8a6e636b888747e01009f81f5d"
+    },
+    "controller-targeted.log.gz": {
+      "bytes": 331,
+      "sha256": "960ac0876974d0278cf47ddd09d2ecd1b7e62ba912fde68a9f36eaa5fcc00f3f"
+    },
+    "controller-full-build.log.gz": {
+      "bytes": 441,
+      "sha256": "39e4bb68bb404ebeff694b2f988e11c1898d38829640d78f67d4585d84f9a68f"
+    },
+    "controller-ctest.log.gz": {
+      "bytes": 3777,
+      "sha256": "46e4d2660885ce4154d5e2db84bf2e92b83bdcc49cb1c68c6a145f754b38f468"
+    },
+    "controller-smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "fc7fa41448c924dc6e25d4980f84731818d4b5003c6205ac08f90d0b30f0822a"
+    },
+    "controller-coverage.log.gz": {
+      "bytes": 11412,
+      "sha256": "e65d0f80e0168c633753d75f9c4fb3c2b6109c8688f58854c636882a246ccb8e"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 35358,
+      "sha256": "795074ba8bb101432701f2bb9920869f535b75bb93af5b38dfd8375939003fd9"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 3782,
+      "sha256": "6f72bd7f0ba913c10d448aa298097c4ca51e1ec855762999975f5e9baec6b7a6"
+    }
+  }
+}
