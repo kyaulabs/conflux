@@ -2,6 +2,7 @@
 // Private-daemon integration only. Run through private_routing_check.py; this
 // deliberately refuses an ordinary laptop PipeWire socket. No physical output.
 #include "audio/LiveSession.hpp"
+#include "audio/LiveStemBuffer.hpp"
 #include "audio/StereoRecorder.hpp"
 #include <pipewire/filter.h>
 #include <pipewire/pipewire.h>
@@ -10,10 +11,12 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <future>
 #include <iostream>
 #include <memory>
 #include <span>
@@ -741,6 +744,246 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
     }
 }
 
+// Generated in-process producer only: no model, service child or hardware.
+struct LiveOwnerProducer {
+    std::atomic<unsigned> started{0}, exited{0};
+};
+std::unique_ptr<PreparedPlayback> liveOwnerFixture(std::uint64_t identity, std::uint64_t frames,
+                                                 const std::shared_ptr<LiveOwnerProducer>& receipt)
+{
+    using Buffer = conflux::audio::LiveStemBuffer;
+    return PreparedPlayback::makeLive(identity, frames,
+        [receipt, frames](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
+            ++receipt->started;
+            std::array<std::array<float, Buffer::blockFrames * 2>, 4> pcm{};
+            for (auto& role : pcm)
+                for (std::size_t frame = 0; frame < Buffer::blockFrames; ++frame) {
+                    role[frame * 2] = .1875F * .25F;
+                    role[frame * 2 + 1] = -.375F * .25F;
+                }
+            std::uint64_t epoch = 0, cursor = 0;
+            while (!stop.stop_requested()) {
+                Buffer::Request request;
+                if (!port.tryRequest(request)) { std::this_thread::yield(); continue; }
+                if (epoch != request.epoch) { epoch = request.epoch; cursor = request.firstFrame; }
+                if (cursor == frames) { std::this_thread::sleep_for(1ms); continue; }
+                const auto count = std::size_t(std::min<std::uint64_t>(Buffer::blockFrames, frames - cursor));
+                Buffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == frames, {}};
+                for (std::size_t role = 0; role < 4; ++role)
+                    packet.stems[role] = std::span(pcm[role]).first(count * 2);
+                const auto result = port.tryPublish(packet);
+                if (result == Buffer::PublishResult::Accepted) cursor += count;
+                else if (result == Buffer::PublishResult::Invalid) {
+                    Buffer::Request current;
+                    if (port.tryRequest(current)) port.fail(EPROTO);
+                    break;
+                }
+                else std::this_thread::sleep_for(1ms);
+            }
+            ++receipt->exited;
+        });
+}
+
+void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstalled)
+{
+    const std::string label = awaitInstalled ? "live-owner-installed" : "live-owner-immediate";
+    constexpr std::uint64_t frames = 48000 * 30;
+    constexpr std::array<float, 4> initialStemTargets{.125F, .25F, .5F, 1.F};
+    auto oldProducer = std::make_shared<LiveOwnerProducer>();
+    auto nextProducer = std::make_shared<LiveOwnerProducer>();
+    Sink master("conflux-routing-check-" + label + "-master", 2);
+    const auto routing = RoutingConfig{pair(discover(2), master.name(), 0), {}};
+    LiveSession::PlaybackSources owners{};
+    owners[0] = liveOwnerFixture(awaitInstalled ? 601 : 603, frames, oldProducer);
+    owners[1] = primedSyntheticSource(frames, masterValue[0], masterValue[1]);
+    const auto* oldIdentity = owners[0].get();
+    const auto* peerIdentity = owners[1].get();
+    const auto recordingPath = directory / (label + ".wav");
+    auto recorder = std::make_unique<StereoRecorder>(recordingPath);
+    LiveSession::InitialState initial;
+    initial.playing = {true, true}; initial.deckGain = {0.F, 1.F};
+    initial.stemGain[0] = initialStemTargets;
+    LiveSession session(std::move(owners), initial);
+    LiveSession::State state{};
+    bool returned = false, installed = false;
+    bool rebuiltOnce = false;
+    std::uint64_t rebuiltFrames = 0;
+    std::array<std::uint64_t, 2> rebuildCursor{}, rebuiltCursor{};
+    std::uint64_t recorded = 0, written = 0, wrong = 0;
+    std::array<std::uint64_t, 2> zeros{};
+    auto save = [&](bool passed, std::string_view error = {}) {
+        std::ofstream output(diagnosticDirectory / (label + ".json"));
+        output << "{\"passed\":" << (passed ? "true" : "false") << ",\"error\":" << json(error)
+               << ",\"scope\":\"Private virtual graph with generated live bank and exact audible PCM peer; no service child, model, physical audio or integrated delivery qualification\""
+               << ",\"await_installed_before_detach\":" << (awaitInstalled ? "true" : "false")
+               << ",\"ownership_returned\":" << (returned ? "true" : "false")
+               << ",\"completion_installed\":" << (returned ? (installed ? "true" : "false") : "null")
+               << ",\"immediate_detach_branch\":" << (awaitInstalled ? "null" : returned ? json(installed ? "installed" : "uninstalled") : "null")
+               << ",\"active_recovery_reserve_gating\":false,\"prime_reserve_frames\":" << PreparedPlayback::liveReserveFrames
+               << ",\"output_frames\":" << state.outputFrame << ",\"callbacks\":" << state.callbacks
+               << ",\"source_generation\":" << state.sourceGeneration[0]
+               << ",\"recorded_frames\":" << recorded << ",\"written_frames\":" << written
+               << ",\"wrong_nonzero_sink_samples_before_detach\":" << wrong
+               << ",\"zero_samples_before_detach\":[" << zeros[0] << ',' << zeros[1] << ']'
+               << ",\"virtual_sink_zero_gate\":" << (executionDeadlineGate ? "true" : "false")
+               << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
+               << ",\"execution_deadline_misses\":" << state.deadlineMisses
+               << ",\"rebuilt_rendered_owner\":" << (rebuiltOnce ? "true" : "false")
+               << ",\"rebuild_startup_gap_excluded\":" << (rebuiltOnce ? "true" : "false")
+               << ",\"rebuild_initial_cursor\":[" << rebuildCursor[0] << ',' << rebuildCursor[1] << ']'
+               << ",\"rebuild_output_frames\":" << rebuiltFrames
+               << ",\"rebuild_final_cursor\":[" << rebuiltCursor[0] << ',' << rebuiltCursor[1] << ']'
+               << ",\"producer_starts\":[" << oldProducer->started.load() << ',' << nextProducer->started.load()
+               << "],\"producer_exits\":[" << oldProducer->exited.load() << ',' << nextProducer->exited.load() << "]}\n";
+    };
+    try {
+        std::string error;
+        require(session.start(error, routing), label + ": live-bank session connects only to private master");
+        const auto warmed = awaitSteadySamples(session);
+        require(warmed >= startupWarmupFrames, label + ": startup transition excluded before exact checks");
+        master.validateSamples(true);
+        require(session.requestRecorder(recorder.get()), label + ": exact master writer attaches after warmup");
+        auto observe = [&] {
+            const auto error = session.error();
+            if (!error.empty()) throw std::runtime_error(error);
+            while (session.pollState(state)) {}
+            if (master.wrong()) throw std::runtime_error("Live owner detach changed nonzero audible peer samples");
+        };
+        wait([&] {
+            observe();
+            return !session.recorderChangePending() && session.recorderAttached() &&
+                   recorder->acceptedFrames() >= 2048 && master.received(0) >= 2048 && master.received(1) >= 2048;
+        }, "Live-owner peer/recording did not reach steady playback");
+        const auto oldStemTargets = state.stemGain[0];
+        const auto oldCueFrame = state.cueFrame[0];
+        auto candidate = liveOwnerFixture(awaitInstalled ? 602 : 604, frames, nextProducer);
+        require(candidate->prime(0, 2s), label + ": generated candidate primes its exact reserve");
+        const auto* nextIdentity = candidate.get();
+        require(session.requestSourceReplacement(0, candidate, 1) && !candidate,
+                label + ": one pending whole live owner transfers to the session");
+        if (awaitInstalled) {
+            wait([&] { observe(); return state.sourceGeneration[0] == 1 && session.sourceReplacementPending(); },
+                 "Installed live candidate did not remain pending control collection");
+        }
+        // Deliberately do not collect completion. Immediate detach may race
+        // installation; both branches must preserve all three exact owners.
+        wrong = master.wrong(); zeros = {master.zerosAfterSignal(0), master.zerosAfterSignal(1)};
+        require(!wrong && (!executionDeadlineGate || (!zeros[0] && !zeros[1])),
+                label + ": nonzero receiver samples exact and zero gate follows execution mode");
+        master.validateSamples(false); // Expected output stop is outside the receiver gate.
+        auto stopped = session.stopAndTakePlaybacks();
+        returned = true;
+        state = session.stoppedState();
+        require(stopped.replacement.has_value(), label + ": detached pending request retains its completion");
+        installed = stopped.replacement->completion.installed;
+        require((!awaitInstalled || installed) && stopped.replacement->completion.deck == 0 &&
+                stopped.replacement->completion.generation == 1 && stopped.active[1].get() == peerIdentity &&
+                stopped.active[0].get() == (installed ? nextIdentity : oldIdentity) &&
+                stopped.replacement->retiredPlayback.get() == (installed ? oldIdentity : nextIdentity),
+                label + ": installed/uninstalled branch returns each exact whole owner once");
+        require(oldProducer->started == 1 && nextProducer->started == 1 && !oldProducer->exited && !nextProducer->exited,
+                label + ": callback quiescence and ownership return do not stop either producer");
+        require(state.callbacks && state.sourceFrame[1] == state.outputFrame &&
+                state.sourceGeneration[0] == (installed ? 1U : 0U) &&
+                !state.invalidBuffers && !state.rejected && !state.sourceReadError[0] && !state.sourceReadError[1] &&
+                !state.sourceReadErrorObserved[0] && !state.sourceReadErrorObserved[1] &&
+                !state.starvedFrames[0] && !state.starvedFrames[1] && !session.recorderAttached() &&
+                !session.recorderChangePending() && !session.sourceReplacementPending() &&
+                !session.takeSourceReplacementResult() && !session.requestRecorder(nullptr),
+                label + ": active callbacks end with exact peer clock, strict source health and no pending tap/owner");
+        if (executionDeadlineGate) require(!state.deadlineMisses, label + ": no execution deadline miss");
+        recorded = recorder->acceptedFrames();
+        LiveSession::StoppedPlaybacks rebuiltOwners;
+        if (awaitInstalled) {
+            require(stopped.replacement->completion.retired.sourceFrame > 0 &&
+                    !stopped.replacement->retiredPlayback->configureStemRamps(0) && oldStemTargets == initialStemTargets,
+                    label + ": retired bank actually rendered and retains the existing configureRamps guard");
+            LiveSession::PlaybackSources continuing{};
+            continuing[0] = std::move(stopped.replacement->retiredPlayback);
+            continuing[1] = std::move(stopped.active[1]);
+            rebuildCursor = {stopped.replacement->completion.retired.sourceFrame, state.sourceFrame[1]};
+            LiveSession::InitialState resume;
+            resume.sourceFrame = rebuildCursor;
+            resume.cueFrame = {oldCueFrame, state.cueFrame[1]};
+            resume.playing = {true, true}; resume.deckGain = {0.F, 1.F};
+            resume.stemGain[0] = oldStemTargets; // Normal peer's row remains default1.
+            LiveSession rebuilt(std::move(continuing), resume);
+            require(rebuilt.stoppedState().sourceFrame == rebuildCursor &&
+                    rebuilt.stoppedState().stemGain[0] == oldStemTargets &&
+                    oldProducer->started == 1 && nextProducer->started == 1 && !oldProducer->exited && !nextProducer->exited,
+                    label + ": new session restores exact cursor/targets without recreating either producer");
+            require(rebuilt.start(error, routing), label + ": rebuilt whole owner reconnects on the same private route");
+            awaitSteadySamples(rebuilt);
+            master.validateSamples(true);
+            const std::array resumeReceived{master.received(0), master.received(1)};
+            // The same writer stays alive. Deliberate rebuild gap and initial
+            // transition are omitted; all actually recorded steady frames stay exact.
+            const auto beforeResumeRecording = recorder->acceptedFrames();
+            require(rebuilt.requestRecorder(recorder.get()), label + ": same writer reattaches after rebuild startup");
+            LiveSession::State resumed{};
+            wait([&] {
+                const auto failure = rebuilt.error();
+                if (!failure.empty()) throw std::runtime_error(failure);
+                while (rebuilt.pollState(resumed)) {}
+                if (master.wrong()) throw std::runtime_error("Rebuilt live owner changed exact nonzero peer samples");
+                return !rebuilt.recorderChangePending() && rebuilt.recorderAttached() &&
+                    recorder->acceptedFrames() >= beforeResumeRecording + 2048 &&
+                    master.received(0) >= resumeReceived[0] + 1024 && master.received(1) >= resumeReceived[1] + 1024;
+            }, "Rebuilt owner and retained writer did not resume steady frames");
+            wrong = master.wrong(); zeros = {master.zerosAfterSignal(0), master.zerosAfterSignal(1)};
+            require(!wrong && (!executionDeadlineGate || (!zeros[0] && !zeros[1])),
+                    label + ": rebuilt steady receiver windows preserve exact values and the selected zero gate");
+            master.validateSamples(false);
+            rebuiltOwners = rebuilt.stopAndTakePlaybacks();
+            resumed = rebuilt.stoppedState();
+            require(rebuiltOwners.active[0].get() == oldIdentity && rebuiltOwners.active[1].get() == peerIdentity &&
+                    !rebuiltOwners.replacement && resumed.sourceFrame[0] == rebuildCursor[0] + resumed.outputFrame &&
+                    resumed.sourceFrame[1] == rebuildCursor[1] + resumed.outputFrame && resumed.stemGain[0] == oldStemTargets &&
+                    resumed.stemBank[0] && !resumed.invalidBuffers && !resumed.rejected &&
+                    !resumed.sourceReadError[0] && !resumed.sourceReadError[1] &&
+                    !resumed.sourceReadErrorObserved[0] && !resumed.sourceReadErrorObserved[1] &&
+                    !resumed.starvedFrames[0] && !resumed.starvedFrames[1],
+                    label + ": reused rendered bank continues exact captured source offsets and targets with strict health");
+            if (executionDeadlineGate) require(!resumed.deadlineMisses, label + ": rebuilt session has no execution deadline miss");
+            rebuiltFrames = resumed.outputFrame; rebuiltCursor = resumed.sourceFrame; rebuiltOnce = true;
+            require(oldProducer->started == 1 && nextProducer->started == 1 && !oldProducer->exited && !nextProducer->exited,
+                    label + ": rendered-owner reuse preserves original producer lifetime until retirement");
+            recorded = recorder->acceptedFrames();
+            rebuilt.stop();
+            std::this_thread::sleep_for(40ms);
+            LiveSession::State unexpected;
+            require(!rebuilt.pollState(unexpected) && recorder->acceptedFrames() == recorded &&
+                    !rebuilt.recorderAttached() && rebuilt.stoppedState().callbacks == resumed.callbacks,
+                    label + ": rebuilt detached session publishes no later snapshots or writer pushes");
+        }
+        auto retirement = std::async(std::launch::async,
+            [stopped = std::move(stopped), rebuilt = std::move(rebuiltOwners)]() mutable {
+            stopped.active = {};
+            stopped.replacement.reset();
+            rebuilt.active = {};
+            rebuilt.replacement.reset();
+        });
+        retirement.get();
+        require(oldProducer->exited == 1 && nextProducer->exited == 1,
+                label + ": worker retirement joins both whole live producers");
+        session.stop();
+        std::this_thread::sleep_for(40ms);
+        LiveSession::State unexpected;
+        require(session.stoppedState().outputFrame == state.outputFrame && session.stoppedState().callbacks == state.callbacks &&
+                recorder->acceptedFrames() == recorded && !session.recorderAttached() && !session.pollState(unexpected),
+                label + ": returned ownership and detached-session destruction cannot produce later callbacks/writer pushes");
+        recorder->stop(); written = recorder->writtenFrames();
+        require(recorded && written == recorded && !recorder->failed() && !recorder->overflowCount(),
+                label + ": strict writer drains after callback quiescence without skipped frames");
+        verifyRecording(recordingPath, recorded); // Every frame remains the exact audible peer.
+        save(true);
+    } catch (const std::exception& error) {
+        save(false, error.what());
+        failureDiagnostic(session, label.c_str(), error.what());
+        throw;
+    }
+}
+
 void validatePrivateEnvironment(const std::filesystem::path& runtime)
 {
     const auto env = [](const char* name) { const auto* value = std::getenv(name); return value ? std::string(value) : std::string{}; };
@@ -778,6 +1021,8 @@ int main(int argc, char** argv)
         results.push_back(runTopology(output, false, a, b));
         results.push_back(runTopology(output, true, a, b));
         const auto handoff = runSourceHandoff(output, a);
+        runLiveOwnerDetach(output, true);
+        runLiveOwnerDetach(output, false);
         std::cout << "{\"passed\":true,\"scope\":\"Private virtual PipeWire graph only; no physical routing, latency or sustained qualification\""
                   << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
                   << ",\"startup_sample_scope\":\"Receiver constant-sample validation and recorder attachment start only after ready and at least 1024 output frames. Startup fade samples are excluded; analytic ramp correctness is covered by core tests, not click-free qualification here. Receiver counters are never reset.\""

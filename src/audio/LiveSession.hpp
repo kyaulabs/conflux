@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <span>
+#include <stop_token>
 #include <string>
 
 namespace conflux::audio {
@@ -70,7 +71,7 @@ public:
     LiveSession(PreparedSources sources, const InitialState& initial);
     using PlaybackSources = std::array<std::unique_ptr<PreparedPlayback>, RenderCore::deckCount>;
     // Takes whole normal/stem-bank owners and primes them before output starts.
-    LiveSession(PlaybackSources sources, const InitialState& initial);
+    LiveSession(PlaybackSources sources, const InitialState& initial, std::stop_token stop = {});
     ~LiveSession();
     LiveSession(const LiveSession&) = delete;
     LiveSession& operator=(const LiveSession&) = delete;
@@ -78,7 +79,8 @@ public:
     // Connect asynchronously. Poll ready/error from the control thread; error()
     // also enforces the five-second deadline for the first rendered audio block.
     // Later readiness changes do not restart that deadline. Immediate failure
-    // returns only after resources are quiesced.
+    // returns only after callbacks are quiesced. Failed starts retain source
+    // owners for explicit stop/off-thread retirement and cannot be restarted.
     bool start(std::string& error);
     bool start(std::string& error, const RoutingConfig& routing);
     // Export an inactive, unlinked filter for control-only endpoint discovery.
@@ -100,6 +102,14 @@ public:
                                   std::uint64_t generation) noexcept;
     [[nodiscard]] bool sourceReplacementPending() const noexcept;
     std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept;
+    struct StoppedPlaybacks {
+        PlaybackSources active;
+        std::optional<SourceReplacementResult> replacement;
+    };
+    // Quiesce all callbacks and return whole active+retired/candidate owners,
+    // without stop requests, joins or producer cleanup. Retire the bundle off
+    // GUI; this session becomes terminal and detached callbacks are never used.
+    StoppedPlaybacks stopAndTakePlaybacks() noexcept;
     // Control owner only. Current exact endpoint identities and route status;
     // stale selections stay muted until explicitly selected in a new session.
     [[nodiscard]] RoutingSnapshot routingSnapshot() const;

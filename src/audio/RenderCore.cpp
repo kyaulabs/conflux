@@ -131,6 +131,27 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
     return true;
 }
 
+bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame) noexcept
+{
+    if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
+        return false;
+    decks_[deck].frame = frame;
+    decks_[deck].buffering = false;
+    return true;
+}
+
+bool RenderCore::retrySource(std::size_t deck) noexcept
+{
+    if (deck >= deckCount) return false;
+    auto& state = decks_[deck];
+    if (!state.source.frames || state.source.isMemory() || !state.source.read || !state.source.discontinuity)
+        return false;
+    state.buffering = false;
+    transition(state);
+    state.source.discontinuity(state.source.context, state.frame);
+    return true;
+}
+
 bool RenderCore::jog(std::size_t deck, std::int64_t deltaFrames) noexcept
 {
     if (deck >= deckCount || !decks_[deck].source.frames) return false;
@@ -291,6 +312,7 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::CueGain: return setCueGain(command.gain);
     case Command::Type::Jog: return jog(command.deck, command.deltaFrames);
     case Command::Type::StemGain: return setStemGain(command.deck, command.stem, command.gain);
+    case Command::Type::RetrySource: return retrySource(command.deck);
     }
     return false;
 }

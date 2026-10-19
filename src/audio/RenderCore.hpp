@@ -31,7 +31,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -64,6 +64,12 @@ public:
     // The output frame clock remains monotonic across source seeks and EOF.
     bool seek(std::uint64_t frame) noexcept;
     bool seek(std::size_t deck, std::uint64_t frame) noexcept;
+    // Pre-first-render only; caller already primed this exact source cursor.
+    // No discontinuity notification or output-clock/transport change.
+    bool restorePrimedCursor(std::size_t deck, std::uint64_t frame) noexcept;
+    // Render owner: explicitly invalidate a callback source at the same cursor,
+    // preserving transport/cue/gains and cumulative diagnostics.
+    bool retrySource(std::size_t deck) noexcept;
     // Positional search, not scratch or speed control. Clamp from the owner's
     // current cursor; preserve play request/cue and cancel temporary preview.
     bool jog(std::size_t deck, std::int64_t deltaFrames) noexcept;
