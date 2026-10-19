@@ -1,0 +1,52 @@
+[
+  {
+    "stage": "jsonl-full-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 3.278193315025419
+  },
+  {
+    "stage": "jsonl-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 99.51959181198617
+  },
+  {
+    "stage": "jsonl-smoke",
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.4274461469613016
+  },
+  {
+    "stage": "jsonl-coverage",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 320.5060645720223
+  }
+]
