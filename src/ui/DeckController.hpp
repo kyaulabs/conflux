@@ -95,7 +95,7 @@ private:
     struct PreparedLoad {
         std::shared_ptr<const audio::PreparedAudio> audio;
         QVariantList waveform;
-        std::unique_ptr<audio::PcmReadAhead> reader;
+        std::unique_ptr<audio::PreparedPlayback> playback;
         bool cacheHit = false;
     };
     struct LoadResult {
@@ -129,7 +129,7 @@ private:
     void publishReplacement();
     void collectReplacement();
     void settleReplacement(bool stopped = false);
-    void retireReader(std::unique_ptr<audio::PcmReadAhead> reader,
+    void retirePlayback(std::unique_ptr<audio::PreparedPlayback> playback,
                       std::shared_ptr<const audio::PreparedAudio> clip = {});
     void retired();
     void recordingStarted();
@@ -148,7 +148,7 @@ private:
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::array<bool, 2> replacing_{};
     std::shared_ptr<PreparedLoad> pendingLoad_;
-    std::unique_ptr<audio::PcmReadAhead> pendingRetired_;
+    std::unique_ptr<audio::PreparedPlayback> pendingRetired_;
     std::optional<audio::LiveSession::State> replacementSnapshot_;
     bool replacementPublished_ = false, replacementAcknowledged_ = false;
     std::uint64_t nextSourceGeneration_ = 0, pendingGeneration_ = 0;

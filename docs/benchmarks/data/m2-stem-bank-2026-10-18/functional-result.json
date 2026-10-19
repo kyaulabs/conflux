@@ -1,0 +1,66 @@
+[
+  {
+    "stage": "bank-test-rebuild",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--target",
+      "conflux-audio-stem-bank-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 1.4180670069763437
+  },
+  {
+    "stage": "ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 32.296272495004814
+  },
+  {
+    "stage": "smoke",
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 2.2735089249908924
+  },
+  {
+    "stage": "private-routing",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+      "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-routing-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/stem-bank-engine-2026-10-18/private-routing-01",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 6.4839185360469855
+  },
+  {
+    "stage": "private-preparation",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+      "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-preparation-controller-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/stem-bank-engine-2026-10-18/private-preparation-01",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 1.5690627539879642
+  }
+]

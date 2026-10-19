@@ -104,7 +104,7 @@ int main()
         if (!raw || std::fwrite(replacementPcm.data(), sizeof(float), replacementPcm.size(), raw.get()) != replacementPcm.size() ||
             std::fflush(raw.get()) != 0)
             throw std::runtime_error("Cannot prepare private handoff PCM");
-        auto candidate = std::make_unique<conflux::audio::PcmReadAhead>(fileno(raw.get()), replacementPcm.size() / 2);
+        auto candidate = std::make_unique<conflux::audio::PreparedPlayback>(fileno(raw.get()), replacementPcm.size() / 2);
         if (!candidate->prime(0, std::chrono::seconds(1)))
             throw std::runtime_error("Cannot prime private handoff PCM");
         auto* const candidateIdentity = candidate.get();
@@ -115,6 +115,22 @@ int main()
         passed &= require(candidate.get() == candidateIdentity && !candidate->errorCode(),
                           "repeated stopped-session cleanup changed rejected reader ownership");
         candidate.reset();
+        LiveSession::PlaybackSources bankSources{};
+        const int bankFd = fileno(raw.get());
+        bankSources[0] = std::make_unique<conflux::audio::PreparedPlayback>(
+            std::array<int, 4>{bankFd, bankFd, bankFd, bankFd}, replacementPcm.size() / 2);
+        LiveSession::InitialState bankInitial;
+        bankInitial.sourceFrame[0] = 1;
+        bankInitial.cueFrame[0] = 1;
+        bankInitial.cueSelected[0] = true;
+        LiveSession bankRestored(std::move(bankSources), bankInitial);
+        const auto bankState = bankRestored.stoppedState();
+        passed &= require(!bankSources[0] && bankState.sourceFrames[0] == 2 && bankState.sourceFrame[0] == 1 &&
+                          bankState.cueFrame[0] == 1 && bankState.cueSelected[0] && !bankState.sourceReadError[0],
+                          "whole-bank session did not own/prime/restore the common source position");
+        bankRestored.stop(); bankRestored.stop();
+        passed &= require(!bankRestored.stoppedState().sourceReadError[0],
+                          "stopping a healthy bank invented an aggregate reader error");
 
         const std::array<float, 4> a{.25F, -.5F, .75F, -.25F};
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};

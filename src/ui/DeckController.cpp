@@ -80,9 +80,9 @@ void DeckController::shutdown()
     retirer_.waitForFinished();
     if (loader_.future().resultCount() > 0) {
         const auto loaded = loader_.result();
-        if (loaded.prepared && loaded.prepared->reader) {
-            auto reader = std::move(loaded.prepared->reader);
-            auto cleanup = QtConcurrent::run([reader = std::move(reader)]() { reader->stop(); });
+        if (loaded.prepared && loaded.prepared->playback) {
+            auto playback = std::move(loaded.prepared->playback);
+            auto cleanup = QtConcurrent::run([playback = std::move(playback)]() { playback->stop(); });
             cleanup.waitForFinished();
         }
     }
@@ -323,9 +323,9 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             prepared->cacheHit = track.cacheHit;
             prepared->audio = std::make_shared<const audio::PreparedAudio>(std::move(track.audio));
             prepared->waveform = std::move(waveform);
-            prepared->reader = std::make_unique<audio::PcmReadAhead>(prepared->audio->descriptor(), prepared->audio->frames());
-            if (!prepared->reader->prime(0, std::chrono::seconds(2)))
-                throw std::runtime_error("Cannot prime the prepared track: " + prepared->reader->error());
+            prepared->playback = std::make_unique<audio::PreparedPlayback>(prepared->audio->descriptor(), prepared->audio->frames());
+            if (!prepared->playback->prime(0, std::chrono::seconds(2)))
+                throw std::runtime_error("Cannot prime the prepared track: " + prepared->playback->error());
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
             return {std::move(prepared), {}, {}, track.cacheHit};
         } catch (const std::exception& error) {
@@ -376,15 +376,15 @@ void DeckController::loaded()
     if (loadCancellation_.stop_requested()) {
         error_.clear();
         preparationCacheHit_ = false;
-        std::unique_ptr<audio::PcmReadAhead> reader;
+        std::unique_ptr<audio::PreparedPlayback> playback;
         std::shared_ptr<const audio::PreparedAudio> clip;
         if (result.prepared) {
-            reader = std::move(result.prepared->reader);
+            playback = std::move(result.prepared->playback);
             clip = std::move(result.prepared->audio);
         }
         // The watcher shares PreparedLoad with this result. Remove both owners
         // from it, then join/close on the existing retirement worker.
-        retireReader(std::move(reader), std::move(clip));
+        retirePlayback(std::move(playback), std::move(clip));
         return;
     }
     if (result.imported) {
@@ -455,15 +455,15 @@ void DeckController::installSession()
     initial.cueGain = state_.cueGain;
     // Capture the exact quiesced cursor first. Priming can involve slow storage,
     // so keep the installing stage busy and construct its readers off the GUI.
-    std::unique_ptr<audio::PcmReadAhead> unusedReader;
-    if (pendingLoad_) unusedReader = std::move(pendingLoad_->reader);
+    std::unique_ptr<audio::PreparedPlayback> unusedPlayback;
+    if (pendingLoad_) unusedPlayback = std::move(pendingLoad_->playback);
     pendingLoad_.reset();
-    installer_.setFuture(QtConcurrent::run([clips = clips_, initial, unusedReader = std::move(unusedReader)]() mutable {
+    installer_.setFuture(QtConcurrent::run([clips = clips_, initial, unusedPlayback = std::move(unusedPlayback)]() mutable {
         auto result = std::make_shared<InstallResult>();
         try {
             // First-load/reconfiguration constructors prime their own readers.
             // Dispose of an unused candidate on this same worker, not the GUI.
-            unusedReader.reset();
+            unusedPlayback.reset();
             result->session = std::make_unique<audio::LiveSession>(
                 audio::LiveSession::PreparedSources{clips[0].get(), clips[1].get()}, initial);
         } catch (const std::exception& error) {
@@ -482,7 +482,7 @@ void DeckController::publishReplacement()
         !session_ || !session_->ready()) return;
     if (!flushCueReleases()) return;
     replacementPublished_ = session_->requestSourceReplacement(std::size_t(pendingDeck_),
-        pendingLoad_->reader, pendingGeneration_);
+        pendingLoad_->playback, pendingGeneration_);
 }
 
 void DeckController::collectReplacement()
@@ -493,7 +493,7 @@ void DeckController::collectReplacement()
     if (result->completion.installed) {
         completedStarvedFrames_ += result->completion.retired.starvedFrames;
         completedReadFailures_ += result->completion.retired.readFailed ? 1 : 0;
-        pendingRetired_ = std::move(result->retiredReader);
+        pendingRetired_ = std::move(result->retiredPlayback);
         replacementAcknowledged_ = true;
     } else {
         auto clip = pendingLoad_ ? pendingLoad_->audio : nullptr;
@@ -503,7 +503,7 @@ void DeckController::collectReplacement()
         pendingGeneration_ = 0;
         replacementSnapshot_.reset();
         preparationStatus_ = "Failed";
-        retireReader(std::move(result->retiredReader), std::move(clip));
+        retirePlayback(std::move(result->retiredPlayback), std::move(clip));
         if (!closing_ && session_->ready())
             fail("The prepared track could not be installed; the previous track remains loaded.");
     }
@@ -513,14 +513,14 @@ void DeckController::settleReplacement(bool stopped)
 {
     if (!replacing_[pendingDeck_] || !pendingLoad_) return;
     if (!replacementPublished_ && stopped) {
-        auto reader = std::move(pendingLoad_->reader);
+        auto playback = std::move(pendingLoad_->playback);
         auto clip = pendingLoad_->audio;
         pendingLoad_.reset();
         replacing_[pendingDeck_] = false;
         pendingGeneration_ = 0;
         replacementSnapshot_.reset();
         preparationStatus_ = "Failed";
-        retireReader(std::move(reader), std::move(clip));
+        retirePlayback(std::move(playback), std::move(clip));
         return;
     }
     if (!replacementAcknowledged_ || state_.sourceGeneration[pendingDeck_] != pendingGeneration_) return;
@@ -534,15 +534,15 @@ void DeckController::settleReplacement(bool stopped)
     replacementPublished_ = replacementAcknowledged_ = false;
     pendingGeneration_ = 0;
     replacementSnapshot_.reset();
-    retireReader(std::move(pendingRetired_), std::move(oldClip));
+    retirePlayback(std::move(pendingRetired_), std::move(oldClip));
 }
 
-void DeckController::retireReader(std::unique_ptr<audio::PcmReadAhead> reader,
+void DeckController::retirePlayback(std::unique_ptr<audio::PreparedPlayback> playback,
                                 std::shared_ptr<const audio::PreparedAudio> clip)
 {
-    if (!reader && !clip) { retired(); return; }
-    retirer_.setFuture(QtConcurrent::run([reader = std::move(reader), clip = std::move(clip)]() mutable {
-        reader.reset(); // stop/join and close the duplicated FD on this worker
+    if (!playback && !clip) { retired(); return; }
+    retirer_.setFuture(QtConcurrent::run([playback = std::move(playback), clip = std::move(clip)]() mutable {
+        playback.reset(); // stop/join and close every duplicated FD on this worker
         clip.reset();
     }));
 }
