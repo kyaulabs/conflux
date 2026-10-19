@@ -1,0 +1,19 @@
+{
+  "source": {
+    "tools/experiments/manual_routing_check.cpp": {
+      "bytes": 69746,
+      "sha256": "e99765f41baf0ea4b327e28e1e5f860045d9b8180f8da325f565869ba1bc8a2b"
+    }
+  },
+  "binaries": {
+    "build/dev/conflux-manual-routing-check": {
+      "bytes": 5368616,
+      "sha256": "91f3594a9a417c9605702435ef95b031dcbe813f434061d10b3e2c9459a6bd10"
+    },
+    "build/coverage/conflux-manual-routing-check": {
+      "bytes": 4808648,
+      "sha256": "b013e486fcacc0c61781e61a06882a01a5ae7424766fd1afc194b8ca974b8755"
+    }
+  },
+  "source_and_binaries_stable": true
+}

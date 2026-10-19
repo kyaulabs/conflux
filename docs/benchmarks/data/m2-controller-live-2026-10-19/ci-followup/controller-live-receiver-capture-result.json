@@ -1,0 +1,61 @@
+[
+  {
+    "stage": "normal-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--target",
+      "conflux-manual-routing-check",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 15.117128773010336
+  },
+  {
+    "stage": "instrumented-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/coverage",
+      "--target",
+      "conflux-manual-routing-check",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 8.6966499669943
+  },
+  {
+    "stage": "normal",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Receiver capture check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-manual-routing-check",
+      "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 6.934572612983175
+  },
+  {
+    "stage": "instrumented",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "-c",
+      "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Receiver capture check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+      "tools/experiments/private_routing_check.py",
+      "build/coverage/conflux-manual-routing-check",
+      "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 14.55271876102779
+  }
+]

@@ -100,6 +100,12 @@ callback latency, live-stem service targets, thermal qualification or audio
 acceptance. The retained M0/M1 benchmark evidence belongs to its pinned normal
 builds.
 
+The [receiver follow-up](benchmarks/data/m2-controller-live-2026-10-19/ci-followup/verification.json)
+preserves a later coverage CI failure and the helper's single-capture correction.
+Its exact nonzero oracle and existing zero policies remain intact. Revised
+normal/instrumented private runs passed 130/124 checks; product source is
+unchanged, so these helper checks add no new coverage percentage.
+
 The additional bridge ThreadSanitizer run failed in QtTest watchdog teardown
 after 53 observed PASS lines, before final Qt totals. A standalone Qt-only
 control reproduced the same report. The
