@@ -2,6 +2,7 @@
 // Functional controller integration on the private_routing_check.py daemon.
 // Generated audio and cache stay inside its private runtime; no host output.
 #include "ui/DeckController.hpp"
+#include "library/LiveStemObservations.hpp"
 #include "../../tests/StemExportFixture.hpp"
 #include "../../tests/StemServiceFixture.hpp"
 
@@ -693,6 +694,8 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
     waitLiveLoad(controller, 0, require);
     trace.capture();
     const auto loaded = controller.audioState();
+    auto liveObservations = controller.liveStemObservations(0);
+    require(bool(liveObservations) && !controller.liveStemObservations(1), "Only the installed live deck exposes its observation handle");
     require(trace.size() == 1 && trace.alive(0) && trace.count(0, "command", "load") == 1 &&
             trace.count(0, "command", "seek") == 0 && trace.count(0, "fixture", "runtime") == 1 &&
             loaded.sourceFrames[0] >= liveFrames - 1 && loaded.sourceFrames[0] <= liveFrames + 1 &&
@@ -813,6 +816,8 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
     }, "Consumed live owner did not rebuild on the same service", true, std::chrono::seconds(60));
     trace.capture();
     const auto routed = controller.audioState();
+    require(controller.liveStemObservations(0) == liveObservations && !controller.liveStemObservations(1),
+            "Consumed route rebuild retains its live observation handle and a null finite peer handle");
     require(trace.size() == 3 && trace.alive(0) && trace.count(0, "command", "load") == 1 &&
             trace.count(0, "fixture", "runtime") == 1 && trace.count(0, "command", "seek") == seeks + 1 &&
             routed.stemGain[0] == bass && routed.playing[0] && routed.cueFrame[0] == cue && routed.cueSelected[0] &&
@@ -837,6 +842,7 @@ void runLiveStemController(const std::filesystem::path& output, const QString& p
     controller.shutdown();
     require(trace.gone(0) && trace.gone(1) && trace.gone(2) && !controller.busy() && !controller.outputReady(),
             "Shutdown reaps all three identity-bound service children and removes their charged jobs");
+    require(liveObservations->counters().producerFinished, "Retained diagnostics do not keep the shut down producer/job alive");
     observations["live_controller"] = QJsonObject{{"recording", wav}, {"children", trace.identities()},
         {"virtual_sink_sample_gate", !functionalOnly}, {"virtual_sink_wrong_samples", qint64(sink.wrong())},
         {"virtual_sink_zero_samples", qint64(sink.zeros())}, {"source_frames", qint64(loaded.sourceFrames[0])},

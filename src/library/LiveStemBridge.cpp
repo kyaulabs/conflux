@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "library/PreparedTrackStore.hpp"
+#include "library/LiveStemObservations.hpp"
 #include "library/StemEngineSupport.hpp"
 #include "library/StemServiceJsonl.hpp"
 #include "audio/StemRateConverter.hpp"
@@ -29,8 +30,65 @@
 #include <string>
 #include <sys/file.h>
 #include <thread>
+#include <type_traits>
+
+namespace conflux::library {
+static_assert(std::is_trivially_copyable_v<LiveStemObservations::Record>);
+static_assert(std::atomic<std::uint32_t>::is_always_lock_free &&
+    std::atomic<std::uint64_t>::is_always_lock_free && std::atomic<bool>::is_always_lock_free);
+
+LiveStemObservations::LiveStemObservations() noexcept = default;
+bool LiveStemObservations::tryPop(Record& output) noexcept
+{
+    const auto read = read_.load(std::memory_order_relaxed);
+    if (read == written_.load(std::memory_order_acquire)) return false;
+    output = records_[read % capacity];
+    read_.store(read + 1, std::memory_order_release);
+    return true;
+}
+LiveStemObservations::Counters LiveStemObservations::counters() const noexcept
+{
+    Counters result;
+    result.producerFinished = producerFinished_.load(std::memory_order_acquire);
+    result.attemptedRecords = attempted_.load(std::memory_order_relaxed);
+    result.droppedRecords = dropped_.load(std::memory_order_relaxed);
+    result.invalidClockReads = clockErrors_.load(std::memory_order_relaxed);
+    return result;
+}
+const LiveStemObservations::Setup& LiveStemObservations::setup() const noexcept { return setup_; }
+} // namespace conflux::library
 
 namespace conflux::library::detail {
+// Concrete single-Bridge writer, kept private beside its owning job.
+struct LiveStemObservationWriter {
+    static std::uint64_t stamp(LiveStemObservations& observations) noexcept
+    {
+        const auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+        if (value > 0) return std::uint64_t(value);
+        observations.clockErrors_.fetch_add(1, std::memory_order_relaxed);
+        return 0;
+    }
+    static void push(LiveStemObservations& observations, LiveStemObservations::Record record) noexcept
+    {
+        record.ordinal = observations.attempted_.fetch_add(1, std::memory_order_relaxed) + 1;
+        const auto written = observations.written_.load(std::memory_order_relaxed);
+        const auto read = observations.read_.load(std::memory_order_acquire);
+        using Kind = LiveStemObservations::Kind;
+        const bool validClock = record.observedNs &&
+            (record.kind != Kind::ChunkValidated || record.validatedNs) &&
+            (record.kind != Kind::PacketAccepted || (record.packetReadyNs && record.publishBeginNs &&
+                record.publishEndNs && (!record.fullObserved || record.firstFullNs)));
+        if (!validClock || std::uint32_t(written - read) == LiveStemObservations::capacity) {
+            observations.dropped_.fetch_add(1, std::memory_order_relaxed);
+            return;
+        }
+        observations.records_[written % LiveStemObservations::capacity] = record;
+        observations.written_.store(written + 1, std::memory_order_release);
+    }
+    static void finish(LiveStemObservations& observations) noexcept
+    { observations.producerFinished_.store(true, std::memory_order_release); }
+};
 namespace {
 using Clock = std::chrono::steady_clock;
 using Converter = audio::StemRateConverter;
@@ -222,6 +280,7 @@ public:
     StemEngine engine;
     EngineFiles files;
     EngineFile service;
+    std::shared_ptr<LiveStemObservations> observations;
     std::unique_ptr<Descriptor> root, directory, ownerLock, input;
     std::string name;
     QByteArray inputDigest;
@@ -264,7 +323,7 @@ public:
                 }
                 Buffer::Request request;
                 if (!closing_ && port_.tryRequest(request) && request.epoch != latest_.epoch) {
-                    latest_ = request; discard();
+                    latest_ = request; discard(); observeRequest();
                 }
                 drain();
                 if (process_.state() == QProcess::NotRunning) {
@@ -301,6 +360,7 @@ public:
             port_.fail(EIO);
             job_->notifySetup(QStringLiteral("Cannot start the live stem service"));
         }
+        observeDiscard();
         // Release every read lease before process/job deletion. Failed protocol
         // does not turn into success through a friendly closed/exit message.
         for (auto& lease : leases_) lease.fd.reset();
@@ -322,11 +382,39 @@ private:
     };
     struct Command {
         QString kind;
-        std::uint64_t id = 0, frame = 0, epoch = 0;
+        std::uint64_t id = 0, frame = 0, epoch = 0, target = 0;
         int slot = -1;
     };
+    using Observation = LiveStemObservations::Record;
+    using Kind = LiveStemObservations::Kind;
+    std::uint64_t stamp() noexcept { return LiveStemObservationWriter::stamp(*job_->observations); }
+    Observation observation(Kind kind) noexcept
+    {
+        Observation result;
+        result.kind = kind; result.observedNs = stamp();
+        result.providerEpoch = acceptedEpoch_; result.workerGeneration = generation_;
+        return result;
+    }
+    void observe(Observation record) noexcept
+    { LiveStemObservationWriter::push(*job_->observations, record); }
+    void observeRequest() noexcept
+    {
+        auto record = observation(Kind::RequestObserved);
+        record.providerEpoch = latest_.epoch; record.workerGeneration = 0;
+        record.outputFirst48000 = latest_.firstFrame;
+        observe(record);
+    }
+    void observeDiscard() noexcept
+    {
+        if (!pendingFrames_) return;
+        auto record = observation(Kind::PacketDiscarded);
+        record.outputFirst48000 = pendingFirst_; record.outputFrames48000 = pendingFrames_;
+        observe(record);
+    }
     void discard()
     {
+        observeDiscard();
+        packetReadyNs_ = firstFullNs_ = 0; fullObserved_ = false;
         converter_.reset(); pendingFrames_ = inputFrames_ = inputOffset_ = 0; inputSlot_ = -1;
         finished_ = false;
         for (auto& lease : leases_) if (lease.occupied && !lease.ackSent && lease.validated) {
@@ -334,15 +422,17 @@ private:
             lease.fd.reset(); lease.ackReady = true;
         }
     }
-    void send(QString kind, QJsonObject fields = {}, int slot = -1)
+    std::uint64_t send(QString kind, QJsonObject fields = {}, int slot = -1)
     {
         require(!pending_.id && nextCommand_ < wireMaximum, "Stem command state exhausted");
-        pending_ = {std::move(kind), ++nextCommand_, 0, 0, slot};
+        pending_ = {std::move(kind), ++nextCommand_, 0, 0, 0, slot};
         fields.insert("v", 1); fields.insert("command", pending_.kind); fields.insert("id", double(pending_.id));
         auto wire = QJsonDocument(fields).toJson(QJsonDocument::Compact); wire.append('\n');
         require(wire.size() <= 4096 && process_.bytesToWrite() == 0, "Stem command buffer exceeds fixed bound");
+        const auto queuedNs = (pending_.kind == "load" || pending_.kind == "seek") ? stamp() : 0;
         require(process_.write(wire) == wire.size(), "Cannot write stem service control");
         replyDeadline_ = Clock::now() + std::chrono::seconds(job_->engine.requestTimeout);
+        return queuedNs;
     }
     void schedule()
     {
@@ -354,8 +444,13 @@ private:
             require(generation_ < wireMaximum, "Stem service generation exhausted");
             converter_ = std::make_unique<Converter>(plan_, latest_.firstFrame);
             const auto anchor = converter_->inputStartFrame();
-            send(loaded_ ? "seek" : "load", {{"frame", double(anchor)}});
-            pending_.frame = anchor; pending_.epoch = latest_.epoch;
+            const auto queuedNs = send(loaded_ ? "seek" : "load", {{"frame", double(anchor)}});
+            pending_.frame = anchor; pending_.epoch = latest_.epoch; pending_.target = latest_.firstFrame;
+            auto record = observation(Kind::CommandQueued);
+            record.observedNs = queuedNs; record.commandId = pending_.id;
+            record.providerEpoch = pending_.epoch; record.workerGeneration = 0;
+            record.inputFirst44100 = anchor; record.outputFirst48000 = pending_.target;
+            observe(record);
             return;
         }
         for (std::size_t index = 0; index < leases_.size(); ++index) {
@@ -407,7 +502,7 @@ private:
             integer(value.value("reservation_bytes")) == job_->serviceBytes, "Stem service launch geometry or identity differs");
         serviceDirectory_ = std::make_unique<Descriptor>(openat(job_->directory->get(), "service", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
         if (serviceDirectory_->get() < 0) ioError("Cannot open live service directory");
-        ready_ = true; job_->notifySetup();
+        ready_ = true; observe(observation(Kind::ServiceReady)); job_->notifySetup();
     }
     void accepted(const QJsonObject& value)
     {
@@ -430,6 +525,10 @@ private:
                 integer(value.value("frame")) == pending_.frame, "Stem accepted generation or anchor differs");
             generation_ = returnedGeneration; loaded_ = active_ = true; sourceSeen_ = rawComplete_ = false;
             rawNext_ = pending_.frame; acceptedEpoch_ = pending_.epoch; convertedInput_ = pending_.frame;
+            auto record = observation(Kind::CommandAccepted);
+            record.commandId = pending_.id; record.inputFirst44100 = pending_.frame;
+            record.outputFirst48000 = pending_.target;
+            observe(record);
             if (acceptedEpoch_ != latest_.epoch || closing_) discard();
         } else {
             keys(value, {"v", "event", "id", "command", "generation", "accepted_at"});
@@ -482,6 +581,7 @@ private:
         for (const auto* key : {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms"})
             if (value.contains(key)) (void)finite(value.value(key));
         const auto expected = digest(value.value("sha256"));
+        const auto receiptNs = stamp();
         auto& lease = leases_[slot];
         lease.occupied = true; lease.generation = generation_; lease.sequence = ++lastSequence_;
         lease.first = rawNext_; lease.frames = frames; rawNext_ += frames;
@@ -489,6 +589,18 @@ private:
         lease.before = statusOf(lease.fd->get());
         require(lease.before.st_size >= 0 && std::uint64_t(lease.before.st_size) == frames * 32, "Live lease size differs");
         lease.validated = validateLease(lease, expected);
+        if (lease.validated) {
+            auto record = observation(Kind::ChunkValidated);
+            record.observedNs = receiptNs; record.validatedNs = stamp();
+            record.requestId = integer(value.value("request_id")); record.leaseSequence = lease.sequence;
+            record.inputFirst44100 = lease.first; record.inputFrames44100 = lease.frames;
+            record.final = boolean(value.value("final"));
+            record.workerReadySeconds = value.value("worker_ready_at").toDouble();
+            record.servicePublishedSeconds = value.value("published_at").toDouble();
+            record.hopServicePresent = value.contains("hop_service_ms");
+            if (record.hopServicePresent) record.hopServiceMs = value.value("hop_service_ms").toDouble();
+            observe(record);
+        }
         if (lease.validated && (acceptedEpoch_ != latest_.epoch || closing_ || !converter_)) {
             lease.fd.reset(); lease.ackReady = true;
         }
@@ -514,6 +626,10 @@ private:
             require(!runtimeSeen_ && tag > 0 && tag <= generation_ && digest(value.value("model_id")) == modelDigest(),
                     "Unknown or repeated runtime startup tag");
             validateRuntimeReady(object(value.value("ready")), job_->engine); runtimeSeen_ = true;
+            auto record = observation(Kind::RuntimeReady);
+            record.workerGeneration = tag;
+            if (tag != generation_) record.providerEpoch = 0; // Older known startup context, no guessed epoch.
+            observe(record);
         } else if (kind == "source") {
             keys(value, {"v", "event", "generation", "source_id", "source_frames", "source_format", "mean", "std"});
             current(value); require(runtimeSeen_ && !sourceSeen_ && integer(value.value("source_frames")) == job_->inputFrames &&
@@ -531,7 +647,12 @@ private:
             keys(value, {"v", "event", "generation", "source_id", "frame_start", "telemetry_dropped", "completed_at"});
             current(value); require(sourceSeen_ && !rawComplete_ && rawNext_ == job_->inputFrames &&
                 integer(value.value("frame_start")) == job_->inputFrames, "Stem complete preceded exact raw coverage");
-            (void)integer(value.value("telemetry_dropped")); (void)finite(value.value("completed_at")); rawComplete_ = true;
+            const auto dropped = integer(value.value("telemetry_dropped"));
+            (void)finite(value.value("completed_at")); rawComplete_ = true;
+            auto record = observation(Kind::RawComplete);
+            record.inputFirst44100 = job_->inputFrames;
+            record.serviceTelemetryDroppedPresent = true; record.serviceTelemetryDropped = dropped;
+            observe(record);
         } else if (kind == "closed") {
             keys(value, {"v", "event", "generation", "reason", "worker_closed", "outstanding_slots", "telemetry_dropped", "closed_at"});
             const auto reason = text(value.value("reason"));
@@ -539,7 +660,12 @@ private:
                 (reason == "close" || reason == "eof" || reason == "signal") &&
                 integer(value.value("outstanding_slots"), 2) == std::uint64_t(std::ranges::count_if(leases_, [](const auto& l) { return l.occupied; })),
                 "Unexpected stem close or outstanding lease count");
-            (void)integer(value.value("telemetry_dropped")); (void)finite(value.value("closed_at")); closed_ = true;
+            const auto dropped = integer(value.value("telemetry_dropped"));
+            (void)finite(value.value("closed_at")); closed_ = true;
+            auto record = observation(Kind::ServiceClosed);
+            record.inputFirst44100 = rawNext_;
+            record.serviceTelemetryDroppedPresent = true; record.serviceTelemetryDropped = dropped;
+            observe(record);
         } else invalid("Unknown stem service event");
     }
 
@@ -548,7 +674,7 @@ private:
         if (stop_.stop_requested() || !port_.serviceRecovery()) return false;
         Buffer::Request request;
         if (!port_.tryRequest(request)) return false;
-        if (request.epoch != latest_.epoch) { latest_ = request; discard(); return false; }
+        if (request.epoch != latest_.epoch) { latest_ = request; discard(); observeRequest(); return false; }
         return true;
     }
     bool publish()
@@ -559,17 +685,32 @@ private:
         // waits for the library's actual zero-output EOF/count validation.
         if (pendingFrames_ < Buffer::blockFrames && !finished_) return false;
         if (end == plan_.outputFrames() && !finished_) return false;
+        if (!packetReadyNs_) packetReadyNs_ = stamp();
         if (!refresh() || acceptedEpoch_ != latest_.epoch || !converter_) return false;
         Buffer::Packet packet{latest_.sourceId, latest_.epoch, pendingFirst_, pendingFrames_,
             finished_ && end == plan_.outputFrames(), {}};
         for (std::size_t role = 0; role < 4; ++role)
             packet.stems[role] = std::span<const float>(output_[role]).first(pendingFrames_ * 2);
-        switch (port_.tryPublish(packet)) {
-        case Buffer::PublishResult::Accepted: pendingFrames_ = 0; return true;
-        case Buffer::PublishResult::Full: return false; // Retain this exact packet.
+        const auto beginNs = stamp();
+        const auto result = port_.tryPublish(packet);
+        const auto endNs = stamp();
+        switch (result) {
+        case Buffer::PublishResult::Accepted: {
+            auto record = observation(Kind::PacketAccepted);
+            record.observedNs = endNs; record.outputFirst48000 = pendingFirst_;
+            record.outputFrames48000 = pendingFrames_; record.final = packet.final;
+            record.packetReadyNs = packetReadyNs_; record.publishBeginNs = beginNs; record.publishEndNs = endNs;
+            record.fullObserved = fullObserved_; record.firstFullNs = firstFullNs_;
+            observe(record);
+            pendingFrames_ = 0; packetReadyNs_ = firstFullNs_ = 0; fullObserved_ = false;
+            return true;
+        }
+        case Buffer::PublishResult::Full:
+            if (!fullObserved_) { fullObserved_ = true; firstFullNs_ = endNs; }
+            return false; // Retain this exact packet, without per-retry observations.
         case Buffer::PublishResult::Stale: {
             Buffer::Request request;
-            if (port_.tryRequest(request) && request.epoch != latest_.epoch) { latest_ = request; discard(); }
+            if (port_.tryRequest(request) && request.epoch != latest_.epoch) { latest_ = request; discard(); observeRequest(); }
             return false;
         }
         case Buffer::PublishResult::Invalid:
@@ -652,6 +793,11 @@ private:
                 else require(step.firstOutputFrame == pendingFirst_ + pendingFrames_, "Converter output prefix is not contiguous");
                 pendingFrames_ += step.outputFrames;
             }
+            if (step.finished && !finished_) {
+                auto record = observation(Kind::ConverterComplete);
+                record.inputFirst44100 = plan_.inputFrames(); record.outputFirst48000 = plan_.outputFrames();
+                observe(record); // Actual converter EOF proof, before final publication/render EOF.
+            }
             finished_ = step.finished;
             if (pendingFrames_ == 4096 || finished_) {
                 if (pendingFirst_ + pendingFrames_ < plan_.outputFrames() || finished_) {
@@ -681,6 +827,8 @@ private:
         acceptedEpoch_ = 0, generation_ = 0, lastSequence_ = 0, rawNext_ = 0;
     bool ready_ = false, loaded_ = false, active_ = false, runtimeSeen_ = false, sourceSeen_ = false,
         rawComplete_ = false, finished_ = false, closing_ = false, closed_ = false;
+    std::uint64_t packetReadyNs_ = 0, firstFullNs_ = 0;
+    bool fullObserved_ = false;
     Clock::time_point replyDeadline_{}, closeDeadline_{};
 };
 } // namespace
@@ -716,6 +864,9 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     const StemEngine& engine, const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop)
 {
     using namespace detail;
+    auto observations = std::shared_ptr<LiveStemObservations>(new LiveStemObservations);
+    LiveStemObservations::Setup setup;
+    setup.factoryEntryNs = LiveStemObservationWriter::stamp(*observations);
     checkStop(stop);
     if (!sourceToken) throw std::invalid_argument("Live stem source token must be nonzero");
     Descriptor original(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
@@ -731,6 +882,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     const auto rootPath = QFileInfo(cacheRoot_).absoluteFilePath();
     if (!QDir().mkpath(rootPath)) throw std::runtime_error("Cannot create prepared cache root");
     auto job = std::make_shared<LiveJob>(rootPath, limits_, engine, std::move(files), std::move(service));
+    job->observations = observations;
     job->root = std::make_unique<Descriptor>(open(QFile::encodeName(rootPath).constData(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC));
     if (job->root->get() < 0) ioError("Cannot open prepared cache root");
     if (fchmod(job->root->get(), 0700) != 0) ioError("Cannot protect prepared cache root");
@@ -787,10 +939,12 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     const auto inputBefore = statusOf(job->input->get());
     if (inputBefore.st_size <= 0 || std::uint64_t(inputBefore.st_size) != job->inputFrames * 8)
         throw std::runtime_error("Named live input geometry changed");
+    setup.inputCapturedNs = LiveStemObservationWriter::stamp(*observations);
     Converter::FramePlan plan = [&] {
         try { return Converter::countFrames(job->inputFrames, limits_.maxPreparedBytes / 8, stop); }
         catch (const std::length_error&) { throw std::length_error("Live stem output byte budget exceeded"); }
     }();
+    setup.countCompleteNs = LiveStemObservationWriter::stamp(*observations);
     job->serviceBytes = job->inputFrames * 8 + serviceOverhead;
     {
         QLockFile lock(QDir(rootPath).filePath(".lock")); lockRoot(lock, stop);
@@ -815,6 +969,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
             } catch (...) {
                 port.fail(EIO); job->notifySetup(QStringLiteral("Cannot construct the live stem producer")); (void)job->cleanup();
             }
+            LiveStemObservationWriter::finish(*job->observations);
         });
     try {
         {
@@ -842,7 +997,18 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
             throw std::runtime_error(job->terminalError.isEmpty() ? playback->error() : job->terminalError.toStdString());
         }
     } catch (...) { playback->stop(); throw; }
+    setup.sourceToken = sourceToken; setup.inputFrames44100 = job->inputFrames; setup.outputFrames48000 = plan.outputFrames();
+    const auto copyDigest = [](LiveStemObservations::Sha256Hex& target, const QByteArray& source) {
+        std::copy_n(source.constData(), target.size(), target.begin()); // Existing validated SHA256 hex.
+    };
+    copyDigest(setup.sourceSha256, originalDigest); copyDigest(setup.inputSha256, job->inputDigest);
+    copyDigest(setup.modelSha256, job->files[4].identity.value("sha256").toString().toLatin1());
+    copyDigest(setup.runtimeSha256, job->files[3].identity.value("sha256").toString().toLatin1());
+    copyDigest(setup.serviceSha256, job->service.identity.value("sha256").toString().toLatin1());
+    setup.factoryCommittedNs = LiveStemObservationWriter::stamp(*observations);
+    observations->setup_ = setup; // Factory publication only; producer never reads this storage.
     return {std::move(playback), QString::fromLatin1(originalDigest), QString::fromLatin1(job->inputDigest),
-        job->files[4].identity.value("sha256").toString(), job->inputFrames, plan.outputFrames(), job->charge, std::move(overview)};
+        job->files[4].identity.value("sha256").toString(), job->inputFrames, plan.outputFrames(), job->charge,
+        std::move(overview), std::move(observations)};
 }
 } // namespace conflux::library

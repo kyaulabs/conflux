@@ -3,6 +3,7 @@
 
 #include "audio/AudioFile.hpp"
 #include "audio/PreparedPlayback.hpp"
+#include "library/LiveStemObservations.hpp"
 
 #include <QString>
 #include <array>
@@ -46,6 +47,7 @@ struct PreparedLiveStemTrack {
     std::uint64_t inputFrames = 0, outputFrames = 0, reservedDiskBytes = 0;
     // Normalized whole-source44100 overview, not a separated-stem waveform.
     std::vector<float> sourceOverview;
+    std::shared_ptr<LiveStemObservations> observations;
 };
 
 // Worker-owned persistent PCM preparation. No method belongs on the GUI or

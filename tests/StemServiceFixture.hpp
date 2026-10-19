@@ -135,6 +135,9 @@ def publish():
         'stems': ROLES, 'frame_start': cursor, 'window_start_frame': cursor // HOP * HOP,
         'frames': frames, 'final': cursor + frames == n, 'bytes': value['bytes'], 'sha256': value['sha256'],
         'request_id': sequence, 'worker_ready_at': time.monotonic(), 'published_at': time.monotonic()}
+    if MODE in ['timing', 'timing-no-hop']:
+        event['worker_ready_at'] = 1000.25; event['published_at'] = 1000.375
+        if MODE == 'timing': event['hop_service_ms'] = 125.0
     if MODE == 'wrong-hash': event['sha256'] = '0' * 64
     if MODE == 'wrong-origin': event['frame_start'] += 1
     if MODE == 'wrong-final': event['final'] = not event['final']
