@@ -1,0 +1,1954 @@
+{
+  "schema": "conflux.m2-worker-phase-timing.v1",
+  "source_head": "45130aa127382bd1af243f7a357e82ad6ff1c001",
+  "source_signature": "45130aa127382bd1af243f7a357e82ad6ff1c001 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau@kyau.net",
+  "status": "phase_retention_verified_and_short_actual_player_passed",
+  "m2_open": true,
+  "sustained_actual_player_qualified": false,
+  "summary": {
+    "schema": 1,
+    "source_head": "45130aa127382bd1af243f7a357e82ad6ff1c001",
+    "source_signature": "45130aa127382bd1af243f7a357e82ad6ff1c001 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau@kyau.net",
+    "m2_open": true,
+    "short_actual_player_passed": true,
+    "sustained_actual_player_qualified": false,
+    "service_target_ms": 4095,
+    "product_change": "Retain thirteen optional existing phase durations on validated chunks; ten native fields use a fixed nested native_timings object. Best conversion, native runtime/model, clocks, service target and host policy unchanged.",
+    "verification": {
+      "focused_python_tests": 23,
+      "focused_cpp_passes": 95,
+      "normal_ctest": 36,
+      "instrumented_ctest": 36,
+      "normal_routing": 130,
+      "strict_preparation": 78,
+      "coverage_cpp": {
+        "line": {
+          "covered": 5802,
+          "total": 6729,
+          "percent": 86.2238074008025,
+          "above_80_percent": true
+        },
+        "branch": {
+          "covered": 8236,
+          "total": 15511,
+          "percent": 53.09780156018309,
+          "above_80_percent": false
+        },
+        "missing_compiled_source_reports": []
+      },
+      "coverage_python": {
+        "line": {
+          "covered": 1248,
+          "total": 1366,
+          "percent": 91.36163982430453,
+          "above_80_percent": true
+        },
+        "branch": {
+          "covered": 441,
+          "total": 536,
+          "percent": 82.27611940298507,
+          "above_80_percent": true
+        }
+      },
+      "coverage_unmeasured": {
+        "qml": [
+          "qml/DeckButton.qml",
+          "qml/DeckSurface.qml",
+          "qml/Harness.qml",
+          "qml/Main.qml",
+          "qml/MixerSurface.qml",
+          "qml/StereoMeter.qml",
+          "qml/SurfaceKnob.qml",
+          "brand/integration/qtquick/ConfluxTheme.qml"
+        ],
+        "native_stem_adapter": [
+          "tools/runtime/htdemucs_segment.cpp"
+        ]
+      },
+      "source_pins": 107
+    },
+    "actual_player": {
+      "schema": 1,
+      "recorded_utc": "2026-10-19T19:56:16.591093+00:00",
+      "source_head": "45130aa127382bd1af243f7a357e82ad6ff1c001",
+      "passed": true,
+      "qualified": false,
+      "m2_open": true,
+      "measurement_ms": 120007,
+      "service_hops": {
+        "count": 21,
+        "maximum_ms": 3013.440318987705,
+        "nearest_rank_p99_ms": 3013.440318987705,
+        "strict_target_ms": 4095,
+        "at_or_above_target": 0,
+        "complete": true
+      },
+      "median_hop_ms": 1972.6235049311072,
+      "worst_hop": {
+        "epoch": 2,
+        "generation": 1,
+        "request_id": 1,
+        "lease_sequence": 1,
+        "input_first": 0,
+        "input_frames": 257985,
+        "hop_service_ms": 3013.440318987705,
+        "source_read_ms": 2.7341300155967474,
+        "request_ms": 2964.6842849906534,
+        "overlap_ms": 44.82927394565195,
+        "native_elapsed_ms": 2948.766131,
+        "native_inference_wall_ms": 2902.264502,
+        "native_inference_cpu_ms": 1790.302,
+        "native_frontend_ms": 12.135729,
+        "native_graph_ms": 2858.865261,
+        "native_graph_upload_ms": 48.858643,
+        "native_graph_compute_ms": 2789.847136,
+        "native_graph_readback_ms": 20.158879,
+        "native_postprocess_ms": 31.262578,
+        "native_graph_rebuild_ms": 0
+      },
+      "phase_statistics": {
+        "source_read_ms": {
+          "count": 21,
+          "median_ms": 1.7394899623468518,
+          "maximum_ms": 63.97073098924011
+        },
+        "request_ms": {
+          "count": 21,
+          "median_ms": 1957.969291950576,
+          "maximum_ms": 2964.6842849906534
+        },
+        "overlap_ms": {
+          "count": 21,
+          "median_ms": 14.952281955629587,
+          "maximum_ms": 75.57034795172513
+        },
+        "native_elapsed_ms": {
+          "count": 21,
+          "median_ms": 1950.169712,
+          "maximum_ms": 2948.766131
+        },
+        "native_inference_wall_ms": {
+          "count": 21,
+          "median_ms": 1925.122604,
+          "maximum_ms": 2902.264502
+        },
+        "native_inference_cpu_ms": {
+          "count": 21,
+          "median_ms": 82.18600000000015,
+          "maximum_ms": 1790.302
+        },
+        "native_frontend_ms": {
+          "count": 21,
+          "median_ms": 11.532514,
+          "maximum_ms": 19.3612
+        },
+        "native_graph_ms": {
+          "count": 21,
+          "median_ms": 1883.297947,
+          "maximum_ms": 2858.865261
+        },
+        "native_graph_upload_ms": {
+          "count": 21,
+          "median_ms": 4.046826,
+          "maximum_ms": 48.858643
+        },
+        "native_graph_compute_ms": {
+          "count": 21,
+          "median_ms": 1868.226342,
+          "maximum_ms": 2789.847136
+        },
+        "native_graph_readback_ms": {
+          "count": 21,
+          "median_ms": 9.575891,
+          "maximum_ms": 20.158879
+        },
+        "native_postprocess_ms": {
+          "count": 21,
+          "median_ms": 28.365338,
+          "maximum_ms": 33.00815
+        },
+        "native_graph_rebuild_ms": {
+          "count": 21,
+          "median_ms": 0,
+          "maximum_ms": 0
+        }
+      },
+      "seek_ack_ms": 8.213686,
+      "seek_cursor_recovery_upper_ms": 5838.229496,
+      "replay_cursor_recovery_upper_ms": [
+        2653.623746,
+        2695.743008,
+        2705.12593,
+        2701.934046
+      ],
+      "steady_starvation_frames": 0,
+      "control_starvation_frames": 784128,
+      "control_starvation_ms": 16336.0,
+      "outside_starvation_frames": 0,
+      "callbacks": 23738,
+      "callback_faults": {
+        "execution_deadline_misses": 0,
+        "invalid_buffers": 0,
+        "rejected_commands": 0,
+        "source_read_failures": 0
+      },
+      "timing": [
+        {
+          "at_least_100ms": 0,
+          "callbacks": 23738,
+          "driver_cycle_available": true,
+          "driver_discontinuity_flag_mask": 16,
+          "driver_position_discontinuities": 0,
+          "driver_position_observed": true,
+          "driver_recovery_flag_mask": 2,
+          "driver_recovery_flags": 0,
+          "execution_deadline_misses": 0,
+          "execution_p999_upper_us": 100,
+          "execution_p99_upper_us": 80,
+          "graph_quantum_max": 256,
+          "graph_quantum_min": 256,
+          "maximum_execution_ns": 140927
+        }
+      ],
+      "recording": {
+        "acceptedFrames": 6067456,
+        "active": false,
+        "error": "",
+        "overflowFrames": 0,
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/master.wav",
+        "status": "Complete",
+        "writtenFrames": 6067456
+      },
+      "recorded_audio": {
+        "channels": 2,
+        "format": 65542,
+        "frames": 6067456,
+        "nonzero_samples": 12114414,
+        "peak_left": 0.0536254458129406,
+        "peak_right": 0.05340079963207245,
+        "sample_rate": 48000
+      },
+      "UI": {
+        "frames_presented": 7593,
+        "max_frame_gap_ns": 118470982,
+        "scene_errors": []
+      },
+      "observations": {
+        "attempted": 1407,
+        "bytes": 796618,
+        "dropped": 0,
+        "invalid_clock_reads": 0,
+        "producer_finished": true,
+        "retained": 1407
+      },
+      "thermal_summary": {
+        "samples": 63,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 97000,
+        "85000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_epp_observations": [
+          {
+            "at_utc": "2026-10-19T19:49:38.143728+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "balanced",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+            }
+          }
+        ]
+      },
+      "cleanup_proven": true,
+      "cache_removed": true,
+      "comparison_scope": "Run03 used the same Best converter but spent most sampled time in low-power; this run stayed balanced in all retained samples. Different conditions prevent attributing the speedup to telemetry. Previous slow hops did not retain phase fields and cannot be retrospectively isolated.",
+      "phase_scope": "Nested millisecond durations on validated chunks. Native graph phases overlap enclosing inference/request intervals; do not add them. No cross-clock subtraction; preroll and discarded work are incompletely represented.",
+      "next_step": "Sustained actual-player thermal/latency qualification under unchanged host thermal policy, with explicit bounded evidence and finite peer recovery. No M3 transition."
+    },
+    "limits": [
+      "Single120-second repeated-excerpt diagnostic, not sustained qualification.",
+      "Run03 spent most sampled time in low-power; run04 samples stayed balanced. No causal speedup attributed to telemetry. Prior slow hops lack phase detail.",
+      "Native intervals are nested; all thirteen fields are present for21 validated chunks. Preroll/canceled/discarded work is not fully covered.",
+      "Callback counters and finite WAV do not establish physical audio continuity or musical acceptance.",
+      "Coverage setup metadata lookup failed before its independent command started; the shell continued. Late plan and corrected107-pin provenance are retained without claiming a test-stage failure."
+    ]
+  },
+  "raw_secret_scan_exit": 0,
+  "raw_scanned_input_bytes": 7013618,
+  "files": {
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--host-observations.jsonl.gz": {
+      "bytes": 2667,
+      "sha256": "7b9e95c0957c6cec7edc2e702a0d1275c0054814c1241d1a3fd30140b214cd44"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native-result.json.gz": {
+      "bytes": 7195,
+      "sha256": "46815353178245c25ed741205866e6607c6a01eefd23970533f4daa1977e0e09"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native.stdout.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--observations.jsonl.gz": {
+      "bytes": 60060,
+      "sha256": "68bca93c1b4ee723f479a4364bdffaf2ae140dd9eefeae3ff021a5db12d25a80"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--owned-pipewire-cleanup.json.gz": {
+      "bytes": 50,
+      "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--progress.json.gz": {
+      "bytes": 342,
+      "sha256": "da9f7ba10917542c846ab42641224511e2f0c57e6f638c8f28de85f8e83b401a"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--result.json.gz": {
+      "bytes": 19989,
+      "sha256": "a5ffcd2e40777eb5997ce0b2ace25b3830dcb2e022577c7bc65e73b903f38786"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-cool-start.json.gz": {
+      "bytes": 493,
+      "sha256": "307b76279af948c6712ab4376234e75bc184f4ee3cfa94f7f1959dfffe4ff7ce"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-independent-crosscheck.json.gz": {
+      "bytes": 9659,
+      "sha256": "6cbdc5e56071fd7afad0187920078368b438c6150f312d6c1b2a75476caf1e1b"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-launch.json.gz": {
+      "bytes": 7036,
+      "sha256": "5927bc414dfd7a08c7beadf4e72fbb1a22226f48cfdb531338178bfb292fe06b"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-readiness.json.gz": {
+      "bytes": 363,
+      "sha256": "c680f4b86d377444f56cf81b542dc45b0a4a23458e3828c326179626da258d48"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-recipe.json.gz": {
+      "bytes": 7183,
+      "sha256": "3cac0f8cc9c435b1c259aa4a2e8119500b780f24b95155f986dec7a035cc209c"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-report.json.gz": {
+      "bytes": 2282,
+      "sha256": "fcb777b61d3adc5d2c600896915f7ca0f9e7babddd38f40c0d81801ba2f55b1c"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-source-freeze.json.gz": {
+      "bytes": 6548,
+      "sha256": "b4e96f562a8348d6d17ac866341f7a2db325dd40e98406d9d329b989659dd940"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-thermal-guard.json.gz": {
+      "bytes": 459,
+      "sha256": "e351834151c57cde71e4852f6d45503a7a9245715f6169f0376ecd67f29d3dec"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-thermal-guard.log.gz": {
+      "bytes": 228,
+      "sha256": "a96042d6181e4f23c2eecc798079a28499b2396f982dfe86d618199bc4c4e102"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-wait-launch.py.gz": {
+      "bytes": 856,
+      "sha256": "a2d2815b1972e4a858538e9289dddf69b36ff543e367c7440f1e09fa789415dc"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04.stdout.json.gz": {
+      "bytes": 20028,
+      "sha256": "c5abfc58b7abee4adef13ad3550d29723ddc81f41b2b18cf435804d2113ae937"
+    },
+    "benchmarks-local--phase-timing-01--archive_phase.py.gz": {
+      "bytes": 2994,
+      "sha256": "5fa6ce74f7b49006c59ebe7d780f8d9e088e07842d261bf2ea58b39d5ad4fcf9"
+    },
+    "benchmarks-local--phase-timing-01--code-review.json.gz": {
+      "bytes": 2810,
+      "sha256": "df3f2df501bb13e5194f3c9ffede93646af1c516158fffd15dc596e89d039f4b"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--execution.json.gz": {
+      "bytes": 8742,
+      "sha256": "78bb2b90d15b8090ca1ca330df1ae77fb53b2259e99ea420eebd5890ef1121b4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--independent-crosscheck.json.gz": {
+      "bytes": 5598,
+      "sha256": "693fe15f09c163d261cb011d83957c7478739d70bca907f0f0480ade885ac3e0"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--plan.json.gz": {
+      "bytes": 6290,
+      "sha256": "62402922bebf4ec182b6374642ee652a41ac9bc2b26ba9b34185649186efbc6b"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--build.log.gz": {
+      "bytes": 865,
+      "sha256": "70833b3a9bda01ab8e8f900876876774aa6da01b3c194a53fcb6c6b4808f4ce7"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--configure.log.gz": {
+      "bytes": 135,
+      "sha256": "23c2477fa7d61b7334b4d6fddbbcd1f32ace8f93ca5b710fde5f94d4627e355c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--cpp-summary.json.gz": {
+      "bytes": 1228,
+      "sha256": "c4d5d375bd0b5bcae13388fd6bbf5f6a74bedcdfd98ecba5daa5dd568a291250"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--cpp.json.gz": {
+      "bytes": 405991,
+      "sha256": "d2a01d3130cf9dedbf227891c259950b2359449f8b3cda70ad7ba75921a93983"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--ctest.log.gz": {
+      "bytes": 888,
+      "sha256": "cf3f9ae5e647151ce44c2547953d453b2003c42da2f27ac4cace1298173235a4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--gcovr.log.gz": {
+      "bytes": 102,
+      "sha256": "b8b9ab160ac96dbf149ce6db937903a0ab3dc14333caea6a72f11cf3599982df"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--check.stdout.json.gz": {
+      "bytes": 3611,
+      "sha256": "b8625b369eee0f6764347bf1783729634326d9e4e1d38753c59d15ba0123eb99"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--cleanup-pw-dump.json.gz": {
+      "bytes": 2081,
+      "sha256": "df23cde4820aafa7f89c1291dfb2efc7f46d7ddf47ddf9298e144ee75d5fdd52"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--controller-preparation-phase.json.gz": {
+      "bytes": 924,
+      "sha256": "5203ce46bab2eddbd5845a1a0b01e59ddba3ce595c9e4d35bafe813d4d836cd3"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--daemon.log.gz": {
+      "bytes": 10954,
+      "sha256": "630ff1a4bca75fe6d876ae2666ef883b5b1490854f2bfb0a4b09c33fd6cae5a4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--preflight-pw-dump.json.gz": {
+      "bytes": 2083,
+      "sha256": "425c9c8c95bfc54142b447e64f9a5bcfa45e76865f4991b4a46ded7e3429caaf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--private-client.conf.gz": {
+      "bytes": 173,
+      "sha256": "b0e3525889cef0f6c86cf09c5e1c96c2f48c635a5c46c63d84e5645e45dd1537"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--private-daemon.conf.gz": {
+      "bytes": 404,
+      "sha256": "1d6aa35c9e19134dac04e67d0c0c2e75a3d3bef5eff223fed923b24e43863bb7"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--result.json.gz": {
+      "bytes": 4037,
+      "sha256": "affd8fc2148eb7ebd99c2af00adc548188a39170c95856baab24c30390773490"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation.log.gz": {
+      "bytes": 4037,
+      "sha256": "affd8fc2148eb7ebd99c2af00adc548188a39170c95856baab24c30390773490"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--check.stdout.json.gz": {
+      "bytes": 2657,
+      "sha256": "8879c7893713277bd0e4d26ffbfdec4d6fa6aa8449fc8110bc26aed433cc526d"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cleanup-pw-dump.json.gz": {
+      "bytes": 2082,
+      "sha256": "49933cc69143104eac30a4584153a666f6bb1ab794f858449dea7cc5e9efc65e"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cue-removal.json.gz": {
+      "bytes": 708,
+      "sha256": "2b981dd442ea1ad6b4dd9195cae6bd37799f0696becb052ab7ea91f124b30b77"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--daemon.log.gz": {
+      "bytes": 15188,
+      "sha256": "c56ad95944679d8e1ebc44d960e1094e122aa1622da18e0c071a225187253c97"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-immediate-receiver.json.gz": {
+      "bytes": 118,
+      "sha256": "addcdddbf2ec9a6360ba52a0b5a7f8b33f82ac88d7de1cd9a8e6432c1b315439"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-immediate.json.gz": {
+      "bytes": 455,
+      "sha256": "733784aa7326e837c1b9c91dbb61fe76fb6e1ef82fcbe691b2cc6a819d81bb8c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-installed-receiver.json.gz": {
+      "bytes": 118,
+      "sha256": "55dc13ac59c2ec55a8530f1ce0eb1fc2549d92b2567ba0c5baaff9e874ec8064"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-installed.json.gz": {
+      "bytes": 474,
+      "sha256": "46dffc88f97513a2f14155cf448a6cbdc7c9a9559a2e44f70c0f27e3e0782494"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--preflight-pw-dump.json.gz": {
+      "bytes": 2080,
+      "sha256": "9d58cb1fb31fb014d7992ee8a6801f9ae228be0629f475054a5d034bf1862cb2"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--private-client.conf.gz": {
+      "bytes": 173,
+      "sha256": "b0e3525889cef0f6c86cf09c5e1c96c2f48c635a5c46c63d84e5645e45dd1537"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--private-daemon.conf.gz": {
+      "bytes": 404,
+      "sha256": "5ff5b6fcb1cb29e728975719a1b7ec2d26207cf4adeedcfdfdcf3098568b6d9b"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--result.json.gz": {
+      "bytes": 2934,
+      "sha256": "e10edb86d3d8555f9699095af0c32f4eb78cb1a41b9d5708856a7f7df90ab353"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--source-handoff-receiver.json.gz": {
+      "bytes": 115,
+      "sha256": "44447b78d6fa9cd4cc98075659b4712896f43c74e64fc3943a16dae4eb600c3d"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--source-handoff.json.gz": {
+      "bytes": 519,
+      "sha256": "da2b136fbe3bc86ce49929224ad25c1650e310f193ce522a0eebbe6daf264a76"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing.log.gz": {
+      "bytes": 2934,
+      "sha256": "e10edb86d3d8555f9699095af0c32f4eb78cb1a41b9d5708856a7f7df90ab353"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-combine.log.gz": {
+      "bytes": 47,
+      "sha256": "042411e26d769db3495ace94c6fac3ff460f99fb839f84ddc63587a4cbcffff2"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-html.log.gz": {
+      "bytes": 109,
+      "sha256": "4520339585a9ddd0af877113a8174969ea4c1eb8969cb2739af02996359f1e6a"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-json.log.gz": {
+      "bytes": 126,
+      "sha256": "70eff43c98caf073645b8b1e3cfbdb95f897e8a7ee8f6315be67c4ec868ac9b2"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-xml.log.gz": {
+      "bytes": 98,
+      "sha256": "3e30767dc49fef39cd7277377ad5bc227b79e0c7c977d44f37be6355dbac52a2"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python.json.gz": {
+      "bytes": 9687,
+      "sha256": "76cbc1e432a652edb31e01e128ac3ff5d232a02d93044069f1ccf56b1a8aa7cc"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--smoke.log.gz": {
+      "bytes": 423,
+      "sha256": "f1c4c8ba792e4f203bbadd894e4e11361247885308d82a199c6f5b0349680c77"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--summary.json.gz": {
+      "bytes": 1669,
+      "sha256": "5ecfd24dd347c614dd9d5317091cf7d76a4f6de614f1444b93b100042e07546f"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--runner.log.gz": {
+      "bytes": 2010,
+      "sha256": "18a2b50f03bca80aec9d3f369d94850e68abbed9ffd49401cbab6084e0029a82"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--setup-observation-error.json.gz": {
+      "bytes": 558,
+      "sha256": "90e32fdc1d27c1a10ff9219a3c7b72bfda9c444ad99511b9da67a18cd9848421"
+    },
+    "benchmarks-local--phase-timing-01--green-build-final.log.gz": {
+      "bytes": 381,
+      "sha256": "d174b97fc8538932b3199120357917d45c773eca09700fd9f3853796c7be0fab"
+    },
+    "benchmarks-local--phase-timing-01--green-build-nested.log.gz": {
+      "bytes": 459,
+      "sha256": "e71dac68e75ffdcb1801cf1bb13383ed191b70281032eb58f724d29f9c58fb11"
+    },
+    "benchmarks-local--phase-timing-01--green-build.log.gz": {
+      "bytes": 601,
+      "sha256": "d1dc7ea687cbb4939442c6f08664cf6e968f40ddd3ce36fc2a7c6f38396d61fb"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-final.log.gz": {
+      "bytes": 832,
+      "sha256": "0c4beeed203d722a4cb79fc091a7c625131e07e66e95cc8a55298aa4e87ea155"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-nested.log.gz": {
+      "bytes": 822,
+      "sha256": "71481e8f76db9998b962d7b816bb749ee702a48c94fa58e5b7ce8e1341e51c30"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-targeted.log.gz": {
+      "bytes": 894,
+      "sha256": "5a0fe6690c6754ffaf7b5b45ef825ece7f77bb0b293d4621974301711671aeeb"
+    },
+    "benchmarks-local--phase-timing-01--green-python-final.log.gz": {
+      "bytes": 55,
+      "sha256": "f0432e29ff5e8cb21200b960a87f04fd4981adea1a9494601c6b97907a700829"
+    },
+    "benchmarks-local--phase-timing-01--green-python-nested.log.gz": {
+      "bytes": 55,
+      "sha256": "27ed09caa57dd7b0a5d824c92d2011099040d3afbfd5b32b1c4fbceb5981c6d8"
+    },
+    "benchmarks-local--phase-timing-01--green-python-targeted.log.gz": {
+      "bytes": 53,
+      "sha256": "8c043447c9f32dff1cdc98168fd278966440271124dd6b9d72eabf019ed6e12e"
+    },
+    "benchmarks-local--phase-timing-01--green-python.log.gz": {
+      "bytes": 55,
+      "sha256": "493d0156a746c867dc15c8ac704bc13f8dc5dbcd11709230145fe605fbe21938"
+    },
+    "benchmarks-local--phase-timing-01--normal--build.log.gz": {
+      "bytes": 1147,
+      "sha256": "ea9a7f915f8d78ff5d39b953666f6f6671e4e720152e2f7983d46c2dd1023611"
+    },
+    "benchmarks-local--phase-timing-01--normal--ctest.log.gz": {
+      "bytes": 866,
+      "sha256": "92dd5d50156ccf308f9049c9a99216651077437a59609f91173de6d668a0d06f"
+    },
+    "benchmarks-local--phase-timing-01--normal--execution.json.gz": {
+      "bytes": 6997,
+      "sha256": "f441552143c73fccc7e1d6dcd5f63132cd0e9f290c7e6b5f423fcd968c9ecf0b"
+    },
+    "benchmarks-local--phase-timing-01--normal--independent-crosscheck.json.gz": {
+      "bytes": 4094,
+      "sha256": "1806ed9ef64e7c406f4a1b3fb013d01614cf77fedb609768cae93f1c54c2ddb2"
+    },
+    "benchmarks-local--phase-timing-01--normal--plan.json.gz": {
+      "bytes": 6606,
+      "sha256": "9c92a45e9bb2407981cdd434fb1af77e5a1f33c67745fb7c76dedbb2ec084b51"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--check.stdout.json.gz": {
+      "bytes": 3621,
+      "sha256": "45de17c727cf943efb921c48b9410beec50ef77d74e3244cf8dbae74e7d3dbd4"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--cleanup-pw-dump.json.gz": {
+      "bytes": 2083,
+      "sha256": "3839e5a11dec68d6de965447986deaaca23163fc0b6bc7f1f15c0968ee75bce9"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--controller-preparation-phase.json.gz": {
+      "bytes": 922,
+      "sha256": "63b896ce5133c9f52eb134ec21ee7bffb7c7dee4992d1bbe0369d64fc582be1f"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--daemon.log.gz": {
+      "bytes": 9668,
+      "sha256": "e63d764dc6edd1948779c24e220d47232691f2dd0c57917532b823f49e947fb5"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--preflight-pw-dump.json.gz": {
+      "bytes": 2084,
+      "sha256": "fa53309d6d94f2cdd76e0c5b32dd804c908e8e46a77312092797465e666dc87c"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--private-client.conf.gz": {
+      "bytes": 173,
+      "sha256": "b0e3525889cef0f6c86cf09c5e1c96c2f48c635a5c46c63d84e5645e45dd1537"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--private-daemon.conf.gz": {
+      "bytes": 403,
+      "sha256": "600b8b1ecb0b4d4e3f867dbc1893ead4148c0ecf25846a1ab213720c7c02980e"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--result.json.gz": {
+      "bytes": 4050,
+      "sha256": "b7dcc82c6919cf06b5b645c56b3b488b909d09c483fc6b12104fe6ea1e838ba3"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation.log.gz": {
+      "bytes": 4050,
+      "sha256": "b7dcc82c6919cf06b5b645c56b3b488b909d09c483fc6b12104fe6ea1e838ba3"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--check.stdout.json.gz": {
+      "bytes": 2684,
+      "sha256": "b4a795b1322a4c910751609b4deff8dcec6d6e1e1071f1b3c5ba663a6bb19ec2"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cleanup-pw-dump.json.gz": {
+      "bytes": 2080,
+      "sha256": "950a25d76728bea4bc5c9c6084d25febc554a2f129f9da74eff06739ee2f1044"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cue-removal.json.gz": {
+      "bytes": 708,
+      "sha256": "060e01199938306fef13787c6f1406f84053adc2f9b8e6d6bdb5844316d73744"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--daemon.log.gz": {
+      "bytes": 14703,
+      "sha256": "3101305a2b83c3b15144e5d78cc9a4a4bfcce5a3e3fc664d866f908de5d087a4"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-immediate-receiver.json.gz": {
+      "bytes": 117,
+      "sha256": "7c115e45b5c402982458ed5d6b3facd29a5b9fcedb76f888882e533a2bb043fc"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-immediate.json.gz": {
+      "bytes": 454,
+      "sha256": "3259f2dcfdbd26248199b67d4401b19c6b06e694aef6c0c32878c5b8b5c432ca"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-installed-receiver.json.gz": {
+      "bytes": 117,
+      "sha256": "e262fa1f2955ab0204e07b12d12323e6646b72be2a8b1133dc910cb3041cd7c0"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-installed.json.gz": {
+      "bytes": 473,
+      "sha256": "aca5c59bcd31c3d32f7e8108128c459e37eb6438dba6f617ade0810f119bb58c"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--preflight-pw-dump.json.gz": {
+      "bytes": 2081,
+      "sha256": "fd77eab0c0affc144e91779f304a4443601ba8fe9db691762340da7590ddef25"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--private-client.conf.gz": {
+      "bytes": 173,
+      "sha256": "b0e3525889cef0f6c86cf09c5e1c96c2f48c635a5c46c63d84e5645e45dd1537"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--private-daemon.conf.gz": {
+      "bytes": 404,
+      "sha256": "c9c61fe51b202e01bbe6e4192e003efbc320ca621732615685ad205340d4288d"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--result.json.gz": {
+      "bytes": 2969,
+      "sha256": "8ac842cd231c063204a7396220764a4a8f86e7b0f7b02a6521969263703245a4"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--source-handoff-receiver.json.gz": {
+      "bytes": 118,
+      "sha256": "6a9d525e5f5411936e41cdc3f36c53c5f849696b2573692fc4b2d03eb2773033"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--source-handoff.json.gz": {
+      "bytes": 520,
+      "sha256": "2aa0a9a84e986a42b0183ad12c50447ee5fcf1174023ace57d92178d722422f2"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing.log.gz": {
+      "bytes": 2969,
+      "sha256": "8ac842cd231c063204a7396220764a4a8f86e7b0f7b02a6521969263703245a4"
+    },
+    "benchmarks-local--phase-timing-01--normal--runner.log.gz": {
+      "bytes": 92,
+      "sha256": "aaf0416b66900fa71d708a802db20e3f8f2e327a89447e696a85a78aaeb1cb4d"
+    },
+    "benchmarks-local--phase-timing-01--normal--smoke.log.gz": {
+      "bytes": 422,
+      "sha256": "cddeaf2690f60f1b8616343c95333f5062c02b68b41d3cab30ff53acd5b032c3"
+    },
+    "benchmarks-local--phase-timing-01--red-build.log.gz": {
+      "bytes": 383,
+      "sha256": "b7e7df048e37e8b5d5c2402ccfa830615e0a5449f4524274bc41e640517b100a"
+    },
+    "benchmarks-local--phase-timing-01--red-cpp.log.gz": {
+      "bytes": 412,
+      "sha256": "640ced4da531e619ab75c5d7e6c05e21d2eb9f4afe0e275a5f79ff228519dfee"
+    },
+    "benchmarks-local--phase-timing-01--red-python.log.gz": {
+      "bytes": 572,
+      "sha256": "32a0bbfa62fb012c9ffe44d27f70bbd3f30853415e4633edcbffc8ce7a1f1384"
+    },
+    "benchmarks-local--phase-timing-01--result.json.gz": {
+      "bytes": 1850,
+      "sha256": "9345cf621a734d1fd33872ab0cd2307cb3b77a8f9033df9b5e117fdd233fd797"
+    },
+    "benchmarks-local--phase-timing-01--run_normal.py.gz": {
+      "bytes": 1621,
+      "sha256": "7b9e09130735489aa1ad6c72388fd5bf17d08cd39ee4248996d2d505a35ce4e3"
+    },
+    "benchmarks-local--phase-timing-01--source-commit-message.txt.gz": {
+      "bytes": 850,
+      "sha256": "c6ec3afb618fdca0c16fd5e8d257c07738d5dfa02b10ec3aa6c9714c45c5caad"
+    },
+    "benchmarks-local--phase-timing-01--source-commit.log.gz": {
+      "bytes": 256,
+      "sha256": "176d8b8ab8c7ee7612eb99283dae06059632ede679ee3702bf77b2c30b60d3bf"
+    },
+    "benchmarks-local--phase-timing-01--source.patch.gz": {
+      "bytes": 8058,
+      "sha256": "7df4c3e5e7a3a0652834f6178607ef515b7ae4e8ac5320d116d7e0f7048a62e7"
+    },
+    "benchmarks-local--phase-timing-01--source.sha256.gz": {
+      "bytes": 490,
+      "sha256": "33b53afd6cf57a2cb9f3e2ffc6c5ea11e892469714c6dfaf69e92681e3900c8c"
+    },
+    "benchmarks-local--phase-timing-01--summary.json.gz": {
+      "bytes": 3225,
+      "sha256": "1096fe1cea0708836ba752dd1ad871a03387fdb89c0fdabef73af7f3e0095427"
+    },
+    "benchmarks-local--phase-timing-01--archive-gitleaks.log.gz": {
+      "bytes": 127,
+      "sha256": "5f719c1acda642210026925abf047e329228c022a68f5f4c0796996ac729b12d"
+    },
+    "benchmarks-local--phase-timing-01--archive-gitleaks-findings.json.gz": {
+      "bytes": 23,
+      "sha256": "abc129be8d26e8d4afe9ce45f9d5a73c8ed9aa62810ca24ee789fe4581dc4a80"
+    }
+  },
+  "uncompressed": {
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--host-observations.jsonl.gz": {
+      "bytes": 62685,
+      "sha256": "69b3baaed5f4fd2b755be788c8151b3a9811e1f6075f49fcdee0becb5c26f865"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native-result.json.gz": {
+      "bytes": 82781,
+      "sha256": "9727ba2ea27aa187f77d60cd9b536cadec25b43eb4dd88e7b70f2d14bedd4960"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native.stdout.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--observations.jsonl.gz": {
+      "bytes": 796618,
+      "sha256": "15225808d65095a1536996e5dad7401e96370f271d8d3233d37f315b924075e4"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--owned-pipewire-cleanup.json.gz": {
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--progress.json.gz": {
+      "bytes": 584,
+      "sha256": "3ea8e68c1a628434ed1b60ab9969dfd47b46d49069cda5f3ed8211dc1a8503d6"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--result.json.gz": {
+      "bytes": 142114,
+      "sha256": "ea7a33691b9cbed9642851ec6a9e123302361a2daa7143e92fbdfe57884fccea"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-cool-start.json.gz": {
+      "bytes": 4235,
+      "sha256": "79c2c9d78b5dc81de4dcb604004de673ab2eb9fc22a97351248fd583ef1c068e"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-independent-crosscheck.json.gz": {
+      "bytes": 42136,
+      "sha256": "de71f332f977240b47a3ed2a1d55d1d098c446e6f85e5a9582a788b3809ad607"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-launch.json.gz": {
+      "bytes": 19237,
+      "sha256": "b4da14b6f9648d077d16416d86095a5e74f132788ecf0a99b406e125067bc6d0"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-readiness.json.gz": {
+      "bytes": 566,
+      "sha256": "36d8d12b2e94248d88a1b8e26c36c50712cf99fe491345ddf880deb10954311c"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-recipe.json.gz": {
+      "bytes": 19350,
+      "sha256": "6952703feb008437c14340dda1ae2dff3439454d3b2a090f50f8b04324745b5b"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-report.json.gz": {
+      "bytes": 6126,
+      "sha256": "1dfdf4cd302dafa76e905a5fce67784095a7da8a8d32a7544091eaf49d691287"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-source-freeze.json.gz": {
+      "bytes": 17534,
+      "sha256": "99df31b0af5ad42fe4b034f2ecfc4b37ef94869b103ee7818bbe98ce4db294cd"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-thermal-guard.json.gz": {
+      "bytes": 743,
+      "sha256": "7291e7bde22a24ff031fd7fc282a7bfd7bf93086c2eb42f4072f54b1b9ce34eb"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-thermal-guard.log.gz": {
+      "bytes": 547,
+      "sha256": "120d2d1795d42e2b68811cb2e0dfe968a3183a0fc1864441e68ae59d6b18ef97"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-wait-launch.py.gz": {
+      "bytes": 1678,
+      "sha256": "4cb8b300fab3801a04164a364a509f627b52bb32c2ee664382aebc4b5337f8da"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04.stdout.json.gz": {
+      "bytes": 142186,
+      "sha256": "f35465f8ee47cb8401daeadd057f4bc779c9b0e57ac1bcc38d1522d073479c2d"
+    },
+    "benchmarks-local--phase-timing-01--archive_phase.py.gz": {
+      "bytes": 7178,
+      "sha256": "fe7f155cfe16e3d3aaa92e602ccc9863b40d21ac19cf8470ee174c7a8dbb943e"
+    },
+    "benchmarks-local--phase-timing-01--code-review.json.gz": {
+      "bytes": 6285,
+      "sha256": "3508cf7c6dee4a295bc0293b84a9fecc67eac2e2ff6cf6fcac5383f4f0197c38"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--execution.json.gz": {
+      "bytes": 25291,
+      "sha256": "892b0a9219aba97458c39c3910b0a27ae7ab17621ca960c71fc23449f726133d"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--independent-crosscheck.json.gz": {
+      "bytes": 18434,
+      "sha256": "9cb96e281c7919af64af058d1c06e057e61288612e8bb4c3bed25fe54dddc2b8"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--plan.json.gz": {
+      "bytes": 16756,
+      "sha256": "d77813323d70893f7fc805f324993aafd8918e231d905a5ebe3431bd2de6e2f5"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--build.log.gz": {
+      "bytes": 3420,
+      "sha256": "1cef4d8e7687b1cade63686490703b6b564c07239b7cceff64232225c0594b53"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--configure.log.gz": {
+      "bytes": 142,
+      "sha256": "5408afe1c06408b461225fe3435f91657b4f8cafdf6feaf3e98d2e1b1dfda529"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--cpp-summary.json.gz": {
+      "bytes": 8366,
+      "sha256": "4b196058150328f851413c9725c7a25b9cead1d73a277caf1e7ffed8602ca2ba"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--cpp.json.gz": {
+      "bytes": 4235882,
+      "sha256": "854f11de3f809702fcf638bd385bb1a6238af8a7035d91099092d3904b790ae3"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--ctest.log.gz": {
+      "bytes": 3887,
+      "sha256": "2e7fccb34a79a6a69d68510850f6c7d510c93cb7f3c42cd10c12745225aa1afd"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--gcovr.log.gz": {
+      "bytes": 102,
+      "sha256": "f63e22e7d35c482f5e329d9536cf1302da7a4de6a87660b08c55e67db04a0766"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--check.stdout.json.gz": {
+      "bytes": 12866,
+      "sha256": "01f693cdc7d7ed81d5e209e2e470dc4e80fc4164e2068ef3bf6d2edc088ec038"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--cleanup-pw-dump.json.gz": {
+      "bytes": 12330,
+      "sha256": "736e877e52b5ca12cc43f375540dac0d3789bf47da67872e0a1ee5b97143a344"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--controller-preparation-phase.json.gz": {
+      "bytes": 2428,
+      "sha256": "774468d09a0739a7032d99bcea94edcdacbde9ebf60d95d0fa8ee4d3d0326edf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--daemon.log.gz": {
+      "bytes": 145234,
+      "sha256": "3a903a801ded01d43abce558e3fc6efafc63f3c81432d22c817a5315cb125c88"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--preflight-pw-dump.json.gz": {
+      "bytes": 12334,
+      "sha256": "d553e24c4af3005409319b5b305221669174cc34406df320ad05932ca88d7e7a"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--private-client.conf.gz": {
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--private-daemon.conf.gz": {
+      "bytes": 1080,
+      "sha256": "c6fd75ddac7b0f57832079cdecb313fb4c3838b3bbefc37d0c15322315a83c19"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--result.json.gz": {
+      "bytes": 16786,
+      "sha256": "475b3b7b389417f459adebd32e3d797f889cc686ee1a245f21afa0227ca5bedf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation.log.gz": {
+      "bytes": 16786,
+      "sha256": "475b3b7b389417f459adebd32e3d797f889cc686ee1a245f21afa0227ca5bedf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--check.stdout.json.gz": {
+      "bytes": 11757,
+      "sha256": "01510cd8a11eac04bf9d7112e11932631993330fc937208728fb1bece141c352"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cleanup-pw-dump.json.gz": {
+      "bytes": 12329,
+      "sha256": "c09e88f47eef39e4633508ecbf43bf0b78cdead606bf04c14068b711fd8398c4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cue-removal.json.gz": {
+      "bytes": 3163,
+      "sha256": "1768f7ee021442a6f35fc2b6e6d2c5936076cdd4e3dff0b0dfffaffd198b387c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--daemon.log.gz": {
+      "bytes": 247231,
+      "sha256": "2b9d8dc562b6470e00d5991efa2aca1f0646b71c33aad50942011efe18ce0fad"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-immediate-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "25c42d841965b856020266a9610d4991e121ad17bc3a2ca463d7f71e4a8162c2"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-immediate.json.gz": {
+      "bytes": 871,
+      "sha256": "23e7a1f5c9d9a032089eb20a04f36f263cef27feb587ef0e15edfef5a0d8100f"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-installed-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "afef44864749dd7109d92c14cf60c8ca7c0e72f8b0682f228ce83a2a5f09eb31"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-installed.json.gz": {
+      "bytes": 877,
+      "sha256": "3f06277a7071445c6f751d03e381195ad158084c55b1f1308573aa372fe6afd0"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--preflight-pw-dump.json.gz": {
+      "bytes": 12333,
+      "sha256": "9619bfde5dfdf974e129d91529ab9d370e998ebdebfeceb388dbda8b16595f0e"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--private-client.conf.gz": {
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--private-daemon.conf.gz": {
+      "bytes": 1080,
+      "sha256": "13071a8a36db62d6f55df4b22312c7bd9028e311986f219582b59aaaba89f3d1"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--result.json.gz": {
+      "bytes": 13938,
+      "sha256": "366adfae135ee2ac733ab95b844084b90a231682a30bd5afb32084df1a370f2c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--source-handoff-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "556c538d57e1e38b6c3c8e5fc8331111a3034b8414bc66daa35d9ef529c6b718"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--source-handoff.json.gz": {
+      "bytes": 1054,
+      "sha256": "576e00bd6e4d2af5bff42ba740f440987538b1379fb74b053d315f575a298cfa"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing.log.gz": {
+      "bytes": 13938,
+      "sha256": "366adfae135ee2ac733ab95b844084b90a231682a30bd5afb32084df1a370f2c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-combine.log.gz": {
+      "bytes": 28,
+      "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-html.log.gz": {
+      "bytes": 104,
+      "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-json.log.gz": {
+      "bytes": 121,
+      "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-xml.log.gz": {
+      "bytes": 91,
+      "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python.json.gz": {
+      "bytes": 91394,
+      "sha256": "1a9edcd6d0049adef5a4e8f03fe8e5f4e80c9bf7296bd7bdf708fe42a275c2a8"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "64b2627a97ed102e573c668b93c1e550195c9588ede09a0d7b2bf202bd804bf9"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--summary.json.gz": {
+      "bytes": 7873,
+      "sha256": "bb88bc0014df9ce910273f90c1bfb8f51ce45eb5a79e93ea92342f926c80bc73"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--runner.log.gz": {
+      "bytes": 11411,
+      "sha256": "d2cb6fd7b5630c1e07a6cd6fd2644fb80ca3a472e75b37b0654cce81bb32cc6f"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--setup-observation-error.json.gz": {
+      "bytes": 1018,
+      "sha256": "8c1edf53e4d1288288f660da5dc1c6b002db8e7c637b41a21b00f4b9f3f8c454"
+    },
+    "benchmarks-local--phase-timing-01--green-build-final.log.gz": {
+      "bytes": 862,
+      "sha256": "e58191e32a8e470a2973b3e7aa309a3f46ef391d3c1ec5a31506ca63c0e43565"
+    },
+    "benchmarks-local--phase-timing-01--green-build-nested.log.gz": {
+      "bytes": 1119,
+      "sha256": "a67d58bbbbc83367fb2b355e30c565715ce3a838619989189d18d36514b17a73"
+    },
+    "benchmarks-local--phase-timing-01--green-build.log.gz": {
+      "bytes": 1783,
+      "sha256": "a76d26c10de0c99400fac11da7a5e9d0cab88aba05618750ce4031ef5279a5f9"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-final.log.gz": {
+      "bytes": 10729,
+      "sha256": "8094417d7566d33fdf020e28f99da03f4417093371c4cf68c99d8347adb883eb"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-nested.log.gz": {
+      "bytes": 10627,
+      "sha256": "8230147b675d96e791bdc14b53fff4f8a08f281bfc136770d8454e174a13bd99"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-targeted.log.gz": {
+      "bytes": 10272,
+      "sha256": "393119007725fbb129279b1585f38fbccacedc3d4353132d9d74787d20f0dd81"
+    },
+    "benchmarks-local--phase-timing-01--green-python-final.log.gz": {
+      "bytes": 122,
+      "sha256": "2677a76cd7527ce3da0ede16d08ad55bf566b348b8097794069bcde994fee8d8"
+    },
+    "benchmarks-local--phase-timing-01--green-python-nested.log.gz": {
+      "bytes": 122,
+      "sha256": "92802451fdc3335960d236baf5655549737b0091da533ff6064385f6568771d8"
+    },
+    "benchmarks-local--phase-timing-01--green-python-targeted.log.gz": {
+      "bytes": 100,
+      "sha256": "c3743bc01ae068b2b932968747b2a9649e4b4dffb06ae48b244ef7f60991b99d"
+    },
+    "benchmarks-local--phase-timing-01--green-python.log.gz": {
+      "bytes": 122,
+      "sha256": "9f22f5eee10d33e538f0a0edf0e4609274eadc2d21f1cf439ea81631ac33ebdc"
+    },
+    "benchmarks-local--phase-timing-01--normal--build.log.gz": {
+      "bytes": 4384,
+      "sha256": "73cac5364cb09eb608470177ca2284a80d3adde290174cdde3cfd81349d666d2"
+    },
+    "benchmarks-local--phase-timing-01--normal--ctest.log.gz": {
+      "bytes": 3882,
+      "sha256": "3e2d8192477bc4b1db71b25430be8c6bbbb8abb1ce8cad8057ed538b04b31aa1"
+    },
+    "benchmarks-local--phase-timing-01--normal--execution.json.gz": {
+      "bytes": 34531,
+      "sha256": "d432bb9e8b72bafca59ff92b996640c99c1e44b172e493cad68541f3c163bce3"
+    },
+    "benchmarks-local--phase-timing-01--normal--independent-crosscheck.json.gz": {
+      "bytes": 13519,
+      "sha256": "a3b4e043fa215f5709c5dcf01677fe6c765a87520aaf9c9fc0edfcbd6c8d5e90"
+    },
+    "benchmarks-local--phase-timing-01--normal--plan.json.gz": {
+      "bytes": 18537,
+      "sha256": "3ec796c2f5a590def5df4625423a760abd06a9d6a18e1cd72b808f41ebd5d761"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--check.stdout.json.gz": {
+      "bytes": 12878,
+      "sha256": "0eb1a19a1c7b207b48eec45e2fa3aff0c7a75fe964e743606f33d7fcd0619189"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--cleanup-pw-dump.json.gz": {
+      "bytes": 12330,
+      "sha256": "421d595dfbfbb00bdfc050490751b9b6c9a621c410adebee8db005f4980e903b"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--controller-preparation-phase.json.gz": {
+      "bytes": 2423,
+      "sha256": "4edb36809eada8ce1961d94d2f99c7c8972ddb4ae9fec9ccdab024d6d0f39f32"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--daemon.log.gz": {
+      "bytes": 137539,
+      "sha256": "e640c10cd1c7f7af8d16a697f8864cf22deaffa0ee8fe25442c8134d84987b91"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--preflight-pw-dump.json.gz": {
+      "bytes": 12334,
+      "sha256": "56a9bea7814f58083d3279b0595c5bc934bdbce00c21d8c91e278117f8071e33"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--private-client.conf.gz": {
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--private-daemon.conf.gz": {
+      "bytes": 1080,
+      "sha256": "1f3c8ff3d6a5ae971c2931624ca272708c572e006768f4c081f49836246fdff1"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--result.json.gz": {
+      "bytes": 16796,
+      "sha256": "8a9e46be5bbd65d66d4b0df1ebe0c22662a4d623a084d30e65d3b0dbc28efcb8"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation.log.gz": {
+      "bytes": 16796,
+      "sha256": "8a9e46be5bbd65d66d4b0df1ebe0c22662a4d623a084d30e65d3b0dbc28efcb8"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--check.stdout.json.gz": {
+      "bytes": 12077,
+      "sha256": "1d473419f50457fe3510d05aa99dfd578406e85fb6f83f00225b9a1c15af0797"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cleanup-pw-dump.json.gz": {
+      "bytes": 12329,
+      "sha256": "2f29da2105079635eabe427696d8bf0a423ee9866d1e700d5236c8c4a32975dd"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cue-removal.json.gz": {
+      "bytes": 3157,
+      "sha256": "ae626837d110198dbce56fad3f91c620734c75d8b1160688b3e43adfae41a369"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--daemon.log.gz": {
+      "bytes": 245620,
+      "sha256": "4fa7a13d902952ba63a6e5b0e26af59c2602cb5beba6fe8303bfbb06005e5b82"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-immediate-receiver.json.gz": {
+      "bytes": 177,
+      "sha256": "42c465917f637b1d8481ddce5442b073a434c085870230d3605feaa539e4f5d4"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-immediate.json.gz": {
+      "bytes": 866,
+      "sha256": "3772a7ef6332015f35baf92305e0122d38a61534463f3ae6ec19265ac77eb2df"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-installed-receiver.json.gz": {
+      "bytes": 177,
+      "sha256": "a3d938e94c9fd84bc007955bdaa6a9760eee26edb337921a9e10aa818b870989"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-installed.json.gz": {
+      "bytes": 868,
+      "sha256": "8f3d48ec7f255f08282711842207903e1ca0b05bfc1815159074f327fc3082a5"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--preflight-pw-dump.json.gz": {
+      "bytes": 12333,
+      "sha256": "7954dbe69075ad204d45eb09fefade2ce2f695960f67e318eae41a9c7821f9fc"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--private-client.conf.gz": {
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--private-daemon.conf.gz": {
+      "bytes": 1080,
+      "sha256": "d779436585bd00fe9b2c57fe8643375ee5f490d3b248e3fe27b98c83a402eaae"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--result.json.gz": {
+      "bytes": 14298,
+      "sha256": "9e44de42c9732d1f45286e5fd665d66e01e2e59b92b8e54f5366a1cfef541af6"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--source-handoff-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "e7559b1e336ad9b09d7e93ebaaeb13e33665d3edbab45ae4e0065eb7303fe693"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--source-handoff.json.gz": {
+      "bytes": 1052,
+      "sha256": "5e3c8c9d3a80a74b70b2b687265292f572cd67d41a37c82184b64b7320ff9394"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing.log.gz": {
+      "bytes": 14298,
+      "sha256": "9e44de42c9732d1f45286e5fd665d66e01e2e59b92b8e54f5366a1cfef541af6"
+    },
+    "benchmarks-local--phase-timing-01--normal--runner.log.gz": {
+      "bytes": 156,
+      "sha256": "cc0970a276d6d262f5b916ecaaf4a11d7e1e9e36a81c5d2309ad16845e184bf6"
+    },
+    "benchmarks-local--phase-timing-01--normal--smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "020feee0cbac15ea3b90547b5835d5e5dea36782562ca3a9a88ebaea58cd89d5"
+    },
+    "benchmarks-local--phase-timing-01--red-build.log.gz": {
+      "bytes": 862,
+      "sha256": "8f3d713895e3978973431a2f634c552404e094dc5f56513a3d6b64bca0583198"
+    },
+    "benchmarks-local--phase-timing-01--red-cpp.log.gz": {
+      "bytes": 729,
+      "sha256": "3a5db4e1efd46272d34c8c7a46d7ca7fd231804af26b514c67c5c6f04ef5a4ab"
+    },
+    "benchmarks-local--phase-timing-01--red-python.log.gz": {
+      "bytes": 2398,
+      "sha256": "8d5585b09becc9c1afc81c9f04f4fd41a80db98803bc6da60a3b474414cdba4a"
+    },
+    "benchmarks-local--phase-timing-01--result.json.gz": {
+      "bytes": 4902,
+      "sha256": "e72f66d7289b9236da99a06c8c90e658d9c69aa6ee5946bd28125e8a281fdb53"
+    },
+    "benchmarks-local--phase-timing-01--run_normal.py.gz": {
+      "bytes": 3361,
+      "sha256": "409ed7182e76935d91ac7678181e80082f9110fda24252cfcdcbf059b9fe9cb0"
+    },
+    "benchmarks-local--phase-timing-01--source-commit-message.txt.gz": {
+      "bytes": 1456,
+      "sha256": "48d4d8e459c0c835696e461c925f1ac664ce2c7feac359861d11b341b86ecb5a"
+    },
+    "benchmarks-local--phase-timing-01--source-commit.log.gz": {
+      "bytes": 328,
+      "sha256": "4e9c0d234956a556330adef9518253cbb67529c75f0dad1cc832c8274edcefff"
+    },
+    "benchmarks-local--phase-timing-01--source.patch.gz": {
+      "bytes": 29591,
+      "sha256": "3b58be559b07edd005744c94ec14159f0ac08f855ca36f01f443fc6a56b6f259"
+    },
+    "benchmarks-local--phase-timing-01--source.sha256.gz": {
+      "bytes": 796,
+      "sha256": "fe6fdc1445eedf677bb34234469419bbd714112271b516d01c08892fc7ea0b51"
+    },
+    "benchmarks-local--phase-timing-01--summary.json.gz": {
+      "bytes": 9146,
+      "sha256": "2f5e31159d79fdceaf8ce072f8621da142bd408199778a68a810adb7fc941b1e"
+    },
+    "benchmarks-local--phase-timing-01--archive-gitleaks.log.gz": {
+      "bytes": 145,
+      "sha256": "89d4da4468f0a0e630bc772f6625313a6179004d484c1123cebe96e8e9e4b45c"
+    },
+    "benchmarks-local--phase-timing-01--archive-gitleaks-findings.json.gz": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "origins": {
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--host-observations.jsonl.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/host-observations.jsonl",
+      "bytes": 62685,
+      "sha256": "69b3baaed5f4fd2b755be788c8151b3a9811e1f6075f49fcdee0becb5c26f865"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native-result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/native-result.json",
+      "bytes": 82781,
+      "sha256": "9727ba2ea27aa187f77d60cd9b536cadec25b43eb4dd88e7b70f2d14bedd4960"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/native.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--native.stdout.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/native.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--observations.jsonl.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/observations.jsonl",
+      "bytes": 796618,
+      "sha256": "15225808d65095a1536996e5dad7401e96370f271d8d3233d37f315b924075e4"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--owned-pipewire-cleanup.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/owned-pipewire-cleanup.json",
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--progress.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/progress.json",
+      "bytes": 584,
+      "sha256": "3ea8e68c1a628434ed1b60ab9969dfd47b46d49069cda5f3ed8211dc1a8503d6"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04--result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04/result.json",
+      "bytes": 142114,
+      "sha256": "ea7a33691b9cbed9642851ec6a9e123302361a2daa7143e92fbdfe57884fccea"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-cool-start.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-cool-start.json",
+      "bytes": 4235,
+      "sha256": "79c2c9d78b5dc81de4dcb604004de673ab2eb9fc22a97351248fd583ef1c068e"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-independent-crosscheck.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-independent-crosscheck.json",
+      "bytes": 42136,
+      "sha256": "de71f332f977240b47a3ed2a1d55d1d098c446e6f85e5a9582a788b3809ad607"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-launch.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-launch.json",
+      "bytes": 19237,
+      "sha256": "b4da14b6f9648d077d16416d86095a5e74f132788ecf0a99b406e125067bc6d0"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-readiness.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-readiness.json",
+      "bytes": 566,
+      "sha256": "36d8d12b2e94248d88a1b8e26c36c50712cf99fe491345ddf880deb10954311c"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-recipe.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-recipe.json",
+      "bytes": 19350,
+      "sha256": "6952703feb008437c14340dda1ae2dff3439454d3b2a090f50f8b04324745b5b"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-report.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-report.json",
+      "bytes": 6126,
+      "sha256": "1dfdf4cd302dafa76e905a5fce67784095a7da8a8d32a7544091eaf49d691287"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-source-freeze.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-source-freeze.json",
+      "bytes": 17534,
+      "sha256": "99df31b0af5ad42fe4b034f2ecfc4b37ef94869b103ee7818bbe98ce4db294cd"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-thermal-guard.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-thermal-guard.json",
+      "bytes": 743,
+      "sha256": "7291e7bde22a24ff031fd7fc282a7bfd7bf93086c2eb42f4072f54b1b9ce34eb"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-thermal-guard.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-thermal-guard.log",
+      "bytes": 547,
+      "sha256": "120d2d1795d42e2b68811cb2e0dfe968a3183a0fc1864441e68ae59d6b18ef97"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04-wait-launch.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04-wait-launch.py",
+      "bytes": 1678,
+      "sha256": "4cb8b300fab3801a04164a364a509f627b52bb32c2ee664382aebc4b5337f8da"
+    },
+    "benchmarks-local--m2-live-delivery-2026-10-19--short-live-actual-model-04.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-04.stdout.json",
+      "bytes": 142186,
+      "sha256": "f35465f8ee47cb8401daeadd057f4bc779c9b0e57ac1bcc38d1522d073479c2d"
+    },
+    "benchmarks-local--phase-timing-01--archive_phase.py.gz": {
+      "path": "benchmarks-local/phase-timing-01/archive_phase.py",
+      "bytes": 7178,
+      "sha256": "fe7f155cfe16e3d3aaa92e602ccc9863b40d21ac19cf8470ee174c7a8dbb943e"
+    },
+    "benchmarks-local--phase-timing-01--code-review.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/code-review.json",
+      "bytes": 6285,
+      "sha256": "3508cf7c6dee4a295bc0293b84a9fecc67eac2e2ff6cf6fcac5383f4f0197c38"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--execution.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/execution.json",
+      "bytes": 25291,
+      "sha256": "892b0a9219aba97458c39c3910b0a27ae7ab17621ca960c71fc23449f726133d"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--independent-crosscheck.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/independent-crosscheck.json",
+      "bytes": 18434,
+      "sha256": "9cb96e281c7919af64af058d1c06e057e61288612e8bb4c3bed25fe54dddc2b8"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--plan.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/plan.json",
+      "bytes": 16756,
+      "sha256": "d77813323d70893f7fc805f324993aafd8918e231d905a5ebe3431bd2de6e2f5"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--build.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/build.log",
+      "bytes": 3420,
+      "sha256": "1cef4d8e7687b1cade63686490703b6b564c07239b7cceff64232225c0594b53"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--configure.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/configure.log",
+      "bytes": 142,
+      "sha256": "5408afe1c06408b461225fe3435f91657b4f8cafdf6feaf3e98d2e1b1dfda529"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--cpp-summary.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/cpp-summary.json",
+      "bytes": 8366,
+      "sha256": "4b196058150328f851413c9725c7a25b9cead1d73a277caf1e7ffed8602ca2ba"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--cpp.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/cpp.json",
+      "bytes": 4235882,
+      "sha256": "854f11de3f809702fcf638bd385bb1a6238af8a7035d91099092d3904b790ae3"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--ctest.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/ctest.log",
+      "bytes": 3887,
+      "sha256": "2e7fccb34a79a6a69d68510850f6c7d510c93cb7f3c42cd10c12745225aa1afd"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--gcovr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/gcovr.log",
+      "bytes": 102,
+      "sha256": "f63e22e7d35c482f5e329d9536cf1302da7a4de6a87660b08c55e67db04a0766"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--check.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--check.stdout.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/check.stdout.json",
+      "bytes": 12866,
+      "sha256": "01f693cdc7d7ed81d5e209e2e470dc4e80fc4164e2068ef3bf6d2edc088ec038"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/cleanup-pw-dump.json",
+      "bytes": 12330,
+      "sha256": "736e877e52b5ca12cc43f375540dac0d3789bf47da67872e0a1ee5b97143a344"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--controller-preparation-phase.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/controller-preparation-phase.json",
+      "bytes": 2428,
+      "sha256": "774468d09a0739a7032d99bcea94edcdacbde9ebf60d95d0fa8ee4d3d0326edf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--daemon.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/daemon.log",
+      "bytes": 145234,
+      "sha256": "3a903a801ded01d43abce558e3fc6efafc63f3c81432d22c817a5315cb125c88"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/preflight-pw-dump.json",
+      "bytes": 12334,
+      "sha256": "d553e24c4af3005409319b5b305221669174cc34406df320ad05932ca88d7e7a"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--private-client.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/private-client.conf",
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--private-daemon.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/private-daemon.conf",
+      "bytes": 1080,
+      "sha256": "c6fd75ddac7b0f57832079cdecb313fb4c3838b3bbefc37d0c15322315a83c19"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation--result.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation/result.json",
+      "bytes": 16786,
+      "sha256": "475b3b7b389417f459adebd32e3d797f889cc686ee1a245f21afa0227ca5bedf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-preparation.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-preparation.log",
+      "bytes": 16786,
+      "sha256": "475b3b7b389417f459adebd32e3d797f889cc686ee1a245f21afa0227ca5bedf"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--check.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--check.stdout.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/check.stdout.json",
+      "bytes": 11757,
+      "sha256": "01510cd8a11eac04bf9d7112e11932631993330fc937208728fb1bece141c352"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/cleanup-pw-dump.json",
+      "bytes": 12329,
+      "sha256": "c09e88f47eef39e4633508ecbf43bf0b78cdead606bf04c14068b711fd8398c4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--cue-removal.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/cue-removal.json",
+      "bytes": 3163,
+      "sha256": "1768f7ee021442a6f35fc2b6e6d2c5936076cdd4e3dff0b0dfffaffd198b387c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--daemon.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/daemon.log",
+      "bytes": 247231,
+      "sha256": "2b9d8dc562b6470e00d5991efa2aca1f0646b71c33aad50942011efe18ce0fad"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-immediate-receiver.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/live-owner-immediate-receiver.json",
+      "bytes": 179,
+      "sha256": "25c42d841965b856020266a9610d4991e121ad17bc3a2ca463d7f71e4a8162c2"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-immediate.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/live-owner-immediate.json",
+      "bytes": 871,
+      "sha256": "23e7a1f5c9d9a032089eb20a04f36f263cef27feb587ef0e15edfef5a0d8100f"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-installed-receiver.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/live-owner-installed-receiver.json",
+      "bytes": 179,
+      "sha256": "afef44864749dd7109d92c14cf60c8ca7c0e72f8b0682f228ce83a2a5f09eb31"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--live-owner-installed.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/live-owner-installed.json",
+      "bytes": 877,
+      "sha256": "3f06277a7071445c6f751d03e381195ad158084c55b1f1308573aa372fe6afd0"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/preflight-pw-dump.json",
+      "bytes": 12333,
+      "sha256": "9619bfde5dfdf974e129d91529ab9d370e998ebdebfeceb388dbda8b16595f0e"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--private-client.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/private-client.conf",
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--private-daemon.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/private-daemon.conf",
+      "bytes": 1080,
+      "sha256": "13071a8a36db62d6f55df4b22312c7bd9028e311986f219582b59aaaba89f3d1"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--result.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/result.json",
+      "bytes": 13938,
+      "sha256": "366adfae135ee2ac733ab95b844084b90a231682a30bd5afb32084df1a370f2c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--source-handoff-receiver.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/source-handoff-receiver.json",
+      "bytes": 179,
+      "sha256": "556c538d57e1e38b6c3c8e5fc8331111a3034b8414bc66daa35d9ef529c6b718"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing--source-handoff.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing/source-handoff.json",
+      "bytes": 1054,
+      "sha256": "576e00bd6e4d2af5bff42ba740f440987538b1379fb74b053d315f575a298cfa"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--private-routing.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/private-routing.log",
+      "bytes": 13938,
+      "sha256": "366adfae135ee2ac733ab95b844084b90a231682a30bd5afb32084df1a370f2c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-combine.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/python-combine.log",
+      "bytes": 28,
+      "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-html.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/python-html.log",
+      "bytes": 104,
+      "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-json.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/python-json.log",
+      "bytes": 121,
+      "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python-xml.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/python-xml.log",
+      "bytes": 91,
+      "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--python.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/python.json",
+      "bytes": 91394,
+      "sha256": "1a9edcd6d0049adef5a4e8f03fe8e5f4e80c9bf7296bd7bdf708fe42a275c2a8"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--smoke.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/smoke.log",
+      "bytes": 669,
+      "sha256": "64b2627a97ed102e573c668b93c1e550195c9588ede09a0d7b2bf202bd804bf9"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--reports--summary.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/reports/summary.json",
+      "bytes": 7873,
+      "sha256": "bb88bc0014df9ce910273f90c1bfb8f51ce45eb5a79e93ea92342f926c80bc73"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--runner.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/runner.log",
+      "bytes": 11411,
+      "sha256": "d2cb6fd7b5630c1e07a6cd6fd2644fb80ca3a472e75b37b0654cce81bb32cc6f"
+    },
+    "benchmarks-local--phase-timing-01--coverage-01--setup-observation-error.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/coverage-01/setup-observation-error.json",
+      "bytes": 1018,
+      "sha256": "8c1edf53e4d1288288f660da5dc1c6b002db8e7c637b41a21b00f4b9f3f8c454"
+    },
+    "benchmarks-local--phase-timing-01--green-build-final.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-build-final.log",
+      "bytes": 862,
+      "sha256": "e58191e32a8e470a2973b3e7aa309a3f46ef391d3c1ec5a31506ca63c0e43565"
+    },
+    "benchmarks-local--phase-timing-01--green-build-nested.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-build-nested.log",
+      "bytes": 1119,
+      "sha256": "a67d58bbbbc83367fb2b355e30c565715ce3a838619989189d18d36514b17a73"
+    },
+    "benchmarks-local--phase-timing-01--green-build.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-build.log",
+      "bytes": 1783,
+      "sha256": "a76d26c10de0c99400fac11da7a5e9d0cab88aba05618750ce4031ef5279a5f9"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-final.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-cpp-final.log",
+      "bytes": 10729,
+      "sha256": "8094417d7566d33fdf020e28f99da03f4417093371c4cf68c99d8347adb883eb"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-nested.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-cpp-nested.log",
+      "bytes": 10627,
+      "sha256": "8230147b675d96e791bdc14b53fff4f8a08f281bfc136770d8454e174a13bd99"
+    },
+    "benchmarks-local--phase-timing-01--green-cpp-targeted.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-cpp-targeted.log",
+      "bytes": 10272,
+      "sha256": "393119007725fbb129279b1585f38fbccacedc3d4353132d9d74787d20f0dd81"
+    },
+    "benchmarks-local--phase-timing-01--green-python-final.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-python-final.log",
+      "bytes": 122,
+      "sha256": "2677a76cd7527ce3da0ede16d08ad55bf566b348b8097794069bcde994fee8d8"
+    },
+    "benchmarks-local--phase-timing-01--green-python-nested.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-python-nested.log",
+      "bytes": 122,
+      "sha256": "92802451fdc3335960d236baf5655549737b0091da533ff6064385f6568771d8"
+    },
+    "benchmarks-local--phase-timing-01--green-python-targeted.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-python-targeted.log",
+      "bytes": 100,
+      "sha256": "c3743bc01ae068b2b932968747b2a9649e4b4dffb06ae48b244ef7f60991b99d"
+    },
+    "benchmarks-local--phase-timing-01--green-python.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/green-python.log",
+      "bytes": 122,
+      "sha256": "9f22f5eee10d33e538f0a0edf0e4609274eadc2d21f1cf439ea81631ac33ebdc"
+    },
+    "benchmarks-local--phase-timing-01--normal--build.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/build.log",
+      "bytes": 4384,
+      "sha256": "73cac5364cb09eb608470177ca2284a80d3adde290174cdde3cfd81349d666d2"
+    },
+    "benchmarks-local--phase-timing-01--normal--ctest.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/ctest.log",
+      "bytes": 3882,
+      "sha256": "3e2d8192477bc4b1db71b25430be8c6bbbb8abb1ce8cad8057ed538b04b31aa1"
+    },
+    "benchmarks-local--phase-timing-01--normal--execution.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/execution.json",
+      "bytes": 34531,
+      "sha256": "d432bb9e8b72bafca59ff92b996640c99c1e44b172e493cad68541f3c163bce3"
+    },
+    "benchmarks-local--phase-timing-01--normal--independent-crosscheck.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/independent-crosscheck.json",
+      "bytes": 13519,
+      "sha256": "a3b4e043fa215f5709c5dcf01677fe6c765a87520aaf9c9fc0edfcbd6c8d5e90"
+    },
+    "benchmarks-local--phase-timing-01--normal--plan.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/plan.json",
+      "bytes": 18537,
+      "sha256": "3ec796c2f5a590def5df4625423a760abd06a9d6a18e1cd72b808f41ebd5d761"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--check.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--check.stdout.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/check.stdout.json",
+      "bytes": 12878,
+      "sha256": "0eb1a19a1c7b207b48eec45e2fa3aff0c7a75fe964e743606f33d7fcd0619189"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/cleanup-pw-dump.json",
+      "bytes": 12330,
+      "sha256": "421d595dfbfbb00bdfc050490751b9b6c9a621c410adebee8db005f4980e903b"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--controller-preparation-phase.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/controller-preparation-phase.json",
+      "bytes": 2423,
+      "sha256": "4edb36809eada8ce1961d94d2f99c7c8972ddb4ae9fec9ccdab024d6d0f39f32"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--daemon.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/daemon.log",
+      "bytes": 137539,
+      "sha256": "e640c10cd1c7f7af8d16a697f8864cf22deaffa0ee8fe25442c8134d84987b91"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/preflight-pw-dump.json",
+      "bytes": 12334,
+      "sha256": "56a9bea7814f58083d3279b0595c5bc934bdbce00c21d8c91e278117f8071e33"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--private-client.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/private-client.conf",
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--private-daemon.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/private-daemon.conf",
+      "bytes": 1080,
+      "sha256": "1f3c8ff3d6a5ae971c2931624ca272708c572e006768f4c081f49836246fdff1"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation--result.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation/result.json",
+      "bytes": 16796,
+      "sha256": "8a9e46be5bbd65d66d4b0df1ebe0c22662a4d623a084d30e65d3b0dbc28efcb8"
+    },
+    "benchmarks-local--phase-timing-01--normal--preparation.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/preparation.log",
+      "bytes": 16796,
+      "sha256": "8a9e46be5bbd65d66d4b0df1ebe0c22662a4d623a084d30e65d3b0dbc28efcb8"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--check.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--check.stdout.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/check.stdout.json",
+      "bytes": 12077,
+      "sha256": "1d473419f50457fe3510d05aa99dfd578406e85fb6f83f00225b9a1c15af0797"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/cleanup-pw-dump.json",
+      "bytes": 12329,
+      "sha256": "2f29da2105079635eabe427696d8bf0a423ee9866d1e700d5236c8c4a32975dd"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--cue-removal.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/cue-removal.json",
+      "bytes": 3157,
+      "sha256": "ae626837d110198dbce56fad3f91c620734c75d8b1160688b3e43adfae41a369"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--daemon.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/daemon.log",
+      "bytes": 245620,
+      "sha256": "4fa7a13d902952ba63a6e5b0e26af59c2602cb5beba6fe8303bfbb06005e5b82"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-immediate-receiver.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/live-owner-immediate-receiver.json",
+      "bytes": 177,
+      "sha256": "42c465917f637b1d8481ddce5442b073a434c085870230d3605feaa539e4f5d4"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-immediate.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/live-owner-immediate.json",
+      "bytes": 866,
+      "sha256": "3772a7ef6332015f35baf92305e0122d38a61534463f3ae6ec19265ac77eb2df"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-installed-receiver.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/live-owner-installed-receiver.json",
+      "bytes": 177,
+      "sha256": "a3d938e94c9fd84bc007955bdaa6a9760eee26edb337921a9e10aa818b870989"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--live-owner-installed.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/live-owner-installed.json",
+      "bytes": 868,
+      "sha256": "8f3d48ec7f255f08282711842207903e1ca0b05bfc1815159074f327fc3082a5"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/preflight-pw-dump.json",
+      "bytes": 12333,
+      "sha256": "7954dbe69075ad204d45eb09fefade2ce2f695960f67e318eae41a9c7821f9fc"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--private-client.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/private-client.conf",
+      "bytes": 318,
+      "sha256": "a388d7c789b1838c124b3767c91d4ea4ef9244b785030f65c92b0056754be827"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--private-daemon.conf.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/private-daemon.conf",
+      "bytes": 1080,
+      "sha256": "d779436585bd00fe9b2c57fe8643375ee5f490d3b248e3fe27b98c83a402eaae"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--result.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/result.json",
+      "bytes": 14298,
+      "sha256": "9e44de42c9732d1f45286e5fd665d66e01e2e59b92b8e54f5366a1cfef541af6"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--source-handoff-receiver.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/source-handoff-receiver.json",
+      "bytes": 179,
+      "sha256": "e7559b1e336ad9b09d7e93ebaaeb13e33665d3edbab45ae4e0065eb7303fe693"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing--source-handoff.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing/source-handoff.json",
+      "bytes": 1052,
+      "sha256": "5e3c8c9d3a80a74b70b2b687265292f572cd67d41a37c82184b64b7320ff9394"
+    },
+    "benchmarks-local--phase-timing-01--normal--routing.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/routing.log",
+      "bytes": 14298,
+      "sha256": "9e44de42c9732d1f45286e5fd665d66e01e2e59b92b8e54f5366a1cfef541af6"
+    },
+    "benchmarks-local--phase-timing-01--normal--runner.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/runner.log",
+      "bytes": 156,
+      "sha256": "cc0970a276d6d262f5b916ecaaf4a11d7e1e9e36a81c5d2309ad16845e184bf6"
+    },
+    "benchmarks-local--phase-timing-01--normal--smoke.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/normal/smoke.log",
+      "bytes": 669,
+      "sha256": "020feee0cbac15ea3b90547b5835d5e5dea36782562ca3a9a88ebaea58cd89d5"
+    },
+    "benchmarks-local--phase-timing-01--red-build.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/red-build.log",
+      "bytes": 862,
+      "sha256": "8f3d713895e3978973431a2f634c552404e094dc5f56513a3d6b64bca0583198"
+    },
+    "benchmarks-local--phase-timing-01--red-cpp.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/red-cpp.log",
+      "bytes": 729,
+      "sha256": "3a5db4e1efd46272d34c8c7a46d7ca7fd231804af26b514c67c5c6f04ef5a4ab"
+    },
+    "benchmarks-local--phase-timing-01--red-python.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/red-python.log",
+      "bytes": 2398,
+      "sha256": "8d5585b09becc9c1afc81c9f04f4fd41a80db98803bc6da60a3b474414cdba4a"
+    },
+    "benchmarks-local--phase-timing-01--result.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/result.json",
+      "bytes": 4902,
+      "sha256": "e72f66d7289b9236da99a06c8c90e658d9c69aa6ee5946bd28125e8a281fdb53"
+    },
+    "benchmarks-local--phase-timing-01--run_normal.py.gz": {
+      "path": "benchmarks-local/phase-timing-01/run_normal.py",
+      "bytes": 3361,
+      "sha256": "409ed7182e76935d91ac7678181e80082f9110fda24252cfcdcbf059b9fe9cb0"
+    },
+    "benchmarks-local--phase-timing-01--source-commit-message.txt.gz": {
+      "path": "benchmarks-local/phase-timing-01/source-commit-message.txt",
+      "bytes": 1456,
+      "sha256": "48d4d8e459c0c835696e461c925f1ac664ce2c7feac359861d11b341b86ecb5a"
+    },
+    "benchmarks-local--phase-timing-01--source-commit.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/source-commit.log",
+      "bytes": 328,
+      "sha256": "4e9c0d234956a556330adef9518253cbb67529c75f0dad1cc832c8274edcefff"
+    },
+    "benchmarks-local--phase-timing-01--source.patch.gz": {
+      "path": "benchmarks-local/phase-timing-01/source.patch",
+      "bytes": 29591,
+      "sha256": "3b58be559b07edd005744c94ec14159f0ac08f855ca36f01f443fc6a56b6f259"
+    },
+    "benchmarks-local--phase-timing-01--source.sha256.gz": {
+      "path": "benchmarks-local/phase-timing-01/source.sha256",
+      "bytes": 796,
+      "sha256": "fe6fdc1445eedf677bb34234469419bbd714112271b516d01c08892fc7ea0b51"
+    },
+    "benchmarks-local--phase-timing-01--summary.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/summary.json",
+      "bytes": 9146,
+      "sha256": "2f5e31159d79fdceaf8ce072f8621da142bd408199778a68a810adb7fc941b1e"
+    },
+    "benchmarks-local--phase-timing-01--archive-gitleaks.log.gz": {
+      "path": "benchmarks-local/phase-timing-01/archive-gitleaks.log",
+      "bytes": 145,
+      "sha256": "89d4da4468f0a0e630bc772f6625313a6179004d484c1123cebe96e8e9e4b45c"
+    },
+    "benchmarks-local--phase-timing-01--archive-gitleaks-findings.json.gz": {
+      "path": "benchmarks-local/phase-timing-01/archive-gitleaks-findings.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "scope": "Named closed UTF-8 evidence, fixed source patch and metadata only. No audio, binaries, model, cache, HTML or XML. Scan covers selected raw inputs before scanner outputs and generated verification packaging."
+}
