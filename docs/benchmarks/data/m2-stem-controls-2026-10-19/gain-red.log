@@ -1,0 +1,27 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+    Start 10: audio-stem-bank
+1/3 Test #10: audio-stem-bank ..................***Failed    0.01 sec
+Renderer does not expose the two fixed bank capabilities
+
+    Start 11: audio-prepared-playback
+2/3 Test #11: audio-prepared-playback ..........***Failed    0.13 sec
+Prepared bank cannot configure live gain smoothing
+
+    Start 18: live-session
+3/3 Test #18: live-session .....................***Failed    0.04 sec
+bank snapshot did not restore authoritative stem targets or invented normal stem controls
+normal source silently accepted initial stem targets
+nonfinite initial stem target was accepted
+unloaded source silently accepted initial stem targets
+Live session initialization, validation and private-server failure checks completed
+
+
+0% tests passed, 3 tests failed out of 3
+
+Total Test time (real) =   0.18 sec
+
+The following tests FAILED:
+	 10 - audio-stem-bank (Failed)
+	 11 - audio-prepared-playback (Failed)
+	 18 - live-session (Failed)
+Errors while running CTest

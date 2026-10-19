@@ -33,6 +33,10 @@ public:
     [[nodiscard]] std::uint64_t frames() const noexcept { return frames_; }
     // Before concurrent rendering. All readers share this single timeout budget.
     bool prime(std::uint64_t frame, std::chrono::milliseconds timeout);
+    // Configure before concurrent rendering. Normal PCM is an unchanged no-op;
+    // a bank uses these frames for future gain changes. Never call from the GUI
+    // once this owner has entered the render-boundary handoff.
+    bool configureStemRamps(std::uint32_t frames) noexcept;
     // Atomic reader/control health only; safe to sample from the render owner.
     // RenderCore separately publishes failures reported by the bank's RT read.
     [[nodiscard]] int errorCode() const noexcept;

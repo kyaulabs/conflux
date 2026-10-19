@@ -230,8 +230,15 @@ ApplicationWindow {
             return path.trim().length > 0
         }
         function load(deck) {
-            if (selectedId.length > 0) deckController.loadLibraryTrack(deck, selectedId)
-            else deckController.loadDeck(deck, window.localUrl(deck === 0 ? sourceA.text : sourceB.text))
+            const stems = deckController.stemsAvailable && stemPreparation.checked
+            if (selectedId.length > 0) {
+                if (stems) deckController.loadLibraryStemTrack(deck, selectedId)
+                else deckController.loadLibraryTrack(deck, selectedId)
+            } else {
+                const url = window.localUrl(deck === 0 ? sourceA.text : sourceB.text)
+                if (stems) deckController.loadStemDeck(deck, url)
+                else deckController.loadDeck(deck, url)
+            }
         }
         edge: Qt.BottomEdge
         width: window.width
@@ -254,6 +261,17 @@ ApplicationWindow {
                     font.pixelSize: 24
                 }
                 Item { Layout.fillWidth: true }
+                CheckBox {
+                    id: stemPreparation
+                    objectName: "libraryPreparedStems"
+                    text: "PREPARED STEMS"
+                    visible: deckController.stemsAvailable
+                    enabled: deckController.stemsAvailable && !deckController.busy
+                    checked: false
+                    Layout.minimumHeight: 44
+                    Accessible.name: "Load prepared stems"
+                    Accessible.description: "Prepare four local stems when loading a deck. Import still saves the original track."
+                }
                 Button {
                     objectName: "libraryClose"
                     text: "CLOSE  ×"

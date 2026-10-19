@@ -129,12 +129,26 @@ public:
 
     void initialize(const InitialState& initial)
     {
+        for (const auto& playback : playbacks_)
+            if (playback && !playback->configureStemRamps(0))
+                throw std::invalid_argument("Cannot restore gains on an already-rendered stem bank");
         if (!renderer_.setMasterGain(initial.masterGain) || !renderer_.setCueGain(initial.cueGain))
             throw std::invalid_argument("Invalid initial master or cue gain");
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
             activePlaybacks_[deck] = playbacks_[deck].get();
             if (!std::isfinite(initial.deckGain[deck]) || initial.deckGain[deck] < 0 || initial.deckGain[deck] > 1)
                 throw std::invalid_argument("Invalid initial deck gain");
+            for (std::size_t stem = 0; stem < RenderCore::stemCount; ++stem) {
+                const auto gain = initial.stemGain[deck][stem];
+                if (!std::isfinite(gain) || gain < 0.F || gain > 1.F)
+                    throw std::invalid_argument("Invalid initial stem gain");
+                if (renderer_.isStemBank(deck)) {
+                    if (!renderer_.setStemGain(deck, stem, gain))
+                        throw std::invalid_argument("Cannot restore initial stem gain");
+                } else if (gain != 1.F) {
+                    throw std::invalid_argument("Normal or unloaded deck cannot have stem gains");
+                }
+            }
             if (!renderer_.sourceFrames(deck)) {
                 if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck] || initial.cueSelected[deck])
                     throw std::invalid_argument("Unloaded deck cannot have transport or cue selection");
@@ -149,6 +163,11 @@ public:
         }
         if (!renderer_.configureRamps(240))
             throw std::invalid_argument("Cannot configure live transport ramps");
+        // Restore targets while banks still use their exact zero-ramp default,
+        // then enable live smoothing before any callback can borrow the owner.
+        for (const auto& playback : playbacks_)
+            if (playback && !playback->configureStemRamps(240))
+                throw std::invalid_argument("Cannot configure live stem gain ramps");
         for (std::size_t index = 0; index < owned_.size(); ++index) {
             owned_[index].self = this;
             owned_[index].index = index;
@@ -619,6 +638,7 @@ public:
             deck >= RenderCore::deckCount || generation <= lastRequestedGeneration_)
             return false;
         const auto source = candidate->sourceRef();
+        if (!candidate->configureStemRamps(240)) return false;
         if (!handoff_.request({deck, source, candidate.get(), generation})) return false;
         replacementDeck_ = deck;
         lastRequestedGeneration_ = generation;
@@ -662,6 +682,9 @@ public:
             state.sourceReadErrorObserved[deck] = renderer_.readFailed(deck);
             state.sourceReadError[deck] = activePlaybacks_[deck] ? bool(activePlaybacks_[deck]->errorCode()) : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
+            state.stemBank[deck] = renderer_.isStemBank(deck);
+            for (std::size_t stem = 0; stem < RenderCore::stemCount; ++stem)
+                state.stemGain[deck][stem] = renderer_.stemGain(deck, stem);
         }
         state.masterGain = renderer_.masterGain(); state.cueGain = renderer_.cueGain(); state.meters = meters_;
         state.applied = applied_; state.rejected = rejected_; state.lastCommandId = lastCommandId_;

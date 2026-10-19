@@ -123,11 +123,16 @@ int main()
         bankInitial.sourceFrame[0] = 1;
         bankInitial.cueFrame[0] = 1;
         bankInitial.cueSelected[0] = true;
+        bankInitial.stemGain[0] = {.25F, 0.F, .75F, 1.F};
         LiveSession bankRestored(std::move(bankSources), bankInitial);
         const auto bankState = bankRestored.stoppedState();
         passed &= require(!bankSources[0] && bankState.sourceFrames[0] == 2 && bankState.sourceFrame[0] == 1 &&
                           bankState.cueFrame[0] == 1 && bankState.cueSelected[0] && !bankState.sourceReadError[0],
                           "whole-bank session did not own/prime/restore the common source position");
+        passed &= require(bankState.stemBank == std::array<bool, 2>{true, false} &&
+                          bankState.stemGain[0] == bankInitial.stemGain[0] &&
+                          bankState.stemGain[1] == std::array<float, 4>{},
+                          "bank snapshot did not restore authoritative stem targets or invented normal stem controls");
         bankRestored.stop(); bankRestored.stop();
         passed &= require(!bankRestored.stoppedState().sourceReadError[0],
                           "stopping a healthy bank invented an aggregate reader error");
@@ -143,6 +148,21 @@ int main()
         initial.cueSelected = {true, false};
         initial.cueGain = .625F;
         LiveSession restored(a, b, initial);
+        passed &= require(restored.stoppedState().stemBank == std::array<bool, 2>{} &&
+                          restored.stoppedState().stemGain == std::array<std::array<float, 4>, 2>{},
+                          "normal session invented bank capabilities or gain targets");
+        auto invalidStems = initial;
+        invalidStems.stemGain[0][0] = .5F;
+        passed &= rejects([&] { LiveSession invalid(a, b, invalidStems); },
+                          "normal source silently accepted initial stem targets");
+        invalidStems = initial;
+        invalidStems.stemGain[1][3] = std::numeric_limits<float>::quiet_NaN();
+        passed &= rejects([&] { LiveSession invalid(a, b, invalidStems); },
+                          "nonfinite initial stem target was accepted");
+        LiveSession::InitialState unloadedStems;
+        unloadedStems.stemGain[1][2] = .5F;
+        passed &= rejects([&] { LiveSession invalid({}, {}, unloadedStems); },
+                          "unloaded source silently accepted initial stem targets");
         state = restored.stoppedState();
         passed &= require(state.sourceFrame == initial.sourceFrame && state.sourceFrames == std::array<std::uint64_t, 2>{2, 3} &&
                           state.playing == initial.playing && state.deckGain == initial.deckGain &&

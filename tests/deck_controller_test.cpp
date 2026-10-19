@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
+#include "StemExportFixture.hpp"
 
 #include <QCoreApplication>
 #include <QDataStream>
@@ -45,9 +46,9 @@ bool writeWave(const QString& path, quint16 channels, quint32 rate, quint32 fram
 }
 
 struct RestoreEnvironment {
-    std::array<const char*, 4> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE", "XDG_DATA_HOME"};
-    std::array<QByteArray, 4> values;
-    std::array<bool, 4> present;
+    std::array<const char*, 5> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE", "XDG_DATA_HOME", "XDG_CACHE_HOME"};
+    std::array<QByteArray, 5> values;
+    std::array<bool, 5> present;
     RestoreEnvironment() {
         for (std::size_t i = 0; i < names.size(); ++i) {
             values[i] = qgetenv(names[i]);
@@ -84,6 +85,168 @@ void verifyNoPlayback(const conflux::DeckController& controller)
 class DeckControllerTest final : public QObject {
     Q_OBJECT
 private slots:
+    void optionalStemToolsNeverBlockManualLoading()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
+        const auto source = directory.filePath("manual-without-tools.wav");
+        QVERIFY(writeWave(source, 2, 48000, 480));
+        conflux::DeckController controller;
+        QVERIFY(!controller.stemsAvailable());
+        QCOMPARE(controller.retainedPcmBytes(), std::uint64_t(0));
+        controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+        QVERIFY(!controller.busy());
+        QVERIFY(controller.error().contains("configured"));
+        verifyNoPlayback(controller);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto previous = controller.decks();
+        QVERIFY(previous[0].toMap()["loaded"].toBool());
+        QVERIFY(!previous[0].toMap()["stemBank"].toBool());
+        QVERIFY(previous[0].toMap()["overviewStem"].toString().isEmpty());
+        QCOMPARE(controller.retainedPcmBytes(), controller.audioState().sourceFrames[0] * 8);
+        controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+        QCOMPARE(controller.decks(), previous);
+        for (const auto gain : {-.1, 0., .5, 1., 1.1, std::numeric_limits<double>::quiet_NaN()})
+            controller.setStemGain(0, 0, gain);
+        QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+        QCOMPARE(controller.decks(), previous);
+    }
+
+    void initialStemBankAndManualReloadKeepWholePcmOwners()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
+        const auto source = directory.filePath("stem-and-normal.wav");
+        QVERIFY(writeWave(source, 2, 48000, 4800));
+        const auto engineRoot = directory.filePath("engine");
+        QVERIFY(QDir().mkpath(engineRoot));
+        conflux::DeckController::PreparationOptions options;
+        options.stemEngine = conflux::test::makeStemEngineFixture(engineRoot);
+        conflux::DeckController controller(options);
+        QVERIFY(controller.stemsAvailable());
+        controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+        auto deck = controller.decks()[0].toMap();
+        QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+        QVERIFY(deck["stemBank"].toBool());
+        QCOMPARE(deck["overviewStem"].toString(), QString("drums"));
+        QVERIFY(!deck["waveform"].toList().isEmpty());
+        QCOMPARE(deck["stemGains"].toList(), QVariantList({1.F, 1.F, 1.F, 1.F}));
+        const auto bankFrames = controller.audioState().sourceFrames[0];
+        QVERIFY(bankFrames > 0);
+        QCOMPARE(controller.retainedPcmBytes(), bankFrames * 8 * 4);
+        QVERIFY(!controller.outputReady());
+        bool retainedAtCutoff = false;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (controller.preparation()["status"].toString() == "Installing" &&
+                !controller.preparation()["stems"].toBool())
+                retainedAtCutoff |= controller.retainedPcmBytes() == bankFrames * 8 * 4 + 4800 * 8;
+        }, Qt::DirectConnection);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(retainedAtCutoff);
+        deck = controller.decks()[0].toMap();
+        QVERIFY(deck["loaded"].toBool());
+        QVERIFY(!deck["stemBank"].toBool());
+        QVERIFY(deck["overviewStem"].toString().isEmpty());
+        QCOMPARE(controller.retainedPcmBytes(), controller.audioState().sourceFrames[0] * 8);
+        controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+        QVERIFY(controller.preparation()["cacheHit"].toBool());
+        QCOMPARE(controller.retainedPcmBytes(), controller.audioState().sourceFrames[0] * 8 * 4);
+        QVERIFY(controller.decks()[0].toMap()["stemBank"].toBool());
+    }
+
+    void failedAndQueuedCancelledBanksPreserveExistingOwners()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
+        const auto source = directory.filePath("kept-normal.wav");
+        QVERIFY(writeWave(source, 2, 48000, 480));
+        const auto engineRoot = directory.filePath("engine");
+        QVERIFY(QDir().mkpath(engineRoot));
+        conflux::DeckController::PreparationOptions options;
+        options.stemEngine = conflux::test::makeStemEngineFixture(engineRoot, "partial");
+        conflux::DeckController controller(options);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto previous = controller.decks();
+        const auto retained = controller.retainedPcmBytes();
+        controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+        QVERIFY(!controller.error().isEmpty());
+        QCOMPARE(controller.decks(), previous);
+        QCOMPARE(controller.retainedPcmBytes(), retained);
+        conflux::test::makeStemEngineFixture(engineRoot, "good");
+        controller.loadStemDeck(1, QUrl::fromLocalFile(source));
+        QVERIFY(QThreadPool::globalInstance()->waitForDone(10000));
+        QVERIFY(controller.retainedPcmBytes() > retained);
+        // Completion is still queued; cancellation must precede any acceptance.
+        QVERIFY(controller.busy());
+        QVERIFY(controller.cancelPreparation());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        QCOMPARE(controller.decks(), previous);
+        QCOMPARE(controller.retainedPcmBytes(), retained);
+    }
+
+    void retainedUnlinkedPcmIsReservedBeforeCorruptEntryRebuild()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
+        qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+        qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
+        const auto source = directory.filePath("retained-unlinked.wav");
+        QVERIFY(writeWave(source, 2, 48000, 4096));
+        conflux::DeckController::PreparationOptions options;
+        options.limits.maxPreparedBytes = 4096 * 8;
+        options.limits.maxCacheBytes = 90000; // Initial publication fits; retained+rebuild does not.
+        conflux::DeckController controller(options);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY2(controller.decks()[0].toMap()["loaded"].toBool(), qPrintable(controller.error()));
+        const auto retained = controller.retainedPcmBytes();
+        QCOMPARE(retained, std::uint64_t(4096 * 8));
+        const auto previous = controller.decks();
+        const auto cacheRoot = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+        const auto entries = QDir(cacheRoot).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        QCOMPARE(entries.size(), 1);
+        QFile manifest(QDir(cacheRoot).filePath(entries.front() + "/manifest.json"));
+        QVERIFY(manifest.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        QCOMPARE(manifest.write("{}"), qint64(2));
+        manifest.close();
+        controller.loadDeck(1, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.error().contains("budget", Qt::CaseInsensitive));
+        QCOMPARE(controller.decks(), previous);
+        QCOMPARE(controller.retainedPcmBytes(), retained);
+        // The store removed the bad linked entry; A still retains its old inode.
+        QVERIFY(QDir(cacheRoot).entryList(QDir::Dirs | QDir::NoDotAndDotDot).isEmpty());
+    }
+
     void catalogStartupDoesNotFinishAnActivePreparation()
     {
         QTemporaryDir directory;

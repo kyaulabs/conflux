@@ -30,6 +30,12 @@ AudioSource StemBankSource::sourceRef() noexcept
         },
         [](void* context, std::uint64_t frame) noexcept {
             static_cast<StemBankSource*>(context)->discontinuity(frame);
+        },
+        [](void* context, std::size_t stem, float gain) noexcept {
+            return static_cast<StemBankSource*>(context)->setGain(stem, gain);
+        },
+        [](const void* context, std::size_t stem) noexcept {
+            return static_cast<const StemBankSource*>(context)->gain(stem);
         }};
 }
 

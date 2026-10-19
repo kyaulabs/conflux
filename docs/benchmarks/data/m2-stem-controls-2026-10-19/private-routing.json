@@ -1,0 +1,191 @@
+{
+  "passed": true,
+  "execution_deadline_gate": false,
+  "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+  "preflight_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "check_exit": 0,
+  "check": {
+    "passed": true,
+    "scope": "Private virtual PipeWire graph only; no physical routing, latency or sustained qualification",
+    "execution_deadline_gate": false,
+    "startup_sample_scope": "Receiver constant-sample validation and recorder attachment start only after ready and at least 1024 output frames. Startup fade samples are excluded; analytic ramp correctness is covered by core tests, not click-free qualification here. Receiver counters are never reset.",
+    "startup_warmup_min_output_frames": 1024,
+    "startup_warmup_order": [
+      "main",
+      "disabled",
+      "overlap",
+      "missing"
+    ],
+    "scenarios": [
+      {
+        "name": "one-four-channel-sink",
+        "output_frames": 8448,
+        "callbacks": 33,
+        "recorded_frames": 4096,
+        "execution_deadline_misses": 0,
+        "driver_position_discontinuities": 0,
+        "driver_recovery_flags": 0,
+        "driver_recovery_flags_available": true,
+        "startup_warmup_observed_output_frames": [
+          1024,
+          1024,
+          1024,
+          1024
+        ]
+      },
+      {
+        "name": "two-stereo-sinks",
+        "output_frames": 251136,
+        "callbacks": 981,
+        "recorded_frames": 4096,
+        "execution_deadline_misses": 0,
+        "driver_position_discontinuities": 0,
+        "driver_recovery_flags": 0,
+        "driver_recovery_flags_available": true,
+        "startup_warmup_observed_output_frames": [
+          1024,
+          1024,
+          1024,
+          1024
+        ]
+      }
+    ],
+    "source_handoff": {
+      "passed": true,
+      "error": "",
+      "execution_deadline_gate": false,
+      "scope": "Two bounded callback source handoffs on one private virtual graph; muted target, exact audible peer, master recording attached continuously. Startup fade excluded after at least 1024 output frames. Hardware and sustained qualification remain separate.",
+      "warmup_output_frames": 1024,
+      "output_frames": 13568,
+      "callbacks": 53,
+      "recorded_frames": 10240,
+      "execution_deadline_misses": 0,
+      "zero_samples_after_signal": [
+        0,
+        0
+      ],
+      "maximum_virtual_receiver_signal_gap_ns": [
+        5467117,
+        5467058
+      ],
+      "steps": [
+        {
+          "generation": 1,
+          "before_output_frame": 3584,
+          "callback_end_ack_output_frame": 4096,
+          "after_output_frame": 4608,
+          "retired_source_frame": 3584,
+          "retired_reader_freed_while_running": false,
+          "recorded_before": 2560,
+          "recorded_after": 3584
+        },
+        {
+          "generation": 2,
+          "before_output_frame": 10240,
+          "callback_end_ack_output_frame": 10752,
+          "after_output_frame": 11264,
+          "retired_source_frame": 4352,
+          "retired_reader_freed_while_running": true,
+          "recorded_before": 9216,
+          "recorded_after": 10240
+        }
+      ]
+    },
+    "checks": [
+      "Explicit private runtime environment validated",
+      "Private runtime is owned and mode 0700",
+      "Explicit private daemon socket exists and is owned by this user",
+      "Fresh absolute recording output directory validated",
+      "Inactive private discovery session connects",
+      "one-four-channel-sink: explicit session connects",
+      "one-four-channel-sink: steady recorder attachment accepted after startup warmup",
+      "one-four-channel-sink: every validated steady nonzero master/cue sample matches independent asymmetric sums",
+      "one-four-channel-sink: recorder detach accepted",
+      "one-four-channel-sink: acknowledged detach prevents later callback writes",
+      "one-four-channel-sink: recorder drains and closes without overflow or storage error",
+      "Post-master recording reopens after acknowledged detach",
+      "Recording geometry and drained frame count match accepted master PCM",
+      "Every recorded sample equals the independent post-master expectation, excluding cue",
+      "one-four-channel-sink: independent cue route is ready",
+      "one-four-channel-sink: two buses advance each source exactly once per output frame",
+      "one-four-channel-sink: no invalid output buffers or rejected controls",
+      "one-four-channel-sink: stopped session releases recorder tap",
+      "one-four-channel-sink: disabled cue session connects",
+      "one-four-channel-sink: disabled cue stays disabled with valid independent master",
+      "one-four-channel-sink: disabled cue cannot contaminate fresh steady master samples",
+      "one-four-channel-sink: overlap cue session connects",
+      "one-four-channel-sink: overlap cue stays disabled with valid independent master",
+      "one-four-channel-sink: overlap cue cannot contaminate fresh steady master samples",
+      "one-four-channel-sink: missing cue session connects",
+      "one-four-channel-sink: missing cue stays disabled with valid independent master",
+      "one-four-channel-sink: missing cue cannot contaminate fresh steady master samples",
+      "Inactive private discovery session connects",
+      "two-stereo-sinks: explicit session connects",
+      "two-stereo-sinks: steady recorder attachment accepted after startup warmup",
+      "two-stereo-sinks: every validated steady nonzero master/cue sample matches independent asymmetric sums",
+      "two-stereo-sinks: recorder detach accepted",
+      "two-stereo-sinks: acknowledged detach prevents later callback writes",
+      "two-stereo-sinks: recorder drains and closes without overflow or storage error",
+      "Post-master recording reopens after acknowledged detach",
+      "Recording geometry and drained frame count match accepted master PCM",
+      "Every recorded sample equals the independent post-master expectation, excluding cue",
+      "two-stereo-sinks: independent cue route is ready",
+      "two-stereo-sinks: exact private master/cue playback continues past the startup deadline",
+      "two-stereo-sinks: cue removal fails closed and master recovers with exact advancing samples",
+      "two-stereo-sinks: two buses advance each source exactly once per output frame",
+      "two-stereo-sinks: no invalid output buffers or rejected controls",
+      "two-stereo-sinks: stopped session releases recorder tap",
+      "two-stereo-sinks: disabled cue session connects",
+      "two-stereo-sinks: disabled cue stays disabled with valid independent master",
+      "two-stereo-sinks: disabled cue cannot contaminate fresh steady master samples",
+      "two-stereo-sinks: overlap cue session connects",
+      "two-stereo-sinks: overlap cue stays disabled with valid independent master",
+      "two-stereo-sinks: overlap cue cannot contaminate fresh steady master samples",
+      "two-stereo-sinks: missing cue session connects",
+      "two-stereo-sinks: missing cue stays disabled with valid independent master",
+      "two-stereo-sinks: missing cue cannot contaminate fresh steady master samples",
+      "Inactive private discovery session connects",
+      "source-handoff: one private session connects with cue disabled",
+      "source-handoff: recorder attachment accepted after startup warmup",
+      "source-handoff: rejected deck/generation request retains candidate ownership",
+      "source-handoff: old target CUE release enters FIFO before source publication",
+      "source-handoff: accepted publication consumes only the candidate owner",
+      "source-handoff: target transport is rejected until its handoff acknowledgement is collected",
+      "source-handoff: peer and global commands remain accepted while target is pending",
+      "source-handoff: callback-end acknowledgement retains exact generation/boundary and clean retired state",
+      "source-handoff: only the second swap retires the first installed four-reader bank",
+      "source-handoff: target reset and peer/output/recording state remain coherent on one live session",
+      "source-handoff: installed target accepts mute while paused",
+      "source-handoff: first installed reader starts while muted",
+      "source-handoff: first installed reader runs without starvation/read failure",
+      "source-handoff: rejected deck/generation request retains candidate ownership",
+      "source-handoff: old target CUE release enters FIFO before source publication",
+      "source-handoff: accepted publication consumes only the candidate owner",
+      "source-handoff: target transport is rejected until its handoff acknowledgement is collected",
+      "source-handoff: peer and global commands remain accepted while target is pending",
+      "source-handoff: callback-end acknowledgement retains exact generation/boundary and clean retired state",
+      "source-handoff: only the second swap retires the first installed four-reader bank",
+      "source-handoff: target reset and peer/output/recording state remain coherent on one live session",
+      "source-handoff: recorder detaches after both live source swaps",
+      "source-handoff: acknowledged detach stops all later recorder writes",
+      "source-handoff: continuous recording drains without overflow/storage failure",
+      "Post-master recording reopens after acknowledged detach",
+      "Recording geometry and drained frame count match accepted master PCM",
+      "Every recorded sample equals the independent post-master expectation, excluding cue",
+      "source-handoff: all validated peer samples remain exact and nonzero through both replacements",
+      "source-handoff: one peer/output clock advances without invalid buffers, rejected controls or source failures"
+    ]
+  },
+  "cleanup_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "cleanup": {
+    "remaining_nodes_or_links": [],
+    "only_dummy_driver_remains": true
+  },
+  "daemon_reaped": true
+}

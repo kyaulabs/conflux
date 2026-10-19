@@ -18,6 +18,10 @@ AudioSource validatedMemory(std::span<const float> pcm)
 }
 bool validSource(AudioSource source) noexcept
 {
+    const bool controls = source.setStemGain && source.stemGain;
+    if (bool(source.setStemGain) != bool(source.stemGain) ||
+        (controls && (!source.frames || source.memory || !source.read || !source.context)))
+        return false;
     return !((!source.frames && (source.memory || source.read)) ||
         (source.frames && bool(source.memory) == bool(source.read)) ||
         (source.memory && source.frames > std::numeric_limits<std::size_t>::max() / (RenderCore::channels * sizeof(float))));
@@ -179,6 +183,27 @@ bool RenderCore::setDeckGain(std::size_t deck, float gain) noexcept
     return true;
 }
 
+bool RenderCore::isStemBank(std::size_t deck) const noexcept
+{
+    return deck < deckCount && decks_[deck].source.frames &&
+        decks_[deck].source.setStemGain && decks_[deck].source.stemGain;
+}
+
+float RenderCore::stemGain(std::size_t deck, std::size_t stem) const noexcept
+{
+    if (!isStemBank(deck) || stem >= stemCount) return 0.F;
+    const auto& source = decks_[deck].source;
+    return source.stemGain(source.context, stem);
+}
+
+bool RenderCore::setStemGain(std::size_t deck, std::size_t stem, float gain) noexcept
+{
+    if (!isStemBank(deck) || stem >= stemCount || !std::isfinite(gain) || gain < 0.F || gain > 1.F)
+        return false;
+    const auto& source = decks_[deck].source;
+    return source.setStemGain(source.context, stem, gain);
+}
+
 bool RenderCore::setMasterGain(float gain) noexcept
 {
     if (!std::isfinite(gain) || gain < 0.0F || gain > 1.0F)
@@ -265,6 +290,7 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::CueOff: return setCueSelected(command.deck, false);
     case Command::Type::CueGain: return setCueGain(command.gain);
     case Command::Type::Jog: return jog(command.deck, command.deltaFrames);
+    case Command::Type::StemGain: return setStemGain(command.deck, command.stem, command.gain);
     }
     return false;
 }

@@ -18,6 +18,7 @@ public:
     static constexpr std::uint32_t channels = 2;
     static constexpr float amplitude = 0.01F;
     static constexpr std::size_t deckCount = 2;
+    static constexpr std::size_t stemCount = 4;
 
     struct StereoMeter {
         std::array<double, channels> peak{}, rms{};
@@ -30,13 +31,14 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
         float gain = 1.0F;
         std::uint32_t id = 0;
         std::int64_t deltaFrames = 0;
+        std::uint32_t stem = 0;
     };
 
     explicit RenderCore(bool tone = false);
@@ -71,6 +73,10 @@ public:
     [[nodiscard]] bool isDeckSilentForReplacement(std::size_t deck) const noexcept;
     bool setPlaying(std::size_t deck, bool playing) noexcept;
     bool setDeckGain(std::size_t deck, float gain) noexcept;
+    // Fixed bank targets are owned by the source; normal/unloaded decks reject.
+    bool setStemGain(std::size_t deck, std::size_t stem, float gain) noexcept;
+    [[nodiscard]] bool isStemBank(std::size_t deck = 0) const noexcept;
+    [[nodiscard]] float stemGain(std::size_t deck, std::size_t stem) const noexcept;
     bool setMasterGain(float gain) noexcept;
     // Headphone cue is independent of temporary transport CUE: selected active
     // decks sum before channel/master gains, then receive this global cue gain.

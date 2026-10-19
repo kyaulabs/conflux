@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "case": "partial",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "orphan-threads",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "orphan-backend",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "backend",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "threads-low",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "threads-high",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "threads-text",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "relative",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    },
+    {
+      "case": "smoke-with-engine",
+      "exit": 2,
+      "output_sha256": "ba4bc5acb0b1064a3124860cb056179303dcd8dd67fca7bdc5f3595839bbf214",
+      "output_bytes": 1344
+    }
+  ],
+  "scope": "Invalid configuration exits before controller/model creation; no physical audio, model or timing qualification."
+}

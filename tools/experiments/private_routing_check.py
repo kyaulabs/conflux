@@ -29,6 +29,7 @@ def main():
         if not shutil.which(name):
             raise SystemExit(f"Required installed program is unavailable: {name}")
     result = {"passed": False, "execution_deadline_gate": not args.functional_only,
+              "harness_timeout_seconds": 240 if args.functional_only else 90,
               "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"}
     with tempfile.TemporaryDirectory(prefix="conflux-routing-private-") as temporary:
         runtime = Path(temporary)
@@ -148,7 +149,7 @@ context.modules = [
                     checker = subprocess.Popen(
                         command, env=environment,
                         stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)
-                    deadline = time.monotonic() + 90
+                    deadline = time.monotonic() + result["harness_timeout_seconds"]
                     failure_captured = False
                     while checker.poll() is None:
                         if (output / "live-failure.json").exists() and not failure_captured:

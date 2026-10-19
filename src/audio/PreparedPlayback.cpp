@@ -84,6 +84,12 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     return true;
 }
 
+bool PreparedPlayback::configureStemRamps(std::uint32_t frames) noexcept
+{
+    if (stopped_ || frames > StemBankSource::sampleRate) return false;
+    return !bank_ || bank_->configureRamps(frames);
+}
+
 int PreparedPlayback::errorCode() const noexcept
 {
     if (const auto code = primeError_.load(std::memory_order_relaxed)) return code;

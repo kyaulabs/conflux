@@ -182,6 +182,30 @@ void failureInAnyReaderAndConstructionCleanup()
     }
 }
 
+void preparedLiveStemRamps()
+{
+    Fixture fixture;
+    PreparedPlayback bank(fixture.fds(), Fixture::frames);
+    require(bank.prime(0, 1s), "Cannot prime prepared gain fixture");
+    RenderCore core(bank.sourceRef());
+    require(core.isStemBank() && bank.configureStemRamps(4), "Prepared bank cannot configure live gain smoothing");
+    for (std::size_t stem = 0; stem < 4; ++stem)
+        require(core.setStemGain(0, stem, 0.F), "Cannot queue a prepared bank gain target");
+    std::array<float, 8> output{};
+    require(core.render(output) && core.sourceFrame() == 4 && !core.isBuffering(), "Prepared gain block did not render");
+    for (std::size_t frame = 0; frame < 4; ++frame)
+        for (std::size_t channel = 0; channel < 2; ++channel)
+            require(output[frame * 2 + channel] == fixture.sum[frame * 2 + channel] * float(3 - frame) / 4.F,
+                    "Prepared bank changed gain abruptly or advanced its ramp independently of source frames");
+    require(!bank.configureStemRamps(0), "Prepared ramp duration changed after consumption began");
+    auto normalFile = rawFile(fixture.sum);
+    PreparedPlayback normal(fileno(normalFile.get()), Fixture::frames);
+    require(normal.configureStemRamps(240) && !normal.configureStemRamps(48001),
+            "Normal playback ramp no-op changed its configuration bounds");
+    bank.stop();
+    require(!bank.configureStemRamps(4), "Stopped bank accepted live gain configuration");
+}
+
 void wholeBankHandoffLifetime()
 {
     Fixture first, second;
@@ -226,6 +250,7 @@ int main()
         coherentPrimeSeekAndStop();
         failureInAnyReaderAndConstructionCleanup();
         wholeBankHandoffLifetime();
+        preparedLiveStemRamps();
         std::cout << "Prepared whole-bank files, alignment, health, budgets and lifetime checks completed\n";
         return 0;
     } catch (const std::exception& error) {
