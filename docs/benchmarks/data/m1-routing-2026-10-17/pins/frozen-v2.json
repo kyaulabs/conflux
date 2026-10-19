@@ -1,0 +1,480 @@
+{
+  "schema": 1,
+  "client_date": "2026-10-17 America/Los_Angeles",
+  "source_base_head": "83ce168e0ea026dbef9abb15e91daa1f3c1a45df",
+  "source_pins": {
+    ".github/workflows/build.yml": {
+      "path": ".github/workflows/build.yml",
+      "bytes": 1145,
+      "sha256": "01c3018e27234b4aa66721c51e80b93dd53fc98b96dad6200a3a5e7e8eacc89a"
+    },
+    "CMakeLists.txt": {
+      "path": "CMakeLists.txt",
+      "bytes": 11010,
+      "sha256": "a6c0d9de66729d0f3b4452602331ac324a707b2d5cccac36748a5b6d6f710d0c"
+    },
+    "brand/assets/app-icons/conflux-app-dark.svg": {
+      "path": "brand/assets/app-icons/conflux-app-dark.svg",
+      "bytes": 992,
+      "sha256": "8e56e0c51ac5245edd7196fa95d86ccffde7571c25e3151ba3eb575799c89c3a"
+    },
+    "brand/assets/fonts/Barlow-OFL.txt": {
+      "path": "brand/assets/fonts/Barlow-OFL.txt",
+      "bytes": 4377,
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    "brand/assets/fonts/Barlow-Regular.ttf": {
+      "path": "brand/assets/fonts/Barlow-Regular.ttf",
+      "bytes": 104068,
+      "sha256": "95aa02c7c43096e0dd44d787ba6216864a67157e402adab59b35572e0c1577ea"
+    },
+    "brand/assets/fonts/BarlowCondensed-OFL.txt": {
+      "path": "brand/assets/fonts/BarlowCondensed-OFL.txt",
+      "bytes": 4377,
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    "brand/assets/fonts/BarlowCondensed-SemiBold.ttf": {
+      "path": "brand/assets/fonts/BarlowCondensed-SemiBold.ttf",
+      "bytes": 109428,
+      "sha256": "7b619d14bc2327509a9ef32b0890f709626f7ecc9ff61191c2a4314c5499d2d9"
+    },
+    "brand/assets/fonts/JetBrainsMono-OFL.txt": {
+      "path": "brand/assets/fonts/JetBrainsMono-OFL.txt",
+      "bytes": 4399,
+      "sha256": "a76abf002c49097d146e86740a3105a5d00450b1592e820a1109a8c5680cd697"
+    },
+    "brand/assets/fonts/JetBrainsMono-Regular.ttf": {
+      "path": "brand/assets/fonts/JetBrainsMono-Regular.ttf",
+      "bytes": 270224,
+      "sha256": "e6fd0d7e91550b3ed2b735d4312474362c4716edc4fc0577a0f61ed782d5aed1"
+    },
+    "brand/assets/logos/conflux-horizontal-dark.svg": {
+      "path": "brand/assets/logos/conflux-horizontal-dark.svg",
+      "bytes": 2244,
+      "sha256": "845e4a8af20984d7960e61a11a0092f666e2cea150f0942383e5e5f58868ea2e"
+    },
+    "brand/assets/logos/conflux-horizontal-light.svg": {
+      "path": "brand/assets/logos/conflux-horizontal-light.svg",
+      "bytes": 2244,
+      "sha256": "ed9b8d598c799fc70ab64eaa51e66e864f97ad154b1be21fc48411e7e3011181"
+    },
+    "brand/integration/qtquick/ConfluxTheme.qml": {
+      "path": "brand/integration/qtquick/ConfluxTheme.qml",
+      "bytes": 1577,
+      "sha256": "1fe3e376c7e98e799a19519e95a5080740c13880315191d7fe6e1993fbb28c27"
+    },
+    "brand/integration/qtquick/qmldir": {
+      "path": "brand/integration/qtquick/qmldir",
+      "bytes": 65,
+      "sha256": "1461bc7948b3bf027f9d33dcdeda93aca53f1f2461c04d511c6b9f9e587b4e4a"
+    },
+    "qml/DeckButton.qml": {
+      "path": "qml/DeckButton.qml",
+      "bytes": 7855,
+      "sha256": "5284e393df72ed42b0fd440c9c547591e8698df8c4af25b428b3914e04cab5ab"
+    },
+    "qml/DeckSurface.qml": {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 22943,
+      "sha256": "8337128c4a8c6f9d7ec668cf7a3e5b685e2211cfca78c120834315b90e057585"
+    },
+    "qml/Harness.qml": {
+      "path": "qml/Harness.qml",
+      "bytes": 4257,
+      "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb"
+    },
+    "qml/Main.qml": {
+      "path": "qml/Main.qml",
+      "bytes": 28384,
+      "sha256": "ba8e5035e1df4afe61d040575b001b7119495569146a5969c9f32f5ae9c7081f"
+    },
+    "qml/MixerSurface.qml": {
+      "path": "qml/MixerSurface.qml",
+      "bytes": 21058,
+      "sha256": "4790d92b8fe9b2a1286fb8f50e17ce5a3160f25cdd8ce264ef6b041871e5fbde"
+    },
+    "qml/StereoMeter.qml": {
+      "path": "qml/StereoMeter.qml",
+      "bytes": 4262,
+      "sha256": "bcae2b2ab59a17c60d64eae8a7c4b7ff3fbcdafa803e476ad61c60150ec6cae8"
+    },
+    "qml/SurfaceKnob.qml": {
+      "path": "qml/SurfaceKnob.qml",
+      "bytes": 3641,
+      "sha256": "beb451229c116bf7e780f9c7c94349ba6c383d94e167a1310d5441c925565e14"
+    },
+    "src/audio/AudioFile.cpp": {
+      "path": "src/audio/AudioFile.cpp",
+      "bytes": 10964,
+      "sha256": "0e6790cfa3ea67d8010e3053ad861f7b55ec681e7e9236d6aeb70b537d43e335"
+    },
+    "src/audio/AudioFile.hpp": {
+      "path": "src/audio/AudioFile.hpp",
+      "bytes": 2809,
+      "sha256": "1ee59f44ddf9a91f1f61f4e4cc15be5447d0fd33643ed777afab9a78630e48a2"
+    },
+    "src/audio/AudioRouting.cpp": {
+      "path": "src/audio/AudioRouting.cpp",
+      "bytes": 4518,
+      "sha256": "2b4d0272e7a1451286c675a0f6be059d4eefd91f06f27f0e80142656f78e1799"
+    },
+    "src/audio/AudioRouting.hpp": {
+      "path": "src/audio/AudioRouting.hpp",
+      "bytes": 2072,
+      "sha256": "4b51e7c67c3b80c60971d41c9855f17e9bf2df2d37d206fe3d54ef5683f9f65d"
+    },
+    "src/audio/AudioSource.hpp": {
+      "path": "src/audio/AudioSource.hpp",
+      "bytes": 1147,
+      "sha256": "b78ac2e70e18966c3dbe118ba4397c140c514dd17a3fe97dbad59e76373f986c"
+    },
+    "src/audio/CallbackTiming.cpp": {
+      "path": "src/audio/CallbackTiming.cpp",
+      "bytes": 3202,
+      "sha256": "54d97fdb6649d7128e45ff2fa26524aff36f7f59294c504b95eae0d947f74baf"
+    },
+    "src/audio/CallbackTiming.hpp": {
+      "path": "src/audio/CallbackTiming.hpp",
+      "bytes": 3395,
+      "sha256": "b575e4815b4bd485a39821662229412e5d8b08862014c040e1a3ce46243cf3df"
+    },
+    "src/audio/LiveSession.cpp": {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 49792,
+      "sha256": "8aeba7e7c873f5eeaf5dec99fbe9cf4ee40fc6b78938cb59b7426378f6bae023"
+    },
+    "src/audio/LiveSession.hpp": {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 4548,
+      "sha256": "2c01266e074b3a4fef565eb7b67221c2809ee2e959aa00d219d514cba0979d3f"
+    },
+    "src/audio/PcmReadAhead.cpp": {
+      "path": "src/audio/PcmReadAhead.cpp",
+      "bytes": 12446,
+      "sha256": "f9e438214ee8ff4bd367c594aad688bc224c0b43dc6f1b26a1df48a16a2efd0b"
+    },
+    "src/audio/PcmReadAhead.hpp": {
+      "path": "src/audio/PcmReadAhead.hpp",
+      "bytes": 1427,
+      "sha256": "6d15bbe4ed713c6c4b5359627b17484c9cfd068ef4d20d2293b41aee3e4dc104"
+    },
+    "src/audio/PipeWireMetadata.hpp": {
+      "path": "src/audio/PipeWireMetadata.hpp",
+      "bytes": 4801,
+      "sha256": "3d41c6ede2a9cb65f578ad40f46dc9ea620df11cbc40883bf2272b0752870d8b"
+    },
+    "src/audio/RecorderTap.hpp": {
+      "path": "src/audio/RecorderTap.hpp",
+      "bytes": 2510,
+      "sha256": "0bf33bea4ae0209e67f6daee0cf3a7410071150120b7e9a8e6b1f33dac7752c0"
+    },
+    "src/audio/RenderCore.cpp": {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 15665,
+      "sha256": "5e1322ff96dc6fa96dcb95bc3c98db2f06f815535633d1edfaa7544851f3d8d3"
+    },
+    "src/audio/RenderCore.hpp": {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 7223,
+      "sha256": "aa9e7803da9dbc3b83c8d8abc133ff9975c5805accfec98a4f33371b605d8438"
+    },
+    "src/audio/StereoRecorder.cpp": {
+      "path": "src/audio/StereoRecorder.cpp",
+      "bytes": 10444,
+      "sha256": "239f25c2b59089533f56e3e12fe8dc2b603fc240eec0e10f9c8b1ac561d8961a"
+    },
+    "src/audio/StereoRecorder.hpp": {
+      "path": "src/audio/StereoRecorder.hpp",
+      "bytes": 1962,
+      "sha256": "0dd93ec785529f09b0c23003ad799fc5bf77a6b4148f62fe237ab5d8bc1675bd"
+    },
+    "src/audio/TransportQueue.hpp": {
+      "path": "src/audio/TransportQueue.hpp",
+      "bytes": 1518,
+      "sha256": "84b2a1ba0ac25f9d97ddb82fcedb337b89115e970c152be2fccc1c0d72607f21"
+    },
+    "src/main.cpp": {
+      "path": "src/main.cpp",
+      "bytes": 10487,
+      "sha256": "6669dd1ae0bc3794ea2fc39c9b3ba3dc65845ddd0b951b4a1ea7301d4ea6e256"
+    },
+    "src/probe_main.cpp": {
+      "path": "src/probe_main.cpp",
+      "bytes": 33738,
+      "sha256": "a150fb079bb7cb94853d81882d0b315a9034ce9dbd318e68db42165717c8f4a6"
+    },
+    "src/ui/DeckController.cpp": {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 25433,
+      "sha256": "825d02e4628a1bc852ca324df5f7ccc8a7bb5ed1e16878f4487547d6f3175be6"
+    },
+    "src/ui/DeckController.hpp": {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 6288,
+      "sha256": "a0ec8e4de14e04a6e1f0d982500e00e4ea3608fc5fab0678563e9dbba43d891f"
+    },
+    "tests/audio_buses_test.cpp": {
+      "path": "tests/audio_buses_test.cpp",
+      "bytes": 18786,
+      "sha256": "9b5b0a3c84771aed99c4490f58470f90175dab97a3bdc95df12c8b16e997995a"
+    },
+    "tests/audio_cue_test.cpp": {
+      "path": "tests/audio_cue_test.cpp",
+      "bytes": 14311,
+      "sha256": "ad625c229e4e48eaf7b50259ab1cf82bb8df8a1b88d1e605fce43bee63ee3070"
+    },
+    "tests/audio_file_test.cpp": {
+      "path": "tests/audio_file_test.cpp",
+      "bytes": 19391,
+      "sha256": "4badf2a28a4596e93e671a4f8a597b700ac8c1847e74c7a1694a09fa531b7224"
+    },
+    "tests/audio_metadata_test.cpp": {
+      "path": "tests/audio_metadata_test.cpp",
+      "bytes": 2999,
+      "sha256": "39504d3104f468338d46ea6d770ee4943a4b5be8643185c381af9583b340b9b0"
+    },
+    "tests/audio_preparation_test.cpp": {
+      "path": "tests/audio_preparation_test.cpp",
+      "bytes": 17145,
+      "sha256": "b07d1136493e56efb34a89c40cb45bdd7e69d37991f16591ce14f69579aa4fb7"
+    },
+    "tests/audio_probe_cli_test.py": {
+      "path": "tests/audio_probe_cli_test.py",
+      "bytes": 7342,
+      "sha256": "9f5d9e40291659557dcbfa671d2b2156e7a38d1d2ce00ded7de63e0e5bc198d6"
+    },
+    "tests/audio_read_ahead_test.cpp": {
+      "path": "tests/audio_read_ahead_test.cpp",
+      "bytes": 12999,
+      "sha256": "a42b26a7954826c33adff9a20391edfeefbb14e8a3c6e2a1c846033605717f9c"
+    },
+    "tests/audio_recorder_tap_test.cpp": {
+      "path": "tests/audio_recorder_tap_test.cpp",
+      "bytes": 5427,
+      "sha256": "96e02eb042f4c6489c45b225a050a75e742ab308e6b548a8fb6696affd16df31"
+    },
+    "tests/audio_recorder_test.cpp": {
+      "path": "tests/audio_recorder_test.cpp",
+      "bytes": 13762,
+      "sha256": "466b2c0f47f7d9e40d56463c15dee5e10bb2de02de9cf3a279cee693be7cdb66"
+    },
+    "tests/audio_routing_test.cpp": {
+      "path": "tests/audio_routing_test.cpp",
+      "bytes": 7548,
+      "sha256": "314e73e1830978332b84417e188ef29d7ecf0d8d1e7a96c4d74bf509f16b6a4c"
+    },
+    "tests/audio_source_test.cpp": {
+      "path": "tests/audio_source_test.cpp",
+      "bytes": 18102,
+      "sha256": "ceb94671a6a5118555a191832f3592b2d95053004956635d0bb4a564ecad46f2"
+    },
+    "tests/audio_test.cpp": {
+      "path": "tests/audio_test.cpp",
+      "bytes": 2827,
+      "sha256": "8f747fc8cdabb3f92b5c17ee3a34e3fc5ee0588f0adad4f8b20d356a0e2fe37a"
+    },
+    "tests/audio_timing_test.cpp": {
+      "path": "tests/audio_timing_test.cpp",
+      "bytes": 10814,
+      "sha256": "af44c7524137b92617732a17e1de67794cacd6f693030e9f869f685a9b33b5b2"
+    },
+    "tests/audio_transport_test.cpp": {
+      "path": "tests/audio_transport_test.cpp",
+      "bytes": 21307,
+      "sha256": "724cc2fee5aed84925b9f279b0dfa1034da2bad01fd250064a281e4e4f822a6c"
+    },
+    "tests/deck_controller_test.cpp": {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 16437,
+      "sha256": "5ebd6a1edf4886157f705e70516d6151e284a12f146ead9e356ab3e9824d5c1a"
+    },
+    "tests/live_session_test.cpp": {
+      "path": "tests/live_session_test.cpp",
+      "bytes": 10170,
+      "sha256": "629c1145f7f1856f3372b3d68c225b7dd553565dd78e680e8bee927b1af2a540"
+    },
+    "tests/manual_ui_test.cpp": {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 41115,
+      "sha256": "e8fa277e85ee3015549c6158913866ee0530169e818f1e4e9a2220a64f582656"
+    },
+    "tests/stem_soak_test.py": {
+      "path": "tests/stem_soak_test.py",
+      "bytes": 23251,
+      "sha256": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e"
+    },
+    "tests/stem_worker_test.py": {
+      "path": "tests/stem_worker_test.py",
+      "bytes": 22905,
+      "sha256": "b1b010bd79c2dd09c0e0a834ae5e470b4767ef1d2c350605670037254b5dfc85"
+    },
+    "tools/benchmarks/native_replay.py": {
+      "path": "tools/benchmarks/native_replay.py",
+      "bytes": 14483,
+      "sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e"
+    },
+    "tools/benchmarks/stem_profile.py": {
+      "path": "tools/benchmarks/stem_profile.py",
+      "bytes": 5741,
+      "sha256": "a8f91123b7470cc8c15cca4e12e9a94995846c1243f35f14f8cd922c763ab3b2"
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "path": "tools/benchmarks/stem_soak.py",
+      "bytes": 64246,
+      "sha256": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "path": "tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "tools/benchmarks/stems.py": {
+      "path": "tools/benchmarks/stems.py",
+      "bytes": 6975,
+      "sha256": "9febfe87d7fcd264b7687d320ca6cfdb8945960353c1add6ceae8d60c6050a05"
+    },
+    "tools/benchmarks/window_guard.py": {
+      "path": "tools/benchmarks/window_guard.py",
+      "bytes": 14613,
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "path": "tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "tools/experiments/manual_audio_check.cpp": {
+      "path": "tools/experiments/manual_audio_check.cpp",
+      "bytes": 31375,
+      "sha256": "04deda93f4ebc2035d6ba8d7ed29c9b40ca19637deedee3363d9bbd4ad7e0766"
+    },
+    "tools/experiments/manual_routing_check.cpp": {
+      "path": "tools/experiments/manual_routing_check.cpp",
+      "bytes": 20451,
+      "sha256": "78bc0666b8de08176dcaad2c251e5fa3dcb10d1ec10548c85c81ba8aa99e2844"
+    },
+    "tools/experiments/prepare_audio_check.cpp": {
+      "path": "tools/experiments/prepare_audio_check.cpp",
+      "bytes": 9136,
+      "sha256": "ceb4e408e93fc7bddde029049be4e488a4ee01747020bb8268af105ab2f95401"
+    },
+    "tools/experiments/private_routing_check.py": {
+      "path": "tools/experiments/private_routing_check.py",
+      "bytes": 9409,
+      "sha256": "9dc303df10f7fe7e294e8888de30e82f900f3592161be91526fea66a6b925962"
+    },
+    "tools/stems/worker.py": {
+      "path": "tools/stems/worker.py",
+      "bytes": 25077,
+      "sha256": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824"
+    }
+  },
+  "binaries": {
+    "conflux": {
+      "path": "build/dev/conflux",
+      "bytes": 7122904,
+      "sha256": "9a17529c62faacfdfcdc957d9d95291b16a98219ce5badad989c5c728aa4846b"
+    },
+    "conflux-audio-buses-test": {
+      "path": "build/dev/conflux-audio-buses-test",
+      "bytes": 356144,
+      "sha256": "523a3c4f10e553c135c2b58f01bfe8af7749ea4f3ee24c45a4802da022e44bc8"
+    },
+    "conflux-audio-cue-test": {
+      "path": "build/dev/conflux-audio-cue-test",
+      "bytes": 384768,
+      "sha256": "52231683bfac6324a0aa4afdac0be91a515014fc06e681743cd89f2b185669a6"
+    },
+    "conflux-audio-file-test": {
+      "path": "build/dev/conflux-audio-file-test",
+      "bytes": 1370416,
+      "sha256": "186fe77e0d095301f122492c1c57dc66b46ff7d351478cf4a730c4a99c4f6c7a"
+    },
+    "conflux-audio-metadata-test": {
+      "path": "build/dev/conflux-audio-metadata-test",
+      "bytes": 190840,
+      "sha256": "f052bf8dfe108d7cd132de2e96e6d4a6df9789d70a3974dd51c464883d27dfd9"
+    },
+    "conflux-audio-preparation-test": {
+      "path": "build/dev/conflux-audio-preparation-test",
+      "bytes": 1063136,
+      "sha256": "7895769ab4b12502bf410aad6dbb31d503462eb9e3c09897d0e4cc9813ea7450"
+    },
+    "conflux-audio-probe": {
+      "path": "build/dev/conflux-audio-probe",
+      "bytes": 1340256,
+      "sha256": "fafca4ecd21bfdf4e9b1199e2e746676853d4ab711d1d81cac20733bfaafdbf5"
+    },
+    "conflux-audio-read-ahead-test": {
+      "path": "build/dev/conflux-audio-read-ahead-test",
+      "bytes": 475168,
+      "sha256": "590ac20d5cbb833289dbe6e154daf5882a41f3eee2dc80e0314be6ad66968d19"
+    },
+    "conflux-audio-recorder-tap-test": {
+      "path": "build/dev/conflux-audio-recorder-tap-test",
+      "bytes": 878424,
+      "sha256": "6b88a1a8a9fd575c260c614d24b097bcb1f03b825e6773cb96a654834cbab3ce"
+    },
+    "conflux-audio-recorder-test": {
+      "path": "build/dev/conflux-audio-recorder-test",
+      "bytes": 1130648,
+      "sha256": "7e30a6dcf861b29af1511bea5e643df725e363b6ac3688ea8a206ae4fa77e5a2"
+    },
+    "conflux-audio-routing-test": {
+      "path": "build/dev/conflux-audio-routing-test",
+      "bytes": 1455040,
+      "sha256": "e5eac57ae2b080f13332da5a354247536bdf27143b4b08ae7070860e2a7fb11c"
+    },
+    "conflux-audio-source-test": {
+      "path": "build/dev/conflux-audio-source-test",
+      "bytes": 334936,
+      "sha256": "3be7da3cc0355e8013e50a99ed1f4ff039e4632a412ec06b07cfd5f4809fb856"
+    },
+    "conflux-audio-test": {
+      "path": "build/dev/conflux-audio-test",
+      "bytes": 216096,
+      "sha256": "1d88001a0f70b338cc937d8e151da0f2cea040aa90528861859a080fb957df95"
+    },
+    "conflux-audio-timing-test": {
+      "path": "build/dev/conflux-audio-timing-test",
+      "bytes": 70728,
+      "sha256": "679f17916a2bd0bd392f9f84e9d6e0ac9a23b5fc9e318e286fe49e3ac91a8c2e"
+    },
+    "conflux-audio-transport-test": {
+      "path": "build/dev/conflux-audio-transport-test",
+      "bytes": 625056,
+      "sha256": "f380ec7ca1a41b1b3bc7876ede4e378d8927cfa73d4bb75eed06677fbd6b2bf3"
+    },
+    "conflux-deck-controller-test": {
+      "path": "build/dev/conflux-deck-controller-test",
+      "bytes": 7103888,
+      "sha256": "3227a17a4ad23cb48986d5d27a6ac7bec90058e1973c7ce2eb6037efa742b5d3"
+    },
+    "conflux-live-session-test": {
+      "path": "build/dev/conflux-live-session-test",
+      "bytes": 3012656,
+      "sha256": "c2a692738ecffd8ecff8b4ae0a83ab072c1541842dd872ea2e0a32433cded58e"
+    },
+    "conflux-manual-audio-check": {
+      "path": "build/dev/conflux-manual-audio-check",
+      "bytes": 7311504,
+      "sha256": "86f50248a78332f0f77e359ae2f6f51de367d1d8fe0b799150110e398e25a078"
+    },
+    "conflux-manual-routing-check": {
+      "path": "build/dev/conflux-manual-routing-check",
+      "bytes": 3864288,
+      "sha256": "8dbd6d5f0b549445854a24e70feb41c4f43d8e96a711fb8b1a23be0ad41ae3ef"
+    },
+    "conflux-manual-ui-test": {
+      "path": "build/dev/conflux-manual-ui-test",
+      "bytes": 3690456,
+      "sha256": "664d43569cb9b72896e7e8691e65a9faf8a1718a00e973f7abc886660b7f5377"
+    },
+    "conflux-prepare-audio-check": {
+      "path": "build/dev/conflux-prepare-audio-check",
+      "bytes": 1655936,
+      "sha256": "22a8d256b2f584d713e31bd4781333cd5318b1cdb0b249a667225368962c98a8"
+    }
+  },
+  "scope": "Frozen source and binary snapshot captured before the named verification run; later edits require a new snapshot."
+}

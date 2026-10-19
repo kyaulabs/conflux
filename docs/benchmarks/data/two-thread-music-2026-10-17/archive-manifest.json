@@ -1,0 +1,534 @@
+{
+  "schema": 1,
+  "scope": "Saved closed 600-second validation and optional conditional-hour files, exact source/helper references, JSONL decoding and packaged event/control/coverage/timing/cadence/thermal audit and descriptive analysis replay. No corpus WAV, original music, PCM, NumPy arrays, model, runtime/UI/audio binary, HTML or artwork is included or recomputed. Prior canonical archives remain required dependencies. Archive/replay integrity success does not imply latency or deadline qualification. Audio is an independent silent probe; no musical, physical-audio or M1 acceptance claim.",
+  "root_approved_final_allowlist": true,
+  "runs": [
+    "threads2-both-10min"
+  ],
+  "external_references": {
+    "paced_archive": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/archive-manifest.json",
+      "bytes": 26427,
+      "sha256": "180fb3189f0fe96b233b26a022a71390422b3f3c78dec5d6831665424ba96863"
+    },
+    "prior_paced_expected_pins": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/expected-pins.json",
+      "bytes": 1343,
+      "sha256": "5cb7a1631e4785f724d32181712074288ca58ba99939484ab9ce84995e20e58c"
+    },
+    "prior_source_CI_pr": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-CI-pr.log",
+      "bytes": 114984,
+      "sha256": "85ed53792fe780b41216c196110e7a6bb2257da1272ed3e5283afba93e898208"
+    },
+    "prior_source_CI_push": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-CI-push.log",
+      "bytes": 113640,
+      "sha256": "648cb765786e86e4bfb0e6e4a356c327732760e606f1a1b3cd8e01d8ee2247f3"
+    },
+    "prior_paced_CMake": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-snapshots/CMakeLists.txt",
+      "bytes": 3232,
+      "sha256": "25c1a26e06d68de59679617c6f19e5855bda208246f33b47839f96cca3520b0a"
+    },
+    "prior_paced_soak_source": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-snapshots/tools/benchmarks/stem_soak.py",
+      "bytes": 64246,
+      "sha256": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d"
+    },
+    "prior_paced_worker_source": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-snapshots/tools/stems/worker.py",
+      "bytes": 25077,
+      "sha256": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824"
+    },
+    "prior_paced_soak_tests": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-snapshots/tests/stem_soak_test.py",
+      "bytes": 23251,
+      "sha256": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e"
+    },
+    "prior_paced_worker_tests": {
+      "repository_path": "docs/benchmarks/data/paced-music-2026-10-17/source-snapshots/tests/stem_worker_test.py",
+      "bytes": 22905,
+      "sha256": "b1b010bd79c2dd09c0e0a834ae5e470b4767ef1d2c350605670037254b5dfc85"
+    },
+    "user_archive": {
+      "repository_path": "docs/benchmarks/data/user-tracks-2026-10-17/archive-manifest.json",
+      "bytes": 18187,
+      "sha256": "f4e40e1eb626b4b5929c8cddcfc13f6b221ef681e236f07f9fda4597446615d7"
+    },
+    "music_load_archive": {
+      "repository_path": "docs/benchmarks/data/music-load-2026-10-17/archive-manifest.json",
+      "bytes": 34427,
+      "sha256": "51cd7d50dea1605f170ce9dd1bf3b69044700ed0f605d81840ed142d93330bac"
+    },
+    "profile_archive": {
+      "repository_path": "docs/benchmarks/data/music-profile-2026-10-17/archive-manifest.json",
+      "bytes": 25251,
+      "sha256": "09b1f516438bd92863af47f57d457369bf9c7c4b5d9ac312becaac00531f87c0"
+    },
+    "software_archive": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/manifest.json",
+      "bytes": 90505,
+      "sha256": "445612ea59c1e8dfb377a9b738215cddd9785e39938ba465d97505db4765d31e"
+    },
+    "stem_archive": {
+      "repository_path": "docs/benchmarks/data/stem-quality-2026-10-17/archive-manifest.json",
+      "bytes": 29580,
+      "sha256": "fe7ce6393f6ca70854d3b0a342998d982c43502416371718e5c72cf01eb662fd"
+    },
+    "manifest": {
+      "repository_path": "docs/benchmarks/data/user-tracks-2026-10-17/series/manifest.json",
+      "bytes": 7360,
+      "sha256": "4a0a50eb0adcdd8649189f9f6e5850c54ead9bf01b58c9f0e4bcae424414af53"
+    },
+    "original_Vulkan_events": {
+      "repository_path": "docs/benchmarks/data/user-tracks-2026-10-17/vulkan/events.jsonl.gz",
+      "bytes": 7535,
+      "sha256": "c00f89b4bbad7df01cf98fd285edac15fffad9db49736bbfbfc422f148c7406e"
+    },
+    "prior_worker_source": {
+      "repository_path": "docs/benchmarks/data/stem-quality-2026-10-17/source-snapshots/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "repository_path": "docs/benchmarks/data/stem-quality-2026-10-17/source-snapshots/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "shared_benchmark_source": {
+      "repository_path": "docs/benchmarks/data/stem-quality-2026-10-17/source-snapshots/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "runtime_build": {
+      "repository_path": "docs/benchmarks/data/stem-quality-2026-10-17/runtime/historical-build.json",
+      "bytes": 2533,
+      "sha256": "75f0b107d38c428287e67d57dfec380f8af384db93f37c37c61bbd10757c2117"
+    },
+    "prior_UI_audio_pins": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/software-33ms-hour/result.json",
+      "bytes": 50577,
+      "sha256": "11efd7384cd88278da4dc3a401bf4f60b7733ce5c51e9f7702e3b4b3b46c63d0"
+    },
+    "admission_source": {
+      "repository_path": "docs/benchmarks/data/music-profile-2026-10-17/helpers/interleaved_replay.py",
+      "bytes": 20670,
+      "sha256": "72d202f04fd787ab8f0871854c8c6feeb8dc6aa4f00c2cbb84359389779441ee"
+    },
+    "native_replay_source": {
+      "repository_path": "docs/benchmarks/data/music-profile-2026-10-17/helpers/native_replay.py",
+      "bytes": 14483,
+      "sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e"
+    },
+    "window_guard_source": {
+      "repository_path": "docs/benchmarks/data/music-profile-2026-10-17/helpers/window_guard.py",
+      "bytes": 14613,
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "readiness_source": {
+      "repository_path": "docs/benchmarks/data/user-tracks-2026-10-17/helpers/normal_ready.py",
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "observer_source": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/source-snapshots/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+      "bytes": 4720,
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394"
+    },
+    "saved_audit_source": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/series/analysis-source/completed-hour-audit.py",
+      "bytes": 15480,
+      "sha256": "dc6604a7a0f3a6d4ea2a84ccacdec1ac679f961effef4e988287dc745c56d138"
+    },
+    "thermal_source": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/series/analysis-source/thermal-snapshot-audit.py",
+      "bytes": 8985,
+      "sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0"
+    },
+    "ui_cpp_source": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/source-snapshots/src/main.cpp",
+      "bytes": 9787,
+      "sha256": "302847b129ecc31215e7f3ee9fa91708b64bdc1cdca320b98c6e78e6769e17eb"
+    },
+    "ui_qml_source": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/source-snapshots/qml/Main.qml",
+      "bytes": 4257,
+      "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb"
+    },
+    "audio_cpp_source": {
+      "repository_path": "docs/benchmarks/data/software-ui-2026-10-17/source-snapshots/src/probe_main.cpp",
+      "bytes": 17361,
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6"
+    },
+    "profile_reducer": {
+      "repository_path": "docs/benchmarks/data/music-profile-2026-10-17/helpers/profile_music.py",
+      "bytes": 14768,
+      "sha256": "9e2d3c5eedd6c7f00714619d45de51aee69713a4a4971d8779452979af74b6b6"
+    },
+    "span_reducer": {
+      "repository_path": "docs/benchmarks/data/user-tracks-2026-10-17/helpers/summarize_runs.py",
+      "bytes": 23781,
+      "sha256": "f704971b6a70862126de8f1d91498630dd7592d9d4ba63139ad8c49ef0e18fe5"
+    }
+  },
+  "files": {
+    "corpus-pins.json": {
+      "bytes": 9427,
+      "sha256": "dbb9703338e82204557b031e0d7d5731bd49953afe1e8fe8ccc7d3797991f821",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/corpus-pins.json",
+      "raw_bytes": 9427,
+      "raw_sha256": "dbb9703338e82204557b031e0d7d5731bd49953afe1e8fe8ccc7d3797991f821",
+      "compression": null
+    },
+    "expected-pins.json": {
+      "bytes": 1296,
+      "sha256": "60b348d35e89ae69b0d5f531cb6f7877cb464acf4e595a3583d7911e802ef2e7",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/expected-pins.json",
+      "raw_bytes": 1296,
+      "raw_sha256": "60b348d35e89ae69b0d5f531cb6f7877cb464acf4e595a3583d7911e802ef2e7",
+      "compression": null
+    },
+    "guard-journal-audit.json": {
+      "bytes": 4146,
+      "sha256": "5916736c38063c43dc61197ac8fb4bc4af2944d8d8fa53e064aecbf2121ab653",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/guard-journal-audit.json",
+      "raw_bytes": 4146,
+      "raw_sha256": "5916736c38063c43dc61197ac8fb4bc4af2944d8d8fa53e064aecbf2121ab653",
+      "compression": null
+    },
+    "guard-journal.jsonl.gz": {
+      "bytes": 785,
+      "sha256": "b7d12f8bcdc7a164c9f818b2b9eb150a4e018e6babc67e1db608bab317073290",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/guard-journal.jsonl",
+      "raw_bytes": 3308,
+      "raw_sha256": "a43840f2869a3d9b5eb644c46d4f514e89b72b57e399da3c35441035c6fec91a",
+      "compression": "gzip",
+      "jsonl_records": 6
+    },
+    "helpers/analyze_music.py": {
+      "bytes": 22729,
+      "sha256": "95608b848335620b0b39b614d11f168f547fceb8b7d1aca9b30d621d90c80aaa",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/analyze_music.py",
+      "raw_bytes": 22729,
+      "raw_sha256": "95608b848335620b0b39b614d11f168f547fceb8b7d1aca9b30d621d90c80aaa",
+      "compression": null
+    },
+    "helpers/audit_two_threads.py": {
+      "bytes": 43104,
+      "sha256": "efe12b9a50b920fd8e4ba95f91e06f7321f30a4dee046763ac51e1f148cbaf45",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/audit_two_threads.py",
+      "raw_bytes": 43104,
+      "raw_sha256": "efe12b9a50b920fd8e4ba95f91e06f7321f30a4dee046763ac51e1f148cbaf45",
+      "compression": null
+    },
+    "helpers/observed_launch.py": {
+      "bytes": 19776,
+      "sha256": "e0af0d85c41288974b7ace69326c3c70ca007eb731aadc95bf8c8e7a40944580",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/observed_launch.py",
+      "raw_bytes": 19776,
+      "raw_sha256": "e0af0d85c41288974b7ace69326c3c70ca007eb731aadc95bf8c8e7a40944580",
+      "compression": null
+    },
+    "helpers/package_two_threads.py": {
+      "bytes": 23423,
+      "sha256": "e706d9678ef0b864452b1708e22e2e84f86fbfb41c625d9ea6df6d5603251567",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/package_two_threads.py",
+      "raw_bytes": 23423,
+      "raw_sha256": "e706d9678ef0b864452b1708e22e2e84f86fbfb41c625d9ea6df6d5603251567",
+      "compression": null
+    },
+    "helpers/thermal-snapshot-audit.py": {
+      "bytes": 8985,
+      "sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/thermal-snapshot-audit.py",
+      "raw_bytes": 8985,
+      "raw_sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0",
+      "compression": null
+    },
+    "independent-validation-check.json": {
+      "bytes": 8989,
+      "sha256": "6c4d151d2e7cee63ad7b0a806f18fd354e894e4032fa0733cd197a904d61e8b3",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/independent-validation-check.json",
+      "raw_bytes": 8989,
+      "raw_sha256": "6c4d151d2e7cee63ad7b0a806f18fd354e894e4032fa0733cd197a904d61e8b3",
+      "compression": null
+    },
+    "initial-host.json": {
+      "bytes": 308,
+      "sha256": "78f1cef31703b068963dab2ca0bdd3cae28eba232d8463b3f4fdc041972f8c0b",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/initial-host.json",
+      "raw_bytes": 308,
+      "raw_sha256": "78f1cef31703b068963dab2ca0bdd3cae28eba232d8463b3f4fdc041972f8c0b",
+      "compression": null
+    },
+    "launcher-unarmed-check.json": {
+      "bytes": 666,
+      "sha256": "b5052b6164048b85ed0189426f44afc79eaca2909d9d0062f71b7773128f41a4",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/launcher-unarmed-check.json",
+      "raw_bytes": 666,
+      "raw_sha256": "b5052b6164048b85ed0189426f44afc79eaca2909d9d0062f71b7773128f41a4",
+      "compression": null
+    },
+    "observed-launch-review.json": {
+      "bytes": 2360,
+      "sha256": "26f2b1652bcd96fa852c4223b7511506f7ce8ebeaaedd201baca0fa7cc6d7625",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/observed-launch-review.json",
+      "raw_bytes": 2360,
+      "raw_sha256": "26f2b1652bcd96fa852c4223b7511506f7ce8ebeaaedd201baca0fa7cc6d7625",
+      "compression": null
+    },
+    "source-CI.json": {
+      "bytes": 887,
+      "sha256": "8edcc5c835ecd0576175c988cfdd15fa2c1675fdd8be1f3ef69b1f53f4535040",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/source-CI.json",
+      "raw_bytes": 887,
+      "raw_sha256": "8edcc5c835ecd0576175c988cfdd15fa2c1675fdd8be1f3ef69b1f53f4535040",
+      "compression": null
+    },
+    "source-snapshots/CMakeLists.txt": {
+      "bytes": 3232,
+      "sha256": "25c1a26e06d68de59679617c6f19e5855bda208246f33b47839f96cca3520b0a",
+      "source": "/home/kyau/projects/kyaulabs/conflux/CMakeLists.txt",
+      "raw_bytes": 3232,
+      "raw_sha256": "25c1a26e06d68de59679617c6f19e5855bda208246f33b47839f96cca3520b0a",
+      "compression": null
+    },
+    "source-snapshots/tests/stem_soak_test.py": {
+      "bytes": 23251,
+      "sha256": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e",
+      "source": "/home/kyau/projects/kyaulabs/conflux/tests/stem_soak_test.py",
+      "raw_bytes": 23251,
+      "raw_sha256": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e",
+      "compression": null
+    },
+    "source-snapshots/tests/stem_worker_test.py": {
+      "bytes": 22905,
+      "sha256": "b1b010bd79c2dd09c0e0a834ae5e470b4767ef1d2c350605670037254b5dfc85",
+      "source": "/home/kyau/projects/kyaulabs/conflux/tests/stem_worker_test.py",
+      "raw_bytes": 22905,
+      "raw_sha256": "b1b010bd79c2dd09c0e0a834ae5e470b4767ef1d2c350605670037254b5dfc85",
+      "compression": null
+    },
+    "source-snapshots/tools/benchmarks/stem_soak.py": {
+      "bytes": 64246,
+      "sha256": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d",
+      "source": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "raw_bytes": 64246,
+      "raw_sha256": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d",
+      "compression": null
+    },
+    "source-snapshots/tools/stems/worker.py": {
+      "bytes": 25077,
+      "sha256": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824",
+      "source": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "raw_bytes": 25077,
+      "raw_sha256": "c17af43045a621281893ac086f4ee03d054657974f0f308552006cb454067824",
+      "compression": null
+    },
+    "source-verification.json": {
+      "bytes": 2254,
+      "sha256": "136ee021fc34f59afa558367e6b789b3451827b3bc5cb0c969be9b53c91ac46b",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/source-verification.json",
+      "raw_bytes": 2254,
+      "raw_sha256": "136ee021fc34f59afa558367e6b789b3451827b3bc5cb0c969be9b53c91ac46b",
+      "compression": null
+    },
+    "threads2-both-10min-AC-lid-monitor.jsonl.gz": {
+      "bytes": 4976,
+      "sha256": "2fe437c9a7d904e9f1e2e4f0c23107199e02d0a0f4f026ab962fc3788ef4fa9c",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-AC-lid-monitor.jsonl",
+      "raw_bytes": 50191,
+      "raw_sha256": "66c7fe08e95d75357db77ad3bac18833e1180ec8bf785ae314bec78b2d0618f2",
+      "compression": "gzip",
+      "jsonl_records": 18
+    },
+    "threads2-both-10min-admission/admission-normal-ready.json": {
+      "bytes": 15640,
+      "sha256": "b903b1303166537be63f1e832c0a29d22aaa721a3be0ab1bc5e99b22822e55f4",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-admission/admission-normal-ready.json",
+      "raw_bytes": 15640,
+      "raw_sha256": "b903b1303166537be63f1e832c0a29d22aaa721a3be0ab1bc5e99b22822e55f4",
+      "compression": null
+    },
+    "threads2-both-10min-admission/admission-normal-ready.jsonl.gz": {
+      "bytes": 1376,
+      "sha256": "33a9c56cb554216b926199e0eb8a2ec449f47ff3f5c14f6d5d17a36677ee58d4",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-admission/admission-normal-ready.jsonl",
+      "raw_bytes": 12217,
+      "raw_sha256": "ab2b9b068fa5ec83fff09392458bcc865914b09216aae22f71d81ec23e9fa6fd",
+      "compression": "gzip",
+      "jsonl_records": 13
+    },
+    "threads2-both-10min-admission/fresh-admission.json": {
+      "bytes": 1796,
+      "sha256": "d744b1b37d176550ddb6a6b370b4ebc8946c87b49e4b41b079d1061a5700f14b",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-admission/fresh-admission.json",
+      "raw_bytes": 1796,
+      "raw_sha256": "d744b1b37d176550ddb6a6b370b4ebc8946c87b49e4b41b079d1061a5700f14b",
+      "compression": null
+    },
+    "threads2-both-10min-admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-admission/stderr",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compression": null
+    },
+    "threads2-both-10min-admission/stdout": {
+      "bytes": 219,
+      "sha256": "f546d122c069a7940ed4f01f3062a21e51d6314288a34b9c8ca3ee8c86bc9dd4",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-admission/stdout",
+      "raw_bytes": 219,
+      "raw_sha256": "f546d122c069a7940ed4f01f3062a21e51d6314288a34b9c8ca3ee8c86bc9dd4",
+      "compression": null
+    },
+    "threads2-both-10min-analysis.json.gz": {
+      "bytes": 84453,
+      "sha256": "23846c4b0691b19e16b44a5395888857ff3aa074393d547adacfa1bf39977cb7",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-analysis.json",
+      "raw_bytes": 1008715,
+      "raw_sha256": "61a81998d401fab5ea995a31acb1affc9a6583821759f8105be81dfcd5f5ca0b",
+      "compression": "gzip"
+    },
+    "threads2-both-10min-audit.json": {
+      "bytes": 40637,
+      "sha256": "7ff086ac6f0034604ebd2ff116a0c39934cbecb192193400569f47bc9f65e461",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-audit.json",
+      "raw_bytes": 40637,
+      "raw_sha256": "7ff086ac6f0034604ebd2ff116a0c39934cbecb192193400569f47bc9f65e461",
+      "compression": null
+    },
+    "threads2-both-10min-guard.js": {
+      "bytes": 2871,
+      "sha256": "050c1f971581eaaedace7007ccd60e7a45bf87977587ff239501cdc5607e6e65",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-guard.js",
+      "raw_bytes": 2871,
+      "raw_sha256": "050c1f971581eaaedace7007ccd60e7a45bf87977587ff239501cdc5607e6e65",
+      "compression": null
+    },
+    "threads2-both-10min-guard.json": {
+      "bytes": 3323,
+      "sha256": "605f2138c4d61de98172003415da322636c62379e4726147c93cf30854a91d81",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-guard.json",
+      "raw_bytes": 3323,
+      "raw_sha256": "605f2138c4d61de98172003415da322636c62379e4726147c93cf30854a91d81",
+      "compression": null
+    },
+    "threads2-both-10min-launch.json": {
+      "bytes": 16671,
+      "sha256": "db8e625d97b26b3fcfdf23398e302150c8a4367bd77fc4455a0c405ca8e44ac1",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-launch.json",
+      "raw_bytes": 16671,
+      "raw_sha256": "db8e625d97b26b3fcfdf23398e302150c8a4367bd77fc4455a0c405ca8e44ac1",
+      "compression": null
+    },
+    "threads2-both-10min-policy.json": {
+      "bytes": 2349,
+      "sha256": "0afd5f86213318466504664bd1ed9c32bdf6e28320b1da095bc7e521baaedae5",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-policy.json",
+      "raw_bytes": 2349,
+      "raw_sha256": "0afd5f86213318466504664bd1ed9c32bdf6e28320b1da095bc7e521baaedae5",
+      "compression": null
+    },
+    "threads2-both-10min-thermal-audit.json": {
+      "bytes": 11849,
+      "sha256": "f411eee3cee9e26c55fb78ab103e38d8aa8afa06c54fc4622f0d97d03c3dc8de",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min-thermal-audit.json",
+      "raw_bytes": 11849,
+      "raw_sha256": "f411eee3cee9e26c55fb78ab103e38d8aa8afa06c54fc4622f0d97d03c3dc8de",
+      "compression": null
+    },
+    "threads2-both-10min.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min.stderr",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compression": null
+    },
+    "threads2-both-10min.stdout": {
+      "bytes": 1296,
+      "sha256": "003d7b4892b61e45529fa1a0a5267a03ebca717c3b9e6444bf8ea1969adf3c77",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min.stdout",
+      "raw_bytes": 1296,
+      "raw_sha256": "003d7b4892b61e45529fa1a0a5267a03ebca717c3b9e6444bf8ea1969adf3c77",
+      "compression": null
+    },
+    "threads2-both-10min/audio.json": {
+      "bytes": 1498,
+      "sha256": "d08a6400b0280abdcc3c7f28730699c882c0f9e2c09a493fcbd0fcb940ca40d5",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/audio.json",
+      "raw_bytes": 1498,
+      "raw_sha256": "d08a6400b0280abdcc3c7f28730699c882c0f9e2c09a493fcbd0fcb940ca40d5",
+      "compression": null
+    },
+    "threads2-both-10min/audio.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/audio.stderr",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compression": null
+    },
+    "threads2-both-10min/events.jsonl.gz": {
+      "bytes": 47053,
+      "sha256": "ab613c1e94fc44083bf5618dac104931bded3b6b2cb3d34bf279043017560096",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/events.jsonl",
+      "raw_bytes": 386940,
+      "raw_sha256": "b90f36bc4bbab0ef5c3608f5ade7e1e9744c59936babe4fccd1f76c22a0af67b",
+      "compression": "gzip",
+      "jsonl_records": 625
+    },
+    "threads2-both-10min/native-trace.jsonl.gz": {
+      "bytes": 244281,
+      "sha256": "2829a086d8c8f5e5bcb04579991a6596daa21fa5d848381e0c770bdf7e62ad02",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/native-trace.jsonl",
+      "raw_bytes": 7668232,
+      "raw_sha256": "895816e289b988327022e75f85812bbb55ed2c38bdfa21e16ebb965fe45b8669",
+      "compression": "gzip",
+      "jsonl_records": 1177
+    },
+    "threads2-both-10min/progress.json": {
+      "bytes": 3559,
+      "sha256": "f1ca55fafb7e6d10c7da4a6681742ac775f5a8b677528967d876ab122294d48d",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/progress.json",
+      "raw_bytes": 3559,
+      "raw_sha256": "f1ca55fafb7e6d10c7da4a6681742ac775f5a8b677528967d876ab122294d48d",
+      "compression": null
+    },
+    "threads2-both-10min/result.json": {
+      "bytes": 57543,
+      "sha256": "d37d969c944d3ef1a59da6bf842025f950ce26f5518bde40c516c07b9fedb3c2",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/result.json",
+      "raw_bytes": 57543,
+      "raw_sha256": "d37d969c944d3ef1a59da6bf842025f950ce26f5518bde40c516c07b9fedb3c2",
+      "compression": null
+    },
+    "threads2-both-10min/ui-progress.json": {
+      "bytes": 278,
+      "sha256": "9e708a876d6c02e0b2c112498f058e515c214707169f1aa158d71fd8c8960db5",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/ui-progress.json",
+      "raw_bytes": 278,
+      "raw_sha256": "9e708a876d6c02e0b2c112498f058e515c214707169f1aa158d71fd8c8960db5",
+      "compression": null
+    },
+    "threads2-both-10min/ui.json": {
+      "bytes": 708,
+      "sha256": "c180c9038ba38da86b6864d9b59d7f923323a1499b3624d27f7127b1456e76fb",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/ui.json",
+      "raw_bytes": 708,
+      "raw_sha256": "c180c9038ba38da86b6864d9b59d7f923323a1499b3624d27f7127b1456e76fb",
+      "compression": null
+    },
+    "threads2-both-10min/ui.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/two-thread-music-2026-10-17/threads2-both-10min/ui.stderr",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compression": null
+    }
+  }
+}

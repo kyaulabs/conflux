@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "status": "ready",
+  "repository_head": "8e255bcea583e71c9c124bb276abf1ff33346e75",
+  "runtime_source_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+  "shared_worker_cleanup_commit": "e2ca892de4e9a3b0d6ebd7ce4beb42117264fa09",
+  "candidate_overlay_sha256": "4050c8d7c67065121ade02b22f0c75d961442610123992fb9b34b1e4dcb06900",
+  "pins": {
+    "runtime": "e50d0f5d0b7e3ba81d2fedb7ccaf0366b6418673c01d11f500936f075f37e720",
+    "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "worker_source": "5327d8d9c8ff531059811077669eff1b4c0f4cb76cd00b94ed84708f9407206b",
+    "shared_benchmark_source": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+    "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+  },
+  "source_pins_sha256": "edac0bf92c3a943903684c274c43933f30adf69eb180660aa169e164f52ae2e6",
+  "build_verification_sha256": "4884a9829e799398032b6fe460b4f9b018043a48ff3239887df08b3f88a9df39",
+  "scope": "32-request baseline/candidate exact PCM comparison, profiling disabled, observational per-child peak RSS and candidate graph buffer. No UI/audio, loaded p99, musical-quality or new memory threshold. Native math differs only by one existing Vulkan graph-order pass before allocation."
+}

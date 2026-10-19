@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "status": "comparison_complete",
+  "started_at_utc": "2026-10-18T22:21:45.546122+00:00",
+  "started_monotonic": 471943.617431711,
+  "deadline_monotonic": 472543.617431711,
+  "maximum_total_seconds": 600,
+  "driver_started": true,
+  "native_started": true,
+  "errors": [],
+  "pins_before": {
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_listening.py",
+      "bytes": 23934,
+      "sha256": "5bf72db0e7be85b1f0aabafcd843b00ebc57ea31013819b667a301c4749e2f35",
+      "device": 65033,
+      "inode": 5533764,
+      "mtime_ns": 1792362085125801440,
+      "ctime_ns": 1792362085125801440
+    },
+    "launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality_launch.py",
+      "bytes": 13985,
+      "sha256": "ab912a468791b13ca283bacd84ce30163ed1c7a0576fd099dc859fd4670294c4",
+      "device": 65033,
+      "inode": 5530598,
+      "mtime_ns": 1792361243391985841,
+      "ctime_ns": 1792361243391985841
+    },
+    "config": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-expected-pins.json",
+      "bytes": 1616,
+      "sha256": "5ec5df53d9ee5087967a6612b492f025c699f87968826bb6f2e32dacd5781887",
+      "device": 65033,
+      "inode": 5521680,
+      "mtime_ns": 1792362098874700994,
+      "ctime_ns": 1792362098874700994
+    },
+    "sources": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-source-pins.json",
+      "bytes": 7383,
+      "sha256": "ec6765bd9c5a7f341a2835b05b91ef4b0f1d253916b68587d7ee44ce1c267afe",
+      "device": 65033,
+      "inode": 5521679,
+      "mtime_ns": 1792362098874031183,
+      "ctime_ns": 1792362098874031183
+    }
+  },
+  "pins_after": {
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_listening.py",
+      "bytes": 23934,
+      "sha256": "5bf72db0e7be85b1f0aabafcd843b00ebc57ea31013819b667a301c4749e2f35",
+      "device": 65033,
+      "inode": 5533764,
+      "mtime_ns": 1792362085125801440,
+      "ctime_ns": 1792362085125801440
+    },
+    "launcher": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_quality_launch.py",
+      "bytes": 13985,
+      "sha256": "ab912a468791b13ca283bacd84ce30163ed1c7a0576fd099dc859fd4670294c4",
+      "device": 65033,
+      "inode": 5530598,
+      "mtime_ns": 1792361243391985841,
+      "ctime_ns": 1792361243391985841
+    },
+    "config": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-expected-pins.json",
+      "bytes": 1616,
+      "sha256": "5ec5df53d9ee5087967a6612b492f025c699f87968826bb6f2e32dacd5781887",
+      "device": 65033,
+      "inode": 5521680,
+      "mtime_ns": 1792362098874700994,
+      "ctime_ns": 1792362098874700994
+    },
+    "sources": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-source-pins.json",
+      "bytes": 7383,
+      "sha256": "ec6765bd9c5a7f341a2835b05b91ef4b0f1d253916b68587d7ee44ce1c267afe",
+      "device": 65033,
+      "inode": 5521679,
+      "mtime_ns": 1792362098874031183,
+      "ctime_ns": 1792362098874031183
+    }
+  },
+  "profile_mutation": false,
+  "service_mutation": false,
+  "UI_load": false,
+  "audio_load": false,
+  "musical_quality": "not_assessed",
+  "latency_qualification": "not_attempted",
+  "scope": "Parent-owned workspace spool and owned process group. Actual AC/lid checks before/through/after; no minimized-window or thermal admission gate for numerical math.",
+  "spool": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/native-temp/flash-quality-4a_2fwgm",
+  "baseline_spool_expected_bytes": 264176640,
+  "command": [
+    "systemd-inhibit",
+    "--what=sleep:idle",
+    "--mode=block",
+    "--who=CONFLUX",
+    "--why=Bounded native numerical PCM comparison",
+    "/bin/python3",
+    "-B",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_listening.py",
+    "--run",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-laptop-01/comparison",
+    "--spool",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/native-temp/flash-quality-4a_2fwgm",
+    "--expected-pins",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-expected-pins.json",
+    "--source-pins",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-source-pins.json",
+    "--deadline-monotonic",
+    "472543.617431711"
+  ],
+  "owned_group": 2278483,
+  "elapsed_seconds": 103.51430004899157,
+  "updated_at_utc": "2026-10-18T22:23:28.976789+00:00",
+  "driver_returncode": 0,
+  "result_pin": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-listening-laptop-01/comparison/result.json",
+    "bytes": 292163,
+    "sha256": "248138d69cf92ae523a6e033da6cf7c74fa9dfd464b49710e2d18a06208f6c81",
+    "device": 65033,
+    "inode": 5533780,
+    "mtime_ns": 1792362208756015646,
+    "ctime_ns": 1792362208756479831
+  },
+  "reported_status": "comparison_complete",
+  "completed_requests": 32,
+  "process_cleanup_complete": true,
+  "cleanup": {
+    "owned_identities": {
+      "2278483": {
+        "start_ticks": 52348112,
+        "group": 2278483
+      },
+      "2278487": {
+        "start_ticks": 52348115,
+        "group": 2278483
+      },
+      "2279117": {
+        "start_ticks": 52357946,
+        "group": 2278483
+      },
+      "2279626": {
+        "start_ticks": 52358148,
+        "group": 2278483
+      },
+      "2279870": {
+        "start_ticks": 52358247,
+        "group": 2278483
+      }
+    },
+    "remaining_observed": {}
+  },
+  "spool_removed": true,
+  "cleanup_complete": true,
+  "finished_at_utc": "2026-10-18T22:23:28.976777+00:00"
+}

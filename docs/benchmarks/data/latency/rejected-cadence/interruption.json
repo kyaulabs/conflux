@@ -1,0 +1,20 @@
+{
+  "status": "intentionally-interrupted",
+  "exit_code": 130,
+  "reason": "Repeated target violations; rejected cadence prototype removed. Final performance-profile comparisons run separately.",
+  "dispatch_interval_seconds": 3.5,
+  "continuous_chunks_observed": 49,
+  "source_frames_delivered": 12641265,
+  "source_complete": false,
+  "maximum_hop_service_ms": 8902.609928976744,
+  "waits_count_in_service": true,
+  "seeks_and_cancellation_scenarios_run": false,
+  "power_profile_observed_during_run": {
+    "powerprofilesctl": "power-saver",
+    "platform_profile": "low-power",
+    "energy_performance_preference": "power"
+  },
+  "raw_result_note": "Original harness cleanup saved resources and load reports, but its KeyboardInterrupt path omitted status. This companion records the intentional interruption; the harness now records interrupted status directly.",
+  "trace_uncompressed_bytes": 8919189,
+  "trace_uncompressed_sha256": "0e8d7451de97fc7252e7f7d31d25f37aef0ee5f286bc15ac0083cfb80cb7dc54"
+}

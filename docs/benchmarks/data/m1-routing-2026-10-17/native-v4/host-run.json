@@ -1,0 +1,38 @@
+{
+  "started_utc": "2026-10-18T05:27:17.340248+00:00",
+  "before": {
+    "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+    "profile": "balanced\n"
+  },
+  "runs": [
+    {
+      "name": "manual",
+      "pid": 2057475,
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-audio-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cdj-ui-2026-10-17/quiet-0.wav",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cdj-ui-2026-10-17/quiet-1.wav",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-routing-2026-10-17/routing"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 14.90575454098871
+    },
+    {
+      "name": "smoke-wayland",
+      "pid": 2057580,
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--smoke-test",
+        "--screenshot",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-routing-2026-10-17/smoke-wayland.png"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 2.1696094750077464
+    }
+  ],
+  "after": {
+    "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+    "profile": "balanced\n"
+  },
+  "stopped_utc": "2026-10-18T05:27:34.611215+00:00"
+}

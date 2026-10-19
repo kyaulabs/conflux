@@ -1,0 +1,261 @@
+{
+  "schema": 1,
+  "scope": "Saved bounded host-escalated read-only thermal-guard journal captures across five completed diagnostic attempts, independently associated with saved native policy snapshots. No controlled comparison or causal inference.",
+  "runs": [
+    {
+      "run": "none-hour",
+      "journal_bounds": {
+        "since_inclusive": "2026-10-16T23:08:14.537491+00:00",
+        "until_inclusive": "2026-10-16T23:34:24.482368+00:00"
+      },
+      "last_pre_range_entry": {
+        "MESSAGE": "2026-10-16T16:07:59-07:00 warning: CPU/ACPI temperature 90.0C; power-saver engaged (was balanced)",
+        "PRIORITY": "6",
+        "__MONOTONIC_TIMESTAMP": "314508515871",
+        "__REALTIME_TIMESTAMP": "1792192079461921",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "in_range_entries": [],
+      "capture_errors": [],
+      "journal_limit_reached_possible_truncation": false,
+      "native_policy": {
+        "samples": 3064,
+        "firmware_counts": {
+          "balanced": 3064
+        },
+        "cpu0_EPP_counts": {
+          "balance_performance": 3064
+        },
+        "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour/native-trace.jsonl",
+        "source_sha256": "1ff0660eb105008d15c0db111ce1751c32d84558806d459c990042a061c91db5"
+      },
+      "qualification": "Pre-range entry supplies logged guard context only; it is not a direct latch observation. Profile-forcing wrapper can override policy despite guard state. Native snapshots describe observed firmware/EPP, not uninterrupted policy between reads.",
+      "workload_monotonic_bounds": {
+        "start": 314527.859596487,
+        "stop": 316091.291980053
+      },
+      "journal_receipt_offsets": [
+        {
+          "MESSAGE": "2026-10-16T16:07:59-07:00 warning: CPU/ACPI temperature 90.0C; power-saver engaged (was balanced)",
+          "receipt_monotonic": 314508.515871,
+          "seconds_from_workload_start": -19.34372548700776,
+          "seconds_from_workload_stop": -1582.7761090529966,
+          "phase": "before_workload"
+        }
+      ]
+    },
+    {
+      "run": "none-hour-rerun",
+      "journal_bounds": {
+        "since_inclusive": "2026-10-16T23:55:59.894901+00:00",
+        "until_inclusive": "2026-10-17T00:05:58.502208+00:00"
+      },
+      "last_pre_range_entry": {
+        "MESSAGE": "2026-10-16T16:55:02-07:00 warning: CPU/ACPI temperature 92.0C; power-saver engaged (was balanced)",
+        "PRIORITY": "6",
+        "__MONOTONIC_TIMESTAMP": "317331940960",
+        "__REALTIME_TIMESTAMP": "1792194902887010",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "in_range_entries": [],
+      "capture_errors": [],
+      "journal_limit_reached_possible_truncation": false,
+      "native_policy": {
+        "samples": 1155,
+        "firmware_counts": {
+          "balanced": 1155
+        },
+        "cpu0_EPP_counts": {
+          "balance_performance": 1155
+        },
+        "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/none-hour-rerun/native-trace.jsonl",
+        "source_sha256": "0eca2d002c726090db315669d10c458c7f41182412194247bd44cb0716bd7ff5"
+      },
+      "qualification": "Pre-range entry supplies logged guard context only; it is not a direct latch observation. Profile-forcing wrapper can override policy despite guard state. Native snapshots describe observed firmware/EPP, not uninterrupted policy between reads.",
+      "workload_monotonic_bounds": {
+        "start": 317393.114447658,
+        "stop": 317983.249377048
+      },
+      "journal_receipt_offsets": [
+        {
+          "MESSAGE": "2026-10-16T16:55:02-07:00 warning: CPU/ACPI temperature 92.0C; power-saver engaged (was balanced)",
+          "receipt_monotonic": 317331.94096,
+          "seconds_from_workload_start": -61.17348765803035,
+          "seconds_from_workload_stop": -651.3084170480142,
+          "phase": "before_workload"
+        }
+      ]
+    },
+    {
+      "run": "audio-hour",
+      "journal_bounds": {
+        "since_inclusive": "2026-10-17T00:16:01.185429+00:00",
+        "until_inclusive": "2026-10-17T00:20:42.184588+00:00"
+      },
+      "last_pre_range_entry": {
+        "MESSAGE": "2026-10-16T17:14:18-07:00 warning: CPU/ACPI temperature 90.0C; power-saver engaged (was balanced)",
+        "PRIORITY": "6",
+        "__MONOTONIC_TIMESTAMP": "318487670349",
+        "__REALTIME_TIMESTAMP": "1792196058616399",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "in_range_entries": [],
+      "capture_errors": [],
+      "journal_limit_reached_possible_truncation": false,
+      "native_policy": {
+        "samples": 533,
+        "firmware_counts": {
+          "balanced": 533
+        },
+        "cpu0_EPP_counts": {
+          "balance_performance": 533
+        },
+        "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour/native-trace.jsonl",
+        "source_sha256": "3bf2f8c1ea2d994e750a5c47bda3c775b9fae4e50ccf92d36d7a036978d96ad1"
+      },
+      "qualification": "Pre-range entry supplies logged guard context only; it is not a direct latch observation. Profile-forcing wrapper can override policy despite guard state. Native snapshots describe observed firmware/EPP, not uninterrupted policy between reads.",
+      "workload_monotonic_bounds": {
+        "start": 318594.5381048,
+        "stop": 318867.168999117
+      },
+      "journal_receipt_offsets": [
+        {
+          "MESSAGE": "2026-10-16T17:14:18-07:00 warning: CPU/ACPI temperature 90.0C; power-saver engaged (was balanced)",
+          "receipt_monotonic": 318487.670349,
+          "seconds_from_workload_start": -106.86775579996174,
+          "seconds_from_workload_stop": -379.4986501169624,
+          "phase": "before_workload"
+        }
+      ]
+    },
+    {
+      "run": "both-hour",
+      "journal_bounds": {
+        "since_inclusive": "2026-10-17T00:30:43.456267+00:00",
+        "until_inclusive": "2026-10-17T00:31:24.635397+00:00"
+      },
+      "last_pre_range_entry": {
+        "MESSAGE": "2026-10-16T17:30:40-07:00 recovered: temperature 48.0C; balanced profile restored=1",
+        "PRIORITY": "6",
+        "__MONOTONIC_TIMESTAMP": "319469142610",
+        "__REALTIME_TIMESTAMP": "1792197040088660",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "in_range_entries": [
+        {
+          "MESSAGE": "2026-10-16T17:30:46-07:00 warning: CPU/ACPI temperature 88.0C; power-saver engaged (was balanced)",
+          "PRIORITY": "6",
+          "__MONOTONIC_TIMESTAMP": "319475489860",
+          "__REALTIME_TIMESTAMP": "1792197046435910",
+          "_PID": "1036",
+          "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+        }
+      ],
+      "capture_errors": [],
+      "journal_limit_reached_possible_truncation": false,
+      "native_policy": {
+        "samples": 64,
+        "firmware_counts": {
+          "low-power": 64
+        },
+        "cpu0_EPP_counts": {
+          "power": 64
+        },
+        "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/both-hour/native-trace.jsonl",
+        "source_sha256": "bced48c920561c4eb690fbc0726f6872cab1c12f1d9168bb6a82c344a277dfa9"
+      },
+      "qualification": "Pre-range entry supplies logged guard context only; it is not a direct latch observation. Profile-forcing wrapper can override policy despite guard state. Native snapshots describe observed firmware/EPP, not uninterrupted policy between reads.",
+      "workload_monotonic_bounds": {
+        "start": 319476.795580863,
+        "stop": 319509.995195167
+      },
+      "journal_receipt_offsets": [
+        {
+          "MESSAGE": "2026-10-16T17:30:40-07:00 recovered: temperature 48.0C; balanced profile restored=1",
+          "receipt_monotonic": 319469.14261,
+          "seconds_from_workload_start": -7.652970863040537,
+          "seconds_from_workload_stop": -40.85258516704198,
+          "phase": "before_workload"
+        },
+        {
+          "MESSAGE": "2026-10-16T17:30:46-07:00 warning: CPU/ACPI temperature 88.0C; power-saver engaged (was balanced)",
+          "receipt_monotonic": 319475.48986,
+          "seconds_from_workload_start": -1.3057208630489185,
+          "seconds_from_workload_stop": -34.50533516705036,
+          "phase": "before_workload"
+        }
+      ]
+    },
+    {
+      "run": "both-hour-rerun",
+      "journal_bounds": {
+        "since_inclusive": "2026-10-17T00:43:20.410527+00:00",
+        "until_inclusive": "2026-10-17T00:43:32.638754+00:00"
+      },
+      "last_pre_range_entry": {
+        "MESSAGE": "2026-10-16T17:42:34-07:00 warning: CPU/ACPI temperature 91.0C; power-saver engaged (was balanced)",
+        "PRIORITY": "6",
+        "__MONOTONIC_TIMESTAMP": "320183607779",
+        "__REALTIME_TIMESTAMP": "1792197754553829",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "in_range_entries": [
+        {
+          "MESSAGE": "2026-10-16T17:43:30-07:00 critical: CPU/ACPI temperature 96.0C",
+          "PRIORITY": "6",
+          "__MONOTONIC_TIMESTAMP": "320240052634",
+          "__REALTIME_TIMESTAMP": "1792197810998685",
+          "_PID": "1036",
+          "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+        }
+      ],
+      "capture_errors": [],
+      "journal_limit_reached_possible_truncation": false,
+      "native_policy": {
+        "samples": 12,
+        "firmware_counts": {
+          "balanced": 12
+        },
+        "cpu0_EPP_counts": {
+          "balance_performance": 12
+        },
+        "source": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/both-hour-rerun/native-trace.jsonl",
+        "source_sha256": "1ad1bb977a52f1d544a5efd547cf3e8f7c6721497eec829fd1b0a716c5be39fb"
+      },
+      "qualification": "Pre-range entry supplies logged guard context only; it is not a direct latch observation. Profile-forcing wrapper can override policy despite guard state. Native snapshots describe observed firmware/EPP, not uninterrupted policy between reads.",
+      "workload_monotonic_bounds": {
+        "start": 320233.522349698,
+        "stop": 320239.317439298
+      },
+      "journal_receipt_offsets": [
+        {
+          "MESSAGE": "2026-10-16T17:42:34-07:00 warning: CPU/ACPI temperature 91.0C; power-saver engaged (was balanced)",
+          "receipt_monotonic": 320183.607779,
+          "seconds_from_workload_start": -49.91457069799071,
+          "seconds_from_workload_stop": -55.70966029801639,
+          "phase": "before_workload"
+        },
+        {
+          "MESSAGE": "2026-10-16T17:43:30-07:00 critical: CPU/ACPI temperature 96.0C",
+          "receipt_monotonic": 320240.052634,
+          "seconds_from_workload_start": 6.530284302018117,
+          "seconds_from_workload_stop": 0.735194701992441,
+          "phase": "after_workload"
+        }
+      ]
+    }
+  ],
+  "qualifications": [
+    "Current thermal-guard source and unit hashes are stable capture-time bytes only; they do not prove historical executed source bytes.",
+    "A last pre-range warning is logged engagement context, not complete latch reconstruction. No direct private latch access exists.",
+    "Journal receipt timestamps and message claims are retained; no assumption is made that a logged restore command succeeded.",
+    "Empty in-range journals do not prove no thermal/policy change.",
+    "The first both attempt sampled low-power; others sampled balanced despite preceding guard warnings. All five remain diagnostic and prior failed/interrupted statuses unchanged.",
+    "All captures completed after GPU workloads stopped; no global settings changed."
+  ]
+}

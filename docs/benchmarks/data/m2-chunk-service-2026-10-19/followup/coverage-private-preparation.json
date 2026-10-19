@@ -1,0 +1,252 @@
+{
+  "passed": true,
+  "execution_deadline_gate": false,
+  "harness_timeout_seconds": 240,
+  "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+  "preflight_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "check_exit": 0,
+  "check": {
+    "checks": [
+      "Expected failure cannot create a core dump",
+      "Preparation cache is confined to the private runtime",
+      "Persistent library data is confined to the private runtime",
+      "Generated fixtures have a private temporary owner",
+      "Exact private master pair is configured with cue disabled",
+      "Generated A loads on the private output",
+      "Steady A matches independent asymmetric PCM samples",
+      "Library startup finishes empty without disturbing active A playback",
+      "Private cache lock gates import while GUI polling stays active",
+      "Library import starts without targeting a playback deck",
+      "GUI polling during pending import preserves the same healthy advancing A session",
+      "B import preparation finishes while GUI completion remains queued",
+      "Completed import remains cancellable before any catalog or deck acceptance",
+      "Queued B import cancellation is accepted",
+      "Import cancellation stays busy until candidate cleanup",
+      "Cancelling queued import leaves catalog and decks unchanged on the same advancing A session",
+      "Import cancellation preserves exact A samples without source or output failures",
+      "Retried import completes one persistent library record",
+      "Saved B row exposes its content id, local path, duration and availability",
+      "Import saves metadata without installing B or changing commands, exact A samples or the shared session",
+      "B preparation finishes while GUI completion remains queued",
+      "Completed B preparation remains cancellable before GUI installation",
+      "Queued B preparation cancellation is accepted",
+      "Cancellation keeps ownership busy until cleanup",
+      "Cancelling queued B preserves unloaded B and the same advancing A/output clock",
+      "Cancellation preserves exact A samples without invalid buffers or source failures",
+      "Direct Complete shutdown returns through the enclosing poll safely",
+      "Retry reuses persisted B preparation while A remains exact and B installs paused on the same clock",
+      "Only explicit shutdown completes the shared playback session",
+      "Loading and shutting down preserve the persistent imported library record",
+      "Explicit local stem engine is available on the private master-only pair",
+      "Initial prepared bank retains four aligned owners and labels its drums overview",
+      "Selected bank A reaches the private sink; sink sample gate applies outside functional-only mode",
+      "Short replacement source is imported while the long prepared bank continues",
+      "Library bank B preparation starts without replacing the advancing sources",
+      "Bank B worker completes while GUI acceptance remains queued",
+      "Queued complete-bank cancellation remains accepted before GUI installation",
+      "Queued bank cancellation retires its whole candidate while peer clocks, selected stems and recorder continue",
+      "Cached bank handoff resets only its target and retains both complete owners without restarting A or recording",
+      "Bank-to-normal handoff retires all four target PCM owners and preserves the audible bank peer and writer",
+      "Explicit routing rebuild retains the bank, acknowledged stem gains, peer transport and original recording writer",
+      "Restored bank reaches the private sink; sink sample gate applies outside functional-only mode",
+      "One bank-session writer finalizes every accepted stereo frame without overflow",
+      "Prepared bank integration reports no invalid buffers, rejected commands or source read failures",
+      "Only explicit routing rebuild and shutdown complete the stem controller's sessions"
+    ],
+    "error": "",
+    "execution_deadline_gate": false,
+    "observations": {
+      "cancelled_at_output_frame": 318464,
+      "completion": {
+        "a_source_frame": 427008,
+        "b_playing": false,
+        "b_source_frame": 0,
+        "b_source_generation": 1,
+        "busy": false,
+        "cache_hit": true,
+        "cancelled_at_output_frame": 318464,
+        "checked_samples_left": 422400,
+        "checked_samples_right": 422400,
+        "checks": [
+          "Expected failure cannot create a core dump",
+          "Preparation cache is confined to the private runtime",
+          "Persistent library data is confined to the private runtime",
+          "Generated fixtures have a private temporary owner",
+          "Exact private master pair is configured with cue disabled",
+          "Generated A loads on the private output",
+          "Steady A matches independent asymmetric PCM samples",
+          "Library startup finishes empty without disturbing active A playback",
+          "Private cache lock gates import while GUI polling stays active",
+          "Library import starts without targeting a playback deck",
+          "GUI polling during pending import preserves the same healthy advancing A session",
+          "B import preparation finishes while GUI completion remains queued",
+          "Completed import remains cancellable before any catalog or deck acceptance",
+          "Queued B import cancellation is accepted",
+          "Import cancellation stays busy until candidate cleanup",
+          "Cancelling queued import leaves catalog and decks unchanged on the same advancing A session",
+          "Import cancellation preserves exact A samples without source or output failures",
+          "Retried import completes one persistent library record",
+          "Saved B row exposes its content id, local path, duration and availability",
+          "Import saves metadata without installing B or changing commands, exact A samples or the shared session",
+          "B preparation finishes while GUI completion remains queued",
+          "Completed B preparation remains cancellable before GUI installation",
+          "Queued B preparation cancellation is accepted",
+          "Cancellation keeps ownership busy until cleanup",
+          "Cancelling queued B preserves unloaded B and the same advancing A/output clock",
+          "Cancellation preserves exact A samples without invalid buffers or source failures"
+        ],
+        "execution_deadline_gate": false,
+        "output_frame": 427776,
+        "shutdown_returned": true,
+        "stage": "direct-shutdown-returned-awaiting-poll-return",
+        "wrong_samples": 0,
+        "zero_samples": 0
+      },
+      "fixture_frames_per_track": 2880000,
+      "library_import": {
+        "b_loaded": false,
+        "cancelled_at_output_frame": 15872,
+        "catalog_records": 1,
+        "commands_after": 1,
+        "commands_before": 1,
+        "gated_at_output_frame": 7680,
+        "id": "c905d2ee0b9757ef04bda3d42b954e61cbf060d5a822f08c5bfc3221915b9301",
+        "saved_at_output_frame": 310272
+      },
+      "stem_cancel_detail": {
+        "after": {
+          "decks": [
+            {
+              "bank": true,
+              "deck_gain": 1,
+              "frame": 123904,
+              "frames": 2880001,
+              "generation": 0,
+              "playing": true,
+              "read_error": false,
+              "starved": 0,
+              "stem_gains": [
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            {
+              "bank": false,
+              "deck_gain": 0,
+              "frame": 82944,
+              "frames": 2880000,
+              "generation": 1,
+              "playing": true,
+              "read_error": false,
+              "starved": 0,
+              "stem_gains": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "output": 126720
+        },
+        "before": {
+          "decks": [
+            {
+              "bank": true,
+              "deck_gain": 1,
+              "frame": 45312,
+              "frames": 2880001,
+              "generation": 0,
+              "playing": true,
+              "read_error": false,
+              "starved": 0,
+              "stem_gains": [
+                0,
+                0,
+                0,
+                1
+              ]
+            },
+            {
+              "bank": false,
+              "deck_gain": 0,
+              "frame": 4352,
+              "frames": 2880000,
+              "generation": 1,
+              "playing": true,
+              "read_error": false,
+              "starved": 0,
+              "stem_gains": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "output": 48128
+        },
+        "elapsed_seconds": 1.632135221,
+        "ready": true,
+        "recorded_at_worker_completion": 115456,
+        "recorded_before": 39936,
+        "recording": {
+          "acceptedFrames": 118272,
+          "active": true,
+          "error": "",
+          "overflowFrames": 0,
+          "path": "/tmp/conflux-coverage-private-preparation-ucoa5hdr/evidence/recordings/generated-stem-controller.wav",
+          "status": "Recording",
+          "writtenFrames": 118272
+        },
+        "retained_after": 115200032,
+        "retained_before": 115200032,
+        "sessions_after": 0,
+        "sessions_before": 0,
+        "sink_wrong_after": 0,
+        "sink_wrong_before": 0,
+        "sink_zeros_after": 0,
+        "sink_zeros_before": 0,
+        "status": "Cancelled"
+      },
+      "stem_controller": {
+        "bank_handoff_generation": 2,
+        "completed_sessions": 2,
+        "final_callbacks": 27,
+        "initial_bank_frames": 2880001,
+        "normal_handoff_generation": 3,
+        "recording": {
+          "checked_prefix_or_tail_frames": 158464,
+          "frames": 163584,
+          "maximum_prefix_or_tail_error": 7.450580596923828e-09,
+          "prefix_frames": 157440,
+          "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."
+        },
+        "replacement_fixture_frames": 192000,
+        "reported_starved_a": 0,
+        "reported_starved_b": 0,
+        "scope": "Generated fake separator, actual cache/controller/render/PipeWire paths. No model inference, physical routing, latency, sustained or musical qualification.",
+        "steady_sample_tolerance": 1e-06,
+        "virtual_sink_sample_gate": false,
+        "virtual_sink_wrong_samples": 0,
+        "virtual_sink_zero_samples": 0
+      }
+    },
+    "passed": true,
+    "scope": "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; no model, hardware or latency qualification."
+  },
+  "cleanup_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "cleanup": {
+    "remaining_nodes_or_links": [],
+    "only_dummy_driver_remains": true
+  },
+  "daemon_reaped": true
+}

@@ -1,0 +1,5 @@
+{
+  "change": "Add same-gain float32 WAV previews and verify exact decoded PCM bytes; numerical metric functions unchanged",
+  "analysis_source_sha256": "4131400abe7ed071d31f6da6263815e4eb14eb02b32f5e7c979cc41e86b83bac",
+  "prior_metric_selfchecks_remain_for_unchanged_functions": true
+}

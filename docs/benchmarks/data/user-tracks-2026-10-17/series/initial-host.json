@@ -1,0 +1,53 @@
+{
+  "at_utc": "2026-10-17T20:36:50.696587+00:00",
+  "AC": "1",
+  "source_head": "f4dc5eef82ee42b7ebe052ab449780fd4c0a2e02",
+  "profile_mutation": false,
+  "lid": {
+    "returncode": 0,
+    "stdout": "b false\n",
+    "stderr": ""
+  },
+  "profile": {
+    "returncode": 0,
+    "stdout": "balanced\n",
+    "stderr": ""
+  },
+  "holds": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "guard": {
+    "returncode": 0,
+    "stdout": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\n",
+    "stderr": ""
+  },
+  "latest_guard": {
+    "returncode": 0,
+    "stdout": "{\"_BOOT_ID\":\"d007264395654ff4b228cbbc15d8dc39\",\"_MACHINE_ID\":\"437b38083e9d4fc4830145f0c7d7487e\",\"SYSLOG_FACILITY\":\"3\",\"_SYSTEMD_SLICE\":\"user-1000.slice\",\"_SYSTEMD_INVOCATION_ID\":\"59c6e791c83146139b6c252bf081bd02\",\"MESSAGE\":\"2026-10-17T13:34:49-07:00 recovered: temperature 35.0C; balanced profile restored=1\",\"_UID\":\"1000\",\"_EXE\":\"/usr/bin/bash\",\"__SEQNUM\":\"1453061\",\"__MONOTONIC_TIMESTAMP\":\"385313950184\",\"_RUNTIME_SCOPE\":\"system\",\"PRIORITY\":\"6\",\"__REALTIME_TIMESTAMP\":\"1792269289362652\",\"_PID\":\"1036\",\"_STREAM_ID\":\"c02b49add07c42ee82b1f24f2ae2f867\",\"_CAP_EFFECTIVE\":\"0\",\"_SYSTEMD_UNIT\":\"user@1000.service\",\"__SEQNUM_ID\":\"e149de7772ab450385ae53715ada6055\",\"_TRANSPORT\":\"stdout\",\"_SYSTEMD_OWNER_UID\":\"1000\",\"_AUDIT_LOGINUID\":\"1000\",\"__CURSOR\":\"s=e149de7772ab450385ae53715ada6055;i=162c05;b=d007264395654ff4b228cbbc15d8dc39;m=59b68049e8;t=65e0f365594dc;x=90ad6ff33d31a7ee\",\"_GID\":\"1000\",\"_SYSTEMD_CGROUP\":\"/user.slice/user-1000.slice/user@1000.service/app.slice/thermal-guard.service\",\"_SYSTEMD_USER_UNIT\":\"thermal-guard.service\",\"_COMM\":\"bash\",\"_SYSTEMD_USER_SLICE\":\"app.slice\",\"SYSLOG_IDENTIFIER\":\"thermal-guard\",\"_CMDLINE\":\"bash /home/kyau/.local/bin/thermal-guard\",\"_AUDIT_SESSION\":\"3\",\"_HOSTNAME\":\"aura.kyaulabs\"}\n",
+    "stderr": ""
+  },
+  "pins": {
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "tools/stems/worker.py": {
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  }
+}

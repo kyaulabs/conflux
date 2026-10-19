@@ -1,0 +1,979 @@
+{
+  "schema": 1,
+  "status": "ok",
+  "started_at_utc": "2026-10-17T20:06:34.927006+00:00",
+  "backend": "vulkan",
+  "threads": 4,
+  "request_timeout_seconds": 120.0,
+  "maximum_total_seconds": 1800,
+  "work_admission_deadline_seconds": 1795,
+  "window_frames": 343980,
+  "hop_frames": 257985,
+  "overlap_frames": 85995,
+  "normalization": "Whole-source mono sample mean/std; valid samples normalized before tail zero padding; global mean restored per stem",
+  "tracks": [
+    {
+      "id": "parting_glass",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "id": "parting_glass",
+        "title": "The Parting Glass",
+        "artist": "Doxent Zsigmond",
+        "source_page": "https://ccmixter.org/files/doxent/56347",
+        "metadata_url": "https://ccmixter.org/api/query/api?ids=56347&f=json&dataview=links_dl",
+        "download_url": "https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "official_tags": [
+          "acappella",
+          "media",
+          "ccplus",
+          "sample",
+          "multiple_formats",
+          "attribution",
+          "archive",
+          "zip",
+          "audio",
+          "mp3",
+          "44k",
+          "stereo",
+          "VBR",
+          "flac",
+          "male_vocals",
+          "acoustic",
+          "traditional",
+          "chill",
+          "piano",
+          "downtempo"
+        ],
+        "bpm": "rubato",
+        "official_duration": "3:07",
+        "official_instruments_or_credits": "Music and lyrics - traditional; Doxent - vocals, piano",
+        "official_audio_metadata": {
+          "file_id": 91505,
+          "file_upload": 56347,
+          "file_name": "doxent_-_The_Parting_Glass.mp3",
+          "file_nicname": "Preview",
+          "file_format_info": {
+            "media-type": "audio",
+            "format-name": "audio-mp3-mp3",
+            "default-ext": "mp3",
+            "mime_type": "audio/mpeg",
+            "sr": "44k",
+            "ch": "stereo",
+            "ps": "3:07",
+            "br": "VBR"
+          },
+          "file_extra": {
+            "sha1": "VZKLCWMTLUWSGAST5NATUIVJBRUEKOZB"
+          },
+          "file_filesize": " (4.77MB)",
+          "file_order": 1,
+          "file_is_remote": 0,
+          "file_num_download": 0,
+          "download_url": "https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3",
+          "local_path": "/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass.mp3",
+          "file_rawsize": 4997318
+        },
+        "published_bytes": 4997318,
+        "published_sha1_base32": "VZKLCWMTLUWSGAST5NATUIVJBRUEKOZB",
+        "attribution": "\"The Parting Glass\" by Doxent Zsigmond (ccMixter), CC BY 3.0; traditional music/lyrics. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3_sha256": "e0791f4156a7127434dad525c654c8893d3b1df9dc3c86fbb63e2aaf0bc22b4c",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 1.0,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/parting_glass.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "ad2c90155733a33b4eb54789e34dc670f027ff6b1cd3fbb22b5f92448b695379"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 1,
+          "timestamp": 383620.090339299,
+          "source_id": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+          "mean": -1.1096830348833464e-05,
+          "std": 0.15144765377044678,
+          "reused": false,
+          "preparation_ms": 22.42082799784839,
+          "track_id": "parting_glass",
+          "scenario": "continuous",
+          "consumed_at": 383620.090626536
+        },
+        {
+          "event": "source_ready",
+          "generation": 2,
+          "timestamp": 383627.872534083,
+          "source_id": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+          "mean": -1.1096830348833464e-05,
+          "std": 0.15144765377044678,
+          "reused": true,
+          "preparation_ms": 0.03192602889612317,
+          "track_id": "parting_glass",
+          "scenario": "seek",
+          "consumed_at": 383627.872589384
+        },
+        {
+          "event": "source_ready",
+          "generation": 3,
+          "timestamp": 383635.654392261,
+          "source_id": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+          "mean": -1.1096830348833464e-05,
+          "std": 0.15144765377044678,
+          "reused": true,
+          "preparation_ms": 0.024596985895186663,
+          "track_id": "parting_glass",
+          "scenario": "seek",
+          "consumed_at": 383635.654475283
+        },
+        {
+          "event": "source_ready",
+          "generation": 4,
+          "timestamp": 383647.75892096,
+          "source_id": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+          "mean": -1.1096830348833464e-05,
+          "std": 0.15144765377044678,
+          "reused": true,
+          "preparation_ms": 0.019061961211264133,
+          "track_id": "parting_glass",
+          "scenario": "seek",
+          "consumed_at": 383647.76131886
+        }
+      ],
+      "continuous": {
+        "generation": 1,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 383621.96021312,
+          "delivered_monotonic": 383621.982605059,
+          "control_to_ready_ms": 2327.956886962056,
+          "load_to_delivered_ms": 2350.3542770049535
+        },
+        "hop_service_percentiles_ms": {
+          "50": 1866.9041740358807,
+          "95": 2057.600215950515,
+          "99": 2057.600215950515
+        },
+        "hop_service_max_ms": 2057.600215950515,
+        "chunk_stream_sha256": "5a153051f39e4c8909cf54c80146eca6d66ddda5c9fe380de758c07912e0b232",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 8.153175049985293,
+        "load_issued_monotonic": 383619.632250782
+      }
+    },
+    {
+      "id": "funkorama",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "id": "funkorama",
+        "title": "Funkorama",
+        "artist": "Kevin MacLeod",
+        "source_page": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100474",
+        "metadata_url": "https://incompetech.com/music/royalty-free/pieces.json",
+        "download_url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Funkorama.mp3",
+        "download_link_evidence": "Official page renderTrack constructs its MP3 link from official pieces.json filename using encodeURIComponent.",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "official_genre": "Funk",
+        "official_tags": [
+          "Grooving",
+          "Uplifting"
+        ],
+        "bpm": 101,
+        "official_duration": "00:03:21",
+        "official_instruments_or_credits": "Guitar, Bass, Drum Kit, Organ, Synth",
+        "official_audio_metadata": {
+          "title": "Funkorama",
+          "filename": "Funkorama.mp3",
+          "length": "00:03:21",
+          "instruments": "Guitar, Bass, Drum Kit, Organ, Synth",
+          "genre": "8",
+          "bpm": "101",
+          "description": "Clean audio mix with an interesting electronic drum kit and odd chord progressions. Nice grooving bass line.",
+          "feel": "Grooving, Uplifting",
+          "uploaded": "2008-06-16",
+          "isrc": "USUAN1100474",
+          "collection": "11",
+          "sheetmusic": null,
+          "video": null,
+          "itunes": "https://itunes.apple.com/us/album/funkorama/id945494837?i=945494847",
+          "filmmusicURL": "https://incompetech.filmmusic.io/song/3788-funkorama/"
+        },
+        "published_cryptographic_digest": null,
+        "attribution": "\"Funkorama\" Kevin MacLeod (incompetech.com), CC BY 4.0. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3_sha256": "6be229815d85a0b99382b944d31098b882702c04ac7ad899e44ab7f8ba89b5ad",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.941085021222063,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/funkorama.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "ce9860494ad0aae77cf5abc00a057dca855d4b11db1fc9daf7c311768082cf24"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 5,
+          "timestamp": 383656.410341887,
+          "source_id": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+          "mean": -2.39426094594819e-06,
+          "std": 0.13520687818527222,
+          "reused": false,
+          "preparation_ms": 64.11830597789958,
+          "track_id": "funkorama",
+          "scenario": "continuous",
+          "consumed_at": 383656.410643256
+        }
+      ],
+      "continuous": {
+        "generation": 5,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 383660.683897402,
+          "delivered_monotonic": 383660.710817352,
+          "control_to_ready_ms": 4337.960947013926,
+          "load_to_delivered_ms": 4364.899464999326
+        },
+        "hop_service_percentiles_ms": {
+          "50": 3904.0662240004167,
+          "95": 4273.512156039942,
+          "99": 4273.512156039942
+        },
+        "hop_service_max_ms": 4273.512156039942,
+        "chunk_stream_sha256": "ebeedf73abd902a8d1d49eb781fa89fc25ba80b2dd73d459416081dccd6c394d",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 16.1577456620289,
+        "load_issued_monotonic": 383656.345917887
+      }
+    },
+    {
+      "id": "club_diver",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88",
+        "frames": 1031940,
+        "sample_rate": 44100,
+        "channels": 2,
+        "sample_bytes": 2
+      },
+      "annotations": {
+        "id": "club_diver",
+        "title": "Club Diver",
+        "artist": "Kevin MacLeod",
+        "source_page": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200020",
+        "metadata_url": "https://incompetech.com/music/royalty-free/pieces.json",
+        "download_url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Club%20Diver.mp3",
+        "download_link_evidence": "Official page renderTrack constructs its MP3 link from official pieces.json filename using encodeURIComponent.",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "official_genre": "Electronica",
+        "official_tags": [
+          "Aggressive",
+          "Dark",
+          "Driving",
+          "Grooving",
+          "Intense",
+          "Unnerving"
+        ],
+        "bpm": 140,
+        "official_duration": "00:02:26",
+        "official_instruments_or_credits": "Synths, Percussion, Drum Kit",
+        "official_audio_metadata": {
+          "title": "Club Diver",
+          "filename": "Club Diver.mp3",
+          "length": "00:02:26",
+          "instruments": "Synths, Percussion, Drum Kit",
+          "genre": "7",
+          "bpm": "140",
+          "description": "Almost like euro club meets industrial vampires. I don't think I've ever done anything similar to this from the percussion side... or with those diving chord things.",
+          "feel": "Aggressive, Dark, Driving, Grooving, Intense, Unnerving",
+          "uploaded": "2012-02-19",
+          "isrc": "USUAN1200020",
+          "collection": "12",
+          "sheetmusic": null,
+          "video": null,
+          "itunes": "https://itunes.apple.com/us/album/club-diver/id941937440?i=941937443",
+          "filmmusicURL": null
+        },
+        "published_cryptographic_digest": null,
+        "attribution": "\"Club Diver\" Kevin MacLeod (incompetech.com), CC BY 4.0. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3_sha256": "3b8d82e6ed69cbd540e69794a252b7dced75a0af838914a094182115af3effb6",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.9360573494721418,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "references": {},
+      "output": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/club_diver.npy",
+        "shape": [
+          4,
+          1031940,
+          2
+        ],
+        "dtype": "<f4",
+        "complete": true,
+        "bytes": 33022208,
+        "sha256": "d2dd9df24c82358b08d05fdedf09a134c0c14f8a2054c3061e4167358cb1f5ba"
+      },
+      "source_ready": [
+        {
+          "event": "source_ready",
+          "generation": 6,
+          "timestamp": 383672.656658889,
+          "source_id": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88",
+          "source_frames": 1031940,
+          "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+          "mean": 0.001200671773403883,
+          "std": 0.21757608652114868,
+          "reused": false,
+          "preparation_ms": 61.43355800304562,
+          "track_id": "club_diver",
+          "scenario": "continuous",
+          "consumed_at": 383672.656963118
+        }
+      ],
+      "continuous": {
+        "generation": 6,
+        "start_frame": 0,
+        "frames": 1031940,
+        "chunks": 4,
+        "first_chunk": {
+          "ready_monotonic": 383676.231306998,
+          "delivered_monotonic": 383676.251444715,
+          "control_to_ready_ms": 3636.373169021681,
+          "load_to_delivered_ms": 3656.5260679926723
+        },
+        "hop_service_percentiles_ms": {
+          "50": 3514.5712490193546,
+          "95": 4064.2758770263754,
+          "99": 4064.2758770263754
+        },
+        "hop_service_max_ms": 4064.2758770263754,
+        "chunk_stream_sha256": "56a80a15f6733b18ce3f9714c8d21d29cc06c88d572f32fb156e08f2f5c1b442",
+        "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+        "wall_seconds": 14.691333406954072,
+        "load_issued_monotonic": 383672.594918647
+      }
+    }
+  ],
+  "seeks": [
+    {
+      "generation": 2,
+      "start_frame": 257984,
+      "frames": 773956,
+      "chunks": 4,
+      "first_chunk": {
+        "ready_monotonic": 383629.91934584,
+        "delivered_monotonic": 383629.92003844,
+        "control_to_ready_ms": 2047.0664409804158
+      },
+      "hop_service_percentiles_ms": {
+        "50": 1840.1438850560226,
+        "95": 2046.7829409753904,
+        "99": 2046.7829409753904
+      },
+      "hop_service_max_ms": 2046.7829409753904,
+      "chunk_stream_sha256": "98b837939c120e4915b9bbb07b226a9ffa7cf3fbdd6e95b4eb816fd46f336e11",
+      "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+      "reference_chunk_stream_sha256": "98b837939c120e4915b9bbb07b226a9ffa7cf3fbdd6e95b4eb816fd46f336e11",
+      "exact": true,
+      "numeric_parity": true,
+      "max_abs_difference": 0.0,
+      "rms_difference": 0.0,
+      "parity_tolerance": {
+        "rtol": 0.0001,
+        "atol": 1e-05
+      },
+      "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+      "track_id": "parting_glass",
+      "wall_seconds": 7.781810598971788
+    },
+    {
+      "generation": 3,
+      "start_frame": 343981,
+      "frames": 687959,
+      "chunks": 3,
+      "first_chunk": {
+        "ready_monotonic": 383639.58584204,
+        "delivered_monotonic": 383639.607196293,
+        "control_to_ready_ms": 3931.7360920249484
+      },
+      "hop_service_percentiles_ms": {
+        "50": 3029.0191959938966,
+        "95": 4996.099402953405,
+        "99": 4996.099402953405
+      },
+      "hop_service_max_ms": 4996.099402953405,
+      "chunk_stream_sha256": "84ba8edfa67511d34f5549614c4e3bcdf589058deb320849c7b9c00e1d3790c6",
+      "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+      "reference_chunk_stream_sha256": "84ba8edfa67511d34f5549614c4e3bcdf589058deb320849c7b9c00e1d3790c6",
+      "exact": true,
+      "numeric_parity": true,
+      "max_abs_difference": 0.0,
+      "rms_difference": 0.0,
+      "parity_tolerance": {
+        "rtol": 0.0001,
+        "atol": 1e-05
+      },
+      "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+      "track_id": "parting_glass",
+      "wall_seconds": 12.104033896001056
+    },
+    {
+      "generation": 4,
+      "start_frame": 1027844,
+      "frames": 4096,
+      "chunks": 1,
+      "first_chunk": {
+        "ready_monotonic": 383656.329315269,
+        "delivered_monotonic": 383656.330456431,
+        "control_to_ready_ms": 8570.997941016685
+      },
+      "hop_service_percentiles_ms": {
+        "50": 4700.44207299361,
+        "95": 4700.44207299361,
+        "99": 4700.44207299361
+      },
+      "hop_service_max_ms": 4700.44207299361,
+      "chunk_stream_sha256": "b02583df428393733898e35e04fefa1dd6bfb74aa9b0303fb1cb07ddd7f7274d",
+      "hash_layout": "Successive source-major [4,chunk_frames,2] float32 chunk bytes in delivery order",
+      "reference_chunk_stream_sha256": "b02583df428393733898e35e04fefa1dd6bfb74aa9b0303fb1cb07ddd7f7274d",
+      "exact": true,
+      "numeric_parity": true,
+      "max_abs_difference": 0.0,
+      "rms_difference": 0.0,
+      "parity_tolerance": {
+        "rtol": 0.0001,
+        "atol": 1e-05
+      },
+      "parity_scope": "Existing same-grid worker regression tolerance; not a musical-quality judgment",
+      "track_id": "parting_glass",
+      "wall_seconds": 8.586245521029923
+    }
+  ],
+  "runtime_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 383620.067888427,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1875054,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 378.938723,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "track_id": "parting_glass",
+      "scenario": "continuous",
+      "consumed_at": 383620.068030794
+    }
+  ],
+  "failures": [],
+  "musical_quality_verified": false,
+  "scope": "Sequential local music preparation; no playback/UI load or sustained-performance qualification. Same-grid tolerance is a numerical regression check, not a quality threshold.",
+  "pins": {
+    "manifest": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/manifest.json",
+      "bytes": 8527,
+      "sha256": "d833af135ba7c371156e7cdeb6147192ff5e570f6eb9306ba4fb4f262a419ab9"
+    },
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/quality_run.py",
+      "bytes": 16155,
+      "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "conditions_at_start": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3273183",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 37050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 39000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 59000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 39050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 40050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 32000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 39050
+    }
+  },
+  "worker_statistics": {
+    "generation": 6,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 0,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 0,
+    "cancel_count": 0,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "native_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 67.9153270899551,
+    "samples": 132,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1875054,
+        "start_ticks": 42897139,
+        "samples": 132,
+        "max_process_status_kB": {
+          "VmHWM": 280900,
+          "VmRSS": 280900,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {
+          "0000:00:02.0/client-963": {
+            "drm-driver": "i915",
+            "drm-client-id": "963",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": "0",
+            "drm-shared-system0": "0",
+            "drm-active-system0": "0",
+            "drm-resident-system0": "0",
+            "drm-purgeable-system0": "0",
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          },
+          "0000:00:02.0/client-964": {
+            "drm-driver": "i915",
+            "drm-client-id": "964",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-shared-system0": "0",
+            "drm-active-system0": {
+              "observations": [
+                "0",
+                {
+                  "value": 534584,
+                  "unit": "KiB"
+                }
+              ]
+            },
+            "drm-resident-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-purgeable-system0": {
+              "value": 1132,
+              "unit": "KiB"
+            },
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 56747041312,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          }
+        },
+        "max_simultaneous_drm_clients": 2,
+        "fd_read_errors": 0,
+        "first_elapsed_seconds": 0.5062659739633091,
+        "last_elapsed_seconds": 67.52391922095558,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 542,
+          "status.nonvoluntary_ctxt_switches": 18,
+          "stat.minflt": 66233,
+          "stat.majflt": 0
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 911,
+          "status.nonvoluntary_ctxt_switches": 179,
+          "stat.minflt": 70400,
+          "stat.majflt": 0
+        },
+        "observed_cpu_seconds": 5.03
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ],
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/native-trace.jsonl",
+      "samples_written": 132,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    },
+    "system_sampling": {
+      "fields": {
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "string",
+        "/sys/firmware/acpi/platform_profile": "string",
+        "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+        "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_status": "string",
+        "/sys/class/drm/card1/device/power/runtime_active_time": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_suspended_time": "milliseconds",
+        "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+        "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+        "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+        "/proc/pressure/cpu:some.avg10": "percent",
+        "/proc/pressure/cpu:some.avg60": "percent",
+        "/proc/pressure/cpu:some.avg300": "percent",
+        "/proc/pressure/cpu:some.total": "microseconds",
+        "/proc/pressure/cpu:full.avg10": "percent",
+        "/proc/pressure/cpu:full.avg60": "percent",
+        "/proc/pressure/cpu:full.avg300": "percent",
+        "/proc/pressure/cpu:full.total": "microseconds",
+        "/proc/pressure/memory:some.avg10": "percent",
+        "/proc/pressure/memory:some.avg60": "percent",
+        "/proc/pressure/memory:some.avg300": "percent",
+        "/proc/pressure/memory:some.total": "microseconds",
+        "/proc/pressure/memory:full.avg10": "percent",
+        "/proc/pressure/memory:full.avg60": "percent",
+        "/proc/pressure/memory:full.avg300": "percent",
+        "/proc/pressure/memory:full.total": "microseconds",
+        "/proc/pressure/io:some.avg10": "percent",
+        "/proc/pressure/io:some.avg60": "percent",
+        "/proc/pressure/io:some.avg300": "percent",
+        "/proc/pressure/io:some.total": "microseconds",
+        "/proc/pressure/io:full.avg10": "percent",
+        "/proc/pressure/io:full.avg60": "percent",
+        "/proc/pressure/io:full.avg300": "percent",
+        "/proc/pressure/io:full.total": "microseconds",
+        "/proc/meminfo:MemTotal": "kB",
+        "/proc/meminfo:MemAvailable": "kB",
+        "/proc/meminfo:MemFree": "kB",
+        "/proc/meminfo:Buffers": "kB",
+        "/proc/meminfo:Cached": "kB",
+        "/proc/meminfo:Shmem": "kB",
+        "/proc/meminfo:SwapTotal": "kB",
+        "/proc/meminfo:SwapFree": "kB",
+        "/proc/meminfo:Dirty": "kB",
+        "/proc/meminfo:Writeback": "kB",
+        "/proc/meminfo:Slab": "kB",
+        "/proc/meminfo:SReclaimable": "kB",
+        "/proc/meminfo:Unevictable": "kB",
+        "/proc/vmstat:pgfault": "cumulative kernel counter",
+        "/proc/vmstat:pgmajfault": "cumulative kernel counter",
+        "/proc/vmstat:pgpgin": "cumulative kernel counter",
+        "/proc/vmstat:pgpgout": "cumulative kernel counter",
+        "/proc/vmstat:pswpin": "cumulative kernel counter",
+        "/proc/vmstat:pswpout": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_direct": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_direct": "cumulative kernel counter",
+        "/proc/vmstat:oom_kill": "cumulative kernel counter",
+        "/proc/vmstat:compact_stall": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_anon": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_file": "cumulative kernel counter",
+        "/tmp:total_bytes": "bytes",
+        "/tmp:free_bytes": "bytes",
+        "/tmp:available_bytes": "bytes",
+        "/tmp:free_inodes": "inodes"
+      },
+      "read_errors": {
+        "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 132,
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 132,
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 132,
+        "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 132
+      },
+      "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled."
+    }
+  },
+  "supervisor_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 67.91633766301675,
+    "samples": 137,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1875050,
+        "start_ticks": 42897113,
+        "samples": 137,
+        "max_process_status_kB": {
+          "VmHWM": 193684,
+          "VmRSS": 183576,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {},
+        "max_simultaneous_drm_clients": 0,
+        "fd_read_errors": 137,
+        "first_elapsed_seconds": 0.0013380029704421759,
+        "last_elapsed_seconds": 67.91630899498705,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 17,
+          "status.nonvoluntary_ctxt_switches": 4,
+          "stat.minflt": 6613,
+          "stat.majflt": 0
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 778,
+          "status.nonvoluntary_ctxt_switches": 87,
+          "stat.minflt": 129579,
+          "stat.majflt": 47
+        },
+        "observed_cpu_seconds": 5.06
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ]
+  },
+  "elapsed_seconds": 68.03357210097602,
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "963416",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 40050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 47000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 46000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 47050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 47050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 33000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 44050
+    }
+  },
+  "finished_at_utc": "2026-10-17T20:07:42.975300+00:00"
+}

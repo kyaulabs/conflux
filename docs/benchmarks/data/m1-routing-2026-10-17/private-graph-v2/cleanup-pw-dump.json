@@ -1,0 +1,392 @@
+[
+  {
+    "id": 0,
+    "type": "PipeWire:Interface:Core",
+    "version": 4,
+    "permissions": [ "r", "x", "m" ],
+    "info": {
+      "cookie": 4057747450,
+      "user-name": "kyau",
+      "host-name": "aura.kyaulabs",
+      "version": "1.6.9",
+      "name": "conflux-private-routing-2",
+      "change-mask": [ "props" ],
+      "props": {
+        "application.language": "en_US.UTF-8",
+        "application.name": "pipewire",
+        "application.process.binary": "pipewire",
+        "application.process.host": "aura.kyaulabs",
+        "application.process.id": 5,
+        "application.process.session-id": 2,
+        "application.process.user": "kyau",
+        "clock.power-of-two-quantum": true,
+        "config.name": "/tmp/conflux-routing-private-s50ifrl5/pipewire.conf",
+        "core.daemon": true,
+        "core.name": "conflux-private-routing-2",
+        "cpu.max-align": 64,
+        "default.clock.allowed-rates": "[ 48000 ]",
+        "default.clock.max-quantum": 256,
+        "default.clock.min-quantum": 256,
+        "default.clock.quantum": 256,
+        "default.clock.quantum-floor": 4,
+        "default.clock.quantum-limit": 8192,
+        "default.clock.rate": 48000,
+        "default.video.height": 480,
+        "default.video.rate.denom": 1,
+        "default.video.rate.num": 25,
+        "default.video.width": 640,
+        "link.max-buffers": 64,
+        "log.level": 3,
+        "mem.allow-mlock": true,
+        "mem.warn-mlock": false,
+        "object.id": 0,
+        "object.serial": 0,
+        "settings.check-quantum": true,
+        "settings.check-rate": false,
+        "window.x11.display": ":0"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "type": "PipeWire:Interface:SecurityContext",
+    "version": 3,
+    "permissions": [ "r", "w", "x" ],
+    "props": {
+      "object.serial": 2
+    }
+  },
+  {
+    "id": 1,
+    "type": "PipeWire:Interface:Module",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "libpipewire-module-protocol-native",
+      "filename": "/usr/lib/pipewire-0.3/libpipewire-module-protocol-native.so",
+      "args": null,
+      "change-mask": [ "props" ],
+      "props": {
+        "module.author": "Wim Taymans <wim.taymans@gmail.com>",
+        "module.description": "Native protocol using unix sockets",
+        "module.name": "libpipewire-module-protocol-native",
+        "module.version": "1.6.9",
+        "object.id": 1,
+        "object.serial": 1
+      }
+    }
+  },
+  {
+    "id": 3,
+    "type": "PipeWire:Interface:Module",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "libpipewire-module-spa-node-factory",
+      "filename": "/usr/lib/pipewire-0.3/libpipewire-module-spa-node-factory.so",
+      "args": null,
+      "change-mask": [ "props" ],
+      "props": {
+        "module.author": "Wim Taymans <wim.taymans@gmail.com>",
+        "module.description": "Provide a factory to make SPA nodes",
+        "module.name": "libpipewire-module-spa-node-factory",
+        "module.version": "1.6.9",
+        "object.id": 3,
+        "object.serial": 3
+      }
+    }
+  },
+  {
+    "id": 4,
+    "type": "PipeWire:Interface:Factory",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "spa-node-factory",
+      "type": "PipeWire:Interface:Node",
+      "version": 3,
+      "change-mask": [ "props" ],
+      "props": {
+        "factory.name": "spa-node-factory",
+        "factory.type.name": "PipeWire:Interface:Node",
+        "factory.type.version": 3,
+        "module.id": 3,
+        "object.id": 4,
+        "object.serial": 4
+      }
+    }
+  },
+  {
+    "id": 5,
+    "type": "PipeWire:Interface:Module",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "libpipewire-module-client-node",
+      "filename": "/usr/lib/pipewire-0.3/libpipewire-module-client-node.so",
+      "args": null,
+      "change-mask": [ "props" ],
+      "props": {
+        "module.author": "Wim Taymans <wim.taymans@gmail.com>",
+        "module.description": "Allow clients to create and control remote nodes",
+        "module.name": "libpipewire-module-client-node",
+        "module.version": "1.6.9",
+        "object.id": 5,
+        "object.serial": 5
+      }
+    }
+  },
+  {
+    "id": 6,
+    "type": "PipeWire:Interface:Factory",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "client-node",
+      "type": "PipeWire:Interface:ClientNode",
+      "version": 6,
+      "change-mask": [ "props" ],
+      "props": {
+        "factory.name": "client-node",
+        "factory.type.name": "PipeWire:Interface:ClientNode",
+        "factory.type.version": 6,
+        "module.id": 5,
+        "object.id": 6,
+        "object.serial": 6
+      }
+    }
+  },
+  {
+    "id": 7,
+    "type": "PipeWire:Interface:Module",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "libpipewire-module-link-factory",
+      "filename": "/usr/lib/pipewire-0.3/libpipewire-module-link-factory.so",
+      "args": null,
+      "change-mask": [ "props" ],
+      "props": {
+        "module.author": "Wim Taymans <wim.taymans@gmail.com>",
+        "module.description": "Allow clients to create links",
+        "module.name": "libpipewire-module-link-factory",
+        "module.usage": "( allow.link.passive=<bool, default false> ) ",
+        "module.version": "1.6.9",
+        "object.id": 7,
+        "object.serial": 7
+      }
+    }
+  },
+  {
+    "id": 8,
+    "type": "PipeWire:Interface:Factory",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "link-factory",
+      "type": "PipeWire:Interface:Link",
+      "version": 3,
+      "change-mask": [ "props" ],
+      "props": {
+        "factory.name": "link-factory",
+        "factory.type.name": "PipeWire:Interface:Link",
+        "factory.type.version": 3,
+        "factory.usage": "(link.output.node=<output-node>) (link.output.port=<output-port>) (link.input.node=<input-node>) (link.input.port=<input-port>) (object.linger=<bool>) (link.passive=<bool>)",
+        "module.id": 7,
+        "object.id": 8,
+        "object.serial": 8
+      }
+    }
+  },
+  {
+    "id": 9,
+    "type": "PipeWire:Interface:Module",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "libpipewire-module-metadata",
+      "filename": "/usr/lib/pipewire-0.3/libpipewire-module-metadata.so",
+      "args": null,
+      "change-mask": [ "props" ],
+      "props": {
+        "module.author": "Wim Taymans <wim.taymans@gmail.com>",
+        "module.description": "Allow clients to create metadata store",
+        "module.name": "libpipewire-module-metadata",
+        "module.version": "1.6.9",
+        "object.id": 9,
+        "object.serial": 9
+      }
+    }
+  },
+  {
+    "id": 10,
+    "type": "PipeWire:Interface:Factory",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "metadata",
+      "type": "PipeWire:Interface:Metadata",
+      "version": 3,
+      "change-mask": [ "props" ],
+      "props": {
+        "factory.name": "metadata",
+        "factory.type.name": "PipeWire:Interface:Metadata",
+        "factory.type.version": 3,
+        "factory.usage": "(metadata.name = <name> ) (metadata.values = [    { ( id = <int> ) key = <string> ( type = <string> ) value = <json> }    ...  ] )",
+        "module.id": 9,
+        "object.id": 10,
+        "object.serial": 10
+      }
+    }
+  },
+  {
+    "id": 11,
+    "type": "PipeWire:Interface:Module",
+    "version": 3,
+    "permissions": [ "r", "m" ],
+    "info": {
+      "name": "libpipewire-module-access",
+      "filename": "/usr/lib/pipewire-0.3/libpipewire-module-access.so",
+      "args": "{\n        access.socket = {\n            \"conflux-private-routing-2\" = \"unrestricted\"\n            \"conflux-private-routing-2-manager\" = \"unrestricted\"\n        }\n    }",
+      "change-mask": [ "props" ],
+      "props": {
+        "module.author": "Wim Taymans <wim.taymans@gmail.com>",
+        "module.description": "Perform access check",
+        "module.name": "libpipewire-module-access",
+        "module.usage": "( access.socket={ <socket>=<access>, ... } ) ( access.legacy=true ) ",
+        "module.version": "1.6.9",
+        "object.id": 11,
+        "object.serial": 11
+      }
+    }
+  },
+  {
+    "id": 12,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 0,
+      "max-output-ports": 0,
+      "change-mask": [ "input-ports", "output-ports", "state", "props", "params" ],
+      "n-input-ports": 0,
+      "n-output-ports": 0,
+      "state": "idle",
+      "error": null,
+      "props": {
+        "clock.id": "monotonic",
+        "clock.name": "clock.system.monotonic",
+        "clock.quantum-limit": 8192,
+        "factory.id": 4,
+        "factory.name": "support.node.driver",
+        "node.driver": true,
+        "node.group": "pipewire.dummy",
+        "node.loop.name": "data-loop.0",
+        "node.name": "Dummy-Driver",
+        "object.id": 12,
+        "object.serial": 12,
+        "priority.driver": 20000
+      },
+      "params": {
+        "PropInfo": [
+          {
+            "id": "clockId",
+            "description": "The clock id (monotonic, realtime, etc.)",
+            "type": "monotonic"
+          },
+          {
+            "id": "clockDevice",
+            "description": "The clock device (eg. /dev/ptp0)",
+            "type": ""
+          },
+          {
+            "id": "clockInterface",
+            "description": "The clock network interface (eg. eth0)",
+            "type": ""
+          }
+        ],
+        "Props": [
+          {
+            "clockId": "monotonic"
+          },
+          {
+            "clockDevice": ""
+          },
+          {
+            "clockInterface": ""
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 13,
+    "type": "PipeWire:Interface:Metadata",
+    "version": 3,
+    "permissions": [ "r", "w", "x" ],
+    "props": {
+      "metadata.name": "settings",
+      "object.serial": 13
+    },
+    "metadata": [
+      { "subject": 0, "key": "log.level", "type": "", "value": 3 },
+      { "subject": 0, "key": "clock.rate", "type": "", "value": 48000 },
+      { "subject": 0, "key": "clock.allowed-rates", "type": "", "value": "[ 48000 ]" },
+      { "subject": 0, "key": "clock.quantum", "type": "", "value": 256 },
+      { "subject": 0, "key": "clock.min-quantum", "type": "", "value": 256 },
+      { "subject": 0, "key": "clock.max-quantum", "type": "", "value": 256 },
+      { "subject": 0, "key": "clock.force-quantum", "type": "", "value": 0 },
+      { "subject": 0, "key": "clock.force-rate", "type": "", "value": 0 }
+    ]
+  },
+  {
+    "id": 14,
+    "type": "PipeWire:Interface:Client",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "change-mask": [ "props" ],
+      "props": {
+        "application.language": "en_US.UTF-8",
+        "application.name": "pw-dump",
+        "application.process.binary": "pw-dump",
+        "application.process.host": "aura.kyaulabs",
+        "application.process.id": 31,
+        "application.process.session-id": 2,
+        "application.process.user": "kyau",
+        "clock.power-of-two-quantum": true,
+        "core.name": "pipewire-kyau-31",
+        "core.version": "1.6.9",
+        "cpu.max-align": 64,
+        "default.clock.max-quantum": 2048,
+        "default.clock.min-quantum": 32,
+        "default.clock.quantum": 1024,
+        "default.clock.quantum-floor": 4,
+        "default.clock.quantum-limit": 8192,
+        "default.clock.rate": 48000,
+        "default.video.height": 480,
+        "default.video.rate.denom": 1,
+        "default.video.rate.num": 25,
+        "default.video.width": 640,
+        "link.max-buffers": 64,
+        "log.level": 2,
+        "mem.allow-mlock": true,
+        "mem.warn-mlock": false,
+        "module.id": 1,
+        "object.id": 14,
+        "object.serial": 85,
+        "pipewire.access": "unrestricted",
+        "pipewire.protocol": "protocol-native",
+        "pipewire.sec.gid": 1000,
+        "pipewire.sec.pid": 31,
+        "pipewire.sec.socket": "conflux-private-routing-2-manager",
+        "pipewire.sec.uid": 1000,
+        "remote.intention": "manager",
+        "remote.name": "conflux-private-routing-2",
+        "settings.check-quantum": false,
+        "settings.check-rate": false,
+        "window.x11.display": ":0"
+      }
+    }
+  }
+]

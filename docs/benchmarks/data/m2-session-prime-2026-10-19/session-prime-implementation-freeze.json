@@ -1,0 +1,147 @@
+{
+  "schema": "conflux.session-prime-reuse-product-freeze.v1",
+  "status": "frozen_unapplied_unexecuted_product_only",
+  "author": "/root/hour_result_crosscheck",
+  "at_utc": "2026-10-19T12:01:56.657670+00:00",
+  "patch": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation.patch",
+    "bytes": 10085,
+    "sha256": "3235f10c01616a04ecee48cb6f349269c15849897e7e99cbc18d1de5781356ea"
+  },
+  "files": [
+    {
+      "path": "src/audio/PreparedPlayback.hpp",
+      "input_sha256": "19f461c573846af748063be00ea47d815606a2c5585ba54515db61619c9ab38c",
+      "input_bytes": 4340,
+      "output_sha256": "fae6b733e2ee3935aabbd92c337bf9a205ae237f6a790743db6a0a0b561879f9",
+      "output_bytes": 4912,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation-PreparedPlayback.hpp"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.cpp",
+      "input_sha256": "6b995582fe9afc672304ac7b71ee8605f5577ed44ec5294b800bdcc946d62155",
+      "input_bytes": 18626,
+      "output_sha256": "1a7df6f9492fab482e37b89c0f6bbc9a184428ed5ce30ce56c90fecceb100dd3",
+      "output_bytes": 21416,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation-PreparedPlayback.cpp"
+    },
+    {
+      "path": "src/audio/LiveSession.cpp",
+      "input_sha256": "8dd16ae909d2dde38da75831d55ce22493b47cd73fc90cb8e30f57bc6709b01a",
+      "input_bytes": 59523,
+      "output_sha256": "0bf30377100dc5621920ff6d6f3e30eeafac0dd0000386312b5e362e2e2194c3",
+      "output_bytes": 59481,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation-LiveSession.cpp"
+    },
+    {
+      "path": "src/audio/StemBankSource.hpp",
+      "input_sha256": "fc736dd580df3bc7496b486aac7cd834f42ed947b219c10bc8fd1db26f781b43",
+      "input_bytes": 3329,
+      "output_sha256": "d6c3cddd219eec853fd12781038e4a1f454305155733c193590a3a42d4452dcd",
+      "output_bytes": 3508,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation-StemBankSource.hpp"
+    },
+    {
+      "path": "src/audio/StemBankSource.cpp",
+      "input_sha256": "f539ce5d1b4bca364d2365e4d9ef8341659796742d86c16ad889a8185afa0171",
+      "input_bytes": 6285,
+      "output_sha256": "faf980cbcaed92c9f3802d40dcdb5efa2a9eed73a9b50ed577d1b1d2ee934380",
+      "output_bytes": 6452,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation-StemBankSource.cpp"
+    }
+  ],
+  "authoritative_artifacts": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-red-result.json",
+      "sha256": "37bbea5798a625f77d1bf5a9a306b4561c2bd5d975538d9a6241b3c2a08aae20"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-reuse-freeze.json",
+      "sha256": "a3f8cc19745122a795db840df0e19ed9f7d3a27cbd116baa5f752c64e0e6f6fb"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-reuse-api.md",
+      "sha256": "4eba32917599b05b95b389fa7acf60b544d9cc329621d88f75067c764adb8b48"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-reuse-tests.patch",
+      "sha256": "d1a5c35b3bf347c2ae584b68959950ae818071bcd5774cd314d803d4a93b9cda"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-cursor-amendment.json",
+      "sha256": "ab8626c2bcb90577ce9c2ea18a2a05b346e2b5b5dde3c04f47fac0795ad7fe87"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation-plan.json",
+      "sha256": "b3ea1d93f88a693f54091174ef6cb0476fff7e358caa1b3e8d459f3ee04507d2"
+    }
+  ],
+  "tdd": {
+    "independent_api_and_tests_frozen_before_product": true,
+    "actual_root_red": {
+      "at": "2026-10-19T11:52:38.024002+00:00",
+      "signed_base": "44b8e0d707b8df937b9c47cdbb1229e173146d0c",
+      "configure_exit": 0,
+      "target_build_exit": 1,
+      "reason": "Absent primeForSession API; root reports15 missing-API errors only",
+      "record": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-red-result.json"
+    },
+    "product_drafted_only_after_root_actual_red_release": true,
+    "post_red_nonzero_cursor_amendment_recorded_before_product_draft": true,
+    "original_api_and_tests_not_rewritten": true,
+    "unchanged_tests": {
+      "tests/live_stem_bridge_test.cpp": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253",
+      "tests/StemServiceFixture.hpp": "3c4cb9819657872977d52410e523e679852b3c71c80c6a959ba2a9e6aa224691"
+    },
+    "root_reported_later_merge": "36ff90d7566560487f260dfa61e277457b38e04f; parent reports tree identical to signed44b8 source and verified input hashes remain unchanged",
+    "author_or_peer_execution": false,
+    "tracked_edits_by_author": false,
+    "root_owns_apply_green_checks_git_and_host": true
+  },
+  "scope": [
+    "PreparedPlayback::primeForSession validates effective timeout/geometry/cancellation/stopped/terminal health before a reuse decision",
+    "Owner-local successful-unused live prime frame/epoch stamp belongs only to render/quiesced control; producer never reads or writes it",
+    "Explicit prime attempts invalidate old success before validation, including pre-cancellation; only successful openGate establishes a new stamp",
+    "Valid nonempty live read attempts, actual discontinuities and stop invalidate eligibility; invalid/empty reads and source borrowing do not",
+    "Fast reuse requires exact target/current provider epoch/current demand cursor/open gate and mutex-protected matching contiguous reserve; exact EOF has empty reserve as in ordinary prime",
+    "Reuse resets bank/ramp staging at its already-prepared exact cursor without consuming provider views, changing epoch or sending another service command",
+    "Ineligible or finite sources retain reset-to-zero plus ordinary prime path; LiveSession replaces only its existing reset+prime call sequence",
+    "Defaulted validated StemBankSource constructor initialFrame creates empty staging at an existing cursor; all existing default0 callers and actual provider discontinuity flow stay unchanged"
+  ],
+  "approved_amendment": {
+    "reason": "Fresh bank cursor0 would make first nonzero read implicitly seek provider and discard its primed epoch",
+    "root_scope_expansion": "Add StemBankSource.hpp/.cpp to original3file scope; no frozen assertion changes",
+    "constructor": "StemBankSource(stems, uint64_t initialFrame=0); require initialFrame<=validated common frame count; no provider notification",
+    "owner_helper": "Private resetBankForSessionAt(frame), public existing resetBankForSession delegatesAt0; construct-before-swap preserves old bank on allocation failure",
+    "avoided_broader_change": "Provider callback stripping/rewrite was explicitly rejected; actual seek callback code remains unchanged"
+  },
+  "source_reviews": [
+    {
+      "reviewer": "/root",
+      "status": "Full exact3235f10c patch source pass clear; root explicitly approved fivefile nonzero cursor amendment"
+    },
+    {
+      "reviewer": "/root/guard_rules",
+      "status": "Exact3235f10c fullfivefile source review clear",
+      "checked": "Quiesced stamp ownership/invalidation; invalid/empty reads; frame/epoch/demand/open gate/coverage; EOF/timeout/health; nonzero construction; unchanged actualseek"
+    },
+    {
+      "reviewer": "/root/m0_m1_gates",
+      "status": "Exact3235f10c and all five snapshot hashes source reviewed clear against frozen contract/tests",
+      "checked": "Original test oracles and effective timeout; explicit preCancelled attempt; consumed/unused/nonzero paths; terminal health; constructor staging; offRT allocation/locking; finite/default0 behavior"
+    }
+  ],
+  "rt_and_lifetime_contract": [
+    "No RT locks, clocks, waits, I/O, allocations, new queue or thread are introduced; callback changes only clear a plain owner-local eligibility flag after valid nonempty-read validation or actual seek",
+    "Priming/staging allocation and published coverage mutex are off-thread with render quiesced, before the next source borrow",
+    "Producer lifetime, generation/lease loop, process/job cleanup and live reserve/watchdog policy are unchanged",
+    "Normal explicit prime remains a fresh epoch request rather than a cache lookup; no public caller-trusted readiness flag exists"
+  ],
+  "limits": [
+    "Only text/source/hash metadata was read or written by author/reviewers; no product/test execution, build, Git, native/model/audio or host queries",
+    "Actual GREEN and required normal/private/coverage checks remain root-owned and pending at this freeze",
+    "Frozen new tests construct/detach unstarted LiveSession and synthetic live factory/service; no active PipeWire session or controller activation is qualified",
+    "Additional sanitizer evidence is whatever root actually executes; this receipt makes no new clean-TSan claim or workaround for known QtTest watchdog limitation",
+    "No actual separator/model, physical audio, integrated4095ms p99, thermal, universal numerical-equivalence or M2 completion claim"
+  ]
+}

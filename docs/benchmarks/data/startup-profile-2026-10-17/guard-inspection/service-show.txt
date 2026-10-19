@@ -1,0 +1,16 @@
+Id=thermal-guard.service
+Names=thermal-guard.service
+LoadState=loaded
+ActiveState=active
+SubState=running
+FragmentPath=/home/kyau/.config/systemd/user/thermal-guard.service
+DropInPaths=
+UnitFileState=enabled
+InvocationID=59c6e791c83146139b6c252bf081bd02
+Restart=on-failure
+RestartUSec=5s
+MainPID=1036
+NRestarts=0
+ExecMainStartTimestamp=Mon 2026-10-12 13:57:32 PDT
+ExecMainStartTimestampMonotonic=34532916
+ExecStart={ path=/home/kyau/.local/bin/thermal-guard ; argv[]=/home/kyau/.local/bin/thermal-guard ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }

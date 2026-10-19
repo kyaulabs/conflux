@@ -1,0 +1,437 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+#include "library/LibraryCatalog.hpp"
+#include "audio/AudioFile.hpp"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QLockFile>
+#include <QTemporaryDir>
+#include <QtTest>
+
+#include <algorithm>
+#include <cerrno>
+#include <chrono>
+#include <csignal>
+#include <future>
+#include <iostream>
+#include <latch>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <sys/resource.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+namespace {
+using conflux::library::LibraryCatalog;
+using conflux::library::LibraryTrack;
+
+template<class Function>
+void checked(Function&& function)
+{
+    try { function(); }
+    catch (const std::exception& error) { QFAIL(error.what()); }
+}
+
+template<class Exception, class Function>
+bool rejects(Function&& function, const char* reason)
+{
+    try { function(); }
+    catch (const Exception& error) { return std::string(error.what()).find(reason) != std::string::npos; }
+    catch (const std::exception& error) { std::cerr << "Unexpected rejection: " << error.what() << '\n'; }
+    return false;
+}
+
+template<class Function>
+bool boundedChild(Function&& function)
+{
+    const auto child = fork();
+    if (child < 0) throw std::runtime_error("Cannot fork catalog check");
+    if (!child) {
+        try { _exit(function() ? 0 : 1); }
+        catch (const std::exception& error) { std::cerr << error.what() << '\n'; _exit(2); }
+    }
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    int status = 0;
+    pid_t result = 0;
+    while ((result = waitpid(child, &status, WNOHANG)) == 0 || (result < 0 && errno == EINTR)) {
+        if (std::chrono::steady_clock::now() >= deadline) {
+            kill(child, SIGKILL);
+            do { result = waitpid(child, &status, 0); } while (result < 0 && errno == EINTR);
+            return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return result == child && WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
+
+void writeBytes(const QString& path, const QByteArray& bytes)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate) || file.write(bytes) != bytes.size() || !file.flush())
+        throw std::runtime_error("Cannot write catalog fixture");
+}
+
+QByteArray readBytes(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) throw std::runtime_error("Cannot read catalog fixture");
+    return file.readAll();
+}
+
+LibraryTrack track(const QString& path, unsigned id = 1)
+{
+    // Synthetic identities exercise metadata persistence, never audio hashing.
+    return {QString::number(id, 16).rightJustified(64, '0'), path, QFileInfo(path).fileName(),
+            QString::number(id + 10000, 16).rightJustified(64, '0'), 1025, false};
+}
+
+QJsonObject object(const LibraryTrack& value)
+{
+    return {{"source_sha256", value.sourceSha256}, {"source_path", value.sourcePath}, {"name", value.name},
+            {"artifact_key", value.artifactKey}, {"frames", double(value.frames)}};
+}
+
+QByteArray document(const QJsonArray& tracks)
+{
+    return QJsonDocument(QJsonObject{{"version", 1}, {"tracks", tracks}}).toJson(QJsonDocument::Compact);
+}
+
+bool equalMetadata(const LibraryTrack& a, const LibraryTrack& b)
+{
+    return a.sourceSha256 == b.sourceSha256 && a.sourcePath == b.sourcePath && a.name == b.name &&
+        a.artifactKey == b.artifactKey && a.frames == b.frames;
+}
+} // namespace
+
+class LibraryCatalogTest : public QObject {
+    Q_OBJECT
+private slots:
+    void missingCatalogIsEmptyWithoutCreatingFiles()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("not-created/catalog.json");
+            QVERIFY(LibraryCatalog(path).read().empty());
+            QVERIFY(!QFileInfo::exists(directory.filePath("not-created")));
+            QVERIFY(rejects<std::invalid_argument>([] { LibraryCatalog catalog("relative/catalog.json"); }, "absolute"));
+        });
+    }
+
+    void restartPreservesMetadataAndRefreshesAvailability()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("metadata/catalog.json");
+            const auto source = directory.filePath(QStringLiteral("Björk 東京 #100% mix.wav"));
+            writeBytes(source, "metadata-only source fixture, not decoded audio");
+            const auto input = track(source);
+            auto imported = LibraryCatalog(path).upsert(input);
+            QCOMPARE(imported.size(), std::size_t(1));
+            QVERIFY(equalMetadata(imported.front(), input));
+            QVERIFY(imported.front().available);
+            const auto saved = readBytes(path);
+            const auto json = QJsonDocument::fromJson(saved).object();
+            QCOMPARE(json.size(), 2);
+            QCOMPARE(json.value("version").toInt(), 1);
+            const auto persisted = json.value("tracks").toArray();
+            QCOMPARE(persisted.size(), qsizetype(1));
+            QCOMPARE(persisted.at(0).toObject(), object(input));
+            auto restarted = LibraryCatalog(path).read();
+            QCOMPARE(restarted.size(), std::size_t(1));
+            QVERIFY(equalMetadata(restarted.front(), input));
+            QVERIFY(restarted.front().available);
+            QVERIFY(QFile::remove(source));
+            auto missing = LibraryCatalog(path).read();
+            QCOMPARE(missing.size(), std::size_t(1));
+            QVERIFY(equalMetadata(missing.front(), input));
+            QVERIFY(!missing.front().available);
+            QCOMPARE(readBytes(path), saved);
+            QVERIFY(QDir().mkdir(source));
+            QVERIFY(!LibraryCatalog(path).read().front().available);
+        });
+    }
+
+    void contentAliasesUpdateOneEntryAndKeepOrder()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            const auto first = track(directory.filePath("original.wav"));
+            const auto other = track(directory.filePath("other.wav"), 2);
+            LibraryCatalog catalog(path);
+            catalog.upsert(first);
+            catalog.upsert(other);
+            auto alias = track(directory.filePath("renamed copy.wav"));
+            alias.available = true; // Caller guesses must never become persisted availability.
+            auto merged = catalog.upsert(alias);
+            QCOMPARE(merged.size(), std::size_t(2));
+            QVERIFY(equalMetadata(merged[0], alias));
+            QVERIFY(equalMetadata(merged[1], other));
+            QVERIFY(!merged[0].available);
+            auto restarted = LibraryCatalog(path).read();
+            QCOMPARE(restarted.size(), std::size_t(2));
+            QVERIFY(equalMetadata(restarted[0], alias));
+            QVERIFY(equalMetadata(restarted[1], other));
+        });
+    }
+
+    void changedContentAtSamePathReplacesIdentity()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            const auto source = directory.filePath("changed.wav");
+            writeBytes(source, "original source");
+            LibraryCatalog catalog(path);
+            catalog.upsert(track(source));
+            writeBytes(source, "replacement source");
+            auto replacement = track(source, 2);
+            replacement.frames = 2049;
+            auto merged = catalog.upsert(replacement);
+            QCOMPARE(merged.size(), std::size_t(1));
+            QVERIFY(equalMetadata(merged.front(), replacement));
+            QVERIFY(merged.front().available);
+            auto restarted = LibraryCatalog(path).read();
+            QCOMPARE(restarted.size(), std::size_t(1));
+            QVERIFY(equalMetadata(restarted.front(), replacement));
+        });
+    }
+
+    void malformedCatalogIsPreserved_data()
+    {
+        QTest::addColumn<QString>("damage");
+        for (const auto* name : {"truncated", "version", "duplicate-id", "duplicate-path", "relative-path",
+                                 "invalid-name", "invalid-hash", "zero-frames", "excess-frames", "extra-field",
+                                 "oversized", "too-many"})
+            QTest::newRow(name) << QString::fromLatin1(name);
+    }
+
+    void unsafeCatalogFileFailsClosed_data()
+    {
+        QTest::addColumn<bool>("symbolicLink");
+        QTest::newRow("symbolic-link") << true;
+        QTest::newRow("writerless-fifo") << false;
+    }
+
+    void unsafeCatalogFileFailsClosed()
+    {
+        QFETCH(bool, symbolicLink);
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            const auto outside = directory.filePath("outside.json");
+            const auto original = document(QJsonArray{object(track(directory.filePath("outside.wav")))});
+            writeBytes(outside, original);
+            const auto encoded = QFile::encodeName(path);
+            if (symbolicLink)
+                QCOMPARE(symlink(QFile::encodeName(outside).constData(), encoded.constData()), 0);
+            else
+                QCOMPARE(mkfifo(encoded.constData(), 0600), 0);
+            const bool readRejected = boundedChild([&] {
+                return rejects<std::runtime_error>([&] { LibraryCatalog(path).read(); }, "unsafe catalog");
+            });
+            const bool updateRejected = boundedChild([&] {
+                return rejects<std::runtime_error>([&] {
+                    LibraryCatalog(path).upsert(track(directory.filePath("new.wav"), 2));
+                }, "unsafe catalog");
+            });
+            QVERIFY(readRejected);
+            QVERIFY(updateRejected);
+            QCOMPARE(readBytes(outside), original);
+            struct stat status{};
+            QCOMPARE(lstat(encoded.constData(), &status), 0);
+            QVERIFY(symbolicLink ? S_ISLNK(status.st_mode) : S_ISFIFO(status.st_mode));
+        });
+    }
+
+    void malformedCatalogIsPreserved()
+    {
+        QFETCH(QString, damage);
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            const auto first = track(directory.filePath("first.wav"));
+            auto row = object(first);
+            QJsonArray rows{row};
+            if (damage == "duplicate-id") rows.append(object(track(directory.filePath("alias.wav"))));
+            if (damage == "duplicate-path") rows.append(object(track(first.sourcePath, 2)));
+            if (damage == "relative-path") row.insert("source_path", "relative.wav");
+            if (damage == "invalid-name") row.insert("name", "different.wav");
+            if (damage == "invalid-hash") row.insert("source_sha256", QString(64, 'A'));
+            if (damage == "zero-frames") row.insert("frames", 0);
+            if (damage == "excess-frames") row.insert("frames", double(conflux::audio::PreparedAudio::defaultMaxPreparedBytes / 8 + 1));
+            if (damage == "extra-field") row.insert("available", true);
+            if (damage != "duplicate-id" && damage != "duplicate-path") rows = {row};
+            if (damage == "too-many") {
+                rows = {};
+                for (std::size_t index = 0; index <= LibraryCatalog::maxEntries; ++index)
+                    rows.append(object(track(directory.filePath(QString("track-%1.wav").arg(index)), unsigned(index + 1))));
+            }
+            auto bytes = document(rows);
+            if (damage == "truncated") bytes.chop(3);
+            if (damage == "version") bytes = QJsonDocument(QJsonObject{{"version", 2}, {"tracks", rows}}).toJson();
+            if (damage == "oversized") bytes = QByteArray(qsizetype(LibraryCatalog::maxBytes + 1), ' ');
+            writeBytes(path, bytes);
+            LibraryCatalog catalog(path);
+            auto read = [&] { catalog.read(); };
+            auto update = [&] { catalog.upsert(track(directory.filePath("new.wav"), 9000)); };
+            if (damage == "oversized" || damage == "too-many") {
+                QVERIFY(rejects<std::length_error>(read, "catalog"));
+                QCOMPARE(readBytes(path), bytes);
+                QVERIFY(rejects<std::length_error>(update, "catalog"));
+            } else {
+                QVERIFY(rejects<std::runtime_error>(read, "catalog"));
+                QCOMPARE(readBytes(path), bytes);
+                QVERIFY(rejects<std::runtime_error>(update, "catalog"));
+            }
+            QCOMPARE(readBytes(path), bytes);
+        });
+    }
+
+    void invalidIncomingRecordPreservesCatalog_data()
+    {
+        QTest::addColumn<QString>("damage");
+        QTest::newRow("relative-path") << "path";
+        QTest::newRow("embedded-nul") << "nul";
+        QTest::newRow("non-basename") << "name";
+        QTest::newRow("bad-hash") << "hash";
+        QTest::newRow("zero-frames") << "frames";
+    }
+
+    void invalidIncomingRecordPreservesCatalog()
+    {
+        QFETCH(QString, damage);
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            LibraryCatalog catalog(path);
+            catalog.upsert(track(directory.filePath("original.wav")));
+            const auto before = readBytes(path);
+            auto incoming = track(directory.filePath("new.wav"), 2);
+            if (damage == "path") incoming.sourcePath = "relative.wav";
+            if (damage == "nul") incoming.sourcePath.append(QChar(0));
+            if (damage == "name") incoming.name = "folder/track.wav";
+            if (damage == "hash") incoming.artifactKey = QString(64, 'Z');
+            if (damage == "frames") incoming.frames = 0;
+            QVERIFY(rejects<std::invalid_argument>([&] { catalog.upsert(incoming); }, "track"));
+            QCOMPARE(readBytes(path), before);
+        });
+    }
+
+    void capacityRejectsNewEntryAndAllowsExistingUpdate()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            QJsonArray rows;
+            for (std::size_t index = 0; index < LibraryCatalog::maxEntries; ++index)
+                rows.append(object(track(directory.filePath(QString("track-%1.wav").arg(index)), unsigned(index + 1))));
+            const auto before = document(rows);
+            QVERIFY(std::size_t(before.size()) < LibraryCatalog::maxBytes);
+            writeBytes(path, before);
+            LibraryCatalog catalog(path);
+            QCOMPARE(catalog.read().size(), LibraryCatalog::maxEntries);
+            QVERIFY(rejects<std::length_error>([&] { catalog.upsert(track(directory.filePath("extra.wav"), 9000)); }, "catalog"));
+            QCOMPARE(readBytes(path), before);
+            auto existing = track(directory.filePath("relocated.wav"));
+            existing.frames = 1;
+            auto updated = catalog.upsert(existing);
+            QCOMPARE(updated.size(), LibraryCatalog::maxEntries);
+            QVERIFY(equalMetadata(updated.front(), existing));
+            QCOMPARE(LibraryCatalog(path).read().size(), LibraryCatalog::maxEntries);
+        });
+    }
+
+    void failedAtomicSavePreservesOriginalBytes()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            LibraryCatalog catalog(path);
+            auto first = track(directory.filePath(QString(120, 'a') + ".wav"));
+            catalog.upsert(first);
+            const auto before = readBytes(path);
+            QVERIFY(before.size() > 256);
+            const auto incoming = track(directory.filePath(QString(120, 'b') + ".wav"), 2);
+            QVERIFY(boundedChild([&] {
+                std::signal(SIGXFSZ, SIG_IGN);
+                struct rlimit limit{};
+                if (getrlimit(RLIMIT_FSIZE, &limit) != 0 || limit.rlim_max < 256) return false;
+                limit.rlim_cur = 256;
+                if (setrlimit(RLIMIT_FSIZE, &limit) != 0) return false;
+                return rejects<std::runtime_error>([&] { LibraryCatalog(path).upsert(incoming); }, "save catalog");
+            }));
+            QCOMPARE(readBytes(path), before);
+            const auto retained = catalog.read();
+            QCOMPARE(retained.size(), std::size_t(1));
+            QVERIFY(equalMetadata(retained.front(), first));
+            QCOMPARE(QDir(directory.path()).entryList(QDir::Files | QDir::Hidden), QStringList{"catalog.json"});
+        });
+    }
+
+    void concurrentWritersMergeBothEntries()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            const auto first = track(directory.filePath("first.wav"));
+            const auto second = track(directory.filePath("second.wav"), 2);
+            QVERIFY(boundedChild([&] {
+                std::latch ready(2), start(1);
+                auto writer = [&](const LibraryTrack& incoming) {
+                    ready.count_down();
+                    start.wait();
+                    return LibraryCatalog(path).upsert(incoming);
+                };
+                auto a = std::async(std::launch::async, [&] { return writer(first); });
+                auto b = std::async(std::launch::async, [&] { return writer(second); });
+                ready.wait();
+                start.count_down();
+                if (a.get().empty() || b.get().empty()) return false;
+                const auto merged = LibraryCatalog(path).read();
+                return merged.size() == 2 && std::ranges::count_if(merged, [&](const auto& value) { return equalMetadata(value, first); }) == 1 &&
+                    std::ranges::count_if(merged, [&](const auto& value) { return equalMetadata(value, second); }) == 1;
+            }));
+            QCOMPARE(LibraryCatalog(path).read().size(), std::size_t(2));
+        });
+    }
+
+    void heldLockFailsWithinBoundAndPreservesCatalog()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto path = directory.filePath("catalog.json");
+            LibraryCatalog catalog(path);
+            catalog.upsert(track(directory.filePath("first.wav")));
+            const auto before = readBytes(path);
+            QLockFile lock(path + ".lock");
+            QVERIFY(lock.tryLock(0));
+            QVERIFY(boundedChild([&] {
+                return rejects<std::runtime_error>([&] {
+                    LibraryCatalog(path).upsert(track(directory.filePath("second.wav"), 2));
+                }, "busy");
+            }));
+            QCOMPARE(readBytes(path), before);
+        });
+    }
+};
+
+QTEST_GUILESS_MAIN(LibraryCatalogTest)
+#include "library_catalog_test.moc"

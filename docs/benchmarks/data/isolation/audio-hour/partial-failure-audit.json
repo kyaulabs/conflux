@@ -1,0 +1,659 @@
+{
+  "qualification": "ABORTED_PARTIAL_FAILURE; no full-hour or passing-parity claim",
+  "run_directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour",
+  "raw_status": "error",
+  "requested_seconds": 3600.0,
+  "workload_seconds": 272.63089431700064,
+  "raw_failures": [
+    {
+      "phase": "workload",
+      "error": "RuntimeError: repeated same-grid chunk hash changed",
+      "timestamp_monotonic": 318867.168981857
+    }
+  ],
+  "raw_acceptance": {
+    "requested_wall_duration_completed": false,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": false,
+    "required_UI_coverage_completed": null,
+    "selected_load_coverage_completed": false,
+    "controls_completed": 0,
+    "observed_continuous_p99_within_target": false,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=audio; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "counts": {
+    "events": 248,
+    "returned_chunk_events": 74,
+    "accepted_soak_hops": 73,
+    "unaccepted_returned_chunks": 1,
+    "controls_started": 0,
+    "controls_complete": 0,
+    "controls_incomplete": 0,
+    "event_types": {
+      "control": 9,
+      "runtime_ready": 1,
+      "source_ready": 9,
+      "started": 74,
+      "chunk": 74,
+      "soak_hop": 73,
+      "complete": 8
+    }
+  },
+  "timing": {
+    "accepted_all": {
+      "chunks": 73,
+      "frames": 16867785,
+      "p50_ms": 2567.0267840032466,
+      "p95_ms": 3992.146919015795,
+      "p99_ms": 20084.97347001685,
+      "max_ms": 20084.97347001685,
+      "above4095ms": 3
+    },
+    "accepted_continuous": {
+      "chunks": 73,
+      "frames": 16867785,
+      "p50_ms": 2567.0267840032466,
+      "p95_ms": 3992.146919015795,
+      "p99_ms": 20084.97347001685,
+      "max_ms": 20084.97347001685,
+      "above4095ms": 3
+    },
+    "returned_all_including_rejected": {
+      "chunks": 74,
+      "frames": 17125770,
+      "p50_ms": 2567.0267840032466,
+      "p95_ms": 16730.02295900369,
+      "p99_ms": 20276.52749302797,
+      "max_ms": 20276.52749302797,
+      "above4095ms": 4
+    }
+  },
+  "control_timeline": [],
+  "unaccepted_failure_chunks": [
+    {
+      "failure_kind": "same_grid_exact_sha256",
+      "numeric_tolerance_comparison_performed": false,
+      "chunk": {
+        "event": "chunk",
+        "generation": 9,
+        "timestamp": 318867.103321449,
+        "ready_at": 318867.103321449,
+        "request_id": 74,
+        "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "source_frames": 2076225,
+        "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+        "frame_start": 257985,
+        "window_start_frame": 257985,
+        "frames": 257985,
+        "sample_rate": 44100,
+        "channels": 2,
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "request_ms": 20214.899816957768,
+        "metrics": {
+          "graph_ms": 20048.119741,
+          "involuntary_context_switches": 68,
+          "voluntary_context_switches": 54,
+          "inference_wall_ms": 20162.94038,
+          "elapsed_ms": 20193.76329,
+          "graph_rebuild_ms": 0,
+          "frontend_ms": 41.276505,
+          "stems": 4,
+          "postprocess_ms": 73.541535,
+          "inference_cpu_ms": 365.09599999999955,
+          "frames": 343980,
+          "id": 74,
+          "event": "result"
+        },
+        "source_read_ms": 7.456950028426945,
+        "overlap_ms": 50.59331899974495,
+        "hop_service_ms": 20276.52749302797,
+        "control_latency_ms": 40361.78928002482,
+        "ready_queue_depth": 1,
+        "queue_delay_ms": 0.21502398885786533,
+        "samples_sha256": "160667996f489d65543eee679ff7c9f0444338ba79f9ac00608e72efbecf7df6",
+        "consumed_at": 318867.13464213
+      },
+      "started_event": {
+        "event": "started",
+        "generation": 9,
+        "timestamp": 318846.834296265,
+        "request_id": 74,
+        "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "window_start_frame": 257985,
+        "preroll": false,
+        "consumed_at": 318846.889875363
+      },
+      "trim_frames": 0,
+      "expected_same_target_accepted_hashes": [
+        "c5165a7885cb9120ca65dd2b7f6ae528f122d0461a58a20230308cab71aeecc2"
+      ],
+      "matches_same_target_accepted_hash": false,
+      "matches_other_known_trim_target": false,
+      "failure_after_ready_ms": 65.66040799953043,
+      "failure_after_consumed_ms": 34.33972701895982,
+      "parity_event_recorded": false,
+      "numeric_difference_retained": false,
+      "compared_PCM_retained": false
+    }
+  ],
+  "source_currentness": {
+    "source_model_identities": [
+      [
+        "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+      ]
+    ],
+    "generation_stale_chunks": [],
+    "frame_contiguity_errors": [],
+    "source_ready_count": 9,
+    "all_source_statistics_equal": true,
+    "normalization_values": [
+      [
+        0.0006814675871282816,
+        0.1288195550441742
+      ]
+    ],
+    "last_source_ready": {
+      "event": "source_ready",
+      "generation": 9,
+      "timestamp": 318826.741708767,
+      "source_id": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "source_frames": 2076225,
+      "source_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour/source.wav",
+      "mean": 0.0006814675871282816,
+      "std": 0.1288195550441742,
+      "reused": true,
+      "preparation_ms": 0.01133396290242672,
+      "consumed_at": 318826.741748019
+    },
+    "scope": "Event-order checks cover returned chunks, including rejected request74. Instrumented accept failed after currentness/source/shape checks; arrays are not archived."
+  },
+  "parity": {
+    "accepted_grid_hash_counts": {
+      "0": 1,
+      "257985": 1,
+      "515970": 1,
+      "773955": 1,
+      "1031940": 1,
+      "1289925": 1,
+      "1547910": 1,
+      "1805895": 1,
+      "2063880": 1
+    },
+    "all_accepted_grid_hashes_match_golden": true,
+    "accepted_trimmed_hashes_by_target": {},
+    "all_accepted_trimmed_numeric_checks_exact": true,
+    "reference_comparisons": {
+      "benchmarks-local/isolation-2026-10-16/none-hour-rerun": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/none-hour": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ],
+          "516107": [
+            "23be93526c9a29838f08bf684fc657ae8276a6c6721da000a51b91bb85915f3d"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/audio-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      },
+      "benchmarks-local/isolation-2026-10-16/both-smoke": {
+        "same_source_sha256": true,
+        "all9_grid_references_identical": true,
+        "trimmed_hashes_by_target": {
+          "258318": [
+            "5b7a7f3d9bd1a20352d6547448f3e984a299caea6e594e3958c98e4b43638f48"
+          ]
+        },
+        "accepted_common_trim_hashes_identical": true
+      }
+    },
+    "limitation": "Same-grid exact-SHA mismatch is established by changed hash and rejection; no allclose/tolerance comparison was performed on this branch. No max difference, reference-array hash at failure or compared PCM is retained, so numeric significance, magnitude and divergence source cannot be recovered."
+  },
+  "worker_statistics_before_shutdown": {
+    "generation": 9,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": {
+      "generation": 9,
+      "request_id": 75,
+      "window_start_frame": 515970
+    },
+    "discarded_count": 0,
+    "cancel_count": 0,
+    "backend_start_count": 1,
+    "backend_pid": 1568411,
+    "closed": false
+  },
+  "worker_statistics_after_shutdown": {
+    "generation": 9,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 0,
+    "cancel_count": 0,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "backend_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 318594.488114164,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1568411,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 404.027484,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "consumed_at": 318594.488161921
+    }
+  ],
+  "worker_shutdown_ms": 203.12126498902217,
+  "reported_sampler_errors": {
+    "sample_errors": {},
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour/native-trace.jsonl",
+      "samples_written": 533,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    }
+  },
+  "raw_pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 43452,
+      "sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "audio_probe": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+      "bytes": 641648,
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    }
+  },
+  "analysis_scope": "Only result/events, small lifecycle records and reference event logs read; no native full trace parsed, no producer edits or GPU work. Request75 is reported in flight at failure but its started event was not consumed before the consumer exception; telemetry_dropped remains0.",
+  "script_sha256": "5a6aacfb308a4605d00cca04b29e8ca20b4d179d2d1139314aa0c7cc56475581",
+  "evidence": {
+    "result.json": {
+      "bytes": 30754,
+      "sha256": "5b12323a973eb469c2e52f6eb8685ff32cd11f1e33bf3d768adfedff3d6ab2ce"
+    },
+    "events.jsonl": {
+      "bytes": 187604,
+      "sha256": "d60762d385ed149ecaaad31330199287d9d1db65827b0323bb65f8b27b3f7c33"
+    }
+  },
+  "cleanup_lifecycle": {
+    "policy_record": {
+      "command": [
+        "python3",
+        "-B",
+        "tools/benchmarks/stem_soak.py",
+        "--runtime",
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "--model",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "--ui",
+        "build/dev/conflux",
+        "--audio-probe",
+        "build/dev/conflux-audio-probe",
+        "--load",
+        "audio",
+        "--renderer",
+        "opengl",
+        "--seconds",
+        "3600",
+        "--control-interval",
+        "300",
+        "--request-timeout",
+        "30",
+        "--sample-interval",
+        "0.5",
+        "--output",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour"
+      ],
+      "started_at_utc": "2026-10-17T00:16:02.185429+00:00",
+      "before": {
+        "observed_at_utc": "2026-10-17T00:16:02.185873+00:00",
+        "profile": "power-saver",
+        "holds": "",
+        "firmware": "low-power",
+        "cpu_epp": "power"
+      },
+      "during": {
+        "observed_at_utc": "2026-10-17T00:16:03.237567+00:00",
+        "profile": "balanced",
+        "holds": "",
+        "firmware": "balanced",
+        "cpu_epp": "balance_performance"
+      },
+      "before_restore": {
+        "observed_at_utc": "2026-10-17T00:20:38.538520+00:00",
+        "profile": "balanced",
+        "holds": "",
+        "firmware": "balanced",
+        "cpu_epp": "balance_performance"
+      },
+      "restored_by_runner": true,
+      "after": {
+        "observed_at_utc": "2026-10-17T00:20:40.241441+00:00",
+        "profile": "power-saver",
+        "holds": "",
+        "firmware": "low-power",
+        "cpu_epp": "power"
+      },
+      "benchmark_returncode": 1,
+      "runner_returncode": 1,
+      "finished_at_utc": "2026-10-17T00:20:41.184588+00:00"
+    },
+    "guard_record": {
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/balanced-run.py",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour-policy.json",
+        "--runtime",
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "--model",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "--ui",
+        "build/dev/conflux",
+        "--audio-probe",
+        "build/dev/conflux-audio-probe",
+        "--load",
+        "audio",
+        "--renderer",
+        "opengl",
+        "--seconds",
+        "3600",
+        "--control-interval",
+        "300",
+        "--request-timeout",
+        "30",
+        "--sample-interval",
+        "0.5",
+        "--output",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour"
+      ],
+      "started_at_utc": "2026-10-17T00:16:02.053536+00:00",
+      "status": "error",
+      "ready": false,
+      "errors": [],
+      "idle_only": true,
+      "window_guard": {
+        "requested": false,
+        "status": "not_run"
+      },
+      "idle_inhibit_cookie": 9794,
+      "bus_owner": ":1.20815",
+      "idle_inhibit_released": true,
+      "child_returncode": 1,
+      "returncode": 1,
+      "finished_at_utc": "2026-10-17T00:20:41.284130+00:00"
+    },
+    "host_cleanup_record": {
+      "native_and_probe_PIDs": [
+        1568411,
+        1568391
+      ],
+      "PID_exists": {
+        "1568411": false,
+        "1568391": false
+      },
+      "worker_closed": true,
+      "probe_returncodes": {
+        "audio": 0
+      },
+      "fixture_exists": false,
+      "idle_inhibit_released": true,
+      "guard_errors": [],
+      "policy_lifecycle": {
+        "command": [
+          "python3",
+          "-B",
+          "tools/benchmarks/stem_soak.py",
+          "--runtime",
+          "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+          "--model",
+          "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+          "--ui",
+          "build/dev/conflux",
+          "--audio-probe",
+          "build/dev/conflux-audio-probe",
+          "--load",
+          "audio",
+          "--renderer",
+          "opengl",
+          "--seconds",
+          "3600",
+          "--control-interval",
+          "300",
+          "--request-timeout",
+          "30",
+          "--sample-interval",
+          "0.5",
+          "--output",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-hour"
+        ],
+        "started_at_utc": "2026-10-17T00:16:02.185429+00:00",
+        "before": {
+          "observed_at_utc": "2026-10-17T00:16:02.185873+00:00",
+          "profile": "power-saver",
+          "holds": "",
+          "firmware": "low-power",
+          "cpu_epp": "power"
+        },
+        "during": {
+          "observed_at_utc": "2026-10-17T00:16:03.237567+00:00",
+          "profile": "balanced",
+          "holds": "",
+          "firmware": "balanced",
+          "cpu_epp": "balance_performance"
+        },
+        "before_restore": {
+          "observed_at_utc": "2026-10-17T00:20:38.538520+00:00",
+          "profile": "balanced",
+          "holds": "",
+          "firmware": "balanced",
+          "cpu_epp": "balance_performance"
+        },
+        "restored_by_runner": true,
+        "after": {
+          "observed_at_utc": "2026-10-17T00:20:40.241441+00:00",
+          "profile": "power-saver",
+          "holds": "",
+          "firmware": "low-power",
+          "cpu_epp": "power"
+        },
+        "benchmark_returncode": 1,
+        "runner_returncode": 1,
+        "finished_at_utc": "2026-10-17T00:20:41.184588+00:00"
+      }
+    },
+    "checks": {
+      "restored_by_runner": true,
+      "no_holds_at_stages": true,
+      "during_balanced": true,
+      "prior_profile_restored": true,
+      "prior_firmware_restored": true,
+      "prior_EPP_restored": true,
+      "idle_guard_only": true,
+      "idle_inhibitor_released": true,
+      "expected_failure_returncode": true,
+      "worker_closed": true,
+      "all_recorded_PIDs_absent": true,
+      "fixture_absent": true,
+      "guard_errors_empty": true
+    },
+    "scope": "Expected failing benchmark return is preserved; cleanup qualification does not turn partial correctness failure into a pass. Portable audit reads saved timestamped host observations, not live /proc or policy."
+  },
+  "audio": {
+    "probe_status": "ok",
+    "probe_returncode": 0,
+    "streaming_interval_seconds": 274.39026831497904,
+    "actual_partial_workload_overlap_seconds": 272.63089431700064,
+    "partial_workload_covered": true,
+    "requested_hour_covered": false,
+    "raw_audio_coverage": {
+      "requested": true,
+      "status": "failed",
+      "passed": false,
+      "streaming_interval_valid": true,
+      "concurrent_workload_seconds": 272.63089431700064,
+      "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+    },
+    "callbacks": 51442,
+    "frames_rendered": 13169152,
+    "faults": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "all6_faults_zero": true,
+    "callback_elapsed_us": {
+      "p50_upper_bound": 3.0,
+      "p95_upper_bound": 4.0,
+      "p99_upper_bound": 5.0,
+      "p99_9_upper_bound": 21.0,
+      "max": 49.404,
+      "histogram_resolution": 1,
+      "at_least_100ms": 0
+    },
+    "negotiated": {
+      "format_valid": true,
+      "sample_rate": 48000,
+      "channels": 2,
+      "stream_frames_min": 256,
+      "stream_frames_max": 256,
+      "graph_quantum_min": 256,
+      "graph_quantum_max": 256
+    },
+    "scope": "Audio probe remained healthy over the partial worker run; requested3600-second audio coverage FAILED because worker correctness abort stopped the experiment. Silentprobe is not stem playback; quantile histogram counts are not archived."
+  },
+  "disabled_probes": {
+    "UI": {
+      "requested": false,
+      "status": "not_run",
+      "passed": null
+    },
+    "UI_artifacts_absent": true,
+    "unexpected_PCM_capture_artifacts": [],
+    "scope": "UI was not_run/null; no UI no-fault/coverage claim. Same-grid hash branch does not invoke trimmed-only capture."
+  },
+  "control_schedule": {
+    "interval_seconds": 300.0,
+    "controls_started": 0,
+    "controls_completed": 0,
+    "controls_incomplete": 0,
+    "first_control_due_before_abort": false,
+    "scope": "Abort preceded first300-second control, so no cancellation/seek check was exercised in this trial."
+  },
+  "prior_unaccepted_chunk_hash_comparison": [
+    {
+      "run": "benchmarks-local/isolation-2026-10-16/none-hour-rerun",
+      "request_id": 200,
+      "frame_start": 257985,
+      "frames": 257985,
+      "samples_sha256": "160667996f489d65543eee679ff7c9f0444338ba79f9ac00608e72efbecf7df6",
+      "identical_to_failed_audio_hash": true
+    },
+    {
+      "run": "benchmarks-local/isolation-2026-10-16/none-hour",
+      "request_id": 628,
+      "frame_start": 258318,
+      "frames": 257652,
+      "samples_sha256": "e742bfff9a5e79d2d24615e08e5cd3e3002eefd66eb0e41c177bfe6267f42559",
+      "identical_to_failed_audio_hash": false
+    }
+  ]
+}

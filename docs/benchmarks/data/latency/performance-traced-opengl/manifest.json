@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "source_directory": "/tmp/conflux-worker-performance-opengl",
+  "files": {
+    "audio.json": {
+      "bytes": 1399,
+      "sha256": "79457efbcc3ff3dc71cfed474cfa4cbf5ecede9c06c5b893af092486ea2ff2b8"
+    },
+    "audio.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "events.jsonl": {
+      "bytes": 113012,
+      "sha256": "155f606af883aa4881b0ae7e2275b73a00be2f92baf5323183dde6ae8f1bbaec"
+    },
+    "native-trace.jsonl.gz": {
+      "bytes": 155431,
+      "sha256": "3bb590e749054cfc0bb3ebf9c9503dcade86dfeb6ef91afafed5c3b514ac68b1"
+    },
+    "result.json": {
+      "bytes": 24151,
+      "sha256": "93c8c8fb4a36928188cc2d466c56a5d2c89774d29b2c4cabd8c9ab85e05df31b"
+    },
+    "ui.json": {
+      "bytes": 210,
+      "sha256": "80302513c3f7a45638c5ff74f3e602e5bee325343e94b0aca32aa108fc3b990a"
+    },
+    "ui.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "compressed_trace": {
+    "file": "native-trace.jsonl.gz",
+    "uncompressed_bytes": 7222140,
+    "uncompressed_sha256": "8054e2aaa4296b48a6e34f89f912c60d56c10e6313697e87659211758f0a4f9c",
+    "samples": 1757,
+    "gzip_mtime": 0,
+    "gzip_filename": "",
+    "compression_level": 6
+  },
+  "output_hash_comparisons": [
+    {
+      "reference": "docs/benchmarks/data/worker/opengl/events.jsonl",
+      "reference_chunks": 61,
+      "compared_chunks": 61,
+      "matching_source_frame_count_and_samples_sha256": 61
+    },
+    {
+      "reference": "docs/benchmarks/data/worker/vulkan/events.jsonl",
+      "reference_chunks": 61,
+      "compared_chunks": 61,
+      "matching_source_frame_count_and_samples_sha256": 61
+    },
+    {
+      "reference": "/tmp/conflux-worker-latency-opengl/events.jsonl",
+      "reference_chunks": 61,
+      "compared_chunks": 61,
+      "matching_source_frame_count_and_samples_sha256": 61
+    },
+    {
+      "reference": "/tmp/conflux-worker-paced-opengl/events.jsonl",
+      "reference_chunks": 49,
+      "compared_chunks": 49,
+      "matching_source_frame_count_and_samples_sha256": 49
+    }
+  ],
+  "excluded_generated_inputs": [
+    "source.wav",
+    "replacement.wav",
+    "stop"
+  ]
+}

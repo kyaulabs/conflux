@@ -1,0 +1,231 @@
+{
+  "schema": 1,
+  "scope": "All files created by this archive helper except raw-manifest.json itself. Later independent audits need their own manifest and eventual top-level manifest.",
+  "archived_at_utc": "2026-10-17T04:25:09.808171+00:00",
+  "files": {
+    "result.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/result.json",
+      "bytes": 47048,
+      "sha256": "1e7ecb9597d1d0822f7c306b36674680901e0d9933861080079a52482bf0fe71"
+    },
+    "progress.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/progress.json",
+      "bytes": 3249,
+      "sha256": "c643e2446d0e5f779d6133a0e095665e50642f874a47b96e7aacede1df2c94a8"
+    },
+    "ui.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/ui.json",
+      "bytes": 848,
+      "sha256": "4c99a42412867d82cdd705db996c3a3186121046d47bd9061720085b757176a8"
+    },
+    "ui.stderr": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/ui.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ui-progress.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/ui-progress.json",
+      "bytes": 168,
+      "sha256": "fd620226a38e8f46373bc2108c907a341d64dbfc54d367cb1ee24d68df58612f"
+    },
+    "events.jsonl.gz": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/events.jsonl",
+      "bytes": 358873,
+      "sha256": "9dcad7b66cbe843f5fd9d3e536428e33497f35ab22c891e0b5f4bb6e56559db0",
+      "decompressed_bytes": 3581032,
+      "decompressed_sha256": "6b4b3e43f6ffea431bafacb70e0962049b822b86bcdcb1654e98967ed26ac195",
+      "gzip_mtime": 0,
+      "gzip_filename": "",
+      "exact_raw_verification": true
+    },
+    "native-trace.jsonl.gz": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour/native-trace.jsonl",
+      "bytes": 1446830,
+      "sha256": "f678aab8f17e01e5589d1c63a0124d8b4d2ae9780c90a67070f141d111969f6b",
+      "decompressed_bytes": 46259561,
+      "decompressed_sha256": "94b945e657ac7e793af3b80fe02bc9bf1cafbc7c4dd146000ace1a071074ce54",
+      "gzip_mtime": 0,
+      "gzip_filename": "",
+      "exact_raw_verification": true
+    },
+    "before.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/before-observed-ui-hour.json",
+      "bytes": 6136,
+      "sha256": "b854f5ccaed813c58b2957e35ce78c8453e2a64ccfa32b67eea0a9d1e76ed0a5"
+    },
+    "after.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/after-observed-ui-hour.json",
+      "bytes": 6135,
+      "sha256": "2f7681d2dad9a231a3804a7960b67d7468ccd20934c4bfa6d6fe5a3960a8ff86"
+    },
+    "launcher.stdout": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour.stdout",
+      "bytes": 1239,
+      "sha256": "0a177d098f4811f55a5ab0a9fbba1ea4266964ae0e0045cc6e04011e99d00f6d"
+    },
+    "launcher.stderr": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "admission.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-admission.json",
+      "bytes": 132,
+      "sha256": "f4dddfed1647155462a0fc2f475b646791651c8c2358d01b8bef7dbafa063388"
+    },
+    "cleanup-host.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-cleanup.json",
+      "bytes": 2103,
+      "sha256": "06ca3b442234d826d7316f623111ce84c34ac001adbffc9295341fc65451ccde"
+    },
+    "cooldown.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-cooldown.json",
+      "bytes": 13295,
+      "sha256": "835c763b03edb2f25dce5cdca907900e865cc314bfdf7f04b401e9c0ade1d8c2"
+    },
+    "cooldown.jsonl": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-cooldown.jsonl",
+      "bytes": 10805,
+      "sha256": "272e2373f1242204e2c60ebdd0dfd498c9f4bcc41eb553d5d6a8bfe81e80b30b"
+    },
+    "guard.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-guard.json",
+      "bytes": 2547,
+      "sha256": "54c4e3a983bd5ed69be52881246fed99b0124238a7286e84fe570085a327d502"
+    },
+    "kernel-compact.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-kernel.json",
+      "bytes": 526,
+      "sha256": "c4c7ab6f61a2a957cc59d38c678da81b2cb9c911306afca71db7dcfd2b84f736"
+    },
+    "launch.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-launch.json",
+      "bytes": 2087,
+      "sha256": "06937dd03fc5bc234993ff5f8ad00b30ec5b01ace5dfbae7922cd45f368f65a8"
+    },
+    "normal-ready.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-normal-ready.json",
+      "bytes": 31083,
+      "sha256": "1841e200be81363d75557ff13bb3a44fef93cd6058c4c88eb8467087e30b1013"
+    },
+    "normal-ready.jsonl": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-normal-ready.jsonl",
+      "bytes": 24923,
+      "sha256": "dc37a63409b016dd1d8af915e03cf25c4e81afb34f3be406324950086aa2102b"
+    },
+    "policy-lifecycle.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-policy.json",
+      "bytes": 1634,
+      "sha256": "6926dece1cfb5820cc318b061497f7444d79ffe86d5d1903c1056ca0504845ec"
+    },
+    "thermal.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-thermal.json",
+      "bytes": 6392,
+      "sha256": "b079e48f1cc852f5daa18246ba8d3b0b0a74591f74855afad1595d5e9cff257e"
+    },
+    "verification.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-verification.json",
+      "bytes": 673,
+      "sha256": "941161f3a9a0f2b244180a233f5ac57022ee4be16972b1e175e4af72216ff05a"
+    },
+    "guard.js": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-ui-hour-guard.js",
+      "bytes": 2871,
+      "sha256": "d77f4bbb0157a03a7b3d0d149c6f1faddcc9bcb9b63437cb588292adfb45ee81"
+    },
+    "stem_soak-executed-v3.py": {
+      "source": "tools/benchmarks/stem_soak.py",
+      "bytes": 44307,
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8"
+    },
+    "stem_worker-executed.py": {
+      "source": "tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker-executed.py": {
+      "source": "tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "worker_support-executed.py": {
+      "source": "tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "producer-observed_launch.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed_launch.py",
+      "bytes": 4349,
+      "sha256": "ae2a37830378f00a7c070bb1d075f042893179a61b31d9a31be48e33b7cdfb7a"
+    },
+    "producer-observed-run.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-run.py",
+      "bytes": 4720,
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394"
+    },
+    "producer-normal_ready.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/normal_ready.py",
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "producer-observed-capture.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-capture.py",
+      "bytes": 2796,
+      "sha256": "5faa7945cb8271f85f90e50742b27e037b3114c4818e3196f4d354d0d9c9b890"
+    },
+    "producer-check_run.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/check_run.py",
+      "bytes": 4540,
+      "sha256": "0b35d54f0a61c49ff85989807af40244e80c0e14191ba2bde016bd2215a42e00"
+    },
+    "window_guard-executed.py": {
+      "source": "tools/benchmarks/window_guard.py",
+      "bytes": 14613,
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "source-provenance.json": {
+      "source": "generated by stage_completed_raw.py from saved result/launch metadata",
+      "bytes": 1153,
+      "sha256": "174086406d299a38c4e36a7fa2067bedbad5b2cf50d8ac92d0dbf7a3ce090670"
+    }
+  },
+  "executed_source_pins_from_result": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 44307,
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "ui": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "bytes": 1689016,
+      "sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e"
+    }
+  },
+  "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+  "archive_helper_sha256": "f3fcf227aa6dfce7bf254e9879c108f2aace8ae977663aec399a0584898f4112"
+}

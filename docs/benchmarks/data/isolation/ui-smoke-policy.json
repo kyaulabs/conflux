@@ -1,0 +1,62 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tools/benchmarks/stem_soak.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--load",
+    "ui",
+    "--renderer",
+    "opengl",
+    "--seconds",
+    "120",
+    "--control-interval",
+    "30",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke"
+  ],
+  "started_at_utc": "2026-10-16T22:54:34.549575+00:00",
+  "before": {
+    "observed_at_utc": "2026-10-16T22:54:34.550012+00:00",
+    "profile": "power-saver",
+    "holds": "",
+    "firmware": "low-power",
+    "cpu_epp": "power"
+  },
+  "during": {
+    "observed_at_utc": "2026-10-16T22:54:35.488102+00:00",
+    "profile": "balanced",
+    "holds": "",
+    "firmware": "balanced",
+    "cpu_epp": "balance_performance"
+  },
+  "before_restore": {
+    "observed_at_utc": "2026-10-16T22:56:38.042935+00:00",
+    "profile": "balanced",
+    "holds": "",
+    "firmware": "balanced",
+    "cpu_epp": "balance_performance"
+  },
+  "restored_by_runner": true,
+  "after": {
+    "observed_at_utc": "2026-10-16T22:56:39.067486+00:00",
+    "profile": "power-saver",
+    "holds": "",
+    "firmware": "low-power",
+    "cpu_epp": "power"
+  },
+  "benchmark_returncode": 0,
+  "runner_returncode": 0,
+  "finished_at_utc": "2026-10-16T22:56:39.863364+00:00"
+}

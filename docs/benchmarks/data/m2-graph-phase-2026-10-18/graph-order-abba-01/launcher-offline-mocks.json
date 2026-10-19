@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "status": "passed_offline_launcher_mocks",
+  "launcher_sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf",
+  "common_sha256": "f3a7073e0774f62597d24e5b9e6e49a594f13c0e6429a339947b467cd5a6a6b4",
+  "checks_passed": 16,
+  "checks": [
+    "SIGINT publishes child/group and unknown-native metadata before handling",
+    "SIGTERM publishes child/group and unknown-native metadata before handling",
+    "Four sequential launches retain one absolute deadline and clean dead-leader groups",
+    "Cleanup reserve rejects a later leg before Popen instead of resetting total budget",
+    "Source assigns deadline once and predeclares A1 B1 B2 A2 with1800-second cap",
+    "Fresh exact-label original human decision accepted with minimized attestation",
+    "Stale original human decision rejected",
+    "Missing minimized attestation rejected",
+    "Changed otherwise-fresh human record rejected against original pin",
+    "interim false keeps correct known/unknown native-start metadata",
+    "partial true keeps correct known/unknown native-start metadata",
+    "final false keeps correct known/unknown native-start metadata",
+    "missing result keeps correct known/unknown native-start metadata",
+    "stale interim after true keeps correct known/unknown native-start metadata",
+    "Final reporting deadline marks incomplete without undoing prior cleanup",
+    "Insufficient reporting reserve rejects final bounded HEAD operation"
+  ],
+  "scope": "Reviewed AST extracts only, fake Popen/groups/signals/files/clock/readiness. No module import, host/native execution, OS signals, builds/tests or Git. No claim about actual PCM, thermal data, elapsed time or native cleanup."
+}

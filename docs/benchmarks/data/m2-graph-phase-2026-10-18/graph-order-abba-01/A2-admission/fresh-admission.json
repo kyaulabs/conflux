@@ -1,0 +1,51 @@
+{
+  "started_monotonic": 470279.827348457,
+  "ready": true,
+  "proof": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/graph-order-abba-laptop-01/A2-admission/admission-normal-ready.json",
+    "bytes": 11053,
+    "sha256": "2301500e026e6c68303a8439aae170e08b667f8c111e502451dc79662d16f108"
+  },
+  "live_normal_readiness": {
+    "at_utc": "2026-10-18T21:54:01.674183+00:00",
+    "started_monotonic": 470279.829135282,
+    "errors": [],
+    "package_millidegrees_C": 43000,
+    "profile": "balanced",
+    "holds": "",
+    "service_identity": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036"
+    },
+    "latest_guard_entry": {
+      "MESSAGE": "2026-10-18T14:51:19-07:00 recovered: temperature 38.0C; balanced profile restored=1",
+      "__MONOTONIC_TIMESTAMP": "470117998978",
+      "__REALTIME_TIMESTAMP": "1792360279844034",
+      "_PID": "1036",
+      "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+    },
+    "finished_monotonic": 470280.011354615,
+    "finished_at_utc": "2026-10-18T21:54:01.856414+00:00",
+    "latest_message_claims_recovered": true,
+    "journal_identity_matches_service": true,
+    "journal_invocation_id_available": true
+  },
+  "same_guard_service_identity": {
+    "MainPID": "1036",
+    "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+  },
+  "fresh_package_limit_millidegrees_C": 70000,
+  "completed_readiness_package_limit_millidegrees_C": 55000,
+  "AC_lid": {
+    "AC": "1",
+    "lid": "b false",
+    "started_monotonic": 470280.011395366,
+    "errors": [],
+    "ready": true,
+    "finished_monotonic": 470280.014941681,
+    "at_utc": "2026-10-18T21:54:01.860000+00:00"
+  },
+  "finished_monotonic": 470280.014968702
+}

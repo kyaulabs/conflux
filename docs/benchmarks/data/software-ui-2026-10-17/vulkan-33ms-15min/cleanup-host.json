@@ -1,0 +1,27 @@
+{
+  "PIDs": [
+    1822042,
+    1821993,
+    1821997
+  ],
+  "PID_exists": {
+    "1822042": false,
+    "1821993": false,
+    "1821997": false
+  },
+  "worker_closed": true,
+  "backend_pid": null,
+  "fixture_exists": false,
+  "probe_returncodes": {
+    "ui": 0,
+    "audio": 0
+  },
+  "idle_inhibit_released": true,
+  "script_unloaded": true,
+  "window_restored": {
+    "reason": "owned-window-closed",
+    "after": null
+  },
+  "guard_errors": [],
+  "policy_runner_returncode": 0
+}

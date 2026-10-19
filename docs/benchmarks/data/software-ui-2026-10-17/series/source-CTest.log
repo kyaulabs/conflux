@@ -1,0 +1,54 @@
+Start testing: Oct 17 10:18 PDT
+----------------------------------------------------------
+1/3 Testing: audio-render
+1/3 Test: audio-render
+Command: "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-test"
+Directory: /home/kyau/projects/kyaulabs/conflux/build/dev
+"audio-render" start time: Oct 17 10:18 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"audio-render" end time: Oct 17 10:18 PDT
+"audio-render" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/3 Testing: probe-rejects-invalid-quantum
+2/3 Test: probe-rejects-invalid-quantum
+Command: "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe" "--quantum" "0"
+Directory: /home/kyau/projects/kyaulabs/conflux/build/dev
+"probe-rejects-invalid-quantum" start time: Oct 17 10:18 PDT
+Output:
+----------------------------------------------------------
+Invalid value for --quantum
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"probe-rejects-invalid-quantum" end time: Oct 17 10:18 PDT
+"probe-rejects-invalid-quantum" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: stem-worker
+3/3 Test: stem-worker
+Command: "/bin/python3.14" "/home/kyau/projects/kyaulabs/conflux/tests/stem_worker_test.py"
+Directory: /home/kyau/projects/kyaulabs/conflux/build/dev
+"stem-worker" start time: Oct 17 10:18 PDT
+Output:
+----------------------------------------------------------
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 4.749s
+
+OK
+<end of output>
+Test time =   5.27 sec
+----------------------------------------------------------
+Test Passed.
+"stem-worker" end time: Oct 17 10:18 PDT
+"stem-worker" time elapsed: 00:00:05
+----------------------------------------------------------
+
+End testing: Oct 17 10:18 PDT

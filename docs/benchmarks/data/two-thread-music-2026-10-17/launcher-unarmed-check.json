@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/bin/python3",
+    "-B",
+    "benchmarks-local/two-thread-music-2026-10-17/observed_launch.py",
+    "pre-arm-check",
+    "--seconds",
+    "600",
+    "--control-interval",
+    "300"
+  ],
+  "returncode": 2,
+  "stdout": "",
+  "stderr": "usage: observed_launch.py [-h] --seconds SECONDS\n                          --control-interval CONTROL_INTERVAL\n                          name\nobserved_launch.py: error: expected-pins.json is not armed with signed source HEAD and all eight hashes\n",
+  "output_created": false,
+  "syntax_ast_parse": "passed",
+  "scope": "Actual unarmed refusal before host admission, artifact checks or workload startup."
+}

@@ -1,0 +1,60 @@
+{
+  "status": "built",
+  "repository_head": "aee5c42cd254fd23c8e2bff29b9d67e8d5c12ee0",
+  "runtime_source_checkpoint": "419607fa78cdadd13a6d1ce4743a564e9c9687e9",
+  "runtime_path": "/tmp/conflux-stem-flash-f32-2026-10-18/build/conflux-stem-runtime",
+  "runtime_sha256": "6f311e461e7af5f12ff38f90ddb8720179c2c3dce23d593437d2b34524dffd9d",
+  "runtime_bytes": 62990448,
+  "overlay_sha256": "a4951aadce8272b103e31a12c121c237ca8545b926690ebcc60708d979e7eb15",
+  "phase_header_sha256": "7f48bbd4964ebcce721f7544a84303c568b460bf21c24090899ccc8b983833cd",
+  "generated_pipeline_sha256": "de537c7b01fb1041d9195f4a93721cbec4aad9537efb1bcd4bf3b3bcc4a56e0c",
+  "generated_vulkan_sha256": "e36ece6d9bd1219085c77e58e6f624da19c349fc1dd214469367d8824501f996",
+  "full_f32_scalar": true,
+  "graph_order": false,
+  "build_exit_code": 0,
+  "build_exec_session": 96153,
+  "baseline_sha256": "ded9cb2c1000af78917a784e281d905da201d735338221519958d9d7df1d681f",
+  "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+  "selection_scope": "Compiled full-F32 scalar selection only. Actual runtime selection, numerical differences, musical quality and performance remain unverified.",
+  "verification": {
+    "flash-f32-source-copy-verification.json": {
+      "sha256": "36508dad069407c806d304f5a56754f600cc0a07c14596f65df68daa5c235bb4",
+      "bytes": 1346
+    },
+    "flash-f32-generated-source-verification.json": {
+      "sha256": "55fc867435b5178fd2be4dd2757899134414477fc5c9f1098c8d22920fe59f08",
+      "bytes": 473
+    },
+    "flash-f32-compile-mapping-verification.json": {
+      "sha256": "2b365dfcac59388b53ffce693ff1c9d6d1ced480b42b10e314c44f09791db333",
+      "bytes": 1348
+    },
+    "flash-f32-configure.log": {
+      "sha256": "00cf3d678e89b031d13c8c71ec9f37bc30a9e9264793c0b26dd922e7a342d139",
+      "bytes": 2645
+    },
+    "flash-f32-build.log": {
+      "sha256": "ee8032fb3b0aa9f4f570fb16d6f96c877ee5e730c90c6c822087ba57f0142ab1",
+      "bytes": 77319
+    },
+    "flash-f32-overlay-check-01/result.json": {
+      "sha256": "a1a4cdc91d88b3e58ef8354c0196a043db6f4280b924a4e157622c3e6e0a90b4",
+      "bytes": 4786
+    },
+    "flash-quality-launcher-offline-mock-result.json": {
+      "sha256": "359a02c0b7380226928fcb3e5ddc2e6d576195b678eb31462b883e176f5536a7",
+      "bytes": 1825
+    },
+    "flash_quality_offline_check.py": {
+      "sha256": "1d2efb3399d99892be59f158c0fb9f9d982159684b70a465101a3466d2f4ef91",
+      "bytes": 7638
+    }
+  },
+  "offline_metric_checks": {
+    "passed": 12,
+    "exec_session": 14577,
+    "native_executed": false,
+    "receipt_scope": "Observed successful tool stdout from the prior root execution; no separate result file was emitted."
+  },
+  "scope": "Isolated source-copy build. No change to product defaults, baseline, model, upstream sources, shader sources or host policy."
+}

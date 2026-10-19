@@ -1,0 +1,265 @@
+{
+  "schema": 1,
+  "status": "evidence_consistent",
+  "scope": "Independent closed metadata/source audit. Timing and native telemetry-point analysis are separate.",
+  "run": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/",
+  "source_head": "c6a6d8cd7e98fb60666ddb7b7b0d91da89a0e548",
+  "session_elapsed_seconds": 731.7157994759618,
+  "completed_requests": 16,
+  "order": [
+    "A1",
+    "B1",
+    "B2",
+    "A2"
+  ],
+  "check_count": 51,
+  "checks": [
+    "Complete ordered16-request session, four clean readiness/driver exits",
+    "Unchanged fixed1800-second deadline and no workload/policy mutation",
+    "Armed c6a6d8c config and same recorded HEAD in every leg",
+    "All59 text source hashes match manifest and stable launcher pins",
+    "Immutable38c, closed917104 and Flash build proofs are bound",
+    "Exact original human session/minimized/AC/lid record retained",
+    "Adapter and exact rendered-source provenance is bound",
+    "A174 stable artifact/source/config/result pins",
+    "A1Four exact own-arm normalized input/output proof matches",
+    "A1Recorded native readiness/identity and reaped/temp cleanup",
+    "A1Same original human pin/time and age below900 seconds",
+    "A1Unrelaxed normal readiness and fresh same-service AC/lid admission",
+    "A1Per-leg provenance and existing telemetry gates retained",
+    "B174 stable artifact/source/config/result pins",
+    "B1Four exact own-arm normalized input/output proof matches",
+    "B1Recorded native readiness/identity and reaped/temp cleanup",
+    "B1Same original human pin/time and age below900 seconds",
+    "B1Unrelaxed normal readiness and fresh same-service AC/lid admission",
+    "B1Per-leg provenance and existing telemetry gates retained",
+    "B274 stable artifact/source/config/result pins",
+    "B2Four exact own-arm normalized input/output proof matches",
+    "B2Recorded native readiness/identity and reaped/temp cleanup",
+    "B2Same original human pin/time and age below900 seconds",
+    "B2Unrelaxed normal readiness and fresh same-service AC/lid admission",
+    "B2Per-leg provenance and existing telemetry gates retained",
+    "A274 stable artifact/source/config/result pins",
+    "A2Four exact own-arm normalized input/output proof matches",
+    "A2Recorded native readiness/identity and reaped/temp cleanup",
+    "A2Same original human pin/time and age below900 seconds",
+    "A2Unrelaxed normal readiness and fresh same-service AC/lid admission",
+    "A2Per-leg provenance and existing telemetry gates retained",
+    "Same inputs and reproducible A1/A2 and B1/B2 outputs, no cross-arm bit identity",
+    "All8 owned groups and all observed process identities cleaned",
+    "All sampled AC/lid observations ready with no read errors",
+    "A1Raw normal-readiness rows equal retained final proof",
+    "A1AC/lid observation precedes readiness and native construction",
+    "A1Retained full stderr hash/size binding",
+    "A1Phase-A stderr contains no Flash selection marker",
+    "B1Raw normal-readiness rows equal retained final proof",
+    "B1AC/lid observation precedes readiness and native construction",
+    "B1Retained full stderr hash/size binding",
+    "B1Actual10-node F32 scalar selection matches recorded evidence",
+    "B2Raw normal-readiness rows equal retained final proof",
+    "B2AC/lid observation precedes readiness and native construction",
+    "B2Retained full stderr hash/size binding",
+    "B2Actual10-node F32 scalar selection matches recorded evidence",
+    "A2Raw normal-readiness rows equal retained final proof",
+    "A2AC/lid observation precedes readiness and native construction",
+    "A2Retained full stderr hash/size binding",
+    "A2Phase-A stderr contains no Flash selection marker",
+    "Generated Flash/header source hashes bind build and closed proof"
+  ],
+  "identity": {
+    "source_manifest_entries": 59,
+    "source_hashes_independently_rehashed_and_matching": 59,
+    "recorded_artifact_pins_per_leg": 74,
+    "all_recorded_before_after_pins_equal": true,
+    "runtime_A_sha256": "ded9cb2c1000af78917a784e281d905da201d735338221519958d9d7df1d681f",
+    "runtime_B_sha256": "6f311e461e7af5f12ff38f90ddb8720179c2c3dce23d593437d2b34524dffd9d",
+    "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "closed_quality_proof_sha256": "917104a1cc8ca2522eef38bae6d620c972fdb2be826876b2dee88e67dd7a497a",
+    "immutable_baseline_proof_sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3",
+    "flash_build_sha256": "9c7d503af0b0c9b4c1b4e7e8c533fe888376c2a45f19942529f2e01247d7053d"
+  },
+  "proofs": {
+    "same_four_normalized_inputs_across_all_legs": true,
+    "each_leg_matches_own_closed_arm": true,
+    "A1_equals_A2": true,
+    "B1_equals_B2": true,
+    "cross_arm_exact_pcm": false,
+    "all_four_selected_A_outputs_differ_from_B": true,
+    "source_start_frame": 257985,
+    "B1_and_B2_full_F32_scalar_attention_selection_verified": true
+  },
+  "human_readiness": {
+    "recorded_at_utc": "2026-10-18T22:37:54.472614+00:00",
+    "record_sha256": "994ebbef10011c73b28f831d473bc90ce934a655c8f058906cf05079ea935297",
+    "initial_age_seconds": 3.033936,
+    "leg_age_seconds": {
+      "A1": 171.0714,
+      "B1": 398.642533,
+      "B2": 478.235081,
+      "A2": 725.340932
+    },
+    "maximum_age_seconds": 900,
+    "same_original_record_and_pin": true,
+    "automatic_renewal": false,
+    "minimized_scope": "Fresh user attestation, not automatic window-state measurement."
+  },
+  "admissions": [
+    {
+      "leg": "A1",
+      "normal_duration_seconds": 167.28538750601,
+      "rows": 17,
+      "final_ready_span_seconds": 61.143471657997,
+      "fresh_package_millidegrees_C": 38000,
+      "guard": {
+        "MainPID": "1036",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+      }
+    },
+    {
+      "leg": "B1",
+      "normal_duration_seconds": 218.9349517020164,
+      "rows": 22,
+      "final_ready_span_seconds": 61.134949732979294,
+      "fresh_package_millidegrees_C": 40000,
+      "guard": {
+        "MainPID": "1036",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+      }
+    },
+    {
+      "leg": "B2",
+      "normal_duration_seconds": 71.51292721898062,
+      "rows": 8,
+      "final_ready_span_seconds": 61.13508884899784,
+      "fresh_package_millidegrees_C": 43000,
+      "guard": {
+        "MainPID": "1036",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+      }
+    },
+    {
+      "leg": "A2",
+      "normal_duration_seconds": 239.20448014204158,
+      "rows": 24,
+      "final_ready_span_seconds": 61.13827642402612,
+      "fresh_package_millidegrees_C": 38000,
+      "guard": {
+        "MainPID": "1036",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+      }
+    }
+  ],
+  "AC_lid": {
+    "rows": 33,
+    "phase_counts": {
+      "A1": {
+        "normal": 5,
+        "native": 3
+      },
+      "B1": {
+        "normal": 6,
+        "native": 3
+      },
+      "B2": {
+        "normal": 3,
+        "native": 3
+      },
+      "A2": {
+        "normal": 7,
+        "native": 3
+      }
+    },
+    "all_ready": true,
+    "head_gap_seconds": 0.38719542301259935,
+    "tail_gap_seconds": 0.032709340972360224,
+    "maximum_row_gap_seconds": 45.075382595998235,
+    "scope": "Discrete AC/lid points; no continuous or automatic minimized-window observation."
+  },
+  "cleanup": {
+    "complete": true,
+    "known_groups": 8,
+    "all_group_disappearance_observed": true,
+    "remaining_known_groups": {},
+    "remaining_observed": {},
+    "native_children": [
+      {
+        "leg": "A1",
+        "pid": 2289241,
+        "start_ticks": 52462178,
+        "returncode": -9
+      },
+      {
+        "leg": "B1",
+        "pid": 2290829,
+        "start_ticks": 52484934,
+        "returncode": -9
+      },
+      {
+        "leg": "B2",
+        "pid": 2291229,
+        "start_ticks": 52492894,
+        "returncode": -9
+      },
+      {
+        "leg": "A2",
+        "pid": 2292298,
+        "start_ticks": 52517605,
+        "returncode": -9
+      }
+    ],
+    "native_temp_directories_removed": true,
+    "scope": "Recorded exact PID/start identity, child wait/return status, private temp removal and group disappearance; no live host re-query by this audit."
+  },
+  "execution_provenance": {
+    "adapter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_runtime.py",
+    "adapter_sha256": "ca0ad3468d20c2ae28d06476b995f50d49823c64ed6c57106aea059bf65baf71",
+    "frozen_runtime_sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3",
+    "frozen_launcher_sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf",
+    "rendered_runtime_sha256": "b389c49c834b1a70d2d28b6c847bdaab0623bdbfedcf470e1b8c10c8a615e927",
+    "rendered_request_loop_sha256": "f1b01f1f55fd41aaef2f562372605ff2dde3bdd1930a268eca79f96b8150142e",
+    "scope": "Executed in-memory narrow adaptations of frozen sources; not the original byte-identical scripts.",
+    "launcher_adapter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_launch.py",
+    "launcher_adapter_sha256": "b00ed06fe1fb28965c2d6272f35040899b407e4a693eef71256392671ccefd98",
+    "rendered_launcher_sha256": "a92e8f39d4780fdfd1784271b22b1bca7a1b3fd47a8f335ecfe68a370f7d0063"
+  },
+  "input_sha256": {
+    "flash-cost-abba-laptop-01/session.json": "78023a5a89ed6b28b15b4ccadf7309686cee8568c5a838bcc22a4182577acff6",
+    "flash-cost-abba-laptop-01/AC-lid-monitor.jsonl": "d1b2e49afffe5eb2639138047ca03eb4f6e18da4dd4e5d52a088bff0f12eb78b",
+    "flash-cost-abba-laptop-01/A1/result.json": "2c6225b0db82cc5c140fec3a7f037d2a492965725112b96d380e6afa5815f5b0",
+    "flash-cost-abba-laptop-01/A1/diagnostic.stderr": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90",
+    "flash-cost-abba-laptop-01/A1-admission/admission-normal-ready.json": "6ffc6a4ae47936ff031d8f65cc2b7356b9850f581b5dada7adb7d9e2721e2b45",
+    "flash-cost-abba-laptop-01/A1-admission/admission-normal-ready.jsonl": "d2c9d29b88b390aac85a764afd46995356e0c394ab979bb5afea2519334b0413",
+    "flash-cost-abba-laptop-01/A1-admission/fresh-admission.json": "675fc762b11d4a1f705bec35006fc84addc36d98d60c058facea36ab84d1a1a2",
+    "flash-cost-abba-laptop-01/B1/result.json": "946d64a1cb5b8ea54d7218fa6b1e28de92f08065125fa8fd760e2ec105222b5b",
+    "flash-cost-abba-laptop-01/B1/diagnostic.stderr": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1",
+    "flash-cost-abba-laptop-01/B1-admission/admission-normal-ready.json": "ffa5cd231c7c599c5bb0e130d4e6d646ed8475778b73bc4e521a11e111e960eb",
+    "flash-cost-abba-laptop-01/B1-admission/admission-normal-ready.jsonl": "aeb39cd386fb3d2ad7d02f8aaa86a8320aece30bf11a92608fa1a376512df9b0",
+    "flash-cost-abba-laptop-01/B1-admission/fresh-admission.json": "39a6260c3c72b07807fe7dc0a56ec6b014ba9069088526a65aa158af5ffe516e",
+    "flash-cost-abba-laptop-01/B2/result.json": "67adf098b65dd036c1dd5e05018c0db08effceab3922ef5a95eefd57f0933069",
+    "flash-cost-abba-laptop-01/B2/diagnostic.stderr": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1",
+    "flash-cost-abba-laptop-01/B2-admission/admission-normal-ready.json": "746daa8e94ce8f737998eee40b5cdfc43179fb01b68fe4f98a726b23fe973ce8",
+    "flash-cost-abba-laptop-01/B2-admission/admission-normal-ready.jsonl": "1e979de78dfe1e5ea7d579230d212c53015ca4e924cbab9c0ae32ceed7e74144",
+    "flash-cost-abba-laptop-01/B2-admission/fresh-admission.json": "c9f820deaa0c4dd9d1c0c31e2e2e3213cca73357b7a164bc337392f4f792dc2f",
+    "flash-cost-abba-laptop-01/A2/result.json": "5e2f72ab5cdd0ae42c43b6e448d6b0f7476dca0b570724e08a42fe598d3261fc",
+    "flash-cost-abba-laptop-01/A2/diagnostic.stderr": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90",
+    "flash-cost-abba-laptop-01/A2-admission/admission-normal-ready.json": "74d08ef035bb4d2cb878be8bd4763ee51cf63acaea3ed76bea2430bcce51baf4",
+    "flash-cost-abba-laptop-01/A2-admission/admission-normal-ready.jsonl": "70522fb873a2531de357fe603a5dd8c6b7210cd842222876970c60b41a28577f",
+    "flash-cost-abba-laptop-01/A2-admission/fresh-admission.json": "b20cb6b50762bee4a75cd61e8e1dcbf72287343617f9d3effdde59b0d2a65fad",
+    "flash-cost-expected-pins.json": "4eda9d4a6f1023fb11ef8ef2005ff78e90ab952145c7b03c8f4a812c3e5776e2",
+    "flash-cost-source-pins.json": "d816e77b49ff5888d7c263bd399345424a2d95704ba8688f628e348acd51c534",
+    "flash-cost-human-readiness.json": "994ebbef10011c73b28f831d473bc90ce934a655c8f058906cf05079ea935297",
+    "flash-f32-build-verification.json": "9c7d503af0b0c9b4c1b4e7e8c533fe888376c2a45f19942529f2e01247d7053d",
+    "flash-quality-laptop-01/comparison/result.json": "917104a1cc8ca2522eef38bae6d620c972fdb2be826876b2dee88e67dd7a497a",
+    "phase-timing-laptop-01-comparison/result.json": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3",
+    "flash-cost-render-01/provenance.json": "da638799ee1411afb992917cfa1532903bf24ad70c91c53c352b1c18e20b892b"
+  },
+  "limitations": [
+    "No native workloads, builds, tests, Git, live host queries, audio playback, PCM/model or executable reads were performed by this audit.",
+    "The source commit is bound through the armed configuration and recorded per-leg/session after-HEAD values; no new Git query was made.",
+    "Normal admission waited through guard warning/recovery observations. The same guard PID/invocation and recovered balanced/no-hold condition held at each fresh admission; this is not a warning-free-session claim.",
+    "AC/lid observations are discrete, up to45.0754seconds apart. Minimized status is the original human attestation.",
+    "The retained trace-count/error gates were checked from reports; native trace points and request timings are analyzed separately, with optional field failures kept explicit.",
+    "Each arm reproduces its own normalized PCM proof. No cross-arm bit identity, causal superiority, loaded p99 qualification, audio/UI/cancellation result or new musical verdict follows.",
+    "The unchanged4095ms loaded-service target remains a separate release blocker."
+  ]
+}

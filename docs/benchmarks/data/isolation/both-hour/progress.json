@@ -1,0 +1,144 @@
+{
+  "status": "interrupted",
+  "updated_at_utc": "2026-10-17T00:31:21.098920+00:00",
+  "elapsed_workload_seconds": 33.19961430400144,
+  "requested_seconds": 3600.0,
+  "load_mode": "both",
+  "selected_loads": [
+    "ui",
+    "audio"
+  ],
+  "timing": {
+    "chunks": 5,
+    "frames": 1289925,
+    "hop_service_percentiles_ms": {
+      "50": 5875.331579009071,
+      "95": 10261.791356955655,
+      "99": 10261.791356955655
+    },
+    "hop_service_max_ms": 10261.791356955655,
+    "hops_above_target": 4,
+    "observed_p99_within_target": false
+  },
+  "completed_controls": 0,
+  "full_source_loops": 0,
+  "failures": [
+    {
+      "phase": "audio_ui_load",
+      "error": "ui report: Expecting value: line 1 column 1 (char 0)",
+      "timestamp_monotonic": 319510.130353984
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "ui load failed: -2",
+      "timestamp_monotonic": 319510.130365581
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "requested accelerated Wayland renderer did not render",
+      "timestamp_monotonic": 319510.13036949
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "audio report: Expecting value: line 1 column 1 (char 0)",
+      "timestamp_monotonic": 319510.130371693
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "audio load failed: -2",
+      "timestamp_monotonic": 319510.130373788
+    },
+    {
+      "phase": "audio_ui_load",
+      "error": "audio probe did not complete successfully",
+      "timestamp_monotonic": 319510.13037581
+    }
+  ],
+  "worker_statistics": {
+    "generation": 1,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 0,
+    "cancel_count": 0,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "ui_progress": {
+    "requested": true,
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/both-hour/ui-progress.json",
+    "checks": 34,
+    "check_interval_seconds": 1.0,
+    "startup_grace_seconds": 5.0,
+    "maximum_allowed_gap_seconds": 30.0,
+    "maximum_progress_age_seconds": 0.9237485050107352,
+    "maximum_frame_age_seconds": 9.619197398016695,
+    "maximum_check_gap_seconds": 1.2366349149961025,
+    "unexposed_observations": 9,
+    "maximum_observed_unexposed_span_seconds": 9.990888824977446,
+    "last_unexposed_span": {
+      "started_monotonic": 319484.009994208,
+      "ended_monotonic": 319494.000883033,
+      "seconds": 9.990888824977446
+    },
+    "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+    "read_errors": {
+      "FileNotFoundError": 1
+    },
+    "last_progress": {
+      "exposed": true,
+      "frames_swapped": 1387,
+      "last_frame_monotonic_ns": 319508988158414,
+      "pid": 1573004,
+      "scene_graph_initialized": true,
+      "timestamp_monotonic_ns": 319509000425357
+    },
+    "gate_failure": null
+  },
+  "conditions": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "800008",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 44050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 51000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 53000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 50050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 44000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 49050
+    }
+  }
+}

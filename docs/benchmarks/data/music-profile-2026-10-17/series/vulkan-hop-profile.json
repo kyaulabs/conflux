@@ -1,0 +1,4326 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-17T21:08:24.221463+00:00",
+  "status": "ok",
+  "analysis_source": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-profile-2026-10-17/profile_music.py",
+    "bytes": 14768,
+    "sha256": "9e2d3c5eedd6c7f00714619d45de51aee69713a4a4971d8779452979af74b6b6"
+  },
+  "inputs": {
+    "result": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/result.json",
+      "bytes": 38645,
+      "sha256": "6fc39cae55a8051219dd114da715b4806f8264a52b0e9c2754a5490f63104f4c"
+    },
+    "events": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/events.jsonl",
+      "bytes": 44981,
+      "sha256": "0b580cd2d6bda9c1ef5b5a9b9db2c951e15898473635cf3c304ef094071a9235"
+    },
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/vulkan/native-trace.jsonl",
+      "bytes": 940799,
+      "sha256": "ab903b5e317619513705ce8a2bd7f8097fe073975ae602f874ccc1b259906118"
+    },
+    "sequence": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/sequence.json",
+      "bytes": 5188,
+      "sha256": "36497959d9685d9724ffad6be6332f50856ce106d3baac93c2bb93f2ab2e31b8"
+    },
+    "guard": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/series-guard.json",
+      "bytes": 508,
+      "sha256": "38a6a19211317732c03b2598cca4f3edf0079c76da29aec9f50ccc8bb154973b"
+    },
+    "run_facts": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/run-facts.json",
+      "bytes": 136371,
+      "sha256": "f14da029fe31472eaac0e9624deb7b3059ee49366569e9ab9bbce7d093030404"
+    }
+  },
+  "source_head": "f4dc5eef82ee42b7ebe052ab449780fd4c0a2e02",
+  "captured_producer_pins": {
+    "manifest": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/manifest.json",
+      "bytes": 7360,
+      "sha256": "4a0a50eb0adcdd8649189f9f6e5850c54ead9bf01b58c9f0e4bcae424414af53"
+    },
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/quality_run.py",
+      "bytes": 16155,
+      "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "target_ms": 4095.0,
+  "field_paths": {
+    "gpu_active_frequency": {
+      "path": "/sys/class/drm/card1/gt_act_freq_mhz",
+      "unit": "MHz"
+    },
+    "gpu_requested_frequency": {
+      "path": "/sys/class/drm/card1/gt_cur_freq_mhz",
+      "unit": "MHz"
+    },
+    "cpu0_current_frequency": {
+      "path": "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq",
+      "unit": "kHz"
+    },
+    "TCPU": {
+      "path": "/sys/class/thermal/thermal_zone5/temp",
+      "unit": "millidegrees_C"
+    },
+    "x86_pkg_temp": {
+      "path": "/sys/class/thermal/thermal_zone7/temp",
+      "unit": "millidegrees_C"
+    }
+  },
+  "clock_and_alignment": {
+    "event_clock": "Worker time.monotonic in same host/session as sampler time.monotonic; no wall-clock alignment or offset fitted.",
+    "service_interval": "[ready_at-hop_service_ms/1000, ready_at], from pinned worker service_started/ready. Includes source read, request and overlap; excludes subsequent ready-queue waiting and cold load/preparation.",
+    "sample_clock": "time.monotonic; sampled after process and optional system reads",
+    "capture_interval": "[capture_started_monotonic,timestamp_monotonic] brackets all process/system reads. Individual field read times are not recorded.",
+    "primary_interior_rule": "Require full capture interval inside inclusive hop interval. Timestamp-only assignment retained separately as sensitivity data. No interpolation or inferred time-in-state.",
+    "native_graph_boundary": "graph_ms is a native duration, including execution/wait; graph-specific absolute endpoints are not recorded, so snapshots align to the broader worker hop interval.",
+    "trace_origin_monotonic_min": 386011.031290573,
+    "trace_origin_monotonic_max": 386011.031290573,
+    "first_load_monotonic": 386011.032351882,
+    "first_trace_seconds_after_load": 1.007431113976054,
+    "last_trace_seconds_after_load": 73.97413899196545,
+    "max_trace_gap_seconds": 0.5159639720222913,
+    "capture_elapsed_ms": {
+      "count": 144,
+      "min": 5.64283796120435,
+      "mean": 9.592255737111877,
+      "median": 9.508756484137848,
+      "p50": 9.492031007539481,
+      "p95": 12.120147002860904,
+      "p99": 14.616806001868099,
+      "max": 15.214329003356397
+    }
+  },
+  "all_trace_policy_samples": {
+    "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 47,
+    "{\"epp\": \"power\", \"profile\": \"low-power\"}": 97
+  },
+  "all_trace_policy_runs": [
+    {
+      "policy": {
+        "epp": "balance_performance",
+        "profile": "balanced"
+      },
+      "first_trace_row": 0,
+      "last_trace_row": 46,
+      "first_seconds_after_load": 1.007431113976054,
+      "last_seconds_after_load": 24.430919328005984,
+      "samples": 47
+    },
+    {
+      "policy": {
+        "epp": "power",
+        "profile": "low-power"
+      },
+      "first_trace_row": 47,
+      "last_trace_row": 143,
+      "first_seconds_after_load": 24.939905034960248,
+      "last_seconds_after_load": 73.97413899196545,
+      "samples": 97
+    }
+  ],
+  "populations": {
+    "continuous_all": {
+      "hops": 16,
+      "requests": [
+        1,
+        2,
+        3,
+        4,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "timing_ms": {
+        "hop_service_ms": {
+          "count": 16,
+          "min": 1794.6288380189799,
+          "mean": 3411.789344809222,
+          "median": 3925.9701450064313,
+          "p50": 3925.8415160002187,
+          "p95": 5258.472547982819,
+          "p99": 5258.472547982819,
+          "max": 5258.472547982819
+        },
+        "native_graph_ms": {
+          "count": 16,
+          "min": 1724.428627,
+          "mean": 3260.8419740625,
+          "median": 3754.0386555,
+          "p50": 3750.13895,
+          "p95": 5071.134236,
+          "p99": 5071.134236,
+          "max": 5071.134236
+        },
+        "hop_minus_graph_ms": {
+          "count": 16,
+          "min": 68.37085700255352,
+          "mean": 150.94737074672182,
+          "median": 164.59544346843154,
+          "p50": 163.9229429773086,
+          "p95": 224.684704039013,
+          "p99": 224.684704039013,
+          "max": 224.684704039013
+        },
+        "queue_delay_ms": {
+          "count": 16,
+          "min": 0.06175099406391382,
+          "mean": 0.2286448834638577,
+          "median": 0.15883101150393486,
+          "p50": 0.15318597434088588,
+          "p95": 0.5744260270148516,
+          "p99": 0.5744260270148516,
+          "max": 0.5744260270148516
+        },
+        "ready_to_raw_consumer_ms": {
+          "count": 16,
+          "min": 5.065320001449436,
+          "mean": 17.297971251537092,
+          "median": 18.164388020522892,
+          "p50": 18.1119570042938,
+          "p95": 32.313387026079,
+          "p99": 32.313387026079,
+          "max": 32.313387026079
+        }
+      },
+      "per_hop_mean_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 16,
+          "min": 475.0,
+          "mean": 821.4025297619048,
+          "median": 623.2142857142858,
+          "p50": 621.4285714285714,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz"
+        },
+        "gpu_requested_frequency": {
+          "count": 16,
+          "min": 1188.8333333333333,
+          "mean": 1318.8333333333333,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz"
+        },
+        "cpu0_current_frequency": {
+          "count": 16,
+          "min": 764351.3,
+          "mean": 1104531.179985119,
+          "median": 917387.6666666667,
+          "p50": 876189.3333333334,
+          "p95": 2240505.0,
+          "p99": 2240505.0,
+          "max": 2240505.0,
+          "unit": "kHz"
+        },
+        "TCPU": {
+          "count": 16,
+          "min": 42.38333333333334,
+          "mean": 54.39017857142858,
+          "median": 51.237500000000004,
+          "p50": 51.050000000000004,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C"
+        },
+        "x86_pkg_temp": {
+          "count": 16,
+          "min": 50.0,
+          "mean": 56.64181547619047,
+          "median": 52.97857142857143,
+          "p50": 52.857142857142854,
+          "p95": 70.0,
+          "p99": 70.0,
+          "max": 70.0,
+          "unit": "C"
+        }
+      },
+      "interior_snapshots": 106,
+      "unique_interior_snapshots": 106,
+      "pooled_interior_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 106,
+          "min": 0.0,
+          "mean": 704.7169811320755,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 106,
+          "min": 383.0,
+          "mean": 1315.4056603773586,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 106,
+          "min": 400000.0,
+          "mean": 1000610.7264150943,
+          "median": 935327.5,
+          "p50": 924365.0,
+          "p95": 1549916.0,
+          "p99": 4100000.0,
+          "max": 4297944.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 106,
+          "min": 41.050000000000004,
+          "mean": 54.61603773584906,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 106,
+          "min": 47.0,
+          "mean": 54.83018867924528,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 70.0,
+          "p99": 73.0,
+          "max": 74.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "policy_classes_per_hop": {
+        "[\"{\\\"epp\\\": \\\"balance_performance\\\", \\\"profile\\\": \\\"balanced\\\"}\"]": 4,
+        "[\"{\\\"epp\\\": \\\"power\\\", \\\"profile\\\": \\\"low-power\\\"}\"]": 12
+      }
+    },
+    "continuous_target_misses": {
+      "hops": 3,
+      "requests": [
+        17,
+        18,
+        25
+      ],
+      "timing_ms": {
+        "hop_service_ms": {
+          "count": 3,
+          "min": 4379.999618977308,
+          "mean": 4834.898588655051,
+          "median": 4866.223599005025,
+          "p50": 4866.223599005025,
+          "p95": 5258.472547982819,
+          "p99": 5258.472547982819,
+          "max": 5258.472547982819
+        },
+        "native_graph_ms": {
+          "count": 3,
+          "min": 4216.076676,
+          "mean": 4663.801848666667,
+          "median": 4704.194634,
+          "p50": 4704.194634,
+          "p95": 5071.134236,
+          "p99": 5071.134236,
+          "max": 5071.134236
+        },
+        "hop_minus_graph_ms": {
+          "count": 3,
+          "min": 162.02896500502447,
+          "mean": 171.0967399883842,
+          "median": 163.9229429773086,
+          "p50": 163.9229429773086,
+          "p95": 187.3383119828195,
+          "p99": 187.3383119828195,
+          "max": 187.3383119828195
+        },
+        "queue_delay_ms": {
+          "count": 3,
+          "min": 0.14779804041609168,
+          "mean": 0.1551533544746538,
+          "median": 0.15318597434088588,
+          "p50": 0.15318597434088588,
+          "p95": 0.16447604866698384,
+          "p99": 0.16447604866698384,
+          "max": 0.16447604866698384
+        },
+        "ready_to_raw_consumer_ms": {
+          "count": 3,
+          "min": 21.635643031913787,
+          "mean": 22.018952333989244,
+          "median": 21.778561000246555,
+          "p50": 21.778561000246555,
+          "p95": 22.642652969807386,
+          "p99": 22.642652969807386,
+          "max": 22.642652969807386
+        }
+      },
+      "per_hop_mean_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 3,
+          "min": 475.0,
+          "mean": 515.8333333333334,
+          "median": 510.0,
+          "p50": 510.0,
+          "p95": 562.5,
+          "p99": 562.5,
+          "max": 562.5,
+          "unit": "MHz"
+        },
+        "gpu_requested_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz"
+        },
+        "cpu0_current_frequency": {
+          "count": 3,
+          "min": 764351.3,
+          "mean": 832672.2000000001,
+          "median": 775079.3,
+          "p50": 775079.3,
+          "p95": 958586.0,
+          "p99": 958586.0,
+          "max": 958586.0,
+          "unit": "kHz"
+        },
+        "TCPU": {
+          "count": 3,
+          "min": 50.050000000000004,
+          "mean": 56.983333333333334,
+          "median": 55.050000000000004,
+          "p50": 55.050000000000004,
+          "p95": 65.85,
+          "p99": 65.85,
+          "max": 65.85,
+          "unit": "C"
+        },
+        "x86_pkg_temp": {
+          "count": 3,
+          "min": 50.0,
+          "mean": 52.63333333333333,
+          "median": 53.1,
+          "p50": 53.1,
+          "p95": 54.8,
+          "p99": 54.8,
+          "max": 54.8,
+          "unit": "C"
+        }
+      },
+      "interior_snapshots": 28,
+      "unique_interior_snapshots": 28,
+      "pooled_interior_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 28,
+          "min": 350.0,
+          "mean": 512.5,
+          "median": 500.0,
+          "p50": 500.0,
+          "p95": 600.0,
+          "p99": 600.0,
+          "max": 600.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 28,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 28,
+          "min": 400000.0,
+          "mean": 823678.3571428572,
+          "median": 815841.0,
+          "p50": 800008.0,
+          "p95": 1100011.0,
+          "p99": 1131264.0,
+          "max": 1131264.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 28,
+          "min": 50.050000000000004,
+          "mean": 57.47857142857143,
+          "median": 55.550000000000004,
+          "p50": 54.050000000000004,
+          "p95": 71.05,
+          "p99": 71.05,
+          "max": 71.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 28,
+          "min": 48.0,
+          "mean": 52.82142857142857,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 55.0,
+          "p99": 55.0,
+          "max": 55.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "policy_classes_per_hop": {
+        "[\"{\\\"epp\\\": \\\"power\\\", \\\"profile\\\": \\\"low-power\\\"}\"]": 3
+      }
+    },
+    "continuous_at_or_below_target": {
+      "hops": 13,
+      "requests": [
+        1,
+        2,
+        3,
+        4,
+        15,
+        16,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        26
+      ],
+      "timing_ms": {
+        "hop_service_ms": {
+          "count": 13,
+          "min": 1794.6288380189799,
+          "mean": 3083.3795193063384,
+          "median": 3887.363350018859,
+          "p50": 3887.363350018859,
+          "p95": 4072.175806039013,
+          "p99": 4072.175806039013,
+          "max": 4072.175806039013
+        },
+        "native_graph_ms": {
+          "count": 13,
+          "min": 1724.428627,
+          "mean": 2937.082003,
+          "median": 3738.935679,
+          "p50": 3738.935679,
+          "p95": 3847.491102,
+          "p99": 3847.491102,
+          "max": 3847.491102
+        },
+        "hop_minus_graph_ms": {
+          "count": 13,
+          "min": 68.37085700255352,
+          "mean": 146.2975163063382,
+          "median": 165.2679439595545,
+          "p50": 165.2679439595545,
+          "p95": 224.684704039013,
+          "p99": 224.684704039013,
+          "max": 224.684704039013
+        },
+        "queue_delay_ms": {
+          "count": 13,
+          "min": 0.06175099406391382,
+          "mean": 0.2456044670767509,
+          "median": 0.17522199777886271,
+          "p50": 0.17522199777886271,
+          "p95": 0.5744260270148516,
+          "p99": 0.5744260270148516,
+          "max": 0.5744260270148516
+        },
+        "ready_to_raw_consumer_ms": {
+          "count": 13,
+          "min": 5.065320001449436,
+          "mean": 16.20851407866352,
+          "median": 17.85428199218586,
+          "p50": 17.85428199218586,
+          "p95": 32.313387026079,
+          "p99": 32.313387026079,
+          "max": 32.313387026079
+        }
+      },
+      "per_hop_mean_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 13,
+          "min": 531.25,
+          "mean": 891.9184981684982,
+          "median": 625.0,
+          "p50": 625.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz"
+        },
+        "gpu_requested_frequency": {
+          "count": 13,
+          "min": 1188.8333333333333,
+          "mean": 1311.6410256410256,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz"
+        },
+        "cpu0_current_frequency": {
+          "count": 13,
+          "min": 770094.0,
+          "mean": 1167267.8676739926,
+          "median": 1019833.4285714285,
+          "p50": 1019833.4285714285,
+          "p95": 2240505.0,
+          "p99": 2240505.0,
+          "max": 2240505.0,
+          "unit": "kHz"
+        },
+        "TCPU": {
+          "count": 13,
+          "min": 42.38333333333334,
+          "mean": 53.791758241758245,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C"
+        },
+        "x86_pkg_temp": {
+          "count": 13,
+          "min": 50.25,
+          "mean": 57.56684981684982,
+          "median": 52.857142857142854,
+          "p50": 52.857142857142854,
+          "p95": 70.0,
+          "p99": 70.0,
+          "max": 70.0,
+          "unit": "C"
+        }
+      },
+      "interior_snapshots": 78,
+      "unique_interior_snapshots": 78,
+      "pooled_interior_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 78,
+          "min": 0.0,
+          "mean": 773.7179487179487,
+          "median": 650.0,
+          "p50": 650.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 78,
+          "min": 383.0,
+          "mean": 1302.9871794871794,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 78,
+          "min": 400000.0,
+          "mean": 1064124.9102564103,
+          "median": 987027.5,
+          "p50": 981640.0,
+          "p95": 2474414.0,
+          "p99": 4297944.0,
+          "max": 4297944.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 78,
+          "min": 41.050000000000004,
+          "mean": 53.588461538461544,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 78,
+          "min": 47.0,
+          "mean": 55.55128205128205,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 72.0,
+          "p99": 74.0,
+          "max": 74.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "policy_classes_per_hop": {
+        "[\"{\\\"epp\\\": \\\"balance_performance\\\", \\\"profile\\\": \\\"balanced\\\"}\"]": 4,
+        "[\"{\\\"epp\\\": \\\"power\\\", \\\"profile\\\": \\\"low-power\\\"}\"]": 9
+      }
+    }
+  },
+  "hops": [
+    {
+      "track_id": "club_xl",
+      "generation": 1,
+      "request_id": 1,
+      "frame_start": 0,
+      "source_seconds": 0.0,
+      "target_miss": false,
+      "hop_service_ms": 1873.2906060176902,
+      "native_graph_ms": 1799.207946,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 74.08266001769016,
+      "graph_fraction_of_hop": 0.960453194085472,
+      "request_ms": 1836.0270950361155,
+      "source_read_ms": 3.9508120389655232,
+      "overlap_ms": 32.37297700252384,
+      "queue_delay_ms": 0.07313000969588757,
+      "ready_to_raw_consumer_ms": 7.300012977793813,
+      "native_metrics": {
+        "graph_ms": 1799.207946,
+        "involuntary_context_switches": 18,
+        "voluntary_context_switches": 100,
+        "inference_wall_ms": 1819.365691,
+        "elapsed_ms": 1826.818876,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 8.409292,
+        "stems": 4,
+        "postprocess_ms": 11.747798,
+        "inference_cpu_ms": 136.664,
+        "frames": 343980,
+        "id": 1,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386011.555168451,
+        "end_monotonic": 386013.428459057,
+        "start_seconds_after_first_load": 0.5228165689622983,
+        "end_seconds_after_first_load": 2.3961071749799885,
+        "request_started_event_monotonic": 386011.559130479
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          0,
+          1,
+          2
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          0,
+          1,
+          2
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": null,
+        "next_capture_index": 3,
+        "previous_capture_end_to_hop_start_seconds": null,
+        "hop_end_to_next_capture_start_seconds": 0.12889549997635186,
+        "start_to_first_interior_capture_seconds": 0.47651023301295936,
+        "last_interior_capture_to_end_seconds": 0.37141598598100245,
+        "interior_max_sample_gap_seconds": 0.5096452080179006
+      },
+      "policy_samples": {
+        "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 3
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 3,
+          "min": 1043771.0,
+          "mean": 2240505.0,
+          "median": 2474414.0,
+          "p50": 2474414.0,
+          "p95": 3203330.0,
+          "p99": 3203330.0,
+          "max": 3203330.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 3,
+          "min": 41.050000000000004,
+          "mean": 42.38333333333334,
+          "median": 41.050000000000004,
+          "p50": 41.050000000000004,
+          "p95": 45.050000000000004,
+          "p99": 45.050000000000004,
+          "max": 45.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 3,
+          "min": 57.0,
+          "mean": 59.0,
+          "median": 58.0,
+          "p50": 58.0,
+          "p95": 62.0,
+          "p99": 62.0,
+          "max": 62.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 3,
+          "min": 1043771.0,
+          "mean": 2240505.0,
+          "median": 2474414.0,
+          "p50": 2474414.0,
+          "p95": 3203330.0,
+          "p99": 3203330.0,
+          "max": 3203330.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 3,
+          "min": 41.050000000000004,
+          "mean": 42.38333333333334,
+          "median": 41.050000000000004,
+          "p50": 41.050000000000004,
+          "p95": 45.050000000000004,
+          "p99": 45.050000000000004,
+          "max": 45.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 3,
+          "min": 57.0,
+          "mean": 59.0,
+          "median": 58.0,
+          "p50": 58.0,
+          "p95": 62.0,
+          "p99": 62.0,
+          "max": 62.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 3
+        }
+      }
+    },
+    {
+      "track_id": "club_xl",
+      "generation": 1,
+      "request_id": 2,
+      "frame_start": 257985,
+      "source_seconds": 5.85,
+      "target_miss": false,
+      "hop_service_ms": 1835.0700619630516,
+      "native_graph_ms": 1756.841115,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 78.22894696305161,
+      "graph_fraction_of_hop": 0.9573700489237088,
+      "request_ms": 1806.2919140211307,
+      "source_read_ms": 6.934599950909615,
+      "overlap_ms": 20.965761970728636,
+      "queue_delay_ms": 0.17522199777886271,
+      "ready_to_raw_consumer_ms": 6.025678012520075,
+      "native_metrics": {
+        "graph_ms": 1756.841115,
+        "involuntary_context_switches": 3,
+        "voluntary_context_switches": 55,
+        "inference_wall_ms": 1783.243999,
+        "elapsed_ms": 1790.034138,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 9.177479,
+        "stems": 4,
+        "postprocess_ms": 17.224115,
+        "inference_cpu_ms": 79.589,
+        "frames": 343980,
+        "id": 2,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386013.42850118,
+        "end_monotonic": 386015.263571242,
+        "start_seconds_after_first_load": 2.3961492980015464,
+        "end_seconds_after_first_load": 4.231219359964598,
+        "request_started_event_monotonic": 386013.435452789
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 2,
+        "next_capture_index": 7,
+        "previous_capture_end_to_hop_start_seconds": 0.3714581090025604,
+        "hop_end_to_next_capture_start_seconds": 0.3298213540110737,
+        "start_to_first_interior_capture_seconds": 0.12885337695479393,
+        "last_interior_capture_to_end_seconds": 0.17057670699432492,
+        "interior_max_sample_gap_seconds": 0.5103209700318985
+      },
+      "policy_samples": {
+        "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 4
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 4,
+          "min": 673281.0,
+          "mean": 1985020.0,
+          "median": 1583399.5,
+          "p50": 1549916.0,
+          "p95": 4100000.0,
+          "p99": 4100000.0,
+          "max": 4100000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 4,
+          "min": 45.050000000000004,
+          "mean": 46.300000000000004,
+          "median": 45.050000000000004,
+          "p50": 45.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 4,
+          "min": 58.0,
+          "mean": 65.0,
+          "median": 65.0,
+          "p50": 63.0,
+          "p95": 72.0,
+          "p99": 72.0,
+          "max": 72.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 4,
+          "min": 673281.0,
+          "mean": 1985020.0,
+          "median": 1583399.5,
+          "p50": 1549916.0,
+          "p95": 4100000.0,
+          "p99": 4100000.0,
+          "max": 4100000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 4,
+          "min": 45.050000000000004,
+          "mean": 46.300000000000004,
+          "median": 45.050000000000004,
+          "p50": 45.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 4,
+          "min": 58.0,
+          "mean": 65.0,
+          "median": 65.0,
+          "p50": 63.0,
+          "p95": 72.0,
+          "p99": 72.0,
+          "max": 72.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 4
+        }
+      }
+    },
+    {
+      "track_id": "club_xl",
+      "generation": 1,
+      "request_id": 3,
+      "frame_start": 515970,
+      "source_seconds": 11.7,
+      "target_miss": false,
+      "hop_service_ms": 1825.0587380025536,
+      "native_graph_ms": 1756.687881,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 68.37085700255352,
+      "graph_fraction_of_hop": 0.9625377224420829,
+      "request_ms": 1807.3527330416255,
+      "source_read_ms": 1.5852170181460679,
+      "overlap_ms": 14.963352994527668,
+      "queue_delay_ms": 0.06175099406391382,
+      "ready_to_raw_consumer_ms": 6.256073014810681,
+      "native_metrics": {
+        "graph_ms": 1756.687881,
+        "involuntary_context_switches": 8,
+        "voluntary_context_switches": 55,
+        "inference_wall_ms": 1785.811742,
+        "elapsed_ms": 1795.368445,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 13.490794,
+        "stems": 4,
+        "postprocess_ms": 15.632314,
+        "inference_cpu_ms": 79.32599999999996,
+        "frames": 343980,
+        "id": 3,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386015.263615069,
+        "end_monotonic": 386017.088673807,
+        "start_seconds_after_first_load": 4.2312631869572215,
+        "end_seconds_after_first_load": 6.056321924959775,
+        "request_started_event_monotonic": 386015.265213097
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          7,
+          8,
+          9
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          7,
+          8,
+          9
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 6,
+        "next_capture_index": 10,
+        "previous_capture_end_to_hop_start_seconds": 0.17062053398694843,
+        "hop_end_to_next_capture_start_seconds": 0.030525206006132066,
+        "start_to_first_interior_capture_seconds": 0.3297775270184502,
+        "last_interior_capture_to_end_seconds": 0.46972995600663126,
+        "interior_max_sample_gap_seconds": 0.5094889369793236
+      },
+      "policy_samples": {
+        "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 3
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 3,
+          "min": 400000.0,
+          "mean": 772260.0,
+          "median": 924365.0,
+          "p50": 924365.0,
+          "p95": 992415.0,
+          "p99": 992415.0,
+          "max": 992415.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 3,
+          "min": 50.050000000000004,
+          "mean": 50.050000000000004,
+          "median": 50.050000000000004,
+          "p50": 50.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 3,
+          "min": 62.0,
+          "mean": 64.66666666666667,
+          "median": 66.0,
+          "p50": 66.0,
+          "p95": 66.0,
+          "p99": 66.0,
+          "max": 66.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 3,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 3,
+          "min": 400000.0,
+          "mean": 772260.0,
+          "median": 924365.0,
+          "p50": 924365.0,
+          "p95": 992415.0,
+          "p99": 992415.0,
+          "max": 992415.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 3,
+          "min": 50.050000000000004,
+          "mean": 50.050000000000004,
+          "median": 50.050000000000004,
+          "p50": 50.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 3,
+          "min": 62.0,
+          "mean": 64.66666666666667,
+          "median": 66.0,
+          "p50": 66.0,
+          "p95": 66.0,
+          "p99": 66.0,
+          "max": 66.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 3
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 3
+        }
+      }
+    },
+    {
+      "track_id": "club_xl",
+      "generation": 1,
+      "request_id": 4,
+      "frame_start": 773955,
+      "source_seconds": 17.55,
+      "target_miss": false,
+      "hop_service_ms": 1794.6288380189799,
+      "native_graph_ms": 1724.428627,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 70.20021101897987,
+      "graph_fraction_of_hop": 0.960883158939722,
+      "request_ms": 1768.211529997643,
+      "source_read_ms": 1.8197009922005236,
+      "overlap_ms": 23.744155012536794,
+      "queue_delay_ms": 0.08081999840214849,
+      "ready_to_raw_consumer_ms": 5.065320001449436,
+      "native_metrics": {
+        "graph_ms": 1724.428627,
+        "involuntary_context_switches": 16,
+        "voluntary_context_switches": 54,
+        "inference_wall_ms": 1756.485907,
+        "elapsed_ms": 1762.412281,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 7.729122,
+        "stems": 4,
+        "postprocess_ms": 24.327377,
+        "inference_cpu_ms": 110.54299999999995,
+        "frames": 343980,
+        "id": 4,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386017.088711749,
+        "end_monotonic": 386018.883340587,
+        "start_seconds_after_first_load": 6.056359866983257,
+        "end_seconds_after_first_load": 7.850988705002237,
+        "request_started_event_monotonic": 386017.090547885
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 9,
+        "next_capture_index": 14,
+        "previous_capture_end_to_hop_start_seconds": 0.46976789803011343,
+        "hop_end_to_next_capture_start_seconds": 0.2711073389509693,
+        "start_to_first_interior_capture_seconds": 0.030487263982649893,
+        "last_interior_capture_to_end_seconds": 0.22952005604747683,
+        "interior_max_sample_gap_seconds": 0.5093782430049032
+      },
+      "policy_samples": {
+        "{\"epp\": \"balance_performance\", \"profile\": \"balanced\"}": 4
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 4,
+          "min": 909011.0,
+          "mean": 1833061.75,
+          "median": 1062646.0,
+          "p50": 1014147.0,
+          "p95": 4297944.0,
+          "p99": 4297944.0,
+          "max": 4297944.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 4,
+          "min": 58.050000000000004,
+          "mean": 58.050000000000004,
+          "median": 58.050000000000004,
+          "p50": 58.050000000000004,
+          "p95": 58.050000000000004,
+          "p99": 58.050000000000004,
+          "max": 58.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 4,
+          "min": 63.0,
+          "mean": 66.25,
+          "median": 66.0,
+          "p50": 65.0,
+          "p95": 70.0,
+          "p99": 70.0,
+          "max": 70.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 4,
+          "min": 909011.0,
+          "mean": 1833061.75,
+          "median": 1062646.0,
+          "p50": 1014147.0,
+          "p95": 4297944.0,
+          "p99": 4297944.0,
+          "max": 4297944.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 4,
+          "min": 58.050000000000004,
+          "mean": 58.050000000000004,
+          "median": 58.050000000000004,
+          "p50": 58.050000000000004,
+          "p95": 58.050000000000004,
+          "p99": 58.050000000000004,
+          "max": 58.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 4,
+          "min": 63.0,
+          "mean": 66.25,
+          "median": 66.0,
+          "p50": 65.0,
+          "p95": 70.0,
+          "p99": 70.0,
+          "max": 70.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 4
+        }
+      }
+    },
+    {
+      "track_id": "when_the_light_breaks",
+      "generation": 5,
+      "request_id": 15,
+      "frame_start": 0,
+      "source_seconds": 0.0,
+      "target_miss": false,
+      "hop_service_ms": 2062.397716974374,
+      "native_graph_ms": 1848.788707,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 213.60900997437398,
+      "graph_fraction_of_hop": 0.8964268587885427,
+      "request_ms": 1956.5610389690846,
+      "source_read_ms": 4.932240990456194,
+      "overlap_ms": 98.82531099719927,
+      "queue_delay_ms": 0.14510401524603367,
+      "ready_to_raw_consumer_ms": 32.313387026079,
+      "native_metrics": {
+        "graph_ms": 1848.788707,
+        "involuntary_context_switches": 20,
+        "voluntary_context_switches": 55,
+        "inference_wall_ms": 1913.717265,
+        "elapsed_ms": 1934.17744,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 18.702743,
+        "stems": 4,
+        "postprocess_ms": 46.224867,
+        "inference_cpu_ms": 205.078,
+        "frames": 343980,
+        "id": 15,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386037.419905373,
+        "end_monotonic": 386039.48230309,
+        "start_seconds_after_first_load": 26.387553490989376,
+        "end_seconds_after_first_load": 28.44995120796375,
+        "request_started_event_monotonic": 386037.424867575
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          50,
+          51,
+          52,
+          53
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          50,
+          51,
+          52,
+          53
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 49,
+        "next_capture_index": 54,
+        "previous_capture_end_to_hop_start_seconds": 0.42914178798673674,
+        "hop_end_to_next_capture_start_seconds": 0.05462753400206566,
+        "start_to_first_interior_capture_seconds": 0.07153314596507698,
+        "last_interior_capture_to_end_seconds": 0.4461857909918763,
+        "interior_max_sample_gap_seconds": 0.5142616889788769
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 4
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 4,
+          "min": 969933.0,
+          "mean": 1114375.75,
+          "median": 1143785.0,
+          "p50": 1087583.0,
+          "p95": 1200000.0,
+          "p99": 1200000.0,
+          "max": 1200000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 4,
+          "min": 72.05,
+          "mean": 72.05,
+          "median": 72.05,
+          "p50": 72.05,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 4,
+          "min": 63.0,
+          "mean": 70.0,
+          "median": 71.5,
+          "p50": 70.0,
+          "p95": 74.0,
+          "p99": 74.0,
+          "max": 74.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 4,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 4,
+          "min": 969933.0,
+          "mean": 1114375.75,
+          "median": 1143785.0,
+          "p50": 1087583.0,
+          "p95": 1200000.0,
+          "p99": 1200000.0,
+          "max": 1200000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 4,
+          "min": 72.05,
+          "mean": 72.05,
+          "median": 72.05,
+          "p50": 72.05,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 4,
+          "min": 63.0,
+          "mean": 70.0,
+          "median": 71.5,
+          "p50": 70.0,
+          "p95": 74.0,
+          "p99": 74.0,
+          "max": 74.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 4
+        }
+      }
+    },
+    {
+      "track_id": "when_the_light_breaks",
+      "generation": 5,
+      "request_id": 16,
+      "frame_start": 257985,
+      "source_seconds": 5.85,
+      "target_miss": false,
+      "hop_service_ms": 3010.3422719985247,
+      "native_graph_ms": 2814.579002,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 195.76326999852472,
+      "graph_fraction_of_hop": 0.9349697634652819,
+      "request_ms": 2936.882963986136,
+      "source_read_ms": 20.26732894591987,
+      "overlap_ms": 50.82307005068287,
+      "queue_delay_ms": 0.22917299065738916,
+      "ready_to_raw_consumer_ms": 23.081399966031313,
+      "native_metrics": {
+        "graph_ms": 2814.579002,
+        "involuntary_context_switches": 24,
+        "voluntary_context_switches": 55,
+        "inference_wall_ms": 2885.538525,
+        "elapsed_ms": 2908.938414,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 19.05276,
+        "stems": 4,
+        "postprocess_ms": 51.905076,
+        "inference_cpu_ms": 230.9430000000002,
+        "frames": 343980,
+        "id": 16,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386039.482389154,
+        "end_monotonic": 386042.492731426,
+        "start_seconds_after_first_load": 28.45003727200674,
+        "end_seconds_after_first_load": 31.460379544005264,
+        "request_started_event_monotonic": 386039.502707442
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          54,
+          55,
+          56,
+          57,
+          58,
+          59
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          54,
+          55,
+          56,
+          57,
+          58,
+          59
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 53,
+        "next_capture_index": 60,
+        "previous_capture_end_to_hop_start_seconds": 0.44627185503486544,
+        "hop_end_to_next_capture_start_seconds": 0.11119726294418797,
+        "start_to_first_interior_capture_seconds": 0.054541469959076494,
+        "last_interior_capture_to_end_seconds": 0.38957653602119535,
+        "interior_max_sample_gap_seconds": 0.5129135940223932
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 6
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 6,
+          "min": 400.0,
+          "mean": 733.3333333333334,
+          "median": 550.0,
+          "p50": 500.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 6,
+          "min": 383.0,
+          "mean": 1188.8333333333333,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 6,
+          "min": 631310.0,
+          "mean": 876189.3333333334,
+          "median": 801931.5,
+          "p50": 788477.0,
+          "p95": 1300844.0,
+          "p99": 1300844.0,
+          "max": 1300844.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 6,
+          "min": 71.05,
+          "mean": 71.71666666666667,
+          "median": 72.05,
+          "p50": 72.05,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 6,
+          "min": 58.0,
+          "mean": 62.666666666666664,
+          "median": 59.0,
+          "p50": 59.0,
+          "p95": 72.0,
+          "p99": 72.0,
+          "max": 72.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 6,
+          "min": 400.0,
+          "mean": 733.3333333333334,
+          "median": 550.0,
+          "p50": 500.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 6,
+          "min": 383.0,
+          "mean": 1188.8333333333333,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 6,
+          "min": 631310.0,
+          "mean": 876189.3333333334,
+          "median": 801931.5,
+          "p50": 788477.0,
+          "p95": 1300844.0,
+          "p99": 1300844.0,
+          "max": 1300844.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 6,
+          "min": 71.05,
+          "mean": 71.71666666666667,
+          "median": 72.05,
+          "p50": 72.05,
+          "p95": 72.05,
+          "p99": 72.05,
+          "max": 72.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 6,
+          "min": 58.0,
+          "mean": 62.666666666666664,
+          "median": 59.0,
+          "p50": 59.0,
+          "p95": 72.0,
+          "p99": 72.0,
+          "max": 72.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 2,
+          "1": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 6
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 6
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 6
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 6
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 2,
+          "1": 4
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 6
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 6
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 6
+        }
+      }
+    },
+    {
+      "track_id": "when_the_light_breaks",
+      "generation": 5,
+      "request_id": 17,
+      "frame_start": 515970,
+      "source_seconds": 11.7,
+      "target_miss": true,
+      "hop_service_ms": 4866.223599005025,
+      "native_graph_ms": 4704.194634,
+      "native_graph_exceeds_target": true,
+      "hop_minus_graph_ms": 162.02896500502447,
+      "graph_fraction_of_hop": 0.9667033456830562,
+      "request_ms": 4828.427916043438,
+      "source_read_ms": 5.727825977373868,
+      "overlap_ms": 29.920837027020752,
+      "queue_delay_ms": 0.15318597434088588,
+      "ready_to_raw_consumer_ms": 22.642652969807386,
+      "native_metrics": {
+        "graph_ms": 4704.194634,
+        "involuntary_context_switches": 19,
+        "voluntary_context_switches": 57,
+        "inference_wall_ms": 4786.454646,
+        "elapsed_ms": 4811.226686,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 26.642532,
+        "stems": 4,
+        "postprocess_ms": 55.615897,
+        "inference_cpu_ms": 247.297,
+        "frames": 343980,
+        "id": 17,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386042.492870979,
+        "end_monotonic": 386047.359094578,
+        "start_seconds_after_first_load": 31.46051909698872,
+        "end_seconds_after_first_load": 36.326742695993744,
+        "request_started_event_monotonic": 386042.498637331
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 59,
+        "next_capture_index": 70,
+        "previous_capture_end_to_hop_start_seconds": 0.3897160890046507,
+        "hop_end_to_next_capture_start_seconds": 0.3561723139719106,
+        "start_to_first_interior_capture_seconds": 0.11105770996073261,
+        "last_interior_capture_to_end_seconds": 0.14444809104315937,
+        "interior_max_sample_gap_seconds": 0.5154835450230166
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 10
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 10,
+          "min": 500.0,
+          "mean": 510.0,
+          "median": 500.0,
+          "p50": 500.0,
+          "p95": 550.0,
+          "p99": 550.0,
+          "max": 550.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 10,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 10,
+          "min": 400000.0,
+          "mean": 764351.3,
+          "median": 791848.0,
+          "p50": 717226.0,
+          "p95": 1000352.0,
+          "p99": 1000352.0,
+          "max": 1000352.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 10,
+          "min": 61.050000000000004,
+          "mean": 65.85,
+          "median": 68.05,
+          "p50": 68.05,
+          "p95": 71.05,
+          "p99": 71.05,
+          "max": 71.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 10,
+          "min": 54.0,
+          "mean": 54.8,
+          "median": 55.0,
+          "p50": 55.0,
+          "p95": 55.0,
+          "p99": 55.0,
+          "max": 55.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 10,
+          "min": 500.0,
+          "mean": 510.0,
+          "median": 500.0,
+          "p50": 500.0,
+          "p95": 550.0,
+          "p99": 550.0,
+          "max": 550.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 10,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 10,
+          "min": 400000.0,
+          "mean": 764351.3,
+          "median": 791848.0,
+          "p50": 717226.0,
+          "p95": 1000352.0,
+          "p99": 1000352.0,
+          "max": 1000352.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 10,
+          "min": 61.050000000000004,
+          "mean": 65.85,
+          "median": 68.05,
+          "p50": 68.05,
+          "p95": 71.05,
+          "p99": 71.05,
+          "max": 71.05,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 10,
+          "min": 54.0,
+          "mean": 54.8,
+          "median": 55.0,
+          "p50": 55.0,
+          "p95": 55.0,
+          "p99": 55.0,
+          "max": 55.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 10
+        }
+      }
+    },
+    {
+      "track_id": "when_the_light_breaks",
+      "generation": 5,
+      "request_id": 18,
+      "frame_start": 773955,
+      "source_seconds": 17.55,
+      "target_miss": true,
+      "hop_service_ms": 5258.472547982819,
+      "native_graph_ms": 5071.134236,
+      "native_graph_exceeds_target": true,
+      "hop_minus_graph_ms": 187.3383119828195,
+      "graph_fraction_of_hop": 0.9643740058974571,
+      "request_ms": 5214.8715609801,
+      "source_read_ms": 4.149636020883918,
+      "overlap_ms": 36.27696796320379,
+      "queue_delay_ms": 0.16447604866698384,
+      "ready_to_raw_consumer_ms": 21.635643031913787,
+      "native_metrics": {
+        "graph_ms": 5071.134236,
+        "involuntary_context_switches": 14,
+        "voluntary_context_switches": 56,
+        "inference_wall_ms": 5168.747224,
+        "elapsed_ms": 5194.56148,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 42.547042,
+        "stems": 4,
+        "postprocess_ms": 55.064433,
+        "inference_cpu_ms": 268.074,
+        "frames": 343980,
+        "id": 18,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386047.359187242,
+        "end_monotonic": 386052.61765979,
+        "start_seconds_after_first_load": 36.32683535997057,
+        "end_seconds_after_first_load": 41.58530790795339,
+        "request_started_event_monotonic": 386047.363372598
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 69,
+        "next_capture_index": 80,
+        "previous_capture_end_to_hop_start_seconds": 0.14454075501998886,
+        "hop_end_to_next_capture_start_seconds": 0.21663367602741346,
+        "start_to_first_interior_capture_seconds": 0.3560796499950811,
+        "last_interior_capture_to_end_seconds": 0.2840708259609528,
+        "interior_max_sample_gap_seconds": 0.5159639720222913
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 10
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 10,
+          "min": 350.0,
+          "mean": 475.0,
+          "median": 500.0,
+          "p50": 500.0,
+          "p95": 550.0,
+          "p99": 550.0,
+          "max": 550.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 10,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 10,
+          "min": 569856.0,
+          "mean": 775079.3,
+          "median": 778414.5,
+          "p50": 765363.0,
+          "p95": 1000000.0,
+          "p99": 1000000.0,
+          "max": 1000000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 10,
+          "min": 53.050000000000004,
+          "mean": 55.050000000000004,
+          "median": 54.050000000000004,
+          "p50": 54.050000000000004,
+          "p95": 57.050000000000004,
+          "p99": 57.050000000000004,
+          "max": 57.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 10,
+          "min": 52.0,
+          "mean": 53.1,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 54.0,
+          "p99": 54.0,
+          "max": 54.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 10,
+          "min": 350.0,
+          "mean": 475.0,
+          "median": 500.0,
+          "p50": 500.0,
+          "p95": 550.0,
+          "p99": 550.0,
+          "max": 550.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 10,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 10,
+          "min": 569856.0,
+          "mean": 775079.3,
+          "median": 778414.5,
+          "p50": 765363.0,
+          "p95": 1000000.0,
+          "p99": 1000000.0,
+          "max": 1000000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 10,
+          "min": 53.050000000000004,
+          "mean": 55.050000000000004,
+          "median": 54.050000000000004,
+          "p50": 54.050000000000004,
+          "p95": 57.050000000000004,
+          "p99": 57.050000000000004,
+          "max": 57.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 10,
+          "min": 52.0,
+          "mean": 53.1,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 54.0,
+          "p99": 54.0,
+          "max": 54.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 10
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 10
+        }
+      }
+    },
+    {
+      "track_id": "under_my_skin",
+      "generation": 6,
+      "request_id": 19,
+      "frame_start": 0,
+      "source_seconds": 0.0,
+      "target_miss": false,
+      "hop_service_ms": 4012.8698619664647,
+      "native_graph_ms": 3829.158314,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 183.71154796646488,
+      "graph_fraction_of_hop": 0.9542194104753652,
+      "request_ms": 3929.808361979667,
+      "source_read_ms": 4.1020739590749145,
+      "overlap_ms": 76.96696900529787,
+      "queue_delay_ms": 0.13904401566833258,
+      "ready_to_raw_consumer_ms": 22.10068900603801,
+      "native_metrics": {
+        "graph_ms": 3829.158314,
+        "involuntary_context_switches": 18,
+        "voluntary_context_switches": 57,
+        "inference_wall_ms": 3890.99516,
+        "elapsed_ms": 3909.699496,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 18.89968,
+        "stems": 4,
+        "postprocess_ms": 42.935866,
+        "inference_cpu_ms": 204.02100000000019,
+        "frames": 343980,
+        "id": 19,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386052.877376608,
+        "end_monotonic": 386056.89024647,
+        "start_seconds_after_first_load": 41.84502472600434,
+        "end_seconds_after_first_load": 45.857894587970804,
+        "request_started_event_monotonic": 386052.881516983
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 80,
+        "next_capture_index": 88,
+        "previous_capture_end_to_hop_start_seconds": 0.03490355802932754,
+        "hop_end_to_next_capture_start_seconds": 0.028806680988054723,
+        "start_to_first_interior_capture_seconds": 0.46570295694982633,
+        "last_interior_capture_to_end_seconds": 0.47202512400690466,
+        "interior_max_sample_gap_seconds": 0.5113452990190126
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 7
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 7,
+          "min": 600.0,
+          "mean": 621.4285714285714,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 7,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 7,
+          "min": 400000.0,
+          "mean": 828248.1428571428,
+          "median": 885802.0,
+          "p50": 885802.0,
+          "p95": 1012415.0,
+          "p99": 1012415.0,
+          "max": 1012415.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 7,
+          "min": 52.050000000000004,
+          "mean": 52.19285714285715,
+          "median": 52.050000000000004,
+          "p50": 52.050000000000004,
+          "p95": 53.050000000000004,
+          "p99": 53.050000000000004,
+          "max": 53.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 7,
+          "min": 52.0,
+          "mean": 52.857142857142854,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 7,
+          "min": 600.0,
+          "mean": 621.4285714285714,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 7,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 7,
+          "min": 400000.0,
+          "mean": 828248.1428571428,
+          "median": 885802.0,
+          "p50": 885802.0,
+          "p95": 1012415.0,
+          "p99": 1012415.0,
+          "max": 1012415.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 7,
+          "min": 52.050000000000004,
+          "mean": 52.19285714285715,
+          "median": 52.050000000000004,
+          "p50": 52.050000000000004,
+          "p95": 53.050000000000004,
+          "p99": 53.050000000000004,
+          "max": 53.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 7,
+          "min": 52.0,
+          "mean": 52.857142857142854,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 7
+        }
+      }
+    },
+    {
+      "track_id": "under_my_skin",
+      "generation": 6,
+      "request_id": 20,
+      "frame_start": 257985,
+      "source_seconds": 5.85,
+      "target_miss": false,
+      "hop_service_ms": 3925.8415160002187,
+      "native_graph_ms": 3757.938361,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 167.9031550002187,
+      "graph_fraction_of_hop": 0.9572312956812163,
+      "request_ms": 3873.3824950177222,
+      "source_read_ms": 10.874318017158657,
+      "overlap_ms": 38.70338399428874,
+      "queue_delay_ms": 0.5744260270148516,
+      "ready_to_raw_consumer_ms": 18.216819036751986,
+      "native_metrics": {
+        "graph_ms": 3757.938361,
+        "involuntary_context_switches": 17,
+        "voluntary_context_switches": 58,
+        "inference_wall_ms": 3825.635419,
+        "elapsed_ms": 3844.12497,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 24.198136,
+        "stems": 4,
+        "postprocess_ms": 43.497632,
+        "inference_cpu_ms": 202.864,
+        "frames": 343980,
+        "id": 20,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386056.890320709,
+        "end_monotonic": 386060.816162225,
+        "start_seconds_after_first_load": 45.857968826952856,
+        "end_seconds_after_first_load": 49.783810342953075,
+        "request_started_event_monotonic": 386056.901234855
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 87,
+        "next_capture_index": 96,
+        "previous_capture_end_to_hop_start_seconds": 0.4720993629889563,
+        "hop_end_to_next_capture_start_seconds": 0.18382834002841264,
+        "start_to_first_interior_capture_seconds": 0.02873244200600311,
+        "last_interior_capture_to_end_seconds": 0.316780466993805,
+        "interior_max_sample_gap_seconds": 0.5108465779921971
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 8
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 0.0,
+          "mean": 543.75,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 400.0,
+          "mean": 1231.25,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 745196.0,
+          "mean": 1039931.875,
+          "median": 1070218.0,
+          "p50": 1040425.0,
+          "p95": 1299986.0,
+          "p99": 1299986.0,
+          "max": 1299986.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 52.050000000000004,
+          "mean": 52.050000000000004,
+          "median": 52.050000000000004,
+          "p50": 52.050000000000004,
+          "p95": 52.050000000000004,
+          "p99": 52.050000000000004,
+          "max": 52.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 49.0,
+          "mean": 52.0,
+          "median": 52.5,
+          "p50": 52.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 0.0,
+          "mean": 543.75,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 400.0,
+          "mean": 1231.25,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 745196.0,
+          "mean": 1039931.875,
+          "median": 1070218.0,
+          "p50": 1040425.0,
+          "p95": 1299986.0,
+          "p99": 1299986.0,
+          "max": 1299986.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 52.050000000000004,
+          "mean": 52.050000000000004,
+          "median": 52.050000000000004,
+          "p50": 52.050000000000004,
+          "p95": 52.050000000000004,
+          "p99": 52.050000000000004,
+          "max": 52.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 49.0,
+          "mean": 52.0,
+          "median": 52.5,
+          "p50": 52.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "0": 1,
+          "1": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "0": 1,
+          "1": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 8
+        }
+      }
+    },
+    {
+      "track_id": "under_my_skin",
+      "generation": 6,
+      "request_id": 21,
+      "frame_start": 515970,
+      "source_seconds": 11.7,
+      "target_miss": false,
+      "hop_service_ms": 3887.363350018859,
+      "native_graph_ms": 3750.13895,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 137.2244000188589,
+      "graph_fraction_of_hop": 0.9646998781273706,
+      "request_ms": 3855.8610609616153,
+      "source_read_ms": 4.368786001577973,
+      "overlap_ms": 25.261609989684075,
+      "queue_delay_ms": 0.5629350198432803,
+      "ready_to_raw_consumer_ms": 17.5675000064075,
+      "native_metrics": {
+        "graph_ms": 3750.13895,
+        "involuntary_context_switches": 16,
+        "voluntary_context_switches": 53,
+        "inference_wall_ms": 3822.007407,
+        "elapsed_ms": 3843.199282,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 24.521006,
+        "stems": 4,
+        "postprocess_ms": 47.346153,
+        "inference_cpu_ms": 216.98099999999977,
+        "frames": 343980,
+        "id": 21,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386060.816239903,
+        "end_monotonic": 386064.703603253,
+        "start_seconds_after_first_load": 49.78388802096015,
+        "end_seconds_after_first_load": 53.67125137097901,
+        "request_started_event_monotonic": 386060.820638842
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 95,
+        "next_capture_index": 104,
+        "previous_capture_end_to_hop_start_seconds": 0.3168581450008787,
+        "hop_end_to_next_capture_start_seconds": 0.3842145529924892,
+        "start_to_first_interior_capture_seconds": 0.18375066202133894,
+        "last_interior_capture_to_end_seconds": 0.11636718397494406,
+        "interior_max_sample_gap_seconds": 0.5130086480057798
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 8
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 550.0,
+          "mean": 625.0,
+          "median": 625.0,
+          "p50": 600.0,
+          "p95": 700.0,
+          "p99": 700.0,
+          "max": 700.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 516486.0,
+          "mean": 843549.375,
+          "median": 868346.5,
+          "p50": 755053.0,
+          "p95": 1199987.0,
+          "p99": 1199987.0,
+          "max": 1199987.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 51.050000000000004,
+          "mean": 51.425000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 52.050000000000004,
+          "p99": 52.050000000000004,
+          "max": 52.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 51.0,
+          "mean": 51.875,
+          "median": 52.0,
+          "p50": 52.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 550.0,
+          "mean": 625.0,
+          "median": 625.0,
+          "p50": 600.0,
+          "p95": 700.0,
+          "p99": 700.0,
+          "max": 700.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 516486.0,
+          "mean": 843549.375,
+          "median": 868346.5,
+          "p50": 755053.0,
+          "p95": 1199987.0,
+          "p99": 1199987.0,
+          "max": 1199987.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 51.050000000000004,
+          "mean": 51.425000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 52.050000000000004,
+          "p99": 52.050000000000004,
+          "max": 52.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 51.0,
+          "mean": 51.875,
+          "median": 52.0,
+          "p50": 52.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 8
+        }
+      }
+    },
+    {
+      "track_id": "under_my_skin",
+      "generation": 6,
+      "request_id": 22,
+      "frame_start": 773955,
+      "source_seconds": 17.55,
+      "target_miss": false,
+      "hop_service_ms": 3929.681995010469,
+      "native_graph_ms": 3794.024084,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 135.65791101046898,
+      "graph_fraction_of_hop": 0.9654786542059347,
+      "request_ms": 3896.0840349900536,
+      "source_read_ms": 3.4449759987182915,
+      "overlap_ms": 28.134787979070097,
+      "queue_delay_ms": 0.2579480060376227,
+      "ready_to_raw_consumer_ms": 18.1119570042938,
+      "native_metrics": {
+        "graph_ms": 3794.024084,
+        "involuntary_context_switches": 17,
+        "voluntary_context_switches": 54,
+        "inference_wall_ms": 3863.116158,
+        "elapsed_ms": 3881.840583,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 21.43716,
+        "stems": 4,
+        "postprocess_ms": 47.653396,
+        "inference_cpu_ms": 213.68499999999995,
+        "frames": 343980,
+        "id": 22,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386064.703702855,
+        "end_monotonic": 386068.63338485,
+        "start_seconds_after_first_load": 53.67135097295977,
+        "end_seconds_after_first_load": 57.60103296797024,
+        "request_started_event_monotonic": 386064.707172538
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 103,
+        "next_capture_index": 111,
+        "previous_capture_end_to_hop_start_seconds": 0.11646678595570847,
+        "hop_end_to_next_capture_start_seconds": 0.028672960004769266,
+        "start_to_first_interior_capture_seconds": 0.38411495101172477,
+        "last_interior_capture_to_end_seconds": 0.47186318499734625,
+        "interior_max_sample_gap_seconds": 0.5128207869711332
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 7
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 7,
+          "min": 600.0,
+          "mean": 621.4285714285714,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 7,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 7,
+          "min": 711149.0,
+          "mean": 1019833.4285714285,
+          "median": 1031756.0,
+          "p50": 1031756.0,
+          "p95": 1200176.0,
+          "p99": 1200176.0,
+          "max": 1200176.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 7,
+          "min": 51.050000000000004,
+          "mean": 51.050000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 51.050000000000004,
+          "p99": 51.050000000000004,
+          "max": 51.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 7,
+          "min": 51.0,
+          "mean": 52.42857142857143,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 7,
+          "min": 600.0,
+          "mean": 621.4285714285714,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 7,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 7,
+          "min": 711149.0,
+          "mean": 1019833.4285714285,
+          "median": 1031756.0,
+          "p50": 1031756.0,
+          "p95": 1200176.0,
+          "p99": 1200176.0,
+          "max": 1200176.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 7,
+          "min": 51.050000000000004,
+          "mean": 51.050000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 51.050000000000004,
+          "p99": 51.050000000000004,
+          "max": 51.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 7,
+          "min": 51.0,
+          "mean": 52.42857142857143,
+          "median": 53.0,
+          "p50": 53.0,
+          "p95": 53.0,
+          "p99": 53.0,
+          "max": 53.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 7
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 7
+        }
+      }
+    },
+    {
+      "track_id": "stfu",
+      "generation": 7,
+      "request_id": 23,
+      "frame_start": 0,
+      "source_seconds": 0.0,
+      "target_miss": false,
+      "hop_service_ms": 3926.098774012644,
+      "native_graph_ms": 3738.935679,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 187.16309501264368,
+      "graph_fraction_of_hop": 0.9523284803093849,
+      "request_ms": 3853.1609139754437,
+      "source_read_ms": 4.098245990462601,
+      "overlap_ms": 66.82354200165719,
+      "queue_delay_ms": 0.5124540184624493,
+      "ready_to_raw_consumer_ms": 17.85428199218586,
+      "native_metrics": {
+        "graph_ms": 3738.935679,
+        "involuntary_context_switches": 30,
+        "voluntary_context_switches": 52,
+        "inference_wall_ms": 3814.416318,
+        "elapsed_ms": 3835.246077,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 26.053159,
+        "stems": 4,
+        "postprocess_ms": 49.426027,
+        "inference_cpu_ms": 242.59500000000025,
+        "frames": 343980,
+        "id": 23,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386068.852688141,
+        "end_monotonic": 386072.778786915,
+        "start_seconds_after_first_load": 57.8203362589702,
+        "end_seconds_after_first_load": 61.746435032982845,
+        "request_started_event_monotonic": 386068.856822789
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 111,
+        "next_capture_index": 120,
+        "previous_capture_end_to_hop_start_seconds": 0.18149933899985626,
+        "hop_end_to_next_capture_start_seconds": 0.47399970097467303,
+        "start_to_first_interior_capture_seconds": 0.3190522959921509,
+        "last_interior_capture_to_end_seconds": 0.026548054011072963,
+        "interior_max_sample_gap_seconds": 0.5110157569870353
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 8
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 0.0,
+          "mean": 543.75,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 450.0,
+          "mean": 1237.5,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 400000.0,
+          "mean": 770094.0,
+          "median": 735709.0,
+          "p50": 702292.0,
+          "p95": 1112817.0,
+          "p99": 1112817.0,
+          "max": 1112817.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 51.050000000000004,
+          "mean": 51.050000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 51.050000000000004,
+          "p99": 51.050000000000004,
+          "max": 51.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 47.0,
+          "mean": 50.875,
+          "median": 51.5,
+          "p50": 51.0,
+          "p95": 52.0,
+          "p99": 52.0,
+          "max": 52.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 0.0,
+          "mean": 543.75,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 450.0,
+          "mean": 1237.5,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 400000.0,
+          "mean": 770094.0,
+          "median": 735709.0,
+          "p50": 702292.0,
+          "p95": 1112817.0,
+          "p99": 1112817.0,
+          "max": 1112817.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 51.050000000000004,
+          "mean": 51.050000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 51.050000000000004,
+          "p99": 51.050000000000004,
+          "max": 51.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 47.0,
+          "mean": 50.875,
+          "median": 51.5,
+          "p50": 51.0,
+          "p95": 52.0,
+          "p99": 52.0,
+          "max": 52.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 7,
+          "0": 1
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 7,
+          "0": 1
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 8
+        }
+      }
+    },
+    {
+      "track_id": "stfu",
+      "generation": 7,
+      "request_id": 24,
+      "frame_start": 257985,
+      "source_seconds": 5.85,
+      "target_miss": false,
+      "hop_service_ms": 4072.175806039013,
+      "native_graph_ms": 3847.491102,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 224.684704039013,
+      "graph_fraction_of_hop": 0.9448244096667421,
+      "request_ms": 4008.8313890155405,
+      "source_read_ms": 11.758954031392932,
+      "overlap_ms": 49.455467029474676,
+      "queue_delay_ms": 0.1528039574623108,
+      "ready_to_raw_consumer_ms": 19.482234958559275,
+      "native_metrics": {
+        "graph_ms": 3847.491102,
+        "involuntary_context_switches": 12,
+        "voluntary_context_switches": 54,
+        "inference_wall_ms": 3933.054379,
+        "elapsed_ms": 3958.03346,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 22.788806,
+        "stems": 4,
+        "postprocess_ms": 62.772919,
+        "inference_cpu_ms": 254.52800000000025,
+        "frames": 343980,
+        "id": 24,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386072.778865992,
+        "end_monotonic": 386076.851041798,
+        "start_seconds_after_first_load": 61.74651410995284,
+        "end_seconds_after_first_load": 65.81868991599185,
+        "request_started_event_monotonic": 386072.790657448
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 119,
+        "next_capture_index": 128,
+        "previous_capture_end_to_hop_start_seconds": 0.026627130981069058,
+        "hop_end_to_next_capture_start_seconds": 0.48561814898857847,
+        "start_to_first_interior_capture_seconds": 0.47392062400467694,
+        "last_interior_capture_to_end_seconds": 0.015139045019168407,
+        "interior_max_sample_gap_seconds": 0.5110042790183797
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 8
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 0.0,
+          "mean": 531.25,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 500.0,
+          "mean": 1243.75,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 400000.0,
+          "mean": 821319.25,
+          "median": 840897.0,
+          "p50": 789816.0,
+          "p95": 1100000.0,
+          "p99": 1100000.0,
+          "max": 1100000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 50.050000000000004,
+          "mean": 50.925000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 51.050000000000004,
+          "p99": 51.050000000000004,
+          "max": 51.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 48.0,
+          "mean": 50.5,
+          "median": 51.0,
+          "p50": 51.0,
+          "p95": 52.0,
+          "p99": 52.0,
+          "max": 52.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 0.0,
+          "mean": 531.25,
+          "median": 600.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 500.0,
+          "mean": 1243.75,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 400000.0,
+          "mean": 821319.25,
+          "median": 840897.0,
+          "p50": 789816.0,
+          "p95": 1100000.0,
+          "p99": 1100000.0,
+          "max": 1100000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 50.050000000000004,
+          "mean": 50.925000000000004,
+          "median": 51.050000000000004,
+          "p50": 51.050000000000004,
+          "p95": 51.050000000000004,
+          "p99": 51.050000000000004,
+          "max": 51.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 48.0,
+          "mean": 50.5,
+          "median": 51.0,
+          "p50": 51.0,
+          "p95": 52.0,
+          "p99": 52.0,
+          "max": 52.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 7,
+          "0": 1
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 7,
+          "0": 1
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 8
+        }
+      }
+    },
+    {
+      "track_id": "stfu",
+      "generation": 7,
+      "request_id": 25,
+      "frame_start": 515970,
+      "source_seconds": 11.7,
+      "target_miss": true,
+      "hop_service_ms": 4379.999618977308,
+      "native_graph_ms": 4216.076676,
+      "native_graph_exceeds_target": true,
+      "hop_minus_graph_ms": 163.9229429773086,
+      "graph_fraction_of_hop": 0.9625746672974407,
+      "request_ms": 4340.527588967234,
+      "source_read_ms": 5.689323996193707,
+      "overlap_ms": 31.14312799880281,
+      "queue_delay_ms": 0.14779804041609168,
+      "ready_to_raw_consumer_ms": 21.778561000246555,
+      "native_metrics": {
+        "graph_ms": 4216.076676,
+        "involuntary_context_switches": 20,
+        "voluntary_context_switches": 58,
+        "inference_wall_ms": 4304.034039,
+        "elapsed_ms": 4325.542045,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 34.150122,
+        "stems": 4,
+        "postprocess_ms": 53.805973,
+        "inference_cpu_ms": 255.1889999999994,
+        "frames": 343980,
+        "id": 25,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386076.851137058,
+        "end_monotonic": 386081.231136677,
+        "start_seconds_after_first_load": 65.81878517597215,
+        "end_seconds_after_first_load": 70.19878479494946,
+        "request_started_event_monotonic": 386076.856861825
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 127,
+        "next_capture_index": 136,
+        "previous_capture_end_to_hop_start_seconds": 0.015234304999466985,
+        "hop_end_to_next_capture_start_seconds": 0.19066574901808053,
+        "start_to_first_interior_capture_seconds": 0.4855228890082799,
+        "last_interior_capture_to_end_seconds": 0.31005148094845936,
+        "interior_max_sample_gap_seconds": 0.511730129015632
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 8
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 500.0,
+          "mean": 562.5,
+          "median": 575.0,
+          "p50": 550.0,
+          "p95": 600.0,
+          "p99": 600.0,
+          "max": 600.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 761127.0,
+          "mean": 958586.0,
+          "median": 980008.5,
+          "p50": 892498.0,
+          "p95": 1131264.0,
+          "p99": 1131264.0,
+          "max": 1131264.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 50.050000000000004,
+          "mean": 50.050000000000004,
+          "median": 50.050000000000004,
+          "p50": 50.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 48.0,
+          "mean": 50.0,
+          "median": 50.5,
+          "p50": 50.0,
+          "p95": 51.0,
+          "p99": 51.0,
+          "max": 51.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 500.0,
+          "mean": 562.5,
+          "median": 575.0,
+          "p50": 550.0,
+          "p95": 600.0,
+          "p99": 600.0,
+          "max": 600.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 761127.0,
+          "mean": 958586.0,
+          "median": 980008.5,
+          "p50": 892498.0,
+          "p95": 1131264.0,
+          "p99": 1131264.0,
+          "max": 1131264.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 50.050000000000004,
+          "mean": 50.050000000000004,
+          "median": 50.050000000000004,
+          "p50": 50.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 48.0,
+          "mean": 50.0,
+          "median": 50.5,
+          "p50": 50.0,
+          "p95": 51.0,
+          "p99": 51.0,
+          "max": 51.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 8
+        }
+      }
+    },
+    {
+      "track_id": "stfu",
+      "generation": 7,
+      "request_id": 26,
+      "frame_start": 773955,
+      "source_seconds": 17.55,
+      "target_miss": false,
+      "hop_service_ms": 3929.1142149595544,
+      "native_graph_ms": 3763.846271,
+      "native_graph_exceeds_target": false,
+      "hop_minus_graph_ms": 165.2679439595545,
+      "graph_fraction_of_hop": 0.9579376075833276,
+      "request_ms": 3893.6170199885964,
+      "source_read_ms": 4.130985005758703,
+      "overlap_ms": 29.40384397516027,
+      "queue_delay_ms": 0.22804702166467905,
+      "ready_to_raw_consumer_ms": 17.335330019704998,
+      "native_metrics": {
+        "graph_ms": 3763.846271,
+        "involuntary_context_switches": 33,
+        "voluntary_context_switches": 56,
+        "inference_wall_ms": 3855.454729,
+        "elapsed_ms": 3876.106298,
+        "graph_rebuild_ms": 0,
+        "frontend_ms": 40.011005,
+        "stems": 4,
+        "postprocess_ms": 51.595761,
+        "inference_cpu_ms": 245.1329999999998,
+        "frames": 343980,
+        "id": 26,
+        "event": "result"
+      },
+      "service_interval": {
+        "start_monotonic": 386081.231221729,
+        "end_monotonic": 386085.160335944,
+        "start_seconds_after_first_load": 70.19886984699406,
+        "end_seconds_after_first_load": 74.12798406195361,
+        "request_started_event_monotonic": 386081.235386606
+      },
+      "alignment": {
+        "fully_contained_trace_row_indices": [
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143
+        ],
+        "timestamp_assigned_trace_row_indices": [
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143
+        ],
+        "capture_intervals_crossing_boundary_indices": [],
+        "previous_complete_capture_index": 135,
+        "next_capture_index": null,
+        "previous_capture_end_to_hop_start_seconds": 0.3101365329930559,
+        "hop_end_to_next_capture_start_seconds": null,
+        "start_to_first_interior_capture_seconds": 0.190580696973484,
+        "last_interior_capture_to_end_seconds": 0.15384506998816505,
+        "interior_max_sample_gap_seconds": 0.512580482987687
+      },
+      "policy_samples": {
+        "{\"epp\": \"power\", \"profile\": \"low-power\"}": 8
+      },
+      "fully_contained_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 600.0,
+          "mean": 625.0,
+          "median": 625.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 801738.0,
+          "mean": 1030094.375,
+          "median": 1036047.0,
+          "p50": 1024955.0,
+          "p95": 1200000.0,
+          "p99": 1200000.0,
+          "max": 1200000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 50.050000000000004,
+          "mean": 50.050000000000004,
+          "median": 50.050000000000004,
+          "p50": 50.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 48.0,
+          "mean": 50.25,
+          "median": 51.0,
+          "p50": 51.0,
+          "p95": 52.0,
+          "p99": 52.0,
+          "max": 52.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "timestamp_assigned_sample_statistics": {
+        "gpu_active_frequency": {
+          "count": 8,
+          "min": 600.0,
+          "mean": 625.0,
+          "median": 625.0,
+          "p50": 600.0,
+          "p95": 650.0,
+          "p99": 650.0,
+          "max": 650.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "gpu_requested_frequency": {
+          "count": 8,
+          "min": 1350.0,
+          "mean": 1350.0,
+          "median": 1350.0,
+          "p50": 1350.0,
+          "p95": 1350.0,
+          "p99": 1350.0,
+          "max": 1350.0,
+          "unit": "MHz",
+          "missing_samples": 0
+        },
+        "cpu0_current_frequency": {
+          "count": 8,
+          "min": 801738.0,
+          "mean": 1030094.375,
+          "median": 1036047.0,
+          "p50": 1024955.0,
+          "p95": 1200000.0,
+          "p99": 1200000.0,
+          "max": 1200000.0,
+          "unit": "kHz",
+          "missing_samples": 0
+        },
+        "TCPU": {
+          "count": 8,
+          "min": 50.050000000000004,
+          "mean": 50.050000000000004,
+          "median": 50.050000000000004,
+          "p50": 50.050000000000004,
+          "p95": 50.050000000000004,
+          "p99": 50.050000000000004,
+          "max": 50.050000000000004,
+          "unit": "C",
+          "missing_samples": 0
+        },
+        "x86_pkg_temp": {
+          "count": 8,
+          "min": 48.0,
+          "mean": 50.25,
+          "median": 51.0,
+          "p50": 51.0,
+          "p95": 52.0,
+          "p99": 52.0,
+          "max": 52.0,
+          "unit": "C",
+          "missing_samples": 0
+        }
+      },
+      "gpu_throttle_reason_observation_counts": {
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": {
+          "1": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": {
+          "1": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": {
+          "0": 8
+        },
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": {
+          "0": 8
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Descriptive correlation only; no inference, policy changes or new host workload. Serial single-run, fixed-order clips, model content, caches and background activity confound causal conclusions.",
+    "Each hop uses only a few approximately0.5s samples. The mean/median are sample statistics, not effective clocks or duration-weighted exposure. Maxima and state transitions between samples are unknown.",
+    "Miss versus nonmiss populations have3 and13 serial observations. P95/p99 of16continuous hops equal the maximum, not a sustained-tail estimate; no new gate is introduced.",
+    "Longer hops contribute more pooled snapshots. Per-hop means are also provided to avoid silently treating snapshot count as independent hop count.",
+    "All16continuous hops, including first delivery and tails, remain. Seek snapshots stay in full-trace policy context but are excluded from the continuous-hop populations.",
+    "gpu_active_frequency is the sampled kernel gt_act_freq_mhz field; gpu_requested_frequency retains gt_cur_freq_mhz without treating it as measured execution frequency. CPU0 frequency does not describe every CPU core.",
+    "Queue delay is the worker poll delay after ready_at; raw-consumer delay also includes harness hashing/work. hop-minus-graph is a difference of recorded durations, not a separately isolated CPU or transport interval.",
+    "No audio/UI-load, active-cancellation, physical playback or sustained-music qualification is established by this profile."
+  ]
+}

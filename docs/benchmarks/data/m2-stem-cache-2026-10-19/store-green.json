@@ -1,0 +1,24 @@
+[
+  {
+    "stage": "build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--target",
+      "conflux-prepared-track-store-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 41.31610872701276
+  },
+  {
+    "stage": "test",
+    "command": [
+      "build/dev/conflux-prepared-track-store-test"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 8.078300647961441
+  }
+]

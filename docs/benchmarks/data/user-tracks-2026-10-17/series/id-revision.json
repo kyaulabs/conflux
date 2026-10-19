@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "completed_at_utc": "2026-10-17T20:38:58.354922+00:00",
+  "reason": "Two filename-derived IDs exceeded the unchanged runner's 64-character bound; use root-specified short IDs for all four.",
+  "scope": "Only IDs and prepared WAV pathnames changed after decoding. Source selections, decode commands, gain, PCM bytes and coverage are unchanged; no repeat decoding.",
+  "revision_source": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/revise_track_ids.py",
+    "bytes": 5350,
+    "sha256": "4a532e83409174ef5035f36369650c6d91cb4ba227f10cdaf80fa32e92409be3"
+  },
+  "initial_decoder_source_preserved_as": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/prepare_user_tracks-attempt1.py",
+    "bytes": 13611,
+    "sha256": "d089a098d4843f2c8335d8b4184baeb0b78de5f4c85ec453671024870cc79694"
+  },
+  "corrected_preparation_source": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/prepare_user_tracks.py",
+    "bytes": 13959,
+    "sha256": "194f9ee353f0955d3e52d3f249454b6951981afabd13b6cd3d2ce58066def59b"
+  },
+  "initial_documents": {
+    "excerpt-plan": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/excerpt-plan-attempt1.json",
+      "bytes": 37381,
+      "sha256": "560e37e101b00e542ed12ab1b4f96e2652c2de3c8f0883449ffdc210d3dbaa09"
+    },
+    "manifest": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/manifest-attempt1.json",
+      "bytes": 7107,
+      "sha256": "e2ab97bc0b6985ef9629611284046e6df15dc46b391e7915e548200c3e166301"
+    },
+    "corpus-provenance": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/corpus-provenance-attempt1.json",
+      "bytes": 47517,
+      "sha256": "fee2c510c14a1963b28f5cfec8c14d51948d57c7b384bb7d57ae8efd03db35e6"
+    }
+  },
+  "tracks": [
+    {
+      "old_id": "excision_level_up_club_xl_subsidia",
+      "new_id": "club_xl",
+      "source_filename": "Excision & Level Up - Club XL ｜ Subsidia.flac",
+      "old_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/excision_level_up_club_xl_subsidia-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023"
+      },
+      "new_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+      "new_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023"
+      }
+    },
+    {
+      "old_id": "said_the_sky_illenium_heather_sommer_when_the_light_breaks_lyric_video",
+      "new_id": "when_the_light_breaks",
+      "source_filename": "Said The Sky, ILLENIUM, Heather Sommer - When The Light Breaks (Lyric Video).flac",
+      "old_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/said_the_sky_illenium_heather_sommer_when_the_light_breaks_lyric_video-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf"
+      },
+      "new_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+      "new_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf"
+      }
+    },
+    {
+      "old_id": "slander_spiritbox_vastive_under_my_skin",
+      "new_id": "under_my_skin",
+      "source_filename": "SLANDER, Spiritbox, Vastive - Under My Skin.flac",
+      "old_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/slander_spiritbox_vastive_under_my_skin-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879"
+      },
+      "new_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+      "new_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879"
+      }
+    },
+    {
+      "old_id": "t_pain_dj_diesel_san_holo_nghtmre_kompany_samplifire_ivory_stfu_dubstep_monstercat",
+      "new_id": "stfu",
+      "source_filename": "T-Pain, DJ DIESEL, San Holo, NGHTMRE, Kompany, SampliFire, IVORY - STFU [Dubstep ｜ Monstercat].flac",
+      "old_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/t_pain_dj_diesel_san_holo_nghtmre_kompany_samplifire_ivory_stfu_dubstep_monstercat-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda"
+      },
+      "new_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+      "new_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda"
+      }
+    }
+  ]
+}

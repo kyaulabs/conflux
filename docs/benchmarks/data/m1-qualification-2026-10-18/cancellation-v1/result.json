@@ -1,0 +1,363 @@
+{
+  "schema": 1,
+  "passed": false,
+  "requested_seconds": 60,
+  "started_at_utc": "2026-10-18T17:36:58.631704+00:00",
+  "scope": "Explicit native host quiet-fixture playback; no device/speaker/profile/guard changes by this runner",
+  "pins": {
+    "binary": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-playback-soak",
+      "bytes": 7061816,
+      "sha256": "63fdacff464d892a75c102e0160198cde19e5da0fe20d4f758905bb009687a50"
+    },
+    "track_a": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-handoff-2026-10-17/quiet-soak-0.wav",
+      "bytes": 138240044,
+      "sha256": "853c3f503da287ce6304f8a7e1ca97495f6c58d953446bf00a163b458038a5bd"
+    },
+    "track_b": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-handoff-2026-10-17/quiet-soak-1.wav",
+      "bytes": 138240044,
+      "sha256": "872d8a954ee7af61e520c81d7a0469cbfe65a5ef18b7a532accd02389cbec9d9"
+    },
+    "runner": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/experiments/run_manual_playback_soak.py",
+      "bytes": 17988,
+      "sha256": "ef6cdfb0e7f874bd366f0d6764456aa7bdd5c3f3638632ca1d7190bd8a5beec7"
+    }
+  },
+  "guard_before": {
+    "service": {
+      "ActiveState": "active",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036",
+      "ExecMainStartTimestampMonotonic": "34532916"
+    },
+    "process": {
+      "pid": 1036,
+      "start_ticks": 3453,
+      "command": [
+        "bash",
+        "/home/kyau/.local/bin/thermal-guard"
+      ]
+    },
+    "script": {
+      "path": "/home/kyau/.local/bin/thermal-guard",
+      "bytes": 3510,
+      "sha256": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0"
+    },
+    "unit": {
+      "path": "/home/kyau/.config/systemd/user/thermal-guard.service",
+      "bytes": 512,
+      "sha256": "e5c6c89f2b186b976379b2ee4ffb0d3e044e1cf9b1fca3a0cf60cc600c9b2d8f"
+    }
+  },
+  "power_before": {
+    "ac_online": true,
+    "supplies": [
+      {
+        "name": "AC",
+        "type": "Mains",
+        "online": 1
+      },
+      {
+        "name": "ucsi-source-psy-USBC000:001",
+        "type": "USB",
+        "online": 0
+      },
+      {
+        "name": "ucsi-source-psy-USBC000:002",
+        "type": "USB",
+        "online": 1
+      }
+    ],
+    "lid_open": true,
+    "lid_sources": {
+      "/proc/acpi/button/lid/LID/state": "state:      open"
+    }
+  },
+  "temperature_sensor_types": {
+    "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+    "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+    "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp",
+    "/sys/class/hwmon/hwmon5/temp1_input": "coretemp",
+    "/sys/class/hwmon/hwmon5/temp2_input": "coretemp",
+    "/sys/class/hwmon/hwmon5/temp3_input": "coretemp",
+    "/sys/class/hwmon/hwmon5/temp4_input": "coretemp",
+    "/sys/class/hwmon/hwmon5/temp5_input": "coretemp"
+  },
+  "host_before": {
+    "monotonic_ns": 454857570717280,
+    "at_utc": "2026-10-18T17:36:59.415787+00:00",
+    "temperatures_millidegrees_C": {
+      "/sys/class/thermal/thermal_zone0/temp": 39000,
+      "/sys/class/thermal/thermal_zone5/temp": 39050,
+      "/sys/class/thermal/thermal_zone7/temp": 39000,
+      "/sys/class/hwmon/hwmon5/temp1_input": 39000,
+      "/sys/class/hwmon/hwmon5/temp2_input": 39000,
+      "/sys/class/hwmon/hwmon5/temp3_input": 37000,
+      "/sys/class/hwmon/hwmon5/temp4_input": 35000,
+      "/sys/class/hwmon/hwmon5/temp5_input": 35000
+    },
+    "profile_epp_read_only": {
+      "/sys/firmware/acpi/platform_profile": "low-power",
+      "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+    },
+    "read_errors": {}
+  },
+  "required_free_bytes": 828346368,
+  "free_bytes_before": 25487339520,
+  "owned_process": {
+    "pid": 2147559,
+    "start_ticks": 50639498,
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-playback-soak",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-handoff-2026-10-17/quiet-soak-0.wav",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-handoff-2026-10-17/quiet-soak-1.wav",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/cancellation-v1",
+      "60",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/cancellation-v1/stop"
+    ]
+  },
+  "last_progress": {
+    "callbacks": 2741,
+    "elapsed_ms": 15849,
+    "frames_presented": 884,
+    "monotonic_ns": 454873779388744,
+    "output_frame": 701696,
+    "output_ready": true,
+    "phase": "steady",
+    "pid": 2147559,
+    "recording": {
+      "acceptedFrames": 674560,
+      "active": true,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/cancellation-v1/master.wav",
+      "status": "Recording",
+      "writtenFrames": 674560
+    },
+    "window_exposed": true
+  },
+  "owned_graph_object_count": 8,
+  "native_exit": 2,
+  "native": {
+    "applied_commands": 6,
+    "callbacks": 3123,
+    "cancelled": true,
+    "completed_sessions": 1,
+    "early_presented_frame_gate": 10,
+    "error": "Stop file requested graceful cancellation",
+    "execution_deadline_misses": 0,
+    "fixtures": [
+      {
+        "channels": 2,
+        "format": 65539,
+        "frames": 23040000,
+        "nonzero_samples": 45654592,
+        "peak_left": 1.1444091796875e-05,
+        "peak_right": 1.1444091796875e-05,
+        "sample_rate": 48000
+      },
+      {
+        "channels": 2,
+        "format": 65539,
+        "frames": 23040000,
+        "nonzero_samples": 45653760,
+        "peak_left": 1.1444091796875e-05,
+        "peak_right": 1.1444091796875e-05,
+        "sample_rate": 48000
+      }
+    ],
+    "frame_request_interval_ms": 16,
+    "frames_presented": 1002,
+    "intervals": [],
+    "invalid_buffers": 0,
+    "master_peak_bound": 1.1444091796875e-05,
+    "maximum_frame_presentation_gap_ns": 52806734,
+    "maximum_gui_heartbeat_gap_ns": 65902781,
+    "measured_output_frames": 768000,
+    "measured_output_seconds": 16,
+    "measured_wall_ms": 16038,
+    "passed": false,
+    "pid": 2147559,
+    "platform": "wayland",
+    "qt": "6.12.0",
+    "quick_backend_environment": "",
+    "recorded_audio": {
+      "channels": 2,
+      "format": 65542,
+      "frames": 771584,
+      "nonzero_samples": 1532449,
+      "peak_left": 1.0907649993896484e-05,
+      "peak_right": 1.1026859283447266e-05,
+      "sample_rate": 48000
+    },
+    "recording": {
+      "acceptedFrames": 771584,
+      "active": false,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/cancellation-v1/master.wav",
+      "status": "Complete",
+      "writtenFrames": 771584
+    },
+    "rejected_commands": 0,
+    "requested_seconds": 60,
+    "samples": [
+      {
+        "callbacks": 1990,
+        "cue_peak": 6.9141387939453125e-06,
+        "elapsed_ms": 10016,
+        "frames_presented": 652,
+        "master_peak": 6.9141387939453125e-06,
+        "output_frame": 509440,
+        "recording": {
+          "acceptedFrames": 482816,
+          "active": true,
+          "error": "",
+          "overflowFrames": 0,
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-qualification-2026-10-18/cancellation-v1/master.wav",
+          "status": "Recording",
+          "writtenFrames": 482816
+        },
+        "settling": false,
+        "snapshot_drops": 0,
+        "source_a_frame": 486912,
+        "source_b_frame": 484352,
+        "starved_frames": 0
+      }
+    ],
+    "scene_errors": [],
+    "schema": 1,
+    "scope": "Native quiet-fixture two-deck audio/UI playback and recording; no physical latency, headphone isolation or stem qualification",
+    "source_read_failures": 0,
+    "submitted_commands": 6,
+    "timing": [
+      {
+        "at_least_100ms": 0,
+        "callbacks": 3123,
+        "driver_cycle_available": true,
+        "driver_discontinuity_flag_mask": 16,
+        "driver_position_discontinuities": 0,
+        "driver_position_observed": true,
+        "driver_recovery_flag_mask": 2,
+        "driver_recovery_flags": 0,
+        "execution_deadline_misses": 0,
+        "execution_p999_upper_us": 106,
+        "execution_p99_upper_us": 76,
+        "graph_quantum_max": 256,
+        "graph_quantum_min": 256,
+        "maximum_execution_ns": 113622
+      }
+    ],
+    "wall_render_tolerance": "Greater of 250ms or 0.2 percent; duration comparison is not physical latency"
+  },
+  "host_after": {
+    "monotonic_ns": 454875978311076,
+    "at_utc": "2026-10-18T17:37:17.823371+00:00",
+    "temperatures_millidegrees_C": {
+      "/sys/class/thermal/thermal_zone0/temp": 42000,
+      "/sys/class/thermal/thermal_zone5/temp": 42050,
+      "/sys/class/thermal/thermal_zone7/temp": 59000,
+      "/sys/class/hwmon/hwmon5/temp1_input": 42000,
+      "/sys/class/hwmon/hwmon5/temp2_input": 39000,
+      "/sys/class/hwmon/hwmon5/temp3_input": 39000,
+      "/sys/class/hwmon/hwmon5/temp4_input": 38000,
+      "/sys/class/hwmon/hwmon5/temp5_input": 39000
+    },
+    "profile_epp_read_only": {
+      "/sys/firmware/acpi/platform_profile": "balanced",
+      "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+    },
+    "read_errors": {}
+  },
+  "thermal_summary": {
+    "samples": 10,
+    "sample_interval_seconds": 2,
+    "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+    "maximum_observed_millidegrees_C": 68000,
+    "85000": {
+      "samples_at_or_above": 0,
+      "longest_consecutive_sample_span_seconds": 0.0
+    },
+    "95000": {
+      "samples_at_or_above": 0,
+      "longest_consecutive_sample_span_seconds": 0.0
+    },
+    "profile_epp_observations": [
+      {
+        "at_utc": "2026-10-18T17:36:59.423592+00:00",
+        "values": {
+          "/sys/firmware/acpi/platform_profile": "low-power",
+          "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+        }
+      },
+      {
+        "at_utc": "2026-10-18T17:37:01.454670+00:00",
+        "values": {
+          "/sys/firmware/acpi/platform_profile": "balanced",
+          "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+        }
+      }
+    ]
+  },
+  "power_after": {
+    "ac_online": true,
+    "supplies": [
+      {
+        "name": "AC",
+        "type": "Mains",
+        "online": 1
+      },
+      {
+        "name": "ucsi-source-psy-USBC000:001",
+        "type": "USB",
+        "online": 0
+      },
+      {
+        "name": "ucsi-source-psy-USBC000:002",
+        "type": "USB",
+        "online": 1
+      }
+    ],
+    "lid_open": true,
+    "lid_sources": {
+      "/proc/acpi/button/lid/LID/state": "state:      open"
+    }
+  },
+  "guard_after": {
+    "service": {
+      "ActiveState": "active",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036",
+      "ExecMainStartTimestampMonotonic": "34532916"
+    },
+    "process": {
+      "pid": 1036,
+      "start_ticks": 3453,
+      "command": [
+        "bash",
+        "/home/kyau/.local/bin/thermal-guard"
+      ]
+    },
+    "script": {
+      "path": "/home/kyau/.local/bin/thermal-guard",
+      "bytes": 3510,
+      "sha256": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0"
+    },
+    "unit": {
+      "path": "/home/kyau/.config/systemd/user/thermal-guard.service",
+      "bytes": 512,
+      "sha256": "e5c6c89f2b186b976379b2ee4ffb0d3e044e1cf9b1fca3a0cf60cc600c9b2d8f"
+    }
+  },
+  "guard_identity_unchanged": true,
+  "stop_reason": "user stop file",
+  "owned_process_reaped": true,
+  "owned_process_identity_gone": true,
+  "owned_pipewire_objects_gone": true,
+  "owned_cache_removed": true,
+  "elapsed_seconds": 19.22806033003144,
+  "finished_at_utc": "2026-10-18T17:37:17.859794+00:00"
+}

@@ -1,0 +1,22 @@
+[
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 11,
+  "EndLine": 11,
+  "StartColumn": 7,
+  "EndColumn": 93,
+  "Match": "live-bridge-api.md\": \"REDACTED\"",
+  "Secret": "REDACTED",
+  "File": "benchmarks-local/m2-live-delivery-2026-10-19/bridge-raw-scan/live-bridge-independent-review-final.json",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.898383,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": "benchmarks-local/m2-live-delivery-2026-10-19/bridge-raw-scan/live-bridge-independent-review-final.json:generic-api-key:11"
+ }
+]

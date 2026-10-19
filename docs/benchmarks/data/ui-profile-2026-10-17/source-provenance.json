@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "repository_head_from_all_results": "38be36aba0232ba3e47691ddb091bf80274f4a7a",
+  "scope": "File-only packaging after all workloads and owned guards completed; no host commands, GPU, builds or benchmarks.",
+  "runs": [
+    {
+      "label": "diagnostic-opengl",
+      "renderer": "opengl",
+      "seconds": 300,
+      "diagnostic_logging": true
+    },
+    {
+      "label": "diagnostic-vulkan",
+      "renderer": "vulkan",
+      "seconds": 300,
+      "diagnostic_logging": true
+    },
+    {
+      "label": "combined-vulkan-hour",
+      "renderer": "vulkan",
+      "seconds": 3600,
+      "diagnostic_logging": false
+    }
+  ],
+  "selected_factor": "Qt UI renderer changes from OpenGL to Vulkan; worker, native runtime, model, UI and audio binaries and worker sources retain identical pins.",
+  "diagnostic_scope": "The two 300-second runs enable Qt per-frame timing and are diagnostic only. The 3600-second combined run disables per-frame timing; diagnostic results do not replace its target assessment.",
+  "source_snapshots": {
+    "source-snapshots/tools/benchmarks/stem_soak.py": {
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "pin_origins": [
+        "diagnostic-opengl/result.json:pins.soak_source",
+        "diagnostic-opengl/before.json:pins.tools/benchmarks/stem_soak.py",
+        "diagnostic-vulkan/result.json:pins.soak_source",
+        "diagnostic-vulkan/before.json:pins.tools/benchmarks/stem_soak.py",
+        "combined-vulkan-hour/result.json:pins.soak_source",
+        "combined-vulkan-hour/before.json:pins.tools/benchmarks/stem_soak.py"
+      ]
+    },
+    "source-snapshots/tools/benchmarks/stem_worker.py": {
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "pin_origins": [
+        "diagnostic-opengl/result.json:pins.shared_benchmark_source",
+        "diagnostic-opengl/before.json:pins.tools/benchmarks/stem_worker.py",
+        "diagnostic-vulkan/result.json:pins.shared_benchmark_source",
+        "diagnostic-vulkan/before.json:pins.tools/benchmarks/stem_worker.py",
+        "combined-vulkan-hour/result.json:pins.shared_benchmark_source",
+        "combined-vulkan-hour/before.json:pins.tools/benchmarks/stem_worker.py"
+      ]
+    },
+    "source-snapshots/tools/stems/worker.py": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "pin_origins": [
+        "diagnostic-opengl/result.json:pins.worker_source",
+        "diagnostic-opengl/before.json:pins.tools/stems/worker.py",
+        "diagnostic-vulkan/result.json:pins.worker_source",
+        "diagnostic-vulkan/before.json:pins.tools/stems/worker.py",
+        "combined-vulkan-hour/result.json:pins.worker_source",
+        "combined-vulkan-hour/before.json:pins.tools/stems/worker.py"
+      ]
+    },
+    "source-snapshots/tools/benchmarks/worker_support.py": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "pin_origins": [
+        "diagnostic-opengl/result.json:pins.sampler_source",
+        "diagnostic-opengl/before.json:pins.tools/benchmarks/worker_support.py",
+        "diagnostic-vulkan/result.json:pins.sampler_source",
+        "diagnostic-vulkan/before.json:pins.tools/benchmarks/worker_support.py",
+        "combined-vulkan-hour/result.json:pins.sampler_source",
+        "combined-vulkan-hour/before.json:pins.tools/benchmarks/worker_support.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/ui-profile-2026-10-17/observed_launch.py": {
+      "sha256": "73c74b4a0a68ad3e5aceb17810b190fb3b4be93a9460df679975359bb176cb3f",
+      "pin_origins": [
+        "diagnostic-opengl/launch.json:wrapper_pins.observed_launch.py",
+        "diagnostic-opengl/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/observed_launch.py",
+        "diagnostic-vulkan/launch.json:wrapper_pins.observed_launch.py",
+        "diagnostic-vulkan/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/observed_launch.py",
+        "combined-vulkan-hour/launch.json:wrapper_pins.observed_launch.py",
+        "combined-vulkan-hour/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/observed_launch.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/ui-profile-2026-10-17/observed-run.py": {
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394",
+      "pin_origins": [
+        "diagnostic-opengl/launch.json:wrapper_pins.observed-run.py",
+        "diagnostic-opengl/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/observed-run.py",
+        "diagnostic-vulkan/launch.json:wrapper_pins.observed-run.py",
+        "diagnostic-vulkan/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/observed-run.py",
+        "combined-vulkan-hour/launch.json:wrapper_pins.observed-run.py",
+        "combined-vulkan-hour/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/observed-run.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/ui-profile-2026-10-17/normal_ready.py": {
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f",
+      "pin_origins": [
+        "diagnostic-opengl/launch.json:wrapper_pins.normal_ready.py",
+        "diagnostic-vulkan/launch.json:wrapper_pins.normal_ready.py",
+        "combined-vulkan-hour/launch.json:wrapper_pins.normal_ready.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/ui-profile-2026-10-17/observed-capture.py": {
+      "sha256": "9b05572524c04e03a7bf006008cea772664f65b531f002d6cda15c7ee8c9ad8f",
+      "pin_origins": [
+        "diagnostic-opengl/launch.json:wrapper_pins.observed-capture.py",
+        "diagnostic-vulkan/launch.json:wrapper_pins.observed-capture.py",
+        "combined-vulkan-hour/launch.json:wrapper_pins.observed-capture.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/ui-profile-2026-10-17/check_run.py": {
+      "sha256": "0b35d54f0a61c49ff85989807af40244e80c0e14191ba2bde016bd2215a42e00",
+      "pin_origins": [
+        "diagnostic-opengl/launch.json:wrapper_pins.check_run.py",
+        "diagnostic-vulkan/launch.json:wrapper_pins.check_run.py",
+        "combined-vulkan-hour/launch.json:wrapper_pins.check_run.py"
+      ]
+    },
+    "source-snapshots/src/main.cpp": {
+      "sha256": "ca46fb40e4aae39bd4268664e482438f6d62533d959ef657bd6081c07f6d6321",
+      "pin_origins": [
+        "diagnostic-opengl/before.json:pins.src/main.cpp",
+        "diagnostic-vulkan/before.json:pins.src/main.cpp",
+        "combined-vulkan-hour/before.json:pins.src/main.cpp"
+      ]
+    },
+    "source-snapshots/qml/Main.qml": {
+      "sha256": "564963a52b26ce7ede8c6a04543fe17c27e105e4b7d329106186d96c07a2b03a",
+      "pin_origins": [
+        "diagnostic-opengl/before.json:pins.qml/Main.qml",
+        "diagnostic-vulkan/before.json:pins.qml/Main.qml",
+        "combined-vulkan-hour/before.json:pins.qml/Main.qml"
+      ]
+    },
+    "source-snapshots/src/probe_main.cpp": {
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+      "pin_origins": [
+        "diagnostic-opengl/before.json:pins.src/probe_main.cpp",
+        "diagnostic-vulkan/before.json:pins.src/probe_main.cpp",
+        "combined-vulkan-hour/before.json:pins.src/probe_main.cpp"
+      ]
+    },
+    "source-snapshots/tools/benchmarks/window_guard.py": {
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "pin_origins": [
+        "diagnostic-opengl/before.json:pins.tools/benchmarks/window_guard.py",
+        "diagnostic-vulkan/before.json:pins.tools/benchmarks/window_guard.py",
+        "combined-vulkan-hour/before.json:pins.tools/benchmarks/window_guard.py",
+        "frozen window guard pin"
+      ]
+    },
+    "source-snapshots/benchmarks-local/ui-profile-2026-10-17/monitor.py": {
+      "sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "pin_origins": [
+        "diagnostic-opengl/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/monitor.py",
+        "diagnostic-vulkan/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/monitor.py",
+        "combined-vulkan-hour/before.json:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/monitor.py"
+      ]
+    }
+  },
+  "analysis_source_scope": "Pinned producer snapshots match saved result, launch or before-snapshot SHA256. Other helper copies preserve current bytes for analysis provenance and do not independently prove historical execution identity.",
+  "parser_revision": "Original v1 parser/output and the revision record are preserved; revision hashes must match saved files.",
+  "initial_observer": "A redundant initial read-only readiness observer ran beside the first OpenGL diagnostic and was interrupted after that report. Its saved preflight and interrupted readiness records are retained as a first-diagnostic observer confound, not as workload admission evidence. The selected per-run admission gates remain separately archived.",
+  "thermal_user_guidance": "User accepts brief ultrabook heat spikes if they do not persist. No numeric sustained-duration threshold was invented; sampled spans and recovery must be reported with gaps.",
+  "audio_user_guidance": "User has no external audio interface and does not require ideal interface measurements. Available laptop callback and transport observations are assessed; silent-probe results do not measure stem playback or physical roundtrip latency.",
+  "excluded": "No runtime/UI/audio binaries, model, WAV/F32 audio, full local journals, stop markers, bytecode or unrelated files.",
+  "optional_files_absent": [
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl-independent-audit.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl-profile-audit.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl-archived-replay-verification.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl-cooldown.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-opengl-cooldown.jsonl",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-vulkan-independent-audit.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-vulkan-profile-audit.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-vulkan-archived-replay-verification.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-vulkan-cooldown.json",
+    "benchmarks-local/ui-profile-2026-10-17/diagnostic-vulkan-cooldown.jsonl",
+    "benchmarks-local/ui-profile-2026-10-17/combined-vulkan-hour-ui-process.jsonl",
+    "benchmarks-local/ui-profile-2026-10-17/combined-vulkan-hour-profile-audit.json",
+    "benchmarks-local/ui-profile-2026-10-17/combined-vulkan-hour-archived-replay-verification.json",
+    "benchmarks-local/ui-profile-2026-10-17/profile-request.json",
+    "benchmarks-local/ui-profile-2026-10-17/profile-preflight.json",
+    "benchmarks-local/ui-profile-2026-10-17/series-state.json",
+    "benchmarks-local/ui-profile-2026-10-17/profile-series-cleanup.json",
+    "benchmarks-local/ui-profile-2026-10-17/ui-profile-comparison.json",
+    "benchmarks-local/ui-profile-2026-10-17/profile-audit-verification.json",
+    "benchmarks-local/ui-profile-2026-10-17/resume-audit-verification.json",
+    "benchmarks-local/ui-profile-2026-10-17/thermal-snapshot-audit-verification.json",
+    "benchmarks-local/ui-profile-2026-10-17/thermal-assessment-user-guidance.json",
+    "benchmarks-local/ui-profile-2026-10-17/audio-assessment-user-guidance.json",
+    "benchmarks-local/ui-profile-2026-10-17/resume-audit.py",
+    "benchmarks-local/ui-profile-2026-10-17/ui-profile-audit.py",
+    "benchmarks-local/ui-profile-2026-10-17/ui-profile-comparison.py"
+  ],
+  "raw_and_derived_scope": "Manifest classifies saved raw reports/traces, diagnostic logs, derived audits, lifecycle records and exact source snapshots separately; all files beneath this archive except manifest.json itself are covered."
+}

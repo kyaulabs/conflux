@@ -1,0 +1,27 @@
+{
+  "PIDs": [
+    1707604,
+    1707557,
+    1707561
+  ],
+  "PID_exists": {
+    "1707604": false,
+    "1707557": false,
+    "1707561": false
+  },
+  "worker_closed": true,
+  "backend_pid": null,
+  "fixture_exists": false,
+  "probe_returncodes": {
+    "ui": 0,
+    "audio": 0
+  },
+  "idle_inhibit_released": true,
+  "script_unloaded": true,
+  "window_restored": {
+    "reason": "owned-window-closed",
+    "after": null
+  },
+  "guard_errors": [],
+  "policy_runner_returncode": 0
+}

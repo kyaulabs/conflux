@@ -1,0 +1,890 @@
+{
+  "generated_utc": "2026-10-16T22:36:12.053528+00:00",
+  "schema": 1,
+  "script_sha256": "50de3a9dcbdc4ff5f32e041eee4d5ca97d9bd6ffe51d552f4ba77534ffc0bd99",
+  "arguments": {
+    "run_directory": [
+      "benchmarks-local/policy-2026-10-16/native-smoke",
+      "benchmarks-local/policy-2026-10-16/native-replay"
+    ],
+    "cpu_window_check": "/tmp/conflux-native-replay-window3-check.json",
+    "repository_root": "/home/kyau/projects/kyaulabs/conflux",
+    "host_cleanup_snapshot": "benchmarks-local/policy-2026-10-16/after-native-replay.json",
+    "output": "/tmp/conflux-native-replay-audit.json"
+  },
+  "CPU_window3_check": {
+    "record": {
+      "driver_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+      "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+      "window_start_frame": 773955,
+      "shape": [
+        343980,
+        2
+      ],
+      "input_bytes": 2751840,
+      "input_sha256": "88eda258fb0ca3a51c7df89b58d6ab20d2c3a3c46d34eb6da5a4b1ffed0c8672",
+      "byte_identical_to_actual_worker_methods": true,
+      "mean": 0.0006814675871282816,
+      "std": 0.1288195550441742,
+      "native_or_subprocess_calls": 0,
+      "temporary_fixture_removed": true,
+      "ready_metadata_names_and_values_match_frozen_runtime": true
+    },
+    "evidence": {
+      "path": "/tmp/conflux-native-replay-window3-check.json",
+      "bytes": 607,
+      "sha256_of_stored_bytes": "294239c1bf18dcd2ed4bb97e77ac482fb736e66ab4446f30200a17438b3a4d3a"
+    },
+    "source_evidence": {
+      "path": "/tmp/conflux-native-replay-window3-check.py",
+      "bytes": 3790,
+      "sha256_of_stored_bytes": "8b0820d6f1356c5bcb2255439e1847baa9df2884e3484f0482548e46a888d53a"
+    }
+  },
+  "runs": {
+    "native-smoke": {
+      "directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke",
+      "raw_status": "ok",
+      "completed_requests": 3,
+      "requested_requests": 3,
+      "request_ids": {
+        "first": 1,
+        "last": 3,
+        "consecutive_from1": true,
+        "native_result_IDs_match": true,
+        "serial_nonoverlapping": true
+      },
+      "duration": {
+        "replay_seconds": 5.447784120973665,
+        "max_replay_seconds": 60.0,
+        "first_start_to_last_finish_seconds": 5.441087643033825,
+        "sum_round_trips_seconds": 5.416139625012875,
+        "loop_overhead_seconds": 0.031644495960790664,
+        "between_request_gap_ms": {
+          "count": 2,
+          "min": 11.735184001736343,
+          "p50": 11.735184001736343,
+          "p95": 13.212834019213915,
+          "p99": 13.212834019213915,
+          "max": 13.212834019213915,
+          "above_4095ms": 0
+        },
+        "scope": "Starts after native readiness; limits admission and response waiting, not setup/file IO or cleanup. Elapsed overruns are marked budget_exhausted."
+      },
+      "timing_ms": {
+        "round_trip": {
+          "count": 3,
+          "min": 1747.755574004259,
+          "p50": 1775.3239499870688,
+          "p95": 1893.0601010215469,
+          "p99": 1893.0601010215469,
+          "max": 1893.0601010215469,
+          "above_4095ms": 0
+        },
+        "graph": {
+          "count": 3,
+          "min": 1702.817594,
+          "p50": 1718.795664,
+          "p95": 1842.141122,
+          "p99": 1842.141122,
+          "max": 1842.141122,
+          "above_4095ms": 0
+        },
+        "inference_cpu": {
+          "count": 3,
+          "min": 84.80900000000003,
+          "p50": 93.03500000000003,
+          "p95": 169.38,
+          "p99": 169.38,
+          "max": 169.38,
+          "above_4095ms": 0
+        },
+        "graph_rebuild_ms_max": 0,
+        "percentile_method": "nearest rank; p99ceil(0.99*N), finite repeated fixed-window observations"
+      },
+      "hashes": {
+        "fixture": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "input": "88eda258fb0ca3a51c7df89b58d6ab20d2c3a3c46d34eb6da5a4b1ffed0c8672",
+        "output": "2064925f9b2f6a9c5db98f2c0588fbd40de8a2a4c3d81a6a6b74a3ba9090dee8",
+        "input_bytes": 2751840,
+        "all_request_input_source_hashes_match": true,
+        "all_logged_output_hashes_identical": true,
+        "matches_frozen_CPU_window3": true,
+        "window_start_frame": 773955,
+        "normalization": {
+          "mean": 0.0006814675871282816,
+          "std": 0.1288195550441742,
+          "valid_frames": 343980,
+          "scope": "Whole-source mono sample statistics; normalize valid frames before padding."
+        },
+        "scope": "Input bytes independently rehashed and compared with frozen CPU-equivalence artifact. Source WAV was removed; source identity and output hashes are logged identities, not a fresh rehash of deleted samples."
+      },
+      "inherited_GPU_environment": {},
+      "backend": {
+        "ready": {
+          "stems": [
+            "drums",
+            "bass",
+            "other",
+            "vocals"
+          ],
+          "segment_frames": 343980,
+          "channels": 2,
+          "pid": 1530753,
+          "sample_rate": 44100,
+          "weight_storage": "native",
+          "threads": 4,
+          "backend": "vulkan",
+          "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+          "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+          "fence_wait_mode": "blocking",
+          "load_ms": 299.887879,
+          "event": "ready",
+          "process_environment": {
+            "OMP_WAIT_POLICY": "PASSIVE",
+            "GOMP_SPINCOUNT": "0"
+          }
+        },
+        "observed_process_identity": {
+          "pid": 1530753,
+          "start_ticks": 35104407
+        },
+        "sampled_process_identity_count": 1,
+        "scope": "One ready object and one PID/start identity in native sampler; driver starts one NativeRuntime. No worker-supervisor event stream."
+      },
+      "policy": {
+        "trace": {
+          "firmware": {
+            "expected": "balanced",
+            "counts": {
+              "balanced": 12
+            },
+            "missing_samples": 0,
+            "deviating_samples": 0,
+            "passed": true
+          },
+          "cpu0_EPP": {
+            "expected": "balance_performance",
+            "counts": {
+              "balance_performance": 12
+            },
+            "missing_samples": 0,
+            "deviating_samples": 0,
+            "passed": true
+          }
+        },
+        "all_native_snapshots_balanced": true,
+        "lifecycle": {
+          "command": [
+            "python3",
+            "-B",
+            "tools/benchmarks/native_replay.py",
+            "--runtime",
+            "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+            "--model",
+            "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+            "--requests",
+            "3",
+            "--max-seconds",
+            "60",
+            "--request-timeout",
+            "30",
+            "--window-start-frame",
+            "773955",
+            "--output",
+            "benchmarks-local/policy-2026-10-16/native-smoke"
+          ],
+          "started_at_utc": "2026-10-16T22:27:44.959911+00:00",
+          "before": {
+            "observed_at_utc": "2026-10-16T22:27:44.960321+00:00",
+            "profile": "power-saver",
+            "holds": "",
+            "firmware": "low-power",
+            "cpu_epp": "power"
+          },
+          "during": {
+            "observed_at_utc": "2026-10-16T22:27:45.870572+00:00",
+            "profile": "balanced",
+            "holds": "",
+            "firmware": "balanced",
+            "cpu_epp": "balance_performance"
+          },
+          "before_restore": {
+            "observed_at_utc": "2026-10-16T22:27:52.466321+00:00",
+            "profile": "balanced",
+            "holds": "",
+            "firmware": "balanced",
+            "cpu_epp": "balance_performance"
+          },
+          "restored_by_runner": true,
+          "after": {
+            "observed_at_utc": "2026-10-16T22:27:52.818584+00:00",
+            "profile": "power-saver",
+            "holds": "",
+            "firmware": "low-power",
+            "cpu_epp": "power"
+          },
+          "benchmark_returncode": 0,
+          "runner_returncode": 0,
+          "finished_at_utc": "2026-10-16T22:27:53.462714+00:00"
+        },
+        "prelaunch_metadata_profile": "balanced",
+        "prelaunch_vs_wrapper_before_profile_matches": false,
+        "scope": "Native sysfs snapshots plus wrapper lifecycle; pre-smoke metadata used different observation context per replay prelaunch note. Wrapper host before/after are cleanup authority; snapshots do not prove continuous daemon state."
+      },
+      "cleanup": {
+        "checks": {
+          "benchmark_returned_success": true,
+          "runner_returned_success": true,
+          "restored_by_runner": true,
+          "all_stages_no_holds": true,
+          "during_and_before_restore_balanced": true,
+          "profile_restored": true,
+          "firmware_restored": true,
+          "EPP_restored": true,
+          "generated_source_absent": true,
+          "native_PID_absent_in_saved_host_snapshot": true,
+          "fixture_absent_in_saved_host_snapshot": true,
+          "restored_profile_confirmed_in_saved_host_snapshot": true
+        },
+        "passed": true,
+        "process_observation": {
+          "saved_host_record": {
+            "recorded_processes": {
+              "1530753": false
+            },
+            "fixture_exists": false
+          },
+          "scope": "Host post-run observation; existence checks apply to recorded native/supervisor PIDs at this timestamp. Saved lifecycle records are authoritative for guard restoration.",
+          "observed_at_utc": "2026-10-16T22:35:26.796569+00:00"
+        },
+        "scope": "Lifecycle records and separate timestamped host cleanup snapshot are replayed from saved files; this portable script does not query live /proc or policy. Generated source removed; saved normalized input intentionally retained. Native scratch path was not logged, so per-directory scratch cleanup is not independently reconstructable."
+      },
+      "pins_after": {
+        "runtime": {
+          "recorded_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "recorded_bytes": 62986240,
+          "current_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "matches_current": true
+        },
+        "model": {
+          "recorded_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "recorded_bytes": 84059168,
+          "current_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "matches_current": true
+        },
+        "driver": {
+          "recorded_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "recorded_bytes": 14483,
+          "current_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "matches_current": true
+        },
+        "worker_source": {
+          "recorded_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "recorded_bytes": 24863,
+          "current_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "matches_current": true
+        },
+        "sampler_source": {
+          "recorded_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "recorded_bytes": 23403,
+          "current_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "matches_current": true
+        },
+        "shared_benchmark_source": {
+          "recorded_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "recorded_bytes": 22139,
+          "current_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "matches_current": true
+        }
+      },
+      "before_pins_after": {
+        "tools/benchmarks/native_replay.py": {
+          "recorded_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "recorded_bytes": 14483,
+          "current_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "matches_current": true
+        },
+        "benchmarks-local/policy-2026-10-16/balanced-native-run.py": {
+          "recorded_sha256": "6ed55495e818f9042e1d6744dd2664e592ba364c33fa841a9048b81b6cc816df",
+          "recorded_bytes": 5116,
+          "current_sha256": "6ed55495e818f9042e1d6744dd2664e592ba364c33fa841a9048b81b6cc816df",
+          "matches_current": true
+        },
+        "tools/stems/worker.py": {
+          "recorded_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "recorded_bytes": 24863,
+          "current_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "matches_current": true
+        },
+        "tools/benchmarks/worker_support.py": {
+          "recorded_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "recorded_bytes": 23403,
+          "current_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "matches_current": true
+        },
+        "tools/benchmarks/stem_worker.py": {
+          "recorded_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "recorded_bytes": 22139,
+          "current_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "matches_current": true
+        },
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+          "recorded_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "recorded_bytes": 62986240,
+          "current_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "matches_current": true
+        },
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+          "recorded_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "recorded_bytes": 84059168,
+          "current_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "matches_current": true
+        }
+      },
+      "resources": {
+        "samples": 12,
+        "requested_interval_seconds": 0.5,
+        "successful_sample_span_seconds": 5.447817911976017,
+        "first_sample_after_replay_start_seconds": 0.005036910995841026,
+        "last_sample_after_replay_stop_seconds": 0.005070701998192817,
+        "sample_gap_ms": {
+          "count": 11,
+          "min": 376.4390049618669,
+          "p50": 506.8571399897337,
+          "p95": 509.59695799974725,
+          "p99": 509.59695799974725,
+          "max": 509.59695799974725,
+          "above_4095ms": 0
+        },
+        "capture_elapsed_ms": {
+          "count": 12,
+          "min": 4.883748944848776,
+          "p50": 5.955492029897869,
+          "p95": 9.11356700817123,
+          "p99": 9.11356700817123,
+          "max": 9.11356700817123,
+          "above_4095ms": 0
+        },
+        "native_status_max_kB": {
+          "VmHWM": 281620,
+          "VmRSS": 281620,
+          "VmSwap": 0
+        },
+        "cpu_seconds_first_to_last_sample": 0.39,
+        "clock_ticks_per_second_from_analysis_host": 100,
+        "process_counters_first": {
+          "status.voluntary_ctxt_switches": 575,
+          "status.nonvoluntary_ctxt_switches": 21,
+          "stat.minflt": 63895,
+          "stat.majflt": 29
+        },
+        "process_counters_last": {
+          "status.voluntary_ctxt_switches": 656,
+          "status.nonvoluntary_ctxt_switches": 56,
+          "stat.minflt": 69789,
+          "stat.majflt": 29
+        },
+        "process_counter_deltas": {
+          "status.voluntary_ctxt_switches": 81,
+          "status.nonvoluntary_ctxt_switches": 35,
+          "stat.minflt": 5894,
+          "stat.majflt": 0
+        },
+        "sample_errors": {},
+        "trace_errors": {},
+        "system_read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 12,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 12,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 12,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 12
+        },
+        "fd_read_errors": 0,
+        "task_identity_sets": 2,
+        "task_schedstat_read_errors": 0,
+        "system_field_missing_samples": {},
+        "scope": "Exact process kB maxima separately from DRM allocations. CPU conversion requires collection host SC_CLK_TCK; this audit runs on same laptop. A forced final sample follows the loop stop and can shorten the last sample gap. Missing/denied system fields are not zero. Counter deltas apply only between samples in same identity."
+      },
+      "stderr": {
+        "bytes": 227,
+        "text": "ggml_vulkan: Found 1 Vulkan devices:\nggml_vulkan: 0 = Intel(R) Iris(R) Xe Graphics (TGL GT2) (Intel open-source Mesa driver) | uma: 1 | fp16: 1 | bf16: 0 | warp size: 32 | shared memory: 49152 | int dot: 1 | matrix cores: none\n",
+        "scope": "Retained bounded diagnostic tail; listed Vulkan device discovery is not an error counter."
+      },
+      "failures": [],
+      "input_evidence": {
+        "result.json": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke/result.json",
+          "bytes": 22901,
+          "sha256_of_stored_bytes": "7f626e810d65ffd9fd7e4915245b163edc71ae2fe4b0b8dc3eb75d1f45a2bf44"
+        },
+        "requests.jsonl": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke/requests.jsonl",
+          "bytes": 2227,
+          "sha256_of_stored_bytes": "15192a9aad5df7ed3b2dd924d161f914acf27bf2b0443c1ce1017bd9f2d6af61"
+        },
+        "native-trace.jsonl": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke/native-trace.jsonl",
+          "bytes": 78266,
+          "sha256_of_stored_bytes": "b48696cb91f018c3987a8791ef8dcd320d166449fe33cad56f7ff5ebc1cf6ced"
+        },
+        "input.f32": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke/input.f32",
+          "bytes": 2751840,
+          "sha256_of_stored_bytes": "88eda258fb0ca3a51c7df89b58d6ab20d2c3a3c46d34eb6da5a4b1ffed0c8672"
+        },
+        "runtime.stderr": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke/runtime.stderr",
+          "bytes": 227,
+          "sha256_of_stored_bytes": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+        }
+      },
+      "metadata_evidence": {
+        "before": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/before-native-smoke.json",
+          "bytes": 3248,
+          "sha256_of_stored_bytes": "2f05410e07cf6c1a3fb3d0d7e2998863bd35ebe3a545ba94c76c84599892b4cf"
+        },
+        "lifecycle": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-smoke-policy.json",
+          "bytes": 1370,
+          "sha256_of_stored_bytes": "135ca7ad3e8910315617ab0c227758aee32d768089bd5ae3d4ca9ce66b5f4d9b"
+        }
+      },
+      "scope": "Native-only repeat of one frozen normalized input; no audio/UI benchmark load, overlap-add, StemWorker queueing, seeks or cancellation. Passing this replay does not complete M0."
+    },
+    "native-replay": {
+      "directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay",
+      "raw_status": "ok",
+      "completed_requests": 120,
+      "requested_requests": 120,
+      "request_ids": {
+        "first": 1,
+        "last": 120,
+        "consecutive_from1": true,
+        "native_result_IDs_match": true,
+        "serial_nonoverlapping": true
+      },
+      "duration": {
+        "replay_seconds": 244.39992049097782,
+        "max_replay_seconds": 600.0,
+        "first_start_to_last_finish_seconds": 244.38711135502672,
+        "sum_round_trips_seconds": 242.84102730755694,
+        "loop_overhead_seconds": 1.558893183420878,
+        "between_request_gap_ms": {
+          "count": 119,
+          "min": 8.186304999981076,
+          "p50": 12.521694996394217,
+          "p95": 15.735354041680694,
+          "p99": 16.370445024222136,
+          "max": 17.40665000397712,
+          "above_4095ms": 0
+        },
+        "scope": "Starts after native readiness; limits admission and response waiting, not setup/file IO or cleanup. Elapsed overruns are marked budget_exhausted."
+      },
+      "timing_ms": {
+        "round_trip": {
+          "count": 120,
+          "min": 1633.4775510476902,
+          "p50": 2019.674836017657,
+          "p95": 2238.9511700021103,
+          "p99": 2516.995267011225,
+          "max": 2558.0924549722113,
+          "above_4095ms": 0
+        },
+        "graph": {
+          "count": 120,
+          "min": 1593.758557,
+          "p50": 1958.699396,
+          "p95": 2168.721563,
+          "p99": 2453.384577,
+          "max": 2485.69768,
+          "above_4095ms": 0
+        },
+        "inference_cpu": {
+          "count": 120,
+          "min": 80.853,
+          "p50": 123.57099999999991,
+          "p95": 142.08499999999913,
+          "p99": 149.1299999999992,
+          "max": 151.749,
+          "above_4095ms": 0
+        },
+        "graph_rebuild_ms_max": 0,
+        "percentile_method": "nearest rank; p99ceil(0.99*N), finite repeated fixed-window observations"
+      },
+      "hashes": {
+        "fixture": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "input": "88eda258fb0ca3a51c7df89b58d6ab20d2c3a3c46d34eb6da5a4b1ffed0c8672",
+        "output": "2064925f9b2f6a9c5db98f2c0588fbd40de8a2a4c3d81a6a6b74a3ba9090dee8",
+        "input_bytes": 2751840,
+        "all_request_input_source_hashes_match": true,
+        "all_logged_output_hashes_identical": true,
+        "matches_frozen_CPU_window3": true,
+        "window_start_frame": 773955,
+        "normalization": {
+          "mean": 0.0006814675871282816,
+          "std": 0.1288195550441742,
+          "valid_frames": 343980,
+          "scope": "Whole-source mono sample statistics; normalize valid frames before padding."
+        },
+        "scope": "Input bytes independently rehashed and compared with frozen CPU-equivalence artifact. Source WAV was removed; source identity and output hashes are logged identities, not a fresh rehash of deleted samples."
+      },
+      "inherited_GPU_environment": {},
+      "backend": {
+        "ready": {
+          "stems": [
+            "drums",
+            "bass",
+            "other",
+            "vocals"
+          ],
+          "segment_frames": 343980,
+          "channels": 2,
+          "pid": 1531217,
+          "sample_rate": 44100,
+          "weight_storage": "native",
+          "threads": 4,
+          "backend": "vulkan",
+          "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+          "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+          "fence_wait_mode": "blocking",
+          "load_ms": 435.781012,
+          "event": "ready",
+          "process_environment": {
+            "OMP_WAIT_POLICY": "PASSIVE",
+            "GOMP_SPINCOUNT": "0"
+          }
+        },
+        "observed_process_identity": {
+          "pid": 1531217,
+          "start_ticks": 35107882
+        },
+        "sampled_process_identity_count": 1,
+        "scope": "One ready object and one PID/start identity in native sampler; driver starts one NativeRuntime. No worker-supervisor event stream."
+      },
+      "policy": {
+        "trace": {
+          "firmware": {
+            "expected": "balanced",
+            "counts": {
+              "balanced": 483
+            },
+            "missing_samples": 0,
+            "deviating_samples": 0,
+            "passed": true
+          },
+          "cpu0_EPP": {
+            "expected": "balance_performance",
+            "counts": {
+              "balance_performance": 483
+            },
+            "missing_samples": 0,
+            "deviating_samples": 0,
+            "passed": true
+          }
+        },
+        "all_native_snapshots_balanced": true,
+        "lifecycle": {
+          "command": [
+            "python3",
+            "-B",
+            "tools/benchmarks/native_replay.py",
+            "--runtime",
+            "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+            "--model",
+            "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+            "--requests",
+            "120",
+            "--max-seconds",
+            "600",
+            "--request-timeout",
+            "30",
+            "--window-start-frame",
+            "773955",
+            "--output",
+            "benchmarks-local/policy-2026-10-16/native-replay"
+          ],
+          "started_at_utc": "2026-10-16T22:28:19.690000+00:00",
+          "before": {
+            "observed_at_utc": "2026-10-16T22:28:19.690431+00:00",
+            "profile": "power-saver",
+            "holds": "",
+            "firmware": "low-power",
+            "cpu_epp": "power"
+          },
+          "during": {
+            "observed_at_utc": "2026-10-16T22:28:20.655872+00:00",
+            "profile": "balanced",
+            "holds": "",
+            "firmware": "balanced",
+            "cpu_epp": "balance_performance"
+          },
+          "before_restore": {
+            "observed_at_utc": "2026-10-16T22:32:26.363600+00:00",
+            "profile": "balanced",
+            "holds": "",
+            "firmware": "balanced",
+            "cpu_epp": "balance_performance"
+          },
+          "restored_by_runner": true,
+          "after": {
+            "observed_at_utc": "2026-10-16T22:32:26.841508+00:00",
+            "profile": "power-saver",
+            "holds": "",
+            "firmware": "low-power",
+            "cpu_epp": "power"
+          },
+          "benchmark_returncode": 0,
+          "runner_returncode": 0,
+          "finished_at_utc": "2026-10-16T22:32:27.462588+00:00"
+        },
+        "prelaunch_metadata_profile": "power-saver",
+        "prelaunch_vs_wrapper_before_profile_matches": true,
+        "scope": "Native sysfs snapshots plus wrapper lifecycle; pre-smoke metadata used different observation context per replay prelaunch note. Wrapper host before/after are cleanup authority; snapshots do not prove continuous daemon state."
+      },
+      "cleanup": {
+        "checks": {
+          "benchmark_returned_success": true,
+          "runner_returned_success": true,
+          "restored_by_runner": true,
+          "all_stages_no_holds": true,
+          "during_and_before_restore_balanced": true,
+          "profile_restored": true,
+          "firmware_restored": true,
+          "EPP_restored": true,
+          "generated_source_absent": true,
+          "native_PID_absent_in_saved_host_snapshot": true,
+          "fixture_absent_in_saved_host_snapshot": true,
+          "restored_profile_confirmed_in_saved_host_snapshot": true
+        },
+        "passed": true,
+        "process_observation": {
+          "saved_host_record": {
+            "recorded_processes": {
+              "1531217": false
+            },
+            "fixture_exists": false
+          },
+          "scope": "Host post-run observation; existence checks apply to recorded native/supervisor PIDs at this timestamp. Saved lifecycle records are authoritative for guard restoration.",
+          "observed_at_utc": "2026-10-16T22:35:26.796569+00:00"
+        },
+        "scope": "Lifecycle records and separate timestamped host cleanup snapshot are replayed from saved files; this portable script does not query live /proc or policy. Generated source removed; saved normalized input intentionally retained. Native scratch path was not logged, so per-directory scratch cleanup is not independently reconstructable."
+      },
+      "pins_after": {
+        "runtime": {
+          "recorded_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "recorded_bytes": 62986240,
+          "current_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "matches_current": true
+        },
+        "model": {
+          "recorded_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "recorded_bytes": 84059168,
+          "current_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "matches_current": true
+        },
+        "driver": {
+          "recorded_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "recorded_bytes": 14483,
+          "current_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "matches_current": true
+        },
+        "worker_source": {
+          "recorded_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "recorded_bytes": 24863,
+          "current_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "matches_current": true
+        },
+        "sampler_source": {
+          "recorded_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "recorded_bytes": 23403,
+          "current_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "matches_current": true
+        },
+        "shared_benchmark_source": {
+          "recorded_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "recorded_bytes": 22139,
+          "current_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "matches_current": true
+        }
+      },
+      "before_pins_after": {
+        "tools/benchmarks/native_replay.py": {
+          "recorded_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "recorded_bytes": 14483,
+          "current_sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e",
+          "matches_current": true
+        },
+        "benchmarks-local/policy-2026-10-16/balanced-native-run.py": {
+          "recorded_sha256": "6ed55495e818f9042e1d6744dd2664e592ba364c33fa841a9048b81b6cc816df",
+          "recorded_bytes": 5116,
+          "current_sha256": "6ed55495e818f9042e1d6744dd2664e592ba364c33fa841a9048b81b6cc816df",
+          "matches_current": true
+        },
+        "tools/stems/worker.py": {
+          "recorded_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "recorded_bytes": 24863,
+          "current_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "matches_current": true
+        },
+        "tools/benchmarks/worker_support.py": {
+          "recorded_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "recorded_bytes": 23403,
+          "current_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "matches_current": true
+        },
+        "tools/benchmarks/stem_worker.py": {
+          "recorded_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "recorded_bytes": 22139,
+          "current_sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e",
+          "matches_current": true
+        },
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+          "recorded_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "recorded_bytes": 62986240,
+          "current_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "matches_current": true
+        },
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+          "recorded_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "recorded_bytes": 84059168,
+          "current_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "matches_current": true
+        }
+      },
+      "resources": {
+        "samples": 483,
+        "requested_interval_seconds": 0.5,
+        "successful_sample_span_seconds": 244.39933705102885,
+        "first_sample_after_replay_start_seconds": 0.006917067978065461,
+        "last_sample_after_replay_stop_seconds": 0.006333628029096872,
+        "sample_gap_ms": {
+          "count": 482,
+          "min": 128.657586988993,
+          "p50": 507.43699399754405,
+          "p95": 509.90579201607034,
+          "p99": 515.1048609986901,
+          "max": 520.6452540005557,
+          "above_4095ms": 0
+        },
+        "capture_elapsed_ms": {
+          "count": 483,
+          "min": 5.090482998639345,
+          "p50": 6.947714020498097,
+          "p95": 9.33857198106125,
+          "p99": 14.115625992417336,
+          "max": 18.32450903020799,
+          "above_4095ms": 0
+        },
+        "native_status_max_kB": {
+          "VmHWM": 281304,
+          "VmRSS": 281304,
+          "VmSwap": 0
+        },
+        "cpu_seconds_first_to_last_sample": 16.28,
+        "clock_ticks_per_second_from_analysis_host": 100,
+        "process_counters_first": {
+          "status.voluntary_ctxt_switches": 535,
+          "status.nonvoluntary_ctxt_switches": 18,
+          "stat.minflt": 63834,
+          "stat.majflt": 0
+        },
+        "process_counters_last": {
+          "status.voluntary_ctxt_switches": 2404,
+          "status.nonvoluntary_ctxt_switches": 644,
+          "stat.minflt": 73438,
+          "stat.majflt": 0
+        },
+        "process_counter_deltas": {
+          "status.voluntary_ctxt_switches": 1869,
+          "status.nonvoluntary_ctxt_switches": 626,
+          "stat.minflt": 9604,
+          "stat.majflt": 0
+        },
+        "sample_errors": {},
+        "trace_errors": {},
+        "system_read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 483,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 483,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 483,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 483
+        },
+        "fd_read_errors": 0,
+        "task_identity_sets": 2,
+        "task_schedstat_read_errors": 0,
+        "system_field_missing_samples": {},
+        "scope": "Exact process kB maxima separately from DRM allocations. CPU conversion requires collection host SC_CLK_TCK; this audit runs on same laptop. A forced final sample follows the loop stop and can shorten the last sample gap. Missing/denied system fields are not zero. Counter deltas apply only between samples in same identity."
+      },
+      "stderr": {
+        "bytes": 227,
+        "text": "ggml_vulkan: Found 1 Vulkan devices:\nggml_vulkan: 0 = Intel(R) Iris(R) Xe Graphics (TGL GT2) (Intel open-source Mesa driver) | uma: 1 | fp16: 1 | bf16: 0 | warp size: 32 | shared memory: 49152 | int dot: 1 | matrix cores: none\n",
+        "scope": "Retained bounded diagnostic tail; listed Vulkan device discovery is not an error counter."
+      },
+      "failures": [],
+      "input_evidence": {
+        "result.json": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay/result.json",
+          "bytes": 131262,
+          "sha256_of_stored_bytes": "d48a0a99dd9f1c3af6b2d9af2a4244c1d0a0bbf61d2ae15f41661931fea55726"
+        },
+        "requests.jsonl": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay/requests.jsonl",
+          "bytes": 89856,
+          "sha256_of_stored_bytes": "720f5cbc3009d825b796b2825bf5acf90f52bb042ac0d247ce3f69a9451095ba"
+        },
+        "native-trace.jsonl": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay/native-trace.jsonl",
+          "bytes": 3158801,
+          "sha256_of_stored_bytes": "a5c88605af423d4760a924d66b33cf5630fd0fe3a8b7ef17a1840ee33878e456"
+        },
+        "input.f32": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay/input.f32",
+          "bytes": 2751840,
+          "sha256_of_stored_bytes": "88eda258fb0ca3a51c7df89b58d6ab20d2c3a3c46d34eb6da5a4b1ffed0c8672"
+        },
+        "runtime.stderr": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay/runtime.stderr",
+          "bytes": 227,
+          "sha256_of_stored_bytes": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+        }
+      },
+      "metadata_evidence": {
+        "before": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/before-native-replay.json",
+          "bytes": 3413,
+          "sha256_of_stored_bytes": "6331f8c742c29b4a16a60407d2f3783e6b954169150fbe7bec15ac345acf176a"
+        },
+        "lifecycle": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/policy-2026-10-16/native-replay-policy.json",
+          "bytes": 1374,
+          "sha256_of_stored_bytes": "3b7fdbee8e9da3aa19cee7179053ddd0cefa2a9414081c603be39edb0195b644"
+        }
+      },
+      "scope": "Native-only repeat of one frozen normalized input; no audio/UI benchmark load, overlap-add, StemWorker queueing, seeks or cancellation. Passing this replay does not complete M0."
+    }
+  },
+  "host_cleanup_evidence": {
+    "path": "benchmarks-local/policy-2026-10-16/after-native-replay.json",
+    "bytes": 770,
+    "sha256_of_stored_bytes": "439416521f12bd7903ae7c641da780b7acc9bac311ff53870b5dba0d9adc3531"
+  },
+  "cross_run_identity": {
+    "same_input_hash": true,
+    "same_logged_output_hash": true,
+    "same_runtime_model_driver_worker_sampler_pins": {
+      "runtime": true,
+      "model": true,
+      "driver": true,
+      "worker_source": true,
+      "sampler_source": true,
+      "shared_benchmark_source": true
+    }
+  },
+  "limitations": [
+    "No waveform outputs are archived; output equality is checked through recorded hashes, not a fresh byte comparison of saved arrays.",
+    "A finite fixed-window native-only replay cannot establish mixed-input or hour-long audio/UI worker latency.",
+    "0.5-second snapshots do not prove every intermediate policy/scheduling state; RAPLenergy reads can be denied.",
+    "The pre-smoke before metadata and host wrapper before differ; native-smoke-policy.json records power-saver as authoritative restoration target.",
+    "Native scratch path is not recorded. Saved timestamped host snapshot confirms recorded PID/fixture absence and restored policy; portability does not imply a fresh live-host observation. Per-directory scratch removal is not independently reconstructable."
+  ]
+}

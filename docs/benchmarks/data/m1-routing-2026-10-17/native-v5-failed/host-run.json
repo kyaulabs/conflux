@@ -1,0 +1,26 @@
+{
+  "started_utc": "2026-10-18T05:32:28.098902+00:00",
+  "before": {
+    "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+    "profile": "power-saver\n"
+  },
+  "runs": [
+    {
+      "name": "manual",
+      "pid": 2060694,
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-audio-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cdj-ui-2026-10-17/quiet-0.wav",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cdj-ui-2026-10-17/quiet-1.wav",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-routing-2026-10-17/routing"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 20.58278535999125
+    }
+  ],
+  "after": {
+    "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+    "profile": "power-saver\n"
+  },
+  "stopped_utc": "2026-10-18T05:32:49.373096+00:00"
+}

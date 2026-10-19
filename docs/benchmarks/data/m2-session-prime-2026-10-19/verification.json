@@ -1,0 +1,781 @@
+{
+  "schema": "conflux.m2-session-prime-verification.v1",
+  "status": "session_prime_reuse_functional_checks_passed",
+  "validation_base_commit": "44b8e0d707b8df937b9c47cdbb1229e173146d0c",
+  "archive_head": "36ff90d7566560487f260dfa61e277457b38e04f",
+  "tdd": {
+    "red": {
+      "status": "actual_missing_API_RED",
+      "head": "44b8e0d707b8df937b9c47cdbb1229e173146d0c",
+      "at": "2026-10-19T11:52:38.024002+00:00",
+      "declaration_or_product_applied": false,
+      "tests_patch_sha256": "d1a5c35b3bf347c2ae584b68959950ae818071bcd5774cd314d803d4a93b9cda",
+      "current_test_sha256": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253",
+      "stages": [
+        {
+          "stage": "session-prime-red-configure",
+          "command": [
+            "cmake",
+            "-S",
+            ".",
+            "-B",
+            "build/dev",
+            "-G",
+            "Ninja"
+          ],
+          "expected_exit": 0,
+          "exit": 0,
+          "elapsed_seconds": 6.796537181013264
+        },
+        {
+          "stage": "session-prime-red-build",
+          "command": [
+            "cmake",
+            "--build",
+            "build/dev",
+            "--target",
+            "conflux-live-stem-bridge-test",
+            "--parallel",
+            "2"
+          ],
+          "expected_exit": 1,
+          "exit": 1,
+          "elapsed_seconds": 14.368158438999671
+        }
+      ]
+    },
+    "green": [
+      {
+        "stage": "session-prime-green-build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/dev",
+          "--target",
+          "conflux-live-stem-bridge-test",
+          "--parallel",
+          "2"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 65.24972741800593
+      },
+      {
+        "stage": "session-prime-green-test",
+        "command": [
+          "build/dev/conflux-live-stem-bridge-test",
+          "sessionAdoptsUnusedLiveReserveWithoutRedundantSeek",
+          "consumedLiveOwnerReprimesBeforeSessionReuse",
+          "sessionPrimeCannotBypassEpochValidationCancellationOrHealth"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 0.8173904769937508
+      }
+    ],
+    "focused_green_qt": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 791
+    },
+    "unchanged_test_sha256": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253",
+    "product_patch": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-implementation.patch",
+      "bytes": 10085,
+      "sha256": "3235f10c01616a04ecee48cb6f349269c15849897e7e99cbc18d1de5781356ea"
+    }
+  },
+  "final_stages": [
+    {
+      "stage": "session-prime-full-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 107.4786721150158
+    },
+    {
+      "stage": "session-prime-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/dev",
+        "--output-on-failure",
+        "--timeout",
+        "120"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 137.09635172999697
+    },
+    {
+      "stage": "session-prime-smoke",
+      "command": [
+        "build/dev/conflux",
+        "--smoke-test"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 2.372894680011086
+    },
+    {
+      "stage": "session-prime-normal-routing",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Controller validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-manual-routing-check",
+        "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-normal-routing-01"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 6.785983554960694
+    },
+    {
+      "stage": "session-prime-normal-preparation",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Controller validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-preparation-controller-check",
+        "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-normal-preparation-01"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 42.51751533901552
+    },
+    {
+      "stage": "session-prime-tsan-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build/owner-tsan",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DBUILD_TESTING=ON",
+        "-DCMAKE_CXX_FLAGS=-fsanitize=thread -fno-omit-frame-pointer -fno-pie -O1 -g",
+        "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread -no-pie"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 6.038135427981615
+    },
+    {
+      "stage": "session-prime-tsan-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/owner-tsan",
+        "--target",
+        "conflux-audio-live-owner-test",
+        "conflux-audio-live-recovery-test",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 16.36628118797671
+    },
+    {
+      "stage": "session-prime-tsan-test",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/owner-tsan",
+        "-R",
+        "^(audio-live-owner|audio-live-recovery)$",
+        "--output-on-failure"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 3.0744131929823197
+    },
+    {
+      "stage": "session-prime-coverage",
+      "command": [
+        "benchmarks-local/coverage-venv/bin/python",
+        "tools/coverage/run.py",
+        "--private-routing",
+        "--jobs",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 442.6636719760136
+    }
+  ],
+  "normal_ctest": {
+    "tests_passed": 36,
+    "tests_failed": 0,
+    "tests_total": 36
+  },
+  "instrumented_ctest": {
+    "tests_passed": 36,
+    "tests_failed": 0,
+    "tests_total": 36
+  },
+  "bridge_qt": {
+    "focused_green": {
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 791
+    },
+    "normal": {
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 40993
+    },
+    "instrumented": {
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 51630
+    }
+  },
+  "source_pins": 97,
+  "source_stable": true,
+  "cmake_in_source_map": true,
+  "separately_verified_product_outputs": 5,
+  "ignored_measurement_source": {
+    "path": "run_session_prime_checks.py.gz",
+    "bytes": 4726,
+    "sha256": "c88b64683804dacae9692ca9668e3ff7bdda09d64cffe34761834504375186e5",
+    "git_blob_claim": false
+  },
+  "artifact_groups": {
+    "build/dev": 5,
+    "build/owner-tsan": 2,
+    "build/coverage": 5
+  },
+  "artifact_bytes_stable": true,
+  "private_regressions": {
+    "normal": {
+      "routing": {
+        "checks": 130,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": true,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      },
+      "preparation": {
+        "checks": 46,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": false,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      }
+    },
+    "instrumented": {
+      "routing": {
+        "checks": 124,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      },
+      "preparation": {
+        "checks": 46,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      }
+    }
+  },
+  "sanitizer": {
+    "ctest": {
+      "tests_passed": 2,
+      "tests_failed": 0,
+      "tests_total": 2
+    },
+    "executed_targets": [
+      "audio-live-recovery",
+      "audio-live-owner"
+    ],
+    "stages": [
+      {
+        "stage": "session-prime-tsan-configure",
+        "command": [
+          "cmake",
+          "-S",
+          ".",
+          "-B",
+          "build/owner-tsan",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DBUILD_TESTING=ON",
+          "-DCMAKE_CXX_FLAGS=-fsanitize=thread -fno-omit-frame-pointer -fno-pie -O1 -g",
+          "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread -no-pie"
+        ],
+        "exit": 0,
+        "timed_out": false,
+        "elapsed_seconds": 6.038135427981615
+      },
+      {
+        "stage": "session-prime-tsan-build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/owner-tsan",
+          "--target",
+          "conflux-audio-live-owner-test",
+          "conflux-audio-live-recovery-test",
+          "--parallel",
+          "2"
+        ],
+        "exit": 0,
+        "timed_out": false,
+        "elapsed_seconds": 16.36628118797671
+      },
+      {
+        "stage": "session-prime-tsan-test",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/owner-tsan",
+          "-R",
+          "^(audio-live-owner|audio-live-recovery)$",
+          "--output-on-failure"
+        ],
+        "exit": 0,
+        "timed_out": false,
+        "elapsed_seconds": 3.0744131929823197
+      }
+    ],
+    "scope": "Two existing pure C++ live-owner/recovery targets on current product build only",
+    "new_qttest_session_integration_cases_qualified": false,
+    "prior_qttest_limitation": {
+      "path": "../m2-live-bridge-2026-10-19/verification.json",
+      "bytes": 38710,
+      "sha256": "5a445fee9d8e049649bdc780e2bd5ef00b1e6500193ede2a3ceff77918427499",
+      "status": "functional_checks_passed_sanitizer_incomplete",
+      "note": "Historical failed QtTest bridge sanitizer plus framework-only control; not rerun or reclassified by this slice"
+    }
+  },
+  "coverage": {
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "measured_sources": {
+      "cpp": "src/** including main, probe and instrumented headers",
+      "python": "tools/stems/**"
+    },
+    "cpp": {
+      "line": {
+        "covered": 5524,
+        "total": 6472,
+        "percent": 85.3522867737948,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 7873,
+        "total": 15025,
+        "percent": 52.39933444259567,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    }
+  },
+  "behavior": [
+    "Session helper reuses only latest successful unused healthy live reserve at exact target/current epoch with matching published coverage; explicit prime remains fresh",
+    "Valid nonempty read attempt, actual discontinuity, explicit prime attempt including pre-cancellation, and stop invalidate reuse; invalid/empty reads preserve eligibility",
+    "Fresh bank staging adopts a validated nonzero prepared cursor without notifying providers; default0 and ordinary actual seek flow unchanged",
+    "Unstarted real LiveSession constructor reuses exact candidate/whole-owner identity without redundant service seek; consumed/stale/changed targets re-prime"
+  ],
+  "limitations": [
+    "New QtTest integration cases use actual synthetic factory/service traces, parser/converter/ring and unstarted LiveSession only; no PipeWire start or controller activation is established by those cases.",
+    "Normal/instrumented private PipeWire helpers preserve existing generated-source callback/routing/recording regressions, exact PCM oracles and startup/route-rebuild exclusions; they do not activate the new bridge inside the controller.",
+    "Passing additional ThreadSanitizer scope is limited to two existing pure C++ owner/recovery targets. The three new QtTest integration cases have no clean-TSan qualification; prior QtTest watchdog failure/control evidence remains linked unchanged.",
+    "No actual separator/model, physical audio, sustained thermal load, strict4095ms integrated p99 or universal numerical-equivalence qualification; M2 remains open.",
+    "Coverage reports separate measured C++/Python line/branch counts; QML/native-adapter sources remain unmeasured. Instrumented/sanitizer timings are not latency evidence."
+  ],
+  "live_service_target_ms": 4095,
+  "M2_qualified": false,
+  "archive_tool": {
+    "bytes": 14734,
+    "sha256": "a7ff7039e901ba6fdc06b7eda19dd686b69a1ca786a398f8c6b250a729782a03"
+  },
+  "archive_packaging": {
+    "initial_raw_scan_exit": 1,
+    "initial_finding": "generic-api-key on frozen API SHA-256 scalar; verified digest of API evidence, not a credential",
+    "normalization": {
+      "bytes": 1522,
+      "sha256": "ab8626c2bcb90577ce9c2ea18a2a05b346e2b5b5dde3c04f47fac0795ad7fe87",
+      "normalization": "Only frozen_api_sha256 scalar wrapped as frozen_api.sha256; all original values retained. Original ignored evidence remains unchanged."
+    },
+    "original_amendment_retained_unchanged": true,
+    "no_allowlist_or_suppression": true,
+    "no_product_or_test_change": true
+  },
+  "raw_secret_scan_exit": 0,
+  "files": {
+    "session-prime-reuse-freeze.json": {
+      "bytes": 7069,
+      "sha256": "a3f8cc19745122a795db840df0e19ed9f7d3a27cbd116baa5f752c64e0e6f6fb"
+    },
+    "session-prime-implementation-freeze.json": {
+      "bytes": 9111,
+      "sha256": "246b6ed42cc8b0070d865fd119ca94ccb72df2fc4a2359614cd95356bbcf052e"
+    },
+    "session-prime-implementation-plan.json": {
+      "bytes": 2329,
+      "sha256": "b3ea1d93f88a693f54091174ef6cb0476fff7e358caa1b3e8d459f3ee04507d2"
+    },
+    "session-prime-red-result.json": {
+      "bytes": 989,
+      "sha256": "37bbea5798a625f77d1bf5a9a306b4561c2bd5d975538d9a6241b3c2a08aae20"
+    },
+    "session-prime-green-result.json": {
+      "bytes": 633,
+      "sha256": "d6a30d11c70b3345c5e1fc117880e79780252c08e1fc50845ef0a9c87e039883"
+    },
+    "session-prime-source-pins.json": {
+      "bytes": 13751,
+      "sha256": "721a03661247e8cd2de9df01db00dd2a82508cc8fd2c2a1bbfd661c449a86fd0"
+    },
+    "session-prime-source-stable.json": {
+      "bytes": 52,
+      "sha256": "e418217fe78d875e71d8165a0369db1e844ba2b753ab7088565223b28af1da48"
+    },
+    "session-prime-artifact-pins.json": {
+      "bytes": 2058,
+      "sha256": "4e4c45ea2b4961b59ec5ab960ecbdce12ff066cf940527899f265e70b9bc26f8"
+    },
+    "session-prime-functional-result.json": {
+      "bytes": 3427,
+      "sha256": "a47a9e9e6e19aa5873e7cb3c7dff506def618e0f4a2d1366d0c7f3cfb3ba7d35"
+    },
+    "session-prime-cursor-amendment.normalized.json": {
+      "bytes": 1822,
+      "sha256": "c8372e7fbd8f39798d44294c39a27804cfbc3b7a7e9d31d558679ea260790200"
+    },
+    "initial-raw-gitleaks.log.gz": {
+      "bytes": 131,
+      "sha256": "308f7feae81a2d94c7fe7ac51508c1ddc1cc113dfb8911e2faaebae18448206a"
+    },
+    "initial-raw-redacted-gitleaks-findings.json": {
+      "bytes": 702,
+      "sha256": "09507ec430898ae3c6f032023e4dce8d9e96f38339ad4bcd5ae7a79d145d6891"
+    },
+    "session-prime-red-configure.log.gz": {
+      "bytes": 134,
+      "sha256": "c3bb53862b340878d8a1a1acaa668b952c98e7b5e9d89732610273e578d28314"
+    },
+    "session-prime-red-build.log.gz": {
+      "bytes": 1059,
+      "sha256": "7f2847f81d6a0a317158838a12092d72762daee674a054452dc7ee84cffcc755"
+    },
+    "session-prime-green-build.log.gz": {
+      "bytes": 534,
+      "sha256": "a6d84a888ca0493eb1b1da64294add8cb349fd648a4b4c50101dff8f884c47e9"
+    },
+    "session-prime-green-test.log.gz": {
+      "bytes": 359,
+      "sha256": "7da8dafa040692b9e3d24d85eafe63121aa8a3ad845a44961b4e9e29f97abf38"
+    },
+    "session-prime-full-build.log.gz": {
+      "bytes": 1673,
+      "sha256": "02921d17d6fef52c3eb3aa8707bf26d55c04dcd4222da8d76649e4750397c248"
+    },
+    "session-prime-ctest.log.gz": {
+      "bytes": 863,
+      "sha256": "40e68bfb81221326d42d9a2b115772e2b7f011e06918a8afcd90941c1ba3c82e"
+    },
+    "session-prime-smoke.log.gz": {
+      "bytes": 423,
+      "sha256": "b76f8f3cda44c86f340af5d3cbda69b9c18ff97f2548de08e23be7b29cab0fbd"
+    },
+    "session-prime-normal-routing.log.gz": {
+      "bytes": 2969,
+      "sha256": "4726de98e9bc3c24b838265d2de99fe44f5787ac2730add604ab6435098db148"
+    },
+    "session-prime-normal-preparation.log.gz": {
+      "bytes": 2908,
+      "sha256": "5d8458ef68d6c7657cf7fc8753c7a1fa8191830c2d66dc02d18add6f9ef11c1b"
+    },
+    "session-prime-tsan-configure.log.gz": {
+      "bytes": 138,
+      "sha256": "a74363b37fe19d2950f9070232c4ab1fef416f31af3446669b0de263bc41b2e8"
+    },
+    "session-prime-tsan-build.log.gz": {
+      "bytes": 243,
+      "sha256": "6a09c132b429ec7569dae2687fe02cbdaff79384819aee413b7cbbaa85074ed2"
+    },
+    "session-prime-tsan-test.log.gz": {
+      "bytes": 198,
+      "sha256": "5d64d7da7575792d7f72d17a8f7f9664d723f9ac64c487e0b2327202ca8be0f8"
+    },
+    "session-prime-coverage.log.gz": {
+      "bytes": 2009,
+      "sha256": "7a972a712f8c6128d43bddb3759e3d2a68f5c54a355b620a1bf9fd55a73c957a"
+    },
+    "run_session_prime_checks.py.gz": {
+      "bytes": 1885,
+      "sha256": "a234f940784a167f63255672270525d1998afc23d402023c21805eec960e685e"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 5743,
+      "sha256": "b4f71c5d7d912a9811f473be0030dcbf371f25d8ac14fe4fac20ef843538cae3"
+    },
+    "instrumented-last-test.log.gz": {
+      "bytes": 5838,
+      "sha256": "d2059a8aabfd0ac70f8bc9a19917162bdffb751db9ded4db2265d1bfb971e8d0"
+    },
+    "pure-owner-recovery-tsan-last-test.log.gz": {
+      "bytes": 352,
+      "sha256": "78b826cbf2a8d275bcc3140ade6d206db7b69e04b3c6ec365e1c12ceee3597bb"
+    },
+    "coverage.json": {
+      "bytes": 7873,
+      "sha256": "eb4dc1a187e852ea4764b98be77a140aee5f7b81a765f81ad1c5d339c7c082f8"
+    },
+    "coverage-configure.log.gz": {
+      "bytes": 135,
+      "sha256": "17a0ee52ad5ee08bb25373cc98726615df3533254b7fdb1d13c12e7931ea5748"
+    },
+    "coverage-build.log.gz": {
+      "bytes": 1276,
+      "sha256": "2a620ce7954e1b910b67669c7b6e54816180fda0a683830d36e45a9d2feeb822"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 895,
+      "sha256": "99a4d084eb4ba5b13e5a768e40886c7ae03366a2247744a53cc133043971d572"
+    },
+    "coverage-smoke.log.gz": {
+      "bytes": 422,
+      "sha256": "5fd48d7d0d41773ef822a922436347187e45bd0036096ade58de32f61b6ce888"
+    },
+    "coverage-private-routing.log.gz": {
+      "bytes": 2954,
+      "sha256": "737ae1d49f036deab65b904f5ba45618938c2090963db6521e8730813bd67d0b"
+    },
+    "coverage-private-preparation.log.gz": {
+      "bytes": 2887,
+      "sha256": "3472052554fd194da5d251cb033a403f629a5f0b5bf3ee009077d054f280fd6e"
+    },
+    "coverage-gcovr.log.gz": {
+      "bytes": 101,
+      "sha256": "67762f9d12aac35182c9d48f755aa8961ea96a37381eb40268c7b46bb6f5594e"
+    },
+    "coverage-python-combine.log.gz": {
+      "bytes": 47,
+      "sha256": "042411e26d769db3495ace94c6fac3ff460f99fb839f84ddc63587a4cbcffff2"
+    },
+    "coverage-python-json.log.gz": {
+      "bytes": 126,
+      "sha256": "70eff43c98caf073645b8b1e3cfbdb95f897e8a7ee8f6315be67c4ec868ac9b2"
+    },
+    "coverage-python-html.log.gz": {
+      "bytes": 109,
+      "sha256": "4520339585a9ddd0af877113a8174969ea4c1eb8969cb2739af02996359f1e6a"
+    },
+    "coverage-python-xml.log.gz": {
+      "bytes": 98,
+      "sha256": "3e30767dc49fef39cd7277377ad5bc227b79e0c7c977d44f37be6355dbac52a2"
+    },
+    "normal-routing.json": {
+      "bytes": 14295,
+      "sha256": "265f1f441b115574fda2f900241968154295e081380625b84a4534614a252991"
+    },
+    "normal-preparation.json": {
+      "bytes": 11334,
+      "sha256": "7dcb8a196a5a045fb222084943be655769a4bb4cee8d619b087ecf957cb1d265"
+    },
+    "instrumented-routing.json": {
+      "bytes": 13944,
+      "sha256": "0440789a30aa23bf33d8c245251f722b7a42a1b95ee9b0d75d249b9af940ed7e"
+    },
+    "instrumented-preparation.json": {
+      "bytes": 11285,
+      "sha256": "073167e413b9ab84d273d281885e63c1c470a6bce8be9d7e7d0d8d0e9cbfb9a7"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 127,
+      "sha256": "88775975b298b5846dc8bbddf86151c63f69a6dbc74793f6f77ac28fa00e4929"
+    },
+    "raw-redacted-gitleaks-findings.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "uncompressed": {
+    "initial-raw-gitleaks.log.gz": {
+      "bytes": 146,
+      "sha256": "fb1ab2e86def0d3eb4a627f3a7cbe06e2549a8b6a01cd8af87865db106c0de2b"
+    },
+    "session-prime-red-configure.log.gz": {
+      "bytes": 137,
+      "sha256": "48c6d3797f99f5388da2a4ac6dc6db0be2bd91cd23f0f9f2019d226deab0135b"
+    },
+    "session-prime-red-build.log.gz": {
+      "bytes": 7030,
+      "sha256": "9e75111544afd5e2cedc3be3ab1bdecfd0e9c7ca10538abc1ab2c8136b5c8631"
+    },
+    "session-prime-green-build.log.gz": {
+      "bytes": 1577,
+      "sha256": "c2c9260c8a3f78d9fa4e70ff80f882878c289b76846b0e7286f6aa77aea3a52f"
+    },
+    "session-prime-green-test.log.gz": {
+      "bytes": 658,
+      "sha256": "a893585a104bdde716c2a4e9539b9b682dcf37f6faecc30bbecf65794691bfdb"
+    },
+    "session-prime-full-build.log.gz": {
+      "bytes": 7853,
+      "sha256": "cf14623c3d306dd6c80c8cbc0af211860557b14d319f88397785fb07493d9c06"
+    },
+    "session-prime-ctest.log.gz": {
+      "bytes": 3882,
+      "sha256": "89f11fc33773bbc54700161be39cce84f563a85d549084d3cc01f357527c674a"
+    },
+    "session-prime-smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "b1565842df600bd78d1a55e9fe8cd9a91ac2df31f344f92b5d4a06ced2525434"
+    },
+    "session-prime-normal-routing.log.gz": {
+      "bytes": 14295,
+      "sha256": "265f1f441b115574fda2f900241968154295e081380625b84a4534614a252991"
+    },
+    "session-prime-normal-preparation.log.gz": {
+      "bytes": 11334,
+      "sha256": "7dcb8a196a5a045fb222084943be655769a4bb4cee8d619b087ecf957cb1d265"
+    },
+    "session-prime-tsan-configure.log.gz": {
+      "bytes": 144,
+      "sha256": "15cd5a0ca7295acb522f6358caf186549afa67b89810cdd0d46e6851a0b67773"
+    },
+    "session-prime-tsan-build.log.gz": {
+      "bytes": 708,
+      "sha256": "4588945bf5e6c80fac09695acb14aba12ad277ea4c0c93a07c5bfb56412b5d0b"
+    },
+    "session-prime-tsan-test.log.gz": {
+      "bytes": 337,
+      "sha256": "5cc4251a5fb0d08979a0bc7bfe25e7a53dea0de06d65985fa399c43280f357db"
+    },
+    "session-prime-coverage.log.gz": {
+      "bytes": 11411,
+      "sha256": "7f6980366790ab707cd3332ba9a2127265c84f965a789fd8e8d93550d891064d"
+    },
+    "run_session_prime_checks.py.gz": {
+      "bytes": 4726,
+      "sha256": "c88b64683804dacae9692ca9668e3ff7bdda09d64cffe34761834504375186e5"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 41066,
+      "sha256": "a67413d904e881848ff9e6710c5954e26437978a003be758e6677b0e35e9eda9"
+    },
+    "instrumented-last-test.log.gz": {
+      "bytes": 41775,
+      "sha256": "2a29e7d52adb93c14326ef3eeecabcd91744ab29844037d828c8fa5918dec314"
+    },
+    "pure-owner-recovery-tsan-last-test.log.gz": {
+      "bytes": 1423,
+      "sha256": "83f2ec45918dc9bba23455aba6b1e0191593be7ac573939c04fb193e650431f6"
+    },
+    "coverage-configure.log.gz": {
+      "bytes": 142,
+      "sha256": "70a2c561e554017b54ad22cbbed02ed474e6b3593909465ef009f37e3a029403"
+    },
+    "coverage-build.log.gz": {
+      "bytes": 6193,
+      "sha256": "bf024c59ee7fc13d4eb1939e0e08e113f7bb779143611e4d28e9a7584fb83d5f"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 3887,
+      "sha256": "fadbedfbd232334aff0917b0b750b66de586be580579873b3ac1f207bec19945"
+    },
+    "coverage-smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "927d605a299a5a1a0f1cd5865e45ec09ea5b7693d992df3520b3b5c507cd8694"
+    },
+    "coverage-private-routing.log.gz": {
+      "bytes": 13944,
+      "sha256": "0440789a30aa23bf33d8c245251f722b7a42a1b95ee9b0d75d249b9af940ed7e"
+    },
+    "coverage-private-preparation.log.gz": {
+      "bytes": 11285,
+      "sha256": "073167e413b9ab84d273d281885e63c1c470a6bce8be9d7e7d0d8d0e9cbfb9a7"
+    },
+    "coverage-gcovr.log.gz": {
+      "bytes": 102,
+      "sha256": "41cc5323a87ae1ecf771afee04b9795df42260f390b6f39e47d354d889a31905"
+    },
+    "coverage-python-combine.log.gz": {
+      "bytes": 28,
+      "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+    },
+    "coverage-python-json.log.gz": {
+      "bytes": 121,
+      "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+    },
+    "coverage-python-html.log.gz": {
+      "bytes": 104,
+      "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+    },
+    "coverage-python-xml.log.gz": {
+      "bytes": 91,
+      "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 146,
+      "sha256": "0d0ed2e1dd9750b9a992c18f3c661177649fa8b75a7374446b134fa74560d61b"
+    }
+  }
+}

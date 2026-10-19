@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "audited_at_utc": "2026-10-17T15:08:45.609588+00:00",
+  "run": "timeline-33ms-smoke",
+  "status": "valid",
+  "checks": {
+    "both_loads_selected": true,
+    "native_wayland_vulkan": true,
+    "saved_ui_report_matches_result": true,
+    "requested_interval_matches_ui": true,
+    "requested_interval_matches_environment": true,
+    "qtimeline_driver": true,
+    "reduced_motion_disabled": true,
+    "pulse_driver_interval_match": true,
+    "observed_indicator_motion": true,
+    "existing_ui_coverage_passed": true,
+    "existing_audio_coverage_passed": true,
+    "zero_sampled_exposure_loss": true,
+    "complete_bins_match_existing_coverage": true,
+    "sufficient_complete_bins": true,
+    "minute_counts_match_total": true,
+    "complete_minute_fps_in_experiment_band": true,
+    "common_producer_audio_native_model_pins_frozen": true,
+    "fixture_pin_frozen": true,
+    "nine_reference_window_hashes_frozen": true,
+    "control_count_valid": true,
+    "recorded_controls_passed": true,
+    "no_stale_delivery": true,
+    "diagnostic_timing_disabled": true,
+    "comparison_uses_16ms_control_and_33ms_candidate": true,
+    "comparison_ui_and_common_pins_match": true,
+    "comparison_only_repaint_parameter_differs_in_recorded_configuration": true
+  },
+  "failed_checks": [],
+  "requested_repaint_interval_ms": 33,
+  "animation_driver": "qtimeline",
+  "cadence_scope": "QTimeLine update interval, not a global frame-rate limit; observed GUI frameSwapped notifications do not measure physical presentation",
+  "experiment_fps_band": {
+    "minimum": 25,
+    "maximum": 40,
+    "scope": "Experiment efficacy/validity band only, not a new M0 latency acceptance gate"
+  },
+  "frame_rate": {
+    "complete_minute_indices": [
+      0,
+      1,
+      2
+    ],
+    "complete_minute_frames": [
+      1876,
+      1875,
+      1875
+    ],
+    "complete_minute_fps": [
+      31.266666666666666,
+      31.25,
+      31.25
+    ],
+    "complete_minute_fps_minimum": 31.25,
+    "complete_minute_fps_maximum": 31.266666666666666,
+    "complete_minute_fps_mean": 31.255555555555556,
+    "all_ui_frames": 5679,
+    "ui_observation_interval_seconds": 181.68010604794836,
+    "whole_ui_interval_average_fps": 31.258238029106053,
+    "maximum_notification_gap_ms": 41.090322
+  },
+  "motion": {
+    "unique_workload_pulses": 5,
+    "finite_indicator_position_samples": 5,
+    "indicator_x_minimum": 53.933270179907886,
+    "indicator_x_maximum": 292.4753518921376,
+    "indicator_x_range": 238.54208171222973,
+    "positions": [
+      {
+        "workload_offset_seconds": 7.538461669988465,
+        "indicator_x": 103.08759115957112
+      },
+      {
+        "workload_offset_seconds": 52.53774932597298,
+        "indicator_x": 53.933270179907886
+      },
+      {
+        "workload_offset_seconds": 98.53771631699055,
+        "indicator_x": 141.16937945232164
+      },
+      {
+        "workload_offset_seconds": 144.53856546297902,
+        "indicator_x": 265.20062248822023
+      },
+      {
+        "workload_offset_seconds": 179.5384581819526,
+        "indicator_x": 292.4753518921376
+      }
+    ],
+    "final_indicator_x": 130.61575762868733,
+    "final_reduced_motion": false,
+    "scope": "Saved low-frequency GUI property observations inside the workload; not per-frame visual or physical presentation validation"
+  },
+  "existing_ui_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "checks": {
+      "progress_observed": true,
+      "runtime_gate_passed": true,
+      "observed_unexposed_spans_within_limit": true,
+      "final_observation_valid": true,
+      "observation_covers_workload": true,
+      "minute_counts_match_total": true,
+      "complete_minute_bins_nonzero": true,
+      "notification_gap_within_limit": true
+    },
+    "complete_minute_bins_intersecting_workload": [
+      0,
+      1,
+      2
+    ],
+    "zero_complete_minute_bins_intersecting_workload": [],
+    "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
+    "maximum_notification_gap_ms": 41.090322,
+    "progress": {
+      "requested": true,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-33ms-smoke/ui-progress.json",
+      "checks": 170,
+      "check_interval_seconds": 1.0,
+      "startup_grace_seconds": 5.0,
+      "maximum_allowed_gap_seconds": 30.0,
+      "maximum_progress_age_seconds": 0.9824195849942043,
+      "maximum_frame_age_seconds": 1.0047951210290194,
+      "maximum_check_gap_seconds": 1.2379816040047444,
+      "unexposed_observations": 0,
+      "maximum_observed_unexposed_span_seconds": 0.0,
+      "last_unexposed_span": null,
+      "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+      "read_errors": {
+        "FileNotFoundError": 1
+      },
+      "last_progress": {
+        "animation_driver": "qtimeline",
+        "exposed": true,
+        "frames_swapped": 5657,
+        "indicator_x": 292.4753518921376,
+        "last_frame_monotonic_ns": 365730983279511,
+        "pid": 1775748,
+        "reduced_motion": false,
+        "repaint_interval_ms": 33,
+        "scene_graph_initialized": true,
+        "timestamp_monotonic_ns": 365731000938484
+      },
+      "gate_failure": null
+    },
+    "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"
+  },
+  "existing_audio_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "streaming_interval_valid": true,
+    "concurrent_workload_seconds": 180.00020292395493,
+    "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+  },
+  "existing_M0_acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 1,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "continuous_timing": {
+    "chunks": 82,
+    "frames": 18944010,
+    "hop_service_percentiles_ms": {
+      "50": 2127.71397997858,
+      "95": 2300.130923045799,
+      "99": 2411.572505021468
+    },
+    "hop_service_max_ms": 2411.572505021468,
+    "hops_above_target": 0,
+    "observed_p99_within_target": true
+  },
+  "controls": {
+    "recorded_count": 1,
+    "expected_for_hour": 11,
+    "scope": "Recorded outcomes; full request/generation and event audits remain separate"
+  },
+  "frozen_pins_against_prior_vulkan_hour": {
+    "runtime": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "baseline_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "equal": true
+    },
+    "model": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "baseline_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "equal": true
+    },
+    "soak_source": {
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "baseline_sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "equal": true
+    },
+    "shared_benchmark_source": {
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "baseline_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "equal": true
+    },
+    "worker_source": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "baseline_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "equal": true
+    },
+    "sampler_source": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "baseline_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "equal": true
+    },
+    "audio_probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "baseline_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "equal": true
+    }
+  },
+  "ui_pin_intentionally_new": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "bytes": 1755632,
+    "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f"
+  },
+  "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+  "comparison": {
+    "control": "timeline-16ms-smoke",
+    "control_interval_ms": 16,
+    "all_common_pin_matches_including_ui": {
+      "runtime": true,
+      "model": true,
+      "soak_source": true,
+      "shared_benchmark_source": true,
+      "worker_source": true,
+      "sampler_source": true,
+      "ui": true,
+      "audio_probe": true
+    },
+    "configuration_matches": {
+      "renderer": true,
+      "load_mode": true,
+      "seconds": true,
+      "diagnostic_ui_logging": true,
+      "policy_mode": true,
+      "profile_mutation": true
+    },
+    "command_option_matches": {
+      "--load": true,
+      "--renderer": true,
+      "--seconds": true,
+      "--control-interval": true,
+      "--request-timeout": true,
+      "--sample-interval": true
+    },
+    "environment_equal_except_repaint_parameter": true,
+    "fixture_equal": true,
+    "reference_hashes_equal": true,
+    "scope": "Recorded matched-duration configuration and artifact checks only; run labels, output paths, PIDs and times differ. Fixed order, thermal/policy/cache history and background load prevent a causal guarantee."
+  },
+  "scope": "Saved completed evidence only. No host commands, new workload, PCM recomputation, profile mutation or new latency gate.",
+  "inputs": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-33ms-smoke/result.json": {
+      "bytes": 35408,
+      "sha256": "48f8075431a723d0695ececbe986847423048fcbb203ddd98c8a4a9dfac2ec13"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-33ms-smoke-launch.json": {
+      "bytes": 3087,
+      "sha256": "ed70014e24decac398b847ad9c60b2f75d1c7639c1b5d3b8f9040dce6486ca7b"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-33ms-smoke/ui.json": {
+      "bytes": 673,
+      "sha256": "664bb663ee6672aedea3174fe5f598812596dba7328cd09591b7fb446d5ebd81"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/monitor.jsonl": {
+      "bytes": 107311,
+      "sha256": "af448d746f95fbf3a14dfed202856cb4beaf6c72552d90ceccb72cf8df12827a"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/ui-profile-2026-10-17/combined-vulkan-hour/result.json": {
+      "bytes": 50290,
+      "sha256": "6048032e360724b7382a392677bb3174d102000099050f12d1b6029924de2df0"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-16ms-smoke/result.json": {
+      "bytes": 35425,
+      "sha256": "973739b17818083fd6a29c1957358dbabea88132db0872a0bbca89069e0ad1d4"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-16ms-smoke-launch.json": {
+      "bytes": 3087,
+      "sha256": "5efbbf045ab4e41212eb6e452245061f42f20575ae8c54b9304ad63dd5cf14f3"
+    }
+  },
+  "audit_source_sha256": "f388bc32aca9c8da46903cbeb1a0b0cda51f99cb3545c1ddc4b49f8243ea2778"
+}

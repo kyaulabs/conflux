@@ -1,0 +1,40 @@
+{
+  "audio_cpp_revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+  "compiler": "GCC 16.2.1",
+  "build_type": "Release",
+  "cxx_flags": "-O3 -DNDEBUG",
+  "vulkan": true,
+  "openmp": true,
+  "native_cpu": true,
+  "glslc": "2026.4",
+  "vulkan_sdk": "1.4.363",
+  "spirv_headers_revision": "04f10f650d514df88b76d25e83db360142c7b174",
+  "files": {
+    "native_binary": {
+      "path": "/tmp/conflux-stem-m0/pinned-build/conflux-stem-runtime",
+      "bytes": 62982144,
+      "sha256": "e6bfc1015a88d73d7e7be9a24070415f5f23eb0cc4ccb2600c11a6c9f17f8fe8"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "spirv_header": {
+      "path": "/tmp/conflux-stem-m0/spirv-headers/include/spirv/unified1/spirv.hpp",
+      "bytes": 309571,
+      "sha256": "f1c7707b4fa073bb61706eecf3583163651504a3abac17f3e3f2420313082aac"
+    },
+    "spirv_license": {
+      "path": "/tmp/conflux-stem-m0/spirv-headers/LICENSE",
+      "bytes": 23503,
+      "sha256": "ea43b1de38a6f90c488800d66dec1ed671e68cda530266bc96951fb5b6307613"
+    },
+    "audio_cpp_archive": {
+      "path": "/tmp/conflux-stem-m0/release-source.tar.gz",
+      "bytes": 117747078,
+      "sha256": "28310a67e1fc1324a9d10da34e173730695716a94720ee614d4030f86f1b3114"
+    }
+  },
+  "note": "Native adapter built against pinned external sources; standalone tools/runtime configure also verified. No model or third-party checkout is tracked."
+}

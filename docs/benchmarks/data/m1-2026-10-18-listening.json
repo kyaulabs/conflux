@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "recorded_date": "2026-10-18",
+  "timezone": "America/Los_Angeles",
+  "source": "Direct user feedback in this chat",
+  "user_statement": "I was actually at work in an automotive shop the other day, hence why I could not hear anything. We can do tests today with speakers I am at home. That said this sounded great with this entire test using my speakers, no clicks or issues playing back the recorded WAV `/home/kyau/temp/mix.wav`.\n\nAlso I want you to use the brand pack to update the repo README.md",
+  "status": "accepted_on_speakers",
+  "scope": "Human acceptance of current M1 manual-audio behavior and recorded playback on speakers at home.",
+  "listening_hardware": "Speakers at home",
+  "recording_path_reported_by_user": "/home/kyau/temp/mix.wav",
+  "reported_clicks_or_playback_issues": false,
+  "milestone_assessment": {
+    "milestone": "M1",
+    "status": "complete_within_tested_manual_audio_scope",
+    "basis": "Sample/timing and control tests, both private routing designs, recording readback, sustained laptop playback and this speaker listening verdict."
+  },
+  "execution_evidence": {
+    "path": "m1-qualification-2026-10-18/verification.json",
+    "sha256": "1d6acde0c41ff7293c1f23c983e5bd5ef9660a427ea84b509db33b0be27d7f04",
+    "scope": "The historical execution archive remains unchanged, including its then-pending listening status. This later verdict is recorded separately."
+  },
+  "unverified_hardware_checks": [
+    "Physical headphone cue isolation",
+    "End-to-end hardware latency",
+    "Separate-device clock alignment and drift"
+  ],
+  "m2_live_stem_service_target": {
+    "p99_seconds": 4.095,
+    "status": "unmet_mandatory_M2_blocker_before_first_usable_release"
+  },
+  "new_benchmark_launched": false
+}

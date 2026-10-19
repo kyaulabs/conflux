@@ -1,0 +1,133 @@
+{
+  "prepared_at_utc": "2026-10-17T17:20:29.089175+00:00",
+  "scope": "Prepared only; no host query, build, workload, tracked edit or commit by this helper preparation",
+  "repository_head": "da9575c5c66085570653d88108e4cbdc81a92de4",
+  "fixed_repaint_ms": 33,
+  "initial_admission": "Existing finite balanced/no-holds/same-user-guard recovery and AC1/open-lid observations; no initial GPU load before readiness",
+  "runs": [
+    {
+      "name": "vulkan-33ms-15min",
+      "renderer": "vulkan",
+      "seconds": 900,
+      "control_interval": 300
+    },
+    {
+      "name": "software-33ms-15min",
+      "renderer": "software",
+      "seconds": 900,
+      "control_interval": 300
+    },
+    {
+      "name": "software-33ms-hour",
+      "renderer": "software",
+      "seconds": 3600,
+      "control_interval": 300,
+      "conditional": true
+    }
+  ],
+  "minimum_cooldown_seconds_between_runs": 600,
+  "maximum_series_seconds": 10800,
+  "conditional_hour_selection": "Software900s continuous p99<=4095ms plus all existing control/audio/UI/cadence/pin/currentness checks valid; selection criterion only, not a new M0 acceptance gate",
+  "comparison_scope": "Same new shared/soak harness and unchanged UI/audio/native/model/worker binaries/sources. Vulkan graphics API5 vs softwareAPI1. Fixed order and sampled conditions limit causality",
+  "common_guard_stop": "software-series-stop",
+  "coordinator": "software_sequence.py",
+  "per_run_monitor": "watch.py (AC/lid plus small progress every45seconds; owned by coordinator)",
+  "regular_event_audit": "completed-run-audit.py --comparison-short for900s/exact2 controls, default3600s/exact11 controls; after owned cleanup only",
+  "helpers": {
+    "cadence_audit.py": {
+      "sha256": "d9b281cc076e8c2e0f462317b0c929b11611957262100799db44cbef5914f9e5",
+      "bytes": 13658,
+      "syntax_valid": true
+    },
+    "check_run.py": {
+      "sha256": "3eadff440e28bd83575476d049081e4d72d5448a4c99fdb0d5624aebb628ed6c",
+      "bytes": 5096,
+      "syntax_valid": true
+    },
+    "completed-hour-audit.py": {
+      "sha256": "dc6604a7a0f3a6d4ea2a84ccacdec1ac679f961effef4e988287dc745c56d138",
+      "bytes": 15480,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "completed-run-audit.py": {
+      "sha256": "2f54d0797bed4d40ff59b449d8b9705a7e5d4a8460975584e14d4e43d710e68b",
+      "bytes": 15380,
+      "syntax_valid": true
+    },
+    "cooldown.py": {
+      "sha256": "eb5f8916e46328775177bde915da80db698f17f2f5cd744da6d64fc72261c711",
+      "bytes": 1971,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "finish_trial.py": {
+      "sha256": "b4426ef3b7bfea17562b7cc76d433e590274c19f2608307ca39b121483965995",
+      "bytes": 2303,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "kernel_capture.py": {
+      "sha256": "7a806b664b617e409b63f58d0f97331608fff49d6928745a3538256dbc5799fe",
+      "bytes": 1774,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "monitor.py": {
+      "sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "bytes": 3198,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "normal_ready.py": {
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f",
+      "bytes": 8445,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "observed-capture.py": {
+      "sha256": "9b05572524c04e03a7bf006008cea772664f65b531f002d6cda15c7ee8c9ad8f",
+      "bytes": 2846,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "observed-run.py": {
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394",
+      "bytes": 4720,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "observed_launch.py": {
+      "sha256": "7117d24fce0ef31ab924a89a8542c12567782cf3ffec51732d0efd5681651005",
+      "bytes": 9621,
+      "syntax_valid": true
+    },
+    "series_wait.py": {
+      "sha256": "a85d2f4acfa0e1ce84e29486ba8cccfb0e914d64eb1c6b58b6b0df3d0f2f75f4",
+      "bytes": 946,
+      "syntax_valid": true
+    },
+    "software_sequence.py": {
+      "sha256": "2253e315c08fd413a10e9a3204e2dabd063e19bdf603bbe5df74918b022bad53",
+      "bytes": 6190,
+      "syntax_valid": true
+    },
+    "thermal-snapshot-audit.py": {
+      "sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0",
+      "bytes": 8985,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "thermal_capture.py": {
+      "sha256": "e95236df3e777fac30d35bd8696790cf4306d74f3bd415e8a52c1ce47a20a441",
+      "bytes": 8262,
+      "syntax_valid": true,
+      "unchanged_from_cadence": true
+    },
+    "watch.py": {
+      "sha256": "b2411fa2e02ff209fdef66faab5b6338afd05be2f46291b8ee69b9e35fc17dad",
+      "bytes": 4268,
+      "syntax_valid": true
+    }
+  }
+}

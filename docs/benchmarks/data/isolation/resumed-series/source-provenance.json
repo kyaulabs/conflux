@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "scope": "Completed resumed UI-only, worker-only and audio-only continuation orchestration and saved CPU audits only. No host commands, GPU, build/test workload or new measurement ran while packaging.",
+  "repository_head_from_preflight": "aec8501bf0db4487d3a851b5106372574b191942",
+  "prior_reference_run": "observed-both-hour",
+  "baseline_preservation": "Prior committed observed-both-hour and original pause archives were not changed. Prior pause copies are named prior-pause-request.json and prior-pause-completed.json in this separate continuation directory.",
+  "suite_state_note": "final-suite-state.json snapshots completed measurement/cleanup before report generation; older historical fields are preserved as recorded.",
+  "negative_preflight_note": "resume-preflight-battery.json recorded AC offline before the user connected power; resume-preflight-ac.json is the later AC-online snapshot.",
+  "source_note": "Seven orchestration helpers were checked against the recorded resume-request helper pins. Other source copies are exact current-byte snapshots with SHA256 in manifest; they do not independently prove historical execution byte identity unless separately pinned in run launch/result metadata. Relative source paths are unchanged, requiring original workspace layout for orchestration replay.",
+  "selected_monitor": "Only resume-monitor.jsonl was copied, deterministic gzip with exact raw hash/size verification; combined old monitor and full-local kernel journals excluded.",
+  "monitor_records": 292,
+  "user_thermal_guidance": "Brief hot spikes are acceptable; no new sustained-duration threshold was invented. Existing host policy/thermal guard/readiness remained unchanged.",
+  "excluded": "No binaries, model, WAV/F32 audio, media, private full journals or unrelated repository files."
+}

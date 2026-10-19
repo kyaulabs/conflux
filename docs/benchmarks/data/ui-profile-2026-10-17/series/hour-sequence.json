@@ -1,0 +1,9 @@
+{
+  "run": "combined-vulkan-hour",
+  "renderer": "vulkan",
+  "profile_mutation": false,
+  "started_at_utc": "2026-10-17T07:31:33.817878+00:00",
+  "stage": "report pending",
+  "updated_at_utc": "2026-10-17T08:45:01.243055+00:00",
+  "status": "completed"
+}

@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "checked_at_utc": "2026-10-17T21:56:53.395060+00:00",
+  "scope": "Independent closed smoke raw/result reduction only; no inference, native trace/PCM recomputation or live host queries. No sustained qualification.",
+  "inputs": {
+    "result": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s/result.json",
+      "bytes": 40564,
+      "sha256": "9497b7942d0105d69141792ad13291644d6a53235cfb32961b047e9dee4a5352"
+    },
+    "events": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s/events.jsonl",
+      "bytes": 109019,
+      "sha256": "e0475971a93dc47bdeb82089d4382a4f3b448590d71d35a90a34fc9a30b1bdc9"
+    },
+    "audio": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s/audio.json",
+      "bytes": 1493,
+      "sha256": "fedb4662323f41fe5f5598b9fa791d16c28de97e0213f516a0e5b889ce82952c"
+    },
+    "ui": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s/ui.json",
+      "bytes": 663,
+      "sha256": "677ff69771bf19d42da81e52f5a5da127887abd25cfca7efe17c321cc644a1dc"
+    },
+    "launch": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s-launch.json",
+      "bytes": 15904,
+      "sha256": "9d8928cc98aaa50e14a05f99f7991892391492d5714ada1de540fc04c44e3fec"
+    },
+    "guard": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s-guard.json",
+      "bytes": 3221,
+      "sha256": "dbf4178297f27e51a997535ccfb3db43fb4f1f4ebd4957a0c5bd0340962d181b"
+    },
+    "corpus": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/corpus-pins.json",
+      "bytes": 9427,
+      "sha256": "dbb9703338e82204557b031e0d7d5731bd49953afe1e8fe8ccc7d3797991f821"
+    }
+  },
+  "workload_seconds": 90.00021629099501,
+  "continuous": {
+    "chunks": 36,
+    "percentiles_ms": {
+      "50": 2138.302556006238,
+      "95": 2294.820025039371,
+      "99": 2325.637390022166
+    },
+    "max_ms": 2325.637390022166,
+    "above4095ms": 0
+  },
+  "all_delivered_chunks": 38,
+  "controls": {
+    "count": 2,
+    "exact_trimmed": 2,
+    "max_trim_difference": 0.0,
+    "source_ids": [
+      "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+      "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023"
+    ],
+    "cancellation_ranges_ms": {
+      "cancel_ack_ms": {
+        "min": 0.020283972844481468,
+        "max": 0.0536750303581357
+      },
+      "residual_finish_ms": {
+        "min": 1726.2769609806128,
+        "max": 2023.904333007522
+      },
+      "ready_after_resume_ms": {
+        "min": 3783.824899001047,
+        "max": 4372.8844780125655
+      }
+    }
+  },
+  "full_source_completions": {
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": 2,
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": 2,
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": 2,
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": 1
+  },
+  "same_grid_repeat_hashes": {
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": 5,
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": 5,
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": 6,
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": 4
+  },
+  "all_nontrimmed_hashes_match_pinned_previous_vulkan": true,
+  "audio": {
+    "faults": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "callbacks": 17194,
+    "overlap_seconds": 90.00021629099501,
+    "callback_elapsed_us": {
+      "p50_upper_bound": 2.0,
+      "p95_upper_bound": 4.0,
+      "p99_upper_bound": 6.0,
+      "p99_9_upper_bound": 25.0,
+      "max": 45.502,
+      "histogram_resolution": 1,
+      "at_least_100ms": 0
+    },
+    "scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+  },
+  "UI": {
+    "frames": 2864,
+    "complete_minute_fps": [
+      31.266666666666666
+    ],
+    "max_gap_ms": 37.952281,
+    "coverage": true
+  },
+  "cleanup": {
+    "worker_closed": true,
+    "remaining_owned_processes": {},
+    "child_reaped": true,
+    "guard_restored_unloaded_idle_released": true
+  }
+}

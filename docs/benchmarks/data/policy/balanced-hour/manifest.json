@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "scope": "Exact archived bytes; gzip records include uncompressed hashes. Manifests exclude only themselves. Original analysis input manifests retain historical paths separately.",
+  "files": [
+    {
+      "path": "audio.json",
+      "bytes": 1502,
+      "sha256": "35cee10e9b1a40e7f527a2d64b0776e1994b64bdc86672ef9467f1f8b35653c8"
+    },
+    {
+      "path": "audio.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "events.jsonl.gz",
+      "bytes": 328348,
+      "sha256": "6d27f4707e02afaff564e0a885a407b2689555f749b7e15136b3dd96a7aa0501",
+      "uncompressed_bytes": 3252611,
+      "uncompressed_sha256": "514c7ae702cc6a0c06afa59447d79b843b4686f8c1a8f4f02dc1e02a36ebf696"
+    },
+    {
+      "path": "native-trace.jsonl.gz",
+      "bytes": 1458158,
+      "sha256": "e5264488cdff3a7a0f673f2148aaf46b82b4800594630f5f8d7bc34467074a18",
+      "uncompressed_bytes": 46205592,
+      "uncompressed_sha256": "893b9ad668c9e07a7eed64ed9bab5324313cdb540f12951998a483b7678b9e82"
+    },
+    {
+      "path": "progress.json",
+      "bytes": 3166,
+      "sha256": "7aa75113b5acbee11204ced184fb7228d85a12246309ad910f38ffe859e34cf8"
+    },
+    {
+      "path": "result.json",
+      "bytes": 49437,
+      "sha256": "6a98f2e62d14d5185c7543718b504181ac73d6f20c13fea5af5352d4eb774434"
+    },
+    {
+      "path": "ui-progress.json",
+      "bytes": 168,
+      "sha256": "0e023f585af2b007cfc31be366bb5c640585a119c6f3e9cdf2e17ca3c27b9a7b"
+    },
+    {
+      "path": "ui.json",
+      "bytes": 849,
+      "sha256": "23e91c64f15a49bee1937adf3acd7e241d67154fecddbc76f8b231de367b2f75"
+    },
+    {
+      "path": "ui.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

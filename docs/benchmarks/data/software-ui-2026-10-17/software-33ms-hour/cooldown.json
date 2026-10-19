@@ -1,0 +1,377 @@
+{
+  "status": "matched",
+  "temperature_zone": "/sys/class/thermal/thermal_zone7",
+  "minimum_seconds": 600,
+  "maximum_seconds": 1200,
+  "threshold_millidegrees_C": 55000,
+  "required_cool_sample_span_seconds": 60,
+  "rows": [
+    {
+      "at_utc": "2026-10-17T18:09:20.145674+00:00",
+      "elapsed_seconds": 6.897997809574008e-05,
+      "package_millidegrees_C": 81000,
+      "consecutive_cool_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-17T18:09:30.146126+00:00",
+      "elapsed_seconds": 10.000257977982983,
+      "package_millidegrees_C": 52000,
+      "consecutive_cool_sample_span_seconds": 0.0
+    },
+    {
+      "at_utc": "2026-10-17T18:09:40.146857+00:00",
+      "elapsed_seconds": 20.00094886799343,
+      "package_millidegrees_C": 47000,
+      "consecutive_cool_sample_span_seconds": 10.000690890010446
+    },
+    {
+      "at_utc": "2026-10-17T18:09:50.147640+00:00",
+      "elapsed_seconds": 30.00168784800917,
+      "package_millidegrees_C": 47000,
+      "consecutive_cool_sample_span_seconds": 20.001429870026186
+    },
+    {
+      "at_utc": "2026-10-17T18:10:00.148255+00:00",
+      "elapsed_seconds": 40.002337598998565,
+      "package_millidegrees_C": 45000,
+      "consecutive_cool_sample_span_seconds": 30.002079621015582
+    },
+    {
+      "at_utc": "2026-10-17T18:10:10.148974+00:00",
+      "elapsed_seconds": 50.00308102800045,
+      "package_millidegrees_C": 44000,
+      "consecutive_cool_sample_span_seconds": 40.00282305001747
+    },
+    {
+      "at_utc": "2026-10-17T18:10:20.149533+00:00",
+      "elapsed_seconds": 60.003640084003564,
+      "package_millidegrees_C": 44000,
+      "consecutive_cool_sample_span_seconds": 50.00338210602058
+    },
+    {
+      "at_utc": "2026-10-17T18:10:30.150253+00:00",
+      "elapsed_seconds": 70.0042508339975,
+      "package_millidegrees_C": 44000,
+      "consecutive_cool_sample_span_seconds": 60.00399285601452
+    },
+    {
+      "at_utc": "2026-10-17T18:10:40.150911+00:00",
+      "elapsed_seconds": 80.00495906401193,
+      "package_millidegrees_C": 42000,
+      "consecutive_cool_sample_span_seconds": 70.00470108602894
+    },
+    {
+      "at_utc": "2026-10-17T18:10:50.151806+00:00",
+      "elapsed_seconds": 90.00576376798563,
+      "package_millidegrees_C": 42000,
+      "consecutive_cool_sample_span_seconds": 80.00550579000264
+    },
+    {
+      "at_utc": "2026-10-17T18:11:00.152293+00:00",
+      "elapsed_seconds": 100.00645906000864,
+      "package_millidegrees_C": 42000,
+      "consecutive_cool_sample_span_seconds": 90.00620108202565
+    },
+    {
+      "at_utc": "2026-10-17T18:11:10.152964+00:00",
+      "elapsed_seconds": 110.00705823802855,
+      "package_millidegrees_C": 43000,
+      "consecutive_cool_sample_span_seconds": 100.00680026004557
+    },
+    {
+      "at_utc": "2026-10-17T18:11:20.153792+00:00",
+      "elapsed_seconds": 120.00779623200651,
+      "package_millidegrees_C": 41000,
+      "consecutive_cool_sample_span_seconds": 110.00753825402353
+    },
+    {
+      "at_utc": "2026-10-17T18:11:30.154421+00:00",
+      "elapsed_seconds": 130.00849280902185,
+      "package_millidegrees_C": 41000,
+      "consecutive_cool_sample_span_seconds": 120.00823483103886
+    },
+    {
+      "at_utc": "2026-10-17T18:11:40.155035+00:00",
+      "elapsed_seconds": 140.00913293397753,
+      "package_millidegrees_C": 40000,
+      "consecutive_cool_sample_span_seconds": 130.00887495599454
+    },
+    {
+      "at_utc": "2026-10-17T18:11:50.155823+00:00",
+      "elapsed_seconds": 150.0098579240148,
+      "package_millidegrees_C": 40000,
+      "consecutive_cool_sample_span_seconds": 140.0095999460318
+    },
+    {
+      "at_utc": "2026-10-17T18:12:00.156501+00:00",
+      "elapsed_seconds": 160.0105059259804,
+      "package_millidegrees_C": 43000,
+      "consecutive_cool_sample_span_seconds": 150.0102479479974
+    },
+    {
+      "at_utc": "2026-10-17T18:12:10.157148+00:00",
+      "elapsed_seconds": 170.01128354400862,
+      "package_millidegrees_C": 40000,
+      "consecutive_cool_sample_span_seconds": 160.01102556602564
+    },
+    {
+      "at_utc": "2026-10-17T18:12:20.157759+00:00",
+      "elapsed_seconds": 180.01184804999502,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 170.01159007201204
+    },
+    {
+      "at_utc": "2026-10-17T18:12:30.158309+00:00",
+      "elapsed_seconds": 190.0124441140215,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 180.0121861360385
+    },
+    {
+      "at_utc": "2026-10-17T18:12:40.159000+00:00",
+      "elapsed_seconds": 200.01312124502147,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 190.01286326703848
+    },
+    {
+      "at_utc": "2026-10-17T18:12:50.159641+00:00",
+      "elapsed_seconds": 210.0137285150122,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 200.0134705370292
+    },
+    {
+      "at_utc": "2026-10-17T18:13:00.160205+00:00",
+      "elapsed_seconds": 220.01434702600818,
+      "package_millidegrees_C": 41000,
+      "consecutive_cool_sample_span_seconds": 210.0140890480252
+    },
+    {
+      "at_utc": "2026-10-17T18:13:10.160736+00:00",
+      "elapsed_seconds": 230.01485648797825,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 220.01459850999527
+    },
+    {
+      "at_utc": "2026-10-17T18:13:20.161266+00:00",
+      "elapsed_seconds": 240.0154336920241,
+      "package_millidegrees_C": 38000,
+      "consecutive_cool_sample_span_seconds": 230.0151757140411
+    },
+    {
+      "at_utc": "2026-10-17T18:13:30.161714+00:00",
+      "elapsed_seconds": 250.01600202801637,
+      "package_millidegrees_C": 49000,
+      "consecutive_cool_sample_span_seconds": 240.0157440500334
+    },
+    {
+      "at_utc": "2026-10-17T18:13:40.162161+00:00",
+      "elapsed_seconds": 260.0163118080236,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 250.01605383004062
+    },
+    {
+      "at_utc": "2026-10-17T18:13:50.162806+00:00",
+      "elapsed_seconds": 270.01695122697856,
+      "package_millidegrees_C": 40000,
+      "consecutive_cool_sample_span_seconds": 260.0166932489956
+    },
+    {
+      "at_utc": "2026-10-17T18:14:00.163393+00:00",
+      "elapsed_seconds": 280.0175422860193,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 270.0172843080363
+    },
+    {
+      "at_utc": "2026-10-17T18:14:10.163968+00:00",
+      "elapsed_seconds": 290.0180668159737,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 280.01780883799074
+    },
+    {
+      "at_utc": "2026-10-17T18:14:20.164631+00:00",
+      "elapsed_seconds": 300.0187319900142,
+      "package_millidegrees_C": 38000,
+      "consecutive_cool_sample_span_seconds": 290.0184740120312
+    },
+    {
+      "at_utc": "2026-10-17T18:14:30.165305+00:00",
+      "elapsed_seconds": 310.01940007600933,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 300.01914209802635
+    },
+    {
+      "at_utc": "2026-10-17T18:14:40.165994+00:00",
+      "elapsed_seconds": 320.02014170901384,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 310.01988373103086
+    },
+    {
+      "at_utc": "2026-10-17T18:14:50.166552+00:00",
+      "elapsed_seconds": 330.02064836001955,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 320.02039038203657
+    },
+    {
+      "at_utc": "2026-10-17T18:15:00.167225+00:00",
+      "elapsed_seconds": 340.02130939799827,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 330.0210514200153
+    },
+    {
+      "at_utc": "2026-10-17T18:15:10.167777+00:00",
+      "elapsed_seconds": 350.0218830850208,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 340.02162510703783
+    },
+    {
+      "at_utc": "2026-10-17T18:15:20.168460+00:00",
+      "elapsed_seconds": 360.0226040930138,
+      "package_millidegrees_C": 38000,
+      "consecutive_cool_sample_span_seconds": 350.0223461150308
+    },
+    {
+      "at_utc": "2026-10-17T18:15:30.169006+00:00",
+      "elapsed_seconds": 370.02313797100214,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 360.02287999301916
+    },
+    {
+      "at_utc": "2026-10-17T18:15:40.169392+00:00",
+      "elapsed_seconds": 380.0236942169722,
+      "package_millidegrees_C": 42000,
+      "consecutive_cool_sample_span_seconds": 370.02343623898923
+    },
+    {
+      "at_utc": "2026-10-17T18:15:50.170005+00:00",
+      "elapsed_seconds": 390.02411746198777,
+      "package_millidegrees_C": 39000,
+      "consecutive_cool_sample_span_seconds": 380.0238594840048
+    },
+    {
+      "at_utc": "2026-10-17T18:16:00.170695+00:00",
+      "elapsed_seconds": 400.0248009440256,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 390.02454296604265
+    },
+    {
+      "at_utc": "2026-10-17T18:16:10.171365+00:00",
+      "elapsed_seconds": 410.0254882070003,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 400.0252302290173
+    },
+    {
+      "at_utc": "2026-10-17T18:16:20.172046+00:00",
+      "elapsed_seconds": 420.0261302900035,
+      "package_millidegrees_C": 41000,
+      "consecutive_cool_sample_span_seconds": 410.0258723120205
+    },
+    {
+      "at_utc": "2026-10-17T18:16:30.172657+00:00",
+      "elapsed_seconds": 430.0267923959764,
+      "package_millidegrees_C": 38000,
+      "consecutive_cool_sample_span_seconds": 420.0265344179934
+    },
+    {
+      "at_utc": "2026-10-17T18:16:40.173666+00:00",
+      "elapsed_seconds": 440.0274160359986,
+      "package_millidegrees_C": 38000,
+      "consecutive_cool_sample_span_seconds": 430.02715805801563
+    },
+    {
+      "at_utc": "2026-10-17T18:16:50.174762+00:00",
+      "elapsed_seconds": 450.02849231497385,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 440.02823433699086
+    },
+    {
+      "at_utc": "2026-10-17T18:17:00.175329+00:00",
+      "elapsed_seconds": 460.0294458629796,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 450.02918788499665
+    },
+    {
+      "at_utc": "2026-10-17T18:17:10.176247+00:00",
+      "elapsed_seconds": 470.03004611301003,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 460.02978813502705
+    },
+    {
+      "at_utc": "2026-10-17T18:17:20.176946+00:00",
+      "elapsed_seconds": 480.0309266570257,
+      "package_millidegrees_C": 36000,
+      "consecutive_cool_sample_span_seconds": 470.0306686790427
+    },
+    {
+      "at_utc": "2026-10-17T18:17:30.177841+00:00",
+      "elapsed_seconds": 490.03162359801354,
+      "package_millidegrees_C": 35000,
+      "consecutive_cool_sample_span_seconds": 480.03136562003056
+    },
+    {
+      "at_utc": "2026-10-17T18:17:40.178794+00:00",
+      "elapsed_seconds": 500.03254585998366,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 490.0322878820007
+    },
+    {
+      "at_utc": "2026-10-17T18:17:50.180014+00:00",
+      "elapsed_seconds": 510.0339505909942,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 500.0336926130112
+    },
+    {
+      "at_utc": "2026-10-17T18:18:00.180822+00:00",
+      "elapsed_seconds": 520.0348740160116,
+      "package_millidegrees_C": 36000,
+      "consecutive_cool_sample_span_seconds": 510.0346160380286
+    },
+    {
+      "at_utc": "2026-10-17T18:18:10.181755+00:00",
+      "elapsed_seconds": 530.0356148889987,
+      "package_millidegrees_C": 35000,
+      "consecutive_cool_sample_span_seconds": 520.0353569110157
+    },
+    {
+      "at_utc": "2026-10-17T18:18:20.182515+00:00",
+      "elapsed_seconds": 540.0364537219866,
+      "package_millidegrees_C": 35000,
+      "consecutive_cool_sample_span_seconds": 530.0361957440036
+    },
+    {
+      "at_utc": "2026-10-17T18:18:30.183286+00:00",
+      "elapsed_seconds": 550.037288787018,
+      "package_millidegrees_C": 35000,
+      "consecutive_cool_sample_span_seconds": 540.0370308090351
+    },
+    {
+      "at_utc": "2026-10-17T18:18:40.183955+00:00",
+      "elapsed_seconds": 560.0379748059786,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 550.0377168279956
+    },
+    {
+      "at_utc": "2026-10-17T18:18:50.184668+00:00",
+      "elapsed_seconds": 570.0387420019833,
+      "package_millidegrees_C": 40000,
+      "consecutive_cool_sample_span_seconds": 560.0384840240004
+    },
+    {
+      "at_utc": "2026-10-17T18:19:00.185339+00:00",
+      "elapsed_seconds": 580.0394657339784,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 570.0392077559954
+    },
+    {
+      "at_utc": "2026-10-17T18:19:10.186087+00:00",
+      "elapsed_seconds": 590.0402049010154,
+      "package_millidegrees_C": 36000,
+      "consecutive_cool_sample_span_seconds": 580.0399469230324
+    },
+    {
+      "at_utc": "2026-10-17T18:19:20.186835+00:00",
+      "elapsed_seconds": 600.0409464800032,
+      "package_millidegrees_C": 37000,
+      "consecutive_cool_sample_span_seconds": 590.0406885020202
+    }
+  ],
+  "scope": "Ten-second package snapshots during idle waiting, not continuously observed temperature; no profile change."
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "conflux.chunk-service-routing-followup.v1",
+  "status": "normal_and_instrumented_checks_passed",
+  "failed_merge_run": 39222889224,
+  "failed_head": "00095207b073913af582e81a49a0871647923182",
+  "failure": "Receiver sample assertion failed after every recorded sample passed. The old log did not retain final receiver operands; its cause and counter type are unproven.",
+  "change": "Keep wrong nonzero receiver samples, every recorded frame and source/owner/clock/health assertions strict. Gate only source-handoff receiver zeros on execution mode and report operands in success/failure output. Normal mode keeps both zero and execution-deadline gates.",
+  "normal_checks": 85,
+  "instrumented_checks": {
+    "ctest": 30,
+    "routing": 82,
+    "preparation": 45
+  },
+  "source_pins": 78,
+  "source_stable": true,
+  "coverage": {
+    "cpp": {
+      "line": {
+        "covered": 4225,
+        "total": 5099,
+        "percent": 82.85938419297902,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 5626,
+        "total": 11233,
+        "percent": 50.084572242499775,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    }
+  },
+  "product_sources_changed_after_initial_checks": false,
+  "physical_or_latency_qualification": false,
+  "independent_review": true,
+  "raw_secret_scan_exit": 0,
+  "files": {
+    "failed-merge-coverage.json": {
+      "bytes": 7670,
+      "sha256": "c02915425e88390496b6c172c3862bc8a21b1bb88d28f49aaf5ec0e52ec8dee7"
+    },
+    "failed-merge-routing.json": {
+      "bytes": 7153,
+      "sha256": "b5fcb7cb2a5e13d0590c34a73cfb12b55536ef5f8a5ffbf88efa537bdfbf25fb"
+    },
+    "failed-merge-log.txt.gz": {
+      "bytes": 3676,
+      "sha256": "946101d8a1bd2e9ceb8e014782cc8ee1a48837741c818c240db3672ae78be089"
+    },
+    "normal-routing.json": {
+      "bytes": 10305,
+      "sha256": "4d1f76223e54c85c646d27f3397018b4da2f1b39d79402ea1136cb1fc57b64e0"
+    },
+    "coverage.json": {
+      "bytes": 7875,
+      "sha256": "14408d19ad89a060cee1caa2b5acbc61dba712a68d71ce46cdb7b9efe6a14635"
+    },
+    "coverage-private-routing.json": {
+      "bytes": 10145,
+      "sha256": "743c2653dfef5d205ac6acd7d17b4fac08c9d141535e07108b1915f4df42bd6a"
+    },
+    "coverage-private-preparation.json": {
+      "bytes": 11172,
+      "sha256": "213e95bd2a3f92383e5a4c22404c4585fb89c833e4e8ecaaf8c2eb6629a03e2e"
+    },
+    "functional-result.json": {
+      "bytes": 294,
+      "sha256": "f26a2b3368a252d7f897d946b69d9b6b9dafe571568abd470e1a99906e641b7f"
+    },
+    "source-pins.json": {
+      "bytes": 10946,
+      "sha256": "e80289aa786c2832d045a7c11dcd6f79dc6f231fda909e0183c34921dd8de705"
+    },
+    "source-stable.json": {
+      "bytes": 52,
+      "sha256": "70ed92610e091ce946611a0589e43d6c0e8a8e9c60a464c9d0a36bfe3762ab4f"
+    }
+  },
+  "uncompressed": {
+    "failed-merge-log.txt.gz": {
+      "bytes": 28056,
+      "sha256": "c7fe8131c2fc4029d674f1c634a78a2a803f29831db84682a0d148ba06582efd"
+    }
+  }
+}

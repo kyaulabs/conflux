@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "planned_at_utc": "2026-10-16T22:44:12.355019+00:00",
+  "purpose": "M0 sustained audio/UI load isolation before any M1 work",
+  "reference_commit": "f8721d4e619eb78f4a0dbc05954a5b46e1253cf0",
+  "sequence": [
+    {
+      "run": "none-hour-rerun",
+      "load": "none",
+      "change_from_previous": "Fresh worker-only baseline with no benchmark audio/UI child"
+    },
+    {
+      "run": "audio-hour",
+      "load": "audio",
+      "change_from_previous": "Add independent silent PipeWire audio probe"
+    },
+    {
+      "run": "both-hour",
+      "load": "both",
+      "change_from_previous": "Add animated Wayland/OpenGL UI"
+    },
+    {
+      "run": "ui-hour",
+      "load": "ui",
+      "change_from_previous": "Remove benchmark audio probe; retain UI"
+    }
+  ],
+  "seconds_each": 3600,
+  "control_interval_seconds": 300,
+  "expected_completed_controls_per_hour": 11,
+  "request_timeout_seconds": 30,
+  "sample_interval_seconds": 0.5,
+  "threads": 4,
+  "max_ready_hops": 2,
+  "target_hop_p99_ms": 4095,
+  "power_profile": "balanced via temporary scoped runner",
+  "sleep_idle_inhibition": "systemd-inhibit sleep:idle and live desktop ScreenSaver cookie in every trial; owned-PID KWin placement only if UIselected",
+  "native_execution": "Frozen Vulkan runtime/model; blocking fence wait and child PASSIVE/zero-spin OpenMP",
+  "worker_execution": "Same persistent worker, fixed repeated fixture/window grid, saturation, cancellation/seek checks and native/system sampler in everytrial",
+  "cooldown": {
+    "minimum_idle_seconds": 600,
+    "package_at_most_millidegrees_C": 55000,
+    "continuous_cool_observation_seconds": 60,
+    "maximum_wait_seconds": 1200,
+    "on_timeout": "Record condition notmatched; reportactualstarting thermal/RAM and avoidcausal attribution. No systemsettingchanges."
+  },
+  "measurement_limits": [
+    "Four separate sequential runs, one requested benchmark load factor toggled at each adjacent transition; fixed order and no replicate percondition.",
+    "Other desktop/audio stack processes remain present; no exclusive machine or GPU claim.",
+    "Different heat/memory/cache histories remain possible; do not attribute all differences to selected load.",
+    "No heavy traceanalysis, compression, tests or builds during active GPU measurements.",
+    "Absent probes are not_run with null metrics; no claim of zero audio faults or UIcoverage when disabled.",
+    "FullM0 qualification requires bothload fullcoverage, controls and latencytarget; noM1 advancement from an isolated condition."
+  ],
+  "artifacts_excluded": [
+    "modelweights",
+    "thirdparty binaries",
+    "generated WAV",
+    "normalized PCM",
+    "failure-only actual/reference F32LE PCM (retained locally; hashes/metrics archived)"
+  ],
+  "frozen_harness_commit": "1f1a17fed8c5ccbbbfd45c7934c2510f7126770a",
+  "frozen_source_pins": {
+    "tools/benchmarks/stem_soak.py": {
+      "bytes": 43452,
+      "sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "tools/benchmarks/window_guard.py": {
+      "bytes": 14613,
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "tools/stems/worker.py": {
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    }
+  },
+  "preflights": [
+    "interrupt-check",
+    "none-smoke",
+    "audio-smoke",
+    "both-smoke",
+    "ui-smoke"
+  ],
+  "frozen_at_utc": "2026-10-16T22:57:54.749316+00:00",
+  "series_level_inhibition": {
+    "started_before_first_hour": true,
+    "scope": "Common systemd sleep:idle and live desktop ScreenSaver inhibition across all trials and remaining cooldowns; each trial retains its identical scoped wrappers. ScreenSaver.GetActive returnedfalse before acquisition.",
+    "guard_lifecycle": "series-guard.json",
+    "stop_file": "series-stop",
+    "maximum_seconds": 21600
+  },
+  "initial_partial_attempt": {
+    "run": "none-hour",
+    "harness_commit": "52e2ddf355cb73b38c77d91a0ae05d74c48a3eff",
+    "seconds": 1563.4323835659889,
+    "status": "error",
+    "reason": "Trimmed seek numerical parity failed after four completed controls; preserve as a failed partial attempt."
+  },
+  "diagnostic_amendment": "After the initial failure, retain compared PCM and numerical diagnostics only after an unchanged seek parity gate fails. No successful-path timing, production worker, model, binary, sampler, load or policy change.",
+  "next_preflight": "diagnostic-none-smoke, 120 seconds with control interval30 seconds, followed by minimum600 seconds without benchmark GPU work before new sustained matrix.",
+  "diagnostic_frozen_at_utc": "2026-10-16T23:43:35.199029+00:00"
+}

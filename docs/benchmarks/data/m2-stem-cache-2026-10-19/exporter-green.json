@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/stem_export_test.py"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 2.440735484007746
+}

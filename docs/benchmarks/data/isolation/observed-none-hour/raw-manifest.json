@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "scope": "All files created by this archive helper except raw-manifest.json itself. Later independent audits need their own manifest and eventual top-level manifest.",
+  "archived_at_utc": "2026-10-17T05:36:34.272957+00:00",
+  "files": {
+    "result.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour/result.json",
+      "bytes": 41699,
+      "sha256": "4b355bc6471949b7a462f65e8e6d7f31cff34562ecbf410fd2ccc709943a0c1a"
+    },
+    "progress.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour/progress.json",
+      "bytes": 2283,
+      "sha256": "5173a9af282e5cdc6f63b52443fffbcaf3f548f44ed46f2257d4a94227819139"
+    },
+    "events.jsonl.gz": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour/events.jsonl",
+      "bytes": 433848,
+      "sha256": "2f68ae48374698781ef3797a22d2757da05ca3f10a1723540425c9f69cd0fa7f",
+      "decompressed_bytes": 4362024,
+      "decompressed_sha256": "bbf46d4d1fd3b114bcac8bc5eb1961811d6646869c57430b050c0375631b76c1",
+      "gzip_mtime": 0,
+      "gzip_filename": "",
+      "exact_raw_verification": true
+    },
+    "native-trace.jsonl.gz": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour/native-trace.jsonl",
+      "bytes": 1349597,
+      "sha256": "7f77d5dc1b28b512af3a25f20ed74cb17ea3f6b01bb36e679eab6fbdeaea11d2",
+      "decompressed_bytes": 46272673,
+      "decompressed_sha256": "aa49413506d2fe64661ac6eb62b67722300f6e38da9b4c3bfb68b4112a7b0dd5",
+      "gzip_mtime": 0,
+      "gzip_filename": "",
+      "exact_raw_verification": true
+    },
+    "before.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/before-observed-none-hour.json",
+      "bytes": 6138,
+      "sha256": "fd472fb555c3b3fbc46752ece95fbcb963fb2b36396742af47a0bcca88cd2648"
+    },
+    "after.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/after-observed-none-hour.json",
+      "bytes": 6137,
+      "sha256": "3926a6c6867211ac839f090f1277368718b8125135b6a12c85f370d6c0899fde"
+    },
+    "launcher.stdout": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour.stdout",
+      "bytes": 1240,
+      "sha256": "4635d5d474997ffefb3c9ce7b67a11d59f596a1f253b583db220d4907bd88976"
+    },
+    "launcher.stderr": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "admission.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-admission.json",
+      "bytes": 134,
+      "sha256": "5022ee9b1645f6021414c79a1291dd0459cf711e34be93d6df2a3b6405eba4f2"
+    },
+    "cleanup-host.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-cleanup.json",
+      "bytes": 2057,
+      "sha256": "4e3e1d92ccbb1b0bde3ab87f357aa64e262af619d16b46022cf1f53f264a49ef"
+    },
+    "cooldown.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-cooldown.json",
+      "bytes": 13294,
+      "sha256": "8d0fe27127bb1c0ff7fc669c12d1d7a19590a3ce3ef0bdfb4294a49465e7d073"
+    },
+    "cooldown.jsonl": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-cooldown.jsonl",
+      "bytes": 10804,
+      "sha256": "c708515137c928a88947b3e9e064a61081269c8cfb2517b542a4a002541cda04"
+    },
+    "guard.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-guard.json",
+      "bytes": 1207,
+      "sha256": "bdbd014c5d44bc909e11aa13e7a97ac55d8ca8a0fbaadfe94946b0986a1defdc"
+    },
+    "kernel-compact.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-kernel.json",
+      "bytes": 526,
+      "sha256": "20e4d70920023ad94b6c1e7c0f05694b6af8ffe7c32ce44cf1b5d2ec7145e3bc"
+    },
+    "launch.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-launch.json",
+      "bytes": 1979,
+      "sha256": "752ca6626603f0a57ef2e773d7eddedb58d38367136ecb06d5b1723c8802eb73"
+    },
+    "normal-ready.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-normal-ready.json",
+      "bytes": 19061,
+      "sha256": "085d790a50ad75d144c478ed4c3e6ba1e52cbec135c04ff28195f8e63d7a395a"
+    },
+    "normal-ready.jsonl": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-normal-ready.jsonl",
+      "bytes": 15044,
+      "sha256": "4c28d7089ff4a0926c7723b6af8442bb27bc0ce15754cd40dc6fbf1bc407b9cd"
+    },
+    "policy-lifecycle.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-policy.json",
+      "bytes": 1638,
+      "sha256": "63ddb291722991bef79e0a48fcba2f7de06e1338a88784fb10ad7b9c684b853b"
+    },
+    "thermal.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-thermal.json",
+      "bytes": 5724,
+      "sha256": "e5e892fb3258748a8fb520d86be8ee5fd98ad946ad767890fb7f0861fff29ad8"
+    },
+    "verification.json": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-none-hour-verification.json",
+      "bytes": 666,
+      "sha256": "ea7fe8c6fcbb8e7da69213e553d9fdadfb66aaffea8e0bc5923592f0051f30b4"
+    },
+    "stem_soak-executed-v3.py": {
+      "source": "tools/benchmarks/stem_soak.py",
+      "bytes": 44307,
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8"
+    },
+    "stem_worker-executed.py": {
+      "source": "tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker-executed.py": {
+      "source": "tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "worker_support-executed.py": {
+      "source": "tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "producer-observed_launch.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed_launch.py",
+      "bytes": 4349,
+      "sha256": "ae2a37830378f00a7c070bb1d075f042893179a61b31d9a31be48e33b7cdfb7a"
+    },
+    "producer-observed-run.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-run.py",
+      "bytes": 4720,
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394"
+    },
+    "producer-normal_ready.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/normal_ready.py",
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "producer-observed-capture.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/observed-capture.py",
+      "bytes": 2796,
+      "sha256": "5faa7945cb8271f85f90e50742b27e037b3114c4818e3196f4d354d0d9c9b890"
+    },
+    "producer-check_run.py": {
+      "source": "benchmarks-local/isolation-2026-10-16/check_run.py",
+      "bytes": 4540,
+      "sha256": "0b35d54f0a61c49ff85989807af40244e80c0e14191ba2bde016bd2215a42e00"
+    },
+    "window_guard-executed.py": {
+      "source": "tools/benchmarks/window_guard.py",
+      "bytes": 14613,
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "source-provenance.json": {
+      "source": "generated by stage_completed_raw.py from saved result/launch metadata",
+      "bytes": 1260,
+      "sha256": "54c340961723440620fd8524bca7957b728072f7450687b37db6cff17fec26fe"
+    }
+  },
+  "executed_source_pins_from_result": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 44307,
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+  "archive_helper_sha256": "f3fcf227aa6dfce7bf254e9879c108f2aace8ae977663aec399a0584898f4112"
+}
