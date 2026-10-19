@@ -155,7 +155,8 @@ option(CONFLUX_BUILD_UI "Build the Qt Quick manual audio window and runtime harn
 if(CONFLUX_BUILD_UI)
     find_package(Qt6 6.4 REQUIRED COMPONENTS Quick QuickControls2 Svg Concurrent)
     qt_standard_project_setup()
-    add_library(conflux-library src/library/PreparedTrackStore.cpp src/library/LibraryCatalog.cpp)
+    add_library(conflux-library src/library/PreparedTrackStore.cpp src/library/LibraryCatalog.cpp
+        src/library/StemServiceJsonl.cpp)
     target_link_libraries(conflux-library PUBLIC conflux-audio Qt6::Core
         PRIVATE PkgConfig::SndFile PkgConfig::SampleRate)
     target_compile_options(conflux-library PRIVATE -Wall -Wextra -Wpedantic)
@@ -190,6 +191,12 @@ if(CONFLUX_BUILD_UI)
         target_compile_options(conflux-library-catalog-test PRIVATE -Wall -Wextra -Wpedantic)
         add_test(NAME library-catalog COMMAND conflux-library-catalog-test)
         set_tests_properties(library-catalog PROPERTIES TIMEOUT 60)
+        qt_add_executable(conflux-stem-service-jsonl-test tests/stem_service_jsonl_test.cpp)
+        target_link_libraries(conflux-stem-service-jsonl-test PRIVATE conflux-library Qt6::Test)
+        target_compile_options(conflux-stem-service-jsonl-test PRIVATE -Wall -Wextra -Wpedantic)
+        add_test(NAME stem-service-jsonl COMMAND conflux-stem-service-jsonl-test)
+        set_tests_properties(stem-service-jsonl PROPERTIES TIMEOUT 15)
+
         qt_add_executable(conflux-prepared-track-store-test tests/prepared_track_store_test.cpp)
         target_link_libraries(conflux-prepared-track-store-test PRIVATE conflux-library Qt6::Test)
         target_compile_options(conflux-prepared-track-store-test PRIVATE -Wall -Wextra -Wpedantic)

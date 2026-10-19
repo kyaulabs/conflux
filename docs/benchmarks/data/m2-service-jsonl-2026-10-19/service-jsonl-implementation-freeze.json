@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "status": "frozen ignored/unapplied implementation; unexecuted by author",
+  "author": "/root/hour_result_crosscheck",
+  "patch": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-implementation.patch",
+    "bytes": 13913,
+    "sha256": "f9c37ffe31872f9eb3209b1acc2bd5c87beb75881c163eb6a3e386d5adfef126"
+  },
+  "header": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-api.hpp",
+    "bytes": 3103,
+    "sha256": "1865e9ce016fd7a2e7395be7dde5b27006be6b67c378d9c4a7c4172d7a880265"
+  },
+  "cpp_output": {
+    "path": "src/library/StemServiceJsonl.cpp (draft output)",
+    "bytes": 10325,
+    "sha256": "c7a9c1a8100a57509b7e03b6eccf4311656cab529027cd65a233f4311cf03f28"
+  },
+  "product_paths": [
+    "src/library/StemServiceJsonl.hpp",
+    "src/library/StemServiceJsonl.cpp"
+  ],
+  "independent_artifacts": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-tests.cpp",
+      "bytes": 13953,
+      "sha256": "12b2e405a7e64fb59cfd20ca018bd04e25137967576c6c135e6b594e5bf9ad4c"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-tests.patch",
+      "bytes": 14440,
+      "sha256": "6f167746548d4b1513a685392448d349025100d02b6fe7aa49e38a59538ecc3e"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-test-cmake.patch",
+      "bytes": 1094,
+      "sha256": "e40259d7236fa7eb109427c4b3af99a3d44f73c58641c02f32612ba6e714d59b"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-product-cmake.patch",
+      "bytes": 698,
+      "sha256": "8248b36b278a96b6a6036d97c93e352102683c11c1b9017eaecf4d3a3f536832"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-jsonl-freeze.json",
+      "bytes": 5584,
+      "sha256": "157e58cc0255eb0e7dbd603766fbaedbfca134ba98004c35097bec95d38e98d3"
+    }
+  ],
+  "contract_note": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/bridge-jsonl-validation.md",
+    "bytes": 15496,
+    "sha256": "447ecc7089dd51aa60720bcebd2bee100c32337280656fe45f53f35ac10b37b1"
+  },
+  "source_context": [
+    {
+      "path": "tools/stems/service.py",
+      "bytes": 28951,
+      "sha256": "c6c9a7a62571f9437224246b4b474d785821e21871e03398a9341ead6dae01d9"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 17068,
+      "sha256": "7e2bacdf355bba3e7c398fab81d298e7b8511bd8e54def6a6933deff92330a22"
+    }
+  ],
+  "methodology": [
+    "Read existing service protocol, Qt JSON callers, relevant QtCore declarations and focused validation design.",
+    "Independently reviewed m0 API and seven behavioral/security/failure test groups, including correct isolated structural/value boundary arithmetic and first-line-before-oversized-suffix behavior.",
+    "Both m0_m1_gates and guard_rules read the complete implementation against frozen API/tests and reported no concrete blocker.",
+    "No tracked edits, builds/tests, product imports/execution, native/model/audio/host workloads or Git mutation. Temporary readable implementation copy removed after serialization."
+  ],
+  "bounds": {
+    "line_bytes_including_lf": 16384,
+    "retained_body_bytes": 16383,
+    "lookahead_bytes": "remaining_body_capacity + 1, never the entire supplied view",
+    "maximum_depth_root_is_one": 8,
+    "members_per_object": 32,
+    "members_total": 128,
+    "array_elements_per_array": 16,
+    "values_total_including_root_and_containers": 256,
+    "encoded_quoted_key_bytes": 512,
+    "decoded_key_utf16_units": 64,
+    "number_token_bytes": 64,
+    "safe_integer_maximum": 9007199254740991
+  },
+  "behavior": [
+    "First-LF consumption returns one owning QJsonObject; incomplete fragments retain only the bounded current body; no event queue.",
+    "Strict stateless raw UTF8 validation and escaped surrogate-pair validation cover every string; escaped NUL values remain valid but NUL keys reject.",
+    "Decode keys before case-sensitive object-local duplicate checks; accept distinct scalar sequences without Unicode normalization.",
+    "Guard exact raw integer numeric spelling/range only for the fixed service integer member names; bool/string/null/container typing belongs to later exact event schema.",
+    "Qt remains responsible for final complete JSON decoding/number syntax; decoded numeric values must be finite.",
+    "Syntax/Unicode/duplicate/unsafe-number errors use invalid_argument, resource caps use length_error; errors make feed/finish terminal.",
+    "EOF never invents a line: nonempty partial body rejects; clean finish idempotent, empty feeds harmless and later nonempty data rejects."
+  ],
+  "explicit_limits": [
+    "This does not validate service-v1 event key sets/types, identities, generation/command/ACK/lease sequencing or file/PCM content.",
+    "No process, worker, converter, ring, callback, controller or public app integration is added.",
+    "Bounded retained wire bytes are not a claim about Qt/process internal buffering or total RSS.",
+    "Actual missing-API RED/GREEN, normal/instrumented test execution and coverage remain root-owned and pending.",
+    "No integrated latency, sustained load, thermal, musical or physical-audio qualification follows from this source-only draft."
+  ],
+  "application_order": "Root applies independent tests and test-only CMake registration for missing-header/API RED, then this product patch plus independent one-source product CMake registration for GREEN."
+}

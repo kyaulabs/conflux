@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "status": "source_only_frozen_for_root_tdd",
+  "execution_by_agent": false,
+  "tracked_changes_by_agent": false,
+  "artifacts": {
+    "service-jsonl-api.hpp": {
+      "sha256": "1865e9ce016fd7a2e7395be7dde5b27006be6b67c378d9c4a7c4172d7a880265"
+    },
+    "service-jsonl-tests.cpp": {
+      "sha256": "12b2e405a7e64fb59cfd20ca018bd04e25137967576c6c135e6b594e5bf9ad4c"
+    },
+    "service-jsonl-tests.patch": {
+      "sha256": "6f167746548d4b1513a685392448d349025100d02b6fe7aa49e38a59538ecc3e"
+    },
+    "service-jsonl-test-cmake.patch": {
+      "sha256": "e40259d7236fa7eb109427c4b3af99a3d44f73c58641c02f32612ba6e714d59b"
+    },
+    "service-jsonl-product-cmake.patch": {
+      "sha256": "8248b36b278a96b6a6036d97c93e352102683c11c1b9017eaecf4d3a3f536832"
+    },
+    "service-jsonl-cmake-notes.txt": {
+      "sha256": "d8282eb96db0bebe1b16dfb4edcc9f6608b105fb437bb1cea6ffc3b28cfa689d"
+    }
+  },
+  "targets": {
+    "header": "src/library/StemServiceJsonl.hpp",
+    "implementation": "src/library/StemServiceJsonl.cpp",
+    "test": "tests/stem_service_jsonl_test.cpp",
+    "test_target": "conflux-stem-service-jsonl-test",
+    "ctest_name": "stem-service-jsonl",
+    "functional_timeout_seconds": 15
+  },
+  "api": {
+    "namespace": "conflux::library::detail",
+    "class": "StemServiceJsonl",
+    "feed": "Feed feed(QByteArrayView), Feed contains consumed and optional<QJsonObject>; consumes only through first LF including LF, caller retains/re-feeds suffix; no event queue",
+    "finish": "clean EOF idempotent and sealed; incomplete line invalid even when valid JSON; later nonempty feed logic_error, empty feed harmless",
+    "failure": "syntax/duplicate/Unicode/unsafe-integer invalid_argument; structural/byte length_error; later feed/finish logic_error after either failure",
+    "scope": "structure/parser only, no event schema, identity, generation, source, process or playback-state validation",
+    "integer_type_separation": "For fixed integer member names only numeric values get exact integer-token spelling/range checks. Bool/string/null/container wrong types remain parseable for later exact schema rejection.",
+    "integer_spelling": "JSON integer tokens only, nonnegative safe range through9007199254740991; negative-zero integer token allowed; decimal/exponent/rounded/out-of-range number rejected",
+    "duplicate_keys": "compare decoded QString keys per object, including escaped Unicode/slash/quote/backslash equivalents; case-sensitive, no Unicode normalization",
+    "unicode": "strict UTF8 and valid escaped surrogate pairing in all keys/values, no NUL in keys, valid escaped NUL value allowed",
+    "bytes": "16384 includesLF, body16383, encodedquotedkey512, key64UTF16units, numbertoken64",
+    "structure": "depth8(root1), objectmembers32, totalmembers128, arrayelements16, totalvalues256(root/membervalues/arrayelements inclcontainers; keys excluded)"
+  },
+  "integer_member_names": [
+    "v", "schema", "id", "generation", "worker_generation", "current_generation",
+    "sequence", "slot", "source_frames", "frames", "bytes", "sample_rate",
+    "channels", "window_frames", "hop_frames", "overlap_frames", "segment_frames",
+    "threads", "frame", "frame_start", "window_start_frame", "request_id",
+    "reservation_bytes", "max_input_bytes", "max_job_bytes", "max_diagnostic_bytes",
+    "telemetry_dropped", "outstanding_slots"
+  ],
+  "test_groups": [
+    "partial and multiple lines, exact consumed count throughfirstLF, caller-retained suffix including an oversized suffix, earlier complete event survives later invalid suffix",
+    "byte-fragmented multibyte Unicode, clean/repeated EOF, truncated/noLF EOF, CRLF and terminal cleanup behavior",
+    "decoded duplicate keys including nested arrays and escaped slash/quote/backslash/Unicode, nonBMP equivalence; repeated keys in separate objects/text and distinct normalization/case accepted",
+    "strict rawUTF8 and everystring surrogate escapes, malformed JSON/nonfinite/nonobject/trailing/BOM/control failures; valid pair and escaped NUL value",
+    "safe integer boundary/negativezero, decimal/exponent/inexact rounded/overflow token rejection for normal/escaped/nested integer names; later-schema wrongtype separation and finite general float",
+    "exact16384frame boundary, unterminated/oversized body, key64UTF16 boundary including nonBMP, encodedkey and numbertoken work bounds",
+    "independent depth, perobjectmember, totalmember, arrayelement and totalvalue caps"
+  ],
+  "source_review": {
+    "author": "Self-reviewed standalone fixtures and split CMake context; no ignored experiment includes.",
+    "hour_result_crosscheck": "Read exact API and seven groups; no API/oracle blocker. Clarified invalid escaped-surrogate wording before freeze.",
+    "guard_rules": "Read API and tests; no current oracle blocker. Requested oversized unconsumed suffix regression and exact integer-member list before freeze; both included."
+  },
+  "application_order": [
+    "Root applies service-jsonl-tests.patch and service-jsonl-test-cmake.patch, then captures actual RED.",
+    "Implementation author packages this exact API plus implementation; root applies product and service-jsonl-product-cmake.patch.",
+    "Root executes actual GREEN/broader checks; agents have not run these drafts."
+  ],
+  "limits": [
+    "Parser success never authorizes a service event or PCM publication.",
+    "No subprocess, worker, model, native, host, GUI or audio workload is used by these standalone tests.",
+    "No performance, integrated latency, musical-quality or physical-audio claim."
+  ]
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "index": 0,
+    "literal": "R\"({\"event\":\"bad\",\"event\":\"chunk\"})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 1,
+    "literal": "R\"({\"event\":\"bad\",\"\\u0065vent\":\"chunk\"})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 2,
+    "literal": "R\"({\"source_id\":\"bad\",\"\\u0073ource_id\":\"good\"})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 3,
+    "literal": "R\"({\"describe\":{\"input\":{\"sample_rate\":48000,\"sample_\\u0072ate\":44100}}})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 4,
+    "literal": "R\"({\"a/b\":1,\"a\\/b\":2})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 5,
+    "literal": "R\"({\"a\\\"b\":1,\"a\\u0022b\":2})\"",
+    "exit": 0,
+    "generated_bytes": 0,
+    "note": "benchmarks-local/m2-live-delivery-2026-10-19/jsonl-moc-raw-5.cpp: note: No relevant classes found. No output generated.\n"
+  },
+  {
+    "index": 6,
+    "literal": "R\"({\"a\\\\b\":1,\"a\\u005cb\":2})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 7,
+    "literal": "R\"({\"payload\":[{\"x\":1,\"x\":2}]})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 8,
+    "literal": "R\"(\":1,\"\\ud83d\\ude03\":2})\"",
+    "exit": 0,
+    "generated_bytes": 0,
+    "note": "benchmarks-local/m2-live-delivery-2026-10-19/jsonl-moc-raw-8.cpp: note: No relevant classes found. No output generated.\n"
+  },
+  {
+    "index": 9,
+    "literal": "R\"({\"source\":{\"sample_rate\":44100},\"describe\":{\"input\":{\"sample_rate\":44100}}})\"",
+    "exit": 0,
+    "generated_bytes": 3325,
+    "note": ""
+  },
+  {
+    "index": 10,
+    "literal": "R\"({\"event\":\"one\",\"Event\":\"two\"})\"",
+    "exit": 0,
+    "generated_bytes": 3327,
+    "note": ""
+  },
+  {
+    "index": 11,
+    "literal": "R\"({\"\\u00e9\":1,\"e\\u0301\":2})\"",
+    "exit": 0,
+    "generated_bytes": 3327,
+    "note": ""
+  },
+  {
+    "index": 12,
+    "literal": "R\"({\"message\":\"{\\\"id\\\":1,\\\"id\\\":2} braces } ] and slash \\\\\"})\"",
+    "exit": 0,
+    "generated_bytes": 0,
+    "note": "benchmarks-local/m2-live-delivery-2026-10-19/jsonl-moc-raw-12.cpp: note: No relevant classes found. No output generated.\n"
+  }
+]
