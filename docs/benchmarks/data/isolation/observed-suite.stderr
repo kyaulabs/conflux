@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed_suite.py", line 51, in <module>
-    raise RuntimeError("cooldown failed")
-RuntimeError: cooldown failed

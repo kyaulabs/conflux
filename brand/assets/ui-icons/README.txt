@@ -1,1 +1,0 @@
-32 original interface icons. 24 x 24 viewBox; 2 px stroke; round joins and caps. Recolor with CSS currentColor. Use alongside visible text or an accessible name. Stroke icons should generally remain >= 20 px. CONFLUX symbolic launcher asset is separate.

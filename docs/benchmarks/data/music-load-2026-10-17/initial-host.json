@@ -1,7 +1,0 @@
-{
-  "at_utc": "2026-10-17T21:44:38.588422+00:00",
-  "AC": "1",
-  "lid": "b false",
-  "ready": true,
-  "scope": "Read-only preflight; actual workload admission will be checked again after preparation."
-}

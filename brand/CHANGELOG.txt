@@ -1,8 +1,0 @@
-CONFLUX brand pack 1.1 / 15 October 2026
-
-Approved icon refinement
-- Equal outer currents related by a 180-degree rotation about the center.
-- Centered, flat-top hexagonal core with rounded corners.
-- Rebuilt color, monochrome, symbolic, launcher, favicon, Linux and social exports.
-- Updated anatomy, clear-space measurements, identity board and PDF guide.
-- Retained the approved wordmark, palette, typography and interface tokens.

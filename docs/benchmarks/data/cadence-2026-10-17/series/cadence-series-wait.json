@@ -1,8 +1,0 @@
-{
-  "pid": 1769519,
-  "started_monotonic": 364698.711561849,
-  "maximum_seconds": 10800,
-  "scope": "No benchmark load; common sleep/desktop idle inhibition remains owned by the outer wrapper.",
-  "stopped_monotonic": 370149.851236249,
-  "stopped_by_file": true
-}

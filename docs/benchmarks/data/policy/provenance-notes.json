@@ -1,9 +1,0 @@
-{
-  "before-native-smoke.json": "Collected in restricted namespace; its profile and host condition values are not authoritative laptop observations. Use native-smoke-policy.json and native-smoke/result.json for actual host execution conditions.",
-  "before-native-replay.json": "Collected with laptop host access immediately before native replay; pins and lifecycle match executed artifacts.",
-  "native-replay-executed.py": "Exact snapshot of tools/benchmarks/native_replay.py as executed. Archive location changes repository path resolution; reproduce using tools/benchmarks/native_replay.py from repository root.",
-  "balanced-native-run.py": "Exact ignored scoped wrapper as executed from repository root.",
-  "producer_revision": "c0d50578472ea6d5c52619f02a7ffe093e84fa31; unchanged runtime/worker/UI/audio producer sources and binaries. New diagnostic replay source retained separately.",
-  "native-replay-audit.py": "Independent audit as executed on retained local input.f32, which is intentionally excluded from Git. Re-running that audit requires regenerating the exact normalized input. The separate native-replay-analysis.py accepts archived gzip logs without PCM and explicitly reports unavailable byte verification.",
-  "interrupt-check/audio.json and ui.json": "Empty raw redirected outputs from intentional interrupted cleanup test, preserved byte-exact. This interrupted run is not used as a latency/audio-coverage trial."
-}

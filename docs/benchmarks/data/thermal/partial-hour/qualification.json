@@ -1,4 +1,0 @@
-{
-  "qualification": "Incomplete 3600-second attempt; raw status:error retained. An instantaneous exposed=false pulse caused abort despite a 199.383639 ms maximum frame-notification gap and 45 nonzero complete-minute bins. This is not a completed 60-minute trial.",
-  "gate_source_sha256": "a2a8204a3fc000ab6bb1a141a741f615f86bd1e501254594ed5a826782d8097f"
-}

@@ -1,9 +1,0 @@
-{
-  "recorded_at_utc": "2026-10-17T06:52:03.325668+00:00",
-  "user_guidance": "No external audio interface is available; perfect values are not expected.",
-  "assessment": "Use the available laptop audio path and report callback/transport stability and observed faults. Do not treat the absence of an external interface or unmeasured physical timing as a failure of this laptop assessment.",
-  "stem_delivery_target_p99_ms": 4095,
-  "protocol_change": false,
-  "new_workload": false,
-  "note": "Guidance arrived after all three requested hours completed. Recorded measurements and the requested stem-delivery comparison remain unchanged."
-}

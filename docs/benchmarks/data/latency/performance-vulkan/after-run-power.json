@@ -1,8 +1,0 @@
-{
-  "observed_at_utc": "2026-10-16T16:40:55.261727+00:00",
-  "after_run": "performance-vulkan",
-  "desktop_profile": "power-saver",
-  "holds": "",
-  "firmware_profile": "low-power",
-  "cpu_energy_preference": "power"
-}

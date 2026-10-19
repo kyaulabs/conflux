@@ -1,7 +1,0 @@
-{
-  "returncode": 2,
-  "stderr": "usage: observed_launch.py [-h] --seconds SECONDS\n                          --control-interval CONTROL_INTERVAL\n                          name\nobserved_launch.py: error: expected-pins.json is not armed with signed source HEAD and all eight hashes\n",
-  "no_admission_or_run_directory_created": true,
-  "launcher_sha256": "a0360e723e7d28f3c3ef40de8e871baa7d4ab9c29d6ce05a9b2cbb8a998bd2be",
-  "scope": "Unarmed invocation rejected before readiness/host queries or workload launch."
-}

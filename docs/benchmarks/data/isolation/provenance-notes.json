@@ -1,8 +1,0 @@
-{
-  "scope": "Source snapshots and ignored launch helpers as executed from repository root/benchmarks-local/isolation-2026-10-16; helper paths are not rewritten for execution from this deep archive location.",
-  "producer_commit": "52e2ddf355cb73b38c77d91a0ae05d74c48a3eff",
-  "preflight_revision": "Preflight result.repository_head is f8721d4 while new harness edits were uncommitted; exact source pins match the later signed producer commit52e2ddf.",
-  "interrupt-check": "Intentional interrupted cleanup test; not a latency/coverage acceptance trial.",
-  "guard_installation": "Desktop idle inhibitor acquired before launch in all conditions. Owned-window placement may follow workload onset; recorded offset must be retained independently from UI coverage.",
-  "absence": "Unselected probes are not_run; their lack of measurements is not evidence of zero audio faults or verified UI coverage."
-}

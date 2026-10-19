@@ -1,9 +1,0 @@
-{
-  "original_patch_sha256": "07d5bf808d94520a41d3038c4adcc37dcbb87ff544743b47e91c1859436f778d",
-  "original_git_apply_check_exit": 1,
-  "original_error": "three new-file hunks omitted new file mode100644 and git treated dev/null as existing path; no files changed",
-  "application_patch_sha256": "d2e8d71933b65668c5df7c8b4ac472138fc7c44063727f9e1d3c1c4e19b205d9",
-  "normalization": "insert only new file mode100644 on three /dev/null hunks; file bytes unchanged",
-  "all_six_outputs_match_frozen_receipt": true,
-  "original_independent_tests_unchanged": true
-}

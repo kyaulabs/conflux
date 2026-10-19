@@ -1,6 +1,0 @@
-{
-  "url": "https://raw.githubusercontent.com/qt/qtbase/6.12/src/testlib/qtestcase.cpp",
-  "sha256": "4bf2e81a0d63b99138466ebfad126bf7e157650bc4627e44e5c3b1a3a4c0b470",
-  "bytes": 121738,
-  "note": "Official Qt6.12 branch source; compatible library version, not a proven exact installed build commit."
-}

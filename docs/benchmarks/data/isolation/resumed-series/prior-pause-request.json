@@ -1,8 +1,0 @@
-{
-  "schema": 1,
-  "current_run": "observed-both-hour",
-  "requested_by": "user",
-  "requested_at_utc": "2026-10-17T01:07:31.568721+00:00",
-  "user_request": "Finish the current observed-both-hour only, then pause all remaining tests; the laptop lid will close in about one hour.",
-  "scope": "Do not interrupt the current worker or test. Block later cases before cooldown; release only the owned common idle guard after saved current-run cleanup proves safe."
-}
