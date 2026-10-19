@@ -978,6 +978,17 @@ public:
         consumeCommands();
         for (std::size_t deck=0;deck<RenderCore::deckCount;++deck)
             if (renderer_.sourceFrames(deck)) renderer_.cueRelease(deck);
+        // Callback ownership is now exclusive, including queued transport/CUE
+        // drain. Disarm all retained borrows: active, pending, or an installed
+        // completion whose old owner has not yet been collected. Persistent
+        // playing flags stay intact for a later explicit whole-owner rebuild.
+        auto disarm = [](const auto& playback) noexcept {
+            if (!playback) return;
+            const auto source = playback->sourceRef();
+            if (source.setRenderActive) source.setRenderActive(source.context, false);
+        };
+        for (const auto& playback : playbacks_) disarm(playback);
+        disarm(replacementPlayback_);
         State discarded; while (states_.pop(discarded)) {}
     }
     void stop() noexcept

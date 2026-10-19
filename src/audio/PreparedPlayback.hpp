@@ -36,6 +36,9 @@ public:
         bool tryRequest(LiveStemBuffer::Request&) const noexcept;
         LiveStemBuffer::PublishResult tryPublish(const LiveStemBuffer::Packet&) noexcept;
         void fail(int errorCode) noexcept;
+        // Sole producer: service even while Full or without a new raw event.
+        // Uses the real monotonic clock off callback; false means terminal/stop.
+        bool serviceRecovery() noexcept;
     private:
         friend class PreparedPlayback;
         explicit LiveProducerPort(LiveState&) noexcept;
@@ -75,6 +78,9 @@ public:
 
 private:
     PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_t frames);
+    AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
+    void seekLive(std::uint64_t frame) noexcept;
+    void setLiveActive(bool active) noexcept;
     std::unique_ptr<LiveState> live_;
     std::array<std::unique_ptr<PcmReadAhead>, stemCount> readers_{};
     std::unique_ptr<StemBankSource> bank_;

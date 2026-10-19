@@ -1,0 +1,129 @@
+[
+  {
+    "stage": "recovery-full-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 118.87379248597426
+  },
+  {
+    "stage": "recovery-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 98.18791929498548
+  },
+  {
+    "stage": "recovery-smoke",
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.37244963896228
+  },
+  {
+    "stage": "recovery-normal-routing",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Owner validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-manual-routing-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/recovery-normal-routing-01"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 6.937243274005596
+  },
+  {
+    "stage": "recovery-normal-preparation",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Owner validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-preparation-controller-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/recovery-normal-preparation-01"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 43.72056916297879
+  },
+  {
+    "stage": "recovery-tsan-configure",
+    "command": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build/owner-tsan",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DBUILD_TESTING=ON",
+      "-DCMAKE_CXX_FLAGS=-fsanitize=thread -fno-omit-frame-pointer -fno-pie -O1 -g",
+      "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread -no-pie"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 5.733174447028432
+  },
+  {
+    "stage": "recovery-tsan-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/owner-tsan",
+      "--target",
+      "conflux-audio-live-owner-test",
+      "conflux-audio-live-recovery-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 22.944839055999182
+  },
+  {
+    "stage": "recovery-tsan-test",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/owner-tsan",
+      "-R",
+      "^(audio-live-owner|audio-live-recovery)$",
+      "--output-on-failure"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 3.173155757947825
+  },
+  {
+    "stage": "recovery-coverage",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 374.64392774400767
+  }
+]

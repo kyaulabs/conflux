@@ -25,6 +25,9 @@ struct AudioSource {
     // callbacks share the source's borrowed context and render-owner lifetime.
     bool (*setStemGain)(void*, std::size_t stem, float gain) noexcept = nullptr;
     float (*stemGain)(const void*, std::size_t stem) noexcept = nullptr;
+    // Optional render-owner activity notification, independent of audible gain.
+    // Repeated block refreshes are allowed; an owner deduplicates actual edges.
+    void (*setRenderActive)(void*, bool) noexcept = nullptr;
 
     [[nodiscard]] bool isMemory() const noexcept { return memory != nullptr; }
 

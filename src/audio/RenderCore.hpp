@@ -155,6 +155,9 @@ private:
         bool readFailed = false;
         bool cueSelected = false;
     };
+    static bool renderActive(const Deck& deck) noexcept;
+    static void notifyActivity(const Deck& deck) noexcept;
+    void refreshActivity() const noexcept;
     void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
     void transition(Deck& deck) noexcept;
     void mixDeck(std::size_t index, bool available, float left, float right,
