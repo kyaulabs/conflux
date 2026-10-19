@@ -1,0 +1,36 @@
+{
+  "base_commit": "d98de79553146afee9490e15809d2bae12f85350",
+  "implementation_present": false,
+  "stages": [
+    {
+      "stage": "recovery-red-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build/dev",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+        "-DBUILD_TESTING=ON"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.9190032659680583
+    },
+    {
+      "stage": "recovery-red-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-audio-live-recovery-test",
+        "--parallel",
+        "2"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.0641450840048492
+    }
+  ]
+}

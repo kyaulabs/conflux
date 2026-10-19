@@ -1,0 +1,283 @@
+{
+  "schema": "conflux.m2-live-recovery-verification.v1",
+  "status": "whole_bank_reserve_and_recovery_checks_passed",
+  "base_commit": "3d47554de422284b64ab6a826f0b4e2c4500dcb8",
+  "normal_ctest_passed": 35,
+  "instrumented_ctest_passed": 35,
+  "source_pins": 89,
+  "source_stable": true,
+  "tdd": "Exact independent API/tests frozen before implementation; root actual missing-header RED preceded any product draft. Exact first product then passed targeted GREEN without code or assertion corrections.",
+  "policy": {
+    "reserve_frames48": 262144,
+    "clipped_to_remaining": true,
+    "maximum_wait_seconds": 60,
+    "deadline": "One absolute active closed-attempt deadline; progress never renews",
+    "pause": "Disarm; explicit resume starts a fresh attempt, including coalesced edges",
+    "timeout": "Exact attempt-token CAS; stale timeout cannot poison a superseding pause/seek/open; committed terminal state cannot be cleared",
+    "timing_test_scope": "Synthetic steady time through private production-used policy, not an actual sixty-second elapsed wait or public test clock"
+  },
+  "behavior_groups": [
+    "Private policy deadline/clipping/pause/open/EOF and both deterministic atomic timeout-race winners",
+    "Actual RenderCore activity/CUE/muted/EOF/replacement edges, including same-batch controls",
+    "Actual producer/ring/bank/core 17-frame partial prefix plus missing suffix, held cursor/reserve-1/exact reserve, unchanged recovery epoch, same-cursor retry/stale grants, malformed/empty reads, peer/output PCM and terminal health"
+  ],
+  "tsan": {
+    "passed": true,
+    "targets": [
+      "audio-live-owner",
+      "audio-live-recovery"
+    ],
+    "reported_races": 0,
+    "halt_on_error": true,
+    "scope": "Only the actual two pure/inactive-session unit targets, not Qt/PipeWire adapter, service/native process or whole application"
+  },
+  "private_regressions": {
+    "normal": {
+      "routing": {
+        "checks": 130,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": true
+      },
+      "preparation": {
+        "checks": 45,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": false
+      }
+    },
+    "instrumented": {
+      "routing": {
+        "checks": 124,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false
+      },
+      "preparation": {
+        "checks": 45,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false
+      }
+    }
+  },
+  "coverage": {
+    "cpp": {
+      "line": {
+        "covered": 4838,
+        "total": 5730,
+        "percent": 84.4328097731239,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 6326,
+        "total": 12206,
+        "percent": 51.82697034245453,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    }
+  },
+  "lifecycle_disarm": "Source-reviewed post-command/CUE-drain disarm across active/pending/retired borrows after callback quiescence; private active service/controller recovery remains unqualified",
+  "scope": "In-process generated owner recovery and existing private virtual regressions. No service process, real model, converter bridge, controller live activation, musical/physical audio, integrated latency or sustained thermal qualification.",
+  "live_service_target_ms": 4095,
+  "M2_qualified": false,
+  "raw_secret_scan_exit": 0,
+  "files": {
+    "active-recovery-freeze.json": {
+      "bytes": 5549,
+      "sha256": "988d13b74b3edb4c57b893e75fe88236fa550c59074372eaebdec65d27b1535f"
+    },
+    "active-recovery-implementation-freeze.json": {
+      "bytes": 8039,
+      "sha256": "53365a020f2031f30ed68d16e5e455bed9745afecc8b1fb72db062caf4a5640e"
+    },
+    "recovery-red-result.json": {
+      "bytes": 738,
+      "sha256": "51ff2493fd059235dbc07aa237308ab0202d0d524954cf3f2551f5007de096d2"
+    },
+    "recovery-source-pins.json": {
+      "bytes": 12560,
+      "sha256": "26878872c9a061cc99d347e4eee74b6df05ade5f867a364f602b93612c3f6fdd"
+    },
+    "recovery-source-stable.json": {
+      "bytes": 52,
+      "sha256": "e5e5a68ec6e013b4a4bf63e0d65636e848f577de9572cc9ba23f3e54820fe77e"
+    },
+    "recovery-functional-result.json": {
+      "bytes": 3436,
+      "sha256": "bb1ba29ba2d4b10c2b889f9035d1305d00a30078d5e428f2261fa1dcf041f311"
+    },
+    "recovery-red-configure.log.gz": {
+      "bytes": 132,
+      "sha256": "5bea73764a4f209bc90c0189850332479e5f038454e639e16767786a4dff3470"
+    },
+    "recovery-red-build.log.gz": {
+      "bytes": 356,
+      "sha256": "2454a2e767fbe5b83434337092449481686978d14474dce6b7eafbc55200c608"
+    },
+    "recovery-green-build.log.gz": {
+      "bytes": 355,
+      "sha256": "49104870de96f7353281d81a2d2e8082a4effb9f7cab1aba6cab5db4b220f0e0"
+    },
+    "recovery-green-test.log.gz": {
+      "bytes": 169,
+      "sha256": "54c0425438b3af47adcf82854269a1cef7b38e0327c392178819407b213b4578"
+    },
+    "recovery-full-build.log.gz": {
+      "bytes": 1550,
+      "sha256": "81d634e14f47ef513dfc3d6885ef3b35c3e6a5470c8a414cb9ba5723bdf5a693"
+    },
+    "recovery-ctest.log.gz": {
+      "bytes": 839,
+      "sha256": "b5107ee2f7ea56f32ec93ab31680fa591eafdb421da1d6bd9f00b00e5f43d42e"
+    },
+    "recovery-smoke.log.gz": {
+      "bytes": 424,
+      "sha256": "7fb3516c220e0c8e893e2286607279b29346b68a5c2cfcfc72d17533c74fe6b3"
+    },
+    "recovery-tsan-configure.log.gz": {
+      "bytes": 137,
+      "sha256": "047f0fc7d9ab65fdb39d7605c4ec72b3c2fad91605d0e2a99c09913bf82222ac"
+    },
+    "recovery-tsan-build.log.gz": {
+      "bytes": 306,
+      "sha256": "835fa04f858e0c20626bbf8b755b7045634a0af8fd9aff83a97f69afa6161a39"
+    },
+    "recovery-tsan-test.log.gz": {
+      "bytes": 199,
+      "sha256": "c52b6ad1443b385bd63683f93841ea8d787b4202bfc0044bd74e67f8e521b9b6"
+    },
+    "recovery-coverage.log.gz": {
+      "bytes": 2006,
+      "sha256": "bb24f0f3aed15a3b609b70cc94450efbc29a809ded70f6a49558758688729645"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 4821,
+      "sha256": "b8bf09aaa8862eab8d46cfdc8370ff32aa803052a0a3a4fd82cf07f7c59a0a3e"
+    },
+    "tsan-last-test.log.gz": {
+      "bytes": 354,
+      "sha256": "8af37d2c01f969f3c2a91838508e742e1b24fa38f27dae84625f9389ac0e859c"
+    },
+    "coverage.json": {
+      "bytes": 7873,
+      "sha256": "2738f2b31badbdee8a00d5ab9e041f8a71c003a6e3955435ef5e14a09deff52d"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 873,
+      "sha256": "a3bb049807d252c760d26f81ac092133e30bd7bb587cab4009054eacf581a4f4"
+    },
+    "normal-routing.json": {
+      "bytes": 14295,
+      "sha256": "5225b0c666a9edf50e14ec61204de0182dca47398b5b466ca7f0f1b8947bff59"
+    },
+    "normal-preparation.json": {
+      "bytes": 11216,
+      "sha256": "2d84ab2226e63101eeda00d14334d532ba3ef495167bf73cbb2585c28f7f0768"
+    },
+    "instrumented-routing.json": {
+      "bytes": 13945,
+      "sha256": "9214933b56c6237049e9d2ae9b702b607e6ed2a453458db5aff9dc915e3937fd"
+    },
+    "instrumented-preparation.json": {
+      "bytes": 11176,
+      "sha256": "4e6055bed1e81e161af3c382a874fd88c6f9140df5edb8e4dab6b640e273b3ea"
+    }
+  },
+  "uncompressed": {
+    "recovery-red-configure.log.gz": {
+      "bytes": 137,
+      "sha256": "4c36552a5c29a29c35cb12895de8b99fc721a15405340824545646b08372f37a"
+    },
+    "recovery-red-build.log.gz": {
+      "bytes": 974,
+      "sha256": "6594e0cd3920675fe4b79d81cdaabd33551e483c691ee247facdc2dab49f36b6"
+    },
+    "recovery-green-build.log.gz": {
+      "bytes": 996,
+      "sha256": "761a3d094f363bd8b69ed82be9a2e9d3aa16e3404fcca3a34b56c37fb30a0d3d"
+    },
+    "recovery-green-test.log.gz": {
+      "bytes": 229,
+      "sha256": "bbc03363ca22e7ce56b09ba5e9bc0ec1474bad4e1e8f2afec0f68f13e0e6578a"
+    },
+    "recovery-full-build.log.gz": {
+      "bytes": 7523,
+      "sha256": "42853b13477826634ee202c2dd068119395a6f3c1d34075a13eb685bf58f1c38"
+    },
+    "recovery-ctest.log.gz": {
+      "bytes": 3777,
+      "sha256": "339db65217b62f86ae21e7907bd2eeb60e7052fd4b9537d6743de7698f5123d3"
+    },
+    "recovery-smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "664a5685e3c8df6db8bee33ccdbddf4b63732d825c4ed9fe5dff3ac64c959bcd"
+    },
+    "recovery-tsan-configure.log.gz": {
+      "bytes": 144,
+      "sha256": "acf9eb34444e8451f2a2b3b75197763910c01c167ada8198942cb5883c38893c"
+    },
+    "recovery-tsan-build.log.gz": {
+      "bytes": 1150,
+      "sha256": "f9fcfec56364a24125bbd69c0b2c9265243a82a76021b3c41fd23a9e1a3165a4"
+    },
+    "recovery-tsan-test.log.gz": {
+      "bytes": 337,
+      "sha256": "01651230ac2b49bc723884fceb090c99667b4f6ebc4ce93974a80a96aa024858"
+    },
+    "recovery-coverage.log.gz": {
+      "bytes": 11411,
+      "sha256": "2ac3b7cb25ec8ab62fe978e9b8711369548e6e903f1e0992355cb5adeac1fc1a"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 35358,
+      "sha256": "cf4c9ec8dc6b8e241eaeaffd4397685e4a1e1fef9a9a1d2ebcda61657c06939c"
+    },
+    "tsan-last-test.log.gz": {
+      "bytes": 1423,
+      "sha256": "58a618c308ecb7a21e454e61609453f5781363fa2ef8656873295075bbea13e4"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 3782,
+      "sha256": "bb6c4c4d1429dc0583f3f592473093c4ffa953f28b088218115eff176545320a"
+    }
+  }
+}

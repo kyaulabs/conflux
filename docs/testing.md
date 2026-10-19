@@ -76,14 +76,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 service-parser measurement](benchmarks/data/m2-service-jsonl-2026-10-19/coverage.json)
-passed 34/34 CTest entries, the offscreen smoke, 124 private-routing checks and
+The [M2 recovery measurement](benchmarks/data/m2-live-recovery-2026-10-19/coverage.json)
+passed 35/35 CTest entries, the offscreen smoke, 124 private-routing checks and
 45 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 4,673 / 5,562 (84.02%) | 6,189 / 12,020 (51.49%) |
+| C++ `src/` | 4,838 / 5,730 (84.43%) | 6,326 / 12,206 (51.83%) |
 | Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the

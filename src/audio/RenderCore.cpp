@@ -103,6 +103,22 @@ void RenderCore::transition(Deck& deck) noexcept
     deck.transitionPosition = 0;
 }
 
+bool RenderCore::renderActive(const Deck& deck) noexcept
+{
+    return (deck.playing || deck.cuePreviewing) && deck.frame < deck.source.frames;
+}
+
+void RenderCore::notifyActivity(const Deck& deck) noexcept
+{
+    if (deck.source.setRenderActive)
+        deck.source.setRenderActive(deck.source.context, renderActive(deck));
+}
+
+void RenderCore::refreshActivity() const noexcept
+{
+    for (const auto& deck : decks_) notifyActivity(deck);
+}
+
 void RenderCore::moveCursor(Deck& deck, std::uint64_t frame) noexcept
 {
     deck.buffering = false;
@@ -125,9 +141,11 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
         return false;
     auto& state = decks_[deck];
     const bool active = state.playing || state.cuePreviewing;
+    const bool wasRenderActive = renderActive(state);
     moveCursor(state, frame);
     state.cuePreviewing = false;
     if (active != state.playing) transition(state);
+    if (wasRenderActive != renderActive(state)) notifyActivity(state);
     return true;
 }
 
@@ -176,8 +194,11 @@ bool RenderCore::isDeckSilentForReplacement(std::size_t deck) const noexcept
 bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
 {
     if (!source.frames || !validSource(source) || !isDeckSilentForReplacement(deck)) return false;
+    if (decks_[deck].source.setRenderActive)
+        decks_[deck].source.setRenderActive(decks_[deck].source.context, false);
     decks_[deck] = Deck{};
     decks_[deck].source = source;
+    notifyActivity(decks_[deck]);
     return true;
 }
 
@@ -187,10 +208,12 @@ bool RenderCore::setPlaying(std::size_t deck, bool playing) noexcept
         return false;
     auto& state = decks_[deck];
     const bool active = state.playing || state.cuePreviewing;
+    const bool wasRenderActive = renderActive(state);
     state.playing = playing;
     state.cuePreviewing = false;
     state.buffering = false;
     if (active != playing) transition(state);
+    if (wasRenderActive != renderActive(state)) notifyActivity(state);
     return true;
 }
 
@@ -261,6 +284,7 @@ bool RenderCore::cuePress(std::size_t deck) noexcept
         return true;
     state.cueHeld = true;
     const bool active = state.playing || state.cuePreviewing;
+    const bool wasRenderActive = renderActive(state);
     if (state.playing) {
         moveCursor(state, state.cueFrame);
         state.playing = false;
@@ -270,6 +294,7 @@ bool RenderCore::cuePress(std::size_t deck) noexcept
         state.cuePreviewing = true;
     }
     if (active != (state.playing || state.cuePreviewing)) transition(state);
+    if (wasRenderActive != renderActive(state)) notifyActivity(state);
     return true;
 }
 
@@ -280,12 +305,14 @@ bool RenderCore::cueRelease(std::size_t deck) noexcept
     auto& state = decks_[deck];
     if (!state.cueHeld)
         return true;
+    const bool wasRenderActive = renderActive(state);
     state.cueHeld = false;
     if (state.cuePreviewing) {
         moveCursor(state, state.cueFrame);
         state.cuePreviewing = false;
         transition(state);
     }
+    if (wasRenderActive != renderActive(state)) notifyActivity(state);
     return true;
 }
 
@@ -454,6 +481,7 @@ bool RenderCore::renderInternal(std::span<float> interleaved, std::span<float> c
             decks_[index].frame += available[index];
         frameClock_ += frames;
         finishMeters();
+        refreshActivity();
         return true;
     }
     for (std::size_t i = 0; i < interleaved.size(); i += channels) {
@@ -531,6 +559,7 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
     }
     frameClock_ += frames;
     finishMeters();
+    refreshActivity();
     return true;
 }
 
