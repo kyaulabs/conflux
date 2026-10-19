@@ -1,0 +1,191 @@
+{
+  "schema": "conflux.live-stem-bridge-product-freeze.v1",
+  "status": "frozen_unapplied_unexecuted_product_only",
+  "author": "/root/hour_result_crosscheck",
+  "frozen_at_utc": "2026-10-19T11:19:10.228509+00:00",
+  "implementation_patch": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-implementation.patch",
+    "sha256": "07d5bf808d94520a41d3038c4adcc37dcbb87ff544743b47e91c1859436f778d",
+    "bytes": 89184
+  },
+  "files": [
+    {
+      "path": "CMakeLists.txt",
+      "input_sha256": "d4618251ede86c38215d5070db8e528af6622cf59a0d5d0253c4f30e90d7a555",
+      "output_sha256": "31e2b02ea810c44adbce01bc3a79eae313f906e4e10192c71d840321bba5d85f",
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/.bridge-CMakeLists.txt",
+      "input_bytes": 18457,
+      "output_bytes": 18522
+    },
+    {
+      "path": "src/library/PreparedTrackStore.hpp",
+      "input_sha256": "8940107fceaab350d3397bf99bd677f9563bb7cb90745c8403c48a39ea49c789",
+      "output_sha256": "2a5d7c08e9135fc0222f9721f68802c89d4932d89ffa21932d84db8250217d21",
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/.bridge-PreparedTrackStore.hpp",
+      "input_bytes": 2408,
+      "output_bytes": 3315
+    },
+    {
+      "path": "src/library/PreparedTrackStore.cpp",
+      "input_sha256": "fcb79df87fbe80c969432581b1296f6b5f7b35f01d6671f0b02f697f9759c0ad",
+      "output_sha256": "b5691b8e946ee0e65ceed36dc4ed48c872391346d76a69788e2bf2204ee8d142",
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/.bridge-PreparedTrackStore.cpp",
+      "input_bytes": 60245,
+      "output_bytes": 49515
+    },
+    {
+      "path": "src/library/StemEngineSupport.hpp",
+      "input_sha256": null,
+      "output_sha256": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109",
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/.bridge-StemEngineSupport.hpp",
+      "input_bytes": 0,
+      "output_bytes": 3042
+    },
+    {
+      "path": "src/library/StemEngineSupport.cpp",
+      "input_sha256": null,
+      "output_sha256": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475",
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/.bridge-StemEngineSupport.cpp",
+      "input_bytes": 0,
+      "output_bytes": 12360
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "input_sha256": null,
+      "output_sha256": "70c14ac6d1dcf12d4cdfc9cf6445d8eaf45eb2a50435d9a5d3d157beeb799928",
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/.bridge-LiveStemBridge.cpp",
+      "input_bytes": 0,
+      "output_bytes": 50470
+    }
+  ],
+  "authoritative_artifacts": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/bridge-red-result.json",
+      "sha256": "b9ae19cfdbfe2c5c9211f3ba90bf558aa4467c3d7d1c9d6c06d3b49719dc209a"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-freeze.json",
+      "sha256": "f086eecdaba9865ccce9bf7dcc0d0d23830229769b6b57c24fdb830f01b831de"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-api.patch",
+      "sha256": "c6ad17d01de5899fc520869147d2ec79817ba3eb937b927d50dd7218a0e9c50b"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-api.md",
+      "sha256": "9a2d7d859ad262f7643bee36273f4b125c3be5b392559ef308641fd4719885b0"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-api-test-plan.md",
+      "sha256": "357df31b5ff81376921b38dd35a8fa01baa9b34887bf8de5e3ec9e72f66b205c"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/service-event-binding-proposal.md",
+      "sha256": "8db56c9febd72a1c3139bc9521d07779d9746213573f1eee11b2511bccb08b94"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-protocol-review.json",
+      "sha256": "a03e8994e73f71187ab11df1c6791b70b68d8cfc36bc83f99a681545d9f94528"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-resource-review.json",
+      "sha256": "ca53c0331c87c82c0e49ee08f61c6a80aed17f5bf5b121d85aba45c2c66f8b4c"
+    }
+  ],
+  "tdd_sequence": {
+    "independent_api_tests_frozen_before_implementation": true,
+    "root_actual_red": {
+      "record": "benchmarks-local/m2-live-delivery-2026-10-19/bridge-red-result.json",
+      "at": "2026-10-19T10:59:17.709220+00:00",
+      "base": "6d66e683d81c4fbf053691690cf345e5afbc8269",
+      "configure_exit": 0,
+      "target_build_exit": 1,
+      "reason": "missing PreparedLiveStemTrack / PreparedTrackStore::prepareLiveStem"
+    },
+    "product_drafting_started_after_root_actual_red_release": true,
+    "author_ran_product_or_tests": false,
+    "author_changed_tracked_files": false,
+    "root_owns_apply_build_green_and_qualification": true,
+    "unchanged_independent_tests": {
+      "tests/live_stem_bridge_test.cpp": "2542a6951f0ee5e9afbb6e9e751197faaa2c6f4c2466dd0fe297b6248f330d3a",
+      "tests/StemServiceFixture.hpp": "3c4cb9819657872977d52410e523e679852b3c71c80c6a959ba2a9e6aa224691"
+    }
+  },
+  "source_reviews": [
+    {
+      "reviewer": "/root/guard_rules",
+      "status": "exact candidate clear",
+      "receipt": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-protocol-review.json",
+      "sha256": "a03e8994e73f71187ab11df1c6791b70b68d8cfc36bc83f99a681545d9f94528",
+      "scope": "event/lease/generation/FIFO/converter/EOF/Full/process teardown"
+    },
+    {
+      "reviewer": "/root/m0_m1_gates",
+      "status": "exact candidate clear",
+      "receipt": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-resource-review.json",
+      "sha256": "ca53c0331c87c82c0e49ee08f61c6a80aed17f5bf5b121d85aba45c2c66f8b4c",
+      "scope": "retained source/tool capture, count/LE overview, setup/stop token lifetime, shared admission and fixed cleanup"
+    },
+    {
+      "reviewer": "/root",
+      "status": "reviewed complete initial draft and supplied resolved close-budget/setup/EOF/fairness corrections; final exact application review remains root-owned"
+    }
+  ],
+  "implementation_scope": [
+    "Exact frozen public factory/result API; no controller or UI live activation",
+    "Move existing FD/hash/pin and known-process-group helpers into private support; retain five-file offline identities and ExportProcess run/manifests",
+    "Retained original source FD to anonymous44100 F32LE input, exclusive named copy, explicit LE finite overview/hash, actual countFrames once",
+    "Service ready validates separate source/tool/model/runtime pins; first load deferred until real prime replaces captured initial epoch",
+    "One producer thread owns QProcess; factory token only wakes private setup waiter and is unregistered before final commit",
+    "Direct strict JSONL/schema switch; serialized commands; current+1 controls; known-range lifetime runtime tags; exact occupied-until-reply ACK leases",
+    "Whole immutable role-major lease finite/hash/stat validation before conversion; bounded4096 input pieces and one four-role assembled output packet",
+    "Preserve identical pending packet across Full; ACK consumed raw input before complete; final packet held until real empty EOF/count proof; recovery serviced while idle/Full/postEOF",
+    "Every store admission counts live names/record charges under existing root lock; worst-case capture charge reduced atomically only after anonymous duplicate closes",
+    "Fixed safe cleanup only after group absence and lease/producer FD closure; unsafe/unproven named jobs remain preserved/charged, no adoption or leak registry",
+    "Expected stop gets250ms protocol grace then existing owned-group TERM/KILL/reap; close read channels before teardown waits to keep Qt buffering bounded"
+  ],
+  "fixed_bounds": {
+    "raw_lease_slots": 2,
+    "raw_slot_bytes_each": 8255520,
+    "native_spool_bytes": 13759200,
+    "job_metadata_reservation_bytes": 16384,
+    "service_reservation": "B + 2*8255520 + 13759200 + D",
+    "steady_shared_record": "service_reservation + 16384",
+    "initial_shared_record": "max(2*maxPreparedBytes,maxPreparedBytes+2*8255520+13759200+D)+16384",
+    "command_bytes": 4096,
+    "event_parser_line_bytes": 16384,
+    "unread_stdout_bytes": 65536,
+    "diagnostic_bytes": "configured1..65536",
+    "conversion_input_frames_each_role": 4096,
+    "pending_output_frames_each_role": 4096,
+    "producer_steps_per_control_turn": 8,
+    "json_events_per_drain_turn": 8,
+    "protocol_close_grace_ms": 250,
+    "root_lock_wait_seconds": 2,
+    "ring": "existing72*4096 stereo frames*4 roles",
+    "reserve_frames": 262144,
+    "prime_timeout_seconds": 60
+  },
+  "resolved_review_findings": [
+    "Support runtime role constant now defined locally in its translation unit",
+    "Superseding seek/close has priority over endlessly refilling old raw lease ACK work",
+    "Exhaust bounded buffered stdout events at direct EOF before sealing parser",
+    "First setup result/primary diagnostic retained; final commit checks owner health",
+    "Factory-active guard defers producer cleanup during final retained-input verification",
+    "Full counted-final packet waits raw complete before empty drain probe",
+    "Live read channels close before owned cleanup waits",
+    "Initial-record cancellation permits absent owned record cleanup; preassign conservative restoration charge",
+    "mkdir/openat failure removes only just-created empty private directory",
+    "Failed final rmdir restores conservative record under same root lock",
+    "Shutdown grace uses fixed250ms, not inference request timeout plus extra signal wait"
+  ],
+  "limits_and_pending": [
+    "Source review only: author and peers ran no compiler, tests, native/model, process workloads, host inspections or Git",
+    "Root must perform actual GREEN plus normal/private/coverage/process failure checks before acceptance",
+    "No universal numerical or all-duration seek equivalence claim; converter evidence remains prior closed fixtures",
+    "Postcommit source path replacement is tested; forced in-capture race and forced store count-phase cancellation remain explicit fixture limits",
+    "No active PipeWire/controller/handoff/retirement integration, physical audio, latency, thermal or M2 completion claim",
+    "Pinned regular files support ordinary change detection; no adversarial same-user pathname snapshot isolation claim",
+    "Unproven group cleanup preserves named job/reservation permanently; normal final owner destruction may close its retained FDs without releasing that charge"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "conflux.live-bridge-protocol-source-review.v1",
+  "status": "no_concrete_source_blocker_found",
+  "reviewer": "/root/guard_rules",
+  "review_mode": "Source and existing metadata only; no patch application, compilation, tests, native processes, host inspection or Git execution.",
+  "implementation_patch_sha256": "750ee03288131fbc76293181a2411bdd0942ec01bffe54fe92b7d16647a0f0b1",
+  "previous_reviewed_patch_sha256": "07d5bf808d94520a41d3038c4adcc37dcbb87ff544743b47e91c1859436f778d",
+  "rebind_scope": "Exact patch diff changes only liveReservationBytes lower-bound/current-input accounting. Protocol, conversion and process cleanup bytes are unchanged; the resource reviewer separately checks the new bound.",
+  "reviewed_snapshots": {
+    "LiveStemBridge.cpp": "33c5c007bce55d93ed95878f493a268ae474c9a0ea5cb46fd9f240504d7c7d01",
+    "StemEngineSupport.cpp": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475",
+    "StemEngineSupport.hpp": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109"
+  },
+  "scope": [
+    "Exact event schemas and FIFO command/generation/ACK/closed bindings against frozen service.py and worker.py contracts",
+    "Whole-lease descriptor geometry, finite scan and hash validation before conversion",
+    "Aligned 4096-frame packet assembly, retained Full packet, raw-input ACK independent of final output, and actual converter EOF proof",
+    "Latest render epoch superseding stale work, recovery service during bounded producer turns, and unchanged epoch for temporary raw gaps",
+    "Short fixed close grace, bounded pipe retention and owned-group termination/probe independent of direct leader state"
+  ],
+  "confirmed_corrections": [
+    "Superseding controls precede an unbounded stream of old-lease ACK work; ACK still precedes waiting for complete when no newer control exists",
+    "At process EOF, all already bounded buffered events are exhausted before parser.finish",
+    "A full final packet waits for raw complete before empty EOF probing",
+    "First setup result is retained; the factory-use guard protects final same-FD input verification",
+    "Read channels close before teardown waits so Qt cannot accumulate an output flood during cleanup",
+    "Stop protocol grace is fixed at 250 ms, followed by existing owned-group cleanup rather than an inference-timeout-length shutdown wait"
+  ],
+  "contract_details": [
+    "Accepted load/seek advance the known worker generation by exactly one; runtime startup may refer to any accepted generation from one through current",
+    "Old lease ACK replies validate their released generation separately from current_generation; an ACK-sent lease stays occupied until its exact reply",
+    "Closed counts compare occupied leases after preceding FIFO replies; intentional stop escalation does not invent a closed receipt or ACK",
+    "Unexpected process EOF while running remains terminal",
+    "Raw stem PCM is already restored; source normalization diagnostics are not applied again"
+  ],
+  "limits": [
+    "Shared source/admission/accounting review is delegated to /root/m0_m1_gates; this receipt does not replace that review",
+    "The long corrupt-lease test observes rejection and no rendered prefix; validation-before-publication ordering is established here by source review, not deterministic transient-publication observation",
+    "Actual GREEN, process failure regressions, numerical comparison and qualification remain root-owned and unexecuted by this reviewer",
+    "No model, physical audio, integrated latency or sustained qualification is claimed"
+  ]
+}

@@ -2,11 +2,14 @@
 #pragma once
 
 #include "audio/AudioFile.hpp"
+#include "audio/PreparedPlayback.hpp"
 
 #include <QString>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
+#include <vector>
 #include <stop_token>
 
 namespace conflux::library {
@@ -36,6 +39,14 @@ struct PreparedStemTrack {
     bool cacheHit = false;
 };
 
+struct PreparedLiveStemTrack {
+    std::unique_ptr<audio::PreparedPlayback> playback;
+    QString sourceSha256, inputSha256, modelSha256;
+    std::uint64_t inputFrames = 0, outputFrames = 0, reservedDiskBytes = 0;
+    // Normalized whole-source44100 overview, not a separated-stem waveform.
+    std::vector<float> sourceOverview;
+};
+
 // Worker-owned persistent PCM preparation. No method belongs on the GUI or
 // render thread. Immutable artifact directories hold normal audio + metadata or
 // four fixed stem leaves + metadata. Source digests remain distinct from keys.
@@ -59,6 +70,12 @@ public:
     PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {});
     PreparedStemTrack prepareStemBank(const QString& sourcePath, const StemEngine& engine,
                                       std::stop_token stop = {});
+    // Off-thread transient whole owner beneath this store's root/limits.
+    // Returns validated service-ready metadata; first real prime starts load.
+    // Never primes here, creates a complete stem file, or borrows the caller's
+    // stop token after return. A distinct nonzero token identifies this owner.
+    PreparedLiveStemTrack prepareLiveStem(const QString& sourcePath, const StemEngine& engine,
+        const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop = {});
 
 private:
     QString cacheRoot_;

@@ -1,0 +1,7 @@
+{
+  "original_test_sha256": "2542a6951f0ee5e9afbb6e9e751197faaa2c6f4c2466dd0fe297b6248f330d3a",
+  "final_test_sha256": "daeca0de16ee3bde5e3e87b979a39e05f67d7a3230006474a7313bdc42025d65",
+  "fixture_sha256": "3c4cb9819657872977d52410e523e679852b3c71c80c6a959ba2a9e6aa224691",
+  "extension": "Five lines added to existing unsafe-cleanup case: overwrite preserved record bytes1, require new ordinary admission failure at full normal cap and unchanged prior bank manifest. Actual functional RED retained before final13-line product floor fix.",
+  "final_product_matches_all_frozen_outputs": true
+}

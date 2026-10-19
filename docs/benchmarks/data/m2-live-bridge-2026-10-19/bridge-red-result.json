@@ -1,0 +1,38 @@
+{
+  "status": "actual_missing_API_RED",
+  "head": "6d66e683d81c4fbf053691690cf345e5afbc8269",
+  "at": "2026-10-19T10:59:17.709220+00:00",
+  "declaration_patch_applied": false,
+  "product_implementation_started": false,
+  "tests_sha256": "2542a6951f0ee5e9afbb6e9e751197faaa2c6f4c2466dd0fe297b6248f330d3a",
+  "stages": [
+    {
+      "stage": "bridge-red-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build/dev",
+        "-G",
+        "Ninja"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.9185002419981174
+    },
+    {
+      "stage": "bridge-red-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-live-stem-bridge-test",
+        "--parallel",
+        "2"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 5.780700953968335
+    }
+  ]
+}
