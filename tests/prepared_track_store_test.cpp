@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QLockFile>
 #include <QRegularExpression>
+#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QtTest>
 
@@ -33,6 +34,7 @@
 #include <vector>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <sys/inotify.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -41,6 +43,8 @@ namespace {
 using conflux::audio::PreparedAudio;
 using conflux::library::PreparedTrack;
 using conflux::library::PreparedTrackStore;
+using conflux::library::PreparedStemTrack;
+using conflux::library::StemEngine;
 
 template<class Function>
 void checked(Function&& function)
@@ -57,9 +61,9 @@ bool rejects(Function&& function, const char* reason)
 {
     try {
         function();
-    } catch (const Exception& error) {
-        return std::string(error.what()).find(reason) != std::string::npos;
     } catch (const std::exception& error) {
+        if (dynamic_cast<const Exception*>(&error))
+            return std::string(error.what()).find(reason) != std::string::npos;
         std::cerr << "Unexpected rejection: " << error.what() << '\n';
     }
     return false;
@@ -129,13 +133,13 @@ std::vector<float> samples(float marker = 1.5F)
     return result;
 }
 
-void wave(const QString& path, std::span<const float> pcm)
+void wave(const QString& path, std::span<const float> pcm, std::uint32_t rate = 48000)
 {
     QByteArray bytes;
     bytes.append("RIFF", 4); append32(bytes, std::uint32_t(36 + pcm.size_bytes()));
     bytes.append("WAVEfmt ", 8); append32(bytes, 16);
-    append16(bytes, 3); append16(bytes, 2); append32(bytes, 48000);
-    append32(bytes, 48000 * 8); append16(bytes, 8); append16(bytes, 32);
+    append16(bytes, 3); append16(bytes, 2); append32(bytes, rate);
+    append32(bytes, rate * 8); append16(bytes, 8); append16(bytes, 32);
     bytes.append("data", 4); append32(bytes, std::uint32_t(pcm.size_bytes()));
     for (const auto sample : pcm) append32(bytes, std::bit_cast<std::uint32_t>(sample));
     writeBytes(path, bytes);
@@ -196,6 +200,137 @@ QStringList entries(const QString& root)
     return QDir(root).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 }
 
+// Real subprocess fixture: independent raw F32LE writer and manifest producer.
+// It performs no inference, audio output or imports from the product worker.
+StemEngine stemEngine(const QString& directory, const QByteArray& mode = "good")
+{
+    StemEngine result;
+    result.pythonExecutable = QFileInfo(QStandardPaths::findExecutable("python3")).canonicalFilePath();
+    result.exporterPath = QDir(directory).filePath("exporter.py");
+    result.workerPath = QDir(directory).filePath("worker.py");
+    result.runtimePath = QDir(directory).filePath("runtime.bin");
+    result.modelPath = QDir(directory).filePath("model.bin");
+    result.maxSeconds = 5;
+    result.requestTimeout = 1;
+    writeBytes(result.workerPath, "worker identity fixture\n");
+    writeBytes(result.runtimePath, "runtime identity fixture\n");
+    writeBytes(result.modelPath, "model identity fixture\n");
+    QByteArray script = "MODE = '" + mode + "'\n";
+    script += R"PY(import argparse, hashlib, json, math, os, pathlib, signal, struct, sys, time
+P = pathlib.Path(__file__)
+NAMES = ['drums', 'bass', 'other', 'vocals']
+def identity(path):
+    data = pathlib.Path(path).read_bytes()
+    return {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
+def describe():
+    return {'schema': 1, 'helper_sha256': identity(P)['sha256'],
+            'worker_sha256': identity(P.with_name('worker.py'))['sha256'], 'numpy_version': 'fixture-1',
+            'input': {'format': 'f32le', 'sample_rate': 44100, 'channels': 2},
+            'window_frames': 343980, 'hop_frames': 257985, 'overlap_frames': 85995,
+            'normalization': 'track-mono-sample-variance-f32-v1',
+            'overlap_add': 'fixed-grid-triangle-f32-v1'}
+if sys.argv[1:] == ['--describe']:
+    P.with_suffix('.prefix').write_text(sys.prefix)
+    print(json.dumps(describe())); sys.exit(0)
+a = argparse.ArgumentParser()
+for key in ['input', 'destination', 'runtime', 'model', 'backend']:
+    a.add_argument('--' + key, required=True)
+for key in ['threads', 'max-input-bytes', 'max-output-bytes', 'max-job-bytes', 'max-diagnostic-bytes']:
+    a.add_argument('--' + key, type=int, required=True)
+for key in ['max-seconds', 'request-timeout']:
+    a.add_argument('--' + key, type=float, required=True)
+v = a.parse_args()
+with P.with_suffix('.calls').open('ab') as calls: calls.write(b'x')
+P.with_suffix('.started').write_text(str(os.getpid()))
+if MODE == 'flood':
+    sys.stdout.buffer.write(b'x' * 131072); sys.stdout.buffer.flush(); time.sleep(60)
+if MODE == 'block':
+    time.sleep(60)
+raw = pathlib.Path(v.input).read_bytes()
+values = list(struct.unpack('<' + 'f' * (len(raw) // 4), raw))
+frames = len(raw) // 8
+destination = pathlib.Path(v.destination)
+stage = destination.with_name(destination.name + '.stage')
+stage.mkdir(mode=0o700)
+stems = []
+for index, name in enumerate(NAMES):
+    samples = [sample * (index + 1) / 4 for sample in values]
+    if MODE == 'nonfinite' and index == 2: samples[-1] = float('nan')
+    data = struct.pack('<' + 'f' * len(samples), *samples)
+    if MODE == 'truncate' and index == 2: data = data[:-4]
+    (stage / (name + '.f32')).write_bytes(data)
+    stems.append({'name': name, 'file': name + '.f32', 'frames': frames,
+                  'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+    if MODE == 'partial' and index == 1: sys.exit(3)
+d = describe()
+manifest = {'schema': 1, 'describe': d,
+    'source': dict(identity(v.input), format='f32le', sample_rate=44100, channels=2, frames=frames),
+    'model': identity(v.model),
+    'runtime': dict(identity(v.runtime), ready={'sample_rate': 44100, 'channels': 2,
+        'segment_frames': 343980, 'stems': NAMES, 'backend': v.backend, 'threads': v.threads,
+        'revision': 'a' * 40, 'weight_storage': 'native', 'fence_wait_mode': 'blocking'}),
+    'separation': {'worker_sha256': d['worker_sha256'], 'numpy_version': d['numpy_version'],
+        'mean': 0.0, 'std': 1.0, 'window_frames': 343980, 'hop_frames': 257985,
+        'overlap_frames': 85995, 'normalization': d['normalization'], 'overlap_add': d['overlap_add']},
+    'stems': stems,
+    'limits': {'max_input_bytes': v.max_input_bytes, 'max_output_bytes': v.max_output_bytes,
+        'max_job_bytes': v.max_job_bytes, 'max_seconds': v.max_seconds,
+        'request_timeout': v.request_timeout, 'max_diagnostic_bytes': v.max_diagnostic_bytes},
+    'reservation_bytes': 5 * len(raw) + 13759200 + v.max_diagnostic_bytes + 16384}
+if MODE == 'wrong-order': manifest['stems'].reverse()
+if MODE == 'wrong-model': manifest['model']['sha256'] = '0' * 64
+if MODE == 'wrong-describe': manifest['describe'] = dict(d, numpy_version='changed')
+if MODE == 'changed-source':
+    with P.with_name('source.wav').open('r+b') as original:
+        original.seek(44); original.write(struct.pack('<f', 0.625))
+(stage / 'manifest.json').write_text(json.dumps(manifest))
+stage.rename(destination)
+)PY";
+    writeBytes(result.exporterPath, script);
+    return result;
+}
+
+std::vector<float> stemSamples()
+{
+    std::vector<float> result(11025 * 2);
+    for (std::size_t frame = 0; frame < result.size() / 2; ++frame) {
+        result[frame * 2] = 1.5F;
+        result[frame * 2 + 1] = -.75F;
+    }
+    return result;
+}
+
+QString bankPath(const QString& root, const PreparedStemTrack& track, const QString& file)
+{
+    return QDir(root).filePath(track.artifactKey + "/" + file);
+}
+
+bool bankSamplesMatch(const PreparedStemTrack& track)
+{
+    const auto frames = track.stems[0].frames();
+    if (frames < 11999 || frames > 12001) return false;
+    for (std::size_t stem = 0; stem < track.stems.size(); ++stem) {
+        const auto& audio = track.stems[stem];
+        if (audio.frames() != frames || audio.peaks().size() != 512) return false;
+        const auto flags = fcntl(audio.descriptor(), F_GETFL);
+        if (flags < 0 || (flags & O_ACCMODE) != O_RDONLY || !(fcntl(audio.descriptor(), F_GETFD) & FD_CLOEXEC)) return false;
+        std::vector<float> pcm(frames * 2);
+        std::size_t received = 0;
+        while (received < pcm.size() * sizeof(float)) {
+            const auto count = pread(audio.descriptor(), reinterpret_cast<char*>(pcm.data()) + received,
+                pcm.size() * sizeof(float) - received, static_cast<off_t>(received));
+            if (count < 0 && errno == EINTR) continue;
+            if (count <= 0) return false;
+            received += std::size_t(count);
+        }
+        if (!overviewMatches(audio, pcm)) return false;
+        for (std::size_t frame = 1536; frame + 1536 < frames; ++frame)
+            if (std::abs(pcm[frame * 2] - 1.5F * float(stem + 1) / 4) > 2e-4F ||
+                std::abs(pcm[frame * 2 + 1] + .75F * float(stem + 1) / 4) > 2e-4F) return false;
+    }
+    return true;
+}
+
 class SourceReadWatch {
 public:
     explicit SourceReadWatch(const QString& path) : descriptor_(inotify_init1(IN_NONBLOCK | IN_CLOEXEC))
@@ -226,6 +361,294 @@ private:
 class PreparedTrackStoreTest : public QObject {
     Q_OBJECT
 private slots:
+    void completeStemBankAndFreshInstanceReuse()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            auto first = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(!first.cacheHit);
+            QVERIFY(bankSamplesMatch(first));
+            QCOMPARE(first.sourceSha256, QString::fromLatin1(QCryptographicHash::hash(readBytes(source), QCryptographicHash::Sha256).toHex()));
+            QCOMPARE(readBytes(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".calls"), QByteArray("x"));
+            QCOMPARE(QDir(QDir(root).filePath(first.artifactKey)).entryList(QDir::Files).size(), qsizetype(5));
+            const auto manifest = QJsonDocument::fromJson(readBytes(bankPath(root, first, "manifest.json"))).object();
+            QCOMPARE(manifest.value("schema"), QJsonValue(2));
+            QCOMPARE(manifest.value("kind").toString(), QString("stem_bank"));
+            QVERIFY(readBytes(bankPath(root, first, "manifest.json")).size() <= qsizetype(PreparedTrackStore::Limits{}.maxManifestBytes));
+            auto second = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(second.cacheHit);
+            QCOMPARE(second.artifactKey, first.artifactKey);
+            QVERIFY(bankSamplesMatch(second));
+            QCOMPARE(readBytes(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".calls"), QByteArray("x"));
+            PreparedTrackStore::Limits tightSource;
+            tightSource.maxSourceBytes = std::uint64_t(QFileInfo(source).size());
+            // The interpreter/model bounds are independent of original media.
+            QVERIFY(PreparedTrackStore(root, tightSource).prepareStemBank(source, engine).cacheHit);
+            auto alias = engine;
+            alias.pythonExecutable = directory.filePath("python-alias");
+            QCOMPARE(symlink(QFile::encodeName(engine.pythonExecutable).constData(), QFile::encodeName(alias.pythonExecutable).constData()), 0);
+            QVERIFY(PreparedTrackStore(root).prepareStemBank(source, alias).cacheHit);
+            auto normal = PreparedTrackStore(root).prepare(source);
+            QVERIFY(!normal.cacheHit);
+            QVERIFY(normal.artifactKey != first.artifactKey);
+            QVERIFY(PreparedTrackStore(root).prepare(source).cacheHit);
+            QCOMPARE(entries(root).size(), qsizetype(2));
+        });
+    }
+
+    void corruptStemBankRegeneratesAsOneUnit_data()
+    {
+        QTest::addColumn<bool>("geometry");
+        QTest::newRow("same-size-digest") << false;
+        QTest::newRow("self-consistent-wrong-duration") << true;
+    }
+
+    void corruptStemBankRegeneratesAsOneUnit()
+    {
+        QFETCH(bool, geometry);
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            auto first = PreparedTrackStore(root).prepareStemBank(source, engine);
+            if (geometry) {
+                const auto path = bankPath(root, first, "manifest.json");
+                auto manifest = QJsonDocument::fromJson(readBytes(path)).object();
+                auto stems = manifest.value("stems").toArray();
+                for (qsizetype index = 0; index < stems.size(); ++index) {
+                    auto stem = stems[index].toObject();
+                    const auto leaf = bankPath(root, first, stem.value("file").toString());
+                    QVERIFY(QFile::resize(leaf, 512 * 8));
+                    stem.insert("bytes", 512 * 8);
+                    stem.insert("sha256", QString::fromLatin1(QCryptographicHash::hash(readBytes(leaf), QCryptographicHash::Sha256).toHex()));
+                    stems[index] = stem;
+                }
+                manifest.insert("stems", stems);
+                manifest.insert("frames", 512);
+                manifest.insert("pcm_bytes", 512 * 8 * 4);
+                writeBytes(path, QJsonDocument(manifest).toJson(QJsonDocument::Compact));
+            } else {
+                QFile damaged(bankPath(root, first, "other.f32"));
+                QVERIFY(damaged.open(QIODevice::ReadWrite));
+                QByteArray value; append32(value, std::bit_cast<std::uint32_t>(.0625F));
+                QCOMPARE(damaged.write(value), qint64(value.size()));
+                damaged.close();
+            }
+            auto regenerated = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(!regenerated.cacheHit);
+            QCOMPARE(regenerated.artifactKey, first.artifactKey);
+            QVERIFY(bankSamplesMatch(regenerated));
+            QVERIFY(PreparedTrackStore(root).prepareStemBank(source, engine).cacheHit);
+            QCOMPARE(entries(root).size(), qsizetype(1));
+            QCOMPARE(readBytes(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".calls"), QByteArray("xx"));
+        });
+    }
+
+    void invalidStemExportDoesNotPublish_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        for (const auto* mode : {"truncate", "nonfinite", "partial", "wrong-order", "wrong-model", "wrong-describe", "changed-source"})
+            QTest::newRow(mode) << QByteArray(mode);
+    }
+
+    void invalidStemExportDoesNotPublish()
+    {
+        QFETCH(QByteArray, mode);
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path(), mode);
+            QVERIFY(rejects<std::exception>([&] { PreparedTrackStore(root).prepareStemBank(source, engine); }, ""));
+            QVERIFY(entries(root).isEmpty());
+            QVERIFY(QDir(root).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot).isEmpty());
+        });
+    }
+
+    void stemBankSharesAggregateBudgetAndPreservesNormalEntry()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            auto original = PreparedTrackStore(root).prepare(source);
+            PreparedTrackStore::Limits limits;
+            limits.maxCacheBytes = 1000000; // Normal PCM fits; native export reservation does not.
+            QVERIFY(rejects<std::length_error>([&] { PreparedTrackStore(root, limits).prepareStemBank(source, engine); }, "budget"));
+            QVERIFY(!QFileInfo::exists(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".calls"));
+            QVERIFY(PreparedTrackStore(root, limits).prepare(source).cacheHit);
+            QCOMPARE(entries(root).size(), qsizetype(1));
+            QVERIFY(QFileInfo::exists(entryPath(root, original, "audio.f32")));
+        });
+    }
+
+    void cancelledStemExportReapsItsProcessAndKeepsPriorBank()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto good = stemEngine(directory.path());
+            auto prior = PreparedTrackStore(root).prepareStemBank(source, good);
+            const auto engine = stemEngine(directory.path(), "block");
+            const auto marker = engine.exporterPath.left(engine.exporterPath.size() - 3) + ".started";
+            QFile::remove(marker);
+            std::stop_source cancellation;
+            auto preparing = std::async(std::launch::async, [&] {
+                return rejects<std::runtime_error>([&] { PreparedTrackStore(root).prepareStemBank(source, engine, cancellation.get_token()); }, "cancel");
+            });
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+            while (!QFileInfo::exists(marker) && std::chrono::steady_clock::now() < deadline)
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            const bool started = QFileInfo::exists(marker);
+            cancellation.request_stop();
+            const bool finished = preparing.wait_for(std::chrono::seconds(3)) == std::future_status::ready;
+            QVERIFY(started && finished);
+            QVERIFY(preparing.get());
+            const auto pid = readBytes(marker).toLongLong();
+            QVERIFY(pid > 1 && kill(pid_t(pid), 0) == -1 && errno == ESRCH);
+            QVERIFY(bankSamplesMatch(prior));
+            QCOMPARE(entries(root).size(), qsizetype(1));
+            QVERIFY(QFileInfo::exists(bankPath(root, prior, "vocals.f32")));
+        });
+    }
+
+    void unsafeStemBankLeafIsPreservedAndNeverFollowed()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            auto bank = PreparedTrackStore(root).prepareStemBank(source, engine);
+            const auto leaf = bankPath(root, bank, "bass.f32"), outside = directory.filePath("outside.bin");
+            writeBytes(outside, "do not read or overwrite");
+            QVERIFY(QFile::remove(leaf));
+            QCOMPARE(symlink(QFile::encodeName(outside).constData(), QFile::encodeName(leaf).constData()), 0);
+            QVERIFY(rejects<std::runtime_error>([&] { PreparedTrackStore(root).prepareStemBank(source, engine); }, "unsafe cache entry"));
+            QCOMPARE(readBytes(outside), QByteArray("do not read or overwrite"));
+            struct stat status{};
+            QCOMPARE(lstat(QFile::encodeName(leaf).constData(), &status), 0);
+            QVERIFY(S_ISLNK(status.st_mode));
+        });
+    }
+
+    void stemExporterDeadlineAndDiagnosticBounds_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        QTest::newRow("deadline") << QByteArray("block");
+        QTest::newRow("diagnostic-overflow") << QByteArray("flood");
+    }
+
+    void stemExporterDeadlineAndDiagnosticBounds()
+    {
+        QFETCH(QByteArray, mode);
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            auto engine = stemEngine(directory.path(), mode);
+            engine.maxSeconds = 1;
+            QVERIFY(rejects<std::exception>([&] { PreparedTrackStore(root).prepareStemBank(source, engine); },
+                mode == "block" ? "timed out" : "diagnostic"));
+            const auto pid = readBytes(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".started").toLongLong();
+            QVERIFY(pid > 1 && kill(pid_t(pid), 0) == -1 && errno == ESRCH);
+            QVERIFY(QDir(root).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot).isEmpty());
+        });
+    }
+
+    void concurrentStemPublishAndEngineIdentityChange()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            auto left = std::async(std::launch::async, [&] { return PreparedTrackStore(root).prepareStemBank(source, engine); });
+            auto right = std::async(std::launch::async, [&] { return PreparedTrackStore(root).prepareStemBank(source, engine); });
+            auto first = left.get();
+            auto second = right.get();
+            QVERIFY(first.cacheHit != second.cacheHit);
+            QCOMPARE(first.artifactKey, second.artifactKey);
+            QVERIFY(bankSamplesMatch(first) && bankSamplesMatch(second));
+            QCOMPARE(readBytes(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".calls"), QByteArray("x"));
+            writeBytes(engine.runtimePath, "changed runtime bytes\n");
+            auto changed = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(!changed.cacheHit);
+            QVERIFY(changed.artifactKey != first.artifactKey);
+            QVERIFY(bankSamplesMatch(changed) && bankSamplesMatch(first));
+            QCOMPARE(entries(root).size(), qsizetype(2));
+        });
+    }
+
+    void staleStemJobRequiresReleasedLockAndProvenNativeCleanup()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            const auto stage = QDir(root).filePath(".stage-0123456789abcdef");
+            wave(source, samples());
+            QVERIFY(QDir().mkpath(stage));
+            const auto lockPath = QDir(stage).filePath(".raw.export.lock");
+            writeBytes(QDir(stage).filePath("input.f32"), "retained caller input");
+            writeBytes(lockPath, {});
+            QFile lease(lockPath);
+            QVERIFY(lease.open(QIODevice::ReadWrite));
+            QCOMPARE(flock(lease.handle(), LOCK_EX | LOCK_NB), 0);
+            QVERIFY(rejects<std::runtime_error>([&] { PreparedTrackStore(root).prepare(source); }, "busy"));
+            QCOMPARE(readBytes(QDir(stage).filePath("input.f32")), QByteArray("retained caller input"));
+            QCOMPARE(flock(lease.handle(), LOCK_UN), 0);
+            lease.close();
+            const auto native = QDir(stage).filePath("raw.stage/native");
+            QVERIFY(QDir().mkpath(native));
+            writeBytes(QDir(native).filePath("input.f32"), "unexplained native spool");
+            QVERIFY(rejects<std::runtime_error>([&] { PreparedTrackStore(root).prepare(source); }, "unproven"));
+            QCOMPARE(readBytes(QDir(stage).filePath("input.f32")), QByteArray("retained caller input"));
+            QCOMPARE(readBytes(QDir(native).filePath("input.f32")), QByteArray("unexplained native spool"));
+            // This fixture has no native process. Explicitly remove its spool;
+            // the next normal preparation may now collect the bounded orphan.
+            QVERIFY(QDir(native).removeRecursively());
+            QVERIFY(!PreparedTrackStore(root).prepare(source).cacheHit);
+            QVERIFY(!QFileInfo::exists(stage));
+        });
+    }
+
+    void configuredPythonVirtualEnvironmentIsPreserved()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            auto engine = stemEngine(directory.path());
+            const auto environment = directory.filePath("venv"), bin = QDir(environment).filePath("bin");
+            QVERIFY(QDir().mkpath(bin));
+            const auto invoked = QDir(bin).filePath("python3");
+            QCOMPARE(symlink(QFile::encodeName(engine.pythonExecutable).constData(), QFile::encodeName(invoked).constData()), 0);
+            writeBytes(QDir(environment).filePath("pyvenv.cfg"),
+                "home = " + QFile::encodeName(QFileInfo(engine.pythonExecutable).absolutePath()) +
+                "\ninclude-system-site-packages = false\n");
+            engine.pythonExecutable = invoked;
+            auto bank = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(bankSamplesMatch(bank));
+            QCOMPARE(QString::fromUtf8(readBytes(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".prefix")), environment);
+        });
+    }
+
     void coldAndFreshInstanceReuse()
     {
         checked([&] {

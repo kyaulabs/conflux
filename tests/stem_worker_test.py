@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import subprocess
 import sys
 import tempfile
 import threading
@@ -698,6 +699,63 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(stats["telemetry_high_water"], 256)
         self.assertEqual(stats["telemetry_dropped"], 744)
         self.assertEqual(stats["cancel_count"], 1000)
+
+    def test_model_fifo_replacement_before_hash_open_is_rejected_without_backend_start(self):
+        # Isolate the real supervisor so even the old blocking Path.open cannot
+        # strand this test runner. run(timeout=...) kills AND reaps its child.
+        script = r"""
+import os
+from pathlib import Path
+import sys
+import time
+import unittest
+from unittest.mock import Mock, patch
+from tools.stems import worker as module
+
+case = unittest.TestCase()
+model, source = map(Path, sys.argv[1:])
+real_signature = module._signature
+replaced = False
+def replace_after_capture(path):
+    global replaced
+    captured = real_signature(path)
+    if path == model and not replaced:
+        model.unlink()
+        os.mkfifo(model)
+        replaced = True
+    return captured
+
+factory = Mock(side_effect=AssertionError("backend must not start for a replaced model"))
+with patch.object(module, "_signature", side_effect=replace_after_capture):
+    owner = module.StemWorker("unused-runtime", model, _backend_factory=factory)
+    try:
+        generation = owner.load(source)
+        failure = None
+        deadline = time.monotonic() + 2
+        while time.monotonic() < deadline:
+            event = owner.poll(0.05)
+            if event is not None and event["event"] == "error":
+                failure = event
+                break
+        case.assertTrue(replaced)
+        case.assertIsNotNone(failure, "model FIFO replacement blocked instead of emitting an error")
+        case.assertEqual(failure["generation"], generation)
+        case.assertIn("model changed", failure["message"])
+        factory.assert_not_called()
+        case.assertEqual(owner.statistics()["backend_start_count"], 0)
+    finally:
+        owner.close(timeout=0.1)
+case.assertFalse(owner._thread.is_alive())
+factory.assert_not_called()
+"""
+        try:
+            result = subprocess.run(
+                [sys.executable, "-B", "-c", script, str(self.model), str(self.path)],
+                cwd=Path(__file__).resolve().parents[1], capture_output=True,
+                text=True, timeout=10, check=False)
+        except subprocess.TimeoutExpired:
+            self.fail("model FIFO replacement blocked the supervisor; isolated child was killed and reaped")
+        self.assertEqual(result.returncode, 0, result.stderr[-4096:])
 
     def test_native_protocol_rejects_faults_and_times_out(self):
         # Exercise the actual process transport without a native model/GPU.

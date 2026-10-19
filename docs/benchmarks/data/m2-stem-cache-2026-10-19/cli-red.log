@@ -1,0 +1,14 @@
+E
+======================================================================
+ERROR: test_describe_starts_no_supervisor (__main__.ExportCliTest.test_describe_starts_no_supervisor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/kyau/projects/kyaulabs/conflux/tests/stem_export_cli_test.py", line 47, in test_describe_starts_no_supervisor
+    self.assertEqual(exporter.main(["--describe"]), 0)
+                     ^^^^^^^^^^^^^
+AttributeError: module 'tools.stems.export' has no attribute 'main'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

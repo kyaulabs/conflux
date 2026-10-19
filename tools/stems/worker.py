@@ -42,13 +42,28 @@ _WEIGHT /= _WEIGHT.max()
 class NativeRuntime:
     """Bounded JSONL/raw-file bridge to tools/runtime/htdemucs_segment.cpp."""
 
-    def __init__(self, runtime, model, backend, threads, timeout, *, passive_openmp=True):
+    def __init__(self, runtime, model, backend, threads, timeout, *, passive_openmp=True,
+                 spool_directory=None, max_stderr_bytes=None):
+        if (max_stderr_bytes is not None and (type(max_stderr_bytes) is not int
+                or not 0 < max_stderr_bytes <= 65536)):
+            raise ValueError("invalid native diagnostic byte limit")
+        self._fixed_spool = spool_directory is not None
+        self._process_reaped = False
+        self._closed = False
+        self._close_failed = False
+        self.max_stderr_bytes = max_stderr_bytes
+        self._stderr_tail = bytearray()
         self.timeout = timeout
         self._cleanup = ExitStack()
         try:
-            self.directory = tempfile.TemporaryDirectory(prefix="conflux-stem-worker-")
-            self._cleanup.callback(self.directory.cleanup)
-            self.root = Path(self.directory.name)
+            if spool_directory is None:
+                self.directory = tempfile.TemporaryDirectory(prefix="conflux-stem-worker-")
+                self._cleanup.callback(self.directory.cleanup)
+                self.root = Path(self.directory.name)
+            else:
+                self.root = Path(spool_directory)
+                self.root.mkdir(mode=0o700)
+                self._cleanup.callback(self._remove_spool)
             self.stderr = self._cleanup.enter_context((self.root / "runtime.stderr").open("wb"))
             environment = os.environ.copy()
             if backend == "vulkan" and passive_openmp:
@@ -60,13 +75,19 @@ class NativeRuntime:
             self.process = subprocess.Popen(
                 [str(runtime), "--model", str(model), "--backend", backend,
                  "--threads", str(threads)], stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE, stderr=self.stderr, bufsize=0, env=environment)
+                stdout=subprocess.PIPE,
+                stderr=self.stderr if max_stderr_bytes is None else subprocess.PIPE,
+                bufsize=0, env=environment)
+            if max_stderr_bytes is not None:
+                self._cleanup.callback(self.process.stderr.close)
             self._cleanup.callback(self.process.stdout.close)
             self._cleanup.callback(self.process.stdin.close)
             self._cleanup.callback(self._close_process)
             self.selector = selectors.DefaultSelector()
             self._cleanup.callback(self.selector.close)
             self.selector.register(self.process.stdout, selectors.EVENT_READ)
+            if max_stderr_bytes is not None:
+                self.selector.register(self.process.stderr, selectors.EVENT_READ)
             self.buffer = bytearray()
         except BaseException:
             # Cleanup failures must not replace the original startup error.
@@ -74,7 +95,60 @@ class NativeRuntime:
                 self._cleanup.close()
             raise
 
+    def _remove_spool(self):
+        if hasattr(self, "process") and not self._process_reaped:
+            return  # A failed wait must leave caller-owned native files intact.
+        for name in ("input.f32", "output.f32", "runtime.stderr"):
+            (self.root / name).unlink(missing_ok=True)
+        self.root.rmdir()
+
+    def _flush_diagnostics(self):
+        if self.max_stderr_bytes is not None and not self.stderr.closed:
+            self.stderr.seek(0)
+            self.stderr.write(self._stderr_tail)
+            self.stderr.truncate()
+            self.stderr.flush()
+
+    def _receive_bounded(self):
+        deadline = time.monotonic() + self.timeout
+        while b"\n" not in self.buffer:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                self.abort()
+                self._flush_diagnostics()
+                raise TimeoutError("native stem request timed out; child terminated")
+            ready = self.selector.select(remaining)
+            # One fixed read per pipe/event: stderr cannot starve stdout or reset
+            # the absolute request deadline, even when the child floods stderr.
+            for key, _ in ready:
+                if time.monotonic() >= deadline:
+                    break
+                data = os.read(key.fileobj.fileno(), 4096)
+                if key.fileobj is self.process.stderr:
+                    if data:
+                        self._stderr_tail.extend(data)
+                        del self._stderr_tail[:-self.max_stderr_bytes]
+                    else:
+                        self.selector.unregister(key.fileobj)
+                elif not data:
+                    self._flush_diagnostics()
+                    detail = self._stderr_tail[-4096:].decode(errors="replace")
+                    raise RuntimeError(f"native stem worker closed its output: {detail}")
+                else:
+                    self.buffer.extend(data)
+                    if len(self.buffer) > 65536:
+                        raise RuntimeError("native stem protocol line exceeds limit")
+        self._flush_diagnostics()
+        line, _, remainder = self.buffer.partition(b"\n")
+        self.buffer = bytearray(remainder)
+        event = json.loads(line)
+        if not isinstance(event, dict):
+            raise RuntimeError("native stem protocol requires an object")
+        return event
+
     def _receive(self):
+        if self.max_stderr_bytes is not None:
+            return self._receive_bounded()
         deadline = time.monotonic() + self.timeout
         while b"\n" not in self.buffer:
             remaining = deadline - time.monotonic()
@@ -138,9 +212,28 @@ class NativeRuntime:
         if self.process.poll() is None:
             self.abort()
         self.process.wait(timeout=2)
+        self._process_reaped = True
 
     def close(self):
-        self._cleanup.close()
+        if self._closed:
+            return
+        if self._close_failed:
+            # ExitStack is already drained. Retain ownership so a later close can
+            # retry kill/wait rather than treating failed reaping as success.
+            self._close_process()
+            if self._fixed_spool and self.root.exists():
+                self._remove_spool()
+            self._closed = True
+            return
+        try:
+            try:
+                self._flush_diagnostics()
+            finally:
+                self._cleanup.close()
+        except BaseException:
+            self._close_failed = True
+            raise
+        self._closed = True
 
 
 @dataclass(frozen=True)
@@ -182,6 +275,20 @@ def _open_f32(path, expected_signature):
         observed = (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
         if observed != expected_signature:
             raise RuntimeError("stem source changed while opening F32LE input")
+        return os.fdopen(descriptor, "rb")
+    except BaseException:
+        with suppress(OSError):
+            os.close(descriptor)
+        raise
+
+
+def _open_model(path, expected_signature):
+    descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW)
+    try:
+        info = os.fstat(descriptor)
+        observed = (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        if not stat.S_ISREG(info.st_mode) or observed != expected_signature:
+            raise RuntimeError("stem model changed while opening identity input")
         return os.fdopen(descriptor, "rb")
     except BaseException:
         with suppress(OSError):
@@ -234,6 +341,7 @@ class StemWorker:
         self._processing_generation = 0
         self._inflight = None
         self._native = None
+        self._cleanup_error = None
         self._model_id = None
         self._model_signature = None
         self._cached_source = None
@@ -351,6 +459,14 @@ class StemWorker:
             self._thread.join(2)
         if self._thread.is_alive():
             raise TimeoutError("stem supervisor did not stop after child termination")
+        with self._condition:
+            error = self._cleanup_error
+        if error is not None:
+            self._drop_runtime()  # Retry any retained native owner after join.
+            with self._condition:
+                if self._native is None:
+                    self._cleanup_error = None
+            raise error
 
     def _emit_locked(self, event, generation, **fields):
         item = {"event": event, "generation": generation, "timestamp": time.monotonic(), **fields}
@@ -374,16 +490,26 @@ class StemWorker:
         if not self._active(command):
             raise _Superseded
 
-    def _ensure_runtime(self):
+    def _ensure_runtime(self, command):
         if self._native is not None:
             return
         signature = _signature(self.model)
         if self._model_id is None or signature != self._model_signature:
-            with self.model.open("rb") as stream:
-                self._model_id = hashlib.file_digest(stream, "sha256").hexdigest()
+            with _open_model(self.model, signature) as stream:
+                digest = hashlib.sha256()
+                remaining = signature[2]
+                while remaining:
+                    self._check(command)
+                    block = stream.read(min(1024 * 1024, remaining))
+                    if not block:
+                        raise RuntimeError("stem model was truncated during identity hashing")
+                    digest.update(block)
+                    remaining -= len(block)
+                self._model_id = digest.hexdigest()
             if _signature(self.model) != signature:
                 raise RuntimeError("stem model changed during identity hashing")
             self._model_signature = signature
+        self._check(command)
         native = self._factory(self.runtime, self.model, self.backend, self.threads,
                                self.request_timeout)
         with self._condition:
@@ -398,10 +524,23 @@ class StemWorker:
 
     def _drop_runtime(self):
         with self._condition:
-            native, self._native = self._native, None
-            self._backend_pid = None
+            native = self._native
         if native is not None:
-            native.close()
+            try:
+                native.close()
+            except Exception as error:
+                with self._condition:
+                    self._cleanup_error = error
+                    self._closed = True
+                    self._command = None
+                    self._chunks.clear()
+                    self._condition.notify_all()
+                return False
+            with self._condition:
+                if self._native is native:
+                    self._native = None
+                    self._backend_pid = None
+        return True
 
     def _source(self, command):
         signature = _signature(command.path)
@@ -614,7 +753,7 @@ class StemWorker:
                     processed = command.generation
                     self._processing_generation = processed
                 try:
-                    self._ensure_runtime()
+                    self._ensure_runtime(command)
                     self._check(command)
                     source = self._source(command)
                     self._produce(command, source)
@@ -627,6 +766,7 @@ class StemWorker:
                             self._chunks.clear()
                         self._emit_locked("error", command.generation, message=str(error),
                                           source_path=str(command.path))
-                    self._drop_runtime()
+                    if not self._drop_runtime():
+                        return
         finally:
             self._drop_runtime()
