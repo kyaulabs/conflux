@@ -87,7 +87,7 @@ The [earlier controller measurement](benchmarks/data/m2-controller-live-2026-10-
 retains its nine isolated CLI checks; they were not rerun for this timing slice.
 
 The [Best-quality converter measurement](benchmarks/data/m2-best-quality-converter-2026-10-19/verification.json)
-is the latest local measurement below. All 36 normal and instrumented CTest
+retains the preceding local run. All 36 normal and instrumented CTest
 entries and smoke passed. Normal routing passed 130 checks; strict preparation
 passed 78 checks with both virtual sink sample gates enabled and zero wrong or
 zero-valued samples. Instrumented routing/preparation passed 124/78 functional
@@ -97,10 +97,21 @@ both private daemons were reaped, and no owned nodes or links remained.
 An earlier interpreter-path setup failure occurred before coverage started;
 that outcome is retained separately. No new tests were added for a percentage.
 
+The [worker-phase measurement](benchmarks/data/m2-worker-phase-timing-2026-10-19/verification.json)
+is the latest local measurement below. Existing behavior tests began RED;
+23 Python tests and 95 focused C++ cases passed after phase retention was added.
+All 36 normal and instrumented CTest entries, smoke, 130 strict normal routing
+checks and 78 strict preparation checks passed. Instrumented routing/preparation
+passed 124/78 functional checks. All 107 source pins stayed unchanged, and both
+private daemons were reaped with no owned nodes or links. A setup metadata lookup
+error and the truthfully late-prepared coverage plan are retained; the independent
+coverage command passed without a restart, with source pins verified before
+launch and after the metadata repair.
+
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 5,786 / 6,712 (86.20%) | 8,181 / 15,427 (53.03%) |
-| Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
+| C++ `src/` | 5,802 / 6,729 (86.22%) | 8,236 / 15,511 (53.10%) |
+| Python `tools/stems/` | 1,248 / 1,366 (91.36%) | 441 / 536 (82.28%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
 [initial baseline](benchmarks/data/coverage-baseline-2026-10-18.json). Its largest

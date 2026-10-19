@@ -34,6 +34,8 @@ INPUT_BYTES = 8192
 EVENT_BYTES = 16384
 OUTPUT_BYTES = 65536
 SLOT_BYTES = len(STEMS) * HOP * CHANNELS * 4
+NATIVE_TIMINGS = ("elapsed_ms", "inference_wall_ms", "inference_cpu_ms", "frontend_ms", "graph_ms",
+                  "graph_upload_ms", "graph_compute_ms", "graph_readback_ms", "postprocess_ms", "graph_rebuild_ms")
 
 
 @dataclass(frozen=True)
@@ -356,6 +358,18 @@ class _Session:
                 if not _finite(event[key]):
                     raise RuntimeError("invalid service chunk timing")
                 timings[key] = event[key]
+        metrics = event.get("metrics", {})
+        if not isinstance(metrics, dict):
+            raise RuntimeError("invalid native chunk timing object")
+        native_timings = {}
+        for key in NATIVE_TIMINGS:
+            if key in metrics:
+                if not _finite(metrics[key]):
+                    raise RuntimeError("invalid native chunk timing")
+                native_timings["native_" + key] = metrics[key]
+        if native_timings:
+            # Keep the existing 32-member per-object wire cap unchanged.
+            timings["native_timings"] = native_timings
         self.verify_signatures()
         slot = self.leases.index(None)
         name = "slot" + str(slot) + ".f32"
