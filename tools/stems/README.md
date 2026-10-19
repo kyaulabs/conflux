@@ -48,6 +48,24 @@ polling loop with a blocking fence wait. The upstream checkout stays unchanged.
 Configure with `-DCONFLUX_STEM_BLOCKING_WAIT=OFF` to build the upstream wait
 baseline.
 
+The Vulkan Flash path is disabled by default. To build it against the same
+verified source and headers, use a separate build directory:
+
+```sh
+cmake -S tools/runtime -B "$stem_root/build-flash-f32" -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DAUDIOCPP_SOURCE_DIR="$stem_root/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47" \
+  -DSPIRV_HEADERS_INCLUDE_DIR="$stem_root/include" \
+  -DCONFLUX_STEM_FLASH_F32=ON
+cmake --build "$stem_root/build-flash-f32" --target conflux-stem-runtime --parallel 2
+```
+
+This option requires blocking fence waits. It checks the pinned sources and ten
+HTDemucs attention-node signatures, then selects the existing scalar shader with
+F32 intermediates and accumulation. The F16 model weights stay unchanged. Its
+output differs numerically from the default runtime; [M2](../../docs/M2.md)
+records the comparisons and remaining qualification.
+
 Import `StemWorker` from `tools.stems.worker`. Sources must be nonempty,
 uncompressed stereo 44.1 kHz PCM16 WAV files. Frame positions are source frames.
 The supervisor sets `OMP_WAIT_POLICY=PASSIVE` and `GOMP_SPINCOUNT=0` only in the
