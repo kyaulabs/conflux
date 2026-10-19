@@ -121,4 +121,3 @@ stage.rename(destination)
     return result;
 }
 } // namespace conflux::test
-
