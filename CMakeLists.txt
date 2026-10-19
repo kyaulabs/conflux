@@ -14,7 +14,8 @@ pkg_check_modules(SndFile REQUIRED IMPORTED_TARGET sndfile>=1.2)
 pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate>=0.2.2)
 
 add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp
-    src/audio/PcmReadAhead.cpp src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
+    src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/StemBankSource.cpp
+    src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
     src/audio/AudioRouting.cpp)
 target_include_directories(conflux-audio PUBLIC src)
 target_link_libraries(conflux-audio PRIVATE PkgConfig::SndFile PkgConfig::SampleRate Threads::Threads)
@@ -69,6 +70,15 @@ if(BUILD_TESTING)
     target_link_libraries(conflux-audio-source-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-source-test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME audio-source COMMAND conflux-audio-source-test)
+    add_executable(conflux-audio-stem-bank-test tests/audio_stem_bank_test.cpp)
+    target_link_libraries(conflux-audio-stem-bank-test PRIVATE conflux-audio)
+    target_compile_options(conflux-audio-stem-bank-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-stem-bank COMMAND conflux-audio-stem-bank-test)
+    add_executable(conflux-audio-prepared-playback-test tests/audio_prepared_playback_test.cpp)
+    target_link_libraries(conflux-audio-prepared-playback-test PRIVATE conflux-audio Threads::Threads)
+    target_compile_options(conflux-audio-prepared-playback-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-prepared-playback COMMAND conflux-audio-prepared-playback-test)
+    set_tests_properties(audio-prepared-playback PROPERTIES TIMEOUT 30)
     add_executable(conflux-audio-preparation-test tests/audio_preparation_test.cpp)
     target_link_libraries(conflux-audio-preparation-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-preparation-test PRIVATE -Wall -Wextra -Wpedantic)

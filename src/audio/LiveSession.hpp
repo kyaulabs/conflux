@@ -4,7 +4,7 @@
 #include "audio/RenderCore.hpp"
 #include "audio/AudioRouting.hpp"
 #include "audio/CallbackTiming.hpp"
-#include "audio/PcmReadAhead.hpp"
+#include "audio/PreparedPlayback.hpp"
 #include "audio/SourceHandoff.hpp"
 
 #include <array>
@@ -19,7 +19,8 @@ class PreparedAudio;
 class StereoRecorder;
 
 // One control-thread owner; process callbacks own DSP while running. Borrowed
-// immutable PCM must outlive the session. Source replacement requires stop.
+// immutable memory PCM must outlive the session. Prepared owners are retained
+// through callback-end source replacement acknowledgement and control acquire.
 class LiveSession {
 public:
     struct InitialState {
@@ -63,6 +64,9 @@ public:
     // Duplicated file readers own fixed read-ahead caches, prime before output,
     // and stop after callbacks. Prepared owners may then be released safely.
     LiveSession(PreparedSources sources, const InitialState& initial);
+    using PlaybackSources = std::array<std::unique_ptr<PreparedPlayback>, RenderCore::deckCount>;
+    // Takes whole normal/stem-bank owners and primes them before output starts.
+    LiveSession(PlaybackSources sources, const InitialState& initial);
     ~LiveSession();
     LiveSession(const LiveSession&) = delete;
     LiveSession& operator=(const LiveSession&) = delete;
@@ -82,13 +86,13 @@ public:
     bool pollState(State& state) noexcept;
     struct SourceReplacementResult {
         SourceHandoff::Completion completion;
-        std::unique_ptr<PcmReadAhead> retiredReader;
+        std::unique_ptr<PreparedPlayback> retiredPlayback;
     };
     // One control-owner request. Prime the candidate at frame zero off the GUI.
     // Generations increase across requests in this session. Rejection leaves
     // it owned by the caller. Collect completion before another
-    // request; stop/join its retired reader away from the GUI and render threads.
-    bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PcmReadAhead>& candidate,
+    // request; stop/join its retired whole owner away from GUI/render threads.
+    bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                   std::uint64_t generation) noexcept;
     [[nodiscard]] bool sourceReplacementPending() const noexcept;
     std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept;

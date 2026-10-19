@@ -8,7 +8,7 @@
 #include <cstdint>
 
 namespace conflux::audio {
-class PcmReadAhead;
+class PreparedPlayback;
 
 // One control producer and one render consumer. Owners remain outside this
 // mailbox until completion is acquired, or callbacks have been quiesced.
@@ -17,7 +17,7 @@ public:
     struct Request {
         std::size_t deck = 0;
         AudioSource source{};
-        PcmReadAhead* reader = nullptr;
+        PreparedPlayback* playback = nullptr;
         std::uint64_t generation = 0;
     };
     struct RetiredState {

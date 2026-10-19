@@ -2,7 +2,7 @@
 #include "audio/LiveSession.hpp"
 #include "audio/TransportQueue.hpp"
 #include "audio/AudioFile.hpp"
-#include "audio/PcmReadAhead.hpp"
+#include "audio/PreparedPlayback.hpp"
 #include "audio/RecorderTap.hpp"
 #include "audio/PipeWireMetadata.hpp"
 
@@ -23,6 +23,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <string_view>
+#include <utility>
 #include <type_traits>
 
 namespace conflux::audio {
@@ -98,25 +99,32 @@ public:
         : renderer_(a.empty() && b.empty() ? RenderCore(false) : RenderCore(a, b))
     { initialize(initial); }
 
-    static auto makeReaders(PreparedSources sources, const InitialState& initial)
+    static PlaybackSources makePlaybacks(PreparedSources sources)
     {
-        std::array<std::unique_ptr<PcmReadAhead>, RenderCore::deckCount> readers;
-        for (std::size_t deck = 0; deck < readers.size(); ++deck) {
+        PlaybackSources playbacks;
+        for (std::size_t deck = 0; deck < playbacks.size(); ++deck) {
             if (!sources[deck]) continue;
-            readers[deck] = std::make_unique<PcmReadAhead>(sources[deck]->descriptor(), sources[deck]->frames());
-            if (!readers[deck]->prime(initial.sourceFrame[deck], std::chrono::seconds(2)))
-                throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + readers[deck]->error());
+            playbacks[deck] = std::make_unique<PreparedPlayback>(sources[deck]->descriptor(), sources[deck]->frames());
         }
-        return readers;
+        return playbacks;
     }
-    static RenderCore makeRenderer(const std::array<std::unique_ptr<PcmReadAhead>, RenderCore::deckCount>& readers)
+    static PlaybackSources primePlaybacks(PlaybackSources playbacks, const InitialState& initial)
     {
-        if (!readers[0] && !readers[1]) return RenderCore(false);
-        return RenderCore(readers[0] ? readers[0]->sourceRef() : AudioSource{},
-                          readers[1] ? readers[1]->sourceRef() : AudioSource{});
+        for (std::size_t deck = 0; deck < playbacks.size(); ++deck)
+            if (playbacks[deck] && !playbacks[deck]->prime(initial.sourceFrame[deck], std::chrono::seconds(2)))
+                throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + playbacks[deck]->error());
+        return playbacks;
+    }
+    static RenderCore makeRenderer(const PlaybackSources& playbacks)
+    {
+        if (!playbacks[0] && !playbacks[1]) return RenderCore(false);
+        return RenderCore(playbacks[0] ? playbacks[0]->sourceRef() : AudioSource{},
+                          playbacks[1] ? playbacks[1]->sourceRef() : AudioSource{});
     }
     Impl(PreparedSources sources, const InitialState& initial)
-        : readers_(makeReaders(sources, initial)), renderer_(makeRenderer(readers_))
+        : Impl(makePlaybacks(sources), initial) {}
+    Impl(PlaybackSources sources, const InitialState& initial)
+        : playbacks_(primePlaybacks(std::move(sources), initial)), renderer_(makeRenderer(playbacks_))
     { initialize(initial); }
 
     void initialize(const InitialState& initial)
@@ -124,7 +132,7 @@ public:
         if (!renderer_.setMasterGain(initial.masterGain) || !renderer_.setCueGain(initial.cueGain))
             throw std::invalid_argument("Invalid initial master or cue gain");
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
-            activeReaders_[deck] = readers_[deck].get();
+            activePlaybacks_[deck] = playbacks_[deck].get();
             if (!std::isfinite(initial.deckGain[deck]) || initial.deckGain[deck] < 0 || initial.deckGain[deck] > 1)
                 throw std::invalid_argument("Invalid initial deck gain");
             if (!renderer_.sourceFrames(deck)) {
@@ -604,28 +612,28 @@ public:
             lastCommandId_ = command.id;
         }
     }
-    bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PcmReadAhead>& candidate,
+    bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                   std::uint64_t generation) noexcept
     {
-        if (!ready() || !candidate || replacementReader_ || handoff_.busy() ||
+        if (!ready() || !candidate || replacementPlayback_ || handoff_.busy() ||
             deck >= RenderCore::deckCount || generation <= lastRequestedGeneration_)
             return false;
         const auto source = candidate->sourceRef();
         if (!handoff_.request({deck, source, candidate.get(), generation})) return false;
         replacementDeck_ = deck;
         lastRequestedGeneration_ = generation;
-        replacementReader_ = std::move(candidate);
+        replacementPlayback_ = std::move(candidate);
         return true;
     }
     std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept
     {
         SourceHandoff::Completion completion;
         if (!handoff_.takeCompletion(completion)) return std::nullopt;
-        std::unique_ptr<PcmReadAhead> retired;
+        std::unique_ptr<PreparedPlayback> retired;
         if (completion.installed) {
-            retired = std::move(readers_[completion.deck]);
-            readers_[completion.deck] = std::move(replacementReader_);
-        } else retired = std::move(replacementReader_);
+            retired = std::move(playbacks_[completion.deck]);
+            playbacks_[completion.deck] = std::move(replacementPlayback_);
+        } else retired = std::move(replacementPlayback_);
         return SourceReplacementResult{completion, std::move(retired)};
     }
     bool submit(const RenderCore::Command& command) noexcept
@@ -652,7 +660,7 @@ public:
             state.buffering[deck] = renderer_.isBuffering(deck);
             state.starvedFrames[deck] = renderer_.starvedFrames(deck);
             state.sourceReadErrorObserved[deck] = renderer_.readFailed(deck);
-            state.sourceReadError[deck] = activeReaders_[deck] ? bool(activeReaders_[deck]->errorCode()) : renderer_.readFailed(deck);
+            state.sourceReadError[deck] = activePlaybacks_[deck] ? bool(activePlaybacks_[deck]->errorCode()) : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
         }
         state.masterGain = renderer_.masterGain(); state.cueGain = renderer_.cueGain(); state.meters = meters_;
@@ -761,11 +769,11 @@ public:
                 if (self.renderer_.isDeckSilentForReplacement(replacement.deck)) {
                     retiredState = {self.renderer_.sourceFrame(replacement.deck),
                         self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
-                        (self.activeReaders_[replacement.deck] && self.activeReaders_[replacement.deck]->errorCode())};
+                        (self.activePlaybacks_[replacement.deck] && self.activePlaybacks_[replacement.deck]->errorCode())};
                     replacementInstalled = self.renderer_.replaceSource(replacement.deck, replacement.source);
                     replacementCompleted = true;
                     if (replacementInstalled) {
-                        self.activeReaders_[replacement.deck] = replacement.reader;
+                        self.activePlaybacks_[replacement.deck] = replacement.playback;
                         self.sourceGeneration_[replacement.deck] = replacement.generation;
                     }
                 }
@@ -933,17 +941,17 @@ public:
         consumeCommands();
         for (std::size_t deck=0;deck<RenderCore::deckCount;++deck)
             if (renderer_.sourceFrames(deck)) renderer_.cueRelease(deck);
-        for (auto& reader:readers_) if (reader) { reader->stop(); readersStopped_=true; }
-        if (replacementReader_) { replacementReader_->stop(); readersStopped_=true; }
+        for (auto& playback:playbacks_) if (playback) { playback->stop(); readersStopped_=true; }
+        if (replacementPlayback_) { replacementPlayback_->stop(); readersStopped_=true; }
         State discarded; while (states_.pop(discarded)) {}
         stopped_=capture();
     }
 
-    std::array<std::unique_ptr<PcmReadAhead>,RenderCore::deckCount> readers_;
-    std::array<PcmReadAhead*,RenderCore::deckCount> activeReaders_{};
+    PlaybackSources playbacks_;
+    std::array<PreparedPlayback*,RenderCore::deckCount> activePlaybacks_{};
     std::array<std::uint64_t,RenderCore::deckCount> sourceGeneration_{};
     SourceHandoff handoff_;
-    std::unique_ptr<PcmReadAhead> replacementReader_;
+    std::unique_ptr<PreparedPlayback> replacementPlayback_;
     std::size_t replacementDeck_ = 0;
     std::uint64_t stagedGeneration_ = 0, lastRequestedGeneration_ = 0;
     RenderCore renderer_;
@@ -983,6 +991,7 @@ public:
 LiveSession::LiveSession(std::span<const float> a,std::span<const float> b):LiveSession(a,b,InitialState{}) {}
 LiveSession::LiveSession(std::span<const float> a,std::span<const float> b,const InitialState& initial):impl_(std::make_unique<Impl>(a,b,initial)) {}
 LiveSession::LiveSession(PreparedSources sources,const InitialState& initial):impl_(std::make_unique<Impl>(sources,initial)) {}
+LiveSession::LiveSession(PlaybackSources sources,const InitialState& initial):impl_(std::make_unique<Impl>(std::move(sources),initial)) {}
 LiveSession::~LiveSession()=default;
 bool LiveSession::start(std::string& error) { return impl_->start(error,{}); }
 bool LiveSession::start(std::string& error,const RoutingConfig& routing) { return impl_->start(error,routing); }
@@ -990,7 +999,7 @@ bool LiveSession::startDiscovery(std::string& error) { return impl_->start(error
 bool LiveSession::ready()const noexcept { return impl_->ready(); }
 std::string LiveSession::error() { return impl_->currentError(); }
 bool LiveSession::submit(const RenderCore::Command& command)noexcept { return impl_->submit(command); }
-bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<PcmReadAhead>& candidate,std::uint64_t generation)noexcept
+bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,std::uint64_t generation)noexcept
 { return impl_->requestSourceReplacement(deck,candidate,generation); }
 bool LiveSession::sourceReplacementPending()const noexcept { return impl_->handoff_.busy(); }
 std::optional<LiveSession::SourceReplacementResult> LiveSession::takeSourceReplacementResult()noexcept

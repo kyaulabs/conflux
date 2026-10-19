@@ -29,7 +29,7 @@
 using namespace std::chrono_literals;
 using conflux::audio::CueRouteStatus;
 using conflux::audio::LiveSession;
-using conflux::audio::PcmReadAhead;
+using conflux::audio::PreparedPlayback;
 using conflux::audio::RenderCore;
 using conflux::audio::RoutePair;
 using conflux::audio::RoutingConfig;
@@ -554,14 +554,16 @@ void writeHandoff(std::ostream& output, const HandoffResult& result, bool passed
     output << "]}";
 }
 
-std::unique_ptr<PcmReadAhead> primedSyntheticSource(std::uint64_t frames, float left, float right)
+std::unique_ptr<PreparedPlayback> primedSyntheticSource(std::uint64_t frames, float left, float right,
+                                                      bool stemBank = false)
 {
     const auto closeFile = [](std::FILE* file) { if (file) (void)std::fclose(file); };
     const auto file = std::unique_ptr<std::FILE, decltype(closeFile)>(std::tmpfile(), closeFile);
     if (!file) throw std::runtime_error("Cannot create anonymous private handoff PCM");
     std::array<float, 8192> block{};
     for (std::size_t sample = 0; sample < block.size(); sample += 2) {
-        block[sample] = left; block[sample + 1] = right;
+        block[sample] = stemBank ? left * .25F : left;
+        block[sample + 1] = stemBank ? right * .25F : right;
     }
     for (std::uint64_t first = 0; first < frames;) {
         const auto count = std::size_t(std::min<std::uint64_t>(block.size() / 2, frames - first));
@@ -570,7 +572,12 @@ std::unique_ptr<PcmReadAhead> primedSyntheticSource(std::uint64_t frames, float 
         first += count;
     }
     if (std::fflush(file.get())) throw std::runtime_error("Cannot flush anonymous private handoff PCM");
-    auto reader = std::make_unique<PcmReadAhead>(fileno(file.get()), frames);
+    // Four independent readers duplicate this anonymous quarter-amplitude
+    // fixture; their coherent sum is the same desired quiet stereo constant.
+    const auto fd = fileno(file.get());
+    auto reader = stemBank
+        ? std::make_unique<PreparedPlayback>(std::array<int, 4>{fd, fd, fd, fd}, frames)
+        : std::make_unique<PreparedPlayback>(fd, frames);
     if (!reader->prime(0, 2s)) throw std::runtime_error("Cannot prime private handoff source: " + reader->error());
     return reader; // The reader owns its duplicate; no named spool is retained.
 }
@@ -634,7 +641,8 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
                 require(!state.buffering[0] && !state.starvedFrames[0] && !state.sourceReadError[0] &&
                         !state.sourceReadErrorObserved[0], "source-handoff: first installed reader runs without starvation/read failure");
             }
-            auto candidate = primedSyntheticSource(oldTarget.size() / 2, index ? -.3125F : .1875F, index ? .4375F : -.375F);
+            auto candidate = primedSyntheticSource(oldTarget.size() / 2,
+                index ? -.3125F : .1875F, index ? .4375F : -.375F, index == 0);
             auto* const identity = candidate.get();
             require(!session.requestSourceReplacement(index ? 0 : 2, candidate, index ? 1 : generation) &&
                     candidate.get() == identity, "source-handoff: rejected deck/generation request retains candidate ownership");
@@ -665,11 +673,11 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
                                 completion->completion.retired.sourceFrame >= oldCursor &&
                                 !completion->completion.retired.starvedFrames && !completion->completion.retired.readFailed,
                             "source-handoff: callback-end acknowledgement retains exact generation/boundary and clean retired state");
-                        require(bool(completion->retiredReader) == bool(index),
-                            "source-handoff: only the second swap retires the first installed file reader");
+                        require(bool(completion->retiredPlayback) == bool(index),
+                            "source-handoff: only the second swap retires the first installed four-reader bank");
                         step.ackFrame = completion->completion.outputFrame;
                         step.retiredSourceFrame = completion->completion.retired.sourceFrame;
-                        completion->retiredReader.reset(); // free immediately while the graph keeps running
+                        completion->retiredPlayback.reset(); // free whole owner while the graph keeps running
                         step.retiredReaderFreed = index != 0;
                         acknowledged = true;
                     }
