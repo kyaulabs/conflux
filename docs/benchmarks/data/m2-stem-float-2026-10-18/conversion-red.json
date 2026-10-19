@@ -1,0 +1,15 @@
+{
+  "status": "expected_missing_feature_build_failure_observed",
+  "command": [
+    "cmake",
+    "--build",
+    "build/dev",
+    "--target",
+    "conflux-audio-preparation-test",
+    "--parallel",
+    "2"
+  ],
+  "build_exit": 1,
+  "elapsed_seconds": 1.282534892030526,
+  "reason": "New fixed-rate float conversion APIs are absent; implementation patch not applied."
+}

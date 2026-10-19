@@ -1,0 +1,82 @@
+[
+  {
+    "stage": "build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 118.91344379499787
+  },
+  {
+    "stage": "ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 39.58587811497273
+  },
+  {
+    "stage": "smoke",
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.4230790070141666
+  },
+  {
+    "stage": "private-routing",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+      "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-routing-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/stem-float-conversion-2026-10-18/private-routing-01",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 6.487668176006991
+  },
+  {
+    "stage": "private-preparation",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+      "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-preparation-controller-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/stem-float-conversion-2026-10-18/private-preparation-01",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 1.5700102300033905
+  },
+  {
+    "stage": "coverage",
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+      "/home/kyau/projects/kyaulabs/conflux/tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 190.614049419004
+  }
+]

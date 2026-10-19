@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Behavior tests for the M0 supervisor, requiring neither model nor GPU."""
 
+import hashlib
 import io
 import json
 import os
@@ -15,6 +16,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 import wave
+import warnings
 
 import numpy as np
 
@@ -85,6 +87,16 @@ class FakeRuntime:
         with self.condition:
             self.closed = True
             self.condition.notify_all()
+
+
+class RecordingRuntime(FakeRuntime):
+    def __init__(self):
+        super().__init__()
+        self.inputs = []
+
+    def infer(self, samples, request_id):
+        self.inputs.append(samples.copy())
+        return super().infer(samples, request_id)
 
 
 class NativeRuntimeConstructionTest(unittest.TestCase):
@@ -278,6 +290,212 @@ class WorkerTest(unittest.TestCase):
             expected = expected / denominator * std + mean
             np.testing.assert_allclose(audio[:, position], expected, atol=2e-7)
         self.assertTrue(all(worker.is_current(chunk) for chunk in chunks))
+
+    def test_f32_matches_pcm16_windows_reconstruction_and_tail(self):
+        raw = self.root / "equivalent.f32"
+        self.audio.astype("<f4").tofile(raw)
+        fake = RecordingRuntime()
+        worker, _ = self.worker(fake)
+        legacy_generation = worker.load(self.path)
+        legacy_source = self.event(worker, "source_ready", legacy_generation)
+        legacy = self.collect(worker, legacy_generation)
+        legacy_inputs = fake.inputs[:]
+        fake.inputs.clear()
+        generation = worker.load_f32(raw)
+        source = self.event(worker, "source_ready", generation)
+        chunks = self.collect(worker, generation)
+        self.assertEqual(source["source_format"], "f32le")
+        self.assertEqual(source["source_id"], hashlib.sha256(raw.read_bytes()).hexdigest())
+        self.assertEqual(source["source_frames"], len(self.audio))
+        self.assertEqual((source["mean"], source["std"]), (legacy_source["mean"], legacy_source["std"]))
+        self.assertEqual([chunk["frame_start"] for chunk in chunks], [0, HOP, 2 * HOP])
+        self.assertEqual([chunk["frames"] for chunk in chunks], [HOP, HOP, 137])
+        self.assertEqual(len(fake.inputs), len(legacy_inputs))
+        for actual, expected in zip(fake.inputs, legacy_inputs):
+            np.testing.assert_array_equal(actual, expected)
+        for actual, expected in zip(chunks, legacy):
+            self.assertEqual(actual["source_format"], "f32le")
+            np.testing.assert_array_equal(actual["samples"], expected["samples"])
+        self.assertEqual(fake.starts, 1)
+
+    def test_f32_preserves_headroom_and_single_frame_constant(self):
+        values = (self.audio * np.float32(4) + np.float32(1.25)).astype("<f4")
+        raw = self.root / "headroom.f32"
+        values.tofile(raw)
+        fake = RecordingRuntime()
+        worker, _ = self.worker(fake)
+        generation = worker.load_f32(raw)
+        source = self.event(worker, "source_ready", generation)
+        chunks = self.collect(worker, generation)
+        mono = values.astype(np.float64).mean(axis=1)
+        self.assertAlmostEqual(source["mean"], float(mono.mean()), delta=1e-6)
+        self.assertAlmostEqual(source["std"], float(mono.std(ddof=1) + 1e-8), delta=1e-6)
+        restored = fake.inputs[0] * np.float32(source["std"]) + np.float32(source["mean"])
+        np.testing.assert_allclose(restored, values[:WINDOW], rtol=1e-6, atol=2e-6)
+        self.assertGreater(float(restored.max()), 1)
+        self.assertGreater(float(np.concatenate([chunk["samples"] for chunk in chunks], axis=1).max()), 1)
+        raw = self.root / "constant.f32"
+        np.full((1, CHANNELS), 3.25, dtype="<f4").tofile(raw)
+        generation = worker.load_f32(raw)
+        source = self.event(worker, "source_ready", generation)
+        chunks = self.collect(worker, generation)
+        self.assertEqual(source["mean"], 3.25)
+        self.assertEqual(source["std"], float(np.float32(1e-8)))
+        self.assertEqual(sum(chunk["frames"] for chunk in chunks), 1)
+        np.testing.assert_array_equal(chunks[0]["samples"], np.full((4, 1, CHANNELS), 3.25, dtype=np.float32))
+        self.assertTrue(all(np.isfinite(value).all() for value in fake.inputs))
+
+    def test_f32_seeks_reuse_format_statistics_and_exact_grid(self):
+        raw = self.root / "seeks.f32"
+        self.audio.astype("<f4").tofile(raw)
+        worker, fake = self.worker()
+        baseline = self.collect(worker, worker.load_f32(raw))
+        continuous = np.concatenate([item["samples"] for item in baseline], axis=1)
+        for frame in [HOP + 17, 21, 2 * HOP + 7, len(self.audio)]:
+            generation = worker.seek(frame)
+            source = self.event(worker, "source_ready", generation)
+            self.assertTrue(source["reused"])
+            self.assertEqual(source["source_format"], "f32le")
+            chunks = self.collect(worker, generation)
+            if frame == len(self.audio):
+                self.assertEqual(chunks, [])
+            else:
+                self.assertEqual(chunks[0]["frame_start"], frame)
+                np.testing.assert_array_equal(np.concatenate([item["samples"] for item in chunks], axis=1),
+                                              continuous[:, frame:])
+        self.assertEqual(fake.starts, 1)
+
+    def test_f32_cancel_discards_active_result_and_seek_preserves_format(self):
+        raw = self.root / "cancel.f32"
+        self.audio.astype("<f4").tofile(raw)
+        worker, fake = self.worker(FakeRuntime(blocked=True))
+        old = worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+        cancelled = worker.cancel()
+        self.assertGreater(cancelled, old)
+        fake.release()
+        self.event(worker, "discarded", old)
+        latest = worker.seek(HOP + 7)
+        source = self.event(worker, "source_ready", latest)
+        self.assertTrue(source["reused"])
+        self.assertEqual(source["source_format"], "f32le")
+        self.assertTrue(fake.wait_call(2))
+        fake.release(2)
+        chunk = self.event(worker, "chunk", latest)
+        self.assertEqual(chunk["frame_start"], HOP + 7)
+        self.assertEqual(chunk["source_format"], "f32le")
+        self.assertTrue(worker.is_current(chunk))
+        worker.cancel()
+        self.assertFalse(worker.is_current(chunk))
+        fake.release()
+
+    def test_f32_rejects_finite_backend_output_that_overflows_reconstruction(self):
+        class HugeFiniteRuntime(FakeRuntime):
+            def infer(self, samples, request_id):
+                output, metrics = super().infer(samples, request_id)
+                output.fill(np.finfo(np.float32).max)
+                self.backend_output_finite = bool(np.isfinite(output).all())
+                return output, metrics
+        raw = self.root / "reconstruction-overflow.f32"
+        (self.audio * np.float32(16)).astype("<f4").tofile(raw)
+        worker, fake = self.worker(HugeFiniteRuntime())
+        # Intentional finite arithmetic overflow must become an error, never a
+        # queued chunk. Suppress only this fixture's expected NumPy warning.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            generation = worker.load_f32(raw)
+            source = self.event(worker, "source_ready", generation)
+            self.assertGreater(source["std"], 1)
+            error = self.event(worker, "error", generation)
+        self.assertIn("reconstruction contains non-finite samples", error["message"])
+        self.assertTrue(fake.backend_output_finite)
+        self.assertEqual(fake.calls, 1)
+        with worker._condition:
+            self.assertEqual(len(worker._chunks), 0)
+
+    def test_f32_rejects_bad_geometry_nonfinite_and_normalization_overflow(self):
+        maximum = np.finfo(np.float32).max
+        cases = [
+            ("empty", b"", "complete stereo frames"),
+            ("partial-frame", b"x" * 9, "complete stereo frames"),
+            ("nan", np.array([[np.nan, 0]], dtype="<f4").tobytes(), "non-finite samples"),
+            ("inf", np.array([[np.inf, 0]], dtype="<f4").tobytes(), "non-finite samples"),
+            ("canonical-overflow", np.array([[maximum, maximum], [-maximum, -maximum]], dtype="<f4").tobytes(),
+             "normalization"),
+            ("window-overflow", np.array([[maximum, -maximum]], dtype="<f4").tobytes(), "normalization"),
+        ]
+        for name, data, reason in cases:
+            with self.subTest(case=name):
+                raw = self.root / f"invalid-{name}.f32"
+                raw.write_bytes(data)
+                worker, fake = self.worker()
+                generation = worker.load_f32(raw)
+                self.assertIn(reason, self.event(worker, "error", generation)["message"])
+                self.assertEqual(fake.calls, 0)
+                with worker._condition:
+                    self.assertEqual(len(worker._chunks), 0)
+                worker.close()
+
+    def test_f32_rejects_nonregular_storage_without_inference(self):
+        regular = self.root / "regular.f32"
+        np.zeros((1, CHANNELS), dtype="<f4").tofile(regular)
+        link = self.root / "linked.f32"
+        link.symlink_to(regular)
+        fifo = self.root / "fifo.f32"
+        os.mkfifo(fifo)
+        directory = self.root / "directory.f32"
+        directory.mkdir()
+        for path in [link, fifo, directory]:
+            with self.subTest(path=path.name):
+                worker, fake = self.worker()
+                generation = worker.load_f32(path)
+                self.event(worker, "error", generation)
+                self.assertEqual(fake.calls, 0)
+                worker.close()
+
+    def test_f32_mutation_invalidates_results_and_seek_reprepares(self):
+        raw = self.root / "mutable.f32"
+        self.audio.astype("<f4").tofile(raw)
+        worker, _ = self.worker(max_ready=1)
+        generation = worker.load_f32(raw)
+        source = self.event(worker, "source_ready", generation)
+        with worker._condition:
+            self.assertTrue(worker._condition.wait_for(lambda: len(worker._chunks) == 1, timeout=3))
+        (self.audio + np.float32(.125)).astype("<f4").tofile(raw)
+        held = self.event(worker, "chunk", generation)
+        self.assertIn("changed", self.event(worker, "error", generation)["message"])
+        self.assertFalse(worker.is_current(held))
+        latest = worker.seek(0)
+        updated = self.event(worker, "source_ready", latest)
+        self.assertFalse(updated["reused"])
+        self.assertEqual(updated["source_format"], "f32le")
+        self.assertNotEqual(source["source_id"], updated["source_id"])
+        self.assertEqual(sum(chunk["frames"] for chunk in self.collect(worker, latest)), len(self.audio))
+
+    def test_same_path_formats_do_not_share_cached_geometry_or_statistics(self):
+        # These unchanged bytes are both a three-frame PCM16 WAV and seven raw
+        # float frames. A path/signature-only cache key would reuse wrong geometry.
+        path = self.root / "same-path.wav"
+        with wave.open(str(path), "wb") as stream:
+            stream.setparams((CHANNELS, 2, RATE, 3, "NONE", "not compressed"))
+            stream.writeframes(bytes(3 * CHANNELS * 2))
+        worker, fake = self.worker()
+        generation = worker.load(path)
+        legacy = self.event(worker, "source_ready", generation)
+        self.assertEqual(sum(chunk["frames"] for chunk in self.collect(worker, generation)), 3)
+        generation = worker.load_f32(path)
+        raw = self.event(worker, "source_ready", generation)
+        self.assertFalse(raw["reused"])
+        self.assertEqual(raw["source_id"], legacy["source_id"], "file identity should remain a byte digest")
+        self.assertEqual(raw["source_format"], "f32le")
+        self.assertEqual(raw["source_frames"], path.stat().st_size // 8)
+        self.assertEqual(sum(chunk["frames"] for chunk in self.collect(worker, generation)), raw["source_frames"])
+        generation = worker.load(path)
+        repeated = self.event(worker, "source_ready", generation)
+        self.assertFalse(repeated["reused"])
+        self.assertEqual(repeated["source_format"], "wav_pcm16")
+        self.assertEqual(sum(chunk["frames"] for chunk in self.collect(worker, generation)), 3)
+        self.assertEqual(fake.starts, 1)
 
     def test_seek_matches_continuous_grid_and_reuses_model_and_statistics(self):
         worker, fake = self.worker()
