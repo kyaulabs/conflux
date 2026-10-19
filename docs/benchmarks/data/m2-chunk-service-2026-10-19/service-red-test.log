@@ -1,0 +1,16 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+    Start 25: stem-service
+1/1 Test #25: stem-service .....................***Failed    0.37 sec
+Traceback (most recent call last):
+  File "/home/kyau/projects/kyaulabs/conflux/tests/stem_service_test.py", line 24, in <module>
+    from tools.stems import service
+ImportError: cannot import name 'service' from 'tools.stems' (unknown location)
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.38 sec
+
+The following tests FAILED:
+	 25 - stem-service (Failed)
+Errors while running CTest
