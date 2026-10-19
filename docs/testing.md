@@ -76,14 +76,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 controller ownership measurement](benchmarks/data/m2-controller-owner-2026-10-19/coverage.json)
-passed 35/35 CTest entries, the offscreen smoke, 124 private-routing checks and
+The [M2 live delivery bridge measurement](benchmarks/data/m2-live-bridge-2026-10-19/coverage.json)
+passed 36/36 CTest entries, the offscreen smoke, 124 private-routing checks and
 46 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 4,899 / 5,794 (84.55%) | 6,408 / 12,362 (51.84%) |
+| C++ `src/` | 5,480 / 6,431 (85.21%) | 7,804 / 14,939 (52.24%) |
 | Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
@@ -98,6 +98,14 @@ Coverage instrumentation changes execution costs. Never use this build for
 callback latency, live-stem service targets, thermal qualification or audio
 acceptance. The retained M0/M1 benchmark evidence belongs to its pinned normal
 builds.
+
+The additional bridge ThreadSanitizer run failed in QtTest watchdog teardown
+after 53 observed PASS lines, before final Qt totals. A standalone Qt-only
+control reproduced the same report. The
+[verification record](benchmarks/data/m2-live-bridge-2026-10-19/verification.json)
+retains the failed runs and installed-library evidence; this is an incomplete
+sanitizer result. No suppression or watchdog disabling was used. It does not
+change the passing normal and coverage results above.
 
 The converter's first instrumented run hit its 240-second test guard. Its normal
 run had passed. The test now checks the advertised output plus adjacent overwrite
