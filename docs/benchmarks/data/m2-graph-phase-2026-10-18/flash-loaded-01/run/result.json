@@ -1,0 +1,1464 @@
+{
+  "schema": 1,
+  "status": "ok",
+  "command": [
+    "/bin/python3",
+    "tools/benchmarks/stem_soak.py",
+    "--runtime",
+    "/tmp/conflux-stem-flash-f32-2026-10-18/build/conflux-stem-runtime",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux",
+    "--audio-probe",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux-audio-probe",
+    "--load",
+    "both",
+    "--delivery-mode",
+    "playback-paced",
+    "--renderer",
+    "software",
+    "--seconds",
+    "600",
+    "--control-interval",
+    "300",
+    "--threads",
+    "2",
+    "--quantum",
+    "256",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+    "--source-wav",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav"
+  ],
+  "started_at_utc": "2026-10-18T23:11:20.341026+00:00",
+  "host": "Linux-7.2.10-hardened1-1-hardened-x86_64-with-glibc2.44",
+  "numpy_version": "2.5.4",
+  "renderer": "software",
+  "requested_seconds": 600.0,
+  "delivery_mode": "playback-paced",
+  "load_mode": "both",
+  "selected_loads": [
+    "ui",
+    "audio"
+  ],
+  "control_interval_seconds": 300.0,
+  "sample_interval_seconds": 0.5,
+  "load_seconds_fallback": 720,
+  "window_frames": 343980,
+  "hop_frames": 257985,
+  "overlap_frames": 85995,
+  "conditions_at_start": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3936182",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 37050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 40000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 67000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 40050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 40050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 37000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 39050
+    }
+  },
+  "pins": {
+    "runtime": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-f32-native-build/build/conflux-stem-runtime",
+      "bytes": 62990448,
+      "sha256": "6f311e461e7af5f12ff38f90ddb8720179c2c3dce23d593437d2b34524dffd9d"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 64246,
+      "sha256": "8e3f491920008be0535c3c233bed1f07f9ff7e96452f3942aaa6e17b4f1cd22d"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 25517,
+      "sha256": "5327d8d9c8ff531059811077669eff1b4c0f4cb76cd00b94ed84708f9407206b"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "ui": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux",
+      "bytes": 9377392,
+      "sha256": "e6d9bc6ec91617bbfe241674eeebba0fe5c377a755f69305ed0a5bc7c827317f"
+    },
+    "audio_probe": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux-audio-probe",
+      "bytes": 1385312,
+      "sha256": "7734e58ac88292d17420bbc492eb4e51e1cec506a4d5cfe00578a6c52c87796f"
+    }
+  },
+  "ui_progress_file": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01/ui-progress.json",
+  "repository_head": "8dacac7512dc20a8c351069e32cfda8692e12fe3",
+  "fixture": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+    "bytes": 4127804,
+    "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+    "frames": 1031940,
+    "seconds": 23.4,
+    "sample_rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2
+  },
+  "load_started_monotonic": 474919.626272326,
+  "worker_statistics_before_shutdown": {
+    "generation": 28,
+    "ready_count": 1,
+    "max_ready": 2,
+    "ready_high_water": 2,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 4,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": 2303521,
+    "closed": false
+  },
+  "worker_shutdown_ms": 178.5914350184612,
+  "worker_statistics": {
+    "generation": 28,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 2,
+    "telemetry_count": 2,
+    "max_telemetry": 256,
+    "telemetry_high_water": 4,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "native_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 600.6872721760301,
+    "samples": 1178,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 2303521,
+        "start_ticks": 52645710,
+        "samples": 1178,
+        "max_process_status_kB": {
+          "VmHWM": 280000,
+          "VmRSS": 280000,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {
+          "0000:00:02.0/client-1080": {
+            "drm-driver": "i915",
+            "drm-client-id": "1080",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": "0",
+            "drm-shared-system0": "0",
+            "drm-active-system0": "0",
+            "drm-resident-system0": "0",
+            "drm-purgeable-system0": "0",
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          },
+          "0000:00:02.0/client-1081": {
+            "drm-driver": "i915",
+            "drm-client-id": "1081",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": {
+              "value": 457676,
+              "unit": "KiB"
+            },
+            "drm-shared-system0": "0",
+            "drm-active-system0": {
+              "observations": [
+                "0",
+                {
+                  "value": 456632,
+                  "unit": "KiB"
+                }
+              ]
+            },
+            "drm-resident-system0": {
+              "value": 457676,
+              "unit": "KiB"
+            },
+            "drm-purgeable-system0": {
+              "value": 980,
+              "unit": "KiB"
+            },
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 169876853900,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          }
+        },
+        "max_simultaneous_drm_clients": 2,
+        "fd_read_errors": 0,
+        "first_elapsed_seconds": 0.508729592023883,
+        "last_elapsed_seconds": 600.1543543990119,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 537,
+          "status.nonvoluntary_ctxt_switches": 70,
+          "stat.minflt": 65363,
+          "stat.majflt": 1
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 2079,
+          "status.nonvoluntary_ctxt_switches": 1380,
+          "stat.minflt": 72712,
+          "stat.majflt": 1
+        },
+        "observed_cpu_seconds": 17.34
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ],
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01/native-trace.jsonl",
+      "samples_written": 1178,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    },
+    "system_sampling": {
+      "fields": {
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "string",
+        "/sys/firmware/acpi/platform_profile": "string",
+        "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+        "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_status": "string",
+        "/sys/class/drm/card1/device/power/runtime_active_time": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_suspended_time": "milliseconds",
+        "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+        "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+        "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+        "/proc/pressure/cpu:some.avg10": "percent",
+        "/proc/pressure/cpu:some.avg60": "percent",
+        "/proc/pressure/cpu:some.avg300": "percent",
+        "/proc/pressure/cpu:some.total": "microseconds",
+        "/proc/pressure/cpu:full.avg10": "percent",
+        "/proc/pressure/cpu:full.avg60": "percent",
+        "/proc/pressure/cpu:full.avg300": "percent",
+        "/proc/pressure/cpu:full.total": "microseconds",
+        "/proc/pressure/memory:some.avg10": "percent",
+        "/proc/pressure/memory:some.avg60": "percent",
+        "/proc/pressure/memory:some.avg300": "percent",
+        "/proc/pressure/memory:some.total": "microseconds",
+        "/proc/pressure/memory:full.avg10": "percent",
+        "/proc/pressure/memory:full.avg60": "percent",
+        "/proc/pressure/memory:full.avg300": "percent",
+        "/proc/pressure/memory:full.total": "microseconds",
+        "/proc/pressure/io:some.avg10": "percent",
+        "/proc/pressure/io:some.avg60": "percent",
+        "/proc/pressure/io:some.avg300": "percent",
+        "/proc/pressure/io:some.total": "microseconds",
+        "/proc/pressure/io:full.avg10": "percent",
+        "/proc/pressure/io:full.avg60": "percent",
+        "/proc/pressure/io:full.avg300": "percent",
+        "/proc/pressure/io:full.total": "microseconds",
+        "/proc/meminfo:MemTotal": "kB",
+        "/proc/meminfo:MemAvailable": "kB",
+        "/proc/meminfo:MemFree": "kB",
+        "/proc/meminfo:Buffers": "kB",
+        "/proc/meminfo:Cached": "kB",
+        "/proc/meminfo:Shmem": "kB",
+        "/proc/meminfo:SwapTotal": "kB",
+        "/proc/meminfo:SwapFree": "kB",
+        "/proc/meminfo:Dirty": "kB",
+        "/proc/meminfo:Writeback": "kB",
+        "/proc/meminfo:Slab": "kB",
+        "/proc/meminfo:SReclaimable": "kB",
+        "/proc/meminfo:Unevictable": "kB",
+        "/proc/vmstat:pgfault": "cumulative kernel counter",
+        "/proc/vmstat:pgmajfault": "cumulative kernel counter",
+        "/proc/vmstat:pgpgin": "cumulative kernel counter",
+        "/proc/vmstat:pgpgout": "cumulative kernel counter",
+        "/proc/vmstat:pswpin": "cumulative kernel counter",
+        "/proc/vmstat:pswpout": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_direct": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_direct": "cumulative kernel counter",
+        "/proc/vmstat:oom_kill": "cumulative kernel counter",
+        "/proc/vmstat:compact_stall": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_anon": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_file": "cumulative kernel counter",
+        "/tmp:total_bytes": "bytes",
+        "/tmp:free_bytes": "bytes",
+        "/tmp:available_bytes": "bytes",
+        "/tmp:free_inodes": "inodes"
+      },
+      "read_errors": {
+        "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 1178,
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 1178,
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 1178,
+        "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 1178
+      },
+      "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled."
+    }
+  },
+  "supervisor_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 600.6885503460071,
+    "samples": 1199,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 2303468,
+        "start_ticks": 52645582,
+        "samples": 1199,
+        "max_process_status_kB": {
+          "VmHWM": 215280,
+          "VmRSS": 215280,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {},
+        "max_simultaneous_drm_clients": 0,
+        "fd_read_errors": 1201,
+        "first_elapsed_seconds": 0.0009909020154736936,
+        "last_elapsed_seconds": 600.6885215899674,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 26,
+          "status.nonvoluntary_ctxt_switches": 4,
+          "stat.minflt": 7271,
+          "stat.majflt": 0
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 2841,
+          "status.nonvoluntary_ctxt_switches": 560,
+          "stat.minflt": 205375,
+          "stat.majflt": 3
+        },
+        "observed_cpu_seconds": 19.62
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ]
+  },
+  "load": {
+    "started_at_utc": "2026-10-18T23:11:20.470681+00:00",
+    "load_mode": "both",
+    "selected_loads": [
+      "ui",
+      "audio"
+    ],
+    "launched_loads": [
+      "ui",
+      "audio"
+    ],
+    "not_run": [],
+    "children": {
+      "ui": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux",
+          "--smoke-test",
+          "--smoke-seconds",
+          "720",
+          "--smoke-stop-file",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01/stop",
+          "--smoke-progress-file",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01/ui-progress.json"
+        ],
+        "returncode": 0,
+        "report": {
+          "animation_driver": "qtimeline",
+          "capture_ok": true,
+          "desktop_id": "com.kyaulabs.conflux",
+          "device_pixel_ratio": 2,
+          "exposed": true,
+          "frame_observation": {
+            "first_frame_monotonic_ns": 474918851865943,
+            "frames_per_60_seconds": [
+              1876,
+              1875,
+              1875,
+              1875,
+              1875,
+              1875,
+              1875,
+              1875,
+              1875,
+              1875,
+              49
+            ],
+            "last_frame_monotonic_ns": 475520383075629,
+            "maximum_notification_gap_ms": 36.195917,
+            "scope": "GUI-thread frameSwapped notifications; not physical presentation latency",
+            "started_monotonic_ns": 474918843996228,
+            "stopped_monotonic_ns": 475520400433301
+          },
+          "frames_swapped": 18800,
+          "graphics_api": 1,
+          "height": 400,
+          "indicator_x": 1.1101150966893236,
+          "platform": "wayland",
+          "qt": "6.12.0",
+          "reduced_motion": false,
+          "rendered": true,
+          "repaint_interval_ms": 33,
+          "width": 640
+        }
+      },
+      "audio": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux-audio-probe",
+          "--seconds",
+          "720",
+          "--quantum",
+          "256",
+          "--stop-file",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01/stop"
+        ],
+        "returncode": 0,
+        "report": {
+          "schema": 1,
+          "pipewire_version": "1.6.9",
+          "status": "ok",
+          "error": "",
+          "signal": "silence",
+          "requested": {
+            "sample_rate": 48000,
+            "channels": 2,
+            "quantum_frames": 256,
+            "seconds": 720
+          },
+          "negotiated": {
+            "format_valid": true,
+            "sample_rate": 48000,
+            "channels": 2,
+            "stream_frames_min": 256,
+            "stream_frames_max": 256,
+            "graph_quantum_min": 256,
+            "graph_quantum_max": 256
+          },
+          "streaming_seconds": 601.691,
+          "streaming_started_monotonic_ns": 474918646150352,
+          "stopped_monotonic_ns": 475520337482741,
+          "frames_rendered": 28876800,
+          "file_input": null,
+          "deck_inputs": [
+            null,
+            null
+          ],
+          "master_gain": 1,
+          "transport": {
+            "planned": 0,
+            "submitted": 0,
+            "applied": 0,
+            "rejected": 0,
+            "receipts": [],
+            "scope": "Requested times use the stream-state wall clock; receipts identify render callback boundaries. No sample-exact wall-time scheduling or click-free transport claim."
+          },
+          "callbacks": 112800,
+          "callback_elapsed_us": {
+            "p50_upper_bound": 12.0,
+            "p95_upper_bound": 19.0,
+            "p99_upper_bound": 40.0,
+            "p99_9_upper_bound": 56.0,
+            "max": 385.401,
+            "histogram_resolution": 1,
+            "at_least_100ms": 0
+          },
+          "callback_execution_deadline_misses": 0,
+          "missing_buffers": 0,
+          "invalid_buffers": 0,
+          "truncated_frames": 0,
+          "observed_graph_position_discontinuities": 0,
+          "observed_position_clock_xrun_recovery_flags": 0,
+          "telemetry_capabilities": {
+            "clock_cycle": true,
+            "discontinuity_flag": true,
+            "xrun_recovery_flags": true,
+            "graph_position_observed": true
+          },
+          "pipewire_time_snapshot": {
+            "valid": true,
+            "now_ns": 475520332845463,
+            "rate_num": 1,
+            "rate_denom": 48000,
+            "ticks": 28876800,
+            "delay_ticks": 280,
+            "queued_frames": 0,
+            "buffered_frames": 0
+          },
+          "measurement_scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+        }
+      }
+    },
+    "errors": [],
+    "audio_fault_counters": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "finished_at_utc": "2026-10-18T23:21:22.326735+00:00"
+  },
+  "workload_started_monotonic": 474920.131257006,
+  "workload_stopped_monotonic": 475520.131450731,
+  "workload_seconds": 600.0001937249908,
+  "timing": {
+    "all_delivered": {
+      "chunks": 103,
+      "frames": 26572122,
+      "hop_service_percentiles_ms": {
+        "50": 1731.1138899531215,
+        "95": 2086.422846012283,
+        "99": 2776.3940359582193
+      },
+      "hop_service_max_ms": 2864.3026190111414,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "continuous": {
+      "chunks": 102,
+      "frames": 26314470,
+      "hop_service_percentiles_ms": {
+        "50": 1731.1138899531215,
+        "95": 2086.422846012283,
+        "99": 2776.3940359582193
+      },
+      "hop_service_max_ms": 2864.3026190111414,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "first_window": {
+      "seconds": 200.0,
+      "chunks": 36,
+      "frames": 9287460,
+      "hop_service_percentiles_ms": {
+        "50": 1606.8062059930526,
+        "95": 1772.1594329923391,
+        "99": 1785.168447997421
+      },
+      "hop_service_max_ms": 1785.168447997421,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "last_window": {
+      "seconds": 200.0,
+      "chunks": 33,
+      "frames": 8513505,
+      "hop_service_percentiles_ms": {
+        "50": 1751.105266972445,
+        "95": 2776.3940359582193,
+        "99": 2864.3026190111414
+      },
+      "hop_service_max_ms": 2864.3026190111414,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "bins_300_seconds": [
+      {
+        "start_seconds": 0,
+        "end_seconds": 300,
+        "chunks": 52,
+        "frames": 13415220,
+        "hop_service_percentiles_ms": {
+          "50": 1598.4656820073724,
+          "95": 1785.168447997421,
+          "99": 1851.3888389570639
+        },
+        "hop_service_max_ms": 1851.3888389570639,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 300,
+        "end_seconds": 600,
+        "chunks": 51,
+        "frames": 13156902,
+        "hop_service_percentiles_ms": {
+          "50": 1748.192583967466,
+          "95": 2444.403291970957,
+          "99": 2864.3026190111414
+        },
+        "hop_service_max_ms": 2864.3026190111414,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 600,
+        "end_seconds": 600.0001937249908,
+        "chunks": 0,
+        "frames": 0,
+        "hop_service_percentiles_ms": {},
+        "hop_service_max_ms": null,
+        "hops_above_target": 0,
+        "observed_p99_within_target": false
+      }
+    ],
+    "headroom_target_ms": 4094.9999999999995,
+    "percentile_method": "nearest rank; consecutive windows are not independent tail samples"
+  },
+  "controls": [
+    {
+      "at_workload_seconds": 306.05240156594664,
+      "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "superseded_generation": 14,
+      "superseded_request_id": 55,
+      "started_to_cancel_ms": 167.14633797528222,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.11419202201068401,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1411.7280910140835,
+      "resume_ack_ms": 0.016157981008291245,
+      "generation": 16,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3396.8272479833104,
+      "ready_after_cancel_ms": 4810.39741600398,
+      "delivered_after_cancel_ms": 5014.968563045841,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    }
+  ],
+  "runtime_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 474920.104133581,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 2303521,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 2,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 410.227969,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "consumed_at": 474920.104247977
+    }
+  ],
+  "source_statistics_reused": 1,
+  "full_source_loops": 24,
+  "resumed_source_completions": 1,
+  "control_attempts_finished_before_cancel": 0,
+  "reference_hashes": {
+    "0": "f263b8405e41a2b81c96e09bfdb447ac3e12f1ea6fe6fd16f86a249ac92e5cea",
+    "257985": "134fd10640e0aa78804d19889a9b529a60863cffcc58212515ebf5e07c65371c",
+    "515970": "23ee2165b605775a694b71519d0b3e657380dd9613af936071bb737d7f194811",
+    "773955": "822f8605e9311f68703c3f031f7111d5cbd01cdd89a6f066603d99642a429ccf"
+  },
+  "source_mode": "prepared_wav_corpus",
+  "sources": [
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/club_xl-30s-23p4s.wav",
+      "bytes": 4127804,
+      "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "frames": 1031940,
+      "seconds": 23.4,
+      "sample_rate": 44100,
+      "channels": 2,
+      "sample_bytes": 2
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/when_the_light_breaks-30s-23p4s.wav",
+      "bytes": 4127804,
+      "sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "frames": 1031940,
+      "seconds": 23.4,
+      "sample_rate": 44100,
+      "channels": 2,
+      "sample_bytes": 2
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/under_my_skin-30s-23p4s.wav",
+      "bytes": 4127804,
+      "sha256": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+      "frames": 1031940,
+      "seconds": 23.4,
+      "sample_rate": 44100,
+      "channels": 2,
+      "sample_bytes": 2
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/assets/stfu-30s-23p4s.wav",
+      "bytes": 4127804,
+      "sha256": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+      "frames": 1031940,
+      "seconds": 23.4,
+      "sample_rate": 44100,
+      "channels": 2,
+      "sample_bytes": 2
+    }
+  ],
+  "current_source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+  "reference_hashes_by_source": {
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": {
+      "0": "8a06ecc3269d7969245ffca17df155c2a07210fa0993cc183231c1871bd6af02",
+      "257985": "2132e673119c64a1158ced32299ed82587190071d8296138ae0476fb48d4bc8a",
+      "515970": "d6bd837962c20d9ffc95b8b9ab275f9e1a2c4797faa179cefbd3f6bbf16cd2e5",
+      "773955": "dca99fe340eac6ceaadb7fedb8b9de66a8f8fd330b24d392ad059d416086c3a4"
+    },
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": {
+      "0": "f263b8405e41a2b81c96e09bfdb447ac3e12f1ea6fe6fd16f86a249ac92e5cea",
+      "257985": "134fd10640e0aa78804d19889a9b529a60863cffcc58212515ebf5e07c65371c",
+      "515970": "23ee2165b605775a694b71519d0b3e657380dd9613af936071bb737d7f194811",
+      "773955": "822f8605e9311f68703c3f031f7111d5cbd01cdd89a6f066603d99642a429ccf"
+    },
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": {
+      "0": "11f346741dcdfabbd6f22dcfaa15ca8736d900b6d70097164cc0438f5055775e",
+      "257985": "f59f0140913f2aac4eec017bdda271dc865fad267bda05e6e8fdd4558fe42883",
+      "515970": "b5fe6b1224f6abb878fe9d18134dd87ef5e6d1b5a756cb5c9a0ca1c697e5da56",
+      "773955": "d5bd7899aa84bf74bcdfb6acc1c062cddb1ab960b1ed98749dbec17dc39838d8"
+    },
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": {
+      "0": "4bc53740e035a05e317c335113d43c4121be17b412bd942307c73d8c9da460a7",
+      "257985": "d58169e53c42fc18981794cade30e21264faeddc6a7c58ec89aff912efc67518",
+      "515970": "497a79c3f671eb947d8a3fc0ba1c9da5f2a37c00e2744e69528580be798ff8fd",
+      "773955": "fb376dd828a6f22c641850ebba7c03a49b93305e3ee68c7b0525cfb710fb529c"
+    }
+  },
+  "source_normalization_by_source": {
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": {
+      "mean": -5.710358527721837e-05,
+      "std": 0.30619269609451294,
+      "source_frames": 1031940
+    },
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": {
+      "mean": 0.00022293615620583296,
+      "std": 0.2913064956665039,
+      "source_frames": 1031940
+    },
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": {
+      "mean": 0.00012482910824473947,
+      "std": 0.3041391968727112,
+      "source_frames": 1031940
+    },
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": {
+      "mean": -4.6878005377948284e-05,
+      "std": 0.2636549472808838,
+      "source_frames": 1031940
+    }
+  },
+  "source_completions": {
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": {
+      "full": 7,
+      "resumed": 0
+    },
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": {
+      "full": 5,
+      "resumed": 1
+    },
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": {
+      "full": 6,
+      "resumed": 0
+    },
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": {
+      "full": 6,
+      "resumed": 0
+    }
+  },
+  "same_grid_hash_checks": 86,
+  "trimmed_seek_checks": 1,
+  "stale_chunks_delivered": 0,
+  "load_alive_checks": 2754,
+  "maximum_load_check_gap_seconds": 0.4164711910416372,
+  "load_coverage_scope": "Selected child process liveness; requested UI also requires atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "low-power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "1200000",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 43050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 46000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 44000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 46050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 50050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 43000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 46050
+    }
+  },
+  "finished_at_utc": "2026-10-18T23:21:22.341949+00:00",
+  "playback": {
+    "requested": true,
+    "mode": "playback-paced",
+    "scope": "Virtual frame-clock consumption with one held playing chunk and at most two worker-ready chunks; independent silent audio probe, no physical stem playback",
+    "clock": "First initial/recovery delivery anchors an epoch; every ordinary deadline advances by actual delivered frames / sample rate, including source rotations and late output",
+    "ordinary_demands": 101,
+    "ready_deadline_misses": 0,
+    "unfulfilled_due_demands": 0,
+    "ordinary_deadline_failures": 0,
+    "ready_lateness_percentiles_ms": {
+      "50": 0,
+      "95": 0,
+      "99": 0
+    },
+    "maximum_ready_lateness_ms": 0,
+    "consumer_wake_lateness_percentiles_ms": {
+      "50": 0.11658936273306608,
+      "95": 0.23422040976583958,
+      "99": 0.24913100060075521
+    },
+    "delivery_lateness_percentiles_ms": {
+      "50": 0.538859807420522,
+      "95": 0.7573626935482025,
+      "99": 0.8601958397775888
+    },
+    "queue_residence_percentiles_ms": {
+      "50": 8484.158149978612,
+      "95": 10113.612121029291,
+      "99": 10126.658238994423
+    },
+    "ready_count_at_demand": {
+      "0": 0,
+      "1": 25,
+      "2": 76
+    },
+    "virtual_starvation_union_seconds": 0,
+    "virtual_starvation_intervals": [],
+    "virtual_starvation_interval_scope": "Union of completed ordinary demands' deadline-to-ready intervals; any unfulfilled final demand is reported separately with readiness censored at workload stop",
+    "maximum_held_chunks": 1,
+    "unfulfilled_final_demand": null,
+    "epochs": [
+      {
+        "epoch": 1,
+        "reason": "initial_priming",
+        "started_monotonic": 474921.811581585,
+        "first_ready_at": 474921.811464581,
+        "generation": 1,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "first_frame": 0,
+        "priming_after_workload_start_ms": 1680.3245789487846,
+        "ended_monotonic": 475226.183658572,
+        "end_reason": "explicit_cancel",
+        "interrupted_next_deadline": 475231.86158158374
+      },
+      {
+        "epoch": 2,
+        "reason": "seek_recovery",
+        "started_monotonic": 475230.994201267,
+        "first_ready_at": 475230.994055988,
+        "generation": 16,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "first_frame": 258318,
+        "ended_monotonic": 475520.131450731,
+        "end_reason": "workload_stop"
+      }
+    ],
+    "source_admissions": [
+      {
+        "generation": 1,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 474919.628232208,
+        "source_ready_at": 474920.126554704,
+        "source_preparation_ms": 22.384087031241506,
+        "first_ready_at": 474921.811464581,
+        "first_delivered_at": 474921.811581585,
+        "first_ready_after_load_ms": 2183.232372975908,
+        "first_delivered_after_load_ms": 2183.34937695181,
+        "playback_epoch": 1,
+        "first_kind": "initial_priming"
+      },
+      {
+        "generation": 2,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 474939.389728837,
+        "source_ready_at": 474939.410704998,
+        "source_preparation_ms": 20.897880021948367,
+        "first_ready_at": 474940.982075298,
+        "first_delivered_at": 474945.212348668,
+        "first_ready_after_load_ms": 1592.3464609659277,
+        "first_delivered_after_load_ms": 5822.61983101489,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 3,
+        "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "load_issued_monotonic": 474962.788278409,
+        "source_ready_at": 474962.809315089,
+        "source_preparation_ms": 20.960149995516986,
+        "first_ready_at": 474964.396460159,
+        "first_delivered_at": 474968.611855886,
+        "first_ready_after_load_ms": 1608.181749994401,
+        "first_delivered_after_load_ms": 5823.577477014624,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 4,
+        "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "load_issued_monotonic": 474986.185639414,
+        "source_ready_at": 474986.205403099,
+        "source_preparation_ms": 19.685050006955862,
+        "first_ready_at": 474987.786473278,
+        "first_delivered_at": 474992.012321687,
+        "first_ready_after_load_ms": 1600.8338640094735,
+        "first_delivered_after_load_ms": 5826.682273007464,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 5,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 475009.594304161,
+        "source_ready_at": 475009.614332463,
+        "source_preparation_ms": 19.948886008933187,
+        "first_ready_at": 475011.19159706,
+        "first_delivered_at": 475015.412324406,
+        "first_ready_after_load_ms": 1597.2928990377113,
+        "first_delivered_after_load_ms": 5818.020245002117,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 6,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 475032.992569872,
+        "source_ready_at": 475033.061679436,
+        "source_preparation_ms": 68.8677710131742,
+        "first_ready_at": 475034.761063682,
+        "first_delivered_at": 475038.812151795,
+        "first_ready_after_load_ms": 1768.4938099700958,
+        "first_delivered_after_load_ms": 5819.581923016813,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 7,
+        "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "load_issued_monotonic": 475056.396713366,
+        "source_ready_at": 475056.460146515,
+        "source_preparation_ms": 63.11379501130432,
+        "first_ready_at": 475058.187860296,
+        "first_delivered_at": 475062.212189503,
+        "first_ready_after_load_ms": 1791.1469300161116,
+        "first_delivered_after_load_ms": 5815.476137038786,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 8,
+        "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "load_issued_monotonic": 475079.798919756,
+        "source_ready_at": 475079.861945988,
+        "source_preparation_ms": 62.70841998048127,
+        "first_ready_at": 475081.588217937,
+        "first_delivered_at": 475085.612338947,
+        "first_ready_after_load_ms": 1789.2981809563935,
+        "first_delivered_after_load_ms": 5813.419190992136,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 9,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 475103.202799612,
+        "source_ready_at": 475103.265593368,
+        "source_preparation_ms": 62.51902598887682,
+        "first_ready_at": 475104.99688212,
+        "first_delivered_at": 475109.012156712,
+        "first_ready_after_load_ms": 1794.082507956773,
+        "first_delivered_after_load_ms": 5809.357099991757,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 10,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 475126.598418072,
+        "source_ready_at": 475126.661656591,
+        "source_preparation_ms": 63.03556094644591,
+        "first_ready_at": 475128.39945419,
+        "first_delivered_at": 475132.41244178,
+        "first_ready_after_load_ms": 1801.036118005868,
+        "first_delivered_after_load_ms": 5814.023707993329,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 11,
+        "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "load_issued_monotonic": 475149.987547061,
+        "source_ready_at": 475150.0074568,
+        "source_preparation_ms": 19.837683998048306,
+        "first_ready_at": 475151.594348831,
+        "first_delivered_at": 475155.811930716,
+        "first_ready_after_load_ms": 1606.8017699872144,
+        "first_delivered_after_load_ms": 5824.38365498092,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 12,
+        "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "load_issued_monotonic": 475173.385152327,
+        "source_ready_at": 475173.407732264,
+        "source_preparation_ms": 22.404427989386022,
+        "first_ready_at": 475174.991422461,
+        "first_delivered_at": 475179.212262964,
+        "first_ready_after_load_ms": 1606.2701339833438,
+        "first_delivered_after_load_ms": 5827.1106369793415,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 13,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 475196.791269437,
+        "source_ready_at": 475196.8125265,
+        "source_preparation_ms": 21.167891973163933,
+        "first_ready_at": 475198.396610913,
+        "first_delivered_at": 475202.611977187,
+        "first_ready_after_load_ms": 1605.341475980822,
+        "first_delivered_after_load_ms": 5820.70774998283,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 14,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 475220.186513711,
+        "source_ready_at": 475220.205603372,
+        "source_preparation_ms": 18.997450009919703,
+        "first_ready_at": 475221.782761502,
+        "first_delivered_at": 475226.012155955,
+        "first_ready_after_load_ms": 1596.2477910215966,
+        "first_delivered_after_load_ms": 5825.642244017217,
+        "playback_epoch": 1,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 17,
+        "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "load_issued_monotonic": 475242.725374161,
+        "source_ready_at": 475242.794587204,
+        "source_preparation_ms": 68.99779796367511,
+        "first_ready_at": 475244.509261485,
+        "first_delivered_at": 475248.537404772,
+        "first_ready_after_load_ms": 1783.8873240398243,
+        "first_delivered_after_load_ms": 5812.03061103588,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 18,
+        "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "load_issued_monotonic": 475266.120437318,
+        "source_ready_at": 475266.183396194,
+        "source_preparation_ms": 62.680441013071686,
+        "first_ready_at": 475267.911129398,
+        "first_delivered_at": 475271.937393335,
+        "first_ready_after_load_ms": 1790.6920799869113,
+        "first_delivered_after_load_ms": 5816.956016991753,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 19,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 475289.520076241,
+        "source_ready_at": 475289.586291157,
+        "source_preparation_ms": 65.98668801598251,
+        "first_ready_at": 475291.302064444,
+        "first_delivered_at": 475295.337289704,
+        "first_ready_after_load_ms": 1781.9882030016743,
+        "first_delivered_after_load_ms": 5817.213463014923,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 20,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 475312.925381802,
+        "source_ready_at": 475312.990835885,
+        "source_preparation_ms": 65.19317196216434,
+        "first_ready_at": 475314.746656776,
+        "first_delivered_at": 475318.737231674,
+        "first_ready_after_load_ms": 1821.2749739759602,
+        "first_delivered_after_load_ms": 5811.849871999584,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 21,
+        "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "load_issued_monotonic": 475336.330239585,
+        "source_ready_at": 475336.392441305,
+        "source_preparation_ms": 61.97336898185313,
+        "first_ready_at": 475338.139550491,
+        "first_delivered_at": 475342.137308137,
+        "first_ready_after_load_ms": 1809.3109059846029,
+        "first_delivered_after_load_ms": 5807.068552006967,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 22,
+        "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "load_issued_monotonic": 475359.729792289,
+        "source_ready_at": 475359.790716065,
+        "source_preparation_ms": 60.54518901510164,
+        "first_ready_at": 475361.492818823,
+        "first_delivered_at": 475365.537325046,
+        "first_ready_after_load_ms": 1763.0265339976177,
+        "first_delivered_after_load_ms": 5807.532756996807,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 23,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 475383.123740441,
+        "source_ready_at": 475383.18968847,
+        "source_preparation_ms": 65.69709599716589,
+        "first_ready_at": 475384.899569168,
+        "first_delivered_at": 475388.937509729,
+        "first_ready_after_load_ms": 1775.8287269971333,
+        "first_delivered_after_load_ms": 5813.769288011827,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 24,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 475406.530979867,
+        "source_ready_at": 475406.596543092,
+        "source_preparation_ms": 65.31743903178722,
+        "first_ready_at": 475408.328716835,
+        "first_delivered_at": 475412.337304561,
+        "first_ready_after_load_ms": 1797.7369680302218,
+        "first_delivered_after_load_ms": 5806.32469401462,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 25,
+        "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+        "load_issued_monotonic": 475429.923429278,
+        "source_ready_at": 475429.987237588,
+        "source_preparation_ms": 63.571892969775945,
+        "first_ready_at": 475431.729893565,
+        "first_delivered_at": 475435.737279947,
+        "first_ready_after_load_ms": 1806.4642869867384,
+        "first_delivered_after_load_ms": 5813.850668957457,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 26,
+        "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+        "load_issued_monotonic": 475453.329292421,
+        "source_ready_at": 475453.391807978,
+        "source_preparation_ms": 62.27710499661043,
+        "first_ready_at": 475455.117644381,
+        "first_delivered_at": 475459.137216307,
+        "first_ready_after_load_ms": 1788.3519600145519,
+        "first_delivered_after_load_ms": 5807.9238859936595,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 27,
+        "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+        "load_issued_monotonic": 475476.727539469,
+        "source_ready_at": 475476.788229907,
+        "source_preparation_ms": 60.3985830093734,
+        "first_ready_at": 475478.522693334,
+        "first_delivered_at": 475482.537429056,
+        "first_ready_after_load_ms": 1795.1538649504073,
+        "first_delivered_after_load_ms": 5809.8895869916305,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      },
+      {
+        "generation": 28,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "load_issued_monotonic": 475500.12889097,
+        "source_ready_at": 475500.191713552,
+        "source_preparation_ms": 62.56801501149312,
+        "first_ready_at": 475501.942854453,
+        "first_delivered_at": 475505.937395202,
+        "first_ready_after_load_ms": 1813.9634829713032,
+        "first_delivered_after_load_ms": 5808.50423197262,
+        "playback_epoch": 2,
+        "first_kind": "ordinary"
+      }
+    ]
+  },
+  "ui_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "checks": {
+      "progress_observed": true,
+      "runtime_gate_passed": true,
+      "observed_unexposed_spans_within_limit": true,
+      "final_observation_valid": true,
+      "observation_covers_workload": true,
+      "minute_counts_match_total": true,
+      "complete_minute_bins_nonzero": true,
+      "notification_gap_within_limit": true
+    },
+    "complete_minute_bins_intersecting_workload": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "zero_complete_minute_bins_intersecting_workload": [],
+    "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
+    "maximum_notification_gap_ms": 36.195917,
+    "progress": {
+      "requested": true,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-laptop-01/ui-progress.json",
+      "checks": 590,
+      "check_interval_seconds": 1.0,
+      "startup_grace_seconds": 5.0,
+      "maximum_allowed_gap_seconds": 30.0,
+      "maximum_progress_age_seconds": 0.9850660299998708,
+      "maximum_frame_age_seconds": 1.0097622459870763,
+      "maximum_check_gap_seconds": 1.2253943330142647,
+      "unexposed_observations": 0,
+      "maximum_observed_unexposed_span_seconds": 0.0,
+      "last_unexposed_span": null,
+      "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+      "read_errors": {
+        "FileNotFoundError": 1
+      },
+      "last_progress": {
+        "animation_driver": "qtimeline",
+        "exposed": true,
+        "frames_swapped": 18756,
+        "indicator_x": 295.13986385403894,
+        "last_frame_monotonic_ns": 475518974849404,
+        "pid": 2303472,
+        "reduced_motion": false,
+        "repaint_interval_ms": 33,
+        "scene_graph_initialized": true,
+        "timestamp_monotonic_ns": 475519001076743
+      },
+      "gate_failure": null
+    },
+    "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"
+  },
+  "audio_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "streaming_interval_valid": true,
+    "concurrent_workload_seconds": 600.0001937249908,
+    "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+  },
+  "concurrent_audio_workload_seconds": 600.0001937249908,
+  "native_trace_bytes": 7669517,
+  "failures": [],
+  "acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 1,
+    "observed_continuous_p99_within_target": true,
+    "ordinary_playback_ready_deadlines_met": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "prepared WAV corpus playback-paced delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  }
+}

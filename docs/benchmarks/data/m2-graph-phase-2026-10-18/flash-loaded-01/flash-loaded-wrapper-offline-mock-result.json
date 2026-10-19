@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "checks": [
+    "Fixed1350-second deadline precedes proof setup; exact soak/UI/audio command unchanged",
+    "normal_readiness publication SIGINT preserves ownership/started flag and cleanup",
+    "normal_readiness publication SIGTERM preserves ownership/started flag and cleanup",
+    "workload publication SIGINT preserves ownership/started flag and cleanup",
+    "workload publication SIGTERM preserves ownership/started flag and cleanup",
+    "Known outer group is signalled/cleaned/probed after leader exit",
+    "Strict p99 below/equal/above4095ms boundary is preserved",
+    "Gate rejects relaxed target",
+    "Gate rejects nonfinite p99",
+    "Gate rejects inconsistent producer strict-pass flag",
+    "Gate rejects runtime restart",
+    "Gate rejects wrong native backend",
+    "Own-arm admission selects B and rejects wrong proof path/runtime/model",
+    "Readiness rejects stale original time",
+    "Readiness rejects future time",
+    "Readiness rejects wrong label",
+    "Readiness rejects missing minimized",
+    "Readiness rejects hidden Harness",
+    "Readiness rejects AC disconnected",
+    "Readiness rejects lid closed"
+  ],
+  "check_count": 20,
+  "wrapper_sha256": "883d537f8f2fe91dc2e5fc5a735ca20067a007cbe8e308e9f1673825bf39e684",
+  "rendered_sha256": "18ef046ff4a7eb5e1254af315653dd8d3200499ae3f500fd8c3597f471259c7a",
+  "mock_script_sha256": "2423ea9a60129915b4663bfc86f3c0b82b2d2a45fc2fc9c188c4d04e82d1278d",
+  "scope": "Exact AST-extracted publication/cleanup/gate/readiness functions with fake children/signals/clock/records. No native, host, model, PCM, Git or actual test workload.",
+  "limitations": [
+    "Closed numerical proof/source lineage validation is delegated to the existing pinned preparation helper.",
+    "Handled SIGINT/TERM and known owned groups only; no arbitrary SIGKILL assurance.",
+    "Synthetic values test validator failures; they are not benchmark observations."
+  ]
+}

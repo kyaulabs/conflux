@@ -1,0 +1,245 @@
+{
+  "schema": 1,
+  "status": "closed_short_diagnostic_verified_sustained_qualification_pending",
+  "source_head": "8dacac7512dc20a8c351069e32cfda8692e12fe3",
+  "root_executed_commands": [
+    "python3 -B analyze_flash_loaded.py flash-loaded-laptop-01 --run --output flash-loaded-laptop-01-analysis.json",
+    "python3 -B audit_flash_loaded.py flash-loaded-laptop-01 --run"
+  ],
+  "independent_audit_checks": 49,
+  "workload_seconds": 600.0001937249908,
+  "service": {
+    "all_delivered": {
+      "chunks": 103,
+      "frames": 26572122,
+      "hop_service_ms": {
+        "samples": 103,
+        "percentiles": {
+          "50": 1731.1138899531215,
+          "95": 2086.422846012283,
+          "99": 2776.3940359582193
+        },
+        "min": 1559.8640679963864,
+        "max": 2864.3026190111414,
+        "mean": 1751.7240144158668
+      },
+      "nominal_target_ms": 4095.0,
+      "producer_target_ms": 4094.9999999999995,
+      "pass_lt_nominal": 103,
+      "miss_ge_nominal": 0,
+      "equal_nominal": 0,
+      "producer_hops_above_target_gt": 0,
+      "producer_equal_target": 0,
+      "strict_p99_below_nominal": true,
+      "strict_p99_below_producer": true
+    },
+    "continuous": {
+      "chunks": 102,
+      "frames": 26314470,
+      "hop_service_ms": {
+        "samples": 102,
+        "percentiles": {
+          "50": 1731.1138899531215,
+          "95": 2086.422846012283,
+          "99": 2776.3940359582193
+        },
+        "min": 1559.8640679963864,
+        "max": 2864.3026190111414,
+        "mean": 1752.2296592634282
+      },
+      "nominal_target_ms": 4095.0,
+      "producer_target_ms": 4094.9999999999995,
+      "pass_lt_nominal": 102,
+      "miss_ge_nominal": 0,
+      "equal_nominal": 0,
+      "producer_hops_above_target_gt": 0,
+      "producer_equal_target": 0,
+      "strict_p99_below_nominal": true,
+      "strict_p99_below_producer": true
+    },
+    "seek_first": {
+      "chunks": 1,
+      "frames": 257652,
+      "hop_service_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 1700.1482399646193,
+          "95": 1700.1482399646193,
+          "99": 1700.1482399646193
+        },
+        "min": 1700.1482399646193,
+        "max": 1700.1482399646193,
+        "mean": 1700.1482399646193
+      },
+      "nominal_target_ms": 4095.0,
+      "producer_target_ms": 4094.9999999999995,
+      "pass_lt_nominal": 1,
+      "miss_ge_nominal": 0,
+      "equal_nominal": 0,
+      "producer_hops_above_target_gt": 0,
+      "producer_equal_target": 0,
+      "strict_p99_below_nominal": true,
+      "strict_p99_below_producer": true
+    }
+  },
+  "cancellation": {
+    "attempts_recorded": 1,
+    "completed": 1,
+    "timings_ms": {
+      "cancel_ack_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 0.11419202201068401,
+          "95": 0.11419202201068401,
+          "99": 0.11419202201068401
+        },
+        "min": 0.11419202201068401,
+        "max": 0.11419202201068401
+      },
+      "residual_finish_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 1411.7280910140835,
+          "95": 1411.7280910140835,
+          "99": 1411.7280910140835
+        },
+        "min": 1411.7280910140835,
+        "max": 1411.7280910140835
+      },
+      "resume_ack_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 0.016157981008291245,
+          "95": 0.016157981008291245,
+          "99": 0.016157981008291245
+        },
+        "min": 0.016157981008291245,
+        "max": 0.016157981008291245
+      },
+      "ready_after_resume_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 3396.8272479833104,
+          "95": 3396.8272479833104,
+          "99": 3396.8272479833104
+        },
+        "min": 3396.8272479833104,
+        "max": 3396.8272479833104
+      },
+      "ready_after_cancel_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 4810.39741600398,
+          "95": 4810.39741600398,
+          "99": 4810.39741600398
+        },
+        "min": 4810.39741600398,
+        "max": 4810.39741600398
+      },
+      "delivered_after_cancel_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 5014.968563045841,
+          "95": 5014.968563045841,
+          "99": 5014.968563045841
+        },
+        "min": 5014.968563045841,
+        "max": 5014.968563045841
+      },
+      "started_to_cancel_ms": {
+        "samples": 1,
+        "percentiles": {
+          "50": 167.14633797528222,
+          "95": 167.14633797528222,
+          "99": 167.14633797528222
+        },
+        "min": 167.14633797528222,
+        "max": 167.14633797528222
+      }
+    },
+    "held_chunks_rejected_all_completed": true,
+    "post_cancel_chunks_all_completed": 0,
+    "stale_chunks_delivered": 0,
+    "controls": [
+      {
+        "at_workload_seconds": 306.05240156594664,
+        "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+        "superseded_generation": 14,
+        "superseded_request_id": 55,
+        "started_to_cancel_ms": 167.14633797528222,
+        "hardware_submission_confirmed": false,
+        "complete": true,
+        "cancel_ack_ms": 0.11419202201068401,
+        "held_chunk_rejected": true,
+        "residual_finish_ms": 1411.7280910140835,
+        "resume_ack_ms": 0.016157981008291245,
+        "generation": 16,
+        "target_frame": 258318,
+        "ready_after_resume_ms": 3396.8272479833104,
+        "ready_after_cancel_ms": 4810.39741600398,
+        "delivered_after_cancel_ms": 5014.968563045841,
+        "post_cancel_chunks": 0,
+        "parity": {
+          "kind": "trimmed_seek",
+          "exact": true,
+          "numeric_parity": true,
+          "max_abs_difference": 0.0,
+          "rtol": 0.0001,
+          "atol": 1e-05
+        }
+      }
+    ],
+    "scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed."
+  },
+  "audio_fault_counters": {
+    "callback_execution_deadline_misses": 0,
+    "missing_buffers": 0,
+    "invalid_buffers": 0,
+    "truncated_frames": 0,
+    "observed_graph_position_discontinuities": 0,
+    "observed_position_clock_xrun_recovery_flags": 0
+  },
+  "audio_callbacks": 112800,
+  "ui_frames": 18800,
+  "ui_maximum_gap_ms": 36.195917,
+  "ui_unexposed_observations": 0,
+  "strict_latency_gate": {
+    "target_ms": 4095.0,
+    "operator": "strict_less_than",
+    "observed_continuous_p99_ms": 2776.3940359582193,
+    "producer_target_ms": 4094.9999999999995,
+    "passed": true,
+    "percentile_method": "nearest rank; consecutive windows are not independent tail samples",
+    "continuous_chunks": 102,
+    "producer_hops_above_target": 0,
+    "full_60minute_qualification": false,
+    "scope": "Diagnostic completion is independent of target success. Producer's existing floating-point target formula and strict comparison are retained; no threshold relaxation or full60-minute claim."
+  },
+  "raw_run_secret_scan": {
+    "bytes": 144,
+    "sha256": "e178199bc5d9eb0d659bd31570639d9b2638642ee0d08c3468df0e133d91949d"
+  },
+  "artifacts": {
+    "flash-loaded-laptop-01-launch.json": {
+      "bytes": 87843,
+      "sha256": "b6341f3a938d64f9691c4666d77f8506b69faed52483e105cd562ad977a586a4"
+    },
+    "flash-loaded-laptop-01-analysis.json": {
+      "bytes": 383629,
+      "sha256": "f611adc7e62da59ce278cdb2b0e059b5f8cde6ca17cc0c309e646df93e60f96c"
+    },
+    "flash-loaded-laptop-01-independent-audit.json": {
+      "bytes": 12969,
+      "sha256": "99a0cb37fa514b36246641006e7a86f1547a7e4afa406b6ac53211b2b555b24b"
+    },
+    "analyze_flash_loaded.py": {
+      "bytes": 13885,
+      "sha256": "8be73b37e86140dbc24e23e8735476e672e97d073361b1311d5e6a6502439592"
+    },
+    "audit_flash_loaded.py": {
+      "bytes": 21441,
+      "sha256": "27455508d1360e38d8d9ec77ee146fe06d114138b2a48fd0a0fbddbab5e9a45d"
+    }
+  },
+  "scope": "All accepted observations retained. Successful 600-second independent silent-audio/software-UI diagnostic; no 60-minute, integrated stem-playback, physical-audio, GPU-preemption or causal speedup qualification. Native test was not repeated for documentation."
+}
