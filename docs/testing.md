@@ -44,7 +44,7 @@ both modes. These checks do not establish physical audio continuity.
 The routing handoff check also keeps nonzero receiver samples exact in both
 modes; only its downstream receiver-zero gate follows execution mode. It reports
 the raw operands and still checks every recorded master frame. The latest normal
-routing run passed all 85 checks with zero receiver faults or deadline misses.
+routing run passed all 130 checks with zero receiver faults or deadline misses.
 
 The runner resets counters and reports in `build/coverage`, builds the
 instrumented executables and runs the existing CTest suite and offscreen smoke
@@ -76,14 +76,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 converter measurement](benchmarks/data/m2-stem-converter-2026-10-19/coverage.json)
-passed 31/31 CTest entries, the offscreen smoke, 82 private-routing checks and
+The [M2 ownership measurement](benchmarks/data/m2-live-owner-2026-10-19/coverage.json)
+passed 33/33 CTest entries, the offscreen smoke, 124 private-routing checks and
 45 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 4,356 / 5,241 (83.11%) | 5,799 / 11,491 (50.47%) |
+| C++ `src/` | 4,488 / 5,376 (83.48%) | 5,924 / 11,662 (50.80%) |
 | Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the

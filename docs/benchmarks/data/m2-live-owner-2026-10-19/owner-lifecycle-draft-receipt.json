@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "status": "source_only_draft_ready",
+  "applied": false,
+  "executed": false,
+  "reserve_frames": 262144,
+  "maximum_wait_seconds": 60,
+  "source_only_review": {
+    "reviewers": [
+      "hour_result_crosscheck",
+      "m0_m1_gates"
+    ],
+    "clarifications_incorporated": [
+      "Cancellation callback registration and destruction bracket the off-callback wait lock.",
+      "Detached terminal sessions reject recorder requests as well as start, submit and replacement.",
+      "Terminal producer health takes precedence over an earlier prime timeout or cancellation.",
+      "Publication after observed producer failure or stop is rejected without PCM commitment.",
+      "The full-ring fixture accepts 71 current cells plus the provider's allowed one late stale cell.",
+      "Internal startup failure quiesces and retains owners; all later terminal mutations reject before off-GUI retirement.",
+      "The producer wrapper does not turn the stop-publication interval before request_stop into a false unexpected-return EPIPE.",
+      "Immediate private detach validates and reports either legal callback race outcome; pure mailbox quiescence covers uninstalled deterministically.",
+      "Rendered-owner reuse replaces only bank staging before prime, preserving producer/ring/readers/health and the original configureRamps guard."
+    ]
+  },
+  "files": {
+    "owner-lifecycle-api.md": {
+      "sha256": "15a179321c95d5a664a2e42cc87bac5964d128804d86212360387c922136a4e7"
+    },
+    "owner-lifecycle-tests.cpp": {
+      "sha256": "12b5deb182d228c65ad1d6c5aa6aaadcd226c91e76c4ced40b8b00d067b14918"
+    },
+    "owner-retirement-test.cpp": {
+      "sha256": "5b0dd351112818bb386c1377923a621a100f3877c1082a85d9df2a453f3b78af"
+    },
+    "owner-cmake-tests.patch": {
+      "sha256": "f4b3384ee99f463f0989d5ca8dafbf1ce95cc30d5d22215b44e7f46853d1d034"
+    },
+    "owner-integration-design.md": {
+      "sha256": "8e526bffc780c8f4f1ab619d05c9a781affc1e83563507023a67a4bf91ff4e15"
+    },
+    "owner-private-routing.patch": {
+      "sha256": "a5f7ad797d7eb2d272a54b539b7ba053fdabdd82be1d631dfd45f3d731b76812"
+    },
+    "owner-private-routing-checklist.md": {
+      "sha256": "b44f363f8d00b0acee74c1a6e066df1f62dc0d3bcaccad994bb1f8b351462496"
+    },
+    "owner-implementation.patch": {
+      "sha256": "7a751d61759c71dc63033d70fcc5cf62a5017273bf6c6851ad424912562c97bc"
+    }
+  },
+  "proposed_test_destinations": {
+    "owner-lifecycle-tests.cpp": "tests/audio_live_owner_test.cpp",
+    "owner-retirement-test.cpp": "tests/live_owner_retirement_test.cpp"
+  },
+  "behavior_scope": [
+    "Reserve is accepted contiguous frames, not a slot count; reserve-minus-one remains unready.",
+    "Prime cancellation, timeout, exact short tail and EOF do not conceal terminal producer health.",
+    "Whole owner retains its producer through retirement and rejects stopped or failed late publication.",
+    "Nonzero LiveSession initialization retains its already primed epoch and exact stem targets.",
+    "The real RenderCore retry command invalidates exactly once at the same cursor while preserving peer transport and gains.",
+    "SourceHandoff does not return the old whole owner before callback-end acknowledgement and control acquire, and returns an uninstalled live candidate after deterministic quiescence.",
+    "An inactive session returns its whole owners without invoking producer teardown.",
+    "The actual QtConcurrent retirement pattern leaves application events responsive while fake producer cleanup is pending.",
+    "Private missing-output startup failure retains its live producer and rejects later restart, transport, replacement and recorder requests.",
+    "The prospective private graph extension checks active callbacks, installed-pending ownership, either immediate-detach branch, exact every-frame recording and unchanged final callback/writer counts.",
+    "Headless asymmetric PCM and actual private graph drafts reuse an already-rendered owner at its exact cursor/targets without recreating the producer; explicit rebuild/startup gaps are excluded."
+  ],
+  "limitations": [
+    "No tracked product, test or CMake file was edited by the drafting agent.",
+    "No test, build, native process, model, media, host query or Git operation was executed.",
+    "These are prospective tests against the proposed API, not completed test results.",
+    "The inactive session unit does not prove active PipeWire callback quiescence; the separate private graph extension remains unapplied/unexecuted.",
+    "The unchanged DeckController has not adopted this live owner or retirement seam.",
+    "The producer is generated in-process data; the actual persistent child bridge and its failure supervision remain separate.",
+    "The 262144-frame/60-second policy applies to quiesced priming; active recovery reserve gating/watchdog remains pending bridge integration.",
+    "No latency, resampling quality, physical audio, sustained playback or musical acceptance qualification follows from this draft."
+  ],
+  "archival_encoding": {
+    "original_receipt": {
+      "bytes": 4815,
+      "sha256": "44f38613a50cf55635bba0d41952abb9ef39a7e06101cc138e6d5ce220ad22bd"
+    },
+    "transformation": "Flat file digests represented as explicit sha256 records; every name/digest and other field retained. Original source-only receipt remains local. Historical references identify that original digest."
+  }
+}

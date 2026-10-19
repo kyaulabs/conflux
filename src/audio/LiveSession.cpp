@@ -108,11 +108,17 @@ public:
         }
         return playbacks;
     }
-    static PlaybackSources primePlaybacks(PlaybackSources playbacks, const InitialState& initial)
+    static PlaybackSources primePlaybacks(PlaybackSources playbacks, const InitialState& initial,
+                                           std::stop_token stop)
     {
-        for (std::size_t deck = 0; deck < playbacks.size(); ++deck)
-            if (playbacks[deck] && !playbacks[deck]->prime(initial.sourceFrame[deck], std::chrono::seconds(2)))
+        for (std::size_t deck = 0; deck < playbacks.size(); ++deck) {
+            if (stop.stop_requested()) throw std::runtime_error("Playback installation cancelled");
+            if (!playbacks[deck]) continue;
+            playbacks[deck]->resetBankForSession();
+            const auto timeout = playbacks[deck]->isLive() ? PreparedPlayback::liveWait : std::chrono::seconds(2);
+            if (!playbacks[deck]->prime(initial.sourceFrame[deck], timeout, stop))
                 throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + playbacks[deck]->error());
+        }
         return playbacks;
     }
     static RenderCore makeRenderer(const PlaybackSources& playbacks)
@@ -122,9 +128,9 @@ public:
                           playbacks[1] ? playbacks[1]->sourceRef() : AudioSource{});
     }
     Impl(PreparedSources sources, const InitialState& initial)
-        : Impl(makePlaybacks(sources), initial) {}
-    Impl(PlaybackSources sources, const InitialState& initial)
-        : playbacks_(primePlaybacks(std::move(sources), initial)), renderer_(makeRenderer(playbacks_))
+        : Impl(makePlaybacks(sources), initial, {}) {}
+    Impl(PlaybackSources sources, const InitialState& initial, std::stop_token stop)
+        : playbacks_(primePlaybacks(std::move(sources), initial, stop)), renderer_(makeRenderer(playbacks_))
     { initialize(initial); }
 
     void initialize(const InitialState& initial)
@@ -155,7 +161,7 @@ public:
                 continue;
             }
             if (!renderer_.setCueFrame(deck, initial.cueFrame[deck]) ||
-                !renderer_.seek(deck, initial.sourceFrame[deck]) ||
+                !renderer_.restorePrimedCursor(deck, initial.sourceFrame[deck]) ||
                 !renderer_.setDeckGain(deck, initial.deckGain[deck]) ||
                 !renderer_.setPlaying(deck, initial.playing[deck]) ||
                 !renderer_.setCueSelected(deck, initial.cueSelected[deck]))
@@ -856,12 +862,12 @@ public:
     bool start(std::string& error, const RoutingConfig& config, bool discoveryOnly = false)
     {
         error.clear();
-        if (readersStopped_) { error="A stopped streamed session must be reconstructed before restarting"; return false; }
+        if (readersStopped_ || startFailed_) { error="A stopped or failed session must be reconstructed before restarting"; return false; }
         if (loop_) {
             if (discoveryOnly != discoveryOnly_) {
                 error="Stop the current session before changing discovery/playback mode"; return false;
             }
-            error=currentError(); if (error.empty()) return true; stop(); return false;
+            error=currentError(); if (error.empty()) return true; failedStart(); return false;
         }
         static std::once_flag initialized;
         std::call_once(initialized, [] { pw_init(nullptr, nullptr); });
@@ -912,7 +918,7 @@ public:
                 }
             }
         }
-        error=currentError(); stop(); return false;
+        error=currentError(); failedStart(); return false;
     }
     std::string currentError()
     {
@@ -936,7 +942,15 @@ public:
             throw;
         }
     }
-    void stop() noexcept
+    void failedStart() noexcept
+    {
+        // A start caller may be the GUI/control owner. Do not run producer stop
+        // callbacks or join here; retain whole owners for off-thread retirement.
+        quiesce();
+        startFailed_ = true;
+        stopped_ = capture();
+    }
+    void quiesce() noexcept
     {
         if (loopStarted_) pw_thread_loop_lock(loop_);
         shuttingDown_=true; ready_.store(false); masterGate_.store(false); cueGate_.store(false);
@@ -964,10 +978,26 @@ public:
         consumeCommands();
         for (std::size_t deck=0;deck<RenderCore::deckCount;++deck)
             if (renderer_.sourceFrames(deck)) renderer_.cueRelease(deck);
+        State discarded; while (states_.pop(discarded)) {}
+    }
+    void stop() noexcept
+    {
+        if (detached_) return;
+        quiesce();
         for (auto& playback:playbacks_) if (playback) { playback->stop(); readersStopped_=true; }
         if (replacementPlayback_) { replacementPlayback_->stop(); readersStopped_=true; }
-        State discarded; while (states_.pop(discarded)) {}
         stopped_=capture();
+    }
+    StoppedPlaybacks stopAndTakePlaybacks() noexcept
+    {
+        if (detached_) return {};
+        quiesce();
+        stopped_ = capture(); // Every borrowed source/health callback is retained here.
+        auto replacement = takeSourceReplacementResult();
+        StoppedPlaybacks result{std::move(playbacks_), std::move(replacement)};
+        activePlaybacks_.fill(nullptr);
+        readersStopped_ = detached_ = true;
+        return result;
     }
 
     PlaybackSources playbacks_;
@@ -982,7 +1012,7 @@ public:
     CallbackTiming timing_{clockCapabilities()};
     RenderCore::Meters meters_{};
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
-    bool readersStopped_=false;
+    bool readersStopped_=false, detached_=false, startFailed_=false;
     TransportQueue commands_; StateQueue states_;
     pw_thread_loop* loop_=nullptr; pw_filter* filter_=nullptr; pw_core* core_=nullptr; pw_registry* registry_=nullptr;
     pw_metadata* metadata_=nullptr; std::uint32_t metadataId_=invalidId;
@@ -1014,7 +1044,7 @@ public:
 LiveSession::LiveSession(std::span<const float> a,std::span<const float> b):LiveSession(a,b,InitialState{}) {}
 LiveSession::LiveSession(std::span<const float> a,std::span<const float> b,const InitialState& initial):impl_(std::make_unique<Impl>(a,b,initial)) {}
 LiveSession::LiveSession(PreparedSources sources,const InitialState& initial):impl_(std::make_unique<Impl>(sources,initial)) {}
-LiveSession::LiveSession(PlaybackSources sources,const InitialState& initial):impl_(std::make_unique<Impl>(std::move(sources),initial)) {}
+LiveSession::LiveSession(PlaybackSources sources,const InitialState& initial,std::stop_token stop):impl_(std::make_unique<Impl>(std::move(sources),initial,stop)) {}
 LiveSession::~LiveSession()=default;
 bool LiveSession::start(std::string& error) { return impl_->start(error,{}); }
 bool LiveSession::start(std::string& error,const RoutingConfig& routing) { return impl_->start(error,routing); }
@@ -1038,10 +1068,11 @@ CallbackTiming::Summary LiveSession::stoppedTimingSummary()const
     if (impl_->loop_) throw std::logic_error("Timing summary requires a stopped audio session");
     return impl_->timing_.summary();
 }
-bool LiveSession::requestRecorder(StereoRecorder* recorder)noexcept { return impl_->tap_.request(recorder); }
+bool LiveSession::requestRecorder(StereoRecorder* recorder)noexcept { return !impl_->detached_ && !impl_->startFailed_ && impl_->tap_.request(recorder); }
 bool LiveSession::recorderChangePending()const noexcept { return impl_->tap_.changePending(); }
 bool LiveSession::recorderAttached()const noexcept { return impl_->tap_.attached(); }
 void LiveSession::stop()noexcept { impl_->stop(); }
+LiveSession::StoppedPlaybacks LiveSession::stopAndTakePlaybacks()noexcept { return impl_->stopAndTakePlaybacks(); }
 LiveSession::State LiveSession::stoppedState()const noexcept { return impl_->stopped_; }
 
 } // namespace conflux::audio

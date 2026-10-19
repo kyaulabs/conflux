@@ -1,0 +1,452 @@
+{
+  "schema": "conflux.m2-live-owner-verification.v1",
+  "status": "whole_owner_functional_lifecycle_checks_passed",
+  "base_commit": "d3d7b21dfd6d5074894d5ac92b5bf30048776ff5",
+  "normal_ctest_passed": 33,
+  "instrumented_ctest_passed": 33,
+  "new_ctest_entries": 2,
+  "pure_owner_behavior_groups": 6,
+  "tested_source_pins": 83,
+  "source_stable": true,
+  "tdd": "Independent behavior tests failed on absent owner APIs before the frozen implementation. Both targeted tests then passed without product or assertion corrections; root removed one draft-only unit comment before RED.",
+  "prime_policy": {
+    "reserve_frames48": 262144,
+    "max_wait_seconds_per_live_owner": 60,
+    "clipped_to_remaining": true,
+    "quiesced_only": true,
+    "active_recovery_gating": false
+  },
+  "private_checks": {
+    "normal": {
+      "routing_checks": 130,
+      "routing_deadline_gate": true,
+      "cases": {
+        "installed": {
+          "passed": true,
+          "error": "",
+          "scope": "Private virtual graph with generated live bank and exact audible PCM peer; no service child, model, physical audio or integrated delivery qualification",
+          "await_installed_before_detach": true,
+          "ownership_returned": true,
+          "completion_installed": true,
+          "immediate_detach_branch": null,
+          "active_recovery_reserve_gating": false,
+          "prime_reserve_frames": 262144,
+          "output_frames": 4096,
+          "callbacks": 16,
+          "source_generation": 1,
+          "recorded_frames": 5120,
+          "written_frames": 5120,
+          "wrong_nonzero_sink_samples_before_detach": 0,
+          "zero_samples_before_detach": [
+            0,
+            0
+          ],
+          "virtual_sink_zero_gate": true,
+          "execution_deadline_gate": true,
+          "execution_deadline_misses": 0,
+          "rebuilt_rendered_owner": true,
+          "rebuild_startup_gap_excluded": true,
+          "rebuild_initial_cursor": [
+            3584,
+            4096
+          ],
+          "rebuild_output_frames": 3072,
+          "rebuild_final_cursor": [
+            6656,
+            7168
+          ],
+          "producer_starts": [
+            1,
+            1
+          ],
+          "producer_exits": [
+            1,
+            1
+          ]
+        },
+        "immediate": {
+          "passed": true,
+          "error": "",
+          "scope": "Private virtual graph with generated live bank and exact audible PCM peer; no service child, model, physical audio or integrated delivery qualification",
+          "await_installed_before_detach": false,
+          "ownership_returned": true,
+          "completion_installed": false,
+          "immediate_detach_branch": "uninstalled",
+          "active_recovery_reserve_gating": false,
+          "prime_reserve_frames": 262144,
+          "output_frames": 3840,
+          "callbacks": 15,
+          "source_generation": 0,
+          "recorded_frames": 2816,
+          "written_frames": 2816,
+          "wrong_nonzero_sink_samples_before_detach": 0,
+          "zero_samples_before_detach": [
+            0,
+            0
+          ],
+          "virtual_sink_zero_gate": true,
+          "execution_deadline_gate": true,
+          "execution_deadline_misses": 0,
+          "rebuilt_rendered_owner": false,
+          "rebuild_startup_gap_excluded": false,
+          "rebuild_initial_cursor": [
+            0,
+            0
+          ],
+          "rebuild_output_frames": 0,
+          "rebuild_final_cursor": [
+            0,
+            0
+          ],
+          "producer_starts": [
+            1,
+            1
+          ],
+          "producer_exits": [
+            1,
+            1
+          ]
+        }
+      },
+      "preparation_checks": 45,
+      "preparation_inner_deadline_gate": false
+    },
+    "instrumented": {
+      "routing_checks": 124,
+      "routing_deadline_gate": false,
+      "cases": {
+        "installed": {
+          "passed": true,
+          "error": "",
+          "scope": "Private virtual graph with generated live bank and exact audible PCM peer; no service child, model, physical audio or integrated delivery qualification",
+          "await_installed_before_detach": true,
+          "ownership_returned": true,
+          "completion_installed": true,
+          "immediate_detach_branch": null,
+          "active_recovery_reserve_gating": false,
+          "prime_reserve_frames": 262144,
+          "output_frames": 43520,
+          "callbacks": 170,
+          "source_generation": 1,
+          "recorded_frames": 44544,
+          "written_frames": 44544,
+          "wrong_nonzero_sink_samples_before_detach": 0,
+          "zero_samples_before_detach": [
+            0,
+            0
+          ],
+          "virtual_sink_zero_gate": false,
+          "execution_deadline_gate": false,
+          "execution_deadline_misses": 5,
+          "rebuilt_rendered_owner": true,
+          "rebuild_startup_gap_excluded": true,
+          "rebuild_initial_cursor": [
+            43008,
+            43520
+          ],
+          "rebuild_output_frames": 3584,
+          "rebuild_final_cursor": [
+            46592,
+            47104
+          ],
+          "producer_starts": [
+            1,
+            1
+          ],
+          "producer_exits": [
+            1,
+            1
+          ]
+        },
+        "immediate": {
+          "passed": true,
+          "error": "",
+          "scope": "Private virtual graph with generated live bank and exact audible PCM peer; no service child, model, physical audio or integrated delivery qualification",
+          "await_installed_before_detach": false,
+          "ownership_returned": true,
+          "completion_installed": false,
+          "immediate_detach_branch": "uninstalled",
+          "active_recovery_reserve_gating": false,
+          "prime_reserve_frames": 262144,
+          "output_frames": 41216,
+          "callbacks": 161,
+          "source_generation": 0,
+          "recorded_frames": 39936,
+          "written_frames": 39936,
+          "wrong_nonzero_sink_samples_before_detach": 0,
+          "zero_samples_before_detach": [
+            0,
+            0
+          ],
+          "virtual_sink_zero_gate": false,
+          "execution_deadline_gate": false,
+          "execution_deadline_misses": 1,
+          "rebuilt_rendered_owner": false,
+          "rebuild_startup_gap_excluded": false,
+          "rebuild_initial_cursor": [
+            0,
+            0
+          ],
+          "rebuild_output_frames": 0,
+          "rebuild_final_cursor": [
+            0,
+            0
+          ],
+          "producer_starts": [
+            1,
+            1
+          ],
+          "producer_exits": [
+            1,
+            1
+          ]
+        }
+      },
+      "preparation_checks": 45,
+      "preparation_inner_deadline_gate": false
+    }
+  },
+  "tsan": {
+    "passed": true,
+    "ctest_seconds": 2.0,
+    "reported_races": 0,
+    "scope": "Only the six-group actual audio-live-owner ring/core/mailbox/inactive-session test. Not the active PipeWire adapter, Qt test, model or whole application."
+  },
+  "coverage": {
+    "cpp": {
+      "line": {
+        "covered": 4488,
+        "total": 5376,
+        "percent": 83.48214285714286,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 5924,
+        "total": 11662,
+        "percent": 50.79746184187961,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    }
+  },
+  "recording_scope": "Owner cases reopen and verify every recorded generated audible-peer sample. Explicit output stop/rebuild gap and startup transitions are excluded. Existing preparation recording uses its independent exact prefix/tail oracle, with the intervening rebuild excluded; its inner execution deadline gate remains false.",
+  "cleanup": "Both private virtual daemons reaped, no owned nodes/links remain. Generated producers start/exit once and are joined by retirement. No service/native separator child exists in these lifecycle cases, so process-group cleanup is not qualified.",
+  "source_only_receipt_encoding": {
+    "original": {
+      "bytes": 4815,
+      "sha256": "44f38613a50cf55635bba0d41952abb9ef39a7e06101cc138e6d5ce220ad22bd"
+    },
+    "normalized": {
+      "bytes": 5415,
+      "sha256": "c820e369a41cd57922129aca736eb462d9d5bcb0737f28055a3a07fda2f3ad5d"
+    }
+  },
+  "pending": [
+    "Actual controller adoption of whole-owner return/retirement and retained-job admission",
+    "Persistent service/slot-ACK/converter bridge",
+    "Active recovery reserve gating and watchdog",
+    "Real model, integrated delivery latency, physical audio and sustained UI/thermal qualification"
+  ],
+  "scope": "Generated in-process live owners and private virtual audio only. The application still loads complete prepared banks. No original-mix substitution, public live activation, musical acceptance or inherited hour qualification.",
+  "live_service_target_ms": 4095,
+  "M2_qualified": false,
+  "raw_secret_scan_exit": 0,
+  "files": {
+    "owner-red-result.json": {
+      "bytes": 154,
+      "sha256": "72841ae9fcd6b17bda63beebad035c261fb49327c9bad4ca3106aa8c8d2d6d4a"
+    },
+    "owner-functional-result.json": {
+      "bytes": 3112,
+      "sha256": "fb4654f2205447a64611c55f564c5d0ef5d0220d76f217379fa8294fde185d96"
+    },
+    "owner-source-pins.json": {
+      "bytes": 11684,
+      "sha256": "67aebcd20c9a1cfe795f1e21f94c30405f21290fff70b168f8e4d39ba8896eaf"
+    },
+    "owner-source-stable.json": {
+      "bytes": 52,
+      "sha256": "ef6f17572e59a0edf4570cbe371ed0ff6ec5d202efaf2c094505b2a4566992cf"
+    },
+    "owner-lifecycle-draft-receipt.json": {
+      "bytes": 5415,
+      "sha256": "c820e369a41cd57922129aca736eb462d9d5bcb0737f28055a3a07fda2f3ad5d"
+    },
+    "owner-implementation-freeze.json": {
+      "bytes": 6209,
+      "sha256": "250333512468386962af0a132ac4e50225bc293a2bc6e40972529b77dc717219"
+    },
+    "owner-red-build.log.gz": {
+      "bytes": 3087,
+      "sha256": "ff5e8cef50ccee549e80772ba0c8f62229686f8ef9be4a604da90bf0c7b9cc89"
+    },
+    "owner-green-build.log.gz": {
+      "bytes": 262,
+      "sha256": "abec7078e57879e952b940da27b08c7aae3961bd9e33853dd7247dd8941fe579"
+    },
+    "owner-green-test.log.gz": {
+      "bytes": 195,
+      "sha256": "e8d39293459416f28a543b89c1b7b96ea62477de62e24a69b3442e5eb8b073c8"
+    },
+    "owner-full-build.log.gz": {
+      "bytes": 1405,
+      "sha256": "485a93357f6eed622565bb6e33ebc27a06e12c10585feafc701d466d43641695"
+    },
+    "owner-ctest.log.gz": {
+      "bytes": 809,
+      "sha256": "ec86861f159b81e06b50c6ec37645d2fe387d5d4c904f5806dacf514b33cd44c"
+    },
+    "owner-smoke.log.gz": {
+      "bytes": 421,
+      "sha256": "c9841ab8d1364a773c578821bf6a29d9551189b71f10b5951255b384cfb6dd61"
+    },
+    "owner-tsan-configure.log.gz": {
+      "bytes": 550,
+      "sha256": "948c215d4ba1282e8b4e966cf65ebc7e8a78f25443438c4287df7c43aec7fbfe"
+    },
+    "owner-tsan-build.log.gz": {
+      "bytes": 317,
+      "sha256": "0c3c48b7f5d37c826b2ef2c5bdb82562f234897d0f881071083184cb72c91305"
+    },
+    "owner-tsan-test.log.gz": {
+      "bytes": 169,
+      "sha256": "8dd4ffc2a17616137c195a943dec15d0faa684d67f49e6313ba5242a8bd612b6"
+    },
+    "owner-coverage.log.gz": {
+      "bytes": 2004,
+      "sha256": "55207e5f87a5d73bd23a435828a8d3a82ce6c37d6f90724de5456329f7a8c356"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 4626,
+      "sha256": "12bef26f8c171cb9f902c61c7ca32288494d0c21cbef562acfb48c8fede65ad1"
+    },
+    "tsan-last-test.log.gz": {
+      "bytes": 305,
+      "sha256": "83e176f9111e42f947c297dd8ce225c778b6728630e61e0ef73d75621c431f1e"
+    },
+    "coverage.json": {
+      "bytes": 7874,
+      "sha256": "a6975115d494e120eeef813fce5b9159b3d3e359840b7afb6d360c866a08a561"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 827,
+      "sha256": "4828550b946e2ca6fee43ab04817f2e5b3878a156cf2a96081dec9a4daaacd83"
+    },
+    "normal-routing-result.json": {
+      "bytes": 14295,
+      "sha256": "005f433cc87cb7839ff365c96b8bfc60c5517231224b362e6cce77407f5c4800"
+    },
+    "normal-routing-live-owner-installed.json": {
+      "bytes": 868,
+      "sha256": "8f3d48ec7f255f08282711842207903e1ca0b05bfc1815159074f327fc3082a5"
+    },
+    "normal-routing-live-owner-immediate.json": {
+      "bytes": 866,
+      "sha256": "ca789bd0e7d2dd3b0310e62abb7d42a3c25c732c3d89cff1b0e1c8adbb036433"
+    },
+    "instrumented-routing-result.json": {
+      "bytes": 13944,
+      "sha256": "292ad7774acd6c1c0a4deef79b9041081d622e3e137e81a610e6ade3d24e90af"
+    },
+    "instrumented-routing-live-owner-installed.json": {
+      "bytes": 878,
+      "sha256": "210f97bea3b618d7c6c806905341e6afd9d7dd6afc5a7c030035e4f4d8c26724"
+    },
+    "instrumented-routing-live-owner-immediate.json": {
+      "bytes": 872,
+      "sha256": "2738c5a2073a06acb160f84f2e4a9a67c7d70c880e444780c86b3083d3de2381"
+    },
+    "normal-preparation.json": {
+      "bytes": 11213,
+      "sha256": "090986df5c66e9619535deffc66524ad2732efa78d73c57bdeed799e711af412"
+    },
+    "instrumented-preparation.json": {
+      "bytes": 11173,
+      "sha256": "6b7d92de2de0940627794ded822588dc7a4e1d6b1eaeeedce5d8a365dcaeb6a9"
+    }
+  },
+  "uncompressed": {
+    "owner-red-build.log.gz": {
+      "bytes": 22382,
+      "sha256": "98ccd9d0ce487d9e1609fedfeb0213832248f0221e39108487638080ab8a7075"
+    },
+    "owner-green-build.log.gz": {
+      "bytes": 802,
+      "sha256": "8c3fd937e6e502770ba450233d015ebc6c4c1ef9fb780086a6e994fda4de892d"
+    },
+    "owner-green-test.log.gz": {
+      "bytes": 332,
+      "sha256": "7ad2e21911c87a3f234f27c88b9b81ceace05a9f06db9c6ff43e35b608720fb8"
+    },
+    "owner-full-build.log.gz": {
+      "bytes": 6704,
+      "sha256": "316933857995345441ca9084345a8a8db726b77306f0f1eb125168325126e58f"
+    },
+    "owner-ctest.log.gz": {
+      "bytes": 3562,
+      "sha256": "478e5eb4005421c95402e39e7baac792d6de95d3f1166e604e2182811ac313de"
+    },
+    "owner-smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "c996f73a5b65dc87c37d0406aeba3efa59b79e7251f70446c770bc57aa64ae0d"
+    },
+    "owner-tsan-configure.log.gz": {
+      "bytes": 1157,
+      "sha256": "1bb4600c171e8a7b261dee0999bcf5ff531f560d6a6e1b6a98cabadb37af1003"
+    },
+    "owner-tsan-build.log.gz": {
+      "bytes": 1234,
+      "sha256": "f00db84049025715d6bd3870794bcfbf7c298d1275922d55bf33485ede3d89e3"
+    },
+    "owner-tsan-test.log.gz": {
+      "bytes": 233,
+      "sha256": "851262730ba65a743e24e50038d36eec92792e2f6833d6231e81272dfce8d8b3"
+    },
+    "owner-coverage.log.gz": {
+      "bytes": 11412,
+      "sha256": "98a6665335b58d93de1a46cc4afee0eacbea3be6e2133f1c46bc2b55c99316bd"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 33372,
+      "sha256": "9fba4225873ad5b905f718101a3680949754b7eb83e0c9d3b3b491d38c0e717c"
+    },
+    "tsan-last-test.log.gz": {
+      "bytes": 810,
+      "sha256": "208b7f60963724537390420da39bdd555717120f696dcc498706629bedaf9c41"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 3567,
+      "sha256": "0d4f44b2afbfd306e058c856dea8c126d2e8e32d824ac37d6846b71eda1c32d1"
+    }
+  },
+  "ci_followup": "ci-followup/verification.json"
+}
