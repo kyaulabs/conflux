@@ -34,6 +34,14 @@ checks are skipped and reported as such. Normal private-routing checks retain
 their deadline gates. Functional runs allow a 240-second harness guard for
 instrumented preparation; the normal guard remains 90 seconds.
 
+The prepared-bank check starts its master recording before expensive imports
+and compares every steady frame, plus the settled tail after an explicit routing
+rebuild, with independent asymmetric samples at 1e-6 tolerance. Functional-only
+mode requires virtual sink delivery and reports all sink discrepancies separately;
+its sink sample-quality gate is disabled. Normal mode keeps that gate. Source
+clocks, ownership, cancellation, read health and recorded samples remain strict in
+both modes. These checks do not establish physical audio continuity.
+
 The runner resets counters and reports in `build/coverage`, builds the
 instrumented executables and runs the existing CTest suite and offscreen smoke
 check. Reports are written under `build/coverage/reports`:
@@ -64,14 +72,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 prepared-bank controls measurement](benchmarks/data/m2-stem-controls-2026-10-19/coverage.json)
-passed 28/28 CTest entries, the offscreen smoke, 82 private-routing checks and
+The [M2 live-buffer measurement](benchmarks/data/m2-live-buffer-2026-10-19/coverage.json)
+passed 29/29 CTest entries, the offscreen smoke, 82 private-routing checks and
 45 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 4,096 / 4,965 (82.50%) | 5,521 / 11,111 (49.69%) |
+| C++ `src/` | 4,229 / 5,099 (82.94%) | 5,634 / 11,233 (50.16%) |
 | Python `tools/stems/` | 855 / 922 (92.73%) | 263 / 322 (81.68%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
