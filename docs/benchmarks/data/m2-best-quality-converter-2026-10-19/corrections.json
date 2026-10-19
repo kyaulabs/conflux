@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-19T19:07:36.017183+00:00",
+  "correction": "Fixed scratch storage grows by128KiB, from128KiB to256KiB; the prior192KiB growth estimate was wrong.",
+  "original_source_commit": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+  "affected_records": [
+    "source commit body",
+    "best-packed-product-report-01.json change field"
+  ],
+  "old_scratch": {
+    "arrays": 4,
+    "frames_per_array": 4096,
+    "channels": 2,
+    "float_bytes": 4,
+    "bytes": 131072,
+    "KiB": 128
+  },
+  "new_scratch": {
+    "arrays": 2,
+    "frames_per_array": 4096,
+    "channels": 8,
+    "float_bytes": 4,
+    "bytes": 262144,
+    "KiB": 256
+  },
+  "growth_bytes": 131072,
+  "growth_KiB": 128,
+  "scope": "Documentation arithmetic correction only. Product source, retained source hashes, PCM parity and test results are unchanged. Original signed commit and frozen report bytes are retained."
+}

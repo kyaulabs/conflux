@@ -1,0 +1,2401 @@
+{
+  "schema": 1,
+  "at_utc": "2026-10-19T19:11:14.841966+00:00",
+  "author": "/root/short_result_crosscheck",
+  "status": "archive_integrity_and_provenance_passed_with_explicit_numerical_erratum",
+  "qualified": false,
+  "scope": "Original132gzip payloads plus verification.json and corrections.json only; later native-retest additions excluded.",
+  "verification": {
+    "path": "verification.json",
+    "bytes": 139420,
+    "sha256": "6f4b2364f5e113b9433635887e023351f589926681c8de03213c9935127a4023"
+  },
+  "corrections": {
+    "path": "corrections.json",
+    "bytes": 917,
+    "sha256": "c1c7465f005f7590236a4dcc816ce9b02fed34f687554bb193a70f22140ff630"
+  },
+  "payload_count": 132,
+  "canonical_files_before_receipt": 134,
+  "canonical_files_with_receipt": 135,
+  "no_extra_files_within_checked_original_scope": true,
+  "payload_records": [
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--StemRateConverter-best-quad-candidate.cpp.gz",
+      "compressed": {
+        "bytes": 3566,
+        "sha256": "275509f747d091cd55f50189e1709da4e91bb16e1a9217a93993fe11546c214b"
+      },
+      "uncompressed": {
+        "bytes": 14257,
+        "sha256": "b896ccc557fbffbc7eaa23a5018de5a97af8e74dc4844201b5c92ab847897922"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/StemRateConverter-best-quad-candidate.cpp",
+        "bytes": 14257,
+        "sha256": "b896ccc557fbffbc7eaa23a5018de5a97af8e74dc4844201b5c92ab847897922"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--StemRateConverter-best-octal-candidate.cpp.gz",
+      "compressed": {
+        "bytes": 3566,
+        "sha256": "3dea59ff5dd75602234026c3009a7b2cbdc6eb57fa7987c8970853dc11a0b148"
+      },
+      "uncompressed": {
+        "bytes": 14257,
+        "sha256": "fdf8d5eb83e905af716b04f161ed61e3bb0a3d1eb4d957e0ec6182adb3b54ebc"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/StemRateConverter-best-octal-candidate.cpp",
+        "bytes": 14257,
+        "sha256": "fdf8d5eb83e905af716b04f161ed61e3bb0a3d1eb4d957e0ec6182adb3b54ebc"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--StemRateConverter-best-packed-product-draft.cpp.gz",
+      "compressed": {
+        "bytes": 3266,
+        "sha256": "6e3b3086a5cd96e2b4b1b208ebf13aff8cca5b72cd5f21fc5990d05315ef35f6"
+      },
+      "uncompressed": {
+        "bytes": 11478,
+        "sha256": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/StemRateConverter-best-packed-product-draft.cpp",
+        "bytes": 11478,
+        "sha256": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-quad-candidate.patch.gz",
+      "compressed": {
+        "bytes": 1658,
+        "sha256": "4cb2e77443e6682883c7261d2a4bcc4b0fd7c45ba5c08e55c09e840f0b364fd0"
+      },
+      "uncompressed": {
+        "bytes": 5451,
+        "sha256": "fb8b1387bd8eafd733f4bc5e068227e9bc4ef23c4efaead4972aa3b7df1d9f67"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-quad-candidate.patch",
+        "bytes": 5451,
+        "sha256": "fb8b1387bd8eafd733f4bc5e068227e9bc4ef23c4efaead4972aa3b7df1d9f67"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-octal-candidate.patch.gz",
+      "compressed": {
+        "bytes": 1658,
+        "sha256": "7d3b6a59757f8d0063caa5ba63bb2a84fec1d462698bf208f87822fa290940f6"
+      },
+      "uncompressed": {
+        "bytes": 5452,
+        "sha256": "240bb0b816d52f3be539a38877194692cc12cca9ef72b00427b4443f13bed594"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-octal-candidate.patch",
+        "bytes": 5452,
+        "sha256": "240bb0b816d52f3be539a38877194692cc12cca9ef72b00427b4443f13bed594"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-candidates-freeze.json.gz",
+      "compressed": {
+        "bytes": 1730,
+        "sha256": "5f782efc505534c69d2a6b12d645140193a34f4da191245b8c225e0ab445aad0"
+      },
+      "uncompressed": {
+        "bytes": 4049,
+        "sha256": "1f777f7cebfacd7c7f3c221231e3ca0bc1c8e346e1beb7b63720afdc2b274247"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-candidates-freeze.json",
+        "bytes": 4049,
+        "sha256": "1f777f7cebfacd7c7f3c221231e3ca0bc1c8e346e1beb7b63720afdc2b274247"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-candidates-recipe.md.gz",
+      "compressed": {
+        "bytes": 2454,
+        "sha256": "1ed5a62980b1ab8e149f66977c32b0dcdbe56f4e4c16a8680bcb6e2feac6c6bf"
+      },
+      "uncompressed": {
+        "bytes": 5367,
+        "sha256": "33e25b5ea9dc1957dcda909a24faabd3017196d17ddc02dd0b6869668dfd0b44"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-candidates-recipe.md",
+        "bytes": 5367,
+        "sha256": "33e25b5ea9dc1957dcda909a24faabd3017196d17ddc02dd0b6869668dfd0b44"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-plan-01.json.gz",
+      "compressed": {
+        "bytes": 1576,
+        "sha256": "4018cf3925b5a41520bc52b07c52946b606eac69e50192e30c5617c6894a580a"
+      },
+      "uncompressed": {
+        "bytes": 7972,
+        "sha256": "7f94ec571cf6c76d03a00bdd343062f4ecefd6deed23a15c761bd00d2554e7d8"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-plan-01.json",
+        "bytes": 7972,
+        "sha256": "7f94ec571cf6c76d03a00bdd343062f4ecefd6deed23a15c761bd00d2554e7d8"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-01.json.gz",
+      "compressed": {
+        "bytes": 1682,
+        "sha256": "7a60b53d395abf6b4d5742b100029fbe4f9f82fd6c39fcbcddb04fd8b55ec362"
+      },
+      "uncompressed": {
+        "bytes": 9117,
+        "sha256": "6d7517568c087e60e4af3e6a2aa22718781c0c0dc85fce5d9e51a0380b48bdfb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-01.json",
+        "bytes": 9117,
+        "sha256": "6d7517568c087e60e4af3e6a2aa22718781c0c0dc85fce5d9e51a0380b48bdfb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-regressions-01.json.gz",
+      "compressed": {
+        "bytes": 1774,
+        "sha256": "e3cefa19ba75be254bd855d998ee5a3690fb0968d3b8a600447d11c6e96fc8c0"
+      },
+      "uncompressed": {
+        "bytes": 5690,
+        "sha256": "2fd0bae0603807a6f1870d3197a27c38426d15e60d72f2e54cef0584267f2730"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-regressions-01.json",
+        "bytes": 5690,
+        "sha256": "2fd0bae0603807a6f1870d3197a27c38426d15e60d72f2e54cef0584267f2730"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--audio-stem-rate-converter-best-quad-01.log.gz",
+      "compressed": {
+        "bytes": 161,
+        "sha256": "b83b8a6f7864daeac54f3be35ff57be5e79321c37a11691ffc24f15f0ca7b06e"
+      },
+      "uncompressed": {
+        "bytes": 198,
+        "sha256": "e07ee860976cbcd8054a3c465813bc3e5b649d21b58538f12f855af514f4508e"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/audio-stem-rate-converter-best-quad-01.log",
+        "bytes": 198,
+        "sha256": "e07ee860976cbcd8054a3c465813bc3e5b649d21b58538f12f855af514f4508e"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--audio-stem-rate-converter-best-octal-01.log.gz",
+      "compressed": {
+        "bytes": 161,
+        "sha256": "b83b8a6f7864daeac54f3be35ff57be5e79321c37a11691ffc24f15f0ca7b06e"
+      },
+      "uncompressed": {
+        "bytes": 198,
+        "sha256": "e07ee860976cbcd8054a3c465813bc3e5b649d21b58538f12f855af514f4508e"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/audio-stem-rate-converter-best-octal-01.log",
+        "bytes": 198,
+        "sha256": "e07ee860976cbcd8054a3c465813bc3e5b649d21b58538f12f855af514f4508e"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-series-plan-01.json.gz",
+      "compressed": {
+        "bytes": 1680,
+        "sha256": "88f9861916575e1dece6b4d0475f11727d53c6dcf1abfcb80607025a3c67e070"
+      },
+      "uncompressed": {
+        "bytes": 4770,
+        "sha256": "46791dbea9f2f165bcc6b3f64b62bcfc8edc45bf0a61a93c844a3fec131d01c8"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-series-plan-01.json",
+        "bytes": 4770,
+        "sha256": "46791dbea9f2f165bcc6b3f64b62bcfc8edc45bf0a61a93c844a3fec131d01c8"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-series-01.json.gz",
+      "compressed": {
+        "bytes": 2471,
+        "sha256": "8b0e6fbc9fc626dda56d56361bff0b80af5b2ad8fb8e72f462c8358e6239feb7"
+      },
+      "uncompressed": {
+        "bytes": 17430,
+        "sha256": "c2315db84f8b8371bc61852f351706af6b883d848bfc2819ae1d81ec2b87deb3"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-series-01.json",
+        "bytes": 17430,
+        "sha256": "c2315db84f8b8371bc61852f351706af6b883d848bfc2819ae1d81ec2b87deb3"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-series-01-independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 6433,
+        "sha256": "fe4864f7c35b8a55b6b4d6be118420380a05b1ab29ec09d73df9fb958736f12b"
+      },
+      "uncompressed": {
+        "bytes": 32351,
+        "sha256": "95d8c78c4e5d1bc2d0e214ca8ad537918e99f883cf6f1a9bfff80f4f8fd87db1"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-series-01-independent-crosscheck.json",
+        "bytes": 32351,
+        "sha256": "95d8c78c4e5d1bc2d0e214ca8ad537918e99f883cf6f1a9bfff80f4f8fd87db1"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-plan-01.json.gz",
+      "compressed": {
+        "bytes": 1702,
+        "sha256": "5e6c5737f4550cfe9dc6fddeb38b3d7e4578d9a7de9f0f725a78e6cde1921492"
+      },
+      "uncompressed": {
+        "bytes": 5013,
+        "sha256": "a5b5a9150ba9827b7e7bf699a8e266a6382da7befb2d619d8d5e5612c11186cb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-plan-01.json",
+        "bytes": 5013,
+        "sha256": "a5b5a9150ba9827b7e7bf699a8e266a6382da7befb2d619d8d5e5612c11186cb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-series-01.json.gz",
+      "compressed": {
+        "bytes": 2875,
+        "sha256": "6bc35208b0124d6febf8be9eb04e86e17024a0f0c9c3752f5c2aeafaebc0f265"
+      },
+      "uncompressed": {
+        "bytes": 17456,
+        "sha256": "53a0747d90163b81e7a585b46893c8e781367f373abe15d3683ed3c4adddee0a"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-series-01.json",
+        "bytes": 17456,
+        "sha256": "53a0747d90163b81e7a585b46893c8e781367f373abe15d3683ed3c4adddee0a"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-series-01-independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 8101,
+        "sha256": "78b4534b0c02c483e590008c9b30a522e7d7b0ad14d72203614ead7d12081cb5"
+      },
+      "uncompressed": {
+        "bytes": 58507,
+        "sha256": "9ba1e3f424600ffe511c4cd1f3bc1caca9ea18c6a881dd1d56d595a98a765e26"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-series-01-independent-crosscheck.json",
+        "bytes": 58507,
+        "sha256": "9ba1e3f424600ffe511c4cd1f3bc1caca9ea18c6a881dd1d56d595a98a765e26"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem_converter_microprofile_v2.cpp.gz",
+      "compressed": {
+        "bytes": 4601,
+        "sha256": "c430a21df31f2b1a0f16fd8d422895be670b7440c5b07bc89e2222a131668db3"
+      },
+      "uncompressed": {
+        "bytes": 14195,
+        "sha256": "77132ad788839f30a738292eca66e968e3d7a3894597721b272a56286d5866d8"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem_converter_microprofile_v2.cpp",
+        "bytes": 14195,
+        "sha256": "77132ad788839f30a738292eca66e968e3d7a3894597721b272a56286d5866d8"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-microprofile-v2-freeze.json.gz",
+      "compressed": {
+        "bytes": 1290,
+        "sha256": "ddcf690458eb2105d10f0870083a5cf4146dc8ebb9ae6218a2176942f76ce66d"
+      },
+      "uncompressed": {
+        "bytes": 2875,
+        "sha256": "c1bed2600b2db47872040af8ab929272ae2ebcf09d22e9a1b5a903278ffcb1db"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-microprofile-v2-freeze.json",
+        "bytes": 2875,
+        "sha256": "c1bed2600b2db47872040af8ab929272ae2ebcf09d22e9a1b5a903278ffcb1db"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem_converter_listening_export.cpp.gz",
+      "compressed": {
+        "bytes": 6126,
+        "sha256": "03329c268b5f52e5d82d403dbb9738228333ddadb23b20f3b2a3e744c990e1ec"
+      },
+      "uncompressed": {
+        "bytes": 19687,
+        "sha256": "ccdb38dc8fccab81da922a3504ff5c69c0c5cfa6d9ceef8933b9e22a7a71f715"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem_converter_listening_export.cpp",
+        "bytes": 19687,
+        "sha256": "ccdb38dc8fccab81da922a3504ff5c69c0c5cfa6d9ceef8933b9e22a7a71f715"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-listening-export-freeze.json.gz",
+      "compressed": {
+        "bytes": 1960,
+        "sha256": "e3d64dbebb15a5fc2792a6b313384950d3f8c64e63953de1cdbb3fad027dd879"
+      },
+      "uncompressed": {
+        "bytes": 5036,
+        "sha256": "acb074e9cf3cf5db8c71d83303cf6bdc5c4cc57ced609bd69cb99355470cee7f"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-listening-export-freeze.json",
+        "bytes": 5036,
+        "sha256": "acb074e9cf3cf5db8c71d83303cf6bdc5c4cc57ced609bd69cb99355470cee7f"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--plan.json.gz",
+      "compressed": {
+        "bytes": 1331,
+        "sha256": "2dc720b1870cd164b43b1aa5e48a95f9323e021aa696f5f1ff1dff5993f112c1"
+      },
+      "uncompressed": {
+        "bytes": 4235,
+        "sha256": "ea23ef157b675c73b5a221f4fffd312b3af3a6dd69c0b4cc9a8008e74531f544"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/plan.json",
+        "bytes": 4235,
+        "sha256": "ea23ef157b675c73b5a221f4fffd312b3af3a6dd69c0b4cc9a8008e74531f544"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--build.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/build.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--execution.json.gz",
+      "compressed": {
+        "bytes": 1498,
+        "sha256": "cf90e751bc5039ba19688f350f0b7f84b61252ed60cba30ada10e0e8af7e9591"
+      },
+      "uncompressed": {
+        "bytes": 8910,
+        "sha256": "52b6f969531f70e559e2e338e5338d84911507c4d6b539a4cf14f8a0f70193a0"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/execution.json",
+        "bytes": 8910,
+        "sha256": "52b6f969531f70e559e2e338e5338d84911507c4d6b539a4cf14f8a0f70193a0"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--exact-best-parity.json.gz",
+      "compressed": {
+        "bytes": 2941,
+        "sha256": "c68f40a69be474bf94a1a020c9bb4f070483beebe806f68bd9d8a620675c83e1"
+      },
+      "uncompressed": {
+        "bytes": 9165,
+        "sha256": "4090b461d5978538df115d3a9f036999e377d5c8e88716d2fbb52e73a47f4174"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/exact-best-parity.json",
+        "bytes": 9165,
+        "sha256": "4090b461d5978538df115d3a9f036999e377d5c8e88716d2fbb52e73a47f4174"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 7621,
+        "sha256": "2f73c38bcf70568b1eccc87657aed489bfb02eb03e80b1594a5673233452b7e7"
+      },
+      "uncompressed": {
+        "bytes": 51996,
+        "sha256": "9b3349626b3e53888376dd92368ff89e6a9e98ec2fc8e070400723a358513e36"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/independent-crosscheck.json",
+        "bytes": 51996,
+        "sha256": "9b3349626b3e53888376dd92368ff89e6a9e98ec2fc8e070400723a358513e36"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--club_xl-octal--result.json.gz",
+      "compressed": {
+        "bytes": 2233,
+        "sha256": "8186a46e614568b2bcd54bae400d9ae00a63dec361d0856a6e59bc9f1c7c7327"
+      },
+      "uncompressed": {
+        "bytes": 11124,
+        "sha256": "908c5a45ee8e1a0a95d237a960da470273ac0453d8f3e8ba67387dc8c625d108"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/club_xl-octal/result.json",
+        "bytes": 11124,
+        "sha256": "908c5a45ee8e1a0a95d237a960da470273ac0453d8f3e8ba67387dc8c625d108"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-real-tracks-01--when_the_light_breaks-octal--result.json.gz",
+      "compressed": {
+        "bytes": 2236,
+        "sha256": "5172348cb1ed3cd1bbdf551a1126623288e04493f66c6e2f858a38464b18a90c"
+      },
+      "uncompressed": {
+        "bytes": 11180,
+        "sha256": "9200c3f7d76676c0fb76cb85c9676d91fc17f587f570a4b32200f4f9cbf28713"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-real-tracks-01/when_the_light_breaks-octal/result.json",
+        "bytes": 11180,
+        "sha256": "9200c3f7d76676c0fb76cb85c9676d91fc17f587f570a4b32200f4f9cbf28713"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-branch.json.gz",
+      "compressed": {
+        "bytes": 119,
+        "sha256": "66de02f2cfdf5a660d6ed63e07926abf8f1ce88bd95ee1650e26c319530577a9"
+      },
+      "uncompressed": {
+        "bytes": 112,
+        "sha256": "4148efce27106e3f2774864610b0149c3a6bb9130300f464542af76b3a26ee97"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-branch.json",
+        "bytes": 112,
+        "sha256": "4148efce27106e3f2774864610b0149c3a6bb9130300f464542af76b3a26ee97"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--plan.json.gz",
+      "compressed": {
+        "bytes": 6578,
+        "sha256": "71ef8cae78db78a35a44d42a49fb64b8d5e14298d2efadeb2720d03e6bcf5c48"
+      },
+      "uncompressed": {
+        "bytes": 18213,
+        "sha256": "1a0099620b17eba5d73e931c08e10310f340599ef0fa30509dd68d5ced63e7e9"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/plan.json",
+        "bytes": 18213,
+        "sha256": "1a0099620b17eba5d73e931c08e10310f340599ef0fa30509dd68d5ced63e7e9"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--execution.json.gz",
+      "compressed": {
+        "bytes": 6497,
+        "sha256": "e112c85a787812b515aabf7b1a392e9ac97059a810c5ac1bc401729fca3632bf"
+      },
+      "uncompressed": {
+        "bytes": 32541,
+        "sha256": "a25bda9fec5375753d1e01af61cd695340c75433fb46aa85db85dfc3764e69a6"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/execution.json",
+        "bytes": 32541,
+        "sha256": "a25bda9fec5375753d1e01af61cd695340c75433fb46aa85db85dfc3764e69a6"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01-independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 2725,
+        "sha256": "e92d344f4b93013212606ba55c99e3692889c80e129e0e48d8e82d8dc1af6889"
+      },
+      "uncompressed": {
+        "bytes": 6878,
+        "sha256": "251f0c68093a6cb8d6c39a731a9d9d99a2ed8b7ab44f9222efd2540efdd6be51"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01-independent-crosscheck.json",
+        "bytes": 6878,
+        "sha256": "251f0c68093a6cb8d6c39a731a9d9d99a2ed8b7ab44f9222efd2540efdd6be51"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-plan-01.json.gz",
+      "compressed": {
+        "bytes": 6352,
+        "sha256": "42071b2bba82ec58f11f8fa6491175c0a33a15f88b591c4ef77493039a6fbcfa"
+      },
+      "uncompressed": {
+        "bytes": 16893,
+        "sha256": "cd0e2ece52b5226ea37034a4d295b9c6ae9cc9e0df51240ea32fe0db65ffbb79"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-plan-01.json",
+        "bytes": 16893,
+        "sha256": "cd0e2ece52b5226ea37034a4d295b9c6ae9cc9e0df51240ea32fe0db65ffbb79"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-execution-01.json.gz",
+      "compressed": {
+        "bytes": 6473,
+        "sha256": "1215b6e955911cda9cf70176b9ccbd370fd6668ca49ab69fee4175cc25703c4a"
+      },
+      "uncompressed": {
+        "bytes": 17288,
+        "sha256": "2b2719d219e2a20ca067f50e80a3a11174c193955863a43eb57ff52e85f28831"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-execution-01.json",
+        "bytes": 17288,
+        "sha256": "2b2719d219e2a20ca067f50e80a3a11174c193955863a43eb57ff52e85f28831"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-01-independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 1879,
+        "sha256": "34817b66a50de5048188c7f930936799f1ce76ace98d61018656453b812cccee"
+      },
+      "uncompressed": {
+        "bytes": 4439,
+        "sha256": "9b8c6468bb98966fbb95b36a7a53809d89636cff32766c74e0aa8b2e73a218ac"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-01-independent-crosscheck.json",
+        "bytes": 4439,
+        "sha256": "9b8c6468bb98966fbb95b36a7a53809d89636cff32766c74e0aa8b2e73a218ac"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-01--result.json.gz",
+      "compressed": {
+        "bytes": 4078,
+        "sha256": "89fb4b084c715b9fe01930c3dc52e859b86aee15069af1806433e6bf7d9a203a"
+      },
+      "uncompressed": {
+        "bytes": 16818,
+        "sha256": "a420e898486cd2177dfe9eeacdb85bb5e0718fb8f1aac358cd16a93d1e362b73"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-01/result.json",
+        "bytes": 16818,
+        "sha256": "a420e898486cd2177dfe9eeacdb85bb5e0718fb8f1aac358cd16a93d1e362b73"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-01--cleanup-pw-dump.json.gz",
+      "compressed": {
+        "bytes": 2078,
+        "sha256": "3d057296956148ea4fdd0c1e26c97bb8a1afc5bb295b19f08902747669dd7f49"
+      },
+      "uncompressed": {
+        "bytes": 12303,
+        "sha256": "815fe3d0b6e85402adce3d4e7cc23a1412fe3474b8706036840eb50879e70dd3"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-01/cleanup-pw-dump.json",
+        "bytes": 12303,
+        "sha256": "815fe3d0b6e85402adce3d4e7cc23a1412fe3474b8706036840eb50879e70dd3"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-01--controller-preparation-phase.json.gz",
+      "compressed": {
+        "bytes": 924,
+        "sha256": "232d449fff6ff4e86f6c1718b58832c985e7cadfbf7373214b500e2b6ccc5bef"
+      },
+      "uncompressed": {
+        "bytes": 2423,
+        "sha256": "61d46376a643389f4573ca3cbc691e9dc51d5bd4d445dce575d887c6a118ceae"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-01/controller-preparation-phase.json",
+        "bytes": 2423,
+        "sha256": "61d46376a643389f4573ca3cbc691e9dc51d5bd4d445dce575d887c6a118ceae"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-strict-preparation-01.log.gz",
+      "compressed": {
+        "bytes": 4078,
+        "sha256": "89fb4b084c715b9fe01930c3dc52e859b86aee15069af1806433e6bf7d9a203a"
+      },
+      "uncompressed": {
+        "bytes": 16818,
+        "sha256": "a420e898486cd2177dfe9eeacdb85bb5e0718fb8f1aac358cd16a93d1e362b73"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-strict-preparation-01.log",
+        "bytes": 16818,
+        "sha256": "a420e898486cd2177dfe9eeacdb85bb5e0718fb8f1aac358cd16a93d1e362b73"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--plan.json.gz",
+      "compressed": {
+        "bytes": 6966,
+        "sha256": "8f515d6d18cdab397adee304013d07a49c93fa5e23dab412df3f1e114068fecc"
+      },
+      "uncompressed": {
+        "bytes": 24069,
+        "sha256": "ba1935936cba233059b06f9b09317c3b47d976153babd7eee0151f0d1208087a"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/plan.json",
+        "bytes": 24069,
+        "sha256": "ba1935936cba233059b06f9b09317c3b47d976153babd7eee0151f0d1208087a"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--execution.json.gz",
+      "compressed": {
+        "bytes": 7706,
+        "sha256": "4077292ffe4b767ce42cac4e1a9b1f9d621a8b87db4861491db578e5204c19b6"
+      },
+      "uncompressed": {
+        "bytes": 48029,
+        "sha256": "e1c8fd4dec2d4139084a3059ac44d7134564c5db27cc9f4c835e031f41eb2f92"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/execution.json",
+        "bytes": 48029,
+        "sha256": "e1c8fd4dec2d4139084a3059ac44d7134564c5db27cc9f4c835e031f41eb2f92"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--exact-best-parity.json.gz",
+      "compressed": {
+        "bytes": 2142,
+        "sha256": "5d9ee282556fe790dcc79c423bf9565d2f547c86405ec5d608aac5b96360517d"
+      },
+      "uncompressed": {
+        "bytes": 7673,
+        "sha256": "d3ad319a781826bf748745dbf2794eec1554ece3d3960b044e8c3d0268427f3d"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/exact-best-parity.json",
+        "bytes": 7673,
+        "sha256": "d3ad319a781826bf748745dbf2794eec1554ece3d3960b044e8c3d0268427f3d"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--generated-profile.json.gz",
+      "compressed": {
+        "bytes": 18234,
+        "sha256": "b9e474fbcf3a836bebbc8f88febe77a3a0a6935f1577e7805c7ee7aa7a18bd95"
+      },
+      "uncompressed": {
+        "bytes": 330350,
+        "sha256": "f098011a1351e653d3b5ea24a23d7b6afc91972428d9a3aafd60787df5c742fb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/generated-profile.json",
+        "bytes": 330350,
+        "sha256": "f098011a1351e653d3b5ea24a23d7b6afc91972428d9a3aafd60787df5c742fb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--generated-profile.log.gz",
+      "compressed": {
+        "bytes": 165,
+        "sha256": "9a6d4d47c2fd2163676d014ddfe56129c1900b7501e42c09ac1deb4e2e221688"
+      },
+      "uncompressed": {
+        "bytes": 191,
+        "sha256": "0ed134979e4c0f6e4a59ba8f03f30f113bf7cfa2bb9c493de72c6d49a2e0e3c1"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/generated-profile.log",
+        "bytes": 191,
+        "sha256": "0ed134979e4c0f6e4a59ba8f03f30f113bf7cfa2bb9c493de72c6d49a2e0e3c1"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 15924,
+        "sha256": "f587c0e368892bf2a725e5fe938319aec33dd9aecf70fc518181f276016cf989"
+      },
+      "uncompressed": {
+        "bytes": 106206,
+        "sha256": "888570aabd62aa2915554583dd95217d6d7e061ba8d8925a44e64bc5769cc4a1"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/independent-crosscheck.json",
+        "bytes": 106206,
+        "sha256": "888570aabd62aa2915554583dd95217d6d7e061ba8d8925a44e64bc5769cc4a1"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--club_xl--result.json.gz",
+      "compressed": {
+        "bytes": 2229,
+        "sha256": "43c3f49a989f975bab976bdd81e8eef69166497a9ca5eb929b457516761f922e"
+      },
+      "uncompressed": {
+        "bytes": 11120,
+        "sha256": "b0ec712c4678f87308764d2edc820c6830b76a911d61c86710c4778055749e3d"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/club_xl/result.json",
+        "bytes": 11120,
+        "sha256": "b0ec712c4678f87308764d2edc820c6830b76a911d61c86710c4778055749e3d"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--when_the_light_breaks--result.json.gz",
+      "compressed": {
+        "bytes": 2231,
+        "sha256": "ba97636cf24ff1464914a8fe16b90ecde23093845bf8db02f5bbe06e07f966ec"
+      },
+      "uncompressed": {
+        "bytes": 11176,
+        "sha256": "a970824eed5e8093d6533318e182983664412bae23c246ae3973237de94d7180"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/when_the_light_breaks/result.json",
+        "bytes": 11176,
+        "sha256": "a970824eed5e8093d6533318e182983664412bae23c246ae3973237de94d7180"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-01--setup-failure.json.gz",
+      "compressed": {
+        "bytes": 226,
+        "sha256": "04ae06bb2faee1faaa9743ae4631ea651d01140d873d357cbc3d2b99028cae2a"
+      },
+      "uncompressed": {
+        "bytes": 313,
+        "sha256": "ab1dbe43e3868ae12763361fed794372c36f1d2d8df2aabdd9734d6121f563d5"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-01/setup-failure.json",
+        "bytes": 313,
+        "sha256": "ab1dbe43e3868ae12763361fed794372c36f1d2d8df2aabdd9734d6121f563d5"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-01--runner.log.gz",
+      "compressed": {
+        "bytes": 92,
+        "sha256": "28c83f3765a28e63cc2ee3bfb308a8d531849119f3c6805ec1d68094606b536a"
+      },
+      "uncompressed": {
+        "bytes": 77,
+        "sha256": "77665ce7d402d6dac963843e3132f8914407c12baae427b62920d9dcf78f446e"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-01/runner.log",
+        "bytes": 77,
+        "sha256": "77665ce7d402d6dac963843e3132f8914407c12baae427b62920d9dcf78f446e"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--plan.json.gz",
+      "compressed": {
+        "bytes": 6306,
+        "sha256": "f80e7ef9a195dbc49ad1625013001e9e8267f201d23cdebf791cbeda76d5127f"
+      },
+      "uncompressed": {
+        "bytes": 16741,
+        "sha256": "8174d47c5cf9672195eba4ff69b1f571289199a0c70d165bb6ae81c35b129d39"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/plan.json",
+        "bytes": 16741,
+        "sha256": "8174d47c5cf9672195eba4ff69b1f571289199a0c70d165bb6ae81c35b129d39"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-quad-object-01.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-quad-object-01.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-quad-profile-01.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-quad-profile-01.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-quad-regression-01.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-quad-regression-01.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-octal-object-01.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-octal-object-01.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-octal-profile-01.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-octal-profile-01.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-build-octal-regression-01.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-build-octal-regression-01.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-baseline-before-01.json.gz",
+      "compressed": {
+        "bytes": 18911,
+        "sha256": "214cca68f2fff776bc2fa9a50bb18ea2f634a4859a727050f333c053401964f8"
+      },
+      "uncompressed": {
+        "bytes": 331053,
+        "sha256": "74936c98b4744ac2bbcfe2fa368077759eb7a9936d7f5b961ec203fc6db2c3ac"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-baseline-before-01.json",
+        "bytes": 331053,
+        "sha256": "74936c98b4744ac2bbcfe2fa368077759eb7a9936d7f5b961ec203fc6db2c3ac"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-baseline-before-01.log.gz",
+      "compressed": {
+        "bytes": 164,
+        "sha256": "63dfba29129fd3a5b1c927b5e956d24691359b4f4a87cebca9f63217ad8529dd"
+      },
+      "uncompressed": {
+        "bytes": 189,
+        "sha256": "9eec942be26930ef3f2a30eb2ed058686e540bdacffc022b90ee36a3935266a9"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-baseline-before-01.log",
+        "bytes": 189,
+        "sha256": "9eec942be26930ef3f2a30eb2ed058686e540bdacffc022b90ee36a3935266a9"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-quad-01.json.gz",
+      "compressed": {
+        "bytes": 18691,
+        "sha256": "7eae082d60fd775dc70b7ed2e5574ee7fb552bf36219cfbf377b8da7d679e2da"
+      },
+      "uncompressed": {
+        "bytes": 330970,
+        "sha256": "46e2fa6d1a6e0b8f6e00e9023e6535ea41f40ca9413a8c18d2f9464537543dce"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-quad-01.json",
+        "bytes": 330970,
+        "sha256": "46e2fa6d1a6e0b8f6e00e9023e6535ea41f40ca9413a8c18d2f9464537543dce"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-quad-01.log.gz",
+      "compressed": {
+        "bytes": 159,
+        "sha256": "f2953d54467b2ce557c2d3a326e2edc33c198bab0532e68fd79e43eb011123a2"
+      },
+      "uncompressed": {
+        "bytes": 178,
+        "sha256": "0be5eb5f1664f2a2a63bdd303a763bd6972ab783e09983eb366fcc8cbd9e378b"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-quad-01.log",
+        "bytes": 178,
+        "sha256": "0be5eb5f1664f2a2a63bdd303a763bd6972ab783e09983eb366fcc8cbd9e378b"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-octal-01.json.gz",
+      "compressed": {
+        "bytes": 18729,
+        "sha256": "d47233bbabfdcd892c7fc881385a6945361d4ba37625eb1cd00a682cf0e1528d"
+      },
+      "uncompressed": {
+        "bytes": 330977,
+        "sha256": "3c9dff3dca63c3c1d6e70d5add77d23b9332804c54266a01d19c3e5e3d8f3c1b"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-octal-01.json",
+        "bytes": 330977,
+        "sha256": "3c9dff3dca63c3c1d6e70d5add77d23b9332804c54266a01d19c3e5e3d8f3c1b"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-octal-01.log.gz",
+      "compressed": {
+        "bytes": 159,
+        "sha256": "92c5818b6e22dbb5a8fc130216f4fcd4b94f65e3ec7b7e8918bb475b02e92c86"
+      },
+      "uncompressed": {
+        "bytes": 179,
+        "sha256": "ae45f88e4c38b96282836014cfd4bc0604d946dabbc816d6c709b636701b1405"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-octal-01.log",
+        "bytes": 179,
+        "sha256": "ae45f88e4c38b96282836014cfd4bc0604d946dabbc816d6c709b636701b1405"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-baseline-after-01.json.gz",
+      "compressed": {
+        "bytes": 18705,
+        "sha256": "9ffdd051bd873984e262055d05eed7f1add30010bd993cce9ee2f43b0f10b23f"
+      },
+      "uncompressed": {
+        "bytes": 331009,
+        "sha256": "df7a0faffba538082eab28ff5e2e7cc73d15f2d1e8daf722364bdccceb4096cd"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-baseline-after-01.json",
+        "bytes": 331009,
+        "sha256": "df7a0faffba538082eab28ff5e2e7cc73d15f2d1e8daf722364bdccceb4096cd"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-baseline-after-01.log.gz",
+      "compressed": {
+        "bytes": 163,
+        "sha256": "dbb0959be8720183ad21a8ac2129d0bf50b02050c14a17085bd4298552125efb"
+      },
+      "uncompressed": {
+        "bytes": 188,
+        "sha256": "bcafe4d14f0070563fcbc35b9c2ff368c0df1249e331050db56cc1620f993e40"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-baseline-after-01.log",
+        "bytes": 188,
+        "sha256": "bcafe4d14f0070563fcbc35b9c2ff368c0df1249e331050db56cc1620f993e40"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-baseline-1-01.json.gz",
+      "compressed": {
+        "bytes": 18678,
+        "sha256": "a92fa27ed8fe8d9521080ee5584002ef6e7dc58bd027be00f785d8fbeb705756"
+      },
+      "uncompressed": {
+        "bytes": 330940,
+        "sha256": "59f6e13ef92a47e80754e30c06c19dc5486143590bd71148e75ffe665a53e09b"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-baseline-1-01.json",
+        "bytes": 330940,
+        "sha256": "59f6e13ef92a47e80754e30c06c19dc5486143590bd71148e75ffe665a53e09b"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-baseline-1-01.log.gz",
+      "compressed": {
+        "bytes": 167,
+        "sha256": "25854300da5a6d100ba202bf66c98ccd8f354e005441aab0e5d73c264a68bb19"
+      },
+      "uncompressed": {
+        "bytes": 193,
+        "sha256": "3567a78f58434b72e04634286861f2c09b40bb9f2f968733e401f488304746b4"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-baseline-1-01.log",
+        "bytes": 193,
+        "sha256": "3567a78f58434b72e04634286861f2c09b40bb9f2f968733e401f488304746b4"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-quad-1-01.json.gz",
+      "compressed": {
+        "bytes": 18667,
+        "sha256": "4d4ffc8fafc36072c6d7057926e6568a61261be62666ac0845b86402aae98e14"
+      },
+      "uncompressed": {
+        "bytes": 330965,
+        "sha256": "123e76ef9f5436e139a126bc7dd7546f9b844c00b5be925dad9c4425438edf94"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-quad-1-01.json",
+        "bytes": 330965,
+        "sha256": "123e76ef9f5436e139a126bc7dd7546f9b844c00b5be925dad9c4425438edf94"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-quad-1-01.log.gz",
+      "compressed": {
+        "bytes": 167,
+        "sha256": "2f7e295ff5ac57cb3608164ae8d94a12d4d3c2e8eec7f4c09944adfa2946551c"
+      },
+      "uncompressed": {
+        "bytes": 189,
+        "sha256": "55b8c0a231e169f7558b7a0a35de47a3c26df09c9db708c4d426614acf10d23c"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-quad-1-01.log",
+        "bytes": 189,
+        "sha256": "55b8c0a231e169f7558b7a0a35de47a3c26df09c9db708c4d426614acf10d23c"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-octal-1-01.json.gz",
+      "compressed": {
+        "bytes": 18671,
+        "sha256": "93abf6acb6932c1c566b84975a4985b0b5e9960a1b37e55931e369cacacfd4ef"
+      },
+      "uncompressed": {
+        "bytes": 330952,
+        "sha256": "749cf151b2042379983406f8c3f7617ed65f312107790800c01aed1bf15168cb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-octal-1-01.json",
+        "bytes": 330952,
+        "sha256": "749cf151b2042379983406f8c3f7617ed65f312107790800c01aed1bf15168cb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-octal-1-01.log.gz",
+      "compressed": {
+        "bytes": 166,
+        "sha256": "20f0a729143fa6567b45b51fef406d8f4d313589bc564d76e6beaacaa8041533"
+      },
+      "uncompressed": {
+        "bytes": 190,
+        "sha256": "4bf2cb7c6ae565e3dd059f5ed3315946b91fd856add82d6fbcb6a7d97fd1edd5"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-octal-1-01.log",
+        "bytes": 190,
+        "sha256": "4bf2cb7c6ae565e3dd059f5ed3315946b91fd856add82d6fbcb6a7d97fd1edd5"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-octal-2-01.json.gz",
+      "compressed": {
+        "bytes": 18782,
+        "sha256": "e16065027789ef870bce39586d5f1cc99e26a8ca57d61269fc22f8a9d2d32fd2"
+      },
+      "uncompressed": {
+        "bytes": 330966,
+        "sha256": "acfb83e9ee5285c7e8dfc7403d2d7148a5960e8def87dd57f117fdd9526be9ff"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-octal-2-01.json",
+        "bytes": 330966,
+        "sha256": "acfb83e9ee5285c7e8dfc7403d2d7148a5960e8def87dd57f117fdd9526be9ff"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-octal-2-01.log.gz",
+      "compressed": {
+        "bytes": 166,
+        "sha256": "b8692f76d931073f5b8775883d3dea3d05e6ba0869f749ead1ce358faa4bf73d"
+      },
+      "uncompressed": {
+        "bytes": 190,
+        "sha256": "5aec927b163b0a5767c45deeae2a67a7458a713bbb170674b6ef782e736ce075"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-octal-2-01.log",
+        "bytes": 190,
+        "sha256": "5aec927b163b0a5767c45deeae2a67a7458a713bbb170674b6ef782e736ce075"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-quad-2-01.json.gz",
+      "compressed": {
+        "bytes": 18703,
+        "sha256": "6aa04fdc3b1b3742961e7ac706e702996b8996115c9dcb36c8a85cab016a8822"
+      },
+      "uncompressed": {
+        "bytes": 330962,
+        "sha256": "b098ad823942ef05afceb5ed9ff1d7c43eda21ce07711850859c9261b81f854a"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-quad-2-01.json",
+        "bytes": 330962,
+        "sha256": "b098ad823942ef05afceb5ed9ff1d7c43eda21ce07711850859c9261b81f854a"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-quad-2-01.log.gz",
+      "compressed": {
+        "bytes": 167,
+        "sha256": "0db98717e98081eb12a9272ce8df0a78757bbc9610080246dc2e8ca49e5a7596"
+      },
+      "uncompressed": {
+        "bytes": 189,
+        "sha256": "23889b9e10ef2053475cafd2034f282bb3c31b37dd9749674b6d1988c3fb02e1"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-quad-2-01.log",
+        "bytes": 189,
+        "sha256": "23889b9e10ef2053475cafd2034f282bb3c31b37dd9749674b6d1988c3fb02e1"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-baseline-2-01.json.gz",
+      "compressed": {
+        "bytes": 18880,
+        "sha256": "d1d3b64dd5d89b5f892367a2ec899ec90b8a1885dd12e40fc5ab5d0a0cb89e76"
+      },
+      "uncompressed": {
+        "bytes": 331038,
+        "sha256": "58a3f8818abc626f2a7adc54a22605c91fdc9b87a8b99a1253b4f939434a924b"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-baseline-2-01.json",
+        "bytes": 331038,
+        "sha256": "58a3f8818abc626f2a7adc54a22605c91fdc9b87a8b99a1253b4f939434a924b"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-best-packed-affinity-baseline-2-01.log.gz",
+      "compressed": {
+        "bytes": 167,
+        "sha256": "0761be76d30520035c506ddc1c8a6d42a1edd0c4fa87707f3a8084eac4048d4b"
+      },
+      "uncompressed": {
+        "bytes": 193,
+        "sha256": "49b559e3bf9982bb09ad9ca1fbb01b396be3c4f1741ea019e4ae00557bc97fad"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-best-packed-affinity-baseline-2-01.log",
+        "bytes": 193,
+        "sha256": "49b559e3bf9982bb09ad9ca1fbb01b396be3c4f1741ea019e4ae00557bc97fad"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--build.log.gz",
+      "compressed": {
+        "bytes": 2638,
+        "sha256": "f822105afad62869a99fdb1f34c9d801d0b3ea954cbd9d59686406f646ad1603"
+      },
+      "uncompressed": {
+        "bytes": 13142,
+        "sha256": "98d98f05f64ce86cc2483f87cf0e7890b5d30f12e02f04f88dd98ce2fe27f240"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/build.log",
+        "bytes": 13142,
+        "sha256": "98d98f05f64ce86cc2483f87cf0e7890b5d30f12e02f04f88dd98ce2fe27f240"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--ctest.log.gz",
+      "compressed": {
+        "bytes": 869,
+        "sha256": "e9a88f85867dba99ae959b0d6851c913a864a972c4e940922a2effed619278b8"
+      },
+      "uncompressed": {
+        "bytes": 3882,
+        "sha256": "b5d028daa448ab8656c03f60c0acb42e2e24727eb3727aae6b2a3ec7285f47f0"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/ctest.log",
+        "bytes": 3882,
+        "sha256": "b5d028daa448ab8656c03f60c0acb42e2e24727eb3727aae6b2a3ec7285f47f0"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--smoke.log.gz",
+      "compressed": {
+        "bytes": 424,
+        "sha256": "9efdf85e042d52de638bea2f4716e8e127d72f3797868de64b971bdf10e4a18e"
+      },
+      "uncompressed": {
+        "bytes": 669,
+        "sha256": "0a01a8272b9e1ba889d90efa3a03f6578cdf02d53c47fd6169ffabe0531cc543"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/smoke.log",
+        "bytes": 669,
+        "sha256": "0a01a8272b9e1ba889d90efa3a03f6578cdf02d53c47fd6169ffabe0531cc543"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--routing.log.gz",
+      "compressed": {
+        "bytes": 2969,
+        "sha256": "8a8fee50ea591456a291ca2cec6e0d9eaa9387e61964a78ec707302f101204ba"
+      },
+      "uncompressed": {
+        "bytes": 14298,
+        "sha256": "cb407068a07fae3afde287b8d841e65b285c7b2b7ab3a9c8f2f6bc8b94b5a384"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/routing.log",
+        "bytes": 14298,
+        "sha256": "cb407068a07fae3afde287b8d841e65b285c7b2b7ab3a9c8f2f6bc8b94b5a384"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--preparation.log.gz",
+      "compressed": {
+        "bytes": 4078,
+        "sha256": "9f9b5428feb32c5b0062fb16c7876d624859056227280a470df7f09d61dc704e"
+      },
+      "uncompressed": {
+        "bytes": 16857,
+        "sha256": "b65495263c530d93bcc4f2d842b9339efc7d2fc021805a308ec33d5c13aca483"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/preparation.log",
+        "bytes": 16857,
+        "sha256": "b65495263c530d93bcc4f2d842b9339efc7d2fc021805a308ec33d5c13aca483"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--routing--result.json.gz",
+      "compressed": {
+        "bytes": 2969,
+        "sha256": "8a8fee50ea591456a291ca2cec6e0d9eaa9387e61964a78ec707302f101204ba"
+      },
+      "uncompressed": {
+        "bytes": 14298,
+        "sha256": "cb407068a07fae3afde287b8d841e65b285c7b2b7ab3a9c8f2f6bc8b94b5a384"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/routing/result.json",
+        "bytes": 14298,
+        "sha256": "cb407068a07fae3afde287b8d841e65b285c7b2b7ab3a9c8f2f6bc8b94b5a384"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--routing--cleanup-pw-dump.json.gz",
+      "compressed": {
+        "bytes": 2085,
+        "sha256": "77b7fc648df9e189abcc832015e1375f567cc36a65b1257feb37ae934b4c9cca"
+      },
+      "uncompressed": {
+        "bytes": 12360,
+        "sha256": "21df327ad0ae8f4fc33ac2c92d81054d5082d97f0d6de9b3cd4fa8a4052f3c9a"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/routing/cleanup-pw-dump.json",
+        "bytes": 12360,
+        "sha256": "21df327ad0ae8f4fc33ac2c92d81054d5082d97f0d6de9b3cd4fa8a4052f3c9a"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--routing--check.stdout.json.gz",
+      "compressed": {
+        "bytes": 2686,
+        "sha256": "fb8c60e19b6e636103f586c8d019c68bd04232199b1eec4fcfa4b33842d4e6db"
+      },
+      "uncompressed": {
+        "bytes": 12077,
+        "sha256": "ba2648c36d8d9511b1340b59c4c331a9c58d9d6461f6ee3cf4372954dea0087d"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/routing/check.stdout.json",
+        "bytes": 12077,
+        "sha256": "ba2648c36d8d9511b1340b59c4c331a9c58d9d6461f6ee3cf4372954dea0087d"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--routing--check.stderr.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/routing/check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--preparation--result.json.gz",
+      "compressed": {
+        "bytes": 4078,
+        "sha256": "9f9b5428feb32c5b0062fb16c7876d624859056227280a470df7f09d61dc704e"
+      },
+      "uncompressed": {
+        "bytes": 16857,
+        "sha256": "b65495263c530d93bcc4f2d842b9339efc7d2fc021805a308ec33d5c13aca483"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/preparation/result.json",
+        "bytes": 16857,
+        "sha256": "b65495263c530d93bcc4f2d842b9339efc7d2fc021805a308ec33d5c13aca483"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--preparation--cleanup-pw-dump.json.gz",
+      "compressed": {
+        "bytes": 2083,
+        "sha256": "d2c7568e2f397f05e9a05d88ed31c9d07479ba3ae7fa1d2b96e88b04deed3fec"
+      },
+      "uncompressed": {
+        "bytes": 12360,
+        "sha256": "3f82fd8fb3731d235e2bde15adaa57a615d061a5bb42bebc2498d80cefb5aa16"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/preparation/cleanup-pw-dump.json",
+        "bytes": 12360,
+        "sha256": "3f82fd8fb3731d235e2bde15adaa57a615d061a5bb42bebc2498d80cefb5aa16"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--preparation--check.stdout.json.gz",
+      "compressed": {
+        "bytes": 3648,
+        "sha256": "d997bc5cba3491a94a080501d033c47b3602dd5270a7b760692f9114c3471cac"
+      },
+      "uncompressed": {
+        "bytes": 12937,
+        "sha256": "3b8fc0ac9d8f7b6995e700796decb40d7ea01cd1e15fc1ebc1a44e9c3a122b48"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/preparation/check.stdout.json",
+        "bytes": 12937,
+        "sha256": "3b8fc0ac9d8f7b6995e700796decb40d7ea01cd1e15fc1ebc1a44e9c3a122b48"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-normal-01--preparation--check.stderr.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-normal-01/preparation/check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--export-build.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/export-build.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--profile-build.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/profile-build.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--club_xl.log.gz",
+      "compressed": {
+        "bytes": 160,
+        "sha256": "c7ecebd31f67eada0cac1e963f3e67ca6fb8fc3beb3121bd02fb04ee15b361a9"
+      },
+      "uncompressed": {
+        "bytes": 179,
+        "sha256": "c5e4aad61cf841247b23b4f33260e1e85a35d0ecf6d802e7ae7ae53ae6eef0d6"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/club_xl.log",
+        "bytes": 179,
+        "sha256": "c5e4aad61cf841247b23b4f33260e1e85a35d0ecf6d802e7ae7ae53ae6eef0d6"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-parity-01--when_the_light_breaks.log.gz",
+      "compressed": {
+        "bytes": 170,
+        "sha256": "2d6ba03a9458f51d552174b24a269b9de10681044d71b2383583fa3e0539fab2"
+      },
+      "uncompressed": {
+        "bytes": 193,
+        "sha256": "eede6415c69fcf3ea647286ff284ad12e67eefc26c6caecc705ef68062285a45"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-parity-01/when_the_light_breaks.log",
+        "bytes": 193,
+        "sha256": "eede6415c69fcf3ea647286ff284ad12e67eefc26c6caecc705ef68062285a45"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--stem-converter-listening-01-user-verdict.json.gz",
+      "compressed": {
+        "bytes": 529,
+        "sha256": "61452a686c1dd4f3e31e91106449695c1e89a1446b35d50ec372822dae7b4d8f"
+      },
+      "uncompressed": {
+        "bytes": 796,
+        "sha256": "1c6cccc4e2952180042cf6798effb9003ff2715f2b618513d36f410d28bfa190"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/stem-converter-listening-01-user-verdict.json",
+        "bytes": 796,
+        "sha256": "1c6cccc4e2952180042cf6798effb9003ff2715f2b618513d36f410d28bfa190"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--execution.json.gz",
+      "compressed": {
+        "bytes": 8762,
+        "sha256": "df595d4884cbbc43b1eecc62d674dea315b568625c4b0cf0986ffc4f8e3e9f3c"
+      },
+      "uncompressed": {
+        "bytes": 25440,
+        "sha256": "dcfb3041104fdbc2877ffc108b92f885140ee05b34615c0789509a9507075b94"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/execution.json",
+        "bytes": 25440,
+        "sha256": "dcfb3041104fdbc2877ffc108b92f885140ee05b34615c0789509a9507075b94"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--runner.log.gz",
+      "compressed": {
+        "bytes": 2007,
+        "sha256": "dbdcdd37de6b2da8cf267a85847666cf22ee7e4d1ffa22d01adbb8a4f5b9a5fc"
+      },
+      "uncompressed": {
+        "bytes": 11412,
+        "sha256": "823f6c98e4d210d5abea8174093b202407293ed389db189ea0a84202d7f99ceb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/runner.log",
+        "bytes": 11412,
+        "sha256": "823f6c98e4d210d5abea8174093b202407293ed389db189ea0a84202d7f99ceb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--summary.json.gz",
+      "compressed": {
+        "bytes": 1668,
+        "sha256": "bb03b2d77a264ef215040e8b0a315134d10c7c8a611d139826b6f78a2521f580"
+      },
+      "uncompressed": {
+        "bytes": 7874,
+        "sha256": "1eeed9306f4f7323961f090aefadc0a059f7dad99c685a60840746c3c0372cdb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/summary.json",
+        "bytes": 7874,
+        "sha256": "1eeed9306f4f7323961f090aefadc0a059f7dad99c685a60840746c3c0372cdb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--cpp.json.gz",
+      "compressed": {
+        "bytes": 404373,
+        "sha256": "88ff1cad2ce317dfd05dc3d8bc1b952b4618a71e085c9270d5a5fe863fafb9b1"
+      },
+      "uncompressed": {
+        "bytes": 4217124,
+        "sha256": "74b4deb017ba541fdbcce3ccac950fa70496f6e4d11d6a6445b956625bd321ef"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/cpp.json",
+        "bytes": 4217124,
+        "sha256": "74b4deb017ba541fdbcce3ccac950fa70496f6e4d11d6a6445b956625bd321ef"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--cpp-summary.json.gz",
+      "compressed": {
+        "bytes": 1224,
+        "sha256": "d68debcdb7d48a2170ac0795594f8d20c0f329b7e2efc024db4b287588ca9509"
+      },
+      "uncompressed": {
+        "bytes": 8366,
+        "sha256": "4965f2f949597b0e7f75ec910665785de2a5a456c978456e1a054a0bf954640d"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/cpp-summary.json",
+        "bytes": 8366,
+        "sha256": "4965f2f949597b0e7f75ec910665785de2a5a456c978456e1a054a0bf954640d"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--python.json.gz",
+      "compressed": {
+        "bytes": 9636,
+        "sha256": "db99384c69835d4b01c69765ff61a649f8d79e14a271239055584f25a1b49c17"
+      },
+      "uncompressed": {
+        "bytes": 90855,
+        "sha256": "8427aea2d075d4905cbe21f0ccdaec5867fa21fc9353db3a804d011ce0525ec8"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/python.json",
+        "bytes": 90855,
+        "sha256": "8427aea2d075d4905cbe21f0ccdaec5867fa21fc9353db3a804d011ce0525ec8"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--configure.log.gz",
+      "compressed": {
+        "bytes": 135,
+        "sha256": "91034608460260eba857a64245106a8b9222e2c596778dc6e64d847d2b5a49cd"
+      },
+      "uncompressed": {
+        "bytes": 142,
+        "sha256": "82ea895b8f55efabb06b6b3840cdb68a6a39105f41b6b1aeeea4ea45cfaeca10"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/configure.log",
+        "bytes": 142,
+        "sha256": "82ea895b8f55efabb06b6b3840cdb68a6a39105f41b6b1aeeea4ea45cfaeca10"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--build.log.gz",
+      "compressed": {
+        "bytes": 1852,
+        "sha256": "e101757dd12452c528d464465f1c35fca932b58f94a3edf2e8317b9f7d99a501"
+      },
+      "uncompressed": {
+        "bytes": 9681,
+        "sha256": "b27da8084e721ddb2fe471dc30c772f2a0de3ef422a7855464f36e387d689d1b"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/build.log",
+        "bytes": 9681,
+        "sha256": "b27da8084e721ddb2fe471dc30c772f2a0de3ef422a7855464f36e387d689d1b"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--ctest.log.gz",
+      "compressed": {
+        "bytes": 897,
+        "sha256": "852525c166d89d17b73c7be203c5bc02fd96a77a6e562b64a0d0c84e2d55682e"
+      },
+      "uncompressed": {
+        "bytes": 3887,
+        "sha256": "e72b5f8a2d31f9c894d79165fa6dc50ac084274732a2b731aa9d4d61690d70ae"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/ctest.log",
+        "bytes": 3887,
+        "sha256": "e72b5f8a2d31f9c894d79165fa6dc50ac084274732a2b731aa9d4d61690d70ae"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--smoke.log.gz",
+      "compressed": {
+        "bytes": 421,
+        "sha256": "93b1520949e971597204ee6429a60d01cab6ac0970973e3bbfab2b50127ccdb1"
+      },
+      "uncompressed": {
+        "bytes": 669,
+        "sha256": "87515c885180aa14ec58d7eb7d5972af6233d43b42f23cc99cd14ad125b5194e"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/smoke.log",
+        "bytes": 669,
+        "sha256": "87515c885180aa14ec58d7eb7d5972af6233d43b42f23cc99cd14ad125b5194e"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-routing.log.gz",
+      "compressed": {
+        "bytes": 2947,
+        "sha256": "0f5601e2d6438689b68cae793ea4c73793fc67f8a586092231844a6e78e88cf1"
+      },
+      "uncompressed": {
+        "bytes": 13944,
+        "sha256": "f672f9672e1d76e348679be932bdcea1c5fcfe0d10d478ca1882d35a2bfe88bc"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-routing.log",
+        "bytes": 13944,
+        "sha256": "f672f9672e1d76e348679be932bdcea1c5fcfe0d10d478ca1882d35a2bfe88bc"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-preparation.log.gz",
+      "compressed": {
+        "bytes": 4042,
+        "sha256": "0272d7c9d1a14ca7dbeb06ac76bdaa1c32511c7da63e6cf05573a301cb543530"
+      },
+      "uncompressed": {
+        "bytes": 16786,
+        "sha256": "9b950f1d898b2caef6a9d0b3476ac15f8a8dfadca2a687c2ffb6d7df8f1cf164"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-preparation.log",
+        "bytes": 16786,
+        "sha256": "9b950f1d898b2caef6a9d0b3476ac15f8a8dfadca2a687c2ffb6d7df8f1cf164"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--gcovr.log.gz",
+      "compressed": {
+        "bytes": 103,
+        "sha256": "23a3d8e0d89471b538f10a14a52d2e1319532b263dda2ced1a7ec61e47e1a5c0"
+      },
+      "uncompressed": {
+        "bytes": 102,
+        "sha256": "3cc696df5bfc39ec5177e85444451fe76f08bc228c864a5a66ddbf0035345ed4"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/gcovr.log",
+        "bytes": 102,
+        "sha256": "3cc696df5bfc39ec5177e85444451fe76f08bc228c864a5a66ddbf0035345ed4"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--python-combine.log.gz",
+      "compressed": {
+        "bytes": 47,
+        "sha256": "042411e26d769db3495ace94c6fac3ff460f99fb839f84ddc63587a4cbcffff2"
+      },
+      "uncompressed": {
+        "bytes": 28,
+        "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/python-combine.log",
+        "bytes": 28,
+        "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--python-json.log.gz",
+      "compressed": {
+        "bytes": 126,
+        "sha256": "70eff43c98caf073645b8b1e3cfbdb95f897e8a7ee8f6315be67c4ec868ac9b2"
+      },
+      "uncompressed": {
+        "bytes": 121,
+        "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/python-json.log",
+        "bytes": 121,
+        "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--python-html.log.gz",
+      "compressed": {
+        "bytes": 109,
+        "sha256": "4520339585a9ddd0af877113a8174969ea4c1eb8969cb2739af02996359f1e6a"
+      },
+      "uncompressed": {
+        "bytes": 104,
+        "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/python-html.log",
+        "bytes": 104,
+        "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--python-xml.log.gz",
+      "compressed": {
+        "bytes": 98,
+        "sha256": "3e30767dc49fef39cd7277377ad5bc227b79e0c7c977d44f37be6355dbac52a2"
+      },
+      "uncompressed": {
+        "bytes": 91,
+        "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/python-xml.log",
+        "bytes": 91,
+        "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-routing--result.json.gz",
+      "compressed": {
+        "bytes": 2947,
+        "sha256": "0f5601e2d6438689b68cae793ea4c73793fc67f8a586092231844a6e78e88cf1"
+      },
+      "uncompressed": {
+        "bytes": 13944,
+        "sha256": "f672f9672e1d76e348679be932bdcea1c5fcfe0d10d478ca1882d35a2bfe88bc"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-routing/result.json",
+        "bytes": 13944,
+        "sha256": "f672f9672e1d76e348679be932bdcea1c5fcfe0d10d478ca1882d35a2bfe88bc"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-routing--cleanup-pw-dump.json.gz",
+      "compressed": {
+        "bytes": 2080,
+        "sha256": "764bf50310c5434dca51772fbb4f042eb8ae8225e944caf3c48081d047a65fc7"
+      },
+      "uncompressed": {
+        "bytes": 12330,
+        "sha256": "90ba160b64235f214dbc6f1e3d7ae19f92fad721ae3039b79eeabd9d55805ca3"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-routing/cleanup-pw-dump.json",
+        "bytes": 12330,
+        "sha256": "90ba160b64235f214dbc6f1e3d7ae19f92fad721ae3039b79eeabd9d55805ca3"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-routing--daemon.log.gz",
+      "compressed": {
+        "bytes": 15493,
+        "sha256": "c85509d24c7e4b96491593dfb52adf98f2f47d9f83af19c2e0b58c1e1a89405e"
+      },
+      "uncompressed": {
+        "bytes": 247370,
+        "sha256": "a16713472ddad316b37d545e488da214613cfd702d5b849bca871a362d2eea63"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-routing/daemon.log",
+        "bytes": 247370,
+        "sha256": "a16713472ddad316b37d545e488da214613cfd702d5b849bca871a362d2eea63"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-routing--check.stderr.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-routing/check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-preparation--result.json.gz",
+      "compressed": {
+        "bytes": 4042,
+        "sha256": "0272d7c9d1a14ca7dbeb06ac76bdaa1c32511c7da63e6cf05573a301cb543530"
+      },
+      "uncompressed": {
+        "bytes": 16786,
+        "sha256": "9b950f1d898b2caef6a9d0b3476ac15f8a8dfadca2a687c2ffb6d7df8f1cf164"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-preparation/result.json",
+        "bytes": 16786,
+        "sha256": "9b950f1d898b2caef6a9d0b3476ac15f8a8dfadca2a687c2ffb6d7df8f1cf164"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-preparation--cleanup-pw-dump.json.gz",
+      "compressed": {
+        "bytes": 2078,
+        "sha256": "ca7e6caa18a92131308a9406fa2d362c9cf737f8217ada52925b9ca4c5ee052b"
+      },
+      "uncompressed": {
+        "bytes": 12330,
+        "sha256": "bbcccec83d6f83ce85eeefaf29a9d9379c3d9ea353fa6a37d783e88ed89a0dbb"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-preparation/cleanup-pw-dump.json",
+        "bytes": 12330,
+        "sha256": "bbcccec83d6f83ce85eeefaf29a9d9379c3d9ea353fa6a37d783e88ed89a0dbb"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-preparation--daemon.log.gz",
+      "compressed": {
+        "bytes": 12026,
+        "sha256": "39757bc12ee0e1f26f181089c2d7a3bbc0a924a335f3d1816bfc977f3c57be0f"
+      },
+      "uncompressed": {
+        "bytes": 151434,
+        "sha256": "aba9afff56a404bc3f185a4eca37c028681cc3cc1fad6a5646bb736c638164e9"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-preparation/daemon.log",
+        "bytes": 151434,
+        "sha256": "aba9afff56a404bc3f185a4eca37c028681cc3cc1fad6a5646bb736c638164e9"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--reports--private-preparation--check.stderr.log.gz",
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/reports/private-preparation/check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-report-01.json.gz",
+      "compressed": {
+        "bytes": 3944,
+        "sha256": "04912ce2bc41e73a43e8f4c2550f24b84caafab2da481448ceb6cbda3318db22"
+      },
+      "uncompressed": {
+        "bytes": 10523,
+        "sha256": "91ddd6215754fb6a8eac58f58828f8157955faa7adcdc014fe432f848435e287"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-report-01.json",
+        "bytes": 10523,
+        "sha256": "91ddd6215754fb6a8eac58f58828f8157955faa7adcdc014fe432f848435e287"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "benchmarks-local--m2-live-delivery-2026-10-19--best-packed-product-coverage-02--independent-crosscheck.json.gz",
+      "compressed": {
+        "bytes": 2279,
+        "sha256": "2de4197754dff4f7bcd706151b2fd292326ffb04fd7ca736dd2e01c5608d2adf"
+      },
+      "uncompressed": {
+        "bytes": 6156,
+        "sha256": "4a638c793fbe3a0a1ef47de311670791ac9e088efdad471901e27774ed9913b7"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-packed-product-coverage-02/independent-crosscheck.json",
+        "bytes": 6156,
+        "sha256": "4a638c793fbe3a0a1ef47de311670791ac9e088efdad471901e27774ed9913b7"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "archive_best_quality_converter.py.gz",
+      "compressed": {
+        "bytes": 5283,
+        "sha256": "81401db023c2912de73a68a08e49301a5cbb52ef8b8700fd06b75da0fe2b133f"
+      },
+      "uncompressed": {
+        "bytes": 15808,
+        "sha256": "c6b36563dd98e104ff9956744a2a97fcdf6c437a5a914d9a7fe6027e44adfb4e"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive_best_quality_converter.py",
+        "bytes": 15808,
+        "sha256": "c6b36563dd98e104ff9956744a2a97fcdf6c437a5a914d9a7fe6027e44adfb4e"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "archive-best-quality-converter-inputs.json.gz",
+      "compressed": {
+        "bytes": 5985,
+        "sha256": "6578445f3d382df4cb3fae01d9d0925714c16ae3f7ed1924fb3c58246300d7b5"
+      },
+      "uncompressed": {
+        "bytes": 26994,
+        "sha256": "379f38215f33afdc8356e3fba9d5df7daca5eb723fe6daf577b1bc62c17013bc"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive-best-quality-converter-inputs.json",
+        "bytes": 26994,
+        "sha256": "379f38215f33afdc8356e3fba9d5df7daca5eb723fe6daf577b1bc62c17013bc"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "archive-best-quality-converter-freeze.json.gz",
+      "compressed": {
+        "bytes": 1205,
+        "sha256": "93d6b4c81d0d10fabcd846ed3b3004f6591bc5908a613635c2e6c87018d4de49"
+      },
+      "uncompressed": {
+        "bytes": 2623,
+        "sha256": "429e9917d428eaeb218640c439a7b325c64021d6c33b4b35d997499b3fd8c274"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive-best-quality-converter-freeze.json",
+        "bytes": 2623,
+        "sha256": "429e9917d428eaeb218640c439a7b325c64021d6c33b4b35d997499b3fd8c274"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "archive-best-quality-converter-recipe.json.gz",
+      "compressed": {
+        "bytes": 1120,
+        "sha256": "4186fd380707252b8afde214cd47ac759631d184f5dffcca362e01023c3adb35"
+      },
+      "uncompressed": {
+        "bytes": 2237,
+        "sha256": "5a5bd901d2eeeedf0038c1bcaadad4b386b2ccac671b2b2b5db712d125b37e73"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive-best-quality-converter-recipe.json",
+        "bytes": 2237,
+        "sha256": "5a5bd901d2eeeedf0038c1bcaadad4b386b2ccac671b2b2b5db712d125b37e73"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "original-StemRateConverter.cpp.gz",
+      "compressed": {
+        "bytes": 3134,
+        "sha256": "90651d83a617ce4430b4fc1cf7bef930f4909657400964d32094317f85d1886d"
+      },
+      "uncompressed": {
+        "bytes": 10980,
+        "sha256": "482c55e043847adb75b42bdd25fd8859cd97e106208d46170ba1f84c897f9294"
+      },
+      "origin": {
+        "git_commit": "a3efd2c65dc845805ed2bc94ce280082b4c7fe1e",
+        "git_path": "src/audio/StemRateConverter.cpp",
+        "bytes": 10980,
+        "sha256": "482c55e043847adb75b42bdd25fd8859cd97e106208d46170ba1f84c897f9294"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "original-StemRateConverter.hpp.gz",
+      "compressed": {
+        "bytes": 1838,
+        "sha256": "df7a0ccf0ebec9d791d3e3fdbfacde47a7b6897fc0296941fd2da0b5b7d8d3d9"
+      },
+      "uncompressed": {
+        "bytes": 4279,
+        "sha256": "fcb4d4282c17a286a20d09e496927593df42cc26f3a6c518931084d55075c988"
+      },
+      "origin": {
+        "git_commit": "a3efd2c65dc845805ed2bc94ce280082b4c7fe1e",
+        "git_path": "src/audio/StemRateConverter.hpp",
+        "bytes": 4279,
+        "sha256": "fcb4d4282c17a286a20d09e496927593df42cc26f3a6c518931084d55075c988"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "signed-product-StemRateConverter.cpp.gz",
+      "compressed": {
+        "bytes": 3266,
+        "sha256": "6e3b3086a5cd96e2b4b1b208ebf13aff8cca5b72cd5f21fc5990d05315ef35f6"
+      },
+      "uncompressed": {
+        "bytes": 11478,
+        "sha256": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960"
+      },
+      "origin": {
+        "git_commit": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+        "git_path": "src/audio/StemRateConverter.cpp",
+        "bytes": 11478,
+        "sha256": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "signed-product-StemRateConverter.hpp.gz",
+      "compressed": {
+        "bytes": 1826,
+        "sha256": "f9270fa943f79d20e528443229c0a8a601a803f65c574612d2d67bd875cc8b8b"
+      },
+      "uncompressed": {
+        "bytes": 4253,
+        "sha256": "c2e5b0749b2db3f60ef3c4e361a07e744be90bd77eabcb9d5e40069526e7c094"
+      },
+      "origin": {
+        "git_commit": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+        "git_path": "src/audio/StemRateConverter.hpp",
+        "bytes": 4253,
+        "sha256": "c2e5b0749b2db3f60ef3c4e361a07e744be90bd77eabcb9d5e40069526e7c094"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "best-quality-converter-archive-gitleaks.log.gz",
+      "compressed": {
+        "bytes": 128,
+        "sha256": "ea3a66cd726eb50fde1453e47516b0e11d22e7f1f54c210f6c823ccc83452f61"
+      },
+      "uncompressed": {
+        "bytes": 146,
+        "sha256": "6318caa1a78c3e3b03234dd1b495da0843a64239f90ea6b9f1bed3b5657b3eda"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-quality-converter-archive-gitleaks.log",
+        "bytes": 146,
+        "sha256": "6318caa1a78c3e3b03234dd1b495da0843a64239f90ea6b9f1bed3b5657b3eda"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    },
+    {
+      "file": "best-quality-converter-archive-gitleaks-findings.json.gz",
+      "compressed": {
+        "bytes": 23,
+        "sha256": "abc129be8d26e8d4afe9ce45f9d5a73c8ed9aa62810ca24ee789fe4581dc4a80"
+      },
+      "uncompressed": {
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "origin": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/best-quality-converter-archive-gitleaks-findings.json",
+        "bytes": 3,
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      "payload_matches_origin_pin_and_actual_bytes": true
+    }
+  ],
+  "git_snapshots": [
+    {
+      "file": "original-StemRateConverter.cpp.gz",
+      "git_commit": "a3efd2c65dc845805ed2bc94ce280082b4c7fe1e",
+      "git_path": "src/audio/StemRateConverter.cpp",
+      "bytes": 10980,
+      "sha256": "482c55e043847adb75b42bdd25fd8859cd97e106208d46170ba1f84c897f9294"
+    },
+    {
+      "file": "original-StemRateConverter.hpp.gz",
+      "git_commit": "a3efd2c65dc845805ed2bc94ce280082b4c7fe1e",
+      "git_path": "src/audio/StemRateConverter.hpp",
+      "bytes": 4279,
+      "sha256": "fcb4d4282c17a286a20d09e496927593df42cc26f3a6c518931084d55075c988"
+    },
+    {
+      "file": "signed-product-StemRateConverter.cpp.gz",
+      "git_commit": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+      "git_path": "src/audio/StemRateConverter.cpp",
+      "bytes": 11478,
+      "sha256": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960"
+    },
+    {
+      "file": "signed-product-StemRateConverter.hpp.gz",
+      "git_commit": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+      "git_path": "src/audio/StemRateConverter.hpp",
+      "bytes": 4253,
+      "sha256": "c2e5b0749b2db3f60ef3c4e361a07e744be90bd77eabcb9d5e40069526e7c094"
+    }
+  ],
+  "source_signature_rechecked_read_only": "408c2f39c93cec28ee62498f40a6d4014b05b4ff G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau@kyau.net",
+  "all_payloads_match_compressed_uncompressed_origin_pins_and_actual_origin_bytes": true,
+  "gzip_mtime0_recompression_equal_current_runtime": true,
+  "all_raw_payloads_utf8_without_nul": true,
+  "raw_staging_payloads_match": true,
+  "secret_scan": {
+    "recorded_exit": 0,
+    "empty_findings": true,
+    "no_leaks_log": true,
+    "recomputed_raw_scanned_bytes": 9456853,
+    "checker_reran_scanner": false,
+    "scanner_outputs_and_generated_packaging_added_after_raw_scan": true
+  },
+  "complete_cpu_populations_retained": {
+    "stem-converter-best-packed-series-01.json": 4,
+    "stem-converter-best-packed-affinity-series-01.json": 6
+  },
+  "coverage": {
+    "cpp": {
+      "line": {
+        "covered": 5786,
+        "total": 6712,
+        "percent": 86.20381406436233,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 8181,
+        "total": 15427,
+        "percent": 53.03040124457121,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "numeric_totals_match_raw_cpp_summary_python_totals_root_report": true,
+    "coverage01_setup_failure_retained": true
+  },
+  "documentation": {
+    "path": "docs/M2.md",
+    "bytes": 65778,
+    "sha256": "efe89f6af9ce979521d21677355556be52f2c8ea6c0512ecf13fd039c0d0b773",
+    "tested_parity_variability_coverage_exclusions_and_M2_open_scope_match": true
+  },
+  "numerical_erratum": {
+    "historical_error": "Original signed source commit body and frozen root report incorrectly state192KiB scratch growth.",
+    "old_scratch_bytes": 131072,
+    "new_scratch_bytes": 262144,
+    "correct_growth_bytes": 131072,
+    "correct_growth_KiB": 128,
+    "corrected_by_separate_corrections_json_and_current_docs": true,
+    "unqualified_all_numerical_claims_pass": false
+  },
+  "archiver_limitation": {
+    "duplicate_key_guard_corrected_in_v2": true,
+    "add_lacks_per_read_archived_origin_assertion": true,
+    "actual_run_gap_closed_by_exhaustive_payload_origin_equality": true,
+    "future_arbitrary_concurrency_robustness_claim": false
+  },
+  "limits": [
+    "All132 actual payloads equal both recorded origin metadata and current path/Git source bytes, closing this actual reread-binding gap without asserting future arbitrary-concurrency robustness.",
+    "Numerical agreement is scoped by corrections.json: signed history/frozen root report retain the192KiB mistake; correct scratch growth is128KiB. Source/audio/test evidence is unchanged.",
+    "Gzip determinism checked within current Python runtime only. No new secret scan was run; retained fail-closed scan code/log/empty findings establish the recorded scope. Scanner outputs and generated verification packaging followed that raw scan.",
+    "All four initial and six affinity CPU rows and coverage01 setup failure are retained. Profile changes, overlapping ranges and measured coverage exclusions prevent causal speedup or whole-product coverage claims.",
+    "Measured C++ and Python line coverage exceed80percent. C++ branches are53.03percent; QML and native adapter scopes remain unmeasured.",
+    "This archived snapshot retains M2-open and strict4095ms target; later physicalrun03 evidence is outside this checked scope.",
+    "Only file reads, arithmetic, read-only Git show/signature/ancestor metadata and this authorized durable supplement write were performed. No archiver rerun/modification, build, audio/model/host workload, policy change or Git mutation."
+  ],
+  "checker_notes": [
+    "Initial in-memory source lookup omitted a.gz suffix and stopped before writing. Corrected.",
+    "A subsequent overstrict CTest log phrase check expected the older zero-failed wording; actual version emits100percent tests passed out of36. Direct inspection confirmed normal/instrumented36-entry success and the existing independent receipts. No source/evidence changes resulted."
+  ]
+}

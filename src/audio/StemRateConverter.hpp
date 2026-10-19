@@ -37,7 +37,7 @@ public:
     static FramePlan countFrames(std::uint64_t inputFrames, std::uint64_t maximumOutputFrames,
                                  std::stop_token stop = {});
 
-    // Construct fresh states for an output cursor in[0,plan.outputFrames()].
+    // Construct fresh state for an output cursor in[0,plan.outputFrames()].
     // Anchor is max(0,floor(target/160)-32)*147; internal discard reaches the
     // exact target before any samples become output. The closed finite fixture
     // and closed4*HOP+211 interior-seek fixtures support this candidate; this
@@ -70,7 +70,7 @@ public:
     // coverage. The owner retains the final generated prefix until that proof
     // before marking its ring packet final. No invented/truncated frame.
     // Validate shape/finite/coverage/nonoverlap before changing any state or
-    // output. Library error, divergent role progress or final count mismatch is
+    // output. Library error or final count mismatch is
     // terminal for this converter; its generation must be discarded off RT.
     // After finished, empty EOF is idempotent; new input/EOFfalse is invalid.
     Step process(std::array<std::span<const float>, stems> input,

@@ -23,24 +23,25 @@ void checkStop(std::stop_token stop)
     if (stop.stop_requested()) throw std::runtime_error("Stem frame count cancelled");
 }
 
-State makeState()
+State makeState(int channelCount)
 {
     int error = 0;
-    State result(src_new(SRC_SINC_BEST_QUALITY, 2, &error));
+    State result(src_new(SRC_SINC_BEST_QUALITY, channelCount, &error));
     if (!result || error)
         throw std::runtime_error(std::string("Cannot create stem sample-rate converter: ") + src_strerror(error));
     return result;
 }
 
 struct Progress { std::size_t used = 0, generated = 0; };
-Progress convert(SRC_STATE* state, std::span<const float> input, std::span<float> output, bool eof)
+Progress convert(SRC_STATE* state, std::span<const float> input, std::span<float> output,
+                 std::size_t channelCount, bool eof)
 {
     static constexpr float zero = 0;
     SRC_DATA data{};
     data.data_in = input.empty() ? &zero : input.data();
     data.data_out = output.data();
-    data.input_frames = static_cast<long>(input.size() / 2);
-    data.output_frames = static_cast<long>(output.size() / 2);
+    data.input_frames = static_cast<long>(input.size() / channelCount);
+    data.output_frames = static_cast<long>(output.size() / channelCount);
     data.src_ratio = ratio;
     data.end_of_input = eof;
     const auto error = src_process(state, &data);
@@ -51,7 +52,7 @@ Progress convert(SRC_STATE* state, std::span<const float> input, std::span<float
         data.output_frames_gen < 0 || data.output_frames_gen > data.output_frames)
         throw std::runtime_error("Stem sample-rate converter returned invalid progress");
     const auto generated = static_cast<std::size_t>(data.output_frames_gen);
-    if (std::ranges::any_of(output.first(generated * 2), [](float value) { return !std::isfinite(value); }))
+    if (std::ranges::any_of(output.first(generated * channelCount), [](float value) { return !std::isfinite(value); }))
         throw std::runtime_error("Converted stems contain non-finite samples");
     return {static_cast<std::size_t>(data.input_frames_used), generated};
 }
@@ -78,14 +79,14 @@ StemRateConverter::FramePlan StemRateConverter::countFrames(std::uint64_t inputF
     if (!inputFrames || inputFrames > maximumFrames || !maximumOutputFrames || maximumOutputFrames > maximumFrames)
         throw std::invalid_argument("Stem count geometry is empty or unaddressable");
     checkStop(stop);
-    auto state = makeState();
+    auto state = makeState(2);
     std::array<float, samplesPerBlock> zeros{}, output{};
     auto remaining = inputFrames;
     std::uint64_t total = 0;
     for (;;) {
         checkStop(stop);
         const auto offered = static_cast<std::size_t>(std::min<std::uint64_t>(remaining, blockFrames));
-        const auto progress = convert(state.get(), std::span(zeros).first(offered * channels), output, !remaining);
+        const auto progress = convert(state.get(), std::span(zeros).first(offered * channels), output, channels, !remaining);
         checkStop(stop);
         if (progress.generated > maximumOutputFrames - total)
             throw std::length_error("Stem output exceeds its counted frame budget");
@@ -102,6 +103,7 @@ StemRateConverter::FramePlan StemRateConverter::countFrames(std::uint64_t inputF
 
 class StemRateConverter::Impl {
 public:
+    static constexpr auto packedChannels = stems * channels;
     Impl(FramePlan plan, std::uint64_t target) : plan_(plan), outputFrame_(target)
     {
         if (target > plan.outputFrames()) throw std::invalid_argument("Stem seek exceeds counted EOF");
@@ -112,7 +114,7 @@ public:
         if (inputStart_ > plan.inputFrames() || generatedFrame_ > target)
             throw std::invalid_argument("Stem seek anchor exceeds input geometry");
         discard_ = target - generatedFrame_;
-        for (auto& state : states_) state = makeState();
+        state_ = makeState(packedChannels);
     }
 
     Step process(std::array<std::span<const float>, stems> input,
@@ -154,15 +156,16 @@ public:
             for (;;) {
                 const auto scratchCapacity = static_cast<std::size_t>(
                     std::min<std::uint64_t>(blockFrames, discard_ + capacity));
-                std::array<Progress, stems> progress{};
-                for (std::size_t role = 0; role < stems; ++role)
-                    progress[role] = convert(states_[role].get(), input[role],
-                        std::span(scratch_[role]).first(scratchCapacity * channels), eof);
-                const auto common = progress.front();
-                if (std::ranges::any_of(progress, [&](const auto& value) {
-                        return value.used != common.used || value.generated != common.generated;
-                    }))
-                    throw std::runtime_error("Stem converters produced divergent role progress");
+                // One Best-filter state shares each tap's coefficient across all
+                // eight channels. Packing preserves the four stereo role pairs.
+                for (std::size_t frame = 0; frame < offered; ++frame)
+                    for (std::size_t role = 0; role < stems; ++role)
+                        for (std::size_t channel = 0; channel < channels; ++channel)
+                            packedInput_[frame * packedChannels + role * channels + channel] =
+                                input[role][frame * channels + channel];
+                const auto common = convert(state_.get(),
+                    std::span<const float>(packedInput_).first(offered * packedChannels),
+                    std::span<float>(packedOutput_).first(scratchCapacity * packedChannels), packedChannels, eof);
                 if (common.generated > plan_.outputFrames() - generatedFrame_)
                     throw std::runtime_error("Stem conversion exceeded its exact counted output");
                 const auto discard = static_cast<std::size_t>(std::min<std::uint64_t>(discard_, common.generated));
@@ -178,8 +181,10 @@ public:
                 if (offered && !common.used && !common.generated)
                     throw std::runtime_error("Stem conversion made no input progress");
                 if (visible) {
-                    for (std::size_t role = 0; role < stems; ++role)
-                        std::copy_n(scratch_[role].data() + discard * channels, visible * channels, output[role].data());
+                    for (std::size_t frame = 0; frame < visible; ++frame)
+                        for (std::size_t role = 0; role < stems; ++role)
+                            std::copy_n(packedOutput_.data() + (frame + discard) * packedChannels + role * channels,
+                                        channels, output[role].data() + frame * channels);
                     outputFrame_ += visible;
                 }
                 if (common.used || visible || !discard || finished_)
@@ -195,8 +200,8 @@ public:
     }
 
     FramePlan plan_;
-    std::array<State, stems> states_{};
-    std::array<std::array<float, samplesPerBlock>, stems> scratch_{};
+    State state_;
+    std::array<float, blockFrames * packedChannels> packedInput_{}, packedOutput_{};
     std::uint64_t inputStart_ = 0, inputFrame_ = 0, generatedFrame_ = 0, outputFrame_ = 0, discard_ = 0;
     bool eofStarted_ = false, finished_ = false, failed_ = false;
 };

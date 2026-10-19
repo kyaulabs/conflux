@@ -1,0 +1,432 @@
+{
+  "schema": "conflux.m2-best-quality-native-retest.v1",
+  "source_head": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+  "parent_verification_sha256": "6f4b2364f5e113b9433635887e023351f589926681c8de03213c9935127a4023",
+  "status": "completed_failed_service_and_steady_playback",
+  "qualified": false,
+  "m2_open": true,
+  "report": {
+    "schema": 1,
+    "recorded_utc": "2026-10-19T19:08:01.069985+00:00",
+    "source_head": "408c2f39c93cec28ee62498f40a6d4014b05b4ff",
+    "passed": false,
+    "qualified": false,
+    "m2_open": true,
+    "measured_wall_ms": 120007,
+    "outer_elapsed_seconds": 131.48320407501888,
+    "error": "Steady playback starved; control intervals retained separately",
+    "service_hops": {
+      "count": 17,
+      "maximum_ms": 8340.516658034176,
+      "nearest_rank_p99_ms": 8340.516658034176,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 10,
+      "complete": true
+    },
+    "load_to_first_cursor_poll_upper_ms": 8362.762372,
+    "seek_ack_ms": 8.353176,
+    "seek_cursor_recovery_ms": 6485.728579,
+    "replay_recovery_ms": [
+      6108.075956,
+      5791.155905,
+      5111.951202
+    ],
+    "steady_starvation": {
+      "frames": 490752,
+      "ms": 10224.0
+    },
+    "control_starvation": {
+      "frames": 1120256,
+      "ms": 23338.666666666668
+    },
+    "outside_measured_starvation_frames": 0,
+    "callbacks": 24107,
+    "faults": {
+      "execution_deadline_misses": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "source_read_failures": 0
+    },
+    "timing": [
+      {
+        "at_least_100ms": 0,
+        "callbacks": 24107,
+        "driver_cycle_available": true,
+        "driver_discontinuity_flag_mask": 16,
+        "driver_position_discontinuities": 0,
+        "driver_position_observed": true,
+        "driver_recovery_flag_mask": 2,
+        "driver_recovery_flags": 0,
+        "execution_deadline_misses": 0,
+        "execution_p999_upper_us": 174,
+        "execution_p99_upper_us": 147,
+        "graph_quantum_max": 256,
+        "graph_quantum_min": 256,
+        "maximum_execution_ns": 332674
+      }
+    ],
+    "recording": {
+      "acceptedFrames": 6163456,
+      "active": false,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/master.wav",
+      "status": "Complete",
+      "writtenFrames": 6163456
+    },
+    "recorded_audio": {
+      "channels": 2,
+      "format": 65542,
+      "frames": 6163456,
+      "nonzero_samples": 12289368,
+      "peak_left": 0.05362502858042717,
+      "peak_right": 0.0534013956785202,
+      "sample_rate": 48000
+    },
+    "ui": {
+      "frames_presented": 7129,
+      "max_frame_presentation_gap_ns": 114858967,
+      "scene_errors": []
+    },
+    "observations": {
+      "attempted": 1143,
+      "bytes": 630756,
+      "dropped": 0,
+      "invalid_clock_reads": 0,
+      "producer_finished": true,
+      "retained": 1143
+    },
+    "audio_state_sample_count": 121,
+    "snapshot_drops_max": 0,
+    "thermal_summary": {
+      "samples": 64,
+      "sample_interval_seconds": 2,
+      "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+      "maximum_observed_millidegrees_C": 91000,
+      "85000": {
+        "samples_at_or_above": 1,
+        "longest_consecutive_sample_span_seconds": 0.0
+      },
+      "95000": {
+        "samples_at_or_above": 0,
+        "longest_consecutive_sample_span_seconds": 0.0
+      },
+      "profile_epp_observations": [
+        {
+          "at_utc": "2026-10-19T19:03:17.514188+00:00",
+          "values": {
+            "/sys/firmware/acpi/platform_profile": "balanced",
+            "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+          }
+        },
+        {
+          "at_utc": "2026-10-19T19:03:23.685664+00:00",
+          "values": {
+            "/sys/firmware/acpi/platform_profile": "low-power",
+            "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+          }
+        },
+        {
+          "at_utc": "2026-10-19T19:05:24.777999+00:00",
+          "values": {
+            "/sys/firmware/acpi/platform_profile": "balanced",
+            "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+          }
+        }
+      ]
+    },
+    "cleanup_proven": true,
+    "owned_cache_removed": true,
+    "source_pins_unchanged": true,
+    "comparison_scope": "Earlier run02 used four stereo states and started during power-saver recovery. This run began balanced/cool then the unchanged guard entered power-saver after a91C spike. Descriptive comparison only; no isolated causal effect, sustained p99, GPU preemption or musical acceptance claimed.",
+    "next_step": "Profile worker inference, file IO and overlap work separately, retaining Best quality and the strict4095ms service target."
+  },
+  "files": {
+    "short-live-actual-model-03--result.json.gz": {
+      "bytes": 16570,
+      "sha256": "b0b5e1b746bf4916075db2076db395aaa8c37302fcc97695ba6271186b4aa74d"
+    },
+    "short-live-actual-model-03--native-result.json.gz": {
+      "bytes": 7173,
+      "sha256": "de780a8f9ced4544e1da3d35e351aed866b81dcd29e25f27ed2b83499c5d15fb"
+    },
+    "short-live-actual-model-03--observations.jsonl.gz": {
+      "bytes": 40849,
+      "sha256": "f9de13145afac27c2d53cd477bbaee27a70ecae33b9f4c83eb34eadf0d54df60"
+    },
+    "short-live-actual-model-03--host-observations.jsonl.gz": {
+      "bytes": 2422,
+      "sha256": "be132bb04474473dbf258ec484bef1d2976806975b0ac9bbee04252db16e336b"
+    },
+    "short-live-actual-model-03--progress.json.gz": {
+      "bytes": 339,
+      "sha256": "7dfaaf0a310c4a24b46b40d05b7cfa7507cc34956830133f1b62e1c5cdd00dbf"
+    },
+    "short-live-actual-model-03--native.stdout.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "short-live-actual-model-03--native.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "short-live-actual-model-03--owned-pipewire-cleanup.json.gz": {
+      "bytes": 50,
+      "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    "short-live-actual-model-03-readiness.json.gz": {
+      "bytes": 367,
+      "sha256": "294f002c9f8bb0d2256a3c831027a9851f6d280252d8297e989528d3db796fe9"
+    },
+    "short-live-actual-model-03-launch.json.gz": {
+      "bytes": 6666,
+      "sha256": "bc042c7e251a766188f181f37bb3845931b74c5344508462f88eede565cc22e9"
+    },
+    "short-live-actual-model-03-cool-start.json.gz": {
+      "bytes": 321,
+      "sha256": "fc46e35dfd03d54cb855128c2a434e29dd2c66e2d4fafe91df2b46c05ce96b27"
+    },
+    "short-live-actual-model-03-source-freeze.json.gz": {
+      "bytes": 6204,
+      "sha256": "c83fa80656476a58ec1d5a6fb6ce33d2e0540828f6d80fb02518654bc8957e14"
+    },
+    "short-live-actual-model-03-thermal-guard.log.gz": {
+      "bytes": 231,
+      "sha256": "61b99f83874d78bc3af9515a8a54b07dc97846d327fae0847a335771a9ad22f1"
+    },
+    "short-live-actual-model-03-thermal-guard.json.gz": {
+      "bytes": 389,
+      "sha256": "4d438c5630a4e4519703e8f41aff7b8dbd456e00449bffc621b91ffb4b394b58"
+    },
+    "short-live-actual-model-03-report.json.gz": {
+      "bytes": 1759,
+      "sha256": "11e6230fd82f320154301da5bd83ab1828392d8680b9cefde38536e7e1443ab2"
+    },
+    "short-live-actual-model-03-independent-crosscheck.json.gz": {
+      "bytes": 6334,
+      "sha256": "54518b9ff94a7a4bc417a6f49556eb498efeb6e02d87d0f08f3b140ade89ee6d"
+    },
+    "short-live-actual-model-03-wait-launch.py.gz": {
+      "bytes": 869,
+      "sha256": "a6a48aa1aa6df737a8cdf36d1797cc249927596d9b83baa8d64a43244cf3b749"
+    },
+    "short-live-actual-model-03.stdout.json.gz": {
+      "bytes": 16612,
+      "sha256": "2b735e57559e44f1d111d11817044bb772ded8749fdf96df33eb90806cebfe4a"
+    },
+    "archive_best_native_retest.py.gz": {
+      "bytes": 1869,
+      "sha256": "44a026380240e782ad8dba9a39295a379f049761599a22368692d1e0eec022c6"
+    },
+    "native-retest-archive-gitleaks.log.gz": {
+      "bytes": 126,
+      "sha256": "d0d4f0af2e04e4da4c10a8b6a23f63d5e1b41bbf43c97080e5461eb88b7829c5"
+    },
+    "native-retest-archive-gitleaks-findings.json.gz": {
+      "bytes": 23,
+      "sha256": "abc129be8d26e8d4afe9ce45f9d5a73c8ed9aa62810ca24ee789fe4581dc4a80"
+    }
+  },
+  "uncompressed": {
+    "short-live-actual-model-03--result.json.gz": {
+      "bytes": 120638,
+      "sha256": "5c6eb7696462763d0443573e5207cbba66821abe7af05d53cf7e5a82b39f3f7a"
+    },
+    "short-live-actual-model-03--native-result.json.gz": {
+      "bytes": 81828,
+      "sha256": "544397bd23a5d2bd64d47067bb8a6ed29e3db90305aa11d2a9b1f5fcb56872e9"
+    },
+    "short-live-actual-model-03--observations.jsonl.gz": {
+      "bytes": 630756,
+      "sha256": "a47f05c904530af8d959baee8c21791018725676035e7d6dfc85d9a617ef016b"
+    },
+    "short-live-actual-model-03--host-observations.jsonl.gz": {
+      "bytes": 62913,
+      "sha256": "c04c6fe725aae6f35e6b8406beca43d4495a17a5de01760293c7652801fbeb97"
+    },
+    "short-live-actual-model-03--progress.json.gz": {
+      "bytes": 584,
+      "sha256": "55b118bf3ba87826f6786b763c244bf2616a8f2422c15be07c46edf206879f11"
+    },
+    "short-live-actual-model-03--native.stdout.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "short-live-actual-model-03--native.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "short-live-actual-model-03--owned-pipewire-cleanup.json.gz": {
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "short-live-actual-model-03-readiness.json.gz": {
+      "bytes": 560,
+      "sha256": "5a59b9699fc05fe0ca2210bacddfb75ed2179b150b2a5c7b35e6a01efc77bcf3"
+    },
+    "short-live-actual-model-03-launch.json.gz": {
+      "bytes": 18133,
+      "sha256": "2cfcfd484517e4e862388a68768dd2f5abb1944e25d62a4e4ad467a6e0e05756"
+    },
+    "short-live-actual-model-03-cool-start.json.gz": {
+      "bytes": 1331,
+      "sha256": "05e9984f50b77d3e0df0a8d65aa9aa7842d84266cb8b8e1df6fbd68cf667ca7c"
+    },
+    "short-live-actual-model-03-source-freeze.json.gz": {
+      "bytes": 16589,
+      "sha256": "2310bfedff433447a4ed0704c96c8421dfd5a21013b542245117428a38895049"
+    },
+    "short-live-actual-model-03-thermal-guard.log.gz": {
+      "bytes": 703,
+      "sha256": "c7501cbc62ad2906c1c95161f4093c3cb718b71dafd389b4128f9a85f5244669"
+    },
+    "short-live-actual-model-03-thermal-guard.json.gz": {
+      "bytes": 598,
+      "sha256": "dc939e2a3cb835691bdbcacd9b3faa0e5246edcec2f8de71598378e6fc9c0aeb"
+    },
+    "short-live-actual-model-03-report.json.gz": {
+      "bytes": 4349,
+      "sha256": "6b38896ccedac4ee7967a30cdb53b5efbc10afa0b0029667571309849cba0fcb"
+    },
+    "short-live-actual-model-03-independent-crosscheck.json.gz": {
+      "bytes": 23588,
+      "sha256": "5810989b16b5d1ad016aabf444c203fe8efe804d80d5c4b0093495161a25e21b"
+    },
+    "short-live-actual-model-03-wait-launch.py.gz": {
+      "bytes": 1683,
+      "sha256": "66db6ea505261889fd5249d21360830f5235934ad83cdd7c783220734a1b05bc"
+    },
+    "short-live-actual-model-03.stdout.json.gz": {
+      "bytes": 120710,
+      "sha256": "f268743fbc4f3f5ddb55e63a3c8ab8c6596b0334598d7bf4c7b37f429d15d1eb"
+    },
+    "archive_best_native_retest.py.gz": {
+      "bytes": 4218,
+      "sha256": "e9d72aba3d5e3d0f87b5bdc9ff9c6a3c490541a9d35fa63444c85d588815e595"
+    },
+    "native-retest-archive-gitleaks.log.gz": {
+      "bytes": 146,
+      "sha256": "4a01e8eff1237e08010515d6b8fdc1098435be2785ac5c4c36a133868c10ce12"
+    },
+    "native-retest-archive-gitleaks-findings.json.gz": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "origins": {
+    "short-live-actual-model-03--result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/result.json",
+      "bytes": 120638,
+      "sha256": "5c6eb7696462763d0443573e5207cbba66821abe7af05d53cf7e5a82b39f3f7a"
+    },
+    "short-live-actual-model-03--native-result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/native-result.json",
+      "bytes": 81828,
+      "sha256": "544397bd23a5d2bd64d47067bb8a6ed29e3db90305aa11d2a9b1f5fcb56872e9"
+    },
+    "short-live-actual-model-03--observations.jsonl.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/observations.jsonl",
+      "bytes": 630756,
+      "sha256": "a47f05c904530af8d959baee8c21791018725676035e7d6dfc85d9a617ef016b"
+    },
+    "short-live-actual-model-03--host-observations.jsonl.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/host-observations.jsonl",
+      "bytes": 62913,
+      "sha256": "c04c6fe725aae6f35e6b8406beca43d4495a17a5de01760293c7652801fbeb97"
+    },
+    "short-live-actual-model-03--progress.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/progress.json",
+      "bytes": 584,
+      "sha256": "55b118bf3ba87826f6786b763c244bf2616a8f2422c15be07c46edf206879f11"
+    },
+    "short-live-actual-model-03--native.stdout.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/native.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "short-live-actual-model-03--native.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/native.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "short-live-actual-model-03--owned-pipewire-cleanup.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03/owned-pipewire-cleanup.json",
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "short-live-actual-model-03-readiness.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-readiness.json",
+      "bytes": 560,
+      "sha256": "5a59b9699fc05fe0ca2210bacddfb75ed2179b150b2a5c7b35e6a01efc77bcf3"
+    },
+    "short-live-actual-model-03-launch.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-launch.json",
+      "bytes": 18133,
+      "sha256": "2cfcfd484517e4e862388a68768dd2f5abb1944e25d62a4e4ad467a6e0e05756"
+    },
+    "short-live-actual-model-03-cool-start.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-cool-start.json",
+      "bytes": 1331,
+      "sha256": "05e9984f50b77d3e0df0a8d65aa9aa7842d84266cb8b8e1df6fbd68cf667ca7c"
+    },
+    "short-live-actual-model-03-source-freeze.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-source-freeze.json",
+      "bytes": 16589,
+      "sha256": "2310bfedff433447a4ed0704c96c8421dfd5a21013b542245117428a38895049"
+    },
+    "short-live-actual-model-03-thermal-guard.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-thermal-guard.log",
+      "bytes": 703,
+      "sha256": "c7501cbc62ad2906c1c95161f4093c3cb718b71dafd389b4128f9a85f5244669"
+    },
+    "short-live-actual-model-03-thermal-guard.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-thermal-guard.json",
+      "bytes": 598,
+      "sha256": "dc939e2a3cb835691bdbcacd9b3faa0e5246edcec2f8de71598378e6fc9c0aeb"
+    },
+    "short-live-actual-model-03-report.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-report.json",
+      "bytes": 4349,
+      "sha256": "6b38896ccedac4ee7967a30cdb53b5efbc10afa0b0029667571309849cba0fcb"
+    },
+    "short-live-actual-model-03-independent-crosscheck.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-independent-crosscheck.json",
+      "bytes": 23588,
+      "sha256": "5810989b16b5d1ad016aabf444c203fe8efe804d80d5c4b0093495161a25e21b"
+    },
+    "short-live-actual-model-03-wait-launch.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03-wait-launch.py",
+      "bytes": 1683,
+      "sha256": "66db6ea505261889fd5249d21360830f5235934ad83cdd7c783220734a1b05bc"
+    },
+    "short-live-actual-model-03.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/short-live-actual-model-03.stdout.json",
+      "bytes": 120710,
+      "sha256": "f268743fbc4f3f5ddb55e63a3c8ab8c6596b0334598d7bf4c7b37f429d15d1eb"
+    },
+    "archive_best_native_retest.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive_best_native_retest.py",
+      "bytes": 4218,
+      "sha256": "e9d72aba3d5e3d0f87b5bdc9ff9c6a3c490541a9d35fa63444c85d588815e595"
+    },
+    "native-retest-archive-gitleaks.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/native-retest-archive-gitleaks.log",
+      "bytes": 146,
+      "sha256": "4a01e8eff1237e08010515d6b8fdc1098435be2785ac5c4c36a133868c10ce12"
+    },
+    "native-retest-archive-gitleaks-findings.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/native-retest-archive-gitleaks-findings.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "raw_secret_scan_exit": 0,
+  "raw_scanned_input_bytes": 1089211,
+  "limits": [
+    "Single120-second repeated excerpt diagnostic; no sustained percentile qualification.",
+    "Best quality/runtime/model/strict4095ms target unchanged; thermal guard active and unchanged.",
+    "Known descendant cleanup proof passed; no unknown escaped process guarantee.",
+    "No media/model/cache/binaries/HTML in canonical evidence.",
+    "All gzip payloads match source bytes and pins at publication."
+  ]
+}
