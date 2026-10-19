@@ -1,0 +1,3288 @@
+{
+  "schema": "conflux.m2-current-flash-gpu-profile.v1",
+  "source_head": "7c130e1a9cef91639a219db30f78857f8c515772",
+  "source_signature": {
+    "kind": "retained_GitHub_commit_API_receipt",
+    "verified": true,
+    "reason": "valid",
+    "receipt": "benchmarks-local/hour-player-01/pr32-merge-signature.json",
+    "receipt_sha256": "292aa1d3544f87802e2182c2dfc35a58c0d1d266ff520c45ba9dd015fd2f7305"
+  },
+  "status": "one_current_flash_gpu_operation_profile_passed_four_preflights_failed",
+  "m2_open": true,
+  "sustained_actual_player_qualified": false,
+  "summary": {
+    "schema": "conflux.m2-current-flash-gpu-profile-summary.v1",
+    "source_head": "7c130e1a9cef91639a219db30f78857f8c515772",
+    "status": "one_current_flash_gpu_operation_profile_passed_four_preflights_failed",
+    "m2_open": true,
+    "sustained_actual_player_qualified": false,
+    "source_signature": {
+      "kind": "retained_GitHub_commit_API_receipt",
+      "verified": true,
+      "reason": "valid",
+      "receipt": "benchmarks-local/hour-player-01/pr32-merge-signature.json",
+      "receipt_sha256": "292aa1d3544f87802e2182c2dfc35a58c0d1d266ff520c45ba9dd015fd2f7305"
+    },
+    "profile": {
+      "name": "current-flash-profile-05",
+      "status": "passed",
+      "completed_requests": 1,
+      "case_id": "club_xl:257985",
+      "exact_pcm_match": true,
+      "output_sha256": "e3dd10681d94efd2ebfbd3f98c34d74cbb25595559047c39156ba2388b73a856",
+      "output_shape": [
+        4,
+        343980,
+        2
+      ],
+      "output_dtype": "<f4",
+      "output_bytes": 11007360,
+      "request_wall_ms": 1770.586131955497,
+      "graph_compute_ms": 1529.559176,
+      "startup_wall_ms": 345.3053570119664,
+      "profile_elapsed_seconds": 2.341050192946568,
+      "elapsed_with_admission_seconds": 151.3851082639303,
+      "backend": "vulkan",
+      "threads": 2,
+      "fence_wait_mode": "blocking",
+      "process_environment": {
+        "OMP_WAIT_POLICY": "PASSIVE",
+        "GOMP_SPINCOUNT": "0"
+      },
+      "native_stderr": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/native.stderr",
+        "bytes": 7976,
+        "original_bytes": 7976,
+        "truncated": false,
+        "limit_bytes": 8388608,
+        "sha256": "af11e5a13ee118cb3f57589cb67a49731eb54805f0539d3ab293f0306e270e59"
+      },
+      "cleanup_complete": true
+    },
+    "failed_preflights": [
+      {
+        "name": "current-flash-profile-01",
+        "status": "failed",
+        "native_started": false,
+        "elapsed_seconds": 181.28504067705944,
+        "errors": [
+          {
+            "type": "RuntimeError",
+            "message": "Normal readiness exhausted bounded wait"
+          }
+        ]
+      },
+      {
+        "name": "current-flash-profile-02",
+        "status": "failed",
+        "native_started": false,
+        "elapsed_seconds": 180.56155449303333,
+        "errors": [
+          {
+            "type": "RuntimeError",
+            "message": "Normal readiness exhausted bounded wait"
+          }
+        ]
+      },
+      {
+        "name": "current-flash-profile-03",
+        "status": "failed",
+        "native_started": false,
+        "elapsed_seconds": 103.5142568720039,
+        "errors": [
+          {
+            "type": "ValueError",
+            "message": "Fresh <=70C/balanced/no-holds/same recovered guard/AC/lid admission failed"
+          }
+        ]
+      },
+      {
+        "name": "current-flash-profile-04",
+        "status": "failed",
+        "native_started": false,
+        "elapsed_seconds": 196.22746011905838,
+        "errors": [
+          {
+            "type": "RuntimeError",
+            "message": "Normal readiness exhausted bounded wait"
+          }
+        ]
+      }
+    ],
+    "operation_summary": {
+      "rows": 84,
+      "logged_node_or_fusion_intervals": 1557,
+      "reported_total_ms": 1508.0,
+      "categories": [
+        {
+          "category": "MUL_MAT f16",
+          "count": 128,
+          "sum_ms": 549.727613,
+          "share_percent": 36.454086
+        },
+        {
+          "category": "FLASH_ATTN_EXT",
+          "count": 10,
+          "sum_ms": 270.4628,
+          "share_percent": 17.935199
+        },
+        {
+          "category": "ADD",
+          "count": 305,
+          "sum_ms": 156.563,
+          "share_percent": 10.382162
+        },
+        {
+          "category": "CONT",
+          "count": 225,
+          "sum_ms": 113.376,
+          "share_percent": 7.518302
+        },
+        {
+          "category": "MUL",
+          "count": 232,
+          "sum_ms": 92.0846,
+          "share_percent": 6.106406
+        },
+        {
+          "category": "IM2COL",
+          "count": 92,
+          "sum_ms": 77.204,
+          "share_percent": 5.119629
+        },
+        {
+          "category": "REPEAT",
+          "count": 92,
+          "sum_ms": 54.5522,
+          "share_percent": 3.61752
+        },
+        {
+          "category": "NORM",
+          "count": 68,
+          "sum_ms": 49.5475,
+          "share_percent": 3.285643
+        },
+        {
+          "category": "MUL_MAT f32",
+          "count": 8,
+          "sum_ms": 27.51316,
+          "share_percent": 1.82448
+        },
+        {
+          "category": "MUL_MAT_VEC",
+          "count": 8,
+          "sum_ms": 27.08615,
+          "share_percent": 1.796164
+        },
+        {
+          "category": "SIGMOID",
+          "count": 48,
+          "sum_ms": 18.8362,
+          "share_percent": 1.249085
+        },
+        {
+          "category": "MEAN",
+          "count": 128,
+          "sum_ms": 18.7668,
+          "share_percent": 1.244483
+        },
+        {
+          "category": "GELU_ERF",
+          "count": 56,
+          "sum_ms": 14.3868,
+          "share_percent": 0.954032
+        },
+        {
+          "category": "DIV",
+          "count": 32,
+          "sum_ms": 11.1559,
+          "share_percent": 0.739781
+        },
+        {
+          "category": "SUB",
+          "count": 32,
+          "sum_ms": 11.1247,
+          "share_percent": 0.737712
+        },
+        {
+          "category": "COL2IM_1D",
+          "count": 8,
+          "sum_ms": 10.8069,
+          "share_percent": 0.716638
+        },
+        {
+          "category": "PAD",
+          "count": 4,
+          "sum_ms": 2.49349,
+          "share_percent": 0.165351
+        },
+        {
+          "category": "CONCAT",
+          "count": 3,
+          "sum_ms": 1.075,
+          "share_percent": 0.071286
+        },
+        {
+          "category": "CPY",
+          "count": 8,
+          "sum_ms": 0.747027,
+          "share_percent": 0.049538
+        },
+        {
+          "category": "SCALE",
+          "count": 37,
+          "sum_ms": 0.289413,
+          "share_percent": 0.019192
+        },
+        {
+          "category": "SQRT",
+          "count": 32,
+          "sum_ms": 0.131134,
+          "share_percent": 0.008696
+        },
+        {
+          "category": "MULTI_ADD",
+          "count": 1,
+          "sum_ms": 0.07026,
+          "share_percent": 0.004659
+        }
+      ]
+    },
+    "operation_limit": "The log identifies expensive operation families and a singleton 47.0836 ms node/fusion interval, but does not establish the duration of a single vkCmdDispatch or the maximum individual interval. The 138.875 ms self2688 Flash total is three intervals averaging 46.2918 ms, not one 138.875 ms dispatch. ADD 156.563 ms is 305 intervals.",
+    "pins": {
+      "count": 37,
+      "current_rehash_all_match_from_independent_host_audit": true,
+      "before_after_equal": true,
+      "runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+      "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "historical_driver_sha256": "79061da525dc749e16bd974181cb5f91b66049624d50da5796a9b5b0baabb622"
+    },
+    "host": {
+      "fresh_admission_package_C": 41.0,
+      "after_request_package_C": 76.0,
+      "kernel_conclusion": "No matching visible kernel graphics/i915/fence/hang/reset/preempt or OOM entries in only the exact result UTC window. This does not establish global absence, exclude unlogged failures, or establish causality.",
+      "native_cleanup": "Completed request followed by owned native reap/resource/spool cleanup; -9 is not a cancellation-test result."
+    },
+    "unchanged_acceptance": {
+      "strict_service_p99_target_ms": 4095,
+      "p99_measured": false,
+      "audio_UI_qualified": false,
+      "cancellation_exercised": false,
+      "actual_hour_qualified": false,
+      "musical_quality_rejudged": false
+    },
+    "claim_limits": [
+      "One diagnostic request gives no p99/tail, sustained timing, profiler-overhead or playback qualification.",
+      "No causal claim links Codex closure or hashing to this result or the earlier GPU hang.",
+      "No visible matching kernel entries in the exact retained window does not establish global absence or reproduce/explain the earlier i915 hang.",
+      "Archive contains code and text evidence with digest inventory; it contains no raw PCM/audio/model/executable."
+    ],
+    "independent_audits": [
+      "benchmarks-local/hour-player-01/current-flash-profiler/profile05-operation-audit.json",
+      "benchmarks-local/hour-player-01/current-flash-profiler/profile05-host-audit.json",
+      "benchmarks-local/hour-player-01/current-flash-profiler/profile05-next-step-review.json"
+    ]
+  },
+  "files": {
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-budget-02.patch.gz": {
+      "bytes": 1740,
+      "sha256": "7da79c7e95da8304bc7c9cfe97b7318799d1ca3d9ec0da3d63dbd61d04e1540d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-order-03.patch.gz": {
+      "bytes": 2697,
+      "sha256": "90e53b202efe5de100d57706e5bd1b58ce657f641c48f5355550eca007727165"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-outside-04.patch.gz": {
+      "bytes": 525,
+      "sha256": "d3ae5fbb7868e087c52f98c72fcb9aac7efc31d9725659769905b80dde869b96"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation.patch.gz": {
+      "bytes": 5027,
+      "sha256": "3d8e7982c53f7a141fc2343055f979b5ac088f52e023780055afe054b642df49"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-02.json.gz": {
+      "bytes": 584,
+      "sha256": "04eb41981fe5499a7e5efbb5119b9201f5c16fb8f473cb5fb909fa7d5d4723ed"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-03.json.gz": {
+      "bytes": 731,
+      "sha256": "7c6f03a92b21ce32292537fd5d42fb9f4105e7d83bfb0e53868b24d7f0bc5f0f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-04.json.gz": {
+      "bytes": 935,
+      "sha256": "f110096de74d41e42915f81784aaf320209ded00d22621c1f7227eebbfa972d1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan.json.gz": {
+      "bytes": 509,
+      "sha256": "289f378ec55c23d828d47b5a204f405cba2deb86ac6251433664fffee9ac3049"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-terminal-plan-05.json.gz": {
+      "bytes": 684,
+      "sha256": "00e0f2fc2593cd7fcedfdec616a2cace81b86c21d9b1a912aa0fe32171744cbd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--budget-independent-review-02.json.gz": {
+      "bytes": 2539,
+      "sha256": "f89d5cc94c8a2336ff81268fca05926f0c4a615ee0418a4ec2df3debc90e3006"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--budget-review-02.json.gz": {
+      "bytes": 3481,
+      "sha256": "9245469811aa8759b4fcfa99c16bb800908b3e05386b6f88cea2e7c09321e652"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-budget-02.json.gz": {
+      "bytes": 2432,
+      "sha256": "be7ac236c54383d36193f8309a3f568c3d157dc974d2b5e3084d95a848018047"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-order-03.json.gz": {
+      "bytes": 2805,
+      "sha256": "549970f8ee532938e7cf0cf9d95671a3e7b3ccd266b88d830c93a34030a58009"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-outside-04.json.gz": {
+      "bytes": 2949,
+      "sha256": "d4fbffa13f36e4f07c583de9823999e9fc56f2a23d2759f07c3433100d2690f6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review.json.gz": {
+      "bytes": 2294,
+      "sha256": "8e7fd46e43d634be53f1a463a3ad8efb287fa795bb4f4f7c5a341a3391587c7b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--comparison-source-pins.json.gz": {
+      "bytes": 1332,
+      "sha256": "8f2e08cfeaeb14ec61c3dcf4f954da8f160e5a88b6b30604b4e620f6068a5493"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--admission-normal-ready.json.gz": {
+      "bytes": 1987,
+      "sha256": "7afd78459219ca0325cfc1e80864d4271b6a498a9238afd317a3524e954938ba"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 1579,
+      "sha256": "61a267ae8c59028d0f46290c68c15c254cacad8071f29fa3186f716d84505618"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--stdout.gz": {
+      "bytes": 164,
+      "sha256": "4a5945009cdf7f60005dbc05aaa762e5b71cfc83f8dfb7f00e955fcc33e043ff"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--result.json.gz": {
+      "bytes": 5585,
+      "sha256": "1152dba1d0a7120b81d453342078777a2f7d80ab19e7e9fc53b1b90306fdf364"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01.stdout.gz": {
+      "bytes": 151,
+      "sha256": "878d900ee1c9621e88f88e8c70a4a0897b28477d230c4ef0e873c580245144b2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--admission-normal-ready.json.gz": {
+      "bytes": 2062,
+      "sha256": "f1cb70494b137dee2905e2610a58cd8f4c209f82b1c3bf6bc486cb05321307ed"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 1652,
+      "sha256": "c8b4493afc11690f16232dcf94f5cc57ee6105f40a4983b833465c33a3d8e570"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--stdout.gz": {
+      "bytes": 166,
+      "sha256": "0d091e973b375dd7e1cc93daae39da6dc7044f4b5571832093987dd57f32b036"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--result.json.gz": {
+      "bytes": 5611,
+      "sha256": "c90b91fcf24f3a9a4cac8941233ce72efdc989b99238ea94835b3f9b40243773"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02.stdout.gz": {
+      "bytes": 152,
+      "sha256": "1450caa9d6aaca4b67b17f0674f6aece115972786083d4718e994c56327a96f8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--admission-normal-ready.json.gz": {
+      "bytes": 1595,
+      "sha256": "d8a2c6108f6d1d58f800b2d658e54feec06727d361cb7bc60f537aa3ad96e6db"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 1211,
+      "sha256": "c25b74e1a1947f5613581c61982953ff7906c4062a98c6142c6807640e4667ff"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--fresh-admission.json.gz": {
+      "bytes": 879,
+      "sha256": "a3b365795cb38f51911db844f2d0d1ab745535ca1dfd1d1f5b64d5a2efbd2db2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--stdout.gz": {
+      "bytes": 178,
+      "sha256": "71d0573bd86858355c5074f141f773fab24883405b5bdae1567e09bf94037c2d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--result.json.gz": {
+      "bytes": 5874,
+      "sha256": "bccf6876d6bd00ac89f22a9e687f5a472ba899611e4f2a01154fa40a2077956b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03.stdout.gz": {
+      "bytes": 153,
+      "sha256": "0c601d073e3214b94904b016806b3ed8585446a80e11aa6fc9844a8419514002"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--admission-normal-ready.json.gz": {
+      "bytes": 2066,
+      "sha256": "d566020a7195ee7a538322183934357ba6f4969524fa712b8e47bfd49b872806"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 1643,
+      "sha256": "ba03e31632398d3e85b043ab2247c9c7b634b52c14d876f53e01e5cd263b57bb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--stdout.gz": {
+      "bytes": 167,
+      "sha256": "55e5cc25f42a037716e1593affcb6b61d0a5a2bbc54bf15ef0fc2d11ae2b9fd0"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--result.json.gz": {
+      "bytes": 6174,
+      "sha256": "c403a1c89c18deb974bc6546409cd96ab2b0ee71f7c3dc5aee6583ff4309921e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04.stdout.gz": {
+      "bytes": 153,
+      "sha256": "f0b9f54cd030772b9178a18d9c7bdbc6f7cbf81fbf09a5aefbd7b5415564e91d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--admission-normal-ready.json.gz": {
+      "bytes": 1872,
+      "sha256": "d9640a4dc14a220b9017ee93357538be565645c520cf7040d66bfd8790d5a9c7"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 1473,
+      "sha256": "cdc9a7fd43e8d8a87f16e7d569e84f2b28ba7e0ce78dbc6bff29a65707451ee6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--fresh-admission.json.gz": {
+      "bytes": 811,
+      "sha256": "bfcaee82d7f52855dec778770b6d1099cf6a86e580f12b91ce19531329b4443f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--stdout.gz": {
+      "bytes": 178,
+      "sha256": "53bd4a6d35ee43126fd7d1e778f60346539e5027d195c9bb120b557d5c97447d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--native.stderr.gz": {
+      "bytes": 2339,
+      "sha256": "88e96178243c270a791dc39b813877d15a665c33dd320874dee1e12d64c788f8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--result.json.gz": {
+      "bytes": 8668,
+      "sha256": "29d859cf00aa86fdc4e6cd13f2ff3d2ddc6dafdb1904a59af4abc3d35cf3bc9d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-budget-02.json.gz": {
+      "bytes": 702,
+      "sha256": "18727b3a7be885bbcb80df6416a5e18d5b9a09babababbba8aa11c571fd42bdb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-order-03.json.gz": {
+      "bytes": 830,
+      "sha256": "b1ac4913c86a5a6d8bf6985bea9d692dfa56c5bce7cc4b4c46ddd6e450d3bcf2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-outside-04.json.gz": {
+      "bytes": 832,
+      "sha256": "058df9239df338977785d73e73f4357077d844935300dd9fb29493e8f0b61bbe"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan.json.gz": {
+      "bytes": 683,
+      "sha256": "1f856e3a0fdb76d1d5f5a854be7a1d2a53097424f3f6e1562887d83bbb3be42c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-budget-unarmed.json.gz": {
+      "bytes": 297,
+      "sha256": "b3ce07eabd2d5c09a026df6a787ceb352de6f11d6944c98a9bc71870661d8c8d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-order-unarmed.json.gz": {
+      "bytes": 302,
+      "sha256": "efb46062fa151540eb4d0add14e656717f828b3ddc9049b8edbee215d217573a"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-outside-unarmed.json.gz": {
+      "bytes": 298,
+      "sha256": "9e16dab2a4ba496846f52267f2eb89041657bb2be405090216a69f8cdd6a7f78"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-profile-01.json.gz": {
+      "bytes": 318,
+      "sha256": "43ce3bb53f4ae49532ee831300cb95bf93c6484293d38060cf238195b231db68"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins.json.gz": {
+      "bytes": 362,
+      "sha256": "955d78c0580de91a5abbaecb6eb712ffa7780d0bea75d3dd62681d464cab8bd9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04-final.json.gz": {
+      "bytes": 529,
+      "sha256": "01784c88d4a4c6ca6ba95993e1a0b06fcdeec2d5dc28a1356ed9ef1947a0256d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04-tty.json.gz": {
+      "bytes": 529,
+      "sha256": "01784c88d4a4c6ca6ba95993e1a0b06fcdeec2d5dc28a1356ed9ef1947a0256d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04.json.gz": {
+      "bytes": 499,
+      "sha256": "4dac06028e24330b098399ecf11aaaec83fb9ca3bbd4395dfaa8dc9fccc9656d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper_offline_check_04.py.gz": {
+      "bytes": 2536,
+      "sha256": "8f034ef5c70265b6e3838cdcbe920e215f37d41377773e25d94319e05f482093"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-load-215208.json.gz": {
+      "bytes": 750,
+      "sha256": "17209433736f1792d7777f92351f2bb26739098fb90acbb702c52db1a26ff394"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-observation-30s-01-review.json.gz": {
+      "bytes": 2120,
+      "sha256": "f3152ecaf9a08140870036937c38c6d31333f0e77bfdb5df2bc0528b64755530"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-observation-30s-01.json.gz": {
+      "bytes": 8327,
+      "sha256": "d07a68bdafc458408bf5afbfa0aff4ca7756508240f0a5753ce1a6f6a50005f0"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-02.json.gz": {
+      "bytes": 307,
+      "sha256": "3c42e3f39f3b1d1011d9d1e6087001c0cad4a6019039e63f38bc318420a7a87b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-03.json.gz": {
+      "bytes": 319,
+      "sha256": "0604832349d42d256da2321987bdc3b044d307280b61e8a8cd23df52438cf845"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-04.json.gz": {
+      "bytes": 318,
+      "sha256": "496cd0f153663b637e091e97f3a68c6f6ecf54358e15923cd40b37517aa14f6c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-05.json.gz": {
+      "bytes": 468,
+      "sha256": "7428606da1e71feade7b32321230faba00918f9dc52dd08e948a823e5ed8b05f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness.json.gz": {
+      "bytes": 291,
+      "sha256": "514e8c7552d0d28c3d0be061ab0e8b3e3559e4cd0acd40d9ed02a29daf003e80"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--observe_host_30s.py.gz": {
+      "bytes": 1719,
+      "sha256": "ad368a9bb0362a9014497b2bbe99d96920fc8a07b0e4e6db7281232b8b3d9795"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-budget-02.json.gz": {
+      "bytes": 818,
+      "sha256": "ad2e82bf2aa1d232ff6f3963d5ec383181afdce463f524b75674482b76205ffb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-order-03.json.gz": {
+      "bytes": 988,
+      "sha256": "1030b4ff600f6112c79efe8a2840fc7c66b3f32be4c1e61a641ae03ac86df811"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-outside-04.json.gz": {
+      "bytes": 1090,
+      "sha256": "1919f5338e7b0bdbfb269fb7e2c0cb3f21b50d3856afb95b525d6637baad47fc"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks.json.gz": {
+      "bytes": 665,
+      "sha256": "4b8ffd91361fd4a620b76566f03711d22961495b9900d851fa91c146accc5a49"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline_check.py.gz": {
+      "bytes": 6075,
+      "sha256": "bcdcf30a3257ee37cdf46a53d041eba6a54b4a2e89ccddfd89521c3b9964c77e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--outside-codex-plan-05-unarmed.json.gz": {
+      "bytes": 1072,
+      "sha256": "53398bc703e4181cec8fb42e51f9cf160fd2b7324af1b31d7e8c09d5fce4ebb0"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--outside-codex-plan-05.json.gz": {
+      "bytes": 1105,
+      "sha256": "da0137165eb8a4fbf8d8f79ad84f89361cc65bce482b06b689a60ed4e8ba7884"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--post-preflight-load-215147.json.gz": {
+      "bytes": 468,
+      "sha256": "85ab562e4d2b88a2cffd30fe1902b7948fb0cf5d20d6ed4c8af682a125d382e2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics-02.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics-02.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics.stderr.gz": {
+      "bytes": 63,
+      "sha256": "4f88be6579e44eefb4d3dbde73337311cb2a307312c193e7a186252e29922ddb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-query-02.json.gz": {
+      "bytes": 1045,
+      "sha256": "a17111f0c9bfbfa62de60082d8f071c9819755876a3944d416f41c64b310cabb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-query.json.gz": {
+      "bytes": 1876,
+      "sha256": "ddfd3ffe20f5f8b70aaa61fb1c43b99937cab0d654e12b2e05401b3762313d6e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-review.json.gz": {
+      "bytes": 1467,
+      "sha256": "5486e4c5baaebbb1fc5aa8b69b7dab515052db7301016d78c72ccdd555d2c8ce"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-review.json.gz": {
+      "bytes": 3246,
+      "sha256": "10458b8e35af56347fead46a71d49fa49d7f49fb4ce719e94f63d74410e3ed70"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-graphics.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-query.json.gz": {
+      "bytes": 926,
+      "sha256": "4216c6170f5cf12f2127799dda1cf100981508ad187d70c136623fc11ebfe022"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-review.json.gz": {
+      "bytes": 1525,
+      "sha256": "c7a3dbbdac8e1440480a27b6fcacbd50ba24f692fd2ad7f964a316904f1adfe1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-graphics.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-query.json.gz": {
+      "bytes": 946,
+      "sha256": "5cb6bcc8c5aa3b2e9a38a9ed1bbcac32a3c11eeb20bd1da1ee19357381b4358b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-review.json.gz": {
+      "bytes": 2232,
+      "sha256": "c0dafbfbeebcd72e5d1e5cf4fa6d4f7cc995e521dc177cade3b1eab56b15a087"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-review-design.json.gz": {
+      "bytes": 3260,
+      "sha256": "09d5d5f2136174a9accfa1139200d361fc89ed5ce8bdfce965d3a6df28b7e445"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-graphics.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-query.json.gz": {
+      "bytes": 900,
+      "sha256": "f9284234e459bcdda76cb4dc9c5acc84d5bb46ca93f15091102c980601dd3509"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-review.json.gz": {
+      "bytes": 1934,
+      "sha256": "9fa5ed76d74a2569677bec60a6fa2e561d13d6bd44dfa4b0a8d57f3d2aa89afa"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-attempts-summary.json.gz": {
+      "bytes": 1690,
+      "sha256": "6091631e130d3d443ec055003a6f96c8532d711e1246762dc41d73ab268742d2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-independent-review-03.json.gz": {
+      "bytes": 3271,
+      "sha256": "ed7119de669b0459a6a4ebb90b5c8849b0bf8e3e3cbb8b61cb33e41ecb64e1b4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-independent-review-04.json.gz": {
+      "bytes": 3151,
+      "sha256": "1656c3a9ac8a688b755398186a88df199b53d8221d29c4d223b6500b98c76406"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-budget-02.json.gz": {
+      "bytes": 1144,
+      "sha256": "7e2ec34a6af2b9dd6bdb59a7578b27026467b80395ef64760639d9b669b23cf4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-order-03.json.gz": {
+      "bytes": 1486,
+      "sha256": "24c1e662545e5dbd68a1bf72bb05db7b2b632894466dd6e0128e2ce8fd305edf"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-outside-04-final.json.gz": {
+      "bytes": 1992,
+      "sha256": "921822153f3c183b35109f8bc9b5142c8fe3a78b6e094563a82c98772e32487d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-outside-04.json.gz": {
+      "bytes": 1409,
+      "sha256": "2449c4286e6960b61f313f69c5e18dc5220fd3bb84bf5ac80f6a6185524e2172"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation.json.gz": {
+      "bytes": 1000,
+      "sha256": "e41ce8653767219554990485adec7a5a61a06aea57ed4256a267e2efba1ded87"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-host-audit.json.gz": {
+      "bytes": 7136,
+      "sha256": "28318ce742a274c60da3e364cbfe41502701504b03424c722ebbdbdaff5a7525"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-host-query.json.gz": {
+      "bytes": 1287,
+      "sha256": "13494508abd462b3b9160d33574fa2159221d0b2b0ae450bc96bc7fbcd415b38"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-graphics.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-oom.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-oom.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-next-step-review.json.gz": {
+      "bytes": 4728,
+      "sha256": "b1399b8357a7946014f89a042b71ecba66d50ffefbe12543a45423c264bf36e6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-operation-audit.json.gz": {
+      "bytes": 3997,
+      "sha256": "b0c4cd18055defe39671ce923763ad61d7b4cb27ea7a8e6c2036109048018f77"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile_current_flash.py.gz": {
+      "bytes": 9439,
+      "sha256": "d2581ce1ebf94f3b005a961a4bae3362b0ab7477738244a163f1227f9acc3c0c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--push-retry-success.json.gz": {
+      "bytes": 196,
+      "sha256": "56db6f500ebe3b403452a7912e8c3b4bb59ee12b0a84a5a236be94c100192a8c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215118.json.gz": {
+      "bytes": 579,
+      "sha256": "7cd6cbdc602924a03143cf0b66cd8df63297ddde5f43bcf5be2183882df7382c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215451.json.gz": {
+      "bytes": 556,
+      "sha256": "456cbf2dc54adeb216065f923cb1c3c0577e54e08748e59543182e518c0463ea"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215724.json.gz": {
+      "bytes": 579,
+      "sha256": "15a03d60b515a251d9b196607fd61142aedfd3ac880d8c2d5acfa9911ea06e1b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--run_outside_codex.py.gz": {
+      "bytes": 2340,
+      "sha256": "5c5db89e4c91df12b2699d9a56f1314be7906f79c22f09bde75c5e8ce910410b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--terminal-tty-final.patch.gz": {
+      "bytes": 309,
+      "sha256": "5bb59efe08f921d69b7937f0eafe20e85003c6846e56ad969eb5081953722a12"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--adaptation-budget-02.patch.gz": {
+      "bytes": 1740,
+      "sha256": "7da79c7e95da8304bc7c9cfe97b7318799d1ca3d9ec0da3d63dbd61d04e1540d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--code-review-budget-02.json.gz": {
+      "bytes": 2432,
+      "sha256": "be7ac236c54383d36193f8309a3f568c3d157dc974d2b5e3084d95a848018047"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--comparison-source-pins.json.gz": {
+      "bytes": 1331,
+      "sha256": "17b15bb8c952c4e42beae19bac5eb1c945971f482e789b18d87d4c2abb960a03"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--dry-plan-budget-02.json.gz": {
+      "bytes": 702,
+      "sha256": "18727b3a7be885bbcb80df6416a5e18d5b9a09babababbba8aa11c571fd42bdb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--expected-pins.json.gz": {
+      "bytes": 350,
+      "sha256": "e1f8d879164161b38ee4264ea4a733eec68ffad55cfe6bb82a211aa363a72a62"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--manifest.json.gz": {
+      "bytes": 715,
+      "sha256": "dc5f7e5fe10107a12743c7ed7118a7b82161eeef84c42748e26c63ec8af5c733"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--offline-checks-budget-02.json.gz": {
+      "bytes": 818,
+      "sha256": "ad2e82bf2aa1d232ff6f3963d5ec383181afdce463f524b75674482b76205ffb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--offline_check.py.gz": {
+      "bytes": 4412,
+      "sha256": "7cfad9ef835150b0a3902b76dddde889026f5bdb3da7c2b3d057cb8c4a85d73d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--preparation-budget-02.json.gz": {
+      "bytes": 1144,
+      "sha256": "7e2ec34a6af2b9dd6bdb59a7578b27026467b80395ef64760639d9b669b23cf4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--profile_current_flash.py.gz": {
+      "bytes": 8841,
+      "sha256": "17f07708be22e91d509d4c17473e31c09ca1762f746a3bee57176701aaf72a97"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--adaptation.patch.gz": {
+      "bytes": 5027,
+      "sha256": "3d8e7982c53f7a141fc2343055f979b5ac088f52e023780055afe054b642df49"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--code-review.json.gz": {
+      "bytes": 2294,
+      "sha256": "8e7fd46e43d634be53f1a463a3ad8efb287fa795bb4f4f7c5a341a3391587c7b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--comparison-source-pins.json.gz": {
+      "bytes": 1333,
+      "sha256": "c54fa6d198d67eb91d5f21be3bddb04757ece52f22ff12ca806f47fa03c00c5b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--dry-plan.json.gz": {
+      "bytes": 683,
+      "sha256": "1f856e3a0fdb76d1d5f5a854be7a1d2a53097424f3f6e1562887d83bbb3be42c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--expected-pins.json.gz": {
+      "bytes": 344,
+      "sha256": "b3fe47470122a20deacde90a47a2fc1a2a17a2695ce842e3563a39501820d5c0"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--manifest.json.gz": {
+      "bytes": 741,
+      "sha256": "8654cc9301038461eaaa475b7cb0676b457c88110df0f4a317a64ee92bdb44e6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--offline-checks.json.gz": {
+      "bytes": 665,
+      "sha256": "4b8ffd91361fd4a620b76566f03711d22961495b9900d851fa91c146accc5a49"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--offline_check.py.gz": {
+      "bytes": 3041,
+      "sha256": "2cfeb9431a77b4eed4c8b69daa2402d8fc87c718df6dfb44572a2e6ba0a12de8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--preparation.json.gz": {
+      "bytes": 1000,
+      "sha256": "e41ce8653767219554990485adec7a5a61a06aea57ed4256a267e2efba1ded87"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--profile_current_flash.py.gz": {
+      "bytes": 8671,
+      "sha256": "b75683181777e692cd843a686fc2e2a8857003c4d1289402011941d16c58d563"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--adaptation-order-03.patch.gz": {
+      "bytes": 2697,
+      "sha256": "90e53b202efe5de100d57706e5bd1b58ce657f641c48f5355550eca007727165"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--code-review-order-03.json.gz": {
+      "bytes": 2805,
+      "sha256": "549970f8ee532938e7cf0cf9d95671a3e7b3ccd266b88d830c93a34030a58009"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--comparison-source-pins.json.gz": {
+      "bytes": 1333,
+      "sha256": "c3fb1b93c66cddf11affedf7b664fa1e793c3fa371649891a693d181df372b6b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--dry-plan-order-03.json.gz": {
+      "bytes": 830,
+      "sha256": "b1ac4913c86a5a6d8bf6985bea9d692dfa56c5bce7cc4b4c46ddd6e450d3bcf2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--expected-pins.json.gz": {
+      "bytes": 408,
+      "sha256": "88d868c6da19158e0e8ce9ce475c598de6cace8224d3880d9c6c0df05cade4f1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--manifest.json.gz": {
+      "bytes": 719,
+      "sha256": "ba6aa79b9f5f1e5e628584e69aaf99c1315714e30dfa493e3a7bcd48a0673f74"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--offline-checks-order-03.json.gz": {
+      "bytes": 988,
+      "sha256": "1030b4ff600f6112c79efe8a2840fc7c66b3f32be4c1e61a641ae03ac86df811"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--offline_check.py.gz": {
+      "bytes": 5843,
+      "sha256": "abcc8ac9ff6ddd1b4c6bc9d480c203d55cd93772ae96dacdd671cbb08006b9ab"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--preparation-order-03.json.gz": {
+      "bytes": 1486,
+      "sha256": "24c1e662545e5dbd68a1bf72bb05db7b2b632894466dd6e0128e2ce8fd305edf"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--profile_current_flash.py.gz": {
+      "bytes": 9428,
+      "sha256": "04b5f8dd78dcb55735075ff6039a2bea80cba80affaac3ceee57bb8c7f1f041d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--helper-offline-checks-outside-04.json.gz": {
+      "bytes": 499,
+      "sha256": "4dac06028e24330b098399ecf11aaaec83fb9ca3bbd4395dfaa8dc9fccc9656d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--helper_offline_check_04.py.gz": {
+      "bytes": 2433,
+      "sha256": "60be185c05d9079e14cc20878e2ded4daab4900bf1e69039b06c62e81d3cdae8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--manifest.json.gz": {
+      "bytes": 476,
+      "sha256": "9895678d3cfb625722dc1b3ba0e7bcf54e1867b54e0d3fec26e02fd82cf67ff3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--outside-codex-plan-05.json.gz": {
+      "bytes": 1071,
+      "sha256": "96b3b94df440e3fde55895ed253fdead68b12c56dd59961fc94aa5cb044183a9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--preparation-outside-04.json.gz": {
+      "bytes": 1409,
+      "sha256": "2449c4286e6960b61f313f69c5e18dc5220fd3bb84bf5ac80f6a6185524e2172"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--run_outside_codex.py.gz": {
+      "bytes": 2286,
+      "sha256": "45750e2ced89e4d8616f6f6db36a6df700f16db647f6c692673fcc7ae51d203c"
+    },
+    "benchmarks-local--hour-player-01--pr32-complete.json.gz": {
+      "bytes": 552,
+      "sha256": "25d3b41e1345c6543c091a3fd02f1e97e7e3fd7916aa875b52284bf283d4f292"
+    },
+    "benchmarks-local--hour-player-01--pr32-develop-ci.json.gz": {
+      "bytes": 649,
+      "sha256": "148324c865dc7bf39c5bbdb8be5b3d17dd438ed65e4789e0c062df742def9878"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-ci.json.gz": {
+      "bytes": 645,
+      "sha256": "15d988f8f0dc23c9849233effbe5002556ad76e7e4a44e2d42147075b19cf4a4"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-coverage-audit.json.gz": {
+      "bytes": 2540,
+      "sha256": "cb3172685523993a6a8eb25daf647cd7f94ab2aa77663134dd21af6eeb9ef26d"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-coverage-metadata.json.gz": {
+      "bytes": 1071,
+      "sha256": "006e896060a3531dd1ac6eff720009c9a4a1d81516e0f556ec90f896de00fa93"
+    },
+    "benchmarks-local--hour-player-01--pr32-merge-signature.json.gz": {
+      "bytes": 2061,
+      "sha256": "1b66e567d9426281671e8ed502da8c6318fd33863c71c9260763fa6a1e5d1f4d"
+    },
+    "benchmarks-local--hour-player-01--pr32-pr-ci.json.gz": {
+      "bytes": 651,
+      "sha256": "93b140fd6f8a51a5f50eb16ad65137ed1f1a402b40fbf465af1c3242fa69abc7"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-builder.py.gz": {
+      "bytes": 4691,
+      "sha256": "55115702dfebc6079a7c0ef1dd46821a5b13fc61d856dbd573c45c7b16bd83b8"
+    },
+    "benchmarks-local--hour-player-01--profile05-work-branch.json.gz": {
+      "bytes": 213,
+      "sha256": "a8ffb18cc25906bb9993890b626a0fbed56d8da6e76895dc2b600329db5917ee"
+    },
+    "benchmarks-local--m2-graph-phase-2026-10-18--flash-promoted-repro-01--result.json.gz": {
+      "bytes": 10758,
+      "sha256": "b442e862e05f13634e4707e08a2034dad3b9424311a5f4a331cd1a1b202459f9"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-inputs.json.gz": {
+      "bytes": 7783,
+      "sha256": "eb4811f074146452d0178aa69e7c7a8c97582625f25386d365e816d9d1df379c"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-summary.json.gz": {
+      "bytes": 2792,
+      "sha256": "ddeb95b1f5e7a08f4abe781bcaf197bedf45f4016b5694639239e55ff8f7d5cd"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-gitleaks.log.gz": {
+      "bytes": 127,
+      "sha256": "87104cabeb80e80eaf54a9019f227e87e3235d2a49889d4182ce283e48d7e660"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-gitleaks-findings.json.gz": {
+      "bytes": 23,
+      "sha256": "abc129be8d26e8d4afe9ce45f9d5a73c8ed9aa62810ca24ee789fe4581dc4a80"
+    }
+  },
+  "uncompressed": {
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-budget-02.patch.gz": {
+      "bytes": 4679,
+      "sha256": "5c0e85cd1c7e52ade204d6d346d466fb08ca9ef01d635ae664e40835572261e9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-order-03.patch.gz": {
+      "bytes": 7799,
+      "sha256": "0bde0915eb9aacbbe7e0b41ba8461d063df9b8606efbc75904b61e80b8c2f686"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-outside-04.patch.gz": {
+      "bytes": 1250,
+      "sha256": "bcbc5a8234267d92dd28b7ac30a209129f309f2a2bd1f6c771fa35b0a1ab8f29"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation.patch.gz": {
+      "bytes": 15309,
+      "sha256": "13aefd72368895ee2cd6dbf37468b131c63cfaf7431289b69e4c1d2b856232bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-02.json.gz": {
+      "bytes": 1141,
+      "sha256": "3741d2ac150821b1339b14e6edd74f2944f08fc41a4b376c935fe5644eeadc02"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-03.json.gz": {
+      "bytes": 1451,
+      "sha256": "4144dd42a793bc52f11f4deac878b9bce7819c0f0c237c26876d73bf0c415bcc"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-04.json.gz": {
+      "bytes": 1889,
+      "sha256": "726e74cc805a160ddfb503aaa0f4fc2f614a75a0a84bf0ae9e6e5ea9a113ed7d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan.json.gz": {
+      "bytes": 1051,
+      "sha256": "f31af195273f35eee2f653ee1d99fc4701a1fc225e4023e6804c10b49891261f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-terminal-plan-05.json.gz": {
+      "bytes": 1065,
+      "sha256": "b9603a4960cd89374d17cafd79492c22d0ea800b37bc8ff9e771040776e0aca1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--budget-independent-review-02.json.gz": {
+      "bytes": 5782,
+      "sha256": "b04b4f478e4e182aa6ab7ca35e5573b708dfd4d41b08df5b40aab6c868474e7d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--budget-review-02.json.gz": {
+      "bytes": 8667,
+      "sha256": "a3a3a0c649a04f2f1c57818486a036fa62a098dd3f7ccc380bf408b6c2fae0f2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-budget-02.json.gz": {
+      "bytes": 5162,
+      "sha256": "bc70a475e3419fc7f0ca047db2e83a88130e1a56ebe98ad9a89f545321920f28"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-order-03.json.gz": {
+      "bytes": 5854,
+      "sha256": "990cfb36595bbb3299fc250963f0eb98f4ea9b18ef3778ae76dfdd9518eb712c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-outside-04.json.gz": {
+      "bytes": 6104,
+      "sha256": "688575afc25756543a78b39888f1e9c00b5ffd08e6529a6a87e4285dc31be914"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review.json.gz": {
+      "bytes": 4703,
+      "sha256": "d0df739bcdcdd87bb56c3ec56e615ec4145abc85e37d4dd62dee234b31b02633"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--comparison-source-pins.json.gz": {
+      "bytes": 3312,
+      "sha256": "ca91e8cb8ceb2d93a97c960705c9c49a7bb7cc7fa20595702cc8c0d2bda7108e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--admission-normal-ready.json.gz": {
+      "bytes": 20163,
+      "sha256": "3649fb1d97e663240e638538201185269e66c5e7a587cb42311eb58f26dc4589"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 15977,
+      "sha256": "5e48ddce42886e8b12c02982cf0888f2b29ab9675760f4b42bd7c05afc2ef2b9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--stdout.gz": {
+      "bytes": 217,
+      "sha256": "bca48722b406a8390515f7f2effe9540743640d76482ef800dd42160af5d313c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--result.json.gz": {
+      "bytes": 37753,
+      "sha256": "b7109f36a87c464dbd398a868dfb5ce68e896278117861cdd8982293bc77ad3f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01.stdout.gz": {
+      "bytes": 188,
+      "sha256": "e857b3de23161fa12dc4fd8db39be63fa51e89bf527f432fe57bca2ca0a6eaa6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--admission-normal-ready.json.gz": {
+      "bytes": 21297,
+      "sha256": "a3e89f6568bfca44949750c3e5a313d95b55df60b2ed5f5af1dfd8c324ca404f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 16916,
+      "sha256": "a5fb91b76093c4361dc074cdc0d5197eaccd29f9f79f5aa6db7453ad5bc01d1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--stdout.gz": {
+      "bytes": 217,
+      "sha256": "eefddf051063b5c6fd4251c1a3f641eb08635e70ee2536a8f3c3ee2580901bdb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--result.json.gz": {
+      "bytes": 37831,
+      "sha256": "3c987f28a4e7b062ec0012a49ca1c4c5e89702fe492696591af1ee9cd36e1518"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02.stdout.gz": {
+      "bytes": 188,
+      "sha256": "31627d1dcb8750e9c3224afda51d8ec9555e3ed6f0d35e9ff6279dac8c609bbe"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--admission-normal-ready.json.gz": {
+      "bytes": 13309,
+      "sha256": "7613f88854772108ff6356afe758c988e09c4ed20497381633be668ae28f1504"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 10276,
+      "sha256": "321477aa95087509be32a26a0eb5bf53341bf333caa0f85010bf4cf3f62f283c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--fresh-admission.json.gz": {
+      "bytes": 1947,
+      "sha256": "38131fcd5712a957bff718c9e47c7e57d0fb2c08812d82c174284b131f407fcf"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--stdout.gz": {
+      "bytes": 234,
+      "sha256": "d8655a57d4a41519e943048b26a1a2eafa5d7a3c041ca69832e909918c88b76e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--result.json.gz": {
+      "bytes": 54251,
+      "sha256": "13eb20d6607975a469080abf36b9423c5e62b1cd5e0ff79440859192a98a2b50"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03.stdout.gz": {
+      "bytes": 188,
+      "sha256": "8aa2b665ac4dfa70c541145965e45d90ae811668102e11987bac1ed6560f320d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--admission-normal-ready.json.gz": {
+      "bytes": 22107,
+      "sha256": "63aec2dfcc615e46ddd0ce9b3928992a876aafb9700540a64531c7c5d8931784"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 17531,
+      "sha256": "8ae6c92f8b986434bb7933dde44ee06acf1c0ee97fdc6d8516a68861c90fcc1b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--stdout.gz": {
+      "bytes": 217,
+      "sha256": "148d25fbcea824718aa4e0740a59f970f83e7515286c8cfc5b82576a4eb4bd95"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--result.json.gz": {
+      "bytes": 54391,
+      "sha256": "61fa95ebdcaf877f38d76aad24249458804c95bdb62e211bcaab08858ff40b1c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04.stdout.gz": {
+      "bytes": 188,
+      "sha256": "7738eafc0e8b33b777b52cdeac88de83cb8f1e35a5a58a72c893d20fb814617c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--admission-normal-ready.json.gz": {
+      "bytes": 17913,
+      "sha256": "1a7008cf2f21b3a65a0626179f7138617e7a55074ad3566489eab1064d75427b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--admission-normal-ready.jsonl.gz": {
+      "bytes": 14100,
+      "sha256": "55efb435d1d247f7f7bc2479b9b2e4a3776dcc014508d33a75b8a0e2c01cbf6a"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--fresh-admission.json.gz": {
+      "bytes": 1811,
+      "sha256": "bb71d872180260bf9a5ef94705509f7a950a2cdcbc6599fa202414bcc7d71e9d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--stdout.gz": {
+      "bytes": 234,
+      "sha256": "24e7dcd85277eee08096d975994b2ecd6be44be7ee338e7176602fb8cee7738b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--native.stderr.gz": {
+      "bytes": 7976,
+      "sha256": "af11e5a13ee118cb3f57589cb67a49731eb54805f0539d3ab293f0306e270e59"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--result.json.gz": {
+      "bytes": 73491,
+      "sha256": "d638a47887aaac29c6dcb2a40a3bc5af311d05ade764069e39f99e73cc2f7912"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-budget-02.json.gz": {
+      "bytes": 1554,
+      "sha256": "d64b47109c644b65e352703fac83f764f725c50ce6e068d78469de6b83f15e1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-order-03.json.gz": {
+      "bytes": 1851,
+      "sha256": "9089c78f8c63ece57e89226e5806c423643ef6d1fe14cb35921318d572e8af08"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-outside-04.json.gz": {
+      "bytes": 1854,
+      "sha256": "b7b28c7070ec946f60087c57059e7975143f68d7f6c05dbe132af291ca7b31ab"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan.json.gz": {
+      "bytes": 1521,
+      "sha256": "9673c0f4635260e61e81220a75b2fd1261983be31236e9af397b7768d1670835"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-budget-unarmed.json.gz": {
+      "bytes": 392,
+      "sha256": "01eae7467d04c04bf7294f31f79c09fec8995edcceacfa4d362cb2f5984773ea"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-order-unarmed.json.gz": {
+      "bytes": 403,
+      "sha256": "d4e12427fa2f21a147b9586682d79022aaa1b3e9740a0180d4822d2b4e2833c1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-outside-unarmed.json.gz": {
+      "bytes": 393,
+      "sha256": "61bb475617c80c019c8a1e1508aaf1952c43627e6e7ebe1b68a15fde8dbf5c97"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-profile-01.json.gz": {
+      "bytes": 421,
+      "sha256": "2dd14c8eb46569bf381e8574d59804046a95c792d9022123039f283c8538c7cd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins.json.gz": {
+      "bytes": 481,
+      "sha256": "5a4e96e039452c8c6a365671a53de49f0bdc6d61b65e9f5217182d5a4ea27ef4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04-final.json.gz": {
+      "bytes": 1595,
+      "sha256": "9fdcbd3873f51b630473d2ae9ce395d1b6cd4a629ce9fc8ec0f1bbcd66752a18"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04-tty.json.gz": {
+      "bytes": 1595,
+      "sha256": "9fdcbd3873f51b630473d2ae9ce395d1b6cd4a629ce9fc8ec0f1bbcd66752a18"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04.json.gz": {
+      "bytes": 1484,
+      "sha256": "7f01d25d54de81df158211f3dd1873242282b7b9742d90dea11c8f54dff0c790"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper_offline_check_04.py.gz": {
+      "bytes": 7203,
+      "sha256": "e9a980d96bdfe0b64188868f7ca9cdb63c91b203c022aee52356632605400e08"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-load-215208.json.gz": {
+      "bytes": 2783,
+      "sha256": "6ecca08dd5400c276519209c51ec8f084b78751b2a73cf29debdadd7386a9836"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-observation-30s-01-review.json.gz": {
+      "bytes": 6468,
+      "sha256": "69fffffe7f03978f08b65eff2dd2ec802f41a4b44dc7a32d4630269690e4220e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-observation-30s-01.json.gz": {
+      "bytes": 113996,
+      "sha256": "36aa7277c7c7c7ea26e725f7ea45e862a0749e5d613909909b77dcd3e834d246"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-02.json.gz": {
+      "bytes": 452,
+      "sha256": "d104dc846df56cadf6588840d9bb5e9b9fba411587a1236e96eb8a48773a1d4f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-03.json.gz": {
+      "bytes": 469,
+      "sha256": "c03b93a65e0ebccadd524e5984a2b7e92d00c4e36823703286253307accdd2aa"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-04.json.gz": {
+      "bytes": 473,
+      "sha256": "4f88767fbbeebfc77c432e7e986b70be388b3bf32fa02f8ddac0bdc2a8ff9b1d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-05.json.gz": {
+      "bytes": 731,
+      "sha256": "baac88ecd3dd61525b9c6f9d7fd658e27e069c643f65f3662a2b92ce02bcc4e8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness.json.gz": {
+      "bytes": 415,
+      "sha256": "20a8282f9f5a64768b13a178675306e3c0943689c6f0b10b9414353c8ad90918"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--observe_host_30s.py.gz": {
+      "bytes": 4398,
+      "sha256": "588d9b3ea9c829cc052b59ede7fe4f950bd50640d330334de1598f6265115039"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-budget-02.json.gz": {
+      "bytes": 2328,
+      "sha256": "b6d1a7af2420ef21454cceac3c22c059e78544c46d624a2d3debdffad24d3d39"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-order-03.json.gz": {
+      "bytes": 3065,
+      "sha256": "a1a993611536df184cfa8c5f76b2afe7c55b4a97386c169c1358c6ecde9dda23"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-outside-04.json.gz": {
+      "bytes": 3514,
+      "sha256": "794d8c607b91913ae62ba4e903fbe47c3f3edba4ba6ea7d2f8138f963f2f9774"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks.json.gz": {
+      "bytes": 1789,
+      "sha256": "df4529f2c49f6fb442f6a32cf2294adcdc780bb501be4af2cfb8586cc4346641"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline_check.py.gz": {
+      "bytes": 22151,
+      "sha256": "97df5dcc9b9c097108911ca3b11fb30ace5b4ea4420000d3bee17141e8b85e3f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--outside-codex-plan-05-unarmed.json.gz": {
+      "bytes": 2735,
+      "sha256": "8517bbdf955e72f74725e46cf2a45a0d3264c511150c29acd971183f4a4b9236"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--outside-codex-plan-05.json.gz": {
+      "bytes": 2775,
+      "sha256": "408b6d9368171a30b95703488adde09b4993a4c217a41fae353b4319701e855d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--post-preflight-load-215147.json.gz": {
+      "bytes": 1539,
+      "sha256": "a949a1917b990e445f8843f381f7b272754383720c6f26856114e2d47c70ae85"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics-02.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics-02.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics.stderr.gz": {
+      "bytes": 43,
+      "sha256": "36dd9415189bdb7ce1621718bd9bc0f43d328a13792c637333e2e538e4aefb02"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-query-02.json.gz": {
+      "bytes": 2255,
+      "sha256": "46e3b099661633ff36004ffa1205ba8b6598c2f8eb230b380260d75c75de5ca9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-query.json.gz": {
+      "bytes": 7143,
+      "sha256": "de07b3e1201c369d5cb0de1116b81b11ec07efe866c7236a6c91fa0ee54f90ac"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-review.json.gz": {
+      "bytes": 3473,
+      "sha256": "f755abde3be450cdc24095c5a5e584bfb580a976b962c38eeb6c29fe37cf8566"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-review.json.gz": {
+      "bytes": 7761,
+      "sha256": "f808f2d21a562ec180d5ba106e1bcb8c96144cbcb708eb843cec155d3a49cded"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-graphics.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-query.json.gz": {
+      "bytes": 1957,
+      "sha256": "ffc90d7752051c16b548cca8993592d7c2b5dc36da7294946da059cf6c78ea1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-review.json.gz": {
+      "bytes": 6334,
+      "sha256": "34b5c3fcd121ff2b560ef6618d36002e21bc824df4033e70f99d2e4520e6b8f8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-graphics.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-query.json.gz": {
+      "bytes": 1992,
+      "sha256": "5de6a110137822ae7686a1c6c418a29e502468420242aa0b11cfb83d3816aaf0"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-review.json.gz": {
+      "bytes": 7903,
+      "sha256": "4f0235a1d9f90308592c407fdc98ff3f0ed4aaeae70501a5c63ef5c4a7bab7c4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-review-design.json.gz": {
+      "bytes": 7940,
+      "sha256": "1453a0bc2b693a5ead94f3fc133b464ee5d0e25ffc92b696f3d6a1a961ef46dc"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-graphics.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-query.json.gz": {
+      "bytes": 1900,
+      "sha256": "b31cb8be82aa9153ba35e94adf097ccfe57480765f50ab104085333a788b2236"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-review.json.gz": {
+      "bytes": 7469,
+      "sha256": "c5f43303663758b341d99100eeb781a8e79151e39a64b6aef1bd55a1ae8f1c46"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-attempts-summary.json.gz": {
+      "bytes": 5646,
+      "sha256": "84d3fb728978640b6035f62e2438543973fc6970479925ffbeb58ea48b53220e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-independent-review-03.json.gz": {
+      "bytes": 7350,
+      "sha256": "64102e156a14387b69ea763d780e49dfd7154dff2b5d958eadcbe179f831a1ea"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-independent-review-04.json.gz": {
+      "bytes": 7029,
+      "sha256": "c4ee90fa34e9b346f43f941f0c1ccc36180f50df55d73e4c88318543afb68890"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-budget-02.json.gz": {
+      "bytes": 2021,
+      "sha256": "a6409a1eac38ab126cf28999b8635b26c453e04d6ab612f997665b5ba28c4494"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-order-03.json.gz": {
+      "bytes": 2801,
+      "sha256": "348a238e0f0d8ede6f1ee09e95f75978fc05695fdc1ece1c09cb5ebfa346a2bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-outside-04-final.json.gz": {
+      "bytes": 3845,
+      "sha256": "b2c82e9b94bd0e5879edf355c76b41bc562e97dd60d5e7e34422b6482ebba824"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-outside-04.json.gz": {
+      "bytes": 2520,
+      "sha256": "7161b1eab8ed2df39bcc47d4780901c072174f70d395edbf8664496b3fb47265"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation.json.gz": {
+      "bytes": 1931,
+      "sha256": "ac8438b2254330f1c6546fb19bab2249a44fcb27aba22c373d736f16151cd875"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-host-audit.json.gz": {
+      "bytes": 38300,
+      "sha256": "11724946cdd65237cc3f1b7f3913b7392577cdc090d0904db38b4a4cdd75258e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-host-query.json.gz": {
+      "bytes": 4732,
+      "sha256": "a0d49cae5f6da968f1a67f327049cd3256a60ff80d11e1eee522735e0249c1a5"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-graphics.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-oom.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-oom.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-next-step-review.json.gz": {
+      "bytes": 13260,
+      "sha256": "e9d918e7e360b10564ec37c889d54fc88f868152e0798737e0e012ab07a493b7"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-operation-audit.json.gz": {
+      "bytes": 14491,
+      "sha256": "68e69ab6a5d51b12faf2fd92c7cc4327685a0f0a9830c30ccf71fb21a171183e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile_current_flash.py.gz": {
+      "bytes": 32812,
+      "sha256": "79061da525dc749e16bd974181cb5f91b66049624d50da5796a9b5b0baabb622"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--push-retry-success.json.gz": {
+      "bytes": 236,
+      "sha256": "ce472b344dbf47d41ed18b6ff3f9bcded4c242f02bf19adaaee5d81271ecf085"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215118.json.gz": {
+      "bytes": 1014,
+      "sha256": "b35c80ce7a2b74ae638f4d24cb82df56909da118464249ecc229d0722fa5c96b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215451.json.gz": {
+      "bytes": 980,
+      "sha256": "469f9b12f261db9449c5369d8d3893a19a9b271325907066bee3ccaea2680d35"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215724.json.gz": {
+      "bytes": 1015,
+      "sha256": "7f969d26316d9de95807ca2ca73dad4703180e9efb4c9e7542f59164f876bece"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--run_outside_codex.py.gz": {
+      "bytes": 5654,
+      "sha256": "0e412f43c51934979a1a05cdc1113407b8ba2aec27a6c9fa6ad46704c7c96cd5"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--terminal-tty-final.patch.gz": {
+      "bytes": 444,
+      "sha256": "be1b7b4ffb6155e931524ea37127a3c81a5e148b9b83142eef97926b2e44a5a6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--adaptation-budget-02.patch.gz": {
+      "bytes": 4679,
+      "sha256": "5c0e85cd1c7e52ade204d6d346d466fb08ca9ef01d635ae664e40835572261e9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--code-review-budget-02.json.gz": {
+      "bytes": 5162,
+      "sha256": "bc70a475e3419fc7f0ca047db2e83a88130e1a56ebe98ad9a89f545321920f28"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--comparison-source-pins.json.gz": {
+      "bytes": 3312,
+      "sha256": "9f8d604cebae03553716e7a6e879f569f0112d867a9b24e17704cbd1706e44b3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--dry-plan-budget-02.json.gz": {
+      "bytes": 1554,
+      "sha256": "d64b47109c644b65e352703fac83f764f725c50ce6e068d78469de6b83f15e1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--expected-pins.json.gz": {
+      "bytes": 476,
+      "sha256": "3403060677b3484449dfce88df0449875af315ad9ef5ae5516b3934ef5582dcf"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--manifest.json.gz": {
+      "bytes": 1604,
+      "sha256": "2744105b69e4b8504357d8fc689c706eff456389a36c90b40e6f952b1e098f42"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--offline-checks-budget-02.json.gz": {
+      "bytes": 2328,
+      "sha256": "b6d1a7af2420ef21454cceac3c22c059e78544c46d624a2d3debdffad24d3d39"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--offline_check.py.gz": {
+      "bytes": 15258,
+      "sha256": "81d4700c3a09665126706e154bce2414a8b705eec23e093c72e256b66a9c1510"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--preparation-budget-02.json.gz": {
+      "bytes": 2021,
+      "sha256": "a6409a1eac38ab126cf28999b8635b26c453e04d6ab612f997665b5ba28c4494"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--profile_current_flash.py.gz": {
+      "bytes": 30732,
+      "sha256": "13d48ca97c4d5f40fdbe8385aa3e395e32156244ca44b732f10024330b7e2407"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--adaptation.patch.gz": {
+      "bytes": 15309,
+      "sha256": "13aefd72368895ee2cd6dbf37468b131c63cfaf7431289b69e4c1d2b856232bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--code-review.json.gz": {
+      "bytes": 4703,
+      "sha256": "d0df739bcdcdd87bb56c3ec56e615ec4145abc85e37d4dd62dee234b31b02633"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--comparison-source-pins.json.gz": {
+      "bytes": 3312,
+      "sha256": "821a01de7325eda90bb58b6e08b32cb2d1bc6992be8001cc540a8027bc91c8ef"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--dry-plan.json.gz": {
+      "bytes": 1521,
+      "sha256": "9673c0f4635260e61e81220a75b2fd1261983be31236e9af397b7768d1670835"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--expected-pins.json.gz": {
+      "bytes": 468,
+      "sha256": "2ee80d63ffa61ad667bbd6fa0a29efda9d84c698a91f109a4fb2beb0ef8824f5"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--manifest.json.gz": {
+      "bytes": 1604,
+      "sha256": "b9ea62a1c2ff8e51f3484b8b2f43d760638af4030a771936b1adad7a5264ef44"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--offline-checks.json.gz": {
+      "bytes": 1789,
+      "sha256": "df4529f2c49f6fb442f6a32cf2294adcdc780bb501be4af2cfb8586cc4346641"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--offline_check.py.gz": {
+      "bytes": 8982,
+      "sha256": "b5fe65e136738a348675c74603869d62b027235a10adea6dcbe4ae142d2f68e3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--preparation.json.gz": {
+      "bytes": 1931,
+      "sha256": "ac8438b2254330f1c6546fb19bab2249a44fcb27aba22c373d736f16151cd875"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--profile_current_flash.py.gz": {
+      "bytes": 30125,
+      "sha256": "afaaf4ef840332d186066309975fdae8a184e87a5419787cdec9f274e938516a"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--adaptation-order-03.patch.gz": {
+      "bytes": 7799,
+      "sha256": "0bde0915eb9aacbbe7e0b41ba8461d063df9b8606efbc75904b61e80b8c2f686"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--code-review-order-03.json.gz": {
+      "bytes": 5854,
+      "sha256": "990cfb36595bbb3299fc250963f0eb98f4ea9b18ef3778ae76dfdd9518eb712c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--comparison-source-pins.json.gz": {
+      "bytes": 3312,
+      "sha256": "1449cb444351a42fa20c04a2a51a9d33a7d1e7d3fc22f52b6dbba1ceb73f3135"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--dry-plan-order-03.json.gz": {
+      "bytes": 1851,
+      "sha256": "9089c78f8c63ece57e89226e5806c423643ef6d1fe14cb35921318d572e8af08"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--expected-pins.json.gz": {
+      "bytes": 560,
+      "sha256": "fcdc4fd23302a6adc4ff8457e6bb6c9e1595a169396a31353d0ca4deff98b25f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--manifest.json.gz": {
+      "bytes": 1604,
+      "sha256": "fd8a293ef34ed058db46cb1491627cd91f757c23459d288bb3cf31d35f095047"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--offline-checks-order-03.json.gz": {
+      "bytes": 3065,
+      "sha256": "a1a993611536df184cfa8c5f76b2afe7c55b4a97386c169c1358c6ecde9dda23"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--offline_check.py.gz": {
+      "bytes": 21116,
+      "sha256": "f2653e4063658545bb0bffa5b5d34be33643e5d4b8b449fff1edf2f723ba7339"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--preparation-order-03.json.gz": {
+      "bytes": 2801,
+      "sha256": "348a238e0f0d8ede6f1ee09e95f75978fc05695fdc1ece1c09cb5ebfa346a2bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--profile_current_flash.py.gz": {
+      "bytes": 32733,
+      "sha256": "84b486916f7a9902390012632a255f7ea8539092f976db11f565c76b5970d2dd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--helper-offline-checks-outside-04.json.gz": {
+      "bytes": 1484,
+      "sha256": "7f01d25d54de81df158211f3dd1873242282b7b9742d90dea11c8f54dff0c790"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--helper_offline_check_04.py.gz": {
+      "bytes": 6909,
+      "sha256": "0dda3ee0401315252441be2f29983a042286b2cd83041f8cc0dfd5c6d011cfd3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--manifest.json.gz": {
+      "bytes": 947,
+      "sha256": "1f449ea4bd41ca4be9135ccf8caa6e5d390d2468035b427ef3640a5611fc2142"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--outside-codex-plan-05.json.gz": {
+      "bytes": 2735,
+      "sha256": "0d23508c779e860a3bbe7c8465f89669a0fdf9cc17ec0d3023f238e0fa440d14"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--preparation-outside-04.json.gz": {
+      "bytes": 2520,
+      "sha256": "7161b1eab8ed2df39bcc47d4780901c072174f70d395edbf8664496b3fb47265"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--run_outside_codex.py.gz": {
+      "bytes": 5520,
+      "sha256": "04a25b821050fc88495e2c4ad699d8ef44e8ad253f7cddb09f8763f27856b4f2"
+    },
+    "benchmarks-local--hour-player-01--pr32-complete.json.gz": {
+      "bytes": 897,
+      "sha256": "8bd52a0bbc0a42c789c7050f6372c4597c2eaced8e7ca82d11633e4ebcdcbd9a"
+    },
+    "benchmarks-local--hour-player-01--pr32-develop-ci.json.gz": {
+      "bytes": 3621,
+      "sha256": "477262fe5f0042eee8e18f427cc4c7329710a584aaeaa868353dfc2dfe4fe3bb"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-ci.json.gz": {
+      "bytes": 3621,
+      "sha256": "4ad74ed858e31e865aee90f705f0134108adecf82afe60a20b9b48b4be0fa008"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-coverage-audit.json.gz": {
+      "bytes": 6753,
+      "sha256": "b7fae8eb060ece69ca4005902c8c708c9838371bb06e749cdabc5c8818ebc25f"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-coverage-metadata.json.gz": {
+      "bytes": 6835,
+      "sha256": "7455736ed34689055bd618f76d6995b67ca58a08633b045918cd0b1aa7c03ce5"
+    },
+    "benchmarks-local--hour-player-01--pr32-merge-signature.json.gz": {
+      "bytes": 3915,
+      "sha256": "292aa1d3544f87802e2182c2dfc35a58c0d1d266ff520c45ba9dd015fd2f7305"
+    },
+    "benchmarks-local--hour-player-01--pr32-pr-ci.json.gz": {
+      "bytes": 3629,
+      "sha256": "fcc5a67aa1a29fe4790a0745471a8271a47bfaf09d6632ac1d61766f7fb4aa06"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-builder.py.gz": {
+      "bytes": 13909,
+      "sha256": "01003c035aa012b59e04280403cedf6502a36f4f584575fe6d497b7e76ca770f"
+    },
+    "benchmarks-local--hour-player-01--profile05-work-branch.json.gz": {
+      "bytes": 257,
+      "sha256": "69fe71770db1be30438cb637e3bddaf338dc31f780c29f77cb244d4ff8b0e95e"
+    },
+    "benchmarks-local--m2-graph-phase-2026-10-18--flash-promoted-repro-01--result.json.gz": {
+      "bytes": 85334,
+      "sha256": "44554b8e1caca9e92a49be7b9cc0e05ba7248f0091b4cdfc005e87e2c87ffe70"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-inputs.json.gz": {
+      "bytes": 36871,
+      "sha256": "f8c0dab336dca2dfa09fa2e6f6ea364dab67ca2bda355527ca19bae8d101a8d7"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-summary.json.gz": {
+      "bytes": 8286,
+      "sha256": "3160830f710b29884a86a235149b4568023da17714025fd224b1a44d91eb5beb"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-gitleaks.log.gz": {
+      "bytes": 144,
+      "sha256": "7f991b4e0a0e8df3570516bb23c4593575bea43e248d795f60a234e0aea83b19"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-gitleaks-findings.json.gz": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "origins": {
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-budget-02.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/adaptation-budget-02.patch",
+      "bytes": 4679,
+      "sha256": "5c0e85cd1c7e52ade204d6d346d466fb08ca9ef01d635ae664e40835572261e9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-order-03.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/adaptation-order-03.patch",
+      "bytes": 7799,
+      "sha256": "0bde0915eb9aacbbe7e0b41ba8461d063df9b8606efbc75904b61e80b8c2f686"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation-outside-04.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/adaptation-outside-04.patch",
+      "bytes": 1250,
+      "sha256": "bcbc5a8234267d92dd28b7ac30a209129f309f2a2bd1f6c771fa35b0a1ab8f29"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--adaptation.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/adaptation.patch",
+      "bytes": 15309,
+      "sha256": "13aefd72368895ee2cd6dbf37468b131c63cfaf7431289b69e4c1d2b856232bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan-02.json",
+      "bytes": 1141,
+      "sha256": "3741d2ac150821b1339b14e6edd74f2944f08fc41a4b376c935fe5644eeadc02"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan-03.json",
+      "bytes": 1451,
+      "sha256": "4144dd42a793bc52f11f4deac878b9bce7819c0f0c237c26876d73bf0c415bcc"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan-04.json",
+      "bytes": 1889,
+      "sha256": "726e74cc805a160ddfb503aaa0f4fc2f614a75a0a84bf0ae9e6e5ea9a113ed7d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-plan.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan.json",
+      "bytes": 1051,
+      "sha256": "f31af195273f35eee2f653ee1d99fc4701a1fc225e4023e6804c10b49891261f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--armed-terminal-plan-05.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/armed-terminal-plan-05.json",
+      "bytes": 1065,
+      "sha256": "b9603a4960cd89374d17cafd79492c22d0ea800b37bc8ff9e771040776e0aca1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--budget-independent-review-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/budget-independent-review-02.json",
+      "bytes": 5782,
+      "sha256": "b04b4f478e4e182aa6ab7ca35e5573b708dfd4d41b08df5b40aab6c868474e7d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--budget-review-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/budget-review-02.json",
+      "bytes": 8667,
+      "sha256": "a3a3a0c649a04f2f1c57818486a036fa62a098dd3f7ccc380bf408b6c2fae0f2"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/code-review-budget-02.json",
+      "bytes": 5162,
+      "sha256": "bc70a475e3419fc7f0ca047db2e83a88130e1a56ebe98ad9a89f545321920f28"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/code-review-order-03.json",
+      "bytes": 5854,
+      "sha256": "990cfb36595bbb3299fc250963f0eb98f4ea9b18ef3778ae76dfdd9518eb712c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/code-review-outside-04.json",
+      "bytes": 6104,
+      "sha256": "688575afc25756543a78b39888f1e9c00b5ffd08e6529a6a87e4285dc31be914"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--code-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/code-review.json",
+      "bytes": 4703,
+      "sha256": "d0df739bcdcdd87bb56c3ec56e615ec4145abc85e37d4dd62dee234b31b02633"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--comparison-source-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/comparison-source-pins.json",
+      "bytes": 3312,
+      "sha256": "ca91e8cb8ceb2d93a97c960705c9c49a7bb7cc7fa20595702cc8c0d2bda7108e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--admission-normal-ready.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/admission-normal-ready.json",
+      "bytes": 20163,
+      "sha256": "3649fb1d97e663240e638538201185269e66c5e7a587cb42311eb58f26dc4589"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--admission-normal-ready.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/admission-normal-ready.jsonl",
+      "bytes": 15977,
+      "sha256": "5e48ddce42886e8b12c02982cf0888f2b29ab9675760f4b42bd7c05afc2ef2b9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--admission--stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/stdout",
+      "bytes": 217,
+      "sha256": "bca48722b406a8390515f7f2effe9540743640d76482ef800dd42160af5d313c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/result.json",
+      "bytes": 37753,
+      "sha256": "b7109f36a87c464dbd398a868dfb5ce68e896278117861cdd8982293bc77ad3f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-01.stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01.stdout",
+      "bytes": 188,
+      "sha256": "e857b3de23161fa12dc4fd8db39be63fa51e89bf527f432fe57bca2ca0a6eaa6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--admission-normal-ready.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/admission-normal-ready.json",
+      "bytes": 21297,
+      "sha256": "a3e89f6568bfca44949750c3e5a313d95b55df60b2ed5f5af1dfd8c324ca404f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--admission-normal-ready.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/admission-normal-ready.jsonl",
+      "bytes": 16916,
+      "sha256": "a5fb91b76093c4361dc074cdc0d5197eaccd29f9f79f5aa6db7453ad5bc01d1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--admission--stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/stdout",
+      "bytes": 217,
+      "sha256": "eefddf051063b5c6fd4251c1a3f641eb08635e70ee2536a8f3c3ee2580901bdb"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/result.json",
+      "bytes": 37831,
+      "sha256": "3c987f28a4e7b062ec0012a49ca1c4c5e89702fe492696591af1ee9cd36e1518"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-02.stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02.stdout",
+      "bytes": 188,
+      "sha256": "31627d1dcb8750e9c3224afda51d8ec9555e3ed6f0d35e9ff6279dac8c609bbe"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--admission-normal-ready.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/admission-normal-ready.json",
+      "bytes": 13309,
+      "sha256": "7613f88854772108ff6356afe758c988e09c4ed20497381633be668ae28f1504"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--admission-normal-ready.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/admission-normal-ready.jsonl",
+      "bytes": 10276,
+      "sha256": "321477aa95087509be32a26a0eb5bf53341bf333caa0f85010bf4cf3f62f283c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--fresh-admission.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/fresh-admission.json",
+      "bytes": 1947,
+      "sha256": "38131fcd5712a957bff718c9e47c7e57d0fb2c08812d82c174284b131f407fcf"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--admission--stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/stdout",
+      "bytes": 234,
+      "sha256": "d8655a57d4a41519e943048b26a1a2eafa5d7a3c041ca69832e909918c88b76e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/result.json",
+      "bytes": 54251,
+      "sha256": "13eb20d6607975a469080abf36b9423c5e62b1cd5e0ff79440859192a98a2b50"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-03.stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03.stdout",
+      "bytes": 188,
+      "sha256": "8aa2b665ac4dfa70c541145965e45d90ae811668102e11987bac1ed6560f320d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--admission-normal-ready.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/admission-normal-ready.json",
+      "bytes": 22107,
+      "sha256": "63aec2dfcc615e46ddd0ce9b3928992a876aafb9700540a64531c7c5d8931784"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--admission-normal-ready.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/admission-normal-ready.jsonl",
+      "bytes": 17531,
+      "sha256": "8ae6c92f8b986434bb7933dde44ee06acf1c0ee97fdc6d8516a68861c90fcc1b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--admission--stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/stdout",
+      "bytes": 217,
+      "sha256": "148d25fbcea824718aa4e0740a59f970f83e7515286c8cfc5b82576a4eb4bd95"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/result.json",
+      "bytes": 54391,
+      "sha256": "61fa95ebdcaf877f38d76aad24249458804c95bdb62e211bcaab08858ff40b1c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-04.stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04.stdout",
+      "bytes": 188,
+      "sha256": "7738eafc0e8b33b777b52cdeac88de83cb8f1e35a5a58a72c893d20fb814617c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--admission-normal-ready.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/admission-normal-ready.json",
+      "bytes": 17913,
+      "sha256": "1a7008cf2f21b3a65a0626179f7138617e7a55074ad3566489eab1064d75427b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--admission-normal-ready.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/admission-normal-ready.jsonl",
+      "bytes": 14100,
+      "sha256": "55efb435d1d247f7f7bc2479b9b2e4a3776dcc014508d33a75b8a0e2c01cbf6a"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--fresh-admission.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/fresh-admission.json",
+      "bytes": 1811,
+      "sha256": "bb71d872180260bf9a5ef94705509f7a950a2cdcbc6599fa202414bcc7d71e9d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--admission--stdout.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/stdout",
+      "bytes": 234,
+      "sha256": "24e7dcd85277eee08096d975994b2ecd6be44be7ee338e7176602fb8cee7738b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--native.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/native.stderr",
+      "bytes": 7976,
+      "sha256": "af11e5a13ee118cb3f57589cb67a49731eb54805f0539d3ab293f0306e270e59"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--current-flash-profile-05--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/result.json",
+      "bytes": 73491,
+      "sha256": "d638a47887aaac29c6dcb2a40a3bc5af311d05ade764069e39f99e73cc2f7912"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan-budget-02.json",
+      "bytes": 1554,
+      "sha256": "d64b47109c644b65e352703fac83f764f725c50ce6e068d78469de6b83f15e1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan-order-03.json",
+      "bytes": 1851,
+      "sha256": "9089c78f8c63ece57e89226e5806c423643ef6d1fe14cb35921318d572e8af08"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan-outside-04.json",
+      "bytes": 1854,
+      "sha256": "b7b28c7070ec946f60087c57059e7975143f68d7f6c05dbe132af291ca7b31ab"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--dry-plan.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan.json",
+      "bytes": 1521,
+      "sha256": "9673c0f4635260e61e81220a75b2fd1261983be31236e9af397b7768d1670835"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-budget-unarmed.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-budget-unarmed.json",
+      "bytes": 392,
+      "sha256": "01eae7467d04c04bf7294f31f79c09fec8995edcceacfa4d362cb2f5984773ea"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-order-unarmed.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-order-unarmed.json",
+      "bytes": 403,
+      "sha256": "d4e12427fa2f21a147b9586682d79022aaa1b3e9740a0180d4822d2b4e2833c1"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-outside-unarmed.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-outside-unarmed.json",
+      "bytes": 393,
+      "sha256": "61bb475617c80c019c8a1e1508aaf1952c43627e6e7ebe1b68a15fde8dbf5c97"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins-profile-01.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-profile-01.json",
+      "bytes": 421,
+      "sha256": "2dd14c8eb46569bf381e8574d59804046a95c792d9022123039f283c8538c7cd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--expected-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins.json",
+      "bytes": 481,
+      "sha256": "5a4e96e039452c8c6a365671a53de49f0bdc6d61b65e9f5217182d5a4ea27ef4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04-final.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/helper-offline-checks-outside-04-final.json",
+      "bytes": 1595,
+      "sha256": "9fdcbd3873f51b630473d2ae9ce395d1b6cd4a629ce9fc8ec0f1bbcd66752a18"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04-tty.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/helper-offline-checks-outside-04-tty.json",
+      "bytes": 1595,
+      "sha256": "9fdcbd3873f51b630473d2ae9ce395d1b6cd4a629ce9fc8ec0f1bbcd66752a18"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper-offline-checks-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/helper-offline-checks-outside-04.json",
+      "bytes": 1484,
+      "sha256": "7f01d25d54de81df158211f3dd1873242282b7b9742d90dea11c8f54dff0c790"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--helper_offline_check_04.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/helper_offline_check_04.py",
+      "bytes": 7203,
+      "sha256": "e9a980d96bdfe0b64188868f7ca9cdb63c91b203c022aee52356632605400e08"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-load-215208.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/host-load-215208.json",
+      "bytes": 2783,
+      "sha256": "6ecca08dd5400c276519209c51ec8f084b78751b2a73cf29debdadd7386a9836"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-observation-30s-01-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/host-observation-30s-01-review.json",
+      "bytes": 6468,
+      "sha256": "69fffffe7f03978f08b65eff2dd2ec802f41a4b44dc7a32d4630269690e4220e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--host-observation-30s-01.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/host-observation-30s-01.json",
+      "bytes": 113996,
+      "sha256": "36aa7277c7c7c7ea26e725f7ea45e862a0749e5d613909909b77dcd3e834d246"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-02.json",
+      "bytes": 452,
+      "sha256": "d104dc846df56cadf6588840d9bb5e9b9fba411587a1236e96eb8a48773a1d4f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-03.json",
+      "bytes": 469,
+      "sha256": "c03b93a65e0ebccadd524e5984a2b7e92d00c4e36823703286253307accdd2aa"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-04.json",
+      "bytes": 473,
+      "sha256": "4f88767fbbeebfc77c432e7e986b70be388b3bf32fa02f8ddac0bdc2a8ff9b1d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness-05.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-05.json",
+      "bytes": 731,
+      "sha256": "baac88ecd3dd61525b9c6f9d7fd658e27e069c643f65f3662a2b92ce02bcc4e8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--human-readiness.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness.json",
+      "bytes": 415,
+      "sha256": "20a8282f9f5a64768b13a178675306e3c0943689c6f0b10b9414353c8ad90918"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--observe_host_30s.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/observe_host_30s.py",
+      "bytes": 4398,
+      "sha256": "588d9b3ea9c829cc052b59ede7fe4f950bd50640d330334de1598f6265115039"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks-budget-02.json",
+      "bytes": 2328,
+      "sha256": "b6d1a7af2420ef21454cceac3c22c059e78544c46d624a2d3debdffad24d3d39"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks-order-03.json",
+      "bytes": 3065,
+      "sha256": "a1a993611536df184cfa8c5f76b2afe7c55b4a97386c169c1358c6ecde9dda23"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks-outside-04.json",
+      "bytes": 3514,
+      "sha256": "794d8c607b91913ae62ba4e903fbe47c3f3edba4ba6ea7d2f8138f963f2f9774"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline-checks.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks.json",
+      "bytes": 1789,
+      "sha256": "df4529f2c49f6fb442f6a32cf2294adcdc780bb501be4af2cfb8586cc4346641"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--offline_check.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/offline_check.py",
+      "bytes": 22151,
+      "sha256": "97df5dcc9b9c097108911ca3b11fb30ace5b4ea4420000d3bee17141e8b85e3f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--outside-codex-plan-05-unarmed.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/outside-codex-plan-05-unarmed.json",
+      "bytes": 2735,
+      "sha256": "8517bbdf955e72f74725e46cf2a45a0d3264c511150c29acd971183f4a4b9236"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--outside-codex-plan-05.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/outside-codex-plan-05.json",
+      "bytes": 2775,
+      "sha256": "408b6d9368171a30b95703488adde09b4993a4c217a41fae353b4319701e855d"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--post-preflight-load-215147.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/post-preflight-load-215147.json",
+      "bytes": 1539,
+      "sha256": "a949a1917b990e445f8843f381f7b272754383720c6f26856114e2d47c70ae85"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics-02.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics-02.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics-02.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics-02.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics.stderr",
+      "bytes": 43,
+      "sha256": "36dd9415189bdb7ce1621718bd9bc0f43d328a13792c637333e2e538e4aefb02"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-query-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-query-02.json",
+      "bytes": 2255,
+      "sha256": "46e3b099661633ff36004ffa1205ba8b6598c2f8eb230b380260d75c75de5ca9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-query.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-query.json",
+      "bytes": 7143,
+      "sha256": "de07b3e1201c369d5cb0de1116b81b11ec07efe866c7236a6c91fa0ee54f90ac"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-kernel-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-review.json",
+      "bytes": 3473,
+      "sha256": "f755abde3be450cdc24095c5a5e584bfb580a976b962c38eeb6c29fe37cf8566"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-01-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-review.json",
+      "bytes": 7761,
+      "sha256": "f808f2d21a562ec180d5ba106e1bcb8c96144cbcb708eb843cec155d3a49cded"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-graphics.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-graphics.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-query.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-query.json",
+      "bytes": 1957,
+      "sha256": "ffc90d7752051c16b548cca8993592d7c2b5dc36da7294946da059cf6c78ea1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-02-kernel-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-review.json",
+      "bytes": 6334,
+      "sha256": "34b5c3fcd121ff2b560ef6618d36002e21bc824df4033e70f99d2e4520e6b8f8"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-graphics.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-graphics.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-query.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-query.json",
+      "bytes": 1992,
+      "sha256": "5de6a110137822ae7686a1c6c418a29e502468420242aa0b11cfb83d3816aaf0"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-kernel-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-review.json",
+      "bytes": 7903,
+      "sha256": "4f0235a1d9f90308592c407fdc98ff3f0ed4aaeae70501a5c63ef5c4a7bab7c4"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-03-review-design.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-review-design.json",
+      "bytes": 7940,
+      "sha256": "1453a0bc2b693a5ead94f3fc133b464ee5d0e25ffc92b696f3d6a1a961ef46dc"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-graphics.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-graphics.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-query.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-query.json",
+      "bytes": 1900,
+      "sha256": "b31cb8be82aa9153ba35e94adf097ccfe57480765f50ab104085333a788b2236"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-04-kernel-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-review.json",
+      "bytes": 7469,
+      "sha256": "c5f43303663758b341d99100eeb781a8e79151e39a64b6aef1bd55a1ae8f1c46"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-attempts-summary.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-attempts-summary.json",
+      "bytes": 5646,
+      "sha256": "84d3fb728978640b6035f62e2438543973fc6970479925ffbeb58ea48b53220e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-independent-review-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-independent-review-03.json",
+      "bytes": 7350,
+      "sha256": "64102e156a14387b69ea763d780e49dfd7154dff2b5d958eadcbe179f831a1ea"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preflight-independent-review-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preflight-independent-review-04.json",
+      "bytes": 7029,
+      "sha256": "c4ee90fa34e9b346f43f941f0c1ccc36180f50df55d73e4c88318543afb68890"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preparation-budget-02.json",
+      "bytes": 2021,
+      "sha256": "a6409a1eac38ab126cf28999b8635b26c453e04d6ab612f997665b5ba28c4494"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preparation-order-03.json",
+      "bytes": 2801,
+      "sha256": "348a238e0f0d8ede6f1ee09e95f75978fc05695fdc1ece1c09cb5ebfa346a2bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-outside-04-final.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preparation-outside-04-final.json",
+      "bytes": 3845,
+      "sha256": "b2c82e9b94bd0e5879edf355c76b41bc562e97dd60d5e7e34422b6482ebba824"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preparation-outside-04.json",
+      "bytes": 2520,
+      "sha256": "7161b1eab8ed2df39bcc47d4780901c072174f70d395edbf8664496b3fb47265"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--preparation.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/preparation.json",
+      "bytes": 1931,
+      "sha256": "ac8438b2254330f1c6546fb19bab2249a44fcb27aba22c373d736f16151cd875"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-host-audit.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-host-audit.json",
+      "bytes": 38300,
+      "sha256": "11724946cdd65237cc3f1b7f3913b7392577cdc090d0904db38b4a4cdd75258e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-host-query.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-host-query.json",
+      "bytes": 4732,
+      "sha256": "a0d49cae5f6da968f1a67f327049cd3256a60ff80d11e1eee522735e0249c1a5"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-graphics.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-graphics.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-oom.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-oom.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-kernel-oom.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-oom.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-next-step-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-next-step-review.json",
+      "bytes": 13260,
+      "sha256": "e9d918e7e360b10564ec37c889d54fc88f868152e0798737e0e012ab07a493b7"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile05-operation-audit.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile05-operation-audit.json",
+      "bytes": 14491,
+      "sha256": "68e69ab6a5d51b12faf2fd92c7cc4327685a0f0a9830c30ccf71fb21a171183e"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--profile_current_flash.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/profile_current_flash.py",
+      "bytes": 32812,
+      "sha256": "79061da525dc749e16bd974181cb5f91b66049624d50da5796a9b5b0baabb622"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--push-retry-success.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/push-retry-success.json",
+      "bytes": 236,
+      "sha256": "ce472b344dbf47d41ed18b6ff3f9bcded4c242f02bf19adaaee5d81271ecf085"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215118.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/recovery-snapshot-215118.json",
+      "bytes": 1014,
+      "sha256": "b35c80ce7a2b74ae638f4d24cb82df56909da118464249ecc229d0722fa5c96b"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215451.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/recovery-snapshot-215451.json",
+      "bytes": 980,
+      "sha256": "469f9b12f261db9449c5369d8d3893a19a9b271325907066bee3ccaea2680d35"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--recovery-snapshot-215724.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/recovery-snapshot-215724.json",
+      "bytes": 1015,
+      "sha256": "7f969d26316d9de95807ca2ca73dad4703180e9efb4c9e7542f59164f876bece"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--run_outside_codex.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/run_outside_codex.py",
+      "bytes": 5654,
+      "sha256": "0e412f43c51934979a1a05cdc1113407b8ba2aec27a6c9fa6ad46704c7c96cd5"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--terminal-tty-final.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/terminal-tty-final.patch",
+      "bytes": 444,
+      "sha256": "be1b7b4ffb6155e931524ea37127a3c81a5e148b9b83142eef97926b2e44a5a6"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--adaptation-budget-02.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/adaptation-budget-02.patch",
+      "bytes": 4679,
+      "sha256": "5c0e85cd1c7e52ade204d6d346d466fb08ca9ef01d635ae664e40835572261e9"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--code-review-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/code-review-budget-02.json",
+      "bytes": 5162,
+      "sha256": "bc70a475e3419fc7f0ca047db2e83a88130e1a56ebe98ad9a89f545321920f28"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--comparison-source-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/comparison-source-pins.json",
+      "bytes": 3312,
+      "sha256": "9f8d604cebae03553716e7a6e879f569f0112d867a9b24e17704cbd1706e44b3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--dry-plan-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/dry-plan-budget-02.json",
+      "bytes": 1554,
+      "sha256": "d64b47109c644b65e352703fac83f764f725c50ce6e068d78469de6b83f15e1f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--expected-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/expected-pins.json",
+      "bytes": 476,
+      "sha256": "3403060677b3484449dfce88df0449875af315ad9ef5ae5516b3934ef5582dcf"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--manifest.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/manifest.json",
+      "bytes": 1604,
+      "sha256": "2744105b69e4b8504357d8fc689c706eff456389a36c90b40e6f952b1e098f42"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--offline-checks-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/offline-checks-budget-02.json",
+      "bytes": 2328,
+      "sha256": "b6d1a7af2420ef21454cceac3c22c059e78544c46d624a2d3debdffad24d3d39"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--offline_check.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/offline_check.py",
+      "bytes": 15258,
+      "sha256": "81d4700c3a09665126706e154bce2414a8b705eec23e093c72e256b66a9c1510"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--preparation-budget-02.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/preparation-budget-02.json",
+      "bytes": 2021,
+      "sha256": "a6409a1eac38ab126cf28999b8635b26c453e04d6ab612f997665b5ba28c4494"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--budget-13d48ca9--profile_current_flash.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/profile_current_flash.py",
+      "bytes": 30732,
+      "sha256": "13d48ca97c4d5f40fdbe8385aa3e395e32156244ca44b732f10024330b7e2407"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--adaptation.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/adaptation.patch",
+      "bytes": 15309,
+      "sha256": "13aefd72368895ee2cd6dbf37468b131c63cfaf7431289b69e4c1d2b856232bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--code-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/code-review.json",
+      "bytes": 4703,
+      "sha256": "d0df739bcdcdd87bb56c3ec56e615ec4145abc85e37d4dd62dee234b31b02633"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--comparison-source-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/comparison-source-pins.json",
+      "bytes": 3312,
+      "sha256": "821a01de7325eda90bb58b6e08b32cb2d1bc6992be8001cc540a8027bc91c8ef"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--dry-plan.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/dry-plan.json",
+      "bytes": 1521,
+      "sha256": "9673c0f4635260e61e81220a75b2fd1261983be31236e9af397b7768d1670835"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--expected-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/expected-pins.json",
+      "bytes": 468,
+      "sha256": "2ee80d63ffa61ad667bbd6fa0a29efda9d84c698a91f109a4fb2beb0ef8824f5"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--manifest.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/manifest.json",
+      "bytes": 1604,
+      "sha256": "b9ea62a1c2ff8e51f3484b8b2f43d760638af4030a771936b1adad7a5264ef44"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--offline-checks.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/offline-checks.json",
+      "bytes": 1789,
+      "sha256": "df4529f2c49f6fb442f6a32cf2294adcdc780bb501be4af2cfb8586cc4346641"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--offline_check.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/offline_check.py",
+      "bytes": 8982,
+      "sha256": "b5fe65e136738a348675c74603869d62b027235a10adea6dcbe4ae142d2f68e3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--preparation.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/preparation.json",
+      "bytes": 1931,
+      "sha256": "ac8438b2254330f1c6546fb19bab2249a44fcb27aba22c373d736f16151cd875"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--initial-afaaf4ef--profile_current_flash.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/profile_current_flash.py",
+      "bytes": 30125,
+      "sha256": "afaaf4ef840332d186066309975fdae8a184e87a5419787cdec9f274e938516a"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--adaptation-order-03.patch.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/adaptation-order-03.patch",
+      "bytes": 7799,
+      "sha256": "0bde0915eb9aacbbe7e0b41ba8461d063df9b8606efbc75904b61e80b8c2f686"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--code-review-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/code-review-order-03.json",
+      "bytes": 5854,
+      "sha256": "990cfb36595bbb3299fc250963f0eb98f4ea9b18ef3778ae76dfdd9518eb712c"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--comparison-source-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/comparison-source-pins.json",
+      "bytes": 3312,
+      "sha256": "1449cb444351a42fa20c04a2a51a9d33a7d1e7d3fc22f52b6dbba1ceb73f3135"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--dry-plan-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/dry-plan-order-03.json",
+      "bytes": 1851,
+      "sha256": "9089c78f8c63ece57e89226e5806c423643ef6d1fe14cb35921318d572e8af08"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--expected-pins.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/expected-pins.json",
+      "bytes": 560,
+      "sha256": "fcdc4fd23302a6adc4ff8457e6bb6c9e1595a169396a31353d0ca4deff98b25f"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--manifest.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/manifest.json",
+      "bytes": 1604,
+      "sha256": "fd8a293ef34ed058db46cb1491627cd91f757c23459d288bb3cf31d35f095047"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--offline-checks-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/offline-checks-order-03.json",
+      "bytes": 3065,
+      "sha256": "a1a993611536df184cfa8c5f76b2afe7c55b4a97386c169c1358c6ecde9dda23"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--offline_check.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/offline_check.py",
+      "bytes": 21116,
+      "sha256": "f2653e4063658545bb0bffa5b5d34be33643e5d4b8b449fff1edf2f723ba7339"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--preparation-order-03.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/preparation-order-03.json",
+      "bytes": 2801,
+      "sha256": "348a238e0f0d8ede6f1ee09e95f75978fc05695fdc1ece1c09cb5ebfa346a2bd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--order-84b48691--profile_current_flash.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/profile_current_flash.py",
+      "bytes": 32733,
+      "sha256": "84b486916f7a9902390012632a255f7ea8539092f976db11f565c76b5970d2dd"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--helper-offline-checks-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/helper-offline-checks-outside-04.json",
+      "bytes": 1484,
+      "sha256": "7f01d25d54de81df158211f3dd1873242282b7b9742d90dea11c8f54dff0c790"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--helper_offline_check_04.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/helper_offline_check_04.py",
+      "bytes": 6909,
+      "sha256": "0dda3ee0401315252441be2f29983a042286b2cd83041f8cc0dfd5c6d011cfd3"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--manifest.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/manifest.json",
+      "bytes": 947,
+      "sha256": "1f449ea4bd41ca4be9135ccf8caa6e5d390d2468035b427ef3640a5611fc2142"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--outside-codex-plan-05.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/outside-codex-plan-05.json",
+      "bytes": 2735,
+      "sha256": "0d23508c779e860a3bbe7c8465f89669a0fdf9cc17ec0d3023f238e0fa440d14"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--preparation-outside-04.json.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/preparation-outside-04.json",
+      "bytes": 2520,
+      "sha256": "7161b1eab8ed2df39bcc47d4780901c072174f70d395edbf8664496b3fb47265"
+    },
+    "benchmarks-local--hour-player-01--current-flash-profiler--versions--terminal-helper-04a25b82--run_outside_codex.py.gz": {
+      "path": "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/run_outside_codex.py",
+      "bytes": 5520,
+      "sha256": "04a25b821050fc88495e2c4ad699d8ef44e8ad253f7cddb09f8763f27856b4f2"
+    },
+    "benchmarks-local--hour-player-01--pr32-complete.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-complete.json",
+      "bytes": 897,
+      "sha256": "8bd52a0bbc0a42c789c7050f6372c4597c2eaced8e7ca82d11633e4ebcdcbd9a"
+    },
+    "benchmarks-local--hour-player-01--pr32-develop-ci.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-develop-ci.json",
+      "bytes": 3621,
+      "sha256": "477262fe5f0042eee8e18f427cc4c7329710a584aaeaa868353dfc2dfe4fe3bb"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-ci.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-feature-ci.json",
+      "bytes": 3621,
+      "sha256": "4ad74ed858e31e865aee90f705f0134108adecf82afe60a20b9b48b4be0fa008"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-coverage-audit.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-feature-coverage-audit.json",
+      "bytes": 6753,
+      "sha256": "b7fae8eb060ece69ca4005902c8c708c9838371bb06e749cdabc5c8818ebc25f"
+    },
+    "benchmarks-local--hour-player-01--pr32-feature-coverage-metadata.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-feature-coverage-metadata.json",
+      "bytes": 6835,
+      "sha256": "7455736ed34689055bd618f76d6995b67ca58a08633b045918cd0b1aa7c03ce5"
+    },
+    "benchmarks-local--hour-player-01--pr32-merge-signature.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-merge-signature.json",
+      "bytes": 3915,
+      "sha256": "292aa1d3544f87802e2182c2dfc35a58c0d1d266ff520c45ba9dd015fd2f7305"
+    },
+    "benchmarks-local--hour-player-01--pr32-pr-ci.json.gz": {
+      "path": "benchmarks-local/hour-player-01/pr32-pr-ci.json",
+      "bytes": 3629,
+      "sha256": "fcc5a67aa1a29fe4790a0745471a8271a47bfaf09d6632ac1d61766f7fb4aa06"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-builder.py.gz": {
+      "path": "benchmarks-local/hour-player-01/profile05-archive-builder.py",
+      "bytes": 13909,
+      "sha256": "01003c035aa012b59e04280403cedf6502a36f4f584575fe6d497b7e76ca770f"
+    },
+    "benchmarks-local--hour-player-01--profile05-work-branch.json.gz": {
+      "path": "benchmarks-local/hour-player-01/profile05-work-branch.json",
+      "bytes": 257,
+      "sha256": "69fe71770db1be30438cb637e3bddaf338dc31f780c29f77cb244d4ff8b0e95e"
+    },
+    "benchmarks-local--m2-graph-phase-2026-10-18--flash-promoted-repro-01--result.json.gz": {
+      "path": "benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-repro-01/result.json",
+      "bytes": 85334,
+      "sha256": "44554b8e1caca9e92a49be7b9cc0e05ba7248f0091b4cdfc005e87e2c87ffe70"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-inputs.json.gz": {
+      "path": "benchmarks-local/hour-player-01/profile05-archive-inputs.json",
+      "bytes": 36871,
+      "sha256": "f8c0dab336dca2dfa09fa2e6f6ea364dab67ca2bda355527ca19bae8d101a8d7"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-summary.json.gz": {
+      "path": "benchmarks-local/hour-player-01/profile05-archive-summary.json",
+      "bytes": 8286,
+      "sha256": "3160830f710b29884a86a235149b4568023da17714025fd224b1a44d91eb5beb"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-gitleaks.log.gz": {
+      "path": "benchmarks-local/hour-player-01/profile05-archive-gitleaks.log",
+      "bytes": 144,
+      "sha256": "7f991b4e0a0e8df3570516bb23c4593575bea43e248d795f60a234e0aea83b19"
+    },
+    "benchmarks-local--hour-player-01--profile05-archive-gitleaks-findings.json.gz": {
+      "path": "benchmarks-local/hour-player-01/profile05-archive-gitleaks-findings.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "source_inputs": {
+    "benchmarks-local/hour-player-01/current-flash-profiler/adaptation-budget-02.patch": {
+      "bytes": 4679,
+      "sha256": "5c0e85cd1c7e52ade204d6d346d466fb08ca9ef01d635ae664e40835572261e9"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/adaptation-order-03.patch": {
+      "bytes": 7799,
+      "sha256": "0bde0915eb9aacbbe7e0b41ba8461d063df9b8606efbc75904b61e80b8c2f686"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/adaptation-outside-04.patch": {
+      "bytes": 1250,
+      "sha256": "bcbc5a8234267d92dd28b7ac30a209129f309f2a2bd1f6c771fa35b0a1ab8f29"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/adaptation.patch": {
+      "bytes": 15309,
+      "sha256": "13aefd72368895ee2cd6dbf37468b131c63cfaf7431289b69e4c1d2b856232bd"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan-02.json": {
+      "bytes": 1141,
+      "sha256": "3741d2ac150821b1339b14e6edd74f2944f08fc41a4b376c935fe5644eeadc02"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan-03.json": {
+      "bytes": 1451,
+      "sha256": "4144dd42a793bc52f11f4deac878b9bce7819c0f0c237c26876d73bf0c415bcc"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan-04.json": {
+      "bytes": 1889,
+      "sha256": "726e74cc805a160ddfb503aaa0f4fc2f614a75a0a84bf0ae9e6e5ea9a113ed7d"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/armed-plan.json": {
+      "bytes": 1051,
+      "sha256": "f31af195273f35eee2f653ee1d99fc4701a1fc225e4023e6804c10b49891261f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/armed-terminal-plan-05.json": {
+      "bytes": 1065,
+      "sha256": "b9603a4960cd89374d17cafd79492c22d0ea800b37bc8ff9e771040776e0aca1"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/budget-independent-review-02.json": {
+      "bytes": 5782,
+      "sha256": "b04b4f478e4e182aa6ab7ca35e5573b708dfd4d41b08df5b40aab6c868474e7d"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/budget-review-02.json": {
+      "bytes": 8667,
+      "sha256": "a3a3a0c649a04f2f1c57818486a036fa62a098dd3f7ccc380bf408b6c2fae0f2"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/code-review-budget-02.json": {
+      "bytes": 5162,
+      "sha256": "bc70a475e3419fc7f0ca047db2e83a88130e1a56ebe98ad9a89f545321920f28"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/code-review-order-03.json": {
+      "bytes": 5854,
+      "sha256": "990cfb36595bbb3299fc250963f0eb98f4ea9b18ef3778ae76dfdd9518eb712c"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/code-review-outside-04.json": {
+      "bytes": 6104,
+      "sha256": "688575afc25756543a78b39888f1e9c00b5ffd08e6529a6a87e4285dc31be914"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/code-review.json": {
+      "bytes": 4703,
+      "sha256": "d0df739bcdcdd87bb56c3ec56e615ec4145abc85e37d4dd62dee234b31b02633"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/comparison-source-pins.json": {
+      "bytes": 3312,
+      "sha256": "ca91e8cb8ceb2d93a97c960705c9c49a7bb7cc7fa20595702cc8c0d2bda7108e"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/admission-normal-ready.json": {
+      "bytes": 20163,
+      "sha256": "3649fb1d97e663240e638538201185269e66c5e7a587cb42311eb58f26dc4589"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/admission-normal-ready.jsonl": {
+      "bytes": 15977,
+      "sha256": "5e48ddce42886e8b12c02982cf0888f2b29ab9675760f4b42bd7c05afc2ef2b9"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/admission/stdout": {
+      "bytes": 217,
+      "sha256": "bca48722b406a8390515f7f2effe9540743640d76482ef800dd42160af5d313c"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01/result.json": {
+      "bytes": 37753,
+      "sha256": "b7109f36a87c464dbd398a868dfb5ce68e896278117861cdd8982293bc77ad3f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-01.stdout": {
+      "bytes": 188,
+      "sha256": "e857b3de23161fa12dc4fd8db39be63fa51e89bf527f432fe57bca2ca0a6eaa6"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/admission-normal-ready.json": {
+      "bytes": 21297,
+      "sha256": "a3e89f6568bfca44949750c3e5a313d95b55df60b2ed5f5af1dfd8c324ca404f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/admission-normal-ready.jsonl": {
+      "bytes": 16916,
+      "sha256": "a5fb91b76093c4361dc074cdc0d5197eaccd29f9f79f5aa6db7453ad5bc01d1f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/admission/stdout": {
+      "bytes": 217,
+      "sha256": "eefddf051063b5c6fd4251c1a3f641eb08635e70ee2536a8f3c3ee2580901bdb"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02/result.json": {
+      "bytes": 37831,
+      "sha256": "3c987f28a4e7b062ec0012a49ca1c4c5e89702fe492696591af1ee9cd36e1518"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-02.stdout": {
+      "bytes": 188,
+      "sha256": "31627d1dcb8750e9c3224afda51d8ec9555e3ed6f0d35e9ff6279dac8c609bbe"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/admission-normal-ready.json": {
+      "bytes": 13309,
+      "sha256": "7613f88854772108ff6356afe758c988e09c4ed20497381633be668ae28f1504"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/admission-normal-ready.jsonl": {
+      "bytes": 10276,
+      "sha256": "321477aa95087509be32a26a0eb5bf53341bf333caa0f85010bf4cf3f62f283c"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/fresh-admission.json": {
+      "bytes": 1947,
+      "sha256": "38131fcd5712a957bff718c9e47c7e57d0fb2c08812d82c174284b131f407fcf"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/admission/stdout": {
+      "bytes": 234,
+      "sha256": "d8655a57d4a41519e943048b26a1a2eafa5d7a3c041ca69832e909918c88b76e"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03/result.json": {
+      "bytes": 54251,
+      "sha256": "13eb20d6607975a469080abf36b9423c5e62b1cd5e0ff79440859192a98a2b50"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-03.stdout": {
+      "bytes": 188,
+      "sha256": "8aa2b665ac4dfa70c541145965e45d90ae811668102e11987bac1ed6560f320d"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/admission-normal-ready.json": {
+      "bytes": 22107,
+      "sha256": "63aec2dfcc615e46ddd0ce9b3928992a876aafb9700540a64531c7c5d8931784"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/admission-normal-ready.jsonl": {
+      "bytes": 17531,
+      "sha256": "8ae6c92f8b986434bb7933dde44ee06acf1c0ee97fdc6d8516a68861c90fcc1b"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/admission/stdout": {
+      "bytes": 217,
+      "sha256": "148d25fbcea824718aa4e0740a59f970f83e7515286c8cfc5b82576a4eb4bd95"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04/result.json": {
+      "bytes": 54391,
+      "sha256": "61fa95ebdcaf877f38d76aad24249458804c95bdb62e211bcaab08858ff40b1c"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-04.stdout": {
+      "bytes": 188,
+      "sha256": "7738eafc0e8b33b777b52cdeac88de83cb8f1e35a5a58a72c893d20fb814617c"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/admission-normal-ready.json": {
+      "bytes": 17913,
+      "sha256": "1a7008cf2f21b3a65a0626179f7138617e7a55074ad3566489eab1064d75427b"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/admission-normal-ready.jsonl": {
+      "bytes": 14100,
+      "sha256": "55efb435d1d247f7f7bc2479b9b2e4a3776dcc014508d33a75b8a0e2c01cbf6a"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/fresh-admission.json": {
+      "bytes": 1811,
+      "sha256": "bb71d872180260bf9a5ef94705509f7a950a2cdcbc6599fa202414bcc7d71e9d"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/admission/stdout": {
+      "bytes": 234,
+      "sha256": "24e7dcd85277eee08096d975994b2ecd6be44be7ee338e7176602fb8cee7738b"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/native.stderr": {
+      "bytes": 7976,
+      "sha256": "af11e5a13ee118cb3f57589cb67a49731eb54805f0539d3ab293f0306e270e59"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/current-flash-profile-05/result.json": {
+      "bytes": 73491,
+      "sha256": "d638a47887aaac29c6dcb2a40a3bc5af311d05ade764069e39f99e73cc2f7912"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan-budget-02.json": {
+      "bytes": 1554,
+      "sha256": "d64b47109c644b65e352703fac83f764f725c50ce6e068d78469de6b83f15e1f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan-order-03.json": {
+      "bytes": 1851,
+      "sha256": "9089c78f8c63ece57e89226e5806c423643ef6d1fe14cb35921318d572e8af08"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan-outside-04.json": {
+      "bytes": 1854,
+      "sha256": "b7b28c7070ec946f60087c57059e7975143f68d7f6c05dbe132af291ca7b31ab"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/dry-plan.json": {
+      "bytes": 1521,
+      "sha256": "9673c0f4635260e61e81220a75b2fd1261983be31236e9af397b7768d1670835"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-budget-unarmed.json": {
+      "bytes": 392,
+      "sha256": "01eae7467d04c04bf7294f31f79c09fec8995edcceacfa4d362cb2f5984773ea"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-order-unarmed.json": {
+      "bytes": 403,
+      "sha256": "d4e12427fa2f21a147b9586682d79022aaa1b3e9740a0180d4822d2b4e2833c1"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-outside-unarmed.json": {
+      "bytes": 393,
+      "sha256": "61bb475617c80c019c8a1e1508aaf1952c43627e6e7ebe1b68a15fde8dbf5c97"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins-profile-01.json": {
+      "bytes": 421,
+      "sha256": "2dd14c8eb46569bf381e8574d59804046a95c792d9022123039f283c8538c7cd"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/expected-pins.json": {
+      "bytes": 481,
+      "sha256": "5a4e96e039452c8c6a365671a53de49f0bdc6d61b65e9f5217182d5a4ea27ef4"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/helper-offline-checks-outside-04-final.json": {
+      "bytes": 1595,
+      "sha256": "9fdcbd3873f51b630473d2ae9ce395d1b6cd4a629ce9fc8ec0f1bbcd66752a18"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/helper-offline-checks-outside-04-tty.json": {
+      "bytes": 1595,
+      "sha256": "9fdcbd3873f51b630473d2ae9ce395d1b6cd4a629ce9fc8ec0f1bbcd66752a18"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/helper-offline-checks-outside-04.json": {
+      "bytes": 1484,
+      "sha256": "7f01d25d54de81df158211f3dd1873242282b7b9742d90dea11c8f54dff0c790"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/helper_offline_check_04.py": {
+      "bytes": 7203,
+      "sha256": "e9a980d96bdfe0b64188868f7ca9cdb63c91b203c022aee52356632605400e08"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/host-load-215208.json": {
+      "bytes": 2783,
+      "sha256": "6ecca08dd5400c276519209c51ec8f084b78751b2a73cf29debdadd7386a9836"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/host-observation-30s-01-review.json": {
+      "bytes": 6468,
+      "sha256": "69fffffe7f03978f08b65eff2dd2ec802f41a4b44dc7a32d4630269690e4220e"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/host-observation-30s-01.json": {
+      "bytes": 113996,
+      "sha256": "36aa7277c7c7c7ea26e725f7ea45e862a0749e5d613909909b77dcd3e834d246"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-02.json": {
+      "bytes": 452,
+      "sha256": "d104dc846df56cadf6588840d9bb5e9b9fba411587a1236e96eb8a48773a1d4f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-03.json": {
+      "bytes": 469,
+      "sha256": "c03b93a65e0ebccadd524e5984a2b7e92d00c4e36823703286253307accdd2aa"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-04.json": {
+      "bytes": 473,
+      "sha256": "4f88767fbbeebfc77c432e7e986b70be388b3bf32fa02f8ddac0bdc2a8ff9b1d"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness-05.json": {
+      "bytes": 731,
+      "sha256": "baac88ecd3dd61525b9c6f9d7fd658e27e069c643f65f3662a2b92ce02bcc4e8"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/human-readiness.json": {
+      "bytes": 415,
+      "sha256": "20a8282f9f5a64768b13a178675306e3c0943689c6f0b10b9414353c8ad90918"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/observe_host_30s.py": {
+      "bytes": 4398,
+      "sha256": "588d9b3ea9c829cc052b59ede7fe4f950bd50640d330334de1598f6265115039"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks-budget-02.json": {
+      "bytes": 2328,
+      "sha256": "b6d1a7af2420ef21454cceac3c22c059e78544c46d624a2d3debdffad24d3d39"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks-order-03.json": {
+      "bytes": 3065,
+      "sha256": "a1a993611536df184cfa8c5f76b2afe7c55b4a97386c169c1358c6ecde9dda23"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks-outside-04.json": {
+      "bytes": 3514,
+      "sha256": "794d8c607b91913ae62ba4e903fbe47c3f3edba4ba6ea7d2f8138f963f2f9774"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/offline-checks.json": {
+      "bytes": 1789,
+      "sha256": "df4529f2c49f6fb442f6a32cf2294adcdc780bb501be4af2cfb8586cc4346641"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/offline_check.py": {
+      "bytes": 22151,
+      "sha256": "97df5dcc9b9c097108911ca3b11fb30ace5b4ea4420000d3bee17141e8b85e3f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/outside-codex-plan-05-unarmed.json": {
+      "bytes": 2735,
+      "sha256": "8517bbdf955e72f74725e46cf2a45a0d3264c511150c29acd971183f4a4b9236"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/outside-codex-plan-05.json": {
+      "bytes": 2775,
+      "sha256": "408b6d9368171a30b95703488adde09b4993a4c217a41fae353b4319701e855d"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/post-preflight-load-215147.json": {
+      "bytes": 1539,
+      "sha256": "a949a1917b990e445f8843f381f7b272754383720c6f26856114e2d47c70ae85"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics-02.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics-02.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-graphics.stderr": {
+      "bytes": 43,
+      "sha256": "36dd9415189bdb7ce1621718bd9bc0f43d328a13792c637333e2e538e4aefb02"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-query-02.json": {
+      "bytes": 2255,
+      "sha256": "46e3b099661633ff36004ffa1205ba8b6598c2f8eb230b380260d75c75de5ca9"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-query.json": {
+      "bytes": 7143,
+      "sha256": "de07b3e1201c369d5cb0de1116b81b11ec07efe866c7236a6c91fa0ee54f90ac"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-kernel-review.json": {
+      "bytes": 3473,
+      "sha256": "f755abde3be450cdc24095c5a5e584bfb580a976b962c38eeb6c29fe37cf8566"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-01-review.json": {
+      "bytes": 7761,
+      "sha256": "f808f2d21a562ec180d5ba106e1bcb8c96144cbcb708eb843cec155d3a49cded"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-graphics.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-query.json": {
+      "bytes": 1957,
+      "sha256": "ffc90d7752051c16b548cca8993592d7c2b5dc36da7294946da059cf6c78ea1f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-02-kernel-review.json": {
+      "bytes": 6334,
+      "sha256": "34b5c3fcd121ff2b560ef6618d36002e21bc824df4033e70f99d2e4520e6b8f8"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-graphics.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-query.json": {
+      "bytes": 1992,
+      "sha256": "5de6a110137822ae7686a1c6c418a29e502468420242aa0b11cfb83d3816aaf0"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-kernel-review.json": {
+      "bytes": 7903,
+      "sha256": "4f0235a1d9f90308592c407fdc98ff3f0ed4aaeae70501a5c63ef5c4a7bab7c4"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-03-review-design.json": {
+      "bytes": 7940,
+      "sha256": "1453a0bc2b693a5ead94f3fc133b464ee5d0e25ffc92b696f3d6a1a961ef46dc"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-graphics.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-query.json": {
+      "bytes": 1900,
+      "sha256": "b31cb8be82aa9153ba35e94adf097ccfe57480765f50ab104085333a788b2236"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-04-kernel-review.json": {
+      "bytes": 7469,
+      "sha256": "c5f43303663758b341d99100eeb781a8e79151e39a64b6aef1bd55a1ae8f1c46"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-attempts-summary.json": {
+      "bytes": 5646,
+      "sha256": "84d3fb728978640b6035f62e2438543973fc6970479925ffbeb58ea48b53220e"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-independent-review-03.json": {
+      "bytes": 7350,
+      "sha256": "64102e156a14387b69ea763d780e49dfd7154dff2b5d958eadcbe179f831a1ea"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preflight-independent-review-04.json": {
+      "bytes": 7029,
+      "sha256": "c4ee90fa34e9b346f43f941f0c1ccc36180f50df55d73e4c88318543afb68890"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preparation-budget-02.json": {
+      "bytes": 2021,
+      "sha256": "a6409a1eac38ab126cf28999b8635b26c453e04d6ab612f997665b5ba28c4494"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preparation-order-03.json": {
+      "bytes": 2801,
+      "sha256": "348a238e0f0d8ede6f1ee09e95f75978fc05695fdc1ece1c09cb5ebfa346a2bd"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preparation-outside-04-final.json": {
+      "bytes": 3845,
+      "sha256": "b2c82e9b94bd0e5879edf355c76b41bc562e97dd60d5e7e34422b6482ebba824"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preparation-outside-04.json": {
+      "bytes": 2520,
+      "sha256": "7161b1eab8ed2df39bcc47d4780901c072174f70d395edbf8664496b3fb47265"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/preparation.json": {
+      "bytes": 1931,
+      "sha256": "ac8438b2254330f1c6546fb19bab2249a44fcb27aba22c373d736f16151cd875"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-host-audit.json": {
+      "bytes": 38300,
+      "sha256": "11724946cdd65237cc3f1b7f3913b7392577cdc090d0904db38b4a4cdd75258e"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-host-query.json": {
+      "bytes": 4732,
+      "sha256": "a0d49cae5f6da968f1a67f327049cd3256a60ff80d11e1eee522735e0249c1a5"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-graphics.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-oom.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-kernel-oom.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-next-step-review.json": {
+      "bytes": 13260,
+      "sha256": "e9d918e7e360b10564ec37c889d54fc88f868152e0798737e0e012ab07a493b7"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile05-operation-audit.json": {
+      "bytes": 14491,
+      "sha256": "68e69ab6a5d51b12faf2fd92c7cc4327685a0f0a9830c30ccf71fb21a171183e"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/profile_current_flash.py": {
+      "bytes": 32812,
+      "sha256": "79061da525dc749e16bd974181cb5f91b66049624d50da5796a9b5b0baabb622"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/push-retry-success.json": {
+      "bytes": 236,
+      "sha256": "ce472b344dbf47d41ed18b6ff3f9bcded4c242f02bf19adaaee5d81271ecf085"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/recovery-snapshot-215118.json": {
+      "bytes": 1014,
+      "sha256": "b35c80ce7a2b74ae638f4d24cb82df56909da118464249ecc229d0722fa5c96b"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/recovery-snapshot-215451.json": {
+      "bytes": 980,
+      "sha256": "469f9b12f261db9449c5369d8d3893a19a9b271325907066bee3ccaea2680d35"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/recovery-snapshot-215724.json": {
+      "bytes": 1015,
+      "sha256": "7f969d26316d9de95807ca2ca73dad4703180e9efb4c9e7542f59164f876bece"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/run_outside_codex.py": {
+      "bytes": 5654,
+      "sha256": "0e412f43c51934979a1a05cdc1113407b8ba2aec27a6c9fa6ad46704c7c96cd5"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/terminal-tty-final.patch": {
+      "bytes": 444,
+      "sha256": "be1b7b4ffb6155e931524ea37127a3c81a5e148b9b83142eef97926b2e44a5a6"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/adaptation-budget-02.patch": {
+      "bytes": 4679,
+      "sha256": "5c0e85cd1c7e52ade204d6d346d466fb08ca9ef01d635ae664e40835572261e9"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/code-review-budget-02.json": {
+      "bytes": 5162,
+      "sha256": "bc70a475e3419fc7f0ca047db2e83a88130e1a56ebe98ad9a89f545321920f28"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/comparison-source-pins.json": {
+      "bytes": 3312,
+      "sha256": "9f8d604cebae03553716e7a6e879f569f0112d867a9b24e17704cbd1706e44b3"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/dry-plan-budget-02.json": {
+      "bytes": 1554,
+      "sha256": "d64b47109c644b65e352703fac83f764f725c50ce6e068d78469de6b83f15e1f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/expected-pins.json": {
+      "bytes": 476,
+      "sha256": "3403060677b3484449dfce88df0449875af315ad9ef5ae5516b3934ef5582dcf"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/manifest.json": {
+      "bytes": 1604,
+      "sha256": "2744105b69e4b8504357d8fc689c706eff456389a36c90b40e6f952b1e098f42"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/offline-checks-budget-02.json": {
+      "bytes": 2328,
+      "sha256": "b6d1a7af2420ef21454cceac3c22c059e78544c46d624a2d3debdffad24d3d39"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/offline_check.py": {
+      "bytes": 15258,
+      "sha256": "81d4700c3a09665126706e154bce2414a8b705eec23e093c72e256b66a9c1510"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/preparation-budget-02.json": {
+      "bytes": 2021,
+      "sha256": "a6409a1eac38ab126cf28999b8635b26c453e04d6ab612f997665b5ba28c4494"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/budget-13d48ca9/profile_current_flash.py": {
+      "bytes": 30732,
+      "sha256": "13d48ca97c4d5f40fdbe8385aa3e395e32156244ca44b732f10024330b7e2407"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/adaptation.patch": {
+      "bytes": 15309,
+      "sha256": "13aefd72368895ee2cd6dbf37468b131c63cfaf7431289b69e4c1d2b856232bd"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/code-review.json": {
+      "bytes": 4703,
+      "sha256": "d0df739bcdcdd87bb56c3ec56e615ec4145abc85e37d4dd62dee234b31b02633"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/comparison-source-pins.json": {
+      "bytes": 3312,
+      "sha256": "821a01de7325eda90bb58b6e08b32cb2d1bc6992be8001cc540a8027bc91c8ef"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/dry-plan.json": {
+      "bytes": 1521,
+      "sha256": "9673c0f4635260e61e81220a75b2fd1261983be31236e9af397b7768d1670835"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/expected-pins.json": {
+      "bytes": 468,
+      "sha256": "2ee80d63ffa61ad667bbd6fa0a29efda9d84c698a91f109a4fb2beb0ef8824f5"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/manifest.json": {
+      "bytes": 1604,
+      "sha256": "b9ea62a1c2ff8e51f3484b8b2f43d760638af4030a771936b1adad7a5264ef44"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/offline-checks.json": {
+      "bytes": 1789,
+      "sha256": "df4529f2c49f6fb442f6a32cf2294adcdc780bb501be4af2cfb8586cc4346641"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/offline_check.py": {
+      "bytes": 8982,
+      "sha256": "b5fe65e136738a348675c74603869d62b027235a10adea6dcbe4ae142d2f68e3"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/preparation.json": {
+      "bytes": 1931,
+      "sha256": "ac8438b2254330f1c6546fb19bab2249a44fcb27aba22c373d736f16151cd875"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/initial-afaaf4ef/profile_current_flash.py": {
+      "bytes": 30125,
+      "sha256": "afaaf4ef840332d186066309975fdae8a184e87a5419787cdec9f274e938516a"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/adaptation-order-03.patch": {
+      "bytes": 7799,
+      "sha256": "0bde0915eb9aacbbe7e0b41ba8461d063df9b8606efbc75904b61e80b8c2f686"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/code-review-order-03.json": {
+      "bytes": 5854,
+      "sha256": "990cfb36595bbb3299fc250963f0eb98f4ea9b18ef3778ae76dfdd9518eb712c"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/comparison-source-pins.json": {
+      "bytes": 3312,
+      "sha256": "1449cb444351a42fa20c04a2a51a9d33a7d1e7d3fc22f52b6dbba1ceb73f3135"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/dry-plan-order-03.json": {
+      "bytes": 1851,
+      "sha256": "9089c78f8c63ece57e89226e5806c423643ef6d1fe14cb35921318d572e8af08"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/expected-pins.json": {
+      "bytes": 560,
+      "sha256": "fcdc4fd23302a6adc4ff8457e6bb6c9e1595a169396a31353d0ca4deff98b25f"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/manifest.json": {
+      "bytes": 1604,
+      "sha256": "fd8a293ef34ed058db46cb1491627cd91f757c23459d288bb3cf31d35f095047"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/offline-checks-order-03.json": {
+      "bytes": 3065,
+      "sha256": "a1a993611536df184cfa8c5f76b2afe7c55b4a97386c169c1358c6ecde9dda23"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/offline_check.py": {
+      "bytes": 21116,
+      "sha256": "f2653e4063658545bb0bffa5b5d34be33643e5d4b8b449fff1edf2f723ba7339"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/preparation-order-03.json": {
+      "bytes": 2801,
+      "sha256": "348a238e0f0d8ede6f1ee09e95f75978fc05695fdc1ece1c09cb5ebfa346a2bd"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/order-84b48691/profile_current_flash.py": {
+      "bytes": 32733,
+      "sha256": "84b486916f7a9902390012632a255f7ea8539092f976db11f565c76b5970d2dd"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/helper-offline-checks-outside-04.json": {
+      "bytes": 1484,
+      "sha256": "7f01d25d54de81df158211f3dd1873242282b7b9742d90dea11c8f54dff0c790"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/helper_offline_check_04.py": {
+      "bytes": 6909,
+      "sha256": "0dda3ee0401315252441be2f29983a042286b2cd83041f8cc0dfd5c6d011cfd3"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/manifest.json": {
+      "bytes": 947,
+      "sha256": "1f449ea4bd41ca4be9135ccf8caa6e5d390d2468035b427ef3640a5611fc2142"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/outside-codex-plan-05.json": {
+      "bytes": 2735,
+      "sha256": "0d23508c779e860a3bbe7c8465f89669a0fdf9cc17ec0d3023f238e0fa440d14"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/preparation-outside-04.json": {
+      "bytes": 2520,
+      "sha256": "7161b1eab8ed2df39bcc47d4780901c072174f70d395edbf8664496b3fb47265"
+    },
+    "benchmarks-local/hour-player-01/current-flash-profiler/versions/terminal-helper-04a25b82/run_outside_codex.py": {
+      "bytes": 5520,
+      "sha256": "04a25b821050fc88495e2c4ad699d8ef44e8ad253f7cddb09f8763f27856b4f2"
+    },
+    "benchmarks-local/hour-player-01/pr32-complete.json": {
+      "bytes": 897,
+      "sha256": "8bd52a0bbc0a42c789c7050f6372c4597c2eaced8e7ca82d11633e4ebcdcbd9a"
+    },
+    "benchmarks-local/hour-player-01/pr32-develop-ci.json": {
+      "bytes": 3621,
+      "sha256": "477262fe5f0042eee8e18f427cc4c7329710a584aaeaa868353dfc2dfe4fe3bb"
+    },
+    "benchmarks-local/hour-player-01/pr32-feature-ci.json": {
+      "bytes": 3621,
+      "sha256": "4ad74ed858e31e865aee90f705f0134108adecf82afe60a20b9b48b4be0fa008"
+    },
+    "benchmarks-local/hour-player-01/pr32-feature-coverage-audit.json": {
+      "bytes": 6753,
+      "sha256": "b7fae8eb060ece69ca4005902c8c708c9838371bb06e749cdabc5c8818ebc25f"
+    },
+    "benchmarks-local/hour-player-01/pr32-feature-coverage-metadata.json": {
+      "bytes": 6835,
+      "sha256": "7455736ed34689055bd618f76d6995b67ca58a08633b045918cd0b1aa7c03ce5"
+    },
+    "benchmarks-local/hour-player-01/pr32-merge-signature.json": {
+      "bytes": 3915,
+      "sha256": "292aa1d3544f87802e2182c2dfc35a58c0d1d266ff520c45ba9dd015fd2f7305"
+    },
+    "benchmarks-local/hour-player-01/pr32-pr-ci.json": {
+      "bytes": 3629,
+      "sha256": "fcc5a67aa1a29fe4790a0745471a8271a47bfaf09d6632ac1d61766f7fb4aa06"
+    },
+    "benchmarks-local/hour-player-01/profile05-archive-builder.py": {
+      "bytes": 13909,
+      "sha256": "01003c035aa012b59e04280403cedf6502a36f4f584575fe6d497b7e76ca770f"
+    },
+    "benchmarks-local/hour-player-01/profile05-work-branch.json": {
+      "bytes": 257,
+      "sha256": "69fe71770db1be30438cb637e3bddaf338dc31f780c29f77cb244d4ff8b0e95e"
+    },
+    "benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-repro-01/result.json": {
+      "bytes": 85334,
+      "sha256": "44554b8e1caca9e92a49be7b9cc0e05ba7248f0091b4cdfc005e87e2c87ffe70"
+    }
+  },
+  "source_input_count": 172,
+  "raw_source_input_bytes": 1275659,
+  "raw_scanned_input_bytes": 1320816,
+  "raw_scanned_file_count": 174,
+  "maximum_raw_bytes": 16777216,
+  "raw_secret_scan_exit": 0,
+  "raw_secret_scan_findings": 0,
+  "source_inventory_unchanged_after_packaging": true,
+  "generated_controls": [
+    "benchmarks-local/hour-player-01/profile05-archive-inputs.json",
+    "benchmarks-local/hour-player-01/profile05-archive-summary.json"
+  ],
+  "scanner_outputs_added_after_scan": [
+    "benchmarks-local/hour-player-01/profile05-archive-gitleaks.log",
+    "benchmarks-local/hour-player-01/profile05-archive-gitleaks-findings.json"
+  ],
+  "scope": "Closed UTF-8 metadata/source/raw-log/history only; deterministic gzip mtime zero with compressed/raw/origin digests. All named P inputs frozen and rechecked; no root CURRENT, raw PCM/audio/model/executable/cache/CI artifact directory. Raw Gitleaks scan precedes packaging its empty finding and log receipts; verification itself and scanner output are not in that scan. Source signature is the retained valid GitHub receipt, not a new local Git invocation."
+}
