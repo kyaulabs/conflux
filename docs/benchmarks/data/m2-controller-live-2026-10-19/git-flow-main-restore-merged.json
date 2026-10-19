@@ -1,0 +1,14 @@
+{
+  "headRefOid": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789",
+  "mergeCommit": {
+    "oid": "1fab6ce2e5b768287f09c1e4c29e2d47ffb9826c"
+  },
+  "mergedBy": {
+    "id": "U_kgDOCBCrIQ",
+    "is_bot": false,
+    "login": "kyaulabs-bot",
+    "name": "kyaulabs-bot"
+  },
+  "state": "MERGED",
+  "url": "https://github.com/kyaulabs/conflux/pull/25"
+}

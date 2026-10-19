@@ -211,12 +211,13 @@ private:
             std::uint64_t nonzero = 0, wrong = 0, zeros = 0;
             bool signalObserved = self.received_[channel].load(std::memory_order_relaxed) != 0;
             for (std::size_t frame = 0; frame < frames; ++frame) {
+                const float sample = samples[frame];
                 // Constant-sample validation is armed only after startup
                 // settles. Fail-closed output can legitimately contain zeros.
-                if (samples[frame] == 0.F) { zeros += signalObserved; continue; }
+                if (sample == 0.F) { zeros += signalObserved; continue; }
                 signalObserved = true;
                 ++nonzero;
-                if (samples[frame] != self.expected_[channel]) {
+                if (sample != self.expected_[channel]) {
                     ++wrong;
                     // One immutable bounded operand per channel. Publish its
                     // metadata before bits; the receiver is the sole writer.
@@ -225,7 +226,7 @@ private:
                         self.firstWrongQuantum_[channel].store(frames, std::memory_order_relaxed);
                         self.firstWrongIndex_[channel].store(frame, std::memory_order_relaxed);
                         const auto bits = (std::uint64_t(std::bit_cast<std::uint32_t>(self.expected_[channel])) << 32) |
-                            std::bit_cast<std::uint32_t>(samples[frame]);
+                            std::bit_cast<std::uint32_t>(sample);
                         self.firstWrongBits_[channel].store(bits, std::memory_order_release);
                     }
                 }

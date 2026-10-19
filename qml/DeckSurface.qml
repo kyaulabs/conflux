@@ -130,7 +130,8 @@ Item {
             y: 12
             objectName: "deck" + surface.deckIndex + "WaveformKind"
             text: !surface.deck.loaded ? "NO TRACK LOADED"
-                  : surface.deck.overviewStem === "drums" ? "PREPARED STEMS · DRUMS WAVEFORM" : "LOCAL FILE"
+                  : surface.deck.overviewStem === "drums" ? "PREPARED STEMS · DRUMS WAVEFORM"
+                  : surface.deck.overviewStem === "source" ? "LIVE STEMS · SOURCE WAVEFORM" : "LOCAL FILE"
             color: surface.displayAccent
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 10

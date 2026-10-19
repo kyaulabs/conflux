@@ -1,0 +1,463 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "passed": true,
+  "binary": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+  "cases": [
+    {
+      "name": "service-alone",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 2
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-alone-mtyytpol",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-service",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-alone-mtyytpol/dummy assets/service.py"
+      ],
+      "owned_process_group": 2643877,
+      "process_spawned_monotonic": 521188.244676442,
+      "observed_exit_before_stop": 2,
+      "observed_seconds": 0.048783464008010924,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "service-alone.stdout.txt",
+        "bytes_retained": 1516,
+        "bytes_observed_lower_bound": 1516,
+        "limit_bytes": 65536,
+        "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+      },
+      "stderr": {
+        "path": "service-alone.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "incomplete-five",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 2
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/runtime",
+        "--stem-service",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/service.py"
+      ],
+      "owned_process_group": 2643878,
+      "process_spawned_monotonic": 521188.296113655,
+      "observed_exit_before_stop": 2,
+      "observed_seconds": 0.06150663201697171,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "incomplete-five.stdout.txt",
+        "bytes_retained": 1516,
+        "bytes_observed_lower_bound": 1516,
+        "limit_bytes": 65536,
+        "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+      },
+      "stderr": {
+        "path": "incomplete-five.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "relative-service",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 2
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/model.gguf",
+        "--stem-service",
+        "relative/service.py"
+      ],
+      "owned_process_group": 2643879,
+      "process_spawned_monotonic": 521188.360292726,
+      "observed_exit_before_stop": 2,
+      "observed_seconds": 0.05199965595966205,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "relative-service.stdout.txt",
+        "bytes_retained": 1516,
+        "bytes_observed_lower_bound": 1516,
+        "limit_bytes": 65536,
+        "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+      },
+      "stderr": {
+        "path": "relative-service.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "empty-service",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 2
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/model.gguf",
+        "--stem-service",
+        ""
+      ],
+      "owned_process_group": 2643880,
+      "process_spawned_monotonic": 521188.414937786,
+      "observed_exit_before_stop": 2,
+      "observed_seconds": 0.06128044502111152,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "empty-service.stdout.txt",
+        "bytes_retained": 1516,
+        "bytes_observed_lower_bound": 1516,
+        "limit_bytes": 65536,
+        "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+      },
+      "stderr": {
+        "path": "empty-service.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "missing-service-value",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 1
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/model.gguf",
+        "--stem-service"
+      ],
+      "owned_process_group": 2643881,
+      "process_spawned_monotonic": 521188.479664615,
+      "observed_exit_before_stop": 1,
+      "observed_seconds": 0.05072106997249648,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "missing-service-value.stdout.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "missing-service-value.stderr.txt",
+        "bytes_retained": 47,
+        "bytes_observed_lower_bound": 47,
+        "limit_bytes": 65536,
+        "sha256": "b62f97f271cf94fdbcc8f02a129b1d58b5a8c617e299a7861613e207bcb072bd"
+      }
+    },
+    {
+      "name": "service-with-smoke",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 2
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/model.gguf",
+        "--stem-service",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/service.py",
+        "--smoke-test"
+      ],
+      "owned_process_group": 2643882,
+      "process_spawned_monotonic": 521188.533032111,
+      "observed_exit_before_stop": 2,
+      "observed_seconds": 0.05016174301272258,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "service-with-smoke.stdout.txt",
+        "bytes_retained": 1516,
+        "bytes_observed_lower_bound": 1516,
+        "limit_bytes": 65536,
+        "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+      },
+      "stderr": {
+        "path": "service-with-smoke.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "invalid-backend",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "exit": 2
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/model.gguf",
+        "--stem-service",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/service.py",
+        "--stem-backend",
+        "invalid"
+      ],
+      "owned_process_group": 2643883,
+      "process_spawned_monotonic": 521188.585608211,
+      "observed_exit_before_stop": 2,
+      "observed_seconds": 0.04909361299360171,
+      "cleanup": {
+        "term_sent": false,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "invalid-backend.stdout.txt",
+        "bytes_retained": 1516,
+        "bytes_observed_lower_bound": 1516,
+        "limit_bytes": 65536,
+        "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+      },
+      "stderr": {
+        "path": "invalid-backend.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "absolute-service",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "alive_seconds": 1.0
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/model.gguf",
+        "--stem-service",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/service.py"
+      ],
+      "owned_process_group": 2643885,
+      "process_spawned_monotonic": 521188.637354601,
+      "observed_exit_before_stop": null,
+      "observed_seconds": 1.0008378489874303,
+      "cleanup": {
+        "term_sent": true,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "absolute-service.stdout.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "absolute-service.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "five-only",
+      "passed": true,
+      "process_started": true,
+      "expectation": {
+        "alive_seconds": 1.0
+      },
+      "environment_removed": true,
+      "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3",
+      "argv": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--stem-python",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/python",
+        "--stem-exporter",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/export.py",
+        "--stem-worker",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/worker.py",
+        "--stem-runtime",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/runtime",
+        "--stem-model",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/model.gguf"
+      ],
+      "owned_process_group": 2643897,
+      "process_spawned_monotonic": 521189.662580274,
+      "observed_exit_before_stop": null,
+      "observed_seconds": 1.0006958260200918,
+      "cleanup": {
+        "term_sent": true,
+        "kill_sent": false,
+        "leader_reaped": true,
+        "process_group_gone": true
+      },
+      "output_limit_exceeded": [],
+      "stdout": {
+        "path": "five-only.stdout.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "five-only.stderr.txt",
+        "bytes_retained": 0,
+        "bytes_observed_lower_bound": 0,
+        "limit_bytes": 65536,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "cleanup_complete": true,
+  "scope": "CLI parsing/liveness only; offscreen isolated unavailable PipeWire/DBus, no LOAD, native/model inference or playback",
+  "case_work_budget_seconds": 90,
+  "cleanup_allowance_seconds_per_case": 3,
+  "nul_argv": {
+    "application_case_executed": false,
+    "reason": "OS argv cannot represent an embedded NUL; no synthetic application pass",
+    "source_review": {
+      "path": "src/main.cpp",
+      "guard_present": true,
+      "source_sha256": "665e6fbcff73ed7f6da11f8ddb4bbab5aebf5f3199fa23c7ca1ccfe32a1d95f0",
+      "scope": "Source guard only, not an executed NUL argument"
+    }
+  },
+  "binary_sha256_before": "88682146cc4382a732a0291468c976b344fe5940cf47ede6af645dab4e2ba74d",
+  "binary_sha256_after": "88682146cc4382a732a0291468c976b344fe5940cf47ede6af645dab4e2ba74d",
+  "pins_unchanged": true
+}

@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "status": "source_only_expectation_amendment",
+  "script": "check_controller_live_cli.py",
+  "original_draft_sha256": "2893e7f436f62c6eb8bce4df8b32180f279d906f024d800cd96c2c06ba18f5c8",
+  "amended_script_sha256": "761491f4fbc19b2ea3ab1498b2e5f28abc4dd3c0c1569ec25194acc2e7a77ba1",
+  "case": "missing-service-value",
+  "original_expected_exit": 2,
+  "amended_expected_exit": 1,
+  "reason": "QCommandLineParser::process rejects a missing option value as parser syntax before the application's semantic validation. Root reviewed this distinction and authorized the explicit exit-1 expectation before execution. All six semantic-invalid cases retain exit 2; both accepted configurations retain one-second liveness followed by owned cleanup.",
+  "source_path": "src/main.cpp",
+  "product_changed": false,
+  "script_executed": false,
+  "verification_scope": "Source review only; root owns execution and actual result."
+}

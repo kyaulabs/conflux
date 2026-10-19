@@ -1,0 +1,12 @@
+{
+  "worktree": "/home/kyau/.codex/worktrees/restore-git-flow/conflux",
+  "branch": "fix/kyau-9caad9-restore-main",
+  "accidental_merge": "6ca2d688bee83e6ff2573befa14c14ecefa33c41",
+  "restore_parent": "2b8ad78115df5943114702e111e0a0d27f2865df",
+  "expected_tree": "36dd9edbab4e637a954aeb7347f3a1e0b5ce61d8",
+  "staged_tree": "36dd9edbab4e637a954aeb7347f3a1e0b5ce61d8",
+  "exact_tree_restoration": true,
+  "source_commit": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789",
+  "final_tree": "36dd9edbab4e637a954aeb7347f3a1e0b5ce61d8",
+  "signature": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>"
+}

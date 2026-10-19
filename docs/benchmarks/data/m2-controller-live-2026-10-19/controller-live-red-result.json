@@ -1,0 +1,65 @@
+{
+  "status": "actual_missing_API_RED",
+  "head": "a732c91fd44869fd7f8a5dcde01b56bc15df4264",
+  "at": "2026-10-19T12:52:38.404579+00:00",
+  "product_or_declaration_applied": false,
+  "combined_test_freeze": {
+    "bytes": 9087,
+    "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84"
+  },
+  "applied_test_sources": {
+    "CMakeLists.txt": {
+      "bytes": 18589,
+      "sha256": "1b9b0706443b343219dbe7f2401131ceb81f6f5729a971c2b1b1a55d4d904f0c"
+    },
+    "tests/StemServiceFixture.hpp": {
+      "bytes": 15196,
+      "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 63676,
+      "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+    },
+    "tests/manual_ui_test.cpp": {
+      "bytes": 75423,
+      "sha256": "cc9f9ff03a72ce5059b558c8835ca3db3ea2760d2f906f193d0003699060bf17"
+    },
+    "tools/experiments/preparation_controller_check.cpp": {
+      "bytes": 78304,
+      "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+    }
+  },
+  "stages": [
+    {
+      "stage": "controller-live-red-configure",
+      "command": [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build/dev",
+        "-G",
+        "Ninja"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 6.088199336954858
+    },
+    {
+      "stage": "controller-live-red-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-deck-controller-test",
+        "--parallel",
+        "2"
+      ],
+      "exit": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 52.13669688999653
+    }
+  ],
+  "compiler_error_count": 4
+}

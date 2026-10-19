@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
 #include "StemExportFixture.hpp"
+#include "StemServiceFixture.hpp"
 
 #include <QCoreApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QTimer>
+#include <QtConcurrent>
 #include <QDataStream>
 #include <QDir>
 #include <QFile>
@@ -15,6 +20,18 @@
 #include <QThreadPool>
 #include <QtTest>
 
+#include <atomic>
+#include <cerrno>
+#include <chrono>
+#include <csignal>
+#include <future>
+#include <poll.h>
+#include <stdexcept>
+#include <thread>
+#include <vector>
+#include <sys/syscall.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <limits>
 #include <memory>
 #include <algorithm>
@@ -61,6 +78,177 @@ struct RestoreEnvironment {
     }
 };
 
+
+template<class Function>
+void liveControllerChecked(Function&& function)
+{
+    try { function(); }
+    catch (const std::exception& error) { QFAIL(error.what()); }
+}
+
+void isolateLiveController(const QString& data, const QString& runtime)
+{
+    qputenv("XDG_RUNTIME_DIR", runtime.toUtf8());
+    qputenv("PIPEWIRE_RUNTIME_DIR", runtime.toUtf8());
+    qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
+    qputenv("XDG_CACHE_HOME", data.toUtf8());
+    qputenv("XDG_DATA_HOME", data.toUtf8());
+}
+
+QByteArray liveFixtureBytes(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly) || file.size() > 256 * 1024)
+        throw std::runtime_error("Cannot read bounded controller fixture evidence");
+    return file.readAll();
+}
+
+std::vector<QJsonObject> liveFixtureRows(const conflux::test::StemServiceFixture& fixture)
+{
+    if (!QFileInfo::exists(fixture.marker(".trace"))) return {};
+    const auto bytes = liveFixtureBytes(fixture.marker(".trace"));
+    const auto last = bytes.lastIndexOf('\n');
+    std::vector<QJsonObject> rows;
+    if (last < 0) return rows; // Retry only an unfinished final fixture row.
+    for (const auto& line : bytes.first(last + 1).split('\n')) {
+        if (line.isEmpty()) continue;
+        const auto doc = QJsonDocument::fromJson(line);
+        if (!doc.isObject()) throw std::runtime_error("Malformed complete controller fixture trace row");
+        rows.push_back(doc.object());
+    }
+    return rows;
+}
+
+std::size_t liveFixtureCount(const conflux::test::StemServiceFixture& fixture,
+                             const char* key, const char* value)
+{
+    const auto rows = liveFixtureRows(fixture);
+    return std::size_t(std::ranges::count_if(rows,
+        [&](const auto& row) { return row.value(key).toString() == value; }));
+}
+
+std::uint64_t expectedLiveFrames(const QString& source)
+{
+    QFile file(source);
+    if (!file.open(QIODevice::ReadOnly)) throw std::runtime_error("Cannot read controller source oracle");
+    auto input = conflux::audio::prepareStemInput(file.handle());
+    auto output = conflux::audio::prepareStemOutput(input.descriptor(), input.frames());
+    return output.frames();
+}
+
+// Test-owned cleanup for the known stdlib service only. Start identity is
+// checked after pidfd acquisition; a stale marker never authorizes a signal.
+struct ControllerServiceSafety {
+    const conflux::test::StemServiceFixture& fixture;
+    struct Child { pid_t pid; int descriptor; qulonglong startTicks; };
+    std::vector<Child> children;
+    void capture()
+    {
+        for (const auto& row : liveFixtureRows(fixture)) {
+            if (row.value("fixture") != QJsonValue("started")) continue;
+            const auto pid = row.value("fixture_pid").toVariant().toLongLong();
+            const auto expected = row.value("fixture_start_ticks").toVariant().toULongLong();
+            if (pid <= 1 || !expected || std::ranges::any_of(children,
+                [&](const auto& child) { return child.pid == pid && child.startTicks == expected; })) continue;
+            const int descriptor = int(syscall(SYS_pidfd_open, pid_t(pid), 0));
+            if (descriptor < 0) {
+                if (errno == ESRCH) continue;
+                throw std::runtime_error("Cannot retain controller service identity");
+            }
+            try {
+                const auto stat = liveFixtureBytes(QString("/proc/%1/stat").arg(pid));
+                const auto nameEnd = stat.lastIndexOf(") ");
+                const auto fields = nameEnd < 0 ? QList<QByteArray>{} : stat.mid(nameEnd + 2).simplified().split(' ');
+                if (fields.size() <= 19 || fields[19].toULongLong() != expected) {
+                    close(descriptor);
+                    continue;
+                }
+                children.push_back({pid_t(pid), descriptor, expected});
+            } catch (...) {
+                pollfd status{descriptor, POLLIN, 0};
+                const bool exited = poll(&status, 1, 0) == 1 && (status.revents & POLLIN);
+                close(descriptor);
+                if (!exited) throw;
+            }
+        }
+    }
+    bool gone()
+    {
+        capture();
+        return std::ranges::all_of(children, [](const auto& child) {
+            pollfd status{child.descriptor, POLLIN, 0};
+            return poll(&status, 1, 0) == 1 && (status.revents & POLLIN);
+        });
+    }
+    bool jobsGone() const
+    {
+        for (const auto& row : liveFixtureRows(fixture)) {
+            if (row.value("fixture") != QJsonValue("started")) continue;
+            const auto service = row.value("fixture_job").toString();
+            const auto parent = QFileInfo(service).absolutePath();
+            if (QFileInfo(service).fileName() != "service" || !QFileInfo(parent).fileName().startsWith(".live-"))
+                throw std::runtime_error("Fixture did not identify its private live owner job");
+            if (QFileInfo::exists(parent)) return false;
+        }
+        return true;
+    }
+    ~ControllerServiceSafety()
+    {
+        try { capture(); } catch (...) {}
+        for (const auto& child : children) {
+            pollfd status{child.descriptor, POLLIN, 0};
+            if (poll(&status, 1, 0) != 1) {
+                (void)syscall(SYS_pidfd_send_signal, child.descriptor, SIGKILL, nullptr, 0);
+                (void)poll(&status, 1, 2000);
+            }
+            int result = 0;
+            (void)waitpid(child.pid, &result, WNOHANG);
+            close(child.descriptor);
+        }
+    }
+};
+
+// Only test scheduling changes. Release and restore before the controller's
+// destructor; waitForFinished is called only after isFinished becomes true.
+class ControllerRetirementBarrier {
+public:
+    ControllerRetirementBarrier()
+        : pool_(*QThreadPool::globalInstance()), maximum_(pool_.maxThreadCount()),
+          expiry_(pool_.expiryTimeout()), state_(std::make_shared<State>())
+    {
+        pool_.setMaxThreadCount(1);
+        try {
+            task_ = QtConcurrent::run(&pool_, [state = state_] {
+                state->entered.store(true, std::memory_order_release);
+                state->gate.wait();
+            });
+        } catch (...) { pool_.setMaxThreadCount(maximum_); throw; }
+    }
+    ~ControllerRetirementBarrier() { release(); }
+    bool entered() const { return state_->entered.load(std::memory_order_acquire); }
+    void release()
+    {
+        if (released_) return;
+        released_ = true;
+        state_->release.set_value();
+        while (!task_.isFinished()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        task_.waitForFinished();
+        pool_.setMaxThreadCount(maximum_);
+        pool_.setExpiryTimeout(expiry_);
+    }
+private:
+    struct State {
+        std::atomic<bool> entered{false};
+        std::promise<void> release;
+        std::shared_future<void> gate = release.get_future().share();
+    };
+    QThreadPool& pool_;
+    int maximum_, expiry_;
+    std::shared_ptr<State> state_;
+    QFuture<void> task_;
+    bool released_ = false;
+};
+
 void verifyNoPlayback(const conflux::DeckController& controller)
 {
     QVERIFY(!controller.outputReady());
@@ -85,6 +273,232 @@ void verifyNoPlayback(const conflux::DeckController& controller)
 class DeckControllerTest final : public QObject {
     Q_OBJECT
 private slots:
+    void liveServiceModePrefersCompleteBankWithoutUsingService()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("cached source.wav");
+            QVERIFY(writeWave(source, 2, 44100, 211));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+            auto bank = conflux::library::PreparedTrackStore(cache).prepareStemBank(source, fixture.engine);
+            const auto calls = liveFixtureBytes(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls");
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine;
+            // An unused service is not part of the five-asset cache identity.
+            options.stemServicePath = directory.filePath("unused missing service.py");
+            conflux::DeckController controller(options);
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 10000);
+            controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            auto deck = controller.decks()[0].toMap();
+            QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+            QVERIFY(deck["stemBank"].toBool() && controller.preparation()["cacheHit"].toBool());
+            QCOMPARE(deck["name"].toString(), QFileInfo(source).fileName());
+            QCOMPARE(deck["overviewStem"].toString(), QString("drums"));
+            QCOMPARE(controller.audioState().sourceFrames[0], bank.stems[0].frames());
+            QCOMPARE(controller.retainedPcmBytes(), bank.stems[0].frames() * 8 * 4);
+            QCOMPARE(deck["waveform"].toList().size(), qsizetype(bank.stems[0].peaks().size()));
+            for (qsizetype i = 0; i < deck["waveform"].toList().size(); ++i)
+                QCOMPARE(deck["waveform"].toList()[i].toFloat(), bank.stems[0].peaks()[std::size_t(i)]);
+
+            controller.importTrack(QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+            const auto sourceId = controller.libraryTracks()[0].toMap()["id"].toString();
+            QCOMPARE(sourceId, bank.sourceSha256);
+            controller.loadLibraryStemTrack(1, sourceId);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.decks()[1].toMap()["loaded"].toBool());
+            QVERIFY(controller.preparation()["cacheHit"].toBool());
+            QCOMPARE(controller.decks()[1].toMap()["overviewStem"].toString(), QString("drums"));
+            QCOMPARE(controller.audioState().sourceFrames[1], bank.stems[0].frames());
+            QCOMPARE(liveFixtureBytes(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls"), calls);
+            QVERIFY(!QFileInfo::exists(fixture.marker(".started")));
+            QVERIFY(liveFixtureRows(fixture).empty());
+        });
+    }
+
+    void genuineMissInstallsOneLiveOwnerAndParksOnOutputFailure()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("live source.wav");
+            QVERIFY(writeWave(source, 2, 44100, 211));
+            const auto frames = expectedLiveFrames(source);
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            ControllerServiceSafety safety{fixture}; // Outlives the controller.
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine;
+            options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto deck = controller.decks()[0].toMap();
+            QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+            QVERIFY(deck["stemBank"].toBool() && !controller.preparation()["cacheHit"].toBool());
+            QCOMPARE(deck["name"].toString(), QFileInfo(source).fileName());
+            QCOMPARE(deck["overviewStem"].toString(), QString("source"));
+            QCOMPARE(controller.audioState().sourceFrames[0], frames);
+            QCOMPARE(deck["durationSeconds"].toDouble(), frames / 48000.0);
+            QCOMPARE(deck["stemGains"].toList(), QVariantList({1.F, 1.F, 1.F, 1.F}));
+            QCOMPARE(controller.retainedPcmBytes(), std::uint64_t(0));
+            const auto peaks = deck["waveform"].toList();
+            QCOMPARE(peaks.size(), qsizetype(211));
+            // Independent PCM16 source oracle; 44100 input bypasses conversion.
+            float maximum = 0.F;
+            std::array<float, 211> expected{};
+            for (std::size_t frame = 0; frame < expected.size(); ++frame) {
+                const auto left = float(qint16(int(frame) * 2 * 17 - 32)) / 32768.F;
+                const auto right = float(qint16((int(frame) * 2 + 1) * 17 - 32)) / 32768.F;
+                expected[frame] = std::max(std::abs(left), std::abs(right));
+                maximum = std::max(maximum, expected[frame]);
+            }
+            for (qsizetype i = 0; i < peaks.size(); ++i)
+                QCOMPARE(peaks[i].toFloat(), expected[std::size_t(i)] / maximum);
+            QVERIFY(!controller.outputReady());
+            QVERIFY(!controller.error().isEmpty()); // Unavailable private server.
+            safety.capture();
+            QVERIFY(!safety.children.empty() && !safety.gone());
+            QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(1));
+            QCOMPARE(liveFixtureCount(fixture, "command", "seek"), std::size_t(0));
+            QCOMPARE(liveFixtureCount(fixture, "fixture", "runtime"), std::size_t(1));
+            QVERIFY(!QFileInfo::exists(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls"));
+            controller.shutdown();
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone(), 10000);
+            const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+            QVERIFY(QDir(cache).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot).isEmpty());
+        });
+    }
+
+    void corruptBankAndChangedLibrarySourceNeverSelectLiveFallback()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("library source.wav"), kept = directory.filePath("kept.wav");
+            QVERIFY(writeWave(source, 2, 44100, 211) && writeWave(kept, 2, 48000, 480));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            ControllerServiceSafety safety{fixture};
+            const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+            auto seeded = conflux::library::PreparedTrackStore(cache).prepareStemBank(source, fixture.engine);
+            const auto manifestPath = QDir(cache).filePath(seeded.artifactKey + "/manifest.json");
+            {
+                QFile manifest(manifestPath);
+                QVERIFY(manifest.open(QIODevice::WriteOnly | QIODevice::Truncate));
+                QCOMPARE(manifest.write("{}"), qint64(2));
+            }
+            const auto calls = liveFixtureBytes(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls");
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine;
+            options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 10000);
+            controller.loadDeck(0, QUrl::fromLocalFile(kept));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+            const auto before = controller.decks();
+            const auto retained = controller.retainedPcmBytes();
+            controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(!controller.error().isEmpty());
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.retainedPcmBytes(), retained);
+            QCOMPARE(liveFixtureBytes(manifestPath), QByteArray("{}"));
+            QVERIFY(!QFileInfo::exists(fixture.marker(".started")));
+
+            controller.importTrack(QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+            const auto sourceId = controller.libraryTracks()[0].toMap()["id"].toString();
+            QCOMPARE(sourceId, seeded.sourceSha256);
+            QVERIFY(writeWave(source, 2, 44100, 213));
+            controller.loadLibraryStemTrack(1, sourceId);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.error().contains("Source changed"));
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.retainedPcmBytes(), retained);
+            QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(0));
+            QCOMPARE(liveFixtureCount(fixture, "command", "seek"), std::size_t(0));
+            QCOMPARE(liveFixtureBytes(manifestPath), QByteArray("{}"));
+            QCOMPARE(liveFixtureBytes(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls"), calls);
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone(), 10000);
+            QTRY_VERIFY_WITH_TIMEOUT(safety.jobsGone(), 10000);
+        });
+    }
+
+    void queuedLiveCancellationRetiresOnWorkerBeforeEndingBusy()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("cancel live.wav"), kept = directory.filePath("kept.wav");
+            QVERIFY(writeWave(source, 2, 44100, 211) && writeWave(kept, 2, 48000, 480));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            ControllerServiceSafety safety{fixture};
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine;
+            options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 10000);
+            controller.loadDeck(0, QUrl::fromLocalFile(kept));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+            const auto before = controller.decks();
+            const auto retained = controller.retainedPcmBytes();
+            controller.loadStemDeck(1, QUrl::fromLocalFile(source));
+            QVERIFY(QThreadPool::globalInstance()->waitForDone(10000));
+            QVERIFY(controller.busy());
+            QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(1));
+            safety.capture();
+            QVERIFY(!safety.children.empty() && !safety.gone());
+            QString job;
+            for (const auto& row : liveFixtureRows(fixture))
+                if (row.value("fixture") == QJsonValue("started")) job = row.value("fixture_job").toString();
+            QVERIFY(!job.isEmpty() && QFileInfo::exists(job));
+            // Declared after controller: every failure releases/restores the
+            // global pool before controller.shutdown can wait on its worker.
+            ControllerRetirementBarrier barrier;
+            QVERIFY(controller.cancelPreparation());
+            QTRY_VERIFY_WITH_TIMEOUT(barrier.entered(), 10000);
+            QCoreApplication::sendPostedEvents();
+            const auto guiTurn = std::make_shared<bool>(false);
+            QTimer::singleShot(0, &controller, [guiTurn] { *guiTurn = true; });
+            QTRY_VERIFY_WITH_TIMEOUT(*guiTurn, 10000);
+            QVERIFY(controller.busy());
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.retainedPcmBytes(), retained);
+            QVERIFY(QFileInfo::exists(job) && !safety.gone());
+            barrier.release();
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.retainedPcmBytes(), retained);
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone(), 10000);
+            QTRY_VERIFY_WITH_TIMEOUT(safety.jobsGone(), 10000);
+            QVERIFY(!QFileInfo::exists(job));
+        });
+    }
+
     void optionalStemToolsNeverBlockManualLoading()
     {
         QTemporaryDir directory;

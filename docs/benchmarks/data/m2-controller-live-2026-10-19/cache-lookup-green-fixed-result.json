@@ -1,0 +1,28 @@
+[
+  {
+    "stage": "cache-lookup-green-fixed-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--target",
+      "conflux-prepared-track-store-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 26.751257650961634
+  },
+  {
+    "stage": "cache-lookup-green-fixed-test",
+    "command": [
+      "build/dev/conflux-prepared-track-store-test",
+      "stemLookupMissDoesNotPrepareOrCreateRoot",
+      "stemLookupFreshInstanceReturnsExactBankAtExistingBudget",
+      "stemLookupPresentFailurePreservesEntry",
+      "stemLookupInvalidInputsCancellationAndBusyNeverExport"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 8.095345253997948
+  }
+]

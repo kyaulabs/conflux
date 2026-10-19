@@ -1,0 +1,16 @@
+{
+  "source_commit": "5c3e4d0d7578516c9179b2ecbc34139db473ce30",
+  "signature": "5c3e4d0d7578516c9179b2ecbc34139db473ce30 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+  "lookup_commit": "299d6c99c8da969bfa8027e121ebdc6cec421f68",
+  "lookup_signature": "299d6c99c8da969bfa8027e121ebdc6cec421f68 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+  "tracked_pins": 96,
+  "ignored_measurement_sources": [
+    "benchmarks-local/m2-live-delivery-2026-10-19/check_controller_live_cli.py",
+    "benchmarks-local/m2-live-delivery-2026-10-19/run_controller_live_checks.py"
+  ],
+  "all_pins_match_committed_blobs_or_recorded_ignored_source": true,
+  "lookup_reapplication_matches_original_signed_bytes": true,
+  "corrected_develop": "c25ab6472b57be756e84c9dc2eb3009d3378f65e",
+  "restored_main": "1fab6ce2e5b768287f09c1e4c29e2d47ffb9826c",
+  "restored_main_is_develop_merge_base": true
+}

@@ -1,0 +1,1 @@
+{"wrong_nonzero_samples":1,"channels":[{"received_nonzero":2577,"zeros_after_signal":2031,"first_wrong":{"expected_f32_bits":1025507328,"actual_f32_bits":0,"receiver_clock_position":18527153,"quantum":256,"sample_index":16}},{"received_nonzero":2560,"zeros_after_signal":2048,"first_wrong":null}]}

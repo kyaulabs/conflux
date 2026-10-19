@@ -1,0 +1,112 @@
+{
+  "schema": "conflux.cache-lookup-product-freeze.v1",
+  "status": "frozen_unapplied_unexecuted_product_only",
+  "author": "/root/hour_result_crosscheck",
+  "at_utc": "2026-10-19T12:29:31.438104+00:00",
+  "patch": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-implementation.patch",
+    "sha256": "a7161ae38f25c08bc8a614d2917fcb4a5ba4df2ebfc65a3a8f6e6408f2fb39de",
+    "bytes": 6149
+  },
+  "files": [
+    {
+      "path": "src/library/PreparedTrackStore.hpp",
+      "input_sha256": "2a5d7c08e9135fc0222f9721f68802c89d4932d89ffa21932d84db8250217d21",
+      "input_bytes": 3315,
+      "output_sha256": "2120420797956770b363686989b42a6d2e9f247e5fba4ada5eeba443fc4ad45a",
+      "output_bytes": 3713,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-implementation-PreparedTrackStore.hpp"
+    },
+    {
+      "path": "src/library/PreparedTrackStore.cpp",
+      "input_sha256": "b5691b8e946ee0e65ceed36dc4ed48c872391346d76a69788e2bf2204ee8d142",
+      "input_bytes": 49515,
+      "output_sha256": "926f891d63d0d84366192ef2f92c20e854b0591594cc9b6de44ce0c65ebccade",
+      "output_bytes": 53045,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-implementation-PreparedTrackStore.cpp"
+    }
+  ],
+  "api_document": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-api.md",
+    "bytes": 3953,
+    "sha256": "d6658e02d0a25a551053b4e5fa3243653d8728a070621134c8a9d7d653093b62"
+  },
+  "independent_test_freeze": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-freeze.json",
+    "bytes": 5844,
+    "sha256": "3ad5bf1535c67a1f84656a5ad24208996a5bfc06580d53446d008c24b500d2dc"
+  },
+  "independent_tests": {
+    "patch": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-tests.patch",
+      "bytes": 15917,
+      "sha256": "0f29cd210c4bfcb6799bdaad51c59d6262dd6621ec30c007add1ac76cf1099e8"
+    },
+    "applied_source": {
+      "path": "tests/prepared_track_store_test.cpp",
+      "bytes": 61457,
+      "sha256": "b1857fdc3dd5848fd1a63804a0c35b3d335137df894d88d5e9709b1217516915"
+    },
+    "unchanged_fixture": {
+      "path": "tests/StemExportFixture.hpp",
+      "bytes": 6196,
+      "sha256": "e984fe8de7fb5fdf9c040642c55950c64c382c1744469096ac29fc9e1011784e"
+    }
+  },
+  "actual_root_red": {
+    "record": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-red-result.json",
+      "bytes": 744,
+      "sha256": "3fa3eb1c99f709fe05871ba6c134e34ad23d2747c3c925f5a2713c0a9ae5d60c"
+    },
+    "signed_base": "e8593686564390dcd631127718474fefddb11550",
+    "at": "2026-10-19T12:24:57.832060+00:00",
+    "target_build_exit": 1,
+    "elapsed_seconds": 5.779200792021584,
+    "diagnostic": "Root reports8 missing findPreparedStemBank errors only; no declaration/product existed at RED"
+  },
+  "tdd": {
+    "api_and_independent_tests_frozen_before_product": true,
+    "product_drafted_only_after_actual_root_red_release": true,
+    "frozen_test_source_unchanged": true,
+    "author_ran_product_or_tests": false,
+    "author_changed_tracked_files": false,
+    "root_owns_apply_green_required_checks_and_git": true
+  },
+  "source_reviews": [
+    {
+      "reviewer": "/root/guard_rules",
+      "outcome": "exact a7161ae3 source pass clear; ready to freeze",
+      "scope": "Current/frozen helpers and API; before/after source/engine checks on hit/miss; aggregate limits; specific staging rejection; unchanged three-argument preparation behavior; root FIFO/ENOENT distinctions; no create/repair/export"
+    }
+  ],
+  "implementation_scope": [
+    "Two product files only: optional findPreparedStemBank declaration and minimal implementation in existing store",
+    "Reuse existing bounded retained original FD capture/hash, pinEngine/describeEngine, unchanged five-asset key recipe, readStemEntry and final verifySource/verifyEngine",
+    "Return absence only for open-root or exact-key fstat ENOENT after used-input verification; non-directory/symlink/unsafe/present malformed entries and tightened bounds propagate errors",
+    "Existing-root lookup takes the same cancellable2s cooperative lock, checks aggregate usage even for a keyed miss, and needs no transient input/native/conversion headroom",
+    "Read-only retained four-role owners and recomputed overviews come from existing readStemEntry; cacheHit=true and original source SHA/key remain unchanged",
+    "Only a private static4argument cacheUsage overload introduces cleanupStages; exported3argument signature remains intact and delegates true for all existing preparation/LiveStemBridge calls",
+    "Lookup passes false, rejects any recognized stage name with specific staging diagnostic before traversal/removal; existing default cleanup behavior and support header ABI remain unchanged",
+    "No mkdir/chmod/stage repair/publication/export/live job/model inference is introduced; existing lock leaf is sole permitted cache-root write and bounded describe is permitted"
+  ],
+  "unchanged_support": [
+    {
+      "path": "src/library/StemEngineSupport.hpp",
+      "bytes": 3042,
+      "sha256": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109"
+    },
+    {
+      "path": "src/library/StemEngineSupport.cpp",
+      "bytes": 12360,
+      "sha256": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475"
+    }
+  ],
+  "limits": [
+    "Static source review only; no compiler/build/test/Git/native/model/audio or host-state queries by author/reviewer",
+    "Actual GREEN and appropriate full/private/coverage checks remain root-owned and pending at freeze",
+    "Same retained-descriptor status/digest revalidation preserves ordinary change detection, not an adversarial immutable filesystem snapshot",
+    "Frozen tests do not force nondeterministic source/pin mutation during a concurrent read; final used-input verification is a reviewed production requirement",
+    "No controller activation, live fallback policy, actual model/physical audio, p99 latency, thermal or M2 qualification follows from this lookup-only slice"
+  ]
+}

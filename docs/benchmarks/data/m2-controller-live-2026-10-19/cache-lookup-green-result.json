@@ -1,0 +1,16 @@
+[
+  {
+    "stage": "cache-lookup-green-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--target",
+      "conflux-prepared-track-store-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 1,
+    "elapsed_seconds": 30.826057919999585
+  }
+]

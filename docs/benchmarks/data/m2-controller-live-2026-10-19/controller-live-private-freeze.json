@@ -1,0 +1,73 @@
+{
+  "status": "source_reviewed_tests_only_unapplied_unexecuted",
+  "patches": {
+    "controller-live-private-tests.patch": {
+      "bytes": 31352,
+      "sha256": "1a4f66b0dde237e16c51981c6a772ba728c9cc16545051db8c7db02d217c93a6"
+    },
+    "controller-live-fixture.patch": {
+      "bytes": 951,
+      "sha256": "cd2fcd36e56e7cda5a122f338ee0a81c8e13c9e76deab75a2be0c78f2497c921"
+    }
+  },
+  "input_sources": {
+    "tools/experiments/preparation_controller_check.cpp": {
+      "sha256": "b3777952487a1ae85bee15b6972e4ef4f13d2d0c28a9d10e2295884d03ab9af4"
+    },
+    "tests/StemServiceFixture.hpp": {
+      "sha256": "3c4cb9819657872977d52410e523e679852b3c71c80c6a959ba2a9e6aa224691"
+    }
+  },
+  "required_companion": "controller-live-test-cmake.patch explicitly links Qt6::Concurrent to the private helper; controller API/Qt patches are independently owned by m0_m1_gates",
+  "review": {
+    "hour_result_crosscheck": "Complete private and fixture source pass: no concrete impossible oracle or ownership blocker",
+    "m0_m1_gates": "Private source pass; run-submit failure restoration incorporated; requested exact tiny target identity/duration strengthening added in revision 2, pending final delta acknowledgement",
+    "author": "Reviewed original helper/service/whole-owner call paths, default fixture compatibility, literal patch order and guarded failure cleanup"
+  },
+  "behavior": [
+    "One 30-second generated stereo 44100 Hz PCM16 source at .25/-.125 and bass-only gain factor .5 yields an independent .125/-.0625 steady oracle; original mix or vocals substitution is detectable",
+    "Initial live installation requires one identity-bound service load/runtime and no redundant constructor seek, source overview and no retained file-backed PCM",
+    "Queued 211-frame live candidate cancellation holds actual global-pool retirement behind a released-before-controller-destruction barrier; GUI, advancing clocks, immutable metadata/gains/cue and original writer stay observable while the job remains charged",
+    "Installing paused live B checks its exact basename, independently prepared output duration and paused cursor; replacing it with normal B checks the known normal identity and retires its whole service/job while audible A and the same recorder continue",
+    "Consumed live A routing rebuild preserves the same PID/start identity/runtime and exactly one necessary seek, cue and selected bass targets",
+    "Two consumed stale-after-seek owners fail deterministic constructor re-prime, clear both lost metadata rows, and permit sequential explicit good-mode reload without an application restart",
+    "Shutdown requires every known leader exited and reaped plus its .live job removed; independently bound pidfds provide failure-only safety after controller unwind"
+  ],
+  "limits": [
+    "No product or tracked test source is changed by these ignored patch files; root owns actual RED/GREEN, builds and all execution",
+    "The existing runner and Sink are reused; no new native process supervisor or production test hook is added",
+    "The default service protocol/fault behavior is unchanged; fixture additions are trace-only PID/start-ticks/job fields and one started row",
+    "Recording checks every frame before the explicit route rebuild and the final steady tail at 1e-6; the routing rebuild gap/start ramps in between are excluded, with finite/amplitude validation retained",
+    "Normal mode retains the existing virtual-sink sample gate; functional-only mode reports receiver wrong/zero counts and relies on the strict internal recording prefix/tail oracle",
+    "No actual model, physical audio, integrated 4095 ms delivery, sustained thermal, musical or M2 completion qualification is established",
+    "No active underrun, deadline policy or worker numerical matrix is duplicated; existing bridge/provider/converter/recovery tests retain those scopes",
+    "The existing private runner has a 90-second normal and 240-second functional setup bound; root must report any actual exhausted bound instead of weakening source/sample assertions"
+  ],
+  "revision": 2,
+  "patch_format": "standard unified git diff; snapshots rendered from unique literal source contexts, without tracked application",
+  "rendered_snapshots": {
+    "controller-live-private-preparation_controller_check.cpp": {
+      "bytes": 78304,
+      "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+    },
+    "controller-live-fixture-StemServiceFixture.hpp": {
+      "bytes": 15196,
+      "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+    }
+  },
+  "superseded_source_only_freeze": {
+    "controller-live-private-tests.v1.patch": {
+      "bytes": 28513,
+      "sha256": "fff638f0dbbc1313311182a7cb6a680ae18a2320bf61ca1ebf91918d6c74657d"
+    },
+    "controller-live-fixture.v1.patch": {
+      "bytes": 669,
+      "sha256": "3f5e009ae17af5a88329c58a184b391c1db82555d807f52deb0529dc8dd9a2d1"
+    },
+    "controller-live-private-freeze.v1.json": {
+      "bytes": 3900,
+      "sha256": "f14b8ee97e7199bbac9e5e16a933252732fb852ddb7392454a4ac6d140cbea96"
+    }
+  },
+  "revision_reason": "Late independent review added the actual tiny installed B basename/duration oracle using bounded complete-file preparation of 211 original frames; normal replacement also asserts its known name/frame count. No executed receipt or tracked source changed."
+}

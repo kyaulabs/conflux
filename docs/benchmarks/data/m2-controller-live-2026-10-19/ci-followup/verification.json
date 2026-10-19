@@ -1,0 +1,702 @@
+{
+  "schema": "conflux.m2-controller-receiver-followup.v1",
+  "status": "coherent_receiver_capture_checks_passed_mutation_cause_unresolved",
+  "source_head": "fd7236e27710600fa601a17409974229e85a0249",
+  "source_signature": "fd7236e27710600fa601a17409974229e85a0249 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau@kyau.net",
+  "manual_helper_git_blob": "a5220a3f52cf15627ca8a309ba8d8f59ccd786ef",
+  "product_baseline": "5c3e4d0d7578516c9179b2ecbc34139db473ce30",
+  "product_src_qml_unchanged": true,
+  "helper_change_only": true,
+  "exact_one_capture_three_use_reconstruction": true,
+  "oracles_tolerances_and_mode_gates_unchanged": true,
+  "historical_controller_archive": {
+    "path": "../verification.json",
+    "bytes": 100609,
+    "sha256": "41cdcc485c644d4e5867e0936cb666f7cbec6d310d6898d8542f7cee59899ce0",
+    "unchanged_historical_record": true
+  },
+  "initial_ci": {
+    "push": {
+      "databaseId": 39260790364,
+      "headSha": "32f363ba1987d5493bd61f27b05d8ce64984f318",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39260790364"
+    },
+    "pr": {
+      "databaseId": 39260827689,
+      "headSha": "32f363ba1987d5493bd61f27b05d8ce64984f318",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39260827689"
+    }
+  },
+  "initial_failure": {
+    "receiver": {
+      "wrong_nonzero_samples": 1,
+      "channels": [
+        {
+          "received_nonzero": 2577,
+          "zeros_after_signal": 2031,
+          "first_wrong": {
+            "expected_f32_bits": 1025507328,
+            "actual_f32_bits": 0,
+            "receiver_clock_position": 18527153,
+            "quantum": 256,
+            "sample_index": 16
+          }
+        },
+        {
+          "received_nonzero": 2560,
+          "zeros_after_signal": 2048,
+          "first_wrong": null
+        }
+      ]
+    },
+    "recording": {
+      "passed": true,
+      "error": "",
+      "accepted_frames": 5888,
+      "written_frames": 5888,
+      "overflow_count": 0
+    },
+    "application_state": {
+      "callbacks": 23,
+      "output_frame": 5888,
+      "graph_rate": 48000,
+      "invalid_buffers": 0,
+      "execution_deadline_misses": 8,
+      "applied": 3,
+      "rejected": 0,
+      "snapshot_drops": 0,
+      "source_frames": [
+        0,
+        5888
+      ]
+    },
+    "private_graph_cleanup_confirmed": true
+  },
+  "local_stages": [
+    {
+      "stage": "normal-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-manual-routing-check",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 15.117128773010336
+    },
+    {
+      "stage": "instrumented-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/coverage",
+        "--target",
+        "conflux-manual-routing-check",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 8.6966499669943
+    },
+    {
+      "stage": "normal",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Receiver capture check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-manual-routing-check",
+        "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 6.934572612983175
+    },
+    {
+      "stage": "instrumented",
+      "command": [
+        "benchmarks-local/coverage-venv/bin/python",
+        "-c",
+        "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Receiver capture check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/coverage/conflux-manual-routing-check",
+        "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 14.55271876102779
+    }
+  ],
+  "local_private_checks": {
+    "normal": {
+      "checks": 130,
+      "wrapper_execution_deadline_gate": true,
+      "handoff": {
+        "passed": true,
+        "error": "",
+        "execution_deadline_gate": true,
+        "virtual_sink_zero_gate": true,
+        "wrong_nonzero_sink_samples": 0,
+        "scope": "Two bounded callback source handoffs on one private virtual graph; muted target, exact audible peer, master recording attached continuously. Startup fade excluded after at least 1024 output frames. Hardware and sustained qualification remain separate.",
+        "warmup_output_frames": 1024,
+        "output_frames": 13056,
+        "callbacks": 51,
+        "recorded_frames": 9984,
+        "execution_deadline_misses": 0,
+        "zero_samples_after_signal": [
+          0,
+          0
+        ],
+        "maximum_virtual_receiver_signal_gap_ns": [
+          5508866,
+          5508803
+        ],
+        "steps": [
+          {
+            "generation": 1,
+            "before_output_frame": 3328,
+            "callback_end_ack_output_frame": 3840,
+            "after_output_frame": 4352,
+            "retired_source_frame": 3328,
+            "retired_reader_freed_while_running": false,
+            "recorded_before": 2304,
+            "recorded_after": 3328
+          },
+          {
+            "generation": 2,
+            "before_output_frame": 9984,
+            "callback_end_ack_output_frame": 10496,
+            "after_output_frame": 11008,
+            "retired_source_frame": 4352,
+            "retired_reader_freed_while_running": true,
+            "recorded_before": 8960,
+            "recorded_after": 9984
+          }
+        ]
+      },
+      "receiver": {
+        "wrong_nonzero_samples": 0,
+        "channels": [
+          {
+            "received_nonzero": 12032,
+            "zeros_after_signal": 0,
+            "first_wrong": null
+          },
+          {
+            "received_nonzero": 12032,
+            "zeros_after_signal": 0,
+            "first_wrong": null
+          }
+        ]
+      },
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": []
+    },
+    "instrumented": {
+      "checks": 124,
+      "wrapper_execution_deadline_gate": false,
+      "handoff": {
+        "passed": true,
+        "error": "",
+        "execution_deadline_gate": false,
+        "virtual_sink_zero_gate": false,
+        "wrong_nonzero_sink_samples": 0,
+        "scope": "Two bounded callback source handoffs on one private virtual graph; muted target, exact audible peer, master recording attached continuously. Startup fade excluded after at least 1024 output frames. Hardware and sustained qualification remain separate.",
+        "warmup_output_frames": 1024,
+        "output_frames": 17664,
+        "callbacks": 69,
+        "recorded_frames": 14080,
+        "execution_deadline_misses": 14,
+        "zero_samples_after_signal": [
+          0,
+          0
+        ],
+        "maximum_virtual_receiver_signal_gap_ns": [
+          167183545,
+          167182659
+        ],
+        "steps": [
+          {
+            "generation": 1,
+            "before_output_frame": 3328,
+            "callback_end_ack_output_frame": 4096,
+            "after_output_frame": 7936,
+            "retired_source_frame": 3584,
+            "retired_reader_freed_while_running": false,
+            "recorded_before": 2304,
+            "recorded_after": 6912
+          },
+          {
+            "generation": 2,
+            "before_output_frame": 13824,
+            "callback_end_ack_output_frame": 14592,
+            "after_output_frame": 14592,
+            "retired_source_frame": 4608,
+            "retired_reader_freed_while_running": true,
+            "recorded_before": 12800,
+            "recorded_after": 13824
+          }
+        ]
+      },
+      "receiver": {
+        "wrong_nonzero_samples": 0,
+        "channels": [
+          {
+            "received_nonzero": 12800,
+            "zeros_after_signal": 0,
+            "first_wrong": null
+          },
+          {
+            "received_nonzero": 12800,
+            "zeros_after_signal": 0,
+            "first_wrong": null
+          }
+        ]
+      },
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": []
+    }
+  },
+  "pins": {
+    "source": {
+      "tools/experiments/manual_routing_check.cpp": {
+        "bytes": 69746,
+        "sha256": "e99765f41baf0ea4b327e28e1e5f860045d9b8180f8da325f565869ba1bc8a2b"
+      }
+    },
+    "binaries": {
+      "build/dev/conflux-manual-routing-check": {
+        "bytes": 5368616,
+        "sha256": "91f3594a9a417c9605702435ef95b031dcbe813f434061d10b3e2c9459a6bd10"
+      },
+      "build/coverage/conflux-manual-routing-check": {
+        "bytes": 4808648,
+        "sha256": "b013e486fcacc0c61781e61a06882a01a5ae7424766fd1afc194b8ca974b8755"
+      }
+    },
+    "source_and_binaries_stable": true
+  },
+  "source_and_binaries_stable": true,
+  "interpretation": "Repeated reads gave inconsistent zero/nonzero/operand observations. Capturing one value keeps classification and evidence coherent. The exact mutation/overrun mechanism remains unresolved; an early-release ownership defect is not established.",
+  "primary_source": "https://github.com/PipeWire/pipewire/blob/1.0.5/src/pipewire/filter.c#L957-L1041",
+  "limitations": [
+    "No model, physical audio, sustained latency or M2 qualification.",
+    "Instrumented mode retains its existing disabled execution-deadline/virtual-zero gates and strict nonzero sample oracle.",
+    "Initial PR success does not replace failed push evidence; fresh source/docs push and PR CI remain required and are not claimed here.",
+    "The original controller archive/source pins remain historical; these helper/binary pins are separate."
+  ],
+  "raw_secret_scan_exit": 0,
+  "raw_scanned_input_bytes": 310656,
+  "scan_scope": "Named uncompressed input evidence, before generated manifest/scanner-output packaging",
+  "no_scan_suppression_or_allowlist": true,
+  "deterministic_gzip_roundtrip_verified": true,
+  "files": {
+    "controller-live-initial-push-ci.json": {
+      "bytes": 5435,
+      "sha256": "f40cde0e2de9a61a950ab1253aeb2c8acddac6fcff64363e11dd2718cb6645dd"
+    },
+    "controller-live-initial-pr-ci.json": {
+      "bytes": 5443,
+      "sha256": "3b781db20b8ac869bc8556bfe55d53ad3055682db34416491c5ec422aa1a9d7b"
+    },
+    "controller-live-receiver-capture-result.json": {
+      "bytes": 1887,
+      "sha256": "451373f651c5fa97b76206a5e99c13da56bce91ce42a50298beebcaeb1054d1a"
+    },
+    "controller-live-receiver-capture-pins.json": {
+      "bytes": 572,
+      "sha256": "15869292498515a1c973ca65c705c0fb39b2d76414ea4c1c715b4887c7ec5aa7"
+    },
+    "initial-push-ci-failed.log.gz": {
+      "bytes": 3680,
+      "sha256": "c2798f40aa90939897db543a12013d3c7bcfa16e2c3349c8ba59bf86dc3f74dc"
+    },
+    "capture.patch.gz": {
+      "bytes": 648,
+      "sha256": "bfe05ea2503fb38aac9419121571dba0377ff6a7e7bfed63a9635231cb9b1082"
+    },
+    "run_controller_receiver_capture.py.gz": {
+      "bytes": 1188,
+      "sha256": "f1c6465c6f81fcf75a7076a126bd0c713bcb086ccec670eb12c10cccc1952bd4"
+    },
+    "archive_controller_receiver_capture.py.gz": {
+      "bytes": 6011,
+      "sha256": "f905045ea32fe36eaa3843835770275380f73413b256d3edea598990562d9222"
+    },
+    "normal-build.log.gz": {
+      "bytes": 139,
+      "sha256": "f619d3c5e8346ffa159660f6fc6a476e0cff764feb46c6785535f70ff816b1a5"
+    },
+    "instrumented-build.log.gz": {
+      "bytes": 139,
+      "sha256": "f619d3c5e8346ffa159660f6fc6a476e0cff764feb46c6785535f70ff816b1a5"
+    },
+    "normal.log.gz": {
+      "bytes": 2969,
+      "sha256": "303cc2e34f7a7c34003d8b0016bb120353eec380ea18eef41d26dea9de7da8bb"
+    },
+    "instrumented.log.gz": {
+      "bytes": 2944,
+      "sha256": "97da28f753b957fd301dcf6b442f3c1f8c9279eff881c7967e4446bf7fe69b1f"
+    },
+    "initial-result.json": {
+      "bytes": 5800,
+      "sha256": "02ddc940fa3bb6bc6bd1f58cf44ee2680a9a74a44d78004686b87418ea9ac7e2"
+    },
+    "initial-live-failure.json": {
+      "bytes": 5178,
+      "sha256": "7557313ccd727474ad10b7fe737d328b3c58239f079b71691d7e088a6f1e7101"
+    },
+    "initial-source-handoff-receiver.json": {
+      "bytes": 298,
+      "sha256": "c482fe7b63052e7a2c20b1f990ab7dcb19a0649d9ef02bc5f55241e2ec8a935a"
+    },
+    "initial-source-handoff-failed-recording.json": {
+      "bytes": 91,
+      "sha256": "8a91822c458d4b0017729986dbd3e90126a4191b9806354d307d43e8b4ff3cdb"
+    },
+    "initial-source-handoff.json": {
+      "bytes": 1063,
+      "sha256": "19949ff978dd079a74261c1977e8f2c2dc7008813481fd25cc67890dbdfa9407"
+    },
+    "initial-failure-pw-dump.json.gz": {
+      "bytes": 2992,
+      "sha256": "caaceaa2e2bca8c17a02532e4c2b93340b4fb4eaa0d7e49138e945ec5abf766c"
+    },
+    "initial-check.stdout.json.gz": {
+      "bytes": 1139,
+      "sha256": "255f7296a28a6ac9aadd2ed9735166fa793d0de466a8d40044967f892a583702"
+    },
+    "initial-check.stderr.log.gz": {
+      "bytes": 72,
+      "sha256": "1e2b6a92aa24172c6fa67bfae8e18ab45013e7fe53d10ff0d709f993036e1c39"
+    },
+    "initial-daemon.log.gz": {
+      "bytes": 6886,
+      "sha256": "5cc8a20db8cbab82c3e6d3a563ced43a0fdd5e00599b99de4a1ad6a29954f6ab"
+    },
+    "normal-result.json": {
+      "bytes": 14295,
+      "sha256": "0d1daeca5fd216374ec335d043fc64cfbef47f1f9f07d30a3fb3c3d284bb4c0f"
+    },
+    "normal-source-handoff.json": {
+      "bytes": 1049,
+      "sha256": "168bd7bffd705bf944a03a5902aece3ea8c682e45e48738650308a009b416e46"
+    },
+    "normal-source-handoff-receiver.json": {
+      "bytes": 179,
+      "sha256": "b6ed2c0e7931da387d75001c62deec25719b6889ebd5b4ac9bc45c0d0f18b0bd"
+    },
+    "normal-check.stdout.json.gz": {
+      "bytes": 2684,
+      "sha256": "29668e01c5b56cfa9d89f33314f086d9155460470ae7f8394c3c4601b3be00e9"
+    },
+    "normal-check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-cleanup-pw-dump.json.gz": {
+      "bytes": 2083,
+      "sha256": "b0b4cc05ae2fa9de1d46cbe80b61b5f72842e880e170ee4504e9fb46a2706116"
+    },
+    "instrumented-result.json": {
+      "bytes": 13944,
+      "sha256": "69e8b96cffa0ff2af48980faf878132e1c2496995f351e6ad115e4f79332551f"
+    },
+    "instrumented-source-handoff.json": {
+      "bytes": 1060,
+      "sha256": "338e8a608cebb583e6f6f936bb3a60f9081756c18bb28af52ff6f19cdc652ced"
+    },
+    "instrumented-source-handoff-receiver.json": {
+      "bytes": 179,
+      "sha256": "556c538d57e1e38b6c3c8e5fc8331111a3034b8414bc66daa35d9ef529c6b718"
+    },
+    "instrumented-check.stdout.json.gz": {
+      "bytes": 2665,
+      "sha256": "4248cac76308755820de16d7107d7b872650430266c982c9d495a3020db46792"
+    },
+    "instrumented-check.stderr.log.gz": {
+      "bytes": 178,
+      "sha256": "775f808318d236a03d4b4130fc76c0c9feb1586e4554250dc5877ba6ffdee0f0"
+    },
+    "instrumented-cleanup-pw-dump.json.gz": {
+      "bytes": 2082,
+      "sha256": "6ada347c32e32690e8270dfe3095d7e1658c009b9bd1bb0ead5ed28613f4b83e"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 126,
+      "sha256": "ed15419ddf57a88832e344cdb122e05180b24e318740e90f692c21cfc1375304"
+    },
+    "raw-redacted-gitleaks-findings.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "uncompressed": {
+    "initial-push-ci-failed.log.gz": {
+      "bytes": 28058,
+      "sha256": "494c38472c7707bcd50bacd755da8e63828aba7d6852b1058d059a9d98451865"
+    },
+    "capture.patch.gz": {
+      "bytes": 1861,
+      "sha256": "a5cec5853160414b54ad5a19aa8d182fc4e76a9e1b86c42005b09f056c5f9008"
+    },
+    "run_controller_receiver_capture.py.gz": {
+      "bytes": 2677,
+      "sha256": "6687331073d0963db8db9d29d19ff4df7df7a2871acc261605e0f64648019c18"
+    },
+    "archive_controller_receiver_capture.py.gz": {
+      "bytes": 18576,
+      "sha256": "d5d23a81a9d1fa265e66efc5a11fa29f7702e3187e96afd623ed1b664e842443"
+    },
+    "normal-build.log.gz": {
+      "bytes": 173,
+      "sha256": "b7e8f22fa00ea1965254e88d1697efe3dfb6bbc07dc776a3141e07f95d7530f8"
+    },
+    "instrumented-build.log.gz": {
+      "bytes": 173,
+      "sha256": "b7e8f22fa00ea1965254e88d1697efe3dfb6bbc07dc776a3141e07f95d7530f8"
+    },
+    "normal.log.gz": {
+      "bytes": 14295,
+      "sha256": "0d1daeca5fd216374ec335d043fc64cfbef47f1f9f07d30a3fb3c3d284bb4c0f"
+    },
+    "instrumented.log.gz": {
+      "bytes": 13944,
+      "sha256": "69e8b96cffa0ff2af48980faf878132e1c2496995f351e6ad115e4f79332551f"
+    },
+    "initial-failure-pw-dump.json.gz": {
+      "bytes": 28687,
+      "sha256": "b426156965724dc9f959ec3de926dd52b6329ea5ac165337a62a7b8c7a96c4b2"
+    },
+    "initial-check.stdout.json.gz": {
+      "bytes": 4746,
+      "sha256": "ca9d8b2dc1d9402aa36bb34e82db65fe9574512335d20ff50347f2d47cecc36b"
+    },
+    "initial-check.stderr.log.gz": {
+      "bytes": 54,
+      "sha256": "cd2fd67d831923a195ad4f79c99045e3627e4530bdc6a47cd852e6cd45316de4"
+    },
+    "initial-daemon.log.gz": {
+      "bytes": 92151,
+      "sha256": "b147dcf1ee9e47d01537e28d2befcc168e9362bcbe0aad8c959ff42fe347dad6"
+    },
+    "normal-check.stdout.json.gz": {
+      "bytes": 12074,
+      "sha256": "0874de238c1794013d9aeea04ac44855f53c933f87a9b1a4f31a643ef2aba9a6"
+    },
+    "normal-check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-cleanup-pw-dump.json.gz": {
+      "bytes": 12360,
+      "sha256": "77c4d89cf6384539f09250c1a3a0408fb912c5757b3ae35449f6ba4bf4d905e7"
+    },
+    "instrumented-check.stdout.json.gz": {
+      "bytes": 11763,
+      "sha256": "2fb3ae22529463635a65d7752e5740fdd2abd436166895975612c8b9f3aeac17"
+    },
+    "instrumented-check.stderr.log.gz": {
+      "bytes": 231,
+      "sha256": "913ee36b4b4e31b793d136d60bc701fc57bb40e42f17e1cfc5ec6b8612a8f9a8"
+    },
+    "instrumented-cleanup-pw-dump.json.gz": {
+      "bytes": 12360,
+      "sha256": "352f228a8dac1a56c74c8747c0c52209ca8ee68a34279a05045b847eaf829be7"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 145,
+      "sha256": "053bcc05259dde03148b6a5e2f935e28c456ca320b0c9b4175142aed75cae73a"
+    }
+  },
+  "origins": {
+    "controller-live-initial-push-ci.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-ci.json",
+      "bytes": 5435,
+      "sha256": "f40cde0e2de9a61a950ab1253aeb2c8acddac6fcff64363e11dd2718cb6645dd"
+    },
+    "controller-live-initial-pr-ci.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-pr-ci.json",
+      "bytes": 5443,
+      "sha256": "3b781db20b8ac869bc8556bfe55d53ad3055682db34416491c5ec422aa1a9d7b"
+    },
+    "controller-live-receiver-capture-result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-capture-result.json",
+      "bytes": 1887,
+      "sha256": "451373f651c5fa97b76206a5e99c13da56bce91ce42a50298beebcaeb1054d1a"
+    },
+    "controller-live-receiver-capture-pins.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-capture-pins.json",
+      "bytes": 572,
+      "sha256": "15869292498515a1c973ca65c705c0fb39b2d76414ea4c1c715b4887c7ec5aa7"
+    },
+    "initial-push-ci-failed.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-ci-failed.log",
+      "bytes": 28058,
+      "sha256": "494c38472c7707bcd50bacd755da8e63828aba7d6852b1058d059a9d98451865"
+    },
+    "capture.patch.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-capture.patch",
+      "bytes": 1861,
+      "sha256": "a5cec5853160414b54ad5a19aa8d182fc4e76a9e1b86c42005b09f056c5f9008"
+    },
+    "run_controller_receiver_capture.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/run_controller_receiver_capture.py",
+      "bytes": 2677,
+      "sha256": "6687331073d0963db8db9d29d19ff4df7df7a2871acc261605e0f64648019c18"
+    },
+    "archive_controller_receiver_capture.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive_controller_receiver_capture.py",
+      "bytes": 18576,
+      "sha256": "d5d23a81a9d1fa265e66efc5a11fa29f7702e3187e96afd623ed1b664e842443"
+    },
+    "normal-build.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-build.log",
+      "bytes": 173,
+      "sha256": "b7e8f22fa00ea1965254e88d1697efe3dfb6bbc07dc776a3141e07f95d7530f8"
+    },
+    "instrumented-build.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-build.log",
+      "bytes": 173,
+      "sha256": "b7e8f22fa00ea1965254e88d1697efe3dfb6bbc07dc776a3141e07f95d7530f8"
+    },
+    "normal.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal.log",
+      "bytes": 14295,
+      "sha256": "0d1daeca5fd216374ec335d043fc64cfbef47f1f9f07d30a3fb3c3d284bb4c0f"
+    },
+    "instrumented.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented.log",
+      "bytes": 13944,
+      "sha256": "69e8b96cffa0ff2af48980faf878132e1c2496995f351e6ad115e4f79332551f"
+    },
+    "initial-result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/result.json",
+      "bytes": 5800,
+      "sha256": "02ddc940fa3bb6bc6bd1f58cf44ee2680a9a74a44d78004686b87418ea9ac7e2"
+    },
+    "initial-live-failure.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/live-failure.json",
+      "bytes": 5178,
+      "sha256": "7557313ccd727474ad10b7fe737d328b3c58239f079b71691d7e088a6f1e7101"
+    },
+    "initial-source-handoff-receiver.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/source-handoff-receiver.json",
+      "bytes": 298,
+      "sha256": "c482fe7b63052e7a2c20b1f990ab7dcb19a0649d9ef02bc5f55241e2ec8a935a"
+    },
+    "initial-source-handoff-failed-recording.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/source-handoff-failed-recording.json",
+      "bytes": 91,
+      "sha256": "8a91822c458d4b0017729986dbd3e90126a4191b9806354d307d43e8b4ff3cdb"
+    },
+    "initial-source-handoff.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/source-handoff.json",
+      "bytes": 1063,
+      "sha256": "19949ff978dd079a74261c1977e8f2c2dc7008813481fd25cc67890dbdfa9407"
+    },
+    "initial-failure-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/failure-pw-dump.json",
+      "bytes": 28687,
+      "sha256": "b426156965724dc9f959ec3de926dd52b6329ea5ac165337a62a7b8c7a96c4b2"
+    },
+    "initial-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/check.stdout.json",
+      "bytes": 4746,
+      "sha256": "ca9d8b2dc1d9402aa36bb34e82db65fe9574512335d20ff50347f2d47cecc36b"
+    },
+    "initial-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/check.stderr.log",
+      "bytes": 54,
+      "sha256": "cd2fd67d831923a195ad4f79c99045e3627e4530bdc6a47cd852e6cd45316de4"
+    },
+    "initial-daemon.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-initial-push-artifacts/coverage-reports/private-routing/daemon.log",
+      "bytes": 92151,
+      "sha256": "b147dcf1ee9e47d01537e28d2befcc168e9362bcbe0aad8c959ff42fe347dad6"
+    },
+    "normal-result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01/result.json",
+      "bytes": 14295,
+      "sha256": "0d1daeca5fd216374ec335d043fc64cfbef47f1f9f07d30a3fb3c3d284bb4c0f"
+    },
+    "normal-source-handoff.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01/source-handoff.json",
+      "bytes": 1049,
+      "sha256": "168bd7bffd705bf944a03a5902aece3ea8c682e45e48738650308a009b416e46"
+    },
+    "normal-source-handoff-receiver.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01/source-handoff-receiver.json",
+      "bytes": 179,
+      "sha256": "b6ed2c0e7931da387d75001c62deec25719b6889ebd5b4ac9bc45c0d0f18b0bd"
+    },
+    "normal-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01/check.stdout.json",
+      "bytes": 12074,
+      "sha256": "0874de238c1794013d9aeea04ac44855f53c933f87a9b1a4f31a643ef2aba9a6"
+    },
+    "normal-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-normal-01/cleanup-pw-dump.json",
+      "bytes": 12360,
+      "sha256": "77c4d89cf6384539f09250c1a3a0408fb912c5757b3ae35449f6ba4bf4d905e7"
+    },
+    "instrumented-result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01/result.json",
+      "bytes": 13944,
+      "sha256": "69e8b96cffa0ff2af48980faf878132e1c2496995f351e6ad115e4f79332551f"
+    },
+    "instrumented-source-handoff.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01/source-handoff.json",
+      "bytes": 1060,
+      "sha256": "338e8a608cebb583e6f6f936bb3a60f9081756c18bb28af52ff6f19cdc652ced"
+    },
+    "instrumented-source-handoff-receiver.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01/source-handoff-receiver.json",
+      "bytes": 179,
+      "sha256": "556c538d57e1e38b6c3c8e5fc8331111a3034b8414bc66daa35d9ef529c6b718"
+    },
+    "instrumented-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01/check.stdout.json",
+      "bytes": 11763,
+      "sha256": "2fb3ae22529463635a65d7752e5740fdd2abd436166895975612c8b9f3aeac17"
+    },
+    "instrumented-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01/check.stderr.log",
+      "bytes": 231,
+      "sha256": "913ee36b4b4e31b793d136d60bc701fc57bb40e42f17e1cfc5ec6b8612a8f9a8"
+    },
+    "instrumented-cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-instrumented-01/cleanup-pw-dump.json",
+      "bytes": 12360,
+      "sha256": "352f228a8dac1a56c74c8747c0c52209ca8ee68a34279a05045b847eaf829be7"
+    },
+    "raw-gitleaks.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-capture-gitleaks.log",
+      "bytes": 145,
+      "sha256": "053bcc05259dde03148b6a5e2f935e28c456ca320b0c9b4175142aed75cae73a"
+    },
+    "raw-redacted-gitleaks-findings.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-receiver-capture-gitleaks-findings.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  }
+}

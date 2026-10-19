@@ -3,6 +3,7 @@
 // Generated audio and cache stay inside its private runtime; no host output.
 #include "ui/DeckController.hpp"
 #include "../../tests/StemExportFixture.hpp"
+#include "../../tests/StemServiceFixture.hpp"
 
 #include <QCoreApplication>
 #include <QDataStream>
@@ -18,6 +19,7 @@
 #include <QTemporaryDir>
 #include <QThread>
 #include <QThreadPool>
+#include <QtConcurrent/QtConcurrentRun>
 #include <QtEndian>
 
 #include <pipewire/filter.h>
@@ -27,11 +29,16 @@
 #include <atomic>
 #include <bit>
 #include <chrono>
+#include <cerrno>
+#include <condition_variable>
+#include <csignal>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
+#include <mutex>
+#include <poll.h>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -39,6 +46,8 @@
 #include <sys/prctl.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 namespace {
@@ -66,7 +75,8 @@ bool save(const QString& path, const QJsonObject& value)
     return file.write(bytes) == bytes.size() && file.commit();
 }
 
-void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t totalFrames = fixtureFrames)
+void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t totalFrames = fixtureFrames,
+                  std::uint32_t sampleRate = 48000)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::NewOnly))
@@ -76,8 +86,8 @@ void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t 
     header.writeRawData("RIFF", 4);
     header << quint32(36 + totalFrames * 4);
     header.writeRawData("WAVEfmt ", 8);
-    header << quint32(16) << quint16(1) << quint16(2) << quint32(48000)
-           << quint32(192000) << quint16(4) << quint16(16);
+    header << quint32(16) << quint16(1) << quint16(2) << quint32(sampleRate)
+           << quint32(sampleRate * 4) << quint16(4) << quint16(16);
     header.writeRawData("data", 4);
     header << quint32(totalFrames * 4);
     std::array<char, 4096 * 4> block{};
@@ -476,6 +486,423 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
         {"steady_sample_tolerance", 1e-6}, {"scope", "Generated fake separator, actual cache/controller/render/PipeWire paths. No model inference, physical routing, latency, sustained or musical qualification."}};
 }
 
+
+// The fake service has no native descendants in these modes. Bind every
+// observed leader while alive; pidfd fallback is test safety after controller
+// unwind, never a replacement for the product cleanup assertions below.
+class ServiceTrace {
+public:
+    explicit ServiceTrace(conflux::test::StemServiceFixture fixture) : fixture_(std::move(fixture)) {}
+    ~ServiceTrace()
+    {
+        try { capture(); } catch (...) {} // Bind any still-live failed-setup child before fallback.
+        for (const auto& child : children_) {
+            if (!exited(child)) {
+                (void)::syscall(SYS_pidfd_send_signal, child.fd, SIGKILL, nullptr, 0);
+                pollfd event{child.fd, POLLIN, 0};
+                (void)::poll(&event, 1, 2000);
+            }
+            siginfo_t status{};
+            (void)::waitid(P_PIDFD, id_t(child.fd), &status, WEXITED | WNOHANG);
+            ::close(child.fd);
+        }
+    }
+    std::vector<QJsonObject> rows() const
+    {
+        QFile file(fixture_.marker(".trace"));
+        if (!file.exists()) return {};
+        if (!file.open(QIODevice::ReadOnly) || file.size() > 1024 * 1024)
+            throw std::runtime_error("Cannot read bounded service identity trace");
+        const auto bytes = file.readAll();
+        const auto end = bytes.lastIndexOf('\n');
+        std::vector<QJsonObject> result;
+        for (const auto& line : bytes.first(end + 1).split('\n')) {
+            if (line.isEmpty()) continue;
+            const auto document = QJsonDocument::fromJson(line);
+            if (!document.isObject()) throw std::runtime_error("Invalid complete fixture trace row");
+            result.push_back(document.object());
+        }
+        return result; // Only a still-unwritten trailing row may be retried.
+    }
+    void capture()
+    {
+        for (const auto& row : rows()) {
+            if (row["fixture"].toString() != "started") continue;
+            const auto pid = pid_t(row["fixture_pid"].toInt());
+            const auto ticks = row["fixture_start_ticks"].toString().toLatin1();
+            if (pid <= 1 || ticks.isEmpty()) throw std::runtime_error("Invalid fixture process identity");
+            if (std::ranges::any_of(children_, [&](const auto& child) { return child.pid == pid && child.ticks == ticks; })) continue;
+            const auto fd = int(::syscall(SYS_pidfd_open, pid, 0));
+            if (fd < 0 && errno == ESRCH) continue; // Already exited before observation; never signal its PID.
+            QFile stat(QString("/proc/%1/stat").arg(pid));
+            if (fd < 0) throw std::runtime_error("Cannot retain fixture process identity");
+            if (!stat.open(QIODevice::ReadOnly)) {
+                pollfd event{fd, POLLIN, 0};
+                const bool alreadyExited = ::poll(&event, 1, 0) > 0 && (event.revents & POLLIN);
+                if (fd >= 0) ::close(fd);
+                if (alreadyExited) continue;
+                throw std::runtime_error("Cannot bind live fixture process identity");
+            }
+            const auto raw = stat.readAll();
+            const auto fields = raw.mid(raw.lastIndexOf(") ") + 2).split(' ');
+            if (fields.size() <= 19 || fields[19] != ticks) {
+                ::close(fd); throw std::runtime_error("Fixture PID identity changed before capture");
+            }
+            const auto serviceJob = row["fixture_job"].toString();
+            const auto job = QFileInfo(serviceJob).absolutePath();
+            if (QFileInfo(serviceJob).fileName() != "service" || !QFileInfo(job).fileName().startsWith(".live-")) {
+                ::close(fd); throw std::runtime_error("Fixture did not identify its private live job");
+            }
+            children_.push_back({pid, fd, ticks, job});
+        }
+    }
+    std::size_t size() const { return children_.size(); }
+    bool alive(std::size_t index) const { return !exited(children_.at(index)); }
+    bool gone(std::size_t index) const
+    {
+        const auto& child = children_.at(index);
+        if (!exited(child) || QFileInfo::exists(child.job)) return false;
+        QFile stat(QString("/proc/%1/stat").arg(child.pid));
+        if (!stat.exists()) return true;
+        if (!stat.open(QIODevice::ReadOnly)) return false;
+        const auto raw = stat.readAll();
+        const auto fields = raw.mid(raw.lastIndexOf(") ") + 2).split(' ');
+        return fields.size() > 19 && fields[19] != child.ticks; // A reused PID is a different process.
+    }
+    bool charged(std::size_t index) const
+    { return QFileInfo::exists(QDir(children_.at(index).job).filePath("reservation.json")); }
+    std::size_t count(std::size_t index, const char* key, const char* value) const
+    {
+        const auto& child = children_.at(index);
+        const auto values = rows();
+        return std::size_t(std::ranges::count_if(values, [&](const auto& row) {
+            return row["fixture_pid"].toInt() == child.pid && row["fixture_start_ticks"].toString().toLatin1() == child.ticks &&
+                row[key].toString() == value;
+        }));
+    }
+    QJsonArray identities() const
+    {
+        QJsonArray result;
+        for (const auto& child : children_) result.append(QJsonObject{{"pid", child.pid},
+            {"start_ticks", QString::fromLatin1(child.ticks)}, {"job", child.job}});
+        return result;
+    }
+private:
+    struct Child { pid_t pid; int fd; QByteArray ticks; QString job; };
+    static bool exited(const Child& child)
+    { pollfd event{child.fd, POLLIN, 0}; return ::poll(&event, 1, 0) > 0 && (event.revents & POLLIN); }
+    conflux::test::StemServiceFixture fixture_;
+    std::vector<Child> children_;
+};
+
+// A separate local pool would not block controller QtConcurrent work. This
+// scoped barrier occupies the GLOBAL pool only after its loader is finished.
+class RetirementGate {
+public:
+    RetirementGate() : previous_(QThreadPool::globalInstance()->maxThreadCount()), state_(std::make_shared<State>())
+    {
+        QThreadPool::globalInstance()->setMaxThreadCount(1);
+        try {
+            future_ = QtConcurrent::run([state = state_] {
+                std::unique_lock lock(state->mutex);
+                state->entered = true;
+                state->changed.notify_all();
+                state->changed.wait(lock, [&] { return state->released; });
+            });
+        } catch (...) {
+            QThreadPool::globalInstance()->setMaxThreadCount(previous_);
+            throw;
+        }
+        std::unique_lock lock(state_->mutex);
+        if (!state_->changed.wait_for(lock, std::chrono::seconds(8), [&] { return state_->entered; })) {
+            state_->released = true; state_->changed.notify_all();
+            QThreadPool::globalInstance()->setMaxThreadCount(previous_);
+            throw std::runtime_error("Cannot occupy the global retirement worker");
+        }
+    }
+    ~RetirementGate() { release(); }
+    void release()
+    {
+        if (!state_) return;
+        { std::lock_guard lock(state_->mutex); state_->released = true; }
+        state_->changed.notify_all();
+        // Never waitForFinished on an unfinished Qt runnable from the GUI.
+        while (!future_.isFinished()) QThread::msleep(1);
+        future_.waitForFinished();
+        QThreadPool::globalInstance()->setMaxThreadCount(previous_);
+        state_.reset();
+    }
+private:
+    struct State { std::mutex mutex; std::condition_variable changed; bool entered = false, released = false; };
+    int previous_;
+    std::shared_ptr<State> state_;
+    QFuture<void> future_;
+};
+
+template<class Check>
+void privateLivePair(conflux::DeckController& controller, Sink& sink, QString& left, QString& right, Check&& require)
+{
+    controller.refreshAudioRouting();
+    wait([&] {
+        for (const auto& value : controller.audioRouting()["ports"].toList()) {
+            const auto port = value.toMap();
+            const auto prefix = QString::fromStdString(sink.name()) + " · input_";
+            if (port["label"].toString() == prefix + "0 [FL]") left = port["key"].toString();
+            if (port["label"].toString() == prefix + "1 [FR]") right = port["key"].toString();
+        }
+        return !left.isEmpty() && !right.isEmpty() && controller.libraryReady();
+    }, "Live controller private routing/library did not become ready");
+    controller.configureAudioRouting(left, right, {}, {});
+    require(controller.error().isEmpty(), "Live controller uses the exact private master pair with cue output disabled");
+}
+
+template<class Check>
+void waitLiveLoad(conflux::DeckController& controller, int deck, Check&& require)
+{
+    wait([&] {
+        if (!controller.busy() && !controller.error().isEmpty())
+            throw std::runtime_error("Live controller load failed: " + controller.error().toStdString());
+        return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrames[deck];
+    }, "Live controller load did not complete", true, std::chrono::seconds(60));
+    const auto map = controller.decks()[deck].toMap();
+    require(map["stemBank"].toBool() && map["overviewStem"].toString() == "source" &&
+            !map["waveform"].toList().isEmpty() && !controller.preparation()["cacheHit"].toBool(),
+            "A genuine stem cache miss installs a live bank with its source waveform");
+}
+
+template<class Check>
+void runLiveStemController(const std::filesystem::path& output, const QString& parent,
+                           const QString& normal, bool functionalOnly, Check&& require, QJsonObject& observations)
+{
+    QTemporaryDir directory(QDir(parent).filePath("live-controller-XXXXXX"));
+    require(directory.isValid(), "Live controller fixtures have a separate private owner");
+    const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+    ServiceTrace trace(fixture); // Outlives the controller for failed-test safety.
+    conflux::DeckController::PreparationOptions options;
+    options.stemEngine = fixture.engine;
+    options.stemServicePath = fixture.service;
+    conflux::DeckController controller(options);
+    Sink sink("conflux-live-controller-master-" + std::to_string(::getpid()), 1e-6F);
+    const auto sinkMatches = [&] { return functionalOnly || (!sink.wrong() && !sink.zeros()); };
+    QString left, right;
+    privateLivePair(controller, sink, left, right, require);
+    const auto source = directory.filePath("live-bass-source.wav");
+    constexpr std::uint32_t liveFrames = 30 * 48000;
+    writeFixture(source, 8192, -4096, 30 * 44100, 44100);
+    controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+    waitLiveLoad(controller, 0, require);
+    trace.capture();
+    const auto loaded = controller.audioState();
+    require(trace.size() == 1 && trace.alive(0) && trace.count(0, "command", "load") == 1 &&
+            trace.count(0, "command", "seek") == 0 && trace.count(0, "fixture", "runtime") == 1 &&
+            loaded.sourceFrames[0] >= liveFrames - 1 && loaded.sourceFrames[0] <= liveFrames + 1 &&
+            controller.decks()[0].toMap()["name"].toString() == "live-bass-source.wav" &&
+            controller.retainedPcmBytes() == 0 && !QFile::exists(fixture.engine.exporterPath.chopped(3) + ".calls"),
+            "Initial live install uses one service load/runtime, no constructor seek or offline PCM export");
+    constexpr std::array<float, 4> bass{0.F, 1.F, 0.F, 0.F};
+    for (int role = 0; role < 4; ++role) controller.setStemGain(0, role, role == 1 ? 1.0 : 0.0);
+    wait([&] { return controller.audioState().stemGain[0] == bass; }, "Live bass targets were not acknowledged");
+    controller.setPlaying(0, true);
+    wait([&] { return controller.audioState().sourceFrame[0] >= 4096; }, "Live bass did not render a nonempty settled prefix");
+    controller.setPlaying(0, false);
+    wait([&] { return !controller.audioState().playing[0]; }, "Live bass pause was not acknowledged");
+    require(controller.cuePress(0), "Paused live deck accepts storing the advanced cue");
+    wait([&] { return controller.audioState().cueHeld[0] && controller.audioState().cueFrame[0] >= 4096; },
+         "Live cue was not stored at the advanced cursor");
+    controller.cueRelease(0);
+    controller.setCueSelected(0, true);
+    controller.setPlaying(0, true);
+    const auto cue = controller.audioState().cueFrame[0];
+    wait([&] { return controller.audioState().playing[0] && !controller.audioState().cueHeld[0] &&
+                      controller.audioState().sourceFrame[0] >= cue + 1024; }, "Live bass restart did not settle");
+    sink.validate(true);
+    wait([&] { return sink.received(0) >= 1024 && sink.received(1) >= 1024; }, "Exact bass samples did not reach the private sink");
+    require(sinkMatches(), "Bass-only output matches the independent half-amplitude oracle, not the original mix");
+    const auto recordingPath = QString::fromStdString((output / "generated-live-controller.wav").string());
+    controller.startRecording(QUrl::fromLocalFile(recordingPath));
+    wait([&] { return controller.recording()["status"].toString() == "Recording" &&
+                      controller.recording()["acceptedFrames"].toULongLong() >= 1024; }, "Live recording did not attach");
+    controller.loadDeck(1, QUrl::fromLocalFile(normal));
+    wait([&] { return !controller.busy() && controller.audioState().sourceFrames[1]; }, "Normal muted live peer did not load");
+    controller.setDeckGain(1, 0.0);
+    wait([&] { return controller.audioState().deckGain[1] == 0.F; }, "Normal peer mute was not acknowledged");
+    const auto mutedAt = controller.audioState().outputFrame;
+    wait([&] { return controller.audioState().outputFrame >= mutedAt + 1024; }, "Normal peer mute did not settle");
+    controller.setPlaying(1, true);
+    wait([&] { return controller.audioState().playing[1] && controller.audioState().sourceFrame[1] >= 1024; },
+         "Muted normal peer did not advance");
+    const auto shortSource = directory.filePath("cancel-live-target.wav");
+    writeFixture(shortSource, 2048, 3072, 211);
+    const auto shortFrames = [&] {
+        QFile source(shortSource);
+        if (!source.open(QIODevice::ReadOnly)) throw std::runtime_error("Cannot read tiny live duration oracle");
+        const std::filesystem::path spool(QFile::encodeName(directory.path()).constData());
+        auto input = conflux::audio::prepareStemInput(source.handle(), 65536, {}, spool);
+        auto output = conflux::audio::prepareStemOutput(input.descriptor(), input.frames(), 65536, {}, spool);
+        return output.frames();
+    }(); // Independent complete-file conversion, just 211 original frames.
+    const auto before = controller.audioState();
+    const auto beforeMaps = controller.decks();
+    const auto sessions = controller.completedSessions(), retained = controller.retainedPcmBytes();
+    const auto recordedBefore = controller.recording()["acceptedFrames"].toULongLong();
+    controller.loadStemDeck(1, QUrl::fromLocalFile(shortSource));
+    require(QThreadPool::globalInstance()->waitForDone(60000), "Live candidate worker finishes before queued GUI acceptance");
+    trace.capture();
+    require(trace.size() == 2 && trace.alive(1) && controller.cancelPreparation(),
+            "The complete queued live candidate is still owned and cancellable");
+    const auto recordedAtCompletion = controller.recording()["acceptedFrames"].toULongLong();
+    {
+        RetirementGate gate;
+        bool heartbeat = false;
+        QMetaObject::invokeMethod(&controller, [&] { heartbeat = true; }, Qt::QueuedConnection);
+        wait([&] { return heartbeat && controller.preparation()["status"].toString() == "Cancelling" &&
+                          controller.audioState().outputFrame > before.outputFrame; }, "GUI did not progress with retirement held");
+        require(controller.busy() && trace.alive(1) && trace.charged(1) &&
+                controller.audioState().sourceGeneration == before.sourceGeneration &&
+                controller.recording()["active"].toBool(),
+                "Queued live retirement remains charged and owned while the GUI and existing writer advance");
+        gate.release();
+    }
+    wait([&] { return !controller.busy() && trace.gone(1) && controller.audioState().outputFrame >=
+                         before.outputFrame + recordedAtCompletion - recordedBefore + 1024; },
+         "Cancelled live candidate did not retire on its worker");
+    const auto cancelled = controller.audioState();
+    require(controller.preparation()["status"].toString() == "Cancelled" && controller.completedSessions() == sessions &&
+            cancelled.sourceGeneration == before.sourceGeneration && cancelled.stemGain[0] == bass &&
+            cancelled.cueFrame[0] == cue && cancelled.cueSelected[0] && cancelled.playing[0] && cancelled.playing[1] &&
+            cancelled.deckGain[1] == 0.F && !cancelled.buffering[0] && !cancelled.buffering[1] &&
+            !cancelled.sourceReadError[0] && !cancelled.sourceReadError[1] &&
+            !cancelled.sourceReadErrorObserved[0] && !cancelled.sourceReadErrorObserved[1] &&
+            !cancelled.starvedFrames[0] && !cancelled.starvedFrames[1] &&
+            controller.decks()[0].toMap()["name"] == beforeMaps[0].toMap()["name"] &&
+            controller.decks()[1].toMap()["name"] == beforeMaps[1].toMap()["name"] &&
+            controller.decks()[0].toMap()["waveform"] == beforeMaps[0].toMap()["waveform"] &&
+            controller.decks()[1].toMap()["waveform"] == beforeMaps[1].toMap()["waveform"] &&
+            controller.recording()["path"].toString() == recordingPath &&
+            cancelled.sourceFrame[0] < cancelled.sourceFrames[0] && cancelled.sourceFrame[1] < cancelled.sourceFrames[1] &&
+            cancelled.sourceFrame[0] - before.sourceFrame[0] == cancelled.outputFrame - before.outputFrame &&
+            cancelled.sourceFrame[1] - before.sourceFrame[1] == cancelled.outputFrame - before.outputFrame &&
+            controller.retainedPcmBytes() == retained && sinkMatches(),
+            "Queued live cancellation preserves both advancing clocks, selected bass, cue, peer and writer");
+    controller.loadStemDeck(1, QUrl::fromLocalFile(shortSource));
+    waitLiveLoad(controller, 1, require);
+    trace.capture();
+    require(trace.size() == 3 && trace.alive(2) && !controller.audioState().playing[1] &&
+            controller.audioState().sourceFrame[1] == 0 && controller.audioState().sourceFrames[1] == shortFrames &&
+            controller.decks()[1].toMap()["name"].toString() == QFileInfo(shortSource).fileName() &&
+            controller.decks()[1].toMap()["durationSeconds"].toDouble() == shortFrames / 48000.0 &&
+            controller.completedSessions() == sessions &&
+            controller.retainedPcmBytes() == 0 && trace.alive(0),
+            "Paused live replacement retires the normal peer without restarting its audible live owner");
+    controller.loadDeck(1, QUrl::fromLocalFile(normal));
+    wait([&] { return !controller.busy() && !controller.audioState().stemBank[1] && trace.gone(2); },
+         "Live-to-normal target replacement did not finish whole-owner cleanup");
+    require(controller.audioState().sourceFrames[1] == fixtureFrames &&
+            controller.decks()[1].toMap()["name"].toString() == QFileInfo(normal).fileName() &&
+            controller.completedSessions() == sessions && trace.alive(0) && controller.recording()["active"].toBool() &&
+            controller.recording()["path"].toString() == recordingPath && sinkMatches(),
+            "Live-to-normal replacement preserves the audible peer service, shared session and original recorder");
+    const auto beforeRoute = controller.audioState();
+    const auto prefixFrames = controller.recording()["acceptedFrames"].toULongLong();
+    const auto seeks = trace.count(0, "command", "seek");
+    sink.validate(false); // Explicit rebuild/start ramps and omitted wall time are excluded.
+    controller.configureAudioRouting(left, right, {}, {});
+    wait([&] {
+        if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+        return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096;
+    }, "Consumed live owner did not rebuild on the same service", true, std::chrono::seconds(60));
+    trace.capture();
+    const auto routed = controller.audioState();
+    require(trace.size() == 3 && trace.alive(0) && trace.count(0, "command", "load") == 1 &&
+            trace.count(0, "fixture", "runtime") == 1 && trace.count(0, "command", "seek") == seeks + 1 &&
+            routed.stemGain[0] == bass && routed.playing[0] && routed.cueFrame[0] == cue && routed.cueSelected[0] &&
+            !routed.playing[1] && !routed.stemBank[1] && routed.sourceFrame[0] < routed.sourceFrames[0] &&
+            controller.completedSessions() == sessions + 1 && controller.recording()["active"].toBool() &&
+            controller.recording()["path"].toString() == recordingPath,
+            "Consumed routing rebuild retains one service/runtime with one necessary seek and captured bass/cue/transport targets");
+    const auto received = sink.received(0), wrong = sink.wrong(), zeros = sink.zeros();
+    sink.validate(true);
+    wait([&] { return sink.received(0) >= received + 1024; }, "Rebuilt live bass samples did not arrive");
+    require(functionalOnly || (sink.wrong() == wrong && sink.zeros() == zeros),
+            "Rebuilt bass reaches the virtual sink with the existing normal-versus-functional sample gate");
+    controller.stopRecording();
+    wait([&] { return !controller.recording()["active"].toBool(); }, "Live recording did not finalize");
+    const auto recording = controller.recording();
+    require(recording["status"].toString() == "Complete" && recording["acceptedFrames"] == recording["writtenFrames"] &&
+            recording["overflowFrames"].toULongLong() == 0 && !routed.invalidBuffers && !routed.rejected &&
+            !routed.sourceReadErrorObserved[0] && !routed.sourceReadError[0] && !routed.starvedFrames[0],
+            "Live controller finalizes every accepted master frame with healthy live source and no overflow");
+    const auto wav = inspectStemRecording(recordingPath, prefixFrames, recording["writtenFrames"].toULongLong());
+    sink.validate(false);
+    controller.shutdown();
+    require(trace.gone(0) && trace.gone(1) && trace.gone(2) && !controller.busy() && !controller.outputReady(),
+            "Shutdown reaps all three identity-bound service children and removes their charged jobs");
+    observations["live_controller"] = QJsonObject{{"recording", wav}, {"children", trace.identities()},
+        {"virtual_sink_sample_gate", !functionalOnly}, {"virtual_sink_wrong_samples", qint64(sink.wrong())},
+        {"virtual_sink_zero_samples", qint64(sink.zeros())}, {"source_frames", qint64(loaded.sourceFrames[0])},
+        {"scope", "Generated 30-second input and stdlib service, selected bass samples, private PipeWire controller/handoff/rebuild/recording. Rebuild gaps/ramps excluded; no model, physical, latency or sustained qualification."}};
+}
+
+template<class Check>
+void runLostLiveOwners(const QString& parent, Check&& require, QJsonObject& observations)
+{
+    QTemporaryDir directory(QDir(parent).filePath("lost-live-controller-XXXXXX"));
+    require(directory.isValid(), "Constructor-loss fixtures have an independent private owner");
+    auto fixture = conflux::test::makeStemServiceFixture(directory.path(), "stale-after-seek");
+    ServiceTrace trace(fixture);
+    conflux::DeckController::PreparationOptions options;
+    options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
+    conflux::DeckController controller(options);
+    Sink sink("conflux-lost-live-master-" + std::to_string(::getpid()));
+    QString left, right;
+    privateLivePair(controller, sink, left, right, require);
+    const auto a = directory.filePath("lost-live-a.wav"), b = directory.filePath("lost-live-b.wav");
+    writeFixture(a, 4096, -2048, 30 * 44100, 44100); writeFixture(b, 2048, 3072, 30 * 44100, 44100);
+    for (int deck = 0; deck < 2; ++deck) {
+        controller.loadStemDeck(deck, QUrl::fromLocalFile(deck ? b : a));
+        waitLiveLoad(controller, deck, require); trace.capture();
+        controller.setDeckGain(deck, 0.0);
+        wait([&] { return controller.audioState().deckGain[deck] == 0.F; }, "Lost-owner fixture mute was not acknowledged");
+        const auto mutedAt = controller.audioState().outputFrame;
+        wait([&] { return controller.audioState().outputFrame >= mutedAt + 1024; }, "Lost-owner fixture mute did not settle");
+        controller.setPlaying(deck, true);
+        wait([&] { return controller.audioState().sourceFrame[deck] >= 1024; }, "Lost-owner fixture did not consume PCM");
+        controller.setPlaying(deck, false);
+        wait([&] { return !controller.audioState().playing[deck]; }, "Lost-owner fixture pause was not acknowledged");
+    }
+    require(trace.size() == 2 && trace.alive(0) && trace.alive(1) &&
+            trace.count(0, "command", "load") == 1 && trace.count(1, "command", "load") == 1,
+            "Two independent live services each render before the constructor-failure route rebuild");
+    controller.configureAudioRouting(left, right, {}, {});
+    wait([&] { return !controller.busy() && !controller.error().isEmpty() && trace.gone(0) && trace.gone(1); },
+         "Stale re-prime did not fail and retire both consumed owners", true, std::chrono::seconds(60));
+    const auto lost = controller.decks();
+    require(!controller.outputReady() && !lost[0].toMap()["loaded"].toBool() && !lost[1].toMap()["loaded"].toBool() &&
+            lost[0].toMap()["name"].toString().isEmpty() && lost[1].toMap()["name"].toString().isEmpty() &&
+            lost[0].toMap()["waveform"].toList().isEmpty() && lost[1].toMap()["waveform"].toList().isEmpty() &&
+            controller.audioState().sourceFrames[0] == 0 && controller.audioState().sourceFrames[1] == 0 &&
+            controller.retainedPcmBytes() == 0,
+            "Two-owner constructor loss clears both consumed live metadata rows and retains its explicit failure");
+    // Both old services are proved gone before changing any pinned fixture bytes.
+    fixture = conflux::test::makeStemServiceFixture(directory.path());
+    for (int deck = 0; deck < 2; ++deck) {
+        controller.loadStemDeck(deck, QUrl::fromLocalFile(deck ? b : a));
+        waitLiveLoad(controller, deck, require); trace.capture();
+        const auto state = controller.audioState();
+        require(!state.playing[deck] && state.sourceFrame[deck] == 0 && state.stemBank[deck] &&
+                controller.decks()[deck].toMap()["name"].toString() == (deck ? "lost-live-b.wav" : "lost-live-a.wav") &&
+                state.sourceFrames[deck] >= 30 * 48000 - 1 && state.sourceFrames[deck] <= 30 * 48000 + 1 &&
+                (deck || (!state.sourceFrames[1] && !controller.decks()[1].toMap()["loaded"].toBool())),
+                "A consumed-owner failure permits sequential explicit reload without recreating its still-empty peer");
+    }
+    require(trace.size() == 4 && trace.alive(2) && trace.alive(3), "Sequential reload owns exactly two new service identities");
+    controller.shutdown();
+    require(trace.gone(2) && trace.gone(3) && !controller.busy() && !controller.outputReady(),
+            "Reloaded whole owners shut down and remove both fresh jobs");
+    observations["lost_live_owners"] = QJsonObject{{"children", trace.identities()},
+        {"scope", "Actual private callback consumption, deterministic stale-generation constructor failure, metadata clearing and sequential reload; no model, physical output or delivery qualification."}};
+}
+
 void validatePrivate(const std::filesystem::path& runtime, const std::filesystem::path& output)
 {
     const auto env = [](const char* name) { const auto* value = std::getenv(name); return value ? std::string(value) : std::string{}; };
@@ -721,6 +1148,8 @@ int main(int argc, char** argv)
         observations["completion"] = completion;
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         runStemController(output, fixtures.path(), a, b, libraryId, argc == 4, require, observations);
+        runLiveStemController(output, fixtures.path(), a, argc == 4, require, observations);
+        runLostLiveOwners(fixtures.path(), require, observations);
         passed = true;
     } catch (const std::exception& failure) {
         error = QString::fromUtf8(failure.what());

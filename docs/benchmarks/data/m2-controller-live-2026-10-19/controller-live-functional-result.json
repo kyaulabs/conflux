@@ -1,0 +1,112 @@
+[
+  {
+    "stage": "controller-live-full-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "reused": false,
+    "executed_in_this_pipeline": true,
+    "elapsed_seconds": 147.57874847197672
+  },
+  {
+    "stage": "controller-live-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "reused": false,
+    "executed_in_this_pipeline": true,
+    "elapsed_seconds": 152.6948767209542
+  },
+  {
+    "stage": "controller-live-smoke",
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "reused": false,
+    "executed_in_this_pipeline": true,
+    "elapsed_seconds": 2.3232814770308323
+  },
+  {
+    "stage": "controller-live-cli",
+    "command": [
+      "python3",
+      "-B",
+      "benchmarks-local/m2-live-delivery-2026-10-19/check_controller_live_cli.py",
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "reused": false,
+    "executed_in_this_pipeline": true,
+    "elapsed_seconds": 2.723216420970857
+  },
+  {
+    "stage": "controller-live-normal-routing",
+    "exit": 0,
+    "timed_out": false,
+    "reused": true,
+    "executed_in_this_pipeline": false,
+    "elapsed_seconds": null,
+    "evidence_path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-diagnostic-normal-01/result.json",
+    "evidence_pin": {
+      "bytes": 14294,
+      "sha256": "d7aa3f2076e8c28fb563e84a15d94d10dc35aecb4244d647c05ce3c22929ca6d"
+    },
+    "binary_pin": {
+      "bytes": 5368616,
+      "sha256": "9b7f02326ab7225f8f688c7f0dc30cb504a863d33c99143c878cb3dbfbc9dbbb"
+    },
+    "reuse_reason": "Exact prior diagnostic normal-routing source and executed binary; unchanged strict oracle and owned cleanup"
+  },
+  {
+    "stage": "controller-live-normal-preparation",
+    "exit": 0,
+    "timed_out": false,
+    "reused": true,
+    "executed_in_this_pipeline": false,
+    "elapsed_seconds": null,
+    "evidence_path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-green-private-01/result.json",
+    "evidence_pin": {
+      "bytes": 16603,
+      "sha256": "63ffe66e847735188ff6dc35a06cf8120ffdea864c5de27965b51d228a52afa1"
+    },
+    "binary_pin": {
+      "bytes": 15139936,
+      "sha256": "07d95debcdc01ff9570a62d05e967a8bf6a2a4ab5028c7a88493d4a82b29f136"
+    },
+    "reuse_reason": "Exact first controller GREEN binary and unchanged frozen product/test source outputs; no second execution attributed"
+  },
+  {
+    "stage": "controller-live-coverage",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "-c",
+      "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Controller validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+      "tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "reused": false,
+    "executed_in_this_pipeline": true,
+    "elapsed_seconds": 487.62369158596266
+  }
+]

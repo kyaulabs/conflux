@@ -1,0 +1,15 @@
+{
+  "baseRefName": "develop",
+  "headRefOid": "759a5f939b7b7efd1b03b97433d1361eee59c3df",
+  "mergeCommit": {
+    "oid": "c25ab6472b57be756e84c9dc2eb3009d3378f65e"
+  },
+  "mergedAt": "2026-10-19T13:08:05Z",
+  "mergedBy": {
+    "id": "U_kgDOCBCrIQ",
+    "is_bot": false,
+    "login": "kyaulabs-bot",
+    "name": "kyaulabs-bot"
+  },
+  "state": "MERGED"
+}
