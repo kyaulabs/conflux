@@ -28,7 +28,9 @@ public:
     static constexpr std::uint32_t sampleRate = 48000;
     static constexpr float maxGain = 1.F;
 
-    explicit StemBankSource(std::array<AudioSource, stemCount> stems);
+    // Sources are already positioned at initialFrame; empty staging adopts
+    // that cursor without reading or notifying any borrowed provider.
+    explicit StemBankSource(std::array<AudioSource, stemCount> stems, std::uint64_t initialFrame = 0);
     StemBankSource(const StemBankSource&) = delete;
     StemBankSource& operator=(const StemBankSource&) = delete;
     StemBankSource(StemBankSource&&) = delete;

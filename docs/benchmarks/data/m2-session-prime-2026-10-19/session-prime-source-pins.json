@@ -1,0 +1,390 @@
+{
+  ".github/workflows/build.yml": {
+    "bytes": 2478,
+    "sha256": "ea8c821d10852617eb47a9a7d6160e365fa50190c1ad8175401b2a3c481a798b"
+  },
+  "CMakeLists.txt": {
+    "bytes": 18541,
+    "sha256": "2c1ab3fea7ae0e5e187a2d49a9e550b725b3577c3de6691092dd4cbe362b914e"
+  },
+  "benchmarks-local/m2-live-delivery-2026-10-19/run_session_prime_checks.py": {
+    "bytes": 4726,
+    "sha256": "c88b64683804dacae9692ca9668e3ff7bdda09d64cffe34761834504375186e5"
+  },
+  "qml/DeckButton.qml": {
+    "bytes": 7855,
+    "sha256": "5284e393df72ed42b0fd440c9c547591e8698df8c4af25b428b3914e04cab5ab"
+  },
+  "qml/DeckSurface.qml": {
+    "bytes": 31124,
+    "sha256": "05df2d9a68b45d51ab75324a72170fa6f8aaa1c520c3800d665097fb0acbd7ec"
+  },
+  "qml/Harness.qml": {
+    "bytes": 4257,
+    "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb"
+  },
+  "qml/Main.qml": {
+    "bytes": 37470,
+    "sha256": "ced6b0cd450200206a90ae4514cfb8aadc9dedc9f4a9da2ca8faf9c13954ac6c"
+  },
+  "qml/MixerSurface.qml": {
+    "bytes": 21077,
+    "sha256": "99463dda1f74b5194567b92cb85729a094f6c832fc4c4cc8e0072bcfb17b0c7e"
+  },
+  "qml/StereoMeter.qml": {
+    "bytes": 4262,
+    "sha256": "bcae2b2ab59a17c60d64eae8a7c4b7ff3fbcdafa803e476ad61c60150ec6cae8"
+  },
+  "qml/SurfaceKnob.qml": {
+    "bytes": 3641,
+    "sha256": "beb451229c116bf7e780f9c7c94349ba6c383d94e167a1310d5441c925565e14"
+  },
+  "src/audio/AudioFile.cpp": {
+    "bytes": 18749,
+    "sha256": "0edc62473143500aba5ae05667cdf6d9998b80508bd5ebb7f3b6a58a3a937308"
+  },
+  "src/audio/AudioFile.hpp": {
+    "bytes": 6158,
+    "sha256": "5b5d801824fbadb1a12ae823d1f6393c45a0ac7cb7b866e39bca6d6dcb4bcc8f"
+  },
+  "src/audio/AudioRouting.cpp": {
+    "bytes": 4518,
+    "sha256": "2b4d0272e7a1451286c675a0f6be059d4eefd91f06f27f0e80142656f78e1799"
+  },
+  "src/audio/AudioRouting.hpp": {
+    "bytes": 2072,
+    "sha256": "4b51e7c67c3b80c60971d41c9855f17e9bf2df2d37d206fe3d54ef5683f9f65d"
+  },
+  "src/audio/AudioSource.hpp": {
+    "bytes": 1681,
+    "sha256": "e4db5acf1ed06af09faceaac7836f35dc834ee04e90d54b56d5389319d120faf"
+  },
+  "src/audio/CallbackTiming.cpp": {
+    "bytes": 3202,
+    "sha256": "54d97fdb6649d7128e45ff2fa26524aff36f7f59294c504b95eae0d947f74baf"
+  },
+  "src/audio/CallbackTiming.hpp": {
+    "bytes": 3395,
+    "sha256": "b575e4815b4bd485a39821662229412e5d8b08862014c040e1a3ce46243cf3df"
+  },
+  "src/audio/LiveRecoveryPolicy.cpp": {
+    "bytes": 2510,
+    "sha256": "fa23f8541d9aed8a54295e3fa4ddc4a658cb5da611610c6a9f4b8542f94c3014"
+  },
+  "src/audio/LiveRecoveryPolicy.hpp": {
+    "bytes": 3286,
+    "sha256": "0b26f1f0bebd82cdbabc3412ec00f851388dbcfd517c572d5999ff47002d5263"
+  },
+  "src/audio/LiveSession.cpp": {
+    "bytes": 59481,
+    "sha256": "0bf30377100dc5621920ff6d6f3e30eeafac0dd0000386312b5e362e2e2194c3"
+  },
+  "src/audio/LiveSession.hpp": {
+    "bytes": 6787,
+    "sha256": "209c717b9545395016790054347d41c5ab794c04e6f213e2b71bd0409575323f"
+  },
+  "src/audio/LiveStemBuffer.cpp": {
+    "bytes": 10051,
+    "sha256": "76b45bc75459a97b523d49c89d251e2c67ccda8143fde4a58e76cb0fd77de1b3"
+  },
+  "src/audio/LiveStemBuffer.hpp": {
+    "bytes": 3615,
+    "sha256": "2e97c8a9a327f49388cab78d394358ff15fcffb75106adbf2dc2bcfaf06c0683"
+  },
+  "src/audio/PcmReadAhead.cpp": {
+    "bytes": 12446,
+    "sha256": "f9e438214ee8ff4bd367c594aad688bc224c0b43dc6f1b26a1df48a16a2efd0b"
+  },
+  "src/audio/PcmReadAhead.hpp": {
+    "bytes": 1427,
+    "sha256": "6d15bbe4ed713c6c4b5359627b17484c9cfd068ef4d20d2293b41aee3e4dc104"
+  },
+  "src/audio/PipeWireMetadata.hpp": {
+    "bytes": 4801,
+    "sha256": "3d41c6ede2a9cb65f578ad40f46dc9ea620df11cbc40883bf2272b0752870d8b"
+  },
+  "src/audio/PreparedPlayback.cpp": {
+    "bytes": 21416,
+    "sha256": "1a7df6f9492fab482e37b89c0f6bbc9a184428ed5ce30ce56c90fecceb100dd3"
+  },
+  "src/audio/PreparedPlayback.hpp": {
+    "bytes": 4912,
+    "sha256": "fae6b733e2ee3935aabbd92c337bf9a205ae237f6a790743db6a0a0b561879f9"
+  },
+  "src/audio/RecorderTap.hpp": {
+    "bytes": 2510,
+    "sha256": "0bf33bea4ae0209e67f6daee0cf3a7410071150120b7e9a8e6b1f33dac7752c0"
+  },
+  "src/audio/RenderCore.cpp": {
+    "bytes": 22329,
+    "sha256": "cc547e59660e10aea4cc3397b757d425ca0dbdfaa6e0296a614348ae0e9cc534"
+  },
+  "src/audio/RenderCore.hpp": {
+    "bytes": 9909,
+    "sha256": "c79b8149ffb69fd4ad0d16137c641844b78aaf23604f4bd800216aa8a86537d1"
+  },
+  "src/audio/SourceHandoff.hpp": {
+    "bytes": 3529,
+    "sha256": "f047dc8d95f93c8a7709cb94ce36cd7fc3346855ade79ce9bfffd06571fa6b38"
+  },
+  "src/audio/StemBankSource.cpp": {
+    "bytes": 6452,
+    "sha256": "faf980cbcaed92c9f3802d40dcdb5efa2a9eed73a9b50ed577d1b1d2ee934380"
+  },
+  "src/audio/StemBankSource.hpp": {
+    "bytes": 3508,
+    "sha256": "d6c3cddd219eec853fd12781038e4a1f454305155733c193590a3a42d4452dcd"
+  },
+  "src/audio/StemRateConverter.cpp": {
+    "bytes": 10980,
+    "sha256": "482c55e043847adb75b42bdd25fd8859cd97e106208d46170ba1f84c897f9294"
+  },
+  "src/audio/StemRateConverter.hpp": {
+    "bytes": 4279,
+    "sha256": "fcb4d4282c17a286a20d09e496927593df42cc26f3a6c518931084d55075c988"
+  },
+  "src/audio/StereoRecorder.cpp": {
+    "bytes": 10444,
+    "sha256": "239f25c2b59089533f56e3e12fe8dc2b603fc240eec0e10f9c8b1ac561d8961a"
+  },
+  "src/audio/StereoRecorder.hpp": {
+    "bytes": 1962,
+    "sha256": "0dd93ec785529f09b0c23003ad799fc5bf77a6b4148f62fe237ab5d8bc1675bd"
+  },
+  "src/audio/TransportQueue.hpp": {
+    "bytes": 1518,
+    "sha256": "84b2a1ba0ac25f9d97ddb82fcedb337b89115e970c152be2fccc1c0d72607f21"
+  },
+  "src/library/LibraryCatalog.cpp": {
+    "bytes": 9422,
+    "sha256": "93f357175b701bcfc822e985f931bfd6483079a01322878624b3eae19a92bd56"
+  },
+  "src/library/LibraryCatalog.hpp": {
+    "bytes": 958,
+    "sha256": "b13fa3d10fd0b1c4312c5bf659513e0b98f8e9d309d5c5d361c4a0d3a97c44dd"
+  },
+  "src/library/LiveStemBridge.cpp": {
+    "bytes": 51413,
+    "sha256": "33c5c007bce55d93ed95878f493a268ae474c9a0ea5cb46fd9f240504d7c7d01"
+  },
+  "src/library/PreparedTrackStore.cpp": {
+    "bytes": 49515,
+    "sha256": "b5691b8e946ee0e65ceed36dc4ed48c872391346d76a69788e2bf2204ee8d142"
+  },
+  "src/library/PreparedTrackStore.hpp": {
+    "bytes": 3315,
+    "sha256": "2a5d7c08e9135fc0222f9721f68802c89d4932d89ffa21932d84db8250217d21"
+  },
+  "src/library/StemEngineSupport.cpp": {
+    "bytes": 12360,
+    "sha256": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475"
+  },
+  "src/library/StemEngineSupport.hpp": {
+    "bytes": 3042,
+    "sha256": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109"
+  },
+  "src/library/StemServiceJsonl.cpp": {
+    "bytes": 10325,
+    "sha256": "c7a9c1a8100a57509b7e03b6eccf4311656cab529027cd65a233f4311cf03f28"
+  },
+  "src/library/StemServiceJsonl.hpp": {
+    "bytes": 3103,
+    "sha256": "1865e9ce016fd7a2e7395be7dde5b27006be6b67c378d9c4a7c4172d7a880265"
+  },
+  "src/main.cpp": {
+    "bytes": 12492,
+    "sha256": "64cf463324d03a6ef9a73847a56c31719868de8a0529ca2103c89a5d1dc17282"
+  },
+  "src/probe_main.cpp": {
+    "bytes": 33738,
+    "sha256": "a150fb079bb7cb94853d81882d0b315a9034ce9dbd318e68db42165717c8f4a6"
+  },
+  "src/ui/DeckController.cpp": {
+    "bytes": 50491,
+    "sha256": "950a4150fc98ac42391abcc267f7d8336902c3c2f6ccbbff833fa4d8d2aec6e5"
+  },
+  "src/ui/DeckController.hpp": {
+    "bytes": 11557,
+    "sha256": "4806ea27ed6a2e2856571cf9e671911b219d1f05aaa6734635bc8c911aaf9cc3"
+  },
+  "tests/StemExportFixture.hpp": {
+    "bytes": 6196,
+    "sha256": "e984fe8de7fb5fdf9c040642c55950c64c382c1744469096ac29fc9e1011784e"
+  },
+  "tests/StemServiceFixture.hpp": {
+    "bytes": 14973,
+    "sha256": "3c4cb9819657872977d52410e523e679852b3c71c80c6a959ba2a9e6aa224691"
+  },
+  "tests/audio_buses_test.cpp": {
+    "bytes": 18786,
+    "sha256": "9b5b0a3c84771aed99c4490f58470f90175dab97a3bdc95df12c8b16e997995a"
+  },
+  "tests/audio_cue_test.cpp": {
+    "bytes": 14311,
+    "sha256": "ad625c229e4e48eaf7b50259ab1cf82bb8df8a1b88d1e605fce43bee63ee3070"
+  },
+  "tests/audio_file_test.cpp": {
+    "bytes": 19391,
+    "sha256": "4badf2a28a4596e93e671a4f8a597b700ac8c1847e74c7a1694a09fa531b7224"
+  },
+  "tests/audio_live_owner_test.cpp": {
+    "bytes": 24010,
+    "sha256": "e4c85c0215bba50a5e103f921d460af20f0eb05aeee9ec9719d3cb16b27dbd71"
+  },
+  "tests/audio_live_recovery_test.cpp": {
+    "bytes": 16818,
+    "sha256": "c26e35b8f34565eeaa5366d66653d0783d2bff31412ef76cbe72cd68a6ac83c4"
+  },
+  "tests/audio_live_stem_buffer_test.cpp": {
+    "bytes": 27979,
+    "sha256": "df26e6ae7efa43f79fc73c1d8419cf3859a6f2b133962b73bc4acddb9b837c4a"
+  },
+  "tests/audio_metadata_test.cpp": {
+    "bytes": 2999,
+    "sha256": "39504d3104f468338d46ea6d770ee4943a4b5be8643185c381af9583b340b9b0"
+  },
+  "tests/audio_preparation_test.cpp": {
+    "bytes": 33190,
+    "sha256": "7e6703c5be565e2a69a7aebbac38dd6108fddfac524d165905e9727623b93f5b"
+  },
+  "tests/audio_prepared_playback_test.cpp": {
+    "bytes": 13843,
+    "sha256": "776058b321a2b7c21275462282f9bee94b4be8eaebc1f300584939f42ea6ddbd"
+  },
+  "tests/audio_probe_cli_test.py": {
+    "bytes": 7342,
+    "sha256": "9f5d9e40291659557dcbfa671d2b2156e7a38d1d2ce00ded7de63e0e5bc198d6"
+  },
+  "tests/audio_ramps_test.cpp": {
+    "bytes": 20893,
+    "sha256": "db7f25378a606a3d73a46e4a62707b7a8b20c1c2fd874ab1fdbe7d55f940f02f"
+  },
+  "tests/audio_read_ahead_test.cpp": {
+    "bytes": 12999,
+    "sha256": "a42b26a7954826c33adff9a20391edfeefbb14e8a3c6e2a1c846033605717f9c"
+  },
+  "tests/audio_recorder_tap_test.cpp": {
+    "bytes": 5427,
+    "sha256": "96e02eb042f4c6489c45b225a050a75e742ab308e6b548a8fb6696affd16df31"
+  },
+  "tests/audio_recorder_test.cpp": {
+    "bytes": 13762,
+    "sha256": "466b2c0f47f7d9e40d56463c15dee5e10bb2de02de9cf3a279cee693be7cdb66"
+  },
+  "tests/audio_routing_test.cpp": {
+    "bytes": 7548,
+    "sha256": "314e73e1830978332b84417e188ef29d7ecf0d8d1e7a96c4d74bf509f16b6a4c"
+  },
+  "tests/audio_source_handoff_test.cpp": {
+    "bytes": 7665,
+    "sha256": "492cc9511d2430c150ac9e234e984efd91a54b84f560d2a47875918fc6d4638c"
+  },
+  "tests/audio_source_test.cpp": {
+    "bytes": 18102,
+    "sha256": "ceb94671a6a5118555a191832f3592b2d95053004956635d0bb4a564ecad46f2"
+  },
+  "tests/audio_stem_bank_test.cpp": {
+    "bytes": 30798,
+    "sha256": "da697e3d677ceac0d012a88f0bc2cde51d92c9f996ddee34d5d2bf966519ac41"
+  },
+  "tests/audio_stem_rate_converter_test.cpp": {
+    "bytes": 20929,
+    "sha256": "485b3240be14f4052513b02f8cdfcf051f6a2920dd4c0945752071906e8720e4"
+  },
+  "tests/audio_test.cpp": {
+    "bytes": 2827,
+    "sha256": "8f747fc8cdabb3f92b5c17ee3a34e3fc5ee0588f0adad4f8b20d356a0e2fe37a"
+  },
+  "tests/audio_timing_test.cpp": {
+    "bytes": 10814,
+    "sha256": "af44c7524137b92617732a17e1de67794cacd6f693030e9f869f685a9b33b5b2"
+  },
+  "tests/audio_transport_test.cpp": {
+    "bytes": 21307,
+    "sha256": "724cc2fee5aed84925b9f279b0dfa1034da2bad01fd250064a281e4e4f822a6c"
+  },
+  "tests/deck_controller_test.cpp": {
+    "bytes": 42168,
+    "sha256": "f930509c09c0a49b851a059615b4862ee61dc0af9bbf1b95c30b99e84be34e89"
+  },
+  "tests/library_catalog_test.cpp": {
+    "bytes": 19095,
+    "sha256": "669edf47d7cd54d07f48f025e12d20cd790670c747c9a8b79a21d75d1d2ee5df"
+  },
+  "tests/live_owner_retirement_test.cpp": {
+    "bytes": 9372,
+    "sha256": "5b0dd351112818bb386c1377923a621a100f3877c1082a85d9df2a453f3b78af"
+  },
+  "tests/live_session_test.cpp": {
+    "bytes": 14356,
+    "sha256": "4c3398b1dbf74582b166711b6f2c6acf7395dd972431d06f5007bac9e6bfcf1b"
+  },
+  "tests/live_stem_bridge_test.cpp": {
+    "bytes": 65859,
+    "sha256": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253"
+  },
+  "tests/manual_ui_test.cpp": {
+    "bytes": 75126,
+    "sha256": "554b8bb96d69a2a83f749504eb0a630d192fd668e8f960bf7e606eb53fd79281"
+  },
+  "tests/prepared_track_store_test.cpp": {
+    "bytes": 46099,
+    "sha256": "ff9a2af5d78c83e6208664b4beac1f80baf193a2e829b85d70149963ec677004"
+  },
+  "tests/stem_export_cli_test.py": {
+    "bytes": 5567,
+    "sha256": "f7f64eea782417144ffe14166abb5e38518b0c2a8cf690bf031cb628caa0ec81"
+  },
+  "tests/stem_export_test.py": {
+    "bytes": 26019,
+    "sha256": "f7ba891a22c2efb630e7b9b87d140130a09b85d053e3aa63b322b8c4aa122cbe"
+  },
+  "tests/stem_service_jsonl_test.cpp": {
+    "bytes": 13970,
+    "sha256": "5b71ade1d9b952e7e81c83c93bfc41b5d1638f78dd658d009f50de5980194b31"
+  },
+  "tests/stem_service_test.py": {
+    "bytes": 39504,
+    "sha256": "0ccc237d164717e5606deb7bb94a07188c9c460cf24194cbb27cc129db4aee44"
+  },
+  "tests/stem_soak_test.py": {
+    "bytes": 23251,
+    "sha256": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e"
+  },
+  "tests/stem_worker_test.py": {
+    "bytes": 44812,
+    "sha256": "a91baec3f5077279fc14445c427614a4991607ab83d75dd83885e644fb150ea0"
+  },
+  "tools/coverage/requirements.txt": {
+    "bytes": 28,
+    "sha256": "2b5d00da32e2b64b01dbf2c0e1dec95c9de031596935b092aecef682016c24f0"
+  },
+  "tools/coverage/run.py": {
+    "bytes": 12844,
+    "sha256": "161ec4bddeca816bf6ea5101d90b0b25e8fbefdb6a612e9eb64e473af882e425"
+  },
+  "tools/experiments/manual_routing_check.cpp": {
+    "bytes": 65915,
+    "sha256": "454ffa104d0de1494c432ad4804b91177ebd587f24a76fb16e4409b1a9e7f94a"
+  },
+  "tools/experiments/preparation_controller_check.cpp": {
+    "bytes": 50230,
+    "sha256": "b3777952487a1ae85bee15b6972e4ef4f13d2d0c28a9d10e2295884d03ab9af4"
+  },
+  "tools/experiments/private_routing_check.py": {
+    "bytes": 9924,
+    "sha256": "72a8edc336b8e6b8967ffb0fd7aa8048517ccb4ce9a7b250099cafa6dbf17ebd"
+  },
+  "tools/stems/export.py": {
+    "bytes": 22706,
+    "sha256": "cf90ddb088e43ac7c3b1f0af28b29782307316a669cac34effc59eb79a84a062"
+  },
+  "tools/stems/service.py": {
+    "bytes": 28951,
+    "sha256": "c6c9a7a62571f9437224246b4b474d785821e21871e03398a9341ead6dae01d9"
+  },
+  "tools/stems/worker.py": {
+    "bytes": 35868,
+    "sha256": "b38ab1dae456f9da69cbb30563595559f10e018246e86763dffffa89b9bacdff"
+  }
+}

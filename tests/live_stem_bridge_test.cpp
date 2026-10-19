@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "library/PreparedTrackStore.hpp"
 #include "audio/PreparedPlayback.hpp"
+#include "audio/LiveSession.hpp"
 #include "audio/RenderCore.hpp"
 #include "audio/StemRateConverter.hpp"
 #include "StemServiceFixture.hpp"
@@ -41,6 +42,7 @@
 namespace {
 using conflux::audio::PreparedAudio;
 using conflux::audio::PreparedPlayback;
+using conflux::audio::LiveSession;
 using conflux::audio::RenderCore;
 using conflux::library::PreparedLiveStemTrack;
 using conflux::library::PreparedTrackStore;
@@ -303,6 +305,176 @@ struct FixtureSubreaper {
 class LiveStemBridgeTest : public QObject {
     Q_OBJECT
 private slots:
+    void sessionAdoptsUnusedLiveReserveWithoutRedundantSeek()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            auto reference = references(directory.path(), 211);
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            require(live.playback->prime(0, std::chrono::seconds(10)), "Cannot establish the initial candidate reserve");
+            const auto borrowed = live.playback->sourceRef();
+            const auto empty = borrowed.read(borrowed.context, 0, {});
+            std::array<float, 1> odd{-.125F};
+            const auto invalid = borrowed.read(borrowed.context, 0, odd);
+            require(!empty.frames && !empty.failed && invalid.failed && odd[0] == -.125F,
+                    "Empty/invalid candidate read did not preserve its valid reserve");
+            require(live.playback->primeForSession(0, std::chrono::milliseconds(0)),
+                    "Unused matching candidate did not reuse its already-ready reserve");
+            auto* identity = live.playback.get();
+            LiveSession::PlaybackSources owners{}; owners[0] = std::move(live.playback);
+            LiveSession::InitialState initial; initial.stemGain[0] = {1.F, 0.F, 0.F, 0.F};
+            {
+                LiveSession session(std::move(owners), initial); // No start, output discovery or host connection.
+                const auto state = session.stoppedState();
+                require(state.sourceFrame[0] == 0 && state.sourceFrames[0] == live.outputFrames &&
+                    state.stemBank[0] && state.stemGain[0] == initial.stemGain[0],
+                    "Unstarted session did not adopt exact candidate metadata/gains");
+                auto returned = session.stopAndTakePlaybacks();
+                require(!returned.replacement && returned.active[0].get() == identity,
+                        "Session replaced or lost the prepared whole live owner");
+                owners = std::move(returned.active);
+            }
+            require(count(fixture, "command", "load") == 1 && count(fixture, "command", "seek") == 0 &&
+                count(fixture, "fixture", "runtime") == 1, "Session constructor redundantly sought/reloaded its unused reserve");
+            {
+                RenderCore core(owners[0]->sourceRef(), peer()); selectRole(core, 0);
+                require(compareBlock(core, reference[0], 13) == 13,
+                        "Unused adoption consumed/repeated candidate samples before first render");
+            }
+            owners[0]->stop(); owners[0].reset(); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Unused candidate/session cleanup leaked its job");
+        });
+    }
+
+    void consumedLiveOwnerReprimesBeforeSessionReuse()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            auto reference = references(directory.path(), 211);
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            require(live.playback->configureStemRamps(0) && live.playback->prime(0, std::chrono::seconds(10)),
+                    "Cannot prime the owner before actual consumption");
+            {
+                RenderCore core(live.playback->sourceRef(), peer()); selectRole(core, 0);
+                require(compareBlock(core, reference[0], 17) == 17, "Fixture did not consume the candidate prefix");
+            } // Quiesced: no old render borrow is used after session staging reset.
+            // Ask for the SAME target as the original successful prime. The
+            // epoch is unchanged but its views were consumed, so cursor/epoch
+            // matching alone must not authorize reuse of the old reserve.
+            require(live.playback->primeForSession(0, std::chrono::seconds(10)) &&
+                    live.playback->configureStemRamps(0) && count(fixture, "command", "seek") == 1,
+                    "Consumed owner reused an old prime at the same numeric target");
+            {
+                RenderCore core(live.playback->sourceRef(), peer()); selectRole(core, 0);
+                require(compareBlock(core, reference[0], 17) == 17, "Re-prime did not reset consumed bank staging");
+            }
+            require(live.playback->primeForSession(17, std::chrono::seconds(10)) &&
+                    live.playback->configureStemRamps(0), "Consumed bank was not reset and re-primed for its stopped cursor");
+            require(count(fixture, "command", "load") == 1 && count(fixture, "command", "seek") == 2,
+                    "Consumed owner reused old staging or restarted its service");
+            LiveSession::PlaybackSources owners{}; owners[0] = std::move(live.playback);
+            LiveSession::InitialState initial; initial.sourceFrame[0] = 17;
+            initial.stemGain[0] = {1.F, 0.F, 0.F, 0.F};
+            {
+                LiveSession session(std::move(owners), initial);
+                require(session.stoppedState().sourceFrame[0] == 17, "Session lost the exact stopped source cursor");
+                auto returned = session.stopAndTakePlaybacks();
+                require(!returned.replacement, "Unstarted session manufactured a replacement");
+                owners = std::move(returned.active);
+            }
+            require(count(fixture, "command", "load") == 1 && count(fixture, "command", "seek") == 2 &&
+                count(fixture, "fixture", "runtime") == 1, "Session redundantly re-primed the newly prepared stopped owner");
+            {
+                RenderCore core(owners[0]->sourceRef(), peer()); selectRole(core, 0);
+                require(core.restorePrimedCursor(0, 17) && compareBlock(core, reference[0], 11) == 11,
+                        "Reused stopped owner did not resume exact independent PCM");
+            }
+            owners[0]->stop(); owners[0].reset(); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Consumed/reused owner cleanup leaked its job");
+        });
+    }
+
+    void sessionPrimeCannotBypassEpochValidationCancellationOrHealth()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            auto reference = references(directory.path(), 211);
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            require(live.playback->prime(0, std::chrono::seconds(10)), "Cannot prime the validation candidate");
+            require(live.playback->primeForSession(0, std::chrono::milliseconds::max()) &&
+                count(fixture, "command", "seek") == 0, "Live effective timeout cap changed during reuse");
+            require(!live.playback->primeForSession(0, std::chrono::milliseconds(-1)) &&
+                live.playback->errorCode() == EINVAL, "Ready fast path bypassed negative timeout validation");
+            require(live.playback->prime(0, std::chrono::seconds(10)), "Explicit same-cursor prime failed");
+            require(count(fixture, "command", "seek") == 1 &&
+                live.playback->primeForSession(0, std::chrono::milliseconds(0)),
+                "Explicit prime reused an older epoch or failed to establish a reusable new reserve");
+            {
+                RenderCore core(live.playback->sourceRef(), peer());
+                require(core.restorePrimedCursor(0, 0) && core.retrySource(0),
+                        "Same-cursor retry did not invalidate the source");
+            }
+            require(await([&] { return count(fixture, "command", "seek") == 2; }),
+                    "Fixture never accepted the independently invalidated epoch");
+            require(live.playback->primeForSession(0, std::chrono::seconds(10)) &&
+                count(fixture, "command", "seek") == 3, "Session helper reused a stale same-cursor prime across RetrySource");
+            require(live.playback->primeForSession(37, std::chrono::seconds(10)) &&
+                count(fixture, "command", "seek") == 4, "Session helper reused a different target's reserve");
+            std::stop_source cancelled; cancelled.request_stop();
+            require(!live.playback->primeForSession(37, std::chrono::seconds(10), cancelled.get_token()) &&
+                live.playback->errorCode() == ECANCELED, "Ready fast path ignored the new caller's cancellation");
+            require(live.playback->prime(37, std::chrono::seconds(10)) &&
+                live.playback->primeForSession(37, std::chrono::milliseconds(0)) &&
+                count(fixture, "command", "seek") == 5, "Explicit prime after cancellation lost its own fresh reserve");
+            require(!live.playback->prime(37, std::chrono::seconds(10), cancelled.get_token()) &&
+                live.playback->errorCode() == ECANCELED, "Explicit cancelled prime did not fail");
+            require(live.playback->primeForSession(37, std::chrono::seconds(10)) &&
+                count(fixture, "command", "seek") == 6,
+                "Failed explicit prime left an older success stamp reusable");
+            // Existing finite behavior still validates the effective timeout,
+            // then resets/primes actual file readers rather than caching a flag.
+            {
+                PreparedPlayback finite(reference[0].descriptor(), reference[0].frames());
+                require(finite.prime(0, std::chrono::seconds(2)), "Cannot prime finite control");
+                require(!finite.primeForSession(0, std::chrono::milliseconds::max()) &&
+                    finite.errorCode() == EINVAL, "Finite timeout overflow was accepted");
+                require(finite.primeForSession(17, std::chrono::seconds(2)), "Finite session preparation changed behavior");
+                RenderCore core(finite.sourceRef(), peer());
+                require(core.restorePrimedCursor(0, 17) && compareBlock(core, reference[0], 7) == 7,
+                        "Finite session helper changed actual file PCM");
+            }
+            require(count(fixture, "command", "load") == 1 && count(fixture, "fixture", "runtime") == 1,
+                    "Validation/retry paths restarted the persistent service");
+            live.playback->stop();
+            require(!live.playback->primeForSession(37, std::chrono::seconds(10)),
+                    "Stopped owner reused a stale successful reserve");
+            live.playback.reset(); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Validation owner cleanup leaked its job");
+
+            QTemporaryDir faultDirectory; const auto faultSource = faultDirectory.filePath("source.wav");
+            const auto faultRoot = faultDirectory.filePath("cache"); writeSource(faultSource, 211);
+            const auto fault = conflux::test::makeStemServiceFixture(faultDirectory.path(), "stale-after-seek");
+            auto failed = PreparedTrackStore(faultRoot, limits()).prepareLiveStem(
+                faultSource, fault.engine, fault.service, nextToken());
+            require(failed.playback->prime(0, std::chrono::seconds(10)), "Cannot establish healthy reserve before deterministic failure");
+            {
+                RenderCore core(failed.playback->sourceRef(), peer());
+                require(core.restorePrimedCursor(0, 0) && core.retrySource(0), "Cannot trigger existing stale-generation fault");
+            }
+            require(await([&] { return failed.playback->errorCode() != 0; }), "Fault fixture never became terminal");
+            const auto failure = failed.playback->errorCode();
+            require(!failed.playback->primeForSession(0, std::chrono::seconds(10)) &&
+                failed.playback->errorCode() == failure, "Session reuse erased terminal producer health");
+            require(count(fault, "command", "load") == 1 && count(fault, "fixture", "runtime") == 1,
+                    "Terminal source was silently restarted");
+            stop(failed); assertGone(fault.marker(".started"));
+            require(rootNames(faultRoot).isEmpty(), "Terminal owner cleanup leaked its job");
+        });
+    }
+
     void metadataDeferredLoadAndAllRoles()
     {
         checked([&] {

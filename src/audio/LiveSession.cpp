@@ -114,9 +114,8 @@ public:
         for (std::size_t deck = 0; deck < playbacks.size(); ++deck) {
             if (stop.stop_requested()) throw std::runtime_error("Playback installation cancelled");
             if (!playbacks[deck]) continue;
-            playbacks[deck]->resetBankForSession();
             const auto timeout = playbacks[deck]->isLive() ? PreparedPlayback::liveWait : std::chrono::seconds(2);
-            if (!playbacks[deck]->prime(initial.sourceFrame[deck], timeout, stop))
+            if (!playbacks[deck]->primeForSession(initial.sourceFrame[deck], timeout, stop))
                 throw std::runtime_error("Cannot prime prepared PCM at the initial source position: " + playbacks[deck]->error());
         }
         return playbacks;

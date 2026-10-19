@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <bit>
 #include <chrono>
 #include <cerrno>
 #include <cstdio>
@@ -177,6 +178,26 @@ public:
     std::uint64_t maxSignalCallbackGapNs(std::size_t channel) const { return maxSignalGapNs_[channel].load(); }
     std::uint64_t wrong() const { return wrong_.load(); }
     void validateSamples(bool armed) { validationArmed_.store(armed, std::memory_order_release); }
+    void saveOperands(const std::filesystem::path& path) const
+    {
+        std::ofstream output(path);
+        output << "{\"wrong_nonzero_samples\":" << wrong() << ",\"channels\":[";
+        for (std::size_t channel = 0; channel < channels_; ++channel) {
+            if (channel) output << ',';
+            const auto bits = firstWrongBits_[channel].load(std::memory_order_acquire);
+            output << "{\"received_nonzero\":" << received(channel)
+                   << ",\"zeros_after_signal\":" << zerosAfterSignal(channel)
+                   << ",\"first_wrong\":";
+            if (!bits) output << "null";
+            else output << "{\"expected_f32_bits\":" << (bits >> 32)
+                        << ",\"actual_f32_bits\":" << std::uint32_t(bits)
+                        << ",\"receiver_clock_position\":" << firstWrongPosition_[channel].load(std::memory_order_relaxed)
+                        << ",\"quantum\":" << firstWrongQuantum_[channel].load(std::memory_order_relaxed)
+                        << ",\"sample_index\":" << firstWrongIndex_[channel].load(std::memory_order_relaxed) << '}';
+            output << '}';
+        }
+        output << "]}\n";
+    }
 private:
     static void process(void* data, spa_io_position* position) noexcept
     {
@@ -195,7 +216,19 @@ private:
                 if (samples[frame] == 0.F) { zeros += signalObserved; continue; }
                 signalObserved = true;
                 ++nonzero;
-                if (samples[frame] != self.expected_[channel]) ++wrong;
+                if (samples[frame] != self.expected_[channel]) {
+                    ++wrong;
+                    // One immutable bounded operand per channel. Publish its
+                    // metadata before bits; the receiver is the sole writer.
+                    if (!self.firstWrongBits_[channel].load(std::memory_order_relaxed)) {
+                        self.firstWrongPosition_[channel].store(position->clock.position, std::memory_order_relaxed);
+                        self.firstWrongQuantum_[channel].store(frames, std::memory_order_relaxed);
+                        self.firstWrongIndex_[channel].store(frame, std::memory_order_relaxed);
+                        const auto bits = (std::uint64_t(std::bit_cast<std::uint32_t>(self.expected_[channel])) << 32) |
+                            std::bit_cast<std::uint32_t>(samples[frame]);
+                        self.firstWrongBits_[channel].store(bits, std::memory_order_release);
+                    }
+                }
             }
             self.received_[channel].fetch_add(nonzero, std::memory_order_relaxed);
             self.zerosAfterSignal_[channel].fetch_add(zeros, std::memory_order_relaxed);
@@ -222,6 +255,8 @@ private:
     std::array<void*, 4> ports_{};
     std::array<std::atomic<std::uint64_t>, 4> received_{};
     std::array<std::atomic<std::uint64_t>, 4> zerosAfterSignal_{}, lastSignalNs_{}, maxSignalGapNs_{};
+    std::array<std::atomic<std::uint64_t>, 4> firstWrongBits_{}, firstWrongPosition_{};
+    std::array<std::atomic<std::uint32_t>, 4> firstWrongQuantum_{}, firstWrongIndex_{};
     std::atomic<std::uint64_t> wrong_{0};
     std::atomic<bool> validationArmed_{false};
     pw_thread_loop* loop_ = nullptr;
@@ -301,6 +336,26 @@ void verifyRecording(const std::filesystem::path& path, std::uint64_t frames)
     }
     require(total == sf_count_t(frames) && sf_error(input) == SF_ERR_NO_ERROR,
             "Every recorded sample equals the independent post-master expectation, excluding cue");
+}
+
+void saveFailedRecordingOperands(LiveSession& session, StereoRecorder& recorder,
+                                const std::filesystem::path& path, const std::filesystem::path& diagnostic)
+{
+    // Called after the runner captured the still-live failing graph. Validate
+    // accepted engine output independently of the downstream receiver fault.
+    session.stop();
+    recorder.stop();
+    std::string error;
+    try {
+        if (recorder.failed() || recorder.overflowCount() || recorder.writtenFrames() != recorder.acceptedFrames())
+            throw std::runtime_error("Failed-run recorder did not drain cleanly");
+        verifyRecording(path, recorder.acceptedFrames());
+    } catch (const std::exception& failure) { error = failure.what(); }
+    std::ofstream output(diagnostic);
+    output << "{\"passed\":" << (error.empty() ? "true" : "false") << ",\"error\":" << json(error)
+           << ",\"accepted_frames\":" << recorder.acceptedFrames()
+           << ",\"written_frames\":" << recorder.writtenFrames()
+           << ",\"overflow_count\":" << recorder.overflowCount() << "}\n";
 }
 
 struct ScenarioResult {
@@ -604,6 +659,7 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
     initial.cueFrame[0] = 96;
     LiveSession session(oldTarget, peer, initial);
     auto save = [&](bool passed, std::string_view error = {}) {
+        master.saveOperands(diagnosticDirectory / "source-handoff-receiver.json");
         std::ofstream output(diagnosticDirectory / "source-handoff.json");
         writeHandoff(output, result, passed, error);
         output << '\n';
@@ -740,6 +796,7 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
     } catch (const std::exception& error) {
         save(false, error.what());
         failureDiagnostic(session, "source-handoff", error.what());
+        saveFailedRecordingOperands(session, *recorder, path, diagnosticDirectory / "source-handoff-failed-recording.json");
         throw;
     }
 }
@@ -812,6 +869,7 @@ void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstal
     std::uint64_t recorded = 0, written = 0, wrong = 0;
     std::array<std::uint64_t, 2> zeros{};
     auto save = [&](bool passed, std::string_view error = {}) {
+        master.saveOperands(diagnosticDirectory / (label + "-receiver.json"));
         std::ofstream output(diagnosticDirectory / (label + ".json"));
         output << "{\"passed\":" << (passed ? "true" : "false") << ",\"error\":" << json(error)
                << ",\"scope\":\"Private virtual graph with generated live bank and exact audible PCM peer; no service child, model, physical audio or integrated delivery qualification\""
@@ -980,6 +1038,8 @@ void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstal
     } catch (const std::exception& error) {
         save(false, error.what());
         failureDiagnostic(session, label.c_str(), error.what());
+        saveFailedRecordingOperands(session, *recorder, recordingPath,
+            diagnosticDirectory / (label + "-failed-recording.json"));
         throw;
     }
 }
