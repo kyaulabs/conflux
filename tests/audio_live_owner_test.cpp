@@ -16,6 +16,7 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <sstream>
 #include <stdexcept>
 #include <stop_token>
 #include <thread>
@@ -77,6 +78,8 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
         ++control->starts;
         std::array<std::array<float, LiveStemBuffer::blockFrames * 2>, 4> pcm{};
         std::uint64_t epoch = 0, cursor = 0, target = 0, sourceId = 0;
+        std::uint64_t packetEpoch = 0, packetCursor = 0;
+        std::size_t packetCount = 0;
         while (!stop.stop_requested()) {
             LiveStemBuffer::Request request;
             if (!port.tryRequest(request)) { std::this_thread::yield(); continue; }
@@ -106,13 +109,18 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
             }
             const auto count = std::size_t(std::min<std::uint64_t>(
                 {frames - cursor, packetFrames, available - (cursor - target)}));
-            LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == frames, {}};
-            for (std::size_t role = 0; role < 4; ++role) {
-                for (std::size_t frame = 0; frame < count; ++frame)
-                    for (std::size_t channel = 0; channel < 2; ++channel)
-                        pcm[role][frame * 2 + channel] = sample(role, cursor + frame, channel);
-                packet.stems[role] = std::span(pcm[role]).first(count * 2);
+            if (packetEpoch != epoch || packetCursor != cursor || packetCount != count) {
+                for (std::size_t role = 0; role < 4; ++role)
+                    for (std::size_t frame = 0; frame < count; ++frame)
+                        for (std::size_t channel = 0; channel < 2; ++channel)
+                            pcm[role][frame * 2 + channel] = sample(role, cursor + frame, channel);
+                packetEpoch = epoch;
+                packetCursor = cursor;
+                packetCount = count;
             }
+            LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == frames, {}};
+            for (std::size_t role = 0; role < 4; ++role)
+                packet.stems[role] = std::span(pcm[role]).first(count * 2);
             const auto result = port.tryPublish(packet);
             if (result == LiveStemBuffer::PublishResult::Accepted) {
                 cursor += count;
@@ -133,6 +141,19 @@ PreparedPlayback::LiveProducer producer(const std::shared_ptr<Control>& control,
         }
         ++control->exits;
     };
+}
+
+void primeHandoffFixture(PreparedPlayback& owner, const Control& state, const char* name)
+{
+    // This is functional fixture setup, not a service-latency measurement.
+    if (owner.prime(0, 10s)) return;
+    std::ostringstream message;
+    message << "Cannot prime " << name << " handoff fixture: errorCode=" << owner.errorCode()
+            << " error=" << owner.error() << " epoch=" << state.epoch.load()
+            << " target=" << state.target.load() << " publishedEnd=" << state.publishedEnd.load()
+            << " fullObserved=" << state.fullObserved.load() << " starts=" << state.starts.load()
+            << " exits=" << state.exits.load();
+    throw std::runtime_error(message.str());
 }
 
 void reserveCancellationAndExactTail()
@@ -354,7 +375,8 @@ void wholeOwnerRemainsThroughCallbackEnd()
     auto oldState = std::make_shared<Control>(), nextState = std::make_shared<Control>();
     auto old = PreparedPlayback::makeLive(401, totalFrames, producer(oldState));
     auto next = PreparedPlayback::makeLive(402, totalFrames, producer(nextState));
-    require(old->prime(0, 2s) && next->prime(0, 2s), "Cannot prime whole-owner handoff fixtures");
+    primeHandoffFixture(*old, *oldState, "old owner");
+    primeHandoffFixture(*next, *nextState, "next owner");
     await([&] { return oldState->fullObserved.load() &&
                        oldState->publishedEnd.load() >= (LiveStemBuffer::slotCount - 1) * LiveStemBuffer::blockFrames; },
           "Old producer did not fill its bounded ring before replacement");
@@ -383,7 +405,8 @@ void wholeOwnerRemainsThroughCallbackEnd()
             require(silence[frame * 2 + channel] == sum(frame, channel), "Installed bank lost its borrowed source storage");
     auto cancelledState = std::make_shared<Control>();
     auto cancelled = PreparedPlayback::makeLive(403, totalFrames, producer(cancelledState));
-    require(cancelled->prime(0, 2s) && handoff.request({0, cancelled->sourceRef(), cancelled.get(), 2}),
+    primeHandoffFixture(*cancelled, *cancelledState, "uninstalled candidate");
+    require(handoff.request({0, cancelled->sourceRef(), cancelled.get(), 2}),
             "Cannot stage the uninstalled live candidate");
     // The preceding render call has ended. No callback sees this request;
     // unlike an active private graph stop, this branch is deterministic.

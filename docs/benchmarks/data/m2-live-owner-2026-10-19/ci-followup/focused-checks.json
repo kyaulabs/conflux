@@ -1,0 +1,69 @@
+[
+  {
+    "stage": "owner-ci-fix-normal",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "-R",
+      "^audio-live-owner$",
+      "--output-on-failure"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.2653773700003512
+  },
+  {
+    "stage": "owner-ci-fix-instrumented-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/coverage",
+      "--target",
+      "conflux-audio-live-owner-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 13.323929266014602
+  },
+  {
+    "stage": "owner-ci-fix-instrumented",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/coverage",
+      "-R",
+      "^audio-live-owner$",
+      "--output-on-failure"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 8.40419434098294
+  },
+  {
+    "stage": "owner-ci-fix-tsan-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/owner-tsan",
+      "--target",
+      "conflux-audio-live-owner-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 13.969649883976672
+  },
+  {
+    "stage": "owner-ci-fix-tsan",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/owner-tsan",
+      "-R",
+      "^audio-live-owner$",
+      "--output-on-failure"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 2.120603387011215
+  }
+]

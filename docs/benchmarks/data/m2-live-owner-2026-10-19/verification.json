@@ -447,5 +447,6 @@
       "bytes": 3567,
       "sha256": "0d4f44b2afbfd306e058c856dea8c126d2e8e32d824ac37d6846b71eda1c32d1"
     }
-  }
+  },
+  "ci_followup": "ci-followup/verification.json"
 }
