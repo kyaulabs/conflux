@@ -120,12 +120,15 @@ bool stageName(const std::string& name)
 
 void removeStage(int root, const std::string& name, int directory, bool nativeCleanupProven = false);
 
-std::uint64_t cacheUsage(int root, const PreparedTrackStore::Limits& limits, std::stop_token stop)
+static std::uint64_t cacheUsage(int root, const PreparedTrackStore::Limits& limits, std::stop_token stop,
+                                bool cleanupStages)
 {
     std::uint64_t bytes = 0;
     std::size_t entries = 0, stages = 0;
     for (const auto& name : directoryNames(root, limits.maxEntries + staleStageLimit + 1, stop)) {
         if (name == ".lock") continue;
+        if (!cleanupStages && stageName(name))
+            throw std::runtime_error("Prepared cache staging entry prevents read-only lookup");
         const auto status = childStatus(root, name);
         if (!S_ISDIR(status.st_mode) || (!hexDigest(QByteArray::fromStdString(name)) && !stageName(name) && !liveName(name)))
             throw std::runtime_error("unsafe cache entry: unexpected directory");
@@ -152,6 +155,11 @@ std::uint64_t cacheUsage(int root, const PreparedTrackStore::Limits& limits, std
         }
     }
     return bytes;
+}
+
+std::uint64_t cacheUsage(int root, const PreparedTrackStore::Limits& limits, std::stop_token stop)
+{
+    return cacheUsage(root, limits, stop, true); // Existing preparation still collects stale stages.
 }
 
 int openCacheFile(int directory, const char* name)
@@ -623,6 +631,60 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
     checkStop(stop);
     stage.publish(key);
     return {std::move(persisted), QString::fromLatin1(sourceId), QString::fromLatin1(key), false};
+}
+
+std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
+    const QString& sourcePath, const StemEngine& engine, std::stop_token stop)
+{
+    checkStop(stop);
+    Descriptor source(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
+    if (source.get() < 0) ioError("Cannot open audio source");
+    const auto sourceBefore = statusOf(source.get());
+    if (!S_ISREG(sourceBefore.st_mode)) throw std::invalid_argument("Audio input must be a regular local file");
+    if (sourceBefore.st_size < 0 || std::uint64_t(sourceBefore.st_size) > limits_.maxSourceBytes)
+        throw std::length_error("Audio source byte budget exceeded");
+    const auto sourceId = scan(source.get(), std::uint64_t(sourceBefore.st_size), stop).sha256;
+    if (!unchanged(sourceBefore, statusOf(source.get()))) throw std::runtime_error("Audio source changed during hashing");
+    const auto files = pinEngine(engine, stop);
+    const auto describe = describeEngine(engine, files, stop);
+    const auto pipeline = stemPipeline(engine, files, describe);
+    const auto key = QCryptographicHash::hash(sourceId + '\n' + QJsonDocument(pipeline).toJson(QJsonDocument::Compact),
+        QCryptographicHash::Sha256).toHex();
+    const auto verifyUsed = [&] {
+        verifySource(source.get(), sourceBefore, sourceId, stop);
+        verifyEngine(files, stop);
+        checkStop(stop);
+    };
+    Descriptor root(open(QFile::encodeName(cacheRoot_).constData(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC));
+    if (root.get() < 0) {
+        if (errno != ENOENT) ioError("Cannot open prepared cache root");
+        verifyUsed();
+        return std::nullopt;
+    }
+    // The cooperative lock is the only permitted root write. Lookup does not
+    // change root permissions or collect/repair any stage or complete artifact.
+    QLockFile lock(QDir(cacheRoot_).filePath(".lock"));
+    const auto lockDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!lock.tryLock(0)) {
+        checkStop(stop);
+        if (lock.error() != QLockFile::LockFailedError) throw std::runtime_error("Cannot lock prepared cache");
+        if (std::chrono::steady_clock::now() >= lockDeadline) throw std::runtime_error("Prepared cache is busy");
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    checkStop(stop);
+    (void)cacheUsage(root.get(), limits_, stop, false);
+    struct stat entryStatus{};
+    if (fstatat(root.get(), key.constData(), &entryStatus, AT_SYMLINK_NOFOLLOW) != 0) {
+        if (errno != ENOENT) ioError("Cannot inspect prepared cache artifact");
+        verifyUsed();
+        return std::nullopt;
+    }
+    if (!S_ISDIR(entryStatus.st_mode)) throw std::runtime_error("unsafe cache entry: non-directory artifact");
+    Descriptor entry(openat(root.get(), key.constData(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
+    if (entry.get() < 0) ioError("Cannot open prepared cache entry");
+    auto prepared = readStemEntry(entry.get(), sourceId, key, pipeline, engine, files, describe, limits_, stop);
+    verifyUsed();
+    return prepared;
 }
 
 PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath, const StemEngine& engine,

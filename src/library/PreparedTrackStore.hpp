@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 #include <stop_token>
 
@@ -70,6 +71,11 @@ public:
     PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {});
     PreparedStemTrack prepareStemBank(const QString& sourcePath, const StemEngine& engine,
                                       std::stop_token stop = {});
+    // Read-only bank discovery; only an absent root/key returns no value.
+    // Validates used inputs and current budgets without repair/export/staging.
+    // A bounded engine --describe is permitted, but never model inference.
+    std::optional<PreparedStemTrack> findPreparedStemBank(const QString& sourcePath,
+        const StemEngine& engine, std::stop_token stop = {});
     // Off-thread transient whole owner beneath this store's root/limits.
     // Returns validated service-ready metadata; first real prime starts load.
     // Never primes here, creates a complete stem file, or borrows the caller's
