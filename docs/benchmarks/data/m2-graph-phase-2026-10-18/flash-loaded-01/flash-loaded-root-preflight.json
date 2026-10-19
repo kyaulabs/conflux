@@ -1,0 +1,65 @@
+{
+  "status": "ready_pending_fresh_human_reply",
+  "repository_head": "8dacac7512dc20a8c351069e32cfda8692e12fe3",
+  "source_entries": 64,
+  "source_signature_verification": {
+    "verified": true,
+    "reason": "valid"
+  },
+  "root_executed_offline_checks": {
+    "flash-loaded-child-offline-mock-result.json": {
+      "sha256": "fa1cea4e65183f7f21a354aa178a85bc96ce984f636f1c5db951df4fcc4fe914",
+      "checks": 9
+    },
+    "flash-loaded-wrapper-offline-mock-result.json": {
+      "sha256": "983137bb086baede60351a50edf568ab35a09bf3e816d5f706b799b52a5e5066",
+      "checks": 20
+    },
+    "flash-loaded-unarmed-offline-result.json": {
+      "sha256": "6ea648a6ac877656764350634136bfed275200d9b5f90d626b8aef04391d6cbb",
+      "checks": 1
+    }
+  },
+  "preparation_sha256": "9cc68558d97f5b0b10b00de459739fc3581a6d8e12a57e991fadcbd8f5375fd2",
+  "dry_plan": {
+    "schema": 1,
+    "status": "dry_run",
+    "native_started": false,
+    "host_queried": false,
+    "name": "flash-loaded-laptop-01",
+    "pins_status": "ready",
+    "runtime": "/tmp/conflux-stem-flash-f32-2026-10-18/build/conflux-stem-runtime",
+    "UI": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux",
+    "audio_probe": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/normal-producers-c3/conflux-audio-probe",
+    "workload_args": [
+      "--load",
+      "both",
+      "--delivery-mode",
+      "playback-paced",
+      "--renderer",
+      "software",
+      "--seconds",
+      "600",
+      "--control-interval",
+      "300",
+      "--threads",
+      "2",
+      "--quantum",
+      "256",
+      "--request-timeout",
+      "30",
+      "--sample-interval",
+      "0.5"
+    ],
+    "repaint_ms": 33,
+    "independent_audio": "silence",
+    "readiness_maximum_age_seconds": 900,
+    "readiness_decision": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-loaded-human-readiness.json",
+    "comparison_report": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-laptop-01/comparison/result.json",
+    "scope": "Plan only; --run also requires armed exact pins, successful runtime comparison and a fresh human readiness reply."
+  },
+  "no_human_readiness_created": true,
+  "native_started": false,
+  "host_queried": false,
+  "scope": "Preparation/metadata only. Merge workflow is monitored separately. Fresh direct physical readiness is required before the native diagnostic."
+}

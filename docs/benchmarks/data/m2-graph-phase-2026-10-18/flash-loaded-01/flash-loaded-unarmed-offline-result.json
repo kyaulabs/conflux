@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "check": "unarmed_run_rejected_before_readiness_host_and_native",
+  "returncode": 2,
+  "wrapper_sha256": "883d537f8f2fe91dc2e5fc5a735ca20067a007cbe8e308e9f1673825bf39e684",
+  "stderr": "usage: flash_loaded_launch.py [-h] [--seconds SECONDS]\n                              [--control-interval CONTROL_INTERVAL] [--run]\n                              [--readiness-decision READINESS_DECISION]\n                              [--comparison-report COMPARISON_REPORT]\n                              [--source-pins SOURCE_PINS]\n                              name\nflash_loaded_launch.py: error: expected-pins.json is not armed with signed source HEAD and all eight hashes\n",
+  "no_run_outputs_created": true
+}
