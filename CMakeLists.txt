@@ -153,8 +153,11 @@ if(BUILD_TESTING)
         ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
     set_tests_properties(stem-export stem-export-cli PROPERTIES TIMEOUT 60)
     add_test(NAME stem-soak COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_soak_test.py)
+    add_test(NAME manual-playback-hour COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/manual_playback_hour_test.py)
     set_tests_properties(stem-soak PROPERTIES
         ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
+    set_tests_properties(manual-playback-hour PROPERTIES
+        ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache" TIMEOUT 30)
 endif()
 
 option(CONFLUX_BUILD_UI "Build the Qt Quick manual audio window and runtime harness" ON)
