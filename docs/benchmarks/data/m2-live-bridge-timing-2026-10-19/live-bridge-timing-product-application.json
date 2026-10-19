@@ -1,0 +1,14 @@
+{
+  "at_utc": "2026-10-19T14:07:02.498937+00:00",
+  "head": "d0f87e8b93b1196cb11fdd890b8a0b1051f4bb15",
+  "patch": {
+    "bytes": 30990,
+    "sha256": "7a572d452a3a1a682b353fe0f88ab89641066607e8ffef81d92df26f9320148c"
+  },
+  "product_applied_exact": true,
+  "frozen_tests_unchanged": true,
+  "actual_red_receipt": {
+    "bytes": 1566,
+    "sha256": "59c46e89e935cbd7ce98215bb877c17e988853fa833d1cb9a38852d9c60667ea"
+  }
+}

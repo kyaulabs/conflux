@@ -1,0 +1,46 @@
+{
+  "schema": "conflux.live-bridge-timing-check-runner-freeze.v1",
+  "status": "source_frozen_root_execution_started",
+  "runner": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/run_live_bridge_timing_checks.py",
+    "bytes": 12574,
+    "sha256": "5a53a04188c5044949e318c0d2303b7a2a749fb9ccd00a0fe66941edbb26ea09"
+  },
+  "author": "/root/m0_m1_gates",
+  "stages": [
+    "full normal build",
+    "all 36 CTests with JUnit",
+    "offscreen software smoke",
+    "strict normal private routing on fresh path",
+    "strict normal private preparation on fresh path",
+    "coverage --private-routing --jobs 2 with copied reports"
+  ],
+  "review": {
+    "self": "Fresh result directory, normal gate preservation, no reused runs or binaries, published outer-group cleanup, current pins and final source failure handling source-reviewed.",
+    "root": "Exact final hash verified; source pass clear. Root reports started --run session7399 with live-bridge-timing-checks-01.",
+    "guard_rules": "Exact5a53a041 complementary source pass clear; no requested changes or execution.",
+    "scope": "No author/reviewer execution of runner, builds, tests, native/model/audio, host or Git. Root owns execution."
+  },
+  "invariants": [
+    "Runner and tracked sources must remain unchanged while root pipeline is active.",
+    "Failed or completed evidence directories are never reused.",
+    "All product/test and existing coverage/private/benchmark/manual-soak inputs are pinned; future ignored harness excluded.",
+    "Built-artifact hashes include unexecuted binaries; only stage records establish execution.",
+    "Cleanup proves the published outer stage group; successful nested private-daemon cleanup comes from its result.",
+    "Instrumented coverage remains functional-only, separate from strict normal execution gates.",
+    "No extra CLI rerun, physical/model/latency/M2 claim."
+  ],
+  "related_inputs": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-implementation-freeze.json",
+      "bytes": 7985,
+      "sha256": "3b37cc45c2eec1fa72879d14a807a99a57a9d25840d08cc435890816a0cd94de"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-evidence-plan.md",
+      "bytes": 3285,
+      "sha256": "8236111f0f29c1a650da23c82c4d2c56de9f6771ce99211a39701490139e91d4"
+    }
+  ],
+  "execution_result": "Pending root closed six-stage result; no live run files inspected by this receipt author."
+}

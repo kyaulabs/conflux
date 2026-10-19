@@ -1,0 +1,134 @@
+{
+  "schema": "conflux.live-bridge-observation-request-clarification.v1",
+  "status": "source_only_clarification_pending_exact_peer_review",
+  "author": "/root/hour_result_crosscheck",
+  "at_utc": "2026-10-19T13:52:19.689757+00:00",
+  "root_authorization": "Separate clarification requested by /root after independent API and tests freeze; original frozen artifacts remain immutable.",
+  "source_baseline": {
+    "head": "32f363ba1987d5493bd61f27b05d8ce64984f318",
+    "provenance": "Root-supplied signed baseline; no Git or signature verification performed by this author."
+  },
+  "inputs": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api-freeze.json",
+      "bytes": 3227,
+      "sha256": "de88c393b49d11c1e39a7f7fac7711a6b1f87548dc4c3d79c43ff7a7df315087"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.hpp",
+      "bytes": 4328,
+      "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.md",
+      "bytes": 7024,
+      "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-freeze.json",
+      "bytes": 9160,
+      "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests.patch",
+      "bytes": 16369,
+      "sha256": "2885ed6466a7c39a92203561d3c5de6fe95e0d5cb8b42d3f752b6d0c5c40f873"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-timing-tests.patch",
+      "bytes": 5629,
+      "sha256": "e09a4693f318c2e092379a9613d23b4f0ee3818fc7248086c9d9dea00cfa17f0"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-fixture.patch",
+      "bytes": 762,
+      "sha256": "81b127edb20a4b52f022eeb07820b859bcd01b3b1199200708009156344f91eb"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-live_stem_bridge_test.cpp",
+      "bytes": 81213,
+      "sha256": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c"
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "bytes": 51413,
+      "sha256": "33c5c007bce55d93ed95878f493a268ae474c9a0ea5cb46fd9f240504d7c7d01"
+    }
+  ],
+  "existing_source_facts": [
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        240,
+        244
+      ],
+      "fact": "Bridge::run captures the provider initial_ request during factory startup and assigns latest_=initial_ before serving actual demand."
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        265,
+        268
+      ],
+      "fact": "The producer observes a demand change only when a captured provider request has an epoch different from latest_.epoch."
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        347,
+        359
+      ],
+      "fact": "schedule excludes initial_.epoch and sends load/seek only for a newer latest_ epoch not already accepted; the inert initial capture does not eagerly load audio."
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        547,
+        552
+      ],
+      "fact": "The conversion/publication refresh path also recognizes a changed provider epoch and discards the superseded local conversion state."
+    }
+  ],
+  "clarification": {
+    "RequestObserved": "Emit for an actual new provider demand after prime or seek when the producer observes the newer epoch and target. Do not emit for the inert factory-start initial_ capture. This refines the meaning of new provider epoch in the frozen contract without changing fields or API shape.",
+    "first_prime": "The first actual prime produces one RequestObserved for its demanded epoch; there is no additional observation for the captured startup baseline and no factory default load.",
+    "same_epoch": "Temporary underrun or repeated inspection of the same provider epoch does not create RequestObserved.",
+    "superseding_boundary": "A queued old PacketAccepted may precede the producer observation of a newer demand. Old-epoch acceptance after that newer RequestObserved is invalid; the boundary is producer observation, not the time a UI seek is issued.",
+    "Full_scope": "The frozen driver requires an actual accepted packet carrying fullObserved and a valid firstFullNs chronology. Its bounded scheduling opportunities do not establish performance, latency, readiness or thermal results."
+  },
+  "unchanged_test_bindings": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-live_stem_bridge_test.cpp",
+      "lines": [
+        374,
+        432
+      ],
+      "fact": "First-demand uniqueObservation(RequestObserved) assertions are consistent with excluding the inert baseline."
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-live_stem_bridge_test.cpp",
+      "lines": [
+        443,
+        685
+      ],
+      "fact": "The newer-demand boundary and existing no-eager-load oracle retain their original assertion source."
+    }
+  ],
+  "limits_retained": [
+    "Completion endpoint/count field placement remains deferred because frozen text does not assign it unambiguously. Tests assert completion kinds/telemetry and exact accepted packet-end coverage, without inventing completion field bindings.",
+    "Nonempty PacketDiscarded coverage is conditional. Every observed old discard is validated; no scheduler sleep is treated as proof that a pending packet exists.",
+    "No API shape, frozen API/header/document, test assertion, patch, product file or tracked file is changed by this receipt.",
+    "No product implementation, compilation, test, native/model/audio, Git or host workload is executed. Actual root-owned RED remains required before implementation authorization.",
+    "No p99 target, real model, physical audio, active callback consumption or M2 qualification is established by these source-only observation oracles."
+  ],
+  "review": {
+    "root": "Requested this precise baseline clarification; exact receipt review pending",
+    "guard_rules": "Exact receipt source review requested after publication"
+  },
+  "execution": {
+    "ignored_receipt_written": true,
+    "frozen_inputs_unchanged": true,
+    "tracked_files_changed": false,
+    "product_or_tests_executed": false
+  }
+}

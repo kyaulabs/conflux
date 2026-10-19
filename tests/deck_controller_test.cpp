@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
+#include "library/LiveStemObservations.hpp"
 #include "StemExportFixture.hpp"
 #include "StemServiceFixture.hpp"
 
@@ -273,6 +274,46 @@ void verifyNoPlayback(const conflux::DeckController& controller)
 class DeckControllerTest final : public QObject {
     Q_OBJECT
 private slots:
+    void observationsFollowCurrentLiveClipWithoutOwningItsLifetime()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("observed live.wav"), finite = directory.filePath("finite.wav");
+            QVERIFY(writeWave(source, 2, 44100, 211) && writeWave(finite, 2, 48000, 480));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            ControllerServiceSafety safety{fixture};
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            QVERIFY(!controller.liveStemObservations(-1) && !controller.liveStemObservations(0) &&
+                    !controller.liveStemObservations(1) && !controller.liveStemObservations(2));
+            controller.loadDeck(0, QUrl::fromLocalFile(finite));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.decks()[0].toMap()["loaded"].toBool() && !controller.liveStemObservations(0));
+            controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            auto handle = controller.liveStemObservations(0);
+            QVERIFY2(handle, qPrintable(controller.error()));
+            QVERIFY(handle == controller.liveStemObservations(0) && !controller.liveStemObservations(1));
+            QCOMPARE(handle->setup().outputFrames48000, controller.audioState().sourceFrames[0]);
+            safety.capture();
+            QVERIFY(!safety.children.empty() && !safety.gone());
+            controller.loadDeck(0, QUrl::fromLocalFile(finite));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.decks()[0].toMap()["loaded"].toBool() && !controller.audioState().stemBank[0]);
+            QVERIFY(!controller.liveStemObservations(0));
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone() && safety.jobsGone(), 10000);
+            QVERIFY(handle->counters().producerFinished);
+            controller.shutdown();
+            QVERIFY(!controller.liveStemObservations(0));
+        });
+    }
+
     void liveServiceModePrefersCompleteBankWithoutUsingService()
     {
         liveControllerChecked([&] {

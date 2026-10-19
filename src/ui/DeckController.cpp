@@ -66,8 +66,10 @@ DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> ste
     }
 }
 
-DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256)
-    : liveFrames(frames), livePeaks(std::move(sourcePeaks)), liveSourceSha256(std::move(sourceSha256))
+DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
+    std::shared_ptr<library::LiveStemObservations> observations)
+    : liveFrames(frames), livePeaks(std::move(sourcePeaks)), liveSourceSha256(std::move(sourceSha256)),
+      observations(std::move(observations))
 {
     if (!liveFrames || livePeaks.empty() || liveSourceSha256.isEmpty() ||
         std::ranges::any_of(livePeaks, [](float peak) { return !std::isfinite(peak) || peak < 0.F || peak > 1.F; }))
@@ -284,6 +286,13 @@ void DeckController::fail(const QString& error)
     emit stateChanged();
 }
 
+std::shared_ptr<library::LiveStemObservations> DeckController::liveStemObservations(int deck) const
+{
+    if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)] || !clips_[std::size_t(deck)]->live())
+        return {};
+    return clips_[std::size_t(deck)]->observations;
+}
+
 std::uint64_t DeckController::retainedPcmBytes() const
 {
     // Bound raw references before dedup: clips2 + pending1 + ready loader1 +
@@ -494,7 +503,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop);
                     sourceId = track.sourceSha256;
                     prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
-                        std::move(track.sourceOverview), track.sourceSha256);
+                        std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations));
                     prepared->playback = std::move(track.playback);
                 }
             } else {

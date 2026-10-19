@@ -1,0 +1,172 @@
+{
+  "schema": "conflux.live-bridge-observation-tests-freeze.v1",
+  "status": "independent_tests_frozen_actual_RED_pending",
+  "author": "/root/hour_result_crosscheck",
+  "at_utc": "2026-10-19T13:45:57.539571+00:00",
+  "source_baseline": {
+    "head": "32f363ba1987d5493bd61f27b05d8ce64984f318",
+    "branch": "feat/kyau-65a54f-live-stem-loading",
+    "retained_receipt": {
+      "path": "controller-live-push.json",
+      "bytes": 566,
+      "sha256": "fe1d34b9af4d55e85c96e6a4cbaac2d89ac4e4667ffd0d60217513e0155d727d"
+    },
+    "provenance": "Root supplied the signed baseline; controller-live-push.json retains the full head and GPG status. This agent did not execute Git or independently verify the signature."
+  },
+  "api_freeze": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api-freeze.json",
+    "bytes": 3227,
+    "sha256": "de88c393b49d11c1e39a7f7fac7711a6b1f87548dc4c3d79c43ff7a7df315087"
+  },
+  "api_header": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.hpp",
+    "bytes": 4328,
+    "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+  },
+  "api_document": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.md",
+    "bytes": 7024,
+    "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+  },
+  "expected_product_header": "src/library/LiveStemObservations.hpp",
+  "patches": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests.patch",
+      "bytes": 16369,
+      "sha256": "2885ed6466a7c39a92203561d3c5de6fe95e0d5cb8b42d3f752b6d0c5c40f873"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-timing-tests.patch",
+      "bytes": 5629,
+      "sha256": "e09a4693f318c2e092379a9613d23b4f0ee3818fc7248086c9d9dea00cfa17f0"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-fixture.patch",
+      "bytes": 762,
+      "sha256": "81b127edb20a4b52f022eeb07820b859bcd01b3b1199200708009156344f91eb"
+    }
+  ],
+  "files": [
+    {
+      "path": "tests/live_stem_bridge_test.cpp",
+      "input": {
+        "bytes": 65859,
+        "sha256": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253"
+      },
+      "output": {
+        "bytes": 81213,
+        "sha256": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-live_stem_bridge_test.cpp"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "input": {
+        "bytes": 63676,
+        "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+      },
+      "output": {
+        "bytes": 66264,
+        "sha256": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-deck_controller_test.cpp"
+    },
+    {
+      "path": "tests/StemServiceFixture.hpp",
+      "input": {
+        "bytes": 15196,
+        "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+      },
+      "output": {
+        "bytes": 15378,
+        "sha256": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-StemServiceFixture.hpp"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "input": {
+        "bytes": 78304,
+        "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+      },
+      "output": {
+        "bytes": 78892,
+        "sha256": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-preparation_controller_check.cpp"
+    }
+  ],
+  "apply_order": [
+    "live-bridge-timing-fixture.patch",
+    "live-bridge-timing-tests.patch",
+    "controller-live-timing-tests.patch"
+  ],
+  "existing_targets": [
+    "conflux-live-stem-bridge-test",
+    "conflux-deck-controller-test",
+    "conflux-preparation-controller-check"
+  ],
+  "cmake_change_required": false,
+  "behavior": [
+    {
+      "test": "observationsPreservePinnedContextAndWireTiming",
+      "rows": 2,
+      "scope": "Real factory and stdlib service; immutable complete setup identities/counts/ordered milestones, exact load IDs/epoch/anchors and raw request/lease/range; fixed representable Python-second values and optional hop-millisecond metric retained without cross-clock subtraction; telemetry loss separate; final joined accounting and empty-read preservation; retained handle does not retain process/job"
+    },
+    {
+      "test": "observationsFollowContiguousFullPacketsAndSupersedingSeek",
+      "rows": 1,
+      "scope": "Real long source, converter/ring/core and independent role/peer PCM; initial ring fills, accepted fullObserved/firstFull chronology is actually observed after releasing a slot; exact contiguous4096 nonfinal ranges, seek-generation binding and no old accepted packet after new RequestObserved; each observed old discard range/generation validated"
+    },
+    {
+      "test": "observationOverflowDoesNotStopPcmAndFinalOrdinalsExposeLoss",
+      "rows": 1,
+      "scope": "48 actual tiny primes with no observation consumer exceed fixed256 capacity; correct role/peer PCM and healthy prime continue; consumer then drains and refills through another actual prime, exposing ordinal gap; after stop/join attempted equals all retained plus dropped and producerFinished is true; handle keeps no job alive"
+    },
+    {
+      "test": "observationsFollowCurrentLiveClipWithoutOwningItsLifetime",
+      "rows": 1,
+      "scope": "Controller invalid/unloaded/finite getters null, live getter returns stable matching handle/output count despite unavailable output parking, replacement clears current getter while retained handle permits process/job cleanup and final producer flag"
+    },
+    {
+      "test": "existing runLiveStemController",
+      "additional_checks": 3,
+      "scope": "Actual private successful routing rebuild preserves the same live handle, finite peer remains null, retained diagnostics see finished producer only after existing strict whole-child/job shutdown assertions"
+    }
+  ],
+  "review": {
+    "author_self_review": "Complete source/oracle pass; default fixture behavior and existing assertions retained",
+    "independent": {
+      "reviewer": "/root/guard_rules",
+      "outcome": "exact three patch source pass clear",
+      "scope": "Wire units/optional hop, packet/epoch chronology, independent PCM, actual overflow/final counts, controller handle/lifecycle; identified and resolved scheduler-assumed mandatory discard oracle"
+    },
+    "root_decisions": [
+      "Use library/LiveStemObservations.hpp and existing private route flow without a new target",
+      "Discard coverage is conditional; never force pending existence with a scheduler sleep or add a public test hook",
+      "A valid old acceptance queued before the producer observes the new request is allowed; only post-newRequest old acceptance fails"
+    ]
+  },
+  "limits": [
+    "No compilation/build/test/native/model/audio/Git/host execution or tracked application by test author/reviewer; tools used only for source reads and ignored text/diff/hash generation",
+    "Actual root missing-API RED is still required after applying these frozen independent tests and before any product implementation draft is authorized",
+    "No deterministic forced nonempty PacketDiscarded branch coverage: frozen API exposes no pending probe; all observed old discards are checked, and post-observed-request stale acceptance is strictly rejected",
+    "50ms holds occur only as bounded producer scheduling opportunities during the full-ring driver, never as latency assertions or fabricated pending/Full timestamps; actual accepted fullObserved record is required",
+    "Completion endpoint/count field placement is not unambiguously specified in frozen text; tests require completion kinds/telemetry and exact accepted packet-end coverage instead of inventing field bindings",
+    "Ordinal origin is not specified by the API: tests require contiguous ordinals without loss and strict increase/gaps after overflow, without imposing a zero- or one-based start",
+    "Queue counts sampled while running remain advisory; exact accounting is asserted only after explicit producer stop/join and finished flag",
+    "No actual model, Flash precision, p99 service/render consumption, sustained thermal, physical audio or M2 qualification follows from synthetic observations tests",
+    "Root urgent PR27 manual-receiver triage is separate and does not mutate these four test inputs; author uses root-supplied signed32f baseline without independently executing Git or signature verification"
+  ],
+  "execution": {
+    "ignored_text_generation": true,
+    "tracked_apply": false,
+    "product_drafted": false,
+    "actual_RED": false,
+    "builds": false,
+    "tests": false,
+    "native_model_audio": false,
+    "git_or_host_queries": false,
+    "owner": "/root"
+  }
+}

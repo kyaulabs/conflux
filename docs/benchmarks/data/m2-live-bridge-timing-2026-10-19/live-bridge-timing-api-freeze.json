@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "status": "source_only_api_frozen_before_independent_tests",
+  "source_baseline": {
+    "head": "32f363ba1987d5493bd61f27b05d8ce64984f318",
+    "branch": "feat/kyau-65a54f-live-stem-loading",
+    "retained_receipt": {
+      "path": "controller-live-push.json",
+      "bytes": 566,
+      "sha256": "fe1d34b9af4d55e85c96e6a4cbaac2d89ac4e4667ffd0d60217513e0155d727d"
+    },
+    "provenance": "Root supplied the signed baseline; controller-live-push.json retains the full head and GPG status. This agent did not execute Git or independently verify the signature."
+  },
+  "files": {
+    "live-bridge-timing-api.hpp": {
+      "bytes": 4328,
+      "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+    },
+    "live-bridge-timing-api.md": {
+      "bytes": 7024,
+      "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+    },
+    "live-bridge-timing-proposal.md": {
+      "bytes": 9476,
+      "sha256": "f3f009a7d5b003758981f3ca9a9116805b39df8eb79282d1cd6a0137f81971ea"
+    }
+  },
+  "reviews": [
+    {
+      "reviewer": "/root",
+      "status": "approved_api_shape_subject_to_two_comment_and_contract_finalizations",
+      "reviewed_header_sha256": "18fdb7887aac762fbd450ca70ce532fc126ee4a04bb87878887671565f5d276e",
+      "reviewed_contract_sha256": "6bc38078f31cef9d4390a9cfecea999de4e1ac2e545f054debd11f093eb264d7"
+    },
+    {
+      "reviewer": "/root/guard_rules",
+      "status": "source_review_clear_with_setup_visibility_and_final_counter_ordering_notes",
+      "reviewed_header_sha256": "18fdb7887aac762fbd450ca70ce532fc126ee4a04bb87878887671565f5d276e",
+      "reviewed_contract_sha256": "6bc38078f31cef9d4390a9cfecea999de4e1ac2e545f054debd11f093eb264d7",
+      "implementation_notes": [
+        "Private constructor needs construction from the friend, such as shared_ptr(new ...); make_shared's allocator cannot access it.",
+        "Drive any later queue-overflow regression through the actual bridge, without adding a public writer or clock seam."
+      ]
+    }
+  ],
+  "finalization": {
+    "api_shape_changed": false,
+    "changes": [
+      "Bridge uses existing job/request context and never reads Setup during final factory writes; only the post-publication consumer reads it.",
+      "counters loads producerFinished with acquire ordering before the remaining atomics; active samples are advisory.",
+      "producerFinished means no further observation writes, not OS-thread exit, join or process/group/job cleanup."
+    ],
+    "scope_corrections_retained": [
+      "Service published_at precedes Wire.emit and excludes JSON serialization/output queue/pipe drain.",
+      "Accepted packet ranges prove publication coverage, not recovery-grant consumption or open-gate readiness.",
+      "A same-epoch underrun is not a new provider request.",
+      "No Python/C++ absolute-clock subtraction or exact callback/physical consumption claim."
+    ]
+  },
+  "execution": {
+    "tests_or_product_drafted": false,
+    "tracked_files_changed": false,
+    "builds_tests_git_native_model_host_executed": false,
+    "next_authorization": "Root assigns independent behavior tests; product implementation remains unauthorized until the later actual RED."
+  }
+}

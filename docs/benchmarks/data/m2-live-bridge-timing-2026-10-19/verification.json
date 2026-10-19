@@ -1,0 +1,1855 @@
+{
+  "schema": "conflux.m2-live-bridge-timing.v1",
+  "status": "synthetic_timing_checks_passed",
+  "source_head": "9300fb165bd13e340c2e265c254ef21a01b4c1bb",
+  "source_signature": "9300fb165bd13e340c2e265c254ef21a01b4c1bb G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau@kyau.net",
+  "actual_red": {
+    "status": "actual_missing_API_RED",
+    "at_utc": "2026-10-19T13:51:49.286983+00:00",
+    "signed_base": "0f9c34b6d568831922ba9767dd7acf68bf256cc3",
+    "branch": "feat/kyau-08945a-live-stem-timing",
+    "product_or_declaration_applied": false,
+    "test_freeze": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-freeze.json",
+      "bytes": 9160,
+      "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+    },
+    "applied_test_sources": {
+      "tests/live_stem_bridge_test.cpp": {
+        "bytes": 81213,
+        "sha256": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c"
+      },
+      "tests/deck_controller_test.cpp": {
+        "bytes": 66264,
+        "sha256": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70"
+      },
+      "tests/StemServiceFixture.hpp": {
+        "bytes": 15378,
+        "sha256": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f"
+      },
+      "tools/experiments/preparation_controller_check.cpp": {
+        "bytes": 78892,
+        "sha256": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+      }
+    },
+    "stages": [
+      {
+        "stage": "live-bridge-timing-red-build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/dev",
+          "--target",
+          "conflux-live-stem-bridge-test",
+          "--parallel",
+          "2"
+        ],
+        "exit": 1,
+        "elapsed_seconds": 1.7195010400027968
+      }
+    ],
+    "diagnostic": "New LiveStemObservations.hpp is absent; independent bridge tests cannot compile before product API exists"
+  },
+  "frozen_TDD_provenance_verified": true,
+  "focused_green": {
+    "at_utc": "2026-10-19T14:07:02.567968+00:00",
+    "source_pins": {
+      "src/library/LiveStemObservations.hpp": "7c599f55fd45f7512515dd1fa5b1bc097c4f42cf972101624cb9530ffdedf086",
+      "src/library/LiveStemBridge.cpp": "023bc8e1ad16563a2f316bb4eb66558cb389063d471e76badf2df1c5bcfa072b",
+      "src/library/PreparedTrackStore.hpp": "a43cf05421884daff1765d04fe405f375a16e53f73967db3d7de75f4cd77e365",
+      "src/ui/DeckController.hpp": "c97fe3ec41f21ac693228d539e68e2390bd0b7d0614f01e63c1d544c3212b9a4",
+      "src/ui/DeckController.cpp": "6bcb75ac4e8d81179451550d2fa95cc1dcefe27efcaf2ced56682d4dbfe9b322",
+      "tests/live_stem_bridge_test.cpp": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c",
+      "tests/deck_controller_test.cpp": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70",
+      "tests/StemServiceFixture.hpp": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f",
+      "tools/experiments/preparation_controller_check.cpp": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+    },
+    "stages": [
+      {
+        "stage": "build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/dev",
+          "--target",
+          "conflux-live-stem-bridge-test",
+          "conflux-deck-controller-test",
+          "conflux-preparation-controller-check",
+          "--parallel",
+          "2"
+        ],
+        "exit": 0,
+        "timed_out": false,
+        "elapsed_seconds": 90.22436472203117
+      },
+      {
+        "stage": "bridge",
+        "command": [
+          "build/dev/conflux-live-stem-bridge-test",
+          "observationsPreservePinnedContextAndWireTiming",
+          "observationsFollowContiguousFullPacketsAndSupersedingSeek",
+          "observationOverflowDoesNotStopPcmAndFinalOrdinalsExposeLoss"
+        ],
+        "exit": 0,
+        "timed_out": false,
+        "elapsed_seconds": 15.362019286025316
+      },
+      {
+        "stage": "controller",
+        "command": [
+          "build/dev/conflux-deck-controller-test",
+          "observationsFollowCurrentLiveClipWithoutOwningItsLifetime"
+        ],
+        "exit": 0,
+        "timed_out": false,
+        "elapsed_seconds": 0.4661885539535433
+      }
+    ],
+    "source_stable": true
+  },
+  "full_stages": [
+    {
+      "stage": "full-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 600,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2658722,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 36.96100251295138
+    },
+    {
+      "stage": "ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/dev",
+        "--output-on-failure",
+        "--timeout",
+        "120",
+        "--output-junit",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-ctest.xml"
+      ],
+      "timeout_seconds": 900,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2658901,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 160.34908553096466
+    },
+    {
+      "stage": "smoke",
+      "command": [
+        "build/dev/conflux",
+        "--smoke-test"
+      ],
+      "timeout_seconds": 30,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660176,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 2.205221734009683
+    },
+    {
+      "stage": "normal-routing",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Timing validation stage stopped')\nsignal.signal(signal.SIGTERM, stop)\nsignal.signal(signal.SIGINT, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-manual-routing-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing"
+      ],
+      "timeout_seconds": 180,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660203,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 7.010701286024414,
+      "evidence": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/result.json",
+        "pin": {
+          "bytes": 14295,
+          "sha256": "1c7e4bb78b4425ab61fac68e0ea85e9e770c411abf0c726d1e4b5c35d4ea5778"
+        },
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+        "execution_deadline_gate": true
+      }
+    },
+    {
+      "stage": "normal-preparation",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Timing validation stage stopped')\nsignal.signal(signal.SIGTERM, stop)\nsignal.signal(signal.SIGINT, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-preparation-controller-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation"
+      ],
+      "timeout_seconds": 180,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660309,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 87.11424698797055,
+      "evidence": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/result.json",
+        "pin": {
+          "bytes": 16860,
+          "sha256": "9682da83f53ba3f3d2427874fdfdbfc02bd9a25512272a864afa2b437ae478c2"
+        },
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+        "execution_deadline_gate": true
+      }
+    },
+    {
+      "stage": "coverage",
+      "command": [
+        "benchmarks-local/coverage-venv/bin/python",
+        "-B",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Timing validation stage stopped')\nsignal.signal(signal.SIGTERM, stop)\nsignal.signal(signal.SIGINT, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/coverage/run.py",
+        "--private-routing",
+        "--jobs",
+        "2"
+      ],
+      "timeout_seconds": 1800,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660681,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 519.228946593008
+    }
+  ],
+  "normal_ctest": {
+    "name": "Linux-c++",
+    "tests": "36",
+    "failures": "0",
+    "disabled": "0",
+    "skipped": "0",
+    "hostname": "aura.kyaulabs",
+    "time": "160",
+    "timestamp": "2026-10-19T07:11:44"
+  },
+  "built_artifact_scope": "Built-artifact pins include unexecuted experiment binaries; only named stage binaries have execution evidence",
+  "private": {
+    "normal-routing": {
+      "checks": 130,
+      "wrapper_execution_deadline_gate": true,
+      "inner_execution_deadline_gate": true,
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": []
+    },
+    "normal-preparation": {
+      "checks": 78,
+      "wrapper_execution_deadline_gate": true,
+      "inner_execution_deadline_gate": false,
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": []
+    },
+    "coverage-routing": {
+      "checks": 124,
+      "wrapper_execution_deadline_gate": false,
+      "inner_execution_deadline_gate": false,
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": []
+    },
+    "coverage-preparation": {
+      "checks": 78,
+      "wrapper_execution_deadline_gate": false,
+      "inner_execution_deadline_gate": false,
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": []
+    }
+  },
+  "coverage": {
+    "schema": 1,
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "private_routing_requested": true,
+    "private_routing_execution_deadline_gate": false,
+    "interpreter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+    "cpp_flags": "--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+    "measured_sources": {
+      "cpp": "src/** including main, probe and instrumented headers",
+      "python": "tools/stems/**"
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "separate_support_scope": [
+      "tools/benchmarks/**",
+      "tools/experiments/**",
+      "tools/coverage/**",
+      "tests/**",
+      "brand/source/**"
+    ],
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    },
+    "tools": {
+      "coverage": "7.16.2",
+      "gcovr": "8.7",
+      "numpy": "2.5.4"
+    },
+    "cpp": {
+      "line": {
+        "covered": 5781,
+        "total": 6710,
+        "percent": 86.15499254843517,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 8178,
+        "total": 15433,
+        "percent": 52.990345363830755,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "stages": {
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/home/kyau/projects/kyaulabs/conflux",
+          "-B",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DBUILD_TESTING=ON",
+          "-DCMAKE_CXX_FLAGS=--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+          "-DCMAKE_EXE_LINKER_FLAGS=--coverage",
+          "-DCMAKE_SHARED_LINKER_FLAGS=--coverage",
+          "-DPython3_EXECUTABLE=/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python"
+        ],
+        "exit": 0,
+        "log": "configure.log",
+        "timed_out": false
+      },
+      "build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "--parallel",
+          "2"
+        ],
+        "exit": 0,
+        "log": "build.log",
+        "timed_out": false
+      },
+      "ctest": {
+        "command": [
+          "ctest",
+          "--test-dir",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "--output-on-failure",
+          "--timeout",
+          "120"
+        ],
+        "exit": 0,
+        "log": "ctest.log",
+        "timed_out": false
+      },
+      "smoke": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/conflux",
+          "--smoke-test"
+        ],
+        "exit": 0,
+        "log": "smoke.log",
+        "timed_out": false
+      },
+      "private-routing": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-c",
+          "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+          "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/conflux-manual-routing-check",
+          "/tmp/conflux-coverage-private-routing-6m8s8589/evidence",
+          "--functional-only"
+        ],
+        "exit": 0,
+        "log": "private-routing.log",
+        "timed_out": false
+      },
+      "private-preparation": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-c",
+          "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+          "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/conflux-preparation-controller-check",
+          "/tmp/conflux-coverage-private-preparation-n4mec8oe/evidence",
+          "--functional-only"
+        ],
+        "exit": 0,
+        "log": "private-preparation.log",
+        "timed_out": false
+      },
+      "gcovr": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "gcovr",
+          "--root",
+          "/home/kyau/projects/kyaulabs/conflux",
+          "--filter",
+          "/home/kyau/projects/kyaulabs/conflux/src/",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "--json",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp.json",
+          "--json-summary",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp-summary.json",
+          "--html-details",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp.html",
+          "--cobertura",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp.xml",
+          "--print-summary"
+        ],
+        "exit": 0,
+        "log": "gcovr.log",
+        "timed_out": false
+      },
+      "python-combine": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "combine",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "--keep",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-data"
+        ],
+        "exit": 0,
+        "log": "python-combine.log",
+        "timed_out": false
+      },
+      "python-json": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "json",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "-o",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/python.json"
+        ],
+        "exit": 0,
+        "log": "python-json.log",
+        "timed_out": false
+      },
+      "python-html": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "html",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "-d",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/python-html"
+        ],
+        "exit": 0,
+        "log": "python-html.log",
+        "timed_out": false
+      },
+      "python-xml": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "xml",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "-o",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/python.xml"
+        ],
+        "exit": 0,
+        "log": "python-xml.log",
+        "timed_out": false
+      }
+    },
+    "errors": [],
+    "execution_passed": true
+  },
+  "source_and_built_artifact_pins_verified": true,
+  "future_harness_included": false,
+  "cli_rerun": false,
+  "raw_secret_scan_exit": 0,
+  "raw_scanned_input_bytes": 7204087,
+  "scan_scope": "Named uncompressed inputs before generated manifest/scanner-output packaging; no suppressions",
+  "deterministic_gzip_roundtrip_verified": true,
+  "files": {
+    "live-bridge-timing-api.hpp": {
+      "bytes": 4328,
+      "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+    },
+    "live-bridge-timing-api.md": {
+      "bytes": 7024,
+      "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+    },
+    "live-bridge-timing-api-freeze.json": {
+      "bytes": 3227,
+      "sha256": "de88c393b49d11c1e39a7f7fac7711a6b1f87548dc4c3d79c43ff7a7df315087"
+    },
+    "live-bridge-timing-request-clarification.json": {
+      "bytes": 6563,
+      "sha256": "1db19e8ca9a0e6d277f7e6f2edc752901f930295fa10c2cacb848199ab728f7a"
+    },
+    "live-bridge-timing-completion-clarification.json": {
+      "bytes": 3866,
+      "sha256": "2e400523ccbe7ac93fd0b304a9cb6dce8542299e4e54ac959e6a1ad7b120d5ba"
+    },
+    "live-bridge-timing-tests-freeze.json": {
+      "bytes": 9160,
+      "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+    },
+    "live-bridge-timing-tests-inputs.json": {
+      "bytes": 2535,
+      "sha256": "3d7dca948367161326e6ff0d7a10eb920c8e3476cd0e5e9a5c2cdfc35ab93e51"
+    },
+    "live-bridge-timing-product-inputs.json": {
+      "bytes": 637,
+      "sha256": "47823956a1e10eb15a9d9baf18bf71130df4c131b31bff0c40223a05589ef839"
+    },
+    "live-bridge-timing-implementation-freeze.json": {
+      "bytes": 7985,
+      "sha256": "3b37cc45c2eec1fa72879d14a807a99a57a9d25840d08cc435890816a0cd94de"
+    },
+    "live-bridge-timing-test-application.json": {
+      "bytes": 1331,
+      "sha256": "e88516ef8ba672c566069b12c7867c3ba3dc3054eab933a89f7377b8263b471d"
+    },
+    "live-bridge-timing-product-application.json": {
+      "bytes": 422,
+      "sha256": "dcba2a70cb244f740febbd3ea5ac03930c1e74a04c320b04ad255dedea78bc4f"
+    },
+    "live-bridge-timing-develop-base.json": {
+      "bytes": 404,
+      "sha256": "3f08c6d390d9333b5ddaccef690809ea047f79164017468dfc4180164b55d3a1"
+    },
+    "live-bridge-timing-red-result.json": {
+      "bytes": 1566,
+      "sha256": "59c46e89e935cbd7ce98215bb877c17e988853fa833d1cb9a38852d9c60667ea"
+    },
+    "live-bridge-timing-green-result.json": {
+      "bytes": 2157,
+      "sha256": "0cd0275c612dd6b71b7ab7447d79139dc0ce4b3c1b13ec14fd7658f44784a95b"
+    },
+    "live-bridge-timing-green-artifact-pins.json": {
+      "bytes": 477,
+      "sha256": "fad3b08b4c640d57f5d4598d40ca6aec54a68832b22303e485a6144bed5cb035"
+    },
+    "live-bridge-timing-check-runner-freeze.json": {
+      "bytes": 2472,
+      "sha256": "a0b5ed3db22016fe8df4ff4c4cd5265e1764bc7478e1eac50a9187698f3682bc"
+    },
+    "live-bridge-timing-tests.patch.gz": {
+      "bytes": 4267,
+      "sha256": "3e7ce00fec3526b32036ccbfe716cf81a7bd5bc1be780e927e44f70c1425ccf0"
+    },
+    "controller-live-timing-tests.patch.gz": {
+      "bytes": 1780,
+      "sha256": "76972f567d56711dfd2807e57f5205ca83649fb12a0525a0f67d10d45cc95448"
+    },
+    "live-bridge-timing-fixture.patch.gz": {
+      "bytes": 380,
+      "sha256": "03a934d3bab2e3c4fefbf98df17c43fbc4ac91ed591d8babf18be0f0664905da"
+    },
+    "live-bridge-timing-implementation.patch.gz": {
+      "bytes": 8349,
+      "sha256": "6699fe1f7d4735a8584e7c1eff4120df03b203d469a34eb1545760acb34285e5"
+    },
+    "live-bridge-timing-red-build.log.gz": {
+      "bytes": 531,
+      "sha256": "435471e0bab0281189e0d7f1ced2f241a14f961389c1e7f013800b63e49eb238"
+    },
+    "live-bridge-timing-green-build.log.gz": {
+      "bytes": 1125,
+      "sha256": "3d0edddb5e54d37978fdd60cfd6cec93b32472f9114ed866d82f5e965f04984b"
+    },
+    "live-bridge-timing-green-bridge.log.gz": {
+      "bytes": 385,
+      "sha256": "e934c9a04d365eebffbbe96a9480003236ea386cef99634166d765b4e73de333"
+    },
+    "live-bridge-timing-green-controller.log.gz": {
+      "bytes": 302,
+      "sha256": "44fb457f3437841e1ceeb09f2033b797fdc807b1177e05f9bb5003fee4c7ed5f"
+    },
+    "result.json": {
+      "bytes": 15279,
+      "sha256": "64dd2d8ecbc476d3922730565b296d17f095053664b61a5ce27afdebbc046e7f"
+    },
+    "source-pins.json": {
+      "bytes": 16872,
+      "sha256": "6b342bfb7bd1720a2c73bd89332bf4d018b2d5d37dd9f07f8a1c3478cbaf2167"
+    },
+    "built-artifact-pins.json": {
+      "bytes": 11845,
+      "sha256": "7ac8d0a111eec0170fd228edcb9cda45a911cef8083a8bd38d5fc2bbc6f680bc"
+    },
+    "normal-ctest.xml": {
+      "bytes": 13260,
+      "sha256": "77a3caeb68cc22b8b87c4a7754c5fcfb0adb9732ed61f855d010ebf3a9aaaf91"
+    },
+    "full-build.log.gz": {
+      "bytes": 641,
+      "sha256": "f919aefe74bb30db58b7f596bfbf22af118f206545a62851222e2d34c3390d9a"
+    },
+    "ctest.log.gz": {
+      "bytes": 871,
+      "sha256": "607e127c01931fa46bd2c9a2faa8baabf333e04f0a190370f76714aa1c7252c5"
+    },
+    "smoke.log.gz": {
+      "bytes": 422,
+      "sha256": "c1d45283238756d7334b38b72d39c6f282defa94a229c29d567cbe211bebe3b4"
+    },
+    "normal-routing.log.gz": {
+      "bytes": 2970,
+      "sha256": "48811bd9475f3db08bdd6319c648a2c29b6c225c3bde0db2c7a32a9506d663f0"
+    },
+    "normal-preparation.log.gz": {
+      "bytes": 4091,
+      "sha256": "1c739113ddde4048d69788f36a33cada292f331ab8267f4ad2c8b2709d289b7f"
+    },
+    "coverage.log.gz": {
+      "bytes": 2008,
+      "sha256": "0cf8dfed2e1824e98500f081d5b3ba3a8bf3f95a7f74389fe078f7cebe59e4ac"
+    },
+    "coverage-summary.json.gz": {
+      "bytes": 1670,
+      "sha256": "771a2009b8ae083e836cad5a9af82246e21d4a61a32889c4ea425e92c2f4cf01"
+    },
+    "coverage-cpp.json.gz": {
+      "bytes": 404347,
+      "sha256": "5dae92cd5cd2909620a37cef36b93c238f8168ccf9b7b62ceb1acbe0b47aa8fb"
+    },
+    "coverage-cpp-summary.json.gz": {
+      "bytes": 1220,
+      "sha256": "a05d4eca2bb3db945b1971565b6785b98a6c807c89dcf7dcb9afe911c7bb62f2"
+    },
+    "coverage-cpp.xml.gz": {
+      "bytes": 82045,
+      "sha256": "e5b46f9bc021d01b072fec898c90dd2efb00e2f6d70f5616796ad8cace9486b1"
+    },
+    "coverage-python.json.gz": {
+      "bytes": 9636,
+      "sha256": "efaa49face8df8dc5a0b3a83c9b6b4bdc3dae7c4308aa6c2cacc9d6cd249444b"
+    },
+    "coverage-python.xml.gz": {
+      "bytes": 4456,
+      "sha256": "2263ba33f0180d218acfd176c5cb6c3c64db5225cfd6475b879a37b29bd31ba7"
+    },
+    "coverage-configure.log.gz": {
+      "bytes": 134,
+      "sha256": "280a01713722cc9e92b50a0717301ed1e1085cc934cf3148a916779331e03a0f"
+    },
+    "coverage-build.log.gz": {
+      "bytes": 864,
+      "sha256": "e63d3243fa540ae90bfc0dd5611ec30d875b23617a8b337438ce21e3084174ae"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 895,
+      "sha256": "911c19fdeeaa7affad1be7f981db0e228b9fffd2e9e21cb6f4bcf39302e9921f"
+    },
+    "coverage-smoke.log.gz": {
+      "bytes": 423,
+      "sha256": "a252dee780cdb845c38a375b7c46a90b472bde975eecfe45d72444fa5be4492d"
+    },
+    "coverage-private-routing.log.gz": {
+      "bytes": 2940,
+      "sha256": "49f6dfdfa0cabae7cb0b16c408b0171d2bde9ba012d8dd7222d8d2bdedd41253"
+    },
+    "coverage-private-preparation.log.gz": {
+      "bytes": 4045,
+      "sha256": "701ebc0560dec398413a4f398ca9074b1058251fb807d8fe4e6593f6747704c9"
+    },
+    "coverage-gcovr.log.gz": {
+      "bytes": 103,
+      "sha256": "efdce6f6fe260f7f7e39044d79c0d15964b9c3fe4bb262509f234bceecb9f0e1"
+    },
+    "coverage-python-combine.log.gz": {
+      "bytes": 47,
+      "sha256": "042411e26d769db3495ace94c6fac3ff460f99fb839f84ddc63587a4cbcffff2"
+    },
+    "coverage-python-json.log.gz": {
+      "bytes": 126,
+      "sha256": "70eff43c98caf073645b8b1e3cfbdb95f897e8a7ee8f6315be67c4ec868ac9b2"
+    },
+    "coverage-python-html.log.gz": {
+      "bytes": 109,
+      "sha256": "4520339585a9ddd0af877113a8174969ea4c1eb8969cb2739af02996359f1e6a"
+    },
+    "coverage-python-xml.log.gz": {
+      "bytes": 98,
+      "sha256": "3e30767dc49fef39cd7277377ad5bc227b79e0c7c977d44f37be6355dbac52a2"
+    },
+    "normal-routing-result.json.gz": {
+      "bytes": 2970,
+      "sha256": "48811bd9475f3db08bdd6319c648a2c29b6c225c3bde0db2c7a32a9506d663f0"
+    },
+    "normal-routing-check.stdout.json.gz": {
+      "bytes": 2685,
+      "sha256": "4829575ef18aeac5164348ba26c9b8eea07177bc86bf1a94c7ae793e6380d822"
+    },
+    "normal-routing-check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-routing-daemon.log.gz": {
+      "bytes": 15050,
+      "sha256": "60a6b61b36972166ab1b168d5ee7ea39c939ff35a9005949034791fbc23ae0c3"
+    },
+    "normal-routing-preflight-pw-dump.json.gz": {
+      "bytes": 2085,
+      "sha256": "ccb3129fbfd6b0705690aa39d0b450d0fb3c328fbd45f82747989ab21a78b9c4"
+    },
+    "normal-routing-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-routing-cleanup-pw-dump.json.gz": {
+      "bytes": 2084,
+      "sha256": "848c0ade51a7eab040daea87491ad1537c74ef57f3b5616d378f9914f3471b08"
+    },
+    "normal-routing-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-routing-cue-removal.json.gz": {
+      "bytes": 707,
+      "sha256": "3cf6fc3a174a807b53c662a08f4f2fd2ce8b9bb5752381d4182f117885a6a40b"
+    },
+    "normal-routing-source-handoff.json.gz": {
+      "bytes": 514,
+      "sha256": "f49edf3c09d7acade9cdb488af2a7676b7aab862a3e024b28fbb999d75756682"
+    },
+    "normal-routing-source-handoff-receiver.json.gz": {
+      "bytes": 118,
+      "sha256": "addcdddbf2ec9a6360ba52a0b5a7f8b33f82ac88d7de1cd9a8e6432c1b315439"
+    },
+    "normal-routing-live-owner-installed.json.gz": {
+      "bytes": 473,
+      "sha256": "aca5c59bcd31c3d32f7e8108128c459e37eb6438dba6f617ade0810f119bb58c"
+    },
+    "normal-routing-live-owner-installed-receiver.json.gz": {
+      "bytes": 116,
+      "sha256": "bf9886cb1f9dc592a20e4e2f86b6eb07fecfaa43024dd33910d93c53713e8b62"
+    },
+    "normal-routing-live-owner-immediate.json.gz": {
+      "bytes": 453,
+      "sha256": "57c07da818b074eb1e8e39b0c38f42fe67cef8ac5dc2627794df5e81c28d9d71"
+    },
+    "normal-routing-live-owner-immediate-receiver.json.gz": {
+      "bytes": 117,
+      "sha256": "dbe5de2c8eba132d52852bdcff5977a52f5503bbc86d042fbea02f6e8ffbfa78"
+    },
+    "normal-preparation-result.json.gz": {
+      "bytes": 4091,
+      "sha256": "1c739113ddde4048d69788f36a33cada292f331ab8267f4ad2c8b2709d289b7f"
+    },
+    "normal-preparation-check.stdout.json.gz": {
+      "bytes": 3665,
+      "sha256": "1a9675d7e7358b879e2cab8c1c226407bade5c6a424aa719a3c54ff8bb023275"
+    },
+    "normal-preparation-check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-preparation-daemon.log.gz": {
+      "bytes": 9779,
+      "sha256": "1b727bb77ff6fe89372a39edace2ea9d64a6418a79ed371fa51ace41088878a7"
+    },
+    "normal-preparation-preflight-pw-dump.json.gz": {
+      "bytes": 2082,
+      "sha256": "07bc7248ef74fc361c818143ce87a88e4b9537c45c2bd611e3b0e66426327077"
+    },
+    "normal-preparation-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-preparation-cleanup-pw-dump.json.gz": {
+      "bytes": 2080,
+      "sha256": "5559ad8b9e9b7a91cb17848b874b89b3ffbc0b4b965046580fcb443c0dbc0b24"
+    },
+    "normal-preparation-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "normal-preparation-controller-preparation-phase.json.gz": {
+      "bytes": 923,
+      "sha256": "8960bf7a5e5c3fc93fe4c946820bfa3743656d603566c8130503cc54a09236f2"
+    },
+    "coverage-routing-result.json.gz": {
+      "bytes": 2940,
+      "sha256": "49f6dfdfa0cabae7cb0b16c408b0171d2bde9ba012d8dd7222d8d2bdedd41253"
+    },
+    "coverage-routing-check.stdout.json.gz": {
+      "bytes": 2662,
+      "sha256": "8eefdcf03494206bf6a3f9eea61b67b85e08d8af95ad782286242045ac11bae0"
+    },
+    "coverage-routing-check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "coverage-routing-daemon.log.gz": {
+      "bytes": 14716,
+      "sha256": "746dc9922e995c4d76770b721a907349068c4dc0e35f12cbeacd50fcf5b8ddbe"
+    },
+    "coverage-routing-preflight-pw-dump.json.gz": {
+      "bytes": 2085,
+      "sha256": "99b0205a4a380de05da829b7b75d5bb85bca57766528cb5c31f512914afcda00"
+    },
+    "coverage-routing-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "coverage-routing-cleanup-pw-dump.json.gz": {
+      "bytes": 2085,
+      "sha256": "63e9b3b52ed8d84318128ce5c8c7a6f2e735e549db0f0af8790d26feccd4e7a9"
+    },
+    "coverage-routing-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "coverage-routing-cue-removal.json.gz": {
+      "bytes": 709,
+      "sha256": "e4f802e411039defe69c3253f35f7e9229d033b4c1364cccdc4f9b699cae1202"
+    },
+    "coverage-routing-source-handoff.json.gz": {
+      "bytes": 529,
+      "sha256": "f325f56ef488141b9ed7411158b24b891244adfd5e1cb9c2cc9d105b76cc98e0"
+    },
+    "coverage-routing-source-handoff-receiver.json.gz": {
+      "bytes": 118,
+      "sha256": "addcdddbf2ec9a6360ba52a0b5a7f8b33f82ac88d7de1cd9a8e6432c1b315439"
+    },
+    "coverage-routing-live-owner-installed.json.gz": {
+      "bytes": 474,
+      "sha256": "d3298825654045f7e6b035507859dcc0ca3399b72231a656aebea93e4b5d94cc"
+    },
+    "coverage-routing-live-owner-installed-receiver.json.gz": {
+      "bytes": 117,
+      "sha256": "ae708a416389fdba835d545628ed82999b34994ad9226f8a127928aac2c3f629"
+    },
+    "coverage-routing-live-owner-immediate.json.gz": {
+      "bytes": 454,
+      "sha256": "b237d08b863f6b66eeed6e68b44f95d82f3eafe4a9dff19b0f975278383ac486"
+    },
+    "coverage-routing-live-owner-immediate-receiver.json.gz": {
+      "bytes": 118,
+      "sha256": "c99eba98795963dbe46ed4446569da189760018d03d6312e87ac90dce0cae24a"
+    },
+    "coverage-preparation-result.json.gz": {
+      "bytes": 4045,
+      "sha256": "701ebc0560dec398413a4f398ca9074b1058251fb807d8fe4e6593f6747704c9"
+    },
+    "coverage-preparation-check.stdout.json.gz": {
+      "bytes": 3617,
+      "sha256": "13e95ebc19ff744d64bad0d1d6f7682054c49e9d20cc4ac27fc97c29e4941607"
+    },
+    "coverage-preparation-check.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "coverage-preparation-daemon.log.gz": {
+      "bytes": 10574,
+      "sha256": "0409f5580f45170973acb1f9efdc0a9f1dc4e6afe3866d6722082b9999d99de9"
+    },
+    "coverage-preparation-preflight-pw-dump.json.gz": {
+      "bytes": 2085,
+      "sha256": "59d2f403458fe1393e7dc78fe5cd59c5de35ad6594fe369341e9b09723f9cb1e"
+    },
+    "coverage-preparation-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "coverage-preparation-cleanup-pw-dump.json.gz": {
+      "bytes": 2083,
+      "sha256": "cb05c783dd8683e283c406377eca976506fb8bc1007bfa7fb3935ddd173a1090"
+    },
+    "coverage-preparation-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "coverage-preparation-controller-preparation-phase.json.gz": {
+      "bytes": 924,
+      "sha256": "f4886aed86f232317ec626b43f616dca50de943a8f8d57ce2103ad436f168a75"
+    },
+    "run_live_bridge_timing_checks.py.gz": {
+      "bytes": 4155,
+      "sha256": "eca0c23fcb3476cbfd36d94addb9418528baa5012342079c05d8226283f4dea5"
+    },
+    "archive_live_bridge_timing.py.gz": {
+      "bytes": 6249,
+      "sha256": "a3155650539eee61ffa49ac016c568b1b0a6c432f4bb4917637c888642d7c480"
+    },
+    "root-report.json": {
+      "bytes": 1384,
+      "sha256": "82aaad7af7fa2fa452f3313d8557a028ab7b6c107882c9be7ca29901b6d4b32f"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 127,
+      "sha256": "68a2c3b1cdaca520424160d412c8cbf5abae7b48952350d6534ad92784c1e19e"
+    },
+    "raw-redacted-gitleaks-findings.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "origins": {
+    "live-bridge-timing-api.hpp": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.hpp",
+      "bytes": 4328,
+      "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+    },
+    "live-bridge-timing-api.md": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.md",
+      "bytes": 7024,
+      "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+    },
+    "live-bridge-timing-api-freeze.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api-freeze.json",
+      "bytes": 3227,
+      "sha256": "de88c393b49d11c1e39a7f7fac7711a6b1f87548dc4c3d79c43ff7a7df315087"
+    },
+    "live-bridge-timing-request-clarification.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-request-clarification.json",
+      "bytes": 6563,
+      "sha256": "1db19e8ca9a0e6d277f7e6f2edc752901f930295fa10c2cacb848199ab728f7a"
+    },
+    "live-bridge-timing-completion-clarification.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-completion-clarification.json",
+      "bytes": 3866,
+      "sha256": "2e400523ccbe7ac93fd0b304a9cb6dce8542299e4e54ac959e6a1ad7b120d5ba"
+    },
+    "live-bridge-timing-tests-freeze.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-freeze.json",
+      "bytes": 9160,
+      "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+    },
+    "live-bridge-timing-tests-inputs.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-inputs.json",
+      "bytes": 2535,
+      "sha256": "3d7dca948367161326e6ff0d7a10eb920c8e3476cd0e5e9a5c2cdfc35ab93e51"
+    },
+    "live-bridge-timing-product-inputs.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-product-inputs.json",
+      "bytes": 637,
+      "sha256": "47823956a1e10eb15a9d9baf18bf71130df4c131b31bff0c40223a05589ef839"
+    },
+    "live-bridge-timing-implementation-freeze.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-implementation-freeze.json",
+      "bytes": 7985,
+      "sha256": "3b37cc45c2eec1fa72879d14a807a99a57a9d25840d08cc435890816a0cd94de"
+    },
+    "live-bridge-timing-test-application.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-test-application.json",
+      "bytes": 1331,
+      "sha256": "e88516ef8ba672c566069b12c7867c3ba3dc3054eab933a89f7377b8263b471d"
+    },
+    "live-bridge-timing-product-application.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-product-application.json",
+      "bytes": 422,
+      "sha256": "dcba2a70cb244f740febbd3ea5ac03930c1e74a04c320b04ad255dedea78bc4f"
+    },
+    "live-bridge-timing-develop-base.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-develop-base.json",
+      "bytes": 404,
+      "sha256": "3f08c6d390d9333b5ddaccef690809ea047f79164017468dfc4180164b55d3a1"
+    },
+    "live-bridge-timing-red-result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-red-result.json",
+      "bytes": 1566,
+      "sha256": "59c46e89e935cbd7ce98215bb877c17e988853fa833d1cb9a38852d9c60667ea"
+    },
+    "live-bridge-timing-green-result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-green-result.json",
+      "bytes": 2157,
+      "sha256": "0cd0275c612dd6b71b7ab7447d79139dc0ce4b3c1b13ec14fd7658f44784a95b"
+    },
+    "live-bridge-timing-green-artifact-pins.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-green-artifact-pins.json",
+      "bytes": 477,
+      "sha256": "fad3b08b4c640d57f5d4598d40ca6aec54a68832b22303e485a6144bed5cb035"
+    },
+    "live-bridge-timing-check-runner-freeze.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-check-runner-freeze.json",
+      "bytes": 2472,
+      "sha256": "a0b5ed3db22016fe8df4ff4c4cd5265e1764bc7478e1eac50a9187698f3682bc"
+    },
+    "live-bridge-timing-tests.patch.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests.patch",
+      "bytes": 16369,
+      "sha256": "2885ed6466a7c39a92203561d3c5de6fe95e0d5cb8b42d3f752b6d0c5c40f873"
+    },
+    "controller-live-timing-tests.patch.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-timing-tests.patch",
+      "bytes": 5629,
+      "sha256": "e09a4693f318c2e092379a9613d23b4f0ee3818fc7248086c9d9dea00cfa17f0"
+    },
+    "live-bridge-timing-fixture.patch.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-fixture.patch",
+      "bytes": 762,
+      "sha256": "81b127edb20a4b52f022eeb07820b859bcd01b3b1199200708009156344f91eb"
+    },
+    "live-bridge-timing-implementation.patch.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-implementation.patch",
+      "bytes": 30990,
+      "sha256": "7a572d452a3a1a682b353fe0f88ab89641066607e8ffef81d92df26f9320148c"
+    },
+    "live-bridge-timing-red-build.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-red-build.log",
+      "bytes": 1455,
+      "sha256": "3f38b81171a452c6d1d669e476683bff559dd1eb5dd20800b4a849e491488451"
+    },
+    "live-bridge-timing-green-build.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-green-build.log",
+      "bytes": 4017,
+      "sha256": "56c5cac6515077f9afaf8b96119a07bc863753d697ec9955b72eaafde048bc2c"
+    },
+    "live-bridge-timing-green-bridge.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-green-bridge.log",
+      "bytes": 780,
+      "sha256": "f7cbc203050d11f1ca24673e67c9df2a01af1cd01eeaefb2cebc108b63c116f9"
+    },
+    "live-bridge-timing-green-controller.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-green-controller.log",
+      "bytes": 499,
+      "sha256": "3cf092d7ada8cc901403fa825ff9ff2126ec1dff8a152ee2340017230f974fde"
+    },
+    "result.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/result.json",
+      "bytes": 15279,
+      "sha256": "64dd2d8ecbc476d3922730565b296d17f095053664b61a5ce27afdebbc046e7f"
+    },
+    "source-pins.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/source-pins.json",
+      "bytes": 16872,
+      "sha256": "6b342bfb7bd1720a2c73bd89332bf4d018b2d5d37dd9f07f8a1c3478cbaf2167"
+    },
+    "built-artifact-pins.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/built-artifact-pins.json",
+      "bytes": 11845,
+      "sha256": "7ac8d0a111eec0170fd228edcb9cda45a911cef8083a8bd38d5fc2bbc6f680bc"
+    },
+    "normal-ctest.xml": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-ctest.xml",
+      "bytes": 13260,
+      "sha256": "77a3caeb68cc22b8b87c4a7754c5fcfb0adb9732ed61f855d010ebf3a9aaaf91"
+    },
+    "full-build.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/full-build.log",
+      "bytes": 2158,
+      "sha256": "910c4ababfe80131164fb0c765c948b45ac839e954524b605cbeda9ec9038aa6"
+    },
+    "ctest.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/ctest.log",
+      "bytes": 3882,
+      "sha256": "d438a9cb9cd2732fa9f866aa8c32ae99a7d795c5f776409f391b4ab5df1bd679"
+    },
+    "smoke.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/smoke.log",
+      "bytes": 669,
+      "sha256": "9c19437014991ea0ebcdfd18ec977f9eba059aa238693ac6999df754db7b4ebe"
+    },
+    "normal-routing.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing.log",
+      "bytes": 14295,
+      "sha256": "1c7e4bb78b4425ab61fac68e0ea85e9e770c411abf0c726d1e4b5c35d4ea5778"
+    },
+    "normal-preparation.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation.log",
+      "bytes": 16860,
+      "sha256": "9682da83f53ba3f3d2427874fdfdbfc02bd9a25512272a864afa2b437ae478c2"
+    },
+    "coverage.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage.log",
+      "bytes": 11413,
+      "sha256": "2ec8cb81d69a8e698d5209ee532f7550044c07040875a1579592393bc7a52c67"
+    },
+    "coverage-summary.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/summary.json",
+      "bytes": 7875,
+      "sha256": "18df998be40a11986a0bb6557f3227bc9bba145a2e43bfcee6625c7d4c357c46"
+    },
+    "coverage-cpp.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/cpp.json",
+      "bytes": 4217937,
+      "sha256": "a71cc4f02cf072813513dab1deee0165b180b48211f7c0cac1e057f57c1aca7d"
+    },
+    "coverage-cpp-summary.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/cpp-summary.json",
+      "bytes": 8366,
+      "sha256": "577901737fc51d102ef81e73d7bee7a15a37ec6ca4b2588d9c3e38e09bd1106d"
+    },
+    "coverage-cpp.xml.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/cpp.xml",
+      "bytes": 1518962,
+      "sha256": "51a8203a7a8d92a7cf5cb5999a2ecccbb71716c22f06fa6c156def33539a9825"
+    },
+    "coverage-python.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/python.json",
+      "bytes": 90855,
+      "sha256": "f3af790ba172920c14d3590f0e677bdbee1c20ac846d8bf5e71bfe08d5ea1b1d"
+    },
+    "coverage-python.xml.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/python.xml",
+      "bytes": 63852,
+      "sha256": "d05da9a5c011082c20e77433ff8968deaa99b0e85c7ba1048a09dd2bcc165b38"
+    },
+    "coverage-configure.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/configure.log",
+      "bytes": 142,
+      "sha256": "a485e70e19052017d2d46aa51eeddc16dcdd13aa83739f499b08024ec12f520a"
+    },
+    "coverage-build.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/build.log",
+      "bytes": 3420,
+      "sha256": "909358ee92a2f4b67cf688a39a63d13857faeb754100b0e862acc34516fa43d2"
+    },
+    "coverage-ctest.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/ctest.log",
+      "bytes": 3887,
+      "sha256": "950b18f894f8b9b704fbef086eed0f9cdba5f8540e4c63e97cd8d80be9f256d6"
+    },
+    "coverage-smoke.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/smoke.log",
+      "bytes": 668,
+      "sha256": "07c96c29cef5010949b8b76978f9a84c789288c3b3a2ea3cb00c44efd3523c79"
+    },
+    "coverage-private-routing.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing.log",
+      "bytes": 13941,
+      "sha256": "e3cf98030e7f4268ff7454deb3351914f9137da049eea2f8baebda58a0e1e2e0"
+    },
+    "coverage-private-preparation.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation.log",
+      "bytes": 16807,
+      "sha256": "db3a498572efff0c19fc7dbde0823357ecf4430abc51a7ea6daa69e406845de3"
+    },
+    "coverage-gcovr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/gcovr.log",
+      "bytes": 102,
+      "sha256": "f3876660c8130247bee1fd4f89f990143a49c6419c99851192bbe95d2ef778c3"
+    },
+    "coverage-python-combine.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/python-combine.log",
+      "bytes": 28,
+      "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+    },
+    "coverage-python-json.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/python-json.log",
+      "bytes": 121,
+      "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+    },
+    "coverage-python-html.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/python-html.log",
+      "bytes": 104,
+      "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+    },
+    "coverage-python-xml.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/python-xml.log",
+      "bytes": 91,
+      "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+    },
+    "normal-routing-result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/result.json",
+      "bytes": 14295,
+      "sha256": "1c7e4bb78b4425ab61fac68e0ea85e9e770c411abf0c726d1e4b5c35d4ea5778"
+    },
+    "normal-routing-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/check.stdout.json",
+      "bytes": 12074,
+      "sha256": "7bc0da44767aecac1582c58e297e21f52592169e28df5bd06945726c9e63a256"
+    },
+    "normal-routing-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-routing-daemon.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/daemon.log",
+      "bytes": 246080,
+      "sha256": "dab2720a4f7b386e2353a6ba0fb05274c7df8457eb389184139f32c91c7f128b"
+    },
+    "normal-routing-preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/preflight-pw-dump.json",
+      "bytes": 12364,
+      "sha256": "997a289dc2202a81431ca57dc61ef9ae48d454c9d71304d0202223e00a6a387a"
+    },
+    "normal-routing-preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-routing-cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/cleanup-pw-dump.json",
+      "bytes": 12360,
+      "sha256": "5618127a250b60e7eb64e76480e094243e16898f19fc4783d2d6d78fbe46c291"
+    },
+    "normal-routing-cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-routing-cue-removal.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/cue-removal.json",
+      "bytes": 3157,
+      "sha256": "8dc211ca90372752bd186051b591acbb47346d700b01e2e2e12fb04a7ecec26b"
+    },
+    "normal-routing-source-handoff.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/source-handoff.json",
+      "bytes": 1049,
+      "sha256": "074d2f2f1976d939a75a0759a5425afcf01d7367f77a0d1c18533add1d03e2a9"
+    },
+    "normal-routing-source-handoff-receiver.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/source-handoff-receiver.json",
+      "bytes": 179,
+      "sha256": "25c42d841965b856020266a9610d4991e121ad17bc3a2ca463d7f71e4a8162c2"
+    },
+    "normal-routing-live-owner-installed.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/live-owner-installed.json",
+      "bytes": 868,
+      "sha256": "8f3d48ec7f255f08282711842207903e1ca0b05bfc1815159074f327fc3082a5"
+    },
+    "normal-routing-live-owner-installed-receiver.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/live-owner-installed-receiver.json",
+      "bytes": 177,
+      "sha256": "caf80c079df54cacd0d5d5f6b30e8b29e873b0d29a367b7d2fdba23cdd788b25"
+    },
+    "normal-routing-live-owner-immediate.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/live-owner-immediate.json",
+      "bytes": 866,
+      "sha256": "ca789bd0e7d2dd3b0310e62abb7d42a3c25c732c3d89cff1b0e1c8adbb036433"
+    },
+    "normal-routing-live-owner-immediate-receiver.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/live-owner-immediate-receiver.json",
+      "bytes": 177,
+      "sha256": "b429ffa55193fe626f808e6decdee569ddc5c588dd76a7c07982e7c59c305274"
+    },
+    "normal-preparation-result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/result.json",
+      "bytes": 16860,
+      "sha256": "9682da83f53ba3f3d2427874fdfdbfc02bd9a25512272a864afa2b437ae478c2"
+    },
+    "normal-preparation-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/check.stdout.json",
+      "bytes": 12942,
+      "sha256": "4256f6afe3bd29fa97f295535866707fc2351ee0010a91bb3e751ad7505266c7"
+    },
+    "normal-preparation-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-preparation-daemon.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/daemon.log",
+      "bytes": 138054,
+      "sha256": "4f45ff305c6065989811484c9c43a280931ef3afc59214cf977cfe9667feb986"
+    },
+    "normal-preparation-preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/preflight-pw-dump.json",
+      "bytes": 12364,
+      "sha256": "f0c17423aebef7c07438820bdb4e1713365b960cb9be0425f983888c178ec05e"
+    },
+    "normal-preparation-preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-preparation-cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/cleanup-pw-dump.json",
+      "bytes": 12360,
+      "sha256": "093660fb97fdee4350d5080769fcabe23959219a17633d232b307d1bbf245bdc"
+    },
+    "normal-preparation-cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-preparation-controller-preparation-phase.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/controller-preparation-phase.json",
+      "bytes": 2423,
+      "sha256": "9bf5bd769859cca71cb75e17d80a35e886d5c80c810103792b415244d8f6c65c"
+    },
+    "coverage-routing-result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/result.json",
+      "bytes": 13941,
+      "sha256": "e3cf98030e7f4268ff7454deb3351914f9137da049eea2f8baebda58a0e1e2e0"
+    },
+    "coverage-routing-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/check.stdout.json",
+      "bytes": 11760,
+      "sha256": "1e8e786ba492d66a10181def44ab9e36ad6ed2565c1464de5e340e779f4d5a45"
+    },
+    "coverage-routing-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-routing-daemon.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/daemon.log",
+      "bytes": 246708,
+      "sha256": "632efc7734342cc3bbc521f803f7aad952d80c81f59a11a4c14fb6fb1a3ac256"
+    },
+    "coverage-routing-preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/preflight-pw-dump.json",
+      "bytes": 12364,
+      "sha256": "cd1457f90015a5b2ea2853d63b0c6fce3089af05d7a81c17c5e3aafd9c7e74e3"
+    },
+    "coverage-routing-preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-routing-cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/cleanup-pw-dump.json",
+      "bytes": 12360,
+      "sha256": "c9a286bf32bea8548dee8125315f7dbb10680dffdbe2e98533fedbf6bb151a90"
+    },
+    "coverage-routing-cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-routing-cue-removal.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/cue-removal.json",
+      "bytes": 3162,
+      "sha256": "140041554e20cc6df90533377c0c5eda3d955d6c7de976b82723ace6a290bfcb"
+    },
+    "coverage-routing-source-handoff.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/source-handoff.json",
+      "bytes": 1057,
+      "sha256": "7c415b551381f89e7586419274092eaf82e33d1f131f9613107eafc6ab1d633c"
+    },
+    "coverage-routing-source-handoff-receiver.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/source-handoff-receiver.json",
+      "bytes": 179,
+      "sha256": "25c42d841965b856020266a9610d4991e121ad17bc3a2ca463d7f71e4a8162c2"
+    },
+    "coverage-routing-live-owner-installed.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/live-owner-installed.json",
+      "bytes": 877,
+      "sha256": "ace9c90d1afe44b760a2a15b6e0c508ba9fea8f83b2dbcfe17951fbaa5e7bc2b"
+    },
+    "coverage-routing-live-owner-installed-receiver.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/live-owner-installed-receiver.json",
+      "bytes": 179,
+      "sha256": "7a6b4ecf45de610d207829f83d87f7dadb0f6051140b26712188064d37ce737f"
+    },
+    "coverage-routing-live-owner-immediate.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/live-owner-immediate.json",
+      "bytes": 871,
+      "sha256": "ff128ff14d727d97ea3fb96f35011f24a0a2f2b7c5dd1cf35b1fd8b93935f5c5"
+    },
+    "coverage-routing-live-owner-immediate-receiver.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-routing/live-owner-immediate-receiver.json",
+      "bytes": 179,
+      "sha256": "b258b586d6478313e6045cf1d19a5165ef21011a88e3c7f98c77e3d418529be5"
+    },
+    "coverage-preparation-result.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/result.json",
+      "bytes": 16807,
+      "sha256": "db3a498572efff0c19fc7dbde0823357ecf4430abc51a7ea6daa69e406845de3"
+    },
+    "coverage-preparation-check.stdout.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/check.stdout.json",
+      "bytes": 12887,
+      "sha256": "b8ebb10771b5812a0d1d1389f915b07f00f9657c4b3bf6dd3abab46f19b9848a"
+    },
+    "coverage-preparation-check.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-preparation-daemon.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/daemon.log",
+      "bytes": 142456,
+      "sha256": "08fd417e8ff1e11ed7749a59c53ffb9034793e8415b2c86a009bf432451df43a"
+    },
+    "coverage-preparation-preflight-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/preflight-pw-dump.json",
+      "bytes": 12363,
+      "sha256": "8aea91e14595355a646f7327ebc1afaf066dbc1fba12d68f9569b83ab9bbc373"
+    },
+    "coverage-preparation-preflight-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-preparation-cleanup-pw-dump.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/cleanup-pw-dump.json",
+      "bytes": 12359,
+      "sha256": "c827271f0b08e30c65ecdc766473b8f4183e933721bb659141d1774dec1345dd"
+    },
+    "coverage-preparation-cleanup-pw-dump.stderr.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-preparation-controller-preparation-phase.json.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/coverage-reports/private-preparation/controller-preparation-phase.json",
+      "bytes": 2428,
+      "sha256": "818f168463f748868d44bf34730e370948fc22eb1edbd15674160d31370b905b"
+    },
+    "run_live_bridge_timing_checks.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/run_live_bridge_timing_checks.py",
+      "bytes": 12574,
+      "sha256": "5a53a04188c5044949e318c0d2303b7a2a749fb9ccd00a0fe66941edbb26ea09"
+    },
+    "archive_live_bridge_timing.py.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/archive_live_bridge_timing.py",
+      "bytes": 20197,
+      "sha256": "956fdeda9330a491f2a11dd046b21a94404baf836e1c091d91bcaab55ca3a7b7"
+    },
+    "root-report.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-root-report.json",
+      "bytes": 1384,
+      "sha256": "82aaad7af7fa2fa452f3313d8557a028ab7b6c107882c9be7ca29901b6d4b32f"
+    },
+    "raw-gitleaks.log.gz": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/archive-gitleaks.log",
+      "bytes": 144,
+      "sha256": "b1803de243aaf6686782859afafee23fa4c37fa38e2126f08adcc1e8e2fec143"
+    },
+    "raw-redacted-gitleaks-findings.json": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/archive-gitleaks-findings.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "uncompressed": {
+    "live-bridge-timing-tests.patch.gz": {
+      "bytes": 16369,
+      "sha256": "2885ed6466a7c39a92203561d3c5de6fe95e0d5cb8b42d3f752b6d0c5c40f873"
+    },
+    "controller-live-timing-tests.patch.gz": {
+      "bytes": 5629,
+      "sha256": "e09a4693f318c2e092379a9613d23b4f0ee3818fc7248086c9d9dea00cfa17f0"
+    },
+    "live-bridge-timing-fixture.patch.gz": {
+      "bytes": 762,
+      "sha256": "81b127edb20a4b52f022eeb07820b859bcd01b3b1199200708009156344f91eb"
+    },
+    "live-bridge-timing-implementation.patch.gz": {
+      "bytes": 30990,
+      "sha256": "7a572d452a3a1a682b353fe0f88ab89641066607e8ffef81d92df26f9320148c"
+    },
+    "live-bridge-timing-red-build.log.gz": {
+      "bytes": 1455,
+      "sha256": "3f38b81171a452c6d1d669e476683bff559dd1eb5dd20800b4a849e491488451"
+    },
+    "live-bridge-timing-green-build.log.gz": {
+      "bytes": 4017,
+      "sha256": "56c5cac6515077f9afaf8b96119a07bc863753d697ec9955b72eaafde048bc2c"
+    },
+    "live-bridge-timing-green-bridge.log.gz": {
+      "bytes": 780,
+      "sha256": "f7cbc203050d11f1ca24673e67c9df2a01af1cd01eeaefb2cebc108b63c116f9"
+    },
+    "live-bridge-timing-green-controller.log.gz": {
+      "bytes": 499,
+      "sha256": "3cf092d7ada8cc901403fa825ff9ff2126ec1dff8a152ee2340017230f974fde"
+    },
+    "full-build.log.gz": {
+      "bytes": 2158,
+      "sha256": "910c4ababfe80131164fb0c765c948b45ac839e954524b605cbeda9ec9038aa6"
+    },
+    "ctest.log.gz": {
+      "bytes": 3882,
+      "sha256": "d438a9cb9cd2732fa9f866aa8c32ae99a7d795c5f776409f391b4ab5df1bd679"
+    },
+    "smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "9c19437014991ea0ebcdfd18ec977f9eba059aa238693ac6999df754db7b4ebe"
+    },
+    "normal-routing.log.gz": {
+      "bytes": 14295,
+      "sha256": "1c7e4bb78b4425ab61fac68e0ea85e9e770c411abf0c726d1e4b5c35d4ea5778"
+    },
+    "normal-preparation.log.gz": {
+      "bytes": 16860,
+      "sha256": "9682da83f53ba3f3d2427874fdfdbfc02bd9a25512272a864afa2b437ae478c2"
+    },
+    "coverage.log.gz": {
+      "bytes": 11413,
+      "sha256": "2ec8cb81d69a8e698d5209ee532f7550044c07040875a1579592393bc7a52c67"
+    },
+    "coverage-summary.json.gz": {
+      "bytes": 7875,
+      "sha256": "18df998be40a11986a0bb6557f3227bc9bba145a2e43bfcee6625c7d4c357c46"
+    },
+    "coverage-cpp.json.gz": {
+      "bytes": 4217937,
+      "sha256": "a71cc4f02cf072813513dab1deee0165b180b48211f7c0cac1e057f57c1aca7d"
+    },
+    "coverage-cpp-summary.json.gz": {
+      "bytes": 8366,
+      "sha256": "577901737fc51d102ef81e73d7bee7a15a37ec6ca4b2588d9c3e38e09bd1106d"
+    },
+    "coverage-cpp.xml.gz": {
+      "bytes": 1518962,
+      "sha256": "51a8203a7a8d92a7cf5cb5999a2ecccbb71716c22f06fa6c156def33539a9825"
+    },
+    "coverage-python.json.gz": {
+      "bytes": 90855,
+      "sha256": "f3af790ba172920c14d3590f0e677bdbee1c20ac846d8bf5e71bfe08d5ea1b1d"
+    },
+    "coverage-python.xml.gz": {
+      "bytes": 63852,
+      "sha256": "d05da9a5c011082c20e77433ff8968deaa99b0e85c7ba1048a09dd2bcc165b38"
+    },
+    "coverage-configure.log.gz": {
+      "bytes": 142,
+      "sha256": "a485e70e19052017d2d46aa51eeddc16dcdd13aa83739f499b08024ec12f520a"
+    },
+    "coverage-build.log.gz": {
+      "bytes": 3420,
+      "sha256": "909358ee92a2f4b67cf688a39a63d13857faeb754100b0e862acc34516fa43d2"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 3887,
+      "sha256": "950b18f894f8b9b704fbef086eed0f9cdba5f8540e4c63e97cd8d80be9f256d6"
+    },
+    "coverage-smoke.log.gz": {
+      "bytes": 668,
+      "sha256": "07c96c29cef5010949b8b76978f9a84c789288c3b3a2ea3cb00c44efd3523c79"
+    },
+    "coverage-private-routing.log.gz": {
+      "bytes": 13941,
+      "sha256": "e3cf98030e7f4268ff7454deb3351914f9137da049eea2f8baebda58a0e1e2e0"
+    },
+    "coverage-private-preparation.log.gz": {
+      "bytes": 16807,
+      "sha256": "db3a498572efff0c19fc7dbde0823357ecf4430abc51a7ea6daa69e406845de3"
+    },
+    "coverage-gcovr.log.gz": {
+      "bytes": 102,
+      "sha256": "f3876660c8130247bee1fd4f89f990143a49c6419c99851192bbe95d2ef778c3"
+    },
+    "coverage-python-combine.log.gz": {
+      "bytes": 28,
+      "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+    },
+    "coverage-python-json.log.gz": {
+      "bytes": 121,
+      "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+    },
+    "coverage-python-html.log.gz": {
+      "bytes": 104,
+      "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+    },
+    "coverage-python-xml.log.gz": {
+      "bytes": 91,
+      "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+    },
+    "normal-routing-result.json.gz": {
+      "bytes": 14295,
+      "sha256": "1c7e4bb78b4425ab61fac68e0ea85e9e770c411abf0c726d1e4b5c35d4ea5778"
+    },
+    "normal-routing-check.stdout.json.gz": {
+      "bytes": 12074,
+      "sha256": "7bc0da44767aecac1582c58e297e21f52592169e28df5bd06945726c9e63a256"
+    },
+    "normal-routing-check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-routing-daemon.log.gz": {
+      "bytes": 246080,
+      "sha256": "dab2720a4f7b386e2353a6ba0fb05274c7df8457eb389184139f32c91c7f128b"
+    },
+    "normal-routing-preflight-pw-dump.json.gz": {
+      "bytes": 12364,
+      "sha256": "997a289dc2202a81431ca57dc61ef9ae48d454c9d71304d0202223e00a6a387a"
+    },
+    "normal-routing-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-routing-cleanup-pw-dump.json.gz": {
+      "bytes": 12360,
+      "sha256": "5618127a250b60e7eb64e76480e094243e16898f19fc4783d2d6d78fbe46c291"
+    },
+    "normal-routing-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-routing-cue-removal.json.gz": {
+      "bytes": 3157,
+      "sha256": "8dc211ca90372752bd186051b591acbb47346d700b01e2e2e12fb04a7ecec26b"
+    },
+    "normal-routing-source-handoff.json.gz": {
+      "bytes": 1049,
+      "sha256": "074d2f2f1976d939a75a0759a5425afcf01d7367f77a0d1c18533add1d03e2a9"
+    },
+    "normal-routing-source-handoff-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "25c42d841965b856020266a9610d4991e121ad17bc3a2ca463d7f71e4a8162c2"
+    },
+    "normal-routing-live-owner-installed.json.gz": {
+      "bytes": 868,
+      "sha256": "8f3d48ec7f255f08282711842207903e1ca0b05bfc1815159074f327fc3082a5"
+    },
+    "normal-routing-live-owner-installed-receiver.json.gz": {
+      "bytes": 177,
+      "sha256": "caf80c079df54cacd0d5d5f6b30e8b29e873b0d29a367b7d2fdba23cdd788b25"
+    },
+    "normal-routing-live-owner-immediate.json.gz": {
+      "bytes": 866,
+      "sha256": "ca789bd0e7d2dd3b0310e62abb7d42a3c25c732c3d89cff1b0e1c8adbb036433"
+    },
+    "normal-routing-live-owner-immediate-receiver.json.gz": {
+      "bytes": 177,
+      "sha256": "b429ffa55193fe626f808e6decdee569ddc5c588dd76a7c07982e7c59c305274"
+    },
+    "normal-preparation-result.json.gz": {
+      "bytes": 16860,
+      "sha256": "9682da83f53ba3f3d2427874fdfdbfc02bd9a25512272a864afa2b437ae478c2"
+    },
+    "normal-preparation-check.stdout.json.gz": {
+      "bytes": 12942,
+      "sha256": "4256f6afe3bd29fa97f295535866707fc2351ee0010a91bb3e751ad7505266c7"
+    },
+    "normal-preparation-check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-preparation-daemon.log.gz": {
+      "bytes": 138054,
+      "sha256": "4f45ff305c6065989811484c9c43a280931ef3afc59214cf977cfe9667feb986"
+    },
+    "normal-preparation-preflight-pw-dump.json.gz": {
+      "bytes": 12364,
+      "sha256": "f0c17423aebef7c07438820bdb4e1713365b960cb9be0425f983888c178ec05e"
+    },
+    "normal-preparation-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-preparation-cleanup-pw-dump.json.gz": {
+      "bytes": 12360,
+      "sha256": "093660fb97fdee4350d5080769fcabe23959219a17633d232b307d1bbf245bdc"
+    },
+    "normal-preparation-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "normal-preparation-controller-preparation-phase.json.gz": {
+      "bytes": 2423,
+      "sha256": "9bf5bd769859cca71cb75e17d80a35e886d5c80c810103792b415244d8f6c65c"
+    },
+    "coverage-routing-result.json.gz": {
+      "bytes": 13941,
+      "sha256": "e3cf98030e7f4268ff7454deb3351914f9137da049eea2f8baebda58a0e1e2e0"
+    },
+    "coverage-routing-check.stdout.json.gz": {
+      "bytes": 11760,
+      "sha256": "1e8e786ba492d66a10181def44ab9e36ad6ed2565c1464de5e340e779f4d5a45"
+    },
+    "coverage-routing-check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-routing-daemon.log.gz": {
+      "bytes": 246708,
+      "sha256": "632efc7734342cc3bbc521f803f7aad952d80c81f59a11a4c14fb6fb1a3ac256"
+    },
+    "coverage-routing-preflight-pw-dump.json.gz": {
+      "bytes": 12364,
+      "sha256": "cd1457f90015a5b2ea2853d63b0c6fce3089af05d7a81c17c5e3aafd9c7e74e3"
+    },
+    "coverage-routing-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-routing-cleanup-pw-dump.json.gz": {
+      "bytes": 12360,
+      "sha256": "c9a286bf32bea8548dee8125315f7dbb10680dffdbe2e98533fedbf6bb151a90"
+    },
+    "coverage-routing-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-routing-cue-removal.json.gz": {
+      "bytes": 3162,
+      "sha256": "140041554e20cc6df90533377c0c5eda3d955d6c7de976b82723ace6a290bfcb"
+    },
+    "coverage-routing-source-handoff.json.gz": {
+      "bytes": 1057,
+      "sha256": "7c415b551381f89e7586419274092eaf82e33d1f131f9613107eafc6ab1d633c"
+    },
+    "coverage-routing-source-handoff-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "25c42d841965b856020266a9610d4991e121ad17bc3a2ca463d7f71e4a8162c2"
+    },
+    "coverage-routing-live-owner-installed.json.gz": {
+      "bytes": 877,
+      "sha256": "ace9c90d1afe44b760a2a15b6e0c508ba9fea8f83b2dbcfe17951fbaa5e7bc2b"
+    },
+    "coverage-routing-live-owner-installed-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "7a6b4ecf45de610d207829f83d87f7dadb0f6051140b26712188064d37ce737f"
+    },
+    "coverage-routing-live-owner-immediate.json.gz": {
+      "bytes": 871,
+      "sha256": "ff128ff14d727d97ea3fb96f35011f24a0a2f2b7c5dd1cf35b1fd8b93935f5c5"
+    },
+    "coverage-routing-live-owner-immediate-receiver.json.gz": {
+      "bytes": 179,
+      "sha256": "b258b586d6478313e6045cf1d19a5165ef21011a88e3c7f98c77e3d418529be5"
+    },
+    "coverage-preparation-result.json.gz": {
+      "bytes": 16807,
+      "sha256": "db3a498572efff0c19fc7dbde0823357ecf4430abc51a7ea6daa69e406845de3"
+    },
+    "coverage-preparation-check.stdout.json.gz": {
+      "bytes": 12887,
+      "sha256": "b8ebb10771b5812a0d1d1389f915b07f00f9657c4b3bf6dd3abab46f19b9848a"
+    },
+    "coverage-preparation-check.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-preparation-daemon.log.gz": {
+      "bytes": 142456,
+      "sha256": "08fd417e8ff1e11ed7749a59c53ffb9034793e8415b2c86a009bf432451df43a"
+    },
+    "coverage-preparation-preflight-pw-dump.json.gz": {
+      "bytes": 12363,
+      "sha256": "8aea91e14595355a646f7327ebc1afaf066dbc1fba12d68f9569b83ab9bbc373"
+    },
+    "coverage-preparation-preflight-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-preparation-cleanup-pw-dump.json.gz": {
+      "bytes": 12359,
+      "sha256": "c827271f0b08e30c65ecdc766473b8f4183e933721bb659141d1774dec1345dd"
+    },
+    "coverage-preparation-cleanup-pw-dump.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "coverage-preparation-controller-preparation-phase.json.gz": {
+      "bytes": 2428,
+      "sha256": "818f168463f748868d44bf34730e370948fc22eb1edbd15674160d31370b905b"
+    },
+    "run_live_bridge_timing_checks.py.gz": {
+      "bytes": 12574,
+      "sha256": "5a53a04188c5044949e318c0d2303b7a2a749fb9ccd00a0fe66941edbb26ea09"
+    },
+    "archive_live_bridge_timing.py.gz": {
+      "bytes": 20197,
+      "sha256": "956fdeda9330a491f2a11dd046b21a94404baf836e1c091d91bcaab55ca3a7b7"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 144,
+      "sha256": "b1803de243aaf6686782859afafee23fa4c37fa38e2126f08adcc1e8e2fec143"
+    }
+  },
+  "limits": [
+    "Synthetic observations tests, no actual-model or physical playback workload.",
+    "Service-hop timing, whole-lease validation and publication are separate; no cross-clock subtraction.",
+    "Packet acceptance does not prove recovery grant/open gate or callback consumption.",
+    "Queue loss, service telemetry loss and session snapshot drops remain distinct.",
+    "No new sustained p99, fallback or integrated/physical latency qualification; strict 4,095 ms target unchanged.",
+    "Coverage is instrumented functionality with its existing disabled deadline gates and measured-scope exclusions.",
+    "Normal preparation retains its intentionally false inner deadline gate even though its outer wrapper gate is true; it does not qualify callback latency.",
+    "Built-artifact pins include unexecuted experiments; only stage records prove execution.",
+    "CI and remote state are reported only by the separately retained root report; no new CI inferred."
+  ]
+}

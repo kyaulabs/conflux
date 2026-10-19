@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "library/PreparedTrackStore.hpp"
+#include "library/LiveStemObservations.hpp"
 #include "audio/PreparedPlayback.hpp"
 #include "audio/LiveSession.hpp"
 #include "audio/RenderCore.hpp"
@@ -245,6 +246,34 @@ std::size_t compareBlock(RenderCore& core, const PreparedAudio& reference, std::
 void stop(PreparedLiveStemTrack& track)
 { track.playback->stop(); track.playback.reset(); }
 
+using Observations = conflux::library::LiveStemObservations;
+using Observation = Observations::Record;
+using ObservationKind = Observations::Kind;
+void drainObservations(const std::shared_ptr<Observations>& handle, std::vector<Observation>& rows)
+{
+    Observation row;
+    for (std::size_t n = 0; n < Observations::capacity && handle->tryPop(row); ++n) rows.push_back(row);
+}
+const Observation& uniqueObservation(const std::vector<Observation>& rows, ObservationKind kind)
+{
+    const auto found = std::ranges::find_if(rows, [=](const auto& row) { return row.kind == kind; });
+    require(found != rows.end() && std::ranges::count_if(rows, [=](const auto& row) { return row.kind == kind; }) == 1,
+            "Missing or duplicated required observation");
+    return *found;
+}
+QByteArray observationSha(const Observations::Sha256Hex& value)
+{ return QByteArray(value.data(), qsizetype(value.size())); }
+void checkEmptyObservation(const std::shared_ptr<Observations>& handle)
+{
+    Observation sentinel;
+    sentinel.kind = ObservationKind::PacketDiscarded; sentinel.ordinal = 999;
+    sentinel.observedNs = 123; sentinel.outputFrames48000 = 71;
+    sentinel.hopServicePresent = true; sentinel.hopServiceMs = .125;
+    require(!handle->tryPop(sentinel) && sentinel.kind == ObservationKind::PacketDiscarded && sentinel.ordinal == 999 &&
+        sentinel.observedNs == 123 && sentinel.outputFrames48000 == 71 && sentinel.hopServicePresent && sentinel.hopServiceMs == .125,
+        "Empty observation read modified its caller's output");
+}
+
 // Test-only cleanup independent of the product group path under test. Acquire
 // a pidfd, then validate the fixture's recorded start identity before retaining
 // it: a stale marker must never authorize a signal to a reused PID.
@@ -305,6 +334,165 @@ struct FixtureSubreaper {
 class LiveStemBridgeTest : public QObject {
     Q_OBJECT
 private slots:
+    void observationsPreservePinnedContextAndWireTiming_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        QTest::newRow("wire-hop-present") << QByteArray("timing");
+        QTest::newRow("wire-hop-omitted") << QByteArray("timing-no-hop");
+    }
+    void observationsPreservePinnedContextAndWireTiming()
+    {
+        QFETCH(QByteArray, mode);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path(), mode);
+            const auto token = nextToken();
+            auto track = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, token);
+            auto handle = track.observations;
+            require(bool(handle), "Real live factory did not publish observations");
+            const auto setup = handle->setup();
+            require(setup.factoryEntryNs && setup.factoryEntryNs <= setup.inputCapturedNs &&
+                setup.inputCapturedNs <= setup.countCompleteNs && setup.countCompleteNs <= setup.factoryCommittedNs,
+                "Factory milestones are missing or out of C++ steady-clock order");
+            require(setup.sourceToken == token && setup.inputFrames44100 == track.inputFrames &&
+                setup.outputFrames48000 == track.outputFrames && observationSha(setup.sourceSha256) == digestFile(source) &&
+                observationSha(setup.inputSha256) == inputDigest(211) && observationSha(setup.modelSha256) == digestFile(fixture.engine.modelPath) &&
+                observationSha(setup.runtimeSha256) == digestFile(fixture.engine.runtimePath) && observationSha(setup.serviceSha256) == digestFile(fixture.service),
+                "Immutable setup conflates identities or exact frame geometry");
+            require(count(fixture, "command", "load") == 0 && track.playback->prime(0, std::chrono::seconds(10)),
+                    "Factory loaded early or first real prime failed");
+            stop(track); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Retained observation handle kept job/process ownership alive");
+            std::vector<Observation> rows; drainObservations(handle, rows);
+            const auto counters = handle->counters();
+            require(counters.producerFinished && !counters.droppedRecords && !counters.invalidClockReads &&
+                counters.attemptedRecords == rows.size(), "Final joined observation accounting is incomplete");
+            for (std::size_t i = 0; i < rows.size(); ++i)
+                require(rows[i].ordinal == rows.front().ordinal + i && rows[i].observedNs, "Record ordinal/time is missing");
+            const auto& ready = uniqueObservation(rows, ObservationKind::ServiceReady);
+            (void)uniqueObservation(rows, ObservationKind::RuntimeReady);
+            const auto& request = uniqueObservation(rows, ObservationKind::RequestObserved);
+            const auto& queued = uniqueObservation(rows, ObservationKind::CommandQueued);
+            const auto& accepted = uniqueObservation(rows, ObservationKind::CommandAccepted);
+            const auto& chunk = uniqueObservation(rows, ObservationKind::ChunkValidated);
+            const auto& packet = uniqueObservation(rows, ObservationKind::PacketAccepted);
+            const auto& complete = uniqueObservation(rows, ObservationKind::RawComplete);
+            (void)uniqueObservation(rows, ObservationKind::ConverterComplete);
+            const auto& closed = uniqueObservation(rows, ObservationKind::ServiceClosed);
+            const auto commands = trace(fixture);
+            const auto load = std::ranges::find_if(commands, [](const auto& row) { return row.value("command").toString() == "load"; });
+            require(load != commands.end() && queued.commandId == load->value("id").toVariant().toULongLong() &&
+                accepted.commandId == queued.commandId && accepted.workerGeneration == 1 && request.providerEpoch &&
+                request.providerEpoch == queued.providerEpoch && queued.providerEpoch == accepted.providerEpoch &&
+                queued.inputFirst44100 == 0 && accepted.inputFirst44100 == 0 && request.outputFirst48000 == 0 &&
+                queued.outputFirst48000 == 0 && accepted.outputFirst48000 == 0 && queued.observedNs <= accepted.observedNs &&
+                ready.observedNs <= setup.factoryCommittedNs, "Actual load lost exact command/epoch/anchor binding");
+            require(chunk.workerGeneration == 1 && chunk.requestId == 1 && chunk.leaseSequence == 1 &&
+                chunk.inputFirst44100 == 0 && chunk.inputFrames44100 == 211 && chunk.final &&
+                chunk.observedNs <= chunk.validatedNs && chunk.workerReadySeconds == 1000.25 &&
+                chunk.servicePublishedSeconds == 1000.375 && chunk.hopServicePresent == (mode == "timing") &&
+                (!chunk.hopServicePresent || chunk.hopServiceMs == 125.0), "Raw timing changed wire units/presence or lease geometry");
+            require(packet.providerEpoch == request.providerEpoch && packet.workerGeneration == 1 &&
+                packet.outputFirst48000 == 0 && packet.outputFrames48000 == track.outputFrames && packet.final &&
+                packet.packetReadyNs && packet.packetReadyNs <= packet.publishBeginNs && packet.publishBeginNs <= packet.publishEndNs &&
+                complete.serviceTelemetryDroppedPresent && complete.serviceTelemetryDropped == 7 &&
+                closed.serviceTelemetryDroppedPresent && closed.serviceTelemetryDropped == 7,
+                "Packet chronology or service telemetry loss was confused with local diagnostics");
+            require(handle->setup().sourceToken == setup.sourceToken && handle->setup().factoryCommittedNs == setup.factoryCommittedNs &&
+                handle->setup().sourceSha256 == setup.sourceSha256, "Published setup changed after retirement");
+            checkEmptyObservation(handle);
+        });
+    }
+
+    void observationsFollowContiguousFullPacketsAndSupersedingSeek()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 2 * hop + 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            auto reference = references(directory.path(), 2 * hop + 211);
+            auto track = PreparedTrackStore(root, limits(true)).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            auto handle = track.observations; require(bool(handle), "Missing real bridge observations");
+            require(track.playback->configureStemRamps(0) && track.playback->prime(0, std::chrono::seconds(30)), "Cannot prime full fixture");
+            std::vector<Observation> rows;
+            auto packets = [&] { return std::ranges::count_if(rows, [](const auto& row) { return row.kind == ObservationKind::PacketAccepted; }); };
+            require(await([&] { drainObservations(handle, rows); return packets() >= 72; }), "Ring never filled its fixed packet capacity");
+            RenderCore core(track.playback->sourceRef(), peer()); selectRole(core, 0);
+            bool sawFull = false;
+            // Scheduling opportunities while holding the full ring are not
+            // latency gates. Only actual recorded fullObserved proves Full.
+            for (unsigned turn = 0; turn < 4 && !sawFull; ++turn) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                const auto before = packets();
+                for (unsigned block = 0; block < 4; ++block)
+                    require(compareBlock(core, reference[0], 1024) == 1024, "Full ring lost accepted PCM");
+                require(await([&] { drainObservations(handle, rows); return packets() > before; }), "Freed packet slot was not reused");
+                sawFull = std::ranges::any_of(rows, [](const auto& row) { return row.kind == ObservationKind::PacketAccepted && row.fullObserved; });
+            }
+            require(sawFull, "Full-ring phase produced no actual accepted Full-wait evidence");
+            const auto oldEpoch = uniqueObservation(rows, ObservationKind::RequestObserved).providerEpoch;
+            constexpr std::uint64_t target = 10000;
+            require(core.seek(0, target), "Timing seek failed");
+            require(await([&] { drainObservations(handle, rows); return compareBlock(core, reference[0], 1) == 1; }), "Seek did not restore exact PCM");
+            stop(track); assertGone(fixture.marker(".started")); drainObservations(handle, rows);
+            require(rootNames(root).isEmpty(), "Timing consumer retained live resources");
+            const auto counters = handle->counters();
+            require(counters.producerFinished && !counters.droppedRecords && !counters.invalidClockReads && counters.attemptedRecords == rows.size(),
+                    "Full/seek evidence was lost despite draining");
+            std::uint64_t next = 0, newNext = target, newEpoch = 0;
+            for (const auto& row : rows) {
+                if (row.kind == ObservationKind::RequestObserved && row.providerEpoch != oldEpoch) {
+                    require(!newEpoch && row.outputFirst48000 == target, "Seek request changed target or duplicated epoch"); newEpoch = row.providerEpoch;
+                }
+                if (row.kind == ObservationKind::PacketDiscarded && row.providerEpoch == oldEpoch) {
+                    require(row.outputFirst48000 == next && row.outputFrames48000 && row.outputFrames48000 <= 4096 &&
+                        row.workerGeneration == 1, "Discard lost its old pending range/generation");
+                }
+                if (row.kind != ObservationKind::PacketAccepted) continue;
+                require(!newEpoch || row.providerEpoch == newEpoch, "Old packet was accepted after the newer request was observed");
+                auto& cursor = row.providerEpoch == oldEpoch ? next : newNext;
+                require(row.providerEpoch == oldEpoch || row.providerEpoch == newEpoch, "Packet bound to unknown seek epoch");
+                require(row.outputFirst48000 == cursor && row.outputFrames48000 && row.outputFrames48000 <= 4096 &&
+                    (row.final || row.outputFrames48000 == 4096) && row.packetReadyNs &&
+                    row.packetReadyNs <= row.publishBeginNs && row.publishBeginNs <= row.publishEndNs,
+                    "Packets have gaps, overlap, short nonfinal output or invalid chronology");
+                if (row.fullObserved) require(row.packetReadyNs <= row.firstFullNs && row.firstFullNs <= row.publishBeginNs, "Full stamp is outside wait/publication");
+                cursor += row.outputFrames48000;
+                require(row.workerGeneration == (row.providerEpoch == oldEpoch ? 1U : 2U), "Seek packet generation differs from accepted control");
+            }
+            require(newEpoch && newNext >= target + PreparedPlayback::liveReserveFrames,
+                    "Seek did not bind its new contiguous reserve");
+        });
+    }
+
+    void observationOverflowDoesNotStopPcmAndFinalOrdinalsExposeLoss()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            auto reference = references(directory.path(), 211);
+            auto track = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            auto handle = track.observations; require(bool(handle), "Missing overflow observations");
+            require(track.playback->configureStemRamps(0), "Cannot configure actual overflow bank");
+            for (unsigned attempt = 0; attempt < 48; ++attempt)
+                require(track.playback->prime(0, std::chrono::seconds(10)) && !track.playback->errorCode(), "Observation pressure stopped actual prime");
+            { RenderCore core(track.playback->sourceRef(), peer()); selectRole(core, 0); require(compareBlock(core, reference[0], 13) == 13, "Overflow corrupted PCM/peer"); }
+            std::vector<Observation> rows; drainObservations(handle, rows);
+            require(rows.size() == Observations::capacity, "Actual repeated bridge events did not fill diagnostics");
+            const auto retainedEnd = rows.back().ordinal;
+            require(track.playback->prime(0, std::chrono::seconds(10)) && !track.playback->errorCode(), "Drained diagnostics stopped continued prime");
+            { RenderCore core(track.playback->sourceRef(), peer()); selectRole(core, 0); require(compareBlock(core, reference[0], 11) == 11, "PCM changed after diagnostics resumed"); }
+            stop(track); assertGone(fixture.marker(".started")); drainObservations(handle, rows);
+            const auto counters = handle->counters();
+            require(counters.producerFinished && counters.droppedRecords && !counters.invalidClockReads &&
+                counters.attemptedRecords == rows.size() + counters.droppedRecords, "Final retained-plus-dropped accounting differs");
+            require(rows.size() > Observations::capacity && rows[Observations::capacity].ordinal > retainedEnd + 1,
+                    "Drop-new loss did not expose an ordinal gap after refill");
+            for (std::size_t i = 1; i < rows.size(); ++i) require(rows[i].ordinal > rows[i - 1].ordinal, "Ordinal was reused/reordered");
+            require(rootNames(root).isEmpty(), "Retained diagnostics kept the worker job alive");
+            checkEmptyObservation(handle);
+        });
+    }
+
     void sessionAdoptsUnusedLiveReserveWithoutRedundantSeek()
     {
         checked([&] {

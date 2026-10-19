@@ -59,6 +59,8 @@ public:
     bool stemsAvailable() const { return preparationOptions_.stemEngine.has_value(); }
     // Distinct PCM owners, including a worker retirement not yet completed.
     std::uint64_t retainedPcmBytes() const;
+    // GUI/control owner only; the harness is the sole observation consumer.
+    std::shared_ptr<library::LiveStemObservations> liveStemObservations(int deck) const;
     QString error() const { return error_; }
     double masterGain() const { return state_.masterGain; }
     double cueGain() const { return state_.cueGain; }
@@ -116,7 +118,8 @@ private:
     struct PreparedPcm {
         explicit PreparedPcm(audio::PreparedAudio audio);
         explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
-        PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256);
+        PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
+                    std::shared_ptr<library::LiveStemObservations> observations);
         bool live() const noexcept { return liveFrames != 0; }
         std::uint64_t frames() const noexcept { return live() ? liveFrames : audioLeaves.front().frames(); }
         std::uint64_t bytes() const noexcept;
@@ -128,6 +131,7 @@ private:
         std::uint64_t liveFrames = 0;
         std::vector<float> livePeaks;
         QString liveSourceSha256;
+        std::shared_ptr<library::LiveStemObservations> observations;
     };
     struct PreparedLoad {
         std::shared_ptr<const PreparedPcm> audio;

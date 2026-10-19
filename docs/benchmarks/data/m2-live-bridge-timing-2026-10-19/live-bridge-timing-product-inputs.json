@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "inputs": {
+    "src/library/LiveStemBridge.cpp": {
+      "bytes": 51413,
+      "sha256": "33c5c007bce55d93ed95878f493a268ae474c9a0ea5cb46fd9f240504d7c7d01"
+    },
+    "src/library/PreparedTrackStore.hpp": {
+      "bytes": 3713,
+      "sha256": "2120420797956770b363686989b42a6d2e9f247e5fba4ada5eeba443fc4ad45a"
+    },
+    "src/ui/DeckController.hpp": {
+      "bytes": 12180,
+      "sha256": "b9bbaaa493b0a00bcb8aec0a84e21085631103ff0cba2e89de5885a14f4bbfc6"
+    },
+    "src/ui/DeckController.cpp": {
+      "bytes": 54318,
+      "sha256": "3b9822f39e3c55a689d08dab3c1fd3a63134f4a122602270de4751f70b17c9ff"
+    }
+  }
+}

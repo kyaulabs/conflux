@@ -1,0 +1,56 @@
+{
+  "at_utc": "2026-10-19T14:07:02.567968+00:00",
+  "source_pins": {
+    "src/library/LiveStemObservations.hpp": "7c599f55fd45f7512515dd1fa5b1bc097c4f42cf972101624cb9530ffdedf086",
+    "src/library/LiveStemBridge.cpp": "023bc8e1ad16563a2f316bb4eb66558cb389063d471e76badf2df1c5bcfa072b",
+    "src/library/PreparedTrackStore.hpp": "a43cf05421884daff1765d04fe405f375a16e53f73967db3d7de75f4cd77e365",
+    "src/ui/DeckController.hpp": "c97fe3ec41f21ac693228d539e68e2390bd0b7d0614f01e63c1d544c3212b9a4",
+    "src/ui/DeckController.cpp": "6bcb75ac4e8d81179451550d2fa95cc1dcefe27efcaf2ced56682d4dbfe9b322",
+    "tests/live_stem_bridge_test.cpp": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c",
+    "tests/deck_controller_test.cpp": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70",
+    "tests/StemServiceFixture.hpp": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f",
+    "tools/experiments/preparation_controller_check.cpp": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+  },
+  "stages": [
+    {
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-live-stem-bridge-test",
+        "conflux-deck-controller-test",
+        "conflux-preparation-controller-check",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 90.22436472203117
+    },
+    {
+      "stage": "bridge",
+      "command": [
+        "build/dev/conflux-live-stem-bridge-test",
+        "observationsPreservePinnedContextAndWireTiming",
+        "observationsFollowContiguousFullPacketsAndSupersedingSeek",
+        "observationOverflowDoesNotStopPcmAndFinalOrdinalsExposeLoss"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 15.362019286025316
+    },
+    {
+      "stage": "controller",
+      "command": [
+        "build/dev/conflux-deck-controller-test",
+        "observationsFollowCurrentLiveClipWithoutOwningItsLifetime"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 0.4661885539535433
+    }
+  ],
+  "source_stable": true
+}

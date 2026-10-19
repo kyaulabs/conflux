@@ -1,0 +1,158 @@
+{
+  "schema": "conflux.live-bridge-timing-product-freeze.v1",
+  "status": "source_frozen_pending_root_apply_GREEN",
+  "author": "/root/m0_m1_gates",
+  "source_baseline": {
+    "actual_red_signed_head": "0f9c34b6d568831922ba9767dd7acf68bf256cc3",
+    "current_root_reported_signed_merge": "d0f87e8b93b1196cb11fdd890b8a0b1051f4bb15",
+    "branch": "feat/kyau-08945a-live-stem-timing",
+    "root_reports_git_trees_identical": true,
+    "git_run_by_this_agent": false
+  },
+  "actual_red": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-red-result.json",
+    "bytes": 1566,
+    "sha256": "59c46e89e935cbd7ce98215bb877c17e988853fa833d1cb9a38852d9c60667ea"
+  },
+  "patch": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-implementation.patch",
+    "bytes": 30990,
+    "sha256": "7a572d452a3a1a682b353fe0f88ab89641066607e8ffef81d92df26f9320148c"
+  },
+  "product_inputs": {
+    "src/library/LiveStemBridge.cpp": {
+      "bytes": 51413,
+      "sha256": "33c5c007bce55d93ed95878f493a268ae474c9a0ea5cb46fd9f240504d7c7d01"
+    },
+    "src/library/PreparedTrackStore.hpp": {
+      "bytes": 3713,
+      "sha256": "2120420797956770b363686989b42a6d2e9f247e5fba4ada5eeba443fc4ad45a"
+    },
+    "src/ui/DeckController.hpp": {
+      "bytes": 12180,
+      "sha256": "b9bbaaa493b0a00bcb8aec0a84e21085631103ff0cba2e89de5885a14f4bbfc6"
+    },
+    "src/ui/DeckController.cpp": {
+      "bytes": 54318,
+      "sha256": "3b9822f39e3c55a689d08dab3c1fd3a63134f4a122602270de4751f70b17c9ff"
+    }
+  },
+  "product_snapshots": {
+    "src/library/LiveStemObservations.hpp": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-implementation-LiveStemObservations.hpp",
+      "bytes": 3936,
+      "sha256": "7c599f55fd45f7512515dd1fa5b1bc097c4f42cf972101624cb9530ffdedf086"
+    },
+    "src/library/LiveStemBridge.cpp": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-implementation-LiveStemBridge.cpp",
+      "bytes": 60832,
+      "sha256": "023bc8e1ad16563a2f316bb4eb66558cb389063d471e76badf2df1c5bcfa072b"
+    },
+    "src/library/PreparedTrackStore.hpp": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-implementation-PreparedTrackStore.hpp",
+      "bytes": 3813,
+      "sha256": "a43cf05421884daff1765d04fe405f375a16e53f73967db3d7de75f4cd77e365"
+    },
+    "src/ui/DeckController.hpp": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-implementation-DeckController.hpp",
+      "bytes": 12496,
+      "sha256": "c97fe3ec41f21ac693228d539e68e2390bd0b7d0614f01e63c1d544c3212b9a4"
+    },
+    "src/ui/DeckController.cpp": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/timing-implementation-DeckController.cpp",
+      "bytes": 54759,
+      "sha256": "6bcb75ac4e8d81179451550d2fa95cc1dcefe27efcaf2ced56682d4dbfe9b322"
+    }
+  },
+  "contract_inputs": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.hpp",
+      "bytes": 4328,
+      "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.md",
+      "bytes": 7024,
+      "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api-freeze.json",
+      "bytes": 3227,
+      "sha256": "de88c393b49d11c1e39a7f7fac7711a6b1f87548dc4c3d79c43ff7a7df315087"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-request-clarification.json",
+      "bytes": 6563,
+      "sha256": "1db19e8ca9a0e6d277f7e6f2edc752901f930295fa10c2cacb848199ab728f7a"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-completion-clarification.json",
+      "bytes": 3866,
+      "sha256": "2e400523ccbe7ac93fd0b304a9cb6dce8542299e4e54ac959e6a1ad7b120d5ba"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-freeze.json",
+      "bytes": 9160,
+      "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-product-inputs.json",
+      "bytes": 637,
+      "sha256": "47823956a1e10eb15a9d9baf18bf71130df4c131b31bff0c40223a05589ef839"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-develop-base.json",
+      "bytes": 404,
+      "sha256": "3f08c6d390d9333b5ddaccef690809ea047f79164017468dfc4180164b55d3a1"
+    }
+  ],
+  "applied_frozen_tests_unchanged": {
+    "tests/live_stem_bridge_test.cpp": {
+      "bytes": 81213,
+      "sha256": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 66264,
+      "sha256": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70"
+    },
+    "tests/StemServiceFixture.hpp": {
+      "bytes": 15378,
+      "sha256": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f"
+    },
+    "tools/experiments/preparation_controller_check.cpp": {
+      "bytes": 78892,
+      "sha256": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+    }
+  },
+  "scope": [
+    "Only the five listed product files; no source/audio, protocol, worker, gate, dependencies, targets, tests or fixture changes.",
+    "New header equals the frozen proposal after only replacing the proposal comment with SPDX and removing bottom proposed-addition comments.",
+    "Concrete fixed 256-record drop-new SPSC; one Bridge queue writer and one off-callback consumer. No public writer or clock injection.",
+    "Factory-only immutable Setup published on successful return; Bridge does not read it. Handle owns no job/process/files/playback back-reference.",
+    "counters acquires producerFinished first; release flag means no further observation writes, not OS thread exit/join or successful process-group cleanup.",
+    "RequestObserved excludes inert initial capture; exact accepted epoch/generation bindings survive late old raw events and superseding demand.",
+    "Complete eligible packet first-ready, actual Full wait and successful tryPublish brackets retain their scopes; no inference about recovery grant/open gate/callback consumption.",
+    "Optional wire hop timing and service telemetry-loss presence/units preserved; C++ steady nanoseconds remain distinct from Python monotonic seconds.",
+    "Completion endpoint convention is separately root-approved and recorded; original frozen API/tests/clarification receipts remain unchanged."
+  ],
+  "reviews": {
+    "self": "Read full five-file patch and relevant call paths; no remaining source blocker.",
+    "root": "Exact7a572d45 source pass clear for SPSC publication, off-callback timestamps, queue loss, immutable Setup and event/range binding.",
+    "hour_result_crosscheck": "Exact7a572d45 event/range/Full/request/completion pass clear against frozen tests; no requested changes.",
+    "guard_rules": "Exact7a572d45 complementary writer/factory/lifetime/getter pass clear; no requested changes.",
+    "review_execution": "Source only. No review result claims compilation, tests, native/model/audio or host execution."
+  },
+  "execution": {
+    "ignored_source_generation_and_hashing_only": true,
+    "tracked_product_applied": false,
+    "four_applied_test_sources_byte_exact": true,
+    "proposed_new_product_header_still_absent": true,
+    "builds_tests_native_model_audio_host_git_executed_by_this_agent": false,
+    "root_owns_apply_GREEN_and_required_checks": true
+  },
+  "limits": [
+    "No product GREEN result yet; root must apply/run.",
+    "No sustained p99, real-model integrated playback, physical audio latency, fallback or M2 qualification established by this instrumentation.",
+    "Clock errors, queue drops, service telemetry loss and session snapshot drops remain separate incompleteness indicators."
+  ]
+}

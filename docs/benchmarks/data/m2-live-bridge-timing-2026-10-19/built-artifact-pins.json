@@ -1,0 +1,294 @@
+{
+  "build/dev": {
+    "build/dev/conflux": {
+      "bytes": 14293072,
+      "sha256": "cca73933e85f24507e163e6ae2b68840aed14c48c70401a9dc559b6f0432d886"
+    },
+    "build/dev/conflux-audio-buses-test": {
+      "bytes": 395824,
+      "sha256": "972b38b8a0571dbf489f064a3e208e434feb1045d2b27cc4411a2820d6805b45"
+    },
+    "build/dev/conflux-audio-cue-test": {
+      "bytes": 424344,
+      "sha256": "576497e06fbde3ca2fd60a57efe4b512996e04e396b86839c0cf98806fef98bb"
+    },
+    "build/dev/conflux-audio-file-test": {
+      "bytes": 1543064,
+      "sha256": "d40e43cc7a4936f4a165f25c90c084a63216453cf92e10e5ea70d76e8566ce66"
+    },
+    "build/dev/conflux-audio-live-owner-test": {
+      "bytes": 4517848,
+      "sha256": "9fceee34eb44d2218edd0664cd6cb8eb44bb33e3622ec72f1543e690376c1148"
+    },
+    "build/dev/conflux-audio-live-recovery-test": {
+      "bytes": 1480336,
+      "sha256": "677fa6d88511daa2f05d05cb6212fbcd252eb561f98d42a88c13f14bbce11892"
+    },
+    "build/dev/conflux-audio-live-stem-buffer-test": {
+      "bytes": 879352,
+      "sha256": "52ef3eb2f7d1e9724699a65a7fdc0b8acb459dc714861fbacdd7cb15205a056a"
+    },
+    "build/dev/conflux-audio-metadata-test": {
+      "bytes": 190840,
+      "sha256": "f052bf8dfe108d7cd132de2e96e6d4a6df9789d70a3974dd51c464883d27dfd9"
+    },
+    "build/dev/conflux-audio-preparation-test": {
+      "bytes": 1633136,
+      "sha256": "d650911fab924c007d66116493cca3a6fbfffe7aea9f14c592f935115d8fb87f"
+    },
+    "build/dev/conflux-audio-prepared-playback-test": {
+      "bytes": 1635152,
+      "sha256": "aaa99a2c9d6f77fbc701ca4680771ffe25dd8e619ffef17dc09cf065e90e7331"
+    },
+    "build/dev/conflux-audio-probe": {
+      "bytes": 1514736,
+      "sha256": "0e936ea7e819b1da37acaa7caac4f86ced3f2e4cc55c4e1455433002a74a1549"
+    },
+    "build/dev/conflux-audio-ramps-test": {
+      "bytes": 608488,
+      "sha256": "bed4cf930d41d643ba1f54720f962e28121fbcf53179a24c43a1faaa934743a4"
+    },
+    "build/dev/conflux-audio-read-ahead-test": {
+      "bytes": 475440,
+      "sha256": "6c731de40606f17837ff89acc9738e3f8896a3706cf9786172ab040b230dafc5"
+    },
+    "build/dev/conflux-audio-recorder-tap-test": {
+      "bytes": 878424,
+      "sha256": "6b88a1a8a9fd575c260c614d24b097bcb1f03b825e6773cb96a654834cbab3ce"
+    },
+    "build/dev/conflux-audio-recorder-test": {
+      "bytes": 1130648,
+      "sha256": "7e30a6dcf861b29af1511bea5e643df725e363b6ac3688ea8a206ae4fa77e5a2"
+    },
+    "build/dev/conflux-audio-routing-test": {
+      "bytes": 1455040,
+      "sha256": "e5eac57ae2b080f13332da5a354247536bdf27143b4b08ae7070860e2a7fb11c"
+    },
+    "build/dev/conflux-audio-source-handoff-test": {
+      "bytes": 250520,
+      "sha256": "ab45f38e07baf0c2c00e7ca7ed2fe83ab23de1eff35eb4fc1e5fc92630410d83"
+    },
+    "build/dev/conflux-audio-source-test": {
+      "bytes": 376560,
+      "sha256": "a2f1540c48d0cb0b6b25aa236951fa4580cf056683b76ab5dd8916a6b35d9c14"
+    },
+    "build/dev/conflux-audio-stem-bank-test": {
+      "bytes": 650752,
+      "sha256": "6e491642881d5270f364100ac129328b562bf7f6ac08c5c571b9f044fbf2fbe0"
+    },
+    "build/dev/conflux-audio-stem-rate-converter-test": {
+      "bytes": 1335184,
+      "sha256": "46a7e5d3b115dd1962d67120d52b5b8a1f67806b0b858b989d7c7198356b1518"
+    },
+    "build/dev/conflux-audio-test": {
+      "bytes": 257456,
+      "sha256": "e5db46e9daa090f7aaa722feb20fa9b6c27924fa25a0166bba3cf1da8716c9f8"
+    },
+    "build/dev/conflux-audio-timing-test": {
+      "bytes": 70728,
+      "sha256": "679f17916a2bd0bd392f9f84e9d6e0ac9a23b5fc9e318e286fe49e3ac91a8c2e"
+    },
+    "build/dev/conflux-audio-transport-test": {
+      "bytes": 694120,
+      "sha256": "212021e504839c4c4f3492013746e659aee72a4a532d8754fe49aad4bec1382b"
+    },
+    "build/dev/conflux-deck-controller-test": {
+      "bytes": 16124304,
+      "sha256": "a2cc1637fff3d2afc66a984b7efbf37326a343ff0f8df3ffcb3e2f8f6c09bdf7"
+    },
+    "build/dev/conflux-library-catalog-test": {
+      "bytes": 3190024,
+      "sha256": "604ea2d8206b5152402f9a953096a21c4bfe340ce5d05df885434ad80510dc74"
+    },
+    "build/dev/conflux-live-owner-retirement-test": {
+      "bytes": 4215912,
+      "sha256": "753bf177ba4c5fc65682051a64e24077e658f27c709b6a992a5a3bedf192b8d1"
+    },
+    "build/dev/conflux-live-session-test": {
+      "bytes": 3914000,
+      "sha256": "69674fff03bafbb482b8c540a4592dc820fa8a93203b6e5b40e7d744ced00387"
+    },
+    "build/dev/conflux-live-stem-bridge-test": {
+      "bytes": 12534520,
+      "sha256": "3911a5df205ba22a263c4fecc2f648b7ceb1400e84a9c83241a4c03f3e3bc643"
+    },
+    "build/dev/conflux-manual-audio-check": {
+      "bytes": 14502320,
+      "sha256": "71aa2150ce06f560069a8be4119088f8321402acb11a77351bec28fe7158a97c"
+    },
+    "build/dev/conflux-manual-playback-soak": {
+      "bytes": 13818416,
+      "sha256": "07deee9123c20136db8d9cb930a0bfbeb33dec7f89045b94f30799fbd67372ab"
+    },
+    "build/dev/conflux-manual-routing-check": {
+      "bytes": 5368616,
+      "sha256": "91f3594a9a417c9605702435ef95b031dcbe813f434061d10b3e2c9459a6bd10"
+    },
+    "build/dev/conflux-manual-ui-test": {
+      "bytes": 5442128,
+      "sha256": "1fa9b12ff163c89b9ea8675fcd4c45ad8908c26cd23477802144a5172a8fc38c"
+    },
+    "build/dev/conflux-preparation-controller-check": {
+      "bytes": 15268360,
+      "sha256": "dfd4abafa4f96a38eed19900084099cd5d1d8c7347f7465926fdc4e48438ecd6"
+    },
+    "build/dev/conflux-prepare-audio-check": {
+      "bytes": 1828728,
+      "sha256": "3ff75271397365fa3987164e6b9b702788feb72c24d5295ea64a089b86491a54"
+    },
+    "build/dev/conflux-prepared-track-store-test": {
+      "bytes": 10281192,
+      "sha256": "fbd5e3c7c01d113f07fa0c3e39c3cbb191cb7b9743508053538022c1acb0aee4"
+    },
+    "build/dev/conflux-stem-service-jsonl-test": {
+      "bytes": 1955416,
+      "sha256": "019ffed8bdebdc3803bd1cbfab5ecf9a663b4be4a65eae3866a5fc27c4925c20"
+    }
+  },
+  "build/coverage": {
+    "build/coverage/conflux": {
+      "bytes": 13251456,
+      "sha256": "b856af7fe221cde5a81aedd363d6358147a8cc2f2d684133ed80243a07422020"
+    },
+    "build/coverage/conflux-audio-buses-test": {
+      "bytes": 486432,
+      "sha256": "da663089731a6bc08f9bc69b88b1925949cf2be16ebb45dcb64e12f911174bb6"
+    },
+    "build/coverage/conflux-audio-cue-test": {
+      "bytes": 406952,
+      "sha256": "553cfa684465b4ee27be036d56303fc613a102f90aa658613cf72439ff2a8360"
+    },
+    "build/coverage/conflux-audio-file-test": {
+      "bytes": 1345920,
+      "sha256": "60b8a6748d55fc72ced284ad433134c469cfaf3a3396bd563bf892b1c966c75b"
+    },
+    "build/coverage/conflux-audio-live-owner-test": {
+      "bytes": 4777128,
+      "sha256": "1e21589a965fde31d3fc3da76bcb3b87116916adb52ccc74dd797d8410f2cd98"
+    },
+    "build/coverage/conflux-audio-live-recovery-test": {
+      "bytes": 1707904,
+      "sha256": "2d5a73a061516c743f0054f0214d83713982f8aa45fbd63ce60cdfbbb294c576"
+    },
+    "build/coverage/conflux-audio-live-stem-buffer-test": {
+      "bytes": 948472,
+      "sha256": "ba47d2a182be97e1e61b10c56bad6fbce84cea660cf713a29d2c9751291d2626"
+    },
+    "build/coverage/conflux-audio-metadata-test": {
+      "bytes": 217120,
+      "sha256": "0cc4d1f32340da72caa3fd08a8188e3dd099980be78bd991e34918f2075cffa0"
+    },
+    "build/coverage/conflux-audio-preparation-test": {
+      "bytes": 1377800,
+      "sha256": "68b8362f18843cabce6386fd84e19f44dbcfca0bc7aa7e6020956a03cdfc29c4"
+    },
+    "build/coverage/conflux-audio-prepared-playback-test": {
+      "bytes": 1912912,
+      "sha256": "1a4d2cfb79478cdf5e2d6b506b624d6f1b7fb2987fc2f98ae9b836df3fe6b17e"
+    },
+    "build/coverage/conflux-audio-probe": {
+      "bytes": 1467664,
+      "sha256": "de2cf9a1262462235e935fcebd9b993321a0f86fc7e10a909b812244f8d0f235"
+    },
+    "build/coverage/conflux-audio-ramps-test": {
+      "bytes": 492280,
+      "sha256": "21354b68618f8100fee31f3d90d52b5800787cdbd94d354af603d43d70be7bb5"
+    },
+    "build/coverage/conflux-audio-read-ahead-test": {
+      "bytes": 601688,
+      "sha256": "78d858d20438e8912de54fdb080ff24da5fd11a2dbcdcf2efb64423d33dd5f0f"
+    },
+    "build/coverage/conflux-audio-recorder-tap-test": {
+      "bytes": 951256,
+      "sha256": "335b47305d4a8436997a3909b4e6230e68473925309887aea6081f203fc333e0"
+    },
+    "build/coverage/conflux-audio-recorder-test": {
+      "bytes": 1019720,
+      "sha256": "588d909b8a9ab5bc45adc8564188105f50a4bbfc204e2ca1e1fd881550704fb8"
+    },
+    "build/coverage/conflux-audio-routing-test": {
+      "bytes": 451440,
+      "sha256": "1cb04b546ed65cac4740a5f7658b55ee47edd61e4f06e51114358a8bb23de3d5"
+    },
+    "build/coverage/conflux-audio-source-handoff-test": {
+      "bytes": 325152,
+      "sha256": "236d49eb6f8d6daa7da4dfc2940958c70889075d3d4d3f6ec6d1889af5a4e9af"
+    },
+    "build/coverage/conflux-audio-source-test": {
+      "bytes": 422064,
+      "sha256": "47549ea07b5bda43e44524ccf30b34c88d1124304ca8754fbe047960d5d2787a"
+    },
+    "build/coverage/conflux-audio-stem-bank-test": {
+      "bytes": 646416,
+      "sha256": "433abb40e7eb127ce5864de5d47c6e8d61b31c6d0a782ae9744880870693e3f5"
+    },
+    "build/coverage/conflux-audio-stem-rate-converter-test": {
+      "bytes": 1532032,
+      "sha256": "b2fc210a54764ae647e21e037ede1ee145b37d68f0bd6141bcc3971659393677"
+    },
+    "build/coverage/conflux-audio-test": {
+      "bytes": 321304,
+      "sha256": "f2ceea9574a3c1681432b3530bdca117cc106db68b1a0982f468f6e6ce0e388b"
+    },
+    "build/coverage/conflux-audio-timing-test": {
+      "bytes": 100976,
+      "sha256": "11174b26b6d962be667741d0cdcc5312d7321ecf0c0ebfd4dda7ec63f67cc2ce"
+    },
+    "build/coverage/conflux-audio-transport-test": {
+      "bytes": 650712,
+      "sha256": "fb5fba39e9d3c4b5f7b26a8acc760ca55cae14eb3035f7f81bb2f193fda80f1b"
+    },
+    "build/coverage/conflux-deck-controller-test": {
+      "bytes": 14165480,
+      "sha256": "589a4786a18fec2aa5fc6e805a7f73b0dd2edaa7f92c29bac6382a02785eb447"
+    },
+    "build/coverage/conflux-library-catalog-test": {
+      "bytes": 3224736,
+      "sha256": "debaae293aa924151e3541d466d2d5ba134770d57b2a21308890ddbb8fe23da3"
+    },
+    "build/coverage/conflux-live-owner-retirement-test": {
+      "bytes": 4145096,
+      "sha256": "f3e6de68b854702a2948aa9405c913725cbe610829ffcf03a3a5396ddd6bb8c2"
+    },
+    "build/coverage/conflux-live-session-test": {
+      "bytes": 3799192,
+      "sha256": "ee5b82ad06110931b957506d2821bf3f48b8a82d240b122adc58bef2cb345be8"
+    },
+    "build/coverage/conflux-live-stem-bridge-test": {
+      "bytes": 11971792,
+      "sha256": "28d26f05521db10aa0612819d2fcd564aafc3cd8efcad239827e6af23f1a23cc"
+    },
+    "build/coverage/conflux-manual-audio-check": {
+      "bytes": 13920072,
+      "sha256": "879e26df22af95af4e7773f8a8fde8b79f95501e979ff734d6a5bc6e103bf871"
+    },
+    "build/coverage/conflux-manual-playback-soak": {
+      "bytes": 13053640,
+      "sha256": "5e04d92c594b50d957b0ca69c72af0c85967c1cf2da24f0bd768b2c9411459f4"
+    },
+    "build/coverage/conflux-manual-routing-check": {
+      "bytes": 4808648,
+      "sha256": "b013e486fcacc0c61781e61a06882a01a5ae7424766fd1afc194b8ca974b8755"
+    },
+    "build/coverage/conflux-manual-ui-test": {
+      "bytes": 3450040,
+      "sha256": "04d663e077e5d49cd2d3dbf862c50319b27bffff31ffd2984cf38915ac20535e"
+    },
+    "build/coverage/conflux-preparation-controller-check": {
+      "bytes": 13358520,
+      "sha256": "6bc67da7396dd376e1ebf58e9f711812fd9692bf5a5976ccf0b898787af714d1"
+    },
+    "build/coverage/conflux-prepare-audio-check": {
+      "bytes": 1956568,
+      "sha256": "decb3d730f422fd7ce273818777b461c3afa73dd53d343b18bd1b91c3fba2427"
+    },
+    "build/coverage/conflux-prepared-track-store-test": {
+      "bytes": 9771104,
+      "sha256": "55c14663be85a3500c2fb4daf850d282dc4bf6ab58e50bd38c679951b7cf65e1"
+    },
+    "build/coverage/conflux-stem-service-jsonl-test": {
+      "bytes": 1681008,
+      "sha256": "931928df2ee7f84b1ba931dc2a5767caf4936dfd9fdeb7fb8c85334d78e4f87d"
+    }
+  }
+}

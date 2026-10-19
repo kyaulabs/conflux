@@ -76,15 +76,19 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 live controller measurement](benchmarks/data/m2-controller-live-2026-10-19/coverage.json)
-passed 36/36 CTest entries, the offscreen smoke, 124 private-routing checks and
-75 private preparation/library checks. Nine isolated normal-build CLI checks
-also passed. It measured the following with GCC/gcov 16.2.1,
-gcovr 8.7 and coverage.py 7.16.2:
+The [M2 live bridge timing measurement](benchmarks/data/m2-live-bridge-timing-2026-10-19/verification.json)
+passed 36/36 instrumented CTest entries, offscreen smoke, 124 private-routing
+checks and 78 private preparation/library checks. The separate normal run passed
+36/36 CTest entries, smoke, 130 routing checks and 78 preparation checks. All
+private daemons were reaped with no owned nodes or links left. Normal preparation's inner
+deadline gate remains disabled; its outer wrapper gate is distinct. The retained
+measurement uses gcovr 8.7 and coverage.py 7.16.2.
+The [earlier controller measurement](benchmarks/data/m2-controller-live-2026-10-19/coverage.json)
+retains its nine isolated CLI checks; they were not rerun for this timing slice.
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 5,647 / 6,574 (85.90%) | 8,088 / 15,293 (52.89%) |
+| C++ `src/` | 5,781 / 6,710 (86.15%) | 8,178 / 15,433 (52.99%) |
 | Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
