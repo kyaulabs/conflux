@@ -31,7 +31,8 @@ immediate shutdown from a completion notification. It uses no hardware output
 or host session manager. The coverage run selects functional-only mode: sample, routing,
 buffer, command and cleanup assertions remain active; execution-deadline
 checks are skipped and reported as such. Normal private-routing checks retain
-their deadline gates.
+their deadline gates. Functional runs allow a 240-second harness guard for
+instrumented preparation; the normal guard remains 90 seconds.
 
 The runner resets counters and reports in `build/coverage`, builds the
 instrumented executables and runs the existing CTest suite and offscreen smoke
@@ -63,14 +64,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 export/cache measurement](benchmarks/data/m2-stem-cache-2026-10-19/coverage.json)
+The [M2 prepared-bank controls measurement](benchmarks/data/m2-stem-controls-2026-10-19/coverage.json)
 passed 28/28 CTest entries, the offscreen smoke, 82 private-routing checks and
-30 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
+45 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 3,868 / 4,776 (80.99%) | 5,162 / 10,620 (48.61%) |
+| C++ `src/` | 4,096 / 4,965 (82.50%) | 5,521 / 11,111 (49.69%) |
 | Python `tools/stems/` | 855 / 922 (92.73%) | 263 / 322 (81.68%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the

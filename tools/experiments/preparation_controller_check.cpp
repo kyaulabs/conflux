@@ -2,6 +2,7 @@
 // Functional controller integration on the private_routing_check.py daemon.
 // Generated audio and cache stay inside its private runtime; no host output.
 #include "ui/DeckController.hpp"
+#include "../../tests/StemExportFixture.hpp"
 
 #include <QCoreApplication>
 #include <QDataStream>
@@ -24,7 +25,9 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <bit>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
@@ -44,9 +47,10 @@ constexpr std::uint32_t fixtureFrames = 60 * 48000;
 constexpr std::array<float, 2> expected{.125F, -.0625F};
 
 template<class Predicate>
-void wait(Predicate&& predicate, const char* message, bool processGui = true)
+void wait(Predicate&& predicate, const char* message, bool processGui = true,
+          std::chrono::seconds timeout = std::chrono::seconds(8))
 {
-    const auto deadline = Clock::now() + std::chrono::seconds(8);
+    const auto deadline = Clock::now() + timeout;
     while (!predicate()) {
         if (Clock::now() >= deadline) throw std::runtime_error(message);
         if (processGui) QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
@@ -62,7 +66,7 @@ bool save(const QString& path, const QJsonObject& value)
     return file.write(bytes) == bytes.size() && file.commit();
 }
 
-void writeFixture(const QString& path, qint16 left, qint16 right)
+void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t totalFrames = fixtureFrames)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::NewOnly))
@@ -70,19 +74,19 @@ void writeFixture(const QString& path, qint16 left, qint16 right)
     QDataStream header(&file);
     header.setByteOrder(QDataStream::LittleEndian);
     header.writeRawData("RIFF", 4);
-    header << quint32(36 + fixtureFrames * 4);
+    header << quint32(36 + totalFrames * 4);
     header.writeRawData("WAVEfmt ", 8);
     header << quint32(16) << quint16(1) << quint16(2) << quint32(48000)
            << quint32(192000) << quint16(4) << quint16(16);
     header.writeRawData("data", 4);
-    header << quint32(fixtureFrames * 4);
+    header << quint32(totalFrames * 4);
     std::array<char, 4096 * 4> block{};
     for (std::size_t frame = 0; frame < block.size() / 4; ++frame) {
         qToLittleEndian<qint16>(left, block.data() + frame * 4);
         qToLittleEndian<qint16>(right, block.data() + frame * 4 + 2);
     }
-    for (std::uint32_t first = 0; first < fixtureFrames;) {
-        const auto frames = std::min<std::uint32_t>(4096, fixtureFrames - first);
+    for (std::uint32_t first = 0; first < totalFrames;) {
+        const auto frames = std::min<std::uint32_t>(4096, totalFrames - first);
         if (file.write(block.data(), frames * 4) != qint64(frames * 4))
             throw std::runtime_error("Cannot write private PCM fixture");
         first += frames;
@@ -93,7 +97,7 @@ void writeFixture(const QString& path, qint16 left, qint16 right)
 
 class Sink {
 public:
-    explicit Sink(std::string name) : name_(std::move(name))
+    explicit Sink(std::string name, float tolerance = 0.F) : name_(std::move(name)), tolerance_(tolerance)
     {
         loop_ = pw_thread_loop_new(name_.c_str(), nullptr);
         if (!loop_) throw std::runtime_error("Cannot create private sink loop");
@@ -146,7 +150,7 @@ private:
             std::uint64_t wrong = 0, zeros = 0;
             for (std::size_t frame = 0; frame < frames; ++frame) {
                 zeros += samples[frame] == 0.F;
-                wrong += samples[frame] != expected[channel];
+                wrong += !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
             }
             self.received_[channel].fetch_add(frames, std::memory_order_relaxed);
             self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
@@ -159,6 +163,7 @@ private:
         return value;
     }
     std::string name_;
+    const float tolerance_;
     std::array<void*, 2> ports_{};
     std::array<std::atomic<std::uint64_t>, 2> received_{};
     std::atomic<std::uint64_t> wrong_{0}, zeros_{0};
@@ -167,6 +172,276 @@ private:
     pw_filter* filter_ = nullptr;
     bool started_ = false;
 };
+
+QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames, std::uint64_t expectedFrames)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly) || file.size() < 44 || file.size() > 128 * 1024 * 1024)
+        throw std::runtime_error("Cannot read bounded generated stem recording");
+    const auto header = file.read(12);
+    if (header.size() != 12 || header.first(4) != "RIFF" || header.sliced(8, 4) != "WAVE")
+        throw std::runtime_error("Stem recording is not a RIFF WAVE file");
+    bool format = false;
+    qint64 dataOffset = -1;
+    std::uint64_t bytes = 0;
+    for (qint64 position = 12; position + 8 <= file.size();) {
+        if (!file.seek(position)) throw std::runtime_error("Cannot seek generated WAV metadata");
+        const auto chunk = file.read(8);
+        if (chunk.size() != 8) throw std::runtime_error("Truncated generated WAV metadata");
+        const auto count = qFromLittleEndian<quint32>(chunk.constData() + 4);
+        if (std::uint64_t(count) > std::uint64_t(file.size() - position - 8))
+            throw std::runtime_error("Generated WAV chunk exceeds its regular file");
+        if (chunk.first(4) == "fmt ") {
+            const auto fmt = file.read(std::min<quint32>(count, 64));
+            format = fmt.size() >= 16 && qFromLittleEndian<quint16>(fmt.constData()) == 3 &&
+                qFromLittleEndian<quint16>(fmt.constData() + 2) == 2 &&
+                qFromLittleEndian<quint32>(fmt.constData() + 4) == 48000 &&
+                qFromLittleEndian<quint16>(fmt.constData() + 12) == 8 &&
+                qFromLittleEndian<quint16>(fmt.constData() + 14) == 32;
+        } else if (chunk.first(4) == "data") {
+            if (dataOffset >= 0) throw std::runtime_error("Generated WAV has multiple data chunks");
+            dataOffset = position + 8;
+            bytes = count;
+        }
+        position += 8 + qint64(count) + (count & 1U);
+    }
+    const auto frames = bytes / 8;
+    if (!format || dataOffset < 0 || !frames || bytes % 8 || frames != expectedFrames ||
+        prefixFrames < 1024 || prefixFrames > frames || frames < 1024 || !file.seek(dataOffset))
+        throw std::runtime_error("Generated WAV is not complete stereo 48000 Hz float PCM");
+    std::array<char, 4096 * 8> block{};
+    float maximumError = 0;
+    std::uint64_t checkedFrames = 0;
+    for (std::uint64_t first = 0; first < frames;) {
+        const auto count = std::min<std::uint64_t>(4096, frames - first);
+        if (file.read(block.data(), qint64(count * 8)) != qint64(count * 8))
+            throw std::runtime_error("Generated WAV PCM ended early");
+        for (std::uint64_t index = 0; index < count; ++index) {
+            const auto frame = first + index;
+            for (std::size_t channel = 0; channel < 2; ++channel) {
+                const auto bits = qFromLittleEndian<quint32>(block.data() + index * 8 + channel * 4);
+                const auto value = std::bit_cast<float>(std::uint32_t(bits));
+                if (!std::isfinite(value) || std::abs(value) > std::abs(expected[channel]) + 1e-6F)
+                    throw std::runtime_error("Stem recording contains nonfinite or unexpected master audio");
+                if (frame < prefixFrames || frame + 1024 >= frames)
+                    maximumError = std::max(maximumError, std::abs(value - expected[channel]));
+            }
+            checkedFrames += frame < prefixFrames || frame + 1024 >= frames;
+        }
+        first += count;
+    }
+    if (maximumError > 1e-6F) throw std::runtime_error("Stem recording lost its independent master prefix or tail");
+    return {{"frames", qint64(frames)}, {"prefix_frames", qint64(prefixFrames)},
+        {"checked_prefix_or_tail_frames", qint64(checkedFrames)}, {"maximum_prefix_or_tail_error", maximumError},
+        {"scope", "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."}};
+}
+
+template<class Check>
+void runStemController(const std::filesystem::path& output, const QString& fixtures,
+                       const QString& a, const QString& b, const QString& libraryId,
+                       Check&& require, QJsonObject& observations)
+{
+    auto engine = conflux::test::makeStemEngineFixture(fixtures);
+    engine.maxSeconds = 30;
+    conflux::DeckController::PreparationOptions options;
+    options.stemEngine = engine;
+    conflux::DeckController controller(options);
+    Sink sink("conflux-stem-controller-master-" + std::to_string(::getpid()), 1e-6F);
+    controller.refreshAudioRouting();
+    QString left, right;
+    wait([&] {
+        for (const auto& value : controller.audioRouting()["ports"].toList()) {
+            const auto port = value.toMap();
+            const auto prefix = QString::fromStdString(sink.name()) + " · input_";
+            if (port["label"].toString() == prefix + "0 [FL]") left = port["key"].toString();
+            if (port["label"].toString() == prefix + "1 [FR]") right = port["key"].toString();
+        }
+        return !left.isEmpty() && !right.isEmpty() && controller.libraryReady();
+    }, "Stem controller private routing/library discovery timed out");
+    controller.configureAudioRouting(left, right, {}, {});
+    require(controller.stemsAvailable() && controller.error().isEmpty(),
+            "Explicit local stem engine is available on the private master-only pair");
+    controller.loadStemDeck(0, QUrl::fromLocalFile(a));
+    wait([&] {
+        if (!controller.busy() && !controller.error().isEmpty())
+            throw std::runtime_error("Initial bank A failed: " + controller.error().toStdString());
+        return !controller.busy() && controller.outputReady();
+    }, "Initial bank A did not become ready", true, std::chrono::seconds(120));
+    const auto loadedA = controller.audioState();
+    const auto aMap = controller.decks()[0].toMap();
+    require(controller.error().isEmpty() && loadedA.stemBank[0] && !loadedA.playing[0] &&
+            aMap["stemBank"].toBool() && aMap["overviewStem"].toString() == "drums" &&
+            aMap["stemGains"].toList().size() == 4 && aMap["waveform"].toList().size() == 512 &&
+            controller.retainedPcmBytes() == loadedA.sourceFrames[0] * 8 * 4,
+            "Initial prepared bank retains four aligned owners and labels its drums overview");
+    constexpr std::array<float, 4> selected{0.F, 0.F, 0.F, 1.F};
+    for (int stem = 0; stem < 3; ++stem) controller.setStemGain(0, stem, 0.0);
+    wait([&] { return controller.audioState().stemGain[0] == selected; }, "Initial selective stem gains were not acknowledged");
+    controller.setPlaying(0, true);
+    wait([&] { return controller.audioState().playing[0] && controller.audioState().sourceFrame[0] >= 4096; },
+         "Selected bank A did not advance through its startup ramp");
+    sink.validate(true);
+    wait([&] { return sink.received(0) >= 1024 && sink.received(1) >= 1024; }, "Selected bank A master samples did not arrive");
+    require(!sink.wrong() && !sink.zeros(), "Selecting only vocals produces the independent asymmetric A master at 1e-6 tolerance");
+
+    // Keep a long advancing peer while the replacement is small enough for
+    // instrumented cold preparation to finish before that peer's natural EOF.
+    const auto stemTarget = QDir(fixtures).filePath("stem-controller-target.wav");
+    constexpr std::uint32_t targetFrames = 4 * 48000;
+    writeFixture(stemTarget, 2048, 3072, targetFrames);
+    controller.importTrack(QUrl::fromLocalFile(stemTarget));
+    wait([&] { return !controller.busy(); }, "Short stem target import did not finish");
+    QString stemTargetId;
+    for (const auto& value : controller.libraryTracks()) {
+        const auto track = value.toMap();
+        if (track["path"].toString() == stemTarget) stemTargetId = track["id"].toString();
+    }
+    require(controller.error().isEmpty() && !stemTargetId.isEmpty(),
+            "Short replacement source is imported while the long prepared bank continues");
+
+    controller.loadDeck(1, QUrl::fromLocalFile(b));
+    wait([&] { return !controller.busy() && controller.audioState().sourceFrames[1] != 0; }, "Normal peer B did not load");
+    controller.setDeckGain(1, 0.0);
+    wait([&] { return controller.audioState().deckGain[1] == 0.F; }, "Normal B mute target was not acknowledged");
+    const auto mutedAt = controller.audioState().outputFrame;
+    wait([&] { return controller.audioState().outputFrame >= mutedAt + 1024; }, "Normal B mute ramp did not settle");
+    controller.setPlaying(1, true);
+    wait([&] {
+        const auto state = controller.audioState();
+        return state.playing[1] && state.deckGain[1] == 0.F && state.sourceFrame[1] >= 4096;
+    }, "Muted normal B peer did not advance");
+    const auto beforeCancel = controller.audioState();
+    const auto sessions = controller.completedSessions();
+    const auto retainedBefore = controller.retainedPcmBytes();
+    const auto recordingPath = QString::fromStdString((output / "generated-stem-controller.wav").string());
+    controller.startRecording(QUrl::fromLocalFile(recordingPath));
+    wait([&] { return controller.recording()["status"].toString() == "Recording" &&
+                      controller.recording()["acceptedFrames"].toULongLong() >= 1024; },
+         "Generated bank recording did not attach");
+    const auto recordedBefore = controller.recording()["acceptedFrames"].toULongLong();
+    const auto blockedFrom = std::chrono::steady_clock::now();
+    const auto sinkWrongBefore = sink.wrong(), sinkZerosBefore = sink.zeros();
+    controller.loadLibraryStemTrack(1, stemTargetId);
+    require(controller.busy() && controller.preparation()["cancellable"].toBool(),
+            "Library bank B preparation starts without replacing the advancing sources");
+    require(QThreadPool::globalInstance()->waitForDone(60000),
+            "Bank B worker completes while GUI acceptance remains queued");
+    const auto recordedAtCompletion = controller.recording()["acceptedFrames"].toULongLong();
+    require(controller.cancelPreparation() && controller.busy(),
+            "Queued complete-bank cancellation remains accepted before GUI installation");
+    // A blocked GUI can retain old queued snapshots. Recorded frames establish
+    // a lower bound for a fresh output clock without relying on wall time.
+    wait([&] { return !controller.busy() && controller.audioState().outputFrame >=
+                         beforeCancel.outputFrame + recordedAtCompletion; },
+         "Queued bank cancellation did not finish cleanup");
+    const auto cancelled = controller.audioState();
+    const auto stateDetail = [](const auto& value) {
+        QJsonArray decks;
+        for (std::size_t deck = 0; deck < 2; ++deck) {
+            QJsonArray gains;
+            for (const auto gain : value.stemGain[deck]) gains.append(gain);
+            decks.append(QJsonObject{{"frame", qint64(value.sourceFrame[deck])},
+                {"frames", qint64(value.sourceFrames[deck])}, {"playing", value.playing[deck]},
+                {"generation", qint64(value.sourceGeneration[deck])}, {"bank", value.stemBank[deck]},
+                {"stem_gains", gains}, {"deck_gain", value.deckGain[deck]},
+                {"starved", qint64(value.starvedFrames[deck])}, {"read_error", value.sourceReadError[deck]}});
+        }
+        return QJsonObject{{"output", qint64(value.outputFrame)}, {"decks", decks}};
+    };
+    observations["stem_cancel_detail"] = QJsonObject{{"before", stateDetail(beforeCancel)},
+        {"after", stateDetail(cancelled)}, {"status", controller.preparation()["status"].toString()},
+        {"ready", controller.outputReady()}, {"sessions_before", qint64(sessions)},
+        {"sessions_after", qint64(controller.completedSessions())},
+        {"retained_before", qint64(retainedBefore)}, {"retained_after", qint64(controller.retainedPcmBytes())},
+        {"recorded_before", qint64(recordedBefore)}, {"recording", QJsonObject::fromVariantMap(controller.recording())},
+        {"recorded_at_worker_completion", qint64(recordedAtCompletion)},
+        {"sink_wrong_before", qint64(sinkWrongBefore)}, {"sink_wrong_after", qint64(sink.wrong())},
+        {"sink_zeros_before", qint64(sinkZerosBefore)}, {"sink_zeros_after", qint64(sink.zeros())},
+        {"elapsed_seconds", std::chrono::duration<double>(std::chrono::steady_clock::now() - blockedFrom).count()}};
+    require(controller.preparation()["status"].toString() == "Cancelled" && controller.outputReady() &&
+            controller.completedSessions() == sessions && cancelled.sourceGeneration == beforeCancel.sourceGeneration &&
+            cancelled.stemBank[0] && !cancelled.stemBank[1] && cancelled.stemGain[0] == selected &&
+            cancelled.playing[0] && cancelled.playing[1] && cancelled.deckGain[1] == 0.F &&
+            cancelled.sourceFrame[0] - beforeCancel.sourceFrame[0] == cancelled.outputFrame - beforeCancel.outputFrame &&
+            cancelled.sourceFrame[1] - beforeCancel.sourceFrame[1] == cancelled.outputFrame - beforeCancel.outputFrame &&
+            controller.retainedPcmBytes() == retainedBefore && controller.recording()["active"].toBool() &&
+            controller.recording()["acceptedFrames"].toULongLong() > recordedBefore && !sink.wrong() && !sink.zeros(),
+            "Queued bank cancellation retires its whole candidate while peer clocks, selected stems and recorder continue");
+
+    const auto beforeBank = controller.audioState();
+    controller.loadLibraryStemTrack(1, stemTargetId);
+    wait([&] { return !controller.busy() && controller.audioState().stemBank[1]; }, "Cached complete bank B did not install");
+    const auto bank = controller.audioState();
+    constexpr std::array<float, 4> unity{1.F, 1.F, 1.F, 1.F};
+    require(controller.preparation()["cacheHit"].toBool() && controller.completedSessions() == sessions &&
+            bank.sourceGeneration[1] > beforeBank.sourceGeneration[1] && !bank.playing[1] && bank.sourceFrame[1] == 0 &&
+            bank.stemGain[1] == unity && bank.deckGain[1] == 1.F && bank.playing[0] && bank.stemGain[0] == selected &&
+            bank.sourceFrame[0] - beforeBank.sourceFrame[0] == bank.outputFrame - beforeBank.outputFrame &&
+            controller.retainedPcmBytes() == (bank.sourceFrames[0] + bank.sourceFrames[1]) * 8 * 4 &&
+            controller.recording()["active"].toBool() && !sink.wrong() && !sink.zeros(),
+            "Cached bank handoff resets only its target and retains both complete owners without restarting A or recording");
+
+    const auto beforeNormal = controller.audioState();
+    controller.loadLibraryTrack(1, libraryId);
+    wait([&] { return !controller.busy() && !controller.audioState().stemBank[1]; }, "Bank B did not retire into normal playback");
+    const auto normal = controller.audioState();
+    require(controller.completedSessions() == sessions && normal.sourceGeneration[1] > beforeNormal.sourceGeneration[1] &&
+            !normal.playing[1] && normal.sourceFrame[1] == 0 && normal.playing[0] && normal.stemGain[0] == selected &&
+            normal.sourceFrame[0] - beforeNormal.sourceFrame[0] == normal.outputFrame - beforeNormal.outputFrame &&
+            controller.retainedPcmBytes() == normal.sourceFrames[0] * 8 * 4 + normal.sourceFrames[1] * 8 &&
+            controller.recording()["active"].toBool() && !sink.wrong() && !sink.zeros(),
+            "Bank-to-normal handoff retires all four target PCM owners and preserves the audible bank peer and writer");
+    controller.setDeckGain(1, 0.0);
+    wait([&] { return controller.audioState().deckGain[1] == 0.F; }, "Reloaded normal B mute target was not acknowledged");
+    const auto mutedAgainAt = controller.audioState().outputFrame;
+    wait([&] { return controller.audioState().outputFrame >= mutedAgainAt + 1024; }, "Reloaded normal B mute ramp did not settle");
+    controller.setPlaying(1, true);
+    wait([&] { return controller.audioState().playing[1] && controller.audioState().deckGain[1] == 0.F; },
+         "Normal B did not restart muted before routing rebuild");
+    const auto beforeRoute = controller.audioState();
+    const auto prefixFrames = controller.recording()["acceptedFrames"].toULongLong();
+    sink.validate(false); // Explicit routing rebuild may omit wall time and ramp.
+    controller.configureAudioRouting(left, right, {}, {});
+    wait([&] {
+        return !controller.busy() && controller.outputReady() &&
+            controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096;
+    }, "Bank routing rebuild did not restore output and advance");
+    const auto routed = controller.audioState();
+    require(controller.error().isEmpty() && controller.completedSessions() == sessions + 1 && routed.stemBank[0] &&
+            !routed.stemBank[1] && routed.stemGain[0] == selected && routed.playing[0] && routed.playing[1] &&
+            routed.deckGain[1] == 0.F && routed.sourceFrame[1] >= beforeRoute.sourceFrame[1] &&
+            controller.retainedPcmBytes() == routed.sourceFrames[0] * 8 * 4 + routed.sourceFrames[1] * 8 &&
+            controller.recording()["active"].toBool() && controller.recording()["path"].toString() == recordingPath &&
+            controller.recording()["acceptedFrames"].toULongLong() > prefixFrames,
+            "Explicit routing rebuild retains the bank, acknowledged stem gains, peer transport and original recording writer");
+    const auto wrongBefore = sink.wrong(), zerosBefore = sink.zeros(), receivedBefore = sink.received(0);
+    sink.validate(true);
+    wait([&] { return sink.received(0) >= receivedBefore + 1024; }, "Post-rebuild bank samples did not arrive");
+    require(sink.wrong() == wrongBefore && sink.zeros() == zerosBefore,
+            "Restored bank targets produce the same independent master after the permitted routing gap");
+    controller.stopRecording();
+    wait([&] { return !controller.recording()["active"].toBool(); }, "Generated stem recording did not finalize");
+    const auto recording = controller.recording();
+    require(recording["status"].toString() == "Complete" && recording["error"].toString().isEmpty() &&
+            recording["acceptedFrames"] == recording["writtenFrames"] && recording["overflowFrames"].toULongLong() == 0,
+            "One bank-session writer finalizes every accepted stereo frame without overflow");
+    const auto wav = inspectStemRecording(recordingPath, prefixFrames, recording["writtenFrames"].toULongLong());
+    require(!routed.invalidBuffers && !routed.rejected && !routed.sourceReadErrorObserved[0] &&
+            !routed.sourceReadErrorObserved[1] && !routed.sourceReadError[0] && !routed.sourceReadError[1],
+            "Prepared bank integration reports no invalid buffers, rejected commands or source read failures");
+    const auto final = controller.audioState();
+    sink.validate(false);
+    controller.shutdown();
+    require(controller.completedSessions() == sessions + 2 && !controller.outputReady() && !controller.busy(),
+            "Only explicit routing rebuild and shutdown complete the stem controller's sessions");
+    observations["stem_controller"] = QJsonObject{{"recording", wav},
+        {"replacement_fixture_frames", qint64(targetFrames)},
+        {"initial_bank_frames", qint64(loadedA.sourceFrames[0])}, {"bank_handoff_generation", qint64(bank.sourceGeneration[1])},
+        {"normal_handoff_generation", qint64(normal.sourceGeneration[1])},
+        {"completed_sessions", qint64(controller.completedSessions())}, {"final_callbacks", qint64(final.callbacks)},
+        {"reported_starved_a", qint64(final.starvedFrames[0])}, {"reported_starved_b", qint64(final.starvedFrames[1])},
+        {"steady_sample_tolerance", 1e-6}, {"scope", "Generated fake separator, actual cache/controller/render/PipeWire paths. No model inference, physical routing, latency, sustained or musical qualification."}};
+}
 
 void validatePrivate(const std::filesystem::path& runtime, const std::filesystem::path& output)
 {
@@ -412,13 +687,14 @@ int main(int argc, char** argv)
                 "Loading and shutting down preserve the persistent imported library record");
         observations["completion"] = completion;
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
+        runStemController(output, fixtures.path(), a, b, libraryId, require, observations);
         passed = true;
     } catch (const std::exception& failure) {
         error = QString::fromUtf8(failure.what());
     }
     const QJsonObject result{{"passed", passed}, {"error", error}, {"checks", checks},
         {"execution_deadline_gate", false}, {"observations", observations},
-        {"scope", "Private virtual PipeWire graph; generated PCM, private cache and private library data only. Functional import/preparation/cancellation/reentrancy checks, no hardware or latency qualification."}};
+        {"scope", "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; no model, hardware or latency qualification."}};
     std::cout << QJsonDocument(result).toJson(QJsonDocument::Compact).constData() << '\n';
     return passed ? 0 : 1;
 }

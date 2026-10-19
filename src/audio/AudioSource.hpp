@@ -21,6 +21,10 @@ struct AudioSource {
     void* context = nullptr;
     AudioReadResult (*read)(void*, std::uint64_t firstFrame, std::span<float>) noexcept = nullptr;
     void (*discontinuity)(void*, std::uint64_t firstFrame) noexcept = nullptr;
+    // Optional fixed four-stem control pair, drums/bass/other/vocals. These
+    // callbacks share the source's borrowed context and render-owner lifetime.
+    bool (*setStemGain)(void*, std::size_t stem, float gain) noexcept = nullptr;
+    float (*stemGain)(const void*, std::size_t stem) noexcept = nullptr;
 
     [[nodiscard]] bool isMemory() const noexcept { return memory != nullptr; }
 

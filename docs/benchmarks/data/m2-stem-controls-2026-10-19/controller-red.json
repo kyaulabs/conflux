@@ -1,0 +1,14 @@
+{
+  "stage": "tests_before_controller_implementation",
+  "command": [
+    "cmake",
+    "--build",
+    "build/dev",
+    "--target",
+    "conflux-preparation-controller-check",
+    "--parallel",
+    "2"
+  ],
+  "exit": 1,
+  "elapsed_seconds": 21.997037394961808
+}

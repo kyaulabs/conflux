@@ -1,0 +1,12 @@
+********* Start testing of ManualUiTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : ManualUiTest::initTestCase()
+FAIL!  : ManualUiTest::preparedStemLoadingRequiresExplicitOptInAndPreservesImport() 'mode' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(1304)]
+FAIL!  : ManualUiTest::stemOverviewIsLabeledWithoutChangingNormalDeckOverview() 'bank && normal' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(1421)]
+FAIL!  : ManualUiTest::stemLevelsRoutePointerKeyboardAndGateOnlyReplacementDeck() 'level' returned FALSE. ()
+   Loc: [/home/kyau/projects/kyaulabs/conflux/tests/manual_ui_test.cpp(1362)]
+PASS   : ManualUiTest::cleanupTestCase()
+Totals: 2 passed, 3 failed, 0 skipped, 0 blacklisted, 1169ms
+********* Finished testing of ManualUiTest *********

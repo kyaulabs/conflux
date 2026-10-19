@@ -31,6 +31,8 @@ public:
         float masterGain = 1.0F;
         std::array<bool, RenderCore::deckCount> cueSelected{};
         float cueGain = 1.0F;
+        std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{{
+            {1.F, 1.F, 1.F, 1.F}, {1.F, 1.F, 1.F, 1.F}}};
     };
 
     struct State {
@@ -44,6 +46,8 @@ public:
         std::array<bool, RenderCore::deckCount> sourceReadErrorObserved{};
         std::array<std::uint64_t, RenderCore::deckCount> starvedFrames{};
         std::array<float, RenderCore::deckCount> deckGain{};
+        std::array<bool, RenderCore::deckCount> stemBank{};
+        std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{};
         float masterGain = 1.0F;
         std::array<bool, RenderCore::deckCount> cueSelected{};
         float cueGain = 1.0F;

@@ -6,6 +6,7 @@
 #include "audio/AudioRouting.hpp"
 #include "audio/StereoRecorder.hpp"
 #include "library/LibraryCatalog.hpp"
+#include "library/PreparedTrackStore.hpp"
 
 #include <QFutureWatcher>
 #include <QObject>
@@ -28,6 +29,7 @@ class DeckController final : public QObject {
     Q_PROPERTY(QVariantList decks READ decks NOTIFY stateChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY stateChanged)
     Q_PROPERTY(bool outputReady READ outputReady NOTIFY stateChanged)
+    Q_PROPERTY(bool stemsAvailable READ stemsAvailable CONSTANT)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
     Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
@@ -39,11 +41,20 @@ class DeckController final : public QObject {
     Q_PROPERTY(bool libraryReady READ libraryReady NOTIFY libraryChanged)
     Q_PROPERTY(QString libraryError READ libraryError NOTIFY libraryChanged)
 public:
+    struct PreparationOptions {
+        std::optional<library::StemEngine> stemEngine;
+        library::PreparedTrackStore::Limits limits;
+    };
     explicit DeckController(QObject* parent = nullptr);
+    explicit DeckController(PreparationOptions options, QObject* parent = nullptr);
     ~DeckController() override;
     QVariantList decks() const;
     bool busy() const { return busy_; }
     bool outputReady() const { return ready_; }
+    // Configuration presence only; dependency/identity checks run on preparation.
+    bool stemsAvailable() const { return preparationOptions_.stemEngine.has_value(); }
+    // Distinct PCM owners, including a worker retirement not yet completed.
+    std::uint64_t retainedPcmBytes() const;
     QString error() const { return error_; }
     double masterGain() const { return state_.masterGain; }
     double cueGain() const { return state_.cueGain; }
@@ -55,13 +66,16 @@ public:
     bool libraryReady() const;
     QString libraryError() const;
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url);
+    Q_INVOKABLE void loadStemDeck(int deck, const QUrl& url);
     Q_INVOKABLE void importTrack(const QUrl& url);
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& sourceId);
+    Q_INVOKABLE void loadLibraryStemTrack(int deck, const QString& sourceId);
     Q_INVOKABLE bool cancelPreparation();
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
     Q_INVOKABLE bool jogFrames(int deck, qint64 deltaFrames);
     Q_INVOKABLE void setDeckGain(int deck, double gain);
+    Q_INVOKABLE void setStemGain(int deck, int stem, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
     Q_INVOKABLE void setCueGain(double gain);
     Q_INVOKABLE void setCueSelected(int deck, bool selected);
@@ -92,8 +106,21 @@ signals:
     void stateChanged();
     void libraryChanged();
 private:
+    // One immutable owner with exactly one normal or four aligned PCM leaves.
+    // No original mix is retained in a stem slot. Keep every leaf through the
+    // last callback; retired owners close on the existing retirement worker.
+    struct PreparedPcm {
+        explicit PreparedPcm(audio::PreparedAudio audio);
+        explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
+        std::uint64_t frames() const noexcept { return audioLeaves.front().frames(); }
+        std::uint64_t bytes() const noexcept;
+        bool stemBank() const noexcept { return audioLeaves.size() == 4; }
+        std::span<const float> peaks() const noexcept { return audioLeaves.front().peaks(); }
+        std::unique_ptr<audio::PreparedPlayback> makePlayback() const;
+        std::vector<audio::PreparedAudio> audioLeaves;
+    };
     struct PreparedLoad {
-        std::shared_ptr<const audio::PreparedAudio> audio;
+        std::shared_ptr<const PreparedPcm> audio;
         QVariantList waveform;
         std::unique_ptr<audio::PreparedPlayback> playback;
         bool cacheHit = false;
@@ -123,14 +150,16 @@ private:
     };
     void loaded();
     void catalogFinished();
-    void beginPreparation(int deck, const QUrl& url, bool importOnly, const QString& expectedSource = {});
+    void beginPreparation(int deck, const QUrl& url, bool importOnly,
+                          const QString& expectedSource = {}, bool stems = false);
+    void loadLibrary(int deck, const QString& sourceId, bool stems);
     void installed();
-    void installSession();
+    void installSession(std::shared_ptr<const PreparedPcm> retiredClip = {});
     void publishReplacement();
     void collectReplacement();
     void settleReplacement(bool stopped = false);
     void retirePlayback(std::unique_ptr<audio::PreparedPlayback> playback,
-                      std::shared_ptr<const audio::PreparedAudio> clip = {});
+                      std::shared_ptr<const PreparedPcm> clip = {});
     void retired();
     void recordingStarted();
     void recordingFinished();
@@ -141,7 +170,12 @@ private:
     bool flushCueReleases();
     void stopSession();
     void fail(const QString& error);
-    std::array<std::shared_ptr<const audio::PreparedAudio>, 2> clips_{};
+    std::array<std::shared_ptr<const PreparedPcm>, 2> clips_{};
+    PreparationOptions preparationOptions_;
+    // Identity/bytes only, not another owner. Clear after the retirement lambda
+    // explicitly destroyed both reader and PCM descriptor owners.
+    const PreparedPcm* retiringPcmIdentity_ = nullptr;
+    std::uint64_t retiringPcmBytes_ = 0;
     std::stop_source loadCancellation_;
     std::array<QString, 2> names_{};
     std::array<QVariantList, 2> waveforms_{};
@@ -179,10 +213,11 @@ private:
     QString pendingName_;
     QString preparationStatus_ = "Idle";
     bool preparationCacheHit_ = false;
-    bool pendingImport_ = false;
+    bool pendingImport_ = false, pendingStems_ = false;
     int pendingDeck_ = 0;
     bool busy_ = false;
     bool ready_ = false;
+    bool installationPending_ = false;
     bool closing_ = false;
     std::uint64_t submitted_ = 0;
     std::uint64_t completedSessions_ = 0;

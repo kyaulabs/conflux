@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/RenderCore.hpp"
 #include "audio/StemBankSource.hpp"
+#include "audio/TransportQueue.hpp"
 
 #include <algorithm>
 #include <array>
@@ -320,6 +321,151 @@ void gainRampsArePartitionInvariant()
                 "A zero-prefix read advanced gain ramps");
 }
 
+void queuedStemTargetsAndValidation()
+{
+    Signals signals(64);
+    StemBankSource first(signals.sources()), second(signals.sources());
+    RenderCore core(first.sourceRef(), second.sourceRef());
+    require(RenderCore::stemCount == StemBankSource::stemCount && core.isStemBank(0) && core.isStemBank(1) &&
+                !core.isStemBank(2), "Renderer does not expose the two fixed bank capabilities");
+    require(first.setGain(1, .25F) && core.stemGain(0, 1) == .25F &&
+                core.setStemGain(0, 1, .75F) && first.gain(1) == .75F && core.stemGain(1, 1) == 1.F,
+            "Renderer copied targets instead of controlling the bank's authoritative targets");
+    const auto clock = core.frameClock(), cursor = core.sourceFrame();
+    for (const float bad : {-1.F, 1.01F, std::numeric_limits<float>::infinity(),
+                            -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()}) {
+        RenderCore::Command command;
+        command.type = RenderCore::Command::Type::StemGain;
+        command.stem = 1;
+        command.gain = bad;
+        require(!core.apply(command) && core.stemGain(0, 1) == .75F && first.gain(1) == .75F &&
+                    core.frameClock() == clock && core.sourceFrame() == cursor,
+                "An invalid queued target changed bank state or source/output clocks");
+    }
+    require(!core.setStemGain(2, 0, 1.F) && !core.setStemGain(0, 4, 1.F) &&
+                core.stemGain(2, 0) == 0.F && core.stemGain(0, 4) == 0.F,
+            "Out-of-range stem or deck control was accepted");
+    for (const auto index : {std::array<std::uint32_t, 2>{2, 0}, std::array<std::uint32_t, 2>{0, 4}}) {
+        RenderCore::Command command;
+        command.type = RenderCore::Command::Type::StemGain;
+        command.deck = index[0];
+        command.stem = index[1];
+        command.gain = .25F;
+        require(!core.apply(command) && core.stemGain(0, 1) == .75F && core.stemGain(1, 1) == 1.F &&
+                    core.frameClock() == clock && core.sourceFrame() == cursor,
+                "Out-of-range queued indices changed either bank or transport");
+    }
+    std::array<float, 16> normal{};
+    RenderCore ordinary(AudioSource::fromMemory(normal), AudioSource{});
+    RenderCore::Command unsupported;
+    unsupported.type = RenderCore::Command::Type::StemGain;
+    require(!ordinary.isStemBank() && !ordinary.isStemBank(1) && !ordinary.apply(unsupported) &&
+                !ordinary.setStemGain(1, 0, 0.F) && ordinary.stemGain(0, 0) == 0.F && ordinary.frameClock() == 0,
+            "Normal or unloaded source accepted stem-only control");
+
+    conflux::audio::TransportQueue queue;
+    std::array<std::array<float, 4>, 2> targets{{{1.F, .75F, 1.F, 1.F}, {1.F, 1.F, 1.F, 1.F}}};
+    for (std::uint32_t index = 0; index < queue.capacity; ++index) {
+        RenderCore::Command command;
+        command.type = RenderCore::Command::Type::StemGain;
+        command.deck = index % 2;
+        command.stem = index / 2 % 4;
+        command.gain = float(index % 5) * .25F;
+        command.id = index + 1;
+        require(queue.tryPush(command), "Stem gain commands did not fit the existing fixed queue");
+        targets[command.deck][command.stem] = command.gain;
+    }
+    require(!queue.tryPush(unsupported) && core.stemGain(0, 1) == .75F,
+            "Queue overflow changed a target before render-owner application");
+    for (std::uint32_t index = 0; index < queue.capacity; ++index) {
+        RenderCore::Command command;
+        require(queue.tryPop(command) && command.id == index + 1 && core.apply(command),
+                "Queued stem gains lost FIFO order, fixed stem index or applicability");
+    }
+    for (std::size_t deck = 0; deck < 2; ++deck)
+        for (std::size_t stem = 0; stem < 4; ++stem)
+            require(core.stemGain(deck, stem) == targets[deck][stem], "Applied gain snapshot differs from its final queued target");
+    require(core.frameClock() == 0 && core.sourceFrame(0) == 0 && core.sourceFrame(1) == 0,
+            "Applying gain-only commands advanced transport");
+    std::array<float, 8> master{}, cue{};
+    require(core.setDeckGain(0, .5F) && core.setMasterGain(.5F) && core.setCueSelected(0, true) &&
+                core.setCueGain(.25F) && core.renderBuses(master, cue), "Queued bank bus render failed");
+    for (std::size_t frame = 0; frame < 4; ++frame)
+        for (std::size_t channel = 0; channel < 2; ++channel) {
+            const float firstMix = signals.mixed(frame, channel, targets[0]);
+            const float secondMix = signals.mixed(frame, channel, targets[1]);
+            require(master[frame * 2 + channel] == float((double(firstMix) * .5 + secondMix) * .5) &&
+                        cue[frame * 2 + channel] == firstMix * .25F,
+                    "Queued stem gains changed routing, role order, headroom or peer mix");
+        }
+}
+
+void pairedStemControlsAreValidated()
+{
+    Signals signals(16);
+    StemBankSource bank(signals.sources());
+    const auto valid = bank.sourceRef();
+    require(valid.setStemGain && valid.stemGain, "Bank descriptor does not publish both fixed gain callbacks");
+    auto bad = valid;
+    bad.stemGain = nullptr;
+    rejects([&] { RenderCore core(bad); });
+    bad = valid;
+    bad.setStemGain = nullptr;
+    rejects([&] { RenderCore core(bad); });
+    bad = valid;
+    bad.context = nullptr;
+    rejects([&] { RenderCore core(bad); });
+    bad = AudioSource::fromMemory(signals.stems[0]);
+    bad.context = valid.context;
+    bad.setStemGain = valid.setStemGain;
+    bad.stemGain = valid.stemGain;
+    rejects([&] { RenderCore core(bad); });
+    RenderCore retained(valid);
+    require(retained.setPlaying(0, false) && retained.setStemGain(0, 0, .25F), "Cannot prepare rejected-replacement fixture");
+    require(!retained.replaceSource(0, bad) && retained.isStemBank() && retained.stemGain(0, 0) == .25F &&
+                retained.sourceFrames() == 16 && retained.sourceFrame() == 0,
+            "Invalid controlled descriptor replaced or changed the retained bank");
+    StemBankSource replacement(signals.sources());
+    require(retained.replaceSource(0, replacement.sourceRef()) && retained.stemGain(0, 0) == 1.F &&
+                bank.gain(0) == .25F && retained.setStemGain(0, 2, 0.F) && replacement.gain(2) == 0.F,
+            "A source replacement leaked old targets or controlled the retired bank");
+    require(retained.seek(0, 5) && retained.stemGain(0, 2) == 0.F,
+            "Seeking an active bank reset its stem mix");
+    require(retained.replaceSource(0, AudioSource::fromMemory(signals.stems[0])) &&
+                !retained.isStemBank() && !retained.setStemGain(0, 2, .5F) && replacement.gain(2) == 0.F,
+            "Replacing a bank with normal PCM left obsolete mutable controls reachable");
+}
+
+void queuedRampsKeepPartialSourcesAligned()
+{
+    Signals signals(32);
+    Readers inputs(signals);
+    StemBankSource bank(inputs.sources());
+    for (std::size_t stem = 1; stem < 4; ++stem) require(bank.setGain(stem, 0.F), "Cannot isolate ramp fixture");
+    require(bank.configureRamps(4), "Cannot configure queued gain ramp fixture");
+    RenderCore core(bank.sourceRef());
+    RenderCore::Command command;
+    command.type = RenderCore::Command::Type::StemGain;
+    command.gain = 0.F;
+    require(core.apply(command) && core.stemGain(0, 0) == 0.F, "Queued ramp target was not immediately observable");
+    inputs.readers[2].ready = false;
+    std::array<float, 2> output{};
+    require(core.render(output) && core.sourceFrame() == 0 && core.isBuffering(), "Missing muted stem did not stall queued ramp fixture");
+    inputs.readers[2].ready = true;
+    require(core.render(output) && core.sourceFrame() == 1, "Queued ramp fixture did not recover");
+    for (std::size_t channel = 0; channel < 2; ++channel)
+        require(output[channel] == signals.stems[0][channel] * .75F,
+                "A missing muted stem advanced the queued gain ramp or misaligned samples");
+    command.gain = 1.F;
+    require(core.apply(command) && core.stemGain(0, 0) == 1.F, "Interrupted ramp target was not visible");
+    require(core.render(output) && core.sourceFrame() == 2, "Interrupted queued ramp did not advance exactly once");
+    for (std::size_t channel = 0; channel < 2; ++channel)
+        require(output[channel] == signals.stems[0][2 + channel] * .8125F,
+                "Interrupted queued ramp restarted from a stale target instead of the last emitted gain");
+    for (const auto& reader : inputs.readers)
+        require(!reader.badPositions, "Queued gain control changed a provider's sequential source position");
+}
+
 void commonTransportAndEof()
 {
     Signals signals(64);
@@ -415,6 +561,9 @@ int main()
         stalledBankLeavesPeerAndClocksRunning();
         sumsBusesHeadroomAndBounds();
         gainRampsArePartitionInvariant();
+        queuedStemTargetsAndValidation();
+        pairedStemControlsAreValidated();
+        queuedRampsKeepPartialSourcesAligned();
         commonTransportAndEof();
         failuresDoNotLeakStaleAudioOrBlockPeer();
         return 0;

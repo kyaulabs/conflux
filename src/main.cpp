@@ -43,6 +43,13 @@ int main(int argc, char** argv) {
     parser.addOption({"smoke-stop-file", "Finish the smoke test when this file appears.", "path"});
     parser.addOption({"smoke-progress-file", "Write atomic smoke-test frame progress once per second.", "path"});
     parser.addOption({"screenshot", "Save the smoke-test window image.", "path"});
+    parser.addOption({"stem-python", "Optional local stem Python executable (all five stem paths required).", "path"});
+    parser.addOption({"stem-exporter", "Optional local stem exporter script.", "path"});
+    parser.addOption({"stem-worker", "Optional production stem worker script.", "path"});
+    parser.addOption({"stem-runtime", "Optional local native stem runtime.", "path"});
+    parser.addOption({"stem-model", "Optional local stem model weights.", "path"});
+    parser.addOption({"stem-backend", "Prepared stem backend: cpu or vulkan.", "backend", "vulkan"});
+    parser.addOption({"stem-threads", "Prepared stem CPU thread limit (1..64).", "threads", "2"});
     parser.process(app);
     if ((parser.isSet("screenshot") || parser.isSet("smoke-stop-file") ||
          parser.isSet("smoke-progress-file")) && !parser.isSet("smoke-test"))
@@ -52,6 +59,24 @@ int main(int argc, char** argv) {
     if (!durationOk || seconds < 1 || seconds > 7200 ||
         (parser.isSet("smoke-seconds") && !parser.isSet("smoke-test")))
         parser.showHelp(2);
+    conflux::DeckController::PreparationOptions preparationOptions;
+    const std::array<const char*, 5> stemPaths{
+        "stem-python", "stem-exporter", "stem-worker", "stem-runtime", "stem-model"};
+    const auto suppliedStemPaths = std::size_t(std::ranges::count_if(stemPaths, [&](const auto* name) { return parser.isSet(name); }));
+    if (suppliedStemPaths) {
+        if (suppliedStemPaths != stemPaths.size() || parser.isSet("smoke-test")) parser.showHelp(2);
+        for (const auto* name : stemPaths) {
+            const auto path = parser.value(name);
+            if (!QFileInfo(path).isAbsolute() || path.contains(QChar(u'\0'))) parser.showHelp(2);
+        }
+        bool threadsOk = false;
+        const auto threads = parser.value("stem-threads").toInt(&threadsOk);
+        const auto backend = parser.value("stem-backend");
+        if (!threadsOk || threads < 1 || threads > 64 || (backend != "cpu" && backend != "vulkan")) parser.showHelp(2);
+        preparationOptions.stemEngine = conflux::library::StemEngine{
+            parser.value("stem-python"), parser.value("stem-exporter"), parser.value("stem-worker"),
+            parser.value("stem-runtime"), parser.value("stem-model"), backend, threads};
+    } else if (parser.isSet("stem-backend") || parser.isSet("stem-threads")) parser.showHelp(2);
     const bool controlledRepaint = qEnvironmentVariableIsSet("CONFLUX_M0_REPAINT_MS");
     int repaintIntervalMs = 0;
     if (controlledRepaint) {
@@ -83,7 +108,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<conflux::DeckController> deckController;
     QQmlApplicationEngine engine;
     if (!parser.isSet("smoke-test")) {
-        deckController = std::make_unique<conflux::DeckController>();
+        deckController = std::make_unique<conflux::DeckController>(preparationOptions);
         engine.rootContext()->setContextProperty("deckController", deckController.get());
     }
     engine.rootContext()->setContextProperty("platformName", QGuiApplication::platformName());

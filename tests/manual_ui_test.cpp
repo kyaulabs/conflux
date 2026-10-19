@@ -29,6 +29,7 @@ class UiEndpoint final : public QObject {
     Q_PROPERTY(QVariantList decks READ decks NOTIFY stateChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY stateChanged)
     Q_PROPERTY(bool outputReady READ outputReady NOTIFY stateChanged)
+    Q_PROPERTY(bool stemsAvailable READ stemsAvailable NOTIFY stateChanged)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
     Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
@@ -69,6 +70,16 @@ public:
     QVariantList decks() const { return decks_; }
     bool busy() const { return busy_; }
     bool outputReady() const { return ready_; }
+    bool stemsAvailable() const { return stemsAvailable_; }
+    void setStemsAvailable(bool value) { stemsAvailable_ = value; emit stateChanged(); }
+    void setOverviewStem(int deck, const QString& stem) {
+        auto state = decks_[deck].toMap();
+        state["overviewStem"] = stem;
+        state["stemBank"] = !stem.isEmpty();
+        state["stemGains"] = stem.isEmpty() ? QVariantList{0., 0., 0., 0.} : QVariantList{1., 1., 1., 1.};
+        decks_[deck] = state;
+        emit stateChanged();
+    }
     QString error() const { return error_; }
     double masterGain() const { return master_; }
     double cueGain() const { return cue_; }
@@ -151,6 +162,10 @@ public:
     }
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url)
     { calls.append(QVariantMap{{"action", "load"}, {"deck", deck}, {"url", url}}); }
+    Q_INVOKABLE void loadStemDeck(int deck, const QUrl& url)
+    { calls.append(QVariantMap{{"action", "stemLoad"}, {"deck", deck}, {"url", url}}); }
+    Q_INVOKABLE void loadLibraryStemTrack(int deck, const QString& id)
+    { calls.append(QVariantMap{{"action", "libraryStemLoad"}, {"deck", deck}, {"id", id}}); }
     Q_INVOKABLE void importTrack(const QUrl& url)
     { calls.append(QVariantMap{{"action", "import"}, {"url", url}}); }
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& id)
@@ -187,6 +202,20 @@ public:
         snapshotPosition(deck, std::clamp(state["positionSeconds"].toDouble() + frames / 48000.0,
                                          0.0, state["durationSeconds"].toDouble()));
         return true;
+    }
+    void snapshotStemGain(int deck, int stem, double gain)
+    {
+        auto state = decks_[deck].toMap();
+        auto gains = state["stemGains"].toList();
+        gains[stem] = gain;
+        state["stemGains"] = gains;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
+    Q_INVOKABLE void setStemGain(int deck, int stem, double gain)
+    {
+        calls.append(QVariantMap{{"action", "stemGain"}, {"deck", deck}, {"stem", stem}, {"value", gain}});
+        snapshotStemGain(deck, stem, gain);
     }
     Q_INVOKABLE void setDeckGain(int deck, double gain)
     {
@@ -269,7 +298,7 @@ private:
     QVariantList decks_;
     QVariantList library_;
     QVariantMap meters_, routing_, recording_, preparation_;
-    bool busy_ = false, ready_ = false;
+    bool busy_ = false, ready_ = false, stemsAvailable_ = false;
     bool libraryReady_ = true;
     bool acceptCue_ = true, acceptJog_ = true;
     QString error_;
@@ -1266,6 +1295,136 @@ private slots:
         QVERIFY(ui_->object("libraryDrawer")->property("opened").toBool());
         QTest::keyClick(ui_->window, Qt::Key_Escape);
         QTRY_VERIFY(!ui_->object("libraryDrawer")->property("visible").toBool());
+    }
+
+    void preparedStemLoadingRequiresExplicitOptInAndPreservesImport()
+    {
+        QVERIFY(ui_->openLibrary(0));
+        auto* mode = ui_->item("libraryPreparedStems");
+        QVERIFY(mode);
+        QVERIFY(!mode->isVisible());
+        auto* path = ui_->item("deck0Path");
+        auto* load = ui_->item("deck0Load");
+        const QString local = QString::fromUtf8("/tmp/Stem Set/夜 #%.wav");
+        QVERIFY(path->setProperty("text", local));
+        QTRY_VERIFY(load->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(load));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("load"));
+        ui_->endpoint.setStemsAvailable(true);
+        QTRY_VERIFY(mode->isVisible() && mode->isEnabled());
+        QVERIFY(!mode->property("checked").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(load));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("load"));
+        mode->forceActiveFocus();
+        QTRY_VERIFY(mode->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(mode->property("checked").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(load));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        const auto stemCall = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(stemCall["action"].toString(), QString("stemLoad"));
+        QCOMPARE(stemCall["url"].toUrl().toLocalFile(), local);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Import")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("import"));
+        ui_->endpoint.setBusy(true);
+        QTRY_VERIFY(!mode->isEnabled());
+        ui_->endpoint.setBusy(false);
+        const QString id(64, QLatin1Char('b'));
+        ui_->endpoint.setLibrary({QVariantMap{{"id", id}, {"name", "Saved stems"}, {"path", local},
+                                             {"durationSeconds", 60.0}, {"available", true}}});
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck1Load")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
+        const auto savedCall = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(savedCall["action"].toString(), QString("libraryStemLoad"));
+        QCOMPARE(savedCall["deck"].toInt(), 1);
+        QCOMPARE(savedCall["id"].toString(), id);
+        QVERIFY(ui_->closeLibrary());
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
+    void stemLevelsRoutePointerKeyboardAndGateOnlyReplacementDeck()
+    {
+        ui_->window->resize(1180, 760);
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setOverviewStem(0, "drums");
+        ui_->endpoint.setOverviewStem(1, "drums");
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck)
+            for (int stem = 0; stem < 4; ++stem) {
+                const auto name = QString("deck%1Stem%2Gain").arg(deck).arg(stem).toUtf8();
+                auto* level = ui_->item(name.constData());
+                QVERIFY(level);
+                QTRY_VERIFY(level->isVisible() && level->isEnabled());
+                QVERIFY(level->height() >= 44);
+            }
+        verifyControlsFit({"deck0Stem0Gain", "deck0Stem1Gain", "deck0Stem2Gain", "deck0Stem3Gain",
+                           "deck1Stem0Gain", "deck1Stem1Gain", "deck1Stem2Gain", "deck1Stem3Gain"});
+        auto* drums = ui_->item("deck0Stem0Gain");
+        auto* vocals = ui_->item("deck1Stem3Gain");
+        ui_->endpoint.snapshotStemGain(0, 0, .4);
+        QTRY_VERIFY(std::abs(drums->property("value").toDouble() - .4) < 1e-6);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        drums->forceActiveFocus();
+        QTRY_VERIFY(drums->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Right);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto keyboard = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(keyboard["action"].toString(), QString("stemGain"));
+        QCOMPARE(keyboard["deck"].toInt(), 0);
+        QCOMPARE(keyboard["stem"].toInt(), 0);
+        QVERIFY(std::abs(keyboard["value"].toDouble() - .41) < 1e-6);
+        const auto point = vocals->mapToScene(QPointF(vocals->width() * .3, 32)).toPoint();
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_VERIFY(ui_->endpoint.calls.size() > 1);
+        const auto pointer = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(pointer["action"].toString(), QString("stemGain"));
+        QCOMPARE(pointer["deck"].toInt(), 1);
+        QCOMPARE(pointer["stem"].toInt(), 3);
+        QVERIFY(pointer["value"].toDouble() > .1 && pointer["value"].toDouble() < .5);
+        auto* bass = ui_->item("deck0Stem1Gain");
+        const auto drag = bass->mapToScene(QPointF(bass->width() * .6, 32)).toPoint();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, drag);
+        QTRY_VERIFY(bass->property("pressed").toBool());
+        const auto heldValue = bass->property("value").toDouble();
+        ui_->endpoint.snapshotStemGain(0, 1, .1);
+        QVERIFY(std::abs(bass->property("value").toDouble() - heldValue) < 1e-6);
+        ui_->endpoint.setReplacing(0, true);
+        for (int stem = 0; stem < 4; ++stem) {
+            const auto name = QString("deck0Stem%1Gain").arg(stem).toUtf8();
+            QTRY_VERIFY(!ui_->item(name.constData())->isEnabled());
+        }
+        QVERIFY(vocals->isEnabled());
+        const auto beforeRelease = ui_->endpoint.calls.size();
+        ui_->endpoint.setReplacing(0, false);
+        QTest::mouseMove(ui_->window, ui_->center(bass));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(bass));
+        QCOMPARE(ui_->endpoint.calls.size(), beforeRelease);
+        ui_->endpoint.setOverviewStem(0, {});
+        QTRY_VERIFY(!drums->isVisible());
+        QVERIFY(vocals->isVisible());
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
+    void stemOverviewIsLabeledWithoutChangingNormalDeckOverview()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setOverviewStem(0, "drums");
+        auto* bank = ui_->item("deck0WaveformKind");
+        auto* normal = ui_->item("deck1WaveformKind");
+        QVERIFY(bank && normal);
+        QTRY_COMPARE(bank->property("text").toString(),
+                     QString("PREPARED STEMS · DRUMS WAVEFORM"));
+        QCOMPARE(normal->property("text").toString(), QString("LOCAL FILE"));
+        ui_->endpoint.setOverviewStem(0, {});
+        QTRY_COMPARE(bank->property("text").toString(), QString("LOCAL FILE"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
     void loadButtonRoutesLocalUrl()

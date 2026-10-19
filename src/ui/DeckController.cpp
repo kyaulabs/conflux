@@ -11,6 +11,8 @@
 #include <chrono>
 #include <cmath>
 #include <filesystem>
+#include <limits>
+#include <utility>
 #include <stdexcept>
 
 namespace conflux {
@@ -30,8 +32,46 @@ QVariantMap meterMap(const audio::RenderCore::StereoMeter& meter)
 }
 } // namespace
 
-DeckController::DeckController(QObject* parent) : QObject(parent)
+DeckController::PreparedPcm::PreparedPcm(audio::PreparedAudio audio)
 {
+    audioLeaves.push_back(std::move(audio));
+}
+
+DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> stems)
+{
+    const auto commonFrames = stems.front().frames();
+    if (!commonFrames || commonFrames > audio::PreparedAudio::defaultMaxPreparedBytes / 8)
+        throw std::invalid_argument("Invalid prepared stem geometry");
+    audioLeaves.reserve(stems.size());
+    for (auto& stem : stems) {
+        if (stem.frames() != commonFrames)
+            throw std::invalid_argument("Prepared stem frame counts differ");
+        audioLeaves.push_back(std::move(stem));
+    }
+}
+
+std::uint64_t DeckController::PreparedPcm::bytes() const noexcept
+{
+    return frames() * 8 * audioLeaves.size();
+}
+
+std::unique_ptr<audio::PreparedPlayback> DeckController::PreparedPcm::makePlayback() const
+{
+    if (!stemBank())
+        return std::make_unique<audio::PreparedPlayback>(audioLeaves.front().descriptor(), frames());
+    std::array<int, 4> descriptors{};
+    for (std::size_t stem = 0; stem < descriptors.size(); ++stem)
+        descriptors[stem] = audioLeaves[stem].descriptor();
+    return std::make_unique<audio::PreparedPlayback>(descriptors, frames());
+}
+
+DeckController::DeckController(QObject* parent) : DeckController(PreparationOptions{}, parent) {}
+
+DeckController::DeckController(PreparationOptions options, QObject* parent)
+    : QObject(parent), preparationOptions_(std::move(options))
+{
+    // Constructor validates caller-tightened limits without file/process work.
+    static_cast<void>(library::PreparedTrackStore(QStringLiteral("configuration"), preparationOptions_.limits));
     connect(&loader_, &QFutureWatcher<LoadResult>::finished, this, &DeckController::loaded);
     connect(&catalogJob_, &QFutureWatcher<CatalogResult>::finished, this, &DeckController::catalogFinished);
     connect(&installer_, &QFutureWatcher<std::shared_ptr<InstallResult>>::finished, this, &DeckController::installed);
@@ -78,11 +118,18 @@ void DeckController::shutdown()
     catalogJob_.waitForFinished();
     installer_.waitForFinished();
     retirer_.waitForFinished();
+    retiringPcmIdentity_ = nullptr;
+    retiringPcmBytes_ = 0;
+    installationPending_ = false;
     if (loader_.future().resultCount() > 0) {
         const auto loaded = loader_.result();
-        if (loaded.prepared && loaded.prepared->playback) {
+        if (loaded.prepared && (loaded.prepared->playback || loaded.prepared->audio)) {
             auto playback = std::move(loaded.prepared->playback);
-            auto cleanup = QtConcurrent::run([playback = std::move(playback)]() { playback->stop(); });
+            auto clip = std::move(loaded.prepared->audio);
+            auto cleanup = QtConcurrent::run([playback = std::move(playback), clip = std::move(clip)]() mutable {
+                playback.reset();
+                clip.reset();
+            });
             cleanup.waitForFinished();
         }
     }
@@ -133,6 +180,10 @@ QVariantList DeckController::decks() const
             {"replacing", replacing_[deck]},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
+            {"overviewStem", clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
+            {"stemBank", state_.stemBank[deck]},
+            {"stemGains", QVariantList{state_.stemGain[deck][0], state_.stemGain[deck][1],
+                                       state_.stemGain[deck][2], state_.stemGain[deck][3]}},
             {"playing", state_.playing[deck]},
             {"cueSelected", state_.cueSelected[deck]},
             {"meter", meterMap(state_.meters.deck[deck])},
@@ -188,13 +239,42 @@ void DeckController::fail(const QString& error)
     emit stateChanged();
 }
 
+std::uint64_t DeckController::retainedPcmBytes() const
+{
+    std::array<std::pair<const PreparedPcm*, std::uint64_t>, 5> owners{};
+    std::size_t count = 0;
+    for (const auto& clip : clips_)
+        if (clip) owners[count++] = {clip.get(), clip->bytes()};
+    if (pendingLoad_ && pendingLoad_->audio)
+        owners[count++] = {pendingLoad_->audio.get(), pendingLoad_->audio->bytes()};
+    if (loader_.future().resultCount() > 0) {
+        const auto result = loader_.result();
+        if (result.prepared && result.prepared->audio)
+            owners[count++] = {result.prepared->audio.get(), result.prepared->audio->bytes()};
+    }
+    if (retiringPcmIdentity_) owners[count++] = {retiringPcmIdentity_, retiringPcmBytes_};
+    std::uint64_t total = 0;
+    for (std::size_t index = 0; index < count; ++index) {
+        bool duplicate = false;
+        for (std::size_t previous = 0; previous < index; ++previous)
+            duplicate |= owners[previous].first == owners[index].first;
+        if (duplicate) continue;
+        if (owners[index].second > std::numeric_limits<std::uint64_t>::max() - total)
+            return std::numeric_limits<std::uint64_t>::max();
+        total += owners[index].second;
+    }
+    return total;
+}
+
 QVariantMap DeckController::preparation() const
 {
     const bool idle = preparationStatus_ == "Idle";
     return {{"status", preparationStatus_}, {"deck", idle || pendingImport_ ? -1 : pendingDeck_},
             {"name", idle ? QString{} : pendingName_},
             {"cancellable", !closing_ && preparationStatus_ == "Preparing"},
-            {"cacheHit", preparationCacheHit_}};
+            {"cacheHit", preparationCacheHit_},
+            {"stems", !idle && pendingStems_},
+            {"retainedPcmBytes", QVariant::fromValue<qulonglong>(retainedPcmBytes())}};
 }
 
 QVariantList DeckController::libraryTracks() const { return libraryTracks_; }
@@ -241,6 +321,12 @@ void DeckController::importTrack(const QUrl& url)
 }
 
 void DeckController::loadLibraryTrack(int deck, const QString& sourceId)
+{ loadLibrary(deck, sourceId, false); }
+
+void DeckController::loadLibraryStemTrack(int deck, const QString& sourceId)
+{ loadLibrary(deck, sourceId, true); }
+
+void DeckController::loadLibrary(int deck, const QString& sourceId, bool stems)
 {
     if (closing_) return;
     if (!libraryReady_) {
@@ -254,7 +340,7 @@ void DeckController::loadLibraryTrack(int deck, const QString& sourceId)
         fail("This track is not in the local library.");
         return;
     }
-    beginPreparation(deck, QUrl::fromLocalFile(found->sourcePath), false, found->sourceSha256);
+    beginPreparation(deck, QUrl::fromLocalFile(found->sourcePath), false, found->sourceSha256, stems);
 }
 
 bool DeckController::cancelPreparation()
@@ -271,7 +357,11 @@ void DeckController::loadDeck(int deck, const QUrl& url)
     beginPreparation(deck, url, false);
 }
 
-void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly, const QString& expectedSource)
+void DeckController::loadStemDeck(int deck, const QUrl& url)
+{ beginPreparation(deck, url, false, {}, true); }
+
+void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly,
+                                      const QString& expectedSource, bool stems)
 {
     if (closing_)
         return;
@@ -288,6 +378,19 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
         fail("Enter an absolute local file path.");
         return;
     }
+    if (stems && !preparationOptions_.stemEngine) {
+        fail("Prepared stems require a configured local stem engine. Normal loading is available.");
+        return;
+    }
+    auto limits = preparationOptions_.limits;
+    const auto retained = retainedPcmBytes();
+    // Reserve all retained PCM, including still-linked owners. This intentionally
+    // double-counts linked active leaves, covering corrupt-entry unlink/rebuild.
+    if (retained >= limits.maxCacheBytes) {
+        fail("Retained playback leaves no local preparation byte budget.");
+        return;
+    }
+    limits.maxCacheBytes -= retained;
     pendingDeck_ = deck;
     const auto path = url.toLocalFile();
     pendingName_ = QFileInfo(path).fileName();
@@ -304,30 +407,42 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     preparationStatus_ = "Preparing";
     preparationCacheHit_ = false;
     pendingImport_ = importOnly;
-    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stop = loadCancellation_.get_token()]() -> LoadResult {
+    pendingStems_ = stems;
+    const auto engine = preparationOptions_.stemEngine;
+    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, limits,
+                                       stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
-            library::PreparedTrackStore store(cache);
-            auto track = store.prepare(path, stop);
-            if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
-            if (!expectedSource.isEmpty() && track.sourceSha256 != expectedSource)
-                throw std::runtime_error("Source changed; import this file again before loading its library entry.");
-            if (importOnly) {
-                library::LibraryTrack entry{track.sourceSha256, path, QFileInfo(path).fileName(),
-                    track.artifactKey, track.audio.frames(), true};
-                return {nullptr, {}, std::move(entry), track.cacheHit};
-            }
-            QVariantList waveform;
-            waveform.reserve(qsizetype(track.audio.peaks().size()));
-            for (const auto peak : track.audio.peaks()) waveform.append(peak);
+            library::PreparedTrackStore store(cache, limits);
             auto prepared = std::make_shared<PreparedLoad>();
-            prepared->cacheHit = track.cacheHit;
-            prepared->audio = std::make_shared<const audio::PreparedAudio>(std::move(track.audio));
-            prepared->waveform = std::move(waveform);
-            prepared->playback = std::make_unique<audio::PreparedPlayback>(prepared->audio->descriptor(), prepared->audio->frames());
+            QString sourceId;
+            if (stems) {
+                auto track = store.prepareStemBank(path, *engine, stop);
+                sourceId = track.sourceSha256;
+                prepared->cacheHit = track.cacheHit;
+                prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.stems));
+            } else {
+                auto track = store.prepare(path, stop);
+                sourceId = track.sourceSha256;
+                prepared->cacheHit = track.cacheHit;
+                if (importOnly) {
+                    if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
+                    library::LibraryTrack entry{track.sourceSha256, path, QFileInfo(path).fileName(),
+                        track.artifactKey, track.audio.frames(), true};
+                    return {nullptr, {}, std::move(entry), track.cacheHit};
+                }
+                prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));
+            }
+            if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
+            if (!expectedSource.isEmpty() && sourceId != expectedSource)
+                throw std::runtime_error("Source changed; import this file again before loading its library entry.");
+            prepared->waveform.reserve(qsizetype(prepared->audio->peaks().size()));
+            for (const auto peak : prepared->audio->peaks()) prepared->waveform.append(peak);
+            prepared->playback = prepared->audio->makePlayback();
             if (!prepared->playback->prime(0, std::chrono::seconds(2)))
                 throw std::runtime_error("Cannot prime the prepared track: " + prepared->playback->error());
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
-            return {std::move(prepared), {}, {}, track.cacheHit};
+            const auto hit = prepared->cacheHit;
+            return {std::move(prepared), {}, {}, hit};
         } catch (const std::exception& error) {
             return {{}, QString::fromUtf8(error.what()), {}, false};
         } catch (...) {
@@ -377,7 +492,7 @@ void DeckController::loaded()
         error_.clear();
         preparationCacheHit_ = false;
         std::unique_ptr<audio::PreparedPlayback> playback;
-        std::shared_ptr<const audio::PreparedAudio> clip;
+        std::shared_ptr<const PreparedPcm> clip;
         if (result.prepared) {
             playback = std::move(result.prepared->playback);
             clip = std::move(result.prepared->audio);
@@ -426,7 +541,8 @@ void DeckController::loaded()
     }
     stopSession();
     // No callback can refer to the old owner after stopSession returns.
-    clips_[pendingDeck_] = result.prepared->audio;
+    auto oldClip = std::move(clips_[pendingDeck_]);
+    clips_[pendingDeck_] = std::move(result.prepared->audio);
     names_[pendingDeck_] = pendingName_;
     waveforms_[pendingDeck_] = result.prepared->waveform;
     state_.sourceFrame[pendingDeck_] = 0;
@@ -435,16 +551,19 @@ void DeckController::loaded()
     state_.buffering[pendingDeck_] = state_.sourceReadError[pendingDeck_] = false;
     state_.sourceReadErrorObserved[pendingDeck_] = false;
     state_.starvedFrames[pendingDeck_] = 0;
-    state_.sourceFrames[pendingDeck_] = result.prepared->audio->frames();
+    state_.sourceFrames[pendingDeck_] = clips_[pendingDeck_]->frames();
+    state_.stemBank[pendingDeck_] = clips_[pendingDeck_]->stemBank();
+    state_.stemGain[pendingDeck_].fill(state_.stemBank[pendingDeck_] ? 1.0F : 0.0F);
     state_.sourceGeneration[pendingDeck_] = 0;
     state_.playing[pendingDeck_] = false;
     state_.deckGain[pendingDeck_] = 1.0F;
     state_.cueSelected[pendingDeck_] = false;
-    installSession();
+    installSession(std::move(oldClip));
 }
 
-void DeckController::installSession()
+void DeckController::installSession(std::shared_ptr<const PreparedPcm> retiredClip)
 {
+    installationPending_ = true;
     audio::LiveSession::InitialState initial;
     initial.sourceFrame = state_.sourceFrame;
     initial.cueFrame = state_.cueFrame;
@@ -453,6 +572,8 @@ void DeckController::installSession()
     initial.masterGain = state_.masterGain;
     initial.cueSelected = state_.cueSelected;
     initial.cueGain = state_.cueGain;
+    for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck)
+        if (state_.stemBank[deck]) initial.stemGain[deck] = state_.stemGain[deck];
     // Capture the exact quiesced cursor first. Priming can involve slow storage,
     // so keep the installing stage busy and construct its readers off the GUI.
     std::unique_ptr<audio::PreparedPlayback> unusedPlayback;
@@ -464,8 +585,10 @@ void DeckController::installSession()
             // First-load/reconfiguration constructors prime their own readers.
             // Dispose of an unused candidate on this same worker, not the GUI.
             unusedPlayback.reset();
-            result->session = std::make_unique<audio::LiveSession>(
-                audio::LiveSession::PreparedSources{clips[0].get(), clips[1].get()}, initial);
+            audio::LiveSession::PlaybackSources playbacks;
+            for (std::size_t deck = 0; deck < clips.size(); ++deck)
+                if (clips[deck]) playbacks[deck] = clips[deck]->makePlayback();
+            result->session = std::make_unique<audio::LiveSession>(std::move(playbacks), initial);
         } catch (const std::exception& error) {
             result->error = QString::fromUtf8(error.what());
         } catch (...) {
@@ -473,6 +596,7 @@ void DeckController::installSession()
         }
         return result;
     }));
+    if (retiredClip) retirePlayback({}, std::move(retiredClip));
     emit stateChanged();
 }
 
@@ -496,7 +620,7 @@ void DeckController::collectReplacement()
         pendingRetired_ = std::move(result->retiredPlayback);
         replacementAcknowledged_ = true;
     } else {
-        auto clip = pendingLoad_ ? pendingLoad_->audio : nullptr;
+        auto clip = pendingLoad_ ? std::move(pendingLoad_->audio) : nullptr;
         pendingLoad_.reset();
         replacing_[pendingDeck_] = false;
         replacementPublished_ = replacementAcknowledged_ = false;
@@ -514,7 +638,7 @@ void DeckController::settleReplacement(bool stopped)
     if (!replacing_[pendingDeck_] || !pendingLoad_) return;
     if (!replacementPublished_ && stopped) {
         auto playback = std::move(pendingLoad_->playback);
-        auto clip = pendingLoad_->audio;
+        auto clip = std::move(pendingLoad_->audio);
         pendingLoad_.reset();
         replacing_[pendingDeck_] = false;
         pendingGeneration_ = 0;
@@ -525,7 +649,7 @@ void DeckController::settleReplacement(bool stopped)
     }
     if (!replacementAcknowledged_ || state_.sourceGeneration[pendingDeck_] != pendingGeneration_) return;
     auto oldClip = std::move(clips_[pendingDeck_]);
-    clips_[pendingDeck_] = pendingLoad_->audio;
+    clips_[pendingDeck_] = std::move(pendingLoad_->audio);
     names_[pendingDeck_] = pendingName_;
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     pendingLoad_.reset();
@@ -538,9 +662,11 @@ void DeckController::settleReplacement(bool stopped)
 }
 
 void DeckController::retirePlayback(std::unique_ptr<audio::PreparedPlayback> playback,
-                                std::shared_ptr<const audio::PreparedAudio> clip)
+                                std::shared_ptr<const PreparedPcm> clip)
 {
     if (!playback && !clip) { retired(); return; }
+    retiringPcmIdentity_ = clip.get();
+    retiringPcmBytes_ = clip ? clip->bytes() : 0;
     retirer_.setFuture(QtConcurrent::run([playback = std::move(playback), clip = std::move(clip)]() mutable {
         playback.reset(); // stop/join and close every duplicated FD on this worker
         clip.reset();
@@ -549,7 +675,11 @@ void DeckController::retirePlayback(std::unique_ptr<audio::PreparedPlayback> pla
 
 void DeckController::retired()
 {
-    if (!retirer_.isRunning() && !pendingLoad_ &&
+    if (!retirer_.isRunning()) {
+        retiringPcmIdentity_ = nullptr;
+        retiringPcmBytes_ = 0;
+    }
+    if (!retirer_.isRunning() && !installationPending_ && !pendingLoad_ &&
         !replacing_[0] && !replacing_[1]) {
         busy_ = false;
         if (preparationStatus_ == "Cancelling") preparationStatus_ = "Cancelled";
@@ -562,9 +692,14 @@ void DeckController::installed()
 {
     if (closing_) return;
     const auto result = installer_.result();
-    busy_ = false;
+    installationPending_ = false;
+    busy_ = retirer_.isRunning();
+    if (!busy_) {
+        retiringPcmIdentity_ = nullptr;
+        retiringPcmBytes_ = 0;
+    }
     const bool installingPreparation = preparationStatus_ == "Installing";
-    if (installingPreparation) preparationStatus_ = "Complete";
+    if (installingPreparation && !busy_) preparationStatus_ = "Complete";
     if (!result->session) {
         if (installingPreparation) preparationStatus_ = "Failed";
         recordingStopRequested_ = true;
@@ -768,6 +903,22 @@ void DeckController::setDeckGain(int deck, double gain)
     audio::RenderCore::Command command;
     command.type = audio::RenderCore::Command::Type::DeckGain;
     command.deck = std::uint32_t(deck);
+    command.gain = float(gain);
+    submit(command);
+}
+
+void DeckController::setStemGain(int deck, int stem, double gain)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || !clips_[deck]->stemBank() ||
+        stem < 0 || stem >= int(audio::RenderCore::stemCount) ||
+        !std::isfinite(gain) || gain < 0 || gain > 1) {
+        fail("Stem gain must be between zero and one for a loaded stem bank.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::StemGain;
+    command.deck = std::uint32_t(deck);
+    command.stem = std::uint32_t(stem);
     command.gain = float(gain);
     submit(command);
 }

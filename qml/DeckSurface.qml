@@ -128,7 +128,9 @@ Item {
         Label {
             x: 14
             y: 12
-            text: surface.deck.loaded ? "LOCAL FILE" : "NO TRACK LOADED"
+            objectName: "deck" + surface.deckIndex + "WaveformKind"
+            text: !surface.deck.loaded ? "NO TRACK LOADED"
+                  : surface.deck.overviewStem === "drums" ? "PREPARED STEMS · DRUMS WAVEFORM" : "LOCAL FILE"
             color: surface.displayAccent
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 10
@@ -268,7 +270,8 @@ Item {
             x: 14
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
-            text: surface.cachedWaveform.length ? "OVERVIEW · SOURCE PEAK" : "NO OVERVIEW"
+            text: !surface.cachedWaveform.length ? "NO OVERVIEW"
+                  : surface.deck.overviewStem === "drums" ? "OVERVIEW · DRUMS PEAK" : "OVERVIEW · SOURCE PEAK"
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 8
@@ -312,7 +315,7 @@ Item {
     Label {
         x: surface.edge
         y: surface.hotCueTop - 16
-        text: "HOT CUE"
+        text: surface.deck.stemBank ? "STEM LEVELS" : "HOT CUE"
         font.family: Brand.ConfluxTheme.displayFont
         font.pixelSize: 10
         font.letterSpacing: 1
@@ -321,6 +324,80 @@ Item {
     Row {
         x: surface.edge
         y: surface.hotCueTop
+        visible: Boolean(surface.deck.loaded) && Boolean(surface.deck.stemBank)
+        spacing: 5
+        Repeater {
+            model: ["DRUMS", "BASS", "OTHER", "VOCALS"]
+            Slider {
+                id: stemLevel
+                required property int index
+                required property string modelData
+                objectName: "deck" + surface.deckIndex + "Stem" + index + "Gain"
+                width: (surface.width - 2 * surface.edge - 15) / 4
+                height: 44
+                leftPadding: 7
+                rightPadding: 7
+                topPadding: 0
+                bottomPadding: 0
+                from: 0
+                to: 1
+                stepSize: 0.01
+                enabled: surface.canControl
+                Accessible.name: surface.deckName + " " + modelData.toLowerCase() + " stem gain"
+                Accessible.description: "Level from zero to one. Muted stems keep the shared track position."
+                onMoved: if (surface.canControl && surface.deck.stemBank)
+                             surface.controller.setStemGain(surface.deckIndex, index, value)
+                Binding {
+                    target: stemLevel
+                    property: "value"
+                    value: surface.deck.stemGains && surface.deck.stemGains.length === 4
+                           ? Number(surface.deck.stemGains[stemLevel.index]) : 1
+                    when: !stemLevel.pressed
+                    restoreMode: Binding.RestoreNone
+                }
+                background: Item {
+                    x: stemLevel.leftPadding
+                    width: stemLevel.availableWidth
+                    height: stemLevel.height
+                    Label {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        y: 1
+                        text: stemLevel.modelData + " " + Math.round(stemLevel.value * 100) + "%"
+                        font.family: Brand.ConfluxTheme.monoFont
+                        font.pixelSize: 9
+                        color: stemLevel.enabled ? Brand.ConfluxTheme.text : Brand.ConfluxTheme.muted
+                    }
+                    Rectangle {
+                        y: 30
+                        width: parent.width
+                        height: 4
+                        color: Brand.ConfluxTheme.divider
+                        Rectangle {
+                            width: stemLevel.visualPosition * parent.width
+                            height: parent.height
+                            color: surface.deckColor
+                            opacity: stemLevel.enabled ? 1 : 0.4
+                        }
+                    }
+                }
+                handle: Rectangle {
+                    x: stemLevel.leftPadding + stemLevel.visualPosition * (stemLevel.availableWidth - width)
+                    y: 23
+                    width: 10
+                    height: 18
+                    radius: 2
+                    color: Brand.ConfluxTheme.raised
+                    border.width: 2
+                    border.color: stemLevel.activeFocus ? Brand.ConfluxTheme.primary : surface.deckColor
+                    opacity: stemLevel.enabled ? 1 : 0.4
+                }
+            }
+        }
+    }
+    Row {
+        x: surface.edge
+        y: surface.hotCueTop
+        visible: !Boolean(surface.deck.stemBank)
         spacing: 5
         Repeater {
             model: 8
