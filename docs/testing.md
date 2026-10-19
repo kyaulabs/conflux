@@ -63,19 +63,19 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 library measurement](benchmarks/data/m2-library-2026-10-18/coverage.json)
-passed 24/24 CTest entries, the offscreen smoke, 82 private-routing checks and
+The [M2 float-conversion measurement](benchmarks/data/m2-stem-float-2026-10-18/coverage.json)
+passed 26/26 CTest entries, the offscreen smoke, 82 private-routing checks and
 30 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 3,104 / 3,939 (78.80%) | 3,593 / 7,222 (49.75%) |
-| Python `tools/stems/` | 387 / 416 (93.03%) | 88 / 110 (80.00%) |
+| C++ `src/` | 3,459 / 4,320 (80.07%) | 3,948 / 7,854 (50.27%) |
+| Python `tools/stems/` | 452 / 481 (93.97%) | 111 / 136 (81.62%) |
 
-The C++ line target remains unmet, up from 73.74% in the
+Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
 [initial baseline](benchmarks/data/coverage-baseline-2026-10-18.json). Its largest
-uncovered areas are the standalone probe and controller. Core render tests
+uncovered areas remain the standalone probe and controller. Core render tests
 cover every reported render-core line, including transport, mixing and ramps;
 that narrower result does not replace the full C++ denominator. Coverage
 counts depend on the compiler and configuration, so compare results with their

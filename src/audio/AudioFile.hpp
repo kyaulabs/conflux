@@ -59,6 +59,8 @@ private:
                                           const std::filesystem::path&);
     friend PreparedAudio prepareAudioFile(int, std::size_t, std::stop_token, const std::filesystem::path&);
     friend PreparedAudio reopenPreparedAudio(int, std::uint64_t, std::span<const float>, std::size_t);
+    friend PreparedAudio prepareStemOutput(int, std::uint64_t, std::size_t, std::stop_token,
+                                            const std::filesystem::path&);
 };
 
 PreparedAudio prepareAudioFile(const std::filesystem::path& path,
@@ -78,5 +80,41 @@ PreparedAudio prepareAudioFile(int sourceDescriptor,
 // before handing it to a reader; the caller retains its original descriptor.
 PreparedAudio reopenPreparedAudio(int pcmDescriptor, std::uint64_t frames,
     std::span<const float> peaks, std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes);
+
+// Anonymous separator wire input, always stereo IEEE float32 little-endian at
+// 44100 Hz. It is distinct from native-endian 48000 Hz PreparedAudio playback.
+class PreparedStemInput {
+public:
+    static constexpr std::uint32_t sampleRate = 44100;
+    static constexpr std::uint32_t channels = 2;
+    static constexpr std::size_t defaultMaxPreparedBytes = PreparedAudio::defaultMaxPreparedBytes;
+    ~PreparedStemInput();
+    PreparedStemInput(PreparedStemInput&&) noexcept;
+    PreparedStemInput& operator=(PreparedStemInput&&) noexcept;
+    PreparedStemInput(const PreparedStemInput&) = delete;
+    PreparedStemInput& operator=(const PreparedStemInput&) = delete;
+    [[nodiscard]] int descriptor() const noexcept { return descriptor_; }
+    [[nodiscard]] std::uint64_t frames() const noexcept { return frames_; }
+private:
+    explicit PreparedStemInput(int descriptor) noexcept;
+    int descriptor_ = -1;
+    std::uint64_t frames_ = 0;
+    friend PreparedStemInput prepareStemInput(int, std::size_t, std::stop_token,
+                                               const std::filesystem::path&);
+};
+
+// Borrow the original regular source FD. Decode directly to the separator's
+// rate, preserving float headroom; no PCM16 or intermediate 48000 Hz source.
+// The worker owns decoding exclusively: the CLOEXEC duplicate shares offset,
+// is rewound before decoding, and never closes the caller's FD. Hash via pread.
+PreparedStemInput prepareStemInput(int originalSourceDescriptor,
+    std::size_t maximumBytes = PreparedStemInput::defaultMaxPreparedBytes, std::stop_token stop = {},
+    const std::filesystem::path& spoolDirectory = {});
+
+// Borrow exact frames*8 raw F32LE stereo bytes at 44100 Hz; reject malformed or
+// nonfinite data and convert once to the existing 48000 Hz playback contract.
+PreparedAudio prepareStemOutput(int rawDescriptor, std::uint64_t frames,
+    std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes, std::stop_token stop = {},
+    const std::filesystem::path& spoolDirectory = {});
 
 } // namespace conflux::audio

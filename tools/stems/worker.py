@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Experimental M0 supervisor; never call from the audio callback.
 
-One background thread streams stereo 44.1 kHz PCM16 WAV input to one persistent
-native separator. Cancellation invalidates work immediately; an in-flight GPU
+One background thread streams stereo 44.1 kHz PCM16 WAV or raw F32LE input to one
+persistent native separator. Cancellation invalidates work immediately; an in-flight GPU
 request finishes and is discarded. Timeout/close can terminate the child. Output
 is bounded, source-major float32 [stem, frame, channel]. NumPy is required only
 for this isolated experiment, not the application build.
@@ -18,6 +18,7 @@ import math
 import os
 from pathlib import Path
 import selectors
+import stat
 import subprocess
 import tempfile
 import threading
@@ -148,6 +149,7 @@ class _Command:
     path: Path
     start: int
     issued: float
+    source_format: str = "wav_pcm16"
 
 
 @dataclass(frozen=True)
@@ -158,6 +160,7 @@ class _Source:
     frames: int
     mean: np.float32
     std: np.float32
+    source_format: str = "wav_pcm16"
 
 
 class _Superseded(Exception):
@@ -167,6 +170,23 @@ class _Superseded(Exception):
 def _signature(path):
     info = path.stat()
     return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+
+def _open_f32(path, expected_signature):
+    """Open only the captured regular stereo F32LE source; never block on a FIFO."""
+    descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW)
+    try:
+        info = os.fstat(descriptor)
+        if not stat.S_ISREG(info.st_mode) or info.st_size <= 0 or info.st_size % (CHANNELS * 4):
+            raise ValueError("F32LE source must be a nonempty regular file of complete stereo frames")
+        observed = (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        if observed != expected_signature:
+            raise RuntimeError("stem source changed while opening F32LE input")
+        return os.fdopen(descriptor, "rb")
+    except BaseException:
+        with suppress(OSError):
+            os.close(descriptor)
+        raise
 
 
 class StemWorker:
@@ -197,6 +217,7 @@ class StemWorker:
         self._generation = 0
         self._command = None
         self._path = None
+        self._source_format = "wav_pcm16"
         self._source_id = None
         self._requested_start = 0
         self._next_consume = 0
@@ -220,7 +241,7 @@ class StemWorker:
         self._thread = threading.Thread(target=self._run, name="conflux-stem-worker", daemon=True)
         self._thread.start()
 
-    def _control(self, action, path=None, start=0):
+    def _control(self, action, path=None, start=0, source_format=None):
         if isinstance(start, bool) or not isinstance(start, int) or start < 0:
             raise ValueError("frame must be a nonnegative integer")
         with self._condition:
@@ -228,6 +249,7 @@ class StemWorker:
                 raise RuntimeError("stem worker is closed")
             if path is not None:
                 self._path = Path(path).absolute()
+                self._source_format = source_format or "wav_pcm16"
             if action != "cancel" and self._path is None:
                 raise RuntimeError("load a source before seeking")
             self._generation += 1
@@ -235,7 +257,7 @@ class StemWorker:
                 self._cancelled += 1
             now = time.monotonic()
             self._command = None if action == "cancel" else _Command(
-                self._generation, self._path, start, now)
+                self._generation, self._path, start, now, self._source_format)
             self._source_id = None
             self._requested_start = start
             self._next_consume = start
@@ -246,7 +268,11 @@ class StemWorker:
             return self._generation
 
     def load(self, path, start_frame=0):
-        return self._control("load", path, start_frame)
+        return self._control("load", path, start_frame, "wav_pcm16")
+
+    def load_f32(self, path, start_frame=0):
+        """Load local raw little-endian float32 stereo at 44100 Hz; do not clip headroom."""
+        return self._control("load", path, start_frame, "f32le")
 
     def seek(self, frame):
         return self._control("seek", start=frame)
@@ -381,26 +407,41 @@ class StemWorker:
         signature = _signature(command.path)
         cached = self._cached_source
         started = time.monotonic()
-        if cached is not None and cached.path == command.path and cached.signature == signature:
+        if (cached is not None and cached.path == command.path and cached.signature == signature
+                and cached.source_format == command.source_format):
             source = cached
             reused = True
         else:
             # Both passes are bounded; never retain an entire track or its stems.
+            raw_float = command.source_format == "f32le"
             digest = hashlib.sha256()
-            with command.path.open("rb") as stream:
+            opened = _open_f32(command.path, signature) if raw_float else command.path.open("rb")
+            with opened as stream:
                 while block := stream.read(1024 * 1024):
                     self._check(command)
                     digest.update(block)
             count, mean, m2 = 0, 0.0, 0.0
-            with wave.open(str(command.path), "rb") as stream:
-                if (stream.getparams()[:3] != (CHANNELS, 2, RATE)
-                        or stream.getcomptype() != "NONE" or stream.getnframes() < 1):
-                    raise ValueError("M0 source must be nonempty stereo 44.1 kHz PCM16 WAV")
-                frames = stream.getnframes()
-                while data := stream.readframes(65536):
+            opened = _open_f32(command.path, signature) if raw_float else wave.open(str(command.path), "rb")
+            with opened as stream:
+                if raw_float:
+                    frames = os.fstat(stream.fileno()).st_size // (CHANNELS * 4)
+                else:
+                    if (stream.getparams()[:3] != (CHANNELS, 2, RATE)
+                            or stream.getcomptype() != "NONE" or stream.getnframes() < 1):
+                        raise ValueError("M0 source must be nonempty stereo 44.1 kHz PCM16 WAV")
+                    frames = stream.getnframes()
+                while data := (stream.read(65536 * CHANNELS * 4) if raw_float else stream.readframes(65536)):
                     self._check(command)
-                    pcm = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS)
-                    mono = pcm.astype(np.float64).mean(axis=1) / 32768.0
+                    if raw_float:
+                        if len(data) % (CHANNELS * 4):
+                            raise RuntimeError("stem source changed or was truncated during preparation")
+                        pcm = np.frombuffer(data, dtype="<f4").reshape(-1, CHANNELS)
+                        if not np.isfinite(pcm).all():
+                            raise ValueError("F32LE source contains non-finite samples")
+                        mono = pcm.astype(np.float64).mean(axis=1)
+                    else:
+                        pcm = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS)
+                        mono = pcm.astype(np.float64).mean(axis=1) / 32768.0
                     size = mono.size
                     average = float(mono.mean())
                     delta = average - mean
@@ -409,8 +450,17 @@ class StemWorker:
                     count += size
             if count != frames or _signature(command.path) != signature:
                 raise RuntimeError("stem source changed or was truncated during preparation")
+            if raw_float:
+                with np.errstate(over="ignore", invalid="ignore"):
+                    canonical_mean = np.float32(mean)
+                    canonical_std = np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8)
+                if not np.isfinite(canonical_mean) or not np.isfinite(canonical_std) or canonical_std <= 0:
+                    raise ValueError("F32LE source normalization is non-finite")
+            else:
+                canonical_mean = np.float32(mean)
+                canonical_std = np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8)
             source = _Source(command.path, signature, digest.hexdigest(), frames,
-                             np.float32(mean), np.float32(math.sqrt(m2 / max(1, count - 1)) + 1e-8))
+                             canonical_mean, canonical_std, command.source_format)
             self._cached_source = source
             reused = False
         self._check(command)
@@ -420,6 +470,7 @@ class StemWorker:
             self._source_id = source.identity
             self._emit_locked("source_ready", command.generation, source_id=source.identity,
                               source_frames=source.frames, source_path=str(source.path),
+                              source_format=source.source_format,
                               mean=float(source.mean), std=float(source.std), reused=reused,
                               preparation_ms=(time.monotonic() - started) * 1000)
         return source
@@ -428,16 +479,36 @@ class StemWorker:
         if _signature(source.path) != source.signature:
             raise RuntimeError("stem source changed after preparation")
         samples = np.zeros((WINDOW, CHANNELS), dtype=np.float32)
-        with wave.open(str(source.path), "rb") as stream:
-            stream.setpos(start)
-            data = stream.readframes(min(WINDOW, source.frames - start))
-        count = len(data) // (2 * CHANNELS)
+        raw_float = source.source_format == "f32le"
+        if raw_float:
+            with _open_f32(source.path, source.signature) as stream:
+                stream.seek(start * CHANNELS * 4)
+                data = stream.read(min(WINDOW, source.frames - start) * CHANNELS * 4)
+            count = len(data) // (4 * CHANNELS)
+        else:
+            with wave.open(str(source.path), "rb") as stream:
+                stream.setpos(start)
+                data = stream.readframes(min(WINDOW, source.frames - start))
+            count = len(data) // (2 * CHANNELS)
         if count != min(WINDOW, source.frames - start) or _signature(source.path) != source.signature:
             raise RuntimeError("stem source changed or was truncated while reading")
         # Normalize valid audio before zero-padding, matching the native session.
-        samples[:count] = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS).astype(np.float32) / 32768
-        samples[:count] -= source.mean
-        samples[:count] /= source.std
+        if raw_float:
+            samples[:count] = np.frombuffer(data, dtype="<f4").reshape(-1, CHANNELS)
+            if not np.isfinite(samples[:count]).all():
+                raise ValueError("F32LE source contains non-finite samples")
+            try:
+                with np.errstate(over="raise", invalid="raise", divide="raise"):
+                    samples[:count] -= source.mean
+                    samples[:count] /= source.std
+            except FloatingPointError as error:
+                raise ValueError("F32LE source normalization produced non-finite samples") from error
+            if not np.isfinite(samples[:count]).all():
+                raise ValueError("F32LE source normalization produced non-finite samples")
+        else:
+            samples[:count] = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS).astype(np.float32) / 32768
+            samples[:count] -= source.mean
+            samples[:count] /= source.std
         return samples
 
     def _produce(self, command, source):
@@ -502,6 +573,8 @@ class StemWorker:
             # audio.cpp restores the track-wide mono mean to EACH source.
             hop *= source.std
             hop += source.mean
+            if not np.isfinite(hop).all():
+                raise RuntimeError("stem reconstruction contains non-finite samples")
             trim = max(0, command.start - start)
             hop = hop[:, trim:].copy()
             ready = time.monotonic()
@@ -509,6 +582,7 @@ class StemWorker:
                      "timestamp": ready, "ready_at": ready, "request_id": request_id,
                      "source_id": source.identity, "source_frames": source.frames,
                      "model_id": self._model_id, "frame_start": start + trim,
+                     "source_format": source.source_format,
                      "window_start_frame": start, "frames": hop.shape[1],
                      "sample_rate": RATE, "channels": CHANNELS, "stems": STEMS,
                      "samples": hop, "request_ms": elapsed, "metrics": metrics,

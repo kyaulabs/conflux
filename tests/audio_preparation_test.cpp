@@ -20,6 +20,7 @@
 #include <stop_token>
 #include <string>
 #include <thread>
+#include <type_traits>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -31,6 +32,13 @@
 namespace {
 using conflux::audio::PreparedAudio;
 using conflux::audio::prepareAudioFile;
+using conflux::audio::PreparedStemInput;
+using conflux::audio::prepareStemInput;
+using conflux::audio::prepareStemOutput;
+static_assert(!std::is_copy_constructible_v<PreparedStemInput> &&
+              !std::is_copy_assignable_v<PreparedStemInput> &&
+              std::is_nothrow_move_constructible_v<PreparedStemInput> &&
+              std::is_nothrow_move_assignable_v<PreparedStemInput>);
 
 class TemporaryDirectory {
 public:
@@ -337,6 +345,222 @@ bool ownershipAndFailures(const std::filesystem::path& directory)
     return passed;
 }
 
+class InputFD {
+public:
+    explicit InputFD(const std::filesystem::path& path, int flags = O_RDONLY | O_CLOEXEC)
+        : value(open(path.c_str(), flags))
+    { if (value < 0) throw std::runtime_error("Cannot open conversion fixture"); }
+    ~InputFD() { close(value); }
+    InputFD(const InputFD&) = delete;
+    InputFD& operator=(const InputFD&) = delete;
+    int value;
+};
+
+void rawFloatFile(const std::filesystem::path& path, std::span<const float> samples)
+{
+    std::ofstream file(path, std::ios::binary);
+    std::vector<char> bytes;
+    bytes.reserve(samples.size_bytes());
+    for (const auto sample : samples) append32(bytes, std::bit_cast<std::uint32_t>(sample));
+    file.write(bytes.data(), bytes.size());
+    file.close();
+    if (!file) throw std::runtime_error("Cannot write raw F32LE fixture");
+}
+
+// Decode wire bytes independently of host endianness or libsndfile.
+void readLittleEndian(int fd, std::span<float> samples)
+{
+    std::vector<unsigned char> bytes(samples.size_bytes());
+    std::size_t offset = 0;
+    while (offset < bytes.size()) {
+        const auto got = pread(fd, bytes.data() + offset, bytes.size() - offset, off_t(offset));
+        if (got < 0 && errno == EINTR) continue;
+        if (got <= 0) throw std::runtime_error("Raw F32LE fixture ended unexpectedly");
+        offset += std::size_t(got);
+    }
+    for (std::size_t sample = 0; sample < samples.size(); ++sample) {
+        std::uint32_t bits = 0;
+        for (std::size_t byte = 0; byte < 4; ++byte)
+            bits |= std::uint32_t(bytes[sample * 4 + byte]) << (byte * 8);
+        samples[sample] = std::bit_cast<float>(bits);
+    }
+}
+
+bool stemInputExactAndOwnership(const std::filesystem::path& directory)
+{
+    const auto source = directory / "stem-input-44100.wav";
+    const auto spool = directory / "stem-input-spool";
+    constexpr std::array<float, 12> values{1.5F, -1.25F, -0.F, .0625F,
+        .000003814697265625F, 2.25F, -.75F, .125F, .5F, -.25F, 1.75F, -2.F};
+    floatWave(source, 2, 44100, values.size() / 2);
+    for (std::size_t sample = 0; sample < values.size(); ++sample) setSample(source, sample, values[sample]);
+    InputFD input(source);
+    bool passed = true;
+    int finalFD = -1;
+    {
+        auto first = prepareStemInput(input.value, values.size() * sizeof(float), {}, spool);
+        struct stat status{};
+        passed &= require(PreparedStemInput::sampleRate == 44100 && PreparedStemInput::channels == 2 &&
+            first.frames() == values.size() / 2 && fstat(first.descriptor(), &status) == 0 &&
+            S_ISREG(status.st_mode) && status.st_nlink == 0 && status.st_size == off_t(values.size() * sizeof(float)) &&
+            (fcntl(first.descriptor(), F_GETFD) & FD_CLOEXEC) && std::filesystem::is_empty(spool),
+            "Stem input is not exact anonymous stereo44100 F32LE");
+        std::array<float, values.size()> observed{};
+        readLittleEndian(first.descriptor(), observed);
+        passed &= require(std::equal(values.begin(), values.end(), observed.begin(), [](float a, float b) {
+            return std::bit_cast<std::uint32_t>(a) == std::bit_cast<std::uint32_t>(b);
+        }), "44100Hz direct input lost headroom, channel order, signed zero or exactfloat bits");
+        const auto oldFD = first.descriptor();
+        PreparedStemInput moved(std::move(first));
+        passed &= require(first.descriptor() == -1 && moved.descriptor() == oldFD,
+                          "Stem input move construction retained duplicate ownership");
+        auto second = prepareStemInput(input.value);
+        finalFD = second.descriptor();
+        moved = std::move(second);
+        passed &= require(second.descriptor() == -1 && moved.descriptor() == finalFD && closed(oldFD),
+                          "Stem input move assignment leaked its previous descriptor");
+    }
+    passed &= require(closed(finalFD) && fcntl(input.value, F_GETFD) >= 0,
+                      "Stem input destruction leaked its FD or closed the borrowed original");
+    const auto mono = directory / "stem-mono-44100.wav";
+    floatWave(mono, 1, 44100, 3);
+    setSample(mono, 0, 1.75F); setSample(mono, 1, -.125F); setSample(mono, 2, .000003814697265625F);
+    InputFD monoFD(mono);
+    auto duplicated = prepareStemInput(monoFD.value, 24);
+    std::array<float, 6> stereo{};
+    readLittleEndian(duplicated.descriptor(), stereo);
+    passed &= require(duplicated.frames() == 3 && stereo == std::array<float, 6>{1.75F, 1.75F, -.125F, -.125F,
+        .000003814697265625F, .000003814697265625F}, "Mono separator input did not map to identical stereo44100 samples");
+    return passed;
+}
+
+bool stemInputRateAndBudget(const std::filesystem::path& directory)
+{
+    const auto source = directory / "stem-input-48000.wav";
+    floatWave(source, 2, 48000, 48000);
+    std::fstream file(source, std::ios::binary | std::ios::in | std::ios::out);
+    file.seekp(44);
+    for (std::size_t first = 0; first < 48000;) {
+        const auto count = std::min<std::size_t>(4096, 48000 - first);
+        std::vector<char> bytes;
+        for (std::size_t index = 0; index < count; ++index) {
+            const double phase = 2 * std::numbers::pi * 375 * (first + index) / 48000.0;
+            append32(bytes, std::bit_cast<std::uint32_t>(float(1.5 * std::sin(phase))));
+            append32(bytes, std::bit_cast<std::uint32_t>(float(-.75 * std::cos(phase))));
+        }
+        file.write(bytes.data(), bytes.size()); first += count;
+    }
+    file.close();
+    if (!file) throw std::runtime_error("Cannot write48000Hz separator input fixture");
+    InputFD input(source);
+    // The existing sinc converter may emit one frame beyond the rational
+    // duration because of its floating-point phase accumulator.
+    auto converted = prepareStemInput(input.value, 44101 * 8);
+    std::vector<float> samples(converted.frames() * 2);
+    readLittleEndian(converted.descriptor(), samples);
+    bool passed = require(converted.frames() >= 44099 && converted.frames() <= 44101,
+                          "48000->44100 separator input changed its expected duration");
+    double error = 0;
+    float peak = 0;
+    for (std::size_t frame = 1536; frame + 1536 < converted.frames(); ++frame) {
+        const double phase = 2 * std::numbers::pi * 375 * frame / 44100.0;
+        error = std::max({error, std::abs(samples[frame * 2] - 1.5 * std::sin(phase)),
+                         std::abs(samples[frame * 2 + 1] + .75 * std::cos(phase))});
+        peak = std::max(peak, std::abs(samples[frame * 2]));
+    }
+    passed &= require(error < 3e-4 && peak > 1.49F, "Separator input conversion shifted channels/time or clipped headroom");
+    passed &= rejects([&] { prepareStemInput(input.value, 44100 * 8 - 1); },
+                      "Separator-rate normalized byte budget was ignored", "budget");
+    return passed;
+}
+
+bool fourRawOutputsAlign(const std::filesystem::path& directory)
+{
+    constexpr std::uint64_t frames = 11025, impulse = 4410;
+    std::uint64_t commonFrames = 0, commonPeak = 0;
+    bool passed = true;
+    for (std::size_t stem = 0; stem < 4; ++stem) {
+        std::vector<float> raw(frames * 2);
+        const float amplitude = float(stem + 1) * .5F;
+        raw[impulse * 2] = amplitude;
+        raw[impulse * 2 + 1] = -amplitude * .5F;
+        const auto path = directory / ("stem-output-" + std::to_string(stem) + ".f32");
+        rawFloatFile(path, raw);
+        InputFD input(path);
+        auto output = prepareStemOutput(input.value, frames, 12001 * 8);
+        passed &= descriptorShape(output);
+        std::vector<float> pcm(output.frames() * 2);
+        readAt(output.descriptor(), 0, pcm);
+        float peak = 0;
+        std::uint64_t peakFrame = 0;
+        bool finiteStereo = true;
+        for (std::uint64_t frame = 0; frame < output.frames(); ++frame) {
+            finiteStereo &= std::isfinite(pcm[frame * 2]) && std::isfinite(pcm[frame * 2 + 1]) &&
+                            std::abs(pcm[frame * 2 + 1] + pcm[frame * 2] * .5F) < 3e-6;
+            if (std::abs(pcm[frame * 2]) > peak) { peak = std::abs(pcm[frame * 2]); peakFrame = frame; }
+        }
+        passed &= require(finiteStereo, "Raw stereo stem output became nonfinite or changed channel mapping");
+        if (!stem) { commonFrames = output.frames(); commonPeak = peakFrame; }
+        passed &= require(output.frames() == commonFrames && output.frames() >= 11999 && output.frames() <= 12001 &&
+                          peakFrame == commonPeak && peakFrame >= 4799 && peakFrame <= 4801 && peak > amplitude * .7F,
+                          "Four44100 outputs did not share one aligned48000 frame mapping");
+        passed &= require(output.peaks().size() == 512 &&
+            *std::max_element(output.peaks().begin(), output.peaks().end()) == 1.F &&
+            std::ranges::all_of(output.peaks(), [](float value) { return std::isfinite(value) && value >= 0 && value <= 1; }),
+            "Converted raw output did not carry the normal normalized overview");
+        if (stem == 3) passed &= require(peak > 1.F, "Raw stem output lost float headroom");
+        passed &= rejects([&] { prepareStemOutput(input.value, frames, 12000 * 8 - 1); },
+                          "Raw output bypassed normalized48000 byte budget", "budget");
+    }
+    return passed;
+}
+
+bool rawStemFailures(const std::filesystem::path& directory)
+{
+    const auto rawPath = directory / "stem-failures.f32";
+    std::vector<float> values(8193 * 2, .125F);
+    rawFloatFile(rawPath, values);
+    const auto sourcePath = directory / "stem-source-failures.wav";
+    floatWave(sourcePath, 2, 44100, 8193);
+    InputFD raw(rawPath), source(sourcePath);
+    const auto before = descriptorCount();
+    bool passed = rejects([&] { prepareStemOutput(raw.value, 8192); }, "Wrong raw declared frame count accepted", "geometry");
+    passed &= rejects([&] { prepareStemOutput(raw.value, 0); }, "Zero raw declared frames accepted", "geometry");
+    passed &= rejects([&] { prepareStemOutput(raw.value, std::numeric_limits<std::uint64_t>::max()); },
+                      "Overflowing raw geometry accepted", "geometry");
+    passed &= rejects([&] { prepareStemInput(source.value, 7); }, "Sub-frame separator input budget accepted", "budget");
+    passed &= rejects([&] { prepareStemOutput(raw.value, 8193, 7); }, "Sub-frame separator output budget accepted", "budget");
+    passed &= rejects([&] { prepareStemInput(source.value, std::numeric_limits<std::size_t>::max()); },
+                      "Unaddressable separator input budget accepted", "addressable");
+    passed &= rejects([&] { prepareStemOutput(raw.value, 8193, std::numeric_limits<std::size_t>::max()); },
+                      "Unaddressable separator output budget accepted", "addressable");
+    {
+        InputFD writeOnly(rawPath, O_WRONLY | O_CLOEXEC);
+        passed &= rejects([&] { prepareStemOutput(writeOnly.value, 8193); }, "Unreadable raw output descriptor accepted", "readable");
+        InputFD originalWriteOnly(sourcePath, O_WRONLY | O_CLOEXEC);
+        passed &= rejects([&] { prepareStemInput(originalWriteOnly.value); }, "Unreadable original source descriptor accepted", "readable");
+        InputFD nonregular(directory, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+        passed &= rejects([&] { prepareStemOutput(nonregular.value, 8193); }, "Nonregular raw descriptor accepted", "regular");
+        passed &= rejects([&] { prepareStemInput(nonregular.value); }, "Nonregular original descriptor accepted", "regular");
+    }
+    std::stop_source cancellation;
+    cancellation.request_stop();
+    passed &= rejects([&] { prepareStemInput(source.value, PreparedStemInput::defaultMaxPreparedBytes, cancellation.get_token()); },
+                      "Cancelled separator input returned PCM", "cancel");
+    passed &= rejects([&] { prepareStemOutput(raw.value, 8193, PreparedAudio::defaultMaxPreparedBytes, cancellation.get_token()); },
+                      "Cancelled separator output returned PCM", "cancel");
+    values.back() = std::numeric_limits<float>::infinity();
+    rawFloatFile(rawPath, values);
+    passed &= rejects([&] { prepareStemOutput(raw.value, 8193); }, "Late nonfinite raw stem output accepted", "non-finite");
+    setSample(sourcePath, 8192 * 2 + 1, std::numeric_limits<float>::quiet_NaN());
+    passed &= rejects([&] { prepareStemInput(source.value); }, "Late nonfinite original input accepted", "non-finite");
+    std::filesystem::resize_file(rawPath, values.size() * sizeof(float) - 1);
+    passed &= rejects([&] { prepareStemOutput(raw.value, 8193); }, "Incomplete raw float/stereo frame accepted", "geometry");
+    passed &= require(descriptorCount() == before && fcntl(source.value, F_GETFD) >= 0 && fcntl(raw.value, F_GETFD) >= 0,
+                      "Rejected/cancelled float bridge leaked or closed a borrowed descriptor");
+    return passed;
+}
+
 bool actualDiskFailure(const std::filesystem::path& input)
 {
     const auto child = fork();
@@ -426,7 +650,12 @@ int main()
         const bool ownership = ownershipAndFailures(directory.path);
         const bool diskFailure = actualDiskFailure(longPath);
         const bool specialFiles = specialFileRejection(directory.path);
-        return bypass && conversion && ownership && diskFailure && specialFiles ? 0 : 1;
+        const bool stemExact = stemInputExactAndOwnership(directory.path);
+        const bool stemRate = stemInputRateAndBudget(directory.path);
+        const bool stemOutputs = fourRawOutputsAlign(directory.path);
+        const bool stemFailures = rawStemFailures(directory.path);
+        return bypass && conversion && ownership && diskFailure && specialFiles &&
+               stemExact && stemRate && stemOutputs && stemFailures ? 0 : 1;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;
