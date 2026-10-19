@@ -76,14 +76,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 chunk-service measurement](benchmarks/data/m2-chunk-service-2026-10-19/followup/coverage.json)
-passed 30/30 CTest entries, the offscreen smoke, 82 private-routing checks and
+The [M2 converter measurement](benchmarks/data/m2-stem-converter-2026-10-19/coverage.json)
+passed 31/31 CTest entries, the offscreen smoke, 82 private-routing checks and
 45 private preparation/library checks. It measured the following with GCC/gcov 16.2.1,
 gcovr 8.7 and coverage.py 7.16.2:
 
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 4,225 / 5,099 (82.86%) | 5,626 / 11,233 (50.08%) |
+| C++ `src/` | 4,356 / 5,241 (83.11%) | 5,799 / 11,491 (50.47%) |
 | Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
@@ -98,3 +98,10 @@ Coverage instrumentation changes execution costs. Never use this build for
 callback latency, live-stem service targets, thermal qualification or audio
 acceptance. The retained M0/M1 benchmark evidence belongs to its pinned normal
 builds.
+
+The converter's first instrumented run hit its 240-second test guard. Its normal
+run had passed. The test now checks the advertised output plus adjacent overwrite
+sentinels, exercises tiny output partitions on short input and compares every
+sample of long seek tails using full output blocks. Product code and the timeout
+are unchanged; the instrumented test passed in 84.19 seconds. The verification
+record retains the timeout, original source pins and exact test-only change.
