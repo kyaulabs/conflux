@@ -1,0 +1,14 @@
+{
+  "build/dev/conflux-live-stem-bridge-test": {
+    "bytes": 12534520,
+    "sha256": "3911a5df205ba22a263c4fecc2f648b7ceb1400e84a9c83241a4c03f3e3bc643"
+  },
+  "build/dev/conflux-deck-controller-test": {
+    "bytes": 16124304,
+    "sha256": "a2cc1637fff3d2afc66a984b7efbf37326a343ff0f8df3ffcb3e2f8f6c09bdf7"
+  },
+  "build/dev/conflux-preparation-controller-check": {
+    "bytes": 15268360,
+    "sha256": "dfd4abafa4f96a38eed19900084099cd5d1d8c7347f7465926fdc4e48438ecd6"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "previous_signed_base": "0f9c34b6d568831922ba9767dd7acf68bf256cc3",
+  "develop_merge": "d0f87e8b93b1196cb11fdd890b8a0b1051f4bb15",
+  "branch": "feat/kyau-08945a-live-stem-timing",
+  "fast_forward_only": true,
+  "git_trees_identical": true,
+  "four_frozen_test_outputs_and_exact_patch_unchanged": true,
+  "merge_github_gpg_verified": true,
+  "actual_RED_remains_bound_to_previous_signed_base": true
+}

@@ -1,0 +1,440 @@
+{
+  "schema": 1,
+  "status": "timing_checks_passed",
+  "started_at_utc": "2026-10-19T14:11:06.816521+00:00",
+  "scope": "Timing-only product validation; no real model, host audio, physical latency or future harness execution",
+  "stages": [
+    {
+      "stage": "full-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--parallel",
+        "2"
+      ],
+      "timeout_seconds": 600,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2658722,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 36.96100251295138
+    },
+    {
+      "stage": "ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/dev",
+        "--output-on-failure",
+        "--timeout",
+        "120",
+        "--output-junit",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-ctest.xml"
+      ],
+      "timeout_seconds": 900,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2658901,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 160.34908553096466
+    },
+    {
+      "stage": "smoke",
+      "command": [
+        "build/dev/conflux",
+        "--smoke-test"
+      ],
+      "timeout_seconds": 30,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660176,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 2.205221734009683
+    },
+    {
+      "stage": "normal-routing",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Timing validation stage stopped')\nsignal.signal(signal.SIGTERM, stop)\nsignal.signal(signal.SIGINT, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-manual-routing-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing"
+      ],
+      "timeout_seconds": 180,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660203,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 7.010701286024414,
+      "evidence": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-routing/result.json",
+        "pin": {
+          "bytes": 14295,
+          "sha256": "1c7e4bb78b4425ab61fac68e0ea85e9e770c411abf0c726d1e4b5c35d4ea5778"
+        },
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+        "execution_deadline_gate": true
+      }
+    },
+    {
+      "stage": "normal-preparation",
+      "command": [
+        "python3",
+        "-B",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Timing validation stage stopped')\nsignal.signal(signal.SIGTERM, stop)\nsignal.signal(signal.SIGINT, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/experiments/private_routing_check.py",
+        "build/dev/conflux-preparation-controller-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation"
+      ],
+      "timeout_seconds": 180,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660309,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 87.11424698797055,
+      "evidence": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-checks-01/normal-preparation/result.json",
+        "pin": {
+          "bytes": 16860,
+          "sha256": "9682da83f53ba3f3d2427874fdfdbfc02bd9a25512272a864afa2b437ae478c2"
+        },
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+        "execution_deadline_gate": true
+      }
+    },
+    {
+      "stage": "coverage",
+      "command": [
+        "benchmarks-local/coverage-venv/bin/python",
+        "-B",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Timing validation stage stopped')\nsignal.signal(signal.SIGTERM, stop)\nsignal.signal(signal.SIGINT, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/coverage/run.py",
+        "--private-routing",
+        "--jobs",
+        "2"
+      ],
+      "timeout_seconds": 1800,
+      "executed_in_this_pipeline": true,
+      "reused": false,
+      "exit": 0,
+      "timed_out": false,
+      "interrupted": false,
+      "owned_process_group": 2660681,
+      "cleanup": {
+        "group_gone": true,
+        "leader_reaped": true,
+        "kill_fallback": false,
+        "unexpected_group_after_exit": false
+      },
+      "elapsed_seconds": 519.228946593008
+    }
+  ],
+  "binary_reuse": false,
+  "cli_rerun": false,
+  "errors": [],
+  "artifact_pin_scope": "Built-artifact pins include unexecuted experiment binaries; only named stage binaries have execution evidence",
+  "cleanup_scope": "Published outer stage groups are cleaned/probed; successful private daemon cleanup is established by each private result",
+  "normal_ctest": {
+    "name": "Linux-c++",
+    "tests": "36",
+    "failures": "0",
+    "disabled": "0",
+    "skipped": "0",
+    "hostname": "aura.kyaulabs",
+    "time": "160",
+    "timestamp": "2026-10-19T07:11:44"
+  },
+  "coverage": {
+    "schema": 1,
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "private_routing_requested": true,
+    "private_routing_execution_deadline_gate": false,
+    "interpreter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+    "cpp_flags": "--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+    "measured_sources": {
+      "cpp": "src/** including main, probe and instrumented headers",
+      "python": "tools/stems/**"
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "separate_support_scope": [
+      "tools/benchmarks/**",
+      "tools/experiments/**",
+      "tools/coverage/**",
+      "tests/**",
+      "brand/source/**"
+    ],
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    },
+    "tools": {
+      "coverage": "7.16.2",
+      "gcovr": "8.7",
+      "numpy": "2.5.4"
+    },
+    "cpp": {
+      "line": {
+        "covered": 5781,
+        "total": 6710,
+        "percent": 86.15499254843517,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 8178,
+        "total": 15433,
+        "percent": 52.990345363830755,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "stages": {
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/home/kyau/projects/kyaulabs/conflux",
+          "-B",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DBUILD_TESTING=ON",
+          "-DCMAKE_CXX_FLAGS=--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+          "-DCMAKE_EXE_LINKER_FLAGS=--coverage",
+          "-DCMAKE_SHARED_LINKER_FLAGS=--coverage",
+          "-DPython3_EXECUTABLE=/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python"
+        ],
+        "exit": 0,
+        "log": "configure.log",
+        "timed_out": false
+      },
+      "build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "--parallel",
+          "2"
+        ],
+        "exit": 0,
+        "log": "build.log",
+        "timed_out": false
+      },
+      "ctest": {
+        "command": [
+          "ctest",
+          "--test-dir",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "--output-on-failure",
+          "--timeout",
+          "120"
+        ],
+        "exit": 0,
+        "log": "ctest.log",
+        "timed_out": false
+      },
+      "smoke": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/conflux",
+          "--smoke-test"
+        ],
+        "exit": 0,
+        "log": "smoke.log",
+        "timed_out": false
+      },
+      "private-routing": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-c",
+          "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+          "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/conflux-manual-routing-check",
+          "/tmp/conflux-coverage-private-routing-6m8s8589/evidence",
+          "--functional-only"
+        ],
+        "exit": 0,
+        "log": "private-routing.log",
+        "timed_out": false
+      },
+      "private-preparation": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-c",
+          "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+          "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/conflux-preparation-controller-check",
+          "/tmp/conflux-coverage-private-preparation-n4mec8oe/evidence",
+          "--functional-only"
+        ],
+        "exit": 0,
+        "log": "private-preparation.log",
+        "timed_out": false
+      },
+      "gcovr": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "gcovr",
+          "--root",
+          "/home/kyau/projects/kyaulabs/conflux",
+          "--filter",
+          "/home/kyau/projects/kyaulabs/conflux/src/",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage",
+          "--json",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp.json",
+          "--json-summary",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp-summary.json",
+          "--html-details",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp.html",
+          "--cobertura",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/cpp.xml",
+          "--print-summary"
+        ],
+        "exit": 0,
+        "log": "gcovr.log",
+        "timed_out": false
+      },
+      "python-combine": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "combine",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "--keep",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-data"
+        ],
+        "exit": 0,
+        "log": "python-combine.log",
+        "timed_out": false
+      },
+      "python-json": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "json",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "-o",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/python.json"
+        ],
+        "exit": 0,
+        "log": "python-json.log",
+        "timed_out": false
+      },
+      "python-html": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "html",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "-d",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/python-html"
+        ],
+        "exit": 0,
+        "log": "python-html.log",
+        "timed_out": false
+      },
+      "python-xml": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "xml",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/python-coverage.ini",
+          "-o",
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage/reports/python.xml"
+        ],
+        "exit": 0,
+        "log": "python-xml.log",
+        "timed_out": false
+      }
+    },
+    "errors": [],
+    "execution_passed": true
+  },
+  "source_and_binaries_stable": true,
+  "finished_at_utc": "2026-10-19T14:24:41.110232+00:00",
+  "source_pins_unchanged_at_close": true
+}

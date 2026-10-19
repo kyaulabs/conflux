@@ -1,0 +1,32 @@
+{
+  "status": "independent_frozen_tests_applied_before_product",
+  "signed_base": "0f9c34b6d568831922ba9767dd7acf68bf256cc3",
+  "signature": "0f9c34b6d568831922ba9767dd7acf68bf256cc3 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+  "branch": "feat/kyau-08945a-live-stem-timing",
+  "test_freeze": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-freeze.json",
+    "bytes": 9160,
+    "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+  },
+  "api_or_product_applied": false,
+  "files": {
+    "tests/live_stem_bridge_test.cpp": {
+      "bytes": 81213,
+      "sha256": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 66264,
+      "sha256": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70"
+    },
+    "tests/StemServiceFixture.hpp": {
+      "bytes": 15378,
+      "sha256": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f"
+    },
+    "tools/experiments/preparation_controller_check.cpp": {
+      "bytes": 78892,
+      "sha256": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+    }
+  },
+  "original_declared_baseline": "32f363ba1987d5493bd61f27b05d8ce64984f318",
+  "all_four_input_files_match_original_baseline": true
+}

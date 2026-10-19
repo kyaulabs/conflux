@@ -1,0 +1,98 @@
+{
+  "schema": "conflux.live-bridge-observation-completion-clarification.v1",
+  "status": "root_approved_source_only_clarification",
+  "author": "/root/m0_m1_gates",
+  "authorization": "Root explicitly approved zero-length endpoint convention after actual RED, with no API shape or frozen-test changes.",
+  "root_supplied_bases": {
+    "actual_red": "0f9c34b6d568831922ba9767dd7acf68bf256cc3",
+    "current_identical_product_tree": "d0f87e8b93b1196cb11fdd890b8a0b1051f4bb15",
+    "git_verified_by_this_agent": false
+  },
+  "bindings": {
+    "RawComplete": {
+      "inputFirst44100": "N",
+      "inputFrames44100": 0,
+      "outputFirst48000": 0,
+      "outputFrames48000": 0,
+      "condition": "Existing rawNext_ == N and exact service complete validation have succeeded."
+    },
+    "ConverterComplete": {
+      "inputFirst44100": "N",
+      "inputFrames44100": 0,
+      "outputFirst48000": "M",
+      "outputFrames48000": 0,
+      "condition": "Actual converter process finished/count proof; this is before final packet publication and does not imply rendered EOF."
+    },
+    "ServiceClosed": {
+      "inputFirst44100": "Actual rawNext_ at validated close",
+      "inputFrames44100": 0,
+      "outputFirst48000": 0,
+      "outputFrames48000": 0,
+      "condition": "Existing exact close/worker_closed/outstanding lease checks succeeded; no invented conversion or render endpoint."
+    },
+    "epoch_generation": "Use active acceptedEpoch_/generation_, including late raw completion before superseding seek acceptance. Never relabel completion with latest_ demand."
+  },
+  "existing_source_references": [
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        530,
+        534
+      ],
+      "fact": "Raw completion requires exact rawNext_ and service frame_start."
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        535,
+        543
+      ],
+      "fact": "Service close validates active generation and exact outstanding-slot count."
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "lines": [
+        636,
+        655
+      ],
+      "fact": "Converter actual finished flag follows independent process/count and bounded staging checks."
+    }
+  ],
+  "inputs": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.hpp",
+      "bytes": 4328,
+      "sha256": "b84b252b66d7eac22f31f211b266464b8c1e39286f459072772a7d715945a05f"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-api.md",
+      "bytes": 7024,
+      "sha256": "115736c4af557e5f62c1b8172198edd2a1490bde1a43ecf493ea82ccee546110"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-request-clarification.json",
+      "bytes": 6563,
+      "sha256": "1db19e8ca9a0e6d277f7e6f2edc752901f930295fa10c2cacb848199ab728f7a"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests-freeze.json",
+      "bytes": 9160,
+      "sha256": "5cd5996db142dd79c3f78a26c8579a653ee270755aa725d384cfae283c40ec2e"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-red-result.json",
+      "bytes": 1566,
+      "sha256": "59c46e89e935cbd7ce98215bb877c17e988853fa833d1cb9a38852d9c60667ea"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-develop-base.json",
+      "bytes": 404,
+      "sha256": "3f08c6d390d9333b5ddaccef690809ea047f79164017468dfc4180164b55d3a1"
+    }
+  ],
+  "limits": [
+    "Frozen API/header/tests and prior clarification receipts remain unchanged.",
+    "No extra assertion added solely for completion field placement. Existing accepted packet coverage remains the sample authority.",
+    "No build, tests, native/model/audio, host or Git execution. This records source semantics only."
+  ]
+}

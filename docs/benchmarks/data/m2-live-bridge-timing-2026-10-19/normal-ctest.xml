@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Linux-c++"
+	tests="36"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname="aura.kyaulabs"
+	time="160"
+	timestamp="2026-10-19T07:11:44"
+	>
+	<testcase name="audio-render" classname="audio-render" time="0.0202731" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-cue" classname="audio-cue" time="0.00773936" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-buses" classname="audio-buses" time="0.00694732" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-ramps" classname="audio-ramps" time="0.00730713" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-source-handoff" classname="audio-source-handoff" time="0.00587633" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-routing" classname="audio-routing" time="0.0048143" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-metadata" classname="audio-metadata" time="0.00416671" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-timing" classname="audio-timing" time="0.00699022" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-source" classname="audio-source" time="0.010498" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-stem-bank" classname="audio-stem-bank" time="0.00692034" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-live-stem-buffer" classname="audio-live-stem-buffer" time="0.0891203" status="run">
+		<properties/>
+		<system-out>Live four-stem packet bounds, release, prefix and rendering behavior passed
+</system-out>
+	</testcase>
+	<testcase name="audio-stem-rate-converter" classname="audio-stem-rate-converter" time="43.705" status="run">
+		<properties/>
+		<system-out>Count and cancellation
+Continuous partitions, gaps and tail
+Reused plan and interior seek tails
+Aliases, EOF and failure atomicity
+Pure four-stem conversion count/gap/seek/EOF/error behavior passed
+</system-out>
+	</testcase>
+	<testcase name="audio-prepared-playback" classname="audio-prepared-playback" time="0.11094" status="run">
+		<properties/>
+		<system-out>Prepared whole-bank files, alignment, health, budgets and lifetime checks completed
+</system-out>
+	</testcase>
+	<testcase name="audio-preparation" classname="audio-preparation" time="0.725181" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-read-ahead" classname="audio-read-ahead" time="0.0589069" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-recorder" classname="audio-recorder" time="0.0131624" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-recorder-tap" classname="audio-recorder-tap" time="0.0725467" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-file" classname="audio-file" time="0.643306" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-transport" classname="audio-transport" time="0.0121432" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="live-session" classname="live-session" time="0.040295" status="run">
+		<properties/>
+		<system-out>Live session initialization, validation and private-server failure checks completed
+</system-out>
+	</testcase>
+	<testcase name="audio-live-recovery" classname="audio-live-recovery" time="0.102028" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="audio-live-owner" classname="audio-live-owner" time="0.168215" status="run">
+		<properties/>
+		<system-out>Live whole-owner reserve, generation, initial cursor, failure and retirement checks completed
+</system-out>
+	</testcase>
+	<testcase name="audio-probe-cli" classname="audio-probe-cli" time="0.507449" status="run">
+		<properties/>
+		<system-out>76 invalid CLI/control cases rejected before PipeWire
+</system-out>
+	</testcase>
+	<testcase name="probe-rejects-invalid-quantum" classname="probe-rejects-invalid-quantum" time="0.00592698" status="run">
+		<properties/>
+		<system-out>Invalid value for --quantum
+</system-out>
+	</testcase>
+	<testcase name="stem-worker" classname="stem-worker" time="8.49577" status="run">
+		<properties/>
+		<system-out>.................................
+----------------------------------------------------------------------
+Ran 33 tests in 8.096s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="stem-export" classname="stem-export" time="2.85203" status="run">
+		<properties/>
+		<system-out>...................
+----------------------------------------------------------------------
+Ran 19 tests in 2.478s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="stem-export-cli" classname="stem-export-cli" time="0.625678" status="run">
+		<properties/>
+		<system-out>......
+----------------------------------------------------------------------
+Ran 6 tests in 0.273s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="stem-service" classname="stem-service" time="4.3527" status="run">
+		<properties/>
+		<system-out>..................
+----------------------------------------------------------------------
+Ran 18 tests in 4.042s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="stem-soak" classname="stem-soak" time="4.79987" status="run">
+		<properties/>
+		<system-out>...........
+----------------------------------------------------------------------
+Ran 11 tests in 4.371s
+
+OK
+</system-out>
+	</testcase>
+	<testcase name="library-catalog" classname="library-catalog" time="2.22093" status="run">
+		<properties/>
+		<system-out>********* Start testing of LibraryCatalogTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : LibraryCatalogTest::initTestCase()
+PASS   : LibraryCatalogTest::missingCatalogIsEmptyWithoutCreatingFiles()
+PASS   : LibraryCatalogTest::restartPreservesMetadataAndRefreshesAvailability()
+PASS   : LibraryCatalogTest::contentAliasesUpdateOneEntryAndKeepOrder()
+PASS   : LibraryCatalogTest::changedContentAtSamePathReplacesIdentity()
+PASS   : LibraryCatalogTest::unsafeCatalogFileFailsClosed(symbolic-link)
+PASS   : LibraryCatalogTest::unsafeCatalogFileFailsClosed(writerless-fifo)
+PASS   : LibraryCatalogTest::malformedCatalogIsPreserved(truncated)
+PASS   : LibraryCatalogTest::malformedCatalogIsPreserved(version)
+PASS   : LibraryCatalogTest::malformedCatalogIsPreserved(duplicate-id)
+PASS   : LibraryCatalogTest::malformedCatalogIsPreserved(duplicate-path)
+PASS   : LibraryCatalogTest::malformedCatalogIsPreserved(...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="stem-service-jsonl" classname="stem-service-jsonl" time="0.0186484" status="run">
+		<properties/>
+		<system-out>********* Start testing of StemServiceJsonlTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : StemServiceJsonlTest::initTestCase()
+PASS   : StemServiceJsonlTest::partialAndMultipleLines()
+PASS   : StemServiceJsonlTest::fragmentedUnicodeAndEof()
+PASS   : StemServiceJsonlTest::duplicateDecodedKeys()
+PASS   : StemServiceJsonlTest::unicodeAndJsonFailures()
+PASS   : StemServiceJsonlTest::exactWireIntegerTokens()
+PASS   : StemServiceJsonlTest::lineAndKeyBounds()
+PASS   : StemServiceJsonlTest::structureBounds()
+PASS   : StemServiceJsonlTest::cleanupTestCase()
+Totals: 9 passed, 0 failed, 0 skipped, 0 blacklisted, 4ms
+********* Finished testing of StemServiceJsonlTest *********
+</system-out>
+	</testcase>
+	<testcase name="prepared-track-store" classname="prepared-track-store" time="15.9498" status="run">
+		<properties/>
+		<system-out>********* Start testing of PreparedTrackStoreTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : PreparedTrackStoreTest::initTestCase()
+PASS   : PreparedTrackStoreTest::stemLookupMissDoesNotPrepareOrCreateRoot()
+PASS   : PreparedTrackStoreTest::stemLookupFreshInstanceReturnsExactBankAtExistingBudget()
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(manifest)
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(digest)
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(incomplete)
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(symlink)
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(fifo)
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(prepared)
+PASS   : PreparedTrackStoreTest::stemLookupPresentFailurePreservesEntry(manifest-budget)
+PASS   : PreparedTrackStoreTe...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="live-stem-bridge" classname="live-stem-bridge" time="47.0623" status="run">
+		<properties/>
+		<system-out>********* Start testing of LiveStemBridgeTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : LiveStemBridgeTest::initTestCase()
+PASS   : LiveStemBridgeTest::observationsPreservePinnedContextAndWireTiming(wire-hop-present)
+PASS   : LiveStemBridgeTest::observationsPreservePinnedContextAndWireTiming(wire-hop-omitted)
+PASS   : LiveStemBridgeTest::observationsFollowContiguousFullPacketsAndSupersedingSeek()
+PASS   : LiveStemBridgeTest::observationOverflowDoesNotStopPcmAndFinalOrdinalsExposeLoss()
+PASS   : LiveStemBridgeTest::sessionAdoptsUnusedLiveReserveWithoutRedundantSeek()
+PASS   : LiveStemBridgeTest::consumedLiveOwnerReprimesBeforeSessionReuse()
+PASS   : LiveStemBridgeTest::sessionPrimeCannotBypassEpochValidationCancellationOrHealth()
+PASS   : LiveStemBridgeTest::metadataDeferredLoadAndAllRoles()
+PASS   : LiveStemBridgeTest::initialAnchorLeasesFullSeekAndExactTail()
+PASS   : LiveStemBridgeTest::s...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="live-owner-retirement" classname="live-owner-retirement" time="0.0499232" status="run">
+		<properties/>
+		<system-out>Quiesced whole-owner return and responsive Qt retirement checks completed
+</system-out>
+	</testcase>
+	<testcase name="deck-controller" classname="deck-controller" time="5.65868" status="run">
+		<properties/>
+		<system-out>********* Start testing of DeckControllerTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : DeckControllerTest::initTestCase()
+PASS   : DeckControllerTest::observationsFollowCurrentLiveClipWithoutOwningItsLifetime()
+PASS   : DeckControllerTest::liveServiceModePrefersCompleteBankWithoutUsingService()
+PASS   : DeckControllerTest::genuineMissInstallsOneLiveOwnerAndParksOnOutputFailure()
+PASS   : DeckControllerTest::corruptBankAndChangedLibrarySourceNeverSelectLiveFallback()
+PASS   : DeckControllerTest::queuedLiveCancellationRetiresOnWorkerBeforeEndingBusy()
+PASS   : DeckControllerTest::optionalStemToolsNeverBlockManualLoading()
+PASS   : DeckControllerTest::initialStemBankAndManualReloadKeepWholePcmOwners()
+PASS   : DeckControllerTest::failedAndQueuedCancelledBanksPreserveExistingOwners()
+PASS   : DeckControllerTest::retainedUnlinkedPcmIsReservedBeforeCorruptEntryRebuild()
+PASS   : DeckControllerTe...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="manual-ui" classname="manual-ui" time="21.7781" status="run">
+		<properties/>
+		<system-out>********* Start testing of ManualUiTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : ManualUiTest::initTestCase()
+PASS   : ManualUiTest::unloadedAndBusyControls()
+PASS   : ManualUiTest::keyboardPlayPauseRoutesBothDecks()
+PASS   : ManualUiTest::libraryPreparationCancellation(pointer)
+PASS   : ManualUiTest::libraryPreparationCancellation(keyboard)
+PASS   : ManualUiTest::libraryCloseAndInstallingDoNotCancelPreparation()
+PASS   : ManualUiTest::libraryImportsLiteralPaths(A-pointer)
+PASS   : ManualUiTest::libraryImportsLiteralPaths(B-keyboard)
+PASS   : ManualUiTest::librarySelectionLoadsByIdAndEditingRestoresRawPath()
+PASS   : ManualUiTest::libraryMissingRowsArePlainTextAndCannotLoad()
+PASS   : ManualUiTest::libraryReadinessAndBusyPreserveRawLoadingAndTransport()
+PASS   : ManualUiTest::libraryImportCancellationStopsBeforeSaving()
+PASS   : ManualUiTest::libraryLongListScrollsWithinDrawer()
+PASS   : M...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+</testsuite>

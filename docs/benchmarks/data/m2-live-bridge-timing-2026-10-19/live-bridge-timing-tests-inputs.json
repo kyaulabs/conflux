@@ -1,0 +1,70 @@
+{
+  "status": "source-only independent tests candidate; no product/tracked apply or execution",
+  "files": [
+    {
+      "path": "tests/live_stem_bridge_test.cpp",
+      "input": {
+        "bytes": 65859,
+        "sha256": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253"
+      },
+      "output": {
+        "bytes": 81213,
+        "sha256": "9afaa7054d2469d12cb89bd077c9da8e250be56387190086edc4068cafdc924c"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-live_stem_bridge_test.cpp"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "input": {
+        "bytes": 63676,
+        "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+      },
+      "output": {
+        "bytes": 66264,
+        "sha256": "13f532a2335ac198a0d5c8ed3819565d145e71ec40987d35c8d75bdf91844c70"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-deck_controller_test.cpp"
+    },
+    {
+      "path": "tests/StemServiceFixture.hpp",
+      "input": {
+        "bytes": 15196,
+        "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+      },
+      "output": {
+        "bytes": 15378,
+        "sha256": "601da52620c6ab4cf74d396ec388f32986264eb05253876257abf1fc6443802f"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-StemServiceFixture.hpp"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "input": {
+        "bytes": 78304,
+        "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+      },
+      "output": {
+        "bytes": 78892,
+        "sha256": "1e539d5fe6ff8cc5b2e5894f5124c515f25dd770e489baeaa64466a1cdc5535e"
+      },
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/timing-tests-preparation_controller_check.cpp"
+    }
+  ],
+  "patches": [
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-tests.patch",
+      "bytes": 16369,
+      "sha256": "2885ed6466a7c39a92203561d3c5de6fe95e0d5cb8b42d3f752b6d0c5c40f873"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-timing-tests.patch",
+      "bytes": 5629,
+      "sha256": "e09a4693f318c2e092379a9613d23b4f0ee3818fc7248086c9d9dea00cfa17f0"
+    },
+    {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/live-bridge-timing-fixture.patch",
+      "bytes": 762,
+      "sha256": "81b127edb20a4b52f022eeb07820b859bcd01b3b1199200708009156344f91eb"
+    }
+  ]
+}
