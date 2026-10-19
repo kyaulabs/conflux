@@ -1,0 +1,65 @@
+[
+  {
+    "stage": "provider-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 47.47655640501762
+  },
+  {
+    "stage": "provider-smoke",
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.2740202820277773
+  },
+  {
+    "stage": "provider-routing",
+    "command": [
+      "python3",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-manual-routing-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/provider-private-routing",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 6.544111637980677
+  },
+  {
+    "stage": "provider-preparation",
+    "command": [
+      "python3",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-preparation-controller-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/provider-private-preparation",
+      "--functional-only"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 48.44293037598254
+  },
+  {
+    "stage": "provider-coverage",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 219.29705396201462
+  }
+]
