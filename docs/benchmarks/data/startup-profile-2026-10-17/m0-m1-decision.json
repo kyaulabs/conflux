@@ -1,8 +1,0 @@
-{
-  "schema": 1,
-  "recorded_at_utc": "2026-10-18T03:04:38.064717+00:00",
-  "status": "approved",
-  "question": "The 4.095-second live-stem service target remains unmet (latest completed validation: 5.172-second p99; cancellation and audio/UI checks passed). Should I apply the proposed decision to conclude M0 feasibility and enter M1 manual audio development, keeping live stems and their unchanged latency target as a required M2 blocker, or keep M0 open for more runtime/model work? This changes the later recorded M0 gate; PLAN.md requires a user decision when a core feasibility gate fails.",
-  "answer": "Enter M1 manual audio; retain M2 live-stem blocker (Recommended)",
-  "effect": "M0 feasibility concludes with failed on-demand live-stem headroom explicitly retained as a required M2 blocker before usable release. M1 manual audio work is authorized; no numeric latency pass, production stem playback or physical latency claim."
-}

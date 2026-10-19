@@ -1,8 +1,0 @@
-{
-  "source_sha256": "5221b0ec9b075522ccd2b687b1bc0d74a3b197e8246b1065c73e0008c017ff25",
-  "base_sha256": "57df8d80bb121517211c4acbff11d5bd0648de0b1aa8638590a4472b1f991005",
-  "changes": [
-    "Reference4*HOP+211",
-    "Eight late/hop/EOF targets; all4roles32cell"
-  ]
-}

@@ -1,9 +1,0 @@
-{
-  "recorded_at_utc": "2026-10-17T03:53:53.576222+00:00",
-  "user_guidance": "Brief high-temperature spikes are acceptable on this ultrabook when they do not remain high for a long time.",
-  "assessment": "Report hot-sample counts, observed episode spans and recovery, with sampling limitations. A peak alone is not a thermal failure. No new sustained-duration threshold was specified.",
-  "latency_target_p99_ms": 4095,
-  "protocol_change": false,
-  "host_policy_or_guard_change": false,
-  "scope": "Existing cooldown/readiness preserves starting conditions; natural thermal/policy changes during measurement remain included."
-}

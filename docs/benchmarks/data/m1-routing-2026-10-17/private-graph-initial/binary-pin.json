@@ -1,6 +1,0 @@
-{
-  "binary": "build/dev/conflux-manual-routing-check",
-  "bytes": 3794496,
-  "sha256": "8918efc56a153438fafb75caa5718e9c058ee2fe49e638272c6304af247b644a",
-  "pin_scope": "Pinned after initial failed run and before rebuilding. Exact pre-run source snapshot was not saved; do not infer current-source equivalence after later edits."
-}
