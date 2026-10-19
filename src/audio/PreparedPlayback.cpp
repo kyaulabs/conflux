@@ -254,6 +254,7 @@ AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float>
     if (output.size() % StemBankSource::channels ||
         output.size() / StemBankSource::channels > StemBankSource::blockFrames ||
         frame > frames_ || frame != live_->demand.cursor) return {0, true};
+    if (!output.empty()) unusedLivePrime_ = false;
     if (live_->code() || live_->stopping.load(std::memory_order_relaxed)) return {0, true};
     if (output.empty() || frame == frames_) return {};
     if (live_->demand.waitSerial) {
@@ -276,6 +277,7 @@ AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float>
 void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
 {
     if (frame > frames_ || live_->stopping.load(std::memory_order_relaxed) || !live_->closeGate()) return;
+    unusedLivePrime_ = false;
     // Token invalidation precedes the bounded bank/provider work, so an old
     // deadline cannot win after this new attempt has already superseded it.
     const auto source = bank_->sourceRef();
@@ -291,7 +293,9 @@ void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
 
 void PreparedPlayback::setLiveActive(bool active) noexcept { live_->setActive(active); }
 
-void PreparedPlayback::resetBankForSession()
+void PreparedPlayback::resetBankForSession() { resetBankForSessionAt(0); }
+
+void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
 {
     if (stopped_) throw std::logic_error("Cannot reuse a stopped playback owner");
     if (!bank_) return;
@@ -302,13 +306,16 @@ void PreparedPlayback::resetBankForSession()
             sources[stem] = readers_[stem]->sourceRef();
     // Construct before replacing: a failed allocation leaves every existing
     // bank, view, producer and health field intact. This never restarts an owner.
-    auto replacement = std::make_unique<StemBankSource>(sources);
+    auto replacement = std::make_unique<StemBankSource>(sources, frame);
     if (live_) setLiveActive(false);
     bank_ = std::move(replacement);
 }
 
 bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
 {
+    // An explicit attempt supersedes every older success, even when argument
+    // validation or an already-cancelled token prevents a new request.
+    unusedLivePrime_ = false;
     const auto now = Clock::now();
     if (live_) timeout = std::min(timeout, std::chrono::duration_cast<std::chrono::milliseconds>(liveWait));
     if (frame > frames_ || timeout.count() < 0 ||
@@ -357,8 +364,13 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
             primeError_.store(ECANCELED, std::memory_order_relaxed);
             return false;
         }
-        if (neededEnd == frame || (state->publishedEpoch == request.epoch && state->publishedEnd >= neededEnd))
-            return state->openGate();
+        if (neededEnd == frame || (state->publishedEpoch == request.epoch && state->publishedEnd >= neededEnd)) {
+            if (!state->openGate()) return false;
+            livePrimeFrame_ = frame;
+            livePrimeEpoch_ = request.epoch;
+            unusedLivePrime_ = true;
+            return true;
+        }
         primeError_.store(ETIMEDOUT, std::memory_order_relaxed);
         return false;
     }
@@ -377,6 +389,49 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     }
     if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
     return true;
+}
+
+bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
+{
+    // Validate the effective timeout before considering an already-ready bank.
+    // Preserve ordinary prime's live cap and transient-error retry behavior.
+    const auto now = Clock::now();
+    if (live_) timeout = std::min(timeout, std::chrono::duration_cast<std::chrono::milliseconds>(liveWait));
+    if (frame > frames_ || timeout.count() < 0 ||
+        timeout > std::chrono::duration_cast<std::chrono::milliseconds>(Clock::time_point::max() - now)) {
+        primeError_.store(EINVAL, std::memory_order_relaxed);
+        return false;
+    }
+    if (stopped_ || stop.stop_requested()) {
+        primeError_.store(ECANCELED, std::memory_order_relaxed);
+        return false;
+    }
+    primeError_.store(0, std::memory_order_relaxed);
+    if (live_ && live_->code()) return false;
+    bool reuse = false;
+    if (live_ && unusedLivePrime_ && livePrimeFrame_ == frame) {
+        LiveStemBuffer::Request request;
+        if (live_->buffer.tryRequest(request) && request.firstFrame == frame && request.epoch == livePrimeEpoch_ &&
+            live_->demand.epoch == request.epoch && live_->demand.cursor == frame && !live_->demand.waitSerial) {
+            const auto neededEnd = frame + std::min(liveReserveFrames, frames_ - frame);
+            const std::lock_guard lock(live_->mutex); // Off-thread/quiesced only.
+            reuse = !live_->code() && !live_->stopping.load(std::memory_order_relaxed) && !stop.stop_requested() &&
+                (neededEnd == frame || (live_->publishedEpoch == request.epoch && live_->publishedEnd >= neededEnd));
+        }
+    }
+    if (reuse) {
+        // Initializing an empty bank at the retained cursor must not send a
+        // provider discontinuity or consume any of the already-ready views.
+        resetBankForSessionAt(frame);
+        if (live_->code()) return false;
+        if (stop.stop_requested() || live_->stopping.load(std::memory_order_relaxed)) {
+            primeError_.store(ECANCELED, std::memory_order_relaxed);
+            return false;
+        }
+        return true;
+    }
+    resetBankForSession();
+    return prime(frame, timeout, stop);
 }
 
 bool PreparedPlayback::configureStemRamps(std::uint32_t frames) noexcept
@@ -415,6 +470,7 @@ std::string PreparedPlayback::error() const
 
 void PreparedPlayback::stop() noexcept
 {
+    unusedLivePrime_ = false;
     if (stopped_) return;
     stopped_ = true;
     if (live_) {

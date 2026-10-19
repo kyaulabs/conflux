@@ -8,12 +8,14 @@
 
 namespace conflux::audio {
 
-StemBankSource::StemBankSource(std::array<AudioSource, stemCount> stems)
+StemBankSource::StemBankSource(std::array<AudioSource, stemCount> stems, std::uint64_t initialFrame)
+    : cursor_(initialFrame)
 {
     constexpr auto maximumFrames = std::numeric_limits<std::size_t>::max() / (channels * sizeof(float));
     frames_ = stems.front().frames;
     if (!frames_ || frames_ > maximumFrames)
         throw std::invalid_argument("Stem bank requires nonempty addressable stereo PCM");
+    if (initialFrame > frames_) throw std::invalid_argument("Stem bank initial cursor exceeds source frames");
     for (std::size_t stem = 0; stem < stemCount; ++stem) {
         const auto source = stems[stem];
         if (source.frames != frames_ || bool(source.memory) == bool(source.read))

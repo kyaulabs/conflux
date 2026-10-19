@@ -65,6 +65,10 @@ public:
     // Live owners require a clipped 262144-frame contiguous reserve and use
     // one cancellable deadline, at most60s. No view is consumed for readiness.
     bool prime(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop = {});
+    // Quiesced, before a session borrows this owner. Reset bank/ramp staging;
+    // only a healthy, exact, never-read live reserve may avoid a new epoch.
+    // Explicit prime() always requests a fresh epoch, even at the same cursor.
+    bool primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop = {});
     // Configure before concurrent rendering. Normal PCM is an unchanged no-op;
     // a bank uses these frames for future gain changes. Never call from the GUI
     // once this owner has entered the render-boundary handoff.
@@ -81,11 +85,15 @@ private:
     AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
     void seekLive(std::uint64_t frame) noexcept;
     void setLiveActive(bool active) noexcept;
+    void resetBankForSessionAt(std::uint64_t frame);
     std::unique_ptr<LiveState> live_;
     std::array<std::unique_ptr<PcmReadAhead>, stemCount> readers_{};
     std::unique_ptr<StemBankSource> bank_;
     std::uint64_t frames_;
     std::atomic<int> primeError_{0};
     bool stopped_ = false;
+    // Render/control owner only across quiescence; producer never touches it.
+    std::uint64_t livePrimeFrame_ = 0, livePrimeEpoch_ = 0;
+    bool unusedLivePrime_ = false;
 };
 } // namespace conflux::audio
