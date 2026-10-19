@@ -210,6 +210,11 @@ def summarize_live_observations(path, native):
              "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed")
     counts = dict.fromkeys(names, 0)
     hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], []
+    phase_names = ("source_read_ms", "request_ms", "overlap_ms", "native_elapsed_ms", "native_inference_wall_ms",
+                   "native_inference_cpu_ms", "native_frontend_ms", "native_graph_ms", "native_graph_upload_ms",
+                   "native_graph_compute_ms", "native_graph_readback_ms", "native_postprocess_ms", "native_graph_rebuild_ms")
+    phases = {key: [] for key in phase_names}
+    phase_hops = []
     current_epoch, previous_ordinal = 0, None
     epochs, commands, accepted_at, completed_at, telemetry = {}, {}, {}, {}, []
     last_sequence = last_generation = 0; last_accepted_epoch = 0
@@ -265,6 +270,17 @@ def summarize_live_observations(path, native):
                 if not math.isfinite(row["hop_service_ms"]) or row["hop_service_ms"] < 0:
                     raise RuntimeError("Invalid optional hop service interval")
                 hops.append(row["hop_service_ms"])
+            phase_row = {key: row[key] for key in ("epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
+            if row["hop_service_present"]:
+                phase_row["hop_service_ms"] = row["hop_service_ms"]
+            for key in phase_names:
+                if key in row:
+                    value = row[key]
+                    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+                        raise RuntimeError("Invalid optional phase timing")
+                    phases[key].append(value)
+                    phase_row[key] = value
+            phase_hops.append(phase_row)
         elif kind == "PacketAccepted":
             epoch = epochs[row["epoch"]]
             end = row["output_first"] + row["output_frames"]
@@ -330,6 +346,9 @@ def summarize_live_observations(path, native):
                 "at_or_above_target": sum(value >= 4095 for value in hops), "complete": len(hops) == counts["ChunkValidated"] > 0 and not any(row["dropped"] for row in telemetry)}, "lease_validation": stats(validation),
             "worker_ready_to_service_pre_emit": {**stats(ready_to_pre_emit),
                 "scope": "Python monotonic domain only; excludes JSON serialization/write, pipe delivery and C++ receipt"},
+            "chunk_phases": {"scope": "Original nested durations in ms for validated chunks only; omissions remain absent. Preroll, canceled and discarded work is not fully covered. No cross-clock subtraction or additive phase interpretation.",
+                "hops": phase_hops, "fields": {key: {**stats(values), "present_for_all_chunks": len(values) == counts["ChunkValidated"] > 0}
+                                                 for key, values in phases.items()}},
             "packet_ready_to_publish": stats(publication), "actual_full_waits": stats(full_waits),
             "discard_coverage": "Observed discards validated; nonempty discard is not forced", "file": pin(path)}
 

@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 
 namespace conflux::library {
 class PreparedTrackStore;
@@ -48,6 +49,14 @@ public:
         std::uint64_t publishBeginNs = 0, publishEndNs = 0;
         // ChunkValidated only: retain wire precision/units, without clock mapping.
         double workerReadySeconds = 0, servicePublishedSeconds = 0, hopServiceMs = 0;
+        // Nested durations from the same completed chunk, in original ms. A
+        // present zero differs from absent telemetry. Preroll/discarded work is
+        // not represented by ChunkValidated; these are not additive phases.
+        std::optional<double> sourceReadMs, requestMs, overlapMs;
+        std::optional<double> nativeElapsedMs, nativeInferenceWallMs, nativeInferenceCpuMs;
+        std::optional<double> nativeFrontendMs, nativeGraphMs, nativeGraphUploadMs;
+        std::optional<double> nativeGraphComputeMs, nativeGraphReadbackMs;
+        std::optional<double> nativePostprocessMs, nativeGraphRebuildMs;
         // RawComplete/ServiceClosed only when the corresponding present flag is true.
         std::uint64_t serviceTelemetryDropped = 0;
     };

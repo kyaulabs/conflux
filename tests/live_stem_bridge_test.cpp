@@ -339,6 +339,8 @@ private slots:
         QTest::addColumn<QByteArray>("mode");
         QTest::newRow("wire-hop-present") << QByteArray("timing");
         QTest::newRow("wire-hop-omitted") << QByteArray("timing-no-hop");
+        QTest::newRow("wire-phases-partial") << QByteArray("timing-partial");
+        QTest::newRow("wire-phases-present-zero") << QByteArray("timing-zero");
     }
     void observationsPreservePinnedContextAndWireTiming()
     {
@@ -392,6 +394,16 @@ private slots:
                 chunk.observedNs <= chunk.validatedNs && chunk.workerReadySeconds == 1000.25 &&
                 chunk.servicePublishedSeconds == 1000.375 && chunk.hopServicePresent == (mode == "timing") &&
                 (!chunk.hopServicePresent || chunk.hopServiceMs == 125.0), "Raw timing changed wire units/presence or lease geometry");
+            const std::array phases{chunk.sourceReadMs, chunk.requestMs, chunk.overlapMs, chunk.nativeElapsedMs,
+                chunk.nativeInferenceWallMs, chunk.nativeInferenceCpuMs, chunk.nativeFrontendMs, chunk.nativeGraphMs,
+                chunk.nativeGraphUploadMs, chunk.nativeGraphComputeMs, chunk.nativeGraphReadbackMs,
+                chunk.nativePostprocessMs, chunk.nativeGraphRebuildMs};
+            for (std::size_t i = 0; i < phases.size(); ++i) {
+                const bool present = mode == "timing" || mode == "timing-zero" || (mode == "timing-partial" && i % 2 == 0);
+                const double expected = mode == "timing-zero" ? 0.0 : double(i) * .125;
+                require(phases[i].has_value() == present && (!present || *phases[i] == expected),
+                    "Phase timing changed exact value, original ms, omission or present zero");
+            }
             require(packet.providerEpoch == request.providerEpoch && packet.workerGeneration == 1 &&
                 packet.outputFirst48000 == 0 && packet.outputFrames48000 == track.outputFrames && packet.final &&
                 packet.packetReadyNs && packet.packetReadyNs <= packet.publishBeginNs && packet.publishBeginNs <= packet.publishEndNs &&
@@ -401,6 +413,43 @@ private slots:
             require(handle->setup().sourceToken == setup.sourceToken && handle->setup().factoryCommittedNs == setup.factoryCommittedNs &&
                 handle->setup().sourceSha256 == setup.sourceSha256, "Published setup changed after retirement");
             checkEmptyObservation(handle);
+        });
+    }
+
+    void malformedPhaseTimingNeverReachesObservations_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        for (const auto* field : {"source_read_ms", "request_ms", "overlap_ms", "hop_service_ms", "native_elapsed_ms",
+             "native_inference_wall_ms", "native_inference_cpu_ms", "native_frontend_ms", "native_graph_ms",
+             "native_graph_upload_ms", "native_graph_compute_ms", "native_graph_readback_ms", "native_postprocess_ms",
+             "native_graph_rebuild_ms"})
+            for (const auto* kind : {"bool", "string", "nan", "inf", "negative-inf", "negative"}) {
+                const auto mode = QByteArray("timing-bad:") + field + ':' + kind;
+                QTest::newRow(mode.constData()) << mode;
+            }
+        QTest::newRow("opaque-native-field") << QByteArray("timing-extra");
+        for (const auto* kind : {"bool", "string", "null", "array"}) {
+            const auto mode = QByteArray("timing-container:") + kind;
+            QTest::newRow(mode.constData()) << mode;
+        }
+    }
+    void malformedPhaseTimingNeverReachesObservations()
+    {
+        QFETCH(QByteArray, mode);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 17); const auto fixture = conflux::test::makeStemServiceFixture(directory.path(), mode);
+            auto track = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            auto handle = track.observations;
+            require(!track.playback->prime(0, std::chrono::seconds(10)), "Malformed phase timing was accepted");
+            stop(track); assertGone(fixture.marker(".started"));
+            std::vector<Observation> rows; drainObservations(handle, rows);
+            require(std::ranges::none_of(rows, [](const auto& row) {
+                return row.kind == ObservationKind::ChunkValidated || row.kind == ObservationKind::PacketAccepted;
+            }), "Malformed phase timing reached a validated or published observation");
+            const auto counters = handle->counters();
+            require(counters.producerFinished && !counters.droppedRecords && !counters.invalidClockReads && rootNames(root).isEmpty(),
+                "Malformed phase timing left incomplete diagnostics or live ownership");
         });
     }
 

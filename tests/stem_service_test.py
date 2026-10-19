@@ -24,6 +24,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.stems import service
 from tools.stems.worker import CHANNELS, HOP, RATE, STEMS, WINDOW
 
+WORKER_PHASES = ("source_read_ms", "request_ms", "overlap_ms")
+NATIVE_PHASES = ("elapsed_ms", "inference_wall_ms", "inference_cpu_ms", "frontend_ms", "graph_ms",
+                 "graph_upload_ms", "graph_compute_ms", "graph_readback_ms", "postprocess_ms", "graph_rebuild_ms")
+
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -325,6 +329,72 @@ class ServiceTest(unittest.TestCase):
         self.assertNotIn("samples", event)
         self.assertLessEqual(path.stat().st_size, 8255520)
         return path
+
+    def test_chunk_phase_timings_preserve_values_and_omissions(self):
+        for selection in ("all", "alternating", "zero", "omitted"):
+            with self.subTest(selection=selection):
+                expected = {}
+
+                def mutate(event):
+                    if event.get("event") != "chunk":
+                        return
+                    for key in WORKER_PHASES:
+                        event.pop(key, None)
+                    event["metrics"] = {"not_forwarded": "private native details", "input": "/private/input.f32"}
+                    for index, key in enumerate(WORKER_PHASES + NATIVE_PHASES):
+                        if selection == "omitted" or (selection == "alternating" and index % 2):
+                            continue
+                        value = 0.0 if selection == "zero" else index * 0.125
+                        wire_key = key if index < len(WORKER_PHASES) else "native_" + key
+                        expected[wire_key] = value
+                        (event if index < len(WORKER_PHASES) else event["metrics"])[key] = value
+
+                harness = Harness(self, configure=lambda worker: setattr(worker, "mutate", mutate)).start()
+                harness.event("ready")
+                harness.event("accepted", identifier=harness.send("load", frame=0))
+                chunk = harness.event("chunk")
+                self.assert_chunk(harness, chunk, 0, 17, True)
+                names = WORKER_PHASES + tuple("native_" + key for key in NATIVE_PHASES)
+                actual = {key: chunk[key] for key in WORKER_PHASES if key in chunk}
+                actual.update(chunk.get("native_timings", {}))
+                self.assertEqual(actual, expected)
+                self.assertEqual("native_timings" in chunk, any(key.startswith("native_") for key in expected))
+                self.assertFalse(any(key in chunk for key in names if key.startswith("native_")))
+                self.assertLessEqual(len(chunk), 32)
+                self.assertEqual((chunk["generation"], chunk["request_id"], chunk["sequence"]), (1, 1, 1))
+                self.assertEqual(chunk["hop_service_ms"], 0.2)
+                self.assertNotIn("private", json.dumps(chunk))
+                harness.event("accepted", identifier=harness.ack(chunk))
+                harness.close_clean()
+
+    def test_invalid_recognized_phase_timings_never_publish(self):
+        for key in WORKER_PHASES + ("hop_service_ms",) + NATIVE_PHASES:
+            for value in (True, "1", float("nan"), float("inf"), -float("inf"), -0.125):
+                with self.subTest(key=key, value=value):
+                    def mutate(event):
+                        if event.get("event") == "chunk":
+                            (event["metrics"] if key in NATIVE_PHASES else event)[key] = value
+
+                    harness = Harness(self, configure=lambda worker: setattr(worker, "mutate", mutate)).start()
+                    harness.event("ready")
+                    harness.event("accepted", identifier=harness.send("load", frame=0))
+                    harness.finish(error=True)
+                    self.assertFalse(any(event.get("event") == "chunk" for event in harness.remaining()))
+                    self.assertFalse(any(harness.directory.glob("slot*.f32")))
+                    self.assertTrue(harness.workers[0].closed)
+
+    def test_native_timing_container_must_be_an_object_when_present(self):
+        for value in (None, True, "opaque", []):
+            with self.subTest(value=value):
+                def mutate(event):
+                    if event.get("event") == "chunk":
+                        event["metrics"] = value
+                harness = Harness(self, configure=lambda worker: setattr(worker, "mutate", mutate)).start()
+                harness.event("ready")
+                harness.event("accepted", identifier=harness.send("load", frame=0))
+                harness.finish(error=True)
+                self.assertFalse(any(event.get("event") == "chunk" for event in harness.remaining()))
+                self.assertFalse(any(harness.directory.glob("slot*.f32")))
 
     def test_ready_pins_input_without_inference_and_close_is_explicit(self):
         harness = Harness(self).start()
@@ -766,6 +836,53 @@ for line in sys.stdin:
         self.assertTrue((harness.directory / "native" / "runtime.stderr").exists())
         self.assertTrue(harness.source.exists())
         self.assertFalse(any(event.get("event") == "closed" for event in harness.remaining()))
+
+
+class PhaseObservationAnalysisTest(unittest.TestCase):
+    def summary(self, phases):
+        from tools.experiments.run_manual_playback_soak import summarize_live_observations
+
+        setup = {"input_frames": 17, "output_frames": 19, "factory_entry_ns": 1,
+                 "input_captured_ns": 2, "count_complete_ns": 3, "factory_committed_ns": 4}
+        native = {"setup": setup, "controls": [], "load_issued_ns": 5, "first_advance_observed_ns": 7,
+                  "observation_counters": {"producer_finished": True, "dropped": 0, "invalid_clock_reads": 0,
+                                           "retained": 4, "attempted": 4}}
+        rows = [{"type": "setup", "context": setup}]
+        for ordinal, kind in enumerate((2, 3, 4, 5), 1):
+            row = {"type": "record", "kind": kind, "ordinal": ordinal, "observed_ns": ordinal * 100,
+                   "epoch": 11, "generation": 1, "command_id": 7, "input_first": 0, "input_frames": 0,
+                   "output_first": 0, "output_frames": 0, "telemetry_dropped_present": False}
+            if kind == 5:
+                row.update(input_frames=17, final=True, lease_sequence=1, request_id=42, validated_ns=450,
+                           worker_ready_seconds=1000.25, service_published_seconds=1000.375,
+                           hop_service_present=True, hop_service_ms=125.0, **phases)
+            rows.append(row)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "observations.jsonl"
+            path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+            return summarize_live_observations(path, native)
+
+    def test_phase_analysis_preserves_chunk_binding_and_independent_presence(self):
+        fields = WORKER_PHASES + tuple("native_" + key for key in NATIVE_PHASES)
+        for selection in ("all", "alternating", "zero", "omitted"):
+            with self.subTest(selection=selection):
+                phases = {key: 0.0 if selection == "zero" else index * .125 for index, key in enumerate(fields)
+                          if selection in ("all", "zero") or (selection == "alternating" and index % 2 == 0)}
+                result = self.summary(phases)
+                self.assertEqual(result["chunk_phases"]["hops"], [{"epoch": 11, "generation": 1,
+                    "request_id": 42, "lease_sequence": 1, "input_first": 0, "input_frames": 17,
+                    "hop_service_ms": 125.0, **phases}])
+                for key in fields:
+                    self.assertEqual(result["chunk_phases"]["fields"][key], {
+                        "count": int(key in phases), "maximum_ms": phases.get(key),
+                        "nearest_rank_p99_ms": phases.get(key), "present_for_all_chunks": key in phases})
+                self.assertEqual(result["service_hops"]["strict_target_ms"], 4095)
+                self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
+
+    def test_phase_analysis_rejects_invalid_optional_scalars(self):
+        for value in (None, True, "1", float("nan"), float("inf"), -float("inf"), -.125):
+            with self.subTest(value=value), self.assertRaisesRegex(RuntimeError, "Invalid optional phase timing"):
+                self.summary({"native_graph_compute_ms": value})
 
 
 if __name__ == "__main__":

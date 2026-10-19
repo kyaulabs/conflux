@@ -38,7 +38,7 @@ def trace(value):
 def emit(value):
     global wire_bytes
     value = dict(v=1, **value)
-    data = (json.dumps(value, separators=(',', ':'), allow_nan=False) + '\n').encode()
+    data = (json.dumps(value, separators=(',', ':'), allow_nan=MODE.startswith('timing-bad:')) + '\n').encode()
     assert len(data) <= 16384
     sys.stdout.buffer.write(data); sys.stdout.buffer.flush()
     wire_bytes += len(data)
@@ -135,9 +135,25 @@ def publish():
         'stems': ROLES, 'frame_start': cursor, 'window_start_frame': cursor // HOP * HOP,
         'frames': frames, 'final': cursor + frames == n, 'bytes': value['bytes'], 'sha256': value['sha256'],
         'request_id': sequence, 'worker_ready_at': time.monotonic(), 'published_at': time.monotonic()}
-    if MODE in ['timing', 'timing-no-hop']:
+    if MODE in ['timing', 'timing-no-hop', 'timing-partial', 'timing-zero']:
         event['worker_ready_at'] = 1000.25; event['published_at'] = 1000.375
         if MODE == 'timing': event['hop_service_ms'] = 125.0
+        names = ['source_read_ms', 'request_ms', 'overlap_ms', 'native_elapsed_ms', 'native_inference_wall_ms',
+            'native_inference_cpu_ms', 'native_frontend_ms', 'native_graph_ms', 'native_graph_upload_ms',
+            'native_graph_compute_ms', 'native_graph_readback_ms', 'native_postprocess_ms', 'native_graph_rebuild_ms']
+        phases = {key: 0.0 if MODE == 'timing-zero' else index * .125 for index, key in enumerate(names)
+            if MODE in ['timing', 'timing-zero'] or (MODE == 'timing-partial' and index % 2 == 0)}
+        event.update({key: value for key, value in phases.items() if not key.startswith('native_')})
+        native = {key: value for key, value in phases.items() if key.startswith('native_')}
+        if native: event['native_timings'] = native
+    if MODE.startswith('timing-bad:'):
+        _, key, kind = MODE.split(':')
+        target = event.setdefault('native_timings', {}) if key.startswith('native_') else event
+        target[key] = {'bool': True, 'string': '1', 'nan': float('nan'), 'inf': float('inf'),
+            'negative-inf': -float('inf'), 'negative': -.125}[kind]
+    if MODE == 'timing-extra': event['native_timings'] = {'private_path': '/private/input.f32'}
+    if MODE.startswith('timing-container:'):
+        event['native_timings'] = {'bool': True, 'string': 'opaque', 'null': None, 'array': []}[MODE.split(':')[1]]
     if MODE == 'wrong-hash': event['sha256'] = '0' * 64
     if MODE == 'wrong-origin': event['frame_start'] += 1
     if MODE == 'wrong-final': event['final'] = not event['final']

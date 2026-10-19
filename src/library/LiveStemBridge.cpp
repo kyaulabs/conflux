@@ -562,7 +562,7 @@ private:
     void chunk(const QJsonObject& value)
     {
         keys(value, {"v", "event", "slot", "sequence", "generation", "source_id", "model_id", "file", "source_frames", "source_format", "sample_rate", "channels", "stems", "frame_start", "window_start_frame", "frames", "final", "bytes", "sha256", "request_id", "worker_ready_at", "published_at"},
-            {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms"});
+            {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms", "native_timings"});
         current(value);
         require(sourceSeen_ && !rawComplete_ && digest(value.value("model_id")) == modelDigest() &&
             integer(value.value("source_frames")) == job_->inputFrames && text(value.value("source_format")) == "f32le" &&
@@ -580,6 +580,14 @@ private:
         (void)finite(value.value("worker_ready_at")); (void)finite(value.value("published_at"));
         for (const auto* key : {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms"})
             if (value.contains(key)) (void)finite(value.value(key));
+        const auto nativeTimings = value.contains("native_timings") ? object(value.value("native_timings")) : QJsonObject{};
+        keys(nativeTimings, {}, {"native_elapsed_ms", "native_inference_wall_ms", "native_inference_cpu_ms",
+             "native_frontend_ms", "native_graph_ms", "native_graph_upload_ms", "native_graph_compute_ms",
+             "native_graph_readback_ms", "native_postprocess_ms", "native_graph_rebuild_ms"});
+        for (const auto* key : {"native_elapsed_ms", "native_inference_wall_ms", "native_inference_cpu_ms", "native_frontend_ms", "native_graph_ms",
+             "native_graph_upload_ms", "native_graph_compute_ms", "native_graph_readback_ms",
+             "native_postprocess_ms", "native_graph_rebuild_ms"})
+            if (nativeTimings.contains(key)) (void)finite(nativeTimings.value(key));
         const auto expected = digest(value.value("sha256"));
         const auto receiptNs = stamp();
         auto& lease = leases_[slot];
@@ -599,6 +607,19 @@ private:
             record.servicePublishedSeconds = value.value("published_at").toDouble();
             record.hopServicePresent = value.contains("hop_service_ms");
             if (record.hopServicePresent) record.hopServiceMs = value.value("hop_service_ms").toDouble();
+            const auto phase = [](const QJsonObject& timings, const char* key) -> std::optional<double> {
+                return timings.contains(key) ? std::optional{timings.value(key).toDouble()} : std::nullopt;
+            };
+            record.sourceReadMs = phase(value, "source_read_ms"); record.requestMs = phase(value, "request_ms");
+            record.overlapMs = phase(value, "overlap_ms"); record.nativeElapsedMs = phase(nativeTimings, "native_elapsed_ms");
+            record.nativeInferenceWallMs = phase(nativeTimings, "native_inference_wall_ms");
+            record.nativeInferenceCpuMs = phase(nativeTimings, "native_inference_cpu_ms");
+            record.nativeFrontendMs = phase(nativeTimings, "native_frontend_ms"); record.nativeGraphMs = phase(nativeTimings, "native_graph_ms");
+            record.nativeGraphUploadMs = phase(nativeTimings, "native_graph_upload_ms");
+            record.nativeGraphComputeMs = phase(nativeTimings, "native_graph_compute_ms");
+            record.nativeGraphReadbackMs = phase(nativeTimings, "native_graph_readback_ms");
+            record.nativePostprocessMs = phase(nativeTimings, "native_postprocess_ms");
+            record.nativeGraphRebuildMs = phase(nativeTimings, "native_graph_rebuild_ms");
             observe(record);
         }
         if (lease.validated && (acceptedEpoch_ != latest_.epoch || closing_ || !converter_)) {

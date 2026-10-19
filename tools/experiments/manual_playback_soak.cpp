@@ -161,7 +161,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         for (std::size_t count = 0; count < Observations::capacity && observations->tryPop(row); ++count) {
             if (row.kind == Kind::CommandAccepted) acceptedGeneration = row.workerGeneration;
             if (row.kind == Kind::RawComplete) completedGeneration = row.workerGeneration;
-            write({{"type", "record"}, {"kind", int(row.kind)}, {"ordinal", qint64(row.ordinal)}, {"observed_ns", qint64(row.observedNs)},
+            QJsonObject value{{"type", "record"}, {"kind", int(row.kind)}, {"ordinal", qint64(row.ordinal)}, {"observed_ns", qint64(row.observedNs)},
                 {"epoch", qint64(row.providerEpoch)}, {"generation", qint64(row.workerGeneration)}, {"command_id", qint64(row.commandId)},
                 {"request_id", qint64(row.requestId)}, {"lease_sequence", qint64(row.leaseSequence)},
                 {"input_first", qint64(row.inputFirst44100)}, {"input_frames", qint64(row.inputFrames44100)},
@@ -171,7 +171,17 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 {"publish_begin_ns", qint64(row.publishBeginNs)}, {"publish_end_ns", qint64(row.publishEndNs)},
                 {"worker_ready_seconds", row.workerReadySeconds}, {"service_published_seconds", row.servicePublishedSeconds},
                 {"hop_service_present", row.hopServicePresent}, {"hop_service_ms", row.hopServiceMs},
-                {"telemetry_dropped_present", row.serviceTelemetryDroppedPresent}, {"telemetry_dropped", qint64(row.serviceTelemetryDropped)}});
+                {"telemetry_dropped_present", row.serviceTelemetryDroppedPresent}, {"telemetry_dropped", qint64(row.serviceTelemetryDropped)}};
+            const auto phase = [&](const char* key, const std::optional<double>& milliseconds) {
+                if (milliseconds) value.insert(QLatin1String(key), *milliseconds);
+            };
+            phase("source_read_ms", row.sourceReadMs); phase("request_ms", row.requestMs); phase("overlap_ms", row.overlapMs);
+            phase("native_elapsed_ms", row.nativeElapsedMs); phase("native_inference_wall_ms", row.nativeInferenceWallMs);
+            phase("native_inference_cpu_ms", row.nativeInferenceCpuMs); phase("native_frontend_ms", row.nativeFrontendMs);
+            phase("native_graph_ms", row.nativeGraphMs); phase("native_graph_upload_ms", row.nativeGraphUploadMs);
+            phase("native_graph_compute_ms", row.nativeGraphComputeMs); phase("native_graph_readback_ms", row.nativeGraphReadbackMs);
+            phase("native_postprocess_ms", row.nativePostprocessMs); phase("native_graph_rebuild_ms", row.nativeGraphRebuildMs);
+            write(value);
             ++recordCount;
         }
     };
