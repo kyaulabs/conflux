@@ -1,0 +1,61 @@
+{
+  "status": "archive_checksum_annotation_false_positives",
+  "product_tests_unchanged": true,
+  "failed_archive_tool": {
+    "bytes": 26959,
+    "sha256": "f02e2a22b1170c10371108cc522ad5e4d5bc1bd08f8d7cd163693eda5515a0e6"
+  },
+  "findings": [
+    {
+      "RuleID": "generic-api-key",
+      "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+      "StartLine": 118,
+      "EndLine": 118,
+      "StartColumn": 9,
+      "EndColumn": 80,
+      "Match": "api\": \"REDACTED\"",
+      "Secret": "REDACTED",
+      "File": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/cache-lookup-freeze.json",
+      "SymlinkFile": "",
+      "Commit": "",
+      "Entropy": 3.7864883,
+      "Author": "",
+      "Email": "",
+      "Date": "",
+      "Message": "",
+      "Tags": [],
+      "Fingerprint": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/cache-lookup-freeze.json:generic-api-key:118"
+    },
+    {
+      "RuleID": "generic-api-key",
+      "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+      "StartLine": 143,
+      "EndLine": 143,
+      "StartColumn": 9,
+      "EndColumn": 87,
+      "Match": "api_sha256\": \"REDACTED\"",
+      "Secret": "REDACTED",
+      "File": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/controller-live-freeze.json",
+      "SymlinkFile": "",
+      "Commit": "",
+      "Entropy": 3.787142,
+      "Author": "",
+      "Email": "",
+      "Date": "",
+      "Message": "",
+      "Tags": [],
+      "Fingerprint": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/controller-live-freeze.json:generic-api-key:143"
+    }
+  ],
+  "cache-lookup-freeze.json": {
+    "bytes": 5844,
+    "sha256": "3ad5bf1535c67a1f84656a5ad24208996a5bfc06580d53446d008c24b500d2dc"
+  },
+  "controller-live-freeze.json": {
+    "bytes": 9087,
+    "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84"
+  },
+  "original_frozen_inputs_untouched": true,
+  "retained_partial_archive": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-first-failed-archive",
+  "retained_raw_scan": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-first-failed-raw"
+}

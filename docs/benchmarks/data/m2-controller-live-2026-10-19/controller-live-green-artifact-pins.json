@@ -1,0 +1,18 @@
+{
+  "build/dev/conflux": {
+    "bytes": 14162472,
+    "sha256": "b1d5e68937c0c3b1a4efbe2282220f5a369a80ea514d1d1292023578b307e59f"
+  },
+  "build/dev/conflux-deck-controller-test": {
+    "bytes": 15885128,
+    "sha256": "4a5a95188363453a44503c8ae954a047d85969ffa18c0d204dd8f176f59394b4"
+  },
+  "build/dev/conflux-manual-ui-test": {
+    "bytes": 5442128,
+    "sha256": "1fa9b12ff163c89b9ea8675fcd4c45ad8908c26cd23477802144a5172a8fc38c"
+  },
+  "build/dev/conflux-preparation-controller-check": {
+    "bytes": 15139936,
+    "sha256": "07d95debcdc01ff9570a62d05e967a8bf6a2a4ab5028c7a88493d4a82b29f136"
+  }
+}

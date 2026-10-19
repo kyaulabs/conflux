@@ -1,0 +1,49 @@
+{
+  "old_signed_lookup": "a732c91fd44869fd7f8a5dcde01b56bc15df4264",
+  "corrected_develop": "c25ab6472b57be756e84c9dc2eb3009d3378f65e",
+  "branch": "feat/kyau-65a54f-live-stem-loading",
+  "stash": "795e1864720453758f503555e9d3ca54e09ef64e",
+  "controller_bytes": {
+    "CMakeLists.txt": {
+      "bytes": 18589,
+      "sha256": "1b9b0706443b343219dbe7f2401131ceb81f6f5729a971c2b1b1a55d4d904f0c"
+    },
+    "qml/DeckSurface.qml": {
+      "bytes": 31217,
+      "sha256": "839dbaae1e6a19c56b0e9de841bb3086ca526825a027eda479bb2b7ea9bd289d"
+    },
+    "src/main.cpp": {
+      "bytes": 12949,
+      "sha256": "665e6fbcff73ed7f6da11f8ddb4bbab5aebf5f3199fa23c7ca1ccfe32a1d95f0"
+    },
+    "src/ui/DeckController.cpp": {
+      "bytes": 54318,
+      "sha256": "3b9822f39e3c55a689d08dab3c1fd3a63134f4a122602270de4751f70b17c9ff"
+    },
+    "src/ui/DeckController.hpp": {
+      "bytes": 12180,
+      "sha256": "b9bbaaa493b0a00bcb8aec0a84e21085631103ff0cba2e89de5885a14f4bbfc6"
+    },
+    "tests/StemServiceFixture.hpp": {
+      "bytes": 15196,
+      "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 63676,
+      "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+    },
+    "tests/manual_ui_test.cpp": {
+      "bytes": 75423,
+      "sha256": "cc9f9ff03a72ce5059b558c8835ca3db3ea2760d2f906f193d0003699060bf17"
+    },
+    "tools/experiments/preparation_controller_check.cpp": {
+      "bytes": 78304,
+      "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+    }
+  },
+  "staged_lookup_bytes_exact": true,
+  "new_signed_lookup": "299d6c99c8da969bfa8027e121ebdc6cec421f68",
+  "signature": "299d6c99c8da969bfa8027e121ebdc6cec421f68 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+  "controller_bytes_and_patch_exact_after_stash_apply": true,
+  "same_frozen_product_and_tests_as_first_green": true
+}

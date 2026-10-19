@@ -1,0 +1,13 @@
+{
+  "worktree": "/home/kyau/.codex/worktrees/restore-git-flow/conflux",
+  "branch": "fix/kyau-e968c0-restore-develop-flow",
+  "base_restored_main": "1fab6ce2e5b768287f09c1e4c29e2d47ffb9826c",
+  "reapplied_restoration_source": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789",
+  "expected_tested_source": "18a191e55a7a2a584b00ce169785f3cf06ca0d85",
+  "expected_tree": "376ddf994a71a43f60d4aace5e569c682fdfa3f5",
+  "develop_base": "36ff90d7566560487f260dfa61e277457b38e04f",
+  "ordinary_merge_required": true,
+  "source_commit": "759a5f939b7b7efd1b03b97433d1361eee59c3df",
+  "signature": "759a5f939b7b7efd1b03b97433d1361eee59c3df G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+  "commits_relative_develop": 6
+}

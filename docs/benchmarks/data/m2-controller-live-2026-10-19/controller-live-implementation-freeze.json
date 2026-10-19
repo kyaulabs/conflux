@@ -1,0 +1,165 @@
+{
+  "schema": "conflux.controller-live-product-freeze.v1",
+  "status": "frozen_unapplied_unexecuted_product_only",
+  "author": "/root/hour_result_crosscheck",
+  "at_utc": "2026-10-19T12:58:17.187383+00:00",
+  "patch": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-implementation.patch",
+    "bytes": 13938,
+    "sha256": "9b3804639f2f21ae8687b88b0e31146a04e1a896a3f4d01444b808e0f7dd1f70"
+  },
+  "files": [
+    {
+      "path": "src/ui/DeckController.hpp",
+      "input_sha256": "4806ea27ed6a2e2856571cf9e671911b219d1f05aaa6734635bc8c911aaf9cc3",
+      "input_bytes": 11557,
+      "output_sha256": "b9bbaaa493b0a00bcb8aec0a84e21085631103ff0cba2e89de5885a14f4bbfc6",
+      "output_bytes": 12180,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-implementation-DeckController.hpp"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "input_sha256": "950a4150fc98ac42391abcc267f7d8336902c3c2f6ccbbff833fa4d8d2aec6e5",
+      "input_bytes": 50491,
+      "output_sha256": "3b9822f39e3c55a689d08dab3c1fd3a63134f4a122602270de4751f70b17c9ff",
+      "output_bytes": 54318,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-implementation-DeckController.cpp"
+    },
+    {
+      "path": "src/main.cpp",
+      "input_sha256": "64cf463324d03a6ef9a73847a56c31719868de8a0529ca2103c89a5d1dc17282",
+      "input_bytes": 12492,
+      "output_sha256": "665e6fbcff73ed7f6da11f8ddb4bbab5aebf5f3199fa23c7ca1ccfe32a1d95f0",
+      "output_bytes": 12949,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-implementation-main.cpp"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "input_sha256": "05df2d9a68b45d51ab75324a72170fa6f8aaa1c520c3800d665097fb0acbd7ec",
+      "input_bytes": 31124,
+      "output_sha256": "839dbaae1e6a19c56b0e9de841bb3086ca526825a027eda479bb2b7ea9bd289d",
+      "output_bytes": 31217,
+      "snapshot": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-implementation-DeckSurface.qml"
+    }
+  ],
+  "api_document": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-api.md",
+    "bytes": 3632,
+    "sha256": "1bee1056112bf376d6cc9f2a14af26bab16c94d284c84dcb201e711e98b921ac"
+  },
+  "independent_test_freeze": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-freeze.json",
+    "bytes": 9087,
+    "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84"
+  },
+  "independent_test_inputs": {
+    "CMakeLists.txt": {
+      "bytes": 18589,
+      "sha256": "1b9b0706443b343219dbe7f2401131ceb81f6f5729a971c2b1b1a55d4d904f0c"
+    },
+    "tests/StemServiceFixture.hpp": {
+      "bytes": 15196,
+      "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 63676,
+      "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+    },
+    "tests/manual_ui_test.cpp": {
+      "bytes": 75423,
+      "sha256": "cc9f9ff03a72ce5059b558c8835ca3db3ea2760d2f906f193d0003699060bf17"
+    },
+    "tools/experiments/preparation_controller_check.cpp": {
+      "bytes": 78304,
+      "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+    }
+  },
+  "actual_root_red": {
+    "record": {
+      "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-red-result.json",
+      "bytes": 1756,
+      "sha256": "be819853aa6bb87e6bcecc1640e9a3a911c54dd3f16b988c467808a6a8baf59b"
+    },
+    "signed_base": "a732c91fd44869fd7f8a5dcde01b56bc15df4264",
+    "at": "2026-10-19T12:52:38.404579+00:00",
+    "stages": [
+      {
+        "stage": "controller-live-red-configure",
+        "command": [
+          "cmake",
+          "-S",
+          ".",
+          "-B",
+          "build/dev",
+          "-G",
+          "Ninja"
+        ],
+        "exit": 0,
+        "expected_exit": 0,
+        "elapsed_seconds": 6.088199336954858
+      },
+      {
+        "stage": "controller-live-red-build",
+        "command": [
+          "cmake",
+          "--build",
+          "build/dev",
+          "--target",
+          "conflux-deck-controller-test",
+          "--parallel",
+          "2"
+        ],
+        "exit": 1,
+        "expected_exit": 1,
+        "elapsed_seconds": 52.13669688999653
+      }
+    ],
+    "compiler_error_count": 4,
+    "diagnostic": "Four missing PreparationOptions::stemServicePath compiler errors; no product/declaration applied at actual RED"
+  },
+  "tdd": {
+    "independent_api_tests_frozen_before_product": true,
+    "product_drafted_only_after_actual_root_red_release": true,
+    "frozen_test_sources_unchanged": true,
+    "author_changed_tracked_files": false,
+    "author_ran_build_tests_git_native_model_audio_or_host_work": false,
+    "root_owns_apply_green_required_checks_and_git": true
+  },
+  "reviews": [
+    {
+      "reviewer": "/root",
+      "outcome": "full exact four-file patch clear; no code changes requested"
+    },
+    {
+      "reviewer": "/root/guard_rules",
+      "outcome": "exact9b380463 source clear",
+      "scope": "Cache-first/source validation, cancellation and whole-owner retirement, process-lifetime saturating tokens, constructor loss versus healthy start-failure parking, finite/live accounting, CLI and source label"
+    },
+    {
+      "reviewer": "/root/m0_m1_gates",
+      "outcome": "exact9b380463 source clear",
+      "scope": "Frozen API/Qt/private behavior, original SHA before prime, immutable exact live metadata, returned-owner adoption, lost-live sequential reload, unchanged finite recreation/default CLI/layout"
+    }
+  ],
+  "implementation_scope": [
+    "Four product files only: DeckController.hpp/.cpp, main.cpp and one DeckSurface label ternary; no geometry/control layout change",
+    "Append optional stemServicePath after existing PreparationOptions fields; empty retains complete offline stem preparation and normal load/import remain unchanged",
+    "Configured service mode uses validated complete-bank lookup first; only genuine absence calls prepareLiveStem; lookup errors never fall through and a cache hit does not inspect the unused service",
+    "Retain distinct original source SHA in immutable live metadata with exact output frames and normalized source overview; live metadata has zero file-backed PCM bytes and makePlayback rejects recreating a producer",
+    "Use the live factory returned whole owner, check expected library original SHA before any prime, pass current cancellation token to finite2s/live60s prime, and retain the existing session primeForSession adoption",
+    "A process-wide relaxed atomic CAS source-token counter advances monotonically and saturates/fails before uint64 wrap; tokens are separate from controller/session generations and never reclaimed after failure",
+    "Preserve existing shared loader move-out, callback-boundary replacement, bounded retirement batches/passive shutdown and persistent store live reservation accounting",
+    "Installer constructor/prime failure records every consumed live metadata slot; GUI clears only those names/waveforms/per-deck transport/source/error/meter rows, keeping finite recreation and explicit error",
+    "Output-start failure continues through the unchanged stopSession exact-owner parking path, without marking healthy live owners lost",
+    "Explicit --stem-service requires all five engine paths, absolute NUL-free service path and non-smoke mode; five-only and no-tools startup remain supported",
+    "Live decks report overviewStem=source and show LIVE STEMS \u00b7 SOURCE WAVEFORM, complete banks remain drums, normal files remain local"
+  ],
+  "limits": [
+    "Author and peers performed source/diff/hash analysis only; no tracked application, compiler/build/test/Git/native/model/audio or host-state work",
+    "Root actual GREEN, CLI checks and final integrated normal/private/coverage validation remain pending at freeze; standalone lookup six-stage archive draft remains unexecuted because root groups lookup and controller activation",
+    "Process-token exhaustion behavior is source-reviewed without a public setter or synthetic wrap test; no production test hook is introduced",
+    "Deterministic integration tests use stdlib service/generated PCM and private graph; no actual model, physical audio, sustained thermal or strict4095ms integrated p99/M2 completion claim",
+    "Existing functional-only virtual receiver gate and recorded pre-route prefix/final-tail scope remain explicit; no assertions, tolerances, timing gates or independent tests were changed by product author",
+    "GitFlow/ancestry reconciliation is root-owned and does not change the pinned four-file inputs; this receipt binds source bytes rather than claiming later branch state"
+  ]
+}

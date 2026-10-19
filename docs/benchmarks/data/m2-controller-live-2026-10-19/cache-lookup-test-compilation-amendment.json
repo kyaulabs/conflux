@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-19T12:31:20.456516+00:00",
+  "reason": "C++20 std::span has no operator==; first post-product build reached the resolved lookup result and diagnosed this test-only expression",
+  "original_test": {
+    "bytes": 61457,
+    "sha256": "b1857fdc3dd5848fd1a63804a0c35b3d335137df894d88d5e9709b1217516915"
+  },
+  "fixed_test": {
+    "bytes": 61475,
+    "sha256": "7be77c02050e2333b3d142bcea030cfe605bd4b54c30cceee7270b9d62a7862c"
+  },
+  "patch": {
+    "bytes": 651,
+    "sha256": "69d5c564dd1d36f0dd61c683c9010e96138690cb701c094b951a35692b88f713"
+  },
+  "retained_failed_build": {
+    "bytes": 41497,
+    "sha256": "fa5d413eb88d5cb674d5e1812452c082ce78a44d60db7514098ceccc30a49cca"
+  },
+  "retained_failed_result": {
+    "bytes": 276,
+    "sha256": "6134de1878b43d211c1711d3e06490951b5407a576edc52fe8193412691722bb"
+  },
+  "change": "Only span equality expression becomes std::ranges::equal: same length and every float value; exact independent numerical oracle retained",
+  "independent_test_author_confirmation": "/root/m0_m1_gates confirmed equal-length/every-value semantics before root application",
+  "original_freezes_unchanged": true,
+  "product_outputs_unchanged": true,
+  "no_first_unchanged_test_source_green_claim": true
+}

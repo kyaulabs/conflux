@@ -1,0 +1,23 @@
+{
+  "stage": "full-existing-store-suite",
+  "command": [
+    "ctest",
+    "--test-dir",
+    "build/dev",
+    "-R",
+    "^prepared-track-store$",
+    "--output-on-failure"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 13.483114750008099,
+  "current_test": {
+    "bytes": 61475,
+    "sha256": "7be77c02050e2333b3d142bcea030cfe605bd4b54c30cceee7270b9d62a7862c"
+  },
+  "binary": {
+    "bytes": 10186136,
+    "sha256": "3f57d3227511a7dee49be33e97813c872d95e99ca484025f71de16e9e0c8c12e"
+  },
+  "compiled_in": "cache-lookup-green-fixed-build.log",
+  "no_product_or_test_byte_change_since_focused_build": true
+}

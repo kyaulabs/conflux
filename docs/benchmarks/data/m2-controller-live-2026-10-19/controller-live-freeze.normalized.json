@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "status": "source_reviewed_independent_tests_frozen_actual_red_pending",
+  "public_api": {
+    "option": "DeckController::PreparationOptions::stemServicePath",
+    "type": "QString",
+    "default": "empty",
+    "routing": "empty keeps five-asset offline preparation; nonempty uses read-only prepared-bank lookup then live factory only on genuine absence",
+    "label": "LIVE STEMS · SOURCE WAVEFORM",
+    "token_requirement": "Every live owner receives a distinct nonzero process-lifetime token, separate from handoff generation; overflow stays terminal"
+  },
+  "artifacts": {
+    "controller-live-api.md": {
+      "sha256": "1bee1056112bf376d6cc9f2a14af26bab16c94d284c84dcb201e711e98b921ac",
+      "bytes": 3632
+    },
+    "controller-live-tests-plan.md": {
+      "sha256": "728d9f542a87eb5e369077bfd01b33fec7907443736b91ef3289bb41934ace5b",
+      "bytes": 7917
+    },
+    "controller-live-qt-tests.patch": {
+      "sha256": "238cfb9a737aff39158ffe858e426204eea162f6f9afd2eb873fdf799874d1ec",
+      "bytes": 22681
+    },
+    "controller-live-ui-tests.patch": {
+      "sha256": "a79b0688b43863e9c8adaa5df34df6f483fa3bf27c80f05d4b27dc4f60329063",
+      "bytes": 754
+    },
+    "controller-live-test-cmake.patch": {
+      "sha256": "5863408580ebbb8006c4b21f07ee9e40e072820c9fa0a3cbbe839a5b2edc9515",
+      "bytes": 1280
+    },
+    "controller-live-private-tests.patch": {
+      "sha256": "1a4f66b0dde237e16c51981c6a772ba728c9cc16545051db8c7db02d217c93a6",
+      "bytes": 31352
+    },
+    "controller-live-fixture.patch": {
+      "sha256": "cd2fcd36e56e7cda5a122f338ee0a81c8e13c9e76deab75a2be0c78f2497c921",
+      "bytes": 951
+    },
+    "controller-live-private-freeze.json": {
+      "sha256": "30e6459c4775191ff106721fd770abe09348e8afaaa627ee1fb95eb003873f28",
+      "bytes": 5399
+    }
+  },
+  "input_sources": {
+    "src/ui/DeckController.hpp": {
+      "sha256": "4806ea27ed6a2e2856571cf9e671911b219d1f05aaa6734635bc8c911aaf9cc3",
+      "bytes": 11557
+    },
+    "src/ui/DeckController.cpp": {
+      "sha256": "950a4150fc98ac42391abcc267f7d8336902c3c2f6ccbbff833fa4d8d2aec6e5",
+      "bytes": 50491
+    },
+    "src/main.cpp": {
+      "sha256": "64cf463324d03a6ef9a73847a56c31719868de8a0529ca2103c89a5d1dc17282",
+      "bytes": 12492
+    },
+    "qml/DeckSurface.qml": {
+      "sha256": "05df2d9a68b45d51ab75324a72170fa6f8aaa1c520c3800d665097fb0acbd7ec",
+      "bytes": 31124
+    },
+    "tests/deck_controller_test.cpp": {
+      "sha256": "f930509c09c0a49b851a059615b4862ee61dc0af9bbf1b95c30b99e84be34e89",
+      "bytes": 42168
+    },
+    "tests/manual_ui_test.cpp": {
+      "sha256": "554b8bb96d69a2a83f749504eb0a630d192fd668e8f960bf7e606eb53fd79281",
+      "bytes": 75126
+    },
+    "tools/experiments/preparation_controller_check.cpp": {
+      "sha256": "b3777952487a1ae85bee15b6972e4ef4f13d2d0c28a9d10e2295884d03ab9af4",
+      "bytes": 50230
+    },
+    "tests/StemServiceFixture.hpp": {
+      "sha256": "3c4cb9819657872977d52410e523e679852b3c71c80c6a959ba2a9e6aa224691",
+      "bytes": 14973
+    },
+    "tests/StemExportFixture.hpp": {
+      "sha256": "e984fe8de7fb5fdf9c040642c55950c64c382c1744469096ac29fc9e1011784e",
+      "bytes": 6196
+    },
+    "src/library/PreparedTrackStore.hpp": {
+      "sha256": "2120420797956770b363686989b42a6d2e9f247e5fba4ada5eeba443fc4ad45a",
+      "bytes": 3713
+    },
+    "src/library/PreparedTrackStore.cpp": {
+      "sha256": "926f891d63d0d84366192ef2f92c20e854b0591594cc9b6de44ce0c65ebccade",
+      "bytes": 53045
+    },
+    "CMakeLists.txt": {
+      "sha256": "2c1ab3fea7ae0e5e187a2d49a9e550b725b3577c3de6691092dd4cbe362b914e",
+      "bytes": 18541
+    }
+  },
+  "apply_test_patches": [
+    "controller-live-fixture.patch",
+    "controller-live-qt-tests.patch",
+    "controller-live-ui-tests.patch",
+    "controller-live-test-cmake.patch",
+    "controller-live-private-tests.patch"
+  ],
+  "patch_format": "All active patches are unified source diffs; no product header or implementation patch is included",
+  "actual_red": {
+    "required": true,
+    "performed": false,
+    "expected_missing_contract": "Current PreparationOptions lacks stemServicePath; new Qt/private test calls must be compiled before product drafting",
+    "timing": "Root applies after the signed lookup source is ready; lookup and controller REDs remain independent"
+  },
+  "cases": {
+    "added_qt_behavior_methods": [
+      "liveServiceModePrefersCompleteBankWithoutUsingService",
+      "genuineMissInstallsOneLiveOwnerAndParksOnOutputFailure",
+      "corruptBankAndChangedLibrarySourceNeverSelectLiveFallback",
+      "queuedLiveCancellationRetiresOnWorkerBeforeEndingBusy"
+    ],
+    "existing_ui_method_extended": "stemOverviewIsLabeledWithoutChangingNormalDeckOverview",
+    "private_flows": [
+      "runLiveStemController",
+      "runLostLiveOwners"
+    ],
+    "assertions": [
+      "Cache preference uses unchanged five-asset identity, even when unused absolute service path is missing; both direct and library stem load avoid service/native/cold export",
+      "Tiny real live factory/owner through actual controller has independent complete-conversion frame count, exact normalized source overview, one load/runtime and no redundant constructor seek; unavailable output parks a healthy owner",
+      "Present damaged keyed metadata remains byte-identical and fails rather than selecting live; changed library original SHA fails before service load/seek and preserves current deck",
+      "Queued completion remains cancellable; a scoped global-pool barrier preserves candidate ownership/job while GUI runs, then releases before controller destruction and permits worker cleanup",
+      "Known service fallback guards validate start_ticks after pidfd acquisition before any signal; safety cleanup occurs after product cleanup assertions/controller unwind",
+      "Private bass-only signal is independently .125/-.0625 from .25/-.125 source, so original or vocals substitution fails; normal strict sink and functional-only recording scopes stay distinct",
+      "Actual private callback handoff, same service PID/start identity/runtime over consumed routing, exact tiny B installed identity/count and normal replacement identity preserve current peer and writer",
+      "Two consumed stale-after-seek owners fail constructor re-prime, clear only lost live metadata and permit sequential good-mode reload",
+      "Recording checks every pre-route frame and final steady tail with existing1e-6 tolerance; explicit routing gap/ramp is excluded and finite/amplitude checks remain",
+      "All known safe service jobs are removed on cancellation/shutdown; no full model, host server or physical output is used"
+    ]
+  },
+  "source_review": {
+    "author": "/root/m0_m1_gates",
+    "independent_qt_api_ui_cmake_review": {
+      "reviewer": "/root/guard_rules",
+      "outcome": "clear",
+      "qt_sha256": "238cfb9a737aff39158ffe858e426204eea162f6f9afd2eb873fdf799874d1ec",
+      "ui_sha256": "a79b0688b43863e9c8adaa5df34df6f483fa3bf27c80f05d4b27dc4f60329063",
+      "cmake_sha256": "5863408580ebbb8006c4b21f07ee9e40e072820c9fa0a3cbbe839a5b2edc9515",
+      "api_sha256": {
+        "sha256": "1bee1056112bf376d6cc9f2a14af26bab16c94d284c84dcb201e711e98b921ac"
+      }
+    },
+    "private_fixture_review": {
+      "author": "/root/guard_rules",
+      "reviewers": [
+        "/root/m0_m1_gates",
+        "/root/hour_result_crosscheck"
+      ],
+      "outcome": "clear",
+      "receipt": "controller-live-private-freeze.json",
+      "last_delta": "Added actual bounded tiny input/output conversion count and exact installed target identity/duration"
+    },
+    "author_source_only_hunk_inspection": {
+      "hunks": 4,
+      "errors": []
+    },
+    "source_check_scope": "Read-only source/diff/hash inspection, not compilation or a functional pass"
+  },
+  "temporary_work": {
+    "readable_qt_full_copy": "removed after precise patch generation and source review",
+    "old_private_v1_artifacts": "retained by private draft author as historical source-review records; active unified hashes above supersede them"
+  },
+  "execution": {
+    "tracked_source_changed": false,
+    "product_implementation_drafted": false,
+    "builds": false,
+    "tests": false,
+    "native_or_model": false,
+    "host_queries": false,
+    "git": false,
+    "actual_red_green_owner": "/root"
+  },
+  "pending": [
+    "Root actual controller RED, product implementation and GREEN",
+    "Root application CLI acceptance/rejection checks for absolute/NUL-free --stem-service, all-five dependency, smoke rejection and preserved five-only behavior",
+    "Final integrated normal/private/sanitizer/coverage checks on root-selected source; no new CI result is claimed",
+    "Combined initial-output-failure then fresh-sink activation is not a new test here; Qt proves healthy parking and private flow separately proves consumed-owner routing reuse",
+    "Active underrun/deadline matrix is not duplicated; existing provider/bridge/recovery tests retain those scopes",
+    "Actual-model visible-UI integrated delivery/physical audio and sustained M2 qualification remain open; strict4095ms target is unchanged"
+  ],
+  "archive_original_record": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-freeze.json",
+    "bytes": 9087,
+    "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84",
+    "json_pointer": "/source_review/independent_qt_api_ui_cmake_review/api_sha256",
+    "original_json_format": {
+      "indent": 2,
+      "ensure_ascii": false,
+      "trailing_newline": true
+    },
+    "transformation": "Replace this verified SHA-256 scalar only with an object containing the same sha256 value",
+    "original_input_untouched": true,
+    "inverse_json_and_byte_equality_verified": true
+  }
+}

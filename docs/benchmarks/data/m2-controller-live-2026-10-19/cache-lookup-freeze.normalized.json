@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "status": "independent_api_tests_frozen_red_pending",
+  "api": "std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(const QString&, const StemEngine&, std::stop_token = {})",
+  "scope": "Read-only prepared-bank lookup needed before cache-first live controller integration; no product implementation",
+  "artifacts": {
+    "cache-lookup-api.md": {
+      "sha256": "d6658e02d0a25a551053b4e5fa3243653d8728a070621134c8a9d7d653093b62",
+      "bytes": 3953
+    },
+    "cache-lookup-tests.patch": {
+      "sha256": "0f29cd210c4bfcb6799bdaad51c59d6262dd6621ec30c007add1ac76cf1099e8",
+      "bytes": 15917
+    }
+  },
+  "inputs": {
+    "src/library/PreparedTrackStore.hpp": {
+      "sha256": "2a5d7c08e9135fc0222f9721f68802c89d4932d89ffa21932d84db8250217d21",
+      "bytes": 3315
+    },
+    "src/library/PreparedTrackStore.cpp": {
+      "sha256": "b5691b8e946ee0e65ceed36dc4ed48c872391346d76a69788e2bf2204ee8d142",
+      "bytes": 49515
+    },
+    "src/library/StemEngineSupport.hpp": {
+      "sha256": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109",
+      "bytes": 3042
+    },
+    "src/library/StemEngineSupport.cpp": {
+      "sha256": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475",
+      "bytes": 12360
+    },
+    "tests/prepared_track_store_test.cpp": {
+      "sha256": "ff9a2af5d78c83e6208664b4beac1f80baf193a2e829b85d70149963ec677004",
+      "bytes": 46099
+    },
+    "tests/StemExportFixture.hpp": {
+      "sha256": "e984fe8de7fb5fdf9c040642c55950c64c382c1744469096ac29fc9e1011784e",
+      "bytes": 6196
+    },
+    "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-integration-review.md": {
+      "sha256": "42f8edba7b508ef40ea16e7c4ac5c87af258c20a222c88d265695dae60bdaa28",
+      "bytes": 10636
+    },
+    "CMakeLists.txt": {
+      "sha256": "2c1ab3fea7ae0e5e187a2d49a9e550b725b3577c3de6691092dd4cbe362b914e",
+      "bytes": 18541
+    }
+  },
+  "test_contracts": {
+    "behavior_groups": 4,
+    "qtest_behavior_rows": 18,
+    "methods": [
+      {
+        "name": "stemLookupMissDoesNotPrepareOrCreateRoot",
+        "rows": 1,
+        "contracts": [
+          "absent root stays absent",
+          "empty and normal-only roots genuinely miss without publication/export",
+          "existing aggregate usage above current budget errors even when bank key is absent",
+          "normal artifact bytes and root entries preserved"
+        ]
+      },
+      {
+        "name": "stemLookupFreshInstanceReturnsExactBankAtExistingBudget",
+        "rows": 1,
+        "contracts": [
+          "same-content path alias returns identical source SHA and unchanged key",
+          "cacheHit and four read-only CLOEXEC owners",
+          "all role samples bit-identical and recomputed overviews match seeded bank",
+          "exact existing PCM/manifest/cache/entry limits require no transient headroom",
+          "valid changed content selects genuine miss without altering prior bank"
+        ]
+      },
+      {
+        "name": "stemLookupPresentFailurePreservesEntry",
+        "rows": 10,
+        "contracts": [
+          "malformed identity metadata",
+          "same-size PCM digest mismatch",
+          "incomplete role set",
+          "symlink and FIFO leaves never followed",
+          "tightened PCM/manifest/aggregate byte/entry budgets",
+          "recognized removable orphan stage remains unchanged",
+          "errors never repair/delete/export"
+        ]
+      },
+      {
+        "name": "stemLookupInvalidInputsCancellationAndBusyNeverExport",
+        "rows": 6,
+        "contracts": [
+          "missing or FIFO engine asset",
+          "FIFO source",
+          "FIFO root errors rather than false absence",
+          "precancel before helper child",
+          "bounded cooperative busy lock",
+          "no full export calls or started marker"
+        ]
+      }
+    ],
+    "fixture": "Existing tests/StemExportFixture.hpp unchanged; bounded stdlib describe/export fake, no model or native inference",
+    "independent_numerical_oracle": "Seed via existing complete-bank preparation; compare every retained float bit and each role overview through existing helpers",
+    "no_new_cmake_wiring": true,
+    "unsafe_fifo_guard": "Existing boundedChild five-second functional guard",
+    "missing_api_red_required_before_product_draft": true
+  },
+  "source_only_inspection": {
+    "source_context_matches": true,
+    "hunk": "@@ -280,5 +280,261 @@",
+    "old_lines": 5,
+    "new_lines": 261
+  },
+  "review": {
+    "author_self_review": "No concrete oracle blocker found; present failure never treated as cache absence",
+    "independent_peer": "/root/guard_rules",
+    "outcome": "clear",
+    "exact_artifact_sha256": {
+      "api": {
+        "sha256": "d6658e02d0a25a551053b4e5fa3243653d8728a070621134c8a9d7d653093b62"
+      },
+      "tests": "0f29cd210c4bfcb6799bdaad51c59d6262dd6621ec30c007add1ac76cf1099e8"
+    },
+    "final_delta": "Peer-requested FIFO-root row uses bounded child, preserves FIFO type, allows describe prefix and forbids export markers"
+  },
+  "execution": {
+    "patch_applied_to_tracked_files": false,
+    "product_implementation_drafted": false,
+    "build": false,
+    "tests": false,
+    "native_or_model_execution": false,
+    "host_queries": false,
+    "git": false,
+    "root_owns_actual_red_green": true
+  },
+  "limits": [
+    "No forced nondeterministic concurrent source or used-pin mutation test is added; same-descriptor before/after digest and status checks remain a production source-review requirement.",
+    "No controller activation, live fallback policy, latency, physical audio or model-quality qualification.",
+    "Lookup permits existing bounded --describe, but never cold export/native load/live-job or artifact publication to discover absence.",
+    "Existing offline preparation and ordinary stage cleanup behavior remain unchanged."
+  ],
+  "archive_original_record": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-freeze.json",
+    "bytes": 5844,
+    "sha256": "3ad5bf1535c67a1f84656a5ad24208996a5bfc06580d53446d008c24b500d2dc",
+    "json_pointer": "/review/exact_artifact_sha256/api",
+    "original_json_format": {
+      "indent": 2,
+      "ensure_ascii": true,
+      "trailing_newline": true
+    },
+    "transformation": "Replace this verified SHA-256 scalar only with an object containing the same sha256 value",
+    "original_input_untouched": true,
+    "inverse_json_and_byte_equality_verified": true
+  }
+}

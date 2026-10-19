@@ -1,0 +1,2575 @@
+{
+  "schema": "conflux.m2-controller-live-verification.v1",
+  "status": "cache_first_live_controller_functional_checks_passed",
+  "archive_head": "5c3e4d0d7578516c9179b2ecbc34139db473ce30",
+  "tdd": {
+    "lookup": {
+      "red": {
+        "status": "actual_missing_API_RED",
+        "head": "e8593686564390dcd631127718474fefddb11550",
+        "at": "2026-10-19T12:24:57.832060+00:00",
+        "declaration_or_product_applied": false,
+        "test_patch": {
+          "sha256": "0f29cd210c4bfcb6799bdaad51c59d6262dd6621ec30c007add1ac76cf1099e8",
+          "bytes": 15917
+        },
+        "current_test_sha256": "b1857fdc3dd5848fd1a63804a0c35b3d335137df894d88d5e9709b1217516915",
+        "stages": [
+          {
+            "stage": "cache-lookup-red-build",
+            "command": [
+              "cmake",
+              "--build",
+              "build/dev",
+              "--target",
+              "conflux-prepared-track-store-test",
+              "--parallel",
+              "2"
+            ],
+            "exit": 1,
+            "elapsed_seconds": 5.779200792021584
+          }
+        ],
+        "compiler_error_count": 8
+      },
+      "failed_first_green": [
+        {
+          "stage": "cache-lookup-green-build",
+          "command": [
+            "cmake",
+            "--build",
+            "build/dev",
+            "--target",
+            "conflux-prepared-track-store-test",
+            "--parallel",
+            "2"
+          ],
+          "exit": 1,
+          "elapsed_seconds": 30.826057919999585
+        }
+      ],
+      "compilation_amendment": {
+        "at": "2026-10-19T12:31:20.456516+00:00",
+        "reason": "C++20 std::span has no operator==; first post-product build reached the resolved lookup result and diagnosed this test-only expression",
+        "original_test": {
+          "bytes": 61457,
+          "sha256": "b1857fdc3dd5848fd1a63804a0c35b3d335137df894d88d5e9709b1217516915"
+        },
+        "fixed_test": {
+          "bytes": 61475,
+          "sha256": "7be77c02050e2333b3d142bcea030cfe605bd4b54c30cceee7270b9d62a7862c"
+        },
+        "patch": {
+          "bytes": 651,
+          "sha256": "69d5c564dd1d36f0dd61c683c9010e96138690cb701c094b951a35692b88f713"
+        },
+        "retained_failed_build": {
+          "bytes": 41497,
+          "sha256": "fa5d413eb88d5cb674d5e1812452c082ce78a44d60db7514098ceccc30a49cca"
+        },
+        "retained_failed_result": {
+          "bytes": 276,
+          "sha256": "6134de1878b43d211c1711d3e06490951b5407a576edc52fe8193412691722bb"
+        },
+        "change": "Only span equality expression becomes std::ranges::equal: same length and every float value; exact independent numerical oracle retained",
+        "independent_test_author_confirmation": "/root/m0_m1_gates confirmed equal-length/every-value semantics before root application",
+        "original_freezes_unchanged": true,
+        "product_outputs_unchanged": true,
+        "no_first_unchanged_test_source_green_claim": true
+      },
+      "fixed_green": [
+        {
+          "stage": "cache-lookup-green-fixed-build",
+          "command": [
+            "cmake",
+            "--build",
+            "build/dev",
+            "--target",
+            "conflux-prepared-track-store-test",
+            "--parallel",
+            "2"
+          ],
+          "exit": 0,
+          "elapsed_seconds": 26.751257650961634
+        },
+        {
+          "stage": "cache-lookup-green-fixed-test",
+          "command": [
+            "build/dev/conflux-prepared-track-store-test",
+            "stemLookupMissDoesNotPrepareOrCreateRoot",
+            "stemLookupFreshInstanceReturnsExactBankAtExistingBudget",
+            "stemLookupPresentFailurePreservesEntry",
+            "stemLookupInvalidInputsCancellationAndBusyNeverExport"
+          ],
+          "exit": 0,
+          "elapsed_seconds": 8.095345253997948
+        }
+      ],
+      "existing_store_suite": {
+        "stage": "full-existing-store-suite",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "build/dev",
+          "-R",
+          "^prepared-track-store$",
+          "--output-on-failure"
+        ],
+        "exit": 0,
+        "elapsed_seconds": 13.483114750008099,
+        "current_test": {
+          "bytes": 61475,
+          "sha256": "7be77c02050e2333b3d142bcea030cfe605bd4b54c30cceee7270b9d62a7862c"
+        },
+        "binary": {
+          "bytes": 10186136,
+          "sha256": "3f57d3227511a7dee49be33e97813c872d95e99ca484025f71de16e9e0c8c12e"
+        },
+        "compiled_in": "cache-lookup-green-fixed-build.log",
+        "no_product_or_test_byte_change_since_focused_build": true
+      },
+      "original_test_reconstruction_verified": true,
+      "unchanged_test_source_first_green": false,
+      "product_patch": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-implementation.patch",
+        "sha256": "a7161ae38f25c08bc8a614d2917fcb4a5ba4df2ebfc65a3a8f6e6408f2fb39de",
+        "bytes": 6149
+      }
+    },
+    "controller": {
+      "red": {
+        "status": "actual_missing_API_RED",
+        "head": "a732c91fd44869fd7f8a5dcde01b56bc15df4264",
+        "at": "2026-10-19T12:52:38.404579+00:00",
+        "product_or_declaration_applied": false,
+        "combined_test_freeze": {
+          "bytes": 9087,
+          "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84"
+        },
+        "applied_test_sources": {
+          "CMakeLists.txt": {
+            "bytes": 18589,
+            "sha256": "1b9b0706443b343219dbe7f2401131ceb81f6f5729a971c2b1b1a55d4d904f0c"
+          },
+          "tests/StemServiceFixture.hpp": {
+            "bytes": 15196,
+            "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+          },
+          "tests/deck_controller_test.cpp": {
+            "bytes": 63676,
+            "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+          },
+          "tests/manual_ui_test.cpp": {
+            "bytes": 75423,
+            "sha256": "cc9f9ff03a72ce5059b558c8835ca3db3ea2760d2f906f193d0003699060bf17"
+          },
+          "tools/experiments/preparation_controller_check.cpp": {
+            "bytes": 78304,
+            "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+          }
+        },
+        "stages": [
+          {
+            "stage": "controller-live-red-configure",
+            "command": [
+              "cmake",
+              "-S",
+              ".",
+              "-B",
+              "build/dev",
+              "-G",
+              "Ninja"
+            ],
+            "exit": 0,
+            "expected_exit": 0,
+            "elapsed_seconds": 6.088199336954858
+          },
+          {
+            "stage": "controller-live-red-build",
+            "command": [
+              "cmake",
+              "--build",
+              "build/dev",
+              "--target",
+              "conflux-deck-controller-test",
+              "--parallel",
+              "2"
+            ],
+            "exit": 1,
+            "expected_exit": 1,
+            "elapsed_seconds": 52.13669688999653
+          }
+        ],
+        "compiler_error_count": 4
+      },
+      "unchanged_tests": {
+        "CMakeLists.txt": {
+          "bytes": 18589,
+          "sha256": "1b9b0706443b343219dbe7f2401131ceb81f6f5729a971c2b1b1a55d4d904f0c"
+        },
+        "tests/StemServiceFixture.hpp": {
+          "bytes": 15196,
+          "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+        },
+        "tests/deck_controller_test.cpp": {
+          "bytes": 63676,
+          "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+        },
+        "tests/manual_ui_test.cpp": {
+          "bytes": 75423,
+          "sha256": "cc9f9ff03a72ce5059b558c8835ca3db3ea2760d2f906f193d0003699060bf17"
+        },
+        "tools/experiments/preparation_controller_check.cpp": {
+          "bytes": 78304,
+          "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+        }
+      },
+      "green": [
+        {
+          "stage": "controller-live-green-build",
+          "command": [
+            "cmake",
+            "--build",
+            "build/dev",
+            "--target",
+            "conflux",
+            "conflux-deck-controller-test",
+            "conflux-manual-ui-test",
+            "conflux-preparation-controller-check",
+            "--parallel",
+            "2"
+          ],
+          "exit": 0,
+          "elapsed_seconds": 81.11123019701336
+        },
+        {
+          "stage": "controller-live-green-qt",
+          "command": [
+            "build/dev/conflux-deck-controller-test",
+            "liveServiceModePrefersCompleteBankWithoutUsingService",
+            "genuineMissInstallsOneLiveOwnerAndParksOnOutputFailure",
+            "corruptBankAndChangedLibrarySourceNeverSelectLiveFallback",
+            "queuedLiveCancellationRetiresOnWorkerBeforeEndingBusy"
+          ],
+          "exit": 0,
+          "elapsed_seconds": 1.367393619962968
+        },
+        {
+          "stage": "controller-live-green-ui",
+          "command": [
+            "build/dev/conflux-manual-ui-test",
+            "stemOverviewIsLabeledWithoutChangingNormalDeckOverview"
+          ],
+          "exit": 0,
+          "elapsed_seconds": 0.2650841939612292
+        },
+        {
+          "stage": "controller-live-green-private",
+          "command": [
+            "python3",
+            "tools/experiments/private_routing_check.py",
+            "build/dev/conflux-preparation-controller-check",
+            "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-green-private-01"
+          ],
+          "exit": 0,
+          "elapsed_seconds": 87.38330199301708
+        }
+      ],
+      "product_patch": {
+        "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-implementation.patch",
+        "bytes": 13938,
+        "sha256": "9b3804639f2f21ae8687b88b0e31146a04e1a896a3f4d01444b808e0f7dd1f70"
+      }
+    }
+  },
+  "final_stages": [
+    {
+      "stage": "controller-live-full-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "reused": false,
+      "executed_in_this_pipeline": true,
+      "elapsed_seconds": 147.57874847197672
+    },
+    {
+      "stage": "controller-live-ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/dev",
+        "--output-on-failure",
+        "--timeout",
+        "120"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "reused": false,
+      "executed_in_this_pipeline": true,
+      "elapsed_seconds": 152.6948767209542
+    },
+    {
+      "stage": "controller-live-smoke",
+      "command": [
+        "build/dev/conflux",
+        "--smoke-test"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "reused": false,
+      "executed_in_this_pipeline": true,
+      "elapsed_seconds": 2.3232814770308323
+    },
+    {
+      "stage": "controller-live-cli",
+      "command": [
+        "python3",
+        "-B",
+        "benchmarks-local/m2-live-delivery-2026-10-19/check_controller_live_cli.py",
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "reused": false,
+      "executed_in_this_pipeline": true,
+      "elapsed_seconds": 2.723216420970857
+    },
+    {
+      "stage": "controller-live-normal-routing",
+      "exit": 0,
+      "timed_out": false,
+      "reused": true,
+      "executed_in_this_pipeline": false,
+      "elapsed_seconds": null,
+      "evidence_path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-diagnostic-normal-01/result.json",
+      "evidence_pin": {
+        "bytes": 14294,
+        "sha256": "d7aa3f2076e8c28fb563e84a15d94d10dc35aecb4244d647c05ce3c22929ca6d"
+      },
+      "binary_pin": {
+        "bytes": 5368616,
+        "sha256": "9b7f02326ab7225f8f688c7f0dc30cb504a863d33c99143c878cb3dbfbc9dbbb"
+      },
+      "reuse_reason": "Exact prior diagnostic normal-routing source and executed binary; unchanged strict oracle and owned cleanup"
+    },
+    {
+      "stage": "controller-live-normal-preparation",
+      "exit": 0,
+      "timed_out": false,
+      "reused": true,
+      "executed_in_this_pipeline": false,
+      "elapsed_seconds": null,
+      "evidence_path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-green-private-01/result.json",
+      "evidence_pin": {
+        "bytes": 16603,
+        "sha256": "63ffe66e847735188ff6dc35a06cf8120ffdea864c5de27965b51d228a52afa1"
+      },
+      "binary_pin": {
+        "bytes": 15139936,
+        "sha256": "07d95debcdc01ff9570a62d05e967a8bf6a2a4ab5028c7a88493d4a82b29f136"
+      },
+      "reuse_reason": "Exact first controller GREEN binary and unchanged frozen product/test source outputs; no second execution attributed"
+    },
+    {
+      "stage": "controller-live-coverage",
+      "command": [
+        "benchmarks-local/coverage-venv/bin/python",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Controller validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "tools/coverage/run.py",
+        "--private-routing",
+        "--jobs",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "reused": false,
+      "executed_in_this_pipeline": true,
+      "elapsed_seconds": 487.62369158596266
+    }
+  ],
+  "normal_ctest": {
+    "tests_passed": 36,
+    "tests_failed": 0,
+    "tests_total": 36
+  },
+  "instrumented_ctest": {
+    "tests_passed": 36,
+    "tests_failed": 0,
+    "tests_total": 36
+  },
+  "qtest": {
+    "lookup_focused_green": {
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 8076
+    },
+    "controller_focused_green": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 1320
+    },
+    "ui_focused_green": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "blacklisted": 0,
+      "elapsed_ms": 182
+    },
+    "normal": {
+      "PreparedTrackStoreTest": {
+        "passed": 61,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 17019
+      },
+      "LiveStemBridgeTest": {
+        "passed": 56,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 38381
+      },
+      "DeckControllerTest": {
+        "passed": 29,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 5258
+      },
+      "ManualUiTest": {
+        "passed": 50,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 22290
+      }
+    },
+    "instrumented": {
+      "PreparedTrackStoreTest": {
+        "passed": 61,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 8259
+      },
+      "LiveStemBridgeTest": {
+        "passed": 56,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 50008
+      },
+      "DeckControllerTest": {
+        "passed": 29,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 5225
+      },
+      "ManualUiTest": {
+        "passed": 50,
+        "failed": 0,
+        "skipped": 0,
+        "blacklisted": 0,
+        "elapsed_ms": 24655
+      }
+    }
+  },
+  "cli": {
+    "schema": 1,
+    "status": "passed",
+    "passed": true,
+    "binary": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "cases": [
+      {
+        "name": "service-alone",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 2
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-alone-mtyytpol",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-service",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-alone-mtyytpol/dummy assets/service.py"
+        ],
+        "owned_process_group": 2643877,
+        "process_spawned_monotonic": 521188.244676442,
+        "observed_exit_before_stop": 2,
+        "observed_seconds": 0.048783464008010924,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "service-alone.stdout.txt",
+          "bytes_retained": 1516,
+          "bytes_observed_lower_bound": 1516,
+          "limit_bytes": 65536,
+          "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+        },
+        "stderr": {
+          "path": "service-alone.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "incomplete-five",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 2
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/runtime",
+          "--stem-service",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/incomplete-five-ax13rvg7/dummy assets/service.py"
+        ],
+        "owned_process_group": 2643878,
+        "process_spawned_monotonic": 521188.296113655,
+        "observed_exit_before_stop": 2,
+        "observed_seconds": 0.06150663201697171,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "incomplete-five.stdout.txt",
+          "bytes_retained": 1516,
+          "bytes_observed_lower_bound": 1516,
+          "limit_bytes": 65536,
+          "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+        },
+        "stderr": {
+          "path": "incomplete-five.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "relative-service",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 2
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/relative-service-2o4iyql4/dummy assets/model.gguf",
+          "--stem-service",
+          "relative/service.py"
+        ],
+        "owned_process_group": 2643879,
+        "process_spawned_monotonic": 521188.360292726,
+        "observed_exit_before_stop": 2,
+        "observed_seconds": 0.05199965595966205,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "relative-service.stdout.txt",
+          "bytes_retained": 1516,
+          "bytes_observed_lower_bound": 1516,
+          "limit_bytes": 65536,
+          "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+        },
+        "stderr": {
+          "path": "relative-service.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "empty-service",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 2
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/empty-service-xcg6ekhg/dummy assets/model.gguf",
+          "--stem-service",
+          ""
+        ],
+        "owned_process_group": 2643880,
+        "process_spawned_monotonic": 521188.414937786,
+        "observed_exit_before_stop": 2,
+        "observed_seconds": 0.06128044502111152,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "empty-service.stdout.txt",
+          "bytes_retained": 1516,
+          "bytes_observed_lower_bound": 1516,
+          "limit_bytes": 65536,
+          "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+        },
+        "stderr": {
+          "path": "empty-service.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "missing-service-value",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 1
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/missing-service-value-i9oy6pst/dummy assets/model.gguf",
+          "--stem-service"
+        ],
+        "owned_process_group": 2643881,
+        "process_spawned_monotonic": 521188.479664615,
+        "observed_exit_before_stop": 1,
+        "observed_seconds": 0.05072106997249648,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "missing-service-value.stdout.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "missing-service-value.stderr.txt",
+          "bytes_retained": 47,
+          "bytes_observed_lower_bound": 47,
+          "limit_bytes": 65536,
+          "sha256": "b62f97f271cf94fdbcc8f02a129b1d58b5a8c617e299a7861613e207bcb072bd"
+        }
+      },
+      {
+        "name": "service-with-smoke",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 2
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/model.gguf",
+          "--stem-service",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/service-with-smoke-8t00xls6/dummy assets/service.py",
+          "--smoke-test"
+        ],
+        "owned_process_group": 2643882,
+        "process_spawned_monotonic": 521188.533032111,
+        "observed_exit_before_stop": 2,
+        "observed_seconds": 0.05016174301272258,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "service-with-smoke.stdout.txt",
+          "bytes_retained": 1516,
+          "bytes_observed_lower_bound": 1516,
+          "limit_bytes": 65536,
+          "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+        },
+        "stderr": {
+          "path": "service-with-smoke.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "invalid-backend",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "exit": 2
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/model.gguf",
+          "--stem-service",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/invalid-backend-egotpvit/dummy assets/service.py",
+          "--stem-backend",
+          "invalid"
+        ],
+        "owned_process_group": 2643883,
+        "process_spawned_monotonic": 521188.585608211,
+        "observed_exit_before_stop": 2,
+        "observed_seconds": 0.04909361299360171,
+        "cleanup": {
+          "term_sent": false,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "invalid-backend.stdout.txt",
+          "bytes_retained": 1516,
+          "bytes_observed_lower_bound": 1516,
+          "limit_bytes": 65536,
+          "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+        },
+        "stderr": {
+          "path": "invalid-backend.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "absolute-service",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "alive_seconds": 1.0
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/model.gguf",
+          "--stem-service",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/absolute-service-i51hg2cs/dummy assets/service.py"
+        ],
+        "owned_process_group": 2643885,
+        "process_spawned_monotonic": 521188.637354601,
+        "observed_exit_before_stop": null,
+        "observed_seconds": 1.0008378489874303,
+        "cleanup": {
+          "term_sent": true,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "absolute-service.stdout.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "absolute-service.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "five-only",
+        "passed": true,
+        "process_started": true,
+        "expectation": {
+          "alive_seconds": 1.0
+        },
+        "environment_removed": true,
+        "environment_root": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3",
+        "argv": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--stem-python",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/python",
+          "--stem-exporter",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/export.py",
+          "--stem-worker",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/worker.py",
+          "--stem-runtime",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/runtime",
+          "--stem-model",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/controller-live-cli/five-only-vh3skb_3/dummy assets/model.gguf"
+        ],
+        "owned_process_group": 2643897,
+        "process_spawned_monotonic": 521189.662580274,
+        "observed_exit_before_stop": null,
+        "observed_seconds": 1.0006958260200918,
+        "cleanup": {
+          "term_sent": true,
+          "kill_sent": false,
+          "leader_reaped": true,
+          "process_group_gone": true
+        },
+        "output_limit_exceeded": [],
+        "stdout": {
+          "path": "five-only.stdout.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "five-only.stderr.txt",
+          "bytes_retained": 0,
+          "bytes_observed_lower_bound": 0,
+          "limit_bytes": 65536,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "cleanup_complete": true,
+    "scope": "CLI parsing/liveness only; offscreen isolated unavailable PipeWire/DBus, no LOAD, native/model inference or playback",
+    "case_work_budget_seconds": 90,
+    "cleanup_allowance_seconds_per_case": 3,
+    "nul_argv": {
+      "application_case_executed": false,
+      "reason": "OS argv cannot represent an embedded NUL; no synthetic application pass",
+      "source_review": {
+        "path": "src/main.cpp",
+        "guard_present": true,
+        "source_sha256": "665e6fbcff73ed7f6da11f8ddb4bbab5aebf5f3199fa23c7ca1ccfe32a1d95f0",
+        "scope": "Source guard only, not an executed NUL argument"
+      }
+    },
+    "binary_sha256_before": "88682146cc4382a732a0291468c976b344fe5940cf47ede6af645dab4e2ba74d",
+    "binary_sha256_after": "88682146cc4382a732a0291468c976b344fe5940cf47ede6af645dab4e2ba74d",
+    "pins_unchanged": true
+  },
+  "cli_pre_execution_amendment": {
+    "schema": 1,
+    "status": "source_only_expectation_amendment",
+    "script": "check_controller_live_cli.py",
+    "original_draft_sha256": "2893e7f436f62c6eb8bce4df8b32180f279d906f024d800cd96c2c06ba18f5c8",
+    "amended_script_sha256": "761491f4fbc19b2ea3ab1498b2e5f28abc4dd3c0c1569ec25194acc2e7a77ba1",
+    "case": "missing-service-value",
+    "original_expected_exit": 2,
+    "amended_expected_exit": 1,
+    "reason": "QCommandLineParser::process rejects a missing option value as parser syntax before the application's semantic validation. Root reviewed this distinction and authorized the explicit exit-1 expectation before execution. All six semantic-invalid cases retain exit 2; both accepted configurations retain one-second liveness followed by owned cleanup.",
+    "source_path": "src/main.cpp",
+    "product_changed": false,
+    "script_executed": false,
+    "verification_scope": "Source review only; root owns execution and actual result."
+  },
+  "source_pins": 98,
+  "cmake_in_source_map": true,
+  "source_stable": true,
+  "separately_verified_product_outputs": 6,
+  "ignored_measurement_sources": {
+    "run_controller_live_checks.py": {
+      "bytes": 7287,
+      "sha256": "0cbe6f0a384c23b82530f5295cf96eca41ee9e9b61d0a3ce72a424ddad7b2eb5",
+      "git_blob_claim": false
+    },
+    "check_controller_live_cli.py": {
+      "bytes": 13040,
+      "sha256": "761491f4fbc19b2ea3ab1498b2e5f28abc4dd3c0c1569ec25194acc2e7a77ba1",
+      "git_blob_claim": false
+    }
+  },
+  "artifact_groups": {
+    "build/dev": 7,
+    "build/coverage": 7
+  },
+  "artifact_bytes_stable": true,
+  "private_regressions": {
+    "normal": {
+      "routing": {
+        "checks": 130,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "reused": true,
+        "original_evidence": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-diagnostic-normal-01/result.json",
+        "evidence": {
+          "bytes": 14294,
+          "sha256": "d7aa3f2076e8c28fb563e84a15d94d10dc35aecb4244d647c05ce3c22929ca6d"
+        },
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": true,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      },
+      "preparation": {
+        "checks": 75,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "reused": true,
+        "original_evidence": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-green-private-01/result.json",
+        "evidence": {
+          "bytes": 16603,
+          "sha256": "63ffe66e847735188ff6dc35a06cf8120ffdea864c5de27965b51d228a52afa1"
+        },
+        "wrapper_deadline_gate": true,
+        "inner_deadline_gate": false,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      }
+    },
+    "instrumented": {
+      "routing": {
+        "checks": 124,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "reused": false,
+        "original_evidence": "build/coverage/reports/private-routing/result.json",
+        "evidence": {
+          "bytes": 13944,
+          "sha256": "26986cbae054ad138d7cbb62800779211b0e5fa762fbfb8a141bf2150d919057"
+        },
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      },
+      "preparation": {
+        "checks": 75,
+        "passed": true,
+        "daemon_reaped": true,
+        "remaining_nodes_or_links": [],
+        "reused": false,
+        "original_evidence": "build/coverage/reports/private-preparation/result.json",
+        "evidence": {
+          "bytes": 16563,
+          "sha256": "9e4d4485ebe58089c89e8c0a6ddcb309876f53dfcf5ba1604746699b8a13ded3"
+        },
+        "wrapper_deadline_gate": false,
+        "inner_deadline_gate": false,
+        "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+      }
+    }
+  },
+  "historical_evidence": {
+    "receiver_ci": {
+      "path": "../m2-session-prime-ci-2026-10-19/verification.json",
+      "bytes": 13188,
+      "sha256": "f7ac711a70719d323650fec57f2f42d1375a245e4db82de2b818d39635cf0c21",
+      "status": "initial_CI_receiver_failures_unresolved_diagnostic_capture_added",
+      "scope": "Historical CI receiver failures and unchanged diagnostic capture; no cause or fix is inferred"
+    },
+    "qttest_sanitizer": {
+      "path": "../m2-live-bridge-2026-10-19/verification.json",
+      "bytes": 38710,
+      "sha256": "5a445fee9d8e049649bdc780e2bd5ef00b1e6500193ede2a3ceff77918427499",
+      "status": "functional_checks_passed_sanitizer_incomplete",
+      "scope": "Historical QtTest watchdog failure/control; not rerun or reclassified"
+    }
+  },
+  "gitflow_records": {
+    "git-flow-main-restore.json": {
+      "worktree": "/home/kyau/.codex/worktrees/restore-git-flow/conflux",
+      "branch": "fix/kyau-9caad9-restore-main",
+      "accidental_merge": "6ca2d688bee83e6ff2573befa14c14ecefa33c41",
+      "restore_parent": "2b8ad78115df5943114702e111e0a0d27f2865df",
+      "expected_tree": "36dd9edbab4e637a954aeb7347f3a1e0b5ce61d8",
+      "staged_tree": "36dd9edbab4e637a954aeb7347f3a1e0b5ce61d8",
+      "exact_tree_restoration": true,
+      "source_commit": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789",
+      "final_tree": "36dd9edbab4e637a954aeb7347f3a1e0b5ce61d8",
+      "signature": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>"
+    },
+    "git-flow-main-restore-merged.json": {
+      "headRefOid": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789",
+      "mergeCommit": {
+        "oid": "1fab6ce2e5b768287f09c1e4c29e2d47ffb9826c"
+      },
+      "mergedBy": {
+        "id": "U_kgDOCBCrIQ",
+        "is_bot": false,
+        "login": "kyaulabs-bot",
+        "name": "kyaulabs-bot"
+      },
+      "state": "MERGED",
+      "url": "https://github.com/kyaulabs/conflux/pull/25"
+    },
+    "git-flow-develop-restore.json": {
+      "worktree": "/home/kyau/.codex/worktrees/restore-git-flow/conflux",
+      "branch": "fix/kyau-e968c0-restore-develop-flow",
+      "base_restored_main": "1fab6ce2e5b768287f09c1e4c29e2d47ffb9826c",
+      "reapplied_restoration_source": "7ddf5c0a90fa7d440a37abfb3f822c9e8e423789",
+      "expected_tested_source": "18a191e55a7a2a584b00ce169785f3cf06ca0d85",
+      "expected_tree": "376ddf994a71a43f60d4aace5e569c682fdfa3f5",
+      "develop_base": "36ff90d7566560487f260dfa61e277457b38e04f",
+      "ordinary_merge_required": true,
+      "source_commit": "759a5f939b7b7efd1b03b97433d1361eee59c3df",
+      "signature": "759a5f939b7b7efd1b03b97433d1361eee59c3df G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+      "commits_relative_develop": 6
+    },
+    "git-flow-develop-restore-merged.json": {
+      "baseRefName": "develop",
+      "headRefOid": "759a5f939b7b7efd1b03b97433d1361eee59c3df",
+      "mergeCommit": {
+        "oid": "c25ab6472b57be756e84c9dc2eb3009d3378f65e"
+      },
+      "mergedAt": "2026-10-19T13:08:05Z",
+      "mergedBy": {
+        "id": "U_kgDOCBCrIQ",
+        "is_bot": false,
+        "login": "kyaulabs-bot",
+        "name": "kyaulabs-bot"
+      },
+      "state": "MERGED"
+    },
+    "controller-live-flow-reapply.json": {
+      "old_signed_lookup": "a732c91fd44869fd7f8a5dcde01b56bc15df4264",
+      "corrected_develop": "c25ab6472b57be756e84c9dc2eb3009d3378f65e",
+      "branch": "feat/kyau-65a54f-live-stem-loading",
+      "stash": "795e1864720453758f503555e9d3ca54e09ef64e",
+      "controller_bytes": {
+        "CMakeLists.txt": {
+          "bytes": 18589,
+          "sha256": "1b9b0706443b343219dbe7f2401131ceb81f6f5729a971c2b1b1a55d4d904f0c"
+        },
+        "qml/DeckSurface.qml": {
+          "bytes": 31217,
+          "sha256": "839dbaae1e6a19c56b0e9de841bb3086ca526825a027eda479bb2b7ea9bd289d"
+        },
+        "src/main.cpp": {
+          "bytes": 12949,
+          "sha256": "665e6fbcff73ed7f6da11f8ddb4bbab5aebf5f3199fa23c7ca1ccfe32a1d95f0"
+        },
+        "src/ui/DeckController.cpp": {
+          "bytes": 54318,
+          "sha256": "3b9822f39e3c55a689d08dab3c1fd3a63134f4a122602270de4751f70b17c9ff"
+        },
+        "src/ui/DeckController.hpp": {
+          "bytes": 12180,
+          "sha256": "b9bbaaa493b0a00bcb8aec0a84e21085631103ff0cba2e89de5885a14f4bbfc6"
+        },
+        "tests/StemServiceFixture.hpp": {
+          "bytes": 15196,
+          "sha256": "033bce884d36d9f2586b36c223b28beff0ac172369c32edefb4587a2d9e74869"
+        },
+        "tests/deck_controller_test.cpp": {
+          "bytes": 63676,
+          "sha256": "7292e18f82de7414c25aaf696be10d87beb0878d4e985e90474c9d2248148bd9"
+        },
+        "tests/manual_ui_test.cpp": {
+          "bytes": 75423,
+          "sha256": "cc9f9ff03a72ce5059b558c8835ca3db3ea2760d2f906f193d0003699060bf17"
+        },
+        "tools/experiments/preparation_controller_check.cpp": {
+          "bytes": 78304,
+          "sha256": "5e42a9c6dcbe3fd91582af12433ae1c19a9afdd98b191f047b1eb51546bf666c"
+        }
+      },
+      "staged_lookup_bytes_exact": true,
+      "new_signed_lookup": "299d6c99c8da969bfa8027e121ebdc6cec421f68",
+      "signature": "299d6c99c8da969bfa8027e121ebdc6cec421f68 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+      "controller_bytes_and_patch_exact_after_stash_apply": true,
+      "same_frozen_product_and_tests_as_first_green": true
+    }
+  },
+  "gitflow_correction_complete": true,
+  "gitflow_corrective_ci": {
+    "git-flow-develop-push-ci.json": {
+      "conclusion": "success",
+      "databaseId": 39256117090,
+      "event": "push",
+      "headSha": "759a5f939b7b7efd1b03b97433d1361eee59c3df",
+      "jobs": [
+        {
+          "completedAt": "2026-10-19T13:01:47Z",
+          "conclusion": "success",
+          "databaseId": 118071715116,
+          "name": "coverage",
+          "startedAt": "2026-10-19T12:57:30Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-19T12:57:32Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-19T12:57:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:57:35Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-19T12:57:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:58:07Z",
+              "conclusion": "success",
+              "name": "Install coverage build dependencies",
+              "number": 3,
+              "startedAt": "2026-10-19T12:57:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:58:10Z",
+              "conclusion": "success",
+              "name": "Install isolated coverage tools",
+              "number": 4,
+              "startedAt": "2026-10-19T12:58:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:01:43Z",
+              "conclusion": "success",
+              "name": "Measure existing tests",
+              "number": 5,
+              "startedAt": "2026-10-19T12:58:10Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:01:45Z",
+              "conclusion": "success",
+              "name": "Run actions/upload-artifact@v4",
+              "number": 6,
+              "startedAt": "2026-10-19T13:01:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:01:45Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 12,
+              "startedAt": "2026-10-19T13:01:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:01:45Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-10-19T13:01:45Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kyaulabs/conflux/actions/runs/39256117090/job/118071715116"
+        },
+        {
+          "completedAt": "2026-10-19T13:00:27Z",
+          "conclusion": "success",
+          "databaseId": 118071715617,
+          "name": "linux",
+          "startedAt": "2026-10-19T12:57:30Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-19T12:57:31Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-19T12:57:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:57:35Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-19T12:57:31Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:58:07Z",
+              "conclusion": "success",
+              "name": "Install build dependencies",
+              "number": 3,
+              "startedAt": "2026-10-19T12:57:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:58:10Z",
+              "conclusion": "success",
+              "name": "Configure",
+              "number": 4,
+              "startedAt": "2026-10-19T12:58:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:12Z",
+              "conclusion": "success",
+              "name": "Build",
+              "number": 5,
+              "startedAt": "2026-10-19T12:58:10Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:00:09Z",
+              "conclusion": "success",
+              "name": "Test core",
+              "number": 6,
+              "startedAt": "2026-10-19T12:59:12Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:00:11Z",
+              "conclusion": "success",
+              "name": "Test QML with software rendering",
+              "number": 7,
+              "startedAt": "2026-10-19T13:00:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:00:24Z",
+              "conclusion": "success",
+              "name": "Test preparation during virtual playback",
+              "number": 8,
+              "startedAt": "2026-10-19T13:00:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:00:24Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 16,
+              "startedAt": "2026-10-19T13:00:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:00:24Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-10-19T13:00:24Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kyaulabs/conflux/actions/runs/39256117090/job/118071715617"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39256117090"
+    },
+    "git-flow-develop-pr-ci.json": {
+      "conclusion": "success",
+      "databaseId": 39256307538,
+      "event": "pull_request",
+      "headSha": "759a5f939b7b7efd1b03b97433d1361eee59c3df",
+      "jobs": [
+        {
+          "completedAt": "2026-10-19T13:02:34Z",
+          "conclusion": "success",
+          "databaseId": 118072364601,
+          "name": "linux",
+          "startedAt": "2026-10-19T12:58:57Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-19T12:58:58Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-19T12:58:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:02Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-19T12:58:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:41Z",
+              "conclusion": "success",
+              "name": "Install build dependencies",
+              "number": 3,
+              "startedAt": "2026-10-19T12:59:02Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:43Z",
+              "conclusion": "success",
+              "name": "Configure",
+              "number": 4,
+              "startedAt": "2026-10-19T12:59:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:00:55Z",
+              "conclusion": "success",
+              "name": "Build",
+              "number": 5,
+              "startedAt": "2026-10-19T12:59:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:02:09Z",
+              "conclusion": "success",
+              "name": "Test core",
+              "number": 6,
+              "startedAt": "2026-10-19T13:00:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:02:11Z",
+              "conclusion": "success",
+              "name": "Test QML with software rendering",
+              "number": 7,
+              "startedAt": "2026-10-19T13:02:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:02:32Z",
+              "conclusion": "success",
+              "name": "Test preparation during virtual playback",
+              "number": 8,
+              "startedAt": "2026-10-19T13:02:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:02:32Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 16,
+              "startedAt": "2026-10-19T13:02:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:02:32Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-10-19T13:02:32Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kyaulabs/conflux/actions/runs/39256307538/job/118072364601"
+        },
+        {
+          "completedAt": "2026-10-19T13:03:48Z",
+          "conclusion": "success",
+          "databaseId": 118072364779,
+          "name": "coverage",
+          "startedAt": "2026-10-19T12:58:57Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-19T12:58:58Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-19T12:58:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:01Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-19T12:58:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:32Z",
+              "conclusion": "success",
+              "name": "Install coverage build dependencies",
+              "number": 3,
+              "startedAt": "2026-10-19T12:59:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T12:59:39Z",
+              "conclusion": "success",
+              "name": "Install isolated coverage tools",
+              "number": 4,
+              "startedAt": "2026-10-19T12:59:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:03:44Z",
+              "conclusion": "success",
+              "name": "Measure existing tests",
+              "number": 5,
+              "startedAt": "2026-10-19T12:59:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:03:46Z",
+              "conclusion": "success",
+              "name": "Run actions/upload-artifact@v4",
+              "number": 6,
+              "startedAt": "2026-10-19T13:03:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:03:46Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 12,
+              "startedAt": "2026-10-19T13:03:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:03:46Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-10-19T13:03:46Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kyaulabs/conflux/actions/runs/39256307538/job/118072364779"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39256307538"
+    },
+    "git-flow-develop-merge-merge-ci.json": {
+      "conclusion": "success",
+      "databaseId": 39257577457,
+      "event": "push",
+      "headSha": "c25ab6472b57be756e84c9dc2eb3009d3378f65e",
+      "jobs": [
+        {
+          "completedAt": "2026-10-19T13:13:17Z",
+          "conclusion": "success",
+          "databaseId": 118076624736,
+          "name": "coverage",
+          "startedAt": "2026-10-19T13:08:13Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-19T13:08:14Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-19T13:08:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:08:16Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-19T13:08:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:08:52Z",
+              "conclusion": "success",
+              "name": "Install coverage build dependencies",
+              "number": 3,
+              "startedAt": "2026-10-19T13:08:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:08:58Z",
+              "conclusion": "success",
+              "name": "Install isolated coverage tools",
+              "number": 4,
+              "startedAt": "2026-10-19T13:08:52Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:13:14Z",
+              "conclusion": "success",
+              "name": "Measure existing tests",
+              "number": 5,
+              "startedAt": "2026-10-19T13:08:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:13:15Z",
+              "conclusion": "success",
+              "name": "Run actions/upload-artifact@v4",
+              "number": 6,
+              "startedAt": "2026-10-19T13:13:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:13:16Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 12,
+              "startedAt": "2026-10-19T13:13:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:13:16Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-10-19T13:13:16Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kyaulabs/conflux/actions/runs/39257577457/job/118076624736"
+        },
+        {
+          "completedAt": "2026-10-19T13:11:58Z",
+          "conclusion": "success",
+          "databaseId": 118076624991,
+          "name": "linux",
+          "startedAt": "2026-10-19T13:08:13Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-10-19T13:08:14Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-10-19T13:08:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:08:17Z",
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "startedAt": "2026-10-19T13:08:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:08:41Z",
+              "conclusion": "success",
+              "name": "Install build dependencies",
+              "number": 3,
+              "startedAt": "2026-10-19T13:08:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:08:44Z",
+              "conclusion": "success",
+              "name": "Configure",
+              "number": 4,
+              "startedAt": "2026-10-19T13:08:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:10:09Z",
+              "conclusion": "success",
+              "name": "Build",
+              "number": 5,
+              "startedAt": "2026-10-19T13:08:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:11:30Z",
+              "conclusion": "success",
+              "name": "Test core",
+              "number": 6,
+              "startedAt": "2026-10-19T13:10:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:11:33Z",
+              "conclusion": "success",
+              "name": "Test QML with software rendering",
+              "number": 7,
+              "startedAt": "2026-10-19T13:11:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:11:56Z",
+              "conclusion": "success",
+              "name": "Test preparation during virtual playback",
+              "number": 8,
+              "startedAt": "2026-10-19T13:11:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:11:56Z",
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 16,
+              "startedAt": "2026-10-19T13:11:56Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-10-19T13:11:56Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-10-19T13:11:56Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/kyaulabs/conflux/actions/runs/39257577457/job/118076624991"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39257577457"
+    }
+  },
+  "sanitizer": {
+    "executed_in_this_slice": false,
+    "new_qttest_cases_qualified": false,
+    "reason": "Audio product unchanged; existing historical QtTest watchdog limitation remains linked, no sanitizer rerun or clean qualification claimed"
+  },
+  "coverage": {
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "measured_sources": {
+      "cpp": "src/** including main, probe and instrumented headers",
+      "python": "tools/stems/**"
+    },
+    "cpp": {
+      "line": {
+        "covered": 5647,
+        "total": 6574,
+        "percent": 85.89899604502585,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 8088,
+        "total": 15293,
+        "percent": 52.88694173805009,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1235,
+        "total": 1354,
+        "percent": 91.21122599704579,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 430,
+        "total": 526,
+        "percent": 81.74904942965779,
+        "above_80_percent": true
+      }
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    }
+  },
+  "behavior": [
+    "Explicit configured service mode prefers the unchanged five-asset complete bank; only a validated genuine miss prepares one persistent live owner, never corruption or a validation error",
+    "Final original SHA is checked before cancellable candidate prime; live metadata retains exact output geometry and normalized source overview without finite stem/original-mix PCM or producer recreation",
+    "Unused primed candidates install without a redundant service seek; consumed routing rebuild keeps the same service/runtime and restores source cursor, bass targets, stored cue and transport",
+    "Queued candidate cancellation retains ownership and root reservation through off-GUI cleanup while the current peer and recorder continue; replacements in both directions preserve whole-owner handoff",
+    "Constructor/prime loss clears only unrecreatable live metadata and permits sequential reload of both decks, while output-start failure parks healthy exact owners and finite readers retain recreation",
+    "Optional CLI service path and truthful source-waveform label preserve no-tools/five-only manual operation and the existing deck geometry"
+  ],
+  "limitations": [
+    "Lookup first GREEN failed in a frozen C++20 span equality test expression. Original failure and separately confirmed one-line ranges::equal repair are retained; no unchanged-test first-GREEN claim.",
+    "Controller tests use actual factory/parser/converter/ring/owner with an independent stdlib service and generated PCM. Private controller tests activate that synthetic live path, not the actual separator/model.",
+    "Private recording validates every pre-route frame and the final steady tail at the existing1e-6 tolerance; explicit rebuild gaps/start ramps between them are excluded, with finite/amplitude checks retained.",
+    "Normal virtual receiver gates and functional-only recording scopes remain distinct. Historical CI receiver faults and diagnostic reruns remain linked; this archive does not invent their cause or label diagnostics a demonstrated fix.",
+    "Reused normal results are admitted only at exact recorded source/binary identity; no new elapsed time or rerun is attributed to them. Final normal/instrumented CTest and coverage results are current-run evidence.",
+    "No sanitizer was run in this controller/lookup slice and new Qt integration cases have no clean-TSan qualification. Prior QtTest watchdog failure/control evidence is linked unchanged.",
+    "No physical audio, actual model delivery, sustained thermal or strict4095ms integrated p99 qualification; M2 remains open. C++/Python line and branch coverage scopes remain distinct and QML/native adapter sources remain unmeasured."
+  ],
+  "standalone_lookup_archive": {
+    "executed": false,
+    "status": "obsolete_unexecuted_plan_combined_here"
+  },
+  "live_service_target_ms": 4095,
+  "M2_qualified": false,
+  "archive_tool": {
+    "bytes": 30865,
+    "sha256": "609ed6227e56c0e1c6cdf355934016b3ff87c93a41fea001fbeca7ba0915b519"
+  },
+  "archive_packaging": {
+    "first_attempt": {
+      "status": "archive_checksum_annotation_false_positives",
+      "product_tests_unchanged": true,
+      "failed_archive_tool": {
+        "bytes": 26959,
+        "sha256": "f02e2a22b1170c10371108cc522ad5e4d5bc1bd08f8d7cd163693eda5515a0e6"
+      },
+      "findings": [
+        {
+          "RuleID": "generic-api-key",
+          "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+          "StartLine": 118,
+          "EndLine": 118,
+          "StartColumn": 9,
+          "EndColumn": 80,
+          "Match": "api\": \"REDACTED\"",
+          "Secret": "REDACTED",
+          "File": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/cache-lookup-freeze.json",
+          "SymlinkFile": "",
+          "Commit": "",
+          "Entropy": 3.7864883,
+          "Author": "",
+          "Email": "",
+          "Date": "",
+          "Message": "",
+          "Tags": [],
+          "Fingerprint": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/cache-lookup-freeze.json:generic-api-key:118"
+        },
+        {
+          "RuleID": "generic-api-key",
+          "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+          "StartLine": 143,
+          "EndLine": 143,
+          "StartColumn": 9,
+          "EndColumn": 87,
+          "Match": "api_sha256\": \"REDACTED\"",
+          "Secret": "REDACTED",
+          "File": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/controller-live-freeze.json",
+          "SymlinkFile": "",
+          "Commit": "",
+          "Entropy": 3.787142,
+          "Author": "",
+          "Email": "",
+          "Date": "",
+          "Message": "",
+          "Tags": [],
+          "Fingerprint": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-raw-scan/controller-live-freeze.json:generic-api-key:143"
+        }
+      ],
+      "cache-lookup-freeze.json": {
+        "bytes": 5844,
+        "sha256": "3ad5bf1535c67a1f84656a5ad24208996a5bfc06580d53446d008c24b500d2dc"
+      },
+      "controller-live-freeze.json": {
+        "bytes": 9087,
+        "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84"
+      },
+      "original_frozen_inputs_untouched": true,
+      "retained_partial_archive": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-first-failed-archive",
+      "retained_raw_scan": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-first-failed-raw"
+    },
+    "normalizations": [
+      {
+        "original_record": {
+          "path": "benchmarks-local/m2-live-delivery-2026-10-19/cache-lookup-freeze.json",
+          "bytes": 5844,
+          "sha256": "3ad5bf1535c67a1f84656a5ad24208996a5bfc06580d53446d008c24b500d2dc",
+          "json_pointer": "/review/exact_artifact_sha256/api",
+          "original_json_format": {
+            "indent": 2,
+            "ensure_ascii": true,
+            "trailing_newline": true
+          },
+          "transformation": "Replace this verified SHA-256 scalar only with an object containing the same sha256 value",
+          "original_input_untouched": true,
+          "inverse_json_and_byte_equality_verified": true
+        },
+        "normalized_file": "cache-lookup-freeze.normalized.json",
+        "normalized_bytes": {
+          "bytes": 6471,
+          "sha256": "c4b6e7351595c33d157721aa205e3a88264c180f4cb676d296984a99d0205c17"
+        }
+      },
+      {
+        "original_record": {
+          "path": "benchmarks-local/m2-live-delivery-2026-10-19/controller-live-freeze.json",
+          "bytes": 9087,
+          "sha256": "e542d14f652b9d0fc3112000de5fe9ffc9efd734c721b95c598da78b0d376f84",
+          "json_pointer": "/source_review/independent_qt_api_ui_cmake_review/api_sha256",
+          "original_json_format": {
+            "indent": 2,
+            "ensure_ascii": false,
+            "trailing_newline": true
+          },
+          "transformation": "Replace this verified SHA-256 scalar only with an object containing the same sha256 value",
+          "original_input_untouched": true,
+          "inverse_json_and_byte_equality_verified": true
+        },
+        "normalized_file": "controller-live-freeze.normalized.json",
+        "normalized_bytes": {
+          "bytes": 9745,
+          "sha256": "90e89ca36966a007f44249df0c2376e22053a564b80399ad75110dd3ef9d8a34"
+        }
+      }
+    ],
+    "original_frozen_inputs_untouched": true,
+    "inverse_json_and_byte_equality_verified": true,
+    "scope": "Only the two actual raw-scan digest annotations are normalized in canonical copies; no product/test change or scan exemption"
+  },
+  "raw_secret_scan_exit": 0,
+  "no_scan_allowlist_or_suppression": true,
+  "files": {
+    "cache-lookup-freeze.normalized.json": {
+      "bytes": 6471,
+      "sha256": "c4b6e7351595c33d157721aa205e3a88264c180f4cb676d296984a99d0205c17"
+    },
+    "controller-live-freeze.normalized.json": {
+      "bytes": 9745,
+      "sha256": "90e89ca36966a007f44249df0c2376e22053a564b80399ad75110dd3ef9d8a34"
+    },
+    "cache-lookup-implementation-freeze.json": {
+      "bytes": 6072,
+      "sha256": "72699341b6f3cb0b44aedff6bb36e3b9c175e900aed0aa3d06ffb5619137477f"
+    },
+    "cache-lookup-red-result.json": {
+      "bytes": 744,
+      "sha256": "3fa3eb1c99f709fe05871ba6c134e34ad23d2747c3c925f5a2713c0a9ae5d60c"
+    },
+    "cache-lookup-green-result.json": {
+      "bytes": 276,
+      "sha256": "6134de1878b43d211c1711d3e06490951b5407a576edc52fe8193412691722bb"
+    },
+    "cache-lookup-green-fixed-result.json": {
+      "bytes": 695,
+      "sha256": "004148fb60c2d47e05c99305855e4f14443964d0224cb5b41bb52f036213d61b"
+    },
+    "cache-lookup-test-compilation-amendment.json": {
+      "bytes": 1247,
+      "sha256": "1485d41912cdb5f9b6fd0befeca3317b17346caf60f668a0ef1b0d6a50817e8d"
+    },
+    "cache-lookup-full-store-result.json": {
+      "bytes": 597,
+      "sha256": "5e39d8735ade06af1be10f3728c730d28432bb22d17d104bf77d775b5f4f75f4"
+    },
+    "controller-live-private-freeze.json": {
+      "bytes": 5399,
+      "sha256": "30e6459c4775191ff106721fd770abe09348e8afaaa627ee1fb95eb003873f28"
+    },
+    "controller-live-implementation-freeze.json": {
+      "bytes": 8749,
+      "sha256": "520f87d95d7f5b0cb91efb818af3c00b29220f83db27fa614e8432752175d3bd"
+    },
+    "controller-live-red-result.json": {
+      "bytes": 1756,
+      "sha256": "be819853aa6bb87e6bcecc1640e9a3a911c54dd3f16b988c467808a6a8baf59b"
+    },
+    "controller-live-green-result.json": {
+      "bytes": 1384,
+      "sha256": "d35db42ea3f81d8a8710152cadbe5bc939785871a412c672ca701091e1163957"
+    },
+    "controller-live-green-artifact-pins.json": {
+      "bytes": 603,
+      "sha256": "ad55b178179de3e7926dbb127f325a7ad4b308ec52cc3e0b7145b25b375f2b6e"
+    },
+    "controller-live-functional-result.json": {
+      "bytes": 3324,
+      "sha256": "0a6e76da99b760d06d446772454915fc0bb79cd8956ae8ccfe4a20443e3a840c"
+    },
+    "controller-live-source-pins.json": {
+      "bytes": 13940,
+      "sha256": "a648d842be51967e625daabd233e56e2d265f27bce353e7b6fb4e67f7112472c"
+    },
+    "controller-live-source-stable.json": {
+      "bytes": 52,
+      "sha256": "4a0263b0830e580107da10272e65aa8de7033613923ec7bf4da38bb7ff7d5d60"
+    },
+    "controller-live-artifact-pins.json": {
+      "bytes": 2336,
+      "sha256": "b59c7101f933967024f126e9ddc461a7d46534e4c9785d02149de926f0edb5e8"
+    },
+    "controller-live-cli-amendment.json": {
+      "bytes": 934,
+      "sha256": "f383e3de5d8035b66086345408eae0a208d0a635114a29dea6525685310cc131"
+    },
+    "controller-live-archive-first-attempt.json": {
+      "bytes": 2306,
+      "sha256": "4ded8561eca7a4cad3cf2548308581280fd4d7e5e9702ee52618d6edf3ed7ff6"
+    },
+    "git-flow-main-restore.json": {
+      "bytes": 651,
+      "sha256": "5a7e0f62c3f75e6a0844501023cb03802d91d0333191ed59873dbcbd166f5727"
+    },
+    "git-flow-main-restore-merged.json": {
+      "bytes": 342,
+      "sha256": "e73f3875ededc5c815ee536bb713b487c86fc78cd9a5ea0601c7a57a2160c3f6"
+    },
+    "git-flow-develop-restore.json": {
+      "bytes": 722,
+      "sha256": "411b4beeeed5e9b73eebd9c5edb6386e8d31e9bfc54c6aa0fb398301a3b6dda3"
+    },
+    "git-flow-develop-restore-merged.json": {
+      "bytes": 352,
+      "sha256": "887b5b6068683b722765a1ac14e6e5868fa65ebe98d031875cdef76aac1860d0"
+    },
+    "controller-live-flow-reapply.json": {
+      "bytes": 1940,
+      "sha256": "4ab332e6db5a94ff4990d2462adda66cd7f75d45b8d22da1a5c7b8e8dde5e5f3"
+    },
+    "git-flow-develop-push-ci.json": {
+      "bytes": 5435,
+      "sha256": "867cae2b911ac475642bc5cc0b2f936b53fbbdb460ed6ff1d00a7c0a5a0d4451"
+    },
+    "git-flow-develop-pr-ci.json": {
+      "bytes": 5443,
+      "sha256": "f6df8882a8073a57dcf16d06abfadec3a870e12f1ea3a4ebea35e43f5055b99a"
+    },
+    "git-flow-develop-merge-merge-ci.json": {
+      "bytes": 5435,
+      "sha256": "3994ea19b7630be6b9c2303b7ba73058bd98569fa19b9df355bb21e3c85def51"
+    },
+    "initial-raw-gitleaks.log.gz": {
+      "bytes": 130,
+      "sha256": "fce2a116b4695663a7ecb9c61d9f8cd84b4dd3d51599950aad4011ed32ce0cf7"
+    },
+    "initial-raw-redacted-gitleaks-findings.json": {
+      "bytes": 1363,
+      "sha256": "49665e6be69e3c6549a7e9f0e481b41ee77f5bce6e35452a1b6e74841f951e73"
+    },
+    "controller-live-cli-result.json": {
+      "bytes": 21194,
+      "sha256": "20af29f1b450c765dcba8d2bbb5baf4a403d9826b0e3d61e3ec10064b48ac496"
+    },
+    "cache-lookup-api.md.gz": {
+      "bytes": 1951,
+      "sha256": "81cf128327af72a092458727d8a65c5def5353a55a4f5bdd08feeabd494c6cac"
+    },
+    "cache-lookup-tests.patch.gz": {
+      "bytes": 3118,
+      "sha256": "25a2f34640c16b92248c216ae2a84e653c717c9eda951e3d4b5ed69faca46593"
+    },
+    "cache-lookup-implementation.patch.gz": {
+      "bytes": 2112,
+      "sha256": "c213b38915d1e233e78e0acacb7ac5861b387696255d1028646970706e7f45b8"
+    },
+    "cache-lookup-test-compilation-fix.patch.gz": {
+      "bytes": 319,
+      "sha256": "4a1efd2d7ec1eb45e16e6cd7e3fe501022aead14a7d6bf36c29fbfc3fad147f3"
+    },
+    "controller-live-api.md.gz": {
+      "bytes": 1785,
+      "sha256": "15088a6b7820662d50909c0aeb9529ba5c5ea001eb70cc6ba9e7b58a6297efb7"
+    },
+    "controller-live-qt-tests.patch.gz": {
+      "bytes": 4994,
+      "sha256": "fe2b0457a7c0dc85371a9b15ba684718d287db6ec608e7bbb094acd3ff671c99"
+    },
+    "controller-live-ui-tests.patch.gz": {
+      "bytes": 334,
+      "sha256": "d0300015e9f2a8236f5d0c8c90f274ce352bd344144ac3ae66937539a9600ff7"
+    },
+    "controller-live-test-cmake.patch.gz": {
+      "bytes": 418,
+      "sha256": "15e8edf776dc3607ebce38064e6723c03fb0284765782d4bba2598ce59b0fdd2"
+    },
+    "controller-live-private-tests.patch.gz": {
+      "bytes": 8137,
+      "sha256": "3fb0cf0b080488d7657923f457103e7f6831dc45c11549357391473918de58da"
+    },
+    "controller-live-fixture.patch.gz": {
+      "bytes": 532,
+      "sha256": "f506ac2100c721a0581876dcb0a5be9480704bd6de6199bc316e3c35d6cb0e38"
+    },
+    "controller-live-implementation.patch.gz": {
+      "bytes": 4377,
+      "sha256": "7e3a8cd9a2e1cceca981eedb505ac059fec4daf8a8612a7a22eaeaa646070f30"
+    },
+    "run_controller_live_checks.py.gz": {
+      "bytes": 2659,
+      "sha256": "d120b983aed319bfe506f94aef8d845183e75b6ca38f0c82530223e41791772e"
+    },
+    "check_controller_live_cli.py.gz": {
+      "bytes": 4201,
+      "sha256": "8500d2ae3b33c97d789fe353c4f277a0be9eb225824fbae7e2853821839155d9"
+    },
+    "cache-lookup-red-build.log.gz": {
+      "bytes": 902,
+      "sha256": "c2c2dc15232d77c520be236710078caa6b6534cfdaa0e9bd99ca708bdc0cb02c"
+    },
+    "cache-lookup-green-build.log.gz": {
+      "bytes": 4225,
+      "sha256": "e513049cfc63346134c55e837337fe2ccd474f2e2b4b1ade5e6fa9455e8003f5"
+    },
+    "cache-lookup-green-fixed-build.log.gz": {
+      "bytes": 503,
+      "sha256": "881c01b19e90f660116c849c588030535f9c0b7c7cc1ad96a5019504489abe7e"
+    },
+    "cache-lookup-green-fixed-test.log.gz": {
+      "bytes": 487,
+      "sha256": "22857663d3baa401219fcb21a228a3b9c03ec7e6a196a2edd81e3986059584fc"
+    },
+    "cache-lookup-full-store.log.gz": {
+      "bytes": 170,
+      "sha256": "7bd414d458f469898bbc5e73ae6b529f3ed9f6b4cb5d4dac2bf5c8cace8dc662"
+    },
+    "controller-live-red-configure.log.gz": {
+      "bytes": 134,
+      "sha256": "9a0e164ecc90aac4daa7a152ca0c168d1d1b5fc1c9baf5f98ede07989a209c61"
+    },
+    "controller-live-red-build.log.gz": {
+      "bytes": 793,
+      "sha256": "fae413bbd785f850f0187e647945c7d115a9f55d5ead882092b77af113607538"
+    },
+    "controller-live-green-build.log.gz": {
+      "bytes": 965,
+      "sha256": "8bc4da959dc81bd538114811e0b3b4f93232f2581c7ce4f8619c83e1b4f1c34d"
+    },
+    "controller-live-green-qt.log.gz": {
+      "bytes": 412,
+      "sha256": "d2c93de8c869db7c523fd1331036d5efe8b42605a0f9fcb4e8be62216e9155cc"
+    },
+    "controller-live-green-ui.log.gz": {
+      "bytes": 295,
+      "sha256": "e4fc59fbe833c55d10524ec535d6eb7dd18d7360b120e695b65111602aad3460"
+    },
+    "controller-live-green-private.log.gz": {
+      "bytes": 3995,
+      "sha256": "9db50ad6649d2dda0d17eb755c0d8a096411f786485db242a8b12002c3117e55"
+    },
+    "controller-live-full-build.log.gz": {
+      "bytes": 1781,
+      "sha256": "2c7138118cce546179525c13e8a2cf694c0b339b2a878b7e7f19b716f604de95"
+    },
+    "controller-live-ctest.log.gz": {
+      "bytes": 872,
+      "sha256": "76ba4699e18ece0185de6747dd927157d8fa40d6b06a49baf743f59faf2db76c"
+    },
+    "controller-live-smoke.log.gz": {
+      "bytes": 423,
+      "sha256": "a2f4f0034891eae969e55085a652ec35186942c85086b022b6727c0ba55f254f"
+    },
+    "controller-live-cli.log.gz": {
+      "bytes": 142,
+      "sha256": "4896030e7c08458afbfe5e696cdeb0c7de07970f2fc27e813ed5ff31d9f00453"
+    },
+    "controller-live-coverage.log.gz": {
+      "bytes": 2007,
+      "sha256": "1dc5b2cc9618ff4c0d37da828ce67b8e54c58f38f59f427c2775275b9f6bc47d"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 6034,
+      "sha256": "c4230bade6249fa5e2d813048a7299b616515f9b1813bfc3406a92958c47f1d3"
+    },
+    "instrumented-last-test.log.gz": {
+      "bytes": 6082,
+      "sha256": "98d07915a3ecb4c7434c837260c39c5dda1ff6d0c789a6e4d1da9e72154cb4c2"
+    },
+    "coverage.json": {
+      "bytes": 7874,
+      "sha256": "43dd966302b8761a07abb5055928d21bd1b1a8f8f422c309a2bbb9e03da0fa3a"
+    },
+    "coverage-configure.log.gz": {
+      "bytes": 135,
+      "sha256": "6bc4c2479c1e40829611c145fce219925b81677453a0eae07c15f574ce2925d1"
+    },
+    "coverage-build.log.gz": {
+      "bytes": 994,
+      "sha256": "26d0af7cdf21b36c6a5cd73c941a6b87d735df07678961d10a44cdc5cb1ea8a2"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 889,
+      "sha256": "53952a846bcd32fb75d70cc8c234240a8d81eeb673c60897146b5cf5a49b2ae6"
+    },
+    "coverage-smoke.log.gz": {
+      "bytes": 421,
+      "sha256": "dc80ccb704f41ef7c180550ba948538d7e1e932865530412a87425807becfb1b"
+    },
+    "coverage-private-routing.log.gz": {
+      "bytes": 2949,
+      "sha256": "b46fefe2b325f292885a42e110074ce049019e630c439cb6c44a78fb46a6e45f"
+    },
+    "coverage-private-preparation.log.gz": {
+      "bytes": 3973,
+      "sha256": "83946b2ac985af1d2176545a887cc1add43c6540c325baa1260c12bd7c38687d"
+    },
+    "coverage-gcovr.log.gz": {
+      "bytes": 102,
+      "sha256": "08a9b24ce8b3440a38c047bf62d75eac0e358e9311277cfdb60a2d0fb755e901"
+    },
+    "coverage-python-combine.log.gz": {
+      "bytes": 47,
+      "sha256": "042411e26d769db3495ace94c6fac3ff460f99fb839f84ddc63587a4cbcffff2"
+    },
+    "coverage-python-json.log.gz": {
+      "bytes": 126,
+      "sha256": "70eff43c98caf073645b8b1e3cfbdb95f897e8a7ee8f6315be67c4ec868ac9b2"
+    },
+    "coverage-python-html.log.gz": {
+      "bytes": 109,
+      "sha256": "4520339585a9ddd0af877113a8174969ea4c1eb8969cb2739af02996359f1e6a"
+    },
+    "coverage-python-xml.log.gz": {
+      "bytes": 98,
+      "sha256": "3e30767dc49fef39cd7277377ad5bc227b79e0c7c977d44f37be6355dbac52a2"
+    },
+    "normal-routing.json": {
+      "bytes": 14294,
+      "sha256": "d7aa3f2076e8c28fb563e84a15d94d10dc35aecb4244d647c05ce3c22929ca6d"
+    },
+    "normal-preparation.json": {
+      "bytes": 16603,
+      "sha256": "63ffe66e847735188ff6dc35a06cf8120ffdea864c5de27965b51d228a52afa1"
+    },
+    "instrumented-routing.json": {
+      "bytes": 13944,
+      "sha256": "26986cbae054ad138d7cbb62800779211b0e5fa762fbfb8a141bf2150d919057"
+    },
+    "instrumented-preparation.json": {
+      "bytes": 16563,
+      "sha256": "9e4d4485ebe58089c89e8c0a6ddcb309876f53dfcf5ba1604746699b8a13ded3"
+    },
+    "cli-service-alone.stdout.txt.gz": {
+      "bytes": 615,
+      "sha256": "83122e847c91a68ef61bdb25a6d14197bc44996a70497640c59bf06512a674ae"
+    },
+    "cli-service-alone.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-incomplete-five.stdout.txt.gz": {
+      "bytes": 615,
+      "sha256": "83122e847c91a68ef61bdb25a6d14197bc44996a70497640c59bf06512a674ae"
+    },
+    "cli-incomplete-five.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-relative-service.stdout.txt.gz": {
+      "bytes": 615,
+      "sha256": "83122e847c91a68ef61bdb25a6d14197bc44996a70497640c59bf06512a674ae"
+    },
+    "cli-relative-service.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-empty-service.stdout.txt.gz": {
+      "bytes": 615,
+      "sha256": "83122e847c91a68ef61bdb25a6d14197bc44996a70497640c59bf06512a674ae"
+    },
+    "cli-empty-service.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-missing-service-value.stdout.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-missing-service-value.stderr.txt.gz": {
+      "bytes": 67,
+      "sha256": "894377d8c03ec6ec4e130ec6ebb718efd3d07bdb9d625a7d0a2514783fcf455c"
+    },
+    "cli-service-with-smoke.stdout.txt.gz": {
+      "bytes": 615,
+      "sha256": "83122e847c91a68ef61bdb25a6d14197bc44996a70497640c59bf06512a674ae"
+    },
+    "cli-service-with-smoke.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-invalid-backend.stdout.txt.gz": {
+      "bytes": 615,
+      "sha256": "83122e847c91a68ef61bdb25a6d14197bc44996a70497640c59bf06512a674ae"
+    },
+    "cli-invalid-backend.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-absolute-service.stdout.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-absolute-service.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-five-only.stdout.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "cli-five-only.stderr.txt.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 126,
+      "sha256": "dd2d1b8ea8a613acb65d893246691ce6a4b4996bcebea5bf9b8eff20fe0e6128"
+    },
+    "raw-redacted-gitleaks-findings.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "source-binding.json": {
+      "bytes": 914,
+      "sha256": "3ad56e76dd53e75dd6604994009407e1499ee0171893d022bbdb745c70a40f01"
+    },
+    "source-bound-raw-gitleaks.log.gz": {
+      "bytes": 126,
+      "sha256": "8d5301b67daba65476b39507d090e3e8659d9e815ea44b7c4ed56c6f4a94e2d7"
+    },
+    "source-bound-raw-redacted-gitleaks-findings.json": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "uncompressed": {
+    "initial-raw-gitleaks.log.gz": {
+      "bytes": 145,
+      "sha256": "8c584c50a331127d9b819b8a48f7e82d6c413bcac8ede9811900ac72b9010e13"
+    },
+    "cache-lookup-api.md.gz": {
+      "bytes": 3953,
+      "sha256": "d6658e02d0a25a551053b4e5fa3243653d8728a070621134c8a9d7d653093b62"
+    },
+    "cache-lookup-tests.patch.gz": {
+      "bytes": 15917,
+      "sha256": "0f29cd210c4bfcb6799bdaad51c59d6262dd6621ec30c007add1ac76cf1099e8"
+    },
+    "cache-lookup-implementation.patch.gz": {
+      "bytes": 6149,
+      "sha256": "a7161ae38f25c08bc8a614d2917fcb4a5ba4df2ebfc65a3a8f6e6408f2fb39de"
+    },
+    "cache-lookup-test-compilation-fix.patch.gz": {
+      "bytes": 651,
+      "sha256": "69d5c564dd1d36f0dd61c683c9010e96138690cb701c094b951a35692b88f713"
+    },
+    "controller-live-api.md.gz": {
+      "bytes": 3632,
+      "sha256": "1bee1056112bf376d6cc9f2a14af26bab16c94d284c84dcb201e711e98b921ac"
+    },
+    "controller-live-qt-tests.patch.gz": {
+      "bytes": 22681,
+      "sha256": "238cfb9a737aff39158ffe858e426204eea162f6f9afd2eb873fdf799874d1ec"
+    },
+    "controller-live-ui-tests.patch.gz": {
+      "bytes": 754,
+      "sha256": "a79b0688b43863e9c8adaa5df34df6f483fa3bf27c80f05d4b27dc4f60329063"
+    },
+    "controller-live-test-cmake.patch.gz": {
+      "bytes": 1280,
+      "sha256": "5863408580ebbb8006c4b21f07ee9e40e072820c9fa0a3cbbe839a5b2edc9515"
+    },
+    "controller-live-private-tests.patch.gz": {
+      "bytes": 31352,
+      "sha256": "1a4f66b0dde237e16c51981c6a772ba728c9cc16545051db8c7db02d217c93a6"
+    },
+    "controller-live-fixture.patch.gz": {
+      "bytes": 951,
+      "sha256": "cd2fcd36e56e7cda5a122f338ee0a81c8e13c9e76deab75a2be0c78f2497c921"
+    },
+    "controller-live-implementation.patch.gz": {
+      "bytes": 13938,
+      "sha256": "9b3804639f2f21ae8687b88b0e31146a04e1a896a3f4d01444b808e0f7dd1f70"
+    },
+    "run_controller_live_checks.py.gz": {
+      "bytes": 7287,
+      "sha256": "0cbe6f0a384c23b82530f5295cf96eca41ee9e9b61d0a3ce72a424ddad7b2eb5"
+    },
+    "check_controller_live_cli.py.gz": {
+      "bytes": 13040,
+      "sha256": "761491f4fbc19b2ea3ab1498b2e5f28abc4dd3c0c1569ec25194acc2e7a77ba1"
+    },
+    "cache-lookup-red-build.log.gz": {
+      "bytes": 5558,
+      "sha256": "3f0b8721fdacb828b43688066a0dce1d3f413b6c037067026af03cc302d71fa4"
+    },
+    "cache-lookup-green-build.log.gz": {
+      "bytes": 41497,
+      "sha256": "fa5d413eb88d5cb674d5e1812452c082ce78a44d60db7514098ceccc30a49cca"
+    },
+    "cache-lookup-green-fixed-build.log.gz": {
+      "bytes": 1585,
+      "sha256": "7b9bcba58dc7efaca37521fea16d4f45e08027d1b2b57fa8f44cebc2fd523fcd"
+    },
+    "cache-lookup-green-fixed-test.log.gz": {
+      "bytes": 2023,
+      "sha256": "ebaf6abcea5bd5b0062ec2d7831b9686e3a9775a1184be188cb3e550962315d7"
+    },
+    "cache-lookup-full-store.log.gz": {
+      "bytes": 230,
+      "sha256": "0738e931a018ddc81745297ab8bbe6c2485a88332c48f1613e05bdf4f55182cf"
+    },
+    "controller-live-red-configure.log.gz": {
+      "bytes": 137,
+      "sha256": "44b35e09697b3a94efd100f725ec6cd59b8594380880d113923b963546fb2571"
+    },
+    "controller-live-red-build.log.gz": {
+      "bytes": 3548,
+      "sha256": "b58f892aa6974a09f4ad0d09aa901867735e968fb00a143699adb4d4dda1be9d"
+    },
+    "controller-live-green-build.log.gz": {
+      "bytes": 3408,
+      "sha256": "e20ea2125a02b6fd5f81ade45297a507a87cd52ac2202e1d23904f05bb537650"
+    },
+    "controller-live-green-qt.log.gz": {
+      "bytes": 756,
+      "sha256": "bc6ef1652268bc5f355743fe2c247ed424ea32c9f296ff964a2df9dd06f2dede"
+    },
+    "controller-live-green-ui.log.gz": {
+      "bytes": 466,
+      "sha256": "864fd666a534a5bdd28b4ec11b842a72c896461089511c818db5af941ae9c0d3"
+    },
+    "controller-live-green-private.log.gz": {
+      "bytes": 16603,
+      "sha256": "63ffe66e847735188ff6dc35a06cf8120ffdea864c5de27965b51d228a52afa1"
+    },
+    "controller-live-full-build.log.gz": {
+      "bytes": 7350,
+      "sha256": "ab59f4171aff62f4a1ff89b879249ce984f19d08488f105d297578e28b44b8d5"
+    },
+    "controller-live-ctest.log.gz": {
+      "bytes": 3882,
+      "sha256": "bd8aa1d53668ccddf097116e4d0ccf31f0f860afd6470d4de8f38edad1e1b609"
+    },
+    "controller-live-smoke.log.gz": {
+      "bytes": 669,
+      "sha256": "f54495c8532d418ffa240c98204dc9b6b9886d5eba4c9febd7aed512685bdf01"
+    },
+    "controller-live-cli.log.gz": {
+      "bytes": 160,
+      "sha256": "0ba2a167b940af7edc7cfa1d654a3614484888a086dbcb67a2b3195fecbec08b"
+    },
+    "controller-live-coverage.log.gz": {
+      "bytes": 11412,
+      "sha256": "c3a1a58b0619d48eb749ab96bd8f1950a3d1ad2d904ce13fac0784ccd792683d"
+    },
+    "normal-last-test.log.gz": {
+      "bytes": 43007,
+      "sha256": "4dfa42c6256a71024333496cace1c58a54706ad2b7579b6c672095aeca2fff37"
+    },
+    "instrumented-last-test.log.gz": {
+      "bytes": 43713,
+      "sha256": "4e12f316ff360ab17f74258c0c12a8bcdcb391a3625ce2497131ba3f93c09b13"
+    },
+    "coverage-configure.log.gz": {
+      "bytes": 142,
+      "sha256": "360ccae9ab23224982f20cd6e545a7773ac70f8b29ad943fa866718073cfb75d"
+    },
+    "coverage-build.log.gz": {
+      "bytes": 4169,
+      "sha256": "52ab3c7323459d7b7bf31d96f01707d7912dc9af09ebdffd2f97f355a9a25ed7"
+    },
+    "coverage-ctest.log.gz": {
+      "bytes": 3887,
+      "sha256": "416be6e01a7de30c096a54dc12fa5c5c192686d97686448857bc10e5860c0eae"
+    },
+    "coverage-smoke.log.gz": {
+      "bytes": 668,
+      "sha256": "3ea3089c48432f0e68aba2fec049db703b1c6408f7dfe6d795db5105afcc4ac1"
+    },
+    "coverage-private-routing.log.gz": {
+      "bytes": 13944,
+      "sha256": "26986cbae054ad138d7cbb62800779211b0e5fa762fbfb8a141bf2150d919057"
+    },
+    "coverage-private-preparation.log.gz": {
+      "bytes": 16563,
+      "sha256": "9e4d4485ebe58089c89e8c0a6ddcb309876f53dfcf5ba1604746699b8a13ded3"
+    },
+    "coverage-gcovr.log.gz": {
+      "bytes": 102,
+      "sha256": "7c6e91ec9dfb7c8a55bca983fe7c69d9f1151c7ef81076483ce6cebae0cfad51"
+    },
+    "coverage-python-combine.log.gz": {
+      "bytes": 28,
+      "sha256": "dbdc3210b890fbcaa65b675d060ef0e9bec47d83e3d386c88bd81ed93fc057e4"
+    },
+    "coverage-python-json.log.gz": {
+      "bytes": 121,
+      "sha256": "5f3a1a658d3a5f638799e8d314075a60aa9e0c18e4e9c3399a690eeea081712c"
+    },
+    "coverage-python-html.log.gz": {
+      "bytes": 104,
+      "sha256": "30fd50c67c7ffb4687aa8bea22c6c6e8770deebcc0cd193436a4f732a748f2f1"
+    },
+    "coverage-python-xml.log.gz": {
+      "bytes": 91,
+      "sha256": "ac0320b850eadf14444daa46d1f438f563f2a8201673deea33089bc9acffaa60"
+    },
+    "cli-service-alone.stdout.txt.gz": {
+      "bytes": 1516,
+      "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+    },
+    "cli-service-alone.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-incomplete-five.stdout.txt.gz": {
+      "bytes": 1516,
+      "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+    },
+    "cli-incomplete-five.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-relative-service.stdout.txt.gz": {
+      "bytes": 1516,
+      "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+    },
+    "cli-relative-service.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-empty-service.stdout.txt.gz": {
+      "bytes": 1516,
+      "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+    },
+    "cli-empty-service.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-missing-service-value.stdout.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-missing-service-value.stderr.txt.gz": {
+      "bytes": 47,
+      "sha256": "b62f97f271cf94fdbcc8f02a129b1d58b5a8c617e299a7861613e207bcb072bd"
+    },
+    "cli-service-with-smoke.stdout.txt.gz": {
+      "bytes": 1516,
+      "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+    },
+    "cli-service-with-smoke.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-invalid-backend.stdout.txt.gz": {
+      "bytes": 1516,
+      "sha256": "ec39c5ae8732d192e3c2936cd1c7c1c7fd364dcb4694c04ec1f3b0db26fe6481"
+    },
+    "cli-invalid-backend.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-absolute-service.stdout.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-absolute-service.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-five-only.stdout.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cli-five-only.stderr.txt.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "raw-gitleaks.log.gz": {
+      "bytes": 145,
+      "sha256": "25ea932c38730be80008c1f9c1abffd02d12dcc9de511618ad40681d4915efc4"
+    },
+    "source-bound-raw-gitleaks.log.gz": {
+      "bytes": 145,
+      "sha256": "e863fa55a8b94be0f6601a945119751ad3959343300f0e15668156a25b405939"
+    }
+  },
+  "source_binding": {
+    "path": "source-binding.json",
+    "bytes": 914,
+    "sha256": "3ad56e76dd53e75dd6604994009407e1499ee0171893d022bbdb745c70a40f01"
+  },
+  "source_binding_raw_scan": {
+    "exit": 0,
+    "includes_post_archive_source_binding": true,
+    "allowlist_or_suppression": false
+  }
+}

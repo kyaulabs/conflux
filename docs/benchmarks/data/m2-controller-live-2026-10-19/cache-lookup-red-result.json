@@ -1,0 +1,28 @@
+{
+  "status": "actual_missing_API_RED",
+  "head": "e8593686564390dcd631127718474fefddb11550",
+  "at": "2026-10-19T12:24:57.832060+00:00",
+  "declaration_or_product_applied": false,
+  "test_patch": {
+    "sha256": "0f29cd210c4bfcb6799bdaad51c59d6262dd6621ec30c007add1ac76cf1099e8",
+    "bytes": 15917
+  },
+  "current_test_sha256": "b1857fdc3dd5848fd1a63804a0c35b3d335137df894d88d5e9709b1217516915",
+  "stages": [
+    {
+      "stage": "cache-lookup-red-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-prepared-track-store-test",
+        "--parallel",
+        "2"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 5.779200792021584
+    }
+  ],
+  "compiler_error_count": 8
+}

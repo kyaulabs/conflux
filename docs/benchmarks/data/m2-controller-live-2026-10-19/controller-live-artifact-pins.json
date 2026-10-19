@@ -1,0 +1,62 @@
+{
+  "build/dev": {
+    "build/dev/conflux": {
+      "bytes": 14162472,
+      "sha256": "88682146cc4382a732a0291468c976b344fe5940cf47ede6af645dab4e2ba74d"
+    },
+    "build/dev/conflux-live-stem-bridge-test": {
+      "bytes": 12201464,
+      "sha256": "e1ddce29f7bfbdd371c81f5cb8dea852749f79188e44adaf88ccb51407e056ae"
+    },
+    "build/dev/conflux-prepared-track-store-test": {
+      "bytes": 10186136,
+      "sha256": "3f57d3227511a7dee49be33e97813c872d95e99ca484025f71de16e9e0c8c12e"
+    },
+    "build/dev/conflux-deck-controller-test": {
+      "bytes": 15885128,
+      "sha256": "4a5a95188363453a44503c8ae954a047d85969ffa18c0d204dd8f176f59394b4"
+    },
+    "build/dev/conflux-manual-ui-test": {
+      "bytes": 5442128,
+      "sha256": "1fa9b12ff163c89b9ea8675fcd4c45ad8908c26cd23477802144a5172a8fc38c"
+    },
+    "build/dev/conflux-manual-routing-check": {
+      "bytes": 5368616,
+      "sha256": "9b7f02326ab7225f8f688c7f0dc30cb504a863d33c99143c878cb3dbfbc9dbbb"
+    },
+    "build/dev/conflux-preparation-controller-check": {
+      "bytes": 15139936,
+      "sha256": "07d95debcdc01ff9570a62d05e967a8bf6a2a4ab5028c7a88493d4a82b29f136"
+    }
+  },
+  "build/coverage": {
+    "build/coverage/conflux": {
+      "bytes": 13128488,
+      "sha256": "dbb0086cb7db60672a2ee4bf6f30f552f3a53b080c0a4eec7dffa5854718c365"
+    },
+    "build/coverage/conflux-live-stem-bridge-test": {
+      "bytes": 11697576,
+      "sha256": "711972635c93c24625e11c16e2027a59271440bbf90586aa0ffecc5149909ce1"
+    },
+    "build/coverage/conflux-prepared-track-store-test": {
+      "bytes": 9676104,
+      "sha256": "9272ca86f2ecfa0c1d411dcb1a93685edf2298f7ec656c1a0da0d10dd13dc37b"
+    },
+    "build/coverage/conflux-deck-controller-test": {
+      "bytes": 14016360,
+      "sha256": "cd5d55a2769f1cc7a39837177116f90cb417dce8976431dddc7d1b672cd2c84f"
+    },
+    "build/coverage/conflux-manual-ui-test": {
+      "bytes": 3450040,
+      "sha256": "04d663e077e5d49cd2d3dbf862c50319b27bffff31ffd2984cf38915ac20535e"
+    },
+    "build/coverage/conflux-manual-routing-check": {
+      "bytes": 4808600,
+      "sha256": "ace149456377a8799baba36f85dda4c76a5baf00e0e5214a3a35e5ca7f0c1896"
+    },
+    "build/coverage/conflux-preparation-controller-check": {
+      "bytes": 13234760,
+      "sha256": "04714d7361ce7cae5b3568e09827261624d04d913b623edd12b6928ca22db839"
+    }
+  }
+}
