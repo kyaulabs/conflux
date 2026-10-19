@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Opt-in native laptop qualification. Only generated quiet fixtures are valid.
+// Opt-in native laptop diagnostics. Default mode accepts generated quiet fixtures only.
 #include "ui/DeckController.hpp"
+#include "library/LiveStemObservations.hpp"
 #include <sndfile.h>
 #include <QElapsedTimer>
 #include <QFile>
@@ -27,6 +28,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <sys/stat.h>
+#include <unistd.h>
 
 namespace {
 constexpr double maximumMasterPeak = 0.000025118864315095795; // -92 dBFS
@@ -97,11 +100,327 @@ QJsonArray timing(const conflux::DeckController& controller)
     }
     return result;
 }
+
+// Benchmark-only actual controller/service path. The private variant is never
+// host qualification and requires the same isolated daemon ownership checks.
+int livePlayback(QGuiApplication& app, int argc, char** argv)
+{
+    if (argc != 13) { std::cerr << "Usage: --live-stems SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    const bool functional = qEnvironmentVariable("CONFLUX_PRIVATE_ROUTING_CHECK") == "1";
+    bool valid = false;
+    const int seconds = QString::fromLocal8Bit(argv[5]).toInt(&valid);
+    if (!valid || (functional ? seconds < 1 || seconds > 10 : seconds < 120 || seconds > 180) ||
+        (!functional && qEnvironmentVariable("CONFLUX_ALLOW_HOST_SOAK") != "1")) return 2;
+    const auto platform = QGuiApplication::platformName();
+    if (functional ? (platform != "offscreen" && platform != "minimal") : (platform == "offscreen" || platform == "minimal")) return 2;
+    const auto output = QString::fromLocal8Bit(argv[4]), stop = QString::fromLocal8Bit(argv[6]);
+    const auto recordingPath = output + "/master.wav";
+    if (qEnvironmentVariable("XDG_CACHE_HOME") != output + "/cache" || !QFileInfo(output + "/cache").isDir()) return 2;
+    try {
+        require(QFileInfo(output).isAbsolute() && QFileInfo(output).isDir() &&
+            !QFileInfo::exists(recordingPath) && !QFileInfo::exists(output + "/observations.jsonl"), "Need fresh absolute live evidence paths");
+        if (functional) {
+            const auto runtime = qEnvironmentVariable("XDG_RUNTIME_DIR"), remote = qEnvironmentVariable("PIPEWIRE_REMOTE");
+            struct stat info{};
+            const auto encoded = QFile::encodeName(runtime), socket = QFile::encodeName(runtime + "/" + remote);
+            require(QFileInfo(runtime).isAbsolute() && qEnvironmentVariable("PIPEWIRE_RUNTIME_DIR") == runtime &&
+                remote.startsWith("conflux-private-routing-") && !remote.contains('/') &&
+                ::lstat(encoded.constData(), &info) == 0 && S_ISDIR(info.st_mode) && info.st_uid == ::getuid() &&
+                (info.st_mode & 0777) == 0700 && ::lstat(socket.constData(), &info) == 0 &&
+                S_ISSOCK(info.st_mode) && info.st_uid == ::getuid(), "Explicit owned private PipeWire runtime/socket required");
+        }
+    } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 2; }
+    QQuickStyle::setStyle("Basic");
+    for (const auto* font : {"Barlow-Regular.ttf", "BarlowCondensed-SemiBold.ttf", "JetBrainsMono-Regular.ttf"})
+        QFontDatabase::addApplicationFont(QStringLiteral(CONFLUX_SOURCE_DIR "/brand/assets/fonts/") + font);
+    QTemporaryDir appData(output + "/data-XXXXXX");
+    if (!appData.isValid() || !qputenv("XDG_DATA_HOME", appData.path().toUtf8())) return 2;
+    conflux::DeckController::PreparationOptions options;
+    conflux::library::StemEngine stem;
+    stem.pythonExecutable = QString::fromLocal8Bit(argv[7]); stem.exporterPath = QString::fromLocal8Bit(argv[8]);
+    stem.workerPath = QString::fromLocal8Bit(argv[9]); stem.runtimePath = QString::fromLocal8Bit(argv[11]);
+    stem.modelPath = QString::fromLocal8Bit(argv[12]); stem.backend = "vulkan"; stem.threads = 2; stem.requestTimeout = 30; options.stemEngine = stem;
+    options.stemServicePath = QString::fromLocal8Bit(argv[10]);
+    conflux::DeckController controller(options);
+    using Observations = conflux::library::LiveStemObservations;
+    using Kind = Observations::Kind;
+    std::shared_ptr<Observations> observations;
+    QFile trace(output + "/observations.jsonl");
+    if (!trace.open(QIODevice::WriteOnly | QIODevice::NewOnly)) return 2;
+    std::uint64_t retained = 0, recordCount = 0, bytes = 0, acceptedGeneration = 0, completedGeneration = 0;
+    auto write = [&](QJsonObject value) {
+        auto line = QJsonDocument(value).toJson(QJsonDocument::Compact); line.append('\n');
+        require(line.size() <= 4096 && retained < 16384 && bytes + std::uint64_t(line.size()) <= 32ULL * 1024 * 1024,
+            "Live observation evidence capacity exhausted");
+        require(trace.write(line) == line.size(), "Cannot write bounded live observation evidence");
+        ++retained; bytes += std::uint64_t(line.size());
+    };
+    auto drain = [&] {
+        if (!observations) return;
+        Observations::Record row;
+        for (std::size_t count = 0; count < Observations::capacity && observations->tryPop(row); ++count) {
+            if (row.kind == Kind::CommandAccepted) acceptedGeneration = row.workerGeneration;
+            if (row.kind == Kind::RawComplete) completedGeneration = row.workerGeneration;
+            write({{"type", "record"}, {"kind", int(row.kind)}, {"ordinal", qint64(row.ordinal)}, {"observed_ns", qint64(row.observedNs)},
+                {"epoch", qint64(row.providerEpoch)}, {"generation", qint64(row.workerGeneration)}, {"command_id", qint64(row.commandId)},
+                {"request_id", qint64(row.requestId)}, {"lease_sequence", qint64(row.leaseSequence)},
+                {"input_first", qint64(row.inputFirst44100)}, {"input_frames", qint64(row.inputFrames44100)},
+                {"output_first", qint64(row.outputFirst48000)}, {"output_frames", qint64(row.outputFrames48000)},
+                {"final", row.final}, {"validated_ns", qint64(row.validatedNs)}, {"packet_ready_ns", qint64(row.packetReadyNs)},
+                {"full_observed", row.fullObserved}, {"first_full_ns", qint64(row.firstFullNs)},
+                {"publish_begin_ns", qint64(row.publishBeginNs)}, {"publish_end_ns", qint64(row.publishEndNs)},
+                {"worker_ready_seconds", row.workerReadySeconds}, {"service_published_seconds", row.servicePublishedSeconds},
+                {"hop_service_present", row.hopServicePresent}, {"hop_service_ms", row.hopServiceMs},
+                {"telemetry_dropped_present", row.serviceTelemetryDroppedPresent}, {"telemetry_dropped", qint64(row.serviceTelemetryDropped)}});
+            ++recordCount;
+        }
+    };
+    const auto nowNs = []() -> qint64 { return qint64( std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count()); };
+    const auto sha = [](const Observations::Sha256Hex& value) { return QString::fromLatin1(value.data(), qsizetype(value.size())); };
+    QElapsedTimer clock, measure; clock.start();
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("deckController", &controller);
+    engine.rootContext()->setContextProperty("initialDark", true);
+    engine.rootContext()->setContextProperty("qtVersion", QString::fromUtf8(qVersion()));
+    engine.rootContext()->setContextProperty("platformName", platform);
+    QPointer<QQuickWindow> window; QTimer framePump;
+    std::uint64_t presented = 0, eofCount = 0, replayCount = 0;
+    qint64 measuredWallMs = 0;
+    std::uint64_t measurementBeginOutputFrame = 0, measurementEndOutputFrame = 0;
+    bool measurementIntervalsClosed = false;
+    qint64 lastFrameNs = 0, maxFrameGapNs = 0, lastHeartbeatNs = 0, maxHeartbeatNs = 0, loadIssuedNs = 0, firstAdvanceNs = 0;
+    QJsonArray samples, controls, sceneErrors, intervals;
+    QJsonObject setup, result{{"schema", 2}, {"mode", "live-stems"}, {"functional_only", functional}, {"host_audio", !functional},
+        {"pid", qint64(QCoreApplication::applicationPid())}, {"requested_seconds", seconds}, {"platform", platform}, {"qt", qVersion()},
+        {"quick_backend_environment", qEnvironmentVariable("QT_QUICK_BACKEND")}, {"source_root", QStringLiteral(CONFLUX_SOURCE_DIR)}, {"qualified", false},
+        {"scope", "Short actual controller/service playback diagnostic; no sustained p99, physical latency, automatic fallback or musical-quality qualification"}};
+    bool cancelled = false, seekIssued = false, recovering = false, replayPending = false;
+    QString failure;
+    State boundary{}, last{};
+    std::uint64_t eofAtOutput = 0, recoveryTarget = 0;
+    QString phase = "startup";
+    auto checkStop = [&] { if (QFileInfo::exists(stop)) { cancelled = true; throw std::runtime_error("Stop file requested graceful live cancellation"); } };
+    auto pulse = [&] {
+        const auto state = controller.audioState();
+        save(output + "/progress.json", {{"phase", phase}, {"pid", qint64(QCoreApplication::applicationPid())}, {"monotonic_ns", nowNs()},
+            {"elapsed_ms", clock.elapsed()}, {"frames_presented", qint64(presented)}, {"window_exposed", window && window->isExposed()},
+            {"output_ready", controller.outputReady()}, {"output_frame", qint64(state.outputFrame)}, {"callbacks", qint64(state.callbacks)},
+            {"recording", QJsonObject::fromVariantMap(controller.recording())}});
+    };
+    auto wait = [&](const std::function<bool()>& predicate, int timeout = 10000) {
+        QElapsedTimer deadline; deadline.start();
+        for (;;) {
+            checkStop(); drain();
+            if (predicate()) return;
+            if (!controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+            require(deadline.elapsed() < timeout, "Live controller acknowledgement timed out");
+            QTest::qWait(10);
+        }
+    };
+    auto command = [&](const std::function<void()>& action) {
+        const auto target = controller.submittedCommands() + 1; action();
+        wait([&] { return controller.completedApplied() + controller.audioState().applied >= target; }, 5000);
+        require(controller.error().isEmpty(), "Live transport submission failed");
+    };
+    auto appendMeasuredInterval = [&](const State& state, bool aborted = false) {
+        auto value = interval(boundary, state, phase.toUtf8().constData());
+        value["aborted"] = aborted; intervals.append(value); boundary = state;
+    };
+    auto closeMeasurement = [&](bool aborted) {
+        if (!measure.isValid() || measurementIntervalsClosed) return;
+        const auto state = controller.audioState();
+        appendMeasuredInterval(state, aborted); measurementEndOutputFrame = state.outputFrame;
+        measurementIntervalsClosed = true;
+    };
+    auto beginRecovery = [&](double target, const char* kind) {
+        const auto state = controller.audioState();
+        appendMeasuredInterval(state);
+        phase = QString::fromLatin1(kind); recovering = true;
+        recoveryTarget = std::uint64_t(std::llround(target * 48000));
+        controls.append(QJsonObject{{"kind", phase}, {"issued_ns", nowNs()}, {"target_frame", qint64(recoveryTarget)},
+            {"previous_generation", qint64(acceptedGeneration)}, {"incomplete_when_last_drained", acceptedGeneration && acceptedGeneration != completedGeneration}});
+        command([&] { controller.seekSeconds(0, target); });
+    };
+    try {
+        phase = "validating"; pulse();
+        const auto peer = inspectAudio(QString::fromLocal8Bit(argv[3]), 48000ULL * 600);
+        require(peer["frames"].toInteger() >= 48000LL * (seconds + (functional ? 2 : 120)), "Finite peer is too short for setup and playback");
+        result["peer"] = peer;
+        engine.load(QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/qml/Main.qml")));
+        require(!engine.rootObjects().isEmpty(), "Live Main.qml did not load");
+        window = qobject_cast<QQuickWindow*>(engine.rootObjects().first()); require(window, "Live QML has no window");
+        QObject::connect(window, &QQuickWindow::frameSwapped, &app, [&] {
+            const auto now = clock.nsecsElapsed(); if (lastFrameNs) maxFrameGapNs = std::max(maxFrameGapNs, now - lastFrameNs);
+            lastFrameNs = now; ++presented;
+        });
+        QObject::connect(window, &QQuickWindow::sceneGraphError, &app, [&](QQuickWindow::SceneGraphError code, const QString& message) {
+            if (sceneErrors.size() < 32) sceneErrors.append(QJsonObject{{"code", int(code)}, {"message", message.left(1024)}});
+        });
+        framePump.setInterval(16); QObject::connect(&framePump, &QTimer::timeout, window, [window] { if (window) window->update(); }); framePump.start();
+        if (!functional) wait([&] { return window->isExposed() && presented >= 10; }, 5000);
+        if (functional) {
+            QString left, right;
+            controller.refreshAudioRouting();
+            wait([&] {
+                for (const auto& entry : controller.audioRouting()["ports"].toList()) {
+                    const auto port = entry.toMap(); const auto label = port["label"].toString();
+                    if (label == "conflux-short-live-test-sink · input_0 [FL]") left = port["key"].toString();
+                    if (label == "conflux-short-live-test-sink · input_1 [FR]") right = port["key"].toString();
+                }
+                return !left.isEmpty() && !right.isEmpty();
+            });
+            controller.configureAudioRouting(left, right, {}, {});
+        }
+        phase = "loading_peer"; pulse(); controller.loadDeck(1, QUrl::fromLocalFile(QString::fromLocal8Bit(argv[3])));
+        wait([&] { return !controller.busy() && controller.outputReady(); }, 30000);
+        command([&] { controller.setMasterGain(.25); });
+        command([&] { controller.setPlaying(1, true); });
+        controller.startRecording(QUrl::fromLocalFile(recordingPath));
+        wait([&] { return controller.recording()["status"].toString() == "Recording"; });
+        phase = "loading_live"; pulse(); loadIssuedNs = nowNs();
+        controller.loadStemDeck(0, QUrl::fromLocalFile(QString::fromLocal8Bit(argv[2])));
+        wait([&] { return !controller.busy() && controller.outputReady() && controller.liveStemObservations(0) &&
+            controller.audioState().sourceFrames[0] == controller.liveStemObservations(0)->setup().outputFrames48000; }, 90000);
+        observations = controller.liveStemObservations(0);
+        require(observations && !controller.liveStemObservations(1) && !controller.preparation()["cacheHit"].toBool() &&
+            controller.decks()[0].toMap()["overviewStem"].toString() == "source", "Check needs a real live cache miss and finite peer");
+        const auto& context = observations->setup();
+        setup = {{"factory_entry_ns", qint64(context.factoryEntryNs)}, {"input_captured_ns", qint64(context.inputCapturedNs)},
+            {"count_complete_ns", qint64(context.countCompleteNs)}, {"factory_committed_ns", qint64(context.factoryCommittedNs)},
+            {"source_token", qint64(context.sourceToken)}, {"input_frames", qint64(context.inputFrames44100)}, {"output_frames", qint64(context.outputFrames48000)},
+            {"source_sha256", sha(context.sourceSha256)}, {"input_sha256", sha(context.inputSha256)}, {"model_sha256", sha(context.modelSha256)},
+            {"runtime_sha256", sha(context.runtimeSha256)}, {"service_sha256", sha(context.serviceSha256)}};
+        require(context.outputFrames48000 && context.outputFrames48000 <= 48000ULL * 30 &&
+            context.outputFrames48000 == controller.audioState().sourceFrames[0], "Use a bounded short source for EOF/replay");
+        write({{"type", "setup"}, {"context", setup}}); drain();
+        command([&] { controller.setDeckGain(0, .25); }); command([&] { controller.setPlaying(0, true); });
+        const auto route = controller.audioRouting();
+        require(!route["cueReady"].toBool() && route["cueLeft"].toString().isEmpty() && route["cueRight"].toString().isEmpty(), "Hardware cue must remain disabled");
+        measure.start(); phase = "steady"; boundary = last = controller.audioState();
+        measurementBeginOutputFrame = boundary.outputFrame;
+        qint64 nextSample = 0, nextPulse = 0; lastHeartbeatNs = clock.nsecsElapsed();
+        while (measure.elapsed() < seconds * 1000LL) {
+            checkStop(); drain(); QTest::qWait(10);
+            const auto now = clock.nsecsElapsed(); maxHeartbeatNs = std::max(maxHeartbeatNs, now - lastHeartbeatNs); lastHeartbeatNs = now;
+            const auto state = controller.audioState();
+            require(controller.outputReady() && controller.error().isEmpty() && sceneErrors.isEmpty(), "Live audio/UI error");
+            require(!state.sourceReadErrorObserved[0] && !state.sourceReadErrorObserved[1] && !state.invalidBuffers && !state.rejected,
+                "Live source or callback failed");
+            require(controller.recording()["active"].toBool() && controller.recording()["error"].toString().isEmpty(), "Live recording stopped or failed");
+            const bool windowHealthy = functional || (window && window->isVisible() && window->isExposed() && now - lastFrameNs < 2000000000LL);
+            if (!windowHealthy) result["window_failure"] = QJsonObject{{"exists", bool(window)},
+                {"visible", window && window->isVisible()}, {"exposed", window && window->isExposed()},
+                {"visibility", window ? QJsonValue(int(window->visibility())) : QJsonValue()},
+                {"active", window && window->isActive()}, {"application_state", int(QGuiApplication::applicationState())},
+                {"clock_ns", now}, {"last_frame_ns", lastFrameNs},
+                {"frame_age_ns", lastFrameNs ? QJsonValue(now - lastFrameNs) : QJsonValue()}, {"frames_presented", qint64(presented)}};
+            require(windowHealthy, "Live window hidden or not presenting");
+            require(controller.liveStemObservations(0) == observations, "Live playback unexpectedly changed owner/observations");
+            require(state.graphRate == 48000 && state.streamFramesMin && state.streamFramesMax >= state.streamFramesMin &&
+                state.masterGain == .25F && state.deckGain[0] == .25F && state.deckGain[1] == 1.F && state.stemBank[0] && !state.stemBank[1] &&
+                state.stemGain[0] == std::array<float, 4>{1.F, 1.F, 1.F, 1.F} && state.playing[0] && state.playing[1],
+                "Negotiated audio/gain/transport configuration changed");
+            require(state.outputFrame >= last.outputFrame && state.sourceFrame[1] >= last.sourceFrame[1] &&
+                state.sourceFrame[1] - last.sourceFrame[1] == state.outputFrame - last.outputFrame, "Finite peer lost source/output alignment");
+            if (!firstAdvanceNs && !seekIssued && state.sourceFrame[0] && !state.buffering[0]) firstAdvanceNs = nowNs();
+            if (recovering && state.sourceFrame[0] > recoveryTarget && !state.buffering[0]) {
+                appendMeasuredInterval(state); recovering = false; replayPending = false; phase = "steady";
+                auto control = controls.last().toObject(); control["recovered_cursor_observed_ns"] = nowNs(); controls[controls.size() - 1] = control;
+            }
+            const bool eof = state.sourceFrame[0] == state.sourceFrames[0];
+            if (eof && !eofAtOutput && !replayPending) { ++eofCount; eofAtOutput = state.outputFrame; }
+            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 5000)) {
+                beginRecovery(0, "replay_recovery"); ++replayCount; replayPending = true; eofAtOutput = 0;
+            } else if (replayPending && !eof) replayPending = false;
+            if (!seekIssued && firstAdvanceNs && !recovering && !eof && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 15000) && acceptedGeneration && acceptedGeneration != completedGeneration) {
+                auto target = std::min<std::uint64_t>(280800, state.sourceFrames[0] / 2);
+                if (target == state.sourceFrame[0]) target = 0;
+                beginRecovery(double(target) / 48000, "incomplete_generation_seek"); seekIssued = true;
+            }
+            if (measure.elapsed() >= nextSample) {
+                samples.append(QJsonObject{{"elapsed_ms", measure.elapsed()}, {"phase", phase}, {"frames_presented", qint64(presented)},
+                    {"output_frame", qint64(state.outputFrame)}, {"source_a", qint64(state.sourceFrame[0])}, {"source_b", qint64(state.sourceFrame[1])},
+                    {"starved_a", qint64(state.starvedFrames[0])}, {"starved_b", qint64(state.starvedFrames[1])}, {"snapshot_drops", qint64(state.snapshotDrops)},
+                    {"buffering_a", state.buffering[0]}, {"graph_rate", qint64(state.graphRate)}, {"quantum_min", qint64(state.streamFramesMin)},
+                    {"quantum_max", qint64(state.streamFramesMax)}, {"master_gain", state.masterGain}, {"deck_a_gain", state.deckGain[0]}, {"deck_b_gain", state.deckGain[1]}, {"master_peak", std::max(state.meters.master.peak[0], state.meters.master.peak[1])}});
+                nextSample += 1000;
+            }
+            if (measure.elapsed() >= nextPulse) { pulse(); nextPulse += 2000; }
+            last = state;
+        }
+        measuredWallMs = measure.elapsed();
+        closeMeasurement(false);
+        require(firstAdvanceNs && eofCount && replayCount && !recovering && !replayPending, "Playback/EOF/replay or last scheduled recovery incomplete");
+        controller.stopRecording(); wait([&] { return !controller.recording()["active"].toBool(); }, 20000);
+        require(controller.recording()["status"].toString() == "Complete", "Live WAV did not finalize");
+    } catch (const std::exception& error) {
+        failure = QString::fromUtf8(error.what());
+        if (measure.isValid()) measuredWallMs = measure.elapsed();
+        closeMeasurement(true);
+    }
+    framePump.stop(); controller.shutdown(); result["shutdown_completed"] = true; if (window) window->close();
+    try {
+        drain(); require(trace.flush(), "Cannot flush live evidence"); trace.close();
+        const auto counts = observations ? observations->counters() : Observations::Counters{};
+        result["observation_counters"] = QJsonObject{{"attempted", qint64(counts.attemptedRecords)}, {"dropped", qint64(counts.droppedRecords)},
+            {"invalid_clock_reads", qint64(counts.invalidClockReads)}, {"producer_finished", counts.producerFinished}, {"retained", qint64(recordCount)}, {"bytes", qint64(bytes)}};
+        if (observations) require(counts.producerFinished && !counts.droppedRecords && !counts.invalidClockReads &&
+            counts.attemptedRecords == recordCount, "Live observation interval is incomplete");
+        const auto recording = controller.recording();
+        require(!failure.isEmpty() || QFileInfo::exists(recordingPath), "Completed live run has no recording");
+        result["recording"] = QJsonObject::fromVariantMap(recording);
+        if (QFileInfo::exists(recordingPath)) {
+            const auto wav = inspectAudio(recordingPath, 48000ULL * (seconds + 120)); result["recorded_audio"] = wav;
+            require(recording["acceptedFrames"].toULongLong() == recording["writtenFrames"].toULongLong() &&
+                recording["writtenFrames"].toULongLong() == std::uint64_t(wav["frames"].toInteger()) &&
+                !recording["overflowFrames"].toULongLong() && wav["nonzero_samples"].toInteger() &&
+                (wav["format"].toInt() & SF_FORMAT_TYPEMASK) == SF_FORMAT_WAV &&
+                (wav["format"].toInt() & SF_FORMAT_SUBMASK) == SF_FORMAT_FLOAT, "Live recording count/format/overflow failed");
+        }
+        require(controller.completedApplied() == controller.submittedCommands() && !controller.completedRejected() &&
+            !controller.completedInvalidBuffers() && !controller.completedReadFailures(), "Live final application counters failed");
+    } catch (const std::exception& error) { if (failure.isEmpty()) failure = QString::fromUtf8(error.what()); }
+    std::uint64_t steadyStarved = 0, controlStarved = 0;
+    for (const auto& entry : intervals) {
+        const auto value = entry.toObject();
+        (value["kind"].toString() == "steady" ? steadyStarved : controlStarved) += std::uint64_t(value["starved_frames"].toInteger());
+    }
+    result["steady_starved_frames"] = qint64(steadyStarved); result["control_starved_frames"] = qint64(controlStarved);
+    const auto totalStarved = controller.completedStarvedFrames(), measuredStarved = steadyStarved + controlStarved;
+    result["starved_frames_outside_measured_intervals"] = totalStarved >= measuredStarved
+        ? QJsonValue(qint64(totalStarved - measuredStarved)) : QJsonValue();
+    if (failure.isEmpty() && measuredStarved > totalStarved) failure = "Measured starvation exceeds completed total";
+    if (failure.isEmpty() && steadyStarved) failure = "Steady playback starved; control intervals retained separately";
+    if (failure.isEmpty() && !functional && controller.completedDeadlineMisses()) failure = "Application callback deadline misses observed";
+    result["configuration"] = QJsonObject{{"backend", "vulkan"}, {"threads", 2}, {"request_timeout_seconds", 30},
+        {"prime_bound_seconds", 60}, {"deck_a_gain", .25}, {"deck_b_gain", 1.0}, {"master_gain", .25}, {"stem_gains", QJsonArray{1, 1, 1, 1}}};
+    result["last_recovery_complete"] = !recovering && !replayPending;
+    result["setup"] = setup; result["load_issued_ns"] = loadIssuedNs; result["first_advance_observed_ns"] = firstAdvanceNs;
+    result["polling_consumption_scope"] = "First positive cursor observation is an upper bound; publication does not prove consumption";
+    result["eof_count"] = qint64(eofCount); result["replay_count"] = qint64(replayCount); result["incomplete_generation_seek_submitted"] = seekIssued;
+    result["incomplete_generation_seek_scope"] = "Accepted generation without observed RawComplete; native inference-start is not observed";
+    result["measured_wall_ms"] = measuredWallMs;
+    result["measurement_begin_output_frame"] = qint64(measurementBeginOutputFrame);
+    result["measurement_end_output_frame"] = qint64(measurementEndOutputFrame);
+    result["measurement_intervals_closed"] = measurementIntervalsClosed;
+    result["samples"] = samples; result["controls"] = controls; result["intervals"] = intervals; result["scene_errors"] = sceneErrors;
+    result["frames_presented"] = qint64(presented); result["maximum_frame_presentation_gap_ns"] = maxFrameGapNs;
+    result["maximum_gui_heartbeat_gap_ns"] = maxHeartbeatNs; result["timing"] = timing(controller);
+    result["callbacks"] = qint64(controller.completedCallbacks()); result["invalid_buffers"] = qint64(controller.completedInvalidBuffers());
+    result["rejected_commands"] = qint64(controller.completedRejected()); result["source_read_failures"] = qint64(controller.completedReadFailures());
+    result["execution_deadline_misses"] = qint64(controller.completedDeadlineMisses());
+    result["starved_frames_including_controls"] = qint64(totalStarved);
+    result["cancelled"] = cancelled; result["error"] = failure; result["passed"] = failure.isEmpty() && !cancelled;
+    try { save(output + "/native-result.json", result); } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
+    return cancelled ? 2 : failure.isEmpty() ? 0 : 1;
+}
+
 } // namespace
 
 int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
+    if (argc > 1 && QString::fromLocal8Bit(argv[1]) == "--live-stems") return livePlayback(app, argc, argv);
     if (argc != 6) {
         std::cerr << "Usage: manual-playback-soak QUIET_A.wav QUIET_B.wav OUTPUT_DIRECTORY SECONDS STOP_FILE\n";
         return 2;
