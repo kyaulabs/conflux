@@ -130,6 +130,9 @@ if(BUILD_TESTING)
     add_test(NAME stem-worker COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_worker_test.py)
     add_test(NAME stem-export COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_export_test.py)
     add_test(NAME stem-export-cli COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_export_cli_test.py)
+    add_test(NAME stem-service COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_service_test.py)
+    set_tests_properties(stem-service PROPERTIES
+        ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache" TIMEOUT 90)
     set_tests_properties(stem-worker stem-export stem-export-cli PROPERTIES
         ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
     set_tests_properties(stem-export stem-export-cli PROPERTIES TIMEOUT 60)
