@@ -122,8 +122,11 @@ if(BUILD_TESTING)
     add_test(NAME probe-rejects-invalid-quantum COMMAND conflux-audio-probe --quantum 0)
     set_tests_properties(probe-rejects-invalid-quantum PROPERTIES WILL_FAIL TRUE)
     add_test(NAME stem-worker COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_worker_test.py)
-    set_tests_properties(stem-worker PROPERTIES
+    add_test(NAME stem-export COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_export_test.py)
+    add_test(NAME stem-export-cli COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_export_cli_test.py)
+    set_tests_properties(stem-worker stem-export stem-export-cli PROPERTIES
         ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
+    set_tests_properties(stem-export stem-export-cli PROPERTIES TIMEOUT 60)
     add_test(NAME stem-soak COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/stem_soak_test.py)
     set_tests_properties(stem-soak PROPERTIES
         ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")

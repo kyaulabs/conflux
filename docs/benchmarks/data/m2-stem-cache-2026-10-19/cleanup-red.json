@@ -1,0 +1,11 @@
+{
+  "status": "native_close_failure_not_propagated_regression_observed",
+  "command": [
+    "python3",
+    "-B",
+    "benchmarks-local/stem-cache-export-2026-10-18/cleanup_red.py"
+  ],
+  "exit": 1,
+  "elapsed_seconds": 0.4748999110306613,
+  "scope": "Fake backend only; no native/model/audio workload."
+}

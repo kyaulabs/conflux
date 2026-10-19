@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tests/stem_worker_test.py",
+    "WorkerTest.test_model_fifo_replacement_before_hash_open_is_rejected_without_backend_start"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 0.8963181010331027
+}
