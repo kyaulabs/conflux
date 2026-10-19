@@ -76,7 +76,7 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
-The [M2 live bridge timing measurement](benchmarks/data/m2-live-bridge-timing-2026-10-19/verification.json)
+The [earlier M2 live bridge timing measurement](benchmarks/data/m2-live-bridge-timing-2026-10-19/verification.json)
 passed 36/36 instrumented CTest entries, offscreen smoke, 124 private-routing
 checks and 78 private preparation/library checks. The separate normal run passed
 36/36 CTest entries, smoke, 130 routing checks and 78 preparation checks. All
@@ -86,9 +86,20 @@ measurement uses gcovr 8.7 and coverage.py 7.16.2.
 The [earlier controller measurement](benchmarks/data/m2-controller-live-2026-10-19/coverage.json)
 retains its nine isolated CLI checks; they were not rerun for this timing slice.
 
+The [Best-quality converter measurement](benchmarks/data/m2-best-quality-converter-2026-10-19/verification.json)
+is the latest local measurement below. All 36 normal and instrumented CTest
+entries and smoke passed. Normal routing passed 130 checks; strict preparation
+passed 78 checks with both virtual sink sample gates enabled and zero wrong or
+zero-valued samples. Instrumented routing/preparation passed 124/78 functional
+checks. Its 14 reported handoff deadline misses remain in the evidence with
+timing gates disabled. All 107 coverage source/tool pins stayed unchanged,
+both private daemons were reaped, and no owned nodes or links remained.
+An earlier interpreter-path setup failure occurred before coverage started;
+that outcome is retained separately. No new tests were added for a percentage.
+
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 5,781 / 6,710 (86.15%) | 8,178 / 15,433 (52.99%) |
+| C++ `src/` | 5,786 / 6,712 (86.20%) | 8,181 / 15,427 (53.03%) |
 | Python `tools/stems/` | 1,235 / 1,354 (91.21%) | 430 / 526 (81.75%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the
@@ -99,9 +110,9 @@ that narrower result does not replace the full C++ denominator. Coverage
 counts depend on the compiler and configuration, so compare results with their
 recorded toolchain.
 
-The subsequent [native-player diagnostic](benchmarks/data/m2-native-live-playback-2026-10-19/verification.json)
-changes benchmark support code and leaves these product coverage counts
-unchanged. Its actual-model retry completed two minutes but failed the service
+The earlier [native-player diagnostic](benchmarks/data/m2-native-live-playback-2026-10-19/verification.json)
+changed benchmark support code without changing product coverage. Its
+actual-model retry completed two minutes but failed the service
 target and steady-playback gate; callback deadline counters and recording
 overflow remained zero. The retained evidence separates intentional recovery
 gaps, incomplete cleanup proof and converter CPU diagnostics from qualification.
