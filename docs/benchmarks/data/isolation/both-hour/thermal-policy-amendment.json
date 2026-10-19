@@ -1,0 +1,16 @@
+{
+  "recorded_at_utc": "2026-10-17T00:33:16.953155+00:00",
+  "reason": "Existing host thermal guard engaged power-saver at88C during initialbothhour startup. Root stoppedownedrun, verifiedcleanup; preserve33.199614s interruption aspolicy-confounded, notanacceptedloadcomparison.",
+  "remaining_sequence": [
+    [
+      "both-hour-rerun",
+      "both"
+    ],
+    [
+      "ui-hour",
+      "ui"
+    ]
+  ],
+  "unchanged": "Same frozen diagnostic harness, runtime/model, worker, sampler, UI/audio binaries, scoped requestedbalanced runner, cooldown and existingthermalguard service/configuration.",
+  "observation_amendment": "Do not override or disable thermalguard response. Observe profile/firmware/EPP transitions and guardjournal aspartoflaptopresponse. Actual powerprofile/guardhysteresis are notheldconstant, so limitcausalinterpretation; retain allpartial failures and60mrequirements."
+}

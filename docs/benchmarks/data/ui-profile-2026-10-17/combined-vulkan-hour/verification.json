@@ -1,0 +1,33 @@
+{
+  "verified_at_utc": "2026-10-17T08:44:58.982062+00:00",
+  "run": "combined-vulkan-hour",
+  "load_mode": "both",
+  "small_report_and_lifecycle_checks_passed": true,
+  "workload_seconds": 3600.0007311589434,
+  "timing": {
+    "chunks": 1372,
+    "frames": 316863780,
+    "hop_service_percentiles_ms": {
+      "50": 2208.6911279475316,
+      "95": 4831.813160970341,
+      "99": 5570.165873970836
+    },
+    "hop_service_max_ms": 6296.106413996313,
+    "hops_above_target": 166,
+    "observed_p99_within_target": false
+  },
+  "controls": 11,
+  "audio_faults": {
+    "callback_execution_deadline_misses": 0,
+    "missing_buffers": 0,
+    "invalid_buffers": 0,
+    "truncated_frames": 0,
+    "observed_graph_position_discontinuities": 0,
+    "observed_position_clock_xrun_recovery_flags": 0
+  },
+  "selected_loads": [
+    "audio",
+    "ui"
+  ],
+  "scope": "Saved final report checks; full trace/event audits are separate."
+}

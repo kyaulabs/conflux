@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "scope": "All files within this directory except this manifest itself; historical input manifests retain executed source paths.",
+  "files": [
+    {
+      "path": "analysis-input-manifest.json",
+      "bytes": 4636,
+      "sha256": "3068743c6bb7a47c5f95fbdf8ce0b0ae312f41340bd70691f19529cf863492e2"
+    },
+    {
+      "path": "analysis.json.gz",
+      "bytes": 1359092,
+      "sha256": "6a4ee74f5fc405429902aa8d5df37b7c375b132aa30544fc6732f212e59fddb3",
+      "uncompressed_bytes": 17497425,
+      "uncompressed_sha256": "6b7695396fbb3fb5a75132e6960024b8edfac090f4b8d875ecb1e314f9b257d9"
+    },
+    {
+      "path": "analysis.py",
+      "bytes": 29062,
+      "sha256": "d747f6e488805f80e69569e8303b0a1f277b399200ae08a7016d9c0794ee127b"
+    },
+    {
+      "path": "audio.json",
+      "bytes": 1502,
+      "sha256": "b30e666e803fbdead13e5364a5afc196bea61ea15dc168f4e2e1f4b699acbec7"
+    },
+    {
+      "path": "audio.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "events.jsonl.gz",
+      "bytes": 388363,
+      "sha256": "6ec469bbd437c38e2130a2e77b456444ed574f427eedc801a521754b4091b40e",
+      "uncompressed_bytes": 3894787,
+      "uncompressed_sha256": "101b67a65ec83a897d9ea026430ccb1197aee06c1ea644060b37f318d40ae77c"
+    },
+    {
+      "path": "independent-audit.json",
+      "bytes": 65396,
+      "sha256": "79982b29381e554446b1c14d0763416d3303a63c2b33e077e2dca574bc7ccbd6"
+    },
+    {
+      "path": "independent-audit.py",
+      "bytes": 26152,
+      "sha256": "2fe48a480f20d78717dc19ac4baea779aa3792e33a9330865f77eda0615a4938"
+    },
+    {
+      "path": "kernel-graphics-journal.json",
+      "bytes": 728,
+      "sha256": "d99413ad273c1ea218f9ba621af228b096956af690b76a7eacdf7b74a3d40975"
+    },
+    {
+      "path": "launch-context.json",
+      "bytes": 1581,
+      "sha256": "f153d87beba79c9a17d2be18e352dfdcaa67d3f8d67954a859e89e8ab7a42438"
+    },
+    {
+      "path": "native-trace.jsonl.gz",
+      "bytes": 1648121,
+      "sha256": "4e268a89a423289f953eeb390814166aaa3f03fae9fe0436f2d2f9b29737cff0",
+      "uncompressed_bytes": 46252363,
+      "uncompressed_sha256": "174df0a0297ea967ee932ca338a8a03cd9ed9222a4dada352aa432e70e34faea"
+    },
+    {
+      "path": "producer-code.patch.gz",
+      "bytes": 7583,
+      "sha256": "fd3709cdf410f2e1b4e2adaf4d4a00dc929ade333ec59f46b6e280090dd8c257",
+      "uncompressed_bytes": 26452,
+      "uncompressed_sha256": "5390fee664c264b55a616e59d2d030bd6f2353af9bcc0b5e22634c98424ec00b"
+    },
+    {
+      "path": "progress.json",
+      "bytes": 3301,
+      "sha256": "8e71f8e75fdcac2aa0210e5f0bf04de9ebfcf63dd39e6dc92567d1b846017eac"
+    },
+    {
+      "path": "qualification.json",
+      "bytes": 333,
+      "sha256": "dc2069910934ad7122d76676ed83bbf00fc48783ec2faec8ac3f1250ac6f2b95"
+    },
+    {
+      "path": "result.json",
+      "bytes": 49591,
+      "sha256": "a21ed02501f8e8f40f5f0c35211828a533b8cf5dcf5440f55b59fdd57e5c7155"
+    },
+    {
+      "path": "strict-miss-rows.json.gz",
+      "bytes": 365391,
+      "sha256": "21d63d3b709ef90db95436b289b6ab215393677265d868d37f0a3e3b2e20ae07",
+      "uncompressed_bytes": 7420950,
+      "uncompressed_sha256": "22ccae8f76be9d9b7c44dbe662449251d5aea26f75adf90a24370ac0420a8959"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 526215,
+      "sha256": "1f3d3e6e982c97a60fcf39a3ea697457d292bb492e80b00f2e5549cc54125743"
+    },
+    {
+      "path": "summary.py",
+      "bytes": 11873,
+      "sha256": "5c1e0ba7e9744182058134c89dfd880b20bfba694f1653150fc20d37f0b6a10e"
+    },
+    {
+      "path": "ui-progress.json",
+      "bytes": 168,
+      "sha256": "3cd082137c9c9aedac3bdb133867f5948edda32c47ec58c81467dc3a44252e07"
+    },
+    {
+      "path": "ui.json",
+      "bytes": 849,
+      "sha256": "8aecc855136f813e6279073530a07baa022e6e2fbf00d9d3094d6618e59dde91"
+    },
+    {
+      "path": "ui.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

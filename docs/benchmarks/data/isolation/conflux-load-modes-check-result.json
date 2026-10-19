@@ -1,0 +1,36 @@
+{
+  "recorded_at_utc": "2026-10-16T22:46:54.391757+00:00",
+  "command": "python3 -B /tmp/conflux-load-modes-check.py",
+  "result": "OK",
+  "tests": 10,
+  "test_run_seconds": 0.098,
+  "scope": "CPU-only fakes; native/UI/audio subprocesses, D-Bus and GPU execution replaced; no model loaded",
+  "review": "Independent three-file read-only review passed, no material blocker",
+  "pins": {
+    "tools/benchmarks/stem_soak.py": {
+      "sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a",
+      "bytes": 40001
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "bytes": 22802
+    },
+    "tools/benchmarks/window_guard.py": {
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "bytes": 14613
+    },
+    "tools/stems/worker.py": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "bytes": 24863
+    },
+    "tools/benchmarks/worker_support.py": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "bytes": 23403
+    }
+  },
+  "test_source": {
+    "path": "/tmp/conflux-load-modes-check.py",
+    "sha256": "c7f18e64281b9841784224a2912402cb38b7a6ea4ecbee0ee763fb73aa0ea7ae",
+    "bytes": 17842
+  }
+}

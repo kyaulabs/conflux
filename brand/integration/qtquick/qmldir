@@ -1,0 +1,2 @@
+module Conflux.Brand
+singleton ConfluxTheme 1.0 ConfluxTheme.qml

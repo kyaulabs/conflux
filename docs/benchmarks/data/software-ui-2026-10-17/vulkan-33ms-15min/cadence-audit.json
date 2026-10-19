@@ -1,0 +1,381 @@
+{
+  "schema": 1,
+  "audited_at_utc": "2026-10-17T17:42:38.275734+00:00",
+  "run": "vulkan-33ms-15min",
+  "status": "valid",
+  "checks": {
+    "both_loads_selected": true,
+    "native_wayland_expected_backend": true,
+    "saved_ui_report_matches_result": true,
+    "requested_interval_matches_ui": true,
+    "requested_interval_matches_environment": true,
+    "qtimeline_driver": true,
+    "reduced_motion_disabled": true,
+    "pulse_driver_interval_match": true,
+    "observed_indicator_motion": true,
+    "existing_ui_coverage_passed": true,
+    "existing_audio_coverage_passed": true,
+    "zero_sampled_exposure_loss": true,
+    "complete_bins_match_existing_coverage": true,
+    "sufficient_complete_bins": true,
+    "minute_counts_match_total": true,
+    "complete_minute_fps_in_experiment_band": true,
+    "worker_audio_native_model_ui_pins_frozen": true,
+    "signed_source_and_current_pins_match": true,
+    "fixed_33ms_parameter": true,
+    "fixture_pin_frozen": true,
+    "nine_reference_window_hashes_frozen": true,
+    "control_count_valid": true,
+    "recorded_controls_passed": true,
+    "no_stale_delivery": true,
+    "diagnostic_timing_disabled": true
+  },
+  "failed_checks": [],
+  "requested_repaint_interval_ms": 33,
+  "renderer": "vulkan",
+  "animation_driver": "qtimeline",
+  "cadence_scope": "QTimeLine update interval, not a global frame-rate limit; observed GUI frameSwapped notifications do not measure physical presentation",
+  "experiment_fps_band": {
+    "minimum": 25,
+    "maximum": 40,
+    "scope": "Experiment efficacy/validity band only, not a new M0 latency acceptance gate"
+  },
+  "frame_rate": {
+    "complete_minute_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "complete_minute_frames": [
+      1876,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875,
+      1875
+    ],
+    "complete_minute_fps": [
+      31.266666666666666,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25,
+      31.25
+    ],
+    "complete_minute_fps_minimum": 31.25,
+    "complete_minute_fps_maximum": 31.266666666666666,
+    "complete_minute_fps_mean": 31.25111111111111,
+    "all_ui_frames": 28179,
+    "ui_observation_interval_seconds": 901.6920851150062,
+    "whole_ui_interval_average_fps": 31.25124470445575,
+    "maximum_notification_gap_ms": 43.845426
+  },
+  "motion": {
+    "unique_workload_pulses": 21,
+    "finite_indicator_position_samples": 21,
+    "indicator_x_minimum": 1.219995331856094,
+    "indicator_x_maximum": 298.78000466814393,
+    "indicator_x_range": 297.56000933628786,
+    "positions": [
+      {
+        "workload_offset_seconds": 31.607735829020385,
+        "indicator_x": 230.87074843665005
+      },
+      {
+        "workload_offset_seconds": 77.6077435570187,
+        "indicator_x": 187.01814006128566
+      },
+      {
+        "workload_offset_seconds": 122.6081987360376,
+        "indicator_x": 130.90784949391312
+      },
+      {
+        "workload_offset_seconds": 168.60813489102293,
+        "indicator_x": 62.07065713331051
+      },
+      {
+        "workload_offset_seconds": 213.6075171949924,
+        "indicator_x": 112.9818599387144
+      },
+      {
+        "workload_offset_seconds": 259.6078910950455,
+        "indicator_x": 276.49113077282186
+      },
+      {
+        "workload_offset_seconds": 304.6081098510185,
+        "indicator_x": 237.92934286668947
+      },
+      {
+        "workload_offset_seconds": 350.6082852880354,
+        "indicator_x": 1.219995331856094
+      },
+      {
+        "workload_offset_seconds": 395.60786137502873,
+        "indicator_x": 23.66741494255702
+      },
+      {
+        "workload_offset_seconds": 441.6081731610466,
+        "indicator_x": 295.36043927562633
+      },
+      {
+        "workload_offset_seconds": 487.60839633003343,
+        "indicator_x": 69.37746074568915
+      },
+      {
+        "workload_offset_seconds": 532.6084444440203,
+        "indicator_x": 28.47456783441516
+      },
+      {
+        "workload_offset_seconds": 578.6082545840181,
+        "indicator_x": 169.09215050608697
+      },
+      {
+        "workload_offset_seconds": 624.6082327620243,
+        "indicator_x": 237.69055889437107
+      },
+      {
+        "workload_offset_seconds": 669.6083710960229,
+        "indicator_x": 187.01814006128566
+      },
+      {
+        "workload_offset_seconds": 715.6080029440345,
+        "indicator_x": 23.50886922717818
+      },
+      {
+        "workload_offset_seconds": 760.6081682739896,
+        "indicator_x": 62.30944110562896
+      },
+      {
+        "workload_offset_seconds": 806.6075303690159,
+        "indicator_x": 298.78000466814393
+      },
+      {
+        "workload_offset_seconds": 852.6075600060285,
+        "indicator_x": 28.47456783441516
+      },
+      {
+        "workload_offset_seconds": 898.6078637380269,
+        "indicator_x": 169.09215050608697
+      },
+      {
+        "workload_offset_seconds": 899.6079248799942,
+        "indicator_x": 276.49113077282186
+      }
+    ],
+    "final_indicator_x": 130.90784949391312,
+    "final_reduced_motion": false,
+    "scope": "Saved low-frequency GUI property observations inside the workload; not per-frame visual or physical presentation validation"
+  },
+  "existing_ui_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "checks": {
+      "progress_observed": true,
+      "runtime_gate_passed": true,
+      "observed_unexposed_spans_within_limit": true,
+      "final_observation_valid": true,
+      "observation_covers_workload": true,
+      "minute_counts_match_total": true,
+      "complete_minute_bins_nonzero": true,
+      "notification_gap_within_limit": true
+    },
+    "complete_minute_bins_intersecting_workload": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "zero_complete_minute_bins_intersecting_workload": [],
+    "minute_bin_scope": "Complete 60-second UI-observation bins overlapping the workload; partial final UI bins are excluded",
+    "maximum_notification_gap_ms": 43.845426,
+    "progress": {
+      "requested": true,
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min/ui-progress.json",
+      "checks": 847,
+      "check_interval_seconds": 1.0,
+      "startup_grace_seconds": 5.0,
+      "maximum_allowed_gap_seconds": 30.0,
+      "maximum_progress_age_seconds": 1.001677241991274,
+      "maximum_frame_age_seconds": 1.0268582009593956,
+      "maximum_check_gap_seconds": 1.2477071670000441,
+      "unexposed_observations": 0,
+      "maximum_observed_unexposed_span_seconds": 0.0,
+      "last_unexposed_span": null,
+      "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+      "read_errors": {
+        "FileNotFoundError": 1
+      },
+      "last_progress": {
+        "animation_driver": "qtimeline",
+        "exposed": true,
+        "frames_swapped": 28129,
+        "indicator_x": 169.09215050608697,
+        "last_frame_monotonic_ns": 374936975081881,
+        "pid": 1821997,
+        "reduced_motion": false,
+        "repaint_interval_ms": 33,
+        "scene_graph_initialized": true,
+        "timestamp_monotonic_ns": 374937000510270
+      },
+      "gate_failure": null
+    },
+    "scope": "GUI-thread frameSwapped notifications and initialized heartbeat with a 30-second unexposed budget; not physical presentation latency"
+  },
+  "existing_audio_coverage": {
+    "requested": true,
+    "status": "passed",
+    "passed": true,
+    "streaming_interval_valid": true,
+    "concurrent_workload_seconds": 900.0002592730452,
+    "scope": "Independent silent audio probe streaming interval; no stem playback claim"
+  },
+  "existing_M0_acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 2,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=both; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "continuous_timing": {
+    "chunks": 406,
+    "frames": 93933750,
+    "hop_service_percentiles_ms": {
+      "50": 2122.9029709938914,
+      "95": 2901.156115985941,
+      "99": 3916.4098739856854
+    },
+    "hop_service_max_ms": 4389.483724022284,
+    "hops_above_target": 1,
+    "observed_p99_within_target": true
+  },
+  "controls": {
+    "recorded_count": 2,
+    "expected_for_hour": 11,
+    "scope": "Recorded outcomes; full request/generation and event audits remain separate"
+  },
+  "pins_against_prior_cadence_vulkan_hour": {
+    "runtime": {
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "baseline_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "equal": true
+    },
+    "model": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "baseline_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "equal": true
+    },
+    "soak_source": {
+      "sha256": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f",
+      "baseline_sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8",
+      "equal": false
+    },
+    "shared_benchmark_source": {
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+      "baseline_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "equal": false
+    },
+    "worker_source": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "baseline_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "equal": true
+    },
+    "sampler_source": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "baseline_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "equal": true
+    },
+    "audio_probe": {
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "baseline_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "equal": true
+    },
+    "ui": {
+      "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+      "baseline_sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+      "equal": true
+    }
+  },
+  "ui_pin_unchanged": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+    "bytes": 1755632,
+    "sha256": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f"
+  },
+  "intentional_harness_source_changes": [
+    "shared_benchmark_source",
+    "soak_source"
+  ],
+  "fixture_sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+  "comparison": null,
+  "scope": "Saved completed evidence only. No host commands, new workload, PCM recomputation, profile mutation or new latency gate.",
+  "inputs": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min/result.json": {
+      "bytes": 37773,
+      "sha256": "c0e5c2b65a0990f71a3635ac616f18fbd4b2cd34e49f628c9c1df9757f389600"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-launch.json": {
+      "bytes": 4653,
+      "sha256": "a5e8c5c91d40f777b6cebfe8f3f2289eed011f3226392f69e1b2c064c5511c84"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min/ui.json": {
+      "bytes": 734,
+      "sha256": "9761f575464cb379b99fef67e68e611e4240b44727e4090baf327bed00ed7759"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/monitor.jsonl": {
+      "bytes": 227044,
+      "sha256": "be67f8fb6b39b834bf7b4ea3b5945dee36156de55b1ec6d188748f70c5b3bd05"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/33ms-both-hour/result.json": {
+      "bytes": 50510,
+      "sha256": "131378a6cce9aefe69289618ceb654c2c6fe125348db6c8164f3bcb21792bc1b"
+    }
+  },
+  "audit_source_sha256": "b93f19b12e45ef963e3d22b8fb5403f27d583ddddbd5837ac7e6739390d441e8"
+}

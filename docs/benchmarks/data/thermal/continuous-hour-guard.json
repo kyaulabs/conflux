@@ -1,0 +1,81 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "tools/benchmarks/stem_soak.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--renderer",
+    "opengl",
+    "--seconds",
+    "3600",
+    "--control-interval",
+    "300",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "benchmarks-local/soak-2026-10-16/continuous-hour"
+  ],
+  "started_at_utc": "2026-10-16T20:03:32.348439+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_inhibit_cookie": 9757,
+  "bus_owner": ":1.10219",
+  "ui": {
+    "pid": 1466589,
+    "start_ticks": 34239030,
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "--smoke-test",
+      "--smoke-seconds",
+      "3720",
+      "--smoke-stop-file",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/soak-2026-10-16/continuous-hour/stop",
+      "--smoke-progress-file",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/soak-2026-10-16/continuous-hour/ui-progress.json"
+    ]
+  },
+  "script_id": 0,
+  "script_plugin": "conflux-benchmark-1b7cb2e5cd784178bb2376077e01c622",
+  "script_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/soak-2026-10-16/continuous-hour-guard.js",
+  "window_policy": {
+    "before": {
+      "pid": 1466589,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": false,
+      "onAllDesktops": false,
+      "minimized": false,
+      "desktopIds": [
+        "23f1364e-9d87-4218-860c-6fa08ac8b242"
+      ]
+    },
+    "after": {
+      "pid": 1466589,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": true,
+      "onAllDesktops": true,
+      "minimized": false,
+      "desktopIds": []
+    }
+  },
+  "applied_monotonic": 303443.011283719,
+  "restored": {
+    "reason": "owned-window-closed",
+    "after": null
+  },
+  "restored_monotonic": 307043.61769268,
+  "script_unloaded": true,
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-16T21:03:34.805801+00:00"
+}

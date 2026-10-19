@@ -1,0 +1,37 @@
+{
+  "source_sha256": "feb5fa3dd437b8aadd5e8611c52ad212e212598755313883a6422edfe92672fc",
+  "AST_passed": true,
+  "cases": [
+    {
+      "case": "mismatch",
+      "passed": true,
+      "status": "error"
+    },
+    {
+      "case": "capture_write_failure",
+      "passed": true,
+      "status": "error"
+    },
+    {
+      "case": "nonfinite",
+      "passed": true,
+      "status": "error"
+    },
+    {
+      "case": "success",
+      "passed": true,
+      "status": "ok"
+    },
+    {
+      "case": "oversize_capture_rejected",
+      "passed": true
+    }
+  ],
+  "calls": {
+    "native_or_subprocess": 0,
+    "worker_close": 4,
+    "load_stop": 4,
+    "sampler_stop": 8
+  },
+  "temporary_artifacts_removed": true
+}

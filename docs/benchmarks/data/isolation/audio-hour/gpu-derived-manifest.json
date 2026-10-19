@@ -1,0 +1,55 @@
+{
+  "scope": "GPU/host-derived analysis only, separate from raw-manifest.json. Original raw artifact and numerical-magnitude limitations retained. No producers or binaries changed.",
+  "archived_at_utc": "2026-10-17T00:23:08.885344+00:00",
+  "reproduce_from_this_directory": "python3 -B gpu-analysis.py . --strict-helper gpu-strict-helper.py --kernel kernel-compact.json --output reanalysis.json",
+  "reproduction_notes": "Original generated outputs retain original source paths/hashes as provenance; original paths are not opened. Plain/gzip JSONL accepted. Raw-manifest.json remains unchanged.",
+  "files": {
+    "gpu-analysis.py": {
+      "bytes": 11128,
+      "sha256": "2ef846ceb55d1eeecbe177233850438b30d2913db350eeec51d3df75c53af35e",
+      "source": "/tmp/conflux-isolation-audio-analysis.py"
+    },
+    "gpu-analysis.json": {
+      "bytes": 245434,
+      "sha256": "7ab0135b234622ff18f2a1126f4de0abd3e167bde06ff4d41085e56ae20c49a2",
+      "source": "/tmp/conflux-isolation-audio-analysis.json"
+    },
+    "gpu-analysis-notes.json": {
+      "bytes": 3175,
+      "sha256": "0acff8c0d12995408e200dba9540d926a579d018c4fe99176deb7662fc4b5457",
+      "source": "/tmp/conflux-isolation-audio-manifest.json"
+    },
+    "gpu-strict-helper.py": {
+      "bytes": 29062,
+      "sha256": "d747f6e488805f80e69569e8303b0a1f277b399200ae08a7016d9c0794ee127b",
+      "source": "/tmp/conflux-isolation-none-analysis.py"
+    }
+  },
+  "referenced_raw_files": {
+    "result.json": {
+      "bytes": 30754,
+      "sha256": "5b12323a973eb469c2e52f6eb8685ff32cd11f1e33bf3d768adfedff3d6ab2ce"
+    },
+    "events.jsonl.gz": {
+      "bytes": 19501,
+      "sha256": "8ac9b607043a67c5ae2df4be171f71e0a6e061d36354d3edd7c85239be4faf70"
+    },
+    "native-trace.jsonl.gz": {
+      "bytes": 96573,
+      "sha256": "382a65d3616ebcb25f2c5b6363ce954f7ccba342c131c73d413747060963f7f7"
+    },
+    "kernel-compact.json": {
+      "bytes": 2845,
+      "sha256": "14b2bc3bccbe7d2d28800113a5f8799aabea2ffcf9ea17677011d7e640e7e2ca"
+    }
+  },
+  "archived_reproduction_checks": {
+    "strict_rows": true,
+    "workload_host": true,
+    "checks": true,
+    "accepted_timing": true,
+    "diagnostic_capture": true,
+    "identity_context": true,
+    "kernel": true
+  }
+}

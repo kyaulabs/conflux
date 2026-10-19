@@ -1,0 +1,11 @@
+{
+  "compiler_exit": 1,
+  "reason": "Standalone verification binary needs -fPIC to match installed Qt protected-symbol linkage; application CMake build passed.",
+  "compiler_message": "copy relocation against non-copyable protected symbol QString::_empty in libQt6Core.so",
+  "test_exit": 127,
+  "test_scope": "not executed; verification binary was absent",
+  "next_compile_flags": [
+    "-fPIC",
+    "-pie"
+  ]
+}

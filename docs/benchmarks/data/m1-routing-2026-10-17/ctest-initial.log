@@ -1,0 +1,45 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+      Start  1: audio-render
+ 1/20 Test  #1: audio-render .....................   Passed    0.02 sec
+      Start  2: audio-cue
+ 2/20 Test  #2: audio-cue ........................   Passed    0.01 sec
+      Start  3: audio-buses
+ 3/20 Test  #3: audio-buses ......................   Passed    0.01 sec
+      Start  4: audio-routing
+ 4/20 Test  #4: audio-routing ....................   Passed    0.01 sec
+      Start  5: audio-metadata
+ 5/20 Test  #5: audio-metadata ...................   Passed    0.00 sec
+      Start  6: audio-timing
+ 6/20 Test  #6: audio-timing .....................   Passed    0.01 sec
+      Start  7: audio-source
+ 7/20 Test  #7: audio-source .....................   Passed    0.02 sec
+      Start  8: audio-preparation
+ 8/20 Test  #8: audio-preparation ................   Passed    0.49 sec
+      Start  9: audio-read-ahead
+ 9/20 Test  #9: audio-read-ahead .................   Passed    0.07 sec
+      Start 10: audio-recorder
+10/20 Test #10: audio-recorder ...................   Passed    0.02 sec
+      Start 11: audio-recorder-tap
+11/20 Test #11: audio-recorder-tap ...............   Passed    0.09 sec
+      Start 12: audio-file
+12/20 Test #12: audio-file .......................   Passed    0.78 sec
+      Start 13: audio-transport
+13/20 Test #13: audio-transport ..................   Passed    0.01 sec
+      Start 14: live-session
+14/20 Test #14: live-session .....................   Passed    0.03 sec
+      Start 15: audio-probe-cli
+15/20 Test #15: audio-probe-cli ..................   Passed    0.66 sec
+      Start 16: probe-rejects-invalid-quantum
+16/20 Test #16: probe-rejects-invalid-quantum ....   Passed    0.01 sec
+      Start 17: stem-worker
+17/20 Test #17: stem-worker ......................   Passed    4.93 sec
+      Start 18: stem-soak
+18/20 Test #18: stem-soak ........................   Passed    4.73 sec
+      Start 19: deck-controller
+19/20 Test #19: deck-controller ..................   Passed    0.44 sec
+      Start 20: manual-ui
+20/20 Test #20: manual-ui ........................   Passed    7.83 sec
+
+100% tests passed out of 20
+
+Total Test time (real) =  20.19 sec

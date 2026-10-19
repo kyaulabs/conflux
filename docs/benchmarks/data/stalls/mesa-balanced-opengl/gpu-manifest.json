@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "scope": "GPU trace, GPU analysis and shared parser only; host reports use separate manifest.json.",
+  "source": {
+    "original_path": "/tmp/conflux-mesa-balanced.txt",
+    "bytes": 33259520,
+    "sha256": "e415184d75314b3a7706a2942a960da73b7783627469c90d981a61de1cc814bc"
+  },
+  "files": {
+    "gpu-trace.txt.gz": {
+      "bytes": 4136208,
+      "sha256": "a9389e0b63bdc65bc3628d3a83448eb00bb9f7259b7bf72653fdcf85bf26c094"
+    },
+    "gpu-analysis.json": {
+      "bytes": 110469,
+      "sha256": "96903d6b109cf16750566706db62e8926546bd4552cad8437b5f889dbf730138"
+    },
+    "../mesa_analysis.py": {
+      "bytes": 9593,
+      "sha256": "073a8e302f9ec84abe5ab4b19321855bcc492ba0e27fc99cfbd21eeb94b20c7c"
+    }
+  },
+  "compression": {
+    "format": "gzip",
+    "level": 6,
+    "mtime": 0,
+    "header_filename": "",
+    "decompressed_sha256_verified": true,
+    "python_version": "3.14.8",
+    "zlib_runtime_version": "1.3.2"
+  },
+  "analysis_command": [
+    "python3",
+    "-B",
+    "docs/benchmarks/data/stalls/mesa_analysis.py",
+    "/tmp/conflux-mesa-balanced.txt",
+    "--output",
+    "docs/benchmarks/data/stalls/mesa-balanced-opengl/gpu-analysis.json"
+  ],
+  "analysis_warnings": {
+    "timestamp_regressions_in_group": 127,
+    "unfinished_trace_groups": 1
+  },
+  "analysis_validation": [
+    "Hand-calculated complete command-buffer and compute pair.",
+    "Truncated final group excluded from duration statistics.",
+    "Unmatched end event flagged.",
+    "Cross-group timestamp decrease flagged without assumed wrap.",
+    "Backward blorp-to-compute transition retained without invalidating positive compute-pair duration."
+  ],
+  "analysis_workload_overlap": {
+    "affected_run": "mesa-balanced-opengl",
+    "documented_parser_start_utc": "2026-10-16T17:25:53.340648+00:00",
+    "documented_parser_finish_utc": "2026-10-16T17:25:57.189235+00:00",
+    "documented_wall_seconds_approx": 3.85,
+    "cpu_time_measured": false,
+    "notes": [
+      "Earlier full-parse attempts may also overlap the beginning of the balanced comparison; their exact timing was not measured.",
+      "This is analysis CPU work overlapping the balanced run, not an inference measurement."
+    ],
+    "timing_basis": "Start is the archived parser-copy modification time; finish is the generated summary modification time. This is an approximate wall span, not directly instrumented process timing."
+  },
+  "run_limitations": [
+    "Worker ended with ENOSPC after complete 121-hop throughput; paced delivery and controls did not complete.",
+    "Final raw trace group is incomplete; preserved verbatim."
+  ],
+  "clock_scope": "GPU timestamps are not calibrated to CPU time.monotonic and contain no native request IDs.",
+  "archived_at_utc": "2026-10-16T17:32:08.177954+00:00",
+  "archive_wall_seconds": 0.45981555100297555,
+  "archive_cpu_seconds": 0.457627177
+}

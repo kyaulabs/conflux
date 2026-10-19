@@ -1,0 +1,212 @@
+{
+  "tracks": [
+    {
+      "id": "parting_glass",
+      "outputs": {
+        "cpu": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/parting_glass.npy",
+          "bytes": 33022208,
+          "sha256": "f430b656a10c592e078a95ccab2ac68f69629834fb7dc3752915921148129683"
+        },
+        "vulkan": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/parting_glass.npy",
+          "bytes": 33022208,
+          "sha256": "ad2c90155733a33b4eb54789e34dc670f027ff6b1cd3fbb22b5f92448b695379"
+        }
+      },
+      "auditions": {
+        "lossy_mp3": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.mp3",
+          "bytes": 654414,
+          "sha256": "79409d054f3b7a30ea2b89050dd90c2a3bd2d56cde9fa06428c8371b61c86045"
+        },
+        "lossless_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav",
+          "bytes": 11025092,
+          "sha256": "9a11d2224e6f5273615e884ecac74ca16866ab0554bd7cd87c1bb0ec625e73d6"
+        }
+      },
+      "continuous_wavs": {
+        "source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/parting_glass-source.wav",
+          "bytes": 8255612,
+          "sha256": "7c979ec68d479506eb8aeeac87c487409757ad463502def0816ac5e99cc09fe8"
+        },
+        "drums": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/parting_glass-drums.wav",
+          "bytes": 8255612,
+          "sha256": "8c77383d8ad28790525ba71eaa2df6a6e613fedfba8729e72f79f4849c129c53"
+        },
+        "bass": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/parting_glass-bass.wav",
+          "bytes": 8255612,
+          "sha256": "9a42019f350a225b0d6ff196cd94bea7643a29370d18fc349d06dc1623607746"
+        },
+        "other": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/parting_glass-other.wav",
+          "bytes": 8255612,
+          "sha256": "343e7f5e7e1e15ff4336ae89cd7b3561a221d97621f3059bba84016ac103790d"
+        },
+        "vocals": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/parting_glass-vocals.wav",
+          "bytes": 8255612,
+          "sha256": "c44150b1ef0f8cfc4fa8b138be85aee445f503131bcd8fd4e56cc0d8b5da4872"
+        },
+        "recombined": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/parting_glass-recombined.wav",
+          "bytes": 8255612,
+          "sha256": "062dd2a94516cc43ce2d9153691a0bf134b3027016ae0534e61f57869fe0a862"
+        }
+      },
+      "source_mp3": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass.mp3",
+        "bytes": 4997318,
+        "sha256": "e0791f4156a7127434dad525c654c8893d3b1df9dc3c86fbb63e2aaf0bc22b4c"
+      },
+      "input_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464"
+      }
+    },
+    {
+      "id": "funkorama",
+      "outputs": {
+        "cpu": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/funkorama.npy",
+          "bytes": 33022208,
+          "sha256": "d9670d224c905d80fcc98b661a85a492175b8b11d11af8ebb0febd5ad7e14e6f"
+        },
+        "vulkan": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/funkorama.npy",
+          "bytes": 33022208,
+          "sha256": "ce9860494ad0aae77cf5abc00a057dca855d4b11db1fc9daf7c311768082cf24"
+        }
+      },
+      "auditions": {
+        "lossy_mp3": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.mp3",
+          "bytes": 765150,
+          "sha256": "c6a9c5aae313dc6f1be06de9fbe9c86c495b9ece2d3817e46e46dc8f312110c0"
+        },
+        "lossless_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav",
+          "bytes": 11025092,
+          "sha256": "0e0d9bb3f3a306387152e64a44d54e3cad26484bd4c6f55f5358186d936f0593"
+        }
+      },
+      "continuous_wavs": {
+        "source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/funkorama-source.wav",
+          "bytes": 8255612,
+          "sha256": "a722f763589052bc80ab3ef220dfce9c02fc24267f04492725efb8119df71e0d"
+        },
+        "drums": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/funkorama-drums.wav",
+          "bytes": 8255612,
+          "sha256": "417d8b8d47e6c740579d9ec8b278c894bc9a001048da8f7807ec550906e5ecab"
+        },
+        "bass": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/funkorama-bass.wav",
+          "bytes": 8255612,
+          "sha256": "f13625dc4e1b6ac1585f9d43f0f3d8957cde70a06f2ca1cac360505e07a2d68f"
+        },
+        "other": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/funkorama-other.wav",
+          "bytes": 8255612,
+          "sha256": "4e48ebf42b85f335267c4c1617ab10c23a4292adce48e352240a3925e8e8710b"
+        },
+        "vocals": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/funkorama-vocals.wav",
+          "bytes": 8255612,
+          "sha256": "d5d24292f9e95a39ca73ef0871e46edfed0eef09a6308a125565ebf4655842c9"
+        },
+        "recombined": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/funkorama-recombined.wav",
+          "bytes": 8255612,
+          "sha256": "4e1dd563dbd167475c315bd3066e580d276637a2ad3e532280e54f4740968b9d"
+        }
+      },
+      "source_mp3": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama.mp3",
+        "bytes": 8199078,
+        "sha256": "6be229815d85a0b99382b944d31098b882702c04ac7ad899e44ab7f8ba89b5ad"
+      },
+      "input_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7"
+      }
+    },
+    {
+      "id": "club_diver",
+      "outputs": {
+        "cpu": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/club_diver.npy",
+          "bytes": 33022208,
+          "sha256": "24aede83813270255f441b3909b8c48d1d460c1e92eb348d1b07f447075fc1ed"
+        },
+        "vulkan": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/club_diver.npy",
+          "bytes": 33022208,
+          "sha256": "d2dd9df24c82358b08d05fdedf09a134c0c14f8a2054c3061e4167358cb1f5ba"
+        }
+      },
+      "auditions": {
+        "lossy_mp3": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.mp3",
+          "bytes": 760850,
+          "sha256": "26b2cc6b2103c646adc92ea92dc9763b3c1198daa0e3bfd70cbe195d0734142d"
+        },
+        "lossless_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav",
+          "bytes": 11025092,
+          "sha256": "00d4042c639079d86f06139ca2b9e900f0ca8d4f5b05796bb418fd42f3ebf646"
+        }
+      },
+      "continuous_wavs": {
+        "source": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/club_diver-source.wav",
+          "bytes": 8255612,
+          "sha256": "0b8fb507ccc9cb1a4dfe602e9d2dd910aa4e682893f29bf39351e86a183c9fe2"
+        },
+        "drums": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/club_diver-drums.wav",
+          "bytes": 8255612,
+          "sha256": "f500302c118942fa055e810a44f57f046c5cb3d16a12a381e1cfa6338b19bde7"
+        },
+        "bass": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/club_diver-bass.wav",
+          "bytes": 8255612,
+          "sha256": "7d99c6ba5865f8dc1966958aa18e04583d6d36d7e81a39f3f0fe6451c180cdbf"
+        },
+        "other": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/club_diver-other.wav",
+          "bytes": 8255612,
+          "sha256": "86bbbdb78ce35f45cb100021dd6662efddf338a03aca20aff7c10d78944cc1db"
+        },
+        "vocals": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/club_diver-vocals.wav",
+          "bytes": 8255612,
+          "sha256": "f6c4d790e041ba634e14550e158bb4c2f2508126f18003b23d4e54edf306c31f"
+        },
+        "recombined": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/waveform-review/club_diver-recombined.wav",
+          "bytes": 8255612,
+          "sha256": "df825cb50fab5a0511698a28263a2aa4f58741f63d3ebe55639a2b0356b381de"
+        }
+      },
+      "source_mp3": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver.mp3",
+        "bytes": 5829600,
+        "sha256": "3b8d82e6ed69cbd540e69794a252b7dced75a0af838914a094182115af3effb6"
+      },
+      "input_wav": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88"
+      }
+    }
+  ],
+  "scope": "Original audio/arrays hashed at packaging, then excluded. Archive audit cross-checks these saved identities only."
+}

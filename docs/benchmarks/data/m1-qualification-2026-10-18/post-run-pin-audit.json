@@ -1,0 +1,14 @@
+{
+  "schema": "conflux.m1-qualification-post-run-pins.v1",
+  "captured_at_utc": "2026-10-18T17:55:08.364341+00:00",
+  "source_base_head": "26d6ff8d6472bd592f15ddabdd10628e3718048f",
+  "scope": "Offline hash verification after all workloads stopped, before release for subsequent edits/builds. Guard state is compared from saved run reports, not queried.",
+  "passed": true,
+  "source_capture_records_match": true,
+  "binary_capture_records_match": true,
+  "frozen_sources_rehashed": 152,
+  "current_sources_rehashed": 76,
+  "current_binaries_rehashed": 24,
+  "harness_pins_rehashed": 4,
+  "mismatches": []
+}

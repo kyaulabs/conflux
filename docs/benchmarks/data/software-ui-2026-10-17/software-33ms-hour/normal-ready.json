@@ -1,0 +1,256 @@
+{
+  "schema": 1,
+  "label": "software-33ms-hour",
+  "status": "matched",
+  "reason": "consecutive_readiness_observed",
+  "started_monotonic": 377184.88291533,
+  "finished_monotonic": 377256.438755944,
+  "finished_at_utc": "2026-10-17T18:20:31.851225+00:00",
+  "maximum_seconds": 600,
+  "poll_seconds": 10,
+  "required_consecutive_sample_span_seconds": 60,
+  "package_threshold_millidegrees_C": 55000,
+  "package_zone": "/sys/class/thermal/thermal_zone7",
+  "guard_service_identity": {
+    "MainPID": "1036",
+    "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+  },
+  "profile_mutation": false,
+  "service_mutation": false,
+  "guard_runtime_latch_directly_observed": false,
+  "rows": [
+    {
+      "at_utc": "2026-10-17T18:19:20.295795+00:00",
+      "started_monotonic": 377184.883335053,
+      "errors": [],
+      "package_millidegrees_C": 66000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377185.076524093,
+      "finished_at_utc": "2026-10-17T18:19:20.488995+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 0.1936087629874237,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-17T18:19:30.489461+00:00",
+      "started_monotonic": 377195.077017602,
+      "errors": [],
+      "package_millidegrees_C": 38000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377195.266617555,
+      "finished_at_utc": "2026-10-17T18:19:30.679087+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 10.383702224993613,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 0.0
+    },
+    {
+      "at_utc": "2026-10-17T18:19:40.679399+00:00",
+      "started_monotonic": 377205.266961653,
+      "errors": [],
+      "package_millidegrees_C": 35000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377205.46147896,
+      "finished_at_utc": "2026-10-17T18:19:40.873949+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 20.578563629998825,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 10.194861405005213
+    },
+    {
+      "at_utc": "2026-10-17T18:19:50.874295+00:00",
+      "started_monotonic": 377215.461860547,
+      "errors": [],
+      "package_millidegrees_C": 35000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377215.648219296,
+      "finished_at_utc": "2026-10-17T18:19:51.060689+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 30.765303966007195,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 20.381601741013583
+    },
+    {
+      "at_utc": "2026-10-17T18:20:01.060929+00:00",
+      "started_monotonic": 377225.648497601,
+      "errors": [],
+      "package_millidegrees_C": 35000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377225.85756687,
+      "finished_at_utc": "2026-10-17T18:20:01.270037+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 40.97465153998928,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 30.59094931499567
+    },
+    {
+      "at_utc": "2026-10-17T18:20:11.270196+00:00",
+      "started_monotonic": 377235.857750039,
+      "errors": [],
+      "package_millidegrees_C": 49000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377236.055996537,
+      "finished_at_utc": "2026-10-17T18:20:11.468467+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 51.17308120697271,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 40.7893789819791
+    },
+    {
+      "at_utc": "2026-10-17T18:20:21.468715+00:00",
+      "started_monotonic": 377246.056295209,
+      "errors": [],
+      "package_millidegrees_C": 35000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377246.252968403,
+      "finished_at_utc": "2026-10-17T18:20:21.665438+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 61.370053072983865,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 50.98635084799025
+    },
+    {
+      "at_utc": "2026-10-17T18:20:31.665697+00:00",
+      "started_monotonic": 377256.253262169,
+      "errors": [],
+      "package_millidegrees_C": 38000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-17T11:18:17-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "377122232322",
+        "__REALTIME_TIMESTAMP": "1792261097644790",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 377256.438676032,
+      "finished_at_utc": "2026-10-17T18:20:31.851146+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 71.55576070200186,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 61.17205847700825
+    }
+  ],
+  "scope": "Sampled package temperature, actual policy/no holds and latest same-service recovered claim; inferred guard readiness, not direct private latch observation or continuous temperature proof."
+}

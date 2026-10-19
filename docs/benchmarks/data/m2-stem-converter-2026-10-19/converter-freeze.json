@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "status": "source_only_frozen_for_root_tdd",
+  "execution_by_agent": false,
+  "tracked_files_changed_by_agent": false,
+  "files": {
+    "converter-api.hpp": {
+      "sha256": "fcb4d4282c17a286a20d09e496927593df42cc26f3a6c518931084d55075c988"
+    },
+    "converter-tests.cpp": {
+      "sha256": "1b40d950321c68c75e5db22567de78fdaf8e5ba28ac872ecfe7fadf92a4cf612"
+    },
+    "converter-tests.patch": {
+      "sha256": "89a9acff0a8a9ec4a712e19bcea09886d329b339822c7b7328d61d31d51dad3e"
+    },
+    "converter-test-cmake.patch": {
+      "sha256": "2c8bf2240b8ea955d59a6e9c1ca9d7bb9d824d75bf4574dbc792b502c0fe43d7"
+    },
+    "converter-product-cmake.patch": {
+      "sha256": "3917ca6e5823f69a4a0c5e85cf8deb860a468681aeadc49ad8923666f46a2912"
+    }
+  },
+  "targets": {
+    "header": "src/audio/StemRateConverter.hpp",
+    "implementation": "src/audio/StemRateConverter.cpp",
+    "test": "tests/audio_stem_rate_converter_test.cpp",
+    "test_target": "conflux-audio-stem-rate-converter-test",
+    "ctest_name": "audio-stem-rate-converter",
+    "functional_timeout_seconds": 240
+  },
+  "api": {
+    "frame_plan": "sealed immutable actual count; reusable across seeks, no recount in constructor",
+    "count": "one stereo best-quality zero state, deferred-zero EOF, bounded4096 scratch, output cap, stop_token",
+    "input_aliases": "read-only roles may overlap",
+    "output_aliases": "all writable output ranges disjoint from every output and input",
+    "eof": "empty only after exact input coverage, sticky once started, actual zero-output drain and exact counted tail, repeated finished EOF idempotent",
+    "process": "four persistent states; bounded input/output; common finite progress; no caller publication on internal failure; failed generation terminal",
+    "seek": "147->160 grid,32-cell preroll, exact output target and counted global EOF"
+  },
+  "test_groups": [
+    "actual prepared count and exact output-budget rejection, addressable geometry, pre-cancelled count",
+    "active8M-frame bounded-memory count stopped20ms after task entry,5second functional cancellation bound",
+    "fixed/mixed partitions, four asymmetric roles/channels/headroom/impulses, first-HOP gap then continuous exact tail",
+    "one FramePlan reused across4HOP+211 interior seeks and actual EOF, short partial-grid seeks",
+    "readonly input aliases accepted, sticky EOF reversal rejected during pending tail then exact recovery",
+    "finite FLT_MAX step must first trigger actual prepared-oracle nonfinite output; converter keeps all caller buffers unchanged and becomes terminal",
+    "invalid shape, bounds, empty output, alias, nonfinite input and early/positive EOF preserve stream and output"
+  ],
+  "numerical_scope": {
+    "short_spike_source_sha256": "57df8d80bb121517211c4acbff11d5bd0648de0b1aa8638590a4472b1f991005",
+    "long_spike_source_sha256": "5221b0ec9b075522ccd2b687b1bc0d74a3b197e8246b1065c73e0008c017ff25",
+    "rule": "finite synthetic evidence, not all-duration equivalence or musical/performance qualification",
+    "overflow_positive_control_executed": false
+  },
+  "source_review": {
+    "product_draft": ".StemRateConverter.cpp",
+    "concrete_blockers_found": [],
+    "tests_standalone": true,
+    "ignored_experiment_includes": false,
+    "product_prepared_recipe_changed": false
+  },
+  "application_order": [
+    "Root applies converter-tests.patch and converter-test-cmake.patch; root captures actual RED.",
+    "Implementation author packages this exact agreed header plus reviewed implementation.",
+    "Root applies product patch and converter-product-cmake.patch, builds and executes actual GREEN; confirms overflow positive control and cancellation."
+  ],
+  "archival_encoding": {
+    "original_receipt": {
+      "bytes": 3578,
+      "sha256": "c94d259efce3efb28e6f621465ed8f6e43b166d884b0ea10cd4e539889d462a2"
+    },
+    "transformation": "Flat file digest strings represented as explicit sha256 records. Source-only metadata; original receipt retained locally. No digest value changed."
+  }
+}

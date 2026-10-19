@@ -1,0 +1,15 @@
+{
+  "command": [
+    "journalctl",
+    "--unit=power-profiles-daemon",
+    "--since",
+    "2026-10-17 00:30:35 UTC",
+    "--until",
+    "2026-10-17 00:31:35 UTC",
+    "--no-pager",
+    "--output=short-iso"
+  ],
+  "returncode": 0,
+  "stdout": "-- No entries --\n",
+  "stderr": ""
+}

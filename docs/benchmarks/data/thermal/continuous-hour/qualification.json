@@ -1,0 +1,7 @@
+{
+  "qualification": "Completed 3600-second audio/UI workload. Coverage and protocol checks passed; the 4095 ms continuous-hop p99 latency target failed. One brief sampled exposure loss recovered within budget.",
+  "raw_status": "ok",
+  "continuous_p99_passed": false,
+  "UI_coverage_passed": true,
+  "audio_coverage_passed": true
+}

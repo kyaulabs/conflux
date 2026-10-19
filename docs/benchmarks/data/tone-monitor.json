@@ -1,0 +1,11 @@
+{
+  "capture_scope": "direct monitor of conflux-audio-probe output; no microphone",
+  "capture_exit_code": 1,
+  "frames": 240000,
+  "rate": 48000,
+  "channels": 2,
+  "peak_hz": 440.0,
+  "peak": 0.009999999776482582,
+  "rms": 0.007067261729389429,
+  "max_channel_difference": 0.0
+}

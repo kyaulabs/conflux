@@ -1,0 +1,884 @@
+[I][22:19:30.548351] pw.context   | [      pipewire.c:  592 pw_init()] version 1.6.9
+[I][22:19:30.548893] pw.conf      | [          conf.c:  420 conf_load()] 0x20ae62330e0: loaded config '/tmp/conflux-routing-private-s50ifrl5//pipewire.conf' with 4 items
+[I][22:19:30.549038] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/tmp/conflux-routing-private-s50ifrl5//pipewire.conf' section 'context.properties'
+[I][22:19:30.549100] pw.context   | [       context.c:  473 pw_context_new()] 0x20ae6231f60: parsed 9 context.properties items
+[I][22:19:30.549200] pw.context   | [       context.c:  272 setup_data_loops()] created data loop 'data-loop.0'
+[I][22:19:30.549222] pw.context   | [       context.c:  275 setup_data_loops()] created 1 data-loops
+[I][22:19:30.549773] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/tmp/conflux-routing-private-s50ifrl5//pipewire.conf' section 'context.spa-libs'
+[I][22:19:30.549867] pw.context   | [       context.c:  567 pw_context_new()] 0x20ae6231f60: parsed 1 context.spa-libs items
+[I][22:19:30.549891] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/tmp/conflux-routing-private-s50ifrl5//pipewire.conf' section 'context.modules'
+[I][22:19:30.549912] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x20ae6231f60: name:libpipewire-module-protocol-native args:(null)
+[I][22:19:30.550333] mod.protocol-native | [module-protocol-: 1482 add_server()] 0x20ae6239c00: Listening on 'conflux-private-routing-2'
+[I][22:19:30.550431] mod.protocol-native | [module-protocol-: 1482 add_server()] 0x20ae6239c00: Listening on 'conflux-private-routing-2-manager'
+[I][22:19:30.550456] pw.conf      | [          conf.c:  615 load_module()] 0x20ae6231f60: loaded module libpipewire-module-protocol-native
+[I][22:19:30.550477] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x20ae6231f60: name:libpipewire-module-spa-node-factory args:(null)
+[I][22:19:30.550648] pw.conf      | [          conf.c:  615 load_module()] 0x20ae6231f60: loaded module libpipewire-module-spa-node-factory
+[I][22:19:30.550674] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x20ae6231f60: name:libpipewire-module-client-node args:(null)
+[I][22:19:30.550862] pw.conf      | [          conf.c:  615 load_module()] 0x20ae6231f60: loaded module libpipewire-module-client-node
+[I][22:19:30.550887] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x20ae6231f60: name:libpipewire-module-link-factory args:(null)
+[I][22:19:30.551028] pw.conf      | [          conf.c:  615 load_module()] 0x20ae6231f60: loaded module libpipewire-module-link-factory
+[I][22:19:30.551052] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x20ae6231f60: name:libpipewire-module-metadata args:(null)
+[I][22:19:30.551245] pw.conf      | [          conf.c:  615 load_module()] 0x20ae6231f60: loaded module libpipewire-module-metadata
+[I][22:19:30.551276] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x20ae6231f60: name:libpipewire-module-access args:{
+        access.socket = {
+            "conflux-private-routing-2" = "unrestricted"
+            "conflux-private-routing-2-manager" = "unrestricted"
+        }
+    }
+[I][22:19:30.551844] pw.conf      | [          conf.c:  615 load_module()] 0x20ae6231f60: loaded module libpipewire-module-access
+[I][22:19:30.551873] pw.context   | [       context.c:  571 pw_context_new()] 0x20ae6231f60: parsed 6 context.modules items
+[I][22:19:30.551892] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/tmp/conflux-routing-private-s50ifrl5//pipewire.conf' section 'context.objects'
+[I][22:19:30.551922] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.551943] pw.context   | [       context.c:  287 data_loop_start()] starting data loop data-loop.0
+[I][22:19:30.552103] default      | [        thread.c:  161 impl_acquire_rt()] acquire_rt thread:0x64306b01a6c0 prio:-1 not implemented
+[I][22:19:30.552176] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x20ae6235de8 created queue 0x20ae6246fb0 idx:0 0x64306bb0ebc0
+[I][22:19:30.552205] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608706886612
+[I][22:19:30.552251] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410608706886612
+[I][22:19:30.552293] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'data-loop.0' class:'(null)'
+[I][22:19:30.552313] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608707257141
+[I][22:19:30.552351] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'data-loop.0' class:'(null)'
+[I][22:19:30.552368] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608707312059
+[I][22:19:30.552443] pw.node      | [     impl-node.c: 1189 check_properties()] 0x20ae6253160: group '(null)'->'pipewire.dummy'
+[I][22:19:30.552470] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae6253160: sync group '(null)'->'group.sync.0'
+[I][22:19:30.552507] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-12) creating -> suspended
+[I][22:19:30.552528] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:register active node
+[I][22:19:30.552552] pw.context   | [       context.c:  576 pw_context_new()] 0x20ae6231f60: parsed 1 context.objects items
+[I][22:19:30.552569] pw.context   | [       context.c:  579 pw_context_new()] 0x20ae6231f60: parsed 0 context.exec items
+[I][22:19:30.552594] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:log.level type: value:3
+[I][22:19:30.552612] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.rate type: value:48000
+[I][22:19:30.552633] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.allowed-rates type: value:[ 48000 ]
+[I][22:19:30.552650] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.quantum type: value:256
+[I][22:19:30.552667] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.min-quantum type: value:256
+[I][22:19:30.552684] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.max-quantum type: value:256
+[I][22:19:30.552700] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.force-quantum type: value:0
+[I][22:19:30.552715] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x20ae62547f0: add id:0 key:clock.force-rate type: value:0
+[I][22:19:30.552734] default      | [      pipewire.c:  129 main()] start main loop
+[I][22:19:30.572172] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623ac80: security label not available
+[I][22:19:30.572440] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6256100 has trusted pid 7
+[I][22:19:30.572514] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6256100 'unrestricted' access granted
+[I][22:19:30.572550] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6256100: set default permissions 00000000 -> 000001c8
+[I][22:19:30.583095] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6256100 disconnected
+[I][22:19:30.604014] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.604626] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6256100 has trusted pid 8
+[I][22:19:30.604768] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6256100 'unrestricted' access granted
+[I][22:19:30.604843] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6256100: set default permissions 00000000 -> 000001c8
+[I][22:19:30.604914] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.604951] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608759893944
+[I][22:19:30.605093] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae626cd30: sync group '(null)'->'group.sync.0'
+[I][22:19:30.605144] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-routing-check-one-four-channel-sink-master-0) latency:0/0 -> 256/48000
+[I][22:19:30.605181] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-routing-check-one-four-channel-sink-master-0) rate:0/0 -> 1/48000
+[I][22:19:30.605669] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-one-four-channel-sink-master-15) creating -> suspended
+[I][22:19:30.605780] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:register active node
+[I][22:19:30.605820] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-routing-check-one-four-channel-sink-master-15) -> change driver (conflux-routing-check-one-four-channel-sink-master-15 -> Dummy-Driver-12)
+[I][22:19:30.606129] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-one-four-channel-sink-master-15) suspended -> running
+[I][22:19:30.606198] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-12) suspended -> running
+[I][22:19:30.608601] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.609126] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6275080 has trusted pid 8
+[I][22:19:30.609213] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6275080 'unrestricted' access granted
+[I][22:19:30.609251] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6275080: set default permissions 00000000 -> 000001c8
+[I][22:19:30.609308] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.609332] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608764276003
+[I][22:19:30.609408] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae628acd0: sync group '(null)'->'group.sync.0'
+[I][22:19:30.609442] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.609465] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.609987] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) creating -> suspended
+[I][22:19:30.614343] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6275080 disconnected
+[I][22:19:30.614434] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-21) destroy
+[I][22:19:30.614632] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410608764276003
+[I][22:19:30.620106] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.620779] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6275080 has trusted pid 8
+[I][22:19:30.620887] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6275080 'unrestricted' access granted
+[I][22:19:30.620929] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6275080: set default permissions 00000000 -> 000001c8
+[I][22:19:30.620992] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.621017] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608775960931
+[I][22:19:30.621129] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae628acd0: sync group '(null)'->'group.sync.0'
+[I][22:19:30.621167] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.621190] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.622168] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) creating -> suspended
+[I][22:19:30.623209] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.0.0 -> 15.0.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.623280] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 25: 0x20ae62891a0 set input cap 0x7d4255db2490 0
+[I][22:19:30.623309] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.623337] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (16), flags 00000000
+[I][22:19:30.623356] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.623374] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap 0x7d4255db2490 0
+[I][22:19:30.623393] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.623411] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (25), flags 00000000
+[I][22:19:30.623428] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.623445] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 25: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.623475] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.623497] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 25: 0x20ae62891a0 set input tag 0x7d4255db2490
+[I][22:19:30.623516] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.623533] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.623552] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.623574] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag 0x7d4255db2490
+[I][22:19:30.623591] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.623609] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.623626] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.624036] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.1.0 -> 15.1.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.624075] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 24: 0x20ae628f920 set input cap 0x7d4255db2490 0
+[I][22:19:30.624123] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.624144] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (17), flags 00000000
+[I][22:19:30.624161] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.624178] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap 0x7d4255db2490 0
+[I][22:19:30.624197] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.624214] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (24), flags 00000000
+[I][22:19:30.624231] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.624249] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 24: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.624273] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.624295] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 24: 0x20ae628f920 set input tag 0x7d4255db2490
+[I][22:19:30.624315] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.624335] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.624352] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.624370] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag 0x7d4255db2490
+[I][22:19:30.624390] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.624407] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.624424] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.624768] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.2.0 -> 15.2.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.624792] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 23: 0x20ae63dcee0 set input cap 0x7d4255db2490 0
+[I][22:19:30.624809] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.624828] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (18), flags 00000000
+[I][22:19:30.624846] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.624863] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 18: 0x20ae62707e0 set output cap 0x7d4255db2490 0
+[I][22:19:30.624880] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.624899] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (23), flags 00000000
+[I][22:19:30.624916] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.624932] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 23: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.624953] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 18: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.624983] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 23: 0x20ae63dcee0 set input tag 0x7d4255db2490
+[I][22:19:30.625002] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.625021] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.625039] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.625069] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 18: 0x20ae62707e0 set output tag 0x7d4255db2490
+[I][22:19:30.625105] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.625131] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.625155] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.625544] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.3.0 -> 15.3.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.625584] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 22: 0x20ae64820b0 set input cap 0x7d4255db2490 0
+[I][22:19:30.625614] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.625644] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (19), flags 00000000
+[I][22:19:30.625672] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.625700] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 19: 0x20ae6271bd0 set output cap 0x7d4255db2490 0
+[I][22:19:30.625732] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.625763] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (22), flags 00000000
+[I][22:19:30.625794] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.625824] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 22: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.625863] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 19: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.625902] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 22: 0x20ae64820b0 set input tag 0x7d4255db2490
+[I][22:19:30.625935] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.625966] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.625996] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.626028] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 19: 0x20ae6271bd0 set output tag 0x7d4255db2490
+[I][22:19:30.626074] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.626113] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.626144] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.626821] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node activate
+[I][22:19:30.626899] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6527280: output:1 -> input:1
+[I][22:19:30.626931] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) init -> negotiating (configure-configure)
+[I][22:19:30.626976] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.627009] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.627040] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627106] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.627143] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.627174] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627215] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.627247] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.627277] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627308] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.627356] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6670ce0: output:1 -> input:1
+[I][22:19:30.627385] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) init -> negotiating (configure-configure)
+[I][22:19:30.627422] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.627455] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.627484] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627516] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.627545] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.627577] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627606] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.627637] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.627666] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627696] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.627736] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae67bae10: output:1 -> input:1
+[I][22:19:30.627775] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) init -> negotiating (configure-configure)
+[I][22:19:30.627810] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.627842] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.627871] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.627914] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.627944] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.627973] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.628001] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.628029] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.628070] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.628107] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.628145] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6904f40: output:1 -> input:1
+[I][22:19:30.628175] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) init -> negotiating (configure-configure)
+[I][22:19:30.628209] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.628240] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.628269] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.628300] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.628329] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.628360] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.628389] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.628417] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.628447] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.628476] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.629680] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.629840] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.629956] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.630054] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.631276] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) allocating -> paused (paused-paused)
+[I][22:19:30.631342] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.631381] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-manual-audio-21) -> change driver (conflux-manual-audio-21 -> Dummy-Driver-12)
+[I][22:19:30.631482] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.0.0 -> 15.0.0) activated
+[I][22:19:30.631517] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> active (paused-paused)
+[I][22:19:30.631558] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) allocating -> paused (paused-paused)
+[I][22:19:30.631592] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.631649] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.1.0 -> 15.1.0) activated
+[I][22:19:30.631678] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> active (paused-paused)
+[I][22:19:30.631715] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) allocating -> paused (paused-paused)
+[I][22:19:30.631750] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.631794] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.2.0 -> 15.2.0) activated
+[I][22:19:30.631821] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) paused -> active (paused-paused)
+[I][22:19:30.631858] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) allocating -> paused (paused-paused)
+[I][22:19:30.631894] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.631938] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.3.0 -> 15.3.0) activated
+[I][22:19:30.631965] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) paused -> active (paused-paused)
+[I][22:19:30.632285] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) suspended -> running
+[I][22:19:30.784371] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6275080 disconnected
+[I][22:19:30.784482] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-21) destroy
+[I][22:19:30.784524] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.0.0 -> 15.0.0) deactivated
+[I][22:19:30.784543] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) active -> paused (paused-paused)
+[I][22:19:30.784574] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.1.0 -> 15.1.0) deactivated
+[I][22:19:30.784590] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) active -> paused (paused-paused)
+[I][22:19:30.784610] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.2.0 -> 15.2.0) deactivated
+[I][22:19:30.784632] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) active -> paused (paused-paused)
+[I][22:19:30.784656] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.3.0 -> 15.3.0) deactivated
+[I][22:19:30.784673] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) active -> paused (paused-paused)
+[I][22:19:30.784695] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> negotiating (paused-ready)
+[I][22:19:30.784713] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.784756] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> init (configure-ready)
+[I][22:19:30.784778] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> negotiating (paused-ready)
+[I][22:19:30.784795] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.784827] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> init (configure-ready)
+[I][22:19:30.784855] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) paused -> negotiating (paused-ready)
+[I][22:19:30.784879] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.784913] pw.link      | [     impl-link.c:  112 link_update_state()] (21.2.0 -> 15.2.0) negotiating -> init (configure-ready)
+[I][22:19:30.784933] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) paused -> negotiating (paused-ready)
+[I][22:19:30.784950] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.784994] pw.link      | [     impl-link.c:  112 link_update_state()] (21.3.0 -> 15.3.0) negotiating -> init (configure-ready)
+[I][22:19:30.785012] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) running -> suspended
+[I][22:19:30.785041] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.0.0 -> 15.0.0) destroy
+[I][22:19:30.785080] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap (nil) 0
+[I][22:19:30.785112] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.785136] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag (nil)
+[I][22:19:30.785182] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.1.0 -> 15.1.0) destroy
+[I][22:19:30.785200] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap (nil) 0
+[I][22:19:30.785218] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.785237] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag (nil)
+[I][22:19:30.785268] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.2.0 -> 15.2.0) destroy
+[I][22:19:30.785285] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 18: 0x20ae62707e0 set output cap (nil) 0
+[I][22:19:30.785303] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 18: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.785321] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 18: 0x20ae62707e0 set output tag (nil)
+[I][22:19:30.785353] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.3.0 -> 15.3.0) destroy
+[I][22:19:30.785370] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 19: 0x20ae6271bd0 set output cap (nil) 0
+[I][22:19:30.785390] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 19: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.785409] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 19: 0x20ae6271bd0 set output tag (nil)
+[I][22:19:30.785441] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:30.785460] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:30.785549] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410608775960931
+[I][22:19:30.791113] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.791810] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6275080 has trusted pid 8
+[I][22:19:30.791874] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6275080 'unrestricted' access granted
+[I][22:19:30.791907] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6275080: set default permissions 00000000 -> 000001c8
+[I][22:19:30.791957] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.791982] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608946925463
+[I][22:19:30.792099] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae67bacd0: sync group '(null)'->'group.sync.0'
+[I][22:19:30.792140] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.792161] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.795335] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) creating -> suspended
+[I][22:19:30.797316] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.0.0 -> 15.0.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.797366] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 22: 0x20ae6289380 set input cap 0x7d4255db2490 0
+[I][22:19:30.797389] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.797407] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (16), flags 00000000
+[I][22:19:30.797424] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.797440] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap 0x7d4255db2490 0
+[I][22:19:30.797458] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.797475] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (22), flags 00000000
+[I][22:19:30.797496] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.797512] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 22: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.797542] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.797561] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 22: 0x20ae6289380 set input tag 0x7d4255db2490
+[I][22:19:30.797577] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.797593] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.797610] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.797629] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag 0x7d4255db2490
+[I][22:19:30.797646] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.797662] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.797678] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.799117] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.1.0 -> 15.1.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.799167] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 29: 0x20ae685ffc0 set input cap 0x7d4255db2490 0
+[I][22:19:30.799186] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.799202] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (17), flags 00000000
+[I][22:19:30.799219] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.799234] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap 0x7d4255db2490 0
+[I][22:19:30.799251] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.799281] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (29), flags 00000000
+[I][22:19:30.799298] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.799313] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 29: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.799336] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.799355] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 29: 0x20ae685ffc0 set input tag 0x7d4255db2490
+[I][22:19:30.799373] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.799389] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.799406] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.799423] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag 0x7d4255db2490
+[I][22:19:30.799440] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.799455] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.799471] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.799859] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node activate
+[I][22:19:30.799909] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6860f00: output:1 -> input:1
+[I][22:19:30.799930] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) init -> negotiating (configure-configure)
+[I][22:19:30.799956] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.799974] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.799992] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.800008] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.800024] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.800040] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.800056] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.800095] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.800112] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.800130] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.800159] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae68613c0: output:1 -> input:1
+[I][22:19:30.800176] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) init -> negotiating (configure-configure)
+[I][22:19:30.800198] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.800215] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.800242] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.800258] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.800273] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.800289] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.800304] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.800320] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.800335] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.800350] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.800701] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.800808] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.801407] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) allocating -> paused (paused-paused)
+[I][22:19:30.801449] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.801470] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-manual-audio-21) -> change driver (conflux-manual-audio-21 -> Dummy-Driver-12)
+[I][22:19:30.801551] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.0.0 -> 15.0.0) activated
+[I][22:19:30.801579] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> active (paused-paused)
+[I][22:19:30.801603] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) allocating -> paused (paused-paused)
+[I][22:19:30.801622] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.801647] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.1.0 -> 15.1.0) activated
+[I][22:19:30.801663] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> active (paused-paused)
+[I][22:19:30.801926] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) suspended -> running
+[I][22:19:30.837642] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6275080 disconnected
+[I][22:19:30.837762] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-21) destroy
+[I][22:19:30.837806] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.0.0 -> 15.0.0) deactivated
+[I][22:19:30.837825] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) active -> paused (paused-paused)
+[I][22:19:30.837859] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.1.0 -> 15.1.0) deactivated
+[I][22:19:30.837875] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) active -> paused (paused-paused)
+[I][22:19:30.837906] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> negotiating (paused-ready)
+[I][22:19:30.837925] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.837968] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> init (configure-ready)
+[I][22:19:30.838000] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> negotiating (paused-ready)
+[I][22:19:30.838016] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.838088] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> init (configure-ready)
+[I][22:19:30.838122] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) running -> suspended
+[I][22:19:30.838150] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.0.0 -> 15.0.0) destroy
+[I][22:19:30.838171] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap (nil) 0
+[I][22:19:30.838193] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.838219] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag (nil)
+[I][22:19:30.838264] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.1.0 -> 15.1.0) destroy
+[I][22:19:30.838298] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap (nil) 0
+[I][22:19:30.838314] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.838333] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag (nil)
+[I][22:19:30.838380] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:30.838398] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:30.838519] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410608946925463
+[I][22:19:30.841879] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.842380] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6275080 has trusted pid 8
+[I][22:19:30.842444] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6275080 'unrestricted' access granted
+[I][22:19:30.842474] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6275080: set default permissions 00000000 -> 000001c8
+[I][22:19:30.842516] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.842539] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410608997482818
+[I][22:19:30.842625] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae628f790: sync group '(null)'->'group.sync.0'
+[I][22:19:30.842658] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.842678] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.846298] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) creating -> suspended
+[I][22:19:30.848817] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.0.0 -> 15.0.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.848894] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 28: 0x20ae67bacd0 set input cap 0x7d4255db2490 0
+[I][22:19:30.848927] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.848961] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (16), flags 00000000
+[I][22:19:30.848988] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.849015] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap 0x7d4255db2490 0
+[I][22:19:30.849075] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.849108] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (28), flags 00000000
+[I][22:19:30.849139] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.849165] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 28: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.849209] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.849242] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 28: 0x20ae67bacd0 set input tag 0x7d4255db2490
+[I][22:19:30.849270] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.849296] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.849323] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.849352] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag 0x7d4255db2490
+[I][22:19:30.849379] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.849407] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.849432] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.851473] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.1.0 -> 15.1.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.851564] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 23: 0x20ae685fea0 set input cap 0x7d4255db2490 0
+[I][22:19:30.851599] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.851628] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (17), flags 00000000
+[I][22:19:30.851656] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.851682] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap 0x7d4255db2490 0
+[I][22:19:30.851710] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.851736] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (23), flags 00000000
+[I][22:19:30.851762] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.851788] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 23: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.851829] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.851861] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 23: 0x20ae685fea0 set input tag 0x7d4255db2490
+[I][22:19:30.851887] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.851915] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.851942] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.851987] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag 0x7d4255db2490
+[I][22:19:30.852014] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.852041] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.852081] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.852563] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node activate
+[I][22:19:30.852641] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6860de0: output:1 -> input:1
+[I][22:19:30.852674] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) init -> negotiating (configure-configure)
+[I][22:19:30.852716] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.852745] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.852772] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.852800] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.852827] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.852854] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.852879] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.852904] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.852927] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.852950] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.852992] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae68612a0: output:1 -> input:1
+[I][22:19:30.853020] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) init -> negotiating (configure-configure)
+[I][22:19:30.853049] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.853102] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.853132] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.853156] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.853181] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.853208] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.853236] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.853264] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.853291] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.853319] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.853873] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.854026] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.854772] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) allocating -> paused (paused-paused)
+[I][22:19:30.854867] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.854910] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-manual-audio-21) -> change driver (conflux-manual-audio-21 -> Dummy-Driver-12)
+[I][22:19:30.855010] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.0.0 -> 15.0.0) activated
+[I][22:19:30.855042] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> active (paused-paused)
+[I][22:19:30.855101] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) allocating -> paused (paused-paused)
+[I][22:19:30.855137] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.855179] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.1.0 -> 15.1.0) activated
+[I][22:19:30.855204] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> active (paused-paused)
+[I][22:19:30.855488] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) suspended -> running
+[I][22:19:30.888188] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6275080 disconnected
+[I][22:19:30.888326] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-21) destroy
+[I][22:19:30.888383] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.0.0 -> 15.0.0) deactivated
+[I][22:19:30.888417] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) active -> paused (paused-paused)
+[I][22:19:30.888468] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.1.0 -> 15.1.0) deactivated
+[I][22:19:30.888496] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) active -> paused (paused-paused)
+[I][22:19:30.888540] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> negotiating (paused-ready)
+[I][22:19:30.888571] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.888628] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> init (configure-ready)
+[I][22:19:30.888665] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> negotiating (paused-ready)
+[I][22:19:30.888700] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.888750] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> init (configure-ready)
+[I][22:19:30.888787] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) running -> suspended
+[I][22:19:30.888835] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.0.0 -> 15.0.0) destroy
+[I][22:19:30.888870] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap (nil) 0
+[I][22:19:30.888907] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.888953] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag (nil)
+[I][22:19:30.889030] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.1.0 -> 15.1.0) destroy
+[I][22:19:30.889084] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap (nil) 0
+[I][22:19:30.889146] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.889188] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag (nil)
+[I][22:19:30.889266] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:30.889299] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:30.889434] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410608997482818
+[I][22:19:30.892608] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.893264] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6275080 has trusted pid 8
+[I][22:19:30.893355] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6275080 'unrestricted' access granted
+[I][22:19:30.893393] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6275080: set default permissions 00000000 -> 000001c8
+[I][22:19:30.893454] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.893482] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410609048425199
+[I][22:19:30.893566] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae67bb820: sync group '(null)'->'group.sync.0'
+[I][22:19:30.893602] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.893625] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.897027] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) creating -> suspended
+[I][22:19:30.899034] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.0.0 -> 15.0.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.899111] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 27: 0x20ae67bc0e0 set input cap 0x7d4255db2490 0
+[I][22:19:30.899139] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.899160] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (16), flags 00000000
+[I][22:19:30.899178] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.899195] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap 0x7d4255db2490 0
+[I][22:19:30.899213] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.899230] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (27), flags 00000000
+[I][22:19:30.899246] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.899262] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 27: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.899293] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.899315] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 27: 0x20ae67bc0e0 set input tag 0x7d4255db2490
+[I][22:19:30.899333] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.899354] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.899388] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.899408] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag 0x7d4255db2490
+[I][22:19:30.899425] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.899442] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.899458] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.901007] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (21.1.0 -> 15.1.0) (conflux-manual-audio) -> (conflux-routing-check-one-four-channel-sink-master) async:0:0:0:001a:001a:0
+[I][22:19:30.901080] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 29: 0x20ae68612b0 set input cap 0x7d4255db2490 0
+[I][22:19:30.901107] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.901125] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (17), flags 00000000
+[I][22:19:30.901142] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.901158] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap 0x7d4255db2490 0
+[I][22:19:30.901175] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.901192] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (29), flags 00000000
+[I][22:19:30.901208] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.901225] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 29: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.901249] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.901269] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 29: 0x20ae68612b0 set input tag 0x7d4255db2490
+[I][22:19:30.901285] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.901302] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.901318] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.901336] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag 0x7d4255db2490
+[I][22:19:30.901352] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.901369] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.901386] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.901873] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node activate
+[I][22:19:30.901928] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae68621f0: output:1 -> input:1
+[I][22:19:30.901962] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) init -> negotiating (configure-configure)
+[I][22:19:30.902003] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.902041] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.902091] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.902116] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.902134] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.902151] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.902168] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.902185] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.902202] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.902220] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.902253] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae68626b0: output:1 -> input:1
+[I][22:19:30.902276] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) init -> negotiating (configure-configure)
+[I][22:19:30.902297] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.902314] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.902331] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.902348] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.902364] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.902380] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.902396] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.902413] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.902430] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.902446] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.902918] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.903030] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.903588] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) allocating -> paused (paused-paused)
+[I][22:19:30.903634] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.903658] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-manual-audio-21) -> change driver (conflux-manual-audio-21 -> Dummy-Driver-12)
+[I][22:19:30.903725] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.0.0 -> 15.0.0) activated
+[I][22:19:30.903745] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> active (paused-paused)
+[I][22:19:30.903770] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) allocating -> paused (paused-paused)
+[I][22:19:30.903802] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.903828] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (21.1.0 -> 15.1.0) activated
+[I][22:19:30.903849] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> active (paused-paused)
+[I][22:19:30.904097] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) suspended -> running
+[I][22:19:30.939136] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6275080 disconnected
+[I][22:19:30.939300] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-21) destroy
+[I][22:19:30.939347] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.0.0 -> 15.0.0) deactivated
+[I][22:19:30.939368] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) active -> paused (paused-paused)
+[I][22:19:30.939403] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (21.1.0 -> 15.1.0) deactivated
+[I][22:19:30.939421] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) active -> paused (paused-paused)
+[I][22:19:30.939457] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) paused -> negotiating (paused-ready)
+[I][22:19:30.939487] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.939545] pw.link      | [     impl-link.c:  112 link_update_state()] (21.0.0 -> 15.0.0) negotiating -> init (configure-ready)
+[I][22:19:30.939574] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) paused -> negotiating (paused-ready)
+[I][22:19:30.939592] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:30.939628] pw.link      | [     impl-link.c:  112 link_update_state()] (21.1.0 -> 15.1.0) negotiating -> init (configure-ready)
+[I][22:19:30.939650] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-21) running -> suspended
+[I][22:19:30.939685] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.0.0 -> 15.0.0) destroy
+[I][22:19:30.939709] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 16: 0x20ae626e000 set output cap (nil) 0
+[I][22:19:30.939730] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 16: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.939760] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 16: 0x20ae626e000 set output tag (nil)
+[I][22:19:30.939806] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (21.1.0 -> 15.1.0) destroy
+[I][22:19:30.939826] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626f3f0 set output cap (nil) 0
+[I][22:19:30.939844] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.939864] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626f3f0 set output tag (nil)
+[I][22:19:30.939914] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:30.939933] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:30.940036] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609048425199
+[I][22:19:30.941742] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6256100 disconnected
+[I][22:19:30.941801] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-routing-check-one-four-channel-sink-master-15) destroy
+[I][22:19:30.941828] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-one-four-channel-sink-master-15) running -> suspended
+[I][22:19:30.941947] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:30.941973] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:30.942097] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609048425199
+[I][22:19:30.942206] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-12) running -> idle
+[I][22:19:30.943339] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.943950] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6256100 has trusted pid 8
+[I][22:19:30.944075] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6256100 'unrestricted' access granted
+[I][22:19:30.944134] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6256100: set default permissions 00000000 -> 000001c8
+[I][22:19:30.944195] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.944233] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410609099176255
+[I][22:19:30.944356] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae628acd0: sync group '(null)'->'group.sync.0'
+[I][22:19:30.944402] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-routing-check-two-stereo-sinks-master-0) latency:0/0 -> 256/48000
+[I][22:19:30.944434] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-routing-check-two-stereo-sinks-master-0) rate:0/0 -> 1/48000
+[I][22:19:30.946331] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.946497] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-two-stereo-sinks-master-19) creating -> suspended
+[I][22:19:30.946562] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:register active node
+[I][22:19:30.946585] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-routing-check-two-stereo-sinks-master-19) -> change driver (conflux-routing-check-two-stereo-sinks-master-19 -> Dummy-Driver-12)
+[I][22:19:30.946755] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6275080 has trusted pid 8
+[I][22:19:30.946804] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6275080 'unrestricted' access granted
+[I][22:19:30.946834] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6275080: set default permissions 00000000 -> 000001c8
+[I][22:19:30.946874] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.946905] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410609101848971
+[I][22:19:30.946972] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae628f680: sync group '(null)'->'group.sync.0'
+[I][22:19:30.947005] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-routing-check-two-stereo-sinks-cue-0) latency:0/0 -> 256/48000
+[I][22:19:30.947032] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-routing-check-two-stereo-sinks-cue-0) rate:0/0 -> 1/48000
+[I][22:19:30.948682] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-two-stereo-sinks-master-19) suspended -> running
+[I][22:19:30.948741] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-12) idle -> running
+[I][22:19:30.948844] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-two-stereo-sinks-cue-16) creating -> suspended
+[I][22:19:30.948937] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:register active node
+[I][22:19:30.948962] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-routing-check-two-stereo-sinks-cue-16) -> change driver (conflux-routing-check-two-stereo-sinks-cue-16 -> Dummy-Driver-12)
+[I][22:19:30.949050] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.949240] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-two-stereo-sinks-cue-16) suspended -> running
+[I][22:19:30.949371] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6272d70 has trusted pid 8
+[I][22:19:30.949417] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6272d70 'unrestricted' access granted
+[I][22:19:30.949449] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6272d70: set default permissions 00000000 -> 000001c8
+[I][22:19:30.949494] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.949516] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410609104460109
+[I][22:19:30.949586] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae62a6710: sync group '(null)'->'group.sync.0'
+[I][22:19:30.949619] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.949639] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.953003] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-23) creating -> suspended
+[I][22:19:30.954506] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6272d70 disconnected
+[I][22:19:30.954551] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-23) destroy
+[I][22:19:30.954656] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609104460109
+[I][22:19:30.959156] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623a740: security label not available
+[I][22:19:30.959615] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6272d70 has trusted pid 8
+[I][22:19:30.959704] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6272d70 'unrestricted' access granted
+[I][22:19:30.959739] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6272d70: set default permissions 00000000 -> 000001c8
+[I][22:19:30.959789] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x20ae6231f60: looking for name:'(null)' class:'(null)'
+[I][22:19:30.959811] pw.context   | [       context.c:  782 acquire_data_loop()] 0x20ae6231f60: using name:'data-loop.0' class:'data.rt' last_used:410609114755078
+[I][22:19:30.959889] pw.node      | [     impl-node.c: 1216 check_properties()] 0x20ae653f0f0: sync group '(null)'->'group.sync.0'
+[I][22:19:30.959921] pw.node      | [     impl-node.c: 1272 check_properties()] (conflux-manual-audio-0) latency:0/0 -> 256/48000
+[I][22:19:30.959943] pw.node      | [     impl-node.c: 1303 check_properties()] (conflux-manual-audio-0) rate:0/0 -> 1/48000
+[I][22:19:30.963215] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-23) creating -> suspended
+[I][22:19:30.965003] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (23.0.0 -> 19.0.0) (conflux-manual-audio) -> (conflux-routing-check-two-stereo-sinks-master) async:0:0:0:001a:001a:0
+[I][22:19:30.965052] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 28: 0x20ae653f9b0 set input cap 0x7d4255db2490 0
+[I][22:19:30.965114] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.965143] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (18), flags 00000000
+[I][22:19:30.965171] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.965196] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 18: 0x20ae626a050 set output cap 0x7d4255db2490 0
+[I][22:19:30.965221] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.965246] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (28), flags 00000000
+[I][22:19:30.965271] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.965298] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 28: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.965340] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 18: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.965373] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 28: 0x20ae653f9b0 set input tag 0x7d4255db2490
+[I][22:19:30.965400] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.965420] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.965437] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.965455] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 18: 0x20ae626a050 set output tag 0x7d4255db2490
+[I][22:19:30.965476] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.965492] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.965508] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.966394] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (23.1.0 -> 19.1.0) (conflux-manual-audio) -> (conflux-routing-check-two-stereo-sinks-master) async:0:0:0:001a:001a:0
+[I][22:19:30.966446] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 27: 0x20ae65e4b80 set input cap 0x7d4255db2490 0
+[I][22:19:30.966465] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.966482] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (17), flags 00000000
+[I][22:19:30.966503] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.966518] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626dd90 set output cap 0x7d4255db2490 0
+[I][22:19:30.966534] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.966551] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (27), flags 00000000
+[I][22:19:30.966565] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.966580] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 27: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.966601] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.966632] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 27: 0x20ae65e4b80 set input tag 0x7d4255db2490
+[I][22:19:30.966649] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.966668] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.966684] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.966700] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626dd90 set output tag 0x7d4255db2490
+[I][22:19:30.966715] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.966731] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.966746] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.967108] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (23.2.0 -> 16.0.0) (conflux-manual-audio) -> (conflux-routing-check-two-stereo-sinks-cue) async:0:0:0:001a:001a:0
+[I][22:19:30.967149] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 22: 0x20ae6689d50 set input cap 0x7d4255db2490 0
+[I][22:19:30.967175] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.967200] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (20), flags 00000000
+[I][22:19:30.967225] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.967248] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 20: 0x20ae626eef0 set output cap 0x7d4255db2490 0
+[I][22:19:30.967273] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.967299] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (22), flags 00000000
+[I][22:19:30.967326] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.967351] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 22: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.967390] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 20: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.967423] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 22: 0x20ae6689d50 set input tag 0x7d4255db2490
+[I][22:19:30.967451] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.967477] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.967498] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.967516] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 20: 0x20ae626eef0 set output tag 0x7d4255db2490
+[I][22:19:30.967532] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.967555] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.967580] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.968055] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (23.3.0 -> 16.1.0) (conflux-manual-audio) -> (conflux-routing-check-two-stereo-sinks-cue) async:0:0:0:001a:001a:0
+[I][22:19:30.968122] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 29: 0x20ae672ef20 set input cap 0x7d4255db2490 0
+[I][22:19:30.968141] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.968164] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (21), flags 00000000
+[I][22:19:30.968180] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.968194] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 21: 0x20ae626f690 set output cap 0x7d4255db2490 0
+[I][22:19:30.968210] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][22:19:30.968225] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (29), flags 00000000
+[I][22:19:30.968239] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][22:19:30.968261] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 29: set input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.968296] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 21: set output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:30.968330] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 29: 0x20ae672ef20 set input tag 0x7d4255db2490
+[I][22:19:30.968357] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.968384] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.968407] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][22:19:30.968437] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 21: 0x20ae626f690 set output tag 0x7d4255db2490
+[I][22:19:30.968463] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][22:19:30.968489] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][22:19:30.968513] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][22:19:30.969290] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node activate
+[I][22:19:30.969374] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae672f6c0: output:1 -> input:1
+[I][22:19:30.969403] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) init -> negotiating (configure-configure)
+[I][22:19:30.969440] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.969468] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.969487] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969505] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.969521] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.969537] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969553] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.969580] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.969600] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969618] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.969649] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae672fb80: output:1 -> input:1
+[I][22:19:30.969666] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) init -> negotiating (configure-configure)
+[I][22:19:30.969685] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.969702] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.969718] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969733] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.969753] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.969768] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969783] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.969798] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.969815] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969830] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.969850] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6538fd0: output:1 -> input:1
+[I][22:19:30.969868] pw.link      | [     impl-link.c:  112 link_update_state()] (23.2.0 -> 16.0.0) init -> negotiating (configure-configure)
+[I][22:19:30.969887] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.969903] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.969918] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969934] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.969949] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.969967] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.969984] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.969999] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.970015] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.970029] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.970051] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x20ae6539490: output:1 -> input:1
+[I][22:19:30.970092] pw.link      | [     impl-link.c:  112 link_update_state()] (23.3.0 -> 16.1.0) init -> negotiating (configure-configure)
+[I][22:19:30.970125] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][22:19:30.970159] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][22:19:30.970177] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.970192] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][22:19:30.970207] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][22:19:30.970222] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.970237] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][22:19:30.970252] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][22:19:30.970268] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][22:19:30.970283] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][22:19:30.971094] pw.link      | [     impl-link.c:  112 link_update_state()] (23.2.0 -> 16.0.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.971173] pw.link      | [     impl-link.c:  112 link_update_state()] (23.3.0 -> 16.1.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.971375] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.971531] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) negotiating -> allocating (ready-ready)
+[I][22:19:30.972681] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) allocating -> paused (paused-paused)
+[I][22:19:30.972743] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.972768] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (conflux-manual-audio-23) -> change driver (conflux-manual-audio-23 -> Dummy-Driver-12)
+[I][22:19:30.972837] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (23.0.0 -> 19.0.0) activated
+[I][22:19:30.972858] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) paused -> active (paused-paused)
+[I][22:19:30.972881] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) allocating -> paused (paused-paused)
+[I][22:19:30.972900] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.972924] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (23.1.0 -> 19.1.0) activated
+[I][22:19:30.972943] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) paused -> active (paused-paused)
+[I][22:19:30.972961] pw.link      | [     impl-link.c:  112 link_update_state()] (23.2.0 -> 16.0.0) allocating -> paused (paused-paused)
+[I][22:19:30.972987] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.973032] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (23.2.0 -> 16.0.0) activated
+[I][22:19:30.973079] pw.link      | [     impl-link.c:  112 link_update_state()] (23.2.0 -> 16.0.0) paused -> active (paused-paused)
+[I][22:19:30.973118] pw.link      | [     impl-link.c:  112 link_update_state()] (23.3.0 -> 16.1.0) allocating -> paused (paused-paused)
+[I][22:19:30.973149] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:link prepared
+[I][22:19:30.973190] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (23.3.0 -> 16.1.0) activated
+[I][22:19:30.973216] pw.link      | [     impl-link.c:  112 link_update_state()] (23.3.0 -> 16.1.0) paused -> active (paused-paused)
+[I][22:19:30.973655] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-23) suspended -> running
+[I][22:19:31.124136] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6275080 disconnected
+[I][22:19:31.124304] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-routing-check-two-stereo-sinks-cue-16) destroy
+[I][22:19:31.124365] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (23.2.0 -> 16.0.0) deactivated
+[I][22:19:31.124403] pw.link      | [     impl-link.c:  112 link_update_state()] (23.2.0 -> 16.0.0) active -> paused (paused-paused)
+[I][22:19:31.124445] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (23.3.0 -> 16.1.0) deactivated
+[I][22:19:31.124464] pw.link      | [     impl-link.c:  112 link_update_state()] (23.3.0 -> 16.1.0) active -> paused (paused-paused)
+[I][22:19:31.124488] pw.link      | [     impl-link.c:  112 link_update_state()] (23.2.0 -> 16.0.0) paused -> init (paused-configure)
+[I][22:19:31.124510] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:31.124531] pw.link      | [     impl-link.c:  112 link_update_state()] (23.3.0 -> 16.1.0) paused -> init (paused-configure)
+[I][22:19:31.124548] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:31.124566] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-two-stereo-sinks-cue-16) running -> suspended
+[I][22:19:31.124594] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (23.2.0 -> 16.0.0) destroy
+[I][22:19:31.124614] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 22: 0x20ae6689d50 set input cap (nil) 0
+[I][22:19:31.124635] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 22: keep input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:31.124660] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 22: 0x20ae6689d50 set input tag (nil)
+[I][22:19:31.124733] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (23.3.0 -> 16.1.0) destroy
+[I][22:19:31.124757] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 29: 0x20ae672ef20 set input cap (nil) 0
+[I][22:19:31.124775] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 29: keep input latency 0.000000-0.000000 0-0 0-0
+[I][22:19:31.124805] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 29: 0x20ae672ef20 set input tag (nil)
+[I][22:19:31.125045] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:31.125103] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:31.125201] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609114755078
+[I][22:19:31.129933] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6272d70 disconnected
+[I][22:19:31.130027] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-manual-audio-23) destroy
+[I][22:19:31.130087] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (23.0.0 -> 19.0.0) deactivated
+[I][22:19:31.130113] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) active -> paused (paused-paused)
+[I][22:19:31.130144] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (23.1.0 -> 19.1.0) deactivated
+[I][22:19:31.130161] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) active -> paused (paused-paused)
+[I][22:19:31.130212] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) paused -> negotiating (paused-ready)
+[I][22:19:31.130231] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:31.130282] pw.link      | [     impl-link.c:  112 link_update_state()] (23.0.0 -> 19.0.0) negotiating -> init (configure-ready)
+[I][22:19:31.130303] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) paused -> negotiating (paused-ready)
+[I][22:19:31.130319] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:2 reason:link unprepared
+[I][22:19:31.130345] pw.link      | [     impl-link.c:  112 link_update_state()] (23.1.0 -> 19.1.0) negotiating -> init (configure-ready)
+[I][22:19:31.130364] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-manual-audio-23) running -> suspended
+[I][22:19:31.130387] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (23.0.0 -> 19.0.0) destroy
+[I][22:19:31.130408] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 18: 0x20ae626a050 set output cap (nil) 0
+[I][22:19:31.130425] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 18: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:31.130446] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 18: 0x20ae626a050 set output tag (nil)
+[I][22:19:31.130485] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (23.1.0 -> 19.1.0) destroy
+[I][22:19:31.130505] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 17: 0x20ae626dd90 set output cap (nil) 0
+[I][22:19:31.130521] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 17: keep output latency 0.000000-0.000000 0-0 0-0
+[I][22:19:31.130539] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 17: 0x20ae626dd90 set output tag (nil)
+[I][22:19:31.130585] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:31.130603] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:31.130706] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609114755078
+[I][22:19:31.132105] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6256100 disconnected
+[I][22:19:31.132157] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (conflux-routing-check-two-stereo-sinks-master-19) destroy
+[I][22:19:31.132178] pw.node      | [     impl-node.c:  509 node_update_state()] (conflux-routing-check-two-stereo-sinks-master-19) running -> suspended
+[I][22:19:31.132215] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:31.132233] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:31.132324] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609114755078
+[I][22:19:31.132813] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-12) running -> idle
+[I][22:19:31.158953] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x20ae623ac80: security label not available
+[I][22:19:31.159247] mod.access   | [ module-access.c:  199 context_check_access()] client 0x20ae6256100 has trusted pid 31
+[I][22:19:31.159322] mod.access   | [ module-access.c:  243 context_check_access()] 0x20ae62463c0: client 0x20ae6256100 'unrestricted' access granted
+[I][22:19:31.159355] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x20ae6256100: set default permissions 00000000 -> 000001c8
+[I][22:19:31.162026] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x20ae6239c00: connection_data: client 0x20ae6256100 disconnected
+[I][22:19:31.170745] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x20ae6230c88 created queue 0x20ae6293a00 idx:0 0x64306bb0ebc0
+[I][22:19:31.170851] default      | [      pipewire.c:  131 main()] leave main loop
+[I][22:19:31.170889] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (Dummy-Driver-12) destroy
+[I][22:19:31.170912] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-12) idle -> suspended
+[I][22:19:31.170938] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:1 reason:active node destroy
+[I][22:19:31.170956] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x20ae6231f60: busy:0 reason:node destroy
+[I][22:19:31.171040] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:410609114755078
+[I][22:19:31.171650] spa.loop     | [          loop.c:  216 loop_queue_destroy()] 0x20ae6235de8 destroyed queue 0x20ae6246fb0 idx:0
+[I][22:19:31.171833] spa.loop     | [          loop.c:  216 loop_queue_destroy()] 0x20ae6230c88 destroyed queue 0x20ae6293a00 idx:0

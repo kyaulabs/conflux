@@ -1,0 +1,160 @@
+{
+  "scope": "Retained native thermal snapshots inside the inclusive workload interval only. Any-sensor means the sampled and type-mapped sensors listed here, not all laptop sensors. Thresholds describe samples and do not establish sustained heat or a user-approved sustained threshold. No interpolation or continuous-duration proof; an isolated hot sample has zero first-to-last span. Adjacent cool observations bound an observation window, not the actual length of continuous heat. Missing observations break episodes; gaps between hot observations may hide recovery or further spikes.",
+  "run": "timeline-16ms-smoke",
+  "load_mode": "both",
+  "workload_seconds": 180.00024265097454,
+  "workload_interval_monotonic": [
+    364984.119739587,
+    365164.119982238
+  ],
+  "trace_samples_in_workload": 354,
+  "trace_samples_before": 0,
+  "trace_samples_after": 0,
+  "sampled_sensor_types": {
+    "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+    "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp"
+  },
+  "mapped_but_not_sampled_sensor_types": {
+    "/sys/class/thermal/thermal_zone2/temp": "SEN1",
+    "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+    "/sys/class/thermal/thermal_zone3/temp": "SEN2",
+    "/sys/class/thermal/thermal_zone1/temp": "INT3400 Thermal",
+    "/sys/class/thermal/thermal_zone6/temp": "iwlwifi_1",
+    "/sys/class/thermal/thermal_zone4/temp": "SEN5"
+  },
+  "any_sampled_sensor": {
+    "samples": 354,
+    "valid_samples": 354,
+    "missing_or_invalid_samples": 0,
+    "peak_C": 75.0,
+    "peak_workload_offsets_seconds": [
+      2.067719683982432,
+      30.06879392598057
+    ],
+    "first_observed_workload_offset_seconds": 0.03163218597183004,
+    "last_observed_workload_offset_seconds": 179.71771766099846,
+    "maximum_adjacent_observation_gap_seconds": 0.5141805579769425,
+    "thresholds": {
+      "85": {
+        "threshold_C": 85.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      },
+      "95": {
+        "threshold_C": 95.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      }
+    }
+  },
+  "package_sensor": {
+    "path": "/sys/class/thermal/thermal_zone7/temp",
+    "recorded_type": "x86_pkg_temp",
+    "samples": 354,
+    "valid_samples": 354,
+    "missing_or_invalid_samples": 0,
+    "peak_C": 75.0,
+    "peak_workload_offsets_seconds": [
+      2.067719683982432,
+      30.06879392598057
+    ],
+    "first_observed_workload_offset_seconds": 0.03163218597183004,
+    "last_observed_workload_offset_seconds": 179.71771766099846,
+    "maximum_adjacent_observation_gap_seconds": 0.5141805579769425,
+    "thresholds": {
+      "85": {
+        "threshold_C": 85.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      },
+      "95": {
+        "threshold_C": 95.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      }
+    }
+  },
+  "by_sensor": {
+    "/sys/class/thermal/thermal_zone5/temp": {
+      "recorded_type": "TCPU",
+      "samples": 354,
+      "valid_samples": 354,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 71.05,
+      "peak_workload_offsets_seconds": [
+        31.08618442498846,
+        31.59570059098769,
+        32.10232517996337,
+        32.61189096997259,
+        33.12416198599385,
+        33.635819592978805,
+        34.14491401897976,
+        34.65409343398642,
+        35.16319129796466
+      ],
+      "first_observed_workload_offset_seconds": 0.03163218597183004,
+      "last_observed_workload_offset_seconds": 179.71771766099846,
+      "maximum_adjacent_observation_gap_seconds": 0.5141805579769425,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    },
+    "/sys/class/thermal/thermal_zone7/temp": {
+      "recorded_type": "x86_pkg_temp",
+      "samples": 354,
+      "valid_samples": 354,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 75.0,
+      "peak_workload_offsets_seconds": [
+        2.067719683982432,
+        30.06879392598057
+      ],
+      "first_observed_workload_offset_seconds": 0.03163218597183004,
+      "last_observed_workload_offset_seconds": 179.71771766099846,
+      "maximum_adjacent_observation_gap_seconds": 0.5141805579769425,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    }
+  },
+  "source_evidence": {
+    "result_sha256": "973739b17818083fd6a29c1957358dbabea88132db0872a0bbca89069e0ad1d4",
+    "trace_stored_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-16ms-smoke/native-trace.jsonl",
+    "trace_stored_sha256": "3b5ba4b5ca8afc5958e34382ab3ef8d426b4182b0b1b6f55ed6c4bcc639f590f",
+    "audit_source_sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "events": {
+    "file": "docs/benchmarks/data/latency/performance-opengl/events.jsonl",
+    "sha256": "d763b099fc614fe40a34ef5708c79f7c98c4f758b8c539d76a9928ed9934293d"
+  },
+  "passing_events": {
+    "file": "docs/benchmarks/data/latency/performance-traced-opengl/events.jsonl",
+    "sha256": "155f606af883aa4881b0ae7e2275b73a00be2f92baf5323183dde6ae8f1bbaec"
+  },
+  "before": {
+    "request_ids": [
+      40,
+      48
+    ],
+    "count": 9,
+    "median_hop_service_ms": 2030.8825829997659,
+    "median_graph_ms": 1974.703742,
+    "median_inference_cpu_ms": 89.47400000000016
+  },
+  "spike": {
+    "event": "chunk",
+    "generation": 1,
+    "timestamp": 291399.298458201,
+    "ready_at": 291399.298458201,
+    "request_id": 49,
+    "source_id": "e7048d2a675657bc1b5bb1494d4ae92833c3cc2f30d2fad71859cda888ed615c",
+    "source_frames": 15491445,
+    "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "frame_start": 12383280,
+    "window_start_frame": 12383280,
+    "frames": 257985,
+    "sample_rate": 44100,
+    "channels": 2,
+    "stems": [
+      "drums",
+      "bass",
+      "other",
+      "vocals"
+    ],
+    "request_ms": 9157.388299005106,
+    "metrics": {
+      "graph_ms": 9090.964526,
+      "involuntary_context_switches": 31,
+      "voluntary_context_switches": 56,
+      "inference_wall_ms": 9136.357723,
+      "elapsed_ms": 9150.129253,
+      "graph_rebuild_ms": 0,
+      "frontend_ms": 9.502761,
+      "stems": 4,
+      "postprocess_ms": 35.889579,
+      "inference_cpu_ms": 143.125,
+      "frames": 343980,
+      "id": 49,
+      "event": "result"
+    },
+    "source_read_ms": 4.953864961862564,
+    "overlap_ms": 17.864932015072554,
+    "hop_service_ms": 9181.823047983926,
+    "control_latency_ms": 107212.60698698461,
+    "ready_queue_depth": 1,
+    "queue_delay_ms": 0.2883960260078311,
+    "samples_sha256": "72d213e0c43aa5a7ba892f8f45962f8287b20fd8ba50a8e361807c7053a67231",
+    "consumed_at": 291399.310532177
+  },
+  "after": {
+    "request_ids": [
+      50,
+      61
+    ],
+    "count": 12,
+    "median_hop_service_ms": 2675.1724894857034,
+    "median_graph_ms": 2583.8628639999997,
+    "median_inference_cpu_ms": 151.17099999999982
+  },
+  "same_window_in_passing_run": {
+    "event": "chunk",
+    "generation": 1,
+    "timestamp": 290897.437111319,
+    "ready_at": 290897.437111319,
+    "request_id": 49,
+    "source_id": "e7048d2a675657bc1b5bb1494d4ae92833c3cc2f30d2fad71859cda888ed615c",
+    "source_frames": 15491445,
+    "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "frame_start": 12383280,
+    "window_start_frame": 12383280,
+    "frames": 257985,
+    "sample_rate": 44100,
+    "channels": 2,
+    "stems": [
+      "drums",
+      "bass",
+      "other",
+      "vocals"
+    ],
+    "request_ms": 1989.9009080254473,
+    "metrics": {
+      "graph_ms": 1951.361805,
+      "involuntary_context_switches": 12,
+      "voluntary_context_switches": 54,
+      "inference_wall_ms": 1976.412973,
+      "elapsed_ms": 1984.085045,
+      "graph_rebuild_ms": 0,
+      "frontend_ms": 9.751937,
+      "stems": 4,
+      "postprocess_ms": 15.297724,
+      "inference_cpu_ms": 76.04399999999987,
+      "frames": 343980,
+      "id": 49,
+      "event": "result"
+    },
+    "source_read_ms": 5.156318016815931,
+    "overlap_ms": 9.967400983441621,
+    "hop_service_ms": 2005.9933009906672,
+    "control_latency_ms": 98895.54039097857,
+    "ready_queue_depth": 1,
+    "queue_delay_ms": 0.2122520236298442,
+    "samples_sha256": "72d213e0c43aa5a7ba892f8f45962f8287b20fd8ba50a8e361807c7053a67231",
+    "consumed_at": 290897.443263366
+  }
+}

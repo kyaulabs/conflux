@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "decision": "ready",
+  "ready_for_run": "flash-60minute-laptop-02",
+  "AC_power": true,
+  "lid_open": true,
+  "visible_window": true,
+  "codex_minimized": true,
+  "workload_seconds": 3600,
+  "other_work_paused": true,
+  "human_reply": "Ready\u2014start the 60-minute test",
+  "question": "Full access is working, and AC/open-lid checks passed. Are you ready now to keep other work paused, minimize Codex, and keep the test window visible with the screen awake for the 60-minute run? Allow up to73 minutes including setup and cleanup.",
+  "recorded_at_utc": "2026-10-19T04:34:42.477650+00:00"
+}

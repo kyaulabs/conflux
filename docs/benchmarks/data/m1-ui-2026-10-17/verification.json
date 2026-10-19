@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "client_date": "2026-10-17 America/Los_Angeles",
+  "source_base_head": "5e8312f068d587eb02d54ccf0a2aa4c42644babc",
+  "build_scope": "Working-tree source hashes built on signed base; implementation was not already in that base commit.",
+  "build_type": "RelWithDebInfo",
+  "source_pins": {
+    "CMakeLists.txt": {
+      "path": "CMakeLists.txt",
+      "bytes": 6490,
+      "sha256": "1549522a737ee33f09eee20b4ba415c0c48653218e4b6d74f5646782ee974a5f"
+    },
+    "src/main.cpp": {
+      "path": "src/main.cpp",
+      "bytes": 10405,
+      "sha256": "be7e69fdaabfb049c22864e2b9848ea18eadd0f9e5d4016622ed16c80d1d87b9"
+    },
+    "src/audio/AudioFile.hpp": {
+      "path": "src/audio/AudioFile.hpp",
+      "bytes": 1414,
+      "sha256": "d029e801376f5d7b82a7b5900893cfd621b6bc050a04de69e7712a712d838beb"
+    },
+    "src/audio/AudioFile.cpp": {
+      "path": "src/audio/AudioFile.cpp",
+      "bytes": 2511,
+      "sha256": "32746b8223b0a85b575f62af3a12646d0fd29ec3fa3b5e68818d3b4554a282eb"
+    },
+    "src/audio/RenderCore.hpp": {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 3038,
+      "sha256": "23a2e75296e3dc98fc769b61fa3062da5c71afba9f89264f4b09ff28abdc1a86"
+    },
+    "src/audio/RenderCore.cpp": {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 5022,
+      "sha256": "2b93bb17f7241bce2fd7dc8c6fa8c3fd059c43a77603d5935d4f955b90b08e55"
+    },
+    "src/audio/TransportQueue.hpp": {
+      "path": "src/audio/TransportQueue.hpp",
+      "bytes": 1518,
+      "sha256": "84b2a1ba0ac25f9d97ddb82fcedb337b89115e970c152be2fccc1c0d72607f21"
+    },
+    "src/audio/LiveSession.hpp": {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 2434,
+      "sha256": "1b7c81e7a57f488e454a434e8b75675a8e6f0d163c1c88ab16896bfe8ab35c52"
+    },
+    "src/audio/LiveSession.cpp": {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 14662,
+      "sha256": "04cc9d31fbf120569452f563dd22f6c452270910e490f8be4e2c7096c6bb183c"
+    },
+    "src/ui/DeckController.hpp": {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 3353,
+      "sha256": "e18db81391dc414e6352f280098810742d7998baf50a6c4ceac9749377394958"
+    },
+    "src/ui/DeckController.cpp": {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 7685,
+      "sha256": "ad37957359da6a4590742d700e6550a8626af801311e84f9da81974fd74936fc"
+    },
+    "qml/Main.qml": {
+      "path": "qml/Main.qml",
+      "bytes": 16490,
+      "sha256": "a1d823e44dbfcca872e5e7b6a4b8525b46e5c7b24e6ca3e6384c579af323c08e"
+    },
+    "qml/Harness.qml": {
+      "path": "qml/Harness.qml",
+      "bytes": 4257,
+      "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb"
+    },
+    "tests/live_session_test.cpp": {
+      "path": "tests/live_session_test.cpp",
+      "bytes": 6865,
+      "sha256": "de152d3167b1197d6df0fb07642d9388263d0fe6ddffe44b3d315e5eddeef5fb"
+    },
+    "tests/deck_controller_test.cpp": {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 6933,
+      "sha256": "bb20a08600ea673044e883d233430b0970b90c7ac2bad56fd32d9193d0b6db39"
+    },
+    "tests/manual_ui_test.cpp": {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 13513,
+      "sha256": "e3c7bdeed18f9561f8d31a79b979e7247d400ab7342d884ffaf300683cf68de9"
+    },
+    "tools/experiments/manual_audio_check.cpp": {
+      "path": "tools/experiments/manual_audio_check.cpp",
+      "bytes": 10238,
+      "sha256": "9b4232b22dafda6bd966ac3b5ea8c5158034af14b5593ffbe0d1ede2981e8aef"
+    }
+  },
+  "binaries": {
+    "build/dev/conflux": {
+      "path": "build/dev/conflux",
+      "bytes": 3685416,
+      "sha256": "84856b4308177d9f1eff610c55a6ed03ce0db1d3b44554e9ad3b2cc345dfd371"
+    },
+    "build/dev/conflux-manual-audio-check": {
+      "path": "build/dev/conflux-manual-audio-check",
+      "bytes": 3232856,
+      "sha256": "bc6a0b8645708eedcb5967535542bf8192bc928da9dff105f4971645782ad78b"
+    },
+    "build/dev/conflux-audio-probe": {
+      "path": "build/dev/conflux-audio-probe",
+      "bytes": 1092000,
+      "sha256": "21f63b4ac2e53e857695402813f675c7cc02215826c219633ace50f24a887b6a"
+    }
+  },
+  "fixtures": [
+    {
+      "deck": 0,
+      "path": "benchmarks-local/m1-ui-2026-10-17/quiet-0.wav",
+      "bytes": 2880044,
+      "sha256": "0fbe88c61c03e5653d23068610e8d4549c2ed6a7e35283e7eaabccc1ea34bd02",
+      "frames": 720000,
+      "channels": 2,
+      "sample_rate": 48000,
+      "encoding": "PCM16 little endian",
+      "peak": 3.0517578125e-05,
+      "recipe": {
+        "left": "((frame // 41) % 3) - 1",
+        "right": "1 - ((frame // 67) % 3)"
+      }
+    },
+    {
+      "deck": 1,
+      "path": "benchmarks-local/m1-ui-2026-10-17/quiet-1.wav",
+      "bytes": 2880044,
+      "sha256": "828cb8605dfdc24aef229c7eabf0fac26c45c3670732d6715cee712babef0224",
+      "frames": 720000,
+      "channels": 2,
+      "sample_rate": 48000,
+      "encoding": "PCM16 little endian",
+      "peak": 3.0517578125e-05,
+      "recipe": {
+        "left": "((frame // 54) % 3) - 1",
+        "right": "1 - ((frame // 78) % 3)"
+      }
+    }
+  ],
+  "artifacts": {
+    "manual.json": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/manual.json",
+      "bytes": 1590,
+      "sha256": "dc255d58fafe34d49f4882134cb8ba31564908ebdae26871f0317610860ffa03"
+    },
+    "manual.stderr": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/manual.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke-wayland.json": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/smoke-wayland.json",
+      "bytes": 667,
+      "sha256": "2faa9d95386f61b2c67542379bc5315063cba5f37d491007ac0b648f96352d59"
+    },
+    "smoke-wayland.stderr": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/smoke-wayland.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "smoke-offscreen.json": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/smoke-offscreen.json",
+      "bytes": 669,
+      "sha256": "2e0be4d37bce73f98aabb8e3c66e68450ed0c8d47a7e76c35ade27a2ad4a8f83"
+    },
+    "smoke-offscreen.stderr": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/smoke-offscreen.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ctest.log": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/ctest.log",
+      "bytes": 1153,
+      "sha256": "cd4ea9a415d1d426bd9e397f998be58963d29c5135211d4145f18b675dfc960f"
+    },
+    "manual-ui-followup.log": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/manual-ui-followup.log",
+      "bytes": 219,
+      "sha256": "5d7a52326b0f90d745cd87aa135f2d76c80f2649a888640eec6ae82affa5dc80"
+    },
+    "host-before.json": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/host-before.json",
+      "bytes": 208,
+      "sha256": "2dde0f0b0a49c9b8cc69d969be43b10a3af2c2df689faf996fd6bde8eec75359"
+    },
+    "host-run.json": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/host-run.json",
+      "bytes": 1090,
+      "sha256": "4941cccdbf17babdc1f123195bc75e04a268243ca0cc3dc279801c6227375c9c"
+    },
+    "cleanup.json": {
+      "path": "docs/benchmarks/data/m1-ui-2026-10-17/cleanup.json",
+      "bytes": 121,
+      "sha256": "cb0dd496f4139525b05bdad4e11f0c0955dd24a07cc5e8f803ad6cfe6e8c9089"
+    }
+  },
+  "local_screenshots": {
+    "manual-dark.png": {
+      "path": "benchmarks-local/m1-ui-2026-10-17/manual-dark.png",
+      "bytes": 162730,
+      "sha256": "aacddb66352228db54f4a62e13d03f83f04ba06f1866a04bfd9eb34ff83306a4"
+    },
+    "manual-light.png": {
+      "path": "benchmarks-local/m1-ui-2026-10-17/manual-light.png",
+      "bytes": 150173,
+      "sha256": "ee57e3a41a9e5b44b3a6fe551032f4ad6f33a84289679e455649c3d049c3465a"
+    },
+    "smoke-wayland.png": {
+      "path": "benchmarks-local/m1-ui-2026-10-17/smoke-wayland.png",
+      "bytes": 75232,
+      "sha256": "7a8a8d66a3371bd44342e6d0d4e33fd4fe0893666b64edc7747b1dcd02d2dba9"
+    }
+  },
+  "versions": [
+    "1.6.9",
+    "1.2.2",
+    "6.12.0"
+  ],
+  "tests": {
+    "ctest_entries": 10,
+    "all_passed_seconds": 11.7,
+    "full_suite_precedes_final_placeholder_color_change": true,
+    "following_color_change": "Manual UI interaction check passed again; actual follow-up output retained. Final native UI/audio and Wayland smoke checks also rerun.",
+    "first_failure": "QML test QObject locator missed Repeater delegates; corrected to search visual child items. No production workaround.",
+    "offscreen_smoke_precedes_final_placeholder_color_change": true
+  },
+  "native": {
+    "applied": 89,
+    "callback_execution_deadline_misses": 0,
+    "callbacks": 2096,
+    "checks": [
+      "Manual QML loaded",
+      "Manual window created",
+      "Deck A loads paused at frame zero",
+      "Loading B preserves A transport and installs B paused",
+      "80 actions acknowledged in one session without a 32-action lifetime limit",
+      "Paused seeks hold exact source frames while output clock advances",
+      "Decode failure preserves loaded decks and active output",
+      "Replacing A preserves B transport after stream quiescence",
+      "Snapshot backpressure drops telemetry while later controls recover",
+      "Dark screenshot saved",
+      "Theme control found",
+      "Light screenshot saved",
+      "GUI frames rendered alongside live audio without scene errors",
+      "All accepted controls applied; no rejections, invalid buffers or callback execution deadline misses across three sessions",
+      "Immediate shutdown retains accepted tail control state"
+    ],
+    "elapsed_ms": 11765,
+    "frames_swapped": 209,
+    "invalid_buffers": 0,
+    "last_session_callbacks": 1241,
+    "last_session_frames_max": 256,
+    "last_session_frames_min": 256,
+    "last_session_output_frames": 317696,
+    "last_session_snapshot_drops": 150,
+    "maximum_callback_execution_ns": 66064,
+    "passed": true,
+    "platform": "wayland",
+    "qt": "6.12.0",
+    "rejected": 0,
+    "scope": "Short generated quiet-file UI/audio integration; no physical latency, acoustic or sustained qualification",
+    "sessions": 3,
+    "submitted": 89
+  },
+  "host": {
+    "started_utc": "2026-10-18T03:47:48.820665+00:00",
+    "runs": [
+      {
+        "name": "manual",
+        "pid": 2011159,
+        "returncode": 0,
+        "elapsed_seconds": 12.01166096801171,
+        "argv": [
+          "build/dev/conflux-manual-audio-check",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-ui-2026-10-17/quiet-0.wav",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-ui-2026-10-17/quiet-1.wav",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-ui-2026-10-17/manual"
+        ]
+      },
+      {
+        "name": "smoke-wayland",
+        "pid": 2011229,
+        "returncode": 0,
+        "elapsed_seconds": 2.7228106580441818,
+        "argv": [
+          "build/dev/conflux",
+          "--smoke-test",
+          "--screenshot",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m1-ui-2026-10-17/smoke-wayland.png"
+        ]
+      }
+    ],
+    "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+    "profile": "power-saver\n",
+    "stopped_utc": "2026-10-18T03:48:03.893200+00:00"
+  },
+  "guard_identity_unchanged": true,
+  "runner_changed_power_profile": false,
+  "observed_profile": "power-saver before and after; no controlled performance comparison",
+  "harness_unchanged_from_base_main": true,
+  "mix_peak_bound": 6.103515625e-05,
+  "limitations": [
+    "Short generated quiet-file integration only; no acoustic, physical latency, graph xrun, continuous stem service, sustained M1 or complete-milestone qualification.",
+    "Execution deadline counter measures callback runtime only, not scheduler lateness.",
+    "Snapshot drops are telemetry backpressure, not lost audio samples; deliberate GUI sleep and screenshot capture can both delay consumption.",
+    "PCM replacement intentionally interrupts shared output; the peer restores its exact stopped source position and request.",
+    "Stereo 48 kHz only; decoded PCM maximum 64 MiB per deck, 192 MiB transient during load.",
+    "Decoder work is joined at close, not cancelled.",
+    "M0 4.095-second live-stem service p99 remains a mandatory M2 blocker."
+  ],
+  "owned_cleanup_verified": true
+}

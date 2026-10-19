@@ -1,0 +1,268 @@
+{
+  "scope": "Retained native thermal snapshots inside the inclusive workload interval only. Any-sensor means the sampled and type-mapped sensors listed here, not all laptop sensors. Thresholds describe samples and do not establish sustained heat or a user-approved sustained threshold. No interpolation or continuous-duration proof; an isolated hot sample has zero first-to-last span. Adjacent cool observations bound an observation window, not the actual length of continuous heat. Missing observations break episodes; gaps between hot observations may hide recovery or further spikes.",
+  "run": "music-both-hour",
+  "load_mode": "both",
+  "workload_seconds": 3600.000356022967,
+  "workload_interval_monotonic": [
+    390428.961478624,
+    394028.961834647
+  ],
+  "trace_samples_in_workload": 7069,
+  "trace_samples_before": 0,
+  "trace_samples_after": 0,
+  "sampled_sensor_types": {
+    "/sys/class/thermal/thermal_zone5/temp": "TCPU",
+    "/sys/class/thermal/thermal_zone7/temp": "x86_pkg_temp"
+  },
+  "mapped_but_not_sampled_sensor_types": {
+    "/sys/class/thermal/thermal_zone2/temp": "SEN1",
+    "/sys/class/thermal/thermal_zone0/temp": "acpitz",
+    "/sys/class/thermal/thermal_zone3/temp": "SEN2",
+    "/sys/class/thermal/thermal_zone1/temp": "INT3400 Thermal",
+    "/sys/class/thermal/thermal_zone6/temp": "iwlwifi_1",
+    "/sys/class/thermal/thermal_zone4/temp": "SEN5"
+  },
+  "any_sampled_sensor": {
+    "samples": 7069,
+    "valid_samples": 7069,
+    "missing_or_invalid_samples": 0,
+    "peak_C": 79.0,
+    "peak_workload_offsets_seconds": [
+      19.33591158100171,
+      22.89429357496556,
+      1209.9203125859494,
+      1328.5642712779809,
+      3255.0678201899864
+    ],
+    "first_observed_workload_offset_seconds": 0.017000154999550432,
+    "last_observed_workload_offset_seconds": 3599.9706481089815,
+    "maximum_adjacent_observation_gap_seconds": 0.5753284750389867,
+    "thresholds": {
+      "85": {
+        "threshold_C": 85.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      },
+      "95": {
+        "threshold_C": 95.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      }
+    }
+  },
+  "package_sensor": {
+    "path": "/sys/class/thermal/thermal_zone7/temp",
+    "recorded_type": "x86_pkg_temp",
+    "samples": 7069,
+    "valid_samples": 7069,
+    "missing_or_invalid_samples": 0,
+    "peak_C": 79.0,
+    "peak_workload_offsets_seconds": [
+      19.33591158100171,
+      22.89429357496556,
+      1209.9203125859494,
+      1328.5642712779809,
+      3255.0678201899864
+    ],
+    "first_observed_workload_offset_seconds": 0.017000154999550432,
+    "last_observed_workload_offset_seconds": 3599.9706481089815,
+    "maximum_adjacent_observation_gap_seconds": 0.5753284750389867,
+    "thresholds": {
+      "85": {
+        "threshold_C": 85.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      },
+      "95": {
+        "threshold_C": 95.0,
+        "hot_samples": 0,
+        "episodes": [],
+        "maximum_first_to_last_hot_sample_span_seconds": 0,
+        "maximum_adjacent_cool_observation_window_seconds": null
+      }
+    }
+  },
+  "by_sensor": {
+    "/sys/class/thermal/thermal_zone5/temp": {
+      "recorded_type": "TCPU",
+      "samples": 7069,
+      "valid_samples": 7069,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 73.05,
+      "peak_workload_offsets_seconds": [
+        26.96787635597866,
+        27.47465026198188,
+        27.982601763971616,
+        28.49328376899939,
+        939.932962803985,
+        940.4406757179531,
+        940.95066846197,
+        941.4604864499997,
+        941.971299244964,
+        942.4816575289587,
+        942.9900259159622,
+        943.4977773309802,
+        952.6504107249784,
+        953.1594768429641,
+        953.6702903079567,
+        954.1809855059837,
+        1117.2320337689598,
+        1117.7414288709988,
+        1118.252063812979,
+        1118.7623917769524,
+        1875.8056510709575,
+        1876.3148382809595,
+        1876.8246516029467,
+        1877.3344448689604,
+        1877.8437212619465,
+        1878.353346346994,
+        1878.8630959409638,
+        1879.3757280339487,
+        2216.0982760089682,
+        2216.6070857409504,
+        2217.11587752396,
+        2217.6225041769794,
+        2218.1317122299806,
+        2218.638273058983,
+        2219.1481008109986,
+        2219.655789291952,
+        2306.7324757159804,
+        2307.242217803956,
+        2307.751574062975,
+        2308.260791035951,
+        2310.8042458089767,
+        2311.313137654972,
+        2311.8224106289563,
+        2312.3316184559953,
+        2312.8412741439533,
+        2313.350341339945,
+        2313.8593038699473,
+        2314.3689157899935,
+        2403.4843108929927,
+        2403.9939809059724,
+        2404.5032823699876,
+        2405.0132821049774,
+        2405.5222678079735,
+        2406.032033452997,
+        2406.541933115979,
+        2407.0488142129616,
+        2494.138954143971,
+        2494.646068500995,
+        2495.1548968009884,
+        2495.6619205819443,
+        2496.185945805977,
+        2496.6941802719957,
+        2497.2037577039446,
+        2497.7136363839963,
+        2743.7490567700006,
+        2744.2587402189965,
+        2744.7698435199563,
+        2745.2795034869923,
+        2745.7883024979965,
+        2746.29732055997,
+        2746.8070442309836,
+        2747.3163187419996,
+        2747.825822853949,
+        2748.335860390973,
+        2748.844688498997,
+        2749.3554099460016,
+        2749.865100134979,
+        2750.374343348958,
+        2750.884237337974,
+        2751.395949433965,
+        2838.483309505973,
+        2838.9917764169513,
+        2839.5008055419894,
+        2840.0104292789474,
+        2929.1214363359613,
+        2929.6310518659884,
+        2930.1382631349843,
+        2930.6448571729707,
+        2931.15825542697,
+        2931.6659013179597,
+        2932.175344481948,
+        2932.6840855939663,
+        3263.1873087689746,
+        3263.696308013983,
+        3264.2037569279782,
+        3264.7129306639545,
+        3265.2225148049765,
+        3265.731497086992,
+        3266.242797838,
+        3266.752889278985,
+        3368.185295114992,
+        3368.6917519719573,
+        3369.1996861629887,
+        3369.7087764539756,
+        3550.02454391995,
+        3550.533716469945,
+        3551.0433510099538,
+        3551.5554234619485
+      ],
+      "first_observed_workload_offset_seconds": 0.017000154999550432,
+      "last_observed_workload_offset_seconds": 3599.9706481089815,
+      "maximum_adjacent_observation_gap_seconds": 0.5753284750389867,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    },
+    "/sys/class/thermal/thermal_zone7/temp": {
+      "recorded_type": "x86_pkg_temp",
+      "samples": 7069,
+      "valid_samples": 7069,
+      "missing_or_invalid_samples": 0,
+      "peak_C": 79.0,
+      "peak_workload_offsets_seconds": [
+        19.33591158100171,
+        22.89429357496556,
+        1209.9203125859494,
+        1328.5642712779809,
+        3255.0678201899864
+      ],
+      "first_observed_workload_offset_seconds": 0.017000154999550432,
+      "last_observed_workload_offset_seconds": 3599.9706481089815,
+      "maximum_adjacent_observation_gap_seconds": 0.5753284750389867,
+      "thresholds": {
+        "85": {
+          "threshold_C": 85.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        },
+        "95": {
+          "threshold_C": 95.0,
+          "hot_samples": 0,
+          "episodes": [],
+          "maximum_first_to_last_hot_sample_span_seconds": 0,
+          "maximum_adjacent_cool_observation_window_seconds": null
+        }
+      }
+    }
+  },
+  "source_evidence": {
+    "result_sha256": "e091f0e25d86d26ef62ba6ef0c84ceb05b626a74b507ad76e6cdc130ad82b585",
+    "trace_stored_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour/native-trace.jsonl",
+    "trace_stored_sha256": "c08671480b0173e18d4e21136e8a7184983c36f6d71a462d1fe92ece291c2def",
+    "audit_source_sha256": "484aaed7e1a1e9048c74f09a1762f6416cd64c8bc5d3e166c61cc9732add11d0"
+  }
+}

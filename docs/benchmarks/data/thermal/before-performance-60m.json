@@ -1,0 +1,42 @@
+{
+  "observed_at_utc": "2026-10-16T18:01:33.777733+00:00",
+  "profile_before": "power-saver",
+  "holds_before": "",
+  "environment": {
+    "QSG_INFO": "1"
+  },
+  "files": {
+    "build/dev/conflux": {
+      "bytes": 1647872,
+      "sha256": "5bfc03afe5dc92997139b1f3781904fda2f3f5c9a352194fbe7e38fd7ce97f61"
+    },
+    "build/dev/conflux-audio-probe": {
+      "bytes": 641648,
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "bytes": 25609,
+      "sha256": "cf12f5ab4b6715c10c510d5245357082e5474ab01a47299c715aaec1780bc54a"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "bytes": 21986,
+      "sha256": "d4809830bc4a0398c3c77288bd3bfc1f972281aefb1db93abe8ffe43e6180af1"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "tools/stems/worker.py": {
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "src/main.cpp": {
+      "bytes": 6709,
+      "sha256": "d4eaa6299c99bb8391405bb6cd7763d0605b11cb458341002f31d075d26236e0"
+    },
+    "src/probe_main.cpp": {
+      "bytes": 17361,
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6"
+    }
+  }
+}

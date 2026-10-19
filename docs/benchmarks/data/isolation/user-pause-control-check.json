@@ -1,0 +1,33 @@
+{
+  "AST_passed": true,
+  "source_sha256": "231c82e17535ae39c964fa52d643e5b5a4be4f28871ad0294cb2a54501917e98",
+  "cases": [
+    {
+      "case": "current_not_blocked",
+      "passed": true
+    },
+    {
+      "case": "future_safe",
+      "passed": true
+    },
+    {
+      "case": "future_missing_cleanup",
+      "passed": true
+    },
+    {
+      "case": "future_live_PID",
+      "passed": true
+    },
+    {
+      "case": "future_empty_PID_map",
+      "passed": true
+    },
+    {
+      "case": "malformed_marker",
+      "passed": true
+    }
+  ],
+  "actual_temperature_reads": 0,
+  "actual_process_or_GPU_calls": 0,
+  "temporary_artifacts_removed": true
+}

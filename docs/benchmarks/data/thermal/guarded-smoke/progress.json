@@ -1,0 +1,99 @@
+{
+  "status": "ok",
+  "updated_at_utc": "2026-10-16T19:13:31.555681+00:00",
+  "elapsed_workload_seconds": 120.00027873000363,
+  "requested_seconds": 120.0,
+  "timing": {
+    "chunks": 57,
+    "frames": 13721782,
+    "hop_service_percentiles_ms": {
+      "50": 1906.7747939843684,
+      "95": 2115.689641039353,
+      "99": 2247.0085290260613
+    },
+    "hop_service_max_ms": 2247.0085290260613,
+    "hops_above_target": 0,
+    "observed_p99_within_target": true
+  },
+  "completed_controls": 3,
+  "full_source_loops": 3,
+  "failures": [],
+  "worker_statistics": {
+    "generation": 11,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 3,
+    "cancel_count": 3,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "ui_progress": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/soak-2026-10-16/visible-smoke/ui-progress.json",
+    "checks": 113,
+    "check_interval_seconds": 1.0,
+    "startup_grace_seconds": 5.0,
+    "maximum_allowed_gap_seconds": 30.0,
+    "maximum_progress_age_seconds": 0.9805593159981072,
+    "maximum_frame_age_seconds": 0.9947167779901065,
+    "maximum_check_gap_seconds": 1.246251103002578,
+    "read_errors": {
+      "FileNotFoundError": 1
+    },
+    "last_progress": {
+      "exposed": true,
+      "frames_swapped": 7194,
+      "last_frame_monotonic_ns": 300438986652443,
+      "pid": 1437262,
+      "scene_graph_initialized": true,
+      "timestamp_monotonic_ns": 300439000778522
+    },
+    "gate_failure": null
+  },
+  "conditions": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "3580427",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 87000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 97000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 87050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 72050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 36000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 59050
+    }
+  }
+}

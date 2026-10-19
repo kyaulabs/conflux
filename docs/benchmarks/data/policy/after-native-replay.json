@@ -1,0 +1,30 @@
+{
+  "observed_at_utc": "2026-10-16T22:35:26.796569+00:00",
+  "scope": "Host post-run observation; existence checks apply to recorded native/supervisor PIDs at this timestamp. Saved lifecycle records are authoritative for guard restoration.",
+  "runs": {
+    "balanced-hour": {
+      "recorded_processes": {
+        "1503384": false,
+        "1503339": false,
+        "1503333": false
+      },
+      "fixture_exists": false
+    },
+    "native-smoke": {
+      "recorded_processes": {
+        "1530753": false
+      },
+      "fixture_exists": false
+    },
+    "native-replay": {
+      "recorded_processes": {
+        "1531217": false
+      },
+      "fixture_exists": false
+    }
+  },
+  "profile": "power-saver",
+  "holds": "",
+  "firmware": "low-power",
+  "epp": "power"
+}

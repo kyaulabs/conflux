@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "scope": "CPU-only replay of staged deterministic gzip raw evidence, archive metadata fallback and pinned staged soak source. No host query or benchmark workload.",
+  "command": [
+    "/bin/python3",
+    "-B",
+    "benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour/resume-audit.py",
+    "--run-directory",
+    "benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour",
+    "--source-snapshot",
+    "benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour/stem_soak-executed-v3.py",
+    "--output",
+    "benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour/archived-resume-audit.json"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"output\": \"benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour/archived-resume-audit.json\",\n  \"mode\": \"none\",\n  \"continuous\": {\n    \"chunks\": 1692,\n    \"frames\": 391312860,\n    \"hop_service_percentiles_ms\": {\n      \"50\": 1961.7410600185394,\n      \"95\": 3333.026907988824,\n      \"99\": 3832.6338350307196\n    },\n    \"hop_service_max_ms\": 4466.085923020728,\n    \"hops_above_target\": 3\n  },\n  \"controls\": 11,\n  \"audio_faults\": null,\n  \"UI_frames\": null\n}\n",
+  "stderr": "",
+  "semantic_facts_equal": true,
+  "intentional_representation_differences": [
+    {
+      "parent": "source_snapshot_verified",
+      "key": "path",
+      "raw_audit_value": "tools/benchmarks/stem_soak.py",
+      "archived_replay_value": "benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour/stem_soak-executed-v3.py"
+    },
+    {
+      "parent": "source_evidence",
+      "key": "events_stored_path",
+      "raw_audit_value": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-none-hour/events.jsonl",
+      "archived_replay_value": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/staged-archive/observed-none-hour/events.jsonl.gz"
+    },
+    {
+      "parent": "source_evidence",
+      "key": "events_stored_sha256",
+      "raw_audit_value": "bbf46d4d1fd3b114bcac8bc5eb1961811d6646869c57430b050c0375631b76c1",
+      "archived_replay_value": "2f68ae48374698781ef3797a22d2757da05ca3f10a1723540425c9f69cd0fa7f"
+    }
+  ],
+  "raw_manifest_unchanged": true
+}

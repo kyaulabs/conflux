@@ -1,0 +1,115 @@
+[
+  {
+    "stage": "owner-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 96.28685853496427
+  },
+  {
+    "stage": "owner-smoke",
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.4242603210150264
+  },
+  {
+    "stage": "owner-normal-routing",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Owner validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-manual-routing-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/owner-normal-routing-01"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 6.987968404951971
+  },
+  {
+    "stage": "owner-normal-preparation",
+    "command": [
+      "python3",
+      "-c",
+      "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Owner validation stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+      "tools/experiments/private_routing_check.py",
+      "build/dev/conflux-preparation-controller-check",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-delivery-2026-10-19/owner-normal-preparation-01"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 44.2807962379884
+  },
+  {
+    "stage": "owner-tsan-configure",
+    "command": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build/owner-tsan",
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DBUILD_TESTING=ON",
+      "-DCMAKE_CXX_FLAGS=-fsanitize=thread -fno-omit-frame-pointer -fno-pie -O1 -g",
+      "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread -no-pie"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 7.589324563974515
+  },
+  {
+    "stage": "owner-tsan-build",
+    "command": [
+      "cmake",
+      "--build",
+      "build/owner-tsan",
+      "--target",
+      "conflux-audio-live-owner-test",
+      "--parallel",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 25.469273936003447
+  },
+  {
+    "stage": "owner-tsan-test",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/owner-tsan",
+      "-R",
+      "^audio-live-owner$",
+      "--output-on-failure"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.0709968780283816
+  },
+  {
+    "stage": "owner-coverage",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 361.5895905260113
+  }
+]

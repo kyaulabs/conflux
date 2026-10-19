@@ -1,0 +1,475 @@
+{
+  "schema": 1,
+  "generation": 1,
+  "request_id": 94,
+  "source_id": "98d2376e411fd1c7420e441091711864f4a2ca8ccce783dcd4e7f1e4a8e527a3",
+  "native_request_span": {
+    "start": 293683.743487714,
+    "end": 293694.525444199
+  },
+  "hop_service_ms": 10812.582951970398,
+  "native_metrics": {
+    "graph_ms": 10697.827947,
+    "involuntary_context_switches": 58,
+    "voluntary_context_switches": 82,
+    "inference_wall_ms": 10755.921556,
+    "elapsed_ms": 10772.907421,
+    "graph_rebuild_ms": 0,
+    "frontend_ms": 11.473004,
+    "stems": 4,
+    "postprocess_ms": 46.611618,
+    "inference_cpu_ms": 191.15899999999965,
+    "frames": 343980,
+    "id": 94,
+    "event": "result"
+  },
+  "trace_slice": {
+    "first_zero_based_index": 1922,
+    "last_zero_based_index": 2010,
+    "samples": 89,
+    "first_timestamp": 293683.775230727,
+    "last_timestamp": 293694.474530013,
+    "leading_unsampled_ms": 31.743013008963317,
+    "trailing_unsampled_ms": 50.91418599477038
+  },
+  "drm_render": {
+    "client": {
+      "pid": 1391747,
+      "start_ticks": 33242724,
+      "device": "0000:00:02.0",
+      "client_id": "770"
+    },
+    "first_render_ns": 167976309893,
+    "last_render_ns": 170790192508,
+    "delta_render_ms": 2813.882615,
+    "interior_span_ms": 10699.299286003225,
+    "render_busy_fraction_inner": 0.2629969065993984,
+    "max_sample_gap_ms": 167.52955300034955,
+    "max_flat_render_counter_span_ms": 0.0,
+    "missing_client_intervals": 0,
+    "counter_resets": 0
+  },
+  "phases": [
+    {
+      "name": "initial",
+      "hop_sample_indices_inclusive": [
+        0,
+        15
+      ],
+      "trace_indices_inclusive": [
+        1922,
+        1937
+      ],
+      "samples": 16,
+      "absolute_bounds_monotonic": [
+        293683.775230727,
+        293685.373901555
+      ],
+      "relative_bounds_seconds": [
+        0.03174301300896332,
+        1.6304138410487212
+      ],
+      "elapsed_seconds": 1.598670828039758,
+      "gpu_actual_mhz": {
+        "min": 750,
+        "median": 1300.0,
+        "max": 1350
+      },
+      "gpu_current_mhz": {
+        "min": 717,
+        "median": 1350.0,
+        "max": 1350
+      },
+      "throttle_reasons": {
+        "throttle_reason_pl1": {
+          "nonzero_samples": 0,
+          "samples": 16
+        },
+        "throttle_reason_pl2": {
+          "nonzero_samples": 0,
+          "samples": 16
+        },
+        "throttle_reason_pl4": {
+          "nonzero_samples": 9,
+          "samples": 16
+        },
+        "throttle_reason_prochot": {
+          "nonzero_samples": 0,
+          "samples": 16
+        },
+        "throttle_reason_ratl": {
+          "nonzero_samples": 0,
+          "samples": 16
+        },
+        "throttle_reason_status": {
+          "nonzero_samples": 10,
+          "samples": 16
+        },
+        "throttle_reason_thermal": {
+          "nonzero_samples": 1,
+          "samples": 16
+        },
+        "throttle_reason_vr_tdc": {
+          "nonzero_samples": 0,
+          "samples": 16
+        },
+        "throttle_reason_vr_thermalert": {
+          "nonzero_samples": 0,
+          "samples": 16
+        }
+      },
+      "package_temperature_C": {
+        "first": 91.0,
+        "last": 96.0,
+        "min": 91.0,
+        "median": 94.0,
+        "max": 98.0
+      },
+      "cpu0_frequency_mhz_median": 3044.6475,
+      "cpu0_thermal_counter_deltas": {
+        "core_throttle_count": 0,
+        "package_throttle_count": 89
+      },
+      "profile_values": [
+        "performance"
+      ],
+      "epp_values": [
+        "performance"
+      ],
+      "sampled_process_cpu_delta_ms": 0.0,
+      "render": {
+        "first_ns": 167976309893,
+        "last_ns": 169313901601,
+        "delta_ms": 1337.591708,
+        "inner_busy_fraction": 0.8366898829574032,
+        "positive_intervals": 15,
+        "intervals": 15,
+        "interval_render_ms_min_max": [
+          83.499271,
+          98.32214
+        ],
+        "interval_wall_ms_min_max": [
+          105.2266460028477,
+          108.70022495510057
+        ]
+      }
+    },
+    {
+      "name": "downshift",
+      "hop_sample_indices_inclusive": [
+        15,
+        23
+      ],
+      "trace_indices_inclusive": [
+        1937,
+        1945
+      ],
+      "samples": 9,
+      "absolute_bounds_monotonic": [
+        293685.373901555,
+        293686.29041685
+      ],
+      "relative_bounds_seconds": [
+        1.6304138410487212,
+        2.5469291360350326
+      ],
+      "elapsed_seconds": 0.9165152949863113,
+      "gpu_actual_mhz": {
+        "min": 100,
+        "median": 450,
+        "max": 1350
+      },
+      "gpu_current_mhz": {
+        "min": 1350,
+        "median": 1350,
+        "max": 1350
+      },
+      "throttle_reasons": {
+        "throttle_reason_pl1": {
+          "nonzero_samples": 8,
+          "samples": 9
+        },
+        "throttle_reason_pl2": {
+          "nonzero_samples": 0,
+          "samples": 9
+        },
+        "throttle_reason_pl4": {
+          "nonzero_samples": 0,
+          "samples": 9
+        },
+        "throttle_reason_prochot": {
+          "nonzero_samples": 0,
+          "samples": 9
+        },
+        "throttle_reason_ratl": {
+          "nonzero_samples": 0,
+          "samples": 9
+        },
+        "throttle_reason_status": {
+          "nonzero_samples": 8,
+          "samples": 9
+        },
+        "throttle_reason_thermal": {
+          "nonzero_samples": 0,
+          "samples": 9
+        },
+        "throttle_reason_vr_tdc": {
+          "nonzero_samples": 0,
+          "samples": 9
+        },
+        "throttle_reason_vr_thermalert": {
+          "nonzero_samples": 0,
+          "samples": 9
+        }
+      },
+      "package_temperature_C": {
+        "first": 96.0,
+        "last": 77.0,
+        "min": 77.0,
+        "median": 81.0,
+        "max": 96.0
+      },
+      "cpu0_frequency_mhz_median": 860.683,
+      "cpu0_thermal_counter_deltas": {
+        "core_throttle_count": 0,
+        "package_throttle_count": 0
+      },
+      "profile_values": [
+        "performance"
+      ],
+      "epp_values": [
+        "performance"
+      ],
+      "sampled_process_cpu_delta_ms": 0.0,
+      "render": {
+        "first_ns": 169313901601,
+        "last_ns": 169843269544,
+        "delta_ms": 529.367943,
+        "inner_busy_fraction": 0.5775876800920233,
+        "positive_intervals": 8,
+        "intervals": 8,
+        "interval_render_ms_min_max": [
+          20.65544,
+          85.215761
+        ],
+        "interval_wall_ms_min_max": [
+          106.1744779581204,
+          126.0804120101966
+        ]
+      }
+    },
+    {
+      "name": "100MHz_floor",
+      "hop_sample_indices_inclusive": [
+        23,
+        84
+      ],
+      "trace_indices_inclusive": [
+        1945,
+        2006
+      ],
+      "samples": 62,
+      "absolute_bounds_monotonic": [
+        293686.29041685,
+        293694.03209382
+      ],
+      "relative_bounds_seconds": [
+        2.5469291360350326,
+        10.288606106012594
+      ],
+      "elapsed_seconds": 7.741676969977561,
+      "gpu_actual_mhz": {
+        "min": 100,
+        "median": 100.0,
+        "max": 100
+      },
+      "gpu_current_mhz": {
+        "min": 1350,
+        "median": 1350.0,
+        "max": 1350
+      },
+      "throttle_reasons": {
+        "throttle_reason_pl1": {
+          "nonzero_samples": 62,
+          "samples": 62
+        },
+        "throttle_reason_pl2": {
+          "nonzero_samples": 0,
+          "samples": 62
+        },
+        "throttle_reason_pl4": {
+          "nonzero_samples": 0,
+          "samples": 62
+        },
+        "throttle_reason_prochot": {
+          "nonzero_samples": 0,
+          "samples": 62
+        },
+        "throttle_reason_ratl": {
+          "nonzero_samples": 0,
+          "samples": 62
+        },
+        "throttle_reason_status": {
+          "nonzero_samples": 62,
+          "samples": 62
+        },
+        "throttle_reason_thermal": {
+          "nonzero_samples": 0,
+          "samples": 62
+        },
+        "throttle_reason_vr_tdc": {
+          "nonzero_samples": 0,
+          "samples": 62
+        },
+        "throttle_reason_vr_thermalert": {
+          "nonzero_samples": 0,
+          "samples": 62
+        }
+      },
+      "package_temperature_C": {
+        "first": 77.0,
+        "last": 67.0,
+        "min": 67.0,
+        "median": 71.0,
+        "max": 78.0
+      },
+      "cpu0_frequency_mhz_median": 400.0,
+      "cpu0_thermal_counter_deltas": {
+        "core_throttle_count": 0,
+        "package_throttle_count": 0
+      },
+      "profile_values": [
+        "performance"
+      ],
+      "epp_values": [
+        "performance"
+      ],
+      "sampled_process_cpu_delta_ms": 10.0,
+      "render": {
+        "first_ns": 169843269544,
+        "last_ns": 170564088916,
+        "delta_ms": 720.819372,
+        "inner_busy_fraction": 0.09310894458595438,
+        "positive_intervals": 61,
+        "intervals": 61,
+        "interval_render_ms_min_max": [
+          2.290028,
+          30.934176
+        ],
+        "interval_wall_ms_min_max": [
+          118.79595497157425,
+          167.52955300034955
+        ]
+      }
+    },
+    {
+      "name": "recovery",
+      "hop_sample_indices_inclusive": [
+        84,
+        88
+      ],
+      "trace_indices_inclusive": [
+        2006,
+        2010
+      ],
+      "samples": 5,
+      "absolute_bounds_monotonic": [
+        293694.03209382,
+        293694.474530013
+      ],
+      "relative_bounds_seconds": [
+        10.288606106012594,
+        10.731042299012188
+      ],
+      "elapsed_seconds": 0.4424361929995939,
+      "gpu_actual_mhz": {
+        "min": 0,
+        "median": 300,
+        "max": 550
+      },
+      "gpu_current_mhz": {
+        "min": 1033,
+        "median": 1350,
+        "max": 1350
+      },
+      "throttle_reasons": {
+        "throttle_reason_pl1": {
+          "nonzero_samples": 4,
+          "samples": 5
+        },
+        "throttle_reason_pl2": {
+          "nonzero_samples": 0,
+          "samples": 5
+        },
+        "throttle_reason_pl4": {
+          "nonzero_samples": 0,
+          "samples": 5
+        },
+        "throttle_reason_prochot": {
+          "nonzero_samples": 0,
+          "samples": 5
+        },
+        "throttle_reason_ratl": {
+          "nonzero_samples": 0,
+          "samples": 5
+        },
+        "throttle_reason_status": {
+          "nonzero_samples": 4,
+          "samples": 5
+        },
+        "throttle_reason_thermal": {
+          "nonzero_samples": 0,
+          "samples": 5
+        },
+        "throttle_reason_vr_tdc": {
+          "nonzero_samples": 0,
+          "samples": 5
+        },
+        "throttle_reason_vr_thermalert": {
+          "nonzero_samples": 0,
+          "samples": 5
+        }
+      },
+      "package_temperature_C": {
+        "first": 67.0,
+        "last": 68.0,
+        "min": 67.0,
+        "median": 68.0,
+        "max": 69.0
+      },
+      "cpu0_frequency_mhz_median": 628.24,
+      "cpu0_thermal_counter_deltas": {
+        "core_throttle_count": 0,
+        "package_throttle_count": 0
+      },
+      "profile_values": [
+        "performance"
+      ],
+      "epp_values": [
+        "performance"
+      ],
+      "sampled_process_cpu_delta_ms": 40.0,
+      "render": {
+        "first_ns": 170564088916,
+        "last_ns": 170790192508,
+        "delta_ms": 226.103592,
+        "inner_busy_fraction": 0.5110422600535475,
+        "positive_intervals": 4,
+        "intervals": 4,
+        "interval_render_ms_min_max": [
+          17.11476,
+          79.874132
+        ],
+        "interval_wall_ms_min_max": [
+          108.21725300047547,
+          114.44912402657792
+        ]
+      }
+    }
+  ],
+  "scope": [
+    "Phase boundaries selected from observed frequency transition; adjacent phases share endpoint snapshots, while counter-delta spans partition the covered interval.",
+    "All counters and clock snapshots are host accounting; their correlation does not establish that PL1 caused idle time or that all elapsed time was shader execution.",
+    "Positive render-counter progress in every sampled interval does not resolve within-interval GPU scheduling."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "raw_status": "ok",
+  "duration_and_audio_measurements_retained": true,
+  "continuous_animated_ui_coverage": "failed",
+  "zero_full_minute_bins": [
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55
+  ],
+  "maximum_frame_notification_gap_ms": 965997.101844,
+  "scope": "Do not treat process liveness and final rendered=true as continuous animated UI load. Preserve this trial and rerun with live frame coverage checks."
+}

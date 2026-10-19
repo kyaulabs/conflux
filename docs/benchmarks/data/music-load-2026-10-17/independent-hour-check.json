@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "checked_at_utc": "2026-10-17T23:01:03.793300+00:00",
+  "scope": "Independent closed hour raw/result headline reduction; no inference, raw native thermal analysis, PCM computation or host queries. Does not erase earlier evidence or establish physical stem playback.",
+  "inputs": {
+    "result": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour/result.json",
+      "bytes": 55728,
+      "sha256": "e091f0e25d86d26ef62ba6ef0c84ceb05b626a74b507ad76e6cdc130ad82b585"
+    },
+    "events": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour/events.jsonl",
+      "bytes": 4281916,
+      "sha256": "794cd94152d0dcd71db2855fad82cd300818a6dcb297d1441537231fbdc9b3a3"
+    },
+    "audio": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour/audio.json",
+      "bytes": 1503,
+      "sha256": "784d959c62947109cc35d4c4487d012fafff8bbc75bf3ed98950233fb43e8837"
+    },
+    "ui": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour/ui.json",
+      "bytes": 960,
+      "sha256": "af6dac73638fc94eeba89061fe93e7d3fd413b4f6ec125a2b0a761bd19c90893"
+    },
+    "launch": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour-launch.json",
+      "bytes": 16024,
+      "sha256": "8704421d1c069cb1713babe349f0cec405b9ac752bb1b6af027384b78b991a35"
+    },
+    "guard": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour-guard.json",
+      "bytes": 3229,
+      "sha256": "20602582f732727763321362279b9889410a491d8119fee5456f0636eadd8496"
+    },
+    "corpus": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/corpus-pins.json",
+      "bytes": 9427,
+      "sha256": "dbb9703338e82204557b031e0d7d5731bd49953afe1e8fe8ccc7d3797991f821"
+    },
+    "AC_lid_monitor": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-hour-AC-lid-monitor.jsonl",
+      "bytes": 291050,
+      "sha256": "eafdccdeb728501e83bf3d10787f73f43311ed2f692fbf42388f886aa7d36896"
+    }
+  },
+  "workload_seconds": 3600.000356022967,
+  "timing": {
+    "continuous": {
+      "chunks": 1533,
+      "frames": 395491005,
+      "percentiles_ms": {
+        "50": 1977.4068869883195,
+        "95": 3625.0731350155547,
+        "99": 4265.523904992733
+      },
+      "max_ms": 5008.02010303596,
+      "above4095ms": 23
+    },
+    "all_delivered": {
+      "chunks": 1544,
+      "frames": 398326157,
+      "percentiles_ms": {
+        "50": 1976.8767899950035,
+        "95": 3624.221508973278,
+        "99": 4265.523904992733
+      },
+      "max_ms": 5008.02010303596,
+      "above4095ms": 23
+    }
+  },
+  "continuous_target_pass": false,
+  "controls": {
+    "count": 11,
+    "discarded_count": 11,
+    "all_trimmed_numeric": true,
+    "exact_trimmed_count": 11,
+    "nonexact_trimmed_count": 0,
+    "max_trim_difference": 0.0,
+    "ranges_ms": {
+      "started_to_cancel_ms": {
+        "min": 150.40751703782007,
+        "max": 181.97223101742566
+      },
+      "cancel_ack_ms": {
+        "min": 0.02461101394146681,
+        "max": 0.06060104351490736
+      },
+      "residual_finish_ms": {
+        "min": 1698.6299600102939,
+        "max": 3253.8661179714836
+      },
+      "resume_ack_ms": {
+        "min": 0.020196952391415834,
+        "max": 0.04360399907454848
+      },
+      "ready_after_resume_ms": {
+        "min": 3836.275665962603,
+        "max": 6820.3509650193155
+      },
+      "ready_after_cancel_ms": {
+        "min": 5567.948436015286,
+        "max": 10074.53727099346
+      },
+      "delivered_after_cancel_ms": {
+        "min": 5649.591138993856,
+        "max": 10182.457746006548
+      }
+    }
+  },
+  "source_completions": {
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": {
+      "full": 96,
+      "resumed": 1
+    },
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": {
+      "full": 95,
+      "resumed": 2
+    },
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": {
+      "full": 94,
+      "resumed": 2
+    },
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": {
+      "full": 90,
+      "resumed": 6
+    }
+  },
+  "same_grid_repeat_hashes": {
+    "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023": 385,
+    "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf": 382,
+    "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879": 376,
+    "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda": 374
+  },
+  "all_nontrimmed_hashes_match_pinned_previous_vulkan": true,
+  "audio": {
+    "faults": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "callbacks": 675296,
+    "frames": 172875776,
+    "overlap_seconds": 3600.000356022967,
+    "callback_elapsed_us": {
+      "p50_upper_bound": 2.0,
+      "p95_upper_bound": 4.0,
+      "p99_upper_bound": 5.0,
+      "p99_9_upper_bound": 20.0,
+      "max": 1971.729,
+      "histogram_resolution": 1,
+      "at_least_100ms": 0
+    },
+    "scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+  },
+  "UI": {
+    "frames": 112559,
+    "complete_minute_bins": 60,
+    "complete_minute_fps_min": 31.25,
+    "complete_minute_fps_max": 31.35,
+    "mean_complete_minute_fps": 31.252222222222223,
+    "max_gap_ms": 50.048507,
+    "unexposed_observations": 0,
+    "coverage": true
+  },
+  "AC_lid": {
+    "snapshot_count": 86,
+    "workload_snapshot_count": 81,
+    "errors": 0,
+    "workload_max_gap_seconds": 45.051151900028344,
+    "scope": "Sampled readiness45s schedule, no unsampled continuity claim."
+  },
+  "cleanup": {
+    "worker_closed": true,
+    "backend_start_count": 1,
+    "stale_chunks": 0,
+    "telemetry_dropped": 0,
+    "remaining_owned_processes": {},
+    "child_reaped": true,
+    "guard_restored_unloaded_idle_released": true
+  }
+}

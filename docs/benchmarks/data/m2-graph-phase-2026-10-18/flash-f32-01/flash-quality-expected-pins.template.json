@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "status": "unarmed",
+  "repository_head": null,
+  "baseline": {
+    "path": "/tmp/conflux-stem-phase-timing-2026-10-18/build/conflux-stem-runtime",
+    "sha256": "ded9cb2c1000af78917a784e281d905da201d735338221519958d9d7df1d681f"
+  },
+  "candidate": {
+    "path": "/tmp/conflux-stem-flash-f32-2026-10-18/build/conflux-stem-runtime",
+    "sha256": null
+  },
+  "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+  "proof_sha256": "38c60301feed297a0484d61ea92cca2413067d15d7ead7e9a27e6cc9909037e3",
+  "overlay_sha256": "a4951aadce8272b103e31a12c121c237ca8545b926690ebcc60708d979e7eb15",
+  "source_pins_sha256": null,
+  "build_verification": {
+    "path": null,
+    "sha256": null
+  },
+  "scope": "Unarmed numerical-only template. Exact HEAD, candidate binary, build verification and source configuration must be reviewed and pinned before explicit --run. Nonidentical finite PCM does not establish musical acceptability; no performance target or human-listening verdict is assessed."
+}

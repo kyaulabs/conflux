@@ -1,0 +1,89 @@
+{
+  "command": [
+    "/bin/python3",
+    "-B",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-15min-policy.json",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--load",
+    "both",
+    "--renderer",
+    "software",
+    "--seconds",
+    "900",
+    "--control-interval",
+    "300",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-15min"
+  ],
+  "started_at_utc": "2026-10-17T17:54:10.919078+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_only": false,
+  "window_guard": {
+    "requested": true,
+    "status": "restored"
+  },
+  "idle_inhibit_cookie": 9820,
+  "bus_owner": ":1.43721",
+  "ui": {
+    "pid": 1831448,
+    "start_ticks": 42102813,
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+      "--smoke-test",
+      "--smoke-seconds",
+      "1020",
+      "--smoke-stop-file",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-15min/stop",
+      "--smoke-progress-file",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-15min/ui-progress.json"
+    ]
+  },
+  "script_id": 0,
+  "script_plugin": "conflux-benchmark-017eb49d1ce84526bc7d189e05b53b95",
+  "script_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/software-33ms-15min-guard.js",
+  "window_policy": {
+    "before": {
+      "pid": 1831448,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": false,
+      "onAllDesktops": false,
+      "minimized": false,
+      "desktopIds": [
+        "23f1364e-9d87-4218-860c-6fa08ac8b242"
+      ]
+    },
+    "after": {
+      "pid": 1831448,
+      "appId": "com.kyaulabs.conflux",
+      "keepAbove": true,
+      "onAllDesktops": true,
+      "minimized": false,
+      "desktopIds": []
+    }
+  },
+  "applied_monotonic": 375677.515110762,
+  "restored": {
+    "reason": "owned-window-closed",
+    "after": null
+  },
+  "restored_monotonic": 376578.208449217,
+  "script_unloaded": true,
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-17T18:09:15.349297+00:00"
+}

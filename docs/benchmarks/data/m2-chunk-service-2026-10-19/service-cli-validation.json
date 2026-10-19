@@ -1,0 +1,102 @@
+{
+  "checks": 10,
+  "passed": true,
+  "description_bytes": 508,
+  "source_sha256": "c6c9a7a62571f9437224246b4b474d785821e21871e03398a9341ead6dae01d9",
+  "failure_cases": [
+    {
+      "arguments": [],
+      "exit": 2,
+      "stderr_bytes": 519
+    },
+    {
+      "arguments": [
+        "--input",
+        "/not-opened"
+      ],
+      "exit": 2,
+      "stderr_bytes": 519
+    },
+    {
+      "arguments": [
+        "--describe",
+        "--input",
+        "/not-opened"
+      ],
+      "exit": 2,
+      "stderr_bytes": 511
+    },
+    {
+      "arguments": [
+        "--backend",
+        "invalid"
+      ],
+      "exit": 2,
+      "stderr_bytes": 538
+    },
+    {
+      "arguments": [
+        "--threads",
+        "bad"
+      ],
+      "exit": 2,
+      "stderr_bytes": 507
+    },
+    {
+      "arguments": [
+        "--unknown"
+      ],
+      "exit": 2,
+      "stderr_bytes": 496
+    },
+    {
+      "arguments": [
+        "--input",
+        "/no-conflux-service-source",
+        "--directory",
+        "/no-conflux-service-parent/job",
+        "--runtime",
+        "/no-conflux-service-runtime",
+        "--model",
+        "/no-conflux-service-model",
+        "--threads",
+        "0"
+      ],
+      "exit": 1,
+      "stderr_bytes": 44
+    },
+    {
+      "arguments": [
+        "--input",
+        "/no-conflux-service-source",
+        "--directory",
+        "/no-conflux-service-parent/job",
+        "--runtime",
+        "/no-conflux-service-runtime",
+        "--model",
+        "/no-conflux-service-model",
+        "--max-seconds",
+        "nan"
+      ],
+      "exit": 1,
+      "stderr_bytes": 47
+    },
+    {
+      "arguments": [
+        "--input",
+        "/no-conflux-service-source",
+        "--directory",
+        "/no-conflux-service-parent/job",
+        "--runtime",
+        "/no-conflux-service-runtime",
+        "--model",
+        "/no-conflux-service-model",
+        "--max-diagnostic-bytes",
+        "0"
+      ],
+      "exit": 1,
+      "stderr_bytes": 56
+    }
+  ],
+  "scope": "Real optional service CLI description and rejection; no valid runtime/model paths, inference or audio."
+}

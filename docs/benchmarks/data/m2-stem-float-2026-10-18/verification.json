@@ -1,0 +1,205 @@
+{
+  "schema": "conflux.m2-stem-float-verification.v1",
+  "base_commit": "e21ec334eba4457884f89a64619a7141e9a4b503",
+  "status": "functional_float_conversion_and_worker_checks_passed",
+  "source_state": "Implementation and test files pinned before full checks and unchanged afterward; signed commit binding retained locally.",
+  "behavior": "Original audio directly decoded to anonymous stereo44100 F32LE input; four reconstructed44100 stems converted independently to the existing stereo48000 playback contract. No PCM16 intermediate or independent stem gain normalization.",
+  "tdd": {
+    "worker_missing_load_f32_failure_observed": true,
+    "conversion_missing_api_build_failure_observed": true
+  },
+  "test_correction": "The first implemented conversion test exceeded its exact rational-duration budget because the existing sinc converter emitted one extra frame. Success fixture capacity now matches the existing converter contract (ideal plus at most one frame); strict preflight and produced-byte guards remain unchanged.",
+  "normal_checks": [
+    {
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 118.91344379499787
+    },
+    {
+      "stage": "ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/dev",
+        "--output-on-failure",
+        "--timeout",
+        "120"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 39.58587811497273
+    },
+    {
+      "stage": "smoke",
+      "command": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--smoke-test"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 2.4230790070141666
+    },
+    {
+      "stage": "private-routing",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+        "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-routing-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/stem-float-conversion-2026-10-18/private-routing-01",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 6.487668176006991
+    },
+    {
+      "stage": "private-preparation",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+        "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-preparation-controller-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/stem-float-conversion-2026-10-18/private-preparation-01",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 1.5700102300033905
+    }
+  ],
+  "ctest": {
+    "passed": 26,
+    "failed": 0
+  },
+  "worker_unittest_cases": 32,
+  "private_graph_cleanup": true,
+  "coverage": {
+    "cpp_line": {
+      "covered": 3459,
+      "total": 4320,
+      "percent": 80.06944444444444,
+      "above_80_percent": true
+    },
+    "python_line": {
+      "covered": 452,
+      "total": 481,
+      "percent": 93.97089397089397,
+      "above_80_percent": true
+    },
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "whole_product_status": "unmeasured_sources_remain"
+  },
+  "independent_source_review": {
+    "result": "no actionable findings",
+    "scope": "Raw input normalization/cache identity/finite guards and conversion descriptor ownership/geometry/bounds/cancellation/legacy behavior reviewed without execution."
+  },
+  "binaries": {
+    "conflux": {
+      "bytes": 9778992,
+      "sha256": "366af86c576bd48ed3b7c7c8ddcc58e6a88399c5011dcea8a7e4327afe43f2b1"
+    },
+    "conflux-audio-preparation-test": {
+      "bytes": 1633136,
+      "sha256": "d650911fab924c007d66116493cca3a6fbfffe7aea9f14c592f935115d8fb87f"
+    },
+    "conflux-manual-routing-check": {
+      "bytes": 4525760,
+      "sha256": "738ccefc9c286cb4337b677813569f1a0b73c52a84ff8f4da48dea4e74902477"
+    },
+    "conflux-preparation-controller-check": {
+      "bytes": 9553432,
+      "sha256": "bc1d03469b7cb722acbfd57c3c0ff74cc5a3506bca041b7fc3e60a0884d0ed46"
+    }
+  },
+  "files": {
+    "functional-result.json": {
+      "bytes": 2551,
+      "sha256": "d1e99184aad2b16a56f10b83ce010b1f9768b564e54b57bc4d6761b2ccd4fab3"
+    },
+    "ctest.log": {
+      "bytes": 2817,
+      "sha256": "a4e6ff0c52da672eeb5fea59a8fd917a5f6b16a507e72bcfde4f2d85089a6dd0"
+    },
+    "smoke.log": {
+      "bytes": 669,
+      "sha256": "fcf34eec67c91c426dd6033c88140cf0bfd9fade0d991371ddd1ddd99d591913"
+    },
+    "private-routing.json": {
+      "bytes": 10006,
+      "sha256": "8c41aaadd6d94332f12b09a81cc55e50ca0a29ca18b81c1bac05c94878a86853"
+    },
+    "private-preparation.json": {
+      "bytes": 6028,
+      "sha256": "e9f3ce0481bb9fb35a93fd05ab69de8bb331284f7671b721e6a76696249034a8"
+    },
+    "coverage.json": {
+      "bytes": 7871,
+      "sha256": "f4159792a41b22b681f70fbe1f1436b2c21153130ff28eb6666d43106665ad3b"
+    },
+    "source-pins.json": {
+      "bytes": 6384,
+      "sha256": "1cccae275619f30232e1ffddb81e1d9c053b48e1b390a7ad46a3f50f5b96ec53"
+    },
+    "conversion-red.json": {
+      "bytes": 368,
+      "sha256": "b39017e6c32decd37d39e840223d671174b50ba3e8d83b19bfdb1399404a4e57"
+    },
+    "conversion-green.json": {
+      "bytes": 414,
+      "sha256": "9abf3ac3f941d2a6b35c2d95264ecd01064ddb2c607ffdecfeb732672a7eb449"
+    },
+    "conversion-green-build.log": {
+      "bytes": 167,
+      "sha256": "494c980478537e2cad705dd41c34b28f5e72f2cf005f1a9335889093bbcc5cfe"
+    },
+    "conversion-green-test.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "worker-red.json": {
+      "bytes": 360,
+      "sha256": "422c38909f892f8fd1e428939c596ed410718d3e05ff3736d32ec72a38255bcf"
+    },
+    "worker-red.log": {
+      "bytes": 706,
+      "sha256": "e435394bb01580f845251188d38d816c59ee95e867aedfa8fed376226db200d3"
+    },
+    "worker-green.json": {
+      "bytes": 634,
+      "sha256": "2960f5fa190f0f61411ac9fbc5293b09b55aa63df4728ce5d2aec3a6c15adc59"
+    },
+    "worker-green.log": {
+      "bytes": 131,
+      "sha256": "cc0a06cc8f8f1d99ffdc7632903d78a1e7c105ac38ce153b88f24f4489a8f348"
+    },
+    "conversion-red.log.gz": {
+      "bytes": 1702,
+      "sha256": "0189d9961151f0de05042c9cabd3770602a32ffce9e825c4883670cd79aa4f75"
+    }
+  },
+  "M2_qualified": false,
+  "live_service_target_ms": 4095,
+  "scope": "Functional conversion, worker reconstruction and regression checks only. Fake backend worker tests; no model, GPU, physical audio, thermal or live-service timing qualification. Hour qualification applies to its separately pinned earlier worker.",
+  "pending": "Bounded export, all-four cache publication, optional tool configuration, application playback/gain commands, induced stalls and approved fallback; QML and optional native adapter coverage remain unmeasured.",
+  "compressed_text": {
+    "conversion-red.log.gz": {
+      "uncompressed": {
+        "bytes": 13762,
+        "sha256": "227853e022fb7be7013c1530bf63daf85b2fefab307fb7bb409bbd05449a6e7b"
+      },
+      "compression": "deterministic gzip; exact compiler log bytes preserved",
+      "raw_secret_scan": "Original uncompressed archive passed gitleaks dir before compression."
+    }
+  }
+}

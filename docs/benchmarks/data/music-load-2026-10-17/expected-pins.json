@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "status": "ready",
+  "repository_head": "850225c998b3af40d27d21e496178bed7eb91d7f",
+  "pins": {
+    "runtime": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+    "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "ui": "a2c1430535a14fa92d70ed1dd94015319616f1d67080af5a6bebe0ec5220dc9f",
+    "audio_probe": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+    "soak_source": "6d6bc85f3b152f9e39df3ddeba62842c6a888488d457df93fb7b01ebcb8e5f25",
+    "shared_benchmark_source": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+    "worker_source": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+    "sampler_source": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+  },
+  "scope": "Signed source and frozen artifacts for bounded prepared-music audio/UI smoke and hour; source corpus replaces the synthetic fixture. No policy/service changes."
+}

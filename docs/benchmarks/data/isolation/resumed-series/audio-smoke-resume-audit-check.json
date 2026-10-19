@@ -1,0 +1,297 @@
+{
+  "scope": "Saved completed synthetic isolation evidence; no fresh numerical PCM recomputation or new workload. Legacy fixtures do not qualify as resumed hours.",
+  "status": "ok",
+  "load_mode": "audio",
+  "requested_seconds": 120.0,
+  "workload_seconds": 120.00021398597164,
+  "timing": {
+    "all_delivered": {
+      "chunks": 55,
+      "frames": 12960642,
+      "hop_service_percentiles_ms": {
+        "50": 2108.164094039239,
+        "95": 2241.8786760536022,
+        "99": 2422.8894190164283
+      },
+      "hop_service_max_ms": 2422.8894190164283,
+      "hops_above_target": 0
+    },
+    "continuous": {
+      "chunks": 54,
+      "frames": 12702990,
+      "hop_service_percentiles_ms": {
+        "50": 2107.9277860117145,
+        "95": 2241.8786760536022,
+        "99": 2422.8894190164283
+      },
+      "hop_service_max_ms": 2422.8894190164283,
+      "hops_above_target": 0
+    },
+    "bins_300_seconds": [
+      {
+        "start_seconds": 0,
+        "end_seconds": 120.00021398597164,
+        "chunks": 55,
+        "frames": 12960642,
+        "hop_service_percentiles_ms": {
+          "50": 2108.164094039239,
+          "95": 2241.8786760536022,
+          "99": 2422.8894190164283
+        },
+        "hop_service_max_ms": 2422.8894190164283,
+        "hops_above_target": 0
+      }
+    ]
+  },
+  "event_counts": {
+    "control": 8,
+    "runtime_ready": 1,
+    "source_ready": 7,
+    "started": 58,
+    "chunk": 55,
+    "soak_hop": 55,
+    "complete": 5,
+    "discarded": 1
+  },
+  "chunk_currentness_checks": 55,
+  "controls": {
+    "complete": 1,
+    "discarded_events": 1,
+    "held_chunk_rejected": 1,
+    "ranges_ms": {
+      "started_to_cancel_ms": {
+        "min": 171.03733302792534,
+        "max": 171.03733302792534
+      },
+      "cancel_ack_ms": {
+        "min": 0.025918998289853334,
+        "max": 0.025918998289853334
+      },
+      "residual_finish_ms": {
+        "min": 1893.5451949946582,
+        "max": 1893.5451949946582
+      },
+      "resume_ack_ms": {
+        "min": 0.020659994333982468,
+        "max": 0.020659994333982468
+      },
+      "ready_after_resume_ms": {
+        "min": 4202.60221499484,
+        "max": 4202.60221499484
+      },
+      "ready_after_cancel_ms": {
+        "min": 6096.279051969759,
+        "max": 6096.279051969759
+      },
+      "delivered_after_cancel_ms": {
+        "min": 6186.948852962814,
+        "max": 6186.948852962814
+      }
+    },
+    "recorded_parity": {
+      "exact_and_numeric": true,
+      "max_abs_difference": 0,
+      "scope": "Recorded success assertions and event hashes checked; successful PCM arrays are not retained/recomputed."
+    },
+    "range_scope": "Retained control measurements; return instants are not separately reconstructible from events.",
+    "hardware_submission_confirmed": 0
+  },
+  "worker": {
+    "generation": 8,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "audio": {
+    "requested": true,
+    "sha256": "e725f01966ad6a2e269b423906ef01149d56e5a17438d22cd4fcaded80c860e7",
+    "callbacks": 22800,
+    "frames": 5836800,
+    "stream_interval_seconds": [
+      313428.171570022,
+      313549.862645897
+    ],
+    "exact_workload_overlap_seconds": 120.00021398597164,
+    "faults": {
+      "callback_execution_deadline_misses": 0,
+      "missing_buffers": 0,
+      "invalid_buffers": 0,
+      "truncated_frames": 0,
+      "observed_graph_position_discontinuities": 0,
+      "observed_position_clock_xrun_recovery_flags": 0
+    },
+    "callback_elapsed_us": {
+      "p50_upper_bound": 2.0,
+      "p95_upper_bound": 4.0,
+      "p99_upper_bound": 5.0,
+      "p99_9_upper_bound": 13.0,
+      "max": 34.646,
+      "histogram_resolution": 1,
+      "at_least_100ms": 0
+    },
+    "quantum_frames": 256,
+    "scope": "Callback execution and PipeWire-reported driver-position clock timing; not measured end-to-end audio latency, per-stream xrun recovery or a complete graph xrun count."
+  },
+  "UI": {
+    "requested": false,
+    "status": "not_run",
+    "passed": null,
+    "faults": null,
+    "scope": "Disabled probe; no health measurement."
+  },
+  "native_policy": {
+    "samples": 237,
+    "phase_counts": [
+      {
+        "firmware": "balanced",
+        "cpu0_EPP": "balance_performance",
+        "samples": 237
+      }
+    ],
+    "transitions": [
+      {
+        "timestamp_monotonic": 313429.661977065,
+        "workload_offset_seconds": -0.023306072980631143,
+        "firmware": "balanced",
+        "cpu0_EPP": "balance_performance"
+      }
+    ],
+    "scope": "Native snapshots only; no interpolation, stable-profile or private-latch claim."
+  },
+  "fixture": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-smoke/source.wav",
+    "sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+    "frames": 2076225,
+    "seconds": 47.07993197278912,
+    "sample_rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2,
+    "seed": 0,
+    "generator": "conflux-m0-worker-fixture-v1",
+    "numpy_version": "2.5.4",
+    "unquantized_peak_absolute": 0.5205581388398524,
+    "annotations": {
+      "tempo_map": [
+        {
+          "frame": 0,
+          "bpm": 120
+        },
+        {
+          "frame": 1038112,
+          "bpm": 138
+        }
+      ],
+      "transient_frames": [
+        5512,
+        314212,
+        622912,
+        931612,
+        1240312,
+        1549012,
+        1857712
+      ],
+      "melody_change_interval_frames": 88200,
+      "description": "Synthetic bass, kick, noise hats, changing tones and asymmetric clicks.",
+      "quality_corpus": false
+    }
+  },
+  "reference_hashes": {
+    "0": "15d803bdb59d11c3ebc74f6b746ca43c11a0d859fd82b51b50fdeec5fd839f6a",
+    "257985": "c5165a7885cb9120ca65dd2b7f6ae528f122d0461a58a20230308cab71aeecc2",
+    "515970": "4148574193292122826f6b5f502075d780a561ea08f479b26064bd00593ce6a4",
+    "773955": "ef8714e52f065b86566dce7ec6ba66c7b2396a210beb1d3f2e18c6b1125d66e4",
+    "1031940": "5cc3965a2e6013e490801b6ee7b515804b35e69e27868903276b35613f731241",
+    "1289925": "aaf771455d4804fb946c403bcf548cf880ea2c8f59493304c0b94f344e70a29e",
+    "1547910": "e1b6c88e83d98a6ee2ab6a9db9ccfe3e4f76c9b353feeecd2e0d2943baf1aa9f",
+    "1805895": "ce09f362f0283de558a5ea203157966d48bdb554e3bda23b13ca74c81a82315e",
+    "2063880": "62fc2e994f21f21d7f1989b49acb050399847daba12978f8abc3a1359a915566"
+  },
+  "same_grid_hash_checks": 45,
+  "trimmed_seek_checks": 1,
+  "pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 40001,
+      "sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "audio_probe": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-audio-probe",
+      "bytes": 641648,
+      "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2"
+    }
+  },
+  "repository_head": "f8721d4e619eb78f4a0dbc05954a5b46e1253cf0",
+  "source_snapshot_verified": {
+    "path": "docs/benchmarks/data/isolation/stem_soak-executed.py",
+    "sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a"
+  },
+  "acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": true,
+    "required_UI_coverage_completed": null,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 1,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=audio; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "failures": [],
+  "cleanup": {
+    "status": "not_retained",
+    "scope": "Legacy smoke has no separate saved PID cleanup record."
+  },
+  "guard_cleanup": {
+    "script_unloaded": null,
+    "idle_inhibit_released": true,
+    "errors": []
+  },
+  "sampler_errors": {
+    "sample": {},
+    "trace": {}
+  },
+  "source_evidence": {
+    "result_sha256": "3460f30c02ca1fae4c2f6d69b27b6efce123affaf6af1b0d9d637187914a8d52",
+    "events_stored_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/audio-smoke/events.jsonl",
+    "events_stored_sha256": "0bce79f74af80efdbe0ba3d219598eaab8b0ffa72e856a4e531ddf43f5ffda77",
+    "audit_source_sha256": "dc6604a7a0f3a6d4ea2a84ccacdec1ac679f961effef4e988287dc745c56d138"
+  }
+}

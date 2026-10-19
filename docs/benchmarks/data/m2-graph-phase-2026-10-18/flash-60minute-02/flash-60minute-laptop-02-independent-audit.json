@@ -1,0 +1,445 @@
+{
+  "schema": 1,
+  "status": "evidence_consistent",
+  "name": "flash-60minute-laptop-02",
+  "checks": [
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-launch.json",
+    "Closed structural launcher completion",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/result.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/result.json",
+    "Completed3600-second workload, independent of the latency gate",
+    "All recorded proof/source identities remain unchanged",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-source-pins.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-source-pins.json",
+    "Every source-manifest entry binds retained before/after identities",
+    "Recorded source HEAD is the exact armed checkpoint",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-expected-pins.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-expected-pins.json",
+    "Raw armed configuration equals launch record",
+    "All eight workload producers bind launcher and soak",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-laptop-01/comparison/result.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-laptop-01/comparison/result.json",
+    "Closed917104 own-arm B admission, without a cross-arm identity claim",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-built.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-built.json",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-repro-01/result.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-repro-01/result.json",
+    "Promoted build and sixteen-case own-B reproduction are the admitted proofs",
+    "Every actual promoted build source/configuration/tool identity is retained",
+    "All sixteen promoted inputs and full outputs exactly match their own closed B rows",
+    "Reviewed wrapper and selected/original nested-helper provenance is recorded",
+    "All four prepared-source identities and geometry are unchanged",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-human-readiness-03.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-human-readiness-03.json",
+    "Same original fresh physical readiness at setup and admission",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-admission/fresh-admission.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-admission/fresh-admission.json",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-admission/admission-normal-ready.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-admission/admission-normal-ready.json",
+    "Original normal/fresh admission and same recovered active guard",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-AC-lid-monitor.jsonl",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-AC-lid-monitor.jsonl",
+    "All retained discrete AC/lid observations remain ready",
+    "One Vulkan/two-thread/blocking/passive runtime with exact model",
+    "Bounded ready queue and closed persistent worker",
+    "Requested3600/300 paced both-load/software/33ms/silent256 workload",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/ui.json",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/audio.json",
+    "Raw UI/audio reports equal load records and cover requested duration",
+    "Observed software33ms initialized/exposed UI and silent48k/stereo256 probe",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/events.jsonl",
+    "Raw delivered chunk identities/queue remain bounded",
+    "All eleven planned cancellation/seek batches completed without a hardware-preemption claim",
+    "Raw cancellation/seek identity batch0",
+    "Raw cancellation/seek identity batch1",
+    "Raw cancellation/seek identity batch2",
+    "Raw cancellation/seek identity batch3",
+    "Raw cancellation/seek identity batch4",
+    "Raw cancellation/seek identity batch5",
+    "Raw cancellation/seek identity batch6",
+    "Raw cancellation/seek identity batch7",
+    "Raw cancellation/seek identity batch8",
+    "Raw cancellation/seek identity batch9",
+    "Raw cancellation/seek identity batch10",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-guard.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-guard.json",
+    "Bounded metadata read: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-policy.json",
+    "Raw retained pin binding: /home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-policy.json",
+    "Bounded owned outer/nested groups and native worker were cleaned",
+    "Owned KWin placement and idle inhibitor restored/unloaded",
+    "Runner policy remained observe-only; automatic guard changes remain observable",
+    "Strict4095 target outcome is independent of structural completion"
+  ],
+  "files": {
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-launch.json": {
+      "bytes": 116017,
+      "sha256": "e4c4ad6919abda5b045c18ff48cbb907f1e66d730c3b756529b36cd988cc0e54"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/result.json": {
+      "bytes": 148721,
+      "sha256": "6b7ba986969c3bd18e52ecc7a580d568d576072688f26f1f40ad3388bf4cd95f"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-source-pins.json": {
+      "bytes": 8496,
+      "sha256": "f56cf291264a1128cbb1a32cb0eb750bacc724b3030db925949c65a8470f9df2"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-expected-pins.json": {
+      "bytes": 2379,
+      "sha256": "0601ab5b605dc40681ff4315b16b4deeb506837526499f06ed9e0d4bd166bbd4"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-quality-laptop-01/comparison/result.json": {
+      "bytes": 251465,
+      "sha256": "917104a1cc8ca2522eef38bae6d620c972fdb2be826876b2dee88e67dd7a497a"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-built.json": {
+      "bytes": 177629,
+      "sha256": "9a49f19670d220685e4b260876b5ff26a7184262ee3cb1ec2cafb3c8cef24214"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-promoted-repro-01/result.json": {
+      "bytes": 85334,
+      "sha256": "44554b8e1caca9e92a49be7b9cc0e05ba7248f0091b4cdfc005e87e2c87ffe70"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-human-readiness-03.json": {
+      "bytes": 613,
+      "sha256": "7397e52fabb2b5cf0ef3fee50204741c85bcf973b82344e9fd54cfdc43f02da9"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-admission/fresh-admission.json": {
+      "bytes": 1799,
+      "sha256": "b155745c21fd532774f8bec552e5e0e3b41ef05520631852779828c56367cffb"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-admission/admission-normal-ready.json": {
+      "bytes": 26977,
+      "sha256": "295daaa0a923e19b4fe93e6568c959b2abdcaa2bb815273aa179ea5044fe8a84"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-AC-lid-monitor.jsonl": {
+      "bytes": 299645,
+      "sha256": "395c04e6f2b95bbd911178d6dcfc39ff251c78df39c7624f7b5ecfa51f23950a"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/ui.json": {
+      "bytes": 961,
+      "sha256": "3560c17cff9db82be67f6cf0d49e3d7cfedc4aef4506b78317ff608eaa20c098"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/audio.json": {
+      "bytes": 1844,
+      "sha256": "b576226e60eac9c5cdb912982e9c49df752b8630fb5b10ba939ab793537d77be"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02/events.jsonl": {
+      "bytes": 2425797,
+      "sha256": "7f1a46533f87c6d27891a7a48c6886162b6c482d2e66b7edc40ea875018e0ad4"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-guard.json": {
+      "bytes": 3796,
+      "sha256": "c8003aacdeae65c771e3a9ebce72db17694ba0ef04c03efcd2247c8974a34156"
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-laptop-02-policy.json": {
+      "bytes": 2765,
+      "sha256": "de3141e7147b3028991f4898ade8d8d8bfec2ef599bf2a4ff129ccd0d0b58c61"
+    }
+  },
+  "errors": [],
+  "structural_completion": true,
+  "source_head": "433499543185eb1deda1b3cf2450e000eb259d8c",
+  "workload_seconds": 3600.0001840959885,
+  "source_entries": 50,
+  "proof_pin_entries": 102,
+  "continuous_p99_ms": 4024.9258929979987,
+  "strict4095_gate_passed": true,
+  "producer_full_audio_UI_soak_qualified": true,
+  "integrated_stem_playback_qualified": false,
+  "M2_qualified": false,
+  "AC_lid_observations": 86,
+  "cancellation_batches": 11,
+  "control_identity_rows": [
+    {
+      "batch": 1,
+      "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "superseded_generation": 14,
+      "superseded_request_id": 55,
+      "cancel_generation": 15,
+      "seek_generation": 16,
+      "seek_request_id": 57,
+      "target_frame": 258318,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 160.87101999437436,
+        "cancel_ack_ms": 0.11069700121879578,
+        "residual_finish_ms": 1410.1996780373156,
+        "resume_ack_ms": 0.018920982256531715,
+        "ready_after_resume_ms": 3164.974578015972,
+        "ready_after_cancel_ms": 4576.034995028749,
+        "delivered_after_cancel_ms": 4605.224899016321
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 2,
+      "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+      "superseded_generation": 29,
+      "superseded_request_id": 110,
+      "cancel_generation": 30,
+      "seek_generation": 31,
+      "seek_request_id": 112,
+      "target_frame": 516107,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 183.82496503181756,
+        "cancel_ack_ms": 0.1721640001051128,
+        "residual_finish_ms": 1543.8443829771131,
+        "resume_ack_ms": 0.04418700700625777,
+        "ready_after_resume_ms": 7545.088660961483,
+        "ready_after_cancel_ms": 9089.208280958701,
+        "delivered_after_cancel_ms": 9198.6684849835
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 3,
+      "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+      "superseded_generation": 44,
+      "superseded_request_id": 164,
+      "cancel_generation": 45,
+      "seek_generation": 46,
+      "seek_request_id": 166,
+      "target_frame": 258318,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 186.86468701343983,
+        "cancel_ack_ms": 0.16634800704196095,
+        "residual_finish_ms": 1550.7905749836937,
+        "resume_ack_ms": 0.03702397225424647,
+        "ready_after_resume_ms": 7461.3886419683695,
+        "ready_after_cancel_ms": 9012.49731698772,
+        "delivered_after_cancel_ms": 9088.93991500372
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 4,
+      "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+      "superseded_generation": 58,
+      "superseded_request_id": 216,
+      "cancel_generation": 59,
+      "seek_generation": 60,
+      "seek_request_id": 218,
+      "target_frame": 516107,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 182.6373229851015,
+        "cancel_ack_ms": 0.23990601766854525,
+        "residual_finish_ms": 1534.4444920192473,
+        "resume_ack_ms": 0.03542198101058602,
+        "ready_after_resume_ms": 7353.336933010723,
+        "ready_after_cancel_ms": 8888.070233049802,
+        "delivered_after_cancel_ms": 8975.323549006134
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 5,
+      "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "superseded_generation": 73,
+      "superseded_request_id": 270,
+      "cancel_generation": 74,
+      "seek_generation": 75,
+      "seek_request_id": 272,
+      "target_frame": 258318,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 183.00647201249376,
+        "cancel_ack_ms": 0.0914490083232522,
+        "residual_finish_ms": 1539.8250960279256,
+        "resume_ack_ms": 0.03938499139621854,
+        "ready_after_resume_ms": 7632.9507189802825,
+        "ready_after_cancel_ms": 9177.210261987057,
+        "delivered_after_cancel_ms": 9253.448727016803
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 6,
+      "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "superseded_generation": 88,
+      "superseded_request_id": 325,
+      "cancel_generation": 89,
+      "seek_generation": 90,
+      "seek_request_id": 327,
+      "target_frame": 516107,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 183.1274859723635,
+        "cancel_ack_ms": 0.09817001409828663,
+        "residual_finish_ms": 1533.8504510000348,
+        "resume_ack_ms": 0.03575498703867197,
+        "ready_after_resume_ms": 7359.840659017209,
+        "ready_after_cancel_ms": 8894.009673036635,
+        "delivered_after_cancel_ms": 8966.032715048641
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 7,
+      "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+      "superseded_generation": 103,
+      "superseded_request_id": 379,
+      "cancel_generation": 104,
+      "seek_generation": 105,
+      "seek_request_id": 381,
+      "target_frame": 258318,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 184.6257100114599,
+        "cancel_ack_ms": 0.18252304289489985,
+        "residual_finish_ms": 1545.2632629894651,
+        "resume_ack_ms": 0.04573503974825144,
+        "ready_after_resume_ms": 7120.451188005973,
+        "ready_after_cancel_ms": 8670.032505993731,
+        "delivered_after_cancel_ms": 8746.084209007677
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 8,
+      "source_id": "afce9859f42deaf1a94346c41a9501a244ba8a5be513920b3b9da799f3abb879",
+      "superseded_generation": 117,
+      "superseded_request_id": 431,
+      "cancel_generation": 118,
+      "seek_generation": 119,
+      "seek_request_id": 433,
+      "target_frame": 516107,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 182.8684660140425,
+        "cancel_ack_ms": 0.17070997273549438,
+        "residual_finish_ms": 1527.0338439731859,
+        "resume_ack_ms": 0.03882602322846651,
+        "ready_after_resume_ms": 5568.347157037351,
+        "ready_after_cancel_ms": 7095.631099015009,
+        "delivered_after_cancel_ms": 7174.065765982959
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 9,
+      "source_id": "30a3b35ca65368d698a8b7ae0f24761cf5491d9174243d03759b2ed5103c1fda",
+      "superseded_generation": 132,
+      "superseded_request_id": 485,
+      "cancel_generation": 133,
+      "seek_generation": 134,
+      "seek_request_id": 487,
+      "target_frame": 258318,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 184.84245700528845,
+        "cancel_ack_ms": 0.1902979565784335,
+        "residual_finish_ms": 1524.091525003314,
+        "resume_ack_ms": 0.037777004763484,
+        "ready_after_resume_ms": 3586.802658974193,
+        "ready_after_cancel_ms": 5111.169789975975,
+        "delivered_after_cancel_ms": 5187.809467955958
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 10,
+      "source_id": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "superseded_generation": 147,
+      "superseded_request_id": 540,
+      "cancel_generation": 148,
+      "seek_generation": 149,
+      "seek_request_id": 542,
+      "target_frame": 516107,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 184.55208698287606,
+        "cancel_ack_ms": 0.16110599972307682,
+        "residual_finish_ms": 1515.765668998938,
+        "resume_ack_ms": 0.04189100582152605,
+        "ready_after_resume_ms": 3430.549147014972,
+        "ready_after_cancel_ms": 4951.619238010608,
+        "delivered_after_cancel_ms": 5029.774927010294
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    },
+    {
+      "batch": 11,
+      "source_id": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "superseded_generation": 162,
+      "superseded_request_id": 594,
+      "cancel_generation": 163,
+      "seek_generation": 164,
+      "seek_request_id": 596,
+      "target_frame": 258318,
+      "reported_timings_ms": {
+        "started_to_cancel_ms": 177.75104701286182,
+        "cancel_ack_ms": 0.20836701150983572,
+        "residual_finish_ms": 2258.3063030033372,
+        "resume_ack_ms": 0.04623498534783721,
+        "ready_after_resume_ms": 8865.472050965764,
+        "ready_after_cancel_ms": 11129.376109980512,
+        "delivered_after_cancel_ms": 11210.851144976914
+      },
+      "scope": "Each raw identity chain checked separately; timings are retained producer values, reduced independently by analyzer."
+    }
+  ],
+  "audio_fault_counters": {
+    "callback_execution_deadline_misses": 0,
+    "missing_buffers": 0,
+    "invalid_buffers": 0,
+    "truncated_frames": 0,
+    "observed_graph_position_discontinuities": 0,
+    "observed_position_clock_xrun_recovery_flags": 0
+  },
+  "policy_values": {
+    "before": {
+      "observed_at_utc": "2026-10-19T04:38:33.952614+00:00",
+      "profile": "balanced",
+      "holds": "",
+      "firmware": "balanced",
+      "cpu_epp": "balance_performance"
+    },
+    "during": {
+      "observed_at_utc": "2026-10-19T04:38:34.127952+00:00",
+      "profile": "balanced",
+      "holds": "",
+      "firmware": "balanced",
+      "cpu_epp": "balance_performance"
+    },
+    "before_restore": {
+      "observed_at_utc": "2026-10-19T05:38:36.450942+00:00",
+      "profile": "balanced",
+      "holds": "",
+      "firmware": "balanced",
+      "cpu_epp": "balance_performance"
+    },
+    "after": {
+      "observed_at_utc": "2026-10-19T05:38:36.634960+00:00",
+      "profile": "balanced",
+      "holds": "",
+      "firmware": "balanced",
+      "cpu_epp": "balance_performance"
+    }
+  },
+  "execution_provenance": {
+    "adapter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_60minute_launch.py",
+    "adapter_sha256": "3406ca6308e8e43924b3935a6da2e8c6d09db8c2d02b0a2b4e7e173cb18ffd14",
+    "frozen_loaded_adapter_sha256": "883d537f8f2fe91dc2e5fc5a735ca20067a007cbe8e308e9f1673825bf39e684",
+    "frozen_observed_launcher_sha256": "511bb712d2f7af01abb1ab25ca92b001c6f82af4ee6f42547a5b43fa32b237d6",
+    "rendered_launcher_sha256": "b0d4076224a2ee4a8d758704bcc3e40d6072fecbaa510c99baa115c3bcedc606",
+    "nested_helpers": {
+      "window_guard_source": {
+        "selected_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_loaded_window_guard.py",
+        "selected_sha256": "cd064312e996672fed81e570f2acc0c8efd40e0fa76520cb0b3566da560f18b1",
+        "original_path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/window_guard.py",
+        "original_sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+      },
+      "observer_source": {
+        "selected_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_loaded_observer.py",
+        "selected_sha256": "a21b21408ecb1a1108d310eee5ebcbad0187c4894fa308b55c495be4f16a9664",
+        "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+        "original_sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394"
+      }
+    },
+    "scope": "Duration/promoted-proof adaptation of reviewed600s lifecycle; nested helper bytes unchanged. 4350s fixed total budget, no handled-signal cleanup or policy semantics changed."
+  },
+  "limitations": [
+    "Closed metadata only; no model, executable, PCM or live host state was read.",
+    "All source-map/build identities were checked against retained before/after pins, not rehashed from mutable current source paths.",
+    "Admission binds promoted build/reproduction to exact own-arm B proof. This soak does not retain fresh per-request native PCM hashes or shader-selection stderr.",
+    "Cancellation identities and parity are logical worker observations, not GPU submission/preemption proof.",
+    "Independent silent audio and software UI notifications do not demonstrate actual stem playback, physical latency or musical acceptance.",
+    "Policy values may change automatically under the same thermal guard; runner mutation remains forbidden.",
+    "Detailed independent percentile/phase/control-duration/audio/UI/thermal reductions are separate."
+  ],
+  "check_count": 66,
+  "auditor_sha256": "651b775781e640a3f3abc943f0f34b06b7f3dbbb312468fffcda95b05698da57"
+}

@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "checks": [
+    "constant bias hand result",
+    "exact zero error JSON representation",
+    "known seven-sample delay sign",
+    "known seven-sample advance sign",
+    "zero-energy lag undefined",
+    "stereo step jump and local derivative hand result"
+  ],
+  "analysis_source_sha256": "e4a7ac42439bac9c6a0a985cea6a4bf36e77f86d7cb53648ff63765de021b582",
+  "numpy_version": "2.5.4",
+  "scope": "Small deterministic scalar/signal hand checks; no music inference, encoding or subjective quality claim"
+}

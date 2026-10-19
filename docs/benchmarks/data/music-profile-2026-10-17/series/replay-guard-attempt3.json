@@ -1,0 +1,28 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "benchmarks-local/music-profile-2026-10-17/interleaved_replay.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--output",
+    "benchmarks-local/music-profile-2026-10-17/abba-48-attempt3"
+  ],
+  "started_at_utc": "2026-10-17T21:14:54.744608+00:00",
+  "status": "ok",
+  "ready": false,
+  "errors": [],
+  "idle_only": true,
+  "window_guard": {
+    "requested": false,
+    "status": "not_run"
+  },
+  "idle_inhibit_cookie": 9827,
+  "bus_owner": ":1.49497",
+  "idle_inhibit_released": true,
+  "child_returncode": 0,
+  "returncode": 0,
+  "finished_at_utc": "2026-10-17T21:19:04.518060+00:00"
+}

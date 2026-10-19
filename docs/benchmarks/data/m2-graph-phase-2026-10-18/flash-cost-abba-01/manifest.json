@@ -1,0 +1,898 @@
+{
+  "schema": 1,
+  "status": "closed_metadata_archive",
+  "files": [
+    {
+      "archive": "flash-cost-expected-pins.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-expected-pins.json",
+      "original": {
+        "bytes": 1722,
+        "sha256": "4eda9d4a6f1023fb11ef8ef2005ff78e90ab952145c7b03c8f4a812c3e5776e2"
+      },
+      "archived": {
+        "bytes": 1722,
+        "sha256": "4eda9d4a6f1023fb11ef8ef2005ff78e90ab952145c7b03c8f4a812c3e5776e2"
+      }
+    },
+    {
+      "archive": "flash-cost-expected-pins.template.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-expected-pins.template.json",
+      "original": {
+        "bytes": 1491,
+        "sha256": "3c3ac97e5e3096c978030a5fcb005939171bf5bd71cfdab452f6239a32d46015"
+      },
+      "archived": {
+        "bytes": 1491,
+        "sha256": "3c3ac97e5e3096c978030a5fcb005939171bf5bd71cfdab452f6239a32d46015"
+      }
+    },
+    {
+      "archive": "flash-cost-source-pins.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-source-pins.json",
+      "original": {
+        "bytes": 9973,
+        "sha256": "d816e77b49ff5888d7c263bd399345424a2d95704ba8688f628e348acd51c534"
+      },
+      "archived": {
+        "bytes": 9973,
+        "sha256": "d816e77b49ff5888d7c263bd399345424a2d95704ba8688f628e348acd51c534"
+      }
+    },
+    {
+      "archive": "flash-cost-human-readiness.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-human-readiness.json",
+      "original": {
+        "bytes": 530,
+        "sha256": "994ebbef10011c73b28f831d473bc90ce934a655c8f058906cf05079ea935297"
+      },
+      "archived": {
+        "bytes": 530,
+        "sha256": "994ebbef10011c73b28f831d473bc90ce934a655c8f058906cf05079ea935297"
+      }
+    },
+    {
+      "archive": "flash-cost-human-readiness.template.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-human-readiness.template.json",
+      "original": {
+        "bytes": 478,
+        "sha256": "f576a61e201dd2b31761d8f225ad93d75c1316b8a60d5a3a8b472eb4b1ac1a6d"
+      },
+      "archived": {
+        "bytes": 478,
+        "sha256": "f576a61e201dd2b31761d8f225ad93d75c1316b8a60d5a3a8b472eb4b1ac1a6d"
+      }
+    },
+    {
+      "archive": "flash-cost-preparation-verification.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-preparation-verification.json",
+      "original": {
+        "bytes": 2515,
+        "sha256": "da9304a18665f7937cee41926554b72eb2012eccf54933009c568195df417847"
+      },
+      "archived": {
+        "bytes": 2515,
+        "sha256": "da9304a18665f7937cee41926554b72eb2012eccf54933009c568195df417847"
+      }
+    },
+    {
+      "archive": "flash-cost-offline-check-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-offline-check-result.json",
+      "original": {
+        "bytes": 1794,
+        "sha256": "28927a4ee6559495b9275c698594286fbcd75a00efc9ec618389aad76397147f"
+      },
+      "archived": {
+        "bytes": 1794,
+        "sha256": "28927a4ee6559495b9275c698594286fbcd75a00efc9ec618389aad76397147f"
+      }
+    },
+    {
+      "archive": "flash-cost-readiness-offline-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-readiness-offline-result.json",
+      "original": {
+        "bytes": 646,
+        "sha256": "a05165df277ba3a1b3c8230ed5862181e3cce41a6ffdb36dc0ac5fcd295e11e3"
+      },
+      "archived": {
+        "bytes": 646,
+        "sha256": "a05165df277ba3a1b3c8230ed5862181e3cce41a6ffdb36dc0ac5fcd295e11e3"
+      }
+    },
+    {
+      "archive": "flash-cost-abba-laptop-01-independent-audit.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01-independent-audit.json",
+      "original": {
+        "bytes": 14117,
+        "sha256": "460611d643e0f5abdf0518cbf077a7f4d4e413d1de799c99d9ab87f506d1274f"
+      },
+      "archived": {
+        "bytes": 14117,
+        "sha256": "460611d643e0f5abdf0518cbf077a7f4d4e413d1de799c99d9ab87f506d1274f"
+      }
+    },
+    {
+      "archive": "flash-cost-abba-laptop-01-independent-timing-analysis.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01-independent-timing-analysis.json",
+      "original": {
+        "bytes": 74393,
+        "sha256": "a41016ef3f0f3224cb0dedf935f91637a51a59f5c9af957cf7949dddbd6b019d"
+      },
+      "archived": {
+        "bytes": 74393,
+        "sha256": "a41016ef3f0f3224cb0dedf935f91637a51a59f5c9af957cf7949dddbd6b019d"
+      }
+    },
+    {
+      "archive": "flash-cost-abba-laptop-01-gitleaks.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01-gitleaks.log",
+      "original": {
+        "bytes": 145,
+        "sha256": "733015447bfaa7249aa5b9c471058e5efe935821a1faffafb5a1dd9fca002d98"
+      },
+      "archived": {
+        "bytes": 145,
+        "sha256": "733015447bfaa7249aa5b9c471058e5efe935821a1faffafb5a1dd9fca002d98"
+      }
+    },
+    {
+      "archive": "flash_cost_runtime.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_runtime.py",
+      "original": {
+        "bytes": 13623,
+        "sha256": "ca0ad3468d20c2ae28d06476b995f50d49823c64ed6c57106aea059bf65baf71"
+      },
+      "archived": {
+        "bytes": 13623,
+        "sha256": "ca0ad3468d20c2ae28d06476b995f50d49823c64ed6c57106aea059bf65baf71"
+      }
+    },
+    {
+      "archive": "flash_cost_launch.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_launch.py",
+      "original": {
+        "bytes": 7150,
+        "sha256": "b00ed06fe1fb28965c2d6272f35040899b407e4a693eef71256392671ccefd98"
+      },
+      "archived": {
+        "bytes": 7150,
+        "sha256": "b00ed06fe1fb28965c2d6272f35040899b407e4a693eef71256392671ccefd98"
+      }
+    },
+    {
+      "archive": "flash_cost_offline_check.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_cost_offline_check.py",
+      "original": {
+        "bytes": 10535,
+        "sha256": "48cec456838b204769b7857f1a071a9ea495f40709963a583c8c101d41bfd9dc"
+      },
+      "archived": {
+        "bytes": 10535,
+        "sha256": "48cec456838b204769b7857f1a071a9ea495f40709963a583c8c101d41bfd9dc"
+      }
+    },
+    {
+      "archive": "analyze_flash_cost_abba.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/analyze_flash_cost_abba.py",
+      "original": {
+        "bytes": 13246,
+        "sha256": "0302b963b169c99b225449dcb105db4e1708b3ce0ec1f185ccb7c58352dc640c"
+      },
+      "archived": {
+        "bytes": 13246,
+        "sha256": "0302b963b169c99b225449dcb105db4e1708b3ce0ec1f185ccb7c58352dc640c"
+      }
+    },
+    {
+      "archive": "archive_flash_cost_abba.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/archive_flash_cost_abba.py",
+      "original": {
+        "bytes": 11957,
+        "sha256": "8da7218775ec85e790a57b871a71592cbdb55f4566c2e722c77c2c1d5b04981c"
+      },
+      "archived": {
+        "bytes": 11957,
+        "sha256": "8da7218775ec85e790a57b871a71592cbdb55f4566c2e722c77c2c1d5b04981c"
+      }
+    },
+    {
+      "archive": "counterbalanced_runtime.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced_runtime.py",
+      "original": {
+        "bytes": 18784,
+        "sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3"
+      },
+      "archived": {
+        "bytes": 18784,
+        "sha256": "f905f12613344dd0c0c68265a0937621910538099cf51bf9d1bf98a80e458fd3"
+      }
+    },
+    {
+      "archive": "counterbalanced_launch.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/counterbalanced_launch.py",
+      "original": {
+        "bytes": 20005,
+        "sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf"
+      },
+      "archived": {
+        "bytes": 20005,
+        "sha256": "f9c53b640d3dc0c992bbbd14e389baf5230b1c9a0a9ff8491f125e3d672e26bf"
+      }
+    },
+    {
+      "archive": "compare_runtime.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/compare_runtime.py",
+      "original": {
+        "bytes": 25672,
+        "sha256": "5022aeed8eaf932adead05404f80b94c7d992f4b6f68dc81d05edb6126077e5b"
+      },
+      "archived": {
+        "bytes": 25672,
+        "sha256": "5022aeed8eaf932adead05404f80b94c7d992f4b6f68dc81d05edb6126077e5b"
+      }
+    },
+    {
+      "archive": "graph_order_compare.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/graph_order_compare.py",
+      "original": {
+        "bytes": 8019,
+        "sha256": "28d2712ba427d0f480ad63f8ff3128f0d3999010e7ecf225185c41734861a3e7"
+      },
+      "archived": {
+        "bytes": 8019,
+        "sha256": "28d2712ba427d0f480ad63f8ff3128f0d3999010e7ecf225185c41734861a3e7"
+      }
+    },
+    {
+      "archive": "graph_order_compare_launch.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/graph_order_compare_launch.py",
+      "original": {
+        "bytes": 21324,
+        "sha256": "f3a7073e0774f62597d24e5b9e6e49a594f13c0e6429a339947b467cd5a6a6b4"
+      },
+      "archived": {
+        "bytes": 21324,
+        "sha256": "f3a7073e0774f62597d24e5b9e6e49a594f13c0e6429a339947b467cd5a6a6b4"
+      }
+    },
+    {
+      "archive": "observed_launch.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/observed_launch.py",
+      "original": {
+        "bytes": 24548,
+        "sha256": "511bb712d2f7af01abb1ab25ca92b001c6f82af4ee6f42547a5b43fa32b237d6"
+      },
+      "archived": {
+        "bytes": 24548,
+        "sha256": "511bb712d2f7af01abb1ab25ca92b001c6f82af4ee6f42547a5b43fa32b237d6"
+      }
+    },
+    {
+      "archive": "flash-cost-render-01/runtime.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-render-01/runtime.py",
+      "original": {
+        "bytes": 19263,
+        "sha256": "b389c49c834b1a70d2d28b6c847bdaab0623bdbfedcf470e1b8c10c8a615e927"
+      },
+      "archived": {
+        "bytes": 19263,
+        "sha256": "b389c49c834b1a70d2d28b6c847bdaab0623bdbfedcf470e1b8c10c8a615e927"
+      }
+    },
+    {
+      "archive": "flash-cost-render-01/request-loop.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-render-01/request-loop.py",
+      "original": {
+        "bytes": 5600,
+        "sha256": "f1b01f1f55fd41aaef2f562372605ff2dde3bdd1930a268eca79f96b8150142e"
+      },
+      "archived": {
+        "bytes": 5600,
+        "sha256": "f1b01f1f55fd41aaef2f562372605ff2dde3bdd1930a268eca79f96b8150142e"
+      }
+    },
+    {
+      "archive": "flash-cost-render-01/launcher.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-render-01/launcher.py",
+      "original": {
+        "bytes": 20754,
+        "sha256": "a92e8f39d4780fdfd1784271b22b1bca7a1b3fd47a8f335ecfe68a370f7d0063"
+      },
+      "archived": {
+        "bytes": 20754,
+        "sha256": "a92e8f39d4780fdfd1784271b22b1bca7a1b3fd47a8f335ecfe68a370f7d0063"
+      }
+    },
+    {
+      "archive": "flash-cost-render-01/provenance.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-render-01/provenance.json",
+      "original": {
+        "bytes": 1032,
+        "sha256": "da638799ee1411afb992917cfa1532903bf24ad70c91c53c352b1c18e20b892b"
+      },
+      "archived": {
+        "bytes": 1032,
+        "sha256": "da638799ee1411afb992917cfa1532903bf24ad70c91c53c352b1c18e20b892b"
+      }
+    },
+    {
+      "archive": "run/session.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/session.json",
+      "original": {
+        "bytes": 38849,
+        "sha256": "78023a5a89ed6b28b15b4ccadf7309686cee8568c5a838bcc22a4182577acff6"
+      },
+      "archived": {
+        "bytes": 38849,
+        "sha256": "78023a5a89ed6b28b15b4ccadf7309686cee8568c5a838bcc22a4182577acff6"
+      }
+    },
+    {
+      "archive": "run/AC-lid-monitor.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/AC-lid-monitor.jsonl",
+      "original": {
+        "bytes": 8787,
+        "sha256": "d1b2e49afffe5eb2639138047ca03eb4f6e18da4dd4e5d52a088bff0f12eb78b"
+      },
+      "archived": {
+        "bytes": 1198,
+        "sha256": "6371b6cd425b2e97e49fd29544bcc9be96a38750b1d6207f523b447287f663a9"
+      }
+    },
+    {
+      "archive": "run/A1.stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1.stdout",
+      "original": {
+        "bytes": 168,
+        "sha256": "baeeb21e5f31fbae0db43aac34df49576f00d229eb47a3ae3a106dfd9603ea1b"
+      },
+      "archived": {
+        "bytes": 168,
+        "sha256": "baeeb21e5f31fbae0db43aac34df49576f00d229eb47a3ae3a106dfd9603ea1b"
+      }
+    },
+    {
+      "archive": "run/A1.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1.stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/A1/result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1/result.json",
+      "original": {
+        "bytes": 94201,
+        "sha256": "2c6225b0db82cc5c140fec3a7f037d2a492965725112b96d380e6afa5815f5b0"
+      },
+      "archived": {
+        "bytes": 94201,
+        "sha256": "2c6225b0db82cc5c140fec3a7f037d2a492965725112b96d380e6afa5815f5b0"
+      }
+    },
+    {
+      "archive": "run/A1/diagnostic.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1/diagnostic.stderr",
+      "original": {
+        "bytes": 227,
+        "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+      },
+      "archived": {
+        "bytes": 227,
+        "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+      }
+    },
+    {
+      "archive": "run/A1/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1/native-trace.jsonl",
+      "original": {
+        "bytes": 96719,
+        "sha256": "c06eeb54a445177449136c018ed35fb4e8316c82e7f3624ce172f6c951ae0689"
+      },
+      "archived": {
+        "bytes": 4965,
+        "sha256": "dddc4618e76416e55285114295895fd6cb6bfcc13b500883090d3272a315b472"
+      }
+    },
+    {
+      "archive": "run/A1-admission/stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1-admission/stdout",
+      "original": {
+        "bytes": 226,
+        "sha256": "d0afd377d00bb08ea7fe94fdb72083037298acc06c0a46aa0e84d8dbb83d8fc1"
+      },
+      "archived": {
+        "bytes": 226,
+        "sha256": "d0afd377d00bb08ea7fe94fdb72083037298acc06c0a46aa0e84d8dbb83d8fc1"
+      }
+    },
+    {
+      "archive": "run/A1-admission/stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1-admission/stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/A1-admission/admission-normal-ready.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1-admission/admission-normal-ready.json",
+      "original": {
+        "bytes": 20186,
+        "sha256": "6ffc6a4ae47936ff031d8f65cc2b7356b9850f581b5dada7adb7d9e2721e2b45"
+      },
+      "archived": {
+        "bytes": 20186,
+        "sha256": "6ffc6a4ae47936ff031d8f65cc2b7356b9850f581b5dada7adb7d9e2721e2b45"
+      }
+    },
+    {
+      "archive": "run/A1-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1-admission/admission-normal-ready.jsonl",
+      "original": {
+        "bytes": 15983,
+        "sha256": "d2c9d29b88b390aac85a764afd46995356e0c394ab979bb5afea2519334b0413"
+      },
+      "archived": {
+        "bytes": 1573,
+        "sha256": "ea4b9bdb8454206cf0b4662facd90c66ca0c7504d844520a820a8d296cd448bb"
+      }
+    },
+    {
+      "archive": "run/A1-admission/fresh-admission.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1-admission/fresh-admission.json",
+      "original": {
+        "bytes": 1802,
+        "sha256": "675fc762b11d4a1f705bec35006fc84addc36d98d60c058facea36ab84d1a1a2"
+      },
+      "archived": {
+        "bytes": 1802,
+        "sha256": "675fc762b11d4a1f705bec35006fc84addc36d98d60c058facea36ab84d1a1a2"
+      }
+    },
+    {
+      "archive": "run/B1.stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1.stdout",
+      "original": {
+        "bytes": 168,
+        "sha256": "1c2aecb7369f12bfcfc54e8dbcd0a4a41189cad0e5ba8a16f7ab6622305892d7"
+      },
+      "archived": {
+        "bytes": 168,
+        "sha256": "1c2aecb7369f12bfcfc54e8dbcd0a4a41189cad0e5ba8a16f7ab6622305892d7"
+      }
+    },
+    {
+      "archive": "run/B1.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1.stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/B1/result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1/result.json",
+      "original": {
+        "bytes": 95080,
+        "sha256": "946d64a1cb5b8ea54d7218fa6b1e28de92f08065125fa8fd760e2ec105222b5b"
+      },
+      "archived": {
+        "bytes": 95080,
+        "sha256": "946d64a1cb5b8ea54d7218fa6b1e28de92f08065125fa8fd760e2ec105222b5b"
+      }
+    },
+    {
+      "archive": "run/B1/diagnostic.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1/diagnostic.stderr",
+      "original": {
+        "bytes": 1808,
+        "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+      },
+      "archived": {
+        "bytes": 1808,
+        "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+      }
+    },
+    {
+      "archive": "run/B1/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1/native-trace.jsonl",
+      "original": {
+        "bytes": 96674,
+        "sha256": "306709cdf9ef14a7acbcdb007b01168e861b518375815be5c0295309efd5bea2"
+      },
+      "archived": {
+        "bytes": 4836,
+        "sha256": "1c97c954a016d51faa722cf2cbf826ac6d77341568040a54e964e3aa9a3ae684"
+      }
+    },
+    {
+      "archive": "run/B1-admission/stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1-admission/stdout",
+      "original": {
+        "bytes": 226,
+        "sha256": "d943b8e8646e476ebdaff312939210cce86c0960447fba21c9d5d88245edac5b"
+      },
+      "archived": {
+        "bytes": 226,
+        "sha256": "d943b8e8646e476ebdaff312939210cce86c0960447fba21c9d5d88245edac5b"
+      }
+    },
+    {
+      "archive": "run/B1-admission/stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1-admission/stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/B1-admission/admission-normal-ready.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1-admission/admission-normal-ready.json",
+      "original": {
+        "bytes": 25846,
+        "sha256": "ffa5cd231c7c599c5bb0e130d4e6d646ed8475778b73bc4e521a11e111e960eb"
+      },
+      "archived": {
+        "bytes": 25846,
+        "sha256": "ffa5cd231c7c599c5bb0e130d4e6d646ed8475778b73bc4e521a11e111e960eb"
+      }
+    },
+    {
+      "archive": "run/B1-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1-admission/admission-normal-ready.jsonl",
+      "original": {
+        "bytes": 20668,
+        "sha256": "aeb39cd386fb3d2ad7d02f8aaa86a8320aece30bf11a92608fa1a376512df9b0"
+      },
+      "archived": {
+        "bytes": 1902,
+        "sha256": "128a9b2ae6a5ab9b335cc623d70e5a40c341d0079edd7c89d0f6f47434a55ab7"
+      }
+    },
+    {
+      "archive": "run/B1-admission/fresh-admission.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1-admission/fresh-admission.json",
+      "original": {
+        "bytes": 1802,
+        "sha256": "39a6260c3c72b07807fe7dc0a56ec6b014ba9069088526a65aa158af5ffe516e"
+      },
+      "archived": {
+        "bytes": 1802,
+        "sha256": "39a6260c3c72b07807fe7dc0a56ec6b014ba9069088526a65aa158af5ffe516e"
+      }
+    },
+    {
+      "archive": "run/B2.stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2.stdout",
+      "original": {
+        "bytes": 168,
+        "sha256": "9945139b6c10e41da2f9e47670bb5e28544154be2a190cd2df80162cab10e38b"
+      },
+      "archived": {
+        "bytes": 168,
+        "sha256": "9945139b6c10e41da2f9e47670bb5e28544154be2a190cd2df80162cab10e38b"
+      }
+    },
+    {
+      "archive": "run/B2.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2.stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/B2/result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2/result.json",
+      "original": {
+        "bytes": 95090,
+        "sha256": "67adf098b65dd036c1dd5e05018c0db08effceab3922ef5a95eefd57f0933069"
+      },
+      "archived": {
+        "bytes": 95090,
+        "sha256": "67adf098b65dd036c1dd5e05018c0db08effceab3922ef5a95eefd57f0933069"
+      }
+    },
+    {
+      "archive": "run/B2/diagnostic.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2/diagnostic.stderr",
+      "original": {
+        "bytes": 1808,
+        "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+      },
+      "archived": {
+        "bytes": 1808,
+        "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+      }
+    },
+    {
+      "archive": "run/B2/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2/native-trace.jsonl",
+      "original": {
+        "bytes": 90168,
+        "sha256": "d8b70a1f76d0a7181a614c1b69f998bfe31f8100a441f81a1de473058d857e07"
+      },
+      "archived": {
+        "bytes": 4556,
+        "sha256": "d7356d71d053fb0ed467fe19dae6df457d8d75c8a8bab56249584c37a9419b36"
+      }
+    },
+    {
+      "archive": "run/B2-admission/stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2-admission/stdout",
+      "original": {
+        "bytes": 226,
+        "sha256": "42758c83059846a6bb8f3bc6ea7bb6046c04098177f5aa14a6b6eb290ac65821"
+      },
+      "archived": {
+        "bytes": 226,
+        "sha256": "42758c83059846a6bb8f3bc6ea7bb6046c04098177f5aa14a6b6eb290ac65821"
+      }
+    },
+    {
+      "archive": "run/B2-admission/stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2-admission/stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/B2-admission/admission-normal-ready.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2-admission/admission-normal-ready.json",
+      "original": {
+        "bytes": 9935,
+        "sha256": "746daa8e94ce8f737998eee40b5cdfc43179fb01b68fe4f98a726b23fe973ce8"
+      },
+      "archived": {
+        "bytes": 9935,
+        "sha256": "746daa8e94ce8f737998eee40b5cdfc43179fb01b68fe4f98a726b23fe973ce8"
+      }
+    },
+    {
+      "archive": "run/B2-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2-admission/admission-normal-ready.jsonl",
+      "original": {
+        "bytes": 7487,
+        "sha256": "1e979de78dfe1e5ea7d579230d212c53015ca4e924cbab9c0ae32ceed7e74144"
+      },
+      "archived": {
+        "bytes": 1030,
+        "sha256": "76234d18450e7b57d665eaf54c93304c2912900d7da6024ef51bd349067557e4"
+      }
+    },
+    {
+      "archive": "run/B2-admission/fresh-admission.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2-admission/fresh-admission.json",
+      "original": {
+        "bytes": 1802,
+        "sha256": "c9f820deaa0c4dd9d1c0c31e2e2e3213cca73357b7a164bc337392f4f792dc2f"
+      },
+      "archived": {
+        "bytes": 1802,
+        "sha256": "c9f820deaa0c4dd9d1c0c31e2e2e3213cca73357b7a164bc337392f4f792dc2f"
+      }
+    },
+    {
+      "archive": "run/A2.stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2.stdout",
+      "original": {
+        "bytes": 168,
+        "sha256": "e201ecf4edb8067fd799e12fed0fc9db04c2329cf164960706efb110da9a1b9a"
+      },
+      "archived": {
+        "bytes": 168,
+        "sha256": "e201ecf4edb8067fd799e12fed0fc9db04c2329cf164960706efb110da9a1b9a"
+      }
+    },
+    {
+      "archive": "run/A2.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2.stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/A2/result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2/result.json",
+      "original": {
+        "bytes": 94202,
+        "sha256": "5e2f72ab5cdd0ae42c43b6e448d6b0f7476dca0b570724e08a42fe598d3261fc"
+      },
+      "archived": {
+        "bytes": 94202,
+        "sha256": "5e2f72ab5cdd0ae42c43b6e448d6b0f7476dca0b570724e08a42fe598d3261fc"
+      }
+    },
+    {
+      "archive": "run/A2/diagnostic.stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2/diagnostic.stderr",
+      "original": {
+        "bytes": 227,
+        "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+      },
+      "archived": {
+        "bytes": 227,
+        "sha256": "1b8b16bb9220d9c1fb811d8fdf3ac5fc25fea674a45333e7e7889986b36bab90"
+      }
+    },
+    {
+      "archive": "run/A2/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2/native-trace.jsonl",
+      "original": {
+        "bytes": 109550,
+        "sha256": "97e99de0ecc559374900ca657242d6ab876dc6e0e81e2e6c197e92d8278be707"
+      },
+      "archived": {
+        "bytes": 5284,
+        "sha256": "2cb381a04a53e80e3b59a670b9cf6dff3aa585700dcf40db93119f260cb6317c"
+      }
+    },
+    {
+      "archive": "run/A2-admission/stdout",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2-admission/stdout",
+      "original": {
+        "bytes": 226,
+        "sha256": "0a77daf79faecc5b1b3e2663710de474760beeb86290ea17a79aa951c4f0b926"
+      },
+      "archived": {
+        "bytes": 226,
+        "sha256": "0a77daf79faecc5b1b3e2663710de474760beeb86290ea17a79aa951c4f0b926"
+      }
+    },
+    {
+      "archive": "run/A2-admission/stderr",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2-admission/stderr",
+      "original": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archived": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "archive": "run/A2-admission/admission-normal-ready.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2-admission/admission-normal-ready.json",
+      "original": {
+        "bytes": 28108,
+        "sha256": "74d08ef035bb4d2cb878be8bd4763ee51cf63acaea3ed76bea2430bcce51baf4"
+      },
+      "archived": {
+        "bytes": 28108,
+        "sha256": "74d08ef035bb4d2cb878be8bd4763ee51cf63acaea3ed76bea2430bcce51baf4"
+      }
+    },
+    {
+      "archive": "run/A2-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2-admission/admission-normal-ready.jsonl",
+      "original": {
+        "bytes": 22540,
+        "sha256": "70522fb873a2531de357fe603a5dd8c6b7210cd842222876970c60b41a28577f"
+      },
+      "archived": {
+        "bytes": 2009,
+        "sha256": "ac4cc6ae8ea7b736a71ac497fb1cfafc4eeef6018aad83e763f8865716ae5784"
+      }
+    },
+    {
+      "archive": "run/A2-admission/fresh-admission.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2-admission/fresh-admission.json",
+      "original": {
+        "bytes": 1801,
+        "sha256": "b20cb6b50762bee4a75cd61e8e1dcbf72287343617f9d3effdde59b0d2a65fad"
+      },
+      "archived": {
+        "bytes": 1801,
+        "sha256": "b20cb6b50762bee4a75cd61e8e1dcbf72287343617f9d3effdde59b0d2a65fad"
+      }
+    }
+  ],
+  "JSONL_transforms": [
+    {
+      "archive": "run/AC-lid-monitor.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/AC-lid-monitor.jsonl",
+      "bytes": 8787,
+      "sha256": "d1b2e49afffe5eb2639138047ca03eb4f6e18da4dd4e5d52a088bff0f12eb78b",
+      "rows": 33,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/A1/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1/native-trace.jsonl",
+      "bytes": 96719,
+      "sha256": "c06eeb54a445177449136c018ed35fb4e8316c82e7f3624ce172f6c951ae0689",
+      "rows": 15,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/A1-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A1-admission/admission-normal-ready.jsonl",
+      "bytes": 15983,
+      "sha256": "d2c9d29b88b390aac85a764afd46995356e0c394ab979bb5afea2519334b0413",
+      "rows": 17,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/B1/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1/native-trace.jsonl",
+      "bytes": 96674,
+      "sha256": "306709cdf9ef14a7acbcdb007b01168e861b518375815be5c0295309efd5bea2",
+      "rows": 15,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/B1-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B1-admission/admission-normal-ready.jsonl",
+      "bytes": 20668,
+      "sha256": "aeb39cd386fb3d2ad7d02f8aaa86a8320aece30bf11a92608fa1a376512df9b0",
+      "rows": 22,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/B2/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2/native-trace.jsonl",
+      "bytes": 90168,
+      "sha256": "d8b70a1f76d0a7181a614c1b69f998bfe31f8100a441f81a1de473058d857e07",
+      "rows": 14,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/B2-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/B2-admission/admission-normal-ready.jsonl",
+      "bytes": 7487,
+      "sha256": "1e979de78dfe1e5ea7d579230d212c53015ca4e924cbab9c0ae32ceed7e74144",
+      "rows": 8,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/A2/native-trace.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2/native-trace.jsonl",
+      "bytes": 109550,
+      "sha256": "97e99de0ecc559374900ca657242d6ab876dc6e0e81e2e6c197e92d8278be707",
+      "rows": 17,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    },
+    {
+      "archive": "run/A2-admission/admission-normal-ready.jsonl.gz",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-cost-abba-laptop-01/A2-admission/admission-normal-ready.jsonl",
+      "bytes": 22540,
+      "sha256": "70522fb873a2531de357fe603a5dd8c6b7210cd842222876970c60b41a28577f",
+      "rows": 24,
+      "method": "gzip level9, mtime0, empty filename; original bytes unchanged"
+    }
+  ],
+  "historical_receipt_scope": "Preparation receipts retain their original pending/non-executed status verbatim; the later session and audits establish completion.",
+  "exclusions": "No PCM, WAV, FLAC, model, binary or generated build tree. Original absolute paths remain evidence identifiers, not portable execution paths."
+}

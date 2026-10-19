@@ -1,0 +1,35 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+      Start  1: audio-render
+ 1/15 Test  #1: audio-render .....................   Passed    0.02 sec
+      Start  2: audio-cue
+ 2/15 Test  #2: audio-cue ........................   Passed    0.01 sec
+      Start  3: audio-source
+ 3/15 Test  #3: audio-source .....................   Passed    0.01 sec
+      Start  4: audio-preparation
+ 4/15 Test  #4: audio-preparation ................   Passed    0.51 sec
+      Start  5: audio-read-ahead
+ 5/15 Test  #5: audio-read-ahead .................   Passed    0.06 sec
+      Start  6: audio-recorder
+ 6/15 Test  #6: audio-recorder ...................   Passed    0.01 sec
+      Start  7: audio-file
+ 7/15 Test  #7: audio-file .......................   Passed    0.76 sec
+      Start  8: audio-transport
+ 8/15 Test  #8: audio-transport ..................   Passed    0.01 sec
+      Start  9: live-session
+ 9/15 Test  #9: live-session .....................   Passed    0.01 sec
+      Start 10: audio-probe-cli
+10/15 Test #10: audio-probe-cli ..................   Passed    0.56 sec
+      Start 11: probe-rejects-invalid-quantum
+11/15 Test #11: probe-rejects-invalid-quantum ....   Passed    0.01 sec
+      Start 12: stem-worker
+12/15 Test #12: stem-worker ......................   Passed    5.52 sec
+      Start 13: stem-soak
+13/15 Test #13: stem-soak ........................   Passed    4.36 sec
+      Start 14: deck-controller
+14/15 Test #14: deck-controller ..................   Passed    0.43 sec
+      Start 15: manual-ui
+15/15 Test #15: manual-ui ........................   Passed    8.68 sec
+
+100% tests passed out of 15
+
+Total Test time (real) =  20.98 sec

@@ -1,0 +1,63 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+      Start  1: audio-render
+ 1/29 Test  #1: audio-render .....................   Passed    0.02 sec
+      Start  2: audio-cue
+ 2/29 Test  #2: audio-cue ........................   Passed    0.01 sec
+      Start  3: audio-buses
+ 3/29 Test  #3: audio-buses ......................   Passed    0.01 sec
+      Start  4: audio-ramps
+ 4/29 Test  #4: audio-ramps ......................   Passed    0.01 sec
+      Start  5: audio-source-handoff
+ 5/29 Test  #5: audio-source-handoff .............   Passed    0.01 sec
+      Start  6: audio-routing
+ 6/29 Test  #6: audio-routing ....................   Passed    0.01 sec
+      Start  7: audio-metadata
+ 7/29 Test  #7: audio-metadata ...................   Passed    0.00 sec
+      Start  8: audio-timing
+ 8/29 Test  #8: audio-timing .....................   Passed    0.01 sec
+      Start  9: audio-source
+ 9/29 Test  #9: audio-source .....................   Passed    0.01 sec
+      Start 10: audio-stem-bank
+10/29 Test #10: audio-stem-bank ..................   Passed    0.01 sec
+      Start 11: audio-live-stem-buffer
+11/29 Test #11: audio-live-stem-buffer ...........   Passed    0.11 sec
+      Start 12: audio-prepared-playback
+12/29 Test #12: audio-prepared-playback ..........   Passed    0.12 sec
+      Start 13: audio-preparation
+13/29 Test #13: audio-preparation ................   Passed    0.79 sec
+      Start 14: audio-read-ahead
+14/29 Test #14: audio-read-ahead .................   Passed    0.07 sec
+      Start 15: audio-recorder
+15/29 Test #15: audio-recorder ...................   Passed    0.01 sec
+      Start 16: audio-recorder-tap
+16/29 Test #16: audio-recorder-tap ...............   Passed    0.08 sec
+      Start 17: audio-file
+17/29 Test #17: audio-file .......................   Passed    0.75 sec
+      Start 18: audio-transport
+18/29 Test #18: audio-transport ..................   Passed    0.01 sec
+      Start 19: live-session
+19/29 Test #19: live-session .....................   Passed    0.05 sec
+      Start 20: audio-probe-cli
+20/29 Test #20: audio-probe-cli ..................   Passed    0.62 sec
+      Start 21: probe-rejects-invalid-quantum
+21/29 Test #21: probe-rejects-invalid-quantum ....   Passed    0.01 sec
+      Start 22: stem-worker
+22/29 Test #22: stem-worker ......................   Passed    9.03 sec
+      Start 23: stem-export
+23/29 Test #23: stem-export ......................   Passed    2.66 sec
+      Start 24: stem-export-cli
+24/29 Test #24: stem-export-cli ..................   Passed    0.21 sec
+      Start 25: stem-soak
+25/29 Test #25: stem-soak ........................   Passed    1.54 sec
+      Start 26: library-catalog
+26/29 Test #26: library-catalog ..................   Passed    2.14 sec
+      Start 27: prepared-track-store
+27/29 Test #27: prepared-track-store .............   Passed    5.31 sec
+      Start 28: deck-controller
+28/29 Test #28: deck-controller ..................   Passed    3.04 sec
+      Start 29: manual-ui
+29/29 Test #29: manual-ui ........................   Passed   20.76 sec
+
+100% tests passed out of 29
+
+Total Test time (real) =  47.44 sec

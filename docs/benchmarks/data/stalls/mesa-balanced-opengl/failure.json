@@ -1,0 +1,20 @@
+{
+  "status": "error",
+  "error": "unexpected native stem result: {'message': 'could not write output segment', 'id': 127, 'event': 'error'}",
+  "continuous_throughput_complete": true,
+  "continuous_hops": 121,
+  "continuous_source_frames": 30970545,
+  "paced_delivery_complete": false,
+  "control_scenarios_run": false,
+  "reported_failure_context": "The 4 GiB /tmp filesystem filled; the native helper could not write request 127 output. Root verified owned fixture hashes and removed scratch inputs after the run.",
+  "scratch_cleanup_reference": "../scratch-cleanup.json",
+  "trace_integrity": {
+    "raw_lines": 2575,
+    "decoded_samples": 2575,
+    "parse_error_lines": [],
+    "ends_with_newline": true,
+    "reported_samples_written": 2575,
+    "reported_trace_write_errors": {}
+  },
+  "scope": "A valid 121-hop throughput measurement followed by a failed run; no completed paced test or controls should be inferred."
+}

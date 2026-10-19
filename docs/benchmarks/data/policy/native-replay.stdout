@@ -1,0 +1,18 @@
+{"observed_at_utc": "2026-10-16T22:28:20.655872+00:00", "profile": "balanced", "holds": "", "firmware": "balanced", "cpu_epp": "balance_performance"}
+{
+  "status": "ok",
+  "completed_requests": 120,
+  "replay_seconds": 244.39992049097782,
+  "round_trip_percentiles_ms": {
+    "50": 2019.674836017657,
+    "95": 2238.9511700021103,
+    "99": 2516.995267011225
+  },
+  "graph_percentiles_ms": {
+    "50": 1958.699396,
+    "95": 2168.721563,
+    "99": 2453.384577
+  },
+  "failures": []
+}
+{"restored_policy": {"observed_at_utc": "2026-10-16T22:32:26.841508+00:00", "profile": "power-saver", "holds": "", "firmware": "low-power", "cpu_epp": "power"}, "runner_returncode": 0}

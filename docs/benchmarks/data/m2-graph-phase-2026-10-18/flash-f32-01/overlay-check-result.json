@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "CMake configure only; no build/native or numerical proof",
+  "overlay_sha256": "a4951aadce8272b103e31a12c121c237ca8545b926690ebcc60708d979e7eb15",
+  "verifier_sha256": "0515b98edbeca43c96ab0adeaed76ac853bfedf5e7e5a71377e041edad3def2a",
+  "build_executed": false,
+  "native_executed": false,
+  "checks": [
+    {
+      "name": "positive_exact_sources_and_unchanged_header",
+      "passed": true
+    },
+    {
+      "name": "upstream-pipeline",
+      "passed": true
+    },
+    {
+      "name": "upstream-header",
+      "passed": true
+    },
+    {
+      "name": "upstream-vulkan",
+      "passed": true
+    },
+    {
+      "name": "public-interface",
+      "passed": true
+    },
+    {
+      "name": "shader",
+      "passed": true
+    },
+    {
+      "name": "generator",
+      "passed": true
+    },
+    {
+      "name": "generated-phase",
+      "passed": true
+    },
+    {
+      "name": "generated-blocking",
+      "passed": true
+    },
+    {
+      "name": "invalid_target_mapping",
+      "passed": true
+    },
+    {
+      "name": "repeat_include_rejected_first_outputs_unchanged",
+      "passed": true
+    }
+  ],
+  "input_sha256": {
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/src/models/demucs/pipeline.cpp": "0da057a313fcf868c9e4be2fb27bd42d802a3f9ddd53cf98f0b55d9f98a52673",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/include/engine/models/demucs/pipeline.h": "1717f09faf110d121e5de0a55786b8cf983b647016c57f2db5f865931d7eeb7f",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/include/ggml.h": "7177761cb4ad6b20e4699f6aa8814c4f7a9cdc6ce549355a97ca91e421b36716",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/include/ggml-backend.h": "0389a9d79c65a83567b49017866146228f3559d5971af61ae95d6071b7066f17",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/include/ggml-vulkan.h": "0b6f625021b047907d24b60b3ca441e8a97d44235f0d32abeb2665112c35418e",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/include/ggml-alloc.h": "ab9a5572847a98ec31ee57fe202f38216be01da3e63e36183d7d8b9f34756a0f",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/src/ggml-vulkan/ggml-vulkan.cpp": "e58a915da3620150a33cf8ac5cc4f454206d5c51221860e5fc9db91d7b590d1d",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/src/ggml-vulkan/vulkan-shaders/vulkan-shaders-gen.cpp": "a63b5c59d3973b153b78a2b49e33da84dd714f221564a0c901cc6c9be5024791",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/src/ggml-vulkan/vulkan-shaders/flash_attn.comp": "8185cd8b80c435545bbc0b06d7d2a1d2225640a2e8cf6564ec03994651e8c5fc",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/src/ggml-vulkan/vulkan-shaders/flash_attn_base.glsl": "8a47fdfb4ecb7070925b266674aad576cf5aa6743b25baca977017102f3d1c51",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/src/ggml-vulkan/vulkan-shaders/flash_attn_dequant.glsl": "0d368f5cff0c216259ded67bb1aa43be4a320e86a8782f53807017112bff4b92",
+    "/tmp/conflux-stem-m0/audio.cpp-0097d365a00b52a6991ad7618f0a04e8d2935e47/external/ggml/src/ggml-vulkan/vulkan-shaders/types.glsl": "a87a43cbca5db18230dd36cf9e230891f0af08519c85ba5e3d991e425e4278c5",
+    "/home/kyau/projects/kyaulabs/conflux/tools/runtime/GraphPhaseTiming.cmake": "91891a8a2dc01be4cb02a835d0c83f1b8b41a98da9059a36021c4a3b1e38d524",
+    "/home/kyau/projects/kyaulabs/conflux/tools/runtime/BlockingVulkanWait.cmake": "4ae34a1fee27c3fec3b5a4b9884a0c86fe7395acabf9d7c2006345e56384ddb3",
+    "/home/kyau/projects/kyaulabs/conflux/tools/runtime/htdemucs_segment.cpp": "a00c5c84bf57adeea7aa21eea992da4ee50d219fbc6994180de4dbf9fd03d7d9",
+    "/tmp/conflux-stem-phase-timing-2026-10-18/build/conflux-graph-phase-timing/pipeline.cpp": "f06814211f00eab41487caacefe1c2492dfe1d2a0ddd6da1f90bdbcc566fc8f9",
+    "/tmp/conflux-stem-phase-timing-2026-10-18/build/conflux-graph-phase-timing/include/engine/models/demucs/pipeline.h": "7f48bbd4964ebcce721f7544a84303c568b460bf21c24090899ccc8b983833cd",
+    "/tmp/conflux-stem-phase-timing-2026-10-18/build/conflux-vulkan/ggml-vulkan.cpp": "55629ce73c55ab1d1513408c6276d9a0de6adfaac1531922fdb256aba5be0209"
+  },
+  "generated_sha256": {
+    "pipeline.cpp": "de537c7b01fb1041d9195f4a93721cbec4aad9537efb1bcd4bf3b3bcc4a56e0c",
+    "ggml-vulkan.cpp": "e36ece6d9bd1219085c77e58e6f624da19c349fc1dd214469367d8824501f996"
+  },
+  "originals_unchanged": true,
+  "owned_workspace_removed": true,
+  "elapsed_seconds": 0.2312750670243986
+}

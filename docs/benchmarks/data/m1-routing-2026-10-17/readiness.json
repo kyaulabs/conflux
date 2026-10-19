@@ -1,0 +1,33 @@
+{
+  "power": [
+    {
+      "name": "AC",
+      "type": "Mains",
+      "online": "1"
+    },
+    {
+      "name": "BAT0",
+      "type": "Battery",
+      "status": "Not charging",
+      "capacity": "85"
+    },
+    {
+      "name": "ucsi-source-psy-USBC000:001",
+      "type": "USB",
+      "online": "0",
+      "status": "Not charging"
+    },
+    {
+      "name": "ucsi-source-psy-USBC000:002",
+      "type": "USB",
+      "online": "1",
+      "status": "Charging"
+    }
+  ],
+  "lids": {
+    "/proc/acpi/button/lid/LID/state": "state:      open"
+  },
+  "guard": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\nNRestarts=0\n",
+  "profile": "power-saver\n",
+  "scope": "Read-only readiness snapshot before planned native quiet validation; no profile changes."
+}

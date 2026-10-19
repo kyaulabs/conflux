@@ -1,0 +1,98 @@
+{
+  "scope": "Current observed-series pause state, common idle-guard lifecycle, orchestration source and already-completed CPU test evidence. Tests copied only, never rerun during final archival. Separate from per-run raw manifest; root maintains final top-level manifest.",
+  "archived_at_utc": "2026-10-17T01:57:53.702127+00:00",
+  "files": {
+    "pause-after-current.json": {
+      "bytes": 463,
+      "sha256": "fea8d894e801562452cfbc4b313112430841ec1c6a1b0df773a95e0052f328e9"
+    },
+    "pause-completed.json": {
+      "bytes": 723,
+      "sha256": "47140cbafbd327de9d7f208cc38a39905ad016114399d1245cbf8ceda9390ece"
+    },
+    "observed-ui-hour-pause.json": {
+      "bytes": 723,
+      "sha256": "47140cbafbd327de9d7f208cc38a39905ad016114399d1245cbf8ceda9390ece"
+    },
+    "observed-series-guard.json": {
+      "bytes": 510,
+      "sha256": "f9da8ec5ab4823cf2107bdd9e1962a02cb688305ac8b1712a459230fc1a26f83"
+    },
+    "observed-series-guard.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "observed-series-guard.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "observed-series-stop": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "observed-series-wait.json": {
+      "bytes": 264,
+      "sha256": "819d954d1bd54bc9837132f9b13206d04276b5967f5593b8d4e903478e6a885e"
+    },
+    "observed-suite.stdout": {
+      "bytes": 3366,
+      "sha256": "3a5b70a1d6e97f9aef11ab5531a3a6af68ae6a0e5fdbbe59ca09f790bf4994ba"
+    },
+    "observed-suite.stderr": {
+      "bytes": 231,
+      "sha256": "f77aaaf9acf01ff306ddb51a67ffecf3d2c39c38fb6c497a3512a4faac5c5126"
+    },
+    "observed-plan.json": {
+      "bytes": 3579,
+      "sha256": "04fd647b2bf46427b5b49b510417486cd2c91e5020debb6c7e18a434c6622196"
+    },
+    "observed_suite.py": {
+      "bytes": 4776,
+      "sha256": "4a9d263f4a4232e7dabb2d1ac48c715c55f85be1bf22143ac9389e9f88037cdf"
+    },
+    "observed_series_wait.py": {
+      "bytes": 946,
+      "sha256": "6932a106c46b03be8826ae1ceccb4d847b72258707c15f89f580d615dbd5db51"
+    },
+    "observed_launch.py": {
+      "bytes": 4349,
+      "sha256": "ae2a37830378f00a7c070bb1d075f042893179a61b31d9a31be48e33b7cdfb7a"
+    },
+    "observed-run.py": {
+      "bytes": 4720,
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394"
+    },
+    "observed-capture.py": {
+      "bytes": 2796,
+      "sha256": "5faa7945cb8271f85f90e50742b27e037b3114c4818e3196f4d354d0d9c9b890"
+    },
+    "normal_ready.py": {
+      "bytes": 8445,
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f"
+    },
+    "user-pause-control-check.py": {
+      "bytes": 3459,
+      "sha256": "2e6425a79e863d151d3b9258a71c4bf78b26430dd839dda01b2903b826458fba"
+    },
+    "user-pause-control-check.json": {
+      "bytes": 652,
+      "sha256": "91f843369163484ddd49345a6e7a3d24a63bafeb121b34482dd65f9cb9026dc3"
+    },
+    "observed-admission-check.py": {
+      "bytes": 1599,
+      "sha256": "319ae46950ac533daa8b6ee8372b7ef681c7428fda254dbe7a989e7c7038217c"
+    },
+    "observed-admission-check.json": {
+      "bytes": 291,
+      "sha256": "c7f813a0f60646c77bea04efcdb379abb32723324261a0716a881360e4550aca"
+    },
+    "observed-runner-check.py": {
+      "bytes": 6616,
+      "sha256": "982559dac6d7d35ddaf04637de1310e012d4b0ce71b8ed41409c53bc004bb6ee"
+    },
+    "observed-runner-check.json": {
+      "bytes": 1321,
+      "sha256": "31995a61d8afd1db5299949522fc22047eb916db0d881222a6188d5fa3cd488e"
+    }
+  }
+}

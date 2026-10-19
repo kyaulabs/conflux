@@ -1,0 +1,54 @@
+{
+  "schema": "conflux.stem-controls-ci-follow-up.v1",
+  "source": {
+    "tools/experiments/preparation_controller_check.cpp": {
+      "bytes": 48353,
+      "sha256": "30ae4568d4bfd15b421a1dcbe0ccb0afab107dc3b45a5d444899b9b3a146742b"
+    }
+  },
+  "failed_head": "2eac09d4d92f17943def62a914bad4dd154ef7f6",
+  "failed_push_run": 39219588298,
+  "passing_pr_run": 39219625775,
+  "observation": "One coverage runner observed downstream virtual sink zeros despite exact source clocks and zero source starvation/read errors. The same source passed the other runner. Cause is not established.",
+  "change": "Recording starts before expensive import, checks every steady prefix frame and settled post-routing tail at 1e-6. Functional-only reports downstream virtual sink counters without using them as a sample-quality gate; normal mode retains strict sink checks. All ownership, source-clock, cancellation, read-health and recording-integrity gates remain.",
+  "checks": {
+    "normal": 45,
+    "instrumented": 45
+  },
+  "normal_sink_gate": true,
+  "instrumented_sink_gate": false,
+  "normal_sink_wrong": 0,
+  "instrumented_sink_wrong": 0,
+  "independent_review": true,
+  "product_sources_changed": false,
+  "physical_or_live_qualification": false,
+  "raw_secret_scan_exit": 0,
+  "files": {
+    "failed-push-coverage.json": {
+      "bytes": 7670,
+      "sha256": "6c5644a44b2894dd16b94f6e1e61d9fe1cf1aaa9e57159f0486c953d2bcb2db2"
+    },
+    "failed-push-private.json": {
+      "bytes": 9392,
+      "sha256": "60a3d575ce74abee4090bbbb0bf857764564379097c74161f3b6baba7b978ae6"
+    },
+    "failed-push-log.txt.gz": {
+      "bytes": 3666,
+      "sha256": "f031d4b10b30f17ae6dc46795b41a62c04087da3a8ff2bdb7df39e8ac5ca247a"
+    },
+    "normal-private.json": {
+      "bytes": 11223,
+      "sha256": "4cd2c664bbd879e2696aabd7d089cc26a4bab1f053075608f34e3bcb56c6212d"
+    },
+    "instrumented-private.json": {
+      "bytes": 11248,
+      "sha256": "cafdb8d1fd150c11f4071dfd85c925f224f833f518b8787173ff969d9bcfb94b"
+    }
+  },
+  "uncompressed": {
+    "failed-push-log.txt.gz": {
+      "bytes": 28056,
+      "sha256": "d560a44e8ff2db42c77ca8b37db97661044ad81484917031408246ebec6c8364"
+    }
+  }
+}

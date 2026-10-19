@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scenarios": {
+    "guard-publication-SIGINT": {
+      "returncode": 130,
+      "spawns": 1,
+      "signals": [
+        2,
+        2,
+        9,
+        0
+      ],
+      "group_disappeared": true,
+      "idle_released": true,
+      "window_unloaded": null,
+      "errors": []
+    },
+    "observer-publication-SIGINT": {
+      "returncode": 130,
+      "signals": [
+        2,
+        9,
+        0
+      ],
+      "group_disappeared": true,
+      "policy_observations": 4,
+      "cleanup_error": null
+    },
+    "guard-publication-SIGTERM": {
+      "returncode": 130,
+      "spawns": 1,
+      "signals": [
+        2,
+        2,
+        9,
+        0
+      ],
+      "group_disappeared": true,
+      "idle_released": true,
+      "window_unloaded": null,
+      "errors": []
+    },
+    "observer-publication-SIGTERM": {
+      "returncode": 130,
+      "signals": [
+        2,
+        9,
+        0
+      ],
+      "group_disappeared": true,
+      "policy_observations": 4,
+      "cleanup_error": null
+    },
+    "guard-stop-before-child": {
+      "returncode": 1,
+      "spawns": 0,
+      "signals": [],
+      "group_disappeared": true,
+      "idle_released": true,
+      "window_unloaded": null,
+      "errors": [
+        "InterruptedError: Stop requested before observer launch"
+      ]
+    },
+    "guard-dead-leader-and-window-restore": {
+      "returncode": 0,
+      "spawns": 1,
+      "signals": [
+        2,
+        2,
+        9,
+        0
+      ],
+      "group_disappeared": true,
+      "idle_released": true,
+      "window_unloaded": true,
+      "errors": []
+    },
+    "guard-bounded-failure-still-restores-window-idle": {
+      "returncode": 1,
+      "spawns": 1,
+      "signals": [
+        2,
+        2,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "group_disappeared": false,
+      "idle_released": true,
+      "window_unloaded": true,
+      "errors": [
+        "child_cleanup: Owned guard child group remains after bounded cleanup"
+      ]
+    },
+    "observer-dead-leader": {
+      "returncode": 0,
+      "signals": [
+        2,
+        9,
+        0
+      ],
+      "group_disappeared": true,
+      "policy_observations": 4,
+      "cleanup_error": null
+    },
+    "observer-bounded-failure-still-observes-policy": {
+      "returncode": 1,
+      "signals": [
+        2,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "group_disappeared": false,
+      "policy_observations": 4,
+      "cleanup_error": "RuntimeError: Owned observer child group remains after bounded cleanup"
+    }
+  },
+  "scenario_count": 9,
+  "source_sha256": {
+    "flash_loaded_window_guard.py": "cd064312e996672fed81e570f2acc0c8efd40e0fa76520cb0b3566da560f18b1",
+    "flash_loaded_observer.py": "a21b21408ecb1a1108d310eee5ebcbad0187c4894fa308b55c495be4f16a9664"
+  },
+  "mock_script_sha256": "470d0cd7a9bf2d641bd87f9ad25224660fd6a56c8ca730903c0eb11c38ee09a2",
+  "scope": "Actual AST-extracted cleanup/publication code with fake signals, process groups, Popen, time, GLib and D-Bus. No native/host/policy/test workload.",
+  "limitations": [
+    "Handled SIGINT/TERM and owned-group behavior only; no arbitrary SIGKILL assurance.",
+    "Fake resistant groups intentionally test failure reporting; no actual process exists.",
+    "This is not UI restoration, hardware, latency or performance qualification."
+  ]
+}

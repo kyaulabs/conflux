@@ -1,0 +1,40 @@
+{
+  "captured_utc": "2026-10-16T22:35:32.804296+00:00",
+  "capture_context": "require_escalated laptop host command; separate postrun read-only snapshot, not a portable replay of live-state checks",
+  "runs": {
+    "native-smoke": {
+      "pid": 1530753,
+      "expected_start_ticks": 35104407,
+      "current_start_ticks": null,
+      "same_identity_alive": false
+    },
+    "native-replay": {
+      "pid": 1531217,
+      "expected_start_ticks": 35107882,
+      "current_start_ticks": null,
+      "same_identity_alive": false
+    }
+  },
+  "policy": {
+    "profile": {
+      "command": [
+        "powerprofilesctl",
+        "get"
+      ],
+      "returncode": 0,
+      "stdout": "power-saver\n",
+      "stderr": ""
+    },
+    "holds": {
+      "command": [
+        "powerprofilesctl",
+        "list-holds"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "firmware": "low-power",
+    "cpu0_EPP": "power"
+  }
+}

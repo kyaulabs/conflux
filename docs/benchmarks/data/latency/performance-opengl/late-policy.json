@@ -1,0 +1,10 @@
+{
+  "observed_at_utc": "2026-10-16T16:43:30.556725+00:00",
+  "timestamp_monotonic": 291439.610683609,
+  "desktop_profile": "performance",
+  "holds": "Hold:\n  Profile:         performance\n  Application ID:  com.kyaulabs.conflux\n  Reason:          CONFLUX M0 stem benchmark",
+  "firmware_profile": "performance",
+  "cpu_energy_preference": "performance",
+  "gpu_actual_mhz": "400",
+  "package_millidegrees_C": "84000"
+}

@@ -1,0 +1,245 @@
+{
+  "schema": 1,
+  "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+  "private_routing_requested": true,
+  "private_routing_execution_deadline_gate": false,
+  "interpreter": "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+  "cpp_flags": "--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+  "measured_sources": {
+    "cpp": "src/** including main, probe and instrumented headers",
+    "python": "tools/stems/**"
+  },
+  "unmeasured_product_sources": {
+    "qml": [
+      "qml/DeckButton.qml",
+      "qml/DeckSurface.qml",
+      "qml/Harness.qml",
+      "qml/Main.qml",
+      "qml/MixerSurface.qml",
+      "qml/StereoMeter.qml",
+      "qml/SurfaceKnob.qml",
+      "brand/integration/qtquick/ConfluxTheme.qml"
+    ],
+    "native_stem_adapter": [
+      "tools/runtime/htdemucs_segment.cpp"
+    ]
+  },
+  "separate_support_scope": [
+    "tools/benchmarks/**",
+    "tools/experiments/**",
+    "tools/coverage/**",
+    "tests/**",
+    "brand/source/**"
+  ],
+  "line_target": {
+    "operator": ">",
+    "percent": 80,
+    "enforced_in_this_baseline": false,
+    "measured_status": "measurement_incomplete",
+    "whole_product_status": "unmeasured_sources_remain"
+  },
+  "tools": {
+    "coverage": "7.16.2",
+    "gcovr": "8.7",
+    "numpy": "1.26.4"
+  },
+  "cpp": {
+    "line": {
+      "covered": 4470,
+      "total": 5350,
+      "percent": 83.55140186915888,
+      "above_80_percent": true
+    },
+    "branch": {
+      "covered": 5917,
+      "total": 11636,
+      "percent": 50.85080783774493,
+      "above_80_percent": false
+    },
+    "missing_compiled_source_reports": []
+  },
+  "python": {
+    "line": {
+      "covered": 1245,
+      "total": 1364,
+      "percent": 91.27565982404693,
+      "above_80_percent": true
+    },
+    "branch": {
+      "covered": 430,
+      "total": 526,
+      "percent": 81.74904942965779,
+      "above_80_percent": true
+    }
+  },
+  "stages": {
+    "configure": {
+      "command": [
+        "cmake",
+        "-S",
+        "/home/runner/work/conflux/conflux",
+        "-B",
+        "/home/runner/work/conflux/conflux/build/coverage",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DBUILD_TESTING=ON",
+        "-DCMAKE_CXX_FLAGS=--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+        "-DCMAKE_EXE_LINKER_FLAGS=--coverage",
+        "-DCMAKE_SHARED_LINKER_FLAGS=--coverage",
+        "-DPython3_EXECUTABLE=/home/runner/work/conflux/conflux/build/coverage-venv/bin/python"
+      ],
+      "exit": 0,
+      "log": "configure.log",
+      "timed_out": false
+    },
+    "build": {
+      "command": [
+        "cmake",
+        "--build",
+        "/home/runner/work/conflux/conflux/build/coverage",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "log": "build.log",
+      "timed_out": false
+    },
+    "ctest": {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/home/runner/work/conflux/conflux/build/coverage",
+        "--output-on-failure",
+        "--timeout",
+        "120"
+      ],
+      "exit": 8,
+      "log": "ctest.log",
+      "timed_out": false
+    },
+    "smoke": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage/conflux",
+        "--smoke-test"
+      ],
+      "exit": 0,
+      "log": "smoke.log",
+      "timed_out": false
+    },
+    "private-routing": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "/home/runner/work/conflux/conflux/tools/experiments/private_routing_check.py",
+        "/home/runner/work/conflux/conflux/build/coverage/conflux-manual-routing-check",
+        "/tmp/conflux-coverage-private-routing-834zzyav/evidence",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "log": "private-routing.log",
+      "timed_out": false
+    },
+    "private-preparation": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-c",
+        "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+        "/home/runner/work/conflux/conflux/tools/experiments/private_routing_check.py",
+        "/home/runner/work/conflux/conflux/build/coverage/conflux-preparation-controller-check",
+        "/tmp/conflux-coverage-private-preparation-vedci3wx/evidence",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "log": "private-preparation.log",
+      "timed_out": false
+    },
+    "gcovr": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-m",
+        "gcovr",
+        "--root",
+        "/home/runner/work/conflux/conflux",
+        "--filter",
+        "/home/runner/work/conflux/conflux/src/",
+        "/home/runner/work/conflux/conflux/build/coverage",
+        "--json",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/cpp.json",
+        "--json-summary",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/cpp-summary.json",
+        "--html-details",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/cpp.html",
+        "--cobertura",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/cpp.xml",
+        "--print-summary"
+      ],
+      "exit": 0,
+      "log": "gcovr.log",
+      "timed_out": false
+    },
+    "python-combine": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-m",
+        "coverage",
+        "combine",
+        "--rcfile",
+        "/home/runner/work/conflux/conflux/build/coverage/python-coverage.ini",
+        "--keep",
+        "/home/runner/work/conflux/conflux/build/coverage/python-data"
+      ],
+      "exit": 0,
+      "log": "python-combine.log",
+      "timed_out": false
+    },
+    "python-json": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-m",
+        "coverage",
+        "json",
+        "--rcfile",
+        "/home/runner/work/conflux/conflux/build/coverage/python-coverage.ini",
+        "-o",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/python.json"
+      ],
+      "exit": 0,
+      "log": "python-json.log",
+      "timed_out": false
+    },
+    "python-html": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-m",
+        "coverage",
+        "html",
+        "--rcfile",
+        "/home/runner/work/conflux/conflux/build/coverage/python-coverage.ini",
+        "-d",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/python-html"
+      ],
+      "exit": 0,
+      "log": "python-html.log",
+      "timed_out": false
+    },
+    "python-xml": {
+      "command": [
+        "/home/runner/work/conflux/conflux/build/coverage-venv/bin/python",
+        "-m",
+        "coverage",
+        "xml",
+        "--rcfile",
+        "/home/runner/work/conflux/conflux/build/coverage/python-coverage.ini",
+        "-o",
+        "/home/runner/work/conflux/conflux/build/coverage/reports/python.xml"
+      ],
+      "exit": 0,
+      "log": "python-xml.log",
+      "timed_out": false
+    }
+  },
+  "errors": [],
+  "execution_passed": false
+}

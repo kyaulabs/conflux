@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "repository_head_from_completed_results": "da9575c5c66085570653d88108e4cbdc81a92de4",
+  "completed_runs": [
+    {
+      "label": "vulkan-33ms-15min",
+      "renderer": "vulkan",
+      "repaint_ms": 33,
+      "seconds": 900
+    },
+    {
+      "label": "software-33ms-15min",
+      "renderer": "software",
+      "repaint_ms": 33,
+      "seconds": 900
+    },
+    {
+      "label": "software-33ms-hour",
+      "renderer": "software",
+      "repaint_ms": 33,
+      "seconds": 3600
+    }
+  ],
+  "series_status": "completed",
+  "conditional_selection": {
+    "software_900s_continuous_p99_ms": 3782.4585890048184,
+    "comparison_threshold_ms": 4095,
+    "existing_checks_valid": true,
+    "scope": "Selection of the conditional hour only; not a new acceptance gate or proof that M0 passes",
+    "run_software_hour": true
+  },
+  "software_hour_completed": true,
+  "failed_attempt_labels": [],
+  "source_snapshots": {
+    "source-snapshots/tools/benchmarks/stem_soak.py": {
+      "sha256": "d5d0e5687f93e1597add7c8a28a96a6495dac04143fe578ea4f5a0a00b1d404f",
+      "pin_origins": [
+        "vulkan-33ms-15min/result:pins.soak_source",
+        "vulkan-33ms-15min/before:pins.tools/benchmarks/stem_soak.py",
+        "software-33ms-15min/result:pins.soak_source",
+        "software-33ms-15min/before:pins.tools/benchmarks/stem_soak.py",
+        "software-33ms-hour/result:pins.soak_source",
+        "software-33ms-hour/before:pins.tools/benchmarks/stem_soak.py",
+        "source-verification.json:source_pins.tools/benchmarks/stem_soak.py"
+      ]
+    },
+    "source-snapshots/tools/benchmarks/stem_worker.py": {
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7",
+      "pin_origins": [
+        "vulkan-33ms-15min/result:pins.shared_benchmark_source",
+        "vulkan-33ms-15min/before:pins.tools/benchmarks/stem_worker.py",
+        "software-33ms-15min/result:pins.shared_benchmark_source",
+        "software-33ms-15min/before:pins.tools/benchmarks/stem_worker.py",
+        "software-33ms-hour/result:pins.shared_benchmark_source",
+        "software-33ms-hour/before:pins.tools/benchmarks/stem_worker.py",
+        "source-verification.json:source_pins.tools/benchmarks/stem_worker.py"
+      ]
+    },
+    "source-snapshots/tools/stems/worker.py": {
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "pin_origins": [
+        "vulkan-33ms-15min/result:pins.worker_source",
+        "vulkan-33ms-15min/before:pins.tools/stems/worker.py",
+        "software-33ms-15min/result:pins.worker_source",
+        "software-33ms-15min/before:pins.tools/stems/worker.py",
+        "software-33ms-hour/result:pins.worker_source",
+        "software-33ms-hour/before:pins.tools/stems/worker.py"
+      ]
+    },
+    "source-snapshots/tools/benchmarks/worker_support.py": {
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "pin_origins": [
+        "vulkan-33ms-15min/result:pins.sampler_source",
+        "vulkan-33ms-15min/before:pins.tools/benchmarks/worker_support.py",
+        "software-33ms-15min/result:pins.sampler_source",
+        "software-33ms-15min/before:pins.tools/benchmarks/worker_support.py",
+        "software-33ms-hour/result:pins.sampler_source",
+        "software-33ms-hour/before:pins.tools/benchmarks/worker_support.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/software-ui-2026-10-17/observed_launch.py": {
+      "sha256": "98132cfc4664b64d234d251dfb4decf7d828d68d344c188e83998036522a225e",
+      "pin_origins": [
+        "vulkan-33ms-15min/launch:wrapper_pins.observed_launch.py",
+        "vulkan-33ms-15min/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed_launch.py",
+        "software-33ms-15min/launch:wrapper_pins.observed_launch.py",
+        "software-33ms-15min/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed_launch.py",
+        "software-33ms-hour/launch:wrapper_pins.observed_launch.py",
+        "software-33ms-hour/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed_launch.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/software-ui-2026-10-17/observed-run.py": {
+      "sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394",
+      "pin_origins": [
+        "vulkan-33ms-15min/launch:wrapper_pins.observed-run.py",
+        "vulkan-33ms-15min/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+        "software-33ms-15min/launch:wrapper_pins.observed-run.py",
+        "software-33ms-15min/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+        "software-33ms-hour/launch:wrapper_pins.observed-run.py",
+        "software-33ms-hour/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/software-ui-2026-10-17/normal_ready.py": {
+      "sha256": "4e94000d5966357c653a6ef64729f9b513df723ce0badb17e496d4b85c07135f",
+      "pin_origins": [
+        "vulkan-33ms-15min/launch:wrapper_pins.normal_ready.py",
+        "software-33ms-15min/launch:wrapper_pins.normal_ready.py",
+        "software-33ms-hour/launch:wrapper_pins.normal_ready.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/software-ui-2026-10-17/observed-capture.py": {
+      "sha256": "9b05572524c04e03a7bf006008cea772664f65b531f002d6cda15c7ee8c9ad8f",
+      "pin_origins": [
+        "vulkan-33ms-15min/launch:wrapper_pins.observed-capture.py",
+        "software-33ms-15min/launch:wrapper_pins.observed-capture.py",
+        "software-33ms-hour/launch:wrapper_pins.observed-capture.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/software-ui-2026-10-17/check_run.py": {
+      "sha256": "3eadff440e28bd83575476d049081e4d72d5448a4c99fdb0d5624aebb628ed6c",
+      "pin_origins": [
+        "vulkan-33ms-15min/launch:wrapper_pins.check_run.py",
+        "software-33ms-15min/launch:wrapper_pins.check_run.py",
+        "software-33ms-hour/launch:wrapper_pins.check_run.py"
+      ]
+    },
+    "source-snapshots/src/main.cpp": {
+      "sha256": "302847b129ecc31215e7f3ee9fa91708b64bdc1cdca320b98c6e78e6769e17eb",
+      "pin_origins": [
+        "vulkan-33ms-15min/before:pins.src/main.cpp",
+        "software-33ms-15min/before:pins.src/main.cpp",
+        "software-33ms-hour/before:pins.src/main.cpp"
+      ]
+    },
+    "source-snapshots/qml/Main.qml": {
+      "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb",
+      "pin_origins": [
+        "vulkan-33ms-15min/before:pins.qml/Main.qml",
+        "software-33ms-15min/before:pins.qml/Main.qml",
+        "software-33ms-hour/before:pins.qml/Main.qml"
+      ]
+    },
+    "source-snapshots/src/probe_main.cpp": {
+      "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+      "pin_origins": [
+        "vulkan-33ms-15min/before:pins.src/probe_main.cpp",
+        "software-33ms-15min/before:pins.src/probe_main.cpp",
+        "software-33ms-hour/before:pins.src/probe_main.cpp"
+      ]
+    },
+    "source-snapshots/tools/benchmarks/window_guard.py": {
+      "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "pin_origins": [
+        "vulkan-33ms-15min/before:pins.tools/benchmarks/window_guard.py",
+        "software-33ms-15min/before:pins.tools/benchmarks/window_guard.py",
+        "software-33ms-hour/before:pins.tools/benchmarks/window_guard.py"
+      ]
+    },
+    "source-snapshots/benchmarks-local/software-ui-2026-10-17/monitor.py": {
+      "sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "pin_origins": [
+        "vulkan-33ms-15min/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/monitor.py",
+        "software-33ms-15min/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/monitor.py",
+        "software-33ms-hour/before:pins./home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/monitor.py"
+      ]
+    },
+    "source-snapshots/tests/stem_worker_test.py": {
+      "sha256": "1da152a4f62ce3aadbe69a8750f74dcfd8ff165625981ffaf1283ba7d842c1b0",
+      "pin_origins": [
+        "source-verification.json:source_pins.tests/stem_worker_test.py"
+      ]
+    }
+  },
+  "intended_documentation_destination": "docs/benchmarks/data/software-ui-2026-10-17",
+  "selected_factor": "Vulkan versus software UI rendering at the same33ms QTimeLine update interval and unchanged UI/audio/native/model/worker identities. Both required comparisons use900seconds/control300. An optional software3600second hour is archived only when series-state records it completed; absence remains explicit.",
+  "selection_scope": "Software900second continuous p99<=4095ms and valid existing checks select the optional hour; this does not qualify M0 or create a new acceptance gate.",
+  "cadence_audit_dependency": {
+    "stored_path": "dependencies/prior-cadence-vulkan-hour/result.json",
+    "sha256": "131378a6cce9aefe69289618ceb654c2c6fe125348db6c8164f3bcb21792bc1b",
+    "replay_path": "benchmarks-local/cadence-2026-10-17/33ms-both-hour/result.json"
+  },
+  "replay": "replay_software.py restores exact packaged bytes in an isolated temporary repository layout, then runs only the packaged cadence/completed-run/thermal saved-evidence audits, plus native descriptive replay when present. It does not call producer, GPU, audio, policy or host tools.",
+  "scope": "File-only packaging after all workloads/guards complete; missed latency targets are preserved as measurements. Fixed order, thermal/policy/cache history and background load limit causal conclusions.",
+  "source_identity_scope": "Pinned snapshots match saved completed-run SHA256 metadata. Other helper copies preserve current bytes; they do not independently prove historical execution. Failed attempts remain separate and do not qualify as completed runs.",
+  "thermal_user_guidance": "Brief ultrabook heat spikes are acceptable; no sustained threshold is invented. Report sampled spans and gaps.",
+  "audio_user_guidance": "Assess available laptop callback/transport observations; no external interface or perfect timing is required. Silence does not measure stem playback or physical latency.",
+  "excluded": "Runtime/UI/audio binaries, models, generated WAV/F32 PCM, full journals, stop markers, bytecode and unrelated files.",
+  "optional_files_absent": [
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-analysis.json",
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-cooldown.json",
+    "benchmarks-local/software-ui-2026-10-17/vulkan-33ms-15min-cooldown.jsonl",
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-15min-analysis.json",
+    "benchmarks-local/software-ui-2026-10-17/software-33ms-hour-analysis.json"
+  ]
+}

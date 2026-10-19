@@ -1,0 +1,39 @@
+[
+  {
+    "stage": "service-ctest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "build/dev",
+      "--output-on-failure",
+      "--timeout",
+      "120"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 47.282285595021676
+  },
+  {
+    "stage": "service-smoke",
+    "command": [
+      "build/dev/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 2.022936332039535
+  },
+  {
+    "stage": "service-coverage",
+    "command": [
+      "benchmarks-local/coverage-venv/bin/python",
+      "tools/coverage/run.py",
+      "--private-routing",
+      "--jobs",
+      "2"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 199.1218658129801
+  }
+]

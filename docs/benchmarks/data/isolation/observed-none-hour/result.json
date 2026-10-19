@@ -1,0 +1,1146 @@
+{
+  "schema": 1,
+  "status": "ok",
+  "command": [
+    "/bin/python3",
+    "tools/benchmarks/stem_soak.py",
+    "--runtime",
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+    "--model",
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "--ui",
+    "build/dev/conflux",
+    "--audio-probe",
+    "build/dev/conflux-audio-probe",
+    "--load",
+    "none",
+    "--renderer",
+    "opengl",
+    "--seconds",
+    "3600",
+    "--control-interval",
+    "300",
+    "--request-timeout",
+    "30",
+    "--sample-interval",
+    "0.5",
+    "--output",
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-none-hour"
+  ],
+  "started_at_utc": "2026-10-17T04:35:21.867006+00:00",
+  "host": "Linux-7.2.10-hardened1-1-hardened-x86_64-with-glibc2.44",
+  "numpy_version": "2.5.4",
+  "renderer": "opengl",
+  "requested_seconds": 3600.0,
+  "load_mode": "none",
+  "selected_loads": [],
+  "control_interval_seconds": 300.0,
+  "sample_interval_seconds": 0.5,
+  "load_seconds_fallback": 3720,
+  "window_frames": 343980,
+  "hop_frames": 257985,
+  "overlap_frames": 85995,
+  "conditions_at_start": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "4003111",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 40050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 41000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 68000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 41050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 43050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 37000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 42050
+    }
+  },
+  "pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "soak_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_soak.py",
+      "bytes": 44307,
+      "sha256": "52605983fdd2416caf63477bc9314096a0daa4f251e798c92928be19e5fea8b8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 22802,
+      "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    }
+  },
+  "ui_progress_file": null,
+  "repository_head": "aec8501bf0db4487d3a851b5106372574b191942",
+  "fixture": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-none-hour/source.wav",
+    "sha256": "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+    "frames": 2076225,
+    "seconds": 47.07993197278912,
+    "sample_rate": 44100,
+    "channels": 2,
+    "sample_bytes": 2,
+    "seed": 0,
+    "generator": "conflux-m0-worker-fixture-v1",
+    "numpy_version": "2.5.4",
+    "unquantized_peak_absolute": 0.5205581388398524,
+    "annotations": {
+      "tempo_map": [
+        {
+          "frame": 0,
+          "bpm": 120
+        },
+        {
+          "frame": 1038112,
+          "bpm": 138
+        }
+      ],
+      "transient_frames": [
+        5512,
+        314212,
+        622912,
+        931612,
+        1240312,
+        1549012,
+        1857712
+      ],
+      "melody_change_interval_frames": 88200,
+      "description": "Synthetic bass, kick, noise hats, changing tones and asymmetric clicks.",
+      "quality_corpus": false
+    }
+  },
+  "load_started_monotonic": 330849.546741953,
+  "worker_statistics_before_shutdown": {
+    "generation": 207,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 0,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": {
+      "generation": 207,
+      "request_id": 1726,
+      "window_start_frame": 1805895
+    },
+    "discarded_count": 11,
+    "cancel_count": 11,
+    "backend_start_count": 1,
+    "backend_pid": 1656896,
+    "closed": false
+  },
+  "worker_shutdown_ms": 160.11342901038006,
+  "worker_statistics": {
+    "generation": 207,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 1,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 11,
+    "cancel_count": 11,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "native_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 3600.705185594037,
+    "samples": 7066,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1656896,
+        "start_ticks": 37310005,
+        "samples": 7066,
+        "max_process_status_kB": {
+          "VmHWM": 281048,
+          "VmRSS": 281048,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {
+          "0000:00:02.0/client-902": {
+            "drm-driver": "i915",
+            "drm-client-id": "902",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": "0",
+            "drm-shared-system0": "0",
+            "drm-active-system0": "0",
+            "drm-resident-system0": "0",
+            "drm-purgeable-system0": "0",
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          },
+          "0000:00:02.0/client-903": {
+            "drm-driver": "i915",
+            "drm-client-id": "903",
+            "drm-pdev": "0000:00:02.0",
+            "drm-total-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-shared-system0": "0",
+            "drm-active-system0": {
+              "observations": [
+                "0",
+                {
+                  "value": 534584,
+                  "unit": "KiB"
+                }
+              ]
+            },
+            "drm-resident-system0": {
+              "value": 535780,
+              "unit": "KiB"
+            },
+            "drm-purgeable-system0": {
+              "value": 1132,
+              "unit": "KiB"
+            },
+            "drm-total-stolen-system0": "0",
+            "drm-shared-stolen-system0": "0",
+            "drm-active-stolen-system0": "0",
+            "drm-resident-stolen-system0": "0",
+            "drm-purgeable-stolen-system0": "0",
+            "drm-engine-render": {
+              "value": 3248396205340,
+              "unit": "ns"
+            },
+            "drm-engine-copy": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-video": {
+              "value": 0,
+              "unit": "ns"
+            },
+            "drm-engine-capacity-video": "2",
+            "drm-engine-video-enhance": {
+              "value": 0,
+              "unit": "ns"
+            }
+          }
+        },
+        "max_simultaneous_drm_clients": 2,
+        "fd_read_errors": 1,
+        "first_elapsed_seconds": 0.5063314909930341,
+        "last_elapsed_seconds": 3600.6935151490034,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 558,
+          "status.nonvoluntary_ctxt_switches": 8,
+          "stat.minflt": 63585,
+          "stat.majflt": 15
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 27224,
+          "status.nonvoluntary_ctxt_switches": 8880,
+          "stat.minflt": 123206,
+          "stat.majflt": 15
+        },
+        "observed_cpu_seconds": 250.23
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ],
+    "trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/observed-none-hour/native-trace.jsonl",
+      "samples_written": 7066,
+      "errors": {},
+      "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+      "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+      "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+    },
+    "system_sampling": {
+      "fields": {
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+        "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "string",
+        "/sys/firmware/acpi/platform_profile": "string",
+        "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+        "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+        "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_status": "string",
+        "/sys/class/drm/card1/device/power/runtime_active_time": "milliseconds",
+        "/sys/class/drm/card1/device/power/runtime_suspended_time": "milliseconds",
+        "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+        "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+        "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+        "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+        "/proc/pressure/cpu:some.avg10": "percent",
+        "/proc/pressure/cpu:some.avg60": "percent",
+        "/proc/pressure/cpu:some.avg300": "percent",
+        "/proc/pressure/cpu:some.total": "microseconds",
+        "/proc/pressure/cpu:full.avg10": "percent",
+        "/proc/pressure/cpu:full.avg60": "percent",
+        "/proc/pressure/cpu:full.avg300": "percent",
+        "/proc/pressure/cpu:full.total": "microseconds",
+        "/proc/pressure/memory:some.avg10": "percent",
+        "/proc/pressure/memory:some.avg60": "percent",
+        "/proc/pressure/memory:some.avg300": "percent",
+        "/proc/pressure/memory:some.total": "microseconds",
+        "/proc/pressure/memory:full.avg10": "percent",
+        "/proc/pressure/memory:full.avg60": "percent",
+        "/proc/pressure/memory:full.avg300": "percent",
+        "/proc/pressure/memory:full.total": "microseconds",
+        "/proc/pressure/io:some.avg10": "percent",
+        "/proc/pressure/io:some.avg60": "percent",
+        "/proc/pressure/io:some.avg300": "percent",
+        "/proc/pressure/io:some.total": "microseconds",
+        "/proc/pressure/io:full.avg10": "percent",
+        "/proc/pressure/io:full.avg60": "percent",
+        "/proc/pressure/io:full.avg300": "percent",
+        "/proc/pressure/io:full.total": "microseconds",
+        "/proc/meminfo:MemTotal": "kB",
+        "/proc/meminfo:MemAvailable": "kB",
+        "/proc/meminfo:MemFree": "kB",
+        "/proc/meminfo:Buffers": "kB",
+        "/proc/meminfo:Cached": "kB",
+        "/proc/meminfo:Shmem": "kB",
+        "/proc/meminfo:SwapTotal": "kB",
+        "/proc/meminfo:SwapFree": "kB",
+        "/proc/meminfo:Dirty": "kB",
+        "/proc/meminfo:Writeback": "kB",
+        "/proc/meminfo:Slab": "kB",
+        "/proc/meminfo:SReclaimable": "kB",
+        "/proc/meminfo:Unevictable": "kB",
+        "/proc/vmstat:pgfault": "cumulative kernel counter",
+        "/proc/vmstat:pgmajfault": "cumulative kernel counter",
+        "/proc/vmstat:pgpgin": "cumulative kernel counter",
+        "/proc/vmstat:pgpgout": "cumulative kernel counter",
+        "/proc/vmstat:pswpin": "cumulative kernel counter",
+        "/proc/vmstat:pswpout": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgscan_direct": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_kswapd": "cumulative kernel counter",
+        "/proc/vmstat:pgsteal_direct": "cumulative kernel counter",
+        "/proc/vmstat:oom_kill": "cumulative kernel counter",
+        "/proc/vmstat:compact_stall": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_anon": "cumulative kernel counter",
+        "/proc/vmstat:workingset_refault_file": "cumulative kernel counter",
+        "/tmp:total_bytes": "bytes",
+        "/tmp:free_bytes": "bytes",
+        "/tmp:available_bytes": "bytes",
+        "/tmp:free_inodes": "inodes"
+      },
+      "read_errors": {
+        "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 7066,
+        "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 7066,
+        "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 7066,
+        "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 7066
+      },
+      "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled."
+    }
+  },
+  "supervisor_memory_cpu": {
+    "interval_seconds": 0.5,
+    "elapsed_seconds": 3600.7053996340255,
+    "samples": 7183,
+    "sample_errors": {},
+    "processes": [
+      {
+        "pid": 1656880,
+        "start_ticks": 37309847,
+        "samples": 7183,
+        "max_process_status_kB": {
+          "VmHWM": 166416,
+          "VmRSS": 158060,
+          "VmSwap": 0
+        },
+        "drm_client_maxima": {},
+        "max_simultaneous_drm_clients": 0,
+        "fd_read_errors": 7211,
+        "first_elapsed_seconds": 0.0007961830124258995,
+        "last_elapsed_seconds": 3600.705382997985,
+        "first_process_counters": {
+          "status.voluntary_ctxt_switches": 44,
+          "status.nonvoluntary_ctxt_switches": 8,
+          "stat.minflt": 19029,
+          "stat.majflt": 21
+        },
+        "last_process_counters": {
+          "status.voluntary_ctxt_switches": 19409,
+          "status.nonvoluntary_ctxt_switches": 2531,
+          "stat.minflt": 219391,
+          "stat.majflt": 21
+        },
+        "observed_cpu_seconds": 130.7
+      }
+    ],
+    "notes": [
+      "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+      "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+      "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+      "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+      "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+      "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+      "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+    ]
+  },
+  "load": {
+    "started_at_utc": "2026-10-17T04:35:22.273743+00:00",
+    "load_mode": "none",
+    "selected_loads": [],
+    "launched_loads": [],
+    "not_run": [
+      "ui",
+      "audio"
+    ],
+    "children": {},
+    "errors": [],
+    "finished_at_utc": "2026-10-17T05:35:23.984545+00:00"
+  },
+  "workload_started_monotonic": 330850.095893242,
+  "workload_stopped_monotonic": 334450.096263015,
+  "workload_seconds": 3600.0003697730135,
+  "timing": {
+    "all_delivered": {
+      "chunks": 1703,
+      "frames": 394148012,
+      "hop_service_percentiles_ms": {
+        "50": 1963.1165789905936,
+        "95": 3333.5545269655995,
+        "99": 3800.637678010389
+      },
+      "hop_service_max_ms": 4466.085923020728,
+      "hops_above_target": 3,
+      "observed_p99_within_target": true
+    },
+    "continuous": {
+      "chunks": 1692,
+      "frames": 391312860,
+      "hop_service_percentiles_ms": {
+        "50": 1961.7410600185394,
+        "95": 3333.026907988824,
+        "99": 3832.6338350307196
+      },
+      "hop_service_max_ms": 4466.085923020728,
+      "hops_above_target": 3,
+      "observed_p99_within_target": true
+    },
+    "first_window": {
+      "seconds": 300.0,
+      "chunks": 156,
+      "frames": 36069780,
+      "hop_service_percentiles_ms": {
+        "50": 1906.6668330342509,
+        "95": 2110.746124992147,
+        "99": 2178.9213480078615
+      },
+      "hop_service_max_ms": 2278.599623008631,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "last_window": {
+      "seconds": 300.0,
+      "chunks": 142,
+      "frames": 32948937,
+      "hop_service_percentiles_ms": {
+        "50": 1974.876091000624,
+        "95": 3325.324820005335,
+        "99": 3471.4615380507894
+      },
+      "hop_service_max_ms": 3709.1964329592884,
+      "hops_above_target": 0,
+      "observed_p99_within_target": true
+    },
+    "bins_300_seconds": [
+      {
+        "start_seconds": 0,
+        "end_seconds": 300,
+        "chunks": 156,
+        "frames": 36069780,
+        "hop_service_percentiles_ms": {
+          "50": 1906.6668330342509,
+          "95": 2110.746124992147,
+          "99": 2178.9213480078615
+        },
+        "hop_service_max_ms": 2278.599623008631,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 300,
+        "end_seconds": 600,
+        "chunks": 147,
+        "frames": 33993222,
+        "hop_service_percentiles_ms": {
+          "50": 1944.6625839918852,
+          "95": 2391.4953710045666,
+          "99": 3890.9301820094697
+        },
+        "hop_service_max_ms": 4071.1096220184118,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 600,
+        "end_seconds": 900,
+        "chunks": 138,
+        "frames": 31917193,
+        "hop_service_percentiles_ms": {
+          "50": 1964.4652630086057,
+          "95": 3594.3264969973825,
+          "99": 3934.1774050262757
+        },
+        "hop_service_max_ms": 3997.1003429964185,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 900,
+        "end_seconds": 1200,
+        "chunks": 141,
+        "frames": 32690952,
+        "hop_service_percentiles_ms": {
+          "50": 1967.5293859909289,
+          "95": 3331.9766049971804,
+          "99": 3511.009714973625
+        },
+        "hop_service_max_ms": 3733.172438980546,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 1200,
+        "end_seconds": 1500,
+        "chunks": 140,
+        "frames": 32433163,
+        "hop_service_percentiles_ms": {
+          "50": 1968.1937239947729,
+          "95": 3349.883159971796,
+          "99": 3492.4715399974957
+        },
+        "hop_service_max_ms": 3924.1666729794815,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 1500,
+        "end_seconds": 1800,
+        "chunks": 136,
+        "frames": 31401027,
+        "hop_service_percentiles_ms": {
+          "50": 1978.829368017614,
+          "95": 3742.183378955815,
+          "99": 4160.782499995548
+        },
+        "hop_service_max_ms": 4466.085923020728,
+        "hops_above_target": 2,
+        "observed_p99_within_target": false
+      },
+      {
+        "start_seconds": 1800,
+        "end_seconds": 2100,
+        "chunks": 138,
+        "frames": 31917193,
+        "hop_service_percentiles_ms": {
+          "50": 1983.2791879889555,
+          "95": 3357.88402199978,
+          "99": 3999.51836100081
+        },
+        "hop_service_max_ms": 4290.47437699046,
+        "hops_above_target": 1,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 2100,
+        "end_seconds": 2400,
+        "chunks": 140,
+        "frames": 32432967,
+        "hop_service_percentiles_ms": {
+          "50": 1952.2784930304624,
+          "95": 3365.7747260294855,
+          "99": 3585.800621949602
+        },
+        "hop_service_max_ms": 3725.574610987678,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 2400,
+        "end_seconds": 2700,
+        "chunks": 141,
+        "frames": 32691148,
+        "hop_service_percentiles_ms": {
+          "50": 1970.770098036155,
+          "95": 3299.522329994943,
+          "99": 3489.084337023087
+        },
+        "hop_service_max_ms": 3566.171365964692,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 2700,
+        "end_seconds": 3000,
+        "chunks": 145,
+        "frames": 33477252,
+        "hop_service_percentiles_ms": {
+          "50": 1978.0378059949726,
+          "95": 3276.6476760152727,
+          "99": 3391.1189070204273
+        },
+        "hop_service_max_ms": 3772.7010519593023,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 3000,
+        "end_seconds": 3300,
+        "chunks": 139,
+        "frames": 32175178,
+        "hop_service_percentiles_ms": {
+          "50": 1986.5959219750948,
+          "95": 3325.2170860068873,
+          "99": 3709.3664829735644
+        },
+        "hop_service_max_ms": 3800.324813986663,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 3300,
+        "end_seconds": 3600,
+        "chunks": 142,
+        "frames": 32948937,
+        "hop_service_percentiles_ms": {
+          "50": 1974.876091000624,
+          "95": 3325.324820005335,
+          "99": 3471.4615380507894
+        },
+        "hop_service_max_ms": 3709.1964329592884,
+        "hops_above_target": 0,
+        "observed_p99_within_target": true
+      },
+      {
+        "start_seconds": 3600,
+        "end_seconds": 3600.0003697730135,
+        "chunks": 0,
+        "frames": 0,
+        "hop_service_percentiles_ms": {},
+        "hop_service_max_ms": null,
+        "hops_above_target": 0,
+        "observed_p99_within_target": false
+      }
+    ],
+    "headroom_target_ms": 4094.9999999999995,
+    "percentile_method": "nearest rank; consecutive windows are not independent tail samples"
+  },
+  "controls": [
+    {
+      "at_workload_seconds": 300.78347155998927,
+      "superseded_generation": 18,
+      "superseded_request_id": 158,
+      "started_to_cancel_ms": 166.01889196317643,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.07033004658296704,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1862.8365410258994,
+      "resume_ack_ms": 0.027753005269914865,
+      "generation": 20,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3965.210896974895,
+      "ready_after_cancel_ms": 5828.200137999374,
+      "delivered_after_cancel_ms": 5935.2333370479755,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 601.5597167829983,
+      "superseded_generation": 36,
+      "superseded_request_id": 307,
+      "started_to_cancel_ms": 167.34163800720125,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.05588302155956626,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 3325.95545303775,
+      "resume_ack_ms": 0.04111003363505006,
+      "generation": 38,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 6674.8121630516835,
+      "ready_after_cancel_ms": 10001.060745038558,
+      "delivered_after_cancel_ms": 10143.067302007694,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 900.7781767109991,
+      "superseded_generation": 53,
+      "superseded_request_id": 447,
+      "started_to_cancel_ms": 168.4143739985302,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.035882985685020685,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1799.7712659998797,
+      "resume_ack_ms": 0.018283957615494728,
+      "generation": 55,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3863.8968099839985,
+      "ready_after_cancel_ms": 5663.7986290152185,
+      "delivered_after_cancel_ms": 5754.501130024437,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 1200.4244359849836,
+      "superseded_generation": 70,
+      "superseded_request_id": 590,
+      "started_to_cancel_ms": 166.89690295606852,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.05241303006187081,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1842.7941050031222,
+      "resume_ack_ms": 0.015264027751982212,
+      "generation": 72,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 3930.9226750046946,
+      "ready_after_cancel_ms": 5773.8488130271435,
+      "delivered_after_cancel_ms": 5886.517622042447,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 1501.104202661023,
+      "superseded_generation": 87,
+      "superseded_request_id": 732,
+      "started_to_cancel_ms": 167.79757902259007,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03095000283792615,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1721.2636590120383,
+      "resume_ack_ms": 0.025178014766424894,
+      "generation": 89,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3831.056570983492,
+      "ready_after_cancel_ms": 5552.532692963723,
+      "delivered_after_cancel_ms": 5645.513104973361,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 1800.3573622520198,
+      "superseded_generation": 104,
+      "superseded_request_id": 870,
+      "started_to_cancel_ms": 177.27416998241097,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.043692998588085175,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 3103.5908620106056,
+      "resume_ack_ms": 0.03030704101547599,
+      "generation": 106,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 6642.460213042796,
+      "ready_after_cancel_ms": 9746.370655018836,
+      "delivered_after_cancel_ms": 9905.012130970135,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 2100.9239654070116,
+      "superseded_generation": 121,
+      "superseded_request_id": 1010,
+      "started_to_cancel_ms": 182.42579099023715,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03457599086686969,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 3180.9357699821703,
+      "resume_ack_ms": 0.03980402834713459,
+      "generation": 123,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 5814.912402012851,
+      "ready_after_cancel_ms": 8996.162388997618,
+      "delivered_after_cancel_ms": 9106.890765018761,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 2402.8492567639914,
+      "superseded_generation": 138,
+      "superseded_request_id": 1152,
+      "started_to_cancel_ms": 177.62832500739023,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.04611199256032705,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1901.7815890256315,
+      "resume_ack_ms": 0.020503008272498846,
+      "generation": 140,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 4179.79678499978,
+      "ready_after_cancel_ms": 6081.724465009756,
+      "delivered_after_cancel_ms": 6182.157057046425,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 2700.8015230559977,
+      "superseded_generation": 155,
+      "superseded_request_id": 1295,
+      "started_to_cancel_ms": 183.46259300597012,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.03492302494123578,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 3002.495502005331,
+      "resume_ack_ms": 0.0317260273732245,
+      "generation": 157,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 6559.070804039948,
+      "ready_after_cancel_ms": 9561.83201103704,
+      "delivered_after_cancel_ms": 9658.378783031367,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 3001.6830744509934,
+      "superseded_generation": 173,
+      "superseded_request_id": 1442,
+      "started_to_cancel_ms": 166.06891597621143,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.09717600187286735,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1671.9936620211229,
+      "resume_ack_ms": 0.016873993445187807,
+      "generation": 175,
+      "target_frame": 516107,
+      "ready_after_resume_ms": 4136.073999979999,
+      "ready_after_cancel_ms": 5808.209059992805,
+      "delivered_after_cancel_ms": 5896.483900025487,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    },
+    {
+      "at_workload_seconds": 3300.2269951510243,
+      "superseded_generation": 190,
+      "superseded_request_id": 1583,
+      "started_to_cancel_ms": 167.99367999192327,
+      "hardware_submission_confirmed": false,
+      "complete": true,
+      "cancel_ack_ms": 0.04470295971259475,
+      "held_chunk_rejected": true,
+      "residual_finish_ms": 1841.2646820070222,
+      "resume_ack_ms": 0.016370031516999006,
+      "generation": 192,
+      "target_frame": 258318,
+      "ready_after_resume_ms": 3829.9968829960562,
+      "ready_after_cancel_ms": 5671.3875369750895,
+      "delivered_after_cancel_ms": 5782.651385990903,
+      "post_cancel_chunks": 0,
+      "parity": {
+        "kind": "trimmed_seek",
+        "exact": true,
+        "numeric_parity": true,
+        "max_abs_difference": 0.0,
+        "rtol": 0.0001,
+        "atol": 1e-05
+      }
+    }
+  ],
+  "runtime_ready": [
+    {
+      "event": "runtime_ready",
+      "generation": 1,
+      "timestamp": 330850.050489037,
+      "model_id": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "runtime": {
+        "stems": [
+          "drums",
+          "bass",
+          "other",
+          "vocals"
+        ],
+        "segment_frames": 343980,
+        "channels": 2,
+        "pid": 1656896,
+        "sample_rate": 44100,
+        "weight_storage": "native",
+        "threads": 4,
+        "backend": "vulkan",
+        "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+        "fence_wait_mode": "blocking",
+        "load_ms": 426.705574,
+        "event": "ready",
+        "process_environment": {
+          "OMP_WAIT_POLICY": "PASSIVE",
+          "GOMP_SPINCOUNT": "0"
+        }
+      },
+      "consumed_at": 330850.050553052
+    }
+  ],
+  "source_statistics_reused": 195,
+  "full_source_loops": 173,
+  "resumed_source_completions": 11,
+  "control_attempts_finished_before_cancel": 0,
+  "reference_hashes": {
+    "0": "15d803bdb59d11c3ebc74f6b746ca43c11a0d859fd82b51b50fdeec5fd839f6a",
+    "257985": "c5165a7885cb9120ca65dd2b7f6ae528f122d0461a58a20230308cab71aeecc2",
+    "515970": "4148574193292122826f6b5f502075d780a561ea08f479b26064bd00593ce6a4",
+    "773955": "ef8714e52f065b86566dce7ec6ba66c7b2396a210beb1d3f2e18c6b1125d66e4",
+    "1031940": "5cc3965a2e6013e490801b6ee7b515804b35e69e27868903276b35613f731241",
+    "1289925": "aaf771455d4804fb946c403bcf548cf880ea2c8f59493304c0b94f344e70a29e",
+    "1547910": "e1b6c88e83d98a6ee2ab6a9db9ccfe3e4f76c9b353feeecd2e0d2943baf1aa9f",
+    "1805895": "ce09f362f0283de558a5ea203157966d48bdb554e3bda23b13ca74c81a82315e",
+    "2063880": "62fc2e994f21f21d7f1989b49acb050399847daba12978f8abc3a1359a915566"
+  },
+  "same_grid_hash_checks": 1683,
+  "trimmed_seek_checks": 11,
+  "stale_chunks_delivered": 0,
+  "load_alive_checks": null,
+  "maximum_load_check_gap_seconds": null,
+  "load_coverage_scope": "Selected child process liveness; requested UI also requires atomic GUI heartbeat, per-minute frameSwapped counts and notification gaps; not physical presentation timing",
+  "conditions_at_finish": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "2100057",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 51050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 70000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 70000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 70050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 69050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 41000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 60050
+    }
+  },
+  "finished_at_utc": "2026-10-17T05:35:24.008461+00:00",
+  "ui_coverage": {
+    "requested": false,
+    "status": "not_run",
+    "passed": null
+  },
+  "audio_coverage": {
+    "requested": false,
+    "status": "not_run",
+    "passed": null,
+    "concurrent_workload_seconds": null
+  },
+  "concurrent_audio_workload_seconds": null,
+  "native_trace_bytes": 46272673,
+  "failures": [],
+  "acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": true,
+    "audio_covers_requested_duration": null,
+    "required_UI_coverage_completed": null,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 11,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=none; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  }
+}

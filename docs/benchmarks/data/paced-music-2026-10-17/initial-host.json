@@ -1,0 +1,10 @@
+{
+  "at_utc": "2026-10-18T00:02:22.209267+00:00",
+  "AC": "1",
+  "lid": "b false",
+  "started_monotonic": 397766.79290472,
+  "errors": [],
+  "ready": true,
+  "finished_monotonic": 397766.796797115,
+  "scope": "Read-only preflight; actual admission is checked again after normal readiness. No power/profile/service changes."
+}

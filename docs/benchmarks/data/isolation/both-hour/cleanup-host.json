@@ -1,0 +1,13 @@
+{
+  "observed_at_utc": "2026-10-17T00:31:44.763576+00:00",
+  "PID_exists": {
+    "1572940": false,
+    "1572960": false,
+    "1573004": false,
+    "1573070": false,
+    "1572996": false
+  },
+  "fixture_exists": false,
+  "profile": "power-saver",
+  "holds": ""
+}

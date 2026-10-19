@@ -1,0 +1,894 @@
+{
+  "schema": 1,
+  "label": "admission",
+  "status": "matched",
+  "reason": "consecutive_readiness_observed",
+  "started_monotonic": 466925.281216538,
+  "finished_monotonic": 467229.869707814,
+  "finished_at_utc": "2026-10-18T21:03:11.714765+00:00",
+  "maximum_seconds": 600,
+  "poll_seconds": 10,
+  "required_consecutive_sample_span_seconds": 60,
+  "package_threshold_millidegrees_C": 55000,
+  "package_zone": "/sys/class/thermal/thermal_zone7",
+  "guard_service_identity": {
+    "MainPID": "1036",
+    "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+  },
+  "profile_mutation": false,
+  "service_mutation": false,
+  "guard_runtime_latch_directly_observed": false,
+  "rows": [
+    {
+      "at_utc": "2026-10-18T20:58:07.128003+00:00",
+      "started_monotonic": 466925.282973694,
+      "errors": [],
+      "package_millidegrees_C": 47000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466926.000750895,
+      "finished_at_utc": "2026-10-18T20:58:07.845817+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 0.7195343570201658,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:58:17.846993+00:00",
+      "started_monotonic": 466936.001986703,
+      "errors": [],
+      "package_millidegrees_C": 42000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466936.655094965,
+      "finished_at_utc": "2026-10-18T20:58:18.500156+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 11.373878427024465,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:58:28.500537+00:00",
+      "started_monotonic": 466946.655511246,
+      "errors": [],
+      "package_millidegrees_C": 43000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466947.258980117,
+      "finished_at_utc": "2026-10-18T20:58:29.104040+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 21.9777635789942,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:58:39.104320+00:00",
+      "started_monotonic": 466957.259302177,
+      "errors": [],
+      "package_millidegrees_C": 42000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466957.818683414,
+      "finished_at_utc": "2026-10-18T20:58:39.663744+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 32.53746687603416,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:58:49.664117+00:00",
+      "started_monotonic": 466967.819092979,
+      "errors": [],
+      "package_millidegrees_C": 41000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466968.427165303,
+      "finished_at_utc": "2026-10-18T20:58:50.272225+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 43.145948764984496,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:59:00.272603+00:00",
+      "started_monotonic": 466978.427578999,
+      "errors": [],
+      "package_millidegrees_C": 42000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466979.083887862,
+      "finished_at_utc": "2026-10-18T20:59:00.928951+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 53.80267132399604,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:59:10.929380+00:00",
+      "started_monotonic": 466989.08435749,
+      "errors": [],
+      "package_millidegrees_C": 41000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 466989.648486235,
+      "finished_at_utc": "2026-10-18T20:59:11.493546+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 64.36726969701704,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:59:21.493875+00:00",
+      "started_monotonic": 466999.648846925,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467000.22646036,
+      "finished_at_utc": "2026-10-18T20:59:22.071520+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 74.94524382200325,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:59:32.071891+00:00",
+      "started_monotonic": 467010.226865231,
+      "errors": [],
+      "package_millidegrees_C": 42000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467010.771670583,
+      "finished_at_utc": "2026-10-18T20:59:32.616730+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 85.49045404500794,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:59:42.617100+00:00",
+      "started_monotonic": 467020.772073429,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467021.371903062,
+      "finished_at_utc": "2026-10-18T20:59:43.216963+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 96.09068652399583,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T20:59:53.217235+00:00",
+      "started_monotonic": 467031.372223055,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T13:57:56-07:00 warning: CPU/ACPI temperature 93.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "466914370494",
+        "__REALTIME_TIMESTAMP": "1792357076215550",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467032.036250482,
+      "finished_at_utc": "2026-10-18T20:59:53.881311+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 106.75503394403495,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:00:03.881663+00:00",
+      "started_monotonic": 467042.03662307,
+      "errors": [],
+      "package_millidegrees_C": 89000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:03-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467041507119",
+        "__REALTIME_TIMESTAMP": "1792357203352176",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467042.237182827,
+      "finished_at_utc": "2026-10-18T21:00:04.082241+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 116.95596628903877,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:00:14.082501+00:00",
+      "started_monotonic": 467052.237477699,
+      "errors": [],
+      "package_millidegrees_C": 41000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467052.800551865,
+      "finished_at_utc": "2026-10-18T21:00:14.645612+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 127.5193353270297,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:00:24.645894+00:00",
+      "started_monotonic": 467062.800869193,
+      "errors": [],
+      "package_millidegrees_C": 39000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467063.373160324,
+      "finished_at_utc": "2026-10-18T21:00:25.218220+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 138.09194378601387,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:00:35.218568+00:00",
+      "started_monotonic": 467073.373539475,
+      "errors": [],
+      "package_millidegrees_C": 41000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467073.938531016,
+      "finished_at_utc": "2026-10-18T21:00:35.783591+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 148.65731447801227,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:00:45.783890+00:00",
+      "started_monotonic": 467083.938880212,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467084.607703835,
+      "finished_at_utc": "2026-10-18T21:00:46.452764+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 159.3264872970176,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:00:56.453218+00:00",
+      "started_monotonic": 467094.608197721,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467095.178151614,
+      "finished_at_utc": "2026-10-18T21:00:57.023212+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 169.89693507598713,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:01:07.023484+00:00",
+      "started_monotonic": 467105.178472846,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467105.747820927,
+      "finished_at_utc": "2026-10-18T21:01:07.592881+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 180.46660438901745,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:01:17.593339+00:00",
+      "started_monotonic": 467115.748317879,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467116.330654486,
+      "finished_at_utc": "2026-10-18T21:01:18.175714+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 191.04943794803694,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:01:28.175977+00:00",
+      "started_monotonic": 467126.330949501,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467126.892514134,
+      "finished_at_utc": "2026-10-18T21:01:28.737574+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 201.61129759601317,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:01:38.737986+00:00",
+      "started_monotonic": 467136.892962773,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467137.44047913,
+      "finished_at_utc": "2026-10-18T21:01:39.285540+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 212.15926259203115,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:01:49.286096+00:00",
+      "started_monotonic": 467147.4410691,
+      "errors": [],
+      "package_millidegrees_C": 42000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467147.975990086,
+      "finished_at_utc": "2026-10-18T21:01:49.821050+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 222.69477354799164,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:01:59.821374+00:00",
+      "started_monotonic": 467157.976350252,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "power-saver",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:00:05-07:00 warning: CPU/ACPI temperature 86.0C; power-saver engaged (was balanced)",
+        "__MONOTONIC_TIMESTAMP": "467043775976",
+        "__REALTIME_TIMESTAMP": "1792357205621032",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467158.558017635,
+      "finished_at_utc": "2026-10-18T21:02:00.403078+00:00",
+      "latest_message_claims_recovered": false,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 233.27680109703215,
+      "ready_observation": false,
+      "consecutive_ready_sample_span_seconds": 0
+    },
+    {
+      "at_utc": "2026-10-18T21:02:10.403508+00:00",
+      "started_monotonic": 467168.55849598,
+      "errors": [],
+      "package_millidegrees_C": 40000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467168.746065408,
+      "finished_at_utc": "2026-10-18T21:02:10.591123+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 243.46484887000406,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 0.0
+    },
+    {
+      "at_utc": "2026-10-18T21:02:20.591359+00:00",
+      "started_monotonic": 467178.746334025,
+      "errors": [],
+      "package_millidegrees_C": 39000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467178.931435153,
+      "finished_at_utc": "2026-10-18T21:02:20.776493+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 253.65021861501737,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 10.185369745013304
+    },
+    {
+      "at_utc": "2026-10-18T21:02:30.776659+00:00",
+      "started_monotonic": 467188.931635051,
+      "errors": [],
+      "package_millidegrees_C": 38000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467189.122875829,
+      "finished_at_utc": "2026-10-18T21:02:30.967934+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 263.8416592910071,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 20.37681042100303
+    },
+    {
+      "at_utc": "2026-10-18T21:02:40.968260+00:00",
+      "started_monotonic": 467199.123239908,
+      "errors": [],
+      "package_millidegrees_C": 39000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467199.319743743,
+      "finished_at_utc": "2026-10-18T21:02:41.164802+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 274.03852720500436,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 30.573678335000295
+    },
+    {
+      "at_utc": "2026-10-18T21:02:51.165132+00:00",
+      "started_monotonic": 467209.320109786,
+      "errors": [],
+      "package_millidegrees_C": 38000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467209.505175687,
+      "finished_at_utc": "2026-10-18T21:02:51.350234+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 284.2239591490361,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 40.75911027903203
+    },
+    {
+      "at_utc": "2026-10-18T21:03:01.350425+00:00",
+      "started_monotonic": 467219.505400695,
+      "errors": [],
+      "package_millidegrees_C": 39000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467219.689080324,
+      "finished_at_utc": "2026-10-18T21:03:01.534139+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 294.4078637860366,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 50.94301491603255
+    },
+    {
+      "at_utc": "2026-10-18T21:03:11.534283+00:00",
+      "started_monotonic": 467229.689245376,
+      "errors": [],
+      "package_millidegrees_C": 48000,
+      "profile": "balanced",
+      "holds": "",
+      "service_identity": {
+        "ActiveState": "active",
+        "SubState": "running",
+        "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+        "MainPID": "1036"
+      },
+      "latest_guard_entry": {
+        "MESSAGE": "2026-10-18T14:02:06-07:00 recovered: temperature 41.0C; balanced profile restored=1",
+        "__MONOTONIC_TIMESTAMP": "467164863016",
+        "__REALTIME_TIMESTAMP": "1792357326708072",
+        "_PID": "1036",
+        "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+      },
+      "finished_monotonic": 467229.869628158,
+      "finished_at_utc": "2026-10-18T21:03:11.714686+00:00",
+      "latest_message_claims_recovered": true,
+      "journal_identity_matches_service": true,
+      "journal_invocation_id_available": true,
+      "elapsed_seconds": 304.58841162000317,
+      "ready_observation": true,
+      "consecutive_ready_sample_span_seconds": 61.12356274999911
+    }
+  ],
+  "scope": "Sampled package temperature, actual policy/no holds and latest same-service recovered claim; inferred guard readiness, not direct private latch observation or continuous temperature proof."
+}

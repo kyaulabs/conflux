@@ -1,0 +1,41 @@
+{
+  "observed_at_utc": "2026-10-16T22:28:16.426008+00:00",
+  "head": "c0d50578472ea6d5c52619f02a7ffe093e84fa31",
+  "profile": "power-saver",
+  "holds": "",
+  "meminfo": "MemTotal:       16064416 kB\nMemFree:         1314696 kB\nMemAvailable:    3988096 kB\nBuffers:          140560 kB\nCached:          4881556 kB\nSwapCached:       527540 kB\nActive:          5328856 kB\nInactive:        6194440 kB\nActive(anon):    4694464 kB\nInactive(anon):  4196968 kB\nActive(file):     634392 kB\nInactive(file):  1997472 kB\nUnevictable:      653100 kB\nMlocked:            1868 kB\nSwapTotal:      16777212 kB\nSwapFree:        8572160 kB\nZswap:           1292696 kB\nZswapped:        2684244 kB\nDirty:              8756 kB\nWriteback:            24 kB\nAnonPages:       6768008 kB\nMapped:          1510492 kB\nShmem:           2316992 kB\nKReclaimable:     381296 kB\nSlab:             851940 kB\nSReclaimable:     381296 kB\nSUnreclaim:       470644 kB\nKernelStack:       35392 kB\nPageTables:       187088 kB\nSecPageTables:      4148 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    24809420 kB\nCommitted_AS:   57093652 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       79844 kB\nVmallocChunk:          0 kB\nPercpu:             7040 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:   176128 kB\nShmemPmdMapped:        0 kB\nFileHugePages:     24576 kB\nFilePmdMapped:      2048 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nGPUActive:             0 kB\nGPUReclaim:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      280000 kB\nDirectMap2M:    15144960 kB\nDirectMap1G:     2097152 kB\n",
+  "pins": {
+    "tools/benchmarks/native_replay.py": {
+      "bytes": 14483,
+      "sha256": "6ee7408415fdf0366cd3282fe57f94409d8f9bc34eb2967eb0e622bf2cf1757e"
+    },
+    "benchmarks-local/policy-2026-10-16/balanced-native-run.py": {
+      "bytes": 5116,
+      "sha256": "6ed55495e818f9042e1d6744dd2664e592ba364c33fa841a9048b81b6cc816df"
+    },
+    "tools/stems/worker.py": {
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "tools/benchmarks/worker_support.py": {
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "bytes": 22139,
+      "sha256": "50e8c30823ae00a6e93600a0be18cbffd09c3e7d0fea05d4ab68f39d6e23146e"
+    },
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    }
+  },
+  "/sys/firmware/acpi/platform_profile": "low-power",
+  "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+  "/sys/class/thermal/thermal_zone7/temp": "47000",
+  "scope": "Host prelaunch observation for120request replay. Earlier pre-smoke snapshot used sandbox context; lifecycle records are authoritative host profile observations."
+}

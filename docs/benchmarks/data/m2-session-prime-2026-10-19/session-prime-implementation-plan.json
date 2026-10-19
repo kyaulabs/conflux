@@ -1,0 +1,42 @@
+{
+  "schema": "conflux.session-prime-reuse-post-red-plan-amendment.v1",
+  "status": "root_approved_before_product_draft",
+  "at_utc": "2026-10-19T11:56:28.437582+00:00",
+  "actual_red": {
+    "path": "benchmarks-local/m2-live-delivery-2026-10-19/session-prime-red-result.json",
+    "sha256": "37bbea5798a625f77d1bf5a9a306b4561c2bd5d975538d9a6241b3c2a08aae20",
+    "base": "44b8e0d707b8df937b9c47cdbb1229e173146d0c",
+    "missing_api": "primeForSession"
+  },
+  "frozen_tests_unchanged": {
+    "path": "tests/live_stem_bridge_test.cpp",
+    "sha256": "e841d1651962363851799693e133f4727048d57878f6a56ddffe3c05a97a1253"
+  },
+  "amendment": "Root explicitly expands product scope from3to5files for a validated initialFrame=0 default on StemBankSource constructor. A fresh bank at an existing nonzero prepared cursor otherwise implicitly seeks its provider on first read; constructor initial cursor avoids that redundant epoch while retaining all actual discontinuity flow.",
+  "chosen_api": "explicit StemBankSource(std::array<AudioSource,stemCount> stems, std::uint64_t initialFrame=0); validate initialFrame<=frames; no provider notification.",
+  "owner_path": "Private resetBankForSessionAt(frame); existing public resetBankForSession delegatesAt0. Reuse resetsAtframe; existing fallback and seek callbacks unchanged.",
+  "rejected_broader_alternative": "Do not strip/rewrite live provider discontinuity callbacks.",
+  "inputs": {
+    "src/audio/PreparedPlayback.hpp": {
+      "bytes": 4340,
+      "sha256": "19f461c573846af748063be00ea47d815606a2c5585ba54515db61619c9ab38c"
+    },
+    "src/audio/PreparedPlayback.cpp": {
+      "bytes": 18626,
+      "sha256": "6b995582fe9afc672304ac7b71ee8605f5577ed44ec5294b800bdcc946d62155"
+    },
+    "src/audio/LiveSession.cpp": {
+      "bytes": 59523,
+      "sha256": "8dd16ae909d2dde38da75831d55ce22493b47cd73fc90cb8e30f57bc6709b01a"
+    },
+    "src/audio/StemBankSource.hpp": {
+      "bytes": 3329,
+      "sha256": "fc736dd580df3bc7496b486aac7cd834f42ed947b219c10bc8fd1db26f781b43"
+    },
+    "src/audio/StemBankSource.cpp": {
+      "bytes": 6285,
+      "sha256": "f539ce5d1b4bca364d2365e4d9ef8341659796742d86c16ad889a8185afa0171"
+    }
+  },
+  "execution": "Only source reads/text/hash metadata; no tracked edits/product drafts/compiler/tests/Git/workloads at this plan-amendment point."
+}

@@ -1,0 +1,3837 @@
+{
+  "schema": 1,
+  "status": "ok",
+  "analyzed_at_utc": "2026-10-17T20:08:23.404691+00:00",
+  "inputs": {
+    "manifest": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/manifest.json",
+      "bytes": 8527,
+      "sha256": "d833af135ba7c371156e7cdeb6147192ff5e570f6eb9306ba4fb4f262a419ab9"
+    },
+    "runs": {
+      "cpu": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/result.json",
+        "bytes": 33664,
+        "sha256": "599233047f83052dedfe6925917d21864aac40daf1906669ba50436bf7744c59"
+      },
+      "vulkan": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/result.json",
+        "bytes": 40655,
+        "sha256": "4ff3aa2ffa26b8ebf36081cb50a11b07651a91d738daea6f868ee41dcb000514"
+      }
+    },
+    "analysis_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/quality_analyze.py",
+      "bytes": 17488,
+      "sha256": "4131400abe7ed071d31f6da6263815e4eb14eb02b32f5e7c979cc41e86b83bac"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "ffmpeg": {
+      "path": "/usr/bin/ffmpeg",
+      "bytes": 428296,
+      "sha256": "ba5be4f60d2ec3ab668e3d60a1092f65ad2697957c2319dcbfb056ae58202c46"
+    }
+  },
+  "producer_pins": {
+    "runtime": {
+      "path": "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+      "bytes": 62986240,
+      "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6"
+    },
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "worker_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/stems/worker.py",
+      "bytes": 24863,
+      "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8"
+    },
+    "shared_benchmark_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/stem_worker.py",
+      "bytes": 23061,
+      "sha256": "87b1192dc603699bccfb15a858fad05625d022842a65e7958f45c0e4e88a48d7"
+    },
+    "sampler_source": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/worker_support.py",
+      "bytes": 23403,
+      "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b"
+    },
+    "driver": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/quality_run.py",
+      "bytes": 16155,
+      "sha256": "1773500b26bd1a9ed584decba453005f72c64d770663f03cc7d13d01646af719"
+    }
+  },
+  "sample_rate": 44100,
+  "stem_order": [
+    "drums",
+    "bass",
+    "other",
+    "vocals"
+  ],
+  "hop_frames": 257985,
+  "overlap_frames": 85995,
+  "metric_definitions": {
+    "units": "Unshifted full-length linear PCM, source PCM16 divided by32768; float64 reductions over frames and both channels",
+    "cpu_vulkan": "Reference=CPU; candidate=Vulkan. Error=candidate-reference, RMS=sqrt(mean(error\u00b2)), maximum=max(abs(error)), bias=mean(error), relative RMS=error RMS/reference RMS",
+    "decibels": "20log10(relative RMS); null when reference RMS is zero or error is exactly zero. exact_zero_error distinguishes zero error",
+    "lag": "Channel-demeaned zero-padded FFT cross correlation summed across channels, normalized by full-signal energies, searched within\u00b1256samples. Positive lag means Vulkan occurs later than CPU. No signals are shifted for raw errors. Periodic or weak signals may give ambiguous peaks",
+    "recombination": "Unshifted sum of four stems minus source; bias_per_channel is DC residual. This is not a separation-quality score",
+    "joins": "At kHOP and kHOP+OVERLAP for k>=1 inside source. Jump=sample[b]-sample[b-1]; neighborhood derivatives use\u00b120ms, clipped at source edges. No pass thresholds or attribution of artifacts",
+    "references": "Only supplied aligned reference WAVs produce reference metrics; raw amplitude/phase alignment retained, no gain fitting or time shifting"
+  },
+  "tracks": [
+    {
+      "id": "parting_glass",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/parting_glass-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "3f42c939d8055327089ee0ee45b3c8487e8b4e26dac0153a966af90bdf433464",
+        "frames": 1031940
+      },
+      "outputs": {
+        "cpu": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/parting_glass.npy",
+          "bytes": 33022208,
+          "sha256": "f430b656a10c592e078a95ccab2ac68f69629834fb7dc3752915921148129683"
+        },
+        "vulkan": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/parting_glass.npy",
+          "bytes": 33022208,
+          "sha256": "ad2c90155733a33b4eb54789e34dc670f027ff6b1cd3fbb22b5f92448b695379"
+        }
+      },
+      "annotations": {
+        "id": "parting_glass",
+        "title": "The Parting Glass",
+        "artist": "Doxent Zsigmond",
+        "source_page": "https://ccmixter.org/files/doxent/56347",
+        "metadata_url": "https://ccmixter.org/api/query/api?ids=56347&f=json&dataview=links_dl",
+        "download_url": "https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "official_tags": [
+          "acappella",
+          "media",
+          "ccplus",
+          "sample",
+          "multiple_formats",
+          "attribution",
+          "archive",
+          "zip",
+          "audio",
+          "mp3",
+          "44k",
+          "stereo",
+          "VBR",
+          "flac",
+          "male_vocals",
+          "acoustic",
+          "traditional",
+          "chill",
+          "piano",
+          "downtempo"
+        ],
+        "bpm": "rubato",
+        "official_duration": "3:07",
+        "official_instruments_or_credits": "Music and lyrics - traditional; Doxent - vocals, piano",
+        "official_audio_metadata": {
+          "file_id": 91505,
+          "file_upload": 56347,
+          "file_name": "doxent_-_The_Parting_Glass.mp3",
+          "file_nicname": "Preview",
+          "file_format_info": {
+            "media-type": "audio",
+            "format-name": "audio-mp3-mp3",
+            "default-ext": "mp3",
+            "mime_type": "audio/mpeg",
+            "sr": "44k",
+            "ch": "stereo",
+            "ps": "3:07",
+            "br": "VBR"
+          },
+          "file_extra": {
+            "sha1": "VZKLCWMTLUWSGAST5NATUIVJBRUEKOZB"
+          },
+          "file_filesize": " (4.77MB)",
+          "file_order": 1,
+          "file_is_remote": 0,
+          "file_num_download": 0,
+          "download_url": "https://ccmixter.org/content/doxent/doxent_-_The_Parting_Glass.mp3",
+          "local_path": "/var/www/ccmixter/content/doxent/doxent_-_The_Parting_Glass.mp3",
+          "file_rawsize": 4997318
+        },
+        "published_bytes": 4997318,
+        "published_sha1_base32": "VZKLCWMTLUWSGAST5NATUIVJBRUEKOZB",
+        "attribution": "\"The Parting Glass\" by Doxent Zsigmond (ccMixter), CC BY 3.0; traditional music/lyrics. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3_sha256": "e0791f4156a7127434dad525c654c8893d3b1df9dc3c86fbb63e2aaf0bc22b4c",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 1.0,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "geometry_finite_full_coverage_verified": true,
+      "cpu_vulkan": {
+        "drums": {
+          "reference_rms": 0.0003583058157056739,
+          "candidate_rms": 0.0003632198381655007,
+          "rms_error": 5.4662480283044895e-05,
+          "maximum_absolute_error": 0.003142925910651684,
+          "bias": -1.2331864206799993e-05,
+          "bias_per_channel": [
+            -1.2533318585451313e-05,
+            -1.2130409828148674e-05
+          ],
+          "rms_error_relative_to_reference": 0.1525581720614514,
+          "error_to_reference_db": -16.331290472180306,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9891164363863949
+          }
+        },
+        "bass": {
+          "reference_rms": 0.0002297089095111046,
+          "candidate_rms": 0.0002323344518135788,
+          "rms_error": 3.115287766714246e-05,
+          "maximum_absolute_error": 0.002905404078774154,
+          "bias": -1.2098555273229984e-05,
+          "bias_per_channel": [
+            -1.203221260392019e-05,
+            -1.2164897942539779e-05
+          ],
+          "rms_error_relative_to_reference": 0.13561893499667008,
+          "error_to_reference_db": -17.353593408424466,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9922676976333148
+          }
+        },
+        "other": {
+          "reference_rms": 0.13430637272607854,
+          "candidate_rms": 0.13430418295275362,
+          "rms_error": 0.00027096813091373494,
+          "maximum_absolute_error": 0.0023940950632095337,
+          "bias": -2.9668321821108336e-06,
+          "bias_per_channel": [
+            -2.790492005106297e-06,
+            -3.1431723591153697e-06
+          ],
+          "rms_error_relative_to_reference": 0.002017537406556141,
+          "error_to_reference_db": -53.90356808814939,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999979651157453
+          }
+        },
+        "vocals": {
+          "reference_rms": 0.09141857079900494,
+          "candidate_rms": 0.09141616369260025,
+          "rms_error": 0.00024076644734819945,
+          "maximum_absolute_error": 0.0037291422486305237,
+          "bias": -1.3098294488928662e-05,
+          "bias_per_channel": [
+            -1.3183952768206789e-05,
+            -1.3012636209650536e-05
+          ],
+          "rms_error_relative_to_reference": 0.0026336710937819663,
+          "error_to_reference_db": -51.5887692577551,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999965424046912
+          }
+        }
+      },
+      "recombination": {
+        "cpu": {
+          "reference_rms": 0.16611062289647616,
+          "candidate_rms": 0.16597331478837932,
+          "rms_error": 0.0024812836768037696,
+          "maximum_absolute_error": 0.05662498949095607,
+          "bias": 7.448433132067585e-05,
+          "bias_per_channel": [
+            9.874778483186856e-05,
+            5.022087780948313e-05
+          ],
+          "rms_error_relative_to_reference": 0.014937537609200111,
+          "error_to_reference_db": -36.51441976510468,
+          "exact_zero_error": false
+        },
+        "vulkan": {
+          "reference_rms": 0.16611062289647616,
+          "candidate_rms": 0.1659745005478757,
+          "rms_error": 0.0024875842520690164,
+          "maximum_absolute_error": 0.056719302432611585,
+          "bias": 3.3988785169606375e-05,
+          "bias_per_channel": [
+            5.8207808869183974e-05,
+            9.769761470028776e-06
+          ],
+          "rms_error_relative_to_reference": 0.014975467605219532,
+          "error_to_reference_db": -36.49239215981345,
+          "exact_zero_error": false
+        }
+      },
+      "references": {
+        "status": "not_supplied",
+        "stems": {}
+      },
+      "joins": [
+        {
+          "kind": "hop",
+          "frame": 257985,
+          "seconds": 5.85,
+          "source": {
+            "signed_jump_per_channel": [
+              0.007171630859375,
+              -0.022003173828125
+            ],
+            "jump_rms": 0.016364167374080245,
+            "jump_maximum_absolute": 0.022003173828125,
+            "neighborhood_frame_interval": [
+              257103,
+              258867
+            ],
+            "neighborhood_derivative_rms": 0.016993441301901724,
+            "neighborhood_derivative_maximum_absolute": 0.092987060546875,
+            "jump_rms_over_neighborhood_derivative_rms": 0.962969600056755
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -1.0951858712360263e-05,
+                4.722621088149026e-05
+              ],
+              "jump_rms": 3.4280156092690785e-05,
+              "jump_maximum_absolute": 4.722621088149026e-05,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.00013655046268443524,
+              "neighborhood_derivative_maximum_absolute": 0.0011380530922906473,
+              "jump_rms_over_neighborhood_derivative_rms": 0.25104386626584624
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -4.497755435295403e-05,
+                -5.3814350394532084e-05
+              ],
+              "jump_rms": 4.9593168400286796e-05,
+              "jump_maximum_absolute": 5.3814350394532084e-05,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 5.850260970623851e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0004494528093346162,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8477086517902527
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.007146939635276794,
+                -0.020707834511995316
+              ],
+              "jump_rms": 0.015490209106504577,
+              "jump_maximum_absolute": 0.020707834511995316,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.009757001632992349,
+              "neighborhood_derivative_maximum_absolute": 0.031116056721657515,
+              "jump_rms_over_neighborhood_derivative_rms": 1.587599314745008
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.0005955770611763,
+                -0.00088481605052948
+              ],
+              "jump_rms": 0.0007541921104977118,
+              "jump_maximum_absolute": 0.00088481605052948,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.013300977380360672,
+              "neighborhood_derivative_maximum_absolute": 0.07305280864238739,
+              "jump_rms_over_neighborhood_derivative_rms": 0.05670200684735402
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                2.622600004542619e-05,
+                -3.356803426868282e-05
+              ],
+              "jump_rms": 3.0121553770067696e-05,
+              "jump_maximum_absolute": 3.356803426868282e-05,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.00014439081332278417,
+              "neighborhood_derivative_maximum_absolute": 0.001130998061853461,
+              "jump_rms_over_neighborhood_derivative_rms": 0.2086112895751288
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -4.8157176934182644e-05,
+                -6.074566044844687e-05
+              ],
+              "jump_rms": 5.4813998912632595e-05,
+              "jump_maximum_absolute": 6.074566044844687e-05,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 6.222554035876862e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0005281833509798162,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8808922927241143
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.007113143801689148,
+                -0.020672522485256195
+              ],
+              "jump_rms": 0.015458816265272896,
+              "jump_maximum_absolute": 0.020672522485256195,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.009754460031247436,
+              "neighborhood_derivative_maximum_absolute": 0.031251850072294474,
+              "jump_rms_over_neighborhood_derivative_rms": 1.5847946698999356
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.0006606206297874451,
+                -0.0008518397808074951
+              ],
+              "jump_rms": 0.0007622501651908388,
+              "jump_maximum_absolute": 0.0008518397808074951,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.01329789343379008,
+              "neighborhood_derivative_maximum_absolute": 0.07293940335512161,
+              "jump_rms_over_neighborhood_derivative_rms": 0.05732112149838361
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 343980,
+          "seconds": 7.8,
+          "source": {
+            "signed_jump_per_channel": [
+              0.00689697265625,
+              0.001861572265625
+            ],
+            "jump_rms": 0.005051419756920047,
+            "jump_maximum_absolute": 0.00689697265625,
+            "neighborhood_frame_interval": [
+              343098,
+              344862
+            ],
+            "neighborhood_derivative_rms": 0.005115905151741967,
+            "neighborhood_derivative_maximum_absolute": 0.01605224609375,
+            "jump_rms_over_neighborhood_derivative_rms": 0.9873951152515089
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                2.6664522010833025e-05,
+                1.3293640222400427e-05
+              ],
+              "jump_rms": 2.1067956764110057e-05,
+              "jump_maximum_absolute": 2.6664522010833025e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 5.039332776333479e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00035414919557297253,
+              "jump_rms_over_neighborhood_derivative_rms": 0.41807036167670386
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                1.670463643677067e-05,
+                -1.1328832442814019e-05
+              ],
+              "jump_rms": 1.427212883563699e-05,
+              "jump_maximum_absolute": 1.670463643677067e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 3.642412378465206e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00027620242326520383,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3918317684185666
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.005878552794456482,
+                0.0007361844182014465
+              ],
+              "jump_rms": 0.004189233250537305,
+              "jump_maximum_absolute": 0.005878552794456482,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.004858477415657304,
+              "neighborhood_derivative_maximum_absolute": 0.014723092317581177,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8622522844372517
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.0008475841023027897,
+                0.0010160398669540882
+              ],
+              "jump_rms": 0.0009356109826515792,
+              "jump_maximum_absolute": 0.0010160398669540882,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0007405166038333104,
+              "neighborhood_derivative_maximum_absolute": 0.00253965612500906,
+              "jump_rms_over_neighborhood_derivative_rms": 1.2634571295341062
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -1.7313286662101746e-05,
+                3.568496322259307e-05
+              ],
+              "jump_rms": 2.8046091485641364e-05,
+              "jump_maximum_absolute": 3.568496322259307e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 6.524165898277892e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0003794389031099854,
+              "jump_rms_over_neighborhood_derivative_rms": 0.429880109165286
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                5.0211616326123476e-05,
+                2.4324952391907573e-05
+              ],
+              "jump_rms": 3.945193102340112e-05,
+              "jump_maximum_absolute": 5.0211616326123476e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 3.9952917141468395e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0003265666455263272,
+              "jump_rms_over_neighborhood_derivative_rms": 0.9874605872634195
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.005817711353302002,
+                0.0005703940987586975
+              ],
+              "jump_rms": 0.004133467963964264,
+              "jump_maximum_absolute": 0.005817711353302002,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.004859110072148567,
+              "neighborhood_derivative_maximum_absolute": 0.014598876237869263,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8506635788426493
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.0008531231433153152,
+                0.0010295514948666096
+              ],
+              "jump_rms": 0.0009454616275244264,
+              "jump_maximum_absolute": 0.0010295514948666096,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0007447378422755815,
+              "neighborhood_derivative_maximum_absolute": 0.0025974446907639503,
+              "jump_rms_over_neighborhood_derivative_rms": 1.2695227419027397
+            }
+          }
+        },
+        {
+          "kind": "hop",
+          "frame": 515970,
+          "seconds": 11.7,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.011474609375,
+              -0.01165771484375
+            ],
+            "jump_rms": 0.011566524449613785,
+            "jump_maximum_absolute": 0.01165771484375,
+            "neighborhood_frame_interval": [
+              515088,
+              516852
+            ],
+            "neighborhood_derivative_rms": 0.009111971350562856,
+            "neighborhood_derivative_maximum_absolute": 0.04412841796875,
+            "jump_rms_over_neighborhood_derivative_rms": 1.2693767357926677
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -1.5828009054530412e-05,
+                1.3213852071203291e-05
+              ],
+              "jump_rms": 1.4579639179176215e-05,
+              "jump_maximum_absolute": 1.5828009054530412e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 4.5825872205832084e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0003376870445208624,
+              "jump_rms_over_neighborhood_derivative_rms": 0.31815301002215773
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -2.1980296878609806e-05,
+                -2.4284869141411036e-05
+              ],
+              "jump_rms": 2.316126421514251e-05,
+              "jump_maximum_absolute": 2.4284869141411036e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 3.474350744862773e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00034978646544914227,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6666357520002579
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0063707828521728516,
+                -0.006169229745864868
+              ],
+              "jump_rms": 0.006270816127379416,
+              "jump_maximum_absolute": 0.0063707828521728516,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.005500198737535035,
+              "neighborhood_derivative_maximum_absolute": 0.019064906984567642,
+              "jump_rms_over_neighborhood_derivative_rms": 1.1401071900521436
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.004907846450805664,
+                -0.005522295832633972
+              ],
+              "jump_rms": 0.005224112749922818,
+              "jump_maximum_absolute": 0.005522295832633972,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.007270031536567985,
+              "neighborhood_derivative_maximum_absolute": 0.03973311930894852,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7185818553393788
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                1.7125523299910128e-05,
+                3.7398902350105345e-05
+              ],
+              "jump_rms": 2.908574775803847e-05,
+              "jump_maximum_absolute": 3.7398902350105345e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 6.091352436863015e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0004177673836238682,
+              "jump_rms_over_neighborhood_derivative_rms": 0.47749244620981635
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -2.6878115022554994e-07,
+                -1.1588999768719077e-06
+              ],
+              "jump_rms": 8.412171132086763e-07,
+              "jump_maximum_absolute": 1.1588999768719077e-06,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 3.81039309298535e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00039697666943538934,
+              "jump_rms_over_neighborhood_derivative_rms": 0.02207691155952635
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0064936429262161255,
+                -0.006157860159873962
+              ],
+              "jump_rms": 0.006327979148265254,
+              "jump_maximum_absolute": 0.0064936429262161255,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.005503638953804982,
+              "neighborhood_derivative_maximum_absolute": 0.01895768177928403,
+              "jump_rms_over_neighborhood_derivative_rms": 1.1497809361005338
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.004874229431152344,
+                -0.0055435821413993835
+              ],
+              "jump_rms": 0.0052196463245105925,
+              "jump_maximum_absolute": 0.0055435821413993835,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.007265403237388893,
+              "neighborhood_derivative_maximum_absolute": 0.03981512784957886,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7184248628692048
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 601965,
+          "seconds": 13.65,
+          "source": {
+            "signed_jump_per_channel": [
+              0.00238037109375,
+              -0.00103759765625
+            ],
+            "jump_rms": 0.0018361339058216948,
+            "jump_maximum_absolute": 0.00238037109375,
+            "neighborhood_frame_interval": [
+              601083,
+              602847
+            ],
+            "neighborhood_derivative_rms": 0.005572649074528347,
+            "neighborhood_derivative_maximum_absolute": 0.022705078125,
+            "jump_rms_over_neighborhood_derivative_rms": 0.3294903162329668
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -3.7127145333215594e-05,
+                -2.1045227185823023e-05
+              ],
+              "jump_rms": 3.0177197582749603e-05,
+              "jump_maximum_absolute": 3.7127145333215594e-05,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 4.136279241860331e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00031134296295931563,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7295735084166397
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -1.275022077606991e-05,
+                -1.973561302293092e-05
+              ],
+              "jump_rms": 1.6614188984560837e-05,
+              "jump_maximum_absolute": 1.973561302293092e-05,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 2.9180270942114544e-05,
+              "neighborhood_derivative_maximum_absolute": 0.000241394795011729,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5693637669615446
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.003982683643698692,
+                -0.0005868896842002869
+              ],
+              "jump_rms": 0.002846595203678054,
+              "jump_maximum_absolute": 0.003982683643698692,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.004760228038735847,
+              "neighborhood_derivative_maximum_absolute": 0.016501154750585556,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5979955541024904
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.001625182805582881,
+                -0.00036431802436709404
+              ],
+              "jump_rms": 0.0011776983430490566,
+              "jump_maximum_absolute": 0.001625182805582881,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.002714512251745642,
+              "neighborhood_derivative_maximum_absolute": 0.013327161781489849,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4338526533787811
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.00011367041588528082,
+                5.9901547501794994e-05
+              ],
+              "jump_rms": 9.085471600484617e-05,
+              "jump_maximum_absolute": 0.00011367041588528082,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 5.681759192609945e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00035743708031077404,
+              "jump_rms_over_neighborhood_derivative_rms": 1.5990596032830386
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                7.696944521740079e-07,
+                -1.3552176824305207e-05
+              ],
+              "jump_rms": 9.598279174595376e-06,
+              "jump_maximum_absolute": 1.3552176824305207e-05,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 3.259260845499563e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00029436330623866525,
+              "jump_rms_over_neighborhood_derivative_rms": 0.2944925131674817
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.004047181457281113,
+                -0.0005739219486713409
+              ],
+              "jump_rms": 0.0028904207437090174,
+              "jump_maximum_absolute": 0.004047181457281113,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.004761046135412536,
+              "neighborhood_derivative_maximum_absolute": 0.016594212502241135,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6070978229364643
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.0016207476146519184,
+                -0.000321872066706419
+              ],
+              "jump_rms": 0.001168422966593379,
+              "jump_maximum_absolute": 0.0016207476146519184,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00271457880353856,
+              "neighborhood_derivative_maximum_absolute": 0.013349608518183231,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4304251418563697
+            }
+          }
+        },
+        {
+          "kind": "hop",
+          "frame": 773955,
+          "seconds": 17.55,
+          "source": {
+            "signed_jump_per_channel": [
+              0.00860595703125,
+              0.00262451171875
+            ],
+            "jump_rms": 0.006362018476300481,
+            "jump_maximum_absolute": 0.00860595703125,
+            "neighborhood_frame_interval": [
+              773073,
+              774837
+            ],
+            "neighborhood_derivative_rms": 0.010201779260836768,
+            "neighborhood_derivative_maximum_absolute": 0.04180908203125,
+            "jump_rms_over_neighborhood_derivative_rms": 0.6236185192443242
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -9.308423614129424e-07,
+                6.460538133978844e-05
+              ],
+              "jump_rms": 4.568764474976405e-05,
+              "jump_maximum_absolute": 6.460538133978844e-05,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 5.5338125607725695e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00046148733963491395,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8256088229953644
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -1.1292884664726444e-05,
+                3.45808712154394e-05
+              ],
+              "jump_rms": 2.5723198654809817e-05,
+              "jump_maximum_absolute": 3.45808712154394e-05,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 3.45368831264888e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0003640911181719275,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7448037091419192
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.0037553906440734863,
+                0.00023302435874938965
+              ],
+              "jump_rms": 0.002660569416625437,
+              "jump_maximum_absolute": 0.0037553906440734863,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.008452442051014114,
+              "neighborhood_derivative_maximum_absolute": 0.02687813714146614,
+              "jump_rms_over_neighborhood_derivative_rms": 0.31476931762060706
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.004882776644080877,
+                0.0026797885075211525
+              ],
+              "jump_rms": 0.003938449834708077,
+              "jump_maximum_absolute": 0.004882776644080877,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.00571514914565244,
+              "neighborhood_derivative_maximum_absolute": 0.03635213756933808,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6891245940106546
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                1.8275357433594763e-05,
+                -1.8522085156291723e-05
+              ],
+              "jump_rms": 1.8399134869098733e-05,
+              "jump_maximum_absolute": 1.8522085156291723e-05,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 6.63486669808086e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0005156263941898942,
+              "jump_rms_over_neighborhood_derivative_rms": 0.27730978942532025
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                2.983495323860552e-05,
+                6.775211750209564e-05
+              ],
+              "jump_rms": 5.234727242544521e-05,
+              "jump_maximum_absolute": 6.775211750209564e-05,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 3.8198477879096154e-05,
+              "neighborhood_derivative_maximum_absolute": 0.000431238477176521,
+              "jump_rms_over_neighborhood_derivative_rms": 1.370402050865275
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.0037764981389045715,
+                0.000353984534740448
+              ],
+              "jump_rms": 0.0026820927690877046,
+              "jump_maximum_absolute": 0.0037764981389045715,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.008451412672493669,
+              "neighborhood_derivative_maximum_absolute": 0.02679479867219925,
+              "jump_rms_over_neighborhood_derivative_rms": 0.31735437293423846
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.004914357792586088,
+                0.0026070838794112206
+              ],
+              "jump_rms": 0.003933687765178972,
+              "jump_maximum_absolute": 0.004914357792586088,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.005715072746256169,
+              "neighborhood_derivative_maximum_absolute": 0.03633493999950588,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6883005588609268
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 859950,
+          "seconds": 19.5,
+          "source": {
+            "signed_jump_per_channel": [
+              0.016082763671875,
+              0.0068359375
+            ],
+            "jump_rms": 0.012356887327099986,
+            "jump_maximum_absolute": 0.016082763671875,
+            "neighborhood_frame_interval": [
+              859068,
+              860832
+            ],
+            "neighborhood_derivative_rms": 0.014863190782924406,
+            "neighborhood_derivative_maximum_absolute": 0.070220947265625,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8313751406122171
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                1.628382597118616e-05,
+                -2.7618894819170237e-05
+              ],
+              "jump_rms": 2.2671196916928158e-05,
+              "jump_maximum_absolute": 2.7618894819170237e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 9.965256080715485e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0005753073783125728,
+              "jump_rms_over_neighborhood_derivative_rms": 0.22750240167737276
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -2.2567473934032023e-06,
+                -4.937731137033552e-05
+              ],
+              "jump_rms": 3.4951479131509565e-05,
+              "jump_maximum_absolute": 4.937731137033552e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 5.418128256897994e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0003414702950976789,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6450840119373643
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.014824315905570984,
+                0.0039445385336875916
+              ],
+              "jump_rms": 0.010847113125433678,
+              "jump_maximum_absolute": 0.014824315905570984,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.00796476822514674,
+              "neighborhood_derivative_maximum_absolute": 0.026837646961212158,
+              "jump_rms_over_neighborhood_derivative_rms": 1.361886852047579
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.0009368807077407837,
+                0.0027584433555603027
+              ],
+              "jump_rms": 0.0020599460194834786,
+              "jump_maximum_absolute": 0.0027584433555603027,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.01201462235932836,
+              "neighborhood_derivative_maximum_absolute": 0.06387978792190552,
+              "jump_rms_over_neighborhood_derivative_rms": 0.17145324737436304
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                1.5533703844994307e-05,
+                -1.1969212209805846e-05
+              ],
+              "jump_rms": 1.3866470280272414e-05,
+              "jump_maximum_absolute": 1.5533703844994307e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.00010562314125565232,
+              "neighborhood_derivative_maximum_absolute": 0.0006141517369542271,
+              "jump_rms_over_neighborhood_derivative_rms": 0.13128250225686564
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                2.1271960576996207e-05,
+                -1.3798620784655213e-05
+              ],
+              "jump_rms": 1.7929002235874694e-05,
+              "jump_maximum_absolute": 2.1271960576996207e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 5.733408751104027e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00035917386412620544,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3127110417938069
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.014814317226409912,
+                0.003883466124534607
+              ],
+              "jump_rms": 0.01082924983609468,
+              "jump_maximum_absolute": 0.014814317226409912,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.007966181124083139,
+              "neighborhood_derivative_maximum_absolute": 0.02686828374862671,
+              "jump_rms_over_neighborhood_derivative_rms": 1.359402914321894
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.0009937137365341187,
+                0.002785921096801758
+              ],
+              "jump_rms": 0.0020915094247673984,
+              "jump_maximum_absolute": 0.002785921096801758,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.012018464813474421,
+              "neighborhood_derivative_maximum_absolute": 0.0637563019990921,
+              "jump_rms_over_neighborhood_derivative_rms": 0.17402467430137306
+            }
+          }
+        }
+      ],
+      "audition": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.mp3",
+        "bytes": 654414,
+        "sha256": "79409d054f3b7a30ea2b89050dd90c2a3bd2d56cde9fa06428c8371b61c86045",
+        "backend": "vulkan",
+        "segments": [
+          {
+            "label": "source",
+            "preview_start_seconds": 0.0,
+            "preview_end_seconds": 5.0,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "drums",
+            "preview_start_seconds": 5.25,
+            "preview_end_seconds": 10.25,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "bass",
+            "preview_start_seconds": 10.5,
+            "preview_end_seconds": 15.5,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "other",
+            "preview_start_seconds": 15.75,
+            "preview_end_seconds": 20.75,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "vocals",
+            "preview_start_seconds": 21.0,
+            "preview_end_seconds": 26.0,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "recombined",
+            "preview_start_seconds": 26.25,
+            "preview_end_seconds": 31.25,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          }
+        ],
+        "preview_pcm_frames": 1378125,
+        "preview_pcm_seconds": 31.25,
+        "decoded_frames": 1378125,
+        "gap_frames": 11025,
+        "edge_fade_frames_per_segment": 221,
+        "edge_fade_nominal_ms": 5,
+        "common_gain": 1.0,
+        "peak_before_gain_after_edge_fades": 0.9213193208997836,
+        "decoded_sample_peak": 0.9254862070083618,
+        "encoding_attempts": [
+          {
+            "common_gain": 1.0,
+            "decoded_sample_peak": 0.9254862070083618
+          }
+        ],
+        "encode_command": [
+          "/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-y",
+          "-f",
+          "f32le",
+          "-ar",
+          "44100",
+          "-ac",
+          "2",
+          "-i",
+          "pipe:0",
+          "-codec:a",
+          "libmp3lame",
+          "-q:a",
+          "2",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.mp3"
+        ],
+        "decode_command": [
+          "/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-i",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.mp3",
+          "-f",
+          "f32le",
+          "-acodec",
+          "pcm_f32le",
+          "-ar",
+          "44100",
+          "-ac",
+          "2",
+          "pipe:1"
+        ],
+        "lossless_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav",
+          "bytes": 11025092,
+          "sha256": "9a11d2224e6f5273615e884ecac74ca16866ab0554bd7cd87c1bb0ec625e73d6",
+          "codec": "pcm_f32le",
+          "exact_float32_roundtrip": true,
+          "encode_command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-f",
+            "f32le",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "-i",
+            "pipe:0",
+            "-codec:a",
+            "pcm_f32le",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav"
+          ],
+          "decode_command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/parting_glass-listen.wav",
+            "-f",
+            "f32le",
+            "-acodec",
+            "pcm_f32le",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "pipe:1"
+          ]
+        },
+        "internal_join_frames_in_each_excerpt": [
+          110250,
+          196245
+        ],
+        "scope": "Same source interval and one common attenuation for all six segments; only outer excerpt edges faded. Internal joins untouched. MP3 is lossy; raw NPY output is the numerical evidence. Sample peak check does not measure intersample true peak. No sound played."
+      }
+    },
+    {
+      "id": "funkorama",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/funkorama-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "f95e37f12febc0eb27a73aa19433356e590bd7236c2cbd4815498584127aa9f7",
+        "frames": 1031940
+      },
+      "outputs": {
+        "cpu": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/funkorama.npy",
+          "bytes": 33022208,
+          "sha256": "d9670d224c905d80fcc98b661a85a492175b8b11d11af8ebb0febd5ad7e14e6f"
+        },
+        "vulkan": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/funkorama.npy",
+          "bytes": 33022208,
+          "sha256": "ce9860494ad0aae77cf5abc00a057dca855d4b11db1fc9daf7c311768082cf24"
+        }
+      },
+      "annotations": {
+        "id": "funkorama",
+        "title": "Funkorama",
+        "artist": "Kevin MacLeod",
+        "source_page": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100474",
+        "metadata_url": "https://incompetech.com/music/royalty-free/pieces.json",
+        "download_url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Funkorama.mp3",
+        "download_link_evidence": "Official page renderTrack constructs its MP3 link from official pieces.json filename using encodeURIComponent.",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "official_genre": "Funk",
+        "official_tags": [
+          "Grooving",
+          "Uplifting"
+        ],
+        "bpm": 101,
+        "official_duration": "00:03:21",
+        "official_instruments_or_credits": "Guitar, Bass, Drum Kit, Organ, Synth",
+        "official_audio_metadata": {
+          "title": "Funkorama",
+          "filename": "Funkorama.mp3",
+          "length": "00:03:21",
+          "instruments": "Guitar, Bass, Drum Kit, Organ, Synth",
+          "genre": "8",
+          "bpm": "101",
+          "description": "Clean audio mix with an interesting electronic drum kit and odd chord progressions. Nice grooving bass line.",
+          "feel": "Grooving, Uplifting",
+          "uploaded": "2008-06-16",
+          "isrc": "USUAN1100474",
+          "collection": "11",
+          "sheetmusic": null,
+          "video": null,
+          "itunes": "https://itunes.apple.com/us/album/funkorama/id945494837?i=945494847",
+          "filmmusicURL": "https://incompetech.filmmusic.io/song/3788-funkorama/"
+        },
+        "published_cryptographic_digest": null,
+        "attribution": "\"Funkorama\" Kevin MacLeod (incompetech.com), CC BY 4.0. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3_sha256": "6be229815d85a0b99382b944d31098b882702c04ac7ad899e44ab7f8ba89b5ad",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.941085021222063,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "geometry_finite_full_coverage_verified": true,
+      "cpu_vulkan": {
+        "drums": {
+          "reference_rms": 0.07303837562920712,
+          "candidate_rms": 0.07306497247879454,
+          "rms_error": 0.0009826316484603324,
+          "maximum_absolute_error": 0.03432280570268631,
+          "bias": -9.474213385873854e-07,
+          "bias_per_channel": [
+            -2.230843101279937e-06,
+            3.360004241051665e-07
+          ],
+          "rms_error_relative_to_reference": 0.013453635023988546,
+          "error_to_reference_db": -37.423207164427204,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999095990080225
+          }
+        },
+        "bass": {
+          "reference_rms": 0.10813708238095784,
+          "candidate_rms": 0.10798013397689116,
+          "rms_error": 0.0008494702508580424,
+          "maximum_absolute_error": 0.027363136410713196,
+          "bias": -1.0128126522060613e-06,
+          "bias_per_channel": [
+            -1.2459085737782391e-06,
+            -7.797167306338834e-07
+          ],
+          "rms_error_relative_to_reference": 0.007855494453469997,
+          "error_to_reference_db": -42.096529473701736,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999701555929613
+          }
+        },
+        "other": {
+          "reference_rms": 0.037656791702982355,
+          "candidate_rms": 0.03765557722578386,
+          "rms_error": 0.0002364557842661182,
+          "maximum_absolute_error": 0.007883012294769287,
+          "bias": -1.1382222191318232e-05,
+          "bias_per_channel": [
+            -1.339179277288873e-05,
+            -9.372651609747733e-06
+          ],
+          "rms_error_relative_to_reference": 0.006279233401803354,
+          "error_to_reference_db": -44.04186747458283,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.999980332591253
+          }
+        },
+        "vocals": {
+          "reference_rms": 0.013248078620016118,
+          "candidate_rms": 0.013261791431819788,
+          "rms_error": 8.695607494804293e-05,
+          "maximum_absolute_error": 0.0026806769892573357,
+          "bias": -9.928561160114984e-06,
+          "bias_per_channel": [
+            -9.959828375193709e-06,
+            -9.897293945036259e-06
+          ],
+          "rms_error_relative_to_reference": 0.0065636744347715185,
+          "error_to_reference_db": -43.65705937105271,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999792966320294
+          }
+        }
+      },
+      "recombination": {
+        "cpu": {
+          "reference_rms": 0.1385771655551963,
+          "candidate_rms": 0.13818215077485113,
+          "rms_error": 0.004798619582733443,
+          "maximum_absolute_error": 0.15925034135580063,
+          "bias": 8.619176468277834e-05,
+          "bias_per_channel": [
+            9.63541620745984e-05,
+            7.602936729095828e-05
+          ],
+          "rms_error_relative_to_reference": 0.034627779861914676,
+          "error_to_reference_db": -29.21150704144982,
+          "exact_zero_error": false
+        },
+        "vulkan": {
+          "reference_rms": 0.1385771655551963,
+          "candidate_rms": 0.13817448948323094,
+          "rms_error": 0.004799537185943025,
+          "maximum_absolute_error": 0.15852748975157738,
+          "bias": 6.292074734055168e-05,
+          "bias_per_channel": [
+            6.952578925145779e-05,
+            5.631570542964557e-05
+          ],
+          "rms_error_relative_to_reference": 0.03463440146660623,
+          "error_to_reference_db": -29.209846264193033,
+          "exact_zero_error": false
+        }
+      },
+      "references": {
+        "status": "not_supplied",
+        "stems": {}
+      },
+      "joins": [
+        {
+          "kind": "hop",
+          "frame": 257985,
+          "seconds": 5.85,
+          "source": {
+            "signed_jump_per_channel": [
+              0.032073974609375,
+              0.043792724609375
+            ],
+            "jump_rms": 0.03838321622763907,
+            "jump_maximum_absolute": 0.043792724609375,
+            "neighborhood_frame_interval": [
+              257103,
+              258867
+            ],
+            "neighborhood_derivative_rms": 0.05422052922751349,
+            "neighborhood_derivative_maximum_absolute": 0.2149658203125,
+            "jump_rms_over_neighborhood_derivative_rms": 0.7079092877640526
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.0004749596118927002,
+                -0.0001558437943458557
+              ],
+              "jump_rms": 0.00035346422815143384,
+              "jump_maximum_absolute": 0.0004749596118927002,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.0029370873544360735,
+              "neighborhood_derivative_maximum_absolute": 0.014277933165431023,
+              "jump_rms_over_neighborhood_derivative_rms": 0.12034515337706041
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -0.0005775988101959229,
+                -0.0008871480822563171
+              ],
+              "jump_rms": 0.000748549298774238,
+              "jump_maximum_absolute": 0.0008871480822563171,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.0024370871295546323,
+              "neighborhood_derivative_maximum_absolute": 0.01168227568268776,
+              "jump_rms_over_neighborhood_derivative_rms": 0.30714917398584446
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.03214536793529987,
+                0.038932093884795904
+              ],
+              "jump_rms": 0.03570036844312932,
+              "jump_maximum_absolute": 0.038932093884795904,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.0504128974730756,
+              "neighborhood_derivative_maximum_absolute": 0.19855860620737076,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7081594241274486
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.00014442205429077148,
+                0.0007316265255212784
+              ],
+              "jump_rms": 0.0005273211083447658,
+              "jump_maximum_absolute": 0.0007316265255212784,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.004309137119529653,
+              "neighborhood_derivative_maximum_absolute": 0.014943897258490324,
+              "jump_rms_over_neighborhood_derivative_rms": 0.12237278455467748
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.0006495937705039978,
+                -0.0002734437584877014
+              ],
+              "jump_rms": 0.0004983691180909392,
+              "jump_maximum_absolute": 0.0006495937705039978,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.002936357527458205,
+              "neighborhood_derivative_maximum_absolute": 0.0141653623431921,
+              "jump_rms_over_neighborhood_derivative_rms": 0.16972358216962147
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -0.0006031021475791931,
+                -0.0009024143218994141
+              ],
+              "jump_rms": 0.0007674906542700745,
+              "jump_maximum_absolute": 0.0009024143218994141,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.002436438130674523,
+              "neighborhood_derivative_maximum_absolute": 0.011679504066705704,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3150051891765445
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.03221826534718275,
+                0.038608911447227
+              ],
+              "jump_rms": 0.03555745115388119,
+              "jump_maximum_absolute": 0.038608911447227,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.05041573101141721,
+              "neighborhood_derivative_maximum_absolute": 0.19866863638162613,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7052848474185329
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.00011736154556274414,
+                0.0007411949336528778
+              ],
+              "jump_rms": 0.0005306334243381065,
+              "jump_maximum_absolute": 0.0007411949336528778,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.004310213540670503,
+              "neighborhood_derivative_maximum_absolute": 0.014928772579878569,
+              "jump_rms_over_neighborhood_derivative_rms": 0.1231107042217589
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 343980,
+          "seconds": 7.8,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.0550537109375,
+              -0.0509033203125
+            ],
+            "jump_rms": 0.05301914327309892,
+            "jump_maximum_absolute": 0.0550537109375,
+            "neighborhood_frame_interval": [
+              343098,
+              344862
+            ],
+            "neighborhood_derivative_rms": 0.03579931890376243,
+            "neighborhood_derivative_maximum_absolute": 0.160980224609375,
+            "jump_rms_over_neighborhood_derivative_rms": 1.481009831936404
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.049528124276548624,
+                -0.04977552127093077
+              ],
+              "jump_rms": 0.04965197685966857,
+              "jump_maximum_absolute": 0.04977552127093077,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.034049756507111874,
+              "neighborhood_derivative_maximum_absolute": 0.1537336092442274,
+              "jump_rms_over_neighborhood_derivative_rms": 1.4582182650644773
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.00013241356282378547,
+                0.00017501266120234504
+              ],
+              "jump_rms": 0.00015518180176943332,
+              "jump_maximum_absolute": 0.00017501266120234504,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0002590117747633986,
+              "neighborhood_derivative_maximum_absolute": 0.001144856825703755,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5991302978839027
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0005754940211772919,
+                0.003898442257195711
+              ],
+              "jump_rms": 0.0027864893146305083,
+              "jump_maximum_absolute": 0.003898442257195711,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.004973414432721197,
+              "neighborhood_derivative_maximum_absolute": 0.019120000302791595,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5602769188703794
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                2.2185122361406684e-05,
+                3.0109375074971467e-05
+              ],
+              "jump_rms": 2.6445738046005636e-05,
+              "jump_maximum_absolute": 3.0109375074971467e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 9.316568474194833e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0007201121679827338,
+              "jump_rms_over_neighborhood_derivative_rms": 0.2838570673231826
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.05030577117577195,
+                -0.0493351835757494
+              ],
+              "jump_rms": 0.04982284090676695,
+              "jump_maximum_absolute": 0.05030577117577195,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.03404618392371151,
+              "neighborhood_derivative_maximum_absolute": 0.1530473344027996,
+              "jump_rms_over_neighborhood_derivative_rms": 1.4633898770683598
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0001590957908774726,
+                0.0001757042482495308
+              ],
+              "jump_rms": 0.00016760586733145896,
+              "jump_maximum_absolute": 0.0001757042482495308,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0002604345552823257,
+              "neighborhood_derivative_maximum_absolute": 0.0012574275606311858,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6435623227868698
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.00039404258131980896,
+                0.0036371417809277773
+              ],
+              "jump_rms": 0.002586896779006041,
+              "jump_maximum_absolute": 0.0036371417809277773,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.004980659997074031,
+              "neighborhood_derivative_maximum_absolute": 0.01858703140169382,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5193883502438944
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                3.983267379226163e-05,
+                4.290569631848484e-05
+              ],
+              "jump_rms": 4.1397709344930976e-05,
+              "jump_maximum_absolute": 4.290569631848484e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 9.930880819737834e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0007056076137814671,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4168583844310382
+            }
+          }
+        },
+        {
+          "kind": "hop",
+          "frame": 515970,
+          "seconds": 11.7,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.008880615234375,
+              -0.000885009765625
+            ],
+            "jump_rms": 0.006310648509712174,
+            "jump_maximum_absolute": 0.008880615234375,
+            "neighborhood_frame_interval": [
+              515088,
+              516852
+            ],
+            "neighborhood_derivative_rms": 0.004425726075884388,
+            "neighborhood_derivative_maximum_absolute": 0.013641357421875,
+            "jump_rms_over_neighborhood_derivative_rms": 1.425901287496905
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                7.258886216732208e-05,
+                3.268019645474851e-05
+              ],
+              "jump_rms": 5.629004419552111e-05,
+              "jump_maximum_absolute": 7.258886216732208e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 6.962040084162511e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0007526147819589823,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8085280106842769
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                3.070983802899718e-05,
+                1.268548658117652e-05
+              ],
+              "jump_rms": 2.3494847536943617e-05,
+              "jump_maximum_absolute": 3.070983802899718e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 5.077285276605173e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0009757817315403372,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4627442866998599
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.008861499140039086,
+                -0.000918705016374588
+              ],
+              "jump_rms": 0.006299610540185214,
+              "jump_maximum_absolute": 0.008861499140039086,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.004452256048543294,
+              "neighborhood_derivative_maximum_absolute": 0.013745365664362907,
+              "jump_rms_over_neighborhood_derivative_rms": 1.414925483058492
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                2.0347293684608303e-05,
+                1.758640428306535e-05
+              ],
+              "jump_rms": 1.9017018376905464e-05,
+              "jump_maximum_absolute": 2.0347293684608303e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 5.322929191945237e-05,
+              "neighborhood_derivative_maximum_absolute": 0.000868926290422678,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3572660407672226
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                1.2492237146943808e-05,
+                5.1448342674120795e-05
+              ],
+              "jump_rms": 3.743653264425835e-05,
+              "jump_maximum_absolute": 5.1448342674120795e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 7.63604974589246e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0007725389878032729,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4902604604481
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                4.3353415094316006e-05,
+                2.7155096177011728e-05
+              ],
+              "jump_rms": 3.61726267274221e-05,
+              "jump_maximum_absolute": 4.3353415094316006e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 5.355542767241804e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0009495786507613957,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6754241035787979
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.008786130929365754,
+                -0.0009794430807232857
+              ],
+              "jump_rms": 0.006251216099941444,
+              "jump_maximum_absolute": 0.008786130929365754,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.004451512381277161,
+              "neighborhood_derivative_maximum_absolute": 0.013734986074268818,
+              "jump_rms_over_neighborhood_derivative_rms": 1.4042903994232943
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -1.0492174624232575e-05,
+                -1.4800956705585122e-05
+              ],
+              "jump_rms": 1.2828757690166168e-05,
+              "jump_maximum_absolute": 1.4800956705585122e-05,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 6.377309238465524e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0009712020691949874,
+              "jump_rms_over_neighborhood_derivative_rms": 0.20116254693731864
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 601965,
+          "seconds": 13.65,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.01751708984375,
+              -0.084747314453125
+            ],
+            "jump_rms": 0.061192138970667054,
+            "jump_maximum_absolute": 0.084747314453125,
+            "neighborhood_frame_interval": [
+              601083,
+              602847
+            ],
+            "neighborhood_derivative_rms": 0.05778327049890664,
+            "neighborhood_derivative_maximum_absolute": 0.252410888671875,
+            "jump_rms_over_neighborhood_derivative_rms": 1.0589940382800747
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                0.00016146403504535556,
+                -0.0011178749264217913
+              ],
+              "jump_rms": 0.0007986598104749147,
+              "jump_maximum_absolute": 0.0011178749264217913,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.0008185270260196288,
+              "neighborhood_derivative_maximum_absolute": 0.003308443585410714,
+              "jump_rms_over_neighborhood_derivative_rms": 0.9757280884892398
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -0.0039231181144714355,
+                -0.003988683223724365
+              ],
+              "jump_rms": 0.0039560365013049425,
+              "jump_maximum_absolute": 0.003988683223724365,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.002418572523080407,
+              "neighborhood_derivative_maximum_absolute": 0.007497340440750122,
+              "jump_rms_over_neighborhood_derivative_rms": 1.6356906661067783
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.015697598457336426,
+                -0.08230974525213242
+              ],
+              "jump_rms": 0.05925077535694662,
+              "jump_maximum_absolute": 0.08230974525213242,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.05566806762422787,
+              "neighborhood_derivative_maximum_absolute": 0.24597233533859253,
+              "jump_rms_over_neighborhood_derivative_rms": 1.0643583994490853
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -5.788232374470681e-05,
+                2.906224108301103e-05
+              ],
+              "jump_rms": 4.579834745301463e-05,
+              "jump_maximum_absolute": 5.788232374470681e-05,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00011869229525047832,
+              "neighborhood_derivative_maximum_absolute": 0.0013534366735257208,
+              "jump_rms_over_neighborhood_derivative_rms": 0.38585779604620185
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                0.00013321585720404983,
+                -0.0011808312847279012
+              ],
+              "jump_rms": 0.0008402704884746207,
+              "jump_maximum_absolute": 0.0011808312847279012,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.0008175954058820475,
+              "neighborhood_derivative_maximum_absolute": 0.0032984105637297034,
+              "jump_rms_over_neighborhood_derivative_rms": 1.0277338674232281
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -0.003902822732925415,
+                -0.003972664475440979
+              ],
+              "jump_rms": 0.003937898444543114,
+              "jump_maximum_absolute": 0.003972664475440979,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.002417905351077434,
+              "neighborhood_derivative_maximum_absolute": 0.007504049688577652,
+              "jump_rms_over_neighborhood_derivative_rms": 1.6286404440059494
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.015845846384763718,
+                -0.08268078975379467
+              ],
+              "jump_rms": 0.05952816073910199,
+              "jump_maximum_absolute": 0.08268078975379467,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.05567539947597686,
+              "neighborhood_derivative_maximum_absolute": 0.24610820040106773,
+              "jump_rms_over_neighborhood_derivative_rms": 1.0692004242338224
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -5.505602166522294e-05,
+                2.8107926482334733e-05
+              ],
+              "jump_rms": 4.371053106939924e-05,
+              "jump_maximum_absolute": 5.505602166522294e-05,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00012396077272801872,
+              "neighborhood_derivative_maximum_absolute": 0.0014343566726893187,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3526158324722946
+            }
+          }
+        },
+        {
+          "kind": "hop",
+          "frame": 773955,
+          "seconds": 17.55,
+          "source": {
+            "signed_jump_per_channel": [
+              0.051239013671875,
+              0.049072265625
+            ],
+            "jump_rms": 0.05016733885526095,
+            "jump_maximum_absolute": 0.051239013671875,
+            "neighborhood_frame_interval": [
+              773073,
+              774837
+            ],
+            "neighborhood_derivative_rms": 0.019612903330171443,
+            "neighborhood_derivative_maximum_absolute": 0.178009033203125,
+            "jump_rms_over_neighborhood_derivative_rms": 2.5578741714433577
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                0.04460254590958357,
+                0.04128741379827261
+              ],
+              "jump_rms": 0.042976956847631156,
+              "jump_maximum_absolute": 0.04460254590958357,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.016862872537849398,
+              "neighborhood_derivative_maximum_absolute": 0.1475649680942297,
+              "jump_rms_over_neighborhood_derivative_rms": 2.548614226382109
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -0.00022073561558499932,
+                -4.962499951943755e-05
+              ],
+              "jump_rms": 0.00015997945581385252,
+              "jump_maximum_absolute": 0.00022073561558499932,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.002479150642191207,
+              "neighborhood_derivative_maximum_absolute": 0.012533451430499554,
+              "jump_rms_over_neighborhood_derivative_rms": 0.06452994549474171
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.001540815457701683,
+                0.0009659957140684128
+              ],
+              "jump_rms": 0.0012859354560573772,
+              "jump_maximum_absolute": 0.001540815457701683,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.006031027415463943,
+              "neighborhood_derivative_maximum_absolute": 0.027443626895546913,
+              "jump_rms_over_neighborhood_derivative_rms": 0.21321996526829837
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.00016499900402777712,
+                0.00012787004015990533
+              ],
+              "jump_rms": 0.00014760660300381926,
+              "jump_maximum_absolute": 0.00016499900402777712,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 6.78092725400166e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0007169432356022298,
+              "jump_rms_over_neighborhood_derivative_rms": 2.1767908351577065
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                0.04474645992740989,
+                0.04148097615689039
+              ],
+              "jump_rms": 0.04314462341337451,
+              "jump_maximum_absolute": 0.04474645992740989,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.016864482530888122,
+              "neighborhood_derivative_maximum_absolute": 0.1468347180634737,
+              "jump_rms_over_neighborhood_derivative_rms": 2.5583129120240145
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -0.00021845861192559823,
+                -5.166315531823784e-05
+              ],
+              "jump_rms": 0.00015873444292574862,
+              "jump_maximum_absolute": 0.00021845861192559823,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.0024751835994280638,
+              "neighborhood_derivative_maximum_absolute": 0.012587704695761204,
+              "jump_rms_over_neighborhood_derivative_rms": 0.06413037116213403
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0016512218862771988,
+                0.000882953405380249
+              ],
+              "jump_rms": 0.001324035579920987,
+              "jump_maximum_absolute": 0.0016512218862771988,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.006046092751591164,
+              "neighborhood_derivative_maximum_absolute": 0.027640368789434433,
+              "jump_rms_over_neighborhood_derivative_rms": 0.21899028584577
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                0.00017537713938509114,
+                0.00013688648368770373
+              ],
+              "jump_rms": 0.00015731346165424252,
+              "jump_maximum_absolute": 0.00017537713938509114,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 8.267576334868671e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0011046478030038998,
+              "jump_rms_over_neighborhood_derivative_rms": 1.9027760407940812
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 859950,
+          "seconds": 19.5,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.001617431640625,
+              6.103515625e-05
+            ],
+            "jump_rms": 0.0011445109004271958,
+            "jump_maximum_absolute": 0.001617431640625,
+            "neighborhood_frame_interval": [
+              859068,
+              860832
+            ],
+            "neighborhood_derivative_rms": 0.0024198812768859075,
+            "neighborhood_derivative_maximum_absolute": 0.015716552734375,
+            "jump_rms_over_neighborhood_derivative_rms": 0.4729615916943008
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -2.7026660973206162e-05,
+                -8.384620014112443e-05
+              ],
+              "jump_rms": 6.229215713661761e-05,
+              "jump_maximum_absolute": 8.384620014112443e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.00011612615589236075,
+              "neighborhood_derivative_maximum_absolute": 0.0017491026665084064,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5364179728325567
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -1.7842394299805164e-05,
+                -2.0776409655809402e-05
+              ],
+              "jump_rms": 1.9365048832054748e-05,
+              "jump_maximum_absolute": 2.0776409655809402e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.0019991126012191564,
+              "neighborhood_derivative_maximum_absolute": 0.013740405440330505,
+              "jump_rms_over_neighborhood_derivative_rms": 0.009686822453245003
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0014596711844205856,
+                -1.142662949860096e-05
+              ],
+              "jump_rms": 0.0010321750177391172,
+              "jump_maximum_absolute": 0.0014596711844205856,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.0014469854465827688,
+              "neighborhood_derivative_maximum_absolute": 0.015985140576958656,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7133278501015496
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                7.812512194504961e-06,
+                8.363203960470855e-06
+              ],
+              "jump_rms": 8.092543706206478e-06,
+              "jump_maximum_absolute": 8.363203960470855e-06,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 2.4777330203621482e-05,
+              "neighborhood_derivative_maximum_absolute": 0.00017662672325968742,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3266108026854186
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                5.391941522248089e-05,
+                -7.817010919097811e-05
+              ],
+              "jump_rms": 6.714860128425515e-05,
+              "jump_maximum_absolute": 7.817010919097811e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.00014011202412894774,
+              "neighborhood_derivative_maximum_absolute": 0.0014692432014271617,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4792493842102875
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -1.0349205695092678e-05,
+                -1.2068892829120159e-05
+              ],
+              "jump_rms": 1.124198008893733e-05,
+              "jump_maximum_absolute": 1.2068892829120159e-05,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.0020065677503519103,
+              "neighborhood_derivative_maximum_absolute": 0.013732567429542542,
+              "jump_rms_over_neighborhood_derivative_rms": 0.005602591832229797
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0015034060925245285,
+                -2.618064172565937e-05
+              ],
+              "jump_rms": 0.0010632298211207768,
+              "jump_maximum_absolute": 0.0015034060925245285,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.001448718666655271,
+              "neighborhood_derivative_maximum_absolute": 0.01596149243414402,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7339104862750947
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                2.410291926935315e-06,
+                1.2312375474721193e-06
+              ],
+              "jump_rms": 1.913825105822723e-06,
+              "jump_maximum_absolute": 2.410291926935315e-06,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 3.924418733738195e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0003366362434462644,
+              "jump_rms_over_neighborhood_derivative_rms": 0.04876709738870586
+            }
+          }
+        }
+      ],
+      "audition": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.mp3",
+        "bytes": 765150,
+        "sha256": "c6a9c5aae313dc6f1be06de9fbe9c86c495b9ece2d3817e46e46dc8f312110c0",
+        "backend": "vulkan",
+        "segments": [
+          {
+            "label": "source",
+            "preview_start_seconds": 0.0,
+            "preview_end_seconds": 5.0,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "drums",
+            "preview_start_seconds": 5.25,
+            "preview_end_seconds": 10.25,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "bass",
+            "preview_start_seconds": 10.5,
+            "preview_end_seconds": 15.5,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "other",
+            "preview_start_seconds": 15.75,
+            "preview_end_seconds": 20.75,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "vocals",
+            "preview_start_seconds": 21.0,
+            "preview_end_seconds": 26.0,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "recombined",
+            "preview_start_seconds": 26.25,
+            "preview_end_seconds": 31.25,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          }
+        ],
+        "preview_pcm_frames": 1378125,
+        "preview_pcm_seconds": 31.25,
+        "decoded_frames": 1378125,
+        "gap_frames": 11025,
+        "edge_fade_frames_per_segment": 221,
+        "edge_fade_nominal_ms": 5,
+        "common_gain": 1.0,
+        "peak_before_gain_after_edge_fades": 0.75213623046875,
+        "decoded_sample_peak": 0.7587097883224487,
+        "encoding_attempts": [
+          {
+            "common_gain": 1.0,
+            "decoded_sample_peak": 0.7587097883224487
+          }
+        ],
+        "encode_command": [
+          "/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-y",
+          "-f",
+          "f32le",
+          "-ar",
+          "44100",
+          "-ac",
+          "2",
+          "-i",
+          "pipe:0",
+          "-codec:a",
+          "libmp3lame",
+          "-q:a",
+          "2",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.mp3"
+        ],
+        "decode_command": [
+          "/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-i",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.mp3",
+          "-f",
+          "f32le",
+          "-acodec",
+          "pcm_f32le",
+          "-ar",
+          "44100",
+          "-ac",
+          "2",
+          "pipe:1"
+        ],
+        "lossless_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav",
+          "bytes": 11025092,
+          "sha256": "0e0d9bb3f3a306387152e64a44d54e3cad26484bd4c6f55f5358186d936f0593",
+          "codec": "pcm_f32le",
+          "exact_float32_roundtrip": true,
+          "encode_command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-f",
+            "f32le",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "-i",
+            "pipe:0",
+            "-codec:a",
+            "pcm_f32le",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav"
+          ],
+          "decode_command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/funkorama-listen.wav",
+            "-f",
+            "f32le",
+            "-acodec",
+            "pcm_f32le",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "pipe:1"
+          ]
+        },
+        "internal_join_frames_in_each_excerpt": [
+          110250,
+          196245
+        ],
+        "scope": "Same source interval and one common attenuation for all six segments; only outer excerpt edges faded. Internal joins untouched. MP3 is lossy; raw NPY output is the numerical evidence. Sample peak check does not measure intersample true peak. No sound played."
+      }
+    },
+    {
+      "id": "club_diver",
+      "input": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/assets/club_diver-30s-23p4s.wav",
+        "bytes": 4127804,
+        "sha256": "fbd8da245ef5b9c7485a668c64197ec46bb89a6fc11a42e0c4ceb329ecd3ff88",
+        "frames": 1031940
+      },
+      "outputs": {
+        "cpu": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/cpu/club_diver.npy",
+          "bytes": 33022208,
+          "sha256": "24aede83813270255f441b3909b8c48d1d460c1e92eb348d1b07f447075fc1ed"
+        },
+        "vulkan": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/vulkan/club_diver.npy",
+          "bytes": 33022208,
+          "sha256": "d2dd9df24c82358b08d05fdedf09a134c0c14f8a2054c3061e4167358cb1f5ba"
+        }
+      },
+      "annotations": {
+        "id": "club_diver",
+        "title": "Club Diver",
+        "artist": "Kevin MacLeod",
+        "source_page": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200020",
+        "metadata_url": "https://incompetech.com/music/royalty-free/pieces.json",
+        "download_url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Club%20Diver.mp3",
+        "download_link_evidence": "Official page renderTrack constructs its MP3 link from official pieces.json filename using encodeURIComponent.",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "official_genre": "Electronica",
+        "official_tags": [
+          "Aggressive",
+          "Dark",
+          "Driving",
+          "Grooving",
+          "Intense",
+          "Unnerving"
+        ],
+        "bpm": 140,
+        "official_duration": "00:02:26",
+        "official_instruments_or_credits": "Synths, Percussion, Drum Kit",
+        "official_audio_metadata": {
+          "title": "Club Diver",
+          "filename": "Club Diver.mp3",
+          "length": "00:02:26",
+          "instruments": "Synths, Percussion, Drum Kit",
+          "genre": "7",
+          "bpm": "140",
+          "description": "Almost like euro club meets industrial vampires. I don't think I've ever done anything similar to this from the percussion side... or with those diving chord things.",
+          "feel": "Aggressive, Dark, Driving, Grooving, Intense, Unnerving",
+          "uploaded": "2012-02-19",
+          "isrc": "USUAN1200020",
+          "collection": "12",
+          "sheetmusic": null,
+          "video": null,
+          "itunes": "https://itunes.apple.com/us/album/club-diver/id941937440?i=941937443",
+          "filmmusicURL": null
+        },
+        "published_cryptographic_digest": null,
+        "attribution": "\"Club Diver\" Kevin MacLeod (incompetech.com), CC BY 4.0. Local 30.0\u201353.4 s excerpt, decoded/resampled and quantized for M0 evaluation.",
+        "source_mp3_sha256": "3b8d82e6ed69cbd540e69794a252b7dced75a0af838914a094182115af3effb6",
+        "excerpt_source_offset_seconds": 30.0,
+        "excerpt_frames": 1031940,
+        "excerpt_seconds": 23.4,
+        "common_stereo_gain": 0.9360573494721418,
+        "reference_stems_available": false,
+        "human_listening_required": true
+      },
+      "geometry_finite_full_coverage_verified": true,
+      "cpu_vulkan": {
+        "drums": {
+          "reference_rms": 0.1947393029016659,
+          "candidate_rms": 0.1946907818557548,
+          "rms_error": 0.0007662447518361585,
+          "maximum_absolute_error": 0.008087694644927979,
+          "bias": 9.644752526834217e-06,
+          "bias_per_channel": [
+            1.0551772546153993e-05,
+            8.737732507514441e-06
+          ],
+          "rms_error_relative_to_reference": 0.003934720626082736,
+          "error_to_reference_db": -48.10172196169133,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999922889149739
+          }
+        },
+        "bass": {
+          "reference_rms": 0.06156503997172826,
+          "candidate_rms": 0.061481810953875844,
+          "rms_error": 0.0006041174170493158,
+          "maximum_absolute_error": 0.009271301329135895,
+          "bias": -2.3880223266687448e-05,
+          "bias_per_channel": [
+            -2.6916414004421265e-05,
+            -2.0844032528953627e-05
+          ],
+          "rms_error_relative_to_reference": 0.009812669939412644,
+          "error_to_reference_db": -40.164256178212625,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999525222749924
+          }
+        },
+        "other": {
+          "reference_rms": 0.055658318008005796,
+          "candidate_rms": 0.055727616507336694,
+          "rms_error": 0.0005024894849268548,
+          "maximum_absolute_error": 0.004539892077445984,
+          "bias": -2.86837698295019e-05,
+          "bias_per_channel": [
+            -2.4656798052354594e-05,
+            -3.27107416066492e-05
+          ],
+          "rms_error_relative_to_reference": 0.009028111213396308,
+          "error_to_reference_db": -40.8880619935097,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9999602000529035
+          }
+        },
+        "vocals": {
+          "reference_rms": 0.0012559716586345645,
+          "candidate_rms": 0.0012410570468780616,
+          "rms_error": 4.9834714218491746e-05,
+          "maximum_absolute_error": 0.004774563014507294,
+          "bias": -1.8941296068209093e-05,
+          "bias_per_channel": [
+            -1.8984739802160135e-05,
+            -1.8897852334258052e-05
+          ],
+          "rms_error_relative_to_reference": 0.039678215567913205,
+          "error_to_reference_db": -28.028957348519754,
+          "exact_zero_error": false,
+          "lag_diagnostic": {
+            "search_limit_samples": 256,
+            "lag_samples": 0,
+            "lag_seconds": 0.0,
+            "correlation": 0.9943064997088656
+          }
+        }
+      },
+      "recombination": {
+        "cpu": {
+          "reference_rms": 0.231300601129942,
+          "candidate_rms": 0.22852928101756756,
+          "rms_error": 0.011197464722301721,
+          "maximum_absolute_error": 0.11876339616719633,
+          "bias": 0.004302847470442622,
+          "bias_per_channel": [
+            0.004503594757837542,
+            0.004102100183047701
+          ],
+          "rms_error_relative_to_reference": 0.048410876009834125,
+          "error_to_reference_db": -26.301141171889956,
+          "exact_zero_error": false
+        },
+        "vulkan": {
+          "reference_rms": 0.231300601129942,
+          "candidate_rms": 0.22851557458799354,
+          "rms_error": 0.011178664093695095,
+          "maximum_absolute_error": 0.11891843267949298,
+          "bias": 0.004240986933805058,
+          "bias_per_channel": [
+            0.00444358857852476,
+            0.004038385289085355
+          ],
+          "rms_error_relative_to_reference": 0.04832959378006567,
+          "error_to_reference_db": -26.315737103561037,
+          "exact_zero_error": false
+        }
+      },
+      "references": {
+        "status": "not_supplied",
+        "stems": {}
+      },
+      "joins": [
+        {
+          "kind": "hop",
+          "frame": 257985,
+          "seconds": 5.85,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.0013427734375,
+              -0.02923583984375
+            ],
+            "jump_rms": 0.020694653559239107,
+            "jump_maximum_absolute": 0.02923583984375,
+            "neighborhood_frame_interval": [
+              257103,
+              258867
+            ],
+            "neighborhood_derivative_rms": 0.04624645947655839,
+            "neighborhood_derivative_maximum_absolute": 0.257720947265625,
+            "jump_rms_over_neighborhood_derivative_rms": 0.44748622475043537
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.009400993585586548,
+                -0.024235427379608154
+              ],
+              "jump_rms": 0.01838116727344186,
+              "jump_maximum_absolute": 0.024235427379608154,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.04215475309752294,
+              "neighborhood_derivative_maximum_absolute": 0.2303403876721859,
+              "jump_rms_over_neighborhood_derivative_rms": 0.436040207160458
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                3.8335565477609634e-05,
+                -0.00017320923507213593
+              ],
+              "jump_rms": 0.00012544133029979102,
+              "jump_maximum_absolute": 0.00017320923507213593,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.0002684707072167857,
+              "neighborhood_derivative_maximum_absolute": 0.0016200200188905,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4672440118336605
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.0057756302412599325,
+                -0.007416347041726112
+              ],
+              "jump_rms": 0.006646807810034676,
+              "jump_maximum_absolute": 0.007416347041726112,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.005899444463106223,
+              "neighborhood_derivative_maximum_absolute": 0.025919069536030293,
+              "jump_rms_over_neighborhood_derivative_rms": 1.12668368209961
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -8.922291453927755e-05,
+                -0.00014264858327805996
+              ],
+              "jump_rms": 0.00011897341465663839,
+              "jump_maximum_absolute": 0.00014264858327805996,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.00011729376678353883,
+              "neighborhood_derivative_maximum_absolute": 0.0007690828642807901,
+              "jump_rms_over_neighborhood_derivative_rms": 1.014320009657455
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.009288281202316284,
+                -0.024966299533843994
+              ],
+              "jump_rms": 0.018835979933453435,
+              "jump_maximum_absolute": 0.024966299533843994,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.04218274394400141,
+              "neighborhood_derivative_maximum_absolute": 0.23060020804405212,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4465328276998444
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -1.0984367690980434e-05,
+                -0.00020566140301525593
+              ],
+              "jump_rms": 0.0001456318458026509,
+              "jump_maximum_absolute": 0.00020566140301525593,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.0002659808235712646,
+              "neighborhood_derivative_maximum_absolute": 0.0016260817646980286,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5475276143869505
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.0061444437596946955,
+                -0.0065428465604782104
+              ],
+              "jump_rms": 0.0063467720232419185,
+              "jump_maximum_absolute": 0.0065428465604782104,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.005898245326422777,
+              "neighborhood_derivative_maximum_absolute": 0.025298857770394534,
+              "jump_rms_over_neighborhood_derivative_rms": 1.0760440897244212
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.00014670996461063623,
+                -0.00020239036530256271
+              ],
+              "jump_rms": 0.0001767564336641794,
+              "jump_maximum_absolute": 0.00020239036530256271,
+              "neighborhood_frame_interval": [
+                257103,
+                258867
+              ],
+              "neighborhood_derivative_rms": 0.00012609044055431165,
+              "neighborhood_derivative_maximum_absolute": 0.0007971437298692763,
+              "jump_rms_over_neighborhood_derivative_rms": 1.4018226353015564
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 343980,
+          "seconds": 7.8,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.073394775390625,
+              -0.05621337890625
+            ],
+            "jump_rms": 0.06537100665699559,
+            "jump_maximum_absolute": 0.073394775390625,
+            "neighborhood_frame_interval": [
+              343098,
+              344862
+            ],
+            "neighborhood_derivative_rms": 0.08034938271995681,
+            "neighborhood_derivative_maximum_absolute": 0.476959228515625,
+            "jump_rms_over_neighborhood_derivative_rms": 0.8135844289536657
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.0497988760471344,
+                -0.037959665060043335
+              ],
+              "jump_rms": 0.0442767671980946,
+              "jump_maximum_absolute": 0.0497988760471344,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.051132687572794815,
+              "neighborhood_derivative_maximum_absolute": 0.23834803700447083,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8659190294869633
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -7.841922342777252e-05,
+                -0.00011042971163988113
+              ],
+              "jump_rms": 9.57713313468133e-05,
+              "jump_maximum_absolute": 0.00011042971163988113,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0016304965960340495,
+              "neighborhood_derivative_maximum_absolute": 0.011664492078125477,
+              "jump_rms_over_neighborhood_derivative_rms": 0.05873752302198202
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.026148343458771706,
+                -0.018299706280231476
+              ],
+              "jump_rms": 0.022567843445715326,
+              "jump_maximum_absolute": 0.026148343458771706,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.03428739665183258,
+              "neighborhood_derivative_maximum_absolute": 0.20369790121912956,
+              "jump_rms_over_neighborhood_derivative_rms": 0.658196470116349
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -7.146003190428019e-05,
+                -7.220538100227714e-05
+              ],
+              "jump_rms": 7.18336731813317e-05,
+              "jump_maximum_absolute": 7.220538100227714e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.00016933871262744962,
+              "neighborhood_derivative_maximum_absolute": 0.0006787804886698723,
+              "jump_rms_over_neighborhood_derivative_rms": 0.42420112959856965
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.05061100423336029,
+                -0.03805309534072876
+              ],
+              "jump_rms": 0.0447745006366336,
+              "jump_maximum_absolute": 0.05061100423336029,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.05115908836410411,
+              "neighborhood_derivative_maximum_absolute": 0.23749451339244843,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8752012998740167
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                -9.201280772686005e-05,
+                -9.184936061501503e-05
+              ],
+              "jump_rms": 9.193112049563845e-05,
+              "jump_maximum_absolute": 9.201280772686005e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0016282749796047598,
+              "neighborhood_derivative_maximum_absolute": 0.011788907460868359,
+              "jump_rms_over_neighborhood_derivative_rms": 0.056459210911632016
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.02509002573788166,
+                -0.017976928502321243
+              ],
+              "jump_rms": 0.021825207328970943,
+              "jump_maximum_absolute": 0.02509002573788166,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0342872655548799,
+              "neighborhood_derivative_maximum_absolute": 0.20326445996761322,
+              "jump_rms_over_neighborhood_derivative_rms": 0.636539746630938
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -5.692348349839449e-05,
+                -5.76474703848362e-05
+              ],
+              "jump_rms": 5.7286620669064416e-05,
+              "jump_maximum_absolute": 5.76474703848362e-05,
+              "neighborhood_frame_interval": [
+                343098,
+                344862
+              ],
+              "neighborhood_derivative_rms": 0.0001781521397431929,
+              "neighborhood_derivative_maximum_absolute": 0.0007091012084856629,
+              "jump_rms_over_neighborhood_derivative_rms": 0.3215601044794822
+            }
+          }
+        },
+        {
+          "kind": "hop",
+          "frame": 515970,
+          "seconds": 11.7,
+          "source": {
+            "signed_jump_per_channel": [
+              -0.001373291015625,
+              -0.008453369140625
+            ],
+            "jump_rms": 0.00605579796729,
+            "jump_maximum_absolute": 0.008453369140625,
+            "neighborhood_frame_interval": [
+              515088,
+              516852
+            ],
+            "neighborhood_derivative_rms": 0.06237910055504294,
+            "neighborhood_derivative_maximum_absolute": 0.281219482421875,
+            "jump_rms_over_neighborhood_derivative_rms": 0.09708055924830786
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.02162928692996502,
+                -0.015258237719535828
+              ],
+              "jump_rms": 0.01871683562203587,
+              "jump_maximum_absolute": 0.02162928692996502,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.02458400843364749,
+              "neighborhood_derivative_maximum_absolute": 0.0900770016014576,
+              "jump_rms_over_neighborhood_derivative_rms": 0.761341897215534
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.001042807474732399,
+                0.0011756792664527893
+              ],
+              "jump_rms": 0.0011112311116335638,
+              "jump_maximum_absolute": 0.0011756792664527893,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.0024195225892580667,
+              "neighborhood_derivative_maximum_absolute": 0.016246512532234192,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4592770146338318
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.01362244039773941,
+                0.008351682685315609
+              ],
+              "jump_rms": 0.011298705369779389,
+              "jump_maximum_absolute": 0.01362244039773941,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.04891809771795876,
+              "neighborhood_derivative_maximum_absolute": 0.2504746913909912,
+              "jump_rms_over_neighborhood_derivative_rms": 0.23097188764213575
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.00016836670693010092,
+                3.3611664548516273e-05
+              ],
+              "jump_rms": 0.00012140241347726263,
+              "jump_maximum_absolute": 0.00016836670693010092,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.00017519596339709577,
+              "neighborhood_derivative_maximum_absolute": 0.0009344849968329072,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6929521155809639
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.02167857252061367,
+                -0.015267930924892426
+              ],
+              "jump_rms": 0.018749269602557756,
+              "jump_maximum_absolute": 0.02167857252061367,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.024550492213288467,
+              "neighborhood_derivative_maximum_absolute": 0.08960339054465294,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7637023909609976
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0010648202151060104,
+                0.0011859163641929626
+              ],
+              "jump_rms": 0.0011269959435062458,
+              "jump_maximum_absolute": 0.0011859163641929626,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.002411934046671853,
+              "neighborhood_derivative_maximum_absolute": 0.016174927353858948,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4672581926779257
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.013865068554878235,
+                0.008550784550607204
+              ],
+              "jump_rms": 0.01151859458576384,
+              "jump_maximum_absolute": 0.013865068554878235,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.04895037439149405,
+              "neighborhood_derivative_maximum_absolute": 0.2508985474705696,
+              "jump_rms_over_neighborhood_derivative_rms": 0.23531167491469462
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.00016084907110780478,
+                4.164350684732199e-05
+              ],
+              "jump_rms": 0.00011748745749820827,
+              "jump_maximum_absolute": 0.00016084907110780478,
+              "neighborhood_frame_interval": [
+                515088,
+                516852
+              ],
+              "neighborhood_derivative_rms": 0.00018565546775396865,
+              "neighborhood_derivative_maximum_absolute": 0.0006501669995486736,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6328251945367055
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 601965,
+          "seconds": 13.65,
+          "source": {
+            "signed_jump_per_channel": [
+              0.00115966796875,
+              0.00494384765625
+            ],
+            "jump_rms": 0.0035907143750201972,
+            "jump_maximum_absolute": 0.00494384765625,
+            "neighborhood_frame_interval": [
+              601083,
+              602847
+            ],
+            "neighborhood_derivative_rms": 0.01818610940018587,
+            "neighborhood_derivative_maximum_absolute": 0.154876708984375,
+            "jump_rms_over_neighborhood_derivative_rms": 0.19744269079253965
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                7.57165253162384e-05,
+                0.009635334834456444
+              ],
+              "jump_rms": 0.006813420960292111,
+              "jump_maximum_absolute": 0.009635334834456444,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00820449700870296,
+              "neighborhood_derivative_maximum_absolute": 0.0566566027700901,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8304495635825989
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.003286810591816902,
+                0.007719267159700394
+              ],
+              "jump_rms": 0.00593254622187256,
+              "jump_maximum_absolute": 0.007719267159700394,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.004474177809851428,
+              "neighborhood_derivative_maximum_absolute": 0.042912738397717476,
+              "jump_rms_over_neighborhood_derivative_rms": 1.325952269668415
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0028058644384145737,
+                -0.009700203314423561
+              ],
+              "jump_rms": 0.007140266787309609,
+              "jump_maximum_absolute": 0.009700203314423561,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00837617533588131,
+              "neighborhood_derivative_maximum_absolute": 0.04690737649798393,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8524495370485623
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.00011339026968926191,
+                -3.775802906602621e-05
+              ],
+              "jump_rms": 8.450746126572029e-05,
+              "jump_maximum_absolute": 0.00011339026968926191,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00010793954672015839,
+              "neighborhood_derivative_maximum_absolute": 0.0017418208881281316,
+              "jump_rms_over_neighborhood_derivative_rms": 0.782914731750842
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -4.051625728607178e-05,
+                0.009393619373440742
+              ],
+              "jump_rms": 0.006642353743221815,
+              "jump_maximum_absolute": 0.009393619373440742,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00819468218614649,
+              "neighborhood_derivative_maximum_absolute": 0.05668654479086399,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8105688045414424
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0033264365047216415,
+                0.007739981636404991
+              ],
+              "jump_rms": 0.005957033471109224,
+              "jump_maximum_absolute": 0.007739981636404991,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.004481292299367566,
+              "neighborhood_derivative_maximum_absolute": 0.04281100630760193,
+              "jump_rms_over_neighborhood_derivative_rms": 1.329311518454158
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                -0.0028725117444992065,
+                -0.009725521318614483
+              ],
+              "jump_rms": 0.00717067251522166,
+              "jump_maximum_absolute": 0.009725521318614483,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.008360417754025134,
+              "neighborhood_derivative_maximum_absolute": 0.046880027279257774,
+              "jump_rms_over_neighborhood_derivative_rms": 0.857693087378239
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -9.503192268311977e-05,
+                -1.790223177522421e-05
+              ],
+              "jump_rms": 6.837966156462133e-05,
+              "jump_maximum_absolute": 9.503192268311977e-05,
+              "neighborhood_frame_interval": [
+                601083,
+                602847
+              ],
+              "neighborhood_derivative_rms": 0.00012550044033583592,
+              "neighborhood_derivative_maximum_absolute": 0.0019092182628810406,
+              "jump_rms_over_neighborhood_derivative_rms": 0.5448559493627204
+            }
+          }
+        },
+        {
+          "kind": "hop",
+          "frame": 773955,
+          "seconds": 17.55,
+          "source": {
+            "signed_jump_per_channel": [
+              0.000152587890625,
+              -0.002777099609375
+            ],
+            "jump_rms": 0.0019666679059714386,
+            "jump_maximum_absolute": 0.002777099609375,
+            "neighborhood_frame_interval": [
+              773073,
+              774837
+            ],
+            "neighborhood_derivative_rms": 0.04696678554466707,
+            "neighborhood_derivative_maximum_absolute": 0.45489501953125,
+            "jump_rms_over_neighborhood_derivative_rms": 0.04187358966904533
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.0060300081968307495,
+                -0.01729118824005127
+              ],
+              "jump_rms": 0.012948864614450438,
+              "jump_maximum_absolute": 0.01729118824005127,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.030102208591144916,
+              "neighborhood_derivative_maximum_absolute": 0.2534686475992203,
+              "jump_rms_over_neighborhood_derivative_rms": 0.43016327440703367
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0008940696716308594,
+                0.0001867606770247221
+              ],
+              "jump_rms": 0.0006458483290265778,
+              "jump_maximum_absolute": 0.0008940696716308594,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.0015618241460861198,
+              "neighborhood_derivative_maximum_absolute": 0.008628137409687042,
+              "jump_rms_over_neighborhood_derivative_rms": 0.41352179798542144
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.006334276054985821,
+                0.015409150393679738
+              ],
+              "jump_rms": 0.011780597798834471,
+              "jump_maximum_absolute": 0.015409150393679738,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.01708917284719643,
+              "neighborhood_derivative_maximum_absolute": 0.14873740822076797,
+              "jump_rms_over_neighborhood_derivative_rms": 0.6893603279790771
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                5.852698814123869e-05,
+                -0.00013620522804558277
+              ],
+              "jump_rms": 0.0001048266962367743,
+              "jump_maximum_absolute": 0.00013620522804558277,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.00013708488910719498,
+              "neighborhood_derivative_maximum_absolute": 0.0008908166200853884,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7646845463383201
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                -0.005870789289474487,
+                -0.01777152717113495
+              ],
+              "jump_rms": 0.013234299091296753,
+              "jump_maximum_absolute": 0.01777152717113495,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.03008142892005474,
+              "neighborhood_derivative_maximum_absolute": 0.2527974508702755,
+              "jump_rms_over_neighborhood_derivative_rms": 0.4399491502371314
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0008580237627029419,
+                0.00018130888929590583
+              ],
+              "jump_rms": 0.0006201119619474492,
+              "jump_maximum_absolute": 0.0008580237627029419,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.001525872980171779,
+              "neighborhood_derivative_maximum_absolute": 0.0083392933011055,
+              "jump_rms_over_neighborhood_derivative_rms": 0.40639815371633264
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.006533036939799786,
+                0.016017528250813484
+              ],
+              "jump_rms": 0.012231961881121045,
+              "jump_maximum_absolute": 0.016017528250813484,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.017145279408669684,
+              "neighborhood_derivative_maximum_absolute": 0.14937032759189606,
+              "jump_rms_over_neighborhood_derivative_rms": 0.7134303028585134
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                2.1014013327658176e-05,
+                -0.00017122796270996332
+              ],
+              "jump_rms": 0.00012198484325919262,
+              "jump_maximum_absolute": 0.00017122796270996332,
+              "neighborhood_frame_interval": [
+                773073,
+                774837
+              ],
+              "neighborhood_derivative_rms": 0.00014823180375481688,
+              "neighborhood_derivative_maximum_absolute": 0.0009443314047530293,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8229330020227097
+            }
+          }
+        },
+        {
+          "kind": "overlap_exit",
+          "frame": 859950,
+          "seconds": 19.5,
+          "source": {
+            "signed_jump_per_channel": [
+              0.02044677734375,
+              0.042877197265625
+            ],
+            "jump_rms": 0.03358961706465413,
+            "jump_maximum_absolute": 0.042877197265625,
+            "neighborhood_frame_interval": [
+              859068,
+              860832
+            ],
+            "neighborhood_derivative_rms": 0.03229502360978156,
+            "neighborhood_derivative_maximum_absolute": 0.272125244140625,
+            "jump_rms_over_neighborhood_derivative_rms": 1.0400864687549096
+          },
+          "cpu": {
+            "drums": {
+              "signed_jump_per_channel": [
+                0.013434767723083496,
+                0.03178270161151886
+              ],
+              "jump_rms": 0.02439910967125696,
+              "jump_maximum_absolute": 0.03178270161151886,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.02785342661649053,
+              "neighborhood_derivative_maximum_absolute": 0.22690296173095703,
+              "jump_rms_over_neighborhood_derivative_rms": 0.8759823344970973
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0007491260766983032,
+                0.002463473007082939
+              ],
+              "jump_rms": 0.0018206989228611702,
+              "jump_maximum_absolute": 0.002463473007082939,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.0019452016023996134,
+              "neighborhood_derivative_maximum_absolute": 0.013187453150749207,
+              "jump_rms_over_neighborhood_derivative_rms": 0.9359949737935359
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.007533758878707886,
+                0.010419517755508423
+              ],
+              "jump_rms": 0.009091861005863023,
+              "jump_maximum_absolute": 0.010419517755508423,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.006096894316181378,
+              "neighborhood_derivative_maximum_absolute": 0.03878023102879524,
+              "jump_rms_over_neighborhood_derivative_rms": 1.491228244146023
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.0002003805711865425,
+                -0.00013635028153657913
+              ],
+              "jump_rms": 0.0001713822811496997,
+              "jump_maximum_absolute": 0.0002003805711865425,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 9.876258780344218e-05,
+              "neighborhood_derivative_maximum_absolute": 0.0006602897774428129,
+              "jump_rms_over_neighborhood_derivative_rms": 1.7352955705331012
+            }
+          },
+          "vulkan": {
+            "drums": {
+              "signed_jump_per_channel": [
+                0.013004392385482788,
+                0.03264394402503967
+              ],
+              "jump_rms": 0.02484694450858622,
+              "jump_maximum_absolute": 0.03264394402503967,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.027876083821861748,
+              "neighborhood_derivative_maximum_absolute": 0.22659169137477875,
+              "jump_rms_over_neighborhood_derivative_rms": 0.891335550121286
+            },
+            "bass": {
+              "signed_jump_per_channel": [
+                0.0008312687277793884,
+                0.0024742428213357925
+              ],
+              "jump_rms": 0.0018456550648368272,
+              "jump_maximum_absolute": 0.0024742428213357925,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.0019473214658323897,
+              "neighborhood_derivative_maximum_absolute": 0.013189710676670074,
+              "jump_rms_over_neighborhood_derivative_rms": 0.9477916703639351
+            },
+            "other": {
+              "signed_jump_per_channel": [
+                0.007644321769475937,
+                0.0100325345993042
+              ],
+              "jump_rms": 0.008918727650329939,
+              "jump_maximum_absolute": 0.0100325345993042,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.006085621596528401,
+              "neighborhood_derivative_maximum_absolute": 0.03854882041923702,
+              "jump_rms_over_neighborhood_derivative_rms": 1.4655409490819655
+            },
+            "vocals": {
+              "signed_jump_per_channel": [
+                -0.0001757302088662982,
+                -0.00011820672079920769
+              ],
+              "jump_rms": 0.00014975636071682335,
+              "jump_maximum_absolute": 0.0001757302088662982,
+              "neighborhood_frame_interval": [
+                859068,
+                860832
+              ],
+              "neighborhood_derivative_rms": 0.00010643347514317443,
+              "neighborhood_derivative_maximum_absolute": 0.0006115509895607829,
+              "jump_rms_over_neighborhood_derivative_rms": 1.4070419152937639
+            }
+          }
+        }
+      ],
+      "audition": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.mp3",
+        "bytes": 760850,
+        "sha256": "26b2cc6b2103c646adc92ea92dc9763b3c1198daa0e3bfd70cbe195d0734142d",
+        "backend": "vulkan",
+        "segments": [
+          {
+            "label": "source",
+            "preview_start_seconds": 0.0,
+            "preview_end_seconds": 5.0,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "drums",
+            "preview_start_seconds": 5.25,
+            "preview_end_seconds": 10.25,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "bass",
+            "preview_start_seconds": 10.5,
+            "preview_end_seconds": 15.5,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "other",
+            "preview_start_seconds": 15.75,
+            "preview_end_seconds": 20.75,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "vocals",
+            "preview_start_seconds": 21.0,
+            "preview_end_seconds": 26.0,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          },
+          {
+            "label": "recombined",
+            "preview_start_seconds": 26.25,
+            "preview_end_seconds": 31.25,
+            "source_frame_interval": [
+              147735,
+              368235
+            ],
+            "source_seconds_interval": [
+              3.35,
+              8.35
+            ]
+          }
+        ],
+        "preview_pcm_frames": 1378125,
+        "preview_pcm_seconds": 31.25,
+        "decoded_frames": 1378125,
+        "gap_frames": 11025,
+        "edge_fade_frames_per_segment": 221,
+        "edge_fade_nominal_ms": 5,
+        "common_gain": 1.0,
+        "peak_before_gain_after_edge_fades": 0.949981689453125,
+        "decoded_sample_peak": 0.9648075699806213,
+        "encoding_attempts": [
+          {
+            "common_gain": 1.0,
+            "decoded_sample_peak": 0.9648075699806213
+          }
+        ],
+        "encode_command": [
+          "/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-y",
+          "-f",
+          "f32le",
+          "-ar",
+          "44100",
+          "-ac",
+          "2",
+          "-i",
+          "pipe:0",
+          "-codec:a",
+          "libmp3lame",
+          "-q:a",
+          "2",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.mp3"
+        ],
+        "decode_command": [
+          "/bin/ffmpeg",
+          "-nostdin",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-i",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.mp3",
+          "-f",
+          "f32le",
+          "-acodec",
+          "pcm_f32le",
+          "-ar",
+          "44100",
+          "-ac",
+          "2",
+          "pipe:1"
+        ],
+        "lossless_wav": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav",
+          "bytes": 11025092,
+          "sha256": "00d4042c639079d86f06139ca2b9e900f0ca8d4f5b05796bb418fd42f3ebf646",
+          "codec": "pcm_f32le",
+          "exact_float32_roundtrip": true,
+          "encode_command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-f",
+            "f32le",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "-i",
+            "pipe:0",
+            "-codec:a",
+            "pcm_f32le",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav"
+          ],
+          "decode_command": [
+            "/bin/ffmpeg",
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/quality-2026-10-17/analysis/club_diver-listen.wav",
+            "-f",
+            "f32le",
+            "-acodec",
+            "pcm_f32le",
+            "-ar",
+            "44100",
+            "-ac",
+            "2",
+            "pipe:1"
+          ]
+        },
+        "internal_join_frames_in_each_excerpt": [
+          110250,
+          196245
+        ],
+        "scope": "Same source interval and one common attenuation for all six segments; only outer excerpt edges faded. Internal joins untouched. MP3 is lossy; raw NPY output is the numerical evidence. Sample peak check does not measure intersample true peak. No sound played."
+      }
+    }
+  ],
+  "human_listening_verdict": null,
+  "scope": "Objective saved-output diagnostics and lossy audition files only. CPU agreement/recombination/join statistics do not establish musical quality or audible artifacts. No inference, playback or download performed."
+}

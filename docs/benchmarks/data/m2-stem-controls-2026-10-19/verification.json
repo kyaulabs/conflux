@@ -1,0 +1,320 @@
+{
+  "schema": "conflux.m2-stem-controls-verification.v1",
+  "base_commit": "1e7e097013c018d90903ee2c91d1d61e02af4bd4",
+  "status": "prepared_bank_player_controls_functional_checks_passed",
+  "source_state": "Product sources match the initial full 28-entry CTest/smoke/routing run. Only the private helper and its functional guard changed after diagnosed fixture failures; final private and instrumented checks pin that exact source. Signed commit binding retained locally.",
+  "normal_checks": [
+    {
+      "stage": "build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 105.36934092402225
+    },
+    {
+      "stage": "ctest",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "build/dev",
+        "--output-on-failure",
+        "--timeout",
+        "120"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 48.12256311799865
+    },
+    {
+      "stage": "smoke",
+      "command": [
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+        "--smoke-test"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 2.2226135400123894
+    },
+    {
+      "stage": "private-routing",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+        "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-manual-routing-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/controller-stem-integration-2026-10-19/private-routing-01",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 6.3366716940072365
+    }
+  ],
+  "final_checks": [
+    {
+      "stage": "final-build",
+      "command": [
+        "cmake",
+        "--build",
+        "build/dev",
+        "--target",
+        "conflux-preparation-controller-check",
+        "--parallel",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 5.929408597003203
+    },
+    {
+      "stage": "private-preparation",
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,signal,sys\ndef stop(*_):\n signal.signal(signal.SIGTERM,signal.SIG_IGN)\n raise InterruptedError('Functional check timed out')\nsignal.signal(signal.SIGTERM,stop)\nsys.argv=sys.argv[1:]\nrunpy.run_path(sys.argv[0],run_name='__main__')\n",
+        "/home/kyau/projects/kyaulabs/conflux/tools/experiments/private_routing_check.py",
+        "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux-preparation-controller-check",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/controller-stem-integration-2026-10-19/private-preparation-05",
+        "--functional-only"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 44.02653094398556
+    },
+    {
+      "stage": "coverage",
+      "command": [
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/coverage-venv/bin/python",
+        "/home/kyau/projects/kyaulabs/conflux/tools/coverage/run.py",
+        "--private-routing",
+        "--jobs",
+        "2"
+      ],
+      "exit": 0,
+      "timed_out": false,
+      "elapsed_seconds": 178.54954233398894
+    }
+  ],
+  "ctest": {
+    "passed": 28,
+    "failed": 0
+  },
+  "private_checks": {
+    "routing": 82,
+    "preparation": 45
+  },
+  "private_graph_cleanup": true,
+  "independent_source_review": "Gain, controller, UI and final helper corrections reviewed independently; no remaining concrete blocker. Root alone executed checks.",
+  "tdd": {
+    "gain_behavior_red_then_green": true,
+    "controller_missing_api_build_red": true,
+    "qml_missing_controls_behavior_red": true
+  },
+  "corrections": [
+    "Initial private failures came from478 pre-cancel samples during simultaneous B mute/play ramps. Mute is now acknowledged and allowed 1,024 output frames to settle before Play; both wrong and zero sample counters must remain zero.",
+    "Withheld GUI completion fills the state queue. Recorder accepted frames now establish a lower bound for a fresh post-block snapshot before exact peer-clock comparisons.",
+    "One cold full 60-second bank exceeded the 40-second setup guard. Setup is bounded at 120 seconds and fails immediately on a reported controller error; functional-only runner guard is 240 seconds, normal remains 90 seconds. No live-service or callback gate changed.",
+    "Instrumented cold preparation exceeded the60-second replacement wait. The replacement fixture is now4seconds, with60-second advancing peers; the same cold cache, library, ownership, cancellation and sample assertions remain."
+  ],
+  "coverage": {
+    "cpp_line": {
+      "covered": 4096,
+      "total": 4965,
+      "percent": 82.49748237663646,
+      "above_80_percent": true
+    },
+    "python_line": {
+      "covered": 855,
+      "total": 922,
+      "percent": 92.73318872017353,
+      "above_80_percent": true
+    },
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "whole_product_status": "unmeasured_sources_remain"
+  },
+  "visual_review": "Inspected minimum 1180x760 deck and library captures: four bank sliders fit existing deck row, normal deck retains layout, drums overview labeled and optional load checkbox fits. Captures use a mock UI endpoint, no audio/model.",
+  "warnings": "GCC16 test/support warnings and exact build logs retained; no product build errors.",
+  "raw_secret_scan": {
+    "exit": 0,
+    "files": 29,
+    "bytes": 329180,
+    "result": "No leaks found in uncompressed inputs before archive creation."
+  },
+  "files": {
+    "initial-result.json": {
+      "bytes": 2217,
+      "sha256": "fcac47c0d6522512ed94b14d562e92c5a206da72867adc0f18185c025dc44e6c"
+    },
+    "final-result.json": {
+      "bytes": 1408,
+      "sha256": "49b9fa1cf2356b961d5a360097f16c1664ce2c1d9e2b52ad743f24e0df78ecdf"
+    },
+    "ctest.log": {
+      "bytes": 3021,
+      "sha256": "d6b3b5b5da199b8aabcd355420428d627f6e339afa1000fa3f1a131bf3dd895c"
+    },
+    "build.log.gz": {
+      "bytes": 1567,
+      "sha256": "1db8cc6beb75d7a7f17965a0b18ad7bdf8533eb44b61c7239bc8788257b1afac"
+    },
+    "last-test.log.gz": {
+      "bytes": 4186,
+      "sha256": "6f47b10ce2005387a417bc555f27d3c3e314349334b98929570d1555fd3dd95f"
+    },
+    "final-build.log.gz": {
+      "bytes": 734,
+      "sha256": "36b48c2935d9bf955648c816ff5aa7fff6a29f61ab30e0083ee6470bd0eb93c3"
+    },
+    "smoke.log": {
+      "bytes": 669,
+      "sha256": "be41a619fc8c0ad69deabd0739ff4e3e4cbb67c787391c5466c01184bb75a84e"
+    },
+    "private-routing.json": {
+      "bytes": 10006,
+      "sha256": "6e73e5b2a66f26d3e941196d69df39946ea5ece9984ffdcb222bde82927cfe16"
+    },
+    "private-preparation.json": {
+      "bytes": 11082,
+      "sha256": "4b3102437c2a522b987e0b24efcada9d3e1533e27fd3c2672ddb370ad716da5d"
+    },
+    "private-first-failure.json": {
+      "bytes": 6672,
+      "sha256": "fc7b95c9245a7265395bc2726711d47a7ff5d7c90eaaea7e7032e0ff303c434e"
+    },
+    "private-diagnostic-failure.json": {
+      "bytes": 9263,
+      "sha256": "996270f12fffe5ced820b15335c70eb8b0b96f3928de9b8749847db3e6433efa"
+    },
+    "private-guard-failure.json": {
+      "bytes": 6180,
+      "sha256": "4a13b6114cf9c450fbb316bcfa201ff5dd87d2f241e9a62f40ce7d0f5b6f57a4"
+    },
+    "coverage-failed-04.json": {
+      "bytes": 7867,
+      "sha256": "c8951dfad0f0a664cb43f1405fac8e9118df7d3fe2dfdaeb510c6743a9bc8618"
+    },
+    "coverage-private-failed-04.json": {
+      "bytes": 6511,
+      "sha256": "7d71ca80dd79d6bb644a63e01a3b2df541961dce77f8c6f6c92dda890e979094"
+    },
+    "coverage.json": {
+      "bytes": 7872,
+      "sha256": "331412e134d30f79ba6cda8117346f869c57ba1dd12d10c46ffce61c4dd6051d"
+    },
+    "source-pins.json": {
+      "bytes": 8487,
+      "sha256": "a1fe2dd853ce97d3c85129ce4a38b9adf8ffa1bcd395043617c52ccc75acc6cb"
+    },
+    "initial-source-pins.json": {
+      "bytes": 8317,
+      "sha256": "620ce95919e53073f47b1582652ca530f22d1d64a1642a9c0ca1145150fc2885"
+    },
+    "gain-red.json": {
+      "bytes": 700,
+      "sha256": "ab2937dcfb1f1656afc41488042b918129a13c5e5379f5feb650919ab319589c"
+    },
+    "gain-red.log": {
+      "bytes": 1037,
+      "sha256": "66b73107ada78ae34e55fa8dfd511c31c0706c1bf64b8b979517878b8c8f584f"
+    },
+    "gain-green.json": {
+      "bytes": 702,
+      "sha256": "df01886ee7b84f227f2abc96b7298c96e4fc2c812289048c407fa1838e86cca4"
+    },
+    "gain-green.log": {
+      "bytes": 430,
+      "sha256": "0af2679259dc3c0d3c731e8b570a971aacd342122db980142b9c57dd929dfe4e"
+    },
+    "controller-red.json": {
+      "bytes": 261,
+      "sha256": "3b27c9539b962b58f2b0266974ba8a102b467cf36a8bbbad935bf9c0d7171484"
+    },
+    "controller-red.log.gz": {
+      "bytes": 1284,
+      "sha256": "cb2a7c45ce124cbe176aed6928f1544cae950bbe90c38ddf93b2b5a75e8af9d8"
+    },
+    "ui-red.json": {
+      "bytes": 423,
+      "sha256": "5b5d2ce653a4c8cc0d3146c1f4f0be9c592bff0c0720bc6404875eb561641c75"
+    },
+    "ui-red.log": {
+      "bytes": 956,
+      "sha256": "82869d388407f870c62934aaa492793830985c5cf0505fde97191605de909dbf"
+    },
+    "visual.json": {
+      "bytes": 369,
+      "sha256": "106c85272ec0764820463fff4e3f4a69ff7980b08a50fcfc0a8d0382d526fb38"
+    },
+    "bank-minimum.png": {
+      "bytes": 136989,
+      "sha256": "26cf55f33466816c78308442f8e4d973e6e69a15abd134c2887923bf7d19d034"
+    },
+    "bank-library.png": {
+      "bytes": 50336,
+      "sha256": "887697c51d27562780bd0b98c52a6ce05b23c94ebada153c0d35b91902fe6211"
+    },
+    "cli-validation.json": {
+      "bytes": 1764,
+      "sha256": "4d36d42a6089d7619d8f19ed2b585634727973d4aad748f3ec27cae43b3fa000"
+    }
+  },
+  "compressed_text": {
+    "build.log.gz": {
+      "uncompressed": {
+        "bytes": 7162,
+        "sha256": "cce8feedaf27b5f7add6df38943847972c661c2b872e7ca5224cc3dbaed892a9"
+      },
+      "compression": "deterministic gzip; exact log bytes retained"
+    },
+    "last-test.log.gz": {
+      "uncompressed": {
+        "bytes": 29801,
+        "sha256": "090827651842f17d37505747390bf1e5731e02650405e8ccc60aaa8266f5ef68"
+      },
+      "compression": "deterministic gzip; exact log bytes retained"
+    },
+    "final-build.log.gz": {
+      "uncompressed": {
+        "bytes": 2240,
+        "sha256": "15f0861087abaa733554e47c16ac0bc250fcce0d26e93fe490ddf7a084b49bbe"
+      },
+      "compression": "deterministic gzip; exact log bytes retained"
+    },
+    "controller-red.log.gz": {
+      "uncompressed": {
+        "bytes": 6438,
+        "sha256": "01fa71b0cd58556f504c30e9452fc6ec375a856d8ddd5d8b1290a32d0bc30dbd"
+      },
+      "compression": "deterministic gzip; exact log bytes retained"
+    }
+  },
+  "binaries": {
+    "conflux": {
+      "bytes": 11021552,
+      "sha256": "f69f82e7fd0212282ddc402c47c77070291ca49bb39fabf514074a0ff56bb4d6"
+    },
+    "conflux-manual-ui-test": {
+      "bytes": 5401440,
+      "sha256": "a64e186251491ff3cc4d4c2a491723c42024f81f689bf98ca0433c31d30bf363"
+    },
+    "conflux-manual-routing-check": {
+      "bytes": 4539360,
+      "sha256": "ad49c042b9688ddc9435843b8a432880add8deb1063d71e5c27e527d84aad2f0"
+    },
+    "conflux-preparation-controller-check": {
+      "bytes": 11055808,
+      "sha256": "ac60b06f7bafcd8a072276014d4b9eee877756efa2b805567ae503b79a31433c"
+    }
+  },
+  "M2_qualified": false,
+  "live_service_target_ms": 4095,
+  "scope": "Prepared complete-bank player loading, queued gains, ownership/admission and private generated-audio regressions only. No model inference, physical audio, thermal, integrated live-service or musical qualification.",
+  "pending": "Live packet delivery bridge and resampling/EOF/seek phase, induced-stall fallback, integrated laptop/audio/UI/listening checks, analysis/cue import. QML and optional native adapter numeric coverage remain unmeasured."
+}

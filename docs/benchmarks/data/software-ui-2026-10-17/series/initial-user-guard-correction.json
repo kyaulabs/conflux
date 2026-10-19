@@ -1,0 +1,29 @@
+{
+  "observed_at_utc": "2026-10-17T17:17:44.420928+00:00",
+  "correction": "The initial host snapshot queried the system unit. The existing resident thermal guard is a user unit; use this scope and existing normal_ready.py for admission.",
+  "observations": [
+    {
+      "command": [
+        "systemctl",
+        "--user",
+        "show",
+        "thermal-guard.service",
+        "--property=ActiveState,SubState,InvocationID,MainPID",
+        "--no-pager"
+      ],
+      "stdout": "ActiveState=active\nSubState=running\nInvocationID=59c6e791c83146139b6c252bf081bd02\nMainPID=1036\n"
+    },
+    {
+      "command": [
+        "journalctl",
+        "--user",
+        "--unit=thermal-guard.service",
+        "--lines=1",
+        "--output=json",
+        "--no-pager",
+        "--output-fields=MESSAGE,__MONOTONIC_TIMESTAMP,_PID,_SYSTEMD_INVOCATION_ID"
+      ],
+      "stdout": "{\"__CURSOR\":\"s=e149de7772ab450385ae53715ada6055;i=15f484;b=d007264395654ff4b228cbbc15d8dc39;m=56dcedc608;t=65e0c5cc310fc;x=3e3665bbd175f8f3\",\"_PID\":\"1036\",\"__MONOTONIC_TIMESTAMP\":\"373073757704\",\"__SEQNUM_ID\":\"e149de7772ab450385ae53715ada6055\",\"_BOOT_ID\":\"d007264395654ff4b228cbbc15d8dc39\",\"MESSAGE\":\"2026-10-17T10:10:49-07:00 recovered: temperature 35.0C; balanced profile restored=1\",\"_SYSTEMD_INVOCATION_ID\":\"59c6e791c83146139b6c252bf081bd02\",\"__SEQNUM\":\"1438852\",\"__REALTIME_TIMESTAMP\":\"1792257049170172\"}\n"
+    }
+  ]
+}

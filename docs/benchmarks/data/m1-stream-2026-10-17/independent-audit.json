@@ -1,0 +1,887 @@
+{
+  "schema": "conflux.m1-stream-independent-audit.v1",
+  "status": "passed",
+  "scope": "Offline hash/schema/arithmetic replay of frozen source snapshots, staged index and retained raw evidence. No builds, host state queries or audio executed. Historical same-binary identity of the failed attempt is qualified session provenance, not raw hash proof.",
+  "verification_sha256": "dc8b3ae32a0de4674459846d654aabdcb896a07be958e7d206b62ecb929d24e5",
+  "frozen_pin_capture_sha256": "5e9e4d4b33e71d7d57392813684e91a07286cee3b1a76d5a7a7e67be8ac4a2ed",
+  "audit_script_local": {
+    "path": "benchmarks-local/m1-stream-2026-10-17/audit-archive.py",
+    "sha256": "2ca8daa3555b5b7528e704b75283a2e06c5756ef5d88633720c5652fad4efc71"
+  },
+  "checks": [
+    {
+      "name": "schema_and_base",
+      "passed": true
+    },
+    {
+      "name": "frozen_source_binary_pins_unmodified",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:.github/workflows/build.yml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:.github/workflows/build.yml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:CMakeLists.txt",
+      "passed": true
+    },
+    {
+      "name": "staged_source:CMakeLists.txt",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/app-icons/conflux-app-dark.svg",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/app-icons/conflux-app-dark.svg",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/fonts/Barlow-OFL.txt",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/fonts/Barlow-OFL.txt",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/fonts/Barlow-Regular.ttf",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/fonts/Barlow-Regular.ttf",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/fonts/BarlowCondensed-OFL.txt",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/fonts/BarlowCondensed-OFL.txt",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/fonts/BarlowCondensed-SemiBold.ttf",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/fonts/BarlowCondensed-SemiBold.ttf",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/fonts/JetBrainsMono-OFL.txt",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/fonts/JetBrainsMono-OFL.txt",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/fonts/JetBrainsMono-Regular.ttf",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/fonts/JetBrainsMono-Regular.ttf",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/logos/conflux-horizontal-dark.svg",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/logos/conflux-horizontal-dark.svg",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/assets/logos/conflux-horizontal-light.svg",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/assets/logos/conflux-horizontal-light.svg",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/integration/qtquick/ConfluxTheme.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/integration/qtquick/ConfluxTheme.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:brand/integration/qtquick/qmldir",
+      "passed": true
+    },
+    {
+      "name": "staged_source:brand/integration/qtquick/qmldir",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:qml/DeckButton.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:qml/DeckButton.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:qml/DeckSurface.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:qml/DeckSurface.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:qml/Harness.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:qml/Harness.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:qml/Main.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:qml/Main.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:qml/MixerSurface.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:qml/MixerSurface.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:qml/SurfaceKnob.qml",
+      "passed": true
+    },
+    {
+      "name": "staged_source:qml/SurfaceKnob.qml",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/AudioFile.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/AudioFile.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/AudioFile.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/AudioFile.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/AudioSource.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/AudioSource.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/LiveSession.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/LiveSession.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/LiveSession.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/LiveSession.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/PcmReadAhead.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/PcmReadAhead.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/PcmReadAhead.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/PcmReadAhead.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/RenderCore.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/RenderCore.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/RenderCore.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/RenderCore.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/StereoRecorder.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/StereoRecorder.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/StereoRecorder.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/StereoRecorder.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/audio/TransportQueue.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/audio/TransportQueue.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/main.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/main.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/probe_main.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/probe_main.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/ui/DeckController.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/ui/DeckController.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:src/ui/DeckController.hpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:src/ui/DeckController.hpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_cue_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_cue_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_file_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_file_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_preparation_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_preparation_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_probe_cli_test.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_probe_cli_test.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_read_ahead_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_read_ahead_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_recorder_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_recorder_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_source_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_source_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/audio_transport_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/audio_transport_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/deck_controller_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/deck_controller_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/live_session_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/live_session_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/manual_ui_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/manual_ui_test.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/stem_soak_test.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/stem_soak_test.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tests/stem_worker_test.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tests/stem_worker_test.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/native_replay.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/native_replay.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/stem_profile.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/stem_profile.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/stem_soak.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/stem_soak.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/stem_worker.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/stem_worker.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/stems.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/stems.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/window_guard.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/window_guard.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/benchmarks/worker_support.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/benchmarks/worker_support.py",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/experiments/manual_audio_check.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/experiments/manual_audio_check.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/experiments/prepare_audio_check.cpp",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/experiments/prepare_audio_check.cpp",
+      "passed": true
+    },
+    {
+      "name": "frozen_source:tools/stems/worker.py",
+      "passed": true
+    },
+    {
+      "name": "staged_source:tools/stems/worker.py",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-cue-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-file-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-preparation-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-probe",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-read-ahead-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-recorder-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-source-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-audio-transport-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-deck-controller-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-live-session-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-manual-audio-check",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-manual-ui-test",
+      "passed": true
+    },
+    {
+      "name": "binary:build/dev/conflux-prepare-audio-check",
+      "passed": true
+    },
+    {
+      "name": "artifact:manual.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:manual.stderr",
+      "passed": true
+    },
+    {
+      "name": "artifact:host-run.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:cleanup.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:smoke-wayland.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:smoke-wayland.stderr",
+      "passed": true
+    },
+    {
+      "name": "artifact:corpus.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:corpus.stderr",
+      "passed": true
+    },
+    {
+      "name": "artifact:corpus-run.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:ctest.log",
+      "passed": true
+    },
+    {
+      "name": "artifact:native-diagnostic-failure/manual.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:native-diagnostic-failure/manual.stderr",
+      "passed": true
+    },
+    {
+      "name": "artifact:native-diagnostic-failure/host-run.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:native-diagnostic-failure/cleanup.json",
+      "passed": true
+    },
+    {
+      "name": "artifact:run-host.py",
+      "passed": true
+    },
+    {
+      "name": "artifact:run-corpus.py",
+      "passed": true
+    },
+    {
+      "name": "fixture_hash:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_geometry:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:0:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:0:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:1:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:1:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:101:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:101:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:47999:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:47999:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:719999:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:0:719999:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_hash:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_geometry:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:0:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:0:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:1:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:1:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:101:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:101:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:47999:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:47999:1",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:719999:0",
+      "passed": true
+    },
+    {
+      "name": "fixture_recipe_anchor:1:719999:1",
+      "passed": true
+    },
+    {
+      "name": "quiet_sum_bound",
+      "passed": true
+    },
+    {
+      "name": "manual_reduction_exact",
+      "passed": true
+    },
+    {
+      "name": "manual_passed_controls",
+      "passed": true
+    },
+    {
+      "name": "manual_callback_execution_only",
+      "passed": true
+    },
+    {
+      "name": "manual_last_session_clock",
+      "passed": true
+    },
+    {
+      "name": "manual_source_shortages_not_hidden",
+      "passed": true
+    },
+    {
+      "name": "manual_frames_and_snapshot_drops",
+      "passed": true
+    },
+    {
+      "name": "native_host_and_cleanup",
+      "passed": true
+    },
+    {
+      "name": "native_guard_and_profile",
+      "passed": true
+    },
+    {
+      "name": "native_no_stderr",
+      "passed": true
+    },
+    {
+      "name": "native_smoke",
+      "passed": true
+    },
+    {
+      "name": "smoke_observation_monotonic_order",
+      "passed": true
+    },
+    {
+      "name": "offline_corpus_scope",
+      "passed": true
+    },
+    {
+      "name": "corpus:0:metadata",
+      "passed": true
+    },
+    {
+      "name": "corpus:0:exact_samples",
+      "passed": true
+    },
+    {
+      "name": "corpus:0:offline_clock_and_cache",
+      "passed": true
+    },
+    {
+      "name": "corpus:0:finite_time",
+      "passed": true
+    },
+    {
+      "name": "corpus:1:metadata",
+      "passed": true
+    },
+    {
+      "name": "corpus:1:exact_samples",
+      "passed": true
+    },
+    {
+      "name": "corpus:1:offline_clock_and_cache",
+      "passed": true
+    },
+    {
+      "name": "corpus:1:finite_time",
+      "passed": true
+    },
+    {
+      "name": "corpus:2:metadata",
+      "passed": true
+    },
+    {
+      "name": "corpus:2:exact_samples",
+      "passed": true
+    },
+    {
+      "name": "corpus:2:offline_clock_and_cache",
+      "passed": true
+    },
+    {
+      "name": "corpus:2:finite_time",
+      "passed": true
+    },
+    {
+      "name": "corpus:3:metadata",
+      "passed": true
+    },
+    {
+      "name": "corpus:3:exact_samples",
+      "passed": true
+    },
+    {
+      "name": "corpus:3:offline_clock_and_cache",
+      "passed": true
+    },
+    {
+      "name": "corpus:3:finite_time",
+      "passed": true
+    },
+    {
+      "name": "corpus_total:prepared_frames",
+      "passed": true
+    },
+    {
+      "name": "corpus_total:compared_samples",
+      "passed": true
+    },
+    {
+      "name": "corpus_total:mismatched_samples",
+      "passed": true
+    },
+    {
+      "name": "corpus_temporary_size_total",
+      "passed": true
+    },
+    {
+      "name": "corpus_rss_offline_and_cleanup",
+      "passed": true
+    },
+    {
+      "name": "corpus_input_pins",
+      "passed": true
+    },
+    {
+      "name": "ctest_15_of_15",
+      "passed": true
+    },
+    {
+      "name": "diagnostic_failure_retained",
+      "passed": true
+    },
+    {
+      "name": "diagnostic_cleanup_guard_profile",
+      "passed": true
+    },
+    {
+      "name": "diagnostic_provenance_qualified",
+      "passed": true
+    },
+    {
+      "name": "unbuilt_timing_excluded",
+      "passed": true
+    },
+    {
+      "name": "standalone_recorder_only",
+      "passed": true
+    },
+    {
+      "name": "unqualified_initial_attempt_excluded",
+      "passed": true
+    },
+    {
+      "name": "media_free",
+      "passed": true
+    }
+  ],
+  "check_count": 218,
+  "failed_checks": []
+}

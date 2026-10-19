@@ -1,0 +1,18 @@
+{
+  "command": [
+    "journalctl",
+    "--dmesg",
+    "--since",
+    "2026-10-17T03:22:36.728241+00:00",
+    "--until",
+    "2026-10-17T04:22:42.365537+00:00",
+    "--output=json",
+    "--no-pager"
+  ],
+  "returncode": 0,
+  "stderr": "",
+  "examined_entries": 0,
+  "matched_entries": [],
+  "parse_errors": [],
+  "scope": "Host kernel journal over launch-to-wrapper-exit bounds, filtered by i915/drm/fence/GPU/hang/reset; retain message, priority and timestamps only. No claim outside these bounds or about unreadable logs."
+}

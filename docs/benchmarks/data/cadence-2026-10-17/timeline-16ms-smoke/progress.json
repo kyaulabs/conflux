@@ -1,0 +1,113 @@
+{
+  "status": "ok",
+  "updated_at_utc": "2026-10-17T14:58:59.827648+00:00",
+  "elapsed_workload_seconds": 180.00024265097454,
+  "requested_seconds": 180.0,
+  "load_mode": "both",
+  "selected_loads": [
+    "ui",
+    "audio"
+  ],
+  "timing": {
+    "chunks": 82,
+    "frames": 19189317,
+    "hop_service_percentiles_ms": {
+      "50": 2178.4767740173265,
+      "95": 2236.491741030477,
+      "99": 2299.657051975373
+    },
+    "hop_service_max_ms": 2299.657051975373,
+    "hops_above_target": 0,
+    "observed_p99_within_target": true
+  },
+  "completed_controls": 1,
+  "full_source_loops": 7,
+  "failures": [],
+  "worker_statistics": {
+    "generation": 11,
+    "ready_count": 0,
+    "max_ready": 2,
+    "ready_high_water": 1,
+    "telemetry_count": 1,
+    "max_telemetry": 256,
+    "telemetry_high_water": 2,
+    "telemetry_dropped": 0,
+    "pending_latest_generation": null,
+    "inflight": null,
+    "discarded_count": 1,
+    "cancel_count": 1,
+    "backend_start_count": 1,
+    "backend_pid": null,
+    "closed": true
+  },
+  "ui_progress": {
+    "requested": true,
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/cadence-2026-10-17/timeline-16ms-smoke/ui-progress.json",
+    "checks": 166,
+    "check_interval_seconds": 1.0,
+    "startup_grace_seconds": 5.0,
+    "maximum_allowed_gap_seconds": 30.0,
+    "maximum_progress_age_seconds": 1.0500171519815922,
+    "maximum_frame_age_seconds": 1.056115226005204,
+    "maximum_check_gap_seconds": 1.2395403260015883,
+    "unexposed_observations": 0,
+    "maximum_observed_unexposed_span_seconds": 0.0,
+    "last_unexposed_span": null,
+    "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+    "read_errors": {
+      "FileNotFoundError": 1
+    },
+    "last_progress": {
+      "animation_driver": "qtimeline",
+      "exposed": true,
+      "frames_swapped": 10801,
+      "indicator_x": 215.46138610100135,
+      "last_frame_monotonic_ns": 365162994720281,
+      "pid": 1771130,
+      "reduced_motion": false,
+      "repaint_interval_ms": 16,
+      "scene_graph_initialized": true,
+      "timestamp_monotonic_ns": 365163000939793
+    },
+    "gate_failure": null
+  },
+  "conditions": {
+    "/sys/class/power_supply/AC/online": "1",
+    "/sys/firmware/acpi/platform_profile": "balanced",
+    "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "2200000",
+    "/sys/class/thermal/thermal_zone2": {
+      "type": "SEN1",
+      "millidegrees_C": 48050
+    },
+    "/sys/class/thermal/thermal_zone0": {
+      "type": "acpitz",
+      "millidegrees_C": 69000
+    },
+    "/sys/class/thermal/thermal_zone7": {
+      "type": "x86_pkg_temp",
+      "millidegrees_C": 68000
+    },
+    "/sys/class/thermal/thermal_zone5": {
+      "type": "TCPU",
+      "millidegrees_C": 69050
+    },
+    "/sys/class/thermal/thermal_zone3": {
+      "type": "SEN2",
+      "millidegrees_C": 61050
+    },
+    "/sys/class/thermal/thermal_zone1": {
+      "type": "INT3400 Thermal",
+      "millidegrees_C": 20000
+    },
+    "/sys/class/thermal/thermal_zone6": {
+      "type": "iwlwifi_1",
+      "millidegrees_C": 37000
+    },
+    "/sys/class/thermal/thermal_zone4": {
+      "type": "SEN5",
+      "millidegrees_C": 54050
+    }
+  }
+}

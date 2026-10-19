@@ -1,0 +1,52 @@
+{
+  "build/dev": {
+    "build/dev/conflux": {
+      "bytes": 13982016,
+      "sha256": "c4756e774832247de52fb23d3e50e5543bd158930bafe6d748b00787c581d1d1"
+    },
+    "build/dev/conflux-live-stem-bridge-test": {
+      "bytes": 9601808,
+      "sha256": "bbdda561b956899822bad408555bdb7d08a3f57ac20880dfe9f707b0a8b2d5f2"
+    },
+    "build/dev/conflux-prepared-track-store-test": {
+      "bytes": 9605440,
+      "sha256": "81f8a114155f980825eb28901de29c7c2ce2d27df629785489684b4e91661e93"
+    },
+    "build/dev/conflux-manual-routing-check": {
+      "bytes": 5299632,
+      "sha256": "0463ed67c81b3ec009772ebfc84dbc7fc1cf13f20d5b40f1f4335de74e89d454"
+    },
+    "build/dev/conflux-preparation-controller-check": {
+      "bytes": 14055096,
+      "sha256": "3a641839014fa5ce9381cc6098d40f497e4406e21a96ee7ea818f5088b4d2d26"
+    }
+  },
+  "build/owner-tsan": {
+    "build/owner-tsan/conflux-live-stem-bridge-test": {
+      "bytes": 9355008,
+      "sha256": "9a89a689d7b8fe9bbad0a126b554f7a99a4f99c4bfd7abbc8ed8a27e6110be8a"
+    }
+  },
+  "build/coverage": {
+    "build/coverage/conflux": {
+      "bytes": 13020760,
+      "sha256": "d12806549490db8381b59dbb406d1f6802268275f7906b1a70196dbfd496c3ca"
+    },
+    "build/coverage/conflux-live-stem-bridge-test": {
+      "bytes": 9665392,
+      "sha256": "dae5575b20fb431e0546455d09a3451f241966112e0a27803f38706d7eded6cf"
+    },
+    "build/coverage/conflux-prepared-track-store-test": {
+      "bytes": 9369232,
+      "sha256": "5c98cbd7375d820d6906ff78df9321cff2cad8f097eb00b102fe4e11cb40bbd4"
+    },
+    "build/coverage/conflux-manual-routing-check": {
+      "bytes": 4775904,
+      "sha256": "f37210451eb8d102457f35e3568b8c1a1c2377fbb1e8f21c6584dd80f3e77d4e"
+    },
+    "build/coverage/conflux-preparation-controller-check": {
+      "bytes": 12588056,
+      "sha256": "a87f5770a2fea825d9e453fb91ac0ee26bc627738c73a4bd62eaf07c8b699e8e"
+    }
+  }
+}

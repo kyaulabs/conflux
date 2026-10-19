@@ -1,0 +1,22 @@
+{
+  "adapter": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_loaded_launch.py",
+  "adapter_sha256": "883d537f8f2fe91dc2e5fc5a735ca20067a007cbe8e308e9f1673825bf39e684",
+  "frozen_observed_launcher_sha256": "511bb712d2f7af01abb1ab25ca92b001c6f82af4ee6f42547a5b43fa32b237d6",
+  "frozen_proof_adapter_sha256": "ca0ad3468d20c2ae28d06476b995f50d49823c64ed6c57106aea059bf65baf71",
+  "rendered_launcher_sha256": "18ef046ff4a7eb5e1254af315653dd8d3200499ae3f500fd8c3597f471259c7a",
+  "nested_helpers": {
+    "window_guard_source": {
+      "selected_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_loaded_window_guard.py",
+      "selected_sha256": "cd064312e996672fed81e570f2acc0c8efd40e0fa76520cb0b3566da560f18b1",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/tools/benchmarks/window_guard.py",
+      "original_sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb"
+    },
+    "observer_source": {
+      "selected_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash_loaded_observer.py",
+      "selected_sha256": "a21b21408ecb1a1108d310eee5ebcbad0187c4894fa308b55c495be4f16a9664",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/software-ui-2026-10-17/observed-run.py",
+      "original_sha256": "a6a4b81014f6aec16c8cd68e902348afcd10a1fdf5966f6b2a54ba2f622ef394"
+    }
+  },
+  "scope": "Narrow launcher adaptation plus scoped nested-helper copies fixing handled-signal publication and known-group cleanup. Frozen originals, soak, worker, Harness and probe remain unchanged. No arbitrary SIGKILL immunity claim."
+}

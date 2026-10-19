@@ -1,0 +1,22 @@
+{
+  "repository_head": "825841849ea157272a7b27e8481d9a8565c47cb6",
+  "runs": [
+    {
+      "conclusion": "success",
+      "databaseId": 39091127963,
+      "event": "push",
+      "headSha": "825841849ea157272a7b27e8481d9a8565c47cb6",
+      "status": "completed",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39091127963"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 39091130736,
+      "event": "pull_request",
+      "headSha": "825841849ea157272a7b27e8481d9a8565c47cb6",
+      "status": "completed",
+      "url": "https://github.com/kyaulabs/conflux/actions/runs/39091130736"
+    }
+  ],
+  "queried_at_utc": "2026-10-18T03:04:38.064359+00:00"
+}

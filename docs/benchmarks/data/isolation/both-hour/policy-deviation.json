@@ -1,0 +1,8 @@
+{
+  "observed_at_utc": "2026-10-17T00:31:20.689331+00:00",
+  "observed_profile": "power-saver",
+  "suite_PID": 1559950,
+  "launcher_PID": 1572940,
+  "suite_command": "python3 -B benchmarks-local/isolation-2026-10-16/suite_run.py ",
+  "action": "Stop owned suite due to startup profile deviation; preserve trial."
+}

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import runpy,sys;from pathlib import Path;sys.exit(runpy.run_path(sys.argv[1])['run']('admission',Path(sys.argv[2])))
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/user-tracks-2026-10-17/normal_ready.py", line 150, in run
+    json.dump(result, stream, indent=2, allow_nan=False)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/json/__init__.py", line 182, in dump
+    fp.write(chunk)
+    ~~~~~~~~^^^^^^^
+KeyboardInterrupt

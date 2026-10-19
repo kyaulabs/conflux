@@ -1,0 +1,1322 @@
+{
+  "raw_status": "ok",
+  "duration_seconds": 120.0003155739978,
+  "timing": {
+    "all_delivered": {
+      "chunks": 52,
+      "frames": 12186687,
+      "p50_ms": 2218.1790089816786,
+      "p95_ms": 2308.6527019622736,
+      "p99_ms": 2369.800248008687,
+      "max_ms": 2369.800248008687,
+      "above_4095ms": 0
+    },
+    "continuous": {
+      "chunks": 51,
+      "frames": 11929035,
+      "p50_ms": 2218.1790089816786,
+      "p95_ms": 2308.6527019622736,
+      "p99_ms": 2369.800248008687,
+      "max_ms": 2369.800248008687,
+      "above_4095ms": 0
+    }
+  },
+  "bins_300_seconds": [
+    {
+      "start_seconds": 0,
+      "end_seconds": 120.0003155739978,
+      "chunks": 52,
+      "frames": 12186687,
+      "p50_ms": 2218.1790089816786,
+      "p95_ms": 2308.6527019622736,
+      "p99_ms": 2369.800248008687,
+      "max_ms": 2369.800248008687,
+      "above_4095ms": 0
+    }
+  ],
+  "misses": [],
+  "controls": {
+    "completed": 1,
+    "checks": [
+      {
+        "at_workload_seconds": 30.54716501099756,
+        "target_frame": 258318,
+        "cancel_ack_ms": 0.051234965212643147,
+        "resume_ack_ms": 0.02430501626804471,
+        "residual_finish_ms": 2043.8980769831687,
+        "ready_after_resume_ms": 4462.191339000128,
+        "ready_after_cancel_ms": 6506.320814951323,
+        "delivered_after_cancel_ms": 6619.2290029721335,
+        "hardware_submission_confirmed": false
+      }
+    ],
+    "hardware_submission_confirmed": false,
+    "same_grid_hash_checks": 42,
+    "trimmed_seek_checks": 1,
+    "trimmed_exact_flags": true,
+    "trimmed_repeated_hashes_consistent": true,
+    "parity_recompute_limit": "Waveform samples are not archived; trimmed numerical equality is an instrumented runtime assertion. Repeated whole-grid and trimmed hashes are independently checked.",
+    "contiguous_chunks_checked": 52,
+    "stale_chunks_in_log": 0,
+    "full_source_loops": 4,
+    "resumed_completions": 1,
+    "runtime_ready_count": 1,
+    "backend_trace_identity": [
+      1543376,
+      35265471
+    ],
+    "source_model_identities_in_chunks": [
+      [
+        "840561b2f6c6cd26ab70b0e2adef629f3eee09878333b1e41f901972504546c4",
+        "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+      ]
+    ],
+    "ready_queue_high_water": 1,
+    "ready_queue_limit": 2,
+    "telemetry_dropped": 0,
+    "shutdown_ms": 161.42175800632685,
+    "ranges_ms": {
+      "started_to_cancel_ms": {
+        "min": 167.1407800167799,
+        "median": 167.1407800167799,
+        "max": 167.1407800167799
+      },
+      "cancel_ack_ms": {
+        "min": 0.051234965212643147,
+        "median": 0.051234965212643147,
+        "max": 0.051234965212643147
+      },
+      "resume_ack_ms": {
+        "min": 0.02430501626804471,
+        "median": 0.02430501626804471,
+        "max": 0.02430501626804471
+      },
+      "residual_finish_ms": {
+        "min": 2043.8980769831687,
+        "median": 2043.8980769831687,
+        "max": 2043.8980769831687
+      },
+      "ready_after_resume_ms": {
+        "min": 4462.191339000128,
+        "median": 4462.191339000128,
+        "max": 4462.191339000128
+      },
+      "ready_after_cancel_ms": {
+        "min": 6506.320814951323,
+        "median": 6506.320814951323,
+        "max": 6506.320814951323
+      },
+      "delivered_after_cancel_ms": {
+        "min": 6619.2290029721335,
+        "median": 6619.2290029721335,
+        "max": 6619.2290029721335
+      }
+    },
+    "all_started_to_cancel_at_least150ms": true,
+    "expected11_controls_for60min": null,
+    "held_chunks": [
+      {
+        "request_id": 14,
+        "generation": 2,
+        "current_generation_before_cancel": true
+      }
+    ],
+    "held_current_count": 1,
+    "held_already_stale_count": 0
+  },
+  "audio": {
+    "selected": false,
+    "status": "not_run",
+    "coverage_passed": null,
+    "faults": null,
+    "measurements": null,
+    "unexpected_evidence": [],
+    "absence_verified": true,
+    "scope": "This probe was not selected; no no-fault or coverage claim is made.",
+    "selection_checks": {
+      "children_match_selection": true
+    }
+  },
+  "UI": {
+    "selected": true,
+    "status": "verified",
+    "coverage_passed": true,
+    "checks": {
+      "child_returned_success": true,
+      "accelerated_Wayland_rendered": true,
+      "all_complete_bins_recorded": true,
+      "minute_sum_matches_frames": true,
+      "observation_covers_workload": true,
+      "all_complete_minute_bins_nonzero": true,
+      "notification_gap_within_30s": true,
+      "runtime_gate_passed": true,
+      "reported_coverage_passed": true,
+      "exposure_budget_passed": true,
+      "exposure_event_count_consistent": true
+    },
+    "faults": null,
+    "measurements": {
+      "frames_swapped": 7289,
+      "minute_sum": 7289,
+      "minute_bins": [
+        3598,
+        3598,
+        93
+      ],
+      "complete_bins_intersecting_workload": [
+        0,
+        1
+      ],
+      "zero_complete_bins_intersecting_workload": [],
+      "observation_span_seconds": 121.55347498401534,
+      "maximum_notification_gap_ms": 58.134743,
+      "graphics_api": 3,
+      "progress": {
+        "requested": true,
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke/ui-progress.json",
+        "checks": 112,
+        "check_interval_seconds": 1.0,
+        "startup_grace_seconds": 5.0,
+        "maximum_allowed_gap_seconds": 30.0,
+        "maximum_progress_age_seconds": 0.9860572050092742,
+        "maximum_frame_age_seconds": 0.9952547749853693,
+        "maximum_check_gap_seconds": 1.2500842659501359,
+        "unexposed_observations": 0,
+        "maximum_observed_unexposed_span_seconds": 0.0,
+        "last_unexposed_span": null,
+        "exposure_scope": "Sampled heartbeat exposure; spans end at recovery or workload stop, or remain open during the run",
+        "read_errors": {
+          "FileNotFoundError": 1
+        },
+        "last_progress": {
+          "exposed": true,
+          "frames_swapped": 7205,
+          "last_frame_monotonic_ns": 313825490909538,
+          "pid": 1543334,
+          "scene_graph_initialized": true,
+          "timestamp_monotonic_ns": 313825501141129
+        },
+        "gate_failure": null
+      },
+      "exposure_transition_events": [],
+      "exposure_spans_recomputed": []
+    },
+    "scope": "GUI-thread frameSwapped notifications; not physical presentation latency",
+    "exposure_scope": "Only transition pulses stream; false-pulse observation total and heartbeat maxima are instrumented summary fields.",
+    "selection_checks": {
+      "children_match_selection": true
+    }
+  },
+  "frozen_pins": {
+    "runtime": {
+      "pinned_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "current_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "matches_current": true,
+      "bytes": 62986240
+    },
+    "model": {
+      "pinned_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "current_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "matches_current": true,
+      "bytes": 84059168
+    },
+    "soak_source": {
+      "pinned_sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a",
+      "current_sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a",
+      "matches_current": true,
+      "bytes": 40001
+    },
+    "shared_benchmark_source": {
+      "pinned_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "current_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "matches_current": true,
+      "bytes": 22802
+    },
+    "worker_source": {
+      "pinned_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "current_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "matches_current": true,
+      "bytes": 24863
+    },
+    "sampler_source": {
+      "pinned_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "current_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "matches_current": true,
+      "bytes": 23403
+    },
+    "ui": {
+      "pinned_sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+      "current_sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+      "matches_current": true,
+      "bytes": 1689016
+    }
+  },
+  "trace_checks": {
+    "interval_requested_seconds": 0.5,
+    "sample_count": 237,
+    "first_monotonic": 313706.738270051,
+    "last_monotonic": 313826.884167905,
+    "successful_sample_span_seconds": 120.14589785400312,
+    "sample_gap_ms": {
+      "count": 236,
+      "min": 506.0949000180699,
+      "p50": 509.13003098685294,
+      "p95": 511.5522349951789,
+      "p99": 512.841924035456,
+      "max": 521.6566669987515
+    },
+    "capture_elapsed_ms": {
+      "count": 237,
+      "min": 5.722152011003345,
+      "p50": 8.630939002614468,
+      "p95": 11.022389982827008,
+      "p99": 12.270673003513366,
+      "max": 20.354136999230832
+    },
+    "native_max_status_kB_recomputed": {
+      "VmHWM": 280984,
+      "VmRSS": 280984,
+      "VmSwap": 0
+    },
+    "native_observed_cpu_seconds_recomputed": 7.64,
+    "clock_ticks_per_second": 100,
+    "clock_ticks_scope": "SC_CLK_TCK from analysis host; CPU conversion requires matching collection-host clock tick rate",
+    "native_fd_read_errors_recomputed": 0,
+    "process_counter_deltas": {
+      "status.voluntary_ctxt_switches": 880,
+      "status.nonvoluntary_ctxt_switches": 285,
+      "stat.minflt": 5193,
+      "stat.majflt": 0
+    },
+    "all_readable_system_fields_present_every_sample": true,
+    "system_field_missing_samples": {},
+    "system_field_count": 99,
+    "system_field_stats": {
+      "/proc/meminfo:MemTotal": {
+        "min": 16064416,
+        "max": 16064416,
+        "first": 16064416,
+        "last": 16064416
+      },
+      "/proc/meminfo:MemAvailable": {
+        "min": 4447184,
+        "max": 4956960,
+        "first": 4956960,
+        "last": 4695588
+      },
+      "/proc/meminfo:MemFree": {
+        "min": 1452036,
+        "max": 1961552,
+        "first": 1961552,
+        "last": 1697896
+      },
+      "/proc/meminfo:Buffers": {
+        "min": 56328,
+        "max": 57632,
+        "first": 56328,
+        "last": 57632
+      },
+      "/proc/meminfo:Cached": {
+        "min": 4607008,
+        "max": 5023436,
+        "first": 4607008,
+        "last": 5020896
+      },
+      "/proc/meminfo:Shmem": {
+        "min": 1378148,
+        "max": 1793720,
+        "first": 1378148,
+        "last": 1791060
+      },
+      "/proc/meminfo:SwapTotal": {
+        "min": 16777212,
+        "max": 16777212,
+        "first": 16777212,
+        "last": 16777212
+      },
+      "/proc/meminfo:SwapFree": {
+        "min": 6327992,
+        "max": 6329608,
+        "first": 6327992,
+        "last": 6329608
+      },
+      "/proc/meminfo:Dirty": {
+        "min": 1876,
+        "max": 12772,
+        "first": 12712,
+        "last": 3376
+      },
+      "/proc/meminfo:Writeback": {
+        "min": 0,
+        "max": 1872,
+        "first": 0,
+        "last": 0
+      },
+      "/proc/meminfo:Slab": {
+        "min": 863784,
+        "max": 864464,
+        "first": 864108,
+        "last": 863912
+      },
+      "/proc/meminfo:SReclaimable": {
+        "min": 381048,
+        "max": 381052,
+        "first": 381048,
+        "last": 381052
+      },
+      "/proc/meminfo:Unevictable": {
+        "min": 815788,
+        "max": 1228800,
+        "first": 815788,
+        "last": 1223488
+      },
+      "/proc/vmstat:pgfault": {
+        "min": 1424923042,
+        "max": 1425800220,
+        "first": 1424923042,
+        "last": 1425800220
+      },
+      "/proc/vmstat:pgmajfault": {
+        "min": 1344671,
+        "max": 1344992,
+        "first": 1344671,
+        "last": 1344992
+      },
+      "/proc/vmstat:pgpgin": {
+        "min": 438058510,
+        "max": 438060786,
+        "first": 438058510,
+        "last": 438060786
+      },
+      "/proc/vmstat:pgpgout": {
+        "min": 301898772,
+        "max": 302844684,
+        "first": 301898772,
+        "last": 302844684
+      },
+      "/proc/vmstat:pswpin": {
+        "min": 193175,
+        "max": 193233,
+        "first": 193175,
+        "last": 193233
+      },
+      "/proc/vmstat:pswpout": {
+        "min": 1470447,
+        "max": 1470447,
+        "first": 1470447,
+        "last": 1470447
+      },
+      "/proc/vmstat:pgscan_kswapd": {
+        "min": 130190293,
+        "max": 130190293,
+        "first": 130190293,
+        "last": 130190293
+      },
+      "/proc/vmstat:pgscan_direct": {
+        "min": 4265746,
+        "max": 4266563,
+        "first": 4265746,
+        "last": 4266563
+      },
+      "/proc/vmstat:pgsteal_kswapd": {
+        "min": 122841793,
+        "max": 122841793,
+        "first": 122841793,
+        "last": 122841793
+      },
+      "/proc/vmstat:pgsteal_direct": {
+        "min": 3318160,
+        "max": 3318972,
+        "first": 3318160,
+        "last": 3318972
+      },
+      "/proc/vmstat:oom_kill": {
+        "min": 0,
+        "max": 0,
+        "first": 0,
+        "last": 0
+      },
+      "/proc/vmstat:compact_stall": {
+        "min": 52310,
+        "max": 52383,
+        "first": 52310,
+        "last": 52383
+      },
+      "/proc/vmstat:workingset_refault_anon": {
+        "min": 5686470,
+        "max": 5686931,
+        "first": 5686470,
+        "last": 5686931
+      },
+      "/proc/vmstat:workingset_refault_file": {
+        "min": 35298051,
+        "max": 35298858,
+        "first": 35298051,
+        "last": 35298858
+      },
+      "/tmp:total_bytes": {
+        "min": 4294967296,
+        "max": 4294967296,
+        "first": 4294967296,
+        "last": 4294967296
+      },
+      "/tmp:free_bytes": {
+        "min": 649797632,
+        "max": 660807680,
+        "first": 660807680,
+        "last": 660807680
+      },
+      "/tmp:available_bytes": {
+        "min": 649797632,
+        "max": 660807680,
+        "first": 660807680,
+        "last": 660807680
+      },
+      "/tmp:free_inodes": {
+        "min": 1974879,
+        "max": 1974880,
+        "first": 1974880,
+        "last": 1974880
+      }
+    },
+    "task_identity_sets": 2,
+    "task_schedstat_read_errors": 0,
+    "sched_schedstats_values": {
+      "0": 237
+    },
+    "firmware_profile_snapshots": {
+      "balanced": 237
+    },
+    "cpu0_EPP_snapshots": {
+      "balance_performance": 237
+    },
+    "sampling_scope": "Successful process/system snapshots; requested interval is recorded separately. Capture cost excludes trace write; gaps include work, requested sleep and scheduling. Counter deltas require stable identities; sched_schedstats=0 limits interpretation. CPU first-to-last excludes process work before first sample. FD read errors do not identify a cause."
+  },
+  "native_trace": {
+    "samples": 237,
+    "bytes": 1548415,
+    "trace_errors": {},
+    "sample_errors": {},
+    "system_read_errors": {
+      "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 237,
+      "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 237,
+      "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 237,
+      "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 237
+    },
+    "native_max_status_kB": {
+      "VmHWM": 280984,
+      "VmRSS": 280984,
+      "VmSwap": 0
+    },
+    "supervisor_max_status_kB": {
+      "VmHWM": 159504,
+      "VmRSS": 147476,
+      "VmSwap": 0
+    }
+  },
+  "fixture_deleted": true,
+  "interpretation": [
+    "Global observed p99 alone does not show absence of rare target misses.",
+    "Process-alive polling is not proof of continuous UI rendering.",
+    "FrameSwapped notifications do not measure physical presentation latency."
+  ],
+  "load_mode": "ui",
+  "selected_loads": [
+    "ui"
+  ],
+  "acceptance": {
+    "requested_wall_duration_completed": true,
+    "sixty_minute_workload_completed": false,
+    "audio_covers_requested_duration": null,
+    "required_UI_coverage_completed": true,
+    "selected_load_coverage_completed": true,
+    "controls_completed": 1,
+    "observed_continuous_p99_within_target": true,
+    "parity_scope": "Full same-grid chunks require identical SHA-256; trimmed seeks use allclose(rtol=1e-4, atol=1e-5) and record exact equality/max difference.",
+    "active_cancel_scope": "Wait 150 ms after the supervisor started event, then revalidate generation/request. No GPU submission timestamp is observed.",
+    "scope": "synthetic saturated delivery with requested load=ui; no stem playback/full deck or musical-quality claim",
+    "full_audio_UI_soak_qualified": false
+  },
+  "failures": [],
+  "selected_load_evidence_valid": true,
+  "requested_probe_coverage_passed": true,
+  "probe_status_scope": "With no selected probes, selected-load coverage has no probe requirement; absent audio/UI remains not_run with null faults/measurements, not a measured no-fault pass.",
+  "selected_load_acceptance_consistent": true,
+  "before_pins_after": {
+    "src/main.cpp": {
+      "recorded_sha256": "ca46fb40e4aae39bd4268664e482438f6d62533d959ef657bd6081c07f6d6321",
+      "current_sha256": "ca46fb40e4aae39bd4268664e482438f6d62533d959ef657bd6081c07f6d6321",
+      "matches_current": true
+    },
+    "src/probe_main.cpp": {
+      "recorded_sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+      "current_sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+      "matches_current": true
+    },
+    "tools/benchmarks/stem_soak.py": {
+      "recorded_sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a",
+      "current_sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a",
+      "matches_current": true
+    },
+    "tools/benchmarks/stem_worker.py": {
+      "recorded_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "current_sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+      "matches_current": true
+    },
+    "tools/benchmarks/window_guard.py": {
+      "recorded_sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "current_sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+      "matches_current": true
+    },
+    "tools/benchmarks/worker_support.py": {
+      "recorded_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "current_sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+      "matches_current": true
+    },
+    "tools/stems/worker.py": {
+      "recorded_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "current_sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+      "matches_current": true
+    },
+    "build/dev/conflux": {
+      "recorded_sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+      "current_sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+      "matches_current": true
+    },
+    "build/dev/conflux-audio-probe": {
+      "recorded_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "current_sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+      "matches_current": true
+    },
+    "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+      "recorded_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "current_sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+      "matches_current": true
+    },
+    "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+      "recorded_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "current_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "matches_current": true
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/balanced-run.py": {
+      "recorded_sha256": "c0e47a521d6f8ec4969c98782035b414360c796260808fb220a35e61cf704963",
+      "current_sha256": "c0e47a521d6f8ec4969c98782035b414360c796260808fb220a35e61cf704963",
+      "matches_current": true
+    },
+    "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/monitor.py": {
+      "recorded_sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "current_sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+      "matches_current": true
+    }
+  },
+  "event_counts": {
+    "control": 8,
+    "runtime_ready": 1,
+    "source_ready": 7,
+    "started": 55,
+    "chunk": 52,
+    "soak_hop": 52,
+    "complete": 5,
+    "discarded": 1
+  },
+  "backend_ready": {
+    "stems": [
+      "drums",
+      "bass",
+      "other",
+      "vocals"
+    ],
+    "segment_frames": 343980,
+    "channels": 2,
+    "pid": 1543376,
+    "sample_rate": 44100,
+    "weight_storage": "native",
+    "threads": 4,
+    "backend": "vulkan",
+    "model": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+    "revision": "0097d365a00b52a6991ad7618f0a04e8d2935e47",
+    "fence_wait_mode": "blocking",
+    "load_ms": 374.498132,
+    "event": "ready",
+    "process_environment": {
+      "OMP_WAIT_POLICY": "PASSIVE",
+      "GOMP_SPINCOUNT": "0"
+    }
+  },
+  "bins_300_seconds_by_kind": {
+    "all_delivered": [
+      {
+        "start_seconds": 0,
+        "end_seconds": 120.0003155739978,
+        "chunks": 52,
+        "frames": 12186687,
+        "p50_ms": 2218.1790089816786,
+        "p95_ms": 2308.6527019622736,
+        "p99_ms": 2369.800248008687,
+        "max_ms": 2369.800248008687,
+        "above_4095ms": 0
+      }
+    ],
+    "continuous": [
+      {
+        "start_seconds": 0,
+        "end_seconds": 120.0003155739978,
+        "chunks": 51,
+        "frames": 11929035,
+        "p50_ms": 2218.1790089816786,
+        "p95_ms": 2308.6527019622736,
+        "p99_ms": 2369.800248008687,
+        "max_ms": 2369.800248008687,
+        "above_4095ms": 0
+      }
+    ]
+  },
+  "policy_qualification": {
+    "firmware": {
+      "counts": {
+        "balanced": 237
+      },
+      "expected": "balanced",
+      "missing_samples": 0,
+      "deviating_samples": 0,
+      "passed": true
+    },
+    "cpu0_EPP": {
+      "counts": {
+        "balance_performance": 237
+      },
+      "expected": "balance_performance",
+      "missing_samples": 0,
+      "deviating_samples": 0,
+      "passed": true
+    },
+    "before": {
+      "observed_at_utc": "2026-10-16T22:54:33.159658+00:00",
+      "scope": "Host snapshot; collected outside the restricted namespace",
+      "label": "before-ui-smoke",
+      "pins": {
+        "src/main.cpp": {
+          "sha256": "ca46fb40e4aae39bd4268664e482438f6d62533d959ef657bd6081c07f6d6321",
+          "bytes": 8007
+        },
+        "src/probe_main.cpp": {
+          "sha256": "9f6ae22c75a02472b602194b684e184e4c8862cb6475d56bd462f1e579220ae6",
+          "bytes": 17361
+        },
+        "tools/benchmarks/stem_soak.py": {
+          "sha256": "ecf6f1d3bae308ceb0c5936d74d2439afd490370090f61563d387a15a511d69a",
+          "bytes": 40001
+        },
+        "tools/benchmarks/stem_worker.py": {
+          "sha256": "a9b7cc5904883460baf7ef7e19b7a5f227f676945283f33564e2ade6d906e256",
+          "bytes": 22802
+        },
+        "tools/benchmarks/window_guard.py": {
+          "sha256": "077bd16eefbdd9b80f787b6aeb2837a3790fedf7f5defd7b140dccc6e1f5cebb",
+          "bytes": 14613
+        },
+        "tools/benchmarks/worker_support.py": {
+          "sha256": "8f079c14dfa35412a05b8f52c1660cfcb5d545d9b2b85f7e066f78c8fcc61b5b",
+          "bytes": 23403
+        },
+        "tools/stems/worker.py": {
+          "sha256": "308579c6870834914602e4f33970e3b24b952edb5d7d28f82d1c65256389f6a8",
+          "bytes": 24863
+        },
+        "build/dev/conflux": {
+          "sha256": "011c4ced62384ca0364c8381db22bcc619b18f2e8c7b86a8fa79cf7adfedf01e",
+          "bytes": 1689016
+        },
+        "build/dev/conflux-audio-probe": {
+          "sha256": "b8cbfb0a255c94cf8430b9d7ef97823a9e2f3b11eedf32b3dec179ba1d197ea2",
+          "bytes": 641648
+        },
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking": {
+          "sha256": "8987190b68829046aa08237a45ab7c2e708674fc0c207c9f9da6c14b86027dc6",
+          "bytes": 62986240
+        },
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf": {
+          "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+          "bytes": 84059168
+        },
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/balanced-run.py": {
+          "sha256": "c0e47a521d6f8ec4969c98782035b414360c796260808fb220a35e61cf704963",
+          "bytes": 5108
+        },
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/monitor.py": {
+          "sha256": "118024152cd2a5365227d545625e9570f0a96527a0d94979c54d9401c29b2df1",
+          "bytes": 3198
+        }
+      },
+      "read_errors": {},
+      "head": "f8721d4e619eb78f4a0dbc05954a5b46e1253cf0",
+      "profile": "power-saver",
+      "holds": "",
+      "/proc/meminfo": "MemTotal:       16064416 kB\nMemFree:         2506808 kB\nMemAvailable:    5493980 kB\nBuffers:           56280 kB\nCached:          4412168 kB\nSwapCached:       487552 kB\nActive:          4587584 kB\nInactive:        5154460 kB\nActive(anon):    3534732 kB\nInactive(anon):  3003604 kB\nActive(file):    1052852 kB\nInactive(file):  2150856 kB\nUnevictable:      637888 kB\nMlocked:            1732 kB\nSwapTotal:      16777212 kB\nSwapFree:        6327800 kB\nZswap:           1896084 kB\nZswapped:        4439112 kB\nDirty:              4344 kB\nWriteback:             0 kB\nAnonPages:       5454452 kB\nMapped:          1371460 kB\nShmem:           1191468 kB\nKReclaimable:     381048 kB\nSlab:             863980 kB\nSReclaimable:     381048 kB\nSUnreclaim:       482932 kB\nKernelStack:       35136 kB\nPageTables:       187176 kB\nSecPageTables:      4148 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    24809420 kB\nCommitted_AS:   57046132 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       79632 kB\nVmallocChunk:          0 kB\nPercpu:             7040 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:   157696 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    235520 kB\nFilePmdMapped:      2048 kB\nCmaTotal:              0 kB\nCmaFree:               0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nGPUActive:             0 kB\nGPUReclaim:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      280000 kB\nDirectMap2M:    15144960 kB\nDirectMap1G:     2097152 kB",
+      "/proc/swaps": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n/dev/dm-1                               partition\t16777212\t10449412\t-1",
+      "/sys/firmware/acpi/platform_profile": "low-power",
+      "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power",
+      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor": "powersave",
+      "/sys/class/thermal/thermal_zone2": {
+        "type": "SEN1",
+        "millidegrees_C": 50050
+      },
+      "/sys/class/thermal/thermal_zone0": {
+        "type": "acpitz",
+        "millidegrees_C": 56000
+      },
+      "/sys/class/thermal/thermal_zone7": {
+        "type": "x86_pkg_temp",
+        "millidegrees_C": 53000
+      },
+      "/sys/class/thermal/thermal_zone5": {
+        "type": "TCPU",
+        "millidegrees_C": 56050
+      },
+      "/sys/class/thermal/thermal_zone3": {
+        "type": "SEN2",
+        "millidegrees_C": 61050
+      },
+      "/sys/class/thermal/thermal_zone1": {
+        "type": "INT3400 Thermal",
+        "millidegrees_C": 20000
+      },
+      "/sys/class/thermal/thermal_zone6": {
+        "type": "iwlwifi_1",
+        "millidegrees_C": 43000
+      },
+      "/sys/class/thermal/thermal_zone4": {
+        "type": "SEN5",
+        "millidegrees_C": 56050
+      },
+      "/sys/class/power_supply/ucsi-source-psy-USBC000:002/type": "USB",
+      "/sys/class/power_supply/ucsi-source-psy-USBC000:002/online": "1",
+      "/sys/class/power_supply/ucsi-source-psy-USBC000:002/status": "Charging",
+      "/sys/class/power_supply/ucsi-source-psy-USBC000:001/type": "USB",
+      "/sys/class/power_supply/ucsi-source-psy-USBC000:001/online": "0",
+      "/sys/class/power_supply/ucsi-source-psy-USBC000:001/status": "Not charging",
+      "/sys/class/power_supply/BAT0/type": "Battery",
+      "/sys/class/power_supply/BAT0/status": "Not charging",
+      "/sys/class/power_supply/AC/type": "Mains",
+      "/sys/class/power_supply/AC/online": "1",
+      "scratch": "Filesystem               1B-blocks        Used   Available Use% Mounted on\ntmpfs                   4294967296  3631403008   663564288  85% /tmp\n/dev/mapper/aura-home 109232971776 75472855040 28164079616  73% /home\n"
+    },
+    "after": {
+      "status": "not_supplied"
+    },
+    "lifecycle": {
+      "command": [
+        "python3",
+        "-B",
+        "tools/benchmarks/stem_soak.py",
+        "--runtime",
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "--model",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "--ui",
+        "build/dev/conflux",
+        "--audio-probe",
+        "build/dev/conflux-audio-probe",
+        "--load",
+        "ui",
+        "--renderer",
+        "opengl",
+        "--seconds",
+        "120",
+        "--control-interval",
+        "30",
+        "--request-timeout",
+        "30",
+        "--sample-interval",
+        "0.5",
+        "--output",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke"
+      ],
+      "started_at_utc": "2026-10-16T22:54:34.549575+00:00",
+      "before": {
+        "observed_at_utc": "2026-10-16T22:54:34.550012+00:00",
+        "profile": "power-saver",
+        "holds": "",
+        "firmware": "low-power",
+        "cpu_epp": "power"
+      },
+      "during": {
+        "observed_at_utc": "2026-10-16T22:54:35.488102+00:00",
+        "profile": "balanced",
+        "holds": "",
+        "firmware": "balanced",
+        "cpu_epp": "balance_performance"
+      },
+      "before_restore": {
+        "observed_at_utc": "2026-10-16T22:56:38.042935+00:00",
+        "profile": "balanced",
+        "holds": "",
+        "firmware": "balanced",
+        "cpu_epp": "balance_performance"
+      },
+      "restored_by_runner": true,
+      "after": {
+        "observed_at_utc": "2026-10-16T22:56:39.067486+00:00",
+        "profile": "power-saver",
+        "holds": "",
+        "firmware": "low-power",
+        "cpu_epp": "power"
+      },
+      "benchmark_returncode": 0,
+      "runner_returncode": 0,
+      "finished_at_utc": "2026-10-16T22:56:39.863364+00:00"
+    },
+    "lifecycle_checks": {
+      "checks": {
+        "benchmark_success": true,
+        "runner_success": true,
+        "restored_by_runner": true,
+        "no_holds_at_all_stages": true,
+        "during_balanced": true,
+        "prior_profile_restored": true,
+        "prior_firmware_restored": true,
+        "prior_EPP_restored": true
+      },
+      "passed": true,
+      "scope": "Restoration compares recorded entry state; prior profile is not assumed power-saver."
+    },
+    "monitor": {
+      "rows": 3,
+      "running_rows": 2,
+      "profiles": {
+        "balanced": 2
+      },
+      "nonempty_holds": 0,
+      "missing_holds": 0,
+      "passed": true
+    }
+  },
+  "guard": {
+    "selected_UI": true,
+    "record": {
+      "command": [
+        "/bin/python3",
+        "-B",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/balanced-run.py",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke-policy.json",
+        "--runtime",
+        "/tmp/conflux-stem-m0/conflux-stem-runtime-blocking",
+        "--model",
+        "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+        "--ui",
+        "build/dev/conflux",
+        "--audio-probe",
+        "build/dev/conflux-audio-probe",
+        "--load",
+        "ui",
+        "--renderer",
+        "opengl",
+        "--seconds",
+        "120",
+        "--control-interval",
+        "30",
+        "--request-timeout",
+        "30",
+        "--sample-interval",
+        "0.5",
+        "--output",
+        "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke"
+      ],
+      "started_at_utc": "2026-10-16T22:54:34.419520+00:00",
+      "status": "ok",
+      "ready": false,
+      "errors": [],
+      "idle_only": false,
+      "window_guard": {
+        "requested": true,
+        "status": "restored"
+      },
+      "idle_inhibit_cookie": 9765,
+      "bus_owner": ":1.18771",
+      "ui": {
+        "pid": 1543334,
+        "start_ticks": 35265362,
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/dev/conflux",
+          "--smoke-test",
+          "--smoke-seconds",
+          "240",
+          "--smoke-stop-file",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke/stop",
+          "--smoke-progress-file",
+          "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke/ui-progress.json"
+        ]
+      },
+      "script_id": 0,
+      "script_plugin": "conflux-benchmark-a1477e3ce6e04444b1478c63970b1cc9",
+      "script_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke-guard.js",
+      "window_policy": {
+        "before": {
+          "pid": 1543334,
+          "appId": "com.kyaulabs.conflux",
+          "keepAbove": false,
+          "onAllDesktops": false,
+          "minimized": false,
+          "desktopIds": [
+            "23f1364e-9d87-4218-860c-6fa08ac8b242"
+          ]
+        },
+        "after": {
+          "pid": 1543334,
+          "appId": "com.kyaulabs.conflux",
+          "keepAbove": true,
+          "onAllDesktops": true,
+          "minimized": false,
+          "desktopIds": []
+        }
+      },
+      "applied_monotonic": 313706.490647806,
+      "restored": {
+        "reason": "owned-window-closed",
+        "after": null
+      },
+      "restored_monotonic": 313826.910785983,
+      "script_unloaded": true,
+      "idle_inhibit_released": true,
+      "child_returncode": 0,
+      "returncode": 0,
+      "finished_at_utc": "2026-10-16T22:56:39.967416+00:00"
+    },
+    "idle_only_matches_selection": true,
+    "window_guard_matches_selection": true,
+    "cleanup_passed": true,
+    "idle_cookie_recorded": true,
+    "window_covered_workload": true,
+    "window_application_offset_ms": -232.83210105728358,
+    "window_restore_after_workload_ms": 186.99050199938938,
+    "window_PID_matches_heartbeat": true,
+    "scope": "Window application timing is separate from continuous UI frame evidence; a positive application offset means a startup interval before guard installation."
+  },
+  "reference_comparison": {
+    "directory": "benchmarks-local/isolation-2026-10-16/both-smoke",
+    "same_fixture": true,
+    "same_grid_hashes_identical": true,
+    "trimmed_hash_sets_identical": true,
+    "pins_identical": {
+      "runtime": true,
+      "model": true,
+      "soak_source": true,
+      "shared_benchmark_source": true,
+      "worker_source": true,
+      "sampler_source": true,
+      "ui": true
+    },
+    "scope": "Sequential trials toggle one selected benchmark child at a time. Fixed cooldown and starting temperature/host conditions must be reviewed separately; no causal proof from this audit."
+  },
+  "resources": {
+    "native_memory_cpu": {
+      "interval_seconds": 0.5,
+      "elapsed_seconds": 120.65638519899221,
+      "samples": 237,
+      "sample_errors": {},
+      "processes": [
+        {
+          "pid": 1543376,
+          "start_ticks": 35265471,
+          "samples": 237,
+          "max_process_status_kB": {
+            "VmHWM": 280984,
+            "VmRSS": 280984,
+            "VmSwap": 0
+          },
+          "drm_client_maxima": {
+            "0000:00:02.0/client-849": {
+              "drm-driver": "i915",
+              "drm-client-id": "849",
+              "drm-pdev": "0000:00:02.0",
+              "drm-total-system0": "0",
+              "drm-shared-system0": "0",
+              "drm-active-system0": "0",
+              "drm-resident-system0": "0",
+              "drm-purgeable-system0": "0",
+              "drm-total-stolen-system0": "0",
+              "drm-shared-stolen-system0": "0",
+              "drm-active-stolen-system0": "0",
+              "drm-resident-stolen-system0": "0",
+              "drm-purgeable-stolen-system0": "0",
+              "drm-engine-render": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-copy": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-video": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-capacity-video": "2",
+              "drm-engine-video-enhance": {
+                "value": 0,
+                "unit": "ns"
+              }
+            },
+            "0000:00:02.0/client-850": {
+              "drm-driver": "i915",
+              "drm-client-id": "850",
+              "drm-pdev": "0000:00:02.0",
+              "drm-total-system0": {
+                "value": 535780,
+                "unit": "KiB"
+              },
+              "drm-shared-system0": "0",
+              "drm-active-system0": {
+                "observations": [
+                  "0",
+                  {
+                    "value": 534584,
+                    "unit": "KiB"
+                  }
+                ]
+              },
+              "drm-resident-system0": {
+                "value": 535780,
+                "unit": "KiB"
+              },
+              "drm-purgeable-system0": {
+                "value": 1132,
+                "unit": "KiB"
+              },
+              "drm-total-stolen-system0": "0",
+              "drm-shared-stolen-system0": "0",
+              "drm-active-stolen-system0": "0",
+              "drm-resident-stolen-system0": "0",
+              "drm-purgeable-stolen-system0": "0",
+              "drm-engine-render": {
+                "value": 99773318840,
+                "unit": "ns"
+              },
+              "drm-engine-copy": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-video": {
+                "value": 0,
+                "unit": "ns"
+              },
+              "drm-engine-capacity-video": "2",
+              "drm-engine-video-enhance": {
+                "value": 0,
+                "unit": "ns"
+              }
+            }
+          },
+          "max_simultaneous_drm_clients": 2,
+          "fd_read_errors": 0,
+          "first_elapsed_seconds": 0.5093216790119186,
+          "last_elapsed_seconds": 120.65521953301504,
+          "first_process_counters": {
+            "status.voluntary_ctxt_switches": 542,
+            "status.nonvoluntary_ctxt_switches": 30,
+            "stat.minflt": 66228,
+            "stat.majflt": 0
+          },
+          "last_process_counters": {
+            "status.voluntary_ctxt_switches": 1422,
+            "status.nonvoluntary_ctxt_switches": 315,
+            "stat.minflt": 71421,
+            "stat.majflt": 0
+          },
+          "observed_cpu_seconds": 7.64
+        }
+      ],
+      "notes": [
+        "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+        "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+        "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+        "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+        "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+        "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+        "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+      ],
+      "trace": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/isolation-2026-10-16/ui-smoke/native-trace.jsonl",
+        "samples_written": 237,
+        "errors": {},
+        "timestamp_clock": "time.monotonic; sampled after process and optional system reads",
+        "scheduling_scope": "Per-task schedstat sums. Runtime and runqueue wait use ns; timeslices and read_errors are counts. Compare deltas only with identical task_ids and no read errors.",
+        "capture_scope": "Capture elapsed covers process/system reads before aggregation and trace output. Previous-sample gaps also include trace write time and the requested interval; they do not identify scheduling delays alone."
+      },
+      "system_sampling": {
+        "fields": {
+          "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq": "kHz",
+          "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "string",
+          "/sys/firmware/acpi/platform_profile": "string",
+          "/proc/sys/kernel/sched_schedstats": "enabled_flag",
+          "/sys/class/drm/card1/gt_act_freq_mhz": "MHz",
+          "/sys/class/drm/card1/gt_cur_freq_mhz": "MHz",
+          "/sys/class/drm/card1/gt_max_freq_mhz": "MHz",
+          "/sys/class/drm/card1/gt_min_freq_mhz": "MHz",
+          "/sys/class/drm/card1/gt_boost_freq_mhz": "MHz",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl1": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl2": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_pl4": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_prochot": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_ratl": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_status": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_tdc": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/throttle_reason_vr_thermalert": "kernel integer",
+          "/sys/class/drm/card1/gt/gt0/rc6_residency_ms": "milliseconds",
+          "/sys/class/drm/card1/device/power/runtime_status": "string",
+          "/sys/class/drm/card1/device/power/runtime_active_time": "milliseconds",
+          "/sys/class/drm/card1/device/power/runtime_suspended_time": "milliseconds",
+          "/sys/class/thermal/thermal_zone5/temp": "millidegrees_C",
+          "/sys/class/thermal/thermal_zone7/temp": "millidegrees_C",
+          "/sys/class/powercap/intel-rapl:0/energy_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:0/max_energy_range_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:0:0/max_energy_range_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:0:1/max_energy_range_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:1/energy_uj": "microjoules",
+          "/sys/class/powercap/intel-rapl:1/max_energy_range_uj": "microjoules",
+          "/sys/devices/system/cpu/cpu0/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu1/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu1/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu2/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu2/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu3/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu3/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu4/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu4/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu5/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu5/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu6/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu6/thermal_throttle/package_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu7/thermal_throttle/core_throttle_count": "count",
+          "/sys/devices/system/cpu/cpu7/thermal_throttle/package_throttle_count": "count",
+          "/proc/pressure/cpu:some.avg10": "percent",
+          "/proc/pressure/cpu:some.avg60": "percent",
+          "/proc/pressure/cpu:some.avg300": "percent",
+          "/proc/pressure/cpu:some.total": "microseconds",
+          "/proc/pressure/cpu:full.avg10": "percent",
+          "/proc/pressure/cpu:full.avg60": "percent",
+          "/proc/pressure/cpu:full.avg300": "percent",
+          "/proc/pressure/cpu:full.total": "microseconds",
+          "/proc/pressure/memory:some.avg10": "percent",
+          "/proc/pressure/memory:some.avg60": "percent",
+          "/proc/pressure/memory:some.avg300": "percent",
+          "/proc/pressure/memory:some.total": "microseconds",
+          "/proc/pressure/memory:full.avg10": "percent",
+          "/proc/pressure/memory:full.avg60": "percent",
+          "/proc/pressure/memory:full.avg300": "percent",
+          "/proc/pressure/memory:full.total": "microseconds",
+          "/proc/pressure/io:some.avg10": "percent",
+          "/proc/pressure/io:some.avg60": "percent",
+          "/proc/pressure/io:some.avg300": "percent",
+          "/proc/pressure/io:some.total": "microseconds",
+          "/proc/pressure/io:full.avg10": "percent",
+          "/proc/pressure/io:full.avg60": "percent",
+          "/proc/pressure/io:full.avg300": "percent",
+          "/proc/pressure/io:full.total": "microseconds",
+          "/proc/meminfo:MemTotal": "kB",
+          "/proc/meminfo:MemAvailable": "kB",
+          "/proc/meminfo:MemFree": "kB",
+          "/proc/meminfo:Buffers": "kB",
+          "/proc/meminfo:Cached": "kB",
+          "/proc/meminfo:Shmem": "kB",
+          "/proc/meminfo:SwapTotal": "kB",
+          "/proc/meminfo:SwapFree": "kB",
+          "/proc/meminfo:Dirty": "kB",
+          "/proc/meminfo:Writeback": "kB",
+          "/proc/meminfo:Slab": "kB",
+          "/proc/meminfo:SReclaimable": "kB",
+          "/proc/meminfo:Unevictable": "kB",
+          "/proc/vmstat:pgfault": "cumulative kernel counter",
+          "/proc/vmstat:pgmajfault": "cumulative kernel counter",
+          "/proc/vmstat:pgpgin": "cumulative kernel counter",
+          "/proc/vmstat:pgpgout": "cumulative kernel counter",
+          "/proc/vmstat:pswpin": "cumulative kernel counter",
+          "/proc/vmstat:pswpout": "cumulative kernel counter",
+          "/proc/vmstat:pgscan_kswapd": "cumulative kernel counter",
+          "/proc/vmstat:pgscan_direct": "cumulative kernel counter",
+          "/proc/vmstat:pgsteal_kswapd": "cumulative kernel counter",
+          "/proc/vmstat:pgsteal_direct": "cumulative kernel counter",
+          "/proc/vmstat:oom_kill": "cumulative kernel counter",
+          "/proc/vmstat:compact_stall": "cumulative kernel counter",
+          "/proc/vmstat:workingset_refault_anon": "cumulative kernel counter",
+          "/proc/vmstat:workingset_refault_file": "cumulative kernel counter",
+          "/tmp:total_bytes": "bytes",
+          "/tmp:free_bytes": "bytes",
+          "/tmp:available_bytes": "bytes",
+          "/tmp:free_inodes": "inodes"
+        },
+        "read_errors": {
+          "/sys/class/powercap/intel-rapl:0/energy_uj: PermissionError": 237,
+          "/sys/class/powercap/intel-rapl:0:0/energy_uj: PermissionError": 237,
+          "/sys/class/powercap/intel-rapl:0:1/energy_uj: PermissionError": 237,
+          "/sys/class/powercap/intel-rapl:1/energy_uj: PermissionError": 237
+        },
+        "scope": "Host sysfs/proc/statvfs snapshots. Meminfo preserves kB; vmstat fields are separate cumulative kernel counters, not interchangeable units. PSI totals use microseconds and averages use percent. Scratch free includes reserved blocks; available excludes them. RAPL is cumulative energy with a wrap range, not power. Throttle counters can be duplicated across CPU siblings. Missing/denied fields are omitted and counted as errors, never zero-filled."
+      }
+    },
+    "supervisor_memory_cpu": {
+      "interval_seconds": 0.5,
+      "elapsed_seconds": 120.6568525530165,
+      "samples": 242,
+      "sample_errors": {},
+      "processes": [
+        {
+          "pid": 1543330,
+          "start_ticks": 35265313,
+          "samples": 242,
+          "max_process_status_kB": {
+            "VmHWM": 159504,
+            "VmRSS": 147476,
+            "VmSwap": 0
+          },
+          "drm_client_maxima": {},
+          "max_simultaneous_drm_clients": 0,
+          "fd_read_errors": 243,
+          "first_elapsed_seconds": 0.0030827000155113637,
+          "last_elapsed_seconds": 120.65683166100644,
+          "first_process_counters": {
+            "status.voluntary_ctxt_switches": 25,
+            "status.nonvoluntary_ctxt_switches": 76,
+            "stat.minflt": 19246,
+            "stat.majflt": 0
+          },
+          "last_process_counters": {
+            "status.voluntary_ctxt_switches": 723,
+            "status.nonvoluntary_ctxt_switches": 238,
+            "stat.minflt": 53230,
+            "stat.majflt": 0
+          },
+          "observed_cpu_seconds": 4.42
+        }
+      ],
+      "notes": [
+        "VmRSS, VmHWM and VmSwap are exact /proc/<pid>/status fields in kB.",
+        "DRM values retain their exact fdinfo field names and units; duplicate client IDs per device are sampled once.",
+        "Field type or unit changes are retained as separate observations; maxima are compared only within the same unit.",
+        "DRM client maxima can occur at different times; do not add maxima or combine them with RSS as a total or shared GPU peak.",
+        "CPU seconds cover the first through last successful sample, excluding earlier process work.",
+        "Process count fields retain exact stat/status names; status context-switch counts describe the main thread. Compare cumulative counters only within the same PID/start identity.",
+        "Full rows stream to the optional trace; observer memory retains per-process/client maxima and first/last counters rather than sample history."
+      ]
+    }
+  },
+  "scope": "Four separate one-hour persistent-worker cases; absent probes are not_run/null, not zero-fault. None means no added benchmark audio/UI children, not absence of desktop activity. Worker cancellation remains logical invalidation; native-only and worker/audio/UI outcomes are distinct.",
+  "script_sha256": "729623317292e30ab795e59dd58274972d51d2442ac30a7c9f80cfb0c5f529d4",
+  "arguments": {
+    "run_directory": "benchmarks-local/isolation-2026-10-16/ui-smoke",
+    "load_mode": "ui",
+    "reference_directory": "benchmarks-local/isolation-2026-10-16/both-smoke",
+    "before_policy": "benchmarks-local/isolation-2026-10-16/before-ui-smoke.json",
+    "after_policy": null,
+    "policy_lifecycle": "benchmarks-local/isolation-2026-10-16/ui-smoke-policy.json",
+    "monitor": "benchmarks-local/isolation-2026-10-16/monitor.jsonl",
+    "guard": "benchmarks-local/isolation-2026-10-16/ui-smoke-guard.json",
+    "host_cleanup_snapshot": null,
+    "repository_root": "/home/kyau/projects/kyaulabs/conflux",
+    "output": "/tmp/conflux-load-isolation-ui-smoke-audit.json"
+  }
+}

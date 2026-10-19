@@ -1,0 +1,51 @@
+{
+  "started_monotonic": 390081.496538031,
+  "ready": true,
+  "proof": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/music-load-2026-10-17/music-both-90s-admission/admission-normal-ready.json",
+    "bytes": 19053,
+    "sha256": "7e31cccdc1ba1a17eebe0057336419acecb17e2e3d1ea706ab00fc7a85652117"
+  },
+  "live_normal_readiness": {
+    "at_utc": "2026-10-17T21:54:16.914286+00:00",
+    "started_monotonic": 390081.501835327,
+    "errors": [],
+    "package_millidegrees_C": 43000,
+    "profile": "balanced",
+    "holds": "",
+    "service_identity": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "InvocationID": "59c6e791c83146139b6c252bf081bd02",
+      "MainPID": "1036"
+    },
+    "latest_guard_entry": {
+      "MESSAGE": "2026-10-17T14:53:07-07:00 recovered: temperature 39.0C; balanced profile restored=1",
+      "__MONOTONIC_TIMESTAMP": "390011670162",
+      "__REALTIME_TIMESTAMP": "1792273987082630",
+      "_PID": "1036",
+      "_SYSTEMD_INVOCATION_ID": "59c6e791c83146139b6c252bf081bd02"
+    },
+    "finished_monotonic": 390081.705914201,
+    "finished_at_utc": "2026-10-17T21:54:17.118385+00:00",
+    "latest_message_claims_recovered": true,
+    "journal_identity_matches_service": true,
+    "journal_invocation_id_available": true
+  },
+  "same_guard_service_identity": {
+    "MainPID": "1036",
+    "InvocationID": "59c6e791c83146139b6c252bf081bd02"
+  },
+  "fresh_package_limit_millidegrees_C": 70000,
+  "completed_readiness_package_limit_millidegrees_C": 55000,
+  "AC_lid": {
+    "AC": "1",
+    "lid": "b false",
+    "started_monotonic": 390081.706105904,
+    "errors": [],
+    "ready": true,
+    "finished_monotonic": 390081.708895,
+    "at_utc": "2026-10-17T21:54:17.121364+00:00"
+  },
+  "finished_monotonic": 390081.708915786
+}

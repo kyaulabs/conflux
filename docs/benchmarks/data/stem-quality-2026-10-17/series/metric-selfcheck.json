@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "checks": [
+    "constant bias hand result",
+    "exact zero error JSON representation",
+    "known seven-sample delay sign",
+    "known seven-sample advance sign",
+    "zero-energy lag undefined",
+    "stereo step jump and local derivative hand result"
+  ],
+  "analysis_source_sha256": "4131400abe7ed071d31f6da6263815e4eb14eb02b32f5e7c979cc41e86b83bac",
+  "numpy_version": "2.5.4",
+  "scope": "Rerun six deterministic hand checks after the lossless-preview source revision; no music inference or subjective quality claim",
+  "prior_selfcheck": "metric-selfcheck-before-lossless.json"
+}
