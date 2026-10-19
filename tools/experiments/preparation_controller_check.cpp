@@ -406,6 +406,29 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
     controller.setPlaying(1, true);
     wait([&] { return controller.audioState().playing[1] && controller.audioState().deckGain[1] == 0.F; },
          "Normal B did not restart muted before routing rebuild");
+    const auto beforeRejectedRoute = controller.audioState();
+    const auto retainedBeforeRoute = controller.retainedPcmBytes();
+    const auto routingBefore = controller.audioRouting();
+    const auto recordedBeforeRoute = controller.recording()["acceptedFrames"].toULongLong();
+    controller.configureAudioRouting("missing", "missing", {}, {});
+    wait([&] { return controller.audioState().outputFrame >= beforeRejectedRoute.outputFrame + 1024; },
+         "Rejected routing interrupted the existing output");
+    const auto rejectedRoute = controller.audioState();
+    const auto routingAfter = controller.audioRouting();
+    require(!controller.error().isEmpty() && !controller.busy() && controller.outputReady() &&
+            controller.completedSessions() == sessions && rejectedRoute.playing[0] && rejectedRoute.playing[1] &&
+            rejectedRoute.sourceGeneration == beforeRejectedRoute.sourceGeneration &&
+            rejectedRoute.stemGain[0] == selected && rejectedRoute.deckGain[1] == 0.F &&
+            rejectedRoute.sourceFrame[0] - beforeRejectedRoute.sourceFrame[0] ==
+                rejectedRoute.outputFrame - beforeRejectedRoute.outputFrame &&
+            rejectedRoute.sourceFrame[1] - beforeRejectedRoute.sourceFrame[1] ==
+                rejectedRoute.outputFrame - beforeRejectedRoute.outputFrame &&
+            routingAfter["masterLeft"] == routingBefore["masterLeft"] &&
+            routingAfter["masterRight"] == routingBefore["masterRight"] &&
+            controller.retainedPcmBytes() == retainedBeforeRoute && controller.recording()["active"].toBool() &&
+            controller.recording()["path"].toString() == recordingPath &&
+            controller.recording()["acceptedFrames"].toULongLong() > recordedBeforeRoute,
+            "Rejected routing retains advancing sources, selected stems, output pair, PCM charge and original writer");
     const auto beforeRoute = controller.audioState();
     const auto prefixFrames = controller.recording()["acceptedFrames"].toULongLong();
     sink.validate(false); // Explicit routing rebuild may omit wall time and ramp.
