@@ -33,6 +33,7 @@ def identity(path):
         while b := f.read(65536): h.update(b); size += len(b)
     return {'sha256': h.hexdigest(), 'bytes': size}
 def trace(value):
+    value = dict(value, fixture_pid=os.getpid(), fixture_start_ticks=start_ticks, fixture_job=str(job))
     with marker('.trace').open('a') as f: f.write(json.dumps(value, separators=(',', ':')) + '\n')
 def emit(value):
     global wire_bytes
@@ -61,8 +62,10 @@ for name in ['max-seconds', 'request-timeout']:
 a = ap.parse_args()
 deadline = time.monotonic() + a.max_seconds
 job = pathlib.Path(a.directory); job.mkdir(mode=0o700)
+start_ticks = pathlib.Path('/proc/self/stat').read_text().rsplit(') ', 1)[1].split()[19]
 marker('.started').write_text(str(os.getpid()))
 marker('.job').write_text(str(job))
+trace({'fixture': 'started'})
 stop = False
 def stopping(signum, frame):
     global stop

@@ -48,6 +48,7 @@ int main(int argc, char** argv) {
     parser.addOption({"stem-worker", "Optional production stem worker script.", "path"});
     parser.addOption({"stem-runtime", "Optional local native stem runtime.", "path"});
     parser.addOption({"stem-model", "Optional local stem model weights.", "path"});
+    parser.addOption({"stem-service", "Optional persistent local stem service (all five stem paths required).", "path"});
     parser.addOption({"stem-backend", "Prepared stem backend: cpu or vulkan.", "backend", "vulkan"});
     parser.addOption({"stem-threads", "Prepared stem CPU thread limit (1..64).", "threads", "2"});
     parser.process(app);
@@ -77,6 +78,12 @@ int main(int argc, char** argv) {
             parser.value("stem-python"), parser.value("stem-exporter"), parser.value("stem-worker"),
             parser.value("stem-runtime"), parser.value("stem-model"), backend, threads};
     } else if (parser.isSet("stem-backend") || parser.isSet("stem-threads")) parser.showHelp(2);
+    if (parser.isSet("stem-service")) {
+        const auto service = parser.value("stem-service");
+        if (!preparationOptions.stemEngine || parser.isSet("smoke-test") ||
+            !QFileInfo(service).isAbsolute() || service.contains(QChar(u'\0'))) parser.showHelp(2);
+        preparationOptions.stemServicePath = service;
+    }
     const bool controlledRepaint = qEnvironmentVariableIsSet("CONFLUX_M0_REPAINT_MS");
     int repaintIntervalMs = 0;
     if (controlledRepaint) {

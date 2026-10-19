@@ -45,6 +45,9 @@ public:
     struct PreparationOptions {
         std::optional<library::StemEngine> stemEngine;
         library::PreparedTrackStore::Limits limits;
+        // Empty keeps complete offline preparation; explicit service mode first
+        // looks for the same validated bank, then prepares a live owner on miss.
+        QString stemServicePath;
     };
     explicit DeckController(QObject* parent = nullptr);
     explicit DeckController(PreparationOptions options, QObject* parent = nullptr);
@@ -107,18 +110,24 @@ signals:
     void stateChanged();
     void libraryChanged();
 private:
-    // One immutable owner with exactly one normal or four aligned PCM leaves.
-    // No original mix is retained in a stem slot. Keep every leaf through the
-    // last callback; retired owners close on the existing retirement worker.
+    // Immutable finite leaves or live source metadata. A live slot retains no
+    // complete PCM and cannot manufacture another producer; its whole playback
+    // owns the charged job through callback handoff and worker retirement.
     struct PreparedPcm {
         explicit PreparedPcm(audio::PreparedAudio audio);
         explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
-        std::uint64_t frames() const noexcept { return audioLeaves.front().frames(); }
+        PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256);
+        bool live() const noexcept { return liveFrames != 0; }
+        std::uint64_t frames() const noexcept { return live() ? liveFrames : audioLeaves.front().frames(); }
         std::uint64_t bytes() const noexcept;
-        bool stemBank() const noexcept { return audioLeaves.size() == 4; }
-        std::span<const float> peaks() const noexcept { return audioLeaves.front().peaks(); }
+        bool stemBank() const noexcept { return live() || audioLeaves.size() == 4; }
+        std::span<const float> peaks() const noexcept
+        { return live() ? std::span<const float>(livePeaks) : audioLeaves.front().peaks(); }
         std::unique_ptr<audio::PreparedPlayback> makePlayback() const;
         std::vector<audio::PreparedAudio> audioLeaves;
+        std::uint64_t liveFrames = 0;
+        std::vector<float> livePeaks;
+        QString liveSourceSha256;
     };
     struct PreparedLoad {
         std::shared_ptr<const PreparedPcm> audio;
@@ -140,6 +149,7 @@ private:
     struct InstallResult {
         std::unique_ptr<audio::LiveSession> session;
         QString error;
+        std::array<bool, audio::RenderCore::deckCount> lostLiveOwners{};
     };
     struct RecordingStart {
         std::shared_ptr<audio::StereoRecorder> writer;

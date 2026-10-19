@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QtConcurrentRun>
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <filesystem>
@@ -18,6 +19,20 @@
 
 namespace conflux {
 namespace {
+// Process-lifetime identity, separate from any controller/session generation.
+// Saturate before wrap so even a failed preparation never permits token reuse.
+std::uint64_t nextLiveSourceToken()
+{
+    static std::atomic<std::uint64_t> last{0};
+    auto current = last.load(std::memory_order_relaxed);
+    for (;;) {
+        if (current == std::numeric_limits<std::uint64_t>::max())
+            throw std::overflow_error("Live stem source identity exhausted");
+        if (last.compare_exchange_weak(current, current + 1, std::memory_order_relaxed))
+            return current + 1;
+    }
+}
+
 QString portKey(const audio::PortIdentity& port)
 {
     return QString::number(port.globalId) + ":" + QString::number(port.serial) + ":" +
@@ -51,13 +66,24 @@ DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> ste
     }
 }
 
+DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256)
+    : liveFrames(frames), livePeaks(std::move(sourcePeaks)), liveSourceSha256(std::move(sourceSha256))
+{
+    if (!liveFrames || livePeaks.empty() || liveSourceSha256.isEmpty() ||
+        std::ranges::any_of(livePeaks, [](float peak) { return !std::isfinite(peak) || peak < 0.F || peak > 1.F; }))
+        throw std::invalid_argument("Invalid live stem source metadata");
+}
+
 std::uint64_t DeckController::PreparedPcm::bytes() const noexcept
 {
-    return frames() * 8 * audioLeaves.size();
+    // Live input/slots/spool are already charged once by the persistent store
+    // reservation, including while this metadata is pending or retiring.
+    return live() ? 0 : frames() * 8 * audioLeaves.size();
 }
 
 std::unique_ptr<audio::PreparedPlayback> DeckController::PreparedPcm::makePlayback() const
 {
+    if (live()) throw std::logic_error("Live stem owner was lost; reload this deck.");
     if (!stemBank())
         return std::make_unique<audio::PreparedPlayback>(audioLeaves.front().descriptor(), frames());
     std::array<int, 4> descriptors{};
@@ -198,7 +224,8 @@ QVariantList DeckController::decks() const
             {"replacing", replacing_[deck]},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
-            {"overviewStem", clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
+            {"overviewStem", clips_[deck] && clips_[deck]->live() ? "source" :
+                             clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
             {"stemBank", state_.stemBank[deck]},
             {"stemGains", QVariantList{state_.stemGain[deck][0], state_.stemGain[deck][1],
                                        state_.stemGain[deck][2], state_.stemGain[deck][3]}},
@@ -446,17 +473,30 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     pendingImport_ = importOnly;
     pendingStems_ = stems;
     const auto engine = preparationOptions_.stemEngine;
-    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, limits,
+    const auto service = preparationOptions_.stemServicePath;
+    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, service, limits,
                                        stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache, limits);
             auto prepared = std::make_shared<PreparedLoad>();
             QString sourceId;
             if (stems) {
-                auto track = store.prepareStemBank(path, *engine, stop);
-                sourceId = track.sourceSha256;
-                prepared->cacheHit = track.cacheHit;
-                prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.stems));
+                auto bank = service.isEmpty() ?
+                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop)) :
+                    store.findPreparedStemBank(path, *engine, stop);
+                if (bank) {
+                    sourceId = bank->sourceSha256;
+                    prepared->cacheHit = bank->cacheHit;
+                    prepared->audio = std::make_shared<const PreparedPcm>(std::move(bank->stems));
+                } else {
+                    // Only a genuine lookup miss reaches the service. A valid
+                    // bank never inspects this otherwise unused sixth asset.
+                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop);
+                    sourceId = track.sourceSha256;
+                    prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
+                        std::move(track.sourceOverview), track.sourceSha256);
+                    prepared->playback = std::move(track.playback);
+                }
             } else {
                 auto track = store.prepare(path, stop);
                 sourceId = track.sourceSha256;
@@ -474,8 +514,9 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 throw std::runtime_error("Source changed; import this file again before loading its library entry.");
             prepared->waveform.reserve(qsizetype(prepared->audio->peaks().size()));
             for (const auto peak : prepared->audio->peaks()) prepared->waveform.append(peak);
-            prepared->playback = prepared->audio->makePlayback();
-            if (!prepared->playback->prime(0, std::chrono::seconds(2)))
+            if (!prepared->playback) prepared->playback = prepared->audio->makePlayback();
+            const auto primeWait = prepared->audio->live() ? audio::PreparedPlayback::liveWait : std::chrono::seconds(2);
+            if (!prepared->playback->prime(0, primeWait, stop))
                 throw std::runtime_error("Cannot prime the prepared track: " + prepared->playback->error());
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
             const auto hit = prepared->cacheHit;
@@ -631,9 +672,9 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
                                            stop = installCancellation_.get_token()]() mutable {
         auto result = std::make_shared<InstallResult>();
         try {
-            // A prior constructor/prime exception may have consumed its file
-            // readers on this worker. Only finite PreparedPcm can be recreated
-            // here; a future live source requires explicit reprepare instead.
+            // A prior constructor/prime exception may have consumed its owners
+            // on this worker. Only finite leaves can be recreated. Live source
+            // metadata requires the existing whole owner or an explicit reload.
             for (std::size_t deck = 0; deck < clips.size(); ++deck)
                 if (clips[deck] && !playbacks[deck]) playbacks[deck] = clips[deck]->makePlayback();
             result->session = std::make_unique<audio::LiveSession>(std::move(playbacks), initial, stop);
@@ -642,6 +683,9 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
         } catch (...) {
             result->error = "Cannot install prepared audio";
         }
+        if (!result->session)
+            for (std::size_t deck = 0; deck < clips.size(); ++deck)
+                result->lostLiveOwners[deck] = clips[deck] && clips[deck]->live();
         return result;
     }));
     // Establish installer ownership before allowing a completion notification.
@@ -778,6 +822,26 @@ void DeckController::installed()
     const bool installingPreparation = preparationStatus_ == "Installing";
     if (installingPreparation && !busy_) preparationStatus_ = "Complete";
     if (!result->session) {
+        // Constructor/prime failure destroys moved owners on the installer
+        // worker. Clear only live rows that can no longer recreate an owner,
+        // so either deck can be explicitly reloaded after losing both. Output
+        // start failure below instead parks its healthy exact owners unchanged.
+        for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
+            if (!result->lostLiveOwners[deck]) continue;
+            clips_[deck].reset();
+            names_[deck].clear();
+            waveforms_[deck].clear();
+            cueDown_[deck] = cueReleasePending_[deck] = false;
+            state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;
+            state_.sourceGeneration[deck] = state_.starvedFrames[deck] = 0;
+            state_.playing[deck] = state_.cueSelected[deck] = false;
+            state_.cueHeld[deck] = state_.cuePreview[deck] = false;
+            state_.buffering[deck] = state_.sourceReadError[deck] = state_.sourceReadErrorObserved[deck] = false;
+            state_.stemBank[deck] = false;
+            state_.stemGain[deck].fill(0.F);
+            state_.deckGain[deck] = 1.F;
+            state_.meters.deck[deck] = {};
+        }
         if (installingPreparation) preparationStatus_ = "Failed";
         recordingStopRequested_ = true;
         pollRecording();

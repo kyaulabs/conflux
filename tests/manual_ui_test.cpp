@@ -1421,6 +1421,12 @@ private slots:
         QVERIFY(bank && normal);
         QTRY_COMPARE(bank->property("text").toString(),
                      QString("PREPARED STEMS · DRUMS WAVEFORM"));
+        ui_->endpoint.setOverviewStem(0, "source");
+        QTRY_COMPARE(bank->property("text").toString(),
+                     QString("LIVE STEMS · SOURCE WAVEFORM"));
+        auto* liveBass = ui_->item("deck0Stem1Gain");
+        QVERIFY(liveBass);
+        QTRY_VERIFY(liveBass->isVisible());
         QCOMPARE(normal->property("text").toString(), QString("LOCAL FILE"));
         ui_->endpoint.setOverviewStem(0, {});
         QTRY_COMPARE(bank->property("text").toString(), QString("LOCAL FILE"));
