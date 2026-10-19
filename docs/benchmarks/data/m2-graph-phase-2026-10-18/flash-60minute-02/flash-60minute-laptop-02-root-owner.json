@@ -1,0 +1,20 @@
+{
+  "run_label": "flash-60minute-laptop-02",
+  "recorded_at_utc": "2026-10-19T04:40:26.823687+00:00",
+  "tool_session_id": 91811,
+  "launcher": {
+    "pid": 2462221,
+    "start_ticks": 54585671,
+    "process_group": 2462221,
+    "argv": [
+      "python3",
+      "-B",
+      "benchmarks-local/m2-graph-phase-2026-10-18/flash_60minute_launch.py",
+      "flash-60minute-laptop-02",
+      "--run",
+      "--readiness-decision",
+      "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-graph-phase-2026-10-18/flash-60minute-human-readiness-03.json"
+    ]
+  },
+  "scope": "Read-only identity of this exact owned launcher for a later user-requested cancellation; no signals sent."
+}

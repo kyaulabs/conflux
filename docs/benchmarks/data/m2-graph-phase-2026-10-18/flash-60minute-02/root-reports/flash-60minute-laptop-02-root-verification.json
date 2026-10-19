@@ -1,0 +1,39 @@
+{
+  "status": "root_closed_result_verified",
+  "source_head": "433499543185eb1deda1b3cf2450e000eb259d8c",
+  "actual_test_exit_code": 0,
+  "audit_checks": 66,
+  "continuous_p99_ms": 4024.9258929979987,
+  "M2_qualified": false,
+  "integrated_stem_playback_qualified": false,
+  "all_deliveries_retained": true,
+  "cleanup_complete": true,
+  "raw_scan_passed": true,
+  "review": "Analyzer/auditor and archive source deltas reviewed; raw metrics and scope agree with independent agent crosscheck. No new native workload executed for post-run analysis.",
+  "files": {
+    "flash-60minute-laptop-02/result.json": {
+      "bytes": 148721,
+      "sha256": "6b7ba986969c3bd18e52ecc7a580d568d576072688f26f1f40ad3388bf4cd95f"
+    },
+    "flash-60minute-laptop-02-launch.json": {
+      "bytes": 116017,
+      "sha256": "e4c4ad6919abda5b045c18ff48cbb907f1e66d730c3b756529b36cd988cc0e54"
+    },
+    "flash-60minute-laptop-02-analysis.json": {
+      "bytes": 1615669,
+      "sha256": "586964173acb070f0a52d6f26e09ce481fbbb3a2b85355e51ae33d8f7da22954"
+    },
+    "flash-60minute-laptop-02-independent-audit.json": {
+      "bytes": 24121,
+      "sha256": "ee4d91fff62990149075dc255fac013c43d87a894391ecd19646d41cc98707b1"
+    },
+    "flash-60minute-laptop-02-agent-crosscheck.json": {
+      "bytes": 41119,
+      "sha256": "076b6bc7f266472032b31d47e3a3c5dd0c318ee24beadbd2eca0cef7141a3b30"
+    },
+    "flash-60minute-laptop-02-raw-scan.json": {
+      "bytes": 12703,
+      "sha256": "60ed4a415754b49b5dd2042d3d0e9170f07b1c807d31dd795ee911bc7eec8842"
+    }
+  }
+}

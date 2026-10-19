@@ -1,0 +1,16 @@
+{
+  "status": "exact_committed_sources_verified",
+  "source_head": "433499543185eb1deda1b3cf2450e000eb259d8c",
+  "signature": "G",
+  "author": "kyau <kyau@kyau.net>",
+  "build_receipt_sha256": "9a49f19670d220685e4b260876b5ff26a7184262ee3cb1ec2cafb3c8cef24214",
+  "committed_inputs_sha256": {
+    "tools/runtime/CMakeLists.txt": "d5fec7cbe05fa85784a1f1d68271e06294aac1de0f8e454947dea1d9a3adcf83",
+    "tools/runtime/FlashAttentionF32.cmake": "55ebc619f561ac1042489cdc02c1fa14db6c8e0b524e19f85080783abb865600",
+    "tools/runtime/GraphPhaseTiming.cmake": "91891a8a2dc01be4cb02a835d0c83f1b8b41a98da9059a36021c4a3b1e38d524",
+    "tools/runtime/BlockingVulkanWait.cmake": "4ae34a1fee27c3fec3b5a4b9884a0c86fe7395acabf9d7c2006345e56384ddb3",
+    "tools/runtime/htdemucs_segment.cpp": "a00c5c84bf57adeea7aa21eea992da4ee50d219fbc6994180de4dbf9fd03d7d9",
+    "tools/stems/README.md": "04f29e67bd1c4907d79269ed4ad05fbccf7e39bc0d1ff1b981aed6099e4159de"
+  },
+  "worktree_status": ""
+}
