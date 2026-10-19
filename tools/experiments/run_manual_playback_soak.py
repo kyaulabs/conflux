@@ -350,6 +350,7 @@ def run_live(args):
     previous = {}; began = time.monotonic(); deadline = began + args.seconds + 180
     selector = selectors.DefaultSelector(); captures = {}; complete_capture = True
     ownership_complete = True
+    command_history = {}; ownership_failures = []; ownership_failure_count = 0; ownership_failure_overflow = False
     def live_pin(path, maximum=1024 * 1024 * 1024):
         canonical = path.resolve(strict=True)
         descriptor = os.open(canonical, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW)
@@ -392,15 +393,43 @@ def run_live(args):
         if len(command) > 65536:
             raise RuntimeError("Owned process command exceeds bound")
         return {"pid": pid, "start_ticks": int(fields[19]), "group": int(fields[2]), "session": int(fields[3]),
-                "ppid": int(fields[1]), "command": [part.decode(errors="replace") for part in command.split(b"\0") if part]}
+                "ppid": int(fields[1]), "state": fields[0], "observed_monotonic_ns": time.monotonic_ns(),
+                "command": [part.decode(errors="replace") for part in command.split(b"\0") if part]}
     def same_identity(first, second):
         return all(first[key] == second[key] for key in ("pid", "start_ticks", "group", "session"))
     def request_stop(reason):
         nonlocal requested_stop, stop_at
         if requested_stop is None:
             requested_stop, stop_at = reason, time.monotonic(); stop.write_text(reason + "\n")
+    def record_ownership_loss(reason, pid, parent_proof=None, observed=None):
+        nonlocal ownership_complete, ownership_failure_count, ownership_failure_overflow
+        ownership_complete = False; ownership_failure_count += 1
+        if len(ownership_failures) >= 128:
+            ownership_failure_overflow = True
+            raise RuntimeError("Owned proof-loss history exceeds fixed128 bound")
+        def context(value):
+            return None if value is None else {key: value[key] for key in ("pid", "start_ticks", "group", "session", "ppid")}
+        ownership_failures.append({"reason": reason, "pid": pid, "observed_monotonic_ns": time.monotonic_ns(),
+            "parent_proof": context(parent_proof), "observed_identity": context(observed)})
+    def remember_command(identity, parent_proof):
+        key = tuple(identity[name] for name in ("pid", "start_ticks", "group", "session"))
+        if key not in command_history:
+            if len(command_history) >= 64:
+                record_ownership_loss("command_history_identity_bound", identity["pid"], parent_proof, identity)
+                raise RuntimeError("Owned command identity history exceeds fixed64 bound")
+            command_history[key] = []
+        history = command_history[key]
+        if any(value["command"] == identity["command"] for value in history):
+            return
+        if len(history) >= 8:
+            record_ownership_loss("command_history_argv_bound", identity["pid"], parent_proof, identity)
+            raise RuntimeError("Owned command history exceeds fixed8 argv bound")
+        snapshot = {**identity, "command": list(identity["command"]), "parent_identity": None if parent_proof is None
+            else {name: parent_proof[name] for name in ("pid", "start_ticks", "group", "session", "ppid")}}
+        history.append(snapshot)
+    def proven_command_snapshots():
+        return [value for history in command_history.values() for value in history]
     def remember_owned():
-        nonlocal ownership_complete
         if child is None or root_identity is None:
             return
         pending = [(child.pid, None)]; visited = set()
@@ -416,8 +445,10 @@ def run_live(args):
                 if parent_proof is None:
                     if not same_identity(identity, root_identity):
                         return  # Never adopt a replacement for our direct child.
-                elif identity["ppid"] != parent_proof["pid"] or not same_identity(process_record(parent_proof["pid"]), parent_proof):
-                    ownership_complete = False; continue
+                elif identity["ppid"] != parent_proof["pid"]:
+                    record_ownership_loss("parent_pid_changed_before_walk", pid, parent_proof, identity); continue
+                elif not same_identity(process_record(parent_proof["pid"]), parent_proof):
+                    record_ownership_loss("parent_identity_changed_before_walk", pid, parent_proof, identity); continue
                 key = (pid, identity["start_ticks"])
                 if key not in owned and len(owned) >= 64:
                     raise RuntimeError("Owned identity history exceeds fixed64 bound")
@@ -434,16 +465,17 @@ def run_live(args):
                     except FileNotFoundError:
                         pass
                 if not same_identity(process_record(pid), identity):
-                    ownership_complete = False; continue
+                    record_ownership_loss("identity_changed_during_walk", pid, parent_proof, identity); continue
                 if parent_proof is not None and not same_identity(process_record(parent_proof["pid"]), parent_proof):
-                    ownership_complete = False; continue
+                    record_ownership_loss("parent_identity_changed_during_walk", pid, parent_proof, identity); continue
+                remember_command(identity, parent_proof)
                 owned[key] = identity; observed_groups.add(identity["group"])
                 if len(observed_groups) > 64:
                     raise RuntimeError("Owned group history exceeds fixed64 bound")
                 pending.extend((value, identity) for value in children)
             except FileNotFoundError:
                 if parent_proof is not None:
-                    ownership_complete = False  # Lost proof, never adopt a recycled child PID.
+                    record_ownership_loss("process_or_parent_disappeared_during_walk", pid, parent_proof)
     def live_owned():
         matches = {}
         for (pid, _), expected in owned.items():
@@ -630,10 +662,12 @@ def run_live(args):
                         return False
                     return all(command.count(flag) == 1 and command.index(flag) + 1 < len(command) and command[command.index(flag) + 1] == expected
                         for flag, expected in (("--runtime", runtime_path), ("--model", model_path), ("--backend", "vulkan"), ("--threads", "2")))
-                services = [value for value in owned.values() if service_matches(value)]
-                runtimes = [value for value in owned.values() if value["command"] == [runtime_path, "--model", model_path, "--backend", "vulkan", "--threads", "2"]]
-                service_groups = {value["group"] for value in services}
-                engine_observed = bool(services and runtimes and all(value["group"] in service_groups for value in runtimes))
+                snapshots = proven_command_snapshots()
+                services = [value for value in snapshots if service_matches(value)]
+                runtimes = [value for value in snapshots if value["command"] == [runtime_path, "--model", model_path, "--backend", "vulkan", "--threads", "2"]]
+                engine_observed = bool(services and runtimes and all(any(value["group"] == service["group"] and
+                    value["session"] == service["session"] and value["parent_identity"] is not None and
+                    same_identity(value["parent_identity"], service) for service in services) for value in runtimes))
                 cooperative = bool(result.get("native", {}).get("shutdown_completed") and child.returncode in (0, 1, 2))
                 result["cleanup"] = {"known_processes": list(owned.values()), "remaining_known_processes": list(remaining.values()),
                     "leader_reaped": child.poll() is not None, "remaining_pipewire_count": len(graph_remaining), "remaining_live_jobs": live_jobs,
@@ -657,6 +691,9 @@ def run_live(args):
                     pass
             result["cleanup_error"] = str(error); result["cleanup_proven"] = False; result["cache_preserved"] = cache.exists(); result["passed"] = False
         finally:
+            result.setdefault("cleanup", {}).update({"ownership_complete": ownership_complete,
+                "proven_command_history": proven_command_snapshots(), "ownership_failures": ownership_failures,
+                "ownership_failure_count": ownership_failure_count, "ownership_failure_overflow": ownership_failure_overflow})
             selector.close()
             if child is not None:
                 for pipe in (child.stdout, child.stderr):
