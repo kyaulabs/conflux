@@ -98,7 +98,7 @@ An earlier interpreter-path setup failure occurred before coverage started;
 that outcome is retained separately. No new tests were added for a percentage.
 
 The [worker-phase measurement](benchmarks/data/m2-worker-phase-timing-2026-10-19/verification.json)
-is the latest local measurement below. Existing behavior tests began RED;
+records the preceding local run. Existing behavior tests began RED;
 23 Python tests and 95 focused C++ cases passed after phase retention was added.
 All 36 normal and instrumented CTest entries, smoke, 130 strict normal routing
 checks and 78 strict preparation checks passed. Instrumented routing/preparation
@@ -108,9 +108,19 @@ error and the truthfully late-prepared coverage plan are retained; the independe
 coverage command passed without a restart, with source pins verified before
 launch and after the metadata repair.
 
+The [CUE-import measurement](benchmarks/data/m2-cue-import-2026-10-20/verification.json)
+is the latest local result below. All 39 normal and instrumented CTest entries,
+smoke, 85 private preparation checks in each build and 124 instrumented routing
+checks passed. Private runs used functional-only mode and left no owned audio
+objects or daemons. UI regressions reproduced hidden cue cancellation,
+unavailable-output jumps and interpreted error/filename markup before their
+fixes. The final QML and test-only corrections passed both complete UI suites
+and application smoke checks again. All measured C++ and Python source hashes
+remained unchanged; QML still has no validated numeric coverage measurement.
+
 | Scope | Lines | Branches |
 | --- | --- | --- |
-| C++ `src/` | 5,802 / 6,729 (86.22%) | 8,236 / 15,511 (53.10%) |
+| C++ `src/` | 6,097 / 7,032 (86.70%) | 8,829 / 16,547 (53.36%) |
 | Python `tools/stems/` | 1,248 / 1,366 (91.36%) | 441 / 536 (82.28%) |
 
 Both measured line ratios now exceed 80%. C++ increased from 73.74% in the

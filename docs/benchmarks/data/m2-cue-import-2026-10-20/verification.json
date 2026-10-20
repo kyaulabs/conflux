@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "date": "2026-10-20",
+  "slice": "CUE-sheet import and exact source-bound manual jumps",
+  "base_commit": "5097faa3c6e9ad8bcc9500c5aedbd7d9098784bd",
+  "scope": "Generated fixtures, normal and instrumented offline tests, offscreen UI and private virtual PipeWire. No physical audio, model inference or latency qualification.",
+  "format_decision": "User selected CUE sheets (.cue).",
+  "runtime_quality": "Best unchanged",
+  "service_p99_target_ms": 4095,
+  "service_p99_operator": "<",
+  "new_service_latency_measurement": false,
+  "m2_complete": false,
+  "normal": {
+    "full_ctest_before_final_qml_test_only_fixes": {
+      "tests": "39",
+      "failures": "0",
+      "time": "186"
+    },
+    "full_suite_seconds": 186.4,
+    "final_ui_retest": {
+      "tests": "1",
+      "failures": "0",
+      "time": "25",
+      "seconds": 25.31,
+      "qt_cases_passed": 58
+    },
+    "final_smoke_exit": 0,
+    "private_preparation": {
+      "passed": true,
+      "checks": 85,
+      "execution_deadline_gate": false,
+      "cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "daemon_reaped": true,
+      "raw_result_sha256": "2061be1240b0c56481a96e766a0d9eec726469eeeb4d906f280bf6126468f869"
+    }
+  },
+  "coverage": {
+    "execution_passed": true,
+    "full_ctest_before_final_readiness_qml_test_only_fix": {
+      "tests": 39,
+      "failures": 0,
+      "seconds": 289.09
+    },
+    "final_ui_retest": {
+      "tests": "1",
+      "failures": "0",
+      "time": "33",
+      "seconds": 33.11,
+      "qt_cases_passed": 58
+    },
+    "final_smoke_exit": 0,
+    "cpp": {
+      "line": {
+        "covered": 6097,
+        "total": 7032,
+        "percent": 86.70364050056882,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 8829,
+        "total": 16547,
+        "percent": 53.3571040067686,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1248,
+        "total": 1366,
+        "percent": 91.36163982430453,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 441,
+        "total": 536,
+        "percent": 82.27611940298507,
+        "above_80_percent": true
+      }
+    },
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "tools": {
+      "coverage": "7.16.2",
+      "gcovr": "8.7",
+      "numpy": "2.5.4"
+    },
+    "cpp_flags": "--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+    "private_routing": {
+      "passed": true,
+      "checks": 124,
+      "execution_deadline_gate": false,
+      "cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "daemon_reaped": true,
+      "raw_result_sha256": "2179c48d2830bf82006b94f2cc7f32a9fa456fe115c43bae81c3e58811b3f16d"
+    },
+    "private_preparation": {
+      "passed": true,
+      "checks": 85,
+      "execution_deadline_gate": false,
+      "cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "daemon_reaped": true,
+      "raw_result_sha256": "c6ac1d0d60a73642ca8e3e0d0d4c1141b3e500dd5fc8ae7def5997fd1e1982b8"
+    },
+    "summary_sha256": "602af76a88bd56ba3340a692d9e65a1938f445b6c3a47115c0123e85bef5dc79",
+    "all_measured_cpp_python_source_hashes_unchanged_after_measurement": true,
+    "only_source_changes_after_measurement": {
+      "qml/Main.qml": {
+        "coverage_run": "86af6df67848db9f4b862e845bf17707e08851759240a993709fcb26b8090780",
+        "final": "2d9921c81b4967702f4e8fa6fc09f855e556a51a597a83f2f67b90c60a18c59a"
+      },
+      "tests/manual_ui_test.cpp": {
+        "coverage_run": "63f26e5bfda402875e602de051bff1ef133661be8d66b882e1d6921bcc5459c7",
+        "final": "3556c6924faaf32bc490d70d7b8be8ade566214a055b97f0ff71856d65ca4ef6"
+      }
+    }
+  },
+  "functional_results": {
+    "passed": true,
+    "check_exit": 0,
+    "checks": 85,
+    "execution_deadline_gate": false,
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true,
+    "cue_import": {
+      "a_advancing": true,
+      "b_loaded": false,
+      "count": 2,
+      "first_frame": 640,
+      "second_frame": 47360
+    },
+    "cue_jump": {
+      "b_paused": true,
+      "landed_frame": 47360,
+      "peer_clock_unchanged": true,
+      "temporary_cue_unchanged": true
+    },
+    "completion_wrong_samples": 0,
+    "completion_zero_samples": 0,
+    "raw_result_sha256": "2061be1240b0c56481a96e766a0d9eec726469eeeb4d906f280bf6126468f869"
+  },
+  "regressions": {
+    "before_fix": [
+      "CUE cancellation button hidden for pointer and keyboard",
+      "AutoText interpreted untrusted preparation filename and Audio Settings errors",
+      "Imported JUMP remained enabled after audio output became unavailable"
+    ],
+    "valid_linux_basename_tooltip_failure_reproduced": true,
+    "after_fix": "Full normal and instrumented UI suites and smoke passed; blocked jumps submit no commands while cue import stays usable without output."
+  },
+  "source_pins": {
+    "CMakeLists.txt": "55c06c92dd7aae98813bb13cce873ac54be2ec55b5f93f5f12d08de92b5317a8",
+    "brand/integration/qtquick/ConfluxTheme.qml": "1fe3e376c7e98e799a19519e95a5080740c13880315191d7fe6e1993fbb28c27",
+    "qml/DeckButton.qml": "5284e393df72ed42b0fd440c9c547591e8698df8c4af25b428b3914e04cab5ab",
+    "qml/DeckSurface.qml": "839dbaae1e6a19c56b0e9de841bb3086ca526825a027eda479bb2b7ea9bd289d",
+    "qml/Harness.qml": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb",
+    "qml/Main.qml": "2d9921c81b4967702f4e8fa6fc09f855e556a51a597a83f2f67b90c60a18c59a",
+    "qml/MixerSurface.qml": "99463dda1f74b5194567b92cb85729a094f6c832fc4c4cc8e0072bcfb17b0c7e",
+    "qml/StereoMeter.qml": "bcae2b2ab59a17c60d64eae8a7c4b7ff3fbcdafa803e476ad61c60150ec6cae8",
+    "qml/SurfaceKnob.qml": "beb451229c116bf7e780f9c7c94349ba6c383d94e167a1310d5441c925565e14",
+    "src/audio/AudioFile.cpp": "0edc62473143500aba5ae05667cdf6d9998b80508bd5ebb7f3b6a58a3a937308",
+    "src/audio/AudioFile.hpp": "5b5d801824fbadb1a12ae823d1f6393c45a0ac7cb7b866e39bca6d6dcb4bcc8f",
+    "src/audio/AudioRouting.cpp": "2b4d0272e7a1451286c675a0f6be059d4eefd91f06f27f0e80142656f78e1799",
+    "src/audio/AudioRouting.hpp": "4b51e7c67c3b80c60971d41c9855f17e9bf2df2d37d206fe3d54ef5683f9f65d",
+    "src/audio/AudioSource.hpp": "e4db5acf1ed06af09faceaac7836f35dc834ee04e90d54b56d5389319d120faf",
+    "src/audio/CallbackTiming.cpp": "54d97fdb6649d7128e45ff2fa26524aff36f7f59294c504b95eae0d947f74baf",
+    "src/audio/CallbackTiming.hpp": "b575e4815b4bd485a39821662229412e5d8b08862014c040e1a3ce46243cf3df",
+    "src/audio/LiveRecoveryPolicy.cpp": "fa23f8541d9aed8a54295e3fa4ddc4a658cb5da611610c6a9f4b8542f94c3014",
+    "src/audio/LiveRecoveryPolicy.hpp": "0b26f1f0bebd82cdbabc3412ec00f851388dbcfd517c572d5999ff47002d5263",
+    "src/audio/LiveSession.cpp": "0bf30377100dc5621920ff6d6f3e30eeafac0dd0000386312b5e362e2e2194c3",
+    "src/audio/LiveSession.hpp": "209c717b9545395016790054347d41c5ab794c04e6f213e2b71bd0409575323f",
+    "src/audio/LiveStemBuffer.cpp": "76b45bc75459a97b523d49c89d251e2c67ccda8143fde4a58e76cb0fd77de1b3",
+    "src/audio/LiveStemBuffer.hpp": "2e97c8a9a327f49388cab78d394358ff15fcffb75106adbf2dc2bcfaf06c0683",
+    "src/audio/PcmReadAhead.cpp": "f9e438214ee8ff4bd367c594aad688bc224c0b43dc6f1b26a1df48a16a2efd0b",
+    "src/audio/PcmReadAhead.hpp": "6d15bbe4ed713c6c4b5359627b17484c9cfd068ef4d20d2293b41aee3e4dc104",
+    "src/audio/PipeWireMetadata.hpp": "3d41c6ede2a9cb65f578ad40f46dc9ea620df11cbc40883bf2272b0752870d8b",
+    "src/audio/PreparedPlayback.cpp": "1a7df6f9492fab482e37b89c0f6bbc9a184428ed5ce30ce56c90fecceb100dd3",
+    "src/audio/PreparedPlayback.hpp": "fae6b733e2ee3935aabbd92c337bf9a205ae237f6a790743db6a0a0b561879f9",
+    "src/audio/RecorderTap.hpp": "0bf33bea4ae0209e67f6daee0cf3a7410071150120b7e9a8e6b1f33dac7752c0",
+    "src/audio/RenderCore.cpp": "cc547e59660e10aea4cc3397b757d425ca0dbdfaa6e0296a614348ae0e9cc534",
+    "src/audio/RenderCore.hpp": "c79b8149ffb69fd4ad0d16137c641844b78aaf23604f4bd800216aa8a86537d1",
+    "src/audio/SourceHandoff.hpp": "f047dc8d95f93c8a7709cb94ce36cd7fc3346855ade79ce9bfffd06571fa6b38",
+    "src/audio/StemBankSource.cpp": "faf980cbcaed92c9f3802d40dcdb5efa2a9eed73a9b50ed577d1b1d2ee934380",
+    "src/audio/StemBankSource.hpp": "d6c3cddd219eec853fd12781038e4a1f454305155733c193590a3a42d4452dcd",
+    "src/audio/StemRateConverter.cpp": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960",
+    "src/audio/StemRateConverter.hpp": "c2e5b0749b2db3f60ef3c4e361a07e744be90bd77eabcb9d5e40069526e7c094",
+    "src/audio/StereoRecorder.cpp": "239f25c2b59089533f56e3e12fe8dc2b603fc240eec0e10f9c8b1ac561d8961a",
+    "src/audio/StereoRecorder.hpp": "0dd93ec785529f09b0c23003ad799fc5bf77a6b4148f62fe237ab5d8bc1675bd",
+    "src/audio/TransportQueue.hpp": "84b2a1ba0ac25f9d97ddb82fcedb337b89115e970c152be2fccc1c0d72607f21",
+    "src/library/CueSheet.cpp": "759bc1e483d84d4bc5aaa809f2b25f7f1259a3402a0df57ad53add50eaf1dcec",
+    "src/library/CueSheet.hpp": "8af27eddd5e8e69c4a47afef58feac65bfd1f1a4484d036fc453ef9221adadbb",
+    "src/library/LibraryCatalog.cpp": "9ee513f04eff58268687d2a01e530cb67ebf4c0fcd397b15015525ddff2b56d3",
+    "src/library/LibraryCatalog.hpp": "d76b1d8422ed0245a21d27c600141ff216ed3f01f29f36df2529c434800d8596",
+    "src/library/LiveStemBridge.cpp": "6a2ca5e86108d1b46e640cfc09ecdf3153ce2826d4226e5bf2a8073fe6ac19b3",
+    "src/library/LiveStemObservations.hpp": "6d61b874f0a7e44801307112186e89c77d3c1c96914ed77796c38fdb77c32e43",
+    "src/library/PreparedTrackStore.cpp": "926f891d63d0d84366192ef2f92c20e854b0591594cc9b6de44ce0c65ebccade",
+    "src/library/PreparedTrackStore.hpp": "a43cf05421884daff1765d04fe405f375a16e53f73967db3d7de75f4cd77e365",
+    "src/library/StemEngineSupport.cpp": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475",
+    "src/library/StemEngineSupport.hpp": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109",
+    "src/library/StemServiceJsonl.cpp": "c7a9c1a8100a57509b7e03b6eccf4311656cab529027cd65a233f4311cf03f28",
+    "src/library/StemServiceJsonl.hpp": "1865e9ce016fd7a2e7395be7dde5b27006be6b67c378d9c4a7c4172d7a880265",
+    "src/main.cpp": "665e6fbcff73ed7f6da11f8ddb4bbab5aebf5f3199fa23c7ca1ccfe32a1d95f0",
+    "src/probe_main.cpp": "a150fb079bb7cb94853d81882d0b315a9034ce9dbd318e68db42165717c8f4a6",
+    "src/ui/DeckController.cpp": "2d1de274541b30051c4dc7648b79e08ace5d5f88778e7fb21a2104680106f7bb",
+    "src/ui/DeckController.hpp": "6c3abcd7ef835d7aedc1b430b8b72b1207d52a1d784d56d1bd94d3d1846e86ac",
+    "tests/StemExportFixture.hpp": "e984fe8de7fb5fdf9c040642c55950c64c382c1744469096ac29fc9e1011784e",
+    "tests/StemServiceFixture.hpp": "ea88243b81c0b2f3f24bbb43598595ebbf4153362631ddead54a37158c9f8ef4",
+    "tests/audio_buses_test.cpp": "9b5b0a3c84771aed99c4490f58470f90175dab97a3bdc95df12c8b16e997995a",
+    "tests/audio_cue_test.cpp": "ad625c229e4e48eaf7b50259ab1cf82bb8df8a1b88d1e605fce43bee63ee3070",
+    "tests/audio_file_test.cpp": "4badf2a28a4596e93e671a4f8a597b700ac8c1847e74c7a1694a09fa531b7224",
+    "tests/audio_live_owner_test.cpp": "e4c85c0215bba50a5e103f921d460af20f0eb05aeee9ec9719d3cb16b27dbd71",
+    "tests/audio_live_recovery_test.cpp": "c26e35b8f34565eeaa5366d66653d0783d2bff31412ef76cbe72cd68a6ac83c4",
+    "tests/audio_live_stem_buffer_test.cpp": "df26e6ae7efa43f79fc73c1d8419cf3859a6f2b133962b73bc4acddb9b837c4a",
+    "tests/audio_metadata_test.cpp": "39504d3104f468338d46ea6d770ee4943a4b5be8643185c381af9583b340b9b0",
+    "tests/audio_preparation_test.cpp": "7e6703c5be565e2a69a7aebbac38dd6108fddfac524d165905e9727623b93f5b",
+    "tests/audio_prepared_playback_test.cpp": "776058b321a2b7c21275462282f9bee94b4be8eaebc1f300584939f42ea6ddbd",
+    "tests/audio_probe_cli_test.py": "9f5d9e40291659557dcbfa671d2b2156e7a38d1d2ce00ded7de63e0e5bc198d6",
+    "tests/audio_ramps_test.cpp": "db7f25378a606a3d73a46e4a62707b7a8b20c1c2fd874ab1fdbe7d55f940f02f",
+    "tests/audio_read_ahead_test.cpp": "a42b26a7954826c33adff9a20391edfeefbb14e8a3c6e2a1c846033605717f9c",
+    "tests/audio_recorder_tap_test.cpp": "96e02eb042f4c6489c45b225a050a75e742ab308e6b548a8fb6696affd16df31",
+    "tests/audio_recorder_test.cpp": "466b2c0f47f7d9e40d56463c15dee5e10bb2de02de9cf3a279cee693be7cdb66",
+    "tests/audio_routing_test.cpp": "314e73e1830978332b84417e188ef29d7ecf0d8d1e7a96c4d74bf509f16b6a4c",
+    "tests/audio_source_handoff_test.cpp": "492cc9511d2430c150ac9e234e984efd91a54b84f560d2a47875918fc6d4638c",
+    "tests/audio_source_test.cpp": "ceb94671a6a5118555a191832f3592b2d95053004956635d0bb4a564ecad46f2",
+    "tests/audio_stem_bank_test.cpp": "da697e3d677ceac0d012a88f0bc2cde51d92c9f996ddee34d5d2bf966519ac41",
+    "tests/audio_stem_rate_converter_test.cpp": "485b3240be14f4052513b02f8cdfcf051f6a2920dd4c0945752071906e8720e4",
+    "tests/audio_test.cpp": "8f747fc8cdabb3f92b5c17ee3a34e3fc5ee0588f0adad4f8b20d356a0e2fe37a",
+    "tests/audio_timing_test.cpp": "af44c7524137b92617732a17e1de67794cacd6f693030e9f869f685a9b33b5b2",
+    "tests/audio_transport_test.cpp": "724cc2fee5aed84925b9f279b0dfa1034da2bad01fd250064a281e4e4f822a6c",
+    "tests/cue_sheet_test.cpp": "5c1fa058e2f5a160291ab39270bf8fc3eee2e2341cce811e6bc0e32e98feb4b9",
+    "tests/deck_controller_test.cpp": "c583ff72c0d8424f80b08da45f40e707417b42df777eae4629a3930bc13dc103",
+    "tests/library_catalog_test.cpp": "3e8b4d692a535e255c50692e2fd2864ac7eecdc582dc28055bc6fbdad5d5474b",
+    "tests/live_owner_retirement_test.cpp": "5b0dd351112818bb386c1377923a621a100f3877c1082a85d9df2a453f3b78af",
+    "tests/live_session_test.cpp": "4c3398b1dbf74582b166711b6f2c6acf7395dd972431d06f5007bac9e6bfcf1b",
+    "tests/live_stem_bridge_test.cpp": "8f13f1555c071b95ef906f03d94f9337daa348f76bf582202da7bf31c65a4f4d",
+    "tests/manual_playback_hour_test.py": "9adeb9c90e4de3321d0dc7a10fbdbd6f2675c9979d55f4d16ffd1b31297d442d",
+    "tests/manual_ui_test.cpp": "3556c6924faaf32bc490d70d7b8be8ade566214a055b97f0ff71856d65ca4ef6",
+    "tests/prepared_track_store_test.cpp": "7be77c02050e2333b3d142bcea030cfe605bd4b54c30cceee7270b9d62a7862c",
+    "tests/stem_export_cli_test.py": "f7f64eea782417144ffe14166abb5e38518b0c2a8cf690bf031cb628caa0ec81",
+    "tests/stem_export_test.py": "f7ba891a22c2efb630e7b9b87d140130a09b85d053e3aa63b322b8c4aa122cbe",
+    "tests/stem_service_jsonl_test.cpp": "5b71ade1d9b952e7e81c83c93bfc41b5d1638f78dd658d009f50de5980194b31",
+    "tests/stem_service_test.py": "0e475d35694f31977fbea2d24dc851c04a7df74d5c059737e547bff87e558d07",
+    "tests/stem_soak_test.py": "c2544324dab9a79503cf22d6b8ef841dfc58dcefd79db0a451b609fd10ddf66e",
+    "tests/stem_worker_test.py": "a91baec3f5077279fc14445c427614a4991607ab83d75dd83885e644fb150ea0",
+    "tests/window_event_history_test.cpp": "4539265cf5c4e0ac74e45d86d29f530bfd79823e67f689f07df1bcf5b7503d53",
+    "tools/coverage/requirements.txt": "2b5d00da32e2b64b01dbf2c0e1dec95c9de031596935b092aecef682016c24f0",
+    "tools/coverage/run.py": "161ec4bddeca816bf6ea5101d90b0b25e8fbefdb6a612e9eb64e473af882e425",
+    "tools/experiments/manual_routing_check.cpp": "e99765f41baf0ea4b327e28e1e5f860045d9b8180f8da325f565869ba1bc8a2b",
+    "tools/experiments/preparation_controller_check.cpp": "18285419f79677f7e1c324b5db4a895f6e0763470e2fa87d48f8351d435845ab",
+    "tools/experiments/private_routing_check.py": "72a8edc336b8e6b8967ffb0fd7aa8048517ccb4ce9a7b250099cafa6dbf17ebd",
+    "tools/stems/README.md": "04f29e67bd1c4907d79269ed4ad05fbccf7e39bc0d1ff1b981aed6099e4159de",
+    "tools/stems/export.py": "cf90ddb088e43ac7c3b1f0af28b29782307316a669cac34effc59eb79a84a062",
+    "tools/stems/service.py": "ca879d25c53d5543fbe50fff8f0ecec81e57ce9f464a033ccca201a7acb8332a",
+    "tools/stems/worker.py": "b38ab1dae456f9da69cbb30563595559f10e018246e86763dffffa89b9bacdff"
+  },
+  "toolchain": {
+    "compiler": "c++ (GCC) 16.2.1 20260810",
+    "gcov": "gcov (GCC) 16.2.1 20260810",
+    "cmake": "cmake version 4.4.4",
+    "ninja": "1.13.2",
+    "QtCore": "6.12.0",
+    "QtQuick": "6.12.0"
+  },
+  "independent_code_review": {
+    "status": "passed; all findings resolved",
+    "initial_review_sha256": "39d7b0ae2e0ba0c90f277df506eefa5d1da6907354f243a0182e5432583534d5",
+    "resolved_review_sha256": "1269dd2e12226fd1804e1ed00a65766020fb6aebb6fad13aee2df8389508c11d",
+    "final_delta_evidence_docs_review_sha256": "6901aa2e088948081b6c3be300ecf462e481c82edac77e5ca6567b9d5fec4186"
+  },
+  "local_evidence_sha256": {
+    "normal-ctest.xml": "59f166d051be0a8c1c4ab43fb3bebe1c41db094907dc3e4f770704bdd7240eaf",
+    "normal-ctest-before-final-ui-fix.log": "1b8a90df6c19986a28ffb6f6759dc2ec9918d1acb6915e174d2010aee59d893f",
+    "final-ui-red.log": "3fcaea45c9ef120e8cd298be865305deda97d4b2a3f1c9bb9336027cbf7e463d",
+    "valid-filename-tooltip-red.log": "3c917191941970805600b8e7bd19c04225040f191de733faa8cd7edc7c8f499a",
+    "output-readiness-red.log": "a49df6fb285b0f125744c5da6fc723c0249b357522abcace78a32e4b92dbf144",
+    "readiness-ui-green.xml": "f319505550417f94abc4d35f92ba33c1c1626776746a7ed94956a8e26a869f5e",
+    "readiness-ui-green.log": "50f50de643b63fb33f2f8afce4ec86f2c92cbd0266a37d12b6c43788ad40dcfb",
+    "readiness-ui-coverage-green.xml": "a7be560d121f7a0b12154270e568e16b860d8844bb4f66fac0cc013b7140853e",
+    "readiness-ui-coverage-green.log": "af574318a4008ccc35dce78c452307a67f5aa655f05183f2b5508436e5796c97",
+    "readiness-smoke-normal.log": "cd98b64d85423a328a0fc15f84f6c072494b4ad6c06372ad55189e2b61f094b1",
+    "readiness-smoke-coverage.log": "c87381fa579f5887122cdfd635ef61f74d01708bbceaa9211527606b787a0b79"
+  }
+}

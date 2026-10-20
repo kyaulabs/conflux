@@ -1057,7 +1057,7 @@ int main(int argc, char** argv)
         const auto row = controller.libraryTracks()[0].toMap();
         const auto libraryId = row["id"].toString();
         const auto idBytes = libraryId.toLatin1();
-        const auto savedCatalog = catalogSnapshot();
+        auto savedCatalog = catalogSnapshot();
         require(idBytes.size() == 64 && std::ranges::all_of(idBytes, [](char value) {
                     return (value >= '0' && value <= '9') || (value >= 'a' && value <= 'f');
                 }) && row["path"].toString() == b && row["name"].toString() == "generated-b.wav" &&
@@ -1078,6 +1078,35 @@ int main(int argc, char** argv)
             {"saved_at_output_frame", qint64(imported.outputFrame)}, {"id", libraryId},
             {"catalog_records", qint64(controller.libraryTracks().size())}, {"b_loaded", false},
             {"commands_before", qint64(importCommands)}, {"commands_after", qint64(controller.submittedCommands())}};
+        const auto cuePath = fixtures.filePath("generated-b.cue");
+        {
+            QFile cue(cuePath);
+            const QByteArray sheet = "FILE \"generated-b.wav\" WAVE\n"
+                " TRACK 01 AUDIO\n TITLE \"First tick\"\n INDEX 01 00:00:01\n"
+                " TRACK 02 AUDIO\n TITLE \"Last tick of second\"\n INDEX 01 00:00:74\n";
+            require(cue.open(QIODevice::WriteOnly) && cue.write(sheet) == sheet.size() && cue.flush(),
+                    "Private CUE sheet contains known 75-frame timestamps");
+        }
+        const auto cueImportBefore = controller.audioState();
+        controller.importCueSheet(libraryId, QUrl::fromLocalFile(cuePath));
+        require(controller.busy() && controller.preparation()["cancellable"].toBool(),
+                "CUE parsing owns an asynchronous cancellable operation");
+        wait([&] { return !controller.busy() && controller.audioState().outputFrame >= cueImportBefore.outputFrame + 1024; },
+             "CUE metadata saving or advancing A snapshot timed out");
+        const auto cueImported = controller.audioState();
+        const auto cueRows = controller.libraryTracks()[0].toMap()["cues"].toList();
+        require(controller.error().isEmpty() && cueRows.size() == 2 &&
+                cueRows[0].toMap()["frame"].toULongLong() == 640 &&
+                cueRows[1].toMap()["frame"].toULongLong() == 47360 &&
+                !controller.decks()[1].toMap()["loaded"].toBool() &&
+                controller.submittedCommands() == importCommands && controller.completedSessions() == importSessions &&
+                cueImported.playing[0] && cueImported.sourceGeneration == cueImportBefore.sourceGeneration &&
+                cueImported.sourceFrame[0] - cueImportBefore.sourceFrame[0] ==
+                    cueImported.outputFrame - cueImportBefore.outputFrame && !sink.wrong() && !sink.zeros(),
+                "CUE import persists exact source frames without installing B or disturbing advancing A");
+        savedCatalog = catalogSnapshot();
+        observations["cue_import"] = QJsonObject{{"count", 2}, {"first_frame", 640}, {"second_frame", 47360},
+            {"a_advancing", cueImported.sourceFrame[0] > cueImportBefore.sourceFrame[0]}, {"b_loaded", false}};
         const auto before = controller.audioState();
         const auto sessions = controller.completedSessions();
         const auto received = sink.received(0);
@@ -1104,6 +1133,25 @@ int main(int argc, char** argv)
                 !cancelled.sourceReadErrorObserved[1] && !cancelled.sourceReadError[1] && !cancelled.starvedFrames[1] &&
                 !sink.wrong() && !sink.zeros(), "Cancellation preserves exact A samples without invalid buffers or source failures");
         observations["cancelled_at_output_frame"] = qint64(cancelled.outputFrame);
+        controller.loadLibraryTrack(1, libraryId);
+        wait([&] { return !controller.busy() && controller.decks()[1].toMap()["loaded"].toBool() && controller.outputReady(); },
+             "B did not load for imported cue jumps");
+        const auto cueJumpBefore = controller.audioState();
+        require(controller.decks()[1].toMap()["sourceId"].toString() == libraryId &&
+                !cueJumpBefore.playing[1] && !controller.jumpToImportedCue(0, libraryId, 0),
+                "Imported cue jumps require the exact loaded source identity");
+        require(controller.jumpToImportedCue(1, libraryId, 0), "First imported cue submits an exact-frame seek");
+        wait([&] { return controller.audioState().sourceFrame[1] == 640; }, "First imported cue did not land at frame640");
+        require(controller.jumpToImportedCue(1, libraryId, 1), "Second imported cue submits an exact-frame seek");
+        wait([&] { return controller.audioState().sourceFrame[1] == 47360; }, "Second imported cue did not land at frame47360");
+        const auto cueJumped = controller.audioState();
+        require(!cueJumped.playing[1] && cueJumped.cueFrame[1] == cueJumpBefore.cueFrame[1] &&
+                cueJumped.playing[0] && cueJumped.sourceGeneration[0] == cueJumpBefore.sourceGeneration[0] &&
+                cueJumped.sourceFrame[0] - cueJumpBefore.sourceFrame[0] == cueJumped.outputFrame - cueJumpBefore.outputFrame &&
+                !cueJumped.invalidBuffers && !cueJumped.rejected && !sink.wrong() && !sink.zeros(),
+                "Exact cue jumps preserve paused B, its temporary CUE and the advancing peer clock/samples");
+        observations["cue_jump"] = QJsonObject{{"landed_frame", qint64(cueJumped.sourceFrame[1])},
+            {"b_paused", !cueJumped.playing[1]}, {"temporary_cue_unchanged", true}, {"peer_clock_unchanged", true}};
         const auto phasePath = QString::fromStdString((output.parent_path() / "controller-preparation-phase.json").string());
         bool shutdownCalled = false, shutdownReturned = false, phaseSaved = true;
         conflux::audio::LiveSession::State atComplete{};

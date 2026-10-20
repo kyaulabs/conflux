@@ -174,16 +174,30 @@ ApplicationWindow {
                 color: Brand.ConfluxTheme.muted
             }
             Label {
+                id: audioError
                 objectName: "audioError"
                 text: deckController.error
+                textFormat: Text.PlainText
                 visible: text.length > 0
                 elide: Text.ElideRight
                 Layout.fillWidth: true
                 color: Brand.ConfluxTheme.accent
                 Accessible.name: "Audio error: " + text
-                ToolTip.visible: errorHover.hovered && text.length > 0
-                ToolTip.text: text
                 HoverHandler { id: errorHover }
+                ToolTip {
+                    id: errorTooltip
+                    objectName: "audioErrorTooltip"
+                    visible: errorHover.hovered && audioError.text.length > 0
+                    text: audioError.text
+                    contentItem: Text {
+                        objectName: "audioErrorTooltipText"
+                        text: errorTooltip.text
+                        textFormat: Text.PlainText
+                        font: errorTooltip.font
+                        wrapMode: Text.Wrap
+                        color: errorTooltip.palette.toolTipText
+                    }
+                }
             }
             Item { Layout.fillWidth: true; visible: deckController.error.length === 0 }
             Button {
@@ -209,6 +223,8 @@ ApplicationWindow {
                 if (tracks[index].id === selectedId) return tracks[index]
             return null
         }
+        readonly property var selectedCues: selectedTrack !== null && selectedTrack.cues !== undefined
+                                            ? selectedTrack.cues : []
         readonly property var preparation: deckController.preparation
         readonly property string preparationText: {
             if (preparation.status === "Idle") return ""
@@ -228,6 +244,23 @@ ApplicationWindow {
             if (selectedId.length > 0)
                 return deckController.libraryReady && selectedTrack !== null && selectedTrack.available
             return path.trim().length > 0
+        }
+        function canImportCues() {
+            return deckController.libraryReady && !deckController.busy
+                   && selectedTrack !== null && selectedTrack.available
+                   && cuePath.text.trim().length > 0
+        }
+        function canJumpCue(deck) {
+            const state = deckController.decks[deck]
+            return deckController.libraryReady && deckController.outputReady && !deckController.busy
+                   && selectedTrack !== null && selectedTrack.available
+                   && state.loaded && state.sourceId === selectedId
+        }
+        function cueTime(seconds) {
+            const milliseconds = Math.round(seconds * 1000)
+            return Math.floor(milliseconds / 60000) + ":"
+                   + String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0") + "."
+                   + String(milliseconds % 1000).padStart(3, "0")
         }
         function load(deck) {
             const stems = deckController.stemsAvailable && stemPreparation.checked
@@ -385,49 +418,152 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Accessible.name: text
             }
-            ListView {
-                id: savedTracks
-                objectName: "libraryTracks"
+            RowLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.minimumHeight: 100
-                clip: true
-                model: deckController.libraryTracks
-                spacing: 4
-                ScrollBar.vertical: ScrollBar { }
-                delegate: ItemDelegate {
-                    required property var modelData
-                    required property int index
-                    objectName: "libraryTrack" + index
-                    width: savedTracks.width
-                    height: 56
-                    highlighted: library.selectedId === modelData.id
-                    onClicked: library.selectTrack(modelData)
-                    Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
-                    Accessible.description: "Select this track for Load A or Load B. Analysis unknown."
-                    background: Rectangle {
-                        radius: 3
-                        color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
-                        border.color: parent.activeFocus || parent.highlighted
-                                      ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.divider
-                    }
-                    contentItem: RowLayout {
-                        spacing: 16
-                        Label {
-                            objectName: "libraryTrack" + index + "Name"
-                            text: modelData.name
-                            textFormat: Text.PlainText
-                            elide: Text.ElideRight
-                            color: Brand.ConfluxTheme.text
-                            Layout.fillWidth: true
+                spacing: 16
+                ListView {
+                    id: savedTracks
+                    objectName: "libraryTracks"
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 440
+                    Layout.minimumWidth: 240
+                    Layout.minimumHeight: 100
+                    clip: true
+                    model: deckController.libraryTracks
+                    spacing: 4
+                    ScrollBar.vertical: ScrollBar { }
+                    delegate: ItemDelegate {
+                        required property var modelData
+                        required property int index
+                        objectName: "libraryTrack" + index
+                        width: savedTracks.width
+                        height: 56
+                        highlighted: library.selectedId === modelData.id
+                        onClicked: library.selectTrack(modelData)
+                        Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
+                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Analysis unknown."
+                        background: Rectangle {
+                            radius: 3
+                            color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
+                            border.color: parent.activeFocus || parent.highlighted
+                                          ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.divider
                         }
-                        Label {
-                            text: modelData.available
-                                  ? Math.floor(modelData.durationSeconds / 60) + ":"
-                                    + String(Math.floor(modelData.durationSeconds % 60)).padStart(2, "0")
-                                  : "MISSING"
-                            color: modelData.available ? Brand.ConfluxTheme.muted : Brand.ConfluxTheme.accent
-                            font.family: Brand.ConfluxTheme.monoFont
+                        contentItem: RowLayout {
+                            spacing: 16
+                            Label {
+                                objectName: "libraryTrack" + index + "Name"
+                                text: modelData.name
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
+                                color: Brand.ConfluxTheme.text
+                                Layout.fillWidth: true
+                            }
+                            Label {
+                                text: modelData.available
+                                      ? Math.floor(modelData.durationSeconds / 60) + ":"
+                                        + String(Math.floor(modelData.durationSeconds % 60)).padStart(2, "0")
+                                      : "MISSING"
+                                color: modelData.available ? Brand.ConfluxTheme.muted : Brand.ConfluxTheme.accent
+                                font.family: Brand.ConfluxTheme.monoFont
+                            }
+                        }
+                    }
+                }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 660
+                    Layout.minimumWidth: 560
+                    spacing: 8
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
+                        TextField {
+                            id: cuePath
+                            objectName: "libraryCuePath"
+                            placeholderText: "/home/you/Music/track.cue"
+                            placeholderTextColor: Brand.ConfluxTheme.muted
+                            selectByMouse: true
+                            Layout.fillWidth: true
+                            Layout.minimumHeight: 44
+                            onAccepted: if (importCues.enabled)
+                                deckController.importCueSheet(library.selectedId, window.localUrl(text))
+                            Accessible.name: "Cue-sheet path for selected library track"
+                        }
+                        Button {
+                            id: importCues
+                            objectName: "libraryCueImport"
+                            text: "IMPORT CUES"
+                            enabled: library.canImportCues()
+                            Layout.minimumWidth: 140
+                            Layout.minimumHeight: 44
+                            onClicked: deckController.importCueSheet(library.selectedId, window.localUrl(cuePath.text))
+                            Accessible.name: "Import cue sheet for selected library track"
+                        }
+                    }
+                    Label {
+                        objectName: "libraryCueStatus"
+                        text: library.selectedTrack === null ? "Select a saved track to import its .cue sheet."
+                              : !library.selectedTrack.available ? "The selected source is missing."
+                              : library.selectedCues.length === 0 ? "No imported cues. Import never loads or seeks a deck."
+                              : "Jump on a deck loaded with this source."
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.muted
+                        Layout.fillWidth: true
+                    }
+                    ListView {
+                        id: importedCues
+                        objectName: "libraryCues"
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.minimumHeight: 100
+                        clip: true
+                        model: library.selectedCues
+                        spacing: 4
+                        ScrollBar.vertical: ScrollBar { }
+                        delegate: RowLayout {
+                            required property var modelData
+                            required property int index
+                            width: importedCues.width
+                            height: 56
+                            spacing: 8
+                            Label {
+                                objectName: "libraryCue" + index + "Name"
+                                text: modelData.trackNumber + ". " + modelData.label
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
+                                color: Brand.ConfluxTheme.text
+                                Layout.fillWidth: true
+                                Accessible.name: text
+                            }
+                            Label {
+                                objectName: "libraryCue" + index + "Time"
+                                text: library.cueTime(modelData.seconds)
+                                textFormat: Text.PlainText
+                                color: Brand.ConfluxTheme.muted
+                                font.family: Brand.ConfluxTheme.monoFont
+                            }
+                            Button {
+                                objectName: "libraryCue" + index + "JumpA"
+                                text: "JUMP A"
+                                enabled: library.canJumpCue(0)
+                                Layout.minimumWidth: 88
+                                Layout.minimumHeight: 44
+                                onClicked: deckController.jumpToImportedCue(0, library.selectedId, index)
+                                Accessible.name: "Jump Deck A to cue " + modelData.trackNumber + ": " + modelData.label
+                            }
+                            Button {
+                                objectName: "libraryCue" + index + "JumpB"
+                                text: "JUMP B"
+                                enabled: library.canJumpCue(1)
+                                Layout.minimumWidth: 88
+                                Layout.minimumHeight: 44
+                                onClicked: deckController.jumpToImportedCue(1, library.selectedId, index)
+                                Accessible.name: "Jump Deck B to cue " + modelData.trackNumber + ": " + modelData.label
+                            }
                         }
                     }
                 }
@@ -438,6 +574,7 @@ ApplicationWindow {
                 spacing: 16
                 visible: library.preparation.status !== "Idle"
                 Label {
+                    id: preparationStatus
                     objectName: "preparationStatus"
                     text: library.preparationText
                     textFormat: Text.PlainText
@@ -445,14 +582,25 @@ ApplicationWindow {
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
                     Accessible.name: text
-                    ToolTip.visible: preparationHover.hovered && text.length > 0
-                    ToolTip.text: text
                     HoverHandler { id: preparationHover }
+                    ToolTip {
+                        id: preparationTooltip
+                        visible: preparationHover.hovered && preparationStatus.text.length > 0
+                        text: preparationStatus.text
+                        contentItem: Text {
+                            text: preparationTooltip.text
+                            textFormat: Text.PlainText
+                            font: preparationTooltip.font
+                            wrapMode: Text.Wrap
+                            color: preparationTooltip.palette.toolTipText
+                        }
+                    }
                 }
                 Button {
                     objectName: "preparationCancel"
                     text: "CANCEL PREPARATION"
                     visible: library.preparation.status === "Preparing"
+                             || library.preparation.status === "Reading cues"
                              || library.preparation.status === "Cancelling"
                              || library.preparation.status === "Installing"
                              || library.preparation.status === "Saving"
@@ -642,6 +790,7 @@ ApplicationWindow {
                         objectName: "routingError"
                         text: [deckController.audioRouting.masterError, deckController.audioRouting.cueError, deckController.error]
                               .filter(function(error, index, all) { return Boolean(error) && all.indexOf(error) === index }).join("\n")
+                        textFormat: Text.PlainText
                         visible: text.length > 0
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.accent
