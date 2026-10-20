@@ -2,7 +2,9 @@
 // Opt-in native laptop diagnostics. Default mode accepts generated quiet fixtures only.
 #include "ui/DeckController.hpp"
 #include "library/LiveStemObservations.hpp"
+#include "WindowEventHistory.hpp"
 #include <sndfile.h>
+#include <QDateTime>
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileInfo>
@@ -218,9 +220,37 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     State boundary{}, last{};
     std::uint64_t eofAtOutput = 0, recoveryTarget = 0;
     QString phase = "startup";
+    auto windowSnapshot = [&](qint64 now) {
+        const bool exists = bool(window), visible = window && window->isVisible(), exposed = window && window->isExposed();
+        return QJsonObject{{"exists", exists}, {"visible", visible}, {"exposed", exposed},
+            {"visibility", window ? QJsonValue(int(window->visibility())) : QJsonValue()},
+            {"window_state", window ? QJsonValue(int(window->windowState())) : QJsonValue()},
+            {"active", window && window->isActive()}, {"application_state", int(QGuiApplication::applicationState())},
+            {"window_object_identity", window ? QJsonValue(QString::number(quintptr(window.data()), 16)) : QJsonValue()},
+            {"clock_ns", now}, {"monotonic_ns", nowNs()}, {"phase", phase.left(64)}, {"last_frame_ns", lastFrameNs},
+            {"frame_age_ns", lastFrameNs ? QJsonValue(now - lastFrameNs) : QJsonValue()}, {"frames_presented", qint64(presented)},
+            {"last_heartbeat_ns", lastHeartbeatNs}, {"heartbeat_age_ns", lastHeartbeatNs ? QJsonValue(now - lastHeartbeatNs) : QJsonValue()},
+            {"failed_predicates", QJsonObject{{"missing_window", !exists}, {"not_visible", !visible}, {"not_exposed", !exposed},
+                {"frame_age_at_least_2s", now - lastFrameNs >= 2000000000LL}}}};
+    };
+    conflux::experiments::WindowEventHistory windowEvents([&] { return windowSnapshot(clock.nsecsElapsed()); },
+        {{"elapsed_clock", "QElapsedTimer::nsecsElapsed"}, {"elapsed_clock_type", int(QElapsedTimer::clockType())},
+         {"elapsed_clock_is_monotonic", QElapsedTimer::isMonotonic()}, {"anchor_clock_ns", clock.nsecsElapsed()},
+         {"anchor_monotonic_ns", nowNs()}, {"anchor_utc", QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs)},
+         {"clock_anchor_scope", "Sequential GUI-thread elapsed/steady/UTC observations, not simultaneous hardware timestamps"},
+         {"frame_timestamp_scope", "frameSwapped slot observation; not compositor presentation or physical scanout"},
+         {"heartbeat_timestamp_scope", "Most recent measured-loop health observation after qWait"},
+         {"source_scope", "event_filter_before_target is pre-handler; signal is Qt notification; snapshot is polling, not an event"},
+         {"capture_end", "Before controller shutdown and window close"}, {"functional_ui_bypass", functional},
+         {"frame_age_limit_ns", 2000000000LL}, {"startup_minimum_frames", 10}, {"startup_wait_ms", 5000},
+         {"activation_required", false}});
+    QObject::connect(&app, &QGuiApplication::applicationStateChanged, &windowEvents, [&](Qt::ApplicationState value) {
+        windowEvents.record("signal:applicationStateChanged", {{"signal_value", int(value)}});
+    });
     auto checkStop = [&] { if (QFileInfo::exists(stop)) { cancelled = true; throw std::runtime_error("Stop file requested graceful live cancellation"); } };
     auto pulse = [&] {
         const auto state = controller.audioState();
+        windowEvents.record("snapshot:progress");
         save(output + "/progress.json", {{"phase", phase}, {"pid", qint64(QCoreApplication::applicationPid())}, {"monotonic_ns", nowNs()},
             {"elapsed_ms", clock.elapsed()}, {"frames_presented", qint64(presented)}, {"window_exposed", window && window->isExposed()},
             {"output_ready", controller.outputReady()}, {"output_frame", qint64(state.outputFrame)}, {"callbacks", qint64(state.callbacks)},
@@ -273,6 +303,17 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         engine.load(QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/qml/Main.qml")));
         require(!engine.rootObjects().isEmpty(), "Live Main.qml did not load");
         window = qobject_cast<QQuickWindow*>(engine.rootObjects().first()); require(window, "Live QML has no window");
+        windowEvents.observe(window);
+        QObject::connect(window, &QWindow::visibleChanged, &windowEvents, [&](bool value) {
+            windowEvents.record("signal:visibleChanged", {{"signal_value", value}});
+        });
+        QObject::connect(window, &QWindow::visibilityChanged, &windowEvents, [&](QWindow::Visibility value) {
+            windowEvents.record("signal:visibilityChanged", {{"signal_value", int(value)}});
+        });
+        QObject::connect(window, &QWindow::activeChanged, &windowEvents, [&] { windowEvents.record("signal:activeChanged"); });
+        QObject::connect(window, &QWindow::windowStateChanged, &windowEvents, [&](Qt::WindowState value) {
+            windowEvents.record("signal:windowStateChanged", {{"signal_value", int(value)}});
+        });
         QObject::connect(window, &QQuickWindow::frameSwapped, &app, [&] {
             const auto now = clock.nsecsElapsed(); if (lastFrameNs) maxFrameGapNs = std::max(maxFrameGapNs, now - lastFrameNs);
             lastFrameNs = now; ++presented;
@@ -335,12 +376,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 "Live source or callback failed");
             require(controller.recording()["active"].toBool() && controller.recording()["error"].toString().isEmpty(), "Live recording stopped or failed");
             const bool windowHealthy = functional || (window && window->isVisible() && window->isExposed() && now - lastFrameNs < 2000000000LL);
-            if (!windowHealthy) result["window_failure"] = QJsonObject{{"exists", bool(window)},
-                {"visible", window && window->isVisible()}, {"exposed", window && window->isExposed()},
-                {"visibility", window ? QJsonValue(int(window->visibility())) : QJsonValue()},
-                {"active", window && window->isActive()}, {"application_state", int(QGuiApplication::applicationState())},
-                {"clock_ns", now}, {"last_frame_ns", lastFrameNs},
-                {"frame_age_ns", lastFrameNs ? QJsonValue(now - lastFrameNs) : QJsonValue()}, {"frames_presented", qint64(presented)}};
+            if (!windowHealthy) {
+                result["window_failure"] = windowSnapshot(now);
+                windowEvents.record("snapshot:ui_guard_failure", result["window_failure"].toObject());
+            }
             require(windowHealthy, "Live window hidden or not presenting");
             require(controller.liveStemObservations(0) == observations, "Live playback unexpectedly changed owner/observations");
             require(state.graphRate == 48000 && state.streamFramesMin && state.streamFramesMax >= state.streamFramesMin &&
@@ -409,6 +448,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         closeMeasurement(true);
     }
     if (phase != "finalizing") { phase = "finalizing"; pulse(); }
+    windowEvents.freeze(result);
     framePump.stop(); controller.shutdown(); result["shutdown_completed"] = true; if (window) window->close();
     try {
         drain(); require(trace.flush(), "Cannot flush live evidence"); trace.close();

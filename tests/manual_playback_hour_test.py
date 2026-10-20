@@ -3,12 +3,17 @@
 """Fast admission and evidence regressions; never opens a host audio device."""
 import contextlib
 import copy
+import ast
+import errno
 import io
+import inspect
 import os
 import json
 from pathlib import Path
 import sys
 import tempfile
+import textwrap
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -17,6 +22,127 @@ from tools.experiments import run_manual_playback_soak as soak
 
 
 class HourPlaybackTest(unittest.TestCase):
+    def ownership_observer(self):
+        # Exercise the actual nested helpers without starting the runner or a
+        # process. Only /proc paths are redirected to this bounded fixture.
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        proc = Path(directory.name)
+        for pid, parent, group, ticks, children in ((101, 1, 101, 1001, "202"), (202, 101, 202, 2002, "")):
+            root = proc / str(pid)
+            task = root / "task" / str(pid)
+            task.mkdir(parents=True)
+            fields = ["S", str(parent), str(group), str(group)] + ["0"] * 15 + [str(ticks)]
+            (root / "stat").write_text(f"{pid} (fixture) " + " ".join(fields))
+            (root / "cmdline").write_bytes(b"fixture\0")
+            (task / "children").write_text(children)
+        source = inspect.getsource(soak.run_live)
+        names = {"process_record", "same_identity", "record_ownership_loss", "remember_command",
+                 "proven_command_snapshots", "remember_owned", "live_owned", "signal_owned"}
+        helpers = [ast.get_source_segment(source, node) for node in ast.parse(source).body[0].body
+                   if isinstance(node, ast.FunctionDef) and node.name in names]
+        self.assertEqual(len(helpers), len(names))
+        state = ("owned = {}; observed_groups = set(); command_history = {}; ownership_failures = []\n"
+                 "ownership_complete = True; ownership_failure_count = 0; ownership_failure_overflow = False\n")
+        expose = ("\nreturn remember_owned, live_owned, signal_owned, lambda: {"
+                  "'owned': dict(owned), 'ownership_complete': ownership_complete, "
+                  "'ownership_failures': list(ownership_failures), 'ownership_failure_count': ownership_failure_count, "
+                  "'ownership_failure_overflow': ownership_failure_overflow}\n")
+        namespace = {"os": os, "time": soak.time}
+        exec("def observer(child, root_identity, Path):\n" + textwrap.indent(
+            state + "\n".join(textwrap.dedent(helper) for helper in helpers) + expose, "    "), namespace)
+        identity = {"pid": 101, "start_ticks": 1001, "group": 101, "session": 101, "ppid": 1}
+        observer = namespace["observer"](SimpleNamespace(pid=101, poll=lambda: 0), identity,
+                                          lambda value: proc if value == "/proc" else Path(value))
+        return proc, observer
+
+    def test_owned_process_disappearance_preserves_missing_file_evidence(self):
+        for parent_read in (False, True):
+            outcomes = []
+            for error in (FileNotFoundError(errno.ENOENT, "gone"), ProcessLookupError(errno.ESRCH, "gone")):
+                with self.subTest(parent_read=parent_read, error=type(error).__name__):
+                    proc, (remember, _, _, snapshot) = self.ownership_observer()
+                    original = Path.read_text
+                    parent_reads = 0
+                    def read(path, *args, **kwargs):
+                        nonlocal parent_reads
+                        if path == proc / "101/stat":
+                            parent_reads += 1
+                        if path == proc / ("101/stat" if parent_read else "202/stat") and (not parent_read or parent_reads == 3):
+                            raise error
+                        return original(path, *args, **kwargs)
+                    with patch.object(Path, "read_text", read):
+                        remember()
+                    result = snapshot()
+                    self.assertFalse(result["ownership_complete"])
+                    self.assertEqual(result["ownership_failure_count"], 1)
+                    self.assertFalse(result["ownership_failure_overflow"])
+                    failure = result["ownership_failures"][0]
+                    self.assertEqual((failure["reason"], failure["pid"]),
+                                     ("process_or_parent_disappeared_during_walk", 202))
+                    self.assertEqual(failure["parent_proof"],
+                                     {"pid": 101, "start_ticks": 1001, "group": 101, "session": 101, "ppid": 1})
+                    self.assertIsNone(failure["observed_identity"])
+                    failure.pop("observed_monotonic_ns")
+                    outcomes.append((set(result["owned"]), failure))
+            if len(outcomes) == 2:
+                self.assertEqual(outcomes[0], outcomes[1])
+
+    def test_exiting_thread_children_matches_missing_file_handling(self):
+        for error in (FileNotFoundError(errno.ENOENT, "gone"), ProcessLookupError(errno.ESRCH, "gone")):
+            with self.subTest(error=type(error).__name__):
+                proc, (remember, _, _, snapshot) = self.ownership_observer()
+                original = Path.read_text
+                def read(path, *args, **kwargs):
+                    if path == proc / "202/task/202/children":
+                        raise error
+                    return original(path, *args, **kwargs)
+                with patch.object(Path, "read_text", read):
+                    remember()
+                result = snapshot()
+                self.assertEqual(set(result["owned"]), {(101, 1001), (202, 2002)})
+                self.assertTrue(result["ownership_complete"])
+                self.assertEqual(result["ownership_failures"], [])
+
+    def test_live_owned_disappearance_and_replacement_never_signal_replacement(self):
+        for error in (FileNotFoundError(errno.ENOENT, "gone"), ProcessLookupError(errno.ESRCH, "gone")):
+            with self.subTest(error=type(error).__name__):
+                proc, (remember, live, signal_owned, _) = self.ownership_observer()
+                remember()
+                original = Path.read_text
+                def read(path, *args, **kwargs):
+                    if path == proc / "202/stat":
+                        raise error
+                    return original(path, *args, **kwargs)
+                with patch.object(Path, "read_text", read), patch.object(os, "getpgrp", return_value=999), \
+                        patch.object(os, "killpg") as kill:
+                    self.assertEqual(set(live()), {101})
+                    signal_owned(soak.signal.SIGTERM)
+                    kill.assert_called_once_with(101, soak.signal.SIGTERM)
+                path = proc / "202/stat"
+                path.write_text(path.read_text().replace("2002", "9999"))
+                with patch.object(os, "getpgrp", return_value=999), patch.object(os, "killpg") as kill:
+                    self.assertEqual(set(live()), {101})
+                    signal_owned(soak.signal.SIGTERM)
+                    kill.assert_called_once_with(101, soak.signal.SIGTERM)
+
+    def test_process_observation_permission_and_unrelated_errors_remain_visible(self):
+        for stage in ("process", "thread", "live"):
+            for error in (PermissionError(errno.EACCES, "denied"), OSError(errno.EIO, "I/O error")):
+                with self.subTest(stage=stage, error=type(error).__name__):
+                    proc, (remember, live, _, _) = self.ownership_observer()
+                    if stage == "live":
+                        remember()
+                    target = proc / ("202/task/202/children" if stage == "thread" else "202/stat")
+                    original = Path.read_text
+                    def read(path, *args, **kwargs):
+                        if path == target:
+                            raise error
+                        return original(path, *args, **kwargs)
+                    with patch.object(Path, "read_text", read), self.assertRaises(type(error)) as raised:
+                        (live if stage == "live" else remember)()
+                    self.assertIs(raised.exception, error)
+
     def cli(self, *extra):
         arguments = ["soak", "--allow-host-audio", "--binary", "/bin/player", "--track-a", "/a",
                      "--track-b", "/b", "--output", "/evidence"]

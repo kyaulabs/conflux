@@ -1,0 +1,1252 @@
+{
+  "schema": "conflux.m2-window-event-player-archive.v1",
+  "summary": {
+    "schema": "conflux.m2-window-event-player.v1",
+    "source_head": "daef9362c2ca6119b2c062659a0489fde3bf01a7",
+    "source_signature": "daef9362c2ca6119b2c062659a0489fde3bf01a7 G F621F658D66098CBE9E5C55D66788CCBB5E215AC kyau <kyau@kyau.net>",
+    "status": "both_actual_player_attempts_failed_unqualified",
+    "M2_open": true,
+    "Best_quality_retained": true,
+    "strict_target_ms": 4095,
+    "runs": [
+      {
+        "name": "short-live-window-events-01",
+        "wrapper": {
+          "started_at_utc": "2026-10-20T00:21:38.378604+00:00",
+          "finished_at_utc": "2026-10-20T00:23:34.806717+00:00",
+          "elapsed_seconds": 116.42809113999829,
+          "error": null,
+          "stop_reason": null,
+          "cleanup_proven": true,
+          "owned_cache_removed": true,
+          "cache_preserved": false
+        },
+        "native": {
+          "measured_wall_ms": 104101,
+          "error": "Negotiated audio/gain/transport configuration changed",
+          "shutdown_completed": true,
+          "cancelled": false,
+          "frames_presented": 6117,
+          "steady_starved_frames": 726016,
+          "control_starved_frames": 1483008,
+          "starved_frames_outside_measured_intervals": 0
+        },
+        "service_hops": {
+          "count": 13,
+          "minimum_ms": 2277.674912940711,
+          "median_ms": 8320.810590987094,
+          "mean_ms": 7070.2593282062135,
+          "maximum_ms": 9797.619652934372,
+          "nearest_rank_p99_ms": 9797.619652934372,
+          "strict_target_ms": 4095,
+          "at_or_above_target": 11,
+          "below_target": 2,
+          "population": "All13 retained ChunkValidated hops, uncensored; not a sustained or complete-player p99 qualification."
+        },
+        "controls": {
+          "load_to_first_cursor_poll_upper_ms": 8760.29153,
+          "rows": [
+            {
+              "incomplete_when_last_drained": true,
+              "issued_ns": 558673225648885,
+              "kind": "incomplete_generation_seek",
+              "output_begin": 427520,
+              "output_end": 1111552,
+              "previous_generation": 1,
+              "recovered_cursor_observed_ns": 558687474625928,
+              "target_frame": 280800,
+              "command_id": 3,
+              "new_epoch": 3,
+              "new_generation": 2,
+              "queued_to_accepted_ms": 0.87673,
+              "issue_to_accepted_ms": 9.996535,
+              "issue_to_cursor_poll_upper_ms": 14248.977043
+            },
+            {
+              "incomplete_when_last_drained": false,
+              "issued_ns": 558708768104489,
+              "kind": "replay_recovery",
+              "output_begin": 2134272,
+              "output_end": 2535168,
+              "previous_generation": 2,
+              "recovered_cursor_observed_ns": 558717120362079,
+              "target_frame": 0,
+              "command_id": 8,
+              "new_epoch": 4,
+              "new_generation": 3,
+              "queued_to_accepted_ms": 8.206407,
+              "issue_to_accepted_ms": 12.421513,
+              "issue_to_cursor_poll_upper_ms": 8352.25759
+            },
+            {
+              "incomplete_when_last_drained": false,
+              "issued_ns": 558746367936284,
+              "kind": "replay_recovery",
+              "output_begin": 3939072,
+              "output_end": 4342272,
+              "previous_generation": 3,
+              "recovered_cursor_observed_ns": 558754770998460,
+              "target_frame": 0,
+              "command_id": 13,
+              "new_epoch": 5,
+              "new_generation": 4,
+              "queued_to_accepted_ms": 3.90874,
+              "issue_to_accepted_ms": 8.488414,
+              "issue_to_cursor_poll_upper_ms": 8403.062176
+            }
+          ],
+          "incomplete_generation_seek_exercised": true,
+          "EOF_count": 2,
+          "replay_count": 2,
+          "last_recovery_complete": true,
+          "scope": "Issue/queued-to-accepted timings are logical C++ ACK evidence. Recovery is an upper-bound cursor poll, not exact sample consumption, native inference-start, GPU preemption or a STOP/cancellation test."
+        },
+        "callback_and_UI": {
+          "callbacks": 21192,
+          "faults": {
+            "execution_deadline_misses": 0,
+            "invalid_buffers": 0,
+            "rejected_commands": 0,
+            "source_read_failures": 0
+          },
+          "timing": [
+            {
+              "at_least_100ms": 0,
+              "callbacks": 21192,
+              "driver_cycle_available": true,
+              "driver_discontinuity_flag_mask": 16,
+              "driver_position_discontinuities": 0,
+              "driver_position_observed": true,
+              "driver_recovery_flag_mask": 2,
+              "driver_recovery_flags": 0,
+              "execution_deadline_misses": 0,
+              "execution_p999_upper_us": 187,
+              "execution_p99_upper_us": 164,
+              "graph_quantum_max": 256,
+              "graph_quantum_min": 256,
+              "maximum_execution_ns": 415986
+            }
+          ],
+          "frames_presented": 6117,
+          "maximum_completed_frame_callback_gap_ms": 179.796411,
+          "maximum_GUI_heartbeat_gap_ms": 109.44848,
+          "scene_errors": [],
+          "scope": "Zero callback/driver fault counters coexist with substantial live-stem starvation. Qt frameSwapped callback timing is not compositor scanout or an audible-cleanliness proof."
+        },
+        "WAV": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/hour-player-01/short-live-window-events-01/master.wav",
+          "file_bytes": 43352152,
+          "file_sha256": "e6efea2da01f08441aa5b39edba4ed209977eefa36d41675e2314913e0752213",
+          "PCM_sha256": "de08999bea729543e3bbea18382ede799b56d488fe6fd935dbe917b465aa747e",
+          "format": "RIFF IEEE float32 little-endian",
+          "channels": 2,
+          "sample_rate": 48000,
+          "frames": 5419008,
+          "recording_seconds": 112.896,
+          "finite_samples": 10838016,
+          "nonzero_left": 5394468,
+          "nonzero_right": 5394314,
+          "nonzero_samples": 10788782,
+          "peaks": [
+            0.05362604185938835,
+            0.05340199172496796
+          ],
+          "accepted_equals_written_equals_file_frames": true,
+          "overflow_frames": 0,
+          "status": "Complete",
+          "scope": "Independent complete sample scan of the closed recording; includes startup and differs from measured interval. Finite/nonzero audio is not exact stem PCM, physical output, musical quality or clean-playback proof."
+        },
+        "window_history": {
+          "capacity": 64,
+          "attempted": 68,
+          "retained": 64,
+          "dropped": 4,
+          "ordinal_range": [
+            5,
+            68
+          ],
+          "frozen_before_cleanup": true,
+          "no_UI_guard_failure_snapshot": true
+        },
+        "audit_path": "benchmarks-local/hour-player-01/window-events-short-operation-audit.json"
+      },
+      {
+        "name": "short-live-window-events-02",
+        "wrapper": {
+          "started_at_utc": "2026-10-20T00:27:24.387512+00:00",
+          "finished_at_utc": "2026-10-20T00:29:36.104946+00:00",
+          "elapsed_seconds": 131.7174056719523,
+          "error": "[Errno 3] No such process",
+          "stop_reason": "Live runner observation error",
+          "cleanup_proven": false,
+          "owned_cache_removed": false,
+          "cache_preserved": true
+        },
+        "native": {
+          "measured_wall_ms": 120014,
+          "error": "Steady playback starved; control intervals retained separately",
+          "shutdown_completed": true,
+          "cancelled": false,
+          "frames_presented": 6854,
+          "steady_starved_frames": 578304,
+          "control_starved_frames": 1605376,
+          "starved_frames_outside_measured_intervals": 0
+        },
+        "service_hops": {
+          "count": 15,
+          "minimum_ms": 2234.212427982129,
+          "median_ms": 8008.565529016778,
+          "mean_ms": 6381.335211141656,
+          "maximum_ms": 9443.214968079701,
+          "nearest_rank_p99_ms": 9443.214968079701,
+          "strict_target_ms": 4095,
+          "at_or_above_target": 11,
+          "below_target": 4,
+          "population": "All15 retained ChunkValidated hops, uncensored; not a sustained or complete-player p99 qualification."
+        },
+        "controls": {
+          "load_to_first_cursor_poll_upper_ms": 8461.133096,
+          "rows": [
+            {
+              "incomplete_when_last_drained": true,
+              "issued_ns": 559018832889878,
+              "kind": "incomplete_generation_seek",
+              "output_begin": 414208,
+              "output_end": 735744,
+              "previous_generation": 1,
+              "recovered_cursor_observed_ns": 559025518983449,
+              "target_frame": 280800,
+              "command_id": 2,
+              "new_epoch": 3,
+              "new_generation": 2,
+              "queued_to_accepted_ms": 0.886808,
+              "issue_to_accepted_ms": 26.335181,
+              "issue_to_cursor_poll_upper_ms": 6686.093571
+            },
+            {
+              "incomplete_when_last_drained": false,
+              "issued_ns": 559043113430267,
+              "kind": "replay_recovery",
+              "output_begin": 1580032,
+              "output_end": 2017280,
+              "previous_generation": 2,
+              "recovered_cursor_observed_ns": 559052226486688,
+              "target_frame": 0,
+              "command_id": 8,
+              "new_epoch": 4,
+              "new_generation": 3,
+              "queued_to_accepted_ms": 14.720118,
+              "issue_to_accepted_ms": 21.107379,
+              "issue_to_cursor_poll_upper_ms": 9113.056421
+            },
+            {
+              "incomplete_when_last_drained": false,
+              "issued_ns": 559082610916023,
+              "kind": "replay_recovery",
+              "output_begin": 3475968,
+              "output_end": 3903744,
+              "previous_generation": 3,
+              "recovered_cursor_observed_ns": 559091523598117,
+              "target_frame": 0,
+              "command_id": 13,
+              "new_epoch": 5,
+              "new_generation": 4,
+              "queued_to_accepted_ms": 62.294021,
+              "issue_to_accepted_ms": 64.883772,
+              "issue_to_cursor_poll_upper_ms": 8912.682094
+            },
+            {
+              "incomplete_when_last_drained": false,
+              "issued_ns": 559120064253965,
+              "kind": "replay_recovery",
+              "output_begin": 5273856,
+              "output_end": 5698816,
+              "previous_generation": 4,
+              "recovered_cursor_observed_ns": 559128926194957,
+              "target_frame": 0,
+              "command_id": 18,
+              "new_epoch": 6,
+              "new_generation": 5,
+              "queued_to_accepted_ms": 3.891645,
+              "issue_to_accepted_ms": 9.156205,
+              "issue_to_cursor_poll_upper_ms": 8861.940992
+            }
+          ],
+          "incomplete_generation_seek_exercised": true,
+          "EOF_count": 3,
+          "replay_count": 3,
+          "last_recovery_complete": true,
+          "scope": "Issue/queued-to-accepted timings are logical C++ ACK evidence. Recovery is an upper-bound cursor poll, not exact sample consumption, native inference-start, GPU preemption or a STOP/cancellation test."
+        },
+        "callback_and_UI": {
+          "callbacks": 24130,
+          "faults": {
+            "execution_deadline_misses": 0,
+            "invalid_buffers": 0,
+            "rejected_commands": 0,
+            "source_read_failures": 0
+          },
+          "timing": [
+            {
+              "at_least_100ms": 0,
+              "callbacks": 24130,
+              "driver_cycle_available": true,
+              "driver_discontinuity_flag_mask": 16,
+              "driver_position_discontinuities": 0,
+              "driver_position_observed": true,
+              "driver_recovery_flag_mask": 2,
+              "driver_recovery_flags": 0,
+              "execution_deadline_misses": 0,
+              "execution_p999_upper_us": 205,
+              "execution_p99_upper_us": 160,
+              "graph_quantum_max": 256,
+              "graph_quantum_min": 256,
+              "maximum_execution_ns": 380967
+            }
+          ],
+          "frames_presented": 6854,
+          "maximum_completed_frame_callback_gap_ms": 99.446242,
+          "maximum_GUI_heartbeat_gap_ms": 73.205953,
+          "scene_errors": [],
+          "scope": "Zero callback/driver fault counters coexist with substantial live-stem starvation. Qt frameSwapped callback timing is not compositor scanout or an audible-cleanliness proof."
+        },
+        "WAV": {
+          "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/hour-player-01/short-live-window-events-02/master.wav",
+          "file_bytes": 49352792,
+          "file_sha256": "94bc2d4897e706be1c99c56e11e50627cda78c35ba26b93d173e4d7b9bff8571",
+          "PCM_sha256": "c5e38a2b2bd2360f9715bae6405f7508f3485fc97188700c5b7c67c62e6ab987",
+          "format": "RIFF IEEE float32 little-endian",
+          "channels": 2,
+          "sample_rate": 48000,
+          "frames": 6169088,
+          "recording_seconds": 128.52266666666668,
+          "finite_samples": 12338176,
+          "nonzero_left": 6145197,
+          "nonzero_right": 6145057,
+          "nonzero_samples": 12290254,
+          "peaks": [
+            0.053626369684934616,
+            0.05340127646923065
+          ],
+          "accepted_equals_written_equals_file_frames": true,
+          "overflow_frames": 0,
+          "status": "Complete",
+          "scope": "Independent complete sample scan of the closed recording; includes startup and differs from measured interval. Finite/nonzero audio is not exact stem PCM, physical output, musical quality or clean-playback proof."
+        },
+        "window_history": {
+          "capacity": 64,
+          "attempted": 76,
+          "retained": 64,
+          "dropped": 12,
+          "ordinal_range": [
+            13,
+            76
+          ],
+          "frozen_before_cleanup": true,
+          "no_UI_guard_failure_snapshot": true
+        },
+        "audit_path": "benchmarks-local/hour-player-01/window-events-short-02-operation-audit.json"
+      }
+    ],
+    "operator_intervention": {
+      "run": "short-live-window-events-01",
+      "human_report": "I think it was cause I tried to move a knob",
+      "retry_instruction": "My bad feel free to run again",
+      "limit": "Monitored control movement plausibly explains the configuration abort; the exact failed value was not captured. Earlier latency and starvation remain retained."
+    },
+    "run02_wrapper_limit": "ESRCH process observation error prevented final wrapper result ingestion; standalone native shutdown completed, but cleanup_proven remains false and cache is preserved. Later known-identity/group absence does not retroactively qualify cleanup.",
+    "limits": [
+      "Short nearest-rank p99 describes only retained validated hops, not sustained qualification.",
+      "Healthy callback counters and finite WAV files do not erase live-stem starvation.",
+      "No cancellation or actual-player hour qualification.",
+      "Exact-window visible kernel query absence is not proof of a GPU hang fix or global absence.",
+      "Temperatures are discrete CPU/ACPI observations, with no continuous exposure or causal attribution."
+    ],
+    "raw_source_input_count": 46,
+    "raw_source_input_bytes": 1936177
+  },
+  "files": {
+    "benchmarks-local--hour-player-01--short-live-window-events-01--host-observations.jsonl.gz": {
+      "bytes": 2074,
+      "sha256": "98811ffd10d492f5cf6f0059ee9d9118670ba4e57e7bd2d0133b5abcea2583dd"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native-result.json.gz": {
+      "bytes": 11159,
+      "sha256": "999dd76b34569eb81bd6877fc4731c32e93da8110f7b115665bcc1d5a2a8ec8b"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native.stdout.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--observations.jsonl.gz": {
+      "bytes": 32139,
+      "sha256": "461742dc39a2e506102ddbc44a9216d4f96739f100b8410ce6881164fd71a326"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--owned-pipewire-cleanup.json.gz": {
+      "bytes": 50,
+      "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--progress.json.gz": {
+      "bytes": 336,
+      "sha256": "c84c1d05f69f6a1f01d3feaa39480c0a9b7f3d5a4f669cbdb501067fa9e120a8"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--result.json.gz": {
+      "bytes": 23230,
+      "sha256": "d54fa0d53814f408ee7a41d3a613e7159049581c9344faa6c9258c78d71b347c"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01-readiness.json.gz": {
+      "bytes": 518,
+      "sha256": "883bf56965c1e5bd59a838987f487721b18068dfe61a16509fc951141cc2b7ed"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--host-observations.jsonl.gz": {
+      "bytes": 2438,
+      "sha256": "342ed5044767eecc1507dcfd4b1fe296cd73498ef538965ae6df6e0f1ceeadd1"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native-result.json.gz": {
+      "bytes": 11842,
+      "sha256": "f83ce7e080855881dbb1e3056683b83480fa5d4873c37c173e7fd8df036be22a"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native.stderr.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native.stdout.log.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--observations.jsonl.gz": {
+      "bytes": 39629,
+      "sha256": "65135b0c916c750e42bef1aba85e1e7d6e98f7602ece1c64447ef4026dc4f7e2"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--owned-pipewire-cleanup.json.gz": {
+      "bytes": 50,
+      "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--progress.json.gz": {
+      "bytes": 340,
+      "sha256": "f73c593082d4abced545bc7dfbad3291ae1fac9bc261a5bb89d5a5d2f08655ef"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--result.json.gz": {
+      "bytes": 5384,
+      "sha256": "c74c01ede54b58b028a6d86c83c72572a397e0a8a791311a963d5f2640dc2278"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02-readiness.json.gz": {
+      "bytes": 563,
+      "sha256": "f6713c6fe3d53d5726c2ac646086b2bc609283eb0aac095e03dbcbcf80165817"
+    },
+    "benchmarks-local--hour-player-01--window-events-actual-player-archive-builder.py.gz": {
+      "bytes": 3212,
+      "sha256": "7c61692e122d45db63eb9ec3718d01f303d919e662d638dc23aa2cda89e8d21e"
+    },
+    "benchmarks-local--hour-player-01--window-events-both-host-audit.json.gz": {
+      "bytes": 1765,
+      "sha256": "15bd50ea2abbb6b57720dce23860b5d2578c1524a03b8a74c5bf563568f8f7d0"
+    },
+    "benchmarks-local--hour-player-01--window-events-executed-runner.py.gz": {
+      "bytes": 17272,
+      "sha256": "322d67360b845274933f88080e53d415e7e6c74337e36bf7ad441318ec47292a"
+    },
+    "benchmarks-local--hour-player-01--window-events-executed-source.json.gz": {
+      "bytes": 390,
+      "sha256": "6ec6797a8ce42b378d59780b487878ea6d7b4c54434541efa14ad99bdf09c64f"
+    },
+    "benchmarks-local--hour-player-01--window-events-host-audit.py.gz": {
+      "bytes": 2000,
+      "sha256": "ae8728076e9a8d4eb83c4594beec259afe35ca03f40b8f7b5943221545443c03"
+    },
+    "benchmarks-local--hour-player-01--window-events-independent-review.json.gz": {
+      "bytes": 5477,
+      "sha256": "5355deb4aaad349a73642f333ee33e4976f65e6d20cc2afb3633efdad1a56892"
+    },
+    "benchmarks-local--hour-player-01--window-events-preparation.json.gz": {
+      "bytes": 2884,
+      "sha256": "1a5fca5f0286d8ae6b1b385c3f8f6fada00df6c85aa529fe02975703d691ef93"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-graphics.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-oom.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-oom.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-cool-start.json.gz": {
+      "bytes": 220,
+      "sha256": "e20c96873858602576432ff779064c44c380897ec325803a162fd67f6bb8d352"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-independent-review.json.gz": {
+      "bytes": 1247,
+      "sha256": "8bf8e3b4678566992004a870d3ff521893e1ebd2d2825909ee0d211d968f6f10"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-graphics.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-graphics.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-oom.jsonl.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-oom.stderr.gz": {
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-observation-cleanup-review.json.gz": {
+      "bytes": 3833,
+      "sha256": "05acee0408e15f84af541101feb6ebe06c22f26b07b8d96b22646bc50d7a5668"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-operation-audit.json.gz": {
+      "bytes": 10135,
+      "sha256": "4918c5c1896f183f88d82562af47761fc29d372714f356fb80bd3993d31f0bd6"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-preparation.json.gz": {
+      "bytes": 526,
+      "sha256": "f84c774ea98690ebf65c5287eece5edbea92042e57f4921b091b180db405e272"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-recipe.json.gz": {
+      "bytes": 7713,
+      "sha256": "e7a670bd41398beef4c5eaf24e4b87418738cbdda1f3810448d027b7c1cec989"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-wait-launch.py.gz": {
+      "bytes": 1242,
+      "sha256": "8aadf1e6b63c4adce87dbe1d97ed21e642c29383abdf8742432b494db772ca21"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-cool-start.json.gz": {
+      "bytes": 601,
+      "sha256": "6b9590315aca900cd9bc17714c99ce967355c2ff03b8937482618f2aeda3bb88"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-launch-review.json.gz": {
+      "bytes": 11058,
+      "sha256": "8e13755396e867601318c184d5fd8168ba9af92961892152ee3cdd88576c2003"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-operation-audit.json.gz": {
+      "bytes": 9226,
+      "sha256": "b51814f4428b01ef60bcbed31329c2f06686eb3d05bc12da120efa5097e81ce2"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-preparation.json.gz": {
+      "bytes": 408,
+      "sha256": "8ebd9ea2721e44cf1e6127d7c6b7bae8015722d0ca8541c56daa945105a83311"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-recipe.json.gz": {
+      "bytes": 7513,
+      "sha256": "ea9086c292fa05837bbc9818d053d97c8b8da0c3f81a439ac2901c0d9d0897ff"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-wait-launch.py.gz": {
+      "bytes": 1239,
+      "sha256": "365287ab6740e8abddce707c3d4a9fc93798d73c8adf355b7e959c5c66f01355"
+    },
+    "summary.json.gz": {
+      "bytes": 3764,
+      "sha256": "9992e8214723e060279cf97cacc2251d97adf92779121a640cedf3d3cc66197d"
+    },
+    "benchmarks-local--hour-player-01--window-events-player-archive-gitleaks-findings.json.gz": {
+      "bytes": 23,
+      "sha256": "abc129be8d26e8d4afe9ce45f9d5a73c8ed9aa62810ca24ee789fe4581dc4a80"
+    },
+    "benchmarks-local--hour-player-01--window-events-player-archive-gitleaks.log.gz": {
+      "bytes": 127,
+      "sha256": "040267c01ab84a732fcf460f1f4ae1674314344965ad3c4ed1030fd9dd834e7e"
+    }
+  },
+  "uncompressed": {
+    "benchmarks-local--hour-player-01--short-live-window-events-01--host-observations.jsonl.gz": {
+      "bytes": 55031,
+      "sha256": "ed0b7452589b26347bccb04a78e2c9bf61ee51f34113736f9509d62b8506841a"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native-result.json.gz": {
+      "bytes": 136868,
+      "sha256": "6d60f58cacea02bf1c7ad5eb4e3eca680eca3f6f25e6f34897ae206557ccc36c"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native.stdout.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--observations.jsonl.gz": {
+      "bytes": 447144,
+      "sha256": "5bf60827881182be835bbdbb9e9c034c4ee190111022446cb8951b4ae59299fa"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--owned-pipewire-cleanup.json.gz": {
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--progress.json.gz": {
+      "bytes": 576,
+      "sha256": "0c10f00232bdc0725c84eed5ea4500b8d56417e30ed3117336b4646bd8359b0c"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--result.json.gz": {
+      "bytes": 179701,
+      "sha256": "59f583db0e28790478dfe873b39c24c39a5973b4a4c39874312f7940a547596d"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01-readiness.json.gz": {
+      "bytes": 853,
+      "sha256": "3afd0d985f276800494e6004235287d9bb528485d421df15fcd14b958405071d"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--host-observations.jsonl.gz": {
+      "bytes": 62887,
+      "sha256": "21730e247302763145f6a7bc434e8861b42a485831499ffe01847da74433648b"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native-result.json.gz": {
+      "bytes": 147439,
+      "sha256": "33f44418e5ddf9fbe9219abe796a40a9629ee76711e333c7fc0668565a7c1fc8"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native.stderr.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native.stdout.log.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--observations.jsonl.gz": {
+      "bytes": 558349,
+      "sha256": "f848fde627633ab836c6d2ca34e61020d5f6d200220f25b1b57aa76ab622124e"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--owned-pipewire-cleanup.json.gz": {
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--progress.json.gz": {
+      "bytes": 576,
+      "sha256": "3d65e81d13c67b9eaf4499bfe357c8d4a29516f09f421713adae7ef4f17783fb"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--result.json.gz": {
+      "bytes": 28745,
+      "sha256": "0730ead7d22225a13501f70883d58f5db4e804eeee3d69f4156aa4cab57931e1"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02-readiness.json.gz": {
+      "bytes": 1009,
+      "sha256": "62e5895744cd65940fe0da17b5d24be15b43938785327b0d2ff96b0d7b9eef3c"
+    },
+    "benchmarks-local--hour-player-01--window-events-actual-player-archive-builder.py.gz": {
+      "bytes": 7982,
+      "sha256": "b5d0b5e6e34c36aa21a65d41d0f948c4f6687e891e7e176d6113d888e282d84e"
+    },
+    "benchmarks-local--hour-player-01--window-events-both-host-audit.json.gz": {
+      "bytes": 10826,
+      "sha256": "3f803539df0f0e348a9ec35389e618a5b0f8150559dde56b32109c549f4de75e"
+    },
+    "benchmarks-local--hour-player-01--window-events-executed-runner.py.gz": {
+      "bytes": 67798,
+      "sha256": "b27858cf6d0525e1d0c0f8ad7366a1e78b557f08042fa084c4aaecfa447f7317"
+    },
+    "benchmarks-local--hour-player-01--window-events-executed-source.json.gz": {
+      "bytes": 555,
+      "sha256": "b929655fb9e70d14e239554b89af18424795cb40a709feac16a2ee8392f35fdb"
+    },
+    "benchmarks-local--hour-player-01--window-events-host-audit.py.gz": {
+      "bytes": 4338,
+      "sha256": "c916f87cfc207261b4bef53b89824641f9282e3c7ee86775040aeb50cdfd97ff"
+    },
+    "benchmarks-local--hour-player-01--window-events-independent-review.json.gz": {
+      "bytes": 15554,
+      "sha256": "001220875983e0771bada55757d4b4cef02973cf38d3affaa861b2173f831b8c"
+    },
+    "benchmarks-local--hour-player-01--window-events-preparation.json.gz": {
+      "bytes": 6975,
+      "sha256": "094186da4ac086a57c9e6fe65bc073553a315dab6109912094b0abe1cf516030"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-graphics.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-oom.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-oom.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-cool-start.json.gz": {
+      "bytes": 275,
+      "sha256": "ab922c99f67085dd16a3a56d22b7f1a53913a2915784e2460d9e3378071f096f"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-independent-review.json.gz": {
+      "bytes": 2553,
+      "sha256": "cefaa969d5b2744f3e90945e740a48d7cdd8d94675818fa4785ad53539d8c783"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-graphics.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-graphics.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-oom.jsonl.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-oom.stderr.gz": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-observation-cleanup-review.json.gz": {
+      "bytes": 10518,
+      "sha256": "6c9854229ccec64d65121cf341522163b4ff6f801a1c75eccb779bb0d72a81c6"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-operation-audit.json.gz": {
+      "bytes": 40279,
+      "sha256": "f4d2a60ba7e45e9bc8b60da5595f016ab3e2f9e0f31f38b742554a0e2205bd9f"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-preparation.json.gz": {
+      "bytes": 1064,
+      "sha256": "7ba94ec322a2e6485d450f86626a44a2696ce6cca5b4acfdc34289a32bbbbb97"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-recipe.json.gz": {
+      "bytes": 20477,
+      "sha256": "0d17be17c85787b1ef20b65670d8c80cb2e9a073097f5d7dcc4cb8e714e5d6ca"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-wait-launch.py.gz": {
+      "bytes": 2791,
+      "sha256": "f5fbb6352d8a0a2f08f01a495f480f99722ce66d366f874303b8e30c0c047598"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-cool-start.json.gz": {
+      "bytes": 6347,
+      "sha256": "f810277947b1bb8bb3dc014a4294a0f1c635e253189e530e519e9e829219fde5"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-launch-review.json.gz": {
+      "bytes": 58494,
+      "sha256": "a1cb06fa55326f677775b00774b238701692323b89b8501a02e197e453a6003b"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-operation-audit.json.gz": {
+      "bytes": 36573,
+      "sha256": "b19811141c54b0cbb1dd039006fd22539b9106ed4ed4a6a5e894a1ba77012d7c"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-preparation.json.gz": {
+      "bytes": 652,
+      "sha256": "42f075ab626414bad3a51f97a72a118987b1841a3932b2dc26045137cbc27b23"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-recipe.json.gz": {
+      "bytes": 20103,
+      "sha256": "b5585f564b52a990e9dfb7fb80d69474258e40500b757a2188fa3002fd96a2cb"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-wait-launch.py.gz": {
+      "bytes": 2785,
+      "sha256": "c7185802a7f5c1fcca4ff0d905d2a11a7a1b69d1abc4f889d08e6146625c7055"
+    },
+    "summary.json.gz": {
+      "bytes": 14882,
+      "sha256": "1688f6778c01907262f707ee805850edfd5360609f0e94f2cc764fda0f4e3ddc"
+    },
+    "benchmarks-local--hour-player-01--window-events-player-archive-gitleaks-findings.json.gz": {
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "benchmarks-local--hour-player-01--window-events-player-archive-gitleaks.log.gz": {
+      "bytes": 144,
+      "sha256": "9ff721308e2bb5f03e7cfea14ccb1f5ae155559bb804830ce805cfa3694b215d"
+    }
+  },
+  "origins": {
+    "benchmarks-local--hour-player-01--short-live-window-events-01--host-observations.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/host-observations.jsonl",
+      "generated": false,
+      "bytes": 55031,
+      "sha256": "ed0b7452589b26347bccb04a78e2c9bf61ee51f34113736f9509d62b8506841a"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native-result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/native-result.json",
+      "generated": false,
+      "bytes": 136868,
+      "sha256": "6d60f58cacea02bf1c7ad5eb4e3eca680eca3f6f25e6f34897ae206557ccc36c"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native.stderr.log.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/native.stderr.log",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--native.stdout.log.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/native.stdout.log",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--observations.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/observations.jsonl",
+      "generated": false,
+      "bytes": 447144,
+      "sha256": "5bf60827881182be835bbdbb9e9c034c4ee190111022446cb8951b4ae59299fa"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--owned-pipewire-cleanup.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/owned-pipewire-cleanup.json",
+      "generated": false,
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--progress.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/progress.json",
+      "generated": false,
+      "bytes": 576,
+      "sha256": "0c10f00232bdc0725c84eed5ea4500b8d56417e30ed3117336b4646bd8359b0c"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01/result.json",
+      "generated": false,
+      "bytes": 179701,
+      "sha256": "59f583db0e28790478dfe873b39c24c39a5973b4a4c39874312f7940a547596d"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-01-readiness.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-01-readiness.json",
+      "generated": false,
+      "bytes": 853,
+      "sha256": "3afd0d985f276800494e6004235287d9bb528485d421df15fcd14b958405071d"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--host-observations.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/host-observations.jsonl",
+      "generated": false,
+      "bytes": 62887,
+      "sha256": "21730e247302763145f6a7bc434e8861b42a485831499ffe01847da74433648b"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native-result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/native-result.json",
+      "generated": false,
+      "bytes": 147439,
+      "sha256": "33f44418e5ddf9fbe9219abe796a40a9629ee76711e333c7fc0668565a7c1fc8"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native.stderr.log.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/native.stderr.log",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--native.stdout.log.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/native.stdout.log",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--observations.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/observations.jsonl",
+      "generated": false,
+      "bytes": 558349,
+      "sha256": "f848fde627633ab836c6d2ca34e61020d5f6d200220f25b1b57aa76ab622124e"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--owned-pipewire-cleanup.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/owned-pipewire-cleanup.json",
+      "generated": false,
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--progress.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/progress.json",
+      "generated": false,
+      "bytes": 576,
+      "sha256": "3d65e81d13c67b9eaf4499bfe357c8d4a29516f09f421713adae7ef4f17783fb"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02--result.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02/result.json",
+      "generated": false,
+      "bytes": 28745,
+      "sha256": "0730ead7d22225a13501f70883d58f5db4e804eeee3d69f4156aa4cab57931e1"
+    },
+    "benchmarks-local--hour-player-01--short-live-window-events-02-readiness.json.gz": {
+      "path": "benchmarks-local/hour-player-01/short-live-window-events-02-readiness.json",
+      "generated": false,
+      "bytes": 1009,
+      "sha256": "62e5895744cd65940fe0da17b5d24be15b43938785327b0d2ff96b0d7b9eef3c"
+    },
+    "benchmarks-local--hour-player-01--window-events-actual-player-archive-builder.py.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-actual-player-archive-builder.py",
+      "generated": false,
+      "bytes": 7982,
+      "sha256": "b5d0b5e6e34c36aa21a65d41d0f948c4f6687e891e7e176d6113d888e282d84e"
+    },
+    "benchmarks-local--hour-player-01--window-events-both-host-audit.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-both-host-audit.json",
+      "generated": false,
+      "bytes": 10826,
+      "sha256": "3f803539df0f0e348a9ec35389e618a5b0f8150559dde56b32109c549f4de75e"
+    },
+    "benchmarks-local--hour-player-01--window-events-executed-runner.py.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-executed-runner.py",
+      "generated": false,
+      "bytes": 67798,
+      "sha256": "b27858cf6d0525e1d0c0f8ad7366a1e78b557f08042fa084c4aaecfa447f7317"
+    },
+    "benchmarks-local--hour-player-01--window-events-executed-source.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-executed-source.json",
+      "generated": false,
+      "bytes": 555,
+      "sha256": "b929655fb9e70d14e239554b89af18424795cb40a709feac16a2ee8392f35fdb"
+    },
+    "benchmarks-local--hour-player-01--window-events-host-audit.py.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-host-audit.py",
+      "generated": false,
+      "bytes": 4338,
+      "sha256": "c916f87cfc207261b4bef53b89824641f9282e3c7ee86775040aeb50cdfd97ff"
+    },
+    "benchmarks-local--hour-player-01--window-events-independent-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-independent-review.json",
+      "generated": false,
+      "bytes": 15554,
+      "sha256": "001220875983e0771bada55757d4b4cef02973cf38d3affaa861b2173f831b8c"
+    },
+    "benchmarks-local--hour-player-01--window-events-preparation.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-preparation.json",
+      "generated": false,
+      "bytes": 6975,
+      "sha256": "094186da4ac086a57c9e6fe65bc073553a315dab6109912094b0abe1cf516030"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-01-kernel-graphics.jsonl",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-01-kernel-graphics.stderr",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-oom.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-01-kernel-oom.jsonl",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-01-kernel-oom.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-01-kernel-oom.stderr",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-cool-start.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-cool-start.json",
+      "generated": false,
+      "bytes": 275,
+      "sha256": "ab922c99f67085dd16a3a56d22b7f1a53913a2915784e2460d9e3378071f096f"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-independent-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-independent-review.json",
+      "generated": false,
+      "bytes": 2553,
+      "sha256": "cefaa969d5b2744f3e90945e740a48d7cdd8d94675818fa4785ad53539d8c783"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-graphics.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-kernel-graphics.jsonl",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-graphics.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-kernel-graphics.stderr",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-oom.jsonl.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-kernel-oom.jsonl",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-kernel-oom.stderr.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-kernel-oom.stderr",
+      "generated": false,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-observation-cleanup-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-observation-cleanup-review.json",
+      "generated": false,
+      "bytes": 10518,
+      "sha256": "6c9854229ccec64d65121cf341522163b4ff6f801a1c75eccb779bb0d72a81c6"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-operation-audit.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-operation-audit.json",
+      "generated": false,
+      "bytes": 40279,
+      "sha256": "f4d2a60ba7e45e9bc8b60da5595f016ab3e2f9e0f31f38b742554a0e2205bd9f"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-preparation.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-preparation.json",
+      "generated": false,
+      "bytes": 1064,
+      "sha256": "7ba94ec322a2e6485d450f86626a44a2696ce6cca5b4acfdc34289a32bbbbb97"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-recipe.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-recipe.json",
+      "generated": false,
+      "bytes": 20477,
+      "sha256": "0d17be17c85787b1ef20b65670d8c80cb2e9a073097f5d7dcc4cb8e714e5d6ca"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-02-wait-launch.py.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-02-wait-launch.py",
+      "generated": false,
+      "bytes": 2791,
+      "sha256": "f5fbb6352d8a0a2f08f01a495f480f99722ce66d366f874303b8e30c0c047598"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-cool-start.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-cool-start.json",
+      "generated": false,
+      "bytes": 6347,
+      "sha256": "f810277947b1bb8bb3dc014a4294a0f1c635e253189e530e519e9e829219fde5"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-launch-review.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-launch-review.json",
+      "generated": false,
+      "bytes": 58494,
+      "sha256": "a1cb06fa55326f677775b00774b238701692323b89b8501a02e197e453a6003b"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-operation-audit.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-operation-audit.json",
+      "generated": false,
+      "bytes": 36573,
+      "sha256": "b19811141c54b0cbb1dd039006fd22539b9106ed4ed4a6a5e894a1ba77012d7c"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-preparation.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-preparation.json",
+      "generated": false,
+      "bytes": 652,
+      "sha256": "42f075ab626414bad3a51f97a72a118987b1841a3932b2dc26045137cbc27b23"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-recipe.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-recipe.json",
+      "generated": false,
+      "bytes": 20103,
+      "sha256": "b5585f564b52a990e9dfb7fb80d69474258e40500b757a2188fa3002fd96a2cb"
+    },
+    "benchmarks-local--hour-player-01--window-events-short-wait-launch.py.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-short-wait-launch.py",
+      "generated": false,
+      "bytes": 2785,
+      "sha256": "c7185802a7f5c1fcca4ff0d905d2a11a7a1b69d1abc4f889d08e6146625c7055"
+    },
+    "summary.json.gz": {
+      "path": null,
+      "generated": true,
+      "bytes": 14882,
+      "sha256": "1688f6778c01907262f707ee805850edfd5360609f0e94f2cc764fda0f4e3ddc"
+    },
+    "benchmarks-local--hour-player-01--window-events-player-archive-gitleaks-findings.json.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-player-archive-gitleaks-findings.json",
+      "generated": false,
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "benchmarks-local--hour-player-01--window-events-player-archive-gitleaks.log.gz": {
+      "path": "benchmarks-local/hour-player-01/window-events-player-archive-gitleaks.log",
+      "generated": false,
+      "bytes": 144,
+      "sha256": "9ff721308e2bb5f03e7cfea14ccb1f5ae155559bb804830ce805cfa3694b215d"
+    }
+  },
+  "source_inputs": {
+    "benchmarks-local/hour-player-01/short-live-window-events-01/host-observations.jsonl": {
+      "bytes": 55031,
+      "sha256": "ed0b7452589b26347bccb04a78e2c9bf61ee51f34113736f9509d62b8506841a"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/native-result.json": {
+      "bytes": 136868,
+      "sha256": "6d60f58cacea02bf1c7ad5eb4e3eca680eca3f6f25e6f34897ae206557ccc36c"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/native.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/native.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/observations.jsonl": {
+      "bytes": 447144,
+      "sha256": "5bf60827881182be835bbdbb9e9c034c4ee190111022446cb8951b4ae59299fa"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/owned-pipewire-cleanup.json": {
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/progress.json": {
+      "bytes": 576,
+      "sha256": "0c10f00232bdc0725c84eed5ea4500b8d56417e30ed3117336b4646bd8359b0c"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01/result.json": {
+      "bytes": 179701,
+      "sha256": "59f583db0e28790478dfe873b39c24c39a5973b4a4c39874312f7940a547596d"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-01-readiness.json": {
+      "bytes": 853,
+      "sha256": "3afd0d985f276800494e6004235287d9bb528485d421df15fcd14b958405071d"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/host-observations.jsonl": {
+      "bytes": 62887,
+      "sha256": "21730e247302763145f6a7bc434e8861b42a485831499ffe01847da74433648b"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/native-result.json": {
+      "bytes": 147439,
+      "sha256": "33f44418e5ddf9fbe9219abe796a40a9629ee76711e333c7fc0668565a7c1fc8"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/native.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/native.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/observations.jsonl": {
+      "bytes": 558349,
+      "sha256": "f848fde627633ab836c6d2ca34e61020d5f6d200220f25b1b57aa76ab622124e"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/owned-pipewire-cleanup.json": {
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/progress.json": {
+      "bytes": 576,
+      "sha256": "3d65e81d13c67b9eaf4499bfe357c8d4a29516f09f421713adae7ef4f17783fb"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02/result.json": {
+      "bytes": 28745,
+      "sha256": "0730ead7d22225a13501f70883d58f5db4e804eeee3d69f4156aa4cab57931e1"
+    },
+    "benchmarks-local/hour-player-01/short-live-window-events-02-readiness.json": {
+      "bytes": 1009,
+      "sha256": "62e5895744cd65940fe0da17b5d24be15b43938785327b0d2ff96b0d7b9eef3c"
+    },
+    "benchmarks-local/hour-player-01/window-events-actual-player-archive-builder.py": {
+      "bytes": 7982,
+      "sha256": "b5d0b5e6e34c36aa21a65d41d0f948c4f6687e891e7e176d6113d888e282d84e"
+    },
+    "benchmarks-local/hour-player-01/window-events-both-host-audit.json": {
+      "bytes": 10826,
+      "sha256": "3f803539df0f0e348a9ec35389e618a5b0f8150559dde56b32109c549f4de75e"
+    },
+    "benchmarks-local/hour-player-01/window-events-executed-runner.py": {
+      "bytes": 67798,
+      "sha256": "b27858cf6d0525e1d0c0f8ad7366a1e78b557f08042fa084c4aaecfa447f7317"
+    },
+    "benchmarks-local/hour-player-01/window-events-executed-source.json": {
+      "bytes": 555,
+      "sha256": "b929655fb9e70d14e239554b89af18424795cb40a709feac16a2ee8392f35fdb"
+    },
+    "benchmarks-local/hour-player-01/window-events-host-audit.py": {
+      "bytes": 4338,
+      "sha256": "c916f87cfc207261b4bef53b89824641f9282e3c7ee86775040aeb50cdfd97ff"
+    },
+    "benchmarks-local/hour-player-01/window-events-independent-review.json": {
+      "bytes": 15554,
+      "sha256": "001220875983e0771bada55757d4b4cef02973cf38d3affaa861b2173f831b8c"
+    },
+    "benchmarks-local/hour-player-01/window-events-preparation.json": {
+      "bytes": 6975,
+      "sha256": "094186da4ac086a57c9e6fe65bc073553a315dab6109912094b0abe1cf516030"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-01-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-01-kernel-graphics.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-01-kernel-oom.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-01-kernel-oom.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-cool-start.json": {
+      "bytes": 275,
+      "sha256": "ab922c99f67085dd16a3a56d22b7f1a53913a2915784e2460d9e3378071f096f"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-independent-review.json": {
+      "bytes": 2553,
+      "sha256": "cefaa969d5b2744f3e90945e740a48d7cdd8d94675818fa4785ad53539d8c783"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-kernel-graphics.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-kernel-graphics.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-kernel-oom.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-kernel-oom.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-observation-cleanup-review.json": {
+      "bytes": 10518,
+      "sha256": "6c9854229ccec64d65121cf341522163b4ff6f801a1c75eccb779bb0d72a81c6"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-operation-audit.json": {
+      "bytes": 40279,
+      "sha256": "f4d2a60ba7e45e9bc8b60da5595f016ab3e2f9e0f31f38b742554a0e2205bd9f"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-preparation.json": {
+      "bytes": 1064,
+      "sha256": "7ba94ec322a2e6485d450f86626a44a2696ce6cca5b4acfdc34289a32bbbbb97"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-recipe.json": {
+      "bytes": 20477,
+      "sha256": "0d17be17c85787b1ef20b65670d8c80cb2e9a073097f5d7dcc4cb8e714e5d6ca"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-02-wait-launch.py": {
+      "bytes": 2791,
+      "sha256": "f5fbb6352d8a0a2f08f01a495f480f99722ce66d366f874303b8e30c0c047598"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-cool-start.json": {
+      "bytes": 6347,
+      "sha256": "f810277947b1bb8bb3dc014a4294a0f1c635e253189e530e519e9e829219fde5"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-launch-review.json": {
+      "bytes": 58494,
+      "sha256": "a1cb06fa55326f677775b00774b238701692323b89b8501a02e197e453a6003b"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-operation-audit.json": {
+      "bytes": 36573,
+      "sha256": "b19811141c54b0cbb1dd039006fd22539b9106ed4ed4a6a5e894a1ba77012d7c"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-preparation.json": {
+      "bytes": 652,
+      "sha256": "42f075ab626414bad3a51f97a72a118987b1841a3932b2dc26045137cbc27b23"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-recipe.json": {
+      "bytes": 20103,
+      "sha256": "b5585f564b52a990e9dfb7fb80d69474258e40500b757a2188fa3002fd96a2cb"
+    },
+    "benchmarks-local/hour-player-01/window-events-short-wait-launch.py": {
+      "bytes": 2785,
+      "sha256": "c7185802a7f5c1fcca4ff0d905d2a11a7a1b69d1abc4f889d08e6146625c7055"
+    }
+  },
+  "raw_secret_scan_exit": 0,
+  "raw_secret_scan_findings": 0,
+  "raw_scanned_files": 47,
+  "raw_scanned_bytes": 1951059,
+  "maximum_raw_bytes": 16777216,
+  "scope": "Frozen UTF-8 launch/readiness/host/raw observation/results/source and independent audit evidence. Deterministic gzip zero mtime, compressed/raw/origin hashes. No audio, PCM, binary, model, cache or mutable CURRENT file. Raw secret scan precedes packaging scanner outputs; verification and scanner outputs were not included in that scan."
+}
