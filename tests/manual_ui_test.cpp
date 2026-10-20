@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <limits>
 
 namespace {
 
@@ -714,6 +715,102 @@ private slots:
         QCOMPARE(raw["action"].toString(), QString("load"));
         QCOMPARE(raw["deck"].toInt(), 0);
         QCOMPARE(raw["url"].toUrl().toLocalFile(), edited);
+    }
+
+    void selectedLibraryLevels_data()
+    {
+        QTest::addColumn<bool>("includeLevels");
+        QTest::addColumn<QVariantMap>("levels");
+        QTest::addColumn<QString>("rms");
+        QTest::addColumn<QString>("peak");
+        QTest::newRow("legacy-unknown") << false << QVariantMap{} << QString("unknown") << QString("unknown");
+        QTest::newRow("unknown") << true << QVariantMap{} << QString("unknown") << QString("unknown");
+        QTest::newRow("known") << true << QVariantMap{{"rms", .25}, {"samplePeak", .5}}
+                              << QString("-12.04 dBFS") << QString("-6.02 dBFS");
+        QTest::newRow("silence") << true << QVariantMap{{"rms", 0.0}, {"samplePeak", 0.0}}
+                                << QString("−∞ dBFS (silence)") << QString("−∞ dBFS (silence)");
+        QTest::newRow("float-headroom") << true << QVariantMap{{"rms", 1.25}, {"samplePeak", 2.0}}
+                                       << QString("1.94 dBFS") << QString("6.02 dBFS");
+        QTest::newRow("nonfinite-unknown") << true
+            << QVariantMap{{"rms", std::numeric_limits<double>::quiet_NaN()},
+                           {"samplePeak", std::numeric_limits<double>::infinity()}}
+            << QString("unknown") << QString("unknown");
+    }
+
+    void selectedLibraryLevels()
+    {
+        QFETCH(bool, includeLevels);
+        QFETCH(QVariantMap, levels);
+        QFETCH(QString, rms);
+        QFETCH(QString, peak);
+        const QString id(64, QLatin1Char('c'));
+        QVariantMap track{{"id", id}, {"name", "<b>Literal track</b>"}, {"path", "/tmp/levels.wav"},
+                          {"durationSeconds", 75.0}, {"available", true}};
+        if (includeLevels) track["levels"] = levels;
+        ui_->endpoint.setLibrary({track});
+        const auto before = ui_->endpoint.decks();
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain();
+        QVERIFY(ui_->openLibrary(0));
+        auto* detail = ui_->item("libraryTrackLevels");
+        auto* analysis = ui_->item("libraryTrackAnalysis");
+        QVERIFY(detail && analysis);
+        QCOMPARE(detail->property("text").toString(), QString("Whole-track RMS: unknown · Sample peak: unknown"));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        auto* row = ui_->item("libraryTrack0");
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
+        QTRY_COMPARE(detail->property("text").toString(), "Whole-track RMS: " + rms + " · Sample peak: " + peak);
+        QCOMPARE(detail->property("textFormat").toInt(), int(Qt::PlainText));
+        QCOMPARE(analysis->property("text").toString(), QString("Tempo / beat / phrase / key: unknown."));
+        QCOMPARE(row->height(), 56.0);
+        QCOMPARE(ui_->item("libraryTrack0Name")->property("text").toString(), QString("<b>Literal track</b>"));
+        QCOMPARE(ui_->item("libraryTrack0Name")->property("textFormat").toInt(), int(Qt::PlainText));
+        QVERIFY(ui_->item("deck0Load")->isEnabled() && ui_->item("deck1Load")->isEnabled());
+        QVERIFY(!ui_->item("libraryCueImport")->isEnabled());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QCOMPARE(ui_->endpoint.decks(), before);
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
+
+        // Both level lines must fit above the existing cue controls, including
+        // silence's longer text, at the supported minimum window size.
+        ui_->window->resize(1180, 760);
+        auto* cuePath = ui_->item("libraryCuePath");
+        auto* cueList = ui_->item("libraryCues");
+        QVERIFY(cuePath && cueList);
+        const auto bounds = [](QQuickItem* item) { return item->mapRectToScene(item->boundingRect()); };
+        QTRY_VERIFY(detail->height() >= detail->implicitHeight() - .5);
+        QTRY_VERIFY(analysis->height() >= analysis->implicitHeight() - .5);
+        QTRY_VERIFY(bounds(detail).bottom() <= bounds(analysis).top() + .5);
+        QTRY_VERIFY(bounds(analysis).bottom() <= bounds(cuePath).top() + .5);
+        QTRY_VERIFY(bounds(cuePath).bottom() <= bounds(cueList).top() + .5);
+        QTRY_VERIFY(bounds(cueList).bottom() <= ui_->window->height() + .5);
+        QVERIFY(bounds(detail).left() >= 0 && bounds(detail).right() <= ui_->window->width());
+    }
+
+    void selectedLibraryLevelsRefreshForSameSource()
+    {
+        const QString id(64, QLatin1Char('d'));
+        QVariantMap track{{"id", id}, {"name", "Reimported source"}, {"path", "/tmp/reimport.wav"},
+                          {"durationSeconds", 75.0}, {"available", true},
+                          {"levels", QVariantMap{{"rms", .25}, {"samplePeak", .5}}}};
+        ui_->endpoint.setLibrary({track});
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* detail = ui_->item("libraryTrackLevels");
+        QVERIFY(detail);
+        QTRY_COMPARE(detail->property("text").toString(), QString("Whole-track RMS: -12.04 dBFS · Sample peak: -6.02 dBFS"));
+        const auto decks = ui_->endpoint.decks();
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain();
+        track["levels"] = QVariantMap{{"rms", .125}, {"samplePeak", .25}};
+        ui_->endpoint.setLibrary({track}); // The selected ID remains the same during reimport/recipe updates.
+        QTRY_COMPARE(detail->property("text").toString(), QString("Whole-track RMS: -18.06 dBFS · Sample peak: -12.04 dBFS"));
+        QVERIFY(ui_->object("libraryDrawer")->property("opened").toBool());
+        QCOMPARE(ui_->object("libraryDrawer")->property("selectedId").toString(), id);
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QCOMPARE(ui_->endpoint.decks(), decks);
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
     }
 
     void cueSheetImportUsesSelectedSourceAndLiteralPath_data()

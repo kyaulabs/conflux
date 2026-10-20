@@ -17,6 +17,7 @@
 #include <cmath>
 #include <cstring>
 #include <fcntl.h>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -28,6 +29,7 @@
 namespace conflux::library {
 namespace {
 constexpr std::uint64_t maximumFrames = audio::PreparedAudio::defaultMaxPreparedBytes / (2 * sizeof(float));
+constexpr auto levelsRecipe = "prepared-stereo-f32-48000-levels-v1";
 
 class Descriptor {
 public:
@@ -63,6 +65,21 @@ void validateCues(const std::vector<CuePoint>& cues, std::uint64_t frames)
     }
 }
 
+void validateLevels(const std::optional<audio::SignalLevels>& levels, std::uint64_t frames)
+{
+    if (!levels) return;
+    const auto [rms, peak] = *levels;
+    if (!std::isfinite(rms) || !std::isfinite(peak) || rms < 0 || peak < 0 || rms > peak ||
+        peak > double(std::numeric_limits<float>::max()) || ((rms == 0) != (peak == 0)) ||
+        double(static_cast<float>(peak)) != peak)
+        throw std::invalid_argument("Invalid library signal levels");
+    // At least one of the two-channel samples reached the advertised peak.
+    // Allow only final double-rounding error at this arithmetic lower bound.
+    const auto minimumRms = peak / std::sqrt(double(frames) * 2);
+    if (rms < minimumRms * (1 - 8 * std::numeric_limits<double>::epsilon()))
+        throw std::invalid_argument("Invalid library signal levels for the frame count");
+}
+
 void validateTrack(const LibraryTrack& track)
 {
     if (track.sourcePath.size() > qsizetype(LibraryCatalog::maxBytes) || track.name.size() > qsizetype(LibraryCatalog::maxBytes))
@@ -72,6 +89,7 @@ void validateTrack(const LibraryTrack& track)
         track.name != QFileInfo(track.sourcePath).fileName() || !track.frames || track.frames > maximumFrames)
         throw std::invalid_argument("Invalid library track identity, path, name or frame count");
     validateCues(track.cues, track.frames);
+    validateLevels(track.levels, track.frames);
 }
 
 struct stat statusOf(int descriptor)
@@ -102,10 +120,13 @@ QByteArray encode(const std::vector<LibraryTrack>& tracks)
         QJsonArray cues;
         for (const auto& cue : track.cues)
             cues.append(QJsonObject{{"track", cue.trackNumber}, {"label", cue.label}, {"frame", double(cue.frame)}});
+        const auto levels = track.levels ? QJsonValue(QJsonObject{{"recipe", levelsRecipe},
+            {"rms", track.levels->rms}, {"sample_peak", track.levels->samplePeak}}) : QJsonValue(QJsonValue::Null);
         rows.append(QJsonObject{{"source_sha256", track.sourceSha256}, {"source_path", track.sourcePath},
-            {"name", track.name}, {"artifact_key", track.artifactKey}, {"frames", double(track.frames)}, {"cues", cues}});
+            {"name", track.name}, {"artifact_key", track.artifactKey}, {"frames", double(track.frames)},
+            {"cues", cues}, {"levels", levels}});
     }
-    const auto bytes = QJsonDocument(QJsonObject{{"version", 2}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
+    const auto bytes = QJsonDocument(QJsonObject{{"version", 3}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
     if (std::size_t(bytes.size()) > LibraryCatalog::maxBytes)
         throw std::length_error("Library catalog byte budget exceeded");
     return bytes;
@@ -179,7 +200,8 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     const auto document = QJsonDocument::fromJson(bytes);
     if (!document.isObject()) throw std::runtime_error("Malformed library catalog document");
     const auto root = document.object();
-    const bool withCues = root.value("version") == QJsonValue(2);
+    const bool withLevels = root.value("version") == QJsonValue(3);
+    const bool withCues = withLevels || root.value("version") == QJsonValue(2);
     if (root.size() != 2 || (!withCues && root.value("version") != QJsonValue(1)) || !root.value("tracks").isArray())
         throw std::runtime_error("Malformed or unsupported library catalog version");
     const auto rows = root.value("tracks").toArray();
@@ -190,7 +212,7 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     for (const auto row : rows) {
         if (!row.isObject()) throw std::runtime_error("Malformed library catalog track");
         const auto object = row.toObject();
-        if (object.size() != (withCues ? 6 : 5) || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
+        if (object.size() != (withLevels ? 7 : withCues ? 6 : 5) || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
             !object.value("name").isString() || !object.value("artifact_key").isString() || !object.value("frames").isDouble())
             throw std::runtime_error("Malformed library catalog track fields");
         const auto frames = object.value("frames").toDouble();
@@ -212,6 +234,14 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
                     throw std::runtime_error("Malformed library cue fields");
                 track.cues.push_back({int(number), item.value("label").toString(), std::uint64_t(frame)});
             }
+        }
+        if (withLevels && !object.value("levels").isNull()) {
+            if (!object.value("levels").isObject()) throw std::runtime_error("Malformed library catalog levels");
+            const auto levels = object.value("levels").toObject();
+            if (levels.size() != 3 || levels.value("recipe") != QJsonValue(levelsRecipe) ||
+                !levels.value("rms").isDouble() || !levels.value("sample_peak").isDouble())
+                throw std::runtime_error("Malformed library catalog level fields");
+            track.levels = audio::SignalLevels{levels.value("rms").toDouble(), levels.value("sample_peak").toDouble()};
         }
         try { validateTrack(track); }
         catch (const std::invalid_argument& error) {
@@ -243,6 +273,10 @@ std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
             if (value.sourceSha256 == track.sourceSha256) {
                 replacement.cues = value.cues;
                 validateCues(replacement.cues, replacement.frames);
+                // Legacy callers cannot erase a known measurement of this
+                // exact prepared recipe/geometry; new preparations recompute.
+                if (!replacement.levels && value.artifactKey == replacement.artifactKey && value.frames == replacement.frames)
+                    replacement.levels = value.levels;
             }
         } else {
             merged.push_back(value);

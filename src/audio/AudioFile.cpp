@@ -289,6 +289,64 @@ PreparedAudio& PreparedAudio::operator=(PreparedAudio&& other) noexcept
     return *this;
 }
 
+SignalLevels measurePreparedLevels(const PreparedAudio& audio, std::stop_token stop)
+{
+    checkStop(stop);
+    constexpr std::uint64_t frameBytes = RenderCore::channels * sizeof(float);
+    const auto descriptor = audio.descriptor();
+    struct stat before{};
+    const auto flags = fcntl(descriptor, F_GETFL);
+    if (fstat(descriptor, &before) != 0 || !S_ISREG(before.st_mode) || flags < 0 ||
+        (flags & O_ACCMODE) == O_WRONLY)
+        throw std::invalid_argument("Prepared levels require a readable regular PCM file");
+    const auto frames = audio.frames();
+    if (!frames || frames > std::uint64_t(std::numeric_limits<off_t>::max()) / frameBytes ||
+        before.st_size < 0 || std::uint64_t(before.st_size) != frames * frameBytes)
+        throw std::invalid_argument("Prepared level PCM geometry differs from its declared frames");
+
+    std::array<float, 4096 * RenderCore::channels> block{};
+    double sumSquares = 0, correction = 0, peak = 0;
+    for (std::uint64_t position = 0; position < frames;) {
+        checkStop(stop);
+        const auto count = std::min<std::uint64_t>(4096, frames - position);
+        const auto bytes = count * frameBytes;
+        std::size_t received = 0;
+        while (received < bytes) {
+            checkStop(stop);
+            const auto read = pread(descriptor, reinterpret_cast<char*>(block.data()) + received,
+                                    bytes - received, static_cast<off_t>(position * frameBytes + received));
+            if (read < 0 && errno == EINTR) continue;
+            if (read <= 0)
+                throw std::runtime_error("Cannot read every prepared PCM frame for levels");
+            received += static_cast<std::size_t>(read);
+        }
+        for (std::size_t sample = 0; sample < count * RenderCore::channels; ++sample) {
+            if (sample % 256 == 0) checkStop(stop);
+            const double value = block[sample];
+            if (!std::isfinite(value))
+                throw std::runtime_error("Prepared PCM levels contain non-finite samples");
+            peak = std::max(peak, std::abs(value));
+            // Compensated double accumulation preserves small contributions
+            // without squaring finite float headroom in float precision.
+            const double term = value * value - correction;
+            const double next = sumSquares + term;
+            correction = (next - sumSquares) - term;
+            sumSquares = next;
+        }
+        position += count;
+    }
+    struct stat after{};
+    if (fstat(descriptor, &after) != 0 || before.st_dev != after.st_dev || before.st_ino != after.st_ino ||
+        before.st_size != after.st_size || before.st_mtim.tv_sec != after.st_mtim.tv_sec ||
+        before.st_mtim.tv_nsec != after.st_mtim.tv_nsec || before.st_ctim.tv_sec != after.st_ctim.tv_sec ||
+        before.st_ctim.tv_nsec != after.st_ctim.tv_nsec)
+        throw std::runtime_error("Prepared PCM changed while measuring levels");
+    // A final rounding bit must not produce RMS greater than the sample peak.
+    const SignalLevels result{std::min(peak, std::sqrt(sumSquares / (double(frames) * RenderCore::channels))), peak};
+    checkStop(stop);
+    return result;
+}
+
 PreparedAudio prepareAudioFile(const std::filesystem::path& path, std::size_t maximumBytes, std::stop_token stop,
                                const std::filesystem::path& spoolDirectory)
 {

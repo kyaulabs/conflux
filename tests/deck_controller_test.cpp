@@ -5,6 +5,7 @@
 #include "StemServiceFixture.hpp"
 
 #include <QCoreApplication>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTimer>
@@ -755,6 +756,7 @@ private slots:
         const auto path = directory.filePath(QString::fromUtf8("Été #1 % mix.wav"));
         QVERIFY(writeWave(path, 2, 48000, 480));
         QString sourceId;
+        QVariantMap importedLevels;
         {
             conflux::DeckController controller;
             QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
@@ -773,6 +775,11 @@ private slots:
             QCOMPARE(track["name"].toString(), QFileInfo(path).fileName());
             QCOMPARE(track["durationSeconds"].toDouble(), .01);
             QVERIFY(track["available"].toBool());
+            importedLevels = track["levels"].toMap();
+            QCOMPARE(importedLevels.size(), 2);
+            // Exact 48 kHz PCM16 fixture: 960 interleaved samples, 17*n-32.
+            QVERIFY(std::abs(importedLevels["rms"].toDouble() - 0.28647775033325895) < 1e-12);
+            QCOMPARE(importedLevels["samplePeak"].toDouble(), 0.496551513671875);
             verifyNoPlayback(controller);
             QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
         }
@@ -780,6 +787,7 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
         QCOMPARE(reopened.libraryTracks().size(), qsizetype(1));
         QCOMPARE(reopened.libraryTracks().front().toMap()["id"].toString(), sourceId);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["levels"].toMap(), importedLevels);
         reopened.loadLibraryTrack(1, sourceId);
         QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
         QVERIFY(reopened.decks()[1].toMap()["loaded"].toBool());
@@ -798,12 +806,69 @@ private slots:
         QCOMPARE(reopened.libraryTracks().size(), qsizetype(1));
         QVERIFY(reopened.libraryTracks().front().toMap()["id"].toString() != sourceId);
         QCOMPARE(reopened.libraryTracks().front().toMap()["durationSeconds"].toDouble(), .02);
+        const auto updatedLevels = reopened.libraryTracks().front().toMap()["levels"].toMap();
+        QCOMPARE(updatedLevels.size(), 2);
+        QVERIFY(std::abs(updatedLevels["rms"].toDouble() - 0.5740249333995456) < 1e-12);
+        QCOMPARE(updatedLevels["samplePeak"].toDouble(), 0.994598388671875);
         const auto updatedId = reopened.libraryTracks().front().toMap()["id"].toString();
         QVERIFY(QFile::remove(path));
         reopened.loadLibraryTrack(0, updatedId);
         QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
         QVERIFY(!reopened.error().isEmpty());
         QCOMPARE(reopened.decks(), previous);
+        QCOMPARE(reopened.submittedCommands(), commands);
+    }
+
+    void legacyLevelsStayUnknownOnLoadAndRefreshOnReimport()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto path = directory.filePath("legacy-levels.wav");
+        QVERIFY(writeWave(path, 2, 48000, 480));
+        QString sourceId;
+        {
+            conflux::DeckController controller;
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+            controller.importTrack(QUrl::fromLocalFile(path));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+            sourceId = controller.libraryTracks().front().toMap()["id"].toString();
+        }
+        QFile catalog(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/library.json");
+        QVERIFY(catalog.open(QIODevice::ReadOnly));
+        auto saved = QJsonDocument::fromJson(catalog.readAll()).object();
+        catalog.close();
+        auto legacy = saved["tracks"].toArray().first().toObject();
+        legacy.remove("levels");
+        saved["version"] = 2;
+        saved["tracks"] = QJsonArray{legacy};
+        const auto bytes = QJsonDocument(saved).toJson(QJsonDocument::Compact);
+        QVERIFY(catalog.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        QCOMPARE(catalog.write(bytes), bytes.size());
+        catalog.close();
+
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks().size(), qsizetype(1));
+        const auto unknown = reopened.libraryTracks().front().toMap();
+        QVERIFY(unknown.contains("levels"));
+        QVERIFY(unknown["levels"].toMap().isEmpty());
+        reopened.loadLibraryTrack(0, sourceId);
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(reopened.decks()[0].toMap()["loaded"].toBool());
+        QCOMPARE(reopened.libraryTracks().front().toMap(), unknown); // Loading never adds analysis.
+        const auto decks = reopened.decks();
+        const auto commands = reopened.submittedCommands();
+        reopened.importTrack(QUrl::fromLocalFile(path));
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(reopened.preparation()["cacheHit"].toBool());
+        const auto refreshed = reopened.libraryTracks().front().toMap();
+        QCOMPARE(refreshed["id"].toString(), sourceId);
+        QCOMPARE(refreshed["levels"].toMap().size(), 2);
+        QCOMPARE(refreshed["levels"].toMap()["samplePeak"].toDouble(), 0.496551513671875);
+        QCOMPARE(reopened.decks(), decks);
         QCOMPARE(reopened.submittedCommands(), commands);
     }
 
@@ -1014,6 +1079,18 @@ private slots:
         QVERIFY(!lateAccepted);
         QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
         QVERIFY(controller.preparation()["cacheHit"].toBool());
+        QCOMPARE(controller.libraryTracks().front().toMap()["levels"].toMap().size(), 2);
+        const auto accepted = controller.libraryTracks();
+        QVERIFY(writeWave(path, 2, 48000, 960));
+        controller.importTrack(QUrl::fromLocalFile(path));
+        QVERIFY(QThreadPool::globalInstance()->waitForDone(5000));
+        QVERIFY(controller.cancelPreparation());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        QCOMPARE(controller.libraryTracks(), accepted); // A completed scan is still cancellable before handoff.
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks(), accepted);
         verifyNoPlayback(controller);
     }
 

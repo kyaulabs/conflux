@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-20T21:38:50.300145+00:00",
+  "scope": "M2 import-time prepared-source RMS/sample peak; normal functional verification only.",
+  "status": "passed",
+  "recipe": "prepared-stereo-f32-48000-levels-v1",
+  "catalog_version": 3,
+  "legacy_versions_read_without_rewrite": [
+    1,
+    2
+  ],
+  "format": {
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "sample_format": "native float32",
+    "RMS": "sqrt(mean squared samples across both channels and all frames)",
+    "sample_peak": "largest absolute sample",
+    "display": "20*log10(amplitude) dBFS; explicit zero/silence",
+    "unknown": "legacy measurement absent until reimport"
+  },
+  "new_dependencies": [],
+  "build": {
+    "exit_code": 0,
+    "maximum_parallel_jobs": 2,
+    "configuration": "RelWithDebInfo",
+    "existing_warnings_retained": true
+  },
+  "normal_tests": {
+    "CTest_entries": 40,
+    "passed": 40,
+    "failed": 0,
+    "CTest_wall_seconds": 197.22,
+    "Qt_case_totals_including_init_cleanup": {
+      "library_catalog": 55,
+      "deck_controller": 35,
+      "manual_ui": 67
+    },
+    "offscreen_smoke": {
+      "passed": true,
+      "GUI_frameSwapped_notifications": 131,
+      "physical_presentation_measured": false
+    }
+  },
+  "private_preparation": {
+    "checks": 85,
+    "passed": true,
+    "functional_only": true,
+    "execution_deadline_gate": false,
+    "virtual_sink_sample_gate": false,
+    "peer_checked_samples_per_channel": 59904,
+    "peer_wrong_samples": 0,
+    "peer_zero_samples": 0,
+    "remaining_nodes_or_links": [],
+    "daemon_reaped_reported_by_wrapper": true,
+    "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+    "check_groups": {
+      "normal_preparation_library_CUE": 37,
+      "prepared_bank": 16,
+      "live_owner": 20,
+      "constructor_loss": 12
+    }
+  },
+  "behavioral_test_first": {
+    "arithmetic_helper": "Compiled, then failed asymmetric-stereo RMS before implementation.",
+    "catalog_controller_QML": "Compiled before integration; five catalog, three controller and six QML cases failed on missing measurements/labels.",
+    "range_regressions": "Added after static review identified missing frame/float bounds; included in the passing full suite."
+  },
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 20098,
+      "sha256": "e547df136160c6a37ae2a8bc784b3baf2a38b2a645714f144e9f9875ec8b4176"
+    },
+    {
+      "path": "src/audio/AudioFile.hpp",
+      "bytes": 6530,
+      "sha256": "7c51ed5e4687d77ad314e409ff98ee17a5bdef87fd0277c03eab63ab52907fe0"
+    },
+    {
+      "path": "src/audio/AudioFile.cpp",
+      "bytes": 21934,
+      "sha256": "e66dfcc96dedbe23001e273c724f92b58d1a03e7c0f4b154ca61b69e6d3d6a1d"
+    },
+    {
+      "path": "src/library/LibraryCatalog.hpp",
+      "bytes": 1554,
+      "sha256": "245984d3b10e1b7d71525731b7dd7f17d40cfee778170c6dec39436ca85701b9"
+    },
+    {
+      "path": "src/library/LibraryCatalog.cpp",
+      "bytes": 15431,
+      "sha256": "d2f6db6aa7efd8c2cb691e5e64176541c5aa57abed844f59852c2531bf408fe5"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 58974,
+      "sha256": "2bf84d1c948dfffe5e3c0e9d5ea6a0acde7cc1df8dcfb6bfaa624188d79269e5"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 47062,
+      "sha256": "f6a89a63c4cec428d4577c6be518f317eee8dca8a568780ea457bc46af98a078"
+    },
+    {
+      "path": "tests/audio_levels_test.cpp",
+      "bytes": 12513,
+      "sha256": "446cb67100cc1243810e4196d84bbad1a6736b9b87dbba62c0de4ce59d6f8f2a"
+    },
+    {
+      "path": "tests/library_catalog_test.cpp",
+      "bytes": 36023,
+      "sha256": "e8a573294547f3db8e438dbf8f60ddf4f6c00968089e09aeb79f4f9e2291ac5d"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 80403,
+      "sha256": "93c6cbe524c9e72050e18c48bb4e4b9bd03767e6d5a6784b6c21172a9830518f"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 99219,
+      "sha256": "54f4cfd18bd74479c6c90dbf262d8995382d4999f7d6c061d9b5a25045206c01"
+    }
+  ],
+  "independent_static_reviews": [
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/catalog-review.json",
+      "bytes": 5785,
+      "sha256": "7f65bde575dc398d0ab96ece77ac15da2b5fa98ff87ac95435a03d27c412472b"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/integration-review.json",
+      "bytes": 7174,
+      "sha256": "389961c92705e1c8e6150956520eb066482b8b392c6c3622c2d712de45cfc05b"
+    }
+  ],
+  "local_proof_records": [
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/audio-levels-red-receipt.json",
+      "bytes": 2330,
+      "sha256": "8818288a56d50afad91a6b34971a3d07cb1fd3e4fb9e70be50cf382448ff3285"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/audio-levels-green-receipt.json",
+      "bytes": 3812,
+      "sha256": "1c052c7f3b1e794654e249d57101fb5db30d45edadb9b59720c0e7fce3235a7c"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/integration-red-receipt.json",
+      "bytes": 4402,
+      "sha256": "4628be7cf1df4f2a5e0aeab020ca5b1d22b4c8ba864973f855b25d7a0ca70729"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/integration-green-stages.json",
+      "bytes": 1477,
+      "sha256": "4c1c961c1717cc8e11f7decfe53523b732e7ceb2995c59eaf59b8acdeab90be2"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/integration-build.log",
+      "bytes": 8965,
+      "sha256": "19c9694f6890229e4f6ca6c31edced994fdbd098bfa9ed2ad81836748bd85236"
+    }
+  ],
+  "limits": [
+    "No model inference, hardware audio, latency qualification or listening acceptance.",
+    "Functional-only private checks disable execution deadlines and virtual-sink sample-quality gates; independent peer/master sample assertions remain active.",
+    "Existing compiler fixture warnings and cue-cancellation binding-loop warnings remain in logs.",
+    "Product coverage was not remeasured locally for this slice; CI reports its measurement separately.",
+    "Tempo, beat, phrase, automatic cue and key analysis remain unfinished.",
+    "Best quality, normal two runtime threads and the unchanged 4095 ms M2 live-stem blocker remain."
+  ],
+  "independent_verification_review": {
+    "path": "benchmarks-local/m2-level-analysis-2026-10-20/verification-review.json",
+    "bytes": 16075,
+    "sha256": "76ae4548502dc283002b88c5d5ea3ff05ac712b2b0ce52fad635fda29c064c7a"
+  }
+}

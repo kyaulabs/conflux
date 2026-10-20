@@ -63,6 +63,16 @@ private:
                                             const std::filesystem::path&);
 };
 
+struct SignalLevels {
+    double rms = 0;
+    double samplePeak = 0;
+    bool operator==(const SignalLevels&) const = default;
+};
+
+// Worker-only arithmetic over every prepared stereo 48 kHz frame. Uses bounded
+// positioned reads; neither the descriptor offset nor the PCM is changed.
+SignalLevels measurePreparedLevels(const PreparedAudio&, std::stop_token stop = {});
+
 PreparedAudio prepareAudioFile(const std::filesystem::path& path,
     std::size_t maximumBytes = PreparedAudio::defaultMaxPreparedBytes, std::stop_token stop = {},
     const std::filesystem::path& spoolDirectory = {});
