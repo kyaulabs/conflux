@@ -49,7 +49,7 @@ public:
     UiEndpoint()
     {
         for (int deck = 0; deck < 2; ++deck)
-            decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"playing", false}, {"replacing", false},
+            decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"sourceId", ""}, {"playing", false}, {"replacing", false},
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"cueSelected", false}, {"meter", silentMeter()},
@@ -103,7 +103,8 @@ public:
         preparation_ = {{"status", status}, {"deck", deck},
                         {"name", !name.isEmpty() ? name : deck < 0 ? QString{} : QString("Pending %1.wav").arg(deck)},
                         {"cancellable", cancellable}, {"cacheHit", cacheHit}};
-        busy_ = status == "Preparing" || status == "Cancelling" || status == "Installing" || status == "Saving";
+        busy_ = status == "Preparing" || status == "Reading cues" || status == "Cancelling"
+                || status == "Installing" || status == "Saving";
         emit stateChanged();
     }
     void setBusy(bool value) { busy_ = value; emit stateChanged(); }
@@ -115,6 +116,13 @@ public:
     {
         auto state = decks_[deck].toMap();
         state["replacing"] = value;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
+    void setSourceId(int deck, const QString& sourceId)
+    {
+        auto state = decks_[deck].toMap();
+        state["sourceId"] = sourceId;
         decks_[deck] = state;
         emit stateChanged();
     }
@@ -138,7 +146,7 @@ public:
     }
     void loadState(int deck, double position = 2.0)
     {
-        decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)}, {"replacing", false},
+        decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)}, {"sourceId", ""}, {"replacing", false},
                                    {"playing", false}, {"gain", .5},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
@@ -168,6 +176,13 @@ public:
     { calls.append(QVariantMap{{"action", "libraryStemLoad"}, {"deck", deck}, {"id", id}}); }
     Q_INVOKABLE void importTrack(const QUrl& url)
     { calls.append(QVariantMap{{"action", "import"}, {"url", url}}); }
+    Q_INVOKABLE void importCueSheet(const QString& sourceId, const QUrl& url)
+    { calls.append(QVariantMap{{"action", "cueImport"}, {"id", sourceId}, {"url", url}}); }
+    Q_INVOKABLE bool jumpToImportedCue(int deck, const QString& sourceId, int cueIndex)
+    {
+        calls.append(QVariantMap{{"action", "cueJump"}, {"deck", deck}, {"id", sourceId}, {"index", cueIndex}});
+        return true;
+    }
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& id)
     { calls.append(QVariantMap{{"action", "libraryLoad"}, {"deck", deck}, {"id", id}}); }
     Q_INVOKABLE bool cancelPreparation()
@@ -658,6 +673,178 @@ private slots:
         QCOMPARE(raw["url"].toUrl().toLocalFile(), edited);
     }
 
+    void cueSheetImportUsesSelectedSourceAndLiteralPath_data()
+    {
+        QTest::addColumn<int>("activation");
+        QTest::newRow("pointer") << 0;
+        QTest::newRow("button-keyboard") << 1;
+        QTest::newRow("path-enter") << 2;
+    }
+
+    void cueSheetImportUsesSelectedSourceAndLiteralPath()
+    {
+        QFETCH(int, activation);
+        const QString selectedId(64, QLatin1Char('d'));
+        ui_->endpoint.setLibrary({
+            QVariantMap{{"id", QString(64, QLatin1Char('a'))}, {"name", "Other source"},
+                        {"path", "/tmp/other.wav"}, {"durationSeconds", 120.0}, {"available", true}},
+            QVariantMap{{"id", selectedId}, {"name", "Selected source"}, {"path", "/tmp/selected.wav"},
+                        {"durationSeconds", 120.0}, {"available", true}}});
+        QVERIFY(ui_->openLibrary(0));
+        auto* path = ui_->item("libraryCuePath");
+        auto* importButton = ui_->item("libraryCueImport");
+        QVERIFY(path);
+        QVERIFY(importButton);
+        const QString local = QString::fromUtf8("/tmp/Música Set/夜 #part%.cue");
+        path->forceActiveFocus();
+        QTRY_VERIFY(path->hasActiveFocus());
+        QInputMethodEvent edit;
+        edit.setCommitString(local);
+        QGuiApplication::sendEvent(ui_->window, &edit);
+        QTRY_COMPARE(path->property("text").toString(), local);
+        QVERIFY(!importButton->isEnabled());
+        QTest::keyClick(ui_->window, Qt::Key_Return);
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QTRY_VERIFY(ui_->item("libraryTrack1"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        QTRY_VERIFY(importButton->isEnabled());
+        if (activation == 0) {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
+        } else {
+            auto* target = activation == 1 ? importButton : path;
+            target->forceActiveFocus();
+            QTRY_VERIFY(target->hasActiveFocus());
+            QTest::keyClick(ui_->window, activation == 1 ? Qt::Key_Space : Qt::Key_Return);
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.first().toMap();
+        QCOMPARE(call["action"].toString(), QString("cueImport"));
+        QCOMPARE(call["id"].toString(), selectedId);
+        QVERIFY(call["url"].toUrl().isLocalFile());
+        QCOMPARE(call["url"].toUrl().toLocalFile(), local);
+        for (const auto& state : ui_->endpoint.decks())
+            QVERIFY(!state.toMap()["loaded"].toBool());
+    }
+
+    void importedCueJumpUsesSourceAndExactIndex()
+    {
+        const QString id(64, QLatin1Char('e'));
+        const QString otherId(64, QLatin1Char('f'));
+        const QString literal = "<b>Night & day</b>";
+        const QVariantList cues{
+            QVariantMap{{"trackNumber", 2}, {"label", "Opening"}, {"frame", qint64(0)}, {"seconds", 0.0}},
+            QVariantMap{{"trackNumber", 7}, {"label", literal}, {"frame", qint64(2977920)}, {"seconds", 62.04}}};
+        ui_->endpoint.setLibrary({
+            QVariantMap{{"id", id}, {"name", "Cue source"}, {"path", "/tmp/cues.wav"},
+                        {"durationSeconds", 120.0}, {"available", true}, {"cues", cues}},
+            QVariantMap{{"id", otherId}, {"name", "Different source"}, {"path", "/tmp/different.wav"},
+                        {"durationSeconds", 120.0}, {"available", true}, {"cues", cues}}});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setSourceId(0, id);
+        ui_->endpoint.setSourceId(1, otherId);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_VERIFY(ui_->item("libraryCue1JumpA"));
+        auto* name = ui_->item("libraryCue1Name");
+        auto* jumpA = ui_->item("libraryCue1JumpA");
+        auto* jumpB = ui_->item("libraryCue1JumpB");
+        QVERIFY(name);
+        QVERIFY(jumpB);
+        QCOMPARE(name->property("text").toString(), "7. " + literal);
+        QCOMPARE(name->property("textFormat").toInt(), int(Qt::PlainText));
+        QCOMPARE(ui_->item("libraryCue1Time")->property("text").toString(), QString("1:02.040"));
+        QTRY_VERIFY(jumpA->isEnabled());
+        QVERIFY(!jumpB->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jumpB));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jumpA));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        ui_->endpoint.setSourceId(1, id);
+        QTRY_VERIFY(jumpB->isEnabled());
+        jumpB->forceActiveFocus();
+        QTRY_VERIFY(jumpB->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto call = ui_->endpoint.calls[deck].toMap();
+            QCOMPARE(call["action"].toString(), QString("cueJump"));
+            QCOMPARE(call["deck"].toInt(), deck);
+            QCOMPARE(call["id"].toString(), id);
+            QCOMPARE(call["index"].toInt(), 1); // Neither track number nor displayed seconds is a command.
+        }
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        QTRY_VERIFY(ui_->item("libraryCue1JumpA") && !ui_->item("libraryCue1JumpA")->isEnabled());
+        QVERIFY(!ui_->item("libraryCue1JumpB")->isEnabled());
+        QCOMPARE(ui_->endpoint.calls.size(), 2); // Changing selection never loads or seeks.
+    }
+
+    void cueImportAndJumpRespectBusyMissingAndLibraryReadiness()
+    {
+        const QString id(64, QLatin1Char('c'));
+        const QVariantList cues{QVariantMap{{"trackNumber", 1}, {"label", "Start"},
+                                            {"frame", qint64(0)}, {"seconds", 0.0}}};
+        const QVariantList tracks{
+            QVariantMap{{"id", id}, {"name", "Cue source"}, {"path", "/tmp/cues.wav"},
+                        {"durationSeconds", 120.0}, {"available", true}, {"cues", cues}},
+            QVariantMap{{"id", QString(64, QLatin1Char('b'))}, {"name", "Missing source"},
+                        {"path", "/tmp/missing.wav"}, {"durationSeconds", 120.0},
+                        {"available", false}, {"cues", cues}}};
+        ui_->endpoint.setLibrary(tracks);
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setSourceId(0, id);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* path = ui_->item("libraryCuePath");
+        auto* importButton = ui_->item("libraryCueImport");
+        QVERIFY(path);
+        QVERIFY(importButton);
+        QVERIFY(path->setProperty("text", "   "));
+        QVERIFY(!importButton->isEnabled());
+        QVERIFY(path->setProperty("text", "/tmp/track.cue"));
+        QTRY_VERIFY(importButton->isEnabled());
+        QTRY_VERIFY(ui_->item("libraryCue0JumpA") && ui_->item("libraryCue0JumpA")->isEnabled());
+        QVERIFY(!ui_->item("libraryCue0JumpB")->isEnabled());
+        auto* jumpA = ui_->item("libraryCue0JumpA");
+        jumpA->forceActiveFocus();
+        QTRY_VERIFY(jumpA->hasActiveFocus());
+        ui_->endpoint.setReady(false);
+        QTRY_VERIFY(!jumpA->isEnabled());
+        QVERIFY(importButton->isEnabled()); // Cue metadata import does not require audio output.
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jumpA));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        ui_->endpoint.setReady(true);
+        QTRY_VERIFY(jumpA->isEnabled());
+        QVERIFY(importButton->isEnabled());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        ui_->endpoint.setBusy(true);
+        QTRY_VERIFY(!importButton->isEnabled());
+        QVERIFY(!ui_->item("libraryCue0JumpA")->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryCue0JumpA")));
+        path->forceActiveFocus();
+        QTest::keyClick(ui_->window, Qt::Key_Return);
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        ui_->endpoint.setBusy(false);
+        ui_->endpoint.setLibrary(tracks, false);
+        QTRY_VERIFY(!importButton->isEnabled());
+        QVERIFY(!ui_->item("libraryCue0JumpA")->isEnabled());
+        ui_->endpoint.setLibrary(tracks);
+        QTRY_VERIFY(importButton->isEnabled());
+        ui_->endpoint.unloadState(0);
+        QTRY_VERIFY(!ui_->item("libraryCue0JumpA")->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        QTRY_VERIFY(!importButton->isEnabled());
+        QTRY_VERIFY(ui_->item("libraryCue0JumpA") && !ui_->item("libraryCue0JumpA")->isEnabled());
+        QVERIFY(ui_->item("libraryCueStatus")->property("text").toString().contains("missing", Qt::CaseInsensitive));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+    }
+
     void libraryMissingRowsArePlainTextAndCannotLoad()
     {
         const QString untrusted = "<b>Missing & track</b>.wav";
@@ -764,13 +951,77 @@ private slots:
         QCOMPARE(ui_->endpoint.preparation()["status"].toString(), QString("Saving"));
     }
 
+    void cueImportCanBeCancelledFromLibrary_data()
+    {
+        QTest::addColumn<bool>("keyboard");
+        QTest::newRow("pointer") << false;
+        QTest::newRow("keyboard") << true;
+    }
+
+    void cueImportCanBeCancelledFromLibrary()
+    {
+        QFETCH(bool, keyboard);
+        ui_->endpoint.setPreparation("Reading cues", -1, true, false, "Album.cue");
+        QVERIFY(ui_->openLibrary(0));
+        auto* cancel = ui_->item("preparationCancel");
+        QVERIFY(cancel);
+        QTRY_VERIFY(cancel->isVisible() && cancel->isEnabled());
+        QVERIFY(ui_->endpoint.busy());
+        if (keyboard) {
+            cancel->forceActiveFocus();
+            QTRY_VERIFY(cancel->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cancel));
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("cancelPreparation"));
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["deck"].toInt(), -1);
+        QCOMPARE(ui_->endpoint.preparation()["status"].toString(), QString("Cancelling"));
+        QVERIFY(ui_->endpoint.busy());
+        QTRY_VERIFY(!cancel->isEnabled());
+    }
+
+    void preparationTooltipShowsLiteralCueFilename()
+    {
+        const QString literal = "<img src='file:private'> Album & set "
+                                + QString(160, QLatin1Char('x')) + ".cue";
+        ui_->endpoint.setPreparation("Reading cues", -1, true, false, literal);
+        QVERIFY(ui_->openLibrary(0));
+        auto* status = ui_->item("preparationStatus");
+        QVERIFY(status);
+        QTRY_VERIFY(status->isVisible());
+        const QString expected = "Reading cues · Library import · " + literal;
+        QCOMPARE(status->property("text").toString(), expected);
+        QCOMPARE(status->property("textFormat").toInt(), int(Qt::PlainText));
+        QTest::mouseMove(ui_->window, ui_->center(status));
+        // Inspect the rendered tooltip text rather than its stored source string.
+        const auto findTooltipText = [status, &expected](auto&& find, QQuickItem* item) -> QQuickItem* {
+            if (item != status && item->isVisible() && item->property("text").toString() == expected
+                && item->property("textFormat").isValid())
+                return item;
+            for (auto* child : item->childItems())
+                if (auto* found = find(find, child)) return found;
+            return nullptr;
+        };
+        QQuickItem* tooltipText = nullptr;
+        QTRY_VERIFY((tooltipText = findTooltipText(findTooltipText, ui_->window->contentItem())) != nullptr);
+        QCOMPARE(tooltipText->property("text").toString(), expected);
+        QCOMPARE(tooltipText->property("textFormat").toInt(), int(Qt::PlainText));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+    }
+
     void libraryLongListScrollsWithinDrawer()
     {
+        QVariantList cues;
+        for (int index = 0; index < 40; ++index)
+            cues.append(QVariantMap{{"trackNumber", index + 1}, {"label", QString("Cue %1").arg(index)},
+                                    {"frame", qint64(index) * 48000}, {"seconds", double(index)}});
         QVariantList tracks;
         for (int index = 0; index < 40; ++index)
             tracks.append(QVariantMap{{"id", QString::number(index)}, {"name", QString("Track %1").arg(index)},
                                       {"path", QString("/tmp/track-%1.wav").arg(index)},
-                                      {"durationSeconds", 60.0 + index}, {"available", true}});
+                                      {"durationSeconds", 60.0 + index}, {"available", true}, {"cues", cues}});
         ui_->endpoint.setLibrary(tracks);
         ui_->window->resize(1180, 760);
         QVERIFY(ui_->openLibrary(0));
@@ -779,14 +1030,31 @@ private slots:
         QTRY_VERIFY(list->isVisible() && list->height() > 0);
         QVERIFY(list->clip());
         QTRY_VERIFY(list->property("contentHeight").toDouble() > list->height());
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* cueList = ui_->item("libraryCues");
+        QVERIFY(cueList);
+        QTRY_VERIFY(cueList->isVisible() && cueList->height() > 0);
+        QVERIFY(cueList->clip());
+        QTRY_VERIFY(cueList->property("contentHeight").toDouble() > cueList->height());
         verifyControlsFit({"deck0Path", "deck0Import", "deck0Load", "deck1Path", "deck1Import", "deck1Load",
-                           "libraryTracks", "libraryClose"});
+                           "libraryTracks", "libraryCuePath", "libraryCueImport", "libraryCues", "libraryClose"});
         const auto before = list->property("contentY").toDouble();
         const auto point = ui_->center(list);
         QWheelEvent wheel(QPointF(point), QPointF(ui_->window->mapToGlobal(point)), {}, {0, -720},
                           Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+        // Keep wheel time on QTest's mouse-event clock after selecting a row.
+        // A zero timestamp uses Flickable's local timer and can precede that click.
+        wheel.setTimestamp(++QTest::lastMouseTimestamp);
         QGuiApplication::sendEvent(ui_->window, &wheel);
         QTRY_VERIFY(list->property("contentY").toDouble() > before);
+        const auto cueBefore = cueList->property("contentY").toDouble();
+        const auto cuePoint = ui_->center(cueList);
+        QWheelEvent cueWheel(QPointF(cuePoint), QPointF(ui_->window->mapToGlobal(cuePoint)), {}, {0, -720},
+                             Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+        cueWheel.setTimestamp(++QTest::lastMouseTimestamp);
+        QGuiApplication::sendEvent(ui_->window, &cueWheel);
+        QTRY_VERIFY(cueList->property("contentY").toDouble() > cueBefore);
     }
 
     void jogKeyboardAndWheelUseRelativeRenderCommands()
@@ -1134,6 +1402,21 @@ private slots:
         auto* error = ui_->item("audioError");
         QTRY_VERIFY(error->isVisible());
         QCOMPARE(error->property("text").toString(), QString("Cannot decode this file"));
+        const QString literal = "CUE command <b>invalid & unsafe</b> <img src='file:///tmp/private'> "
+                                + QString(256, QLatin1Char('x'));
+        ui_->endpoint.setError(literal);
+        QTRY_COMPARE(error->property("text").toString(), literal);
+        QCOMPARE(error->property("textFormat").toInt(), int(Qt::PlainText));
+        QTest::mouseMove(ui_->window, ui_->center(error));
+        auto* tooltip = ui_->object("audioErrorTooltip");
+        QVERIFY(tooltip);
+        QTRY_VERIFY(tooltip->property("visible").toBool());
+        auto* tooltipText = ui_->item("audioErrorTooltipText");
+        QVERIFY(tooltipText);
+        QVERIFY(tooltipText->isVisible());
+        QCOMPARE(tooltipText->property("text").toString(), literal);
+        QCOMPARE(tooltipText->property("textFormat").toInt(), int(Qt::PlainText));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
     }
 
     void headphoneCueAndLevelRouteActualControls()
@@ -1232,6 +1515,12 @@ private slots:
         QCOMPARE(call["cueRight"].toString(), QString("port4"));
         ui_->endpoint.setRoutingError("Cue device disconnected");
         QTRY_COMPARE(ui_->item("routingError")->property("text").toString(), QString("Cue device disconnected"));
+        const QString cueError = "CUE command <b>invalid & unsafe</b> <img src='file:///tmp/private'>";
+        ui_->endpoint.setError(cueError);
+        auto* routingError = ui_->item("routingError");
+        QTRY_COMPARE(routingError->property("text").toString(), "Cue device disconnected\n" + cueError);
+        QCOMPARE(routingError->property("textFormat").toInt(), int(Qt::PlainText));
+        QCOMPARE(ui_->endpoint.calls.size(), 1); // Error snapshots never submit another routing command.
         QVERIFY(ui_->closeAudioSettings());
     }
 

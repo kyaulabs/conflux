@@ -74,6 +74,8 @@ public:
     Q_INVOKABLE void loadDeck(int deck, const QUrl& url);
     Q_INVOKABLE void loadStemDeck(int deck, const QUrl& url);
     Q_INVOKABLE void importTrack(const QUrl& url);
+    Q_INVOKABLE void importCueSheet(const QString& sourceId, const QUrl& url);
+    Q_INVOKABLE bool jumpToImportedCue(int deck, const QString& sourceId, int cueIndex);
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& sourceId);
     Q_INVOKABLE void loadLibraryStemTrack(int deck, const QString& sourceId);
     Q_INVOKABLE bool cancelPreparation();
@@ -138,12 +140,14 @@ private:
         QVariantList waveform;
         std::unique_ptr<audio::PreparedPlayback> playback;
         bool cacheHit = false;
+        QString sourceId;
     };
     struct LoadResult {
         std::shared_ptr<PreparedLoad> prepared;
         QString error;
         std::optional<library::LibraryTrack> imported;
         bool cacheHit = false;
+        bool cueImport = false;
     };
     struct CatalogResult {
         std::vector<library::LibraryTrack> tracks;
@@ -208,6 +212,7 @@ private:
     // Exact quiesced owners, empty while the session/installer owns them.
     audio::LiveSession::PlaybackSources stoppedPlaybacks_{};
     std::array<QString, 2> names_{};
+    std::array<QString, 2> sourceIds_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::array<bool, 2> replacing_{};

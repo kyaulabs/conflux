@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
 #include "library/PreparedTrackStore.hpp"
+#include "library/CueSheet.hpp"
 
 #include <QFileInfo>
 #include <QFile>
@@ -223,6 +224,7 @@ QVariantList DeckController::decks() const
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
+            {"sourceId", sourceIds_[deck]},
             {"replacing", replacing_[deck]},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
@@ -344,7 +346,7 @@ QVariantMap DeckController::preparation() const
     const bool idle = preparationStatus_ == "Idle";
     return {{"status", preparationStatus_}, {"deck", idle || pendingImport_ ? -1 : pendingDeck_},
             {"name", idle ? QString{} : pendingName_},
-            {"cancellable", !closing_ && preparationStatus_ == "Preparing"},
+            {"cancellable", !closing_ && (preparationStatus_ == "Preparing" || preparationStatus_ == "Reading cues")},
             {"cacheHit", preparationCacheHit_},
             {"stems", !idle && pendingStems_},
             {"retainedPcmBytes", QVariant::fromValue<qulonglong>(retainedPcmBytes())}};
@@ -363,10 +365,17 @@ void DeckController::catalogFinished()
         libraryEntries_ = std::move(result.tracks);
         libraryTracks_.clear();
         libraryTracks_.reserve(qsizetype(libraryEntries_.size()));
-        for (const auto& track : libraryEntries_)
+        for (const auto& track : libraryEntries_) {
+            QVariantList cues;
+            cues.reserve(qsizetype(track.cues.size()));
+            for (const auto& cue : track.cues)
+                cues.append(QVariantMap{{"trackNumber", cue.trackNumber}, {"label", cue.label},
+                    {"frame", QVariant::fromValue<qulonglong>(cue.frame)},
+                    {"seconds", cue.frame / double(audio::RenderCore::sampleRate)}});
             libraryTracks_.append(QVariantMap{{"id", track.sourceSha256}, {"name", track.name},
                 {"path", track.sourcePath}, {"durationSeconds", track.frames / 48000.0},
-                {"available", track.available}});
+                {"available", track.available}, {"cues", cues}});
+        }
         libraryReady_ = true;
     }
     // Startup reads do not own transport/preparation state. Only the save of
@@ -391,6 +400,70 @@ void DeckController::importTrack(const QUrl& url)
     // The live session still polls handoffs during metadata-only import.
     // Keep its internal deck index valid; expose -1 through preparation().
     beginPreparation(0, url, true);
+}
+
+void DeckController::importCueSheet(const QString& sourceId, const QUrl& url)
+{
+    if (closing_) return;
+    if (busy_) { fail("Wait for the current operation to finish."); return; }
+    if (!libraryReady_) { fail("The local library is not available."); return; }
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceId;
+    });
+    if (found == libraryEntries_.end()) { fail("Select a saved library track before importing cues."); return; }
+    if (!url.isLocalFile() || (!url.host().isEmpty() && url.host() != "localhost") ||
+        !QFileInfo(url.toLocalFile()).isAbsolute() || url.toLocalFile().contains(QChar(u'\0'))) {
+        fail("Enter an absolute local CUE-sheet path.");
+        return;
+    }
+    pendingDeck_ = 0;
+    pendingImport_ = true;
+    pendingStems_ = false;
+    pendingName_ = QFileInfo(url.toLocalFile()).fileName();
+    preparationCacheHit_ = false;
+    preparationStatus_ = "Reading cues";
+    busy_ = true;
+    error_.clear();
+    loadCancellation_ = std::stop_source{};
+    loader_.setFuture(QtConcurrent::run([path = url.toLocalFile(), selected = *found,
+                                       stop = loadCancellation_.get_token()]() mutable -> LoadResult {
+        try {
+            auto result = library::readCueSheet(path, selected, stop);
+            if (result.cancelled || !result.error.isEmpty())
+                return {{}, result.cancelled ? QStringLiteral("CUE import cancelled.") : result.error, {}, false};
+            selected.cues = std::move(result.cues);
+            return {{}, {}, std::move(selected), false, true};
+        } catch (const std::exception& error) {
+            return {{}, QString::fromUtf8(error.what()), {}, false};
+        } catch (...) {
+            return {{}, "CUE import failed.", {}, false};
+        }
+    }));
+    // Publish cancellation only after the worker owns its token and future.
+    emit stateChanged();
+}
+
+bool DeckController::jumpToImportedCue(int deck, const QString& sourceId, int cueIndex)
+{
+    if (closing_) return false;
+    if (busy_ || deck < 0 || deck >= int(clips_.size()) || !clips_[deck] ||
+        sourceIds_[deck] != sourceId) {
+        fail("Load the selected cue source on this deck before jumping.");
+        return false;
+    }
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceId;
+    });
+    if (found == libraryEntries_.end() || cueIndex < 0 ||
+        std::size_t(cueIndex) >= found->cues.size() || found->cues[std::size_t(cueIndex)].frame >= clips_[deck]->frames()) {
+        fail("This imported cue is outside the loaded track.");
+        return false;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::Seek;
+    command.deck = std::uint32_t(deck);
+    command.frame = found->cues[std::size_t(cueIndex)].frame;
+    return submit(command);
 }
 
 void DeckController::loadLibraryTrack(int deck, const QString& sourceId)
@@ -418,7 +491,7 @@ void DeckController::loadLibrary(int deck, const QString& sourceId, bool stems)
 
 bool DeckController::cancelPreparation()
 {
-    if (closing_ || preparationStatus_ != "Preparing") return false;
+    if (closing_ || (preparationStatus_ != "Preparing" && preparationStatus_ != "Reading cues")) return false;
     preparationStatus_ = "Cancelling";
     loadCancellation_.request_stop();
     emit stateChanged();
@@ -521,6 +594,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
             if (!expectedSource.isEmpty() && sourceId != expectedSource)
                 throw std::runtime_error("Source changed; import this file again before loading its library entry.");
+            prepared->sourceId = sourceId;
             prepared->waveform.reserve(qsizetype(prepared->audio->peaks().size()));
             for (const auto peak : prepared->audio->peaks()) prepared->waveform.append(peak);
             if (!prepared->playback) prepared->playback = prepared->audio->makePlayback();
@@ -600,9 +674,12 @@ void DeckController::loaded()
         preparationCacheHit_ = result.cacheHit;
         // Own the write before a direct observer can shut down from Saving.
         // Cancellation has ended; shutdown joins this accepted atomic save.
-        catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_, track = *result.imported]() -> CatalogResult {
+        catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_, track = *result.imported,
+                                               cues = result.cueImport]() -> CatalogResult {
             try {
-                return {library::LibraryCatalog(path).upsert(track), {}, true};
+                library::LibraryCatalog catalog(path);
+                return {cues ? catalog.updateCues(track.sourceSha256, track.frames, track.cues) :
+                               catalog.upsert(track), {}, true};
             } catch (const std::exception& error) {
                 return {{}, QString::fromUtf8(error.what()), true};
             }
@@ -637,6 +714,7 @@ void DeckController::loaded()
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(result.prepared->audio);
     names_[pendingDeck_] = pendingName_;
+    sourceIds_[pendingDeck_] = result.prepared->sourceId;
     waveforms_[pendingDeck_] = result.prepared->waveform;
     state_.sourceFrame[pendingDeck_] = 0;
     state_.cueFrame[pendingDeck_] = 0;
@@ -758,6 +836,7 @@ void DeckController::settleReplacement(bool stopped)
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(pendingLoad_->audio);
     names_[pendingDeck_] = pendingName_;
+    sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     pendingLoad_.reset();
     replacing_[pendingDeck_] = false;
@@ -839,6 +918,7 @@ void DeckController::installed()
             if (!result->lostLiveOwners[deck]) continue;
             clips_[deck].reset();
             names_[deck].clear();
+            sourceIds_[deck].clear();
             waveforms_[deck].clear();
             cueDown_[deck] = cueReleasePending_[deck] = false;
             state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;

@@ -164,7 +164,7 @@ option(CONFLUX_BUILD_UI "Build the Qt Quick manual audio window and runtime harn
 if(CONFLUX_BUILD_UI)
     find_package(Qt6 6.4 REQUIRED COMPONENTS Quick QuickControls2 Svg Concurrent)
     qt_standard_project_setup()
-    add_library(conflux-library src/library/PreparedTrackStore.cpp src/library/LibraryCatalog.cpp
+    add_library(conflux-library src/library/PreparedTrackStore.cpp src/library/LibraryCatalog.cpp src/library/CueSheet.cpp
         src/library/StemServiceJsonl.cpp src/library/StemEngineSupport.cpp src/library/LiveStemBridge.cpp)
     target_link_libraries(conflux-library PUBLIC conflux-audio Qt6::Core
         PRIVATE PkgConfig::SndFile PkgConfig::SampleRate)
@@ -204,7 +204,11 @@ if(CONFLUX_BUILD_UI)
         target_link_libraries(conflux-library-catalog-test PRIVATE conflux-library Qt6::Test)
         target_compile_options(conflux-library-catalog-test PRIVATE -Wall -Wextra -Wpedantic)
         add_test(NAME library-catalog COMMAND conflux-library-catalog-test)
-        set_tests_properties(library-catalog PROPERTIES TIMEOUT 60)
+        add_executable(conflux-cue-sheet-test tests/cue_sheet_test.cpp)
+        target_link_libraries(conflux-cue-sheet-test PRIVATE conflux-library Qt6::Test)
+        target_compile_options(conflux-cue-sheet-test PRIVATE -Wall -Wextra -Wpedantic)
+        add_test(NAME cue-sheet COMMAND conflux-cue-sheet-test)
+        set_tests_properties(library-catalog cue-sheet PROPERTIES TIMEOUT 60)
         qt_add_executable(conflux-stem-service-jsonl-test tests/stem_service_jsonl_test.cpp)
         target_link_libraries(conflux-stem-service-jsonl-test PRIVATE conflux-library Qt6::Test)
         target_compile_options(conflux-stem-service-jsonl-test PRIVATE -Wall -Wextra -Wpedantic)

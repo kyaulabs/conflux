@@ -63,6 +63,15 @@ bool writeWave(const QString& path, quint16 channels, quint32 rate, quint32 fram
     return stream.status() == QDataStream::Ok && file.flush();
 }
 
+bool writeCue(const QString& path, const QString& source, const QByteArray& indices =
+    "  TRACK 01 AUDIO\n    TITLE \"<b>Drop</b> # %\"\n    INDEX 01 00:00:00\n"
+    "  TRACK 02 AUDIO\n    INDEX 01 00:00:01\n")
+{
+    QFile file(path);
+    const auto data = "FILE \"" + QFileInfo(source).fileName().toUtf8() + "\" WAVE\n" + indices;
+    return file.open(QIODevice::WriteOnly) && file.write(data) == data.size() && file.flush();
+}
+
 struct RestoreEnvironment {
     std::array<const char*, 5> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE", "XDG_DATA_HOME", "XDG_CACHE_HOME"};
     std::array<QByteArray, 5> values;
@@ -796,6 +805,175 @@ private slots:
         QVERIFY(!reopened.error().isEmpty());
         QCOMPARE(reopened.decks(), previous);
         QCOMPARE(reopened.submittedCommands(), commands);
+    }
+
+    void cueImportPersistsWithoutChangingLoadedDecks()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath(QString::fromUtf8("Été #1 %.wav"));
+        const auto other = directory.filePath("other.wav");
+        const auto sheet = directory.filePath(QString::fromUtf8("Été #1 %.cue"));
+        QVERIFY(writeWave(source, 2, 48000, 1920));
+        QVERIFY(writeWave(other, 2, 48000, 3840));
+        QVERIFY(writeCue(sheet, source));
+        QString sourceId;
+        {
+            conflux::DeckController controller;
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+            controller.importTrack(QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            sourceId = controller.libraryTracks().front().toMap()["id"].toString();
+            controller.loadDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            controller.loadDeck(1, QUrl::fromLocalFile(other));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QCOMPARE(controller.decks()[0].toMap()["sourceId"].toString(), sourceId);
+            QVERIFY(controller.decks()[1].toMap()["sourceId"].toString() != sourceId);
+            const auto before = controller.decks();
+            const auto commands = controller.submittedCommands();
+            controller.importCueSheet(sourceId, QUrl::fromLocalFile(sheet));
+            QVERIFY(controller.busy());
+            QCOMPARE(controller.preparation()["deck"].toInt(), -1);
+            QVERIFY(controller.preparation()["cancellable"].toBool());
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QVERIFY2(controller.error().isEmpty(), qPrintable(controller.error()));
+            const auto cues = controller.libraryTracks().front().toMap()["cues"].toList();
+            QCOMPARE(cues.size(), 2);
+            QCOMPARE(cues[0].toMap()["frame"].toULongLong(), qulonglong(0));
+            QCOMPARE(cues[0].toMap()["label"].toString(), QString("<b>Drop</b> # %"));
+            QCOMPARE(cues[1].toMap()["frame"].toULongLong(), qulonglong(640));
+            QCOMPARE(cues[1].toMap()["seconds"].toDouble(), 640 / 48000.0);
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.submittedCommands(), commands);
+            QVERIFY(!controller.jumpToImportedCue(1, sourceId, 0));
+            QVERIFY(!controller.jumpToImportedCue(-1, sourceId, 0));
+            QVERIFY(!controller.jumpToImportedCue(0, sourceId, -1));
+            QVERIFY(!controller.jumpToImportedCue(0, sourceId, 2));
+            // Matching identity does not bypass the ordinary output-ready gate.
+            QVERIFY(!controller.jumpToImportedCue(0, sourceId, 1));
+            QVERIFY(controller.error().contains("not ready"));
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.submittedCommands(), commands);
+        }
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["id"].toString(), sourceId);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["cues"].toList().size(), 2);
+        verifyNoPlayback(reopened);
+    }
+
+    void cueImportFailuresPreserveAcceptedCuesAndPlayback()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("kept.wav"), sheet = directory.filePath("kept.cue");
+        QVERIFY(writeWave(source, 2, 48000, 1920));
+        QVERIFY(writeCue(sheet, source));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        controller.importTrack(QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto id = controller.libraryTracks().front().toMap()["id"].toString();
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        controller.importCueSheet(id, QUrl::fromLocalFile(sheet));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto saved = controller.libraryTracks(), decks = controller.decks();
+        QCOMPARE(saved.front().toMap()["cues"].toList().size(), 2);
+        const auto commands = controller.submittedCommands();
+        controller.importCueSheet("unknown", QUrl::fromLocalFile(sheet));
+        QVERIFY(!controller.busy());
+        QVERIFY(!controller.error().isEmpty());
+        controller.importCueSheet(id, QUrl("https://example.invalid/remote.cue"));
+        QVERIFY(!controller.busy());
+        QVERIFY(!controller.error().isEmpty());
+        QVERIFY(writeCue(sheet, source, " TRACK 01 AUDIO\n INDEX 01 00:00:75\n"));
+        controller.importCueSheet(id, QUrl::fromLocalFile(sheet));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Failed"));
+        QVERIFY(!controller.error().isEmpty());
+        QCOMPARE(controller.libraryTracks(), saved);
+        QVERIFY(writeCue(sheet, source));
+        QVERIFY(writeWave(source, 2, 48000, 3840));
+        controller.importCueSheet(id, QUrl::fromLocalFile(sheet));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(!controller.error().isEmpty());
+        QCOMPARE(controller.libraryTracks(), saved);
+        QCOMPARE(controller.decks(), decks);
+        QCOMPARE(controller.submittedCommands(), commands);
+    }
+
+    void queuedCueCancellationPreservesCatalogAndEndsAtSaving()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
+        const auto source = directory.filePath("cancel-cues.wav"), sheet = directory.filePath("cancel.cue");
+        QVERIFY(writeWave(source, 2, 48000, 1920));
+        QVERIFY(writeCue(sheet, source));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        controller.importTrack(QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto before = controller.libraryTracks();
+        const auto id = before.front().toMap()["id"].toString();
+        controller.importCueSheet(id, QUrl::fromLocalFile(sheet));
+        QVERIFY(QThreadPool::globalInstance()->waitForDone(5000));
+        QVERIFY(controller.cancelPreparation());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        QCOMPARE(controller.libraryTracks(), before);
+        bool saving = false, lateCancellation = true;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (!saving && controller.preparation()["status"].toString() == "Saving") {
+                saving = true;
+                lateCancellation = controller.cancelPreparation();
+            }
+        }, Qt::DirectConnection);
+        controller.importCueSheet(id, QUrl::fromLocalFile(sheet));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(saving);
+        QVERIFY(!lateCancellation);
+        QCOMPARE(controller.libraryTracks().front().toMap()["cues"].toList().size(), 2);
+        verifyNoPlayback(controller);
+    }
+
+    void cueSavingShutdownJoinsAcceptedCatalogWrite()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        RestoreEnvironment restore;
+        qputenv("XDG_DATA_HOME", directory.path().toUtf8());
+        qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
+        const auto source = directory.filePath("shutdown-cues.wav"), sheet = directory.filePath("shutdown.cue");
+        QVERIFY(writeWave(source, 2, 48000, 1920));
+        QVERIFY(writeCue(sheet, source));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        controller.importTrack(QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto id = controller.libraryTracks().front().toMap()["id"].toString();
+        bool stopped = false;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            if (!stopped && controller.preparation()["status"].toString() == "Saving") {
+                stopped = true;
+                controller.shutdown();
+            }
+        }, Qt::DirectConnection);
+        controller.importCueSheet(id, QUrl::fromLocalFile(sheet));
+        QTRY_VERIFY_WITH_TIMEOUT(stopped, 5000);
+        QVERIFY(!controller.busy());
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["cues"].toList().size(), 2);
+        verifyNoPlayback(reopened);
     }
 
     void queuedImportCancellationPreservesCatalogAndEndsAtSaving()

@@ -17,6 +17,7 @@
 #include <cmath>
 #include <cstring>
 #include <fcntl.h>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <sys/stat.h>
@@ -46,6 +47,22 @@ bool digest(const QString& text)
     });
 }
 
+void validateCues(const std::vector<CuePoint>& cues, std::uint64_t frames)
+{
+    if (cues.size() > 99) throw std::length_error("Library cue limit exceeded");
+    int previousTrack = 0;
+    std::uint64_t previousFrame = 0;
+    for (const auto& cue : cues) {
+        if (cue.trackNumber <= previousTrack || cue.trackNumber > 99 || cue.label.isEmpty() ||
+            cue.label.size() > 256 || cue.frame >= frames ||
+            (previousTrack && cue.frame <= previousFrame) ||
+            std::ranges::any_of(cue.label, [](QChar c) { return c.category() == QChar::Other_Control; }))
+            throw std::invalid_argument("Invalid library cue label, track number or frame");
+        previousTrack = cue.trackNumber;
+        previousFrame = cue.frame;
+    }
+}
+
 void validateTrack(const LibraryTrack& track)
 {
     if (track.sourcePath.size() > qsizetype(LibraryCatalog::maxBytes) || track.name.size() > qsizetype(LibraryCatalog::maxBytes))
@@ -54,6 +71,7 @@ void validateTrack(const LibraryTrack& track)
         track.sourcePath.contains(QChar(0)) || track.name.isEmpty() || track.name == "." || track.name == ".." ||
         track.name != QFileInfo(track.sourcePath).fileName() || !track.frames || track.frames > maximumFrames)
         throw std::invalid_argument("Invalid library track identity, path, name or frame count");
+    validateCues(track.cues, track.frames);
 }
 
 struct stat statusOf(int descriptor)
@@ -80,10 +98,14 @@ void refreshAvailability(std::vector<LibraryTrack>& tracks)
 QByteArray encode(const std::vector<LibraryTrack>& tracks)
 {
     QJsonArray rows;
-    for (const auto& track : tracks)
+    for (const auto& track : tracks) {
+        QJsonArray cues;
+        for (const auto& cue : track.cues)
+            cues.append(QJsonObject{{"track", cue.trackNumber}, {"label", cue.label}, {"frame", double(cue.frame)}});
         rows.append(QJsonObject{{"source_sha256", track.sourceSha256}, {"source_path", track.sourcePath},
-            {"name", track.name}, {"artifact_key", track.artifactKey}, {"frames", double(track.frames)}});
-    const auto bytes = QJsonDocument(QJsonObject{{"version", 1}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
+            {"name", track.name}, {"artifact_key", track.artifactKey}, {"frames", double(track.frames)}, {"cues", cues}});
+    }
+    const auto bytes = QJsonDocument(QJsonObject{{"version", 2}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
     if (std::size_t(bytes.size()) > LibraryCatalog::maxBytes)
         throw std::length_error("Library catalog byte budget exceeded");
     return bytes;
@@ -92,6 +114,36 @@ QByteArray encode(const std::vector<LibraryTrack>& tracks)
 [[noreturn]] void saveError(const QSaveFile& file)
 {
     throw std::runtime_error("Cannot save catalog: " + file.errorString().toStdString());
+}
+
+std::unique_ptr<QLockFile> lockCatalog(const QString& path)
+{
+    if (!QDir().mkpath(QFileInfo(path).absolutePath()))
+        throw std::runtime_error("Cannot save catalog directory");
+    auto lock = std::make_unique<QLockFile>(path + ".lock");
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!lock->tryLock(0)) {
+        if (lock->error() != QLockFile::LockFailedError) throw std::runtime_error("Cannot lock library catalog");
+        if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("Library catalog is busy");
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return lock;
+}
+
+void save(const QString& path, const std::vector<LibraryTrack>& tracks)
+{
+    const auto bytes = encode(tracks);
+    QSaveFile file(path);
+    file.setDirectWriteFallback(false);
+    if (!file.open(QIODevice::WriteOnly)) saveError(file);
+    if (!file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner)) saveError(file);
+    // Qt 6.4 can miss buffered flush errors inside commit(). Detect them
+    // before the temporary file can replace the existing catalog.
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
+        file.cancelWriting();
+        saveError(file);
+    }
+    if (!file.commit()) saveError(file);
 }
 } // namespace
 
@@ -127,7 +179,8 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     const auto document = QJsonDocument::fromJson(bytes);
     if (!document.isObject()) throw std::runtime_error("Malformed library catalog document");
     const auto root = document.object();
-    if (root.size() != 2 || root.value("version") != QJsonValue(1) || !root.value("tracks").isArray())
+    const bool withCues = root.value("version") == QJsonValue(2);
+    if (root.size() != 2 || (!withCues && root.value("version") != QJsonValue(1)) || !root.value("tracks").isArray())
         throw std::runtime_error("Malformed or unsupported library catalog version");
     const auto rows = root.value("tracks").toArray();
     if (std::size_t(rows.size()) > maxEntries) throw std::length_error("Library catalog entry limit exceeded");
@@ -137,7 +190,7 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     for (const auto row : rows) {
         if (!row.isObject()) throw std::runtime_error("Malformed library catalog track");
         const auto object = row.toObject();
-        if (object.size() != 5 || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
+        if (object.size() != (withCues ? 6 : 5) || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
             !object.value("name").isString() || !object.value("artifact_key").isString() || !object.value("frames").isDouble())
             throw std::runtime_error("Malformed library catalog track fields");
         const auto frames = object.value("frames").toDouble();
@@ -145,6 +198,21 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
             throw std::runtime_error("Malformed library catalog frame count");
         LibraryTrack track{object.value("source_sha256").toString(), object.value("source_path").toString(),
             object.value("name").toString(), object.value("artifact_key").toString(), std::uint64_t(frames), false};
+        if (withCues) {
+            if (!object.value("cues").isArray()) throw std::runtime_error("Malformed library cues");
+            const auto cues = object.value("cues").toArray();
+            if (cues.size() > 99) throw std::length_error("Library cue limit exceeded");
+            for (const auto cue : cues) {
+                if (!cue.isObject()) throw std::runtime_error("Malformed library cue");
+                const auto item = cue.toObject();
+                const auto number = item.value("track").toDouble(-1), frame = item.value("frame").toDouble(-1);
+                if (item.size() != 3 || !item.value("track").isDouble() || !item.value("label").isString() ||
+                    !item.value("frame").isDouble() || !std::isfinite(number) || number < 1 || number > 99 ||
+                    std::floor(number) != number || !std::isfinite(frame) || frame < 0 || frame >= frames || std::floor(frame) != frame)
+                    throw std::runtime_error("Malformed library cue fields");
+                track.cues.push_back({int(number), item.value("label").toString(), std::uint64_t(frame)});
+            }
+        }
         try { validateTrack(track); }
         catch (const std::invalid_argument& error) {
             throw std::runtime_error(std::string("Malformed library catalog track: ") + error.what());
@@ -161,16 +229,10 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
 
 std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
 {
-    validateTrack(track);
-    if (!QDir().mkpath(QFileInfo(filePath_).absolutePath()))
-        throw std::runtime_error("Cannot save catalog directory");
-    QLockFile lock(filePath_ + ".lock");
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
-    while (!lock.tryLock(0)) {
-        if (lock.error() != QLockFile::LockFailedError) throw std::runtime_error("Cannot lock library catalog");
-        if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("Library catalog is busy");
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    auto replacement = track;
+    replacement.cues.clear(); // Only updateCues installs points for a verified source.
+    validateTrack(replacement);
+    const auto lock = lockCatalog(filePath_);
     const auto existing = read();
     std::vector<LibraryTrack> merged;
     merged.reserve(std::min(maxEntries, existing.size() + 1));
@@ -178,27 +240,37 @@ std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
     for (const auto& value : existing) {
         if (value.sourceSha256 == track.sourceSha256 || value.sourcePath == track.sourcePath) {
             if (position == maxEntries) position = merged.size();
+            if (value.sourceSha256 == track.sourceSha256) {
+                replacement.cues = value.cues;
+                validateCues(replacement.cues, replacement.frames);
+            }
         } else {
             merged.push_back(value);
         }
     }
     if (merged.size() == maxEntries) throw std::length_error("Library catalog entry limit exceeded");
     if (position == maxEntries) position = merged.size();
-    merged.insert(merged.begin() + static_cast<std::ptrdiff_t>(position), track);
-    const auto bytes = encode(merged);
-    QSaveFile file(filePath_);
-    file.setDirectWriteFallback(false);
-    if (!file.open(QIODevice::WriteOnly)) saveError(file);
-    if (!file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner)) saveError(file);
-    // Qt 6.4 can miss buffered flush errors inside commit(). Detect them
-    // before the temporary file can replace the existing catalog.
-    if (file.write(bytes) != bytes.size() || !file.flush()) {
-        file.cancelWriting();
-        saveError(file);
-    }
-    if (!file.commit()) saveError(file);
+    merged.insert(merged.begin() + static_cast<std::ptrdiff_t>(position), std::move(replacement));
+    save(filePath_, merged);
     refreshAvailability(merged);
     return merged;
+}
+
+std::vector<LibraryTrack> LibraryCatalog::updateCues(const QString& sourceId, std::uint64_t expectedFrames,
+                                                    const std::vector<CuePoint>& cues)
+{
+    if (!digest(sourceId) || !expectedFrames || expectedFrames > maximumFrames)
+        throw std::invalid_argument("Invalid library cue source identity or frame count");
+    validateCues(cues, expectedFrames);
+    const auto lock = lockCatalog(filePath_);
+    auto tracks = read();
+    const auto found = std::ranges::find_if(tracks, [&](const auto& track) { return track.sourceSha256 == sourceId; });
+    if (found == tracks.end() || found->frames != expectedFrames)
+        throw std::runtime_error("Cue source changed; select its current library entry again");
+    found->cues = cues;
+    save(filePath_, tracks);
+    refreshAvailability(tracks);
+    return tracks;
 }
 
 } // namespace conflux::library
