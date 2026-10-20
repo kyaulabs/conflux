@@ -111,10 +111,12 @@ QJsonArray timing(const conflux::DeckController& controller)
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
-    const bool hidden = mode == "--live-stems-hidden";
+    const bool oneThread = mode == "--live-stems-hidden-one-thread";
+    const bool hidden = oneThread || mode == "--live-stems-hidden";
+    const int runtimeThreads = oneThread ? 1 : 2;
     const bool background = hidden || mode == "--live-stems-background" || mode == "--live-stems-hour-background";
     using UiPolicy = conflux::experiments::PlaybackUiPolicy;
     UiPolicy uiPolicy(hidden ? UiPolicy::Mode::Hidden : background ? UiPolicy::Mode::Background : UiPolicy::Mode::Visible);
@@ -151,7 +153,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     conflux::library::StemEngine stem;
     stem.pythonExecutable = QString::fromLocal8Bit(argv[7]); stem.exporterPath = QString::fromLocal8Bit(argv[8]);
     stem.workerPath = QString::fromLocal8Bit(argv[9]); stem.runtimePath = QString::fromLocal8Bit(argv[11]);
-    stem.modelPath = QString::fromLocal8Bit(argv[12]); stem.backend = "vulkan"; stem.threads = 2; stem.requestTimeout = 30; options.stemEngine = stem;
+    stem.modelPath = QString::fromLocal8Bit(argv[12]); stem.backend = "vulkan"; stem.threads = runtimeThreads; stem.requestTimeout = 30; options.stemEngine = stem;
     options.stemServicePath = QString::fromLocal8Bit(argv[10]);
     conflux::DeckController controller(options);
     using Observations = conflux::library::LiveStemObservations;
@@ -528,7 +530,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             if (!summary.counters.graphPositionObserved || summary.counters.graphDiscontinuities || summary.counters.xrunRecoveryFlags)
                 failure = "Hour driver continuity/recovery failed";
     }
-    result["configuration"] = QJsonObject{{"backend", "vulkan"}, {"threads", 2}, {"request_timeout_seconds", 30},
+    result["configuration"] = QJsonObject{{"backend", "vulkan"}, {"threads", runtimeThreads}, {"request_timeout_seconds", 30},
         {"prime_bound_seconds", 60}, {"deck_a_gain", .25}, {"deck_b_gain", 1.0}, {"master_gain", .25}, {"stem_gains", QJsonArray{1, 1, 1, 1}}};
     result["last_recovery_complete"] = !recovering && !replayPending && !peerRecovering;
     result["setup"] = setup; result["load_issued_ns"] = loadIssuedNs; result["first_advance_observed_ns"] = firstAdvanceNs;
@@ -560,7 +562,7 @@ int main(int argc, char** argv)
     QGuiApplication app(argc, argv);
     if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
-        QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden"))
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden-one-thread"))
         return livePlayback(app, argc, argv);
     if (argc != 6) {
         std::cerr << "Usage: manual-playback-soak QUIET_A.wav QUIET_B.wav OUTPUT_DIRECTORY SECONDS STOP_FILE\n";
