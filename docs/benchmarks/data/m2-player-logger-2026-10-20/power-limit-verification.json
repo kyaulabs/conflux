@@ -1,0 +1,252 @@
+{
+  "schema": "conflux.m2-hidden-power-limit-public-summary.v1",
+  "scope": "One standalone 120-second Best-quality hidden-window logging-OFF run with read-only package-constraint sampling. Functional playback passed; the unchanged service target failed. No matched performance comparison or causal qualification. Raw host, readiness, process and media evidence remains local.",
+  "software_source_commit": "e1e637ccf0e80eeb75e1ce39d49a8b5e52f56cdd",
+  "M2_open": true,
+  "Best_quality_retained": true,
+  "strict_service_p99_target_ms": 4095,
+  "qualified": false,
+  "timing_qualification": false,
+  "hard_cancel_latency_qualified": false,
+  "configuration": {
+    "worker": "original unpaced",
+    "backend": "Vulkan",
+    "threads": 2,
+    "requested_UI_backend": "software",
+    "window_policy": "hidden",
+    "GPU_logger_controls": "absent",
+    "request_bound_GPU_query_trace": false,
+    "package_fields_per_snapshot": 16,
+    "native_binary_sha256": "26ea99b2bfee4fc3f49d36ecc92d09daf33b2aacd981fb58088ec54ae62112ed",
+    "runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+    "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "retained_driver_cache_seed_files": 63,
+    "retained_driver_cache_seed_bytes": 2382084,
+    "driver_cache_hits_proven": false
+  },
+  "outcome": {
+    "wrapper_passed": false,
+    "functional_passed": true,
+    "service_target_met": false,
+    "native_passed": true,
+    "native_exit": 0,
+    "native_measured_wall_ms": 120009,
+    "hops": {
+      "count": 21,
+      "maximum_ms": 5832.504926947877,
+      "nearest_rank_p99_ms": 5832.504926947877,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 2,
+      "complete": true,
+      "median_ms": 1815.605245064944
+    },
+    "audio": {
+      "steady_starved_frames": 0,
+      "control_starved_frames": 940800,
+      "control_buffering_seconds": 19.6,
+      "outside_measured_intervals_starved_frames": 0,
+      "callbacks": 23495,
+      "source_read_failures": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "execution_deadline_misses": 0,
+      "recording_frames": 6004736,
+      "recording_duration_seconds": 125.09866666666667,
+      "recording_overflow_frames": 0,
+      "all_float_samples_checked": 12009472,
+      "nonfinite_float_samples": 0,
+      "full_recording_correspondence": true,
+      "recording_file_bytes": 48037976,
+      "recording_file_sha256": "108044f235fa6d86d4e1415ee9f5b82c1dc5e7c6b3d0f5c8d5feb86d1f07515f"
+    },
+    "controls": {
+      "incomplete_generation_seek_exercised": true,
+      "replay_starts_recovered": 4,
+      "replay_generations_fully_converted_and_published": 3,
+      "final_generation_partial": true,
+      "last_recovery_complete": true,
+      "scope": "Seek supersession has complete zero-drop lineage and no accepted stale-generation output after issue. Four replay starts recovered; only three replay generations fully converted and published. The final generation had RawComplete but no ConverterComplete and remained partially published at shutdown. No direct hard-cancel acknowledgement or native termination deadline was measured."
+    },
+    "UI": {
+      "frames_presented": 0,
+      "checks": 11229,
+      "hidden_checks": 11229,
+      "unexposed_checks": 11229,
+      "missing_window_checks": 0,
+      "hidden_policy_violated": false,
+      "window_events_attempted": 67,
+      "window_events_retained": 64,
+      "window_events_evicted": 3,
+      "bounded_history_valid": true,
+      "visible_UI_qualified": false
+    },
+    "package_constraints": {
+      "complete_samples": 62,
+      "samples": 62,
+      "read_errors": 0,
+      "sample_interval_seconds": 2,
+      "maximum_snapshot_read_seconds": 0.022500066901557148,
+      "numeric_ranges": {
+        "mmio/enabled": {
+          "unit": "kernel_integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "mmio/constraint_0_power_limit_uw": {
+          "unit": "uW",
+          "minimum": 7500000,
+          "maximum": 15000000
+        },
+        "mmio/constraint_0_time_window_us": {
+          "unit": "us",
+          "minimum": 27983872,
+          "maximum": 27983872
+        },
+        "mmio/constraint_1_power_limit_uw": {
+          "unit": "uW",
+          "minimum": 64000000,
+          "maximum": 64000000
+        },
+        "mmio/constraint_1_time_window_us": {
+          "unit": "us",
+          "minimum": 2440,
+          "maximum": 2440
+        },
+        "msr/enabled": {
+          "unit": "kernel_integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "msr/constraint_0_power_limit_uw": {
+          "unit": "uW",
+          "minimum": 64000000,
+          "maximum": 64000000
+        },
+        "msr/constraint_0_time_window_us": {
+          "unit": "us",
+          "minimum": 27983872,
+          "maximum": 27983872
+        },
+        "msr/constraint_1_power_limit_uw": {
+          "unit": "uW",
+          "minimum": 64000000,
+          "maximum": 64000000
+        },
+        "msr/constraint_1_time_window_us": {
+          "unit": "us",
+          "minimum": 2440,
+          "maximum": 2440
+        }
+      },
+      "MMIO_long_term_transition_uW": [
+        15000000,
+        7500000
+      ],
+      "MSR_long_term_uW": 64000000,
+      "transition_observed_with_profile": "balanced to low-power",
+      "scope": "MMIO and MSR remain separate reported settings. Values do not measure power consumed, prove an effective enforcing limit, establish continuous exposure or isolate causality."
+    },
+    "thermal_and_GPU": {
+      "samples": 62,
+      "sample_interval_seconds": 2,
+      "maximum_sampled_temperature_millidegrees_C": 82000,
+      "samples_at_or_above85000": 0,
+      "samples_at_or_above95000": 0,
+      "guard_warning_events": 1,
+      "guard_warning_temperature_millidegrees_C": 88000,
+      "guard_engaged_power_saver": true,
+      "PL1_nonzero_samples": 7,
+      "thermal_flag_nonzero_samples": 0,
+      "PROCHOT_flag_nonzero_samples": 0,
+      "longest_hop_samples": {
+        "count": 3,
+        "PL1_nonzero": 3,
+        "actual_GPU_MHz": [
+          350,
+          300,
+          400
+        ],
+        "requested_GPU_MHz": 1350,
+        "MMIO_long_term_uW": 7500000,
+        "MSR_long_term_uW": 64000000
+      },
+      "scope": "The independent two-second sampler missed the guard warning spike. Samples do not establish continuous temperatures or continuous GPU activity."
+    },
+    "late_hops": [
+      {
+        "request_id": 18,
+        "generation": 5,
+        "hop_service_ms": 5832.504926947877,
+        "native_graph_compute_ms": 5533.737663,
+        "native_inference_cpu_ms": 270.5100000000002,
+        "worker_ready_to_service_pre_emit_ms": 37.35103306826204
+      },
+      {
+        "request_id": 22,
+        "generation": 6,
+        "hop_service_ms": 4240.800425061025,
+        "native_graph_compute_ms": 3984.763603,
+        "native_inference_cpu_ms": 231.84900000000016,
+        "worker_ready_to_service_pre_emit_ms": 71.04770792648196
+      }
+    ],
+    "largest_worker_ready_to_service_pre_emit": {
+      "request_id": 10,
+      "generation": 3,
+      "hop_service_ms": 2072.9848749469966,
+      "worker_ready_to_service_pre_emit_ms": 1611.8470440851524
+    },
+    "cleanup": {
+      "proven": true,
+      "pins_unchanged": true,
+      "application_cache_removed": true,
+      "known_groups_and_audio_objects_gone": true,
+      "same_thermal_guard": true,
+      "driver_cache_inventory_complete": true,
+      "driver_cache_lock_released": true,
+      "original_operator_seconds": 480,
+      "external_end_after_original_human_seconds": 249.660874
+    }
+  },
+  "interpretation": [
+    "The longest 5832.505 ms hop included 5533.738 ms of nested native graph-compute elapsed time; it includes waits, not hardware-only kernel duration.",
+    "Both late hops occurred with low-power profile and reported MMIO long-term limit 7.5 W. This sampled association does not prove cause or effective limit enforcement.",
+    "The largest worker-ready-to-service-pre-emit delay was 1611.847 ms on a different hop that met the service target; it remains distinct from graph-compute duration.",
+    "The added observer and a different power history prevent a causal performance comparison with the previous logging-OFF run. Functional playback cannot override the failed 4095 ms target or close M2."
+  ],
+  "next_step": "Assess a bounded one-runtime-CPU-thread Best-quality comparison while retaining the same model, guard, logging, pacing and seed; complete its offline validation and review before requesting fresh physical conditions.",
+  "private_evidence_pins": {
+    "hidden-power-limit-plan-03.json": {
+      "bytes": 30571,
+      "sha256": "0904b19e4757dc1b1e9c896e4cecd69c6aadc598a643f1e85a332378e46815d7"
+    },
+    "root-launch-protocol-03.json": {
+      "bytes": 9690,
+      "sha256": "85273e020f6fc7fb6dbf6d65a416dcfa8fd8c7e63c2d31b892ac49755928bd75"
+    },
+    "review-02-final-plan.json": {
+      "bytes": 12457,
+      "sha256": "f2e5cc43d8db619d2ffbe794ab4a3247dec083d698c356f56f648f71d94100b5"
+    },
+    "player-hidden-power-limit-external-budget-03.json": {
+      "bytes": 3509,
+      "sha256": "421946282f9713e741620590bb6692a0b7d0b5bc42fe93728643b8932a69ffbe"
+    },
+    "root-host-audit-03.json": {
+      "bytes": 2518,
+      "sha256": "9ea42e80b9159bb296e75fd8e0b2b25c3922101b7317580333625a47cdf0918f"
+    },
+    "independent-operation-audit-03.json": {
+      "bytes": 36788,
+      "sha256": "ce4e6d91bf33acea8da46d2bc67a2df39c084fc661877a475cf21251ecddee32"
+    },
+    "phase-analysis-03.json": {
+      "bytes": 42481,
+      "sha256": "ec458aca44d58fd40b05d7955a21664e0c48f01258094a2a7a3fa2bfc546ed14"
+    },
+    "audio-cancellation-audit-03.json": {
+      "bytes": 23224,
+      "sha256": "c083d062651f0ca14d567d1544d2e8967e217ff87beeec08e4d62e0916e636a2"
+    }
+  }
+}
