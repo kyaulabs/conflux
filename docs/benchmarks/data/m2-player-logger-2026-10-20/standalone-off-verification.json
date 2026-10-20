@@ -1,0 +1,203 @@
+{
+  "schema": "conflux.m2-hidden-logger-off-public-summary.v1",
+  "scope": "One standalone 120-second hidden-window logging-OFF reproduction. Functional playback passed; the unchanged service-latency target failed. This is not a matched logger comparison. Raw host, readiness, process and media evidence remains local.",
+  "software_source_commit": "9ca925d3f8b0a3b09c35f0102896200d2f39cd28",
+  "M2_open": true,
+  "Best_quality_retained": true,
+  "strict_service_p99_target_ms": 4095,
+  "qualified": false,
+  "timing_qualification": false,
+  "hard_cancel_latency_qualified": false,
+  "logger_effect_isolated": false,
+  "configuration": {
+    "worker": "original unpaced",
+    "backend": "Vulkan",
+    "threads": 2,
+    "requested_UI_backend": "software",
+    "window_policy": "hidden",
+    "GPU_logger_controls": "absent",
+    "request_bound_GPU_query_trace": false,
+    "native_binary_sha256": "26ea99b2bfee4fc3f49d36ecc92d09daf33b2aacd981fb58088ec54ae62112ed",
+    "runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+    "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "retained_driver_cache_seed_files": 63,
+    "retained_driver_cache_seed_bytes": 2382084,
+    "driver_cache_hits_proven": false
+  },
+  "outcome": {
+    "wrapper_passed": false,
+    "functional_passed": true,
+    "service_target_met": false,
+    "native_passed": true,
+    "native_exit": 0,
+    "native_measured_wall_ms": 120012,
+    "hops": {
+      "count": 17,
+      "maximum_ms": 7753.1069699907675,
+      "nearest_rank_p99_ms": 7753.1069699907675,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 6,
+      "complete": true,
+      "median_ms": 3593.626108020544
+    },
+    "audio": {
+      "steady_starved_frames": 0,
+      "control_starved_frames": 1292544,
+      "control_buffering_seconds": 26.928,
+      "outside_measured_intervals_starved_frames": 0,
+      "callbacks": 24380,
+      "source_read_failures": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "execution_deadline_misses": 0,
+      "recording_frames": 6232832,
+      "recording_duration_seconds": 129.85066666666665,
+      "recording_overflow_frames": 0,
+      "all_float_samples_checked": 12465664,
+      "nonfinite_float_samples": 0,
+      "full_recording_correspondence": true,
+      "recording_file_bytes": 49862744,
+      "recording_file_sha256": "3132300667c1912d4e4a94c0e7cf9d509d0234f84592a75d6380101741c2916c"
+    },
+    "controls": {
+      "incomplete_generation_seek_exercised": true,
+      "replay_starts_recovered": 3,
+      "last_recovery_complete": true,
+      "scope": "Retained complete lineage supports request-2 supersession/nonpublication after seek. All three replay generations fully converted and published by capture end. No direct cancel acknowledgement or native termination deadline; hard-cancellation timing remains unqualified.",
+      "replay_generations_fully_converted_and_published": 3,
+      "final_generation_partial": false
+    },
+    "UI": {
+      "frames_presented": 0,
+      "checks": 10825,
+      "hidden_checks": 10825,
+      "unexposed_checks": 10825,
+      "missing_window_checks": 0,
+      "hidden_policy_violated": false,
+      "window_events_attempted": 67,
+      "window_events_retained": 64,
+      "window_events_evicted": 3,
+      "bounded_history_valid": true,
+      "visible_UI_qualified": false
+    },
+    "thermal_and_GPU": {
+      "samples": 65,
+      "sample_interval_seconds": 2,
+      "maximum_sampled_temperature_millidegrees_C": 90000,
+      "samples_at_or_above85000": 1,
+      "samples_at_or_above95000": 0,
+      "guard_warning_events": 1,
+      "guard_warning_temperature_millidegrees_C": 90000,
+      "guard_engaged_power_saver": true,
+      "PL1_nonzero_samples": 26,
+      "thermal_flag_nonzero_samples": 0,
+      "PROCHOT_flag_nonzero_samples": 0,
+      "first_four_late_hops_profile": "balanced",
+      "last_two_late_hops_profile": "low-power",
+      "longest_hop_samples": {
+        "count": 4,
+        "PL1_nonzero": 4,
+        "actual_GPU_MHz_min": 300,
+        "actual_GPU_MHz_max": 350,
+        "requested_GPU_MHz": 1350
+      },
+      "scope": "Intermittent observations do not establish continuous hot exposure or isolate a causal mechanism."
+    },
+    "late_hops": [
+      {
+        "request_id": 1,
+        "generation": 1,
+        "hop_service_ms": 4181.598845985718,
+        "native_graph_compute_ms": 3771.133101,
+        "native_inference_cpu_ms": 228.198
+      },
+      {
+        "request_id": 5,
+        "generation": 2,
+        "hop_service_ms": 4435.155609971844,
+        "native_graph_compute_ms": 4214.633915,
+        "native_inference_cpu_ms": 143.41199999999992
+      },
+      {
+        "request_id": 7,
+        "generation": 3,
+        "hop_service_ms": 4937.542171915993,
+        "native_graph_compute_ms": 4594.371651,
+        "native_inference_cpu_ms": 117.08400000000006
+      },
+      {
+        "request_id": 8,
+        "generation": 3,
+        "hop_service_ms": 4381.958287907764,
+        "native_graph_compute_ms": 4138.387816,
+        "native_inference_cpu_ms": 131.758
+      },
+      {
+        "request_id": 17,
+        "generation": 5,
+        "hop_service_ms": 7753.1069699907675,
+        "native_graph_compute_ms": 7196.336479,
+        "native_inference_cpu_ms": 372.542
+      },
+      {
+        "request_id": 18,
+        "generation": 5,
+        "hop_service_ms": 5761.722172959708,
+        "native_graph_compute_ms": 5267.753833,
+        "native_inference_cpu_ms": 381.6079999999997
+      }
+    ],
+    "cleanup": {
+      "proven": true,
+      "pins_unchanged": true,
+      "application_cache_removed": true,
+      "known_groups_and_audio_objects_gone": true,
+      "same_thermal_guard": true,
+      "driver_cache_inventory_complete": true,
+      "driver_cache_lock_released": true,
+      "original_operator_seconds": 480,
+      "external_end_after_original_human_seconds": 233.485521
+    }
+  },
+  "interpretation": [
+    "A latency miss occurred with GPU logging absent; logging is not required for that failure.",
+    "The standalone OFF run and preceding ON run have different order and power history; neither logger overhead nor a thermal cause is isolated.",
+    "The maximum 7753.107 ms hop included 7196.336 ms of reported graph compute. This elapsed phase includes waits and is not hardware-only kernel timing.",
+    "All initial, seek and replay hops remain in the unchanged service target. Functional playback does not qualify the failed latency target or close M2."
+  ],
+  "next_diagnostic": "Add bounded read-only package constraint sampling to the same OFF workload before changing CPU threads, quality or host policy. Post-run limits are not evidence of in-run values.",
+  "private_evidence_pins": {
+    "hidden-logger-off-plan-02.json": {
+      "bytes": 27678,
+      "sha256": "4dde0150942ca2a369c855966ca05899810c07f847d0efe98db2091afe801da2"
+    },
+    "root-launch-protocol-02.json": {
+      "bytes": 7243,
+      "sha256": "33662c99a0ebb78c1ca989ddb8cd718e5fe6722615854ca2b1720778ebbe30bf"
+    },
+    "review-02-final-plan.json": {
+      "bytes": 11753,
+      "sha256": "9e5c33a0818b5b528ec11f2b2b7674ec2c7623a4d30d4b219bece45871c9f68a"
+    },
+    "player-hidden-logger-off-external-budget-02.json": {
+      "bytes": 3430,
+      "sha256": "3b5b9a56aca576fe6b1ff415b0b2c36dacead9a4ab665ea94712aaab7cb74274"
+    },
+    "root-host-audit-02.json": {
+      "bytes": 2095,
+      "sha256": "5044789c4ac3c6a30429f2d96dedd84c4167719c644e1f1eb42a25f040246b7d"
+    },
+    "independent-operation-audit-02.json": {
+      "bytes": 24519,
+      "sha256": "95c3ecb44046567630780e14f04922d6b027f511487110ef723108d8b02436cd"
+    },
+    "phase-analysis-02.json": {
+      "bytes": 8156,
+      "sha256": "6fd9e6dc5822318ecce75a2a7d59b963309444d3cf907563772ff1e0c57de0be"
+    },
+    "audio-cancellation-audit-02.json": {
+      "bytes": 15858,
+      "sha256": "dcde296bd58fe3fd1539edcfc3e8ec5b6c8f8aee2145776e12b72072ce1fdfdc"
+    }
+  }
+}
