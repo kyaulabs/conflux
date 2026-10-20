@@ -218,26 +218,22 @@ void failuresAndCancellation()
     require(dup2(directory.get(), wrong.audio.descriptor()) == wrong.audio.descriptor(), "Cannot substitute descriptor type");
     rejects([&] { (void)measurePreparedLevels(wrong.audio); }, "regular");
 }
-} // namespace
-
-extern "C" ssize_t __real_pread(int, void*, size_t, off_t);
-extern "C" int __real_fstat(int, struct stat*);
-extern "C" ssize_t __wrap_pread(int fd, void* data, size_t count, off_t offset)
+template<class Read> ssize_t injectedRead(int fd, size_t count, Read&& read)
 {
-    if (fd != injection.descriptor) return __real_pread(fd, data, count, offset);
+    if (fd != injection.descriptor) return read(count);
     ++injection.reads;
     if (injection.fault == Fault::ReadError) { errno = EIO; return -1; }
     if (injection.fault == Fault::InterruptedShortReads) {
         if (injection.reads == 1) { errno = EINTR; return -1; }
         count = std::min<std::size_t>(count, 113);
     }
-    const auto result = __real_pread(fd, data, count, offset);
+    const auto result = read(count);
     if (result > 0 && injection.reads == 1) {
         if (injection.fault == Fault::Truncate) {
             if (ftruncate(injection.writer, 0)) std::abort();
         } else if (injection.fault == Fault::Change) {
             struct stat before{};
-            if (__real_fstat(fd, &before)) std::abort();
+            if (fstat(fd, &before)) std::abort();
             const float replacement = .75F;
             const timespec times[2]{{0, UTIME_OMIT}, {before.st_mtim.tv_sec + 1, before.st_mtim.tv_nsec}};
             if (pwrite(injection.writer, &replacement, sizeof(replacement), 0) != sizeof(replacement) ||
@@ -246,14 +242,49 @@ extern "C" ssize_t __wrap_pread(int fd, void* data, size_t count, off_t offset)
     }
     return result;
 }
-extern "C" int __wrap_fstat(int fd, struct stat* result)
+template<class Stat> int injectedStat(int fd, Stat* result, int status)
 {
-    const auto status = __real_fstat(fd, result);
     if (status == 0 && fd == injection.descriptor && ++injection.stats == 2) {
         if (injection.fault == Fault::Ctime) result->st_ctim.tv_sec += 1;
         if (injection.fault == Fault::CancelReturn) injection.stop->request_stop();
     }
     return status;
+}
+} // namespace
+
+// glibc redirects optimized and large-file builds to these alternate symbols.
+// Keep each real ABI (including the fortified destination size) intact while
+// applying the same descriptor-scoped faults to whichever entry point is used.
+extern "C" ssize_t __real_pread(int, void*, size_t, off_t);
+extern "C" ssize_t __real_pread64(int, void*, size_t, off64_t);
+extern "C" ssize_t __real___pread_chk(int, void*, size_t, off_t, size_t);
+extern "C" ssize_t __real___pread64_chk(int, void*, size_t, off64_t, size_t);
+extern "C" int __real_fstat(int, struct stat*);
+extern "C" int __real_fstat64(int, struct stat64*);
+
+extern "C" ssize_t __wrap_pread(int fd, void* data, size_t count, off_t offset)
+{
+    return injectedRead(fd, count, [&](size_t size) { return __real_pread(fd, data, size, offset); });
+}
+extern "C" ssize_t __wrap_pread64(int fd, void* data, size_t count, off64_t offset)
+{
+    return injectedRead(fd, count, [&](size_t size) { return __real_pread64(fd, data, size, offset); });
+}
+extern "C" ssize_t __wrap___pread_chk(int fd, void* data, size_t count, off_t offset, size_t capacity)
+{
+    return injectedRead(fd, count, [&](size_t size) { return __real___pread_chk(fd, data, size, offset, capacity); });
+}
+extern "C" ssize_t __wrap___pread64_chk(int fd, void* data, size_t count, off64_t offset, size_t capacity)
+{
+    return injectedRead(fd, count, [&](size_t size) { return __real___pread64_chk(fd, data, size, offset, capacity); });
+}
+extern "C" int __wrap_fstat(int fd, struct stat* result)
+{
+    return injectedStat(fd, result, __real_fstat(fd, result));
+}
+extern "C" int __wrap_fstat64(int fd, struct stat64* result)
+{
+    return injectedStat(fd, result, __real_fstat64(fd, result));
 }
 
 int main()
