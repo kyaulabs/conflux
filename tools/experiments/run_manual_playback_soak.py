@@ -583,7 +583,7 @@ def run_live(args):
                         if len(raw) > 16384:
                             raise RuntimeError("Owned thread children exceeds bound")
                         children.update(int(value) for value in raw.split())
-                    except FileNotFoundError:
+                    except (FileNotFoundError, ProcessLookupError):
                         pass
                 if not same_identity(process_record(pid), identity):
                     record_ownership_loss("identity_changed_during_walk", pid, parent_proof, identity); continue
@@ -594,7 +594,7 @@ def run_live(args):
                 if len(observed_groups) > 64:
                     raise RuntimeError("Owned group history exceeds fixed64 bound")
                 pending.extend((value, identity) for value in children)
-            except FileNotFoundError:
+            except (FileNotFoundError, ProcessLookupError):
                 if parent_proof is not None:
                     record_ownership_loss("process_or_parent_disappeared_during_walk", pid, parent_proof)
     def live_owned():
@@ -604,7 +604,7 @@ def run_live(args):
                 fields = (Path("/proc") / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
                 if (int(fields[19]), int(fields[2]), int(fields[3])) == (expected["start_ticks"], expected["group"], expected["session"]):
                     matches[pid] = expected
-            except FileNotFoundError:
+            except (FileNotFoundError, ProcessLookupError):
                 pass
         return matches
     def signal_owned(number):
@@ -743,6 +743,9 @@ def run_live(args):
             and result["guard_after"] == result["guard_before"] and result["power_after"]["ac_online"] and result["power_after"]["lid_open"] and known_graph)
     except Exception as error:
         result["error"] = str(error)
+        result["error_type"] = type(error).__name__
+        if isinstance(error, OSError):
+            result["error_errno"] = error.errno
         if child is not None and child.poll() is None:
             request_stop("Live runner observation error")
     finally:
