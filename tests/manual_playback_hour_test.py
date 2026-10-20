@@ -4,6 +4,7 @@
 import contextlib
 import copy
 import ast
+from datetime import datetime, timedelta, timezone
 import errno
 import io
 import inspect
@@ -143,11 +144,12 @@ class HourPlaybackTest(unittest.TestCase):
                         (live if stage == "live" else remember)()
                     self.assertIs(raised.exception, error)
 
-    def cli(self, *extra):
+    def cli(self, *extra, live_paths=True):
         arguments = ["soak", "--allow-host-audio", "--binary", "/bin/player", "--track-a", "/a",
                      "--track-b", "/b", "--output", "/evidence"]
-        for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
-            arguments.extend(("--" + name, "/" + name))
+        if live_paths:
+            for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
+                arguments.extend(("--" + name, "/" + name))
         with patch.object(sys, "argv", arguments + list(extra)), patch.dict(os.environ, {}, clear=True), \
                 patch.object(soak, "run_live", return_value=0) as run, contextlib.redirect_stderr(io.StringIO()):
             result = soak.main()
@@ -163,6 +165,65 @@ class HourPlaybackTest(unittest.TestCase):
                           ("--live-stems-hour", "--seconds", "3601"), ("--live-stems", "--seconds", "3600")):
             with self.subTest(arguments=arguments), self.assertRaises(SystemExit):
                 self.cli(*arguments)
+
+    def test_background_admission_preserves_live_modes_and_duration_bounds(self):
+        for mode, seconds in (("--live-stems", 120), ("--live-stems-hour", 3600)):
+            with self.subTest(mode=mode):
+                _, visible = self.cli(mode)
+                result, background = self.cli(mode, "--background")
+                self.assertFalse(visible.background)
+                self.assertTrue(background.background)
+                self.assertEqual((result, background.seconds), (0, seconds))
+        for arguments in (("--live-stems", "--seconds", "119"),
+                          ("--live-stems", "--seconds", "181"),
+                          ("--live-stems-hour", "--seconds", "3599"),
+                          ("--live-stems-hour", "--seconds", "3601"),
+                          ("--live-stems", "--live-stems-hour")):
+            with self.subTest(arguments=arguments), self.assertRaises(SystemExit):
+                self.cli("--background", *arguments)
+        # No unrelated live-tool options may mask a missing-mode rejection.
+        with self.assertRaises(SystemExit):
+            self.cli("--background", live_paths=False)
+
+    def readiness_record(self):
+        return {"schema": 1, "decision": "ready", "ready_for_run": "fixture-run",
+                "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
+                "human_reply": "Ready for this run", "AC_power": True, "lid_open": True,
+                "visible_window": True, "screen_awake": True}
+
+    def readiness(self, record, background=False):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "readiness.json"
+            path.write_text(json.dumps(record))
+            return soak.live_readiness(path, "fixture-run", background=background)
+
+    def test_background_readiness_requires_explicit_fresh_human_mode_binding(self):
+        record = self.readiness_record()
+        record.update(ui_mode="background", visible_window=False, screen_awake=False)
+        self.assertEqual(self.readiness(record, background=True)["record"], record)
+        record.pop("visible_window"); record.pop("screen_awake")
+        self.assertEqual(self.readiness(record, background=True)["record"], record)
+        for key, value in (("ui_mode", None), ("ui_mode", "visible"), ("ready_for_run", "another-run"),
+                           ("decision", "wait"), ("AC_power", False), ("lid_open", False),
+                           ("human_reply", ""), ("human_reply", True),
+                           ("recorded_at_utc", (datetime.now(timezone.utc) - timedelta(seconds=901)).isoformat()),
+                           ("recorded_at_utc", (datetime.now(timezone.utc) + timedelta(seconds=60)).isoformat())):
+            invalid = dict(record); invalid[key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(RuntimeError):
+                self.readiness(invalid, background=True)
+
+    def test_visible_readiness_keeps_visible_awake_and_mode_requirements(self):
+        record = self.readiness_record()
+        self.assertEqual(self.readiness(record)["record"], record)
+        for key in ("AC_power", "lid_open", "visible_window", "screen_awake"):
+            invalid = dict(record); invalid[key] = False
+            with self.subTest(key=key), self.assertRaises(RuntimeError):
+                self.readiness(invalid)
+        # An explicitly background-only confirmation cannot authorize the
+        # visible qualification path, even if incidental window flags are true.
+        record["ui_mode"] = "background"
+        with self.assertRaises(RuntimeError):
+            self.readiness(record)
 
     def fixture(self, preparation_seconds=75, overlap=False):
         rate = 48000
@@ -214,6 +275,102 @@ class HourPlaybackTest(unittest.TestCase):
                         "service_hops": {**soak.duration_stats([3000] * 199 + [5000]), "complete": True, "at_or_above_target": 1},
                         "chunk_phases": {"fields": {name: {"count": 200, "present_for_all_chunks": True} for name in soak.LIVE_PHASE_NAMES}}}
         return native, observations
+
+    def background_fixture(self):
+        native, observations = self.fixture()
+        native.update(ui_mode="background", frames_presented=0, maximum_frame_presentation_gap_ns=0,
+                      ui_coverage={"checks": 360000, "visible_healthy_checks": 0,
+                                   "missing_window_checks": 0, "hidden_checks": 360000,
+                                   "unexposed_checks": 360000, "stale_frame_checks": 0,
+                                   "missing_frame_checks": 360000, "maximum_frame_age_ns": 0,
+                                   "any_gap": True, "visible_ui_qualification_eligible": False})
+        return native, observations
+
+    def test_background_hour_accepts_absent_or_stale_UI_without_UI_qualification(self):
+        native, observations = self.background_fixture()
+        result = soak.validate_hour_result(native, observations, background=True)
+        self.assertFalse(result["visible_ui_qualification_eligible"])
+        self.assertIn("background", result["scope"].lower())
+        self.assertEqual((result["peer_rewinds"], result["service_hops"]), (8, 200))
+        native.update(frames_presented=1000, maximum_frame_presentation_gap_ns=5000000000)
+        native["ui_coverage"].update(missing_frame_checks=0, stale_frame_checks=360000,
+                                     maximum_frame_age_ns=5000000000)
+        self.assertFalse(soak.validate_hour_result(native, observations, background=True)
+                         ["visible_ui_qualification_eligible"])
+
+    def test_hour_UI_modes_and_coverage_cannot_be_relabeled(self):
+        native, observations = self.background_fixture()
+        with self.assertRaises(RuntimeError):
+            soak.validate_hour_result(native, observations)
+        for mode in (None, "visible"):
+            invalid = copy.deepcopy(native)
+            if mode is None:
+                invalid.pop("ui_mode")
+            else:
+                invalid["ui_mode"] = mode
+            with self.subTest(mode=mode), self.assertRaises(RuntimeError):
+                soak.validate_hour_result(invalid, observations, background=True)
+        for key, value in (("visible_ui_qualification_eligible", True), ("checks", 0),
+                           ("missing_window_checks", 1),
+                           ("hidden_checks", -1), ("unexposed_checks", 360001),
+                           ("missing_frame_checks", True), ("maximum_frame_age_ns", -1)):
+            invalid = copy.deepcopy(native); invalid["ui_coverage"][key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(RuntimeError):
+                soak.validate_hour_result(invalid, observations, background=True)
+
+    def test_background_preserves_heartbeat_audio_peer_and_service_gates(self):
+        native, observations = self.background_fixture()
+        for label, mutation in (
+                ("heartbeat stalled", lambda n: n.update(maximum_gui_heartbeat_gap_ns=2000000000)),
+                ("no callbacks", lambda n: n.update(callbacks=0)),
+                ("callback fault", lambda n: n.update(execution_deadline_misses=1)),
+                ("driver discontinuity", lambda n: n["timing"][0].update(driver_position_discontinuities=1)),
+                ("incomplete shutdown", lambda n: n.update(shutdown_completed=False)),
+                ("unfinished recovery", lambda n: n.update(last_recovery_complete=False)),
+                ("short measurement", lambda n: n.update(measured_wall_ms=3590000)),
+                ("missing peer rewind", lambda n: n["peer_controls"].pop()),
+                ("peer starvation hidden by A control", lambda n: next(
+                    i for i in n["intervals"] if i["a_recovery"] and not i["b_recovery"]
+                ).update(starved_b=256, starved_frames=256))):
+            invalid = copy.deepcopy(native); mutation(invalid)
+            with self.subTest(label=label), self.assertRaises(RuntimeError):
+                soak.validate_hour_result(invalid, observations, background=True)
+        for label, mutation in (
+                ("service loss", lambda o: o.update(service_metrics_complete=False)),
+                ("strict p99 boundary", lambda o: o["service_hops"].update(nearest_rank_p99_ms=4095)),
+                ("missing phase", lambda o: o["chunk_phases"]["fields"].pop("native_graph_compute_ms"))):
+            invalid = copy.deepcopy(observations); mutation(invalid)
+            with self.subTest(label=label), self.assertRaises(RuntimeError):
+                soak.validate_hour_result(native, invalid, background=True)
+
+    def test_public_qualification_gate_never_promotes_background_or_missing_cleanup(self):
+        native, observations = self.fixture()
+        gates = soak.validate_hour_result(native, observations)
+        result = {"passed": True, "cleanup_proven": True, "ui_mode": "visible",
+                  "native": native, "hour_gates": gates}
+        self.assertTrue(soak.live_qualified(result, True))
+        self.assertFalse(soak.live_qualified(result, False))
+        for key in ("passed", "cleanup_proven", "hour_gates"):
+            invalid = copy.deepcopy(result); invalid[key] = False
+            with self.subTest(key=key):
+                self.assertFalse(soak.live_qualified(invalid, True))
+        for location in ("wrapper", "native", "hour_gates"):
+            invalid = copy.deepcopy(result)
+            if location == "wrapper":
+                invalid["ui_mode"] = "background"
+            elif location == "native":
+                invalid["native"]["ui_mode"] = "background"
+            else:
+                invalid["hour_gates"]["visible_ui_qualification_eligible"] = False
+            with self.subTest(location=location):
+                self.assertFalse(soak.live_qualified(invalid, True))
+        native, observations = self.background_fixture()
+        result.update(ui_mode="background", native=native,
+                      hour_gates=soak.validate_hour_result(native, observations, background=True))
+        self.assertFalse(soak.live_qualified(result, True, background=True))
+        # Changing both labels must not erase the retained non-UI gate marker.
+        result["ui_mode"] = result["native"]["ui_mode"] = "visible"
+        self.assertFalse(soak.live_qualified(result, True))
 
     def test_actual_peer_cursor_first_due_after_75_second_preparation(self):
         native, observations = self.fixture()
