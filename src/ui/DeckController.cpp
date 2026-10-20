@@ -366,6 +366,9 @@ void DeckController::catalogFinished()
         libraryTracks_.clear();
         libraryTracks_.reserve(qsizetype(libraryEntries_.size()));
         for (const auto& track : libraryEntries_) {
+            QVariantMap levels;
+            if (track.levels)
+                levels = {{"rms", track.levels->rms}, {"samplePeak", track.levels->samplePeak}};
             QVariantList cues;
             cues.reserve(qsizetype(track.cues.size()));
             for (const auto& cue : track.cues)
@@ -374,7 +377,7 @@ void DeckController::catalogFinished()
                     {"seconds", cue.frame / double(audio::RenderCore::sampleRate)}});
             libraryTracks_.append(QVariantMap{{"id", track.sourceSha256}, {"name", track.name},
                 {"path", track.sourcePath}, {"durationSeconds", track.frames / 48000.0},
-                {"available", track.available}, {"cues", cues}});
+                {"available", track.available}, {"cues", cues}, {"levels", levels}});
         }
         libraryReady_ = true;
     }
@@ -584,9 +587,10 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 sourceId = track.sourceSha256;
                 prepared->cacheHit = track.cacheHit;
                 if (importOnly) {
+                    const auto levels = audio::measurePreparedLevels(track.audio, stop);
                     if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
                     library::LibraryTrack entry{track.sourceSha256, path, QFileInfo(path).fileName(),
-                        track.artifactKey, track.audio.frames(), true};
+                        track.artifactKey, track.audio.frames(), true, {}, levels};
                     return {nullptr, {}, std::move(entry), track.cacheHit};
                 }
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));

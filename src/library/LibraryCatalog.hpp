@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
+#include "audio/AudioFile.hpp"
+
 #include <QString>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace conflux::library {
@@ -23,10 +26,11 @@ struct LibraryTrack {
     std::uint64_t frames = 0;
     bool available = false;
     std::vector<CuePoint> cues{};
+    std::optional<audio::SignalLevels> levels{};
 };
 
 // Worker-only metadata persistence; this never hashes, decodes or prepares audio.
-// Version 2 adds imported source-relative cue points; version 1 reads without cues.
+// Version 3 adds prepared-source RMS/sample peak; older rows read as unknown.
 // Availability is refreshed from regular source-file existence, never saved.
 class LibraryCatalog {
 public:

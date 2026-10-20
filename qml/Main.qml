@@ -225,6 +225,8 @@ ApplicationWindow {
         }
         readonly property var selectedCues: selectedTrack !== null && selectedTrack.cues !== undefined
                                             ? selectedTrack.cues : []
+        readonly property var selectedLevels: selectedTrack !== null && selectedTrack.levels !== undefined
+                                              ? selectedTrack.levels : ({})
         readonly property var preparation: deckController.preparation
         readonly property string preparationText: {
             if (preparation.status === "Idle") return ""
@@ -261,6 +263,11 @@ ApplicationWindow {
             return Math.floor(milliseconds / 60000) + ":"
                    + String(Math.floor(milliseconds / 1000) % 60).padStart(2, "0") + "."
                    + String(milliseconds % 1000).padStart(3, "0")
+        }
+        function levelText(amplitude) {
+            if (typeof amplitude !== "number" || !isFinite(amplitude) || amplitude < 0) return "unknown"
+            if (amplitude === 0) return "−∞ dBFS (silence)"
+            return (20 * Math.log(amplitude) / Math.LN10).toFixed(2) + " dBFS"
         }
         function load(deck) {
             const stems = deckController.stemsAvailable && stemPreparation.checked
@@ -411,7 +418,7 @@ ApplicationWindow {
                       : deckController.libraryTracks.length === 0 ? "Library is empty. Import a path to save your first track."
                       : library.selectedId.length > 0 && (library.selectedTrack === null || !library.selectedTrack.available)
                         ? "Selected source is missing. Edit a path to load another file."
-                      : "Select a saved track, then LOAD A or LOAD B. Analysis: unknown."
+                      : "Select a saved track, then LOAD A or LOAD B."
                 textFormat: Text.PlainText
                 color: deckController.libraryError.length > 0 ? Brand.ConfluxTheme.accent : Brand.ConfluxTheme.muted
                 wrapMode: Text.WordWrap
@@ -443,7 +450,7 @@ ApplicationWindow {
                         highlighted: library.selectedId === modelData.id
                         onClicked: library.selectTrack(modelData)
                         Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
-                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Analysis unknown."
+                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Whole-track levels appear in details. Tempo, beat, phrase and key are unknown."
                         background: Rectangle {
                             radius: 3
                             color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
@@ -477,6 +484,25 @@ ApplicationWindow {
                     Layout.preferredWidth: 660
                     Layout.minimumWidth: 560
                     spacing: 8
+                    Label {
+                        objectName: "libraryTrackLevels"
+                        text: "Whole-track RMS: " + library.levelText(library.selectedLevels.rms)
+                              + " · Sample peak: " + library.levelText(library.selectedLevels.samplePeak)
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.text
+                        Layout.fillWidth: true
+                        Accessible.name: text
+                    }
+                    Label {
+                        objectName: "libraryTrackAnalysis"
+                        text: "Tempo / beat / phrase / key: unknown."
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        color: Brand.ConfluxTheme.muted
+                        Layout.fillWidth: true
+                        Accessible.name: text
+                    }
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 8

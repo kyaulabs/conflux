@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-20T21:56:05.312089+00:00",
+  "scope": "Follow-up to initial PR44 normal-CI fault-injection failure; test wrapper only.",
+  "status": "local_focused_regressions_passed_CI_pending",
+  "base_signed_source": "6393f63f029a12817c0ad0ff648c7c2a86fdede9",
+  "initial_CI": {
+    "push_run": 39502750290,
+    "pull_request_run": 39502923595,
+    "normal_linux": "both failed only the audio-levels interrupted-read injection assertion",
+    "coverage": "both passed; no claim of normal-CI success"
+  },
+  "reproduction": {
+    "before_fix": "The optimized large-file build failed the same assertion; undefined production symbols were fstat64 and __pread64_chk.",
+    "after_fix": "Normal, optimized fortified, and optimized fortified large-file audio-levels tests all pass, retaining all original fault and cancellation assertions.",
+    "variant_symbols": {
+      "normal": [
+        "U fstat",
+        "U pread"
+      ],
+      "largefile": [
+        "U fstat64",
+        "U __pread64_chk"
+      ],
+      "fortified": [
+        "U fstat",
+        "U __pread_chk"
+      ]
+    }
+  },
+  "fix": "Wrap glibc normal, 64-bit and fortified pread plus normal/64-bit fstat entry points only in the test target. Fortified calls retain their destination capacity; production source and all assertions are unchanged.",
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 20294,
+      "sha256": "72bbf1005dd47e2a45de6d620cf2580710b14d547c5ca0c262edfb8ca0f53e48"
+    },
+    {
+      "path": "tests/audio_levels_test.cpp",
+      "bytes": 14014,
+      "sha256": "3160cea8781ffb1ac851c778aeeea59e3eb3c0332c925add201b9033d2264e09"
+    }
+  ],
+  "local_proof_records": [
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/largefile-RED-receipt.json",
+      "bytes": 1657,
+      "sha256": "7739b5ed5ad28845f7ea09b036e3a7edb15eabe9eb045f973516b09dca729742"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/wrapper-GREEN-receipt.json",
+      "bytes": 4361,
+      "sha256": "603aac789141b1a6ea6fe755f672897348af5778c0a394276c8f4adfa51f10ab"
+    },
+    {
+      "path": "benchmarks-local/m2-level-analysis-2026-10-20/PR44-source6393-CI-audit.json",
+      "bytes": 35337,
+      "sha256": "62196b6940357aafeef5d2b73e120e87109b7a13a26414275125e40ba6f216f6"
+    }
+  ],
+  "limits": [
+    "Focused local tests exercise audio-levels only; the original full functional results remain pinned in verification.json.",
+    "Fresh corrected-head Linux and coverage CI are pending at this receipt.",
+    "No physical playback, model inference, latency qualification or new dependency.",
+    "Best quality, normal two runtime threads and the strict 4095 ms M2 blocker remain."
+  ]
+}

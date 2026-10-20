@@ -95,6 +95,16 @@ if(BUILD_TESTING)
     target_compile_options(conflux-audio-preparation-test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME audio-preparation COMMAND conflux-audio-preparation-test)
     set_tests_properties(audio-preparation PROPERTIES TIMEOUT 30)
+    add_executable(conflux-audio-levels-test tests/audio_levels_test.cpp)
+    target_link_libraries(conflux-audio-levels-test PRIVATE conflux-audio)
+    target_compile_definitions(conflux-audio-levels-test PRIVATE _LARGEFILE64_SOURCE)
+    target_compile_options(conflux-audio-levels-test PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_options(conflux-audio-levels-test PRIVATE
+        -Wl,--wrap=pread -Wl,--wrap=pread64
+        -Wl,--wrap=__pread_chk -Wl,--wrap=__pread64_chk
+        -Wl,--wrap=fstat -Wl,--wrap=fstat64)
+    add_test(NAME audio-levels COMMAND conflux-audio-levels-test)
+    set_tests_properties(audio-levels PROPERTIES TIMEOUT 30)
     add_executable(conflux-audio-read-ahead-test tests/audio_read_ahead_test.cpp)
     target_link_libraries(conflux-audio-read-ahead-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-read-ahead-test PRIVATE -Wall -Wextra -Wpedantic)
