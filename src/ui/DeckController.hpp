@@ -141,6 +141,7 @@ private:
         std::unique_ptr<audio::PreparedPlayback> playback;
         bool cacheHit = false;
         QString sourceId;
+        library::TrackPresentation presentation;
     };
     struct LoadResult {
         std::shared_ptr<PreparedLoad> prepared;
@@ -213,6 +214,7 @@ private:
     audio::LiveSession::PlaybackSources stoppedPlaybacks_{};
     std::array<QString, 2> names_{};
     std::array<QString, 2> sourceIds_{};
+    std::array<library::TrackPresentation, 2> presentations_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::array<bool, 2> replacing_{};

@@ -225,6 +225,8 @@ QVariantList DeckController::decks() const
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"sourceId", sourceIds_[deck]},
+            {"title", presentations_[deck].title}, {"artist", presentations_[deck].artist},
+            {"album", presentations_[deck].album}, {"artworkDataUrl", presentations_[deck].artworkDataUrl},
             {"replacing", replacing_[deck]},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
@@ -572,12 +574,14 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 if (bank) {
                     sourceId = bank->sourceSha256;
                     prepared->cacheHit = bank->cacheHit;
+                    prepared->presentation = std::move(bank->presentation);
                     prepared->audio = std::make_shared<const PreparedPcm>(std::move(bank->stems));
                 } else {
                     // Only a genuine lookup miss reaches the service. A valid
                     // bank never inspects this otherwise unused sixth asset.
                     auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop);
                     sourceId = track.sourceSha256;
+                    prepared->presentation = std::move(track.presentation);
                     prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
                         std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations));
                     prepared->playback = std::move(track.playback);
@@ -586,6 +590,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 auto track = store.prepare(path, stop);
                 sourceId = track.sourceSha256;
                 prepared->cacheHit = track.cacheHit;
+                prepared->presentation = std::move(track.presentation);
                 if (importOnly) {
                     const auto levels = audio::measurePreparedLevels(track.audio, stop);
                     if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
@@ -719,6 +724,7 @@ void DeckController::loaded()
     clips_[pendingDeck_] = std::move(result.prepared->audio);
     names_[pendingDeck_] = pendingName_;
     sourceIds_[pendingDeck_] = result.prepared->sourceId;
+    presentations_[pendingDeck_] = std::move(result.prepared->presentation);
     waveforms_[pendingDeck_] = result.prepared->waveform;
     state_.sourceFrame[pendingDeck_] = 0;
     state_.cueFrame[pendingDeck_] = 0;
@@ -841,6 +847,7 @@ void DeckController::settleReplacement(bool stopped)
     clips_[pendingDeck_] = std::move(pendingLoad_->audio);
     names_[pendingDeck_] = pendingName_;
     sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
+    presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     pendingLoad_.reset();
     replacing_[pendingDeck_] = false;
@@ -923,6 +930,7 @@ void DeckController::installed()
             clips_[deck].reset();
             names_[deck].clear();
             sourceIds_[deck].clear();
+            presentations_[deck] = {};
             waveforms_[deck].clear();
             cueDown_[deck] = cueReleasePending_[deck] = false;
             state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;

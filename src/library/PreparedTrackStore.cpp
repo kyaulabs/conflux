@@ -559,6 +559,7 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
         throw std::length_error("Audio source byte budget exceeded");
     const auto sourceId = scan(source.get(), std::uint64_t(sourceBefore.st_size), stop).sha256;
     if (!unchanged(sourceBefore, statusOf(source.get()))) throw std::runtime_error("Audio source changed during hashing");
+    const auto presentation = readTrackPresentation(source.get(), sourcePath, stop);
     const auto pipeline = pipelineIdentity();
     const auto key = QCryptographicHash::hash(sourceId + '\n' + QJsonDocument(pipeline).toJson(QJsonDocument::Compact),
                                              QCryptographicHash::Sha256).toHex();
@@ -584,7 +585,7 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
         try {
             auto prepared = readEntry(entry.get(), sourceId, key, pipeline, limits_, stop);
             verifySource(source.get(), sourceBefore, sourceId, stop);
-            return {std::move(prepared), QString::fromLatin1(sourceId), QString::fromLatin1(key), true};
+            return {std::move(prepared), QString::fromLatin1(sourceId), QString::fromLatin1(key), true, presentation};
         } catch (const std::invalid_argument&) {
             removeEntry(root.get(), key.toStdString(), entry.get());
             usage = cacheUsage(root.get(), limits_, stop);
@@ -630,7 +631,7 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
     verifySource(source.get(), sourceBefore, sourceId, stop);
     checkStop(stop);
     stage.publish(key);
-    return {std::move(persisted), QString::fromLatin1(sourceId), QString::fromLatin1(key), false};
+    return {std::move(persisted), QString::fromLatin1(sourceId), QString::fromLatin1(key), false, presentation};
 }
 
 std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
@@ -683,6 +684,7 @@ std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
     Descriptor entry(openat(root.get(), key.constData(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
     if (entry.get() < 0) ioError("Cannot open prepared cache entry");
     auto prepared = readStemEntry(entry.get(), sourceId, key, pipeline, engine, files, describe, limits_, stop);
+    prepared.presentation = readTrackPresentation(source.get(), sourcePath, stop);
     verifyUsed();
     return prepared;
 }
@@ -699,6 +701,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
         throw std::length_error("Audio source byte budget exceeded");
     const auto sourceId = scan(source.get(), std::uint64_t(sourceBefore.st_size), stop).sha256;
     if (!unchanged(sourceBefore, statusOf(source.get()))) throw std::runtime_error("Audio source changed during hashing");
+    const auto presentation = readTrackPresentation(source.get(), sourcePath, stop);
     const auto files = pinEngine(engine, stop);
     const auto describe = describeEngine(engine, files, stop);
     const auto pipeline = stemPipeline(engine, files, describe);
@@ -725,6 +728,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
         if (entry.get() < 0) ioError("Cannot open prepared cache entry");
         try {
             auto prepared = readStemEntry(entry.get(), sourceId, key, pipeline, engine, files, describe, limits_, stop);
+            prepared.presentation = presentation;
             verifySource(source.get(), sourceBefore, sourceId, stop);
             verifyEngine(files, stop);
             return prepared;
@@ -851,7 +855,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
         checkEntryContents(stage.directory());
         stage.publish(key);
         return {{{std::move(prepared[0]), std::move(prepared[1]), std::move(prepared[2]), std::move(prepared[3])}},
-            QString::fromLatin1(sourceId), QString::fromLatin1(key), false};
+            QString::fromLatin1(sourceId), QString::fromLatin1(key), false, presentation};
     } catch (const std::exception& error) {
         if (!groupsGone) {
             stage.preserve();
