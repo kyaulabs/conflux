@@ -1,0 +1,268 @@
+{
+  "schema": "conflux.m2-hidden-one-thread-public-summary.v1",
+  "scope": "One standalone 120-second Best-quality hidden logger-OFF run with one runtime CPU thread and read-only package-limit sampling. Functional playback passed; service latency failed. Separate one- and two-thread attempts are not a matched or causal comparison. Raw host, readiness, process and media evidence remains local.",
+  "software_source_commit": "83399197949796c34d3947bf47f25b32f7e386ac",
+  "M2_open": true,
+  "Best_quality_retained": true,
+  "strict_service_p99_target_ms": 4095,
+  "qualified": false,
+  "timing_qualification": false,
+  "hard_cancel_latency_qualified": false,
+  "one_thread_promoted": false,
+  "normal_runtime_threads_retained": 2,
+  "configuration": {
+    "worker": "original unpaced",
+    "backend": "Vulkan",
+    "runtime_threads": 1,
+    "native_mode": "--live-stems-hidden-one-thread",
+    "requested_UI_backend": "software",
+    "window_policy": "hidden",
+    "GPU_logger_controls": "absent",
+    "request_bound_GPU_query_trace": false,
+    "package_fields_per_snapshot": 16,
+    "native_binary_sha256": "71dceee3428c0ed142989b6a34c2ab6243ced3891144fe92b1feba341ca95b7b",
+    "runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+    "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "retained_driver_cache_seed_files": 63,
+    "retained_driver_cache_seed_bytes": 2382084,
+    "driver_cache_hits_proven": false
+  },
+  "outcome": {
+    "wrapper_passed": false,
+    "functional_passed": true,
+    "service_target_met": false,
+    "native_passed": true,
+    "native_exit": 0,
+    "native_measured_wall_ms": 120011,
+    "hops": {
+      "count": 21,
+      "maximum_ms": 5394.730611005798,
+      "nearest_rank_p99_ms": 5394.730611005798,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 8,
+      "complete": true,
+      "median_ms": 2106.3182830112055
+    },
+    "audio": {
+      "steady_starved_frames": 0,
+      "control_starved_frames": 1326848,
+      "control_buffering_seconds": 27.642666666666667,
+      "outside_measured_intervals_starved_frames": 0,
+      "callbacks": 24538,
+      "source_read_failures": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "execution_deadline_misses": 0,
+      "recording_frames": 6272000,
+      "recording_duration_seconds": 130.66666666666666,
+      "recording_overflow_frames": 0,
+      "all_float_samples_checked": 12544000,
+      "nonfinite_float_samples": 0,
+      "full_recording_correspondence": true,
+      "recording_file_bytes": 50176088,
+      "recording_file_sha256": "ac3a284bc72a7fd623c36a8ab0035761d77dc2a94d71eb5b47f181d3724d0a7d"
+    },
+    "controls": {
+      "incomplete_generation_seek_exercised": true,
+      "replay_starts_recovered": 4,
+      "replay_generations_fully_converted_and_published": 3,
+      "final_generation_partial": true,
+      "final_generation_raw_complete": false,
+      "final_generation_converter_complete": false,
+      "final_generation_validated_input_endpoint": 773955,
+      "final_generation_published_output_endpoint": 499712,
+      "last_recovery_complete": true,
+      "old_generation_published_after_GUI_seek_issue": false,
+      "old_generation_chunk_validated_after_GUI_seek_before_new_acceptance": true,
+      "scope": "Generation1 request2 validated after GUI seek issue but before generation2 queue/acceptance; it never published. No old-generation publication followed the GUI seek. Generation acceptance is not a direct hard-cancel acknowledgement. Final generation6 remained partial in raw validation, conversion and publication at shutdown."
+    },
+    "UI": {
+      "frames_presented": 0,
+      "checks": 10985,
+      "hidden_checks": 10985,
+      "unexposed_checks": 10985,
+      "missing_window_checks": 0,
+      "hidden_policy_violated": false,
+      "window_events_attempted": 67,
+      "window_events_retained": 64,
+      "window_events_evicted": 3,
+      "bounded_history_valid": true,
+      "visible_UI_qualified": false
+    },
+    "package_constraints": {
+      "samples": 65,
+      "complete_samples": 65,
+      "read_errors": 0,
+      "sample_interval_seconds": 2,
+      "maximum_snapshot_read_seconds": 0.015162602066993713,
+      "MMIO_long_term_transitions_uW": [
+        15000000,
+        7500000,
+        15000000,
+        7500000
+      ],
+      "MSR_long_term_uW": 64000000,
+      "scope": "Separate reported MMIO/MSR settings, not power consumed or proof of effective enforcement. Sequential intermittent observations do not establish causality or continuous state."
+    },
+    "thermal_and_GPU": {
+      "samples": 65,
+      "maximum_sampled_temperature_millidegrees_C": 94000,
+      "samples_at_or_above85000": 2,
+      "longest_consecutive_sample_span_at_or_above85000_seconds": 0.0,
+      "samples_at_or_above95000": 0,
+      "guard_warning_temperatures_millidegrees_C": [
+        94000,
+        93000
+      ],
+      "guard_recovered_between_warnings": true,
+      "PL1_nonzero_samples": 19,
+      "thermal_flag_nonzero_samples": 0,
+      "PROCHOT_flag_nonzero_samples": 0,
+      "longest_hop_samples": {
+        "count": 2,
+        "PL1_nonzero": 2,
+        "actual_GPU_MHz": [
+          350,
+          350
+        ],
+        "requested_GPU_MHz": 1350,
+        "MMIO_long_term_uW": 7500000,
+        "MSR_long_term_uW": 64000000
+      },
+      "scope": "Two isolated high samples do not establish excursion duration; a zero consecutive-sample span is not zero time above threshold. Read brackets do not prove continuous GPU activity."
+    },
+    "late_hops": [
+      {
+        "request_id": 4,
+        "generation": 2,
+        "hop_service_ms": 5043.952792999335,
+        "native_graph_compute_ms": 4492.048335,
+        "native_inference_cpu_ms": 208.1099999999999
+      },
+      {
+        "request_id": 5,
+        "generation": 2,
+        "hop_service_ms": 4270.493053016253,
+        "native_graph_compute_ms": 3914.129445,
+        "native_inference_cpu_ms": 196.634
+      },
+      {
+        "request_id": 6,
+        "generation": 2,
+        "hop_service_ms": 4635.252895997837,
+        "native_graph_compute_ms": 4243.940642,
+        "native_inference_cpu_ms": 213.01400000000012
+      },
+      {
+        "request_id": 7,
+        "generation": 2,
+        "hop_service_ms": 4482.539311051369,
+        "native_graph_compute_ms": 4175.112964,
+        "native_inference_cpu_ms": 216.9969999999994
+      },
+      {
+        "request_id": 10,
+        "generation": 3,
+        "hop_service_ms": 4692.093510064296,
+        "native_graph_compute_ms": 4273.546509,
+        "native_inference_cpu_ms": 293.93899999999985
+      },
+      {
+        "request_id": 11,
+        "generation": 3,
+        "hop_service_ms": 5088.242628029548,
+        "native_graph_compute_ms": 4736.228584,
+        "native_inference_cpu_ms": 240.8130000000001
+      },
+      {
+        "request_id": 15,
+        "generation": 4,
+        "hop_service_ms": 4941.630119923502,
+        "native_graph_compute_ms": 4554.792402,
+        "native_inference_cpu_ms": 265.3949999999995
+      },
+      {
+        "request_id": 19,
+        "generation": 5,
+        "hop_service_ms": 5394.730611005798,
+        "native_graph_compute_ms": 5003.749643,
+        "native_inference_cpu_ms": 266.3050000000003
+      }
+    ],
+    "cleanup": {
+      "proven": true,
+      "pins_unchanged": true,
+      "application_cache_removed": true,
+      "known_groups_and_audio_objects_gone": true,
+      "same_thermal_guard": true,
+      "driver_cache_inventory_complete": true,
+      "driver_cache_lock_released": true,
+      "original_operator_seconds": 480,
+      "external_command_end_after_original_human_seconds": 173.21772
+    }
+  },
+  "earlier_two_thread_reference": {
+    "public_summary": "power-limit-verification.json",
+    "summary_pin": {
+      "bytes": 9858,
+      "sha256": "98614e62f96d28cd684bce5149aa23632bbe9a224df9cb9aafb2502cbd2de4dc"
+    },
+    "hops": {
+      "count": 21,
+      "maximum_ms": 5832.504926947877,
+      "nearest_rank_p99_ms": 5832.504926947877,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 2,
+      "complete": true,
+      "median_ms": 1815.605245064944
+    },
+    "control_buffering_seconds": 19.6,
+    "matched_or_counterbalanced": false,
+    "scope": "Different startup and power histories prevent causal attribution. The earlier run is context, not a control arm or substitute for qualification."
+  },
+  "interpretation": [
+    "One thread missed the same strict target with eight late validated hops; it is not promoted and existing normal modes retain two threads.",
+    "The longest hop included 5003.750 ms of reported native graph-compute elapsed time and 266.305 ms of inference CPU time. Nested graph duration includes waits, not hardware-only kernel time.",
+    "The eight late hops are not evidence of a sustained thermal exposure or proof that a reported package limit caused a particular delay.",
+    "Functional playback and full recording integrity do not override failed latency, partial final output or unmeasured hard-cancel timing."
+  ],
+  "next_step": "Retain the two-thread Best-quality default and inspect existing runtime profiling evidence offline before selecting another targeted experiment. Keep the guard, host policy, quality and 4095 ms target unchanged.",
+  "private_evidence_pins": {
+    "hidden-one-thread-plan-04.json": {
+      "bytes": 34003,
+      "sha256": "4e174155ac6a46a99a5da6361b76d268ada27dabbf08aa8ff4a59c5109446f69"
+    },
+    "root-launch-protocol-04.json": {
+      "bytes": 10781,
+      "sha256": "e365e1b62be461d88366fcc4418fd7ae252c3fc6d8b8d74b2375c2960f7f1833"
+    },
+    "review-02-final-plan.json": {
+      "bytes": 37002,
+      "sha256": "971fdcdf5257005d0ab8449611138e925437ec657b9d6dd937331d0255c1d1e7"
+    },
+    "player-hidden-one-thread-external-budget-04.json": {
+      "bytes": 3555,
+      "sha256": "5bae97bcbf3771df4ea259ea90c804ee19908b472e3964e884af3faa26db18c7"
+    },
+    "root-host-audit-04.json": {
+      "bytes": 2580,
+      "sha256": "ada3da730b022922bf7c29c56b9c58d7216e72762c43e59e30e24b97c149d43d"
+    },
+    "independent-operation-audit-04.json": {
+      "bytes": 30399,
+      "sha256": "f9d45f51dbcf8208b8982b925610bd430fc817f1fbd2e8a786a14b221a3e49d3"
+    },
+    "phase-analysis-04.json": {
+      "bytes": 60086,
+      "sha256": "9e75af8d0df5661a229e6c4620b884de3bd699b7f60bd66e21fdf7e6e9811472"
+    },
+    "audio-cancellation-audit-04.json": {
+      "bytes": 37326,
+      "sha256": "ca954e0e108b2a945f6f78429d3fb5664c2304853347e7420b49f905aa2cfcb1"
+    },
+    "phase-analysis-independent-review-04.json": {
+      "bytes": 26236,
+      "sha256": "0a5e4ca28b8ae4b8d9a983b41d96d8c49368a64137cbbb49f755d1848b5831cd"
+    }
+  }
+}
