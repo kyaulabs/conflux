@@ -1,0 +1,164 @@
+{
+  "schema": "conflux.hidden-window-functional-verification.v1",
+  "scope": "Benchmark/test-support validation only. Private PipeWire, generated audio and a fake persistent service; no model inference, GPU workload, host audio or latency qualification.",
+  "based_on_commit": "627a504aba1886d41086fe32dfae9d2f3abef76a",
+  "qualified": false,
+  "timing_qualification": false,
+  "product_code_changed": false,
+  "local_product_coverage_remeasured": false,
+  "source_pins": {
+    "tools/experiments/PlaybackUiPolicy.hpp": {
+      "bytes": 3161,
+      "sha256": "d5aaec1ba51a653b0210b8dbd515c2dede3517203b0a08b69eeacc21199dfc9c"
+    },
+    "tools/experiments/manual_playback_soak.cpp": {
+      "bytes": 61299,
+      "sha256": "fb8210384cb84010dd63ca71da8bc85fe1da49764b8096166824e1f31a8e8799"
+    },
+    "tests/window_event_history_test.cpp": {
+      "bytes": 13340,
+      "sha256": "fa3cf7027ca27f02b3d372e1a66fda6b7e60adb9ae0ddc488dd8da05245eb879"
+    },
+    "tests/manual_ui_test.cpp": {
+      "bytes": 93261,
+      "sha256": "0e3cf69524641a46071baac1a52c125bb10fab578894acf1245acb33a96822d4"
+    }
+  },
+  "normal": {
+    "ctest_passed": 2,
+    "ctest_total": 2,
+    "ctest_seconds": 30.55,
+    "complete_QML_suite_passed": 60,
+    "QML_failed": 0,
+    "QML_skipped": 0,
+    "transient_latch_regression_failed_before_fix": true
+  },
+  "private_integration": {
+    "single_launch": true,
+    "requested_seconds": 3,
+    "measured_wall_ms": 3004,
+    "native_passed": true,
+    "host_audio": false,
+    "functional_only": true,
+    "native_binary_sha256": "26ea99b2bfee4fc3f49d36ecc92d09daf33b2aacd981fb58088ec54ae62112ed",
+    "coverage": {
+      "any_gap": true,
+      "capture_end": "Before controller shutdown and window close",
+      "checks": 156,
+      "hidden_checks": 156,
+      "hidden_policy_violated": false,
+      "maximum_frame_age_ns": 0,
+      "missing_frame_checks": 156,
+      "missing_window_checks": 0,
+      "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+      "stale_frame_checks": 151,
+      "unexposed_checks": 156,
+      "visible_healthy_checks": 0,
+      "visible_ui_qualification_eligible": false,
+      "window_policy": "hidden"
+    },
+    "startup": {
+      "functional_ui_bypass": false,
+      "startup_minimum_frames": 0,
+      "startup_wait_ms": 0,
+      "hidden_activity_latched": true
+    },
+    "window_events": {
+      "attempted": 8,
+      "retained": 8,
+      "dropped": 0,
+      "frozen_before_cleanup": true,
+      "all_post_attachment_events_hidden_unexposed_present_frames0": true
+    },
+    "observations": {
+      "records": 206,
+      "jsonl_lines_including_setup": 207,
+      "ordinal_contiguous": true,
+      "counters": {
+        "attempted": 206,
+        "bytes": 106978,
+        "dropped": 0,
+        "invalid_clock_reads": 0,
+        "producer_finished": true,
+        "retained": 206
+      }
+    },
+    "frames_presented": 0,
+    "callbacks": 699,
+    "replays": 28,
+    "maximum_GUI_heartbeat_gap_ns": 67502887,
+    "audio_faults": {
+      "steady_starved_frames": 0,
+      "source_read_failures": 0,
+      "invalid_buffers": 0,
+      "execution_deadline_misses": 0,
+      "rejected_commands": 0
+    },
+    "recording": {
+      "channels": 2,
+      "sample_rate": 48000,
+      "frames": 170496,
+      "duration_seconds": 3.552,
+      "float_samples_checked": 340992,
+      "all_finite": true,
+      "fact_native_writer_frames_equal": true,
+      "peak_chunk_and_native_peaks_equal": true
+    },
+    "cleanup": {
+      "native_owned_group_gone": true,
+      "service_and_job_gone_before_fallback": true,
+      "private_graph": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "private_daemon_reaped": true,
+      "application_cache_removed": true,
+      "symlink_attack_resistant_fd_cleanup": true
+    },
+    "generated_fontconfig_symlinks_unlinked_without_following": 3,
+    "cleanup_note": "An extra post-run verifier first refused ordinary generated fontconfig symlinks. Owned-cache cleanup then unlinked them without following targets; the integration was not relaunched."
+  },
+  "private_evidence_pins": {
+    "final-build.log": {
+      "bytes": 205,
+      "sha256": "0f0456e8a2ddde78e2f8886c6750dd6e00a625a62a6fc9c24d8b8240066540c1"
+    },
+    "focused-ctest.xml": {
+      "bytes": 1617,
+      "sha256": "e9642410a3b0c13a7c1e2a4396de26495c12953a713002bf4d1d24dc2562f89c"
+    },
+    "focused-ctest.log": {
+      "bytes": 324,
+      "sha256": "0e994c6aad3f7afdc551173998876757ba4b59c28a58fb9c1773c1675aa491d2"
+    },
+    "focused-ctest-details.log": {
+      "bytes": 6877,
+      "sha256": "4644a4249a030615a529da4869960b1d6ad1e1a11e13f836b0fb2f9c999a67a5"
+    },
+    "transient-policy-red.log": {
+      "bytes": 398,
+      "sha256": "c75e4df9b9f6b3befb9ae4a85ac83997b1a1de17026a7dd1fdabf36bc8982871"
+    },
+    "source-review-01.json": {
+      "bytes": 5007,
+      "sha256": "6bbb0202f175db7088655c4d6d568ca9bf1d647483e4743cd02f0bdb73512afb"
+    },
+    "source-review-02.json": {
+      "bytes": 7687,
+      "sha256": "38ab4c506b8cdb9aebb1b012422f7d409cc3c9491b0b59f5a2c757721c9af4aa"
+    },
+    "private-integration-execution-01.json": {
+      "bytes": 11380,
+      "sha256": "6dc8c4108ef24673030ebbc5187f0927880853cecb4842fee2d0c3f8370ac11c"
+    },
+    "independent-integration-audit-01.json": {
+      "bytes": 1591,
+      "sha256": "fa9fe043f421d85b2664fac0181fd8dcdfb1afea4ad2d6c5154f585d20d6a955"
+    }
+  },
+  "limitations": [
+    "Functional checks disable timing qualification; their samples do not establish native-device audio continuity, real-model behavior, power behavior or p99.",
+    "Visible-UI qualification remains unavailable for hidden mode. Existing visible/background modes retain their previous guards.",
+    "Product coverage remains the preceding measurement; only benchmark and test support changed."
+  ]
+}

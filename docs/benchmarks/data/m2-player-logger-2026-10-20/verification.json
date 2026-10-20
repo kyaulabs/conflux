@@ -1,0 +1,399 @@
+{
+  "schema": "conflux.m2-player-logger-public-summary.v1",
+  "scope": "One ordered ON/OFF actual-player diagnostic with different observed UI exposure. Raw host, process, readiness, media and observation files remain local.",
+  "software_source_commit": "627a504aba1886d41086fe32dfae9d2f3abef76a",
+  "M2_open": true,
+  "Best_quality_retained": true,
+  "strict_service_p99_target_ms": 4095,
+  "qualified": false,
+  "timing_qualification": false,
+  "hard_cancel_latency_qualified": false,
+  "pair_service_target_passed": false,
+  "logger_effect_isolated": false,
+  "configuration": {
+    "requested_seconds_per_arm": 120,
+    "worker": "original unpaced",
+    "backend": "Vulkan",
+    "threads": 2,
+    "requested_UI_backend": "software",
+    "requested_UI_mode": "background permitted; exposure was not held fixed",
+    "native_binary_sha256": "262e61cd70e9a00c09a171a07d4ef5692d926d7ea0cc67b4d1e5f9030bd7eb2f",
+    "promoted_runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+    "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "logger_ON_environment": {
+      "GGML_VK_PERF_LOGGER": "1",
+      "GGML_VK_PERF_LOGGER_FREQUENCY": "1"
+    },
+    "logger_OFF_environment": "All GPU logger controls absent; setting logger=0 would still enable it.",
+    "GPU_query_trace_available": false,
+    "GPU_query_scope": "Aggregate profiler stderr on ON only; neither arm has request-bound top32 intervals.",
+    "driver_cache_limit_setting_both": "128M",
+    "GPU_observation_interval_seconds": 2
+  },
+  "arms": {
+    "on": {
+      "wrapper_passed": true,
+      "functional_passed": true,
+      "service_target_met": true,
+      "native_measured_wall_ms": 120012,
+      "native_exit": 0,
+      "latency": {
+        "count": 21,
+        "p50_ms": 1719.4704189896584,
+        "p95_ms": 1896.5388389769942,
+        "p99_ms": 2006.7145969951525,
+        "max_ms": 2006.7145969951525,
+        "first_hop_ms": 2006.7145969951525,
+        "at_or_above4095": 0
+      },
+      "late_hops": [],
+      "controls": {
+        "incomplete_seek": {
+          "submitted": true,
+          "exercised": true,
+          "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+        },
+        "replays_recovered": 4,
+        "all_control_recovered_stamps_valid": true,
+        "last_recovery_complete": true
+      },
+      "audio": {
+        "steady_starved_frames": 0,
+        "control_starved_frames": 794112,
+        "control_buffering_seconds": 16.544,
+        "outside_interval_starved_frames": 0,
+        "execution_deadline_misses": 0,
+        "source_read_failures": 0,
+        "invalid_buffers": 0,
+        "rejected_commands": 0,
+        "recorded_frames": 6012416,
+        "full_float_samples_checked": 12024832,
+        "nonfinite_samples": 0,
+        "at_or_above1_samples": 0,
+        "recording_overflow_frames": 0,
+        "full_native_recording_correspondence": true
+      },
+      "UI": {
+        "any_gap": true,
+        "capture_end": "Before controller shutdown and window close",
+        "checks": 11556,
+        "hidden_checks": 0,
+        "maximum_frame_age_ns": 121895221034,
+        "missing_frame_checks": 0,
+        "missing_window_checks": 0,
+        "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+        "stale_frame_checks": 11551,
+        "unexposed_checks": 11556,
+        "visible_healthy_checks": 0,
+        "visible_ui_qualification_eligible": false
+      },
+      "Qt_frame_notifications": 257,
+      "cache": {
+        "seed_manifest": "c66f11b35f3ad35866846268c79a1e1f5210b5ebaf7b9ea11dfec947c4586b37",
+        "pre_post_manifest": "e5cab13212f76ee75f53fed61404ff10a80adff8866bbf03a7a71af09c975ae7",
+        "payload_sha256": "e4150c40ba2e86ca848f159a8c61d6bafaae88a1cd67e1038f82b6f0e8b3b916",
+        "files": 63,
+        "directories": 57,
+        "bytes": 2382084,
+        "lock_released": true,
+        "cache_hits_proven": false
+      },
+      "cleanup_and_phase_pins": {
+        "recorded_before_after_equal": true,
+        "root_current_host_absence_checked": true,
+        "owned_pipewire_objects": 0,
+        "all_known_process_groups_absent": true,
+        "same_guard_and_file_identities": true,
+        "disposable_cache_removed": true
+      },
+      "recording": {
+        "frames": 6012416,
+        "duration_seconds": 125.25866666666667,
+        "float_samples_checked": 12024832,
+        "nonfinite_float_samples": 0,
+        "channels": 2,
+        "sample_rate": 48000,
+        "all_samples_finite": true,
+        "complete_no_overflow": true,
+        "file_bytes": 48099416,
+        "file_sha256": "0750b6610b81e0c72811ac8d82da7d8aea82c101b8c091dbb8d6079be5b34a20"
+      },
+      "seek_evidence": {
+        "seek_to_first_recovered_cursor_poll_upper_ms": 4637.799072,
+        "generation1_accepted_packets_after_seek_issue": 0,
+        "request2_records": 0,
+        "scope": "Retained pipeline evidence excludes Request2 validation/publication: gen1 has only Request1 validation and no accepted output after seek issue. PacketAccepted records use request_id=0; exclusion follows generation/validation lineage. Request2 supersession identity is inferred; no direct cancel ACK, native inference-start/termination timestamp or hard-cancel deadline measurement."
+      },
+      "thermal": {
+        "samples": 62,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 87000,
+        "85000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 0,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_EPP_observed": [
+          {
+            "platform_profile": "balanced",
+            "energy_performance_preference": "balance_performance"
+          },
+          {
+            "platform_profile": "low-power",
+            "energy_performance_preference": "power"
+          }
+        ]
+      },
+      "GPU_frequency": {
+        "samples": 62,
+        "actual_MHz_min": 0,
+        "actual_MHz_max": 1350,
+        "PL1": {
+          "valid_samples": 62,
+          "nonzero_samples": 0,
+          "min": 0,
+          "max": 0
+        },
+        "thermal": {
+          "valid_samples": 62,
+          "nonzero_samples": 0,
+          "min": 0,
+          "max": 0
+        },
+        "prochot": {
+          "valid_samples": 62,
+          "nonzero_samples": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scope": "Intermittent read-only actual versus requested/current GPU clocks and throttle reasons; no continuous or causal thermal/frequency claim."
+      },
+      "Qt_frame_notifications_scope": "Total frameSwapped notifications including startup through pre-cleanup; UI coverage checks cover only the measured loop."
+    },
+    "off": {
+      "wrapper_passed": false,
+      "functional_passed": true,
+      "service_target_met": false,
+      "native_measured_wall_ms": 120012,
+      "native_exit": 0,
+      "latency": {
+        "count": 21,
+        "p50_ms": 1853.3557229675353,
+        "p95_ms": 5364.708626992069,
+        "p99_ms": 5564.492163946852,
+        "max_ms": 5564.492163946852,
+        "first_hop_ms": 1697.2041020635515,
+        "at_or_above4095": 2
+      },
+      "late_hops": [
+        {
+          "epoch": 6,
+          "generation": 5,
+          "request_id": 18,
+          "input_first": 773955,
+          "hop_service_ms": 5364.708626992069,
+          "native_inference_wall_ms": 5235.057225,
+          "native_inference_cpu_ms": 258.64599999999973,
+          "native_graph_compute_ms": 5071.745896
+        },
+        {
+          "epoch": 7,
+          "generation": 6,
+          "request_id": 22,
+          "input_first": 773955,
+          "hop_service_ms": 5564.492163946852,
+          "native_inference_wall_ms": 5410.4836,
+          "native_inference_cpu_ms": 269.03800000000047,
+          "native_graph_compute_ms": 5234.884225
+        }
+      ],
+      "controls": {
+        "incomplete_seek": {
+          "submitted": true,
+          "exercised": true,
+          "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+        },
+        "replays_recovered": 4,
+        "all_control_recovered_stamps_valid": true,
+        "last_recovery_complete": true
+      },
+      "audio": {
+        "steady_starved_frames": 0,
+        "control_starved_frames": 1053696,
+        "control_buffering_seconds": 21.952,
+        "outside_interval_starved_frames": 0,
+        "execution_deadline_misses": 0,
+        "source_read_failures": 0,
+        "invalid_buffers": 0,
+        "rejected_commands": 0,
+        "recorded_frames": 6000640,
+        "full_float_samples_checked": 12001280,
+        "nonfinite_samples": 0,
+        "at_or_above1_samples": 0,
+        "recording_overflow_frames": 0,
+        "full_native_recording_correspondence": true
+      },
+      "UI": {
+        "any_gap": false,
+        "capture_end": "Before controller shutdown and window close",
+        "checks": 10762,
+        "hidden_checks": 0,
+        "maximum_frame_age_ns": 47065889,
+        "missing_frame_checks": 0,
+        "missing_window_checks": 0,
+        "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+        "stale_frame_checks": 0,
+        "unexposed_checks": 0,
+        "visible_healthy_checks": 10762,
+        "visible_ui_qualification_eligible": false
+      },
+      "Qt_frame_notifications": 6964,
+      "cache": {
+        "seed_manifest": "c66f11b35f3ad35866846268c79a1e1f5210b5ebaf7b9ea11dfec947c4586b37",
+        "pre_post_manifest": "dd7fdac381add94166ab172eb0fe4c1e5217f69164ce4c9e010ee77e55a0c719",
+        "payload_sha256": "e4150c40ba2e86ca848f159a8c61d6bafaae88a1cd67e1038f82b6f0e8b3b916",
+        "files": 63,
+        "directories": 57,
+        "bytes": 2382084,
+        "lock_released": true,
+        "cache_hits_proven": false
+      },
+      "cleanup_and_phase_pins": {
+        "recorded_before_after_equal": true,
+        "root_current_host_absence_checked": true,
+        "owned_pipewire_objects": 0,
+        "all_known_process_groups_absent": true,
+        "same_guard_and_file_identities": true,
+        "disposable_cache_removed": true
+      },
+      "recording": {
+        "frames": 6000640,
+        "duration_seconds": 125.01333333333334,
+        "float_samples_checked": 12001280,
+        "nonfinite_float_samples": 0,
+        "channels": 2,
+        "sample_rate": 48000,
+        "all_samples_finite": true,
+        "complete_no_overflow": true,
+        "file_bytes": 48005208,
+        "file_sha256": "f11554b96ff6c87a9d1b52f6ec45caaf6978892ba8e7501c487519b80bc89049"
+      },
+      "seek_evidence": {
+        "seek_to_first_recovered_cursor_poll_upper_ms": 6585.985727,
+        "generation1_accepted_packets_after_seek_issue": 0,
+        "request2_records": 0,
+        "scope": "Retained pipeline evidence excludes Request2 validation/publication: gen1 has only Request1 validation and no accepted output after seek issue. PacketAccepted records use request_id=0; exclusion follows generation/validation lineage. Request2 supersession identity is inferred; no direct cancel ACK, native inference-start/termination timestamp or hard-cancel deadline measurement."
+      },
+      "thermal": {
+        "samples": 62,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 92000,
+        "85000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 0,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_EPP_observed": [
+          {
+            "platform_profile": "balanced",
+            "energy_performance_preference": "balance_performance"
+          },
+          {
+            "platform_profile": "low-power",
+            "energy_performance_preference": "power"
+          }
+        ]
+      },
+      "GPU_frequency": {
+        "samples": 62,
+        "actual_MHz_min": 0,
+        "actual_MHz_max": 1350,
+        "PL1": {
+          "valid_samples": 62,
+          "nonzero_samples": 9,
+          "min": 0,
+          "max": 1
+        },
+        "thermal": {
+          "valid_samples": 62,
+          "nonzero_samples": 0,
+          "min": 0,
+          "max": 0
+        },
+        "prochot": {
+          "valid_samples": 62,
+          "nonzero_samples": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scope": "Intermittent read-only actual versus requested/current GPU clocks and throttle reasons; no continuous or causal thermal/frequency claim."
+      },
+      "Qt_frame_notifications_scope": "Total frameSwapped notifications including startup through pre-cleanup; UI coverage checks cover only the measured loop."
+    }
+  },
+  "shared_checks": {
+    "identical_seed_payload_both": true,
+    "cache_seed_files": 63,
+    "cache_seed_bytes": 2382084,
+    "cache_payload_sha256": "e4150c40ba2e86ca848f159a8c61d6bafaae88a1cd67e1038f82b6f0e8b3b916",
+    "cache_hits_proven": false,
+    "all_common_phase_pins_equal": true,
+    "guard_identity_and_code_unchanged": true,
+    "owned_groups_audio_objects_and_live_caches_cleaned_both": true,
+    "full_recorded_float_samples_checked": 24026112,
+    "original_operator_window_maximum_seconds": 960,
+    "last_wrapper_finish_after_original_reply_seconds": 519.013938,
+    "original_UTC_renewed": false,
+    "external_phase_and_pair_caps_met": true
+  },
+  "interpretation": [
+    "ON met the short service target; OFF failed it with two late published hops. Functional playback and cleanup passed in both arms.",
+    "Actual rendering differed: ON was unexposed for every check; OFF was exposed with active frame notifications. The logger-only causal comparison is inconclusive.",
+    "Late OFF requests spent about 5.07 and 5.23 seconds in reported graph compute. Intermittent PL1 snapshots and different UI activity do not establish a cause.",
+    "This short ordered pair does not establish sustained p99, visible-UI qualification, seamless seek/replay, hard-cancel latency or listening quality.",
+    "These runs use promoted runtime 6f4dca32. Differences from earlier e2039b7b instrumented-runtime cache tests are not a causal comparison.",
+    "Next: repeat with automatically enforced identical hidden-window policy and unchanged Best quality/target before changing runtime settings."
+  ],
+  "private_evidence_pins": {
+    "logger-plan-01.json": {
+      "bytes": 25634,
+      "sha256": "795761f23f5b35c9c6a715f5658ff531835f7b4bee1156e7277284c6265a6efd"
+    },
+    "root-launch-protocol-01.json": {
+      "bytes": 5500,
+      "sha256": "056448f6a2bfd605455e853757c44111951d785961cc630ab23ff06c99d0dd42"
+    },
+    "review-02-final-plan.json": {
+      "bytes": 13129,
+      "sha256": "defde3357dfe275901602373932b5c0465209e4b4dbc425122458b19b76a78a6"
+    },
+    "pair-independent-operation-audit-01.json": {
+      "bytes": 25028,
+      "sha256": "0ed646e980160417eb4ffcbe5ccae81c244a887846bee12c258e623d1c47812b"
+    },
+    "pair-audio-cancellation-audit-01.json": {
+      "bytes": 27342,
+      "sha256": "f7260518a00013268a71f383bc56ded7e10da06104638d705c9e59b7599a4d86"
+    },
+    "pair-root-host-audit-01.json": {
+      "bytes": 3288,
+      "sha256": "0e3fb865ad30def8b1e15a39af0b970bfa5abd8e437f7c2a11554f3894e63167"
+    },
+    "player-logger-on-external-budget-01.json": {
+      "bytes": 3621,
+      "sha256": "9052904a27728fc3523b3af210a354ff557d8aa65cddae3b7c711bfe6214503b"
+    },
+    "player-logger-off-external-budget-01.json": {
+      "bytes": 4549,
+      "sha256": "d8fda805dffb32d43951db5deb2facf7a7a1f50b18c748601a5caa4c21026add"
+    }
+  }
+}

@@ -76,6 +76,14 @@ and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
 
+The [hidden-window benchmark verification](benchmarks/data/m2-player-logger-2026-10-20/hidden-window-verification.json)
+passed the window-policy/history test and all 60 QML tests, including hidden
+startup, binding delivery and a brief show/hide that must remain a latched
+failure. The private fake-service integration passed 156 hidden-window checks,
+28 replays and full finite-WAV validation with owned cleanup complete. These
+functional support-code checks do not qualify timing or visible UI. Product
+code is unchanged; local product coverage was not remeasured for this slice.
+
 The [earlier M2 live bridge timing measurement](benchmarks/data/m2-live-bridge-timing-2026-10-19/verification.json)
 passed 36/36 instrumented CTest entries, offscreen smoke, 124 private-routing
 checks and 78 private preparation/library checks. The separate normal run passed

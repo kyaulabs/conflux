@@ -14,6 +14,7 @@
 #include <QVariantList>
 #include <QWheelEvent>
 #include <QtTest>
+#include "../tools/experiments/PlaybackUiPolicy.hpp"
 
 #include <memory>
 #include <algorithm>
@@ -343,7 +344,7 @@ struct UiFixture {
     QQuickWindow* window = nullptr;
     QStringList warnings;
 
-    void load()
+    void load(bool visible = true)
     {
         engine.rootContext()->setContextProperty("deckController", &endpoint);
         engine.rootContext()->setContextProperty("initialDark", true);
@@ -354,12 +355,13 @@ struct UiFixture {
                              for (const auto& error : errors)
                                  warnings.append(error.toString());
                          });
+        if (!visible) engine.setInitialProperties({{"visible", false}});
         engine.load(QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/qml/Main.qml")));
         if (!engine.rootObjects().isEmpty()) {
             window = qobject_cast<QQuickWindow*>(engine.rootObjects().first());
             if (window) {
                 window->resize(1680, 1020);
-                window->requestActivate();
+                if (visible) window->requestActivate();
             }
         }
     }
@@ -430,6 +432,47 @@ private slots:
         ui_.reset();
         QCoreApplication::sendPostedEvents();
         QCoreApplication::processEvents();
+    }
+
+    void hiddenBenchmarkKeepsBindingsWithoutRendering()
+    {
+        ui_.reset();
+        unsigned frames = 0;
+        UiFixture hidden;
+        hidden.load(false);
+        QVERIFY2(hidden.window, qPrintable(hidden.warnings.join('\n')));
+        QVERIFY(!hidden.window->isVisible());
+        QVERIFY(!hidden.window->isExposed());
+        QObject::connect(hidden.window, &QQuickWindow::frameSwapped, &hidden.engine, [&] { ++frames; });
+        hidden.endpoint.setError("Hidden event delivery");
+        auto* error = hidden.item("audioError");
+        QVERIFY(error);
+        QTRY_COMPARE(error->property("text").toString(), QString("Hidden event delivery"));
+        QTest::qWait(100);
+        QVERIFY(!hidden.window->isVisible());
+        QVERIFY(!hidden.window->isExposed());
+        QCOMPARE(frames, 0U);
+        QVERIFY(hidden.warnings.isEmpty());
+    }
+
+    void hiddenBenchmarkRetainsBriefShowHide()
+    {
+        ui_.reset();
+        using Policy = conflux::experiments::PlaybackUiPolicy;
+        Policy policy(Policy::Mode::Hidden);
+        UiFixture hidden;
+        hidden.load(false);
+        QVERIFY(hidden.window);
+        auto* const window = hidden.window;
+        auto state = [window] { return Policy::State{true, window->isVisible(), window->isExposed(), false, 0}; };
+        QObject::connect(window, &QWindow::visibleChanged, &hidden.engine, [&policy, state](bool) { policy.observeActivity(state()); });
+        QVERIFY(policy.healthy(false, state()));
+        hidden.window->show();
+        hidden.window->hide();
+        QVERIFY(!hidden.window->isVisible());
+        QVERIFY(!policy.healthy(false, state()));
+        QVERIFY(!policy.healthy(true, state()));
+        QVERIFY(policy.report()["hidden_policy_violated"].toBool());
     }
 
     void unloadedAndBusyControls()

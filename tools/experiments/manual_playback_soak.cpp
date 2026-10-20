@@ -111,11 +111,13 @@ QJsonArray timing(const conflux::DeckController& controller)
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-hour|--live-stems-background|--live-stems-hour-background SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
-    const bool background = mode == "--live-stems-background" || mode == "--live-stems-hour-background";
-    conflux::experiments::PlaybackUiPolicy uiPolicy(background);
+    const bool hidden = mode == "--live-stems-hidden";
+    const bool background = hidden || mode == "--live-stems-background" || mode == "--live-stems-hour-background";
+    using UiPolicy = conflux::experiments::PlaybackUiPolicy;
+    UiPolicy uiPolicy(hidden ? UiPolicy::Mode::Hidden : background ? UiPolicy::Mode::Background : UiPolicy::Mode::Visible);
     const bool functional = qEnvironmentVariable("CONFLUX_PRIVATE_ROUTING_CHECK") == "1";
     bool valid = false;
     const int seconds = QString::fromLocal8Bit(argv[5]).toInt(&valid);
@@ -214,6 +216,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     QJsonObject setup, result{{"schema", 2}, {"mode", hour ? "live-stems-hour" : "live-stems"}, {"functional_only", functional}, {"host_audio", !functional},
         {"pid", qint64(QCoreApplication::applicationPid())}, {"requested_seconds", seconds}, {"platform", platform}, {"qt", qVersion()},
         {"ui_mode", background ? "background" : "visible"},
+        {"window_policy", hidden ? "hidden" : background ? "background" : "visible"},
         {"quick_backend_environment", qEnvironmentVariable("QT_QUICK_BACKEND")}, {"source_root", QStringLiteral(CONFLUX_SOURCE_DIR)}, {"qualified", false},
         {"scope", "Short actual controller/service playback diagnostic; no sustained p99, physical latency, automatic fallback or musical-quality qualification"}};
     if (hour) result["scope"] = "Sustained two-deck actual controller/service fixed-mix evidence; wrapper qualifies only after timing/health/cleanup gates; other M2 requirements remain open";
@@ -230,6 +233,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     QString phase = "startup";
     auto windowSnapshot = [&](qint64 now) {
         const bool exists = bool(window), visible = window && window->isVisible(), exposed = window && window->isExposed();
+        if (window) uiPolicy.observeActivity({exists, visible, exposed, presented != 0, 0});
         return QJsonObject{{"exists", exists}, {"visible", visible}, {"exposed", exposed},
             {"visibility", window ? QJsonValue(int(window->visibility())) : QJsonValue()},
             {"window_state", window ? QJsonValue(int(window->windowState())) : QJsonValue()},
@@ -249,13 +253,20 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
          {"frame_timestamp_scope", "frameSwapped slot observation; not compositor presentation or physical scanout"},
          {"heartbeat_timestamp_scope", "Most recent measured-loop health observation after qWait"},
          {"source_scope", "event_filter_before_target is pre-handler; signal is Qt notification; snapshot is polling, not an event"},
-         {"capture_end", "Before controller shutdown and window close"}, {"functional_ui_bypass", functional},
-         {"frame_age_limit_ns", 2000000000LL}, {"startup_minimum_frames", 10}, {"startup_wait_ms", 5000},
+         {"capture_end", "Before controller shutdown and window close"}, {"functional_ui_bypass", functional && !hidden},
+         {"frame_age_limit_ns", 2000000000LL}, {"startup_minimum_frames", hidden ? 0 : 10}, {"startup_wait_ms", hidden ? 0 : 5000},
+         {"hidden_activity_latched", hidden},
          {"activation_required", false}});
     QObject::connect(&app, &QGuiApplication::applicationStateChanged, &windowEvents, [&](Qt::ApplicationState value) {
         windowEvents.record("signal:applicationStateChanged", {{"signal_value", int(value)}});
     });
     auto checkStop = [&] { if (QFileInfo::exists(stop)) { cancelled = true; throw std::runtime_error("Stop file requested graceful live cancellation"); } };
+    auto checkHidden = [&] {
+        if (!hidden) return;
+        const UiPolicy::State state{bool(window), window && window->isVisible(), window && window->isExposed(), presented != 0, 0};
+        uiPolicy.observeActivity(state);
+        require(uiPolicy.healthy(functional, state), "Controlled hidden window became visible, exposed, rendered or missing");
+    };
     auto pulse = [&] {
         const auto state = controller.audioState();
         windowEvents.record("snapshot:progress");
@@ -267,7 +278,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     auto wait = [&](const std::function<bool()>& predicate, int timeout = 10000) {
         QElapsedTimer deadline; deadline.start();
         for (;;) {
-            checkStop(); drain();
+            checkStop(); drain(); checkHidden();
             if (predicate()) return;
             if (!controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
             require(deadline.elapsed() < timeout, "Live controller acknowledgement timed out");
@@ -308,9 +319,11 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         require(hour ? peer["frames"].toInteger() == 48000LL * 480 :
             peer["frames"].toInteger() >= 48000LL * (seconds + (functional ? 2 : 120)), "Finite peer has wrong duration for playback mode");
         result["peer"] = peer;
+        if (hidden) engine.setInitialProperties({{"visible", false}});
         engine.load(QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/qml/Main.qml")));
         require(!engine.rootObjects().isEmpty(), "Live Main.qml did not load");
         window = qobject_cast<QQuickWindow*>(engine.rootObjects().first()); require(window, "Live QML has no window");
+        require(!hidden || (!window->isVisible() && !window->isExposed()), "Controlled hidden window appeared at startup");
         windowEvents.observe(window);
         QObject::connect(window, &QWindow::visibleChanged, &windowEvents, [&](bool value) {
             windowEvents.record("signal:visibleChanged", {{"signal_value", value}});
@@ -325,6 +338,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         QObject::connect(window, &QQuickWindow::frameSwapped, &app, [&] {
             const auto now = clock.nsecsElapsed(); if (lastFrameNs) maxFrameGapNs = std::max(maxFrameGapNs, now - lastFrameNs);
             lastFrameNs = now; ++presented;
+            uiPolicy.observeActivity({bool(window), window && window->isVisible(), window && window->isExposed(), true, 0});
         });
         QObject::connect(window, &QQuickWindow::sceneGraphError, &app, [&](QQuickWindow::SceneGraphError code, const QString& message) {
             if (sceneErrors.size() < 32) sceneErrors.append(QJsonObject{{"code", int(code)}, {"message", message.left(1024)}});
@@ -391,7 +405,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 result["window_failure"] = windowSnapshot(now);
                 windowEvents.record("snapshot:ui_guard_failure", result["window_failure"].toObject());
             }
-            require(windowHealthy, "Live window hidden or not presenting");
+            require(windowHealthy, hidden ? "Controlled hidden window became visible, exposed or missing" : "Live window hidden or not presenting");
             require(controller.liveStemObservations(0) == observations, "Live playback unexpectedly changed owner/observations");
             require(state.graphRate == 48000 && state.streamFramesMin && state.streamFramesMax >= state.streamFramesMin &&
                 state.masterGain == .25F && state.deckGain[0] == .25F && state.deckGain[1] == 1.F && state.stemBank[0] && !state.stemBank[1] &&
@@ -459,8 +473,11 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         closeMeasurement(true);
     }
     if (phase != "finalizing") { phase = "finalizing"; pulse(); }
-    result["ui_coverage"] = uiPolicy.report();
     windowEvents.freeze(result);
+    if (hidden && failure.isEmpty()) {
+        try { checkHidden(); } catch (const std::exception& error) { failure = QString::fromUtf8(error.what()); }
+    }
+    result["ui_coverage"] = uiPolicy.report();
     framePump.stop(); controller.shutdown(); result["shutdown_completed"] = true; if (window) window->close();
     try {
         drain(); require(trace.flush(), "Cannot flush live evidence"); trace.close();
@@ -542,7 +559,8 @@ int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
     if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
-        QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background"))
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden"))
         return livePlayback(app, argc, argv);
     if (argc != 6) {
         std::cerr << "Usage: manual-playback-soak QUIET_A.wav QUIET_B.wav OUTPUT_DIRECTORY SECONDS STOP_FILE\n";
