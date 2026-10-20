@@ -170,16 +170,18 @@ FLASH_RUNTIME_SHA256 = "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b72
 FLASH_MODEL_SHA256 = "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
 
 
-def live_readiness(path, label):
+def live_readiness(path, label, background=False):
     if not path.is_file() or path.stat().st_size > 16384:
         raise RuntimeError("Supply a small fresh live-run readiness record")
     value = json.loads(path.read_text())
     issued = datetime.fromisoformat(value.get("recorded_at_utc", ""))
     age = (datetime.now(timezone.utc) - issued).total_seconds() if issued.tzinfo else -1
+    conditions = ("AC_power", "lid_open") if background else ("AC_power", "lid_open", "visible_window", "screen_awake")
     if not (value.get("schema") == 1 and value.get("decision") == "ready" and value.get("ready_for_run") == label
-            and all(value.get(name) is True for name in ("AC_power", "lid_open", "visible_window", "screen_awake"))
+            and value.get("ui_mode", "visible") == ("background" if background else "visible")
+            and all(value.get(name) is True for name in conditions)
             and isinstance(value.get("human_reply"), str) and 0 < len(value["human_reply"]) <= 8192 and 0 <= age <= 900):
-        raise RuntimeError("Fresh readiness must cover this run, AC, open lid and a visible awake native window")
+        raise RuntimeError("Fresh readiness must match this run/UI mode and its required physical conditions")
     return {"record": value, "age_seconds": age, "maximum_age_seconds": 900, "pin": pin(path)}
 
 
@@ -202,7 +204,7 @@ def duration_stats(values):
             "nearest_rank_p99_ms": ordered[math.ceil(.99 * len(ordered)) - 1] if ordered else None}
 
 
-def validate_hour_result(native, observations):
+def validate_hour_result(native, observations, background=False):
     """Check bounded native hour evidence before the wrapper's cleanup gate."""
     def check(condition, description):
         if not condition:
@@ -211,6 +213,22 @@ def validate_hour_result(native, observations):
           and native.get("passed") is True and native.get("cancelled") is False
           and native.get("functional_only") is False and native.get("host_audio") is True
           and native.get("shutdown_completed") is True, "incomplete/non-host hour")
+    check(native.get("ui_mode", "visible") == ("background" if background else "visible"), "UI mode differs from launched mode")
+    coverage = native.get("ui_coverage", {})
+    if background:
+        check(isinstance(coverage, dict) and coverage.get("visible_ui_qualification_eligible") is False,
+              "background evidence cannot qualify visible UI")
+        checks = coverage.get("checks")
+        counts = ("visible_healthy_checks", "missing_window_checks", "hidden_checks", "unexposed_checks",
+                  "stale_frame_checks", "missing_frame_checks")
+        check(type(checks) is int and 0 < checks <= 4000000 and
+              all(type(coverage.get(key)) is int and 0 <= coverage[key] <= checks for key in counts) and
+              coverage["missing_window_checks"] == 0 and type(coverage.get("any_gap")) is bool and
+              type(coverage.get("maximum_frame_age_ns")) is int and coverage["maximum_frame_age_ns"] >= 0,
+              "background UI observation counts invalid")
+    else:
+        check(isinstance(coverage, dict) and coverage.get("visible_ui_qualification_eligible", True) is True,
+              "background UI evidence cannot enter visible qualification")
     check(native["setup"]["input_frames"] == 1031940 and native["setup"]["output_frames"] == 1123201
           and native["peer"]["frames"] == 480 * 48000,
           "changed source/peer geometry")
@@ -219,9 +237,11 @@ def validate_hour_result(native, observations):
     wall = native["measured_wall_ms"] / 1000
     check(3600 <= wall <= 3602 and abs((end - begin) / 48000 - wall) <= max(.25, wall * .002),
           "wall/output duration agreement failed")
-    check(native["callbacks"] > 0 and native["frames_presented"] >= 10 and not native["scene_errors"]
-          and 0 < native["maximum_frame_presentation_gap_ns"] < 2000000000
-          and 0 < native["maximum_gui_heartbeat_gap_ns"] < 2000000000, "audio/UI not responsive")
+    check(native["callbacks"] > 0 and not native["scene_errors"]
+          and 0 < native["maximum_gui_heartbeat_gap_ns"] < 2000000000, "audio/control loop not responsive")
+    if not background:
+        check(native["frames_presented"] >= 10
+              and 0 < native["maximum_frame_presentation_gap_ns"] < 2000000000, "visible UI not responsive")
     check(all(native[key] == 0 for key in ("invalid_buffers", "source_read_failures", "rejected_commands", "execution_deadline_misses")),
           "audio callback/source/command fault")
     check(bool(native["timing"]) and all(row["callbacks"] > 0 and row["driver_position_observed"]
@@ -280,7 +300,18 @@ def validate_hour_result(native, observations):
           "all thirteen phases required on every validated chunk")
     return {"peer_rewinds": len(peers), "service_hops": hops["count"],
             "service_hops_at_or_above_target": hops["at_or_above_target"],
-            "strict_service_p99_target_ms": 4095, "steady_starved_a": steady[0], "steady_starved_b": steady[1]}
+            "strict_service_p99_target_ms": 4095, "steady_starved_a": steady[0], "steady_starved_b": steady[1],
+            "visible_ui_qualification_eligible": not background,
+            "scope": "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour"}
+
+
+def live_qualified(result, hour, background=False):
+    """Keep background diagnostics outside visible audio/UI hour qualification."""
+    gates, native = result.get("hour_gates"), result.get("native", {})
+    return bool(hour and not background and result.get("passed") is True and result.get("cleanup_proven") is True
+                and result.get("ui_mode", "visible") == "visible" and isinstance(native, dict)
+                and native.get("ui_mode", "visible") == "visible" and isinstance(gates, dict) and gates
+                and gates.get("visible_ui_qualification_eligible", True) is True)
 
 
 def summarize_live_observations(path, native):
@@ -454,6 +485,7 @@ def summarize_live_observations(path, native):
 def run_live(args):
     import selectors
     hour = args.live_stems_hour
+    background = args.background
     binary = args.binary.resolve(strict=True)
     source, peer = args.track_a.resolve(strict=True), args.track_b.resolve(strict=True)
     assets = {name: getattr(args, name).absolute() for name in ("python", "exporter", "worker", "service", "runtime", "model")}
@@ -463,10 +495,14 @@ def run_live(args):
     output = args.output.absolute(); output.mkdir(mode=0o700, parents=False, exist_ok=False)
     cache = output / "cache"; cache.mkdir(mode=0o700); stop = output / "stop"
     result = {"schema": 2, "passed": False, "qualified": False, "mode": "live-stems-hour" if hour else "live-stems", "requested_seconds": args.seconds,
+              "ui_mode": "background" if background else "visible", "visible_ui_required": not background,
               "started_at_utc": datetime.now(timezone.utc).isoformat(), "scope": "Explicit short native actual-model controller playback; no endurance, fallback or physical latency qualification"}
     if hour:
         result["scope"] = "Sustained actual-player qualification only for the recorded two-deck, one-separator fixed mix; other M2 requirements remain open"
         result["qualified_scope"] = "Exact pinned source/model/runtime, Vulkan two threads, Best conversion, 48kHz/256 stereo, A stems/B finite peer, fixed gains, visible Main.qml, float WAV; no hardware cue, EQ/effects, four-deck, fallback, musical-quality or physical latency qualification"
+    if background:
+        result["scope"] = "Background actual-player audio/stem diagnostics with observed UI coverage; no visible UI or full audio/UI qualification"
+        result.pop("qualified_scope", None)
     child = None; root_identity = None; owned = {}; observed_groups = set(); known_graph = set(); requested_stop = None; stop_at = None
     previous = {}; began = time.monotonic(); deadline = began + args.seconds + 180
     selector = selectors.DefaultSelector(); captures = {}; complete_capture = True
@@ -642,7 +678,7 @@ def run_live(args):
                 stream.write(data)
             captures[key.data] = (stream, count + len(data), digest)
     try:
-        result["human_before_setup"] = live_readiness(args.readiness_decision, output.name)
+        result["human_before_setup"] = live_readiness(args.readiness_decision, output.name, background)
         source_root = Path(__file__).resolve().parents[2]
         ui_assets = ("qml/Main.qml", "qml/DeckSurface.qml", "qml/MixerSurface.qml", "qml/DeckButton.qml", "qml/SurfaceKnob.qml", "qml/StereoMeter.qml",
             "brand/integration/qtquick/ConfluxTheme.qml", "brand/integration/qtquick/qmldir",
@@ -662,13 +698,16 @@ def run_live(args):
         result["required_free_bytes"] = live_required_free_bytes(args.seconds, hour)
         if shutil.disk_usage(output).free < result["required_free_bytes"]:
             raise RuntimeError("Insufficient free space for bounded cache, recording and evidence")
-        result["human_before_launch"] = live_readiness(args.readiness_decision, output.name)
+        result["human_before_launch"] = live_readiness(args.readiness_decision, output.name, background)
         if result["human_before_launch"]["pin"] != result["human_before_setup"]["pin"]:
             raise RuntimeError("Readiness record changed during setup")
         environment = os.environ.copy(); environment.update({"CONFLUX_ALLOW_HOST_SOAK": "1", "XDG_CACHE_HOME": str(cache)})
         for number in (signal.SIGINT, signal.SIGTERM):
             previous[number] = signal.signal(number, lambda signum, _frame: request_stop(f"runner signal {signum}"))
-        command = [str(binary), "--live-stems-hour" if hour else "--live-stems", str(source), str(peer), str(output), str(args.seconds), str(stop),
+        native_mode = "--live-stems-hour" if hour else "--live-stems"
+        if background:
+            native_mode += "-background"
+        command = [str(binary), native_mode, str(source), str(peer), str(output), str(args.seconds), str(stop),
                    *(str(assets[name]) for name in ("python", "exporter", "worker", "service", "runtime", "model"))]
         result["command"] = command
         for name in ("stdout", "stderr"):
@@ -728,6 +767,11 @@ def run_live(args):
         native = result["native"]
         if native.get("functional_only") is not False or native.get("host_audio") is not True or native.get("source_root") != str(source_root):
             raise RuntimeError("Synthetic/private result cannot qualify as host evidence")
+        if native.get("ui_mode", "visible") != result["ui_mode"]:
+            raise RuntimeError("Native UI mode differs from explicitly launched mode")
+        if background and native.get("ui_coverage", {}).get("visible_ui_qualification_eligible") is not False:
+            raise RuntimeError("Background result must exclude visible UI qualification")
+        result["ui_coverage"] = native.get("ui_coverage")
         result["observations"] = summarize_live_observations(output / "observations.jsonl", native)
         setup = native["setup"]
         if any(setup[key] != result["pins_before"][name]["sha256"] for key, name in (
@@ -738,7 +782,7 @@ def run_live(args):
         result["host_after"] = observation(sensors); result["thermal_summary"] = thermal_summary(output / "host-observations.jsonl")
         result["power_after"] = power_state(); result["guard_after"] = live_guard()
         if hour:
-            result["hour_gates"] = validate_hour_result(native, result["observations"])
+            result["hour_gates"] = validate_hour_result(native, result["observations"], background)
         result["passed"] = bool(child.poll() == 0 and native["passed"] and not requested_stop and complete_capture and result["pins_unchanged"]
             and result["guard_after"] == result["guard_before"] and result["power_after"]["ac_online"] and result["power_after"]["lid_open"] and known_graph)
     except Exception as error:
@@ -834,7 +878,7 @@ def run_live(args):
         result["stop_reason"] = requested_stop; result["elapsed_seconds"] = time.monotonic() - began
         result["wall_budget_seconds"] = args.seconds + 180; result["within_wall_budget"] = time.monotonic() <= deadline
         result["passed"] = bool(result["passed"] and result["within_wall_budget"])
-        result["qualified"] = bool(hour and result["passed"] and result.get("hour_gates") and result["cleanup_proven"])
+        result["qualified"] = live_qualified(result, hour, background)
         result["finished_at_utc"] = datetime.now(timezone.utc).isoformat(); save(output / "result.json", result)
     print(json.dumps(result, indent=2))
     return 0 if result["passed"] else 2 if requested_stop else 1
@@ -851,11 +895,14 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--live-stems", action="store_true", help="short actual-model live controller diagnostic")
     modes.add_argument("--live-stems-hour", action="store_true", help="exactly one hour of sustained actual-model controller playback")
+    parser.add_argument("--background", action="store_true", help="live audio/stem diagnostics without visible UI qualification")
     for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
     parser.add_argument("--guard-unit", type=Path, default=Path.home() / ".config/systemd/user/thermal-guard.service")
     args = parser.parse_args()
+    if args.background and not (args.live_stems or args.live_stems_hour):
+        parser.error("--background requires --live-stems or --live-stems-hour")
     if args.seconds is None:
         args.seconds = 3600 if args.live_stems_hour else 120 if args.live_stems else 1800
     live_names = ("python", "exporter", "worker", "service", "runtime", "model", "readiness_decision")

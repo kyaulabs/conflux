@@ -1,0 +1,88 @@
+{
+  "schema": "conflux.m2-background-player-public-summary.v1",
+  "scope": "Aggregate benchmark and offline verification results. Detailed host/process/readiness evidence is retained locally and is not included in this public report.",
+  "software_source_commit": "f7edfb550585cda109dc45a834f106e43c7cd1ac",
+  "M2_open": true,
+  "Best_quality_retained": true,
+  "strict_service_p99_target_ms": 4095,
+  "software_runs": [
+    {
+      "attempt": 1,
+      "requested_UI_backend": "software",
+      "measured_wall_ms": 90466,
+      "completed": false,
+      "qualified": false,
+      "stop": "window became unexposed",
+      "validated_hops": 16,
+      "observed_p99_max_ms": 6370.167493005283,
+      "hops_at_or_above_4095_ms": 6,
+      "steady_starved_seconds": 0.0,
+      "control_starved_seconds": 23.04,
+      "outside_measured_starved_frames": 0,
+      "callback_faults": {
+        "execution_deadline_misses": 0,
+        "invalid_buffers": 0,
+        "rejected_commands": 0,
+        "source_read_failures": 0
+      },
+      "finite_recorded_frames": 4772096,
+      "recorder_overflow_frames": 0,
+      "cleanup_proven": true,
+      "last_recovery_complete": true,
+      "maximum_observed_CPU_ACPI_C": 96.0
+    },
+    {
+      "attempt": 2,
+      "requested_UI_backend": "software",
+      "measured_wall_ms": 74984,
+      "completed": false,
+      "qualified": false,
+      "stop": "window became unexposed",
+      "validated_hops": 13,
+      "observed_p99_max_ms": 2684.326861053705,
+      "hops_at_or_above_4095_ms": 0,
+      "steady_starved_seconds": 0.0,
+      "control_starved_seconds": 10.288,
+      "outside_measured_starved_frames": 2048,
+      "callback_faults": {
+        "execution_deadline_misses": 0,
+        "invalid_buffers": 0,
+        "rejected_commands": 0,
+        "source_read_failures": 0
+      },
+      "finite_recorded_frames": 3889664,
+      "recorder_overflow_frames": 0,
+      "cleanup_proven": true,
+      "last_recovery_complete": false,
+      "maximum_observed_CPU_ACPI_C": 84.0
+    }
+  ],
+  "retry_controls_ms": {
+    "seek_ack": 6.913993,
+    "seek_cursor_recovery_poll_upper": 4944.220504,
+    "replay_ack": [
+      11.528841,
+      6.341373,
+      13.1749
+    ],
+    "final_replay_recovery_completed": false
+  },
+  "limits": [
+    "Partial unequal-duration runs do not qualify sustained p99 or establish a renderer effect.",
+    "The requested UI environment does not independently identify the graphics API.",
+    "Zero callback faults and finite recordings do not erase control recovery starvation.",
+    "Generation replacement and polling recovery are not a completed in-flight cancellation qualification.",
+    "Discrete temperature samples do not establish continuous hot-exposure duration.",
+    "Background runs are always ineligible for visible audio/UI qualification."
+  ],
+  "offline_verification": {
+    "native_targets_built": 2,
+    "QtCore_window_policy_history_test": "passed",
+    "Python_regressions_passed": 17,
+    "new_Python_regressions_failing_prechange": 7,
+    "private_PipeWire_offscreen_fake_service_integration_seconds": 3,
+    "private_integration": "passed dispatch, replay, WAV and owned cleanup; no host output or model inference",
+    "independent_source_and_results_review": "passed",
+    "physical_background_run_performed": false
+  }
+}

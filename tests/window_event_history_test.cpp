@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../tools/experiments/WindowEventHistory.hpp"
+#include "../tools/experiments/PlaybackUiPolicy.hpp"
 #include <QCoreApplication>
 #include <QJsonDocument>
 #include <iostream>
@@ -140,6 +141,54 @@ void destroyedTargetRemainsSafe()
             !rows[1].toObject()["exists"].toBool() && !rows[2].toObject()["exists"].toBool(),
             "Destroyed target history was not safely retained");
 }
+
+void backgroundPolicyKeepsWindowAndStartupBoundaries()
+{
+    using Policy = conflux::experiments::PlaybackUiPolicy;
+    const Policy visible, background(true);
+    require(visible.requiresStartupPresentation(false) && !visible.requiresStartupPresentation(true) &&
+            !background.requiresStartupPresentation(false) && !background.requiresStartupPresentation(true),
+            "Default visible startup or background presentation policy changed");
+    const Policy::State fresh{true, true, true, true, 1999999999};
+    const Policy::State unexposed{true, true, false, true, 10000000};
+    const Policy::State hidden{true, false, false, true, 3000000000LL};
+    const Policy::State stale{true, true, true, true, 2000000000LL};
+    require(visible.healthy(false, fresh) && background.healthy(false, fresh), "Fresh exposed window was rejected");
+    require(!visible.healthy(false, unexposed) && background.healthy(false, unexposed),
+            "Workspace unexposure did not respect the selected policy");
+    require(!visible.healthy(false, hidden) && background.healthy(false, hidden),
+            "Hidden/minimized window did not respect the selected policy");
+    require(!visible.healthy(false, stale) && background.healthy(false, stale),
+            "Exact two-second frame-age boundary changed");
+    const Policy::State missing{false, false, false, false, 0};
+    require(!visible.healthy(false, missing) && !background.healthy(false, missing) &&
+            !background.healthy(true, missing), "Background waived the live-window requirement");
+    require(visible.healthy(true, missing), "Existing private functional UI bypass changed");
+}
+
+void measuredUiCoverageRetainsGapsWithoutQualifyingBackground()
+{
+    using Policy = conflux::experiments::PlaybackUiPolicy;
+    Policy background(true);
+    const Policy::State healthy{true, true, true, true, 10000000};
+    background.observe(healthy);
+    const auto first = background.report();
+    require(!first["any_gap"].toBool() && !first["visible_ui_qualification_eligible"].toBool(),
+            "Fully exposed background observations became UI qualification");
+    background.observe({true, true, false, true, 20000000});
+    background.observe({true, false, false, true, 2500000000LL});
+    background.observe(healthy);
+    background.observe({false, false, false, false, 0});
+    background.observe({true, true, true, false, 3000000000LL});
+    const auto report = QJsonDocument::fromJson(QJsonDocument(background.report()).toJson()).object();
+    require(report["checks"].toInteger() == 6 && report["visible_healthy_checks"].toInteger() == 2 &&
+            report["missing_window_checks"].toInteger() == 1 && report["hidden_checks"].toInteger() == 2 &&
+            report["unexposed_checks"].toInteger() == 3 && report["stale_frame_checks"].toInteger() == 2 &&
+            report["missing_frame_checks"].toInteger() == 2 && report["maximum_frame_age_ns"].toInteger() == 2500000000LL &&
+            report["any_gap"].toBool() && !report["visible_ui_qualification_eligible"].toBool(),
+            "Measured UI coverage hid a recovered gap or fabricated frame/qualification coverage");
+    require(Policy().report()["visible_ui_qualification_eligible"].toBool(), "Default visible eligibility changed");
+}
 } // namespace
 
 int main(int argc, char** argv)
@@ -150,6 +199,8 @@ int main(int argc, char** argv)
         overflowRetainsLatestInOrder();
         resultSurvivesEarlyFailureAndCleanup();
         destroyedTargetRemainsSafe();
+        backgroundPolicyKeepsWindowAndStartupBoundaries();
+        measuredUiCoverageRetainsGapsWithoutQualifyingBackground();
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
     return 0;
 }
