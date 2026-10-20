@@ -1,0 +1,198 @@
+{
+  "schema": "conflux.m2-hidden-logger-public-summary.v1",
+  "scope": "One 120-second hidden-window Best-quality actual-player diagnostic. ON failed steady playback; the paired OFF arm was not admitted. Raw host, process, readiness, media and observation evidence remains local.",
+  "software_source_commit": "51b2b0985dcb556a666457062862da3282d73cfd",
+  "M2_open": true,
+  "Best_quality_retained": true,
+  "strict_service_p99_target_ms": 4095,
+  "qualified": false,
+  "timing_qualification": false,
+  "hard_cancel_latency_qualified": false,
+  "logger_effect_isolated": false,
+  "configuration": {
+    "worker": "original unpaced",
+    "backend": "Vulkan",
+    "threads": 2,
+    "window_policy": "hidden",
+    "native_binary_sha256": "26ea99b2bfee4fc3f49d36ecc92d09daf33b2aacd981fb58088ec54ae62112ed",
+    "promoted_runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+    "model_sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+    "logger_ON_environment": {
+      "GGML_VK_PERF_LOGGER": "1",
+      "GGML_VK_PERF_LOGGER_FREQUENCY": "1"
+    },
+    "request_bound_GPU_query_trace": false,
+    "retained_driver_cache_seed_files": 63,
+    "retained_driver_cache_seed_bytes": 2382084,
+    "cache_hits_proven": false,
+    "requested_UI_backend": "software"
+  },
+  "on": {
+    "wrapper_passed": false,
+    "functional_passed": false,
+    "comparison_eligible": false,
+    "service_target_met": false,
+    "native_passed": false,
+    "native_exit": 1,
+    "native_error": "Steady playback starved; control intervals retained separately",
+    "native_measured_wall_ms": 120008,
+    "hops": {
+      "count": 17,
+      "maximum_ms": 13886.209341930225,
+      "nearest_rank_p99_ms": 13886.209341930225,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 4,
+      "complete": true,
+      "median_ms": 1843.1314580375329
+    },
+    "audio": {
+      "steady_starved_frames": 810496,
+      "steady_starvation_seconds": 16.88533333333333,
+      "control_starved_frames": 1008128,
+      "control_buffering_seconds": 21.002666666666666,
+      "outside_measured_intervals_starved_frames": 3072,
+      "outside_measured_intervals_starvation_seconds": 0.064,
+      "total_completed_starved_frames": 1821696,
+      "callbacks": 23481,
+      "source_read_failures": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "execution_deadline_misses": 0,
+      "recording_frames": 6002944,
+      "all_float_samples_checked": 12005888,
+      "nonfinite_float_samples": 0,
+      "recording_overflow_frames": 0,
+      "full_recording_correspondence": true,
+      "recording_duration_seconds": 125.06133333333334
+    },
+    "controls": {
+      "incomplete_generation_seek_exercised": true,
+      "replay_starts_recovered": 3,
+      "replays_fully_completed": 2,
+      "last_recovery_complete": true,
+      "final_generation": 5,
+      "final_generation_RawComplete": true,
+      "final_conversion_and_publication_complete": false,
+      "seek_evidence_scope": "Retained complete lineage supports prior-generation nonpublication after supersession. No direct request-2 cancellation acknowledgement or native termination deadline was measured."
+    },
+    "UI": {
+      "frames_presented": 0,
+      "checks": 11097,
+      "hidden_checks": 11097,
+      "unexposed_checks": 11097,
+      "missing_window_checks": 0,
+      "hidden_policy_violated": false,
+      "window_events_attempted": 67,
+      "window_events_retained": 64,
+      "window_events_evicted": 3,
+      "bounded_window_history_valid": true,
+      "visible_UI_qualified": false
+    },
+    "thermal_and_GPU": {
+      "host_samples": 62,
+      "host_sample_interval_seconds": 2,
+      "maximum_sampled_temperature_millidegrees_C": 72000,
+      "guard_warning_events": 1,
+      "guard_warning_reported_temperature_millidegrees_C": 91000,
+      "guard_critical_events_in_external_window": 0,
+      "guard_engaged_power_saver": true,
+      "PL1_nonzero_samples": 22,
+      "thermal_flag_nonzero_samples": 0,
+      "PROCHOT_flag_nonzero_samples": 0,
+      "longest_hop_samples": {
+        "count": 7,
+        "PL1_nonzero": 7,
+        "actual_GPU_MHz_min": 300,
+        "actual_GPU_MHz_max": 500,
+        "requested_GPU_MHz": 1350
+      },
+      "scope": "Intermittent observations and a same-guard journal event; the two-second sampler missed the warning spike. No continuous hot-exposure duration or causal explanation is established."
+    },
+    "late_hops": [
+      {
+        "request_id": 14,
+        "generation": 4,
+        "hop_service_ms": 5085.230067954399,
+        "native_graph_compute_ms": 4735.120304,
+        "native_inference_cpu_ms": 282.911
+      },
+      {
+        "request_id": 16,
+        "generation": 5,
+        "hop_service_ms": 13886.209341930225,
+        "native_graph_compute_ms": 13514.442891,
+        "native_inference_cpu_ms": 283.295
+      },
+      {
+        "request_id": 17,
+        "generation": 5,
+        "hop_service_ms": 12212.438706075773,
+        "native_graph_compute_ms": 11535.625504,
+        "native_inference_cpu_ms": 326.9279999999999
+      },
+      {
+        "request_id": 18,
+        "generation": 5,
+        "hop_service_ms": 11255.453077959828,
+        "native_graph_compute_ms": 10635.872534,
+        "native_inference_cpu_ms": 299.72499999999945
+      }
+    ],
+    "cleanup": {
+      "proven": true,
+      "pins_unchanged": true,
+      "owned_application_cache_removed": true,
+      "owned_groups_and_audio_objects_gone": true,
+      "same_thermal_guard": true,
+      "driver_cache_inventory_complete": true,
+      "driver_cache_lock_released": true,
+      "external_timeout_and_original_operator_budget_verified": true
+    }
+  },
+  "off": {
+    "started": false,
+    "admitted": false,
+    "reason": "Frozen gate requires an intact full-window functional ON result; ON failed steady playback and comparison eligibility. No waiver or automatic retry."
+  },
+  "interpretation": [
+    "The exposure fix worked, but ON failed latency and steady playback.",
+    "The longest hop took 13886.209 ms including 13514.443 ms reported native graph compute; this elapsed phase includes waits and is not hardware-only kernel timing.",
+    "Low sampled GPU clocks, PL1 and guard power-saver state correlate with late hops; their cause is not isolated.",
+    "No OFF result exists, so this attempt establishes no logger benefit or overhead.",
+    "Best quality, all functional gates and the strict 4095 ms target remain unchanged. No milestone gate closed."
+  ],
+  "private_evidence_pins": {
+    "hidden-logger-plan-01.json": {
+      "bytes": 29079,
+      "sha256": "52a7f890b0e599482541a13a6bb65680489f6963a6d454c19fb3f97f6791b062"
+    },
+    "root-launch-protocol-01.json": {
+      "bytes": 7866,
+      "sha256": "407de0c32fdf1138b199397b42725280155e2044eac538c0942241fa72ff065e"
+    },
+    "review-02-final-plan.json": {
+      "bytes": 12569,
+      "sha256": "db226838385efc63cbd99f9bb7e1f95ce68066d64c673213100b4b0d9b8d3c42"
+    },
+    "player-hidden-logger-on-external-budget-01.json": {
+      "bytes": 2949,
+      "sha256": "563f350aba1e2100b9ce539451e779bca7ee74040c8d92ea23d55c72246eebce"
+    },
+    "on-root-host-audit-01.json": {
+      "bytes": 1978,
+      "sha256": "f8d15260f9d0184edc6dcfe85d81042ea1931229d9a664d7d53705b004eefe08"
+    },
+    "on-audio-cancellation-audit-01.json": {
+      "bytes": 17925,
+      "sha256": "50870913e1c32e94fcc3ce3068db012fb175160b1e6a7ab697dff1a2eecc41af"
+    },
+    "on-phase-analysis-01.json": {
+      "bytes": 5565,
+      "sha256": "2b797c51220c51d1f7347faffa29680f2fd112bca6e7e8721d108fa41a6d51ed"
+    },
+    "on-independent-operation-audit-01.json": {
+      "bytes": 22012,
+      "sha256": "8be3c2e61e2ef17e8e726dda9dfe5dc5cba190048d306b7bafb6ffcac4ba7efb"
+    }
+  }
+}
