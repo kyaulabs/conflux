@@ -145,7 +145,7 @@ void destroyedTargetRemainsSafe()
 void backgroundPolicyKeepsWindowAndStartupBoundaries()
 {
     using Policy = conflux::experiments::PlaybackUiPolicy;
-    const Policy visible, background(true);
+    const Policy visible, background(Policy::Mode::Background);
     require(visible.requiresStartupPresentation(false) && !visible.requiresStartupPresentation(true) &&
             !background.requiresStartupPresentation(false) && !background.requiresStartupPresentation(true),
             "Default visible startup or background presentation policy changed");
@@ -169,7 +169,7 @@ void backgroundPolicyKeepsWindowAndStartupBoundaries()
 void measuredUiCoverageRetainsGapsWithoutQualifyingBackground()
 {
     using Policy = conflux::experiments::PlaybackUiPolicy;
-    Policy background(true);
+    Policy background(Policy::Mode::Background);
     const Policy::State healthy{true, true, true, true, 10000000};
     background.observe(healthy);
     const auto first = background.report();
@@ -189,6 +189,48 @@ void measuredUiCoverageRetainsGapsWithoutQualifyingBackground()
             "Measured UI coverage hid a recovered gap or fabricated frame/qualification coverage");
     require(Policy().report()["visible_ui_qualification_eligible"].toBool(), "Default visible eligibility changed");
 }
+
+void hiddenPolicyRejectsExposureChanges()
+{
+    using Policy = conflux::experiments::PlaybackUiPolicy;
+    Policy hidden(Policy::Mode::Hidden);
+    require(!hidden.requiresStartupPresentation(false) && !hidden.requiresStartupPresentation(true),
+            "Hidden mode required startup rendering");
+    const Policy::State stoppedRendering{true, false, false, false, 0};
+    const Policy::State stale{true, false, false, false, Policy::frameAgeLimitNs * 2};
+    for (const bool functional : {false, true}) {
+        require(hidden.healthy(functional, stoppedRendering) && hidden.healthy(functional, stale),
+                "Hidden mode required rendering");
+        for (const Policy::State changed : {Policy::State{true, true, false, false, 0},
+                 Policy::State{true, false, true, false, 0}, Policy::State{true, true, true, true, 1},
+                 Policy::State{false, false, false, false, 0}})
+            require(!hidden.healthy(functional, changed), "Hidden exposure/window guard was waived");
+    }
+    hidden.observe(stoppedRendering);
+    hidden.observe(stale);
+    const auto report = hidden.report();
+    require(report["window_policy"].toString() == "hidden" && report["checks"].toInteger() == 2 &&
+            report["hidden_checks"].toInteger() == 2 && report["unexposed_checks"].toInteger() == 2 &&
+            report["visible_healthy_checks"].toInteger() == 0 && !report["visible_ui_qualification_eligible"].toBool(),
+            "Hidden observations lost exposure accounting or qualified visible UI");
+}
+
+void hiddenPolicyRetainsTransientViolations()
+{
+    using Policy = conflux::experiments::PlaybackUiPolicy;
+    const Policy::State hiddenState{true, false, false, false, 0};
+    for (const Policy::State transient : {Policy::State{true, true, false, false, 0},
+             Policy::State{true, false, true, false, 0}, Policy::State{true, false, false, true, 1},
+             Policy::State{false, false, false, false, 0}}) {
+        Policy policy(Policy::Mode::Hidden);
+        policy.observe(hiddenState);
+        policy.observe(transient);
+        policy.observe(hiddenState);
+        require(!policy.healthy(false, hiddenState) && !policy.healthy(true, hiddenState),
+                "Recovered hidden window erased a transient policy violation");
+        require(policy.report()["hidden_policy_violated"].toBool(), "Hidden violation missing from evidence");
+    }
+}
 } // namespace
 
 int main(int argc, char** argv)
@@ -201,6 +243,8 @@ int main(int argc, char** argv)
         destroyedTargetRemainsSafe();
         backgroundPolicyKeepsWindowAndStartupBoundaries();
         measuredUiCoverageRetainsGapsWithoutQualifyingBackground();
+        hiddenPolicyRejectsExposureChanges();
+        hiddenPolicyRetainsTransientViolations();
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
     return 0;
 }
