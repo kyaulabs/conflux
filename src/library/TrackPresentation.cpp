@@ -87,12 +87,17 @@ private:
 
 // Old TagLib factories offer this per-file virtual hook before inflation and
 // recursive CHAP/CTOC parsing. Never change its process-wide default factory.
+// TagLib1.13 protects this nested type; expose its name through legal derived
+// access without constructing a frame or changing the factory's signature.
+struct FrameHeaderAccess : TagLib::ID3v2::Frame {
+    using Frame::Header;
+};
 class PresentationFrames final : public TagLib::ID3v2::FrameFactory {
 public:
     explicit PresentationFrames(std::stop_token stop) : stop_(stop) {}
     bool rejected() const { return rejected_; }
 protected:
-    bool updateFrame(TagLib::ID3v2::Frame::Header* header) const override
+    bool updateFrame(FrameHeaderAccess::Header* header) const override
     {
         const auto id = header->frameID();
         const bool wanted = id == "TIT2" || id == "TPE1" || id == "TALB" || id == "APIC" ||

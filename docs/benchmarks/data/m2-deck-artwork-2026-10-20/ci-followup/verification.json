@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T00:03:41.201189+00:00",
+  "scope": "TagLib 1.13 source compatibility correction; no parser, UI or audio behavior change. No hardware or latency qualification.",
+  "initial_source_commit": "6a3bae237f034c2ff7767ebf66f7201fcc359962",
+  "initial_CI": {
+    "push_run": 39518043410,
+    "pull_request_run": 39518098336,
+    "status": "failed before tests",
+    "diagnostic": "Frame::Header is protected in TagLib 1.13; direct type access failed to compile.",
+    "logs": {
+      "CI-push-linux-01.log": {
+        "bytes": 108113,
+        "sha256": "d6b4e9b3e110f4aafdf25bc31fee5c10c286526a3cabf8e32a0b1104c9351944"
+      },
+      "CI-push-coverage-01.log": {
+        "bytes": 121335,
+        "sha256": "25a65f3504b2e1f571ac8fd0a612e88adf1f7ff8e723836171fdac4afc2eeee4"
+      },
+      "CI-PR-linux-01.log": {
+        "bytes": 109005,
+        "sha256": "b580a6695c8b414c04a0889f95ed27c313c48931d09d7a20ae90eb84c4134428"
+      },
+      "CI-PR-coverage-01.log": {
+        "bytes": 122298,
+        "sha256": "ff64d72773e1595af3c1e3d35f1e2627e5fc8f91b7ca5cc93f692b5d7f05f0be"
+      }
+    }
+  },
+  "fix": "Expose the identical nested type through an abstract derived access alias; retain the existing virtual parser hook and all guards.",
+  "source_pins": {
+    "src/library/TrackPresentation.cpp": {
+      "bytes": 11508,
+      "sha256": "d10186512dcfcff162192446025aca410744017862ec69bb712ce31a8c26f3a1"
+    },
+    "tests/track_presentation_test.cpp": {
+      "bytes": 18330,
+      "sha256": "713292e1ade712210a1090093ae6abfbdcff5280b0d331877f0eac3e4854cb95"
+    }
+  },
+  "local_focused": {
+    "TagLib": "2.3.2",
+    "passed": 18,
+    "failed": 0,
+    "elapsed_ms": 372,
+    "receipt": {
+      "bytes": 3774,
+      "sha256": "4da0a737ec5f151851cac5888fa4ca8fec21ca0d3240cadf9a9a63e7536d675e"
+    }
+  },
+  "official_1_13_1_header_check": {
+    "passed": true,
+    "warnings": 0,
+    "scope": "Entire production translation unit, syntax only, exact official public headers/templates. No link or runtime claim.",
+    "archive_sha256": "c8da2b10f1bfec2cd7dbfcd33f4a2338db0765d851a50583d410bacf055cfd0b",
+    "provenance": {
+      "bytes": 26954,
+      "sha256": "4c77ae6515f13504a84b1a4a7ce3072cdbddccbb3439afc194c8ab5e99018199"
+    }
+  },
+  "normal_corrected_source": {
+    "build": "passed",
+    "CTest": {
+      "passed": 41,
+      "failed": 0,
+      "seconds": 156.18
+    },
+    "smoke": {
+      "passed": true,
+      "frames_swapped": 131,
+      "platform": "offscreen",
+      "backend": "software"
+    },
+    "logs": {
+      "taglib-fix-full-build.log": {
+        "bytes": 649,
+        "sha256": "071dd85bbeb7d4e4027ac37ff80426f9cca672755613822d97f3276b3f6a4be7"
+      },
+      "taglib-fix-full-ctest.log": {
+        "bytes": 4406,
+        "sha256": "926ca28ff9d775eae9d1ba3dcb713de7f01c60782c389e62085c0f14601ae503"
+      },
+      "taglib-fix-smoke.json": {
+        "bytes": 669,
+        "sha256": "0ccc04ba8aa07f78734c4083ca70e6065cdaa2bc7b865eb3d9b21b95f891fcb0"
+      }
+    }
+  },
+  "instrumented": "Initial-source local coverage is retained in ../verification.json. Corrected-source coverage will be measured by Ubuntu CI; no new local percentage inferred.",
+  "independent_review": {
+    "passed": true,
+    "unresolved_findings": [],
+    "receipt_pin": {
+      "bytes": 5114,
+      "sha256": "c33d4c091b237ebd626a87b7b9947ac86b9266901a1539696e186e404d903b09"
+    }
+  },
+  "M2_release_gate": "open; Best quality, normal runtime threads and strict p99 <4095ms target unchanged"
+}
