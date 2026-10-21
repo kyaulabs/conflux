@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "created_at_utc": "2026-10-21T23:41:37.970804+00:00",
+  "archive_manifest_sha256": "dcd9170656ff202d59f4ca64494dec13f9430963560e39417fb42da6edf35fdd",
+  "artifacts_verified": 107,
+  "stored_bytes": 971213,
+  "raw_bytes": 7001675,
+  "JSONL_records_parsed": 1602,
+  "all_original_raw_and_stored_hashes_match": true,
+  "source_or_model_executed": false,
+  "audio_or_GPU_run": false,
+  "scope": "Archive integrity and saved JSON/JSONL parsing only; measurement claims use included independent reviews.",
+  "raw_secret_scan": {
+    "tool": "gitleaks dir --redact --max-target-megabytes 5",
+    "exit_code": 1,
+    "findings": 1,
+    "reviewed_false_positives": 1,
+    "credential_findings": 0,
+    "rule": "generic-api-key",
+    "source": "per-node-profile-01/parse_attention.py",
+    "line": 30,
+    "reason": "Ordinary parser validation expression and error literal; no credential or authentication data. Same unchanged parser as prior archived probe.",
+    "source_preserved_exactly": true,
+    "no_configuration_exception_or_hook_bypass": true
+  },
+  "music_model_runtime_cache_payloads_excluded": true
+}
