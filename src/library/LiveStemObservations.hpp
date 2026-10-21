@@ -3,6 +3,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -79,6 +80,18 @@ public:
     // context, never Setup while the factory may still be writing it.
     [[nodiscard]] const Setup& setup() const noexcept;
 
+    enum class DiagnosticDrainState : std::uint8_t { NotRequested, Requested, ReadyForStop, Failed };
+    struct DiagnosticDrainStatus {
+        DiagnosticDrainState state = DiagnosticDrainState::NotRequested;
+        std::uint64_t providerEpoch = 0, workerGeneration = 0;
+        std::chrono::steady_clock::time_point deadline{};
+    };
+    // Sole diagnostic consumer, after exact raw/converter/render EOF. One-shot;
+    // never requests producer stop or changes normal cancellation's fast grace.
+    bool requestDiagnosticDrain(std::uint64_t providerEpoch, std::uint64_t workerGeneration,
+        std::chrono::steady_clock::time_point fixedTailDeadline) noexcept;
+    [[nodiscard]] DiagnosticDrainStatus diagnosticDrainStatus() const noexcept;
+
 private:
     friend class PreparedTrackStore;
     // Private access implemented only beside LiveJob/Bridge, not a public writer.
@@ -89,6 +102,11 @@ private:
     std::atomic<std::uint32_t> written_{0}, read_{0};
     std::atomic<std::uint64_t> attempted_{0}, dropped_{0}, clockErrors_{0};
     std::atomic<bool> producerFinished_{false};
+    std::atomic_flag drainClaimed_ = ATOMIC_FLAG_INIT;
+    std::atomic<DiagnosticDrainState> drainState_{DiagnosticDrainState::NotRequested};
+    // Published once, before Requested release; immutable through stop/join.
+    std::uint64_t drainEpoch_ = 0, drainGeneration_ = 0;
+    std::chrono::steady_clock::time_point drainDeadline_{};
 };
 
 } // namespace conflux::library

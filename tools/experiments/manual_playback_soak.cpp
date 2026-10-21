@@ -162,6 +162,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     QFile trace(output + "/observations.jsonl");
     if (!trace.open(QIODevice::WriteOnly | QIODevice::NewOnly)) return 2;
     std::uint64_t retained = 0, recordCount = 0, bytes = 0, acceptedGeneration = 0, completedGeneration = 0;
+    std::uint64_t acceptedEpoch = 0, completedEpoch = 0, converterGeneration = 0, converterEpoch = 0, validatedHops = 0;
     auto write = [&](QJsonObject value) {
         auto line = QJsonDocument(value).toJson(QJsonDocument::Compact); line.append('\n');
         require(line.size() <= 4096 && retained < (hour ? 65536U : 16384U) &&
@@ -174,8 +175,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         if (!observations) return;
         Observations::Record row;
         for (std::size_t count = 0; count < Observations::capacity && observations->tryPop(row); ++count) {
-            if (row.kind == Kind::CommandAccepted) acceptedGeneration = row.workerGeneration;
-            if (row.kind == Kind::RawComplete) completedGeneration = row.workerGeneration;
+            if (row.kind == Kind::CommandAccepted) { acceptedGeneration = row.workerGeneration; acceptedEpoch = row.providerEpoch; }
+            if (row.kind == Kind::RawComplete) { completedGeneration = row.workerGeneration; completedEpoch = row.providerEpoch; }
+            if (row.kind == Kind::ConverterComplete) { converterGeneration = row.workerGeneration; converterEpoch = row.providerEpoch; }
+            if (row.kind == Kind::ChunkValidated) ++validatedHops;
             QJsonObject value{{"type", "record"}, {"kind", int(row.kind)}, {"ordinal", qint64(row.ordinal)}, {"observed_ns", qint64(row.observedNs)},
                 {"epoch", qint64(row.providerEpoch)}, {"generation", qint64(row.workerGeneration)}, {"command_id", qint64(row.commandId)},
                 {"request_id", qint64(row.requestId)}, {"lease_sequence", qint64(row.leaseSequence)},
@@ -231,6 +234,9 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     std::uint64_t peerAppliedTarget = 0;
     QString failure;
     State boundary{}, last{};
+    State tailBegin{}, tailEnd{};
+    QJsonObject diagnosticTail;
+    bool tailStarted = false;
     std::uint64_t eofAtOutput = 0, recoveryTarget = 0;
     QString phase = "startup";
     auto windowSnapshot = [&](qint64 now) {
@@ -465,14 +471,87 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         }
         measuredWallMs = measure.elapsed();
         closeMeasurement(false);
-        phase = "finalizing"; pulse();
+        drain();
         require(firstAdvanceNs && eofCount && replayCount && !recovering && !replayPending && !peerRecovering, "Playback/EOF/replay or last scheduled recovery incomplete");
-        controller.stopRecording(); wait([&] { return !controller.recording()["active"].toBool(); }, 20000);
+        // The fixed measured/WAV interval ends here. Finish only this finite
+        // generation; no tail replay/seek and no time-based hop filtering.
+        tailStarted = true; tailBegin = tailEnd = controller.audioState();
+        const auto tailEpoch = acceptedEpoch, tailGeneration = acceptedGeneration;
+        const auto tailDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+        QElapsedTimer tailClock; tailClock.start();
+        diagnosticTail = {{"status", "WaitingForFiniteEof"}, {"epoch", qint64(tailEpoch)}, {"generation", qint64(tailGeneration)},
+            {"begin_ns", nowNs()}, {"tail_budget_seconds", 60}, {"close_budget_seconds", 3}, {"measured_boundary_closed", true},
+            {"measured_wall_ms_begin", measuredWallMs}, {"measured_output_end_begin", qint64(measurementEndOutputFrame)},
+            {"validated_hops_begin", qint64(validatedHops)},
+            {"scope", "Measured interval is closed; WAV finalized before EOF/idle-close drain, whose later audio is unrecorded; every completed hop retained"}};
+        require(tailEpoch && tailGeneration, "Finite diagnostic tail has no accepted generation");
+        phase = "diagnostic_tail"; pulse();
+        qint64 nextTailPulse = 2000;
+        auto tailProgressAt = std::chrono::steady_clock::now();
+        auto tailLastOutput = tailBegin.outputFrame;
+        bool tailOutputAdvanced = false;
+        auto tailTick = [&] {
+            checkStop(); drain(); QTest::qWait(10); drain(); checkHidden();
+            const auto now = clock.nsecsElapsed(); maxHeartbeatNs = std::max(maxHeartbeatNs, now - lastHeartbeatNs); lastHeartbeatNs = now;
+            tailEnd = controller.audioState();
+            diagnosticTail["elapsed_ms"] = tailClock.elapsed(); diagnosticTail["end_ns"] = nowNs();
+            require(std::chrono::steady_clock::now() < tailDeadline, "Finite diagnostic tail deadline expired");
+            if (tailEnd.outputFrame > tailLastOutput) {
+                tailLastOutput = tailEnd.outputFrame; tailProgressAt = std::chrono::steady_clock::now(); tailOutputAdvanced = true;
+                diagnosticTail["last_output_advance_ns"] = nowNs();
+            }
+            diagnosticTail["output_progress_observed"] = tailOutputAdvanced;
+            require(std::chrono::steady_clock::now() - tailProgressAt < std::chrono::seconds(10),
+                "Finite diagnostic tail output did not advance for ten seconds");
+            require(controller.liveStemObservations(0) == observations && acceptedGeneration == tailGeneration && acceptedEpoch == tailEpoch,
+                "Finite diagnostic tail changed live owner, generation or epoch");
+            require(controller.outputReady() && controller.error().isEmpty() && sceneErrors.isEmpty() &&
+                !tailEnd.sourceReadErrorObserved[0] && !tailEnd.sourceReadErrorObserved[1] && !tailEnd.invalidBuffers && !tailEnd.rejected,
+                "Finite diagnostic tail audio/UI/source failed");
+            require(tailEnd.graphRate == 48000 && tailEnd.masterGain == .25F && tailEnd.deckGain[0] == .25F && tailEnd.deckGain[1] == 1.F &&
+                tailEnd.stemBank[0] && !tailEnd.stemBank[1] && tailEnd.stemGain[0] == std::array<float, 4>{1.F, 1.F, 1.F, 1.F} &&
+                tailEnd.playing[0] && tailEnd.playing[1], "Finite diagnostic tail configuration changed");
+            require(tailEnd.outputFrame >= tailBegin.outputFrame && tailEnd.sourceFrame[0] >= tailBegin.sourceFrame[0] &&
+                tailEnd.sourceFrame[1] >= tailBegin.sourceFrame[1] &&
+                tailEnd.sourceFrame[1] - tailBegin.sourceFrame[1] == tailEnd.outputFrame - tailBegin.outputFrame,
+                "Finite diagnostic tail lost source/output continuity");
+            require(tailEnd.starvedFrames == tailBegin.starvedFrames && tailEnd.deadlineMisses == tailBegin.deadlineMisses,
+                "Finite diagnostic tail starved or missed a callback deadline");
+            const UiPolicy::State uiState{bool(window), window && window->isVisible(), window && window->isExposed(),
+                lastFrameNs != 0, now - lastFrameNs};
+            uiPolicy.observe(uiState);
+            require(uiPolicy.healthy(functional, uiState), "Finite diagnostic tail window policy failed");
+            if (tailClock.elapsed() >= nextTailPulse) { pulse(); nextTailPulse += 2000; }
+        };
+        controller.stopRecording();
+        const auto recordingDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(20);
+        while (controller.recording()["active"].toBool()) {
+            tailTick();
+            require(std::chrono::steady_clock::now() < recordingDeadline, "Live WAV finalization timed out");
+        }
         require(controller.recording()["status"].toString() == "Complete", "Live WAV did not finalize");
+        diagnosticTail["WAV_finalized_before_idle_close"] = true;
+        diagnosticTail["recording_written_frames_begin"] = qint64(controller.recording()["writtenFrames"].toULongLong());
+        auto finiteEof = [&] {
+            return completedGeneration == tailGeneration && completedEpoch == tailEpoch &&
+                converterGeneration == tailGeneration && converterEpoch == tailEpoch &&
+                tailEnd.sourceFrame[0] == tailEnd.sourceFrames[0];
+        };
+        do { tailTick(); } while (!finiteEof() || !tailOutputAdvanced);
+        diagnosticTail["raw_complete"] = true; diagnosticTail["converter_complete"] = true; diagnosticTail["render_eof"] = true;
+        require(observations->requestDiagnosticDrain(tailEpoch, tailGeneration, tailDeadline), "Diagnostic idle-close request rejected");
+        diagnosticTail["status"] = "WaitingForIdleClose"; diagnosticTail["close_requested_ns"] = nowNs(); pulse();
+        using DrainState = Observations::DiagnosticDrainState;
+        while (observations->diagnosticDrainStatus().state == DrainState::Requested) tailTick();
+        require(observations->diagnosticDrainStatus().state == DrainState::ReadyForStop, "Diagnostic idle close failed");
+        diagnosticTail["status"] = "ReadyForStop"; diagnosticTail["end_ns"] = nowNs();
+        diagnosticTail["elapsed_ms"] = tailClock.elapsed();
+        phase = "finalizing";
     } catch (const std::exception& error) {
         failure = QString::fromUtf8(error.what());
-        if (measure.isValid()) measuredWallMs = measure.elapsed();
+        if (measure.isValid() && !measurementIntervalsClosed) measuredWallMs = measure.elapsed();
         closeMeasurement(true);
+        if (tailStarted) { diagnosticTail["status"] = "Failed"; diagnosticTail["error"] = failure; }
     }
     if (phase != "finalizing") { phase = "finalizing"; pulse(); }
     windowEvents.freeze(result);
@@ -481,6 +560,22 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     }
     result["ui_coverage"] = uiPolicy.report();
     framePump.stop(); controller.shutdown(); result["shutdown_completed"] = true; if (window) window->close();
+    if (tailStarted) {
+        tailEnd = controller.audioState();
+        const auto delta = [](std::uint64_t after, std::uint64_t before) -> QJsonValue {
+            return after >= before ? QJsonValue(qint64(after - before)) : QJsonValue{};
+        };
+        diagnosticTail["starved_a"] = delta(tailEnd.starvedFrames[0], tailBegin.starvedFrames[0]);
+        diagnosticTail["starved_b"] = delta(tailEnd.starvedFrames[1], tailBegin.starvedFrames[1]);
+        diagnosticTail["callback_deadline_misses"] = delta(tailEnd.deadlineMisses, tailBegin.deadlineMisses);
+        diagnosticTail["output_begin"] = qint64(tailBegin.outputFrame); diagnosticTail["output_end"] = qint64(tailEnd.outputFrame);
+        diagnosticTail["source_read_error"] = tailEnd.sourceReadErrorObserved[0] || tailEnd.sourceReadErrorObserved[1];
+        diagnosticTail["invalid_buffers"] = qint64(tailEnd.invalidBuffers);
+        diagnosticTail["drain_state"] = int(observations->diagnosticDrainStatus().state);
+        diagnosticTail["recording_written_frames_end"] = qint64(controller.recording()["writtenFrames"].toULongLong());
+        diagnosticTail["measured_wall_ms_end"] = measuredWallMs;
+        diagnosticTail["measured_output_end_end"] = qint64(measurementEndOutputFrame);
+    }
     try {
         drain(); require(trace.flush(), "Cannot flush live evidence"); trace.close();
         const auto counts = observations ? observations->counters() : Observations::Counters{};
@@ -489,6 +584,16 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         if (observations) require(counts.producerFinished && !counts.droppedRecords && !counts.invalidClockReads &&
             counts.attemptedRecords == recordCount, "Live observation interval is incomplete");
         const auto recording = controller.recording();
+        if (tailStarted) {
+            diagnosticTail["validated_hops_end"] = qint64(validatedHops);
+            require(diagnosticTail["recording_written_frames_begin"].toInteger(-1) ==
+                diagnosticTail["recording_written_frames_end"].toInteger(-2), "Recording changed during finite diagnostic drain");
+            require(diagnosticTail["starved_a"].toInteger(-1) == 0 && diagnosticTail["starved_b"].toInteger(-1) == 0 &&
+                diagnosticTail["callback_deadline_misses"].toInteger(-1) == 0 && !diagnosticTail["source_read_error"].toBool() &&
+                !diagnosticTail["invalid_buffers"].toInteger() && diagnosticTail["output_progress_observed"].toBool() &&
+                observations->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::ReadyForStop,
+                "Finite diagnostic tail final health/close failed");
+        }
         require(!failure.isEmpty() || QFileInfo::exists(recordingPath), "Completed live run has no recording");
         result["recording"] = QJsonObject::fromVariantMap(recording);
         if (QFileInfo::exists(recordingPath)) {
@@ -502,6 +607,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         require(controller.completedApplied() == controller.submittedCommands() && !controller.completedRejected() &&
             !controller.completedInvalidBuffers() && !controller.completedReadFailures(), "Live final application counters failed");
     } catch (const std::exception& error) { if (failure.isEmpty()) failure = QString::fromUtf8(error.what()); }
+    if (tailStarted) {
+        if (!failure.isEmpty()) { diagnosticTail["status"] = "Failed"; diagnosticTail["error"] = failure; }
+        result["diagnostic_tail"] = diagnosticTail;
+    }
     std::uint64_t steadyStarved = 0, controlStarved = 0;
     std::array<std::uint64_t, 2> steadyByDeck{};
     for (const auto& entry : intervals) {
