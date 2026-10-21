@@ -1,0 +1,41 @@
+name: Release backmerge
+
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+concurrency:
+  group: conflux-release-backmerge
+  cancel-in-progress: false
+
+jobs:
+  backmerge:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.repository.full_name == github.repository &&
+      (github.event.workflow_run.event == 'pull_request' ||
+       github.event.workflow_run.event == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      # Never execute a workflow_run PR checkout or consume its artifacts.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177 # v2
+        with:
+          tool: git-cliff@2.14.2
+          fallback: none
+      - name: Open main to develop PR as kyaulabs-bot
+        env:
+          GH_TOKEN: ${{ secrets.BACKMERGE_TOKEN }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: python3 .github/scripts/release.py backmerge

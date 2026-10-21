@@ -28,7 +28,7 @@
 int main(int argc, char** argv) {
     QGuiApplication app(argc, argv);
     QCoreApplication::setApplicationName("conflux");
-    QCoreApplication::setApplicationVersion("0.1.0");
+    QCoreApplication::setApplicationVersion(CONFLUX_VERSION);
     QGuiApplication::setApplicationDisplayName("CONFLUX");
     QGuiApplication::setDesktopFileName("com.kyaulabs.conflux");
     QGuiApplication::setWindowIcon(QIcon(":/brand/assets/app-icons/conflux-app-dark.svg"));

@@ -185,6 +185,7 @@ if(CONFLUX_BUILD_UI)
         PRIVATE conflux-library Qt6::Concurrent)
     target_compile_options(conflux-ui PRIVATE -Wall -Wextra -Wpedantic)
     qt_add_executable(conflux src/main.cpp)
+    target_compile_definitions(conflux PRIVATE CONFLUX_VERSION="${PROJECT_VERSION}")
     target_link_libraries(conflux PRIVATE conflux-ui Qt6::Quick Qt6::QuickControls2 Qt6::Svg)
     target_compile_options(conflux PRIVATE -Wall -Wextra -Wpedantic)
     qt_add_resources(conflux runtime-assets PREFIX "/" FILES
