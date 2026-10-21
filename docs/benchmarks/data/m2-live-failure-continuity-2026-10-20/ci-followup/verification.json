@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "status": "support_fixture_fix_verified_locally_pending_corrected_CI",
+  "qualified": false,
+  "scope": "Generated private virtual routing only; no product, model, hardware or latency qualification",
+  "initial_source_commit": "cff4ca81dde681417320b8a2df6f721a2c9db740",
+  "initial_CI": {
+    "push_run": 39522853735,
+    "push_passed": true,
+    "push_instrumented_routing_checks": 124,
+    "PR_run": 39522877852,
+    "PR_passed": false,
+    "failed_stage": "Existing instrumented private-routing functional check",
+    "completed_checks": 89,
+    "failure": "live-owner-installed: generated candidate primes its exact reserve",
+    "exact_error_not_retained": true,
+    "timeout_cause": "Hypothesis only; candidate error was not saved before unwinding",
+    "failed_run_cleanup": {
+      "daemon_reaped": true,
+      "application_nodes_or_links_remaining": 0
+    },
+    "PR_normal_CTest": 41,
+    "PR_normal_preparation_checks": 85,
+    "PR_normal_new_failure_checks": 31
+  },
+  "change": {
+    "source": "tools/experiments/manual_routing_check.cpp",
+    "sha256": "a35d347d0c0969d6a40695276ce8e6efce87d4baf6d34d0bf1155951aa6cc07f",
+    "functional_generated_prime_budget_ms": 10000,
+    "strict_generated_prime_budget_ms": 2000,
+    "unchanged_reserve_frames": 262144,
+    "saved_before_unwind": [
+      "attempted",
+      "ready",
+      "budget_ms",
+      "elapsed_ms",
+      "error_code",
+      "error",
+      "producer_starts",
+      "producer_exits"
+    ],
+    "unchanged_functional_assertions": true,
+    "product_source_unchanged": true,
+    "production_prime_cap_unchanged": true,
+    "strict_live_service_p99_target_ms": 4095
+  },
+  "local_builds": {
+    "normal": true,
+    "instrumented": true,
+    "maximum_compile_jobs": 2
+  },
+  "local_runs": [
+    {
+      "mode": "normal",
+      "functional_only": true,
+      "exit": 0,
+      "passed": true,
+      "checks": 124,
+      "outer_seconds": 7.120158695033751,
+      "daemon_reaped": true,
+      "application_nodes_or_links_remaining": 0,
+      "scenarios": [
+        {
+          "name": "live-owner-installed",
+          "passed": true,
+          "candidate_prime_budget_ms": 10000,
+          "candidate_prime_attempted": true,
+          "candidate_prime_ready": true,
+          "candidate_prime_elapsed_ms": 4,
+          "candidate_prime_error_code": 0,
+          "candidate_prime_error": "",
+          "producer_starts_at_prime_result": [
+            1,
+            1
+          ],
+          "producer_exits_at_prime_result": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "live-owner-immediate",
+          "passed": true,
+          "candidate_prime_budget_ms": 10000,
+          "candidate_prime_attempted": true,
+          "candidate_prime_ready": true,
+          "candidate_prime_elapsed_ms": 3,
+          "candidate_prime_error_code": 0,
+          "candidate_prime_error": "",
+          "producer_starts_at_prime_result": [
+            1,
+            1
+          ],
+          "producer_exits_at_prime_result": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "instrumented",
+      "functional_only": true,
+      "exit": 0,
+      "passed": true,
+      "checks": 124,
+      "outer_seconds": 15.140908437082544,
+      "daemon_reaped": true,
+      "application_nodes_or_links_remaining": 0,
+      "scenarios": [
+        {
+          "name": "live-owner-installed",
+          "passed": true,
+          "candidate_prime_budget_ms": 10000,
+          "candidate_prime_attempted": true,
+          "candidate_prime_ready": true,
+          "candidate_prime_elapsed_ms": 1018,
+          "candidate_prime_error_code": 0,
+          "candidate_prime_error": "",
+          "producer_starts_at_prime_result": [
+            1,
+            1
+          ],
+          "producer_exits_at_prime_result": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "live-owner-immediate",
+          "passed": true,
+          "candidate_prime_budget_ms": 10000,
+          "candidate_prime_attempted": true,
+          "candidate_prime_ready": true,
+          "candidate_prime_elapsed_ms": 993,
+          "candidate_prime_error_code": 0,
+          "candidate_prime_error": "",
+          "producer_starts_at_prime_result": [
+            1,
+            1
+          ],
+          "producer_exits_at_prime_result": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "interpretation": "Atomic coverage adds substantial generated producer work. The prior failure has insufficient error detail to prove a timeout or product defect. No assertion, exact reserve, source-health, sample, cursor, ownership or cleanup gate is waived."
+}

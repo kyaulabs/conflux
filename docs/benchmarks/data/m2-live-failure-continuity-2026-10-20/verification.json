@@ -1,0 +1,241 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T00:37:23.777234+00:00",
+  "scope": "Generated active live-stem stall and unexpected service exit through the controller, prepared bass-only peer and one master recorder. Functional support regression, not production-model or latency qualification.",
+  "product_base_commit": "740cc27f3f4be9fc721b8640f1bb6f5f789ca41c",
+  "product_source_changed": false,
+  "prototype": {
+    "01": {
+      "status": "failed fixture setup before playback scenarios",
+      "elapsed_seconds": 20.303049930022098,
+      "owner_elapsed_seconds": 20.057434573,
+      "source_a_seconds": 30,
+      "prepared_b_seconds": 30,
+      "recorded_error": "std::exception",
+      "interpretation": "Consistent with20s seed wait; Qt future cancellation could erase the primary exception. Saved markers do not locate the slow preparation phase.",
+      "live_service_started": false,
+      "completed_scenarios": 0,
+      "daemon_reaped": true,
+      "remaining_nodes_or_links": [],
+      "failure_analysis_pin": {
+        "bytes": 5224,
+        "sha256": "db87bea49f83d618ad554f2bfe433c7a0054e66740714752d3cb0ef27dec91ad"
+      }
+    },
+    "02": {
+      "status": "passed",
+      "elapsed_seconds": 42.9790112990886,
+      "source_a_seconds": 30,
+      "prepared_b_seconds": 12,
+      "changes": "Shorter generated B fixture and accurate worker/primary-failure diagnostics; Best, holds, sample oracles and normal deadlines unchanged.",
+      "checks": 31,
+      "scenarios": [
+        {
+          "scenario": "active-stall",
+          "passed": true,
+          "wav": {
+            "all_samples_finite": true,
+            "amplitude_tolerance": 1e-06,
+            "baseline_frames": 268800,
+            "bytes": 3108952,
+            "every_frame_checked": true,
+            "fact_frames": 388608,
+            "fade_in_frames": 240,
+            "fade_out_frames": 240,
+            "frames": 388608,
+            "maximum_oracle_error": 1.4901161193847656e-08,
+            "peer_only_frames": 110608,
+            "recovered_frames": 8720,
+            "sha256": "1170c40c99c0b39d72df665a85b1db88377570608d663cb615fde2533d3e244e",
+            "unclassified_or_omitted_frames": 0
+          }
+        },
+        {
+          "scenario": "active-exit",
+          "passed": true,
+          "wav": {
+            "all_samples_finite": true,
+            "amplitude_tolerance": 1e-06,
+            "baseline_frames": 8448,
+            "bytes": 307288,
+            "every_frame_checked": true,
+            "fact_frames": 38400,
+            "fade_in_frames": 0,
+            "fade_out_frames": 240,
+            "frames": 38400,
+            "maximum_oracle_error": 1.4901161193847656e-08,
+            "peer_only_frames": 29712,
+            "recovered_frames": 0,
+            "sha256": "e5f64c87c80641a8d7f5b6ab6f7f5bedc66f02441c0e2cfa12174fbecacf5077",
+            "unclassified_or_omitted_frames": 0
+          }
+        }
+      ],
+      "total_frames": 427008,
+      "total_scalar_samples": 854016,
+      "local_records": [
+        152,
+        84
+      ],
+      "local_record_drops": 0,
+      "peer_starved_frames": 0,
+      "cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "daemon_reaped": true,
+      "source_plan_pin": {
+        "bytes": 13625,
+        "sha256": "770a10e1f0583cdd18ce1533bd38f44e1024415541fd5794716a2c77c729005d"
+      },
+      "independent_operation_audit_pin": {
+        "bytes": 9103,
+        "sha256": "265f57dde3bdf60ed2aaf313dd4e0ac1b54cc4e6e7c5012952469814ac6c4517"
+      },
+      "different_root_oracle": {
+        "method": "Independent RIFF parser and normalized240-level run-length sequence; derives transitions from samples without using reported phase boundaries. Separate atomic action clock/cursor and observation accounting checks.",
+        "max_joint_error": 1.5894571936403423e-08,
+        "receipt_pin": {
+          "bytes": 1734,
+          "sha256": "ce55de4d5bb258064001edd6dddb84b114516b10d8742dcff54c9b48705e6a3a"
+        }
+      },
+      "intentional_live_a_starved_frames_in_stall_scenario": 110848
+    }
+  },
+  "retained_regression": {
+    "status": "passed focused build, six CLI checks and both real private modes",
+    "support_source_pins": {
+      "tools/experiments/preparation_controller_check.cpp": {
+        "bytes": 118192,
+        "sha256": "2eef1793dab4ee513e4fcc5b66a1d04bfb9552b04b87701646ee013693a90bd0"
+      },
+      "tools/experiments/private_routing_check.py": {
+        "bytes": 10200,
+        "sha256": "b069051bdc75c760b1b8fdc464390f165168f5b76cb43794c33a78ad88a88695"
+      },
+      ".github/workflows/build.yml": {
+        "bytes": 2723,
+        "sha256": "ea2bd1052b8562e5002910bc9bf01445db235a9df9f0027d38da548647d6528f"
+      }
+    },
+    "binary_pin": {
+      "bytes": 18019448,
+      "sha256": "574c8347caa0bb6a604609d3d79336bbd6c5e6fd3bac7c4f6088e1396281bf53"
+    },
+    "mode_runs": [
+      {
+        "id": "retained-live-failure-03",
+        "passed": true,
+        "checks": 31,
+        "elapsed_seconds": 40.047985007986426,
+        "daemon_reaped": true,
+        "cleanup": {
+          "remaining_nodes_or_links": [],
+          "only_dummy_driver_remains": true
+        },
+        "pins_unchanged": true,
+        "qualified": false
+      },
+      {
+        "id": "retained-preparation-functional-03",
+        "passed": true,
+        "checks": 85,
+        "elapsed_seconds": 86.51124088000506,
+        "daemon_reaped": true,
+        "cleanup": {
+          "remaining_nodes_or_links": [],
+          "only_dummy_driver_remains": true
+        },
+        "pins_unchanged": true,
+        "qualified": false
+      }
+    ],
+    "new_mode_recordings": [
+      {
+        "scenario": "active-stall",
+        "passed": true,
+        "wav": {
+          "all_samples_finite": true,
+          "amplitude_tolerance": 1e-06,
+          "baseline_frames": 268800,
+          "bytes": 3108952,
+          "every_frame_checked": true,
+          "fact_frames": 388608,
+          "fade_in_frames": 240,
+          "fade_out_frames": 240,
+          "frames": 388608,
+          "maximum_oracle_error": 1.4901161193847656e-08,
+          "peer_only_frames": 111120,
+          "recovered_frames": 8208,
+          "sha256": "374db8dae99f2a38e63197b86269680686f274434d063dc75ab9fb2bfbd0f022",
+          "unclassified_or_omitted_frames": 0
+        }
+      },
+      {
+        "scenario": "active-exit",
+        "passed": true,
+        "wav": {
+          "all_samples_finite": true,
+          "amplitude_tolerance": 1e-06,
+          "baseline_frames": 8448,
+          "bytes": 305240,
+          "every_frame_checked": true,
+          "fact_frames": 38144,
+          "fade_in_frames": 0,
+          "fade_out_frames": 240,
+          "frames": 38144,
+          "maximum_oracle_error": 1.4901161193847656e-08,
+          "peer_only_frames": 29456,
+          "recovered_frames": 0,
+          "sha256": "0112aded8f609f8b763e0700b88eb98e5e6270e35eec22341cd80d098a3461b9",
+          "unclassified_or_omitted_frames": 0
+        }
+      }
+    ],
+    "CLI_checks": 6,
+    "CLI_scope": "Four forwarding combinations and unknown wrapper/native arguments, using temporary stubs; separate from actual private playback runs.",
+    "independent_retention_source_review": {
+      "bytes": 5196,
+      "sha256": "6ccd320da896f2c5bf05b485b854bac001c38f26dcf4003b972376d80c56e51c"
+    },
+    "independent_plan_delta_review": {
+      "bytes": 1504,
+      "sha256": "0e7b0cfdc19fad25e2c6fb51f5ac046b080c0cd1e9212221d879edb7637a93d9"
+    },
+    "launch_authorization_pin": {
+      "bytes": 977,
+      "sha256": "4d0f1bd08567fe732d49ac1c4f042670d4f4009cb32e2c45dc3e9e20676de2a3"
+    },
+    "runtime_results_pin": {
+      "bytes": 1046,
+      "sha256": "40e7c7e264ea259077b82b14c79d2775a5f516b165264751aa9e0a8c32427324"
+    }
+  },
+  "coverage": {
+    "product_sources_unchanged_from_artwork_measurement": true,
+    "new_normal_check_in_instrumented_baseline": false,
+    "measured_artwork_source_head": "a472fa2097f02fe64d27983e829828c4c746d71a",
+    "CI_cpp_lines": [
+      6303,
+      7245
+    ],
+    "CI_python_lines": [
+      1258,
+      1376
+    ],
+    "unmeasured": [
+      "QML",
+      "tools/runtime/htdemucs_segment.cpp"
+    ]
+  },
+  "limits": [
+    "Constant signals and exact clocks do not prove arbitrary-source frame identity.",
+    "Checks cover recorded post-mix master samples; downstream virtual capture samples are not checked.",
+    "No real model, GPU, host audio device, musical listening, sustained run or hard-cancel deadline qualification.",
+    "An explicitly prepared bass-only peer is already playing; replacement is explicitly requested and remains paused. No automatic full-track fallback or transition policy is added.",
+    "The120s prototype cap bounded invocation, not unconditional descendant lifetime. Actual service/group/job and daemon/graph cleanup are prerequisites for a passing result.",
+    "Initial setup failure remains failed; no retrospective timeout relaxation."
+  ],
+  "M2_release_gate": "open; Best quality, normal runtime threads and strict live-stem p99 <4095ms target unchanged"
+}
