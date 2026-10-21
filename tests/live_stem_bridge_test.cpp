@@ -274,6 +274,46 @@ void checkEmptyObservation(const std::shared_ptr<Observations>& handle)
         "Empty observation read modified its caller's output");
 }
 
+// Only these tests extend the existing independent pipe fixture. Its final
+// computation/ACK and close remain real subprocess work, not observation mocks.
+StemServiceFixture diagnosticDrainFixture(const QString& directory, const QByteArray& mode)
+{
+    auto fixture = conflux::test::makeStemServiceFixture(directory);
+    auto script = readBytes(fixture.service);
+    auto replace = [&](const QByteArray& before, const QByteArray& after) {
+        require(script.count(before) == 1, "Diagnostic fixture anchor changed");
+        script.replace(before, after);
+    };
+    script.prepend("DRAIN_MODE = '" + mode + "'\n");
+    replace("    global cursor, sequence, chunks, saw_two\n", R"PY(    global cursor, sequence, chunks, saw_two
+    if DRAIN_MODE == 'tail' and cursor:
+        marker('.tail-wait').touch()
+        while not marker('.tail-release').exists() and not stop and time.monotonic() < deadline:
+            time.sleep(.005)
+)PY");
+    replace("    if MODE in ['timing', 'timing-no-hop', 'timing-partial', 'timing-zero']:\n", R"PY(    if DRAIN_MODE == 'tail': event['hop_service_ms'] = 350.125 if chunks else .125
+    if MODE in ['timing', 'timing-no-hop', 'timing-partial', 'timing-zero']:
+)PY");
+    replace("            elif kind == 'ack':\n", R"PY(            elif kind == 'ack':
+                if DRAIN_MODE == 'tail' and command['sequence'] == 2:
+                    marker('.ack-wait').touch()
+                    while not marker('.ack-release').exists() and not stop and time.monotonic() < deadline:
+                        time.sleep(.005)
+)PY");
+    replace("                accepted.update(lease, current_generation=generation)\n", R"PY(                accepted.update(lease, current_generation=generation)
+                trace({'fixture': 'ack-settled', 'sequence': lease['sequence']})
+)PY");
+    replace("            elif kind == 'close': closing = True\n", R"PY(            elif kind == 'close':
+                marker('.close-wait').touch()
+                while DRAIN_MODE == 'held-close' and not stop and time.monotonic() < deadline:
+                    time.sleep(.005)
+                closing = True
+)PY");
+    script += "\nif DRAIN_MODE == 'exit-nonzero': sys.exit(7)\n";
+    conflux::test::writeFixtureBytes(fixture.service, script);
+    return fixture;
+}
+
 // Test-only cleanup independent of the product group path under test. Acquire
 // a pidfd, then validate the fixture's recorded start identity before retaining
 // it: a stale marker must never authorize a signal to a reused PID.
@@ -334,6 +374,159 @@ struct FixtureSubreaper {
 class LiveStemBridgeTest : public QObject {
     Q_OBJECT
 private slots:
+    void diagnosticDrainRetainsDelayedTailAndSettlesAckBeforeClose()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            constexpr auto frames = hop + 211;
+            writeSource(source, frames); const auto fixture = diagnosticDrainFixture(directory.path(), "tail");
+            auto reference = references(directory.path(), frames);
+            auto live = PreparedTrackStore(root, limits(true)).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            const auto handle = live.observations; std::vector<Observation> rows;
+            require(live.playback->configureStemRamps(0) && live.playback->prime(0, std::chrono::seconds(10)), "Cannot prime diagnostic tail");
+            require(await([&] { return QFileInfo::exists(fixture.marker(".tail-wait")); }), "Final generated computation did not wait");
+            drainObservations(handle, rows);
+            const auto accepted = uniqueObservation(rows, ObservationKind::CommandAccepted);
+            require(count(fixture, "fixture", "chunk") == 1 && !count(fixture, "fixture", "complete"), "Gated final computation was skipped");
+            // Generated final computation outlives the normal bridge's 250ms stop
+            // grace. It must finish before diagnostic close, without stopping
+            // the owner or dropping the tail from PCM/latency observations.
+            std::this_thread::sleep_for(std::chrono::milliseconds(350));
+            require(!handle->counters().producerFinished && !live.playback->errorCode(), "Waiting for final computation retired the producer");
+            touch(fixture.marker(".tail-release"));
+            RenderCore core(live.playback->sourceRef(), peer()); selectRole(core, 0);
+            require(await([&] {
+                drainObservations(handle, rows);
+                const auto remaining = live.outputFrames - core.sourceFrame(0);
+                if (remaining) (void)compareBlock(core, reference[0], std::size_t(std::min<std::uint64_t>(1024, remaining)));
+                return core.sourceFrame(0) == live.outputFrames;
+            }), "Finite diagnostic tail did not render exact reference PCM to EOF");
+            require(await([&] { drainObservations(handle, rows); return QFileInfo::exists(fixture.marker(".ack-wait")); }), "Final raw lease ACK was not pending");
+            const auto& raw = uniqueObservation(rows, ObservationKind::RawComplete);
+            const auto& converted = uniqueObservation(rows, ObservationKind::ConverterComplete);
+            require(raw.workerGeneration == accepted.workerGeneration && converted.workerGeneration == accepted.workerGeneration &&
+                raw.providerEpoch == accepted.providerEpoch && converted.providerEpoch == accepted.providerEpoch,
+                "Finite EOF proofs changed generation/epoch");
+            const auto deadline = Clock::now() + std::chrono::seconds(8);
+            require(handle->requestDiagnosticDrain(accepted.providerEpoch, accepted.workerGeneration, deadline), "Diagnostic finish request was rejected");
+            std::this_thread::sleep_for(std::chrono::milliseconds(350));
+            require(handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::Requested &&
+                count(fixture, "command", "close") == 0 && !live.playback->errorCode(), "Diagnostic close overtook the final ACK");
+            touch(fixture.marker(".ack-release"));
+            require(await([&] {
+                drainObservations(handle, rows);
+                return handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::ReadyForStop;
+            }, std::chrono::seconds(5)), "Completed generation did not close normally and park");
+            const auto status = handle->diagnosticDrainStatus();
+            require(status.providerEpoch == accepted.providerEpoch && status.workerGeneration == accepted.workerGeneration &&
+                status.deadline == deadline && !handle->counters().producerFinished && !live.playback->errorCode(),
+                "ReadyForStop lost its fixed identity/deadline or returned early with EPIPE");
+            require(compareBlock(core, reference[0], 64) == 0 && !live.playback->errorCode(), "Parked finite owner failed its EOF/peer render");
+            const auto commands = trace(fixture);
+            const auto close = std::ranges::find_if(commands, [](const auto& row) { return row.value("command").toString() == "close"; });
+            const auto finalAck = std::ranges::find_if(commands, [](const auto& row) {
+                return row.value("fixture").toString() == "ack-settled" && row.value("sequence").toInt() == 2;
+            });
+            require(finalAck != commands.end() && close != commands.end() && finalAck < close &&
+                count(fixture, "command", "load") == 1 && !count(fixture, "command", "seek") &&
+                count(fixture, "fixture", "runtime") == 1 && count(fixture, "fixture", "chunk") == 2 &&
+                count(fixture, "fixture", "complete") == 1 && count(fixture, "command", "close") == 1,
+                "Diagnostic finish lost a tail request/ACK or launched another generation");
+            const auto closed = std::ranges::find_if(commands, [](const auto& row) { return row.value("fixture").toString() == "closed"; });
+            require(closed != commands.end() && closed->value("outstanding_slots").toInt() == 0, "Diagnostic close retained an unacknowledged raw lease");
+            require(uniqueObservation(rows, ObservationKind::ServiceClosed).workerGeneration == accepted.workerGeneration,
+                "Diagnostic finish omitted its actual service close receipt");
+            const auto tail = std::ranges::find_if(rows, [](const auto& row) { return row.kind == ObservationKind::ChunkValidated && row.requestId == 2; });
+            require(tail != rows.end() && tail->inputFirst44100 == hop && tail->inputFrames44100 == 211 && tail->final &&
+                tail->hopServicePresent && tail->hopServiceMs == 350.125 &&
+                std::ranges::count_if(rows, [](const auto& row) { return row.kind == ObservationKind::ChunkValidated; }) == 2,
+                "Delayed final raw hop/timing disappeared from the diagnostic evidence");
+            live.playback->stop(); require(!live.playback->errorCode(), "Ordinary stop poisoned a successfully parked owner");
+            live.playback.reset(); assertGone(fixture.marker(".started")); drainObservations(handle, rows);
+            const auto counters = handle->counters();
+            require(counters.producerFinished && !counters.droppedRecords && !counters.invalidClockReads &&
+                counters.attemptedRecords == rows.size() && rootNames(root).isEmpty(), "Diagnostic finish did not join/clean its original owner and evidence");
+        });
+    }
+
+    void diagnosticDrainRejectsWrongIdentityOrIncompleteInput_data()
+    {
+        QTest::addColumn<QByteArray>("failure");
+        QTest::newRow("wrong-worker-generation") << QByteArray("generation");
+        QTest::newRow("wrong-provider-epoch") << QByteArray("epoch");
+        QTest::newRow("incomplete-finite-source") << QByteArray("incomplete");
+    }
+    void diagnosticDrainRejectsWrongIdentityOrIncompleteInput()
+    {
+        QFETCH(QByteArray, failure);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            const bool incomplete = failure == "incomplete";
+            const auto frames = incomplete ? hop + 211 : 211;
+            writeSource(source, frames);
+            const auto fixture = conflux::test::makeStemServiceFixture(directory.path(), incomplete ? "gate-after-first" : "good");
+            auto live = PreparedTrackStore(root, incomplete ? limits(true) : limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            const auto handle = live.observations; std::vector<Observation> rows;
+            require(live.playback->prime(0, std::chrono::seconds(10)), "Cannot prime diagnostic rejection fixture");
+            drainObservations(handle, rows);
+            const auto accepted = uniqueObservation(rows, ObservationKind::CommandAccepted);
+            if (!incomplete) {
+                RenderCore core(live.playback->sourceRef(), peer()); std::array<float, 1024> output{};
+                require(await([&] { drainObservations(handle, rows); return core.render(output) && core.sourceFrame(0) == live.outputFrames; }), "Rejection fixture failed to reach real EOF");
+            }
+            require(handle->requestDiagnosticDrain(accepted.providerEpoch + (failure == "epoch"),
+                accepted.workerGeneration + (failure == "generation"), Clock::now() + std::chrono::seconds(5)),
+                "Nonzero diagnostic rejection request was not submitted");
+            require(await([&] { return handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::Failed; }),
+                "Wrong identity/incomplete source was accepted as a finite diagnostic finish");
+            require(!count(fixture, "command", "close"), "Invalid finish request sent a graceful-close command");
+            stop(live); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Rejected diagnostic request leaked its owned job");
+        });
+    }
+
+    void diagnosticDrainTimeoutAndCancellationRemainBounded_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        QTest::newRow("three-second-close-timeout") << QByteArray("timeout");
+        QTest::newRow("ordinary-stop-interrupts-diagnostic-wait") << QByteArray("stop");
+        QTest::newRow("closed-receipt-with-nonzero-exit") << QByteArray("exit-nonzero");
+    }
+    void diagnosticDrainTimeoutAndCancellationRemainBounded()
+    {
+        QFETCH(QByteArray, mode);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); auto fixture = diagnosticDrainFixture(directory.path(), mode == "exit-nonzero" ? mode : "held-close");
+            fixture.engine.requestTimeout = 10; // The ordinary ACK timeout must not mask the diagnostic three-second bound.
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            const auto handle = live.observations; std::vector<Observation> rows;
+            require(live.playback->prime(0, std::chrono::seconds(10)), "Cannot prime diagnostic close fixture");
+            RenderCore core(live.playback->sourceRef(), peer()); std::array<float, 1024> output{};
+            require(await([&] { drainObservations(handle, rows); return core.render(output) && core.sourceFrame(0) == live.outputFrames; }), "Close fixture failed to reach real EOF");
+            const auto accepted = uniqueObservation(rows, ObservationKind::CommandAccepted);
+            const auto began = Clock::now();
+            require(handle->requestDiagnosticDrain(accepted.providerEpoch, accepted.workerGeneration, began + std::chrono::seconds(10)),
+                "Cannot request actual diagnostic close");
+            require(await([&] { return QFileInfo::exists(fixture.marker(".close-wait")); }), "Diagnostic request never reached the actual service close path");
+            if (mode == "stop") {
+                const auto beforeStop = Clock::now(); live.playback->stop();
+                require(Clock::now() - beforeStop < std::chrono::seconds(3), "Ordinary cancellation waited for the diagnostic deadline");
+            } else {
+                require(await([&] { return handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::Failed; }, std::chrono::seconds(5)),
+                    "Missing clean close/normal0 exit did not fail within the diagnostic close bound");
+                require(Clock::now() - began < std::chrono::seconds(5), "Diagnostic close reset or ignored its fixed three-second deadline");
+                if (mode == "timeout") require(Clock::now() - began >= std::chrono::milliseconds(2500),
+                    "Unrelated early failure masked the diagnostic three-second close deadline");
+                live.playback->stop();
+            }
+            require(handle->diagnosticDrainStatus().state != Observations::DiagnosticDrainState::ReadyForStop,
+                "Interrupted, timed-out or nonzero service exit was relabelled ready");
+            live.playback.reset(); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Failed/cancelled diagnostic close leaked owned resources");
+        });
+    }
+
     void observationsPreservePinnedContextAndWireTiming_data()
     {
         QTest::addColumn<QByteArray>("mode");

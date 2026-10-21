@@ -56,6 +56,26 @@ LiveStemObservations::Counters LiveStemObservations::counters() const noexcept
     return result;
 }
 const LiveStemObservations::Setup& LiveStemObservations::setup() const noexcept { return setup_; }
+bool LiveStemObservations::requestDiagnosticDrain(std::uint64_t epoch, std::uint64_t generation,
+    std::chrono::steady_clock::time_point deadline) noexcept
+{
+    if (!epoch || !generation || deadline <= std::chrono::steady_clock::now() ||
+        producerFinished_.load(std::memory_order_acquire) || drainClaimed_.test_and_set(std::memory_order_acq_rel)) return false;
+    drainEpoch_ = epoch; drainGeneration_ = generation; drainDeadline_ = deadline;
+    drainState_.store(DiagnosticDrainState::Requested, std::memory_order_seq_cst);
+    if (producerFinished_.load(std::memory_order_seq_cst)) {
+        auto pending = DiagnosticDrainState::Requested;
+        (void)drainState_.compare_exchange_strong(pending, DiagnosticDrainState::Failed, std::memory_order_seq_cst);
+        return false;
+    }
+    return true;
+}
+LiveStemObservations::DiagnosticDrainStatus LiveStemObservations::diagnosticDrainStatus() const noexcept
+{
+    const auto state = drainState_.load(std::memory_order_acquire);
+    if (state == DiagnosticDrainState::NotRequested) return {};
+    return {state, drainEpoch_, drainGeneration_, drainDeadline_};
+}
 } // namespace conflux::library
 
 namespace conflux::library::detail {
@@ -86,8 +106,15 @@ struct LiveStemObservationWriter {
         observations.records_[written % LiveStemObservations::capacity] = record;
         observations.written_.store(written + 1, std::memory_order_release);
     }
+    static void drainState(LiveStemObservations& observations, LiveStemObservations::DiagnosticDrainState state) noexcept
+    { observations.drainState_.store(state, std::memory_order_release); }
     static void finish(LiveStemObservations& observations) noexcept
-    { observations.producerFinished_.store(true, std::memory_order_release); }
+    {
+        observations.producerFinished_.store(true, std::memory_order_seq_cst);
+        auto pending = LiveStemObservations::DiagnosticDrainState::Requested;
+        (void)observations.drainState_.compare_exchange_strong(pending,
+            LiveStemObservations::DiagnosticDrainState::Failed, std::memory_order_seq_cst);
+    }
 };
 namespace {
 using Clock = std::chrono::steady_clock;
@@ -313,6 +340,20 @@ public:
             if (!process_.waitForStarted(1000) || owned_.group() <= 1)
                 throw std::runtime_error("Cannot start the local stem service");
             for (;;) {
+                if (diagnosticReady_) {
+                    if (stop_.stop_requested()) break;
+                    Buffer::Request request;
+                    require(!port_.tryRequest(request) || request.epoch == latest_.epoch,
+                        "Live epoch changed after diagnostic idle close");
+                    require(Clock::now() < diagnosticDeadline_, "Diagnostic idle-close stop acknowledgement timed out");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    continue; // Returning before owner stop would correctly become EPIPE.
+                }
+                if (stop_.stop_requested() && diagnosticDrain_) {
+                    LiveStemObservationWriter::drainState(*job_->observations, DrainState::Failed);
+                    diagnosticDrain_ = false;
+                    closeDeadline_ = std::min(closeDeadline_, Clock::now() + std::chrono::milliseconds(250));
+                }
                 if (stop_.stop_requested() && !closing_) {
                     closing_ = true; discard();
                     closeDeadline_ = Clock::now() + std::chrono::milliseconds(250);
@@ -322,25 +363,34 @@ public:
                     break;
                 }
                 Buffer::Request request;
-                if (!closing_ && port_.tryRequest(request) && request.epoch != latest_.epoch) {
+                if ((!closing_ || diagnosticDrain_) && port_.tryRequest(request) && request.epoch != latest_.epoch) {
+                    require(job_->observations->diagnosticDrainStatus().state == DrainState::NotRequested,
+                        "Live epoch changed during diagnostic drain");
                     latest_ = request; discard(); observeRequest();
                 }
                 drain();
+                if (!closing_) beginDiagnosticDrain();
                 if (process_.state() == QProcess::NotRunning) {
                     drain();
                     if (!incoming_.isEmpty() || process_.bytesAvailable()) continue;
                     parser_.finish();
                     require(closed_, "Stem service exited before its close receipt");
                     require(process_.exitStatus() == QProcess::NormalExit &&
-                        (process_.exitCode() == 0 || (closing_ && process_.exitCode() == 130)),
+                        (process_.exitCode() == 0 || (!diagnosticDrain_ && closing_ && process_.exitCode() == 130)),
                         "Stem service exited unsuccessfully");
+                    if (diagnosticDrain_) {
+                        require(Clock::now() < diagnosticDeadline_, "Diagnostic idle-close deadline expired");
+                        LiveStemObservationWriter::drainState(*job_->observations, DrainState::ReadyForStop);
+                        diagnosticReady_ = true;
+                        continue;
+                    }
                     break;
                 }
                 if (closed_) {
                     require(incoming_.isEmpty(), "Stem service emitted data after closed");
                 } else if (ready_) {
                     schedule();
-                    if (!closing_) convert();
+                    if (!closing_ && !diagnosticDrain_) convert();
                 }
                 const auto now = Clock::now();
                 if (!closing_ && pending_.id && now >= replyDeadline_)
@@ -348,15 +398,19 @@ public:
                 // Inference timeout is not a shutdown allowance. A short
                 // protocol grace is followed by the existing owned-group
                 // TERM/KILL/reap bound, even if an ACK is stuck.
+                if (diagnosticDrain_ && now >= diagnosticDeadline_)
+                    throw std::runtime_error("Diagnostic idle-close deadline expired");
                 if (closing_ && now >= closeDeadline_) break;
                 // QProcess belongs only to this thread. A bounded wait services
                 // pipes; it never suspends render or the producer's recovery clock.
                 process_.waitForReadyRead(1);
             }
         } catch (const std::exception& error) {
+            failDiagnosticDrain();
             port_.fail(EIO);
             job_->notifySetup(QString::fromUtf8(error.what()).left(1024));
         } catch (...) {
+            failDiagnosticDrain();
             port_.fail(EIO);
             job_->notifySetup(QStringLiteral("Cannot start the live stem service"));
         }
@@ -387,6 +441,25 @@ private:
     };
     using Observation = LiveStemObservations::Record;
     using Kind = LiveStemObservations::Kind;
+    using DrainState = LiveStemObservations::DiagnosticDrainState;
+    void failDiagnosticDrain() noexcept
+    {
+        if (job_->observations->diagnosticDrainStatus().state != DrainState::NotRequested)
+            LiveStemObservationWriter::drainState(*job_->observations, DrainState::Failed);
+    }
+    void beginDiagnosticDrain()
+    {
+        const auto requested = job_->observations->diagnosticDrainStatus();
+        if (requested.state != DrainState::Requested || diagnosticDrain_) return;
+        require(ready_ && loaded_ && active_ && rawComplete_ && finished_ &&
+            rawNext_ == plan_.inputFrames() && convertedInput_ == plan_.inputFrames() && !pendingFrames_ &&
+            latest_.epoch == acceptedEpoch_ && acceptedEpoch_ == requested.providerEpoch &&
+            generation_ == requested.workerGeneration && (!pending_.id || pending_.kind == "ack"),
+            "Diagnostic idle-close requires the exact complete live generation");
+        diagnosticDeadline_ = std::min(requested.deadline, Clock::now() + std::chrono::seconds(3));
+        require(Clock::now() < diagnosticDeadline_, "Diagnostic idle-close deadline expired");
+        diagnosticDrain_ = true;
+    }
     std::uint64_t stamp() noexcept { return LiveStemObservationWriter::stamp(*job_->observations); }
     Observation observation(Kind kind) noexcept
     {
@@ -438,9 +511,13 @@ private:
     {
         if (pending_.id) return;
         if (closing_) { send("close"); return; }
+        if (diagnosticDrain_ && std::ranges::none_of(leases_, [](const auto& lease) { return lease.occupied; })) {
+            closing_ = true; closeDeadline_ = diagnosticDeadline_;
+            send("close"); return;
+        }
         // Controls supersede a potentially unlimited stream of old raw leases.
         // Outstanding leases remain immutable and are ACKed with their old key.
-        if (latest_.epoch != initial_.epoch && latest_.epoch != acceptedEpoch_) {
+        if (!diagnosticDrain_ && latest_.epoch != initial_.epoch && latest_.epoch != acceptedEpoch_) {
             require(generation_ < wireMaximum, "Stem service generation exhausted");
             converter_ = std::make_unique<Converter>(plan_, latest_.firstFrame);
             const auto anchor = converter_->inputStartFrame();
@@ -681,6 +758,9 @@ private:
                 (reason == "close" || reason == "eof" || reason == "signal") &&
                 integer(value.value("outstanding_slots"), 2) == std::uint64_t(std::ranges::count_if(leases_, [](const auto& l) { return l.occupied; })),
                 "Unexpected stem close or outstanding lease count");
+            require(!diagnosticDrain_ || (reason == "close" &&
+                std::ranges::none_of(leases_, [](const auto& lease) { return lease.occupied; })),
+                "Diagnostic close retained raw leases or was cancelled");
             const auto dropped = integer(value.value("telemetry_dropped"));
             (void)finite(value.value("closed_at")); closed_ = true;
             auto record = observation(Kind::ServiceClosed);
@@ -848,9 +928,10 @@ private:
         acceptedEpoch_ = 0, generation_ = 0, lastSequence_ = 0, rawNext_ = 0;
     bool ready_ = false, loaded_ = false, active_ = false, runtimeSeen_ = false, sourceSeen_ = false,
         rawComplete_ = false, finished_ = false, closing_ = false, closed_ = false;
+    bool diagnosticDrain_ = false, diagnosticReady_ = false;
     std::uint64_t packetReadyNs_ = 0, firstFullNs_ = 0;
     bool fullObserved_ = false;
-    Clock::time_point replyDeadline_{}, closeDeadline_{};
+    Clock::time_point replyDeadline_{}, closeDeadline_{}, diagnosticDeadline_{};
 };
 } // namespace
 bool liveName(std::string_view name) noexcept
