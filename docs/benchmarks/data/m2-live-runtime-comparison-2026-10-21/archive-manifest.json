@@ -1,0 +1,755 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "created_at_utc": "2026-10-21T18:04:52.758895+00:00",
+  "source_head": "3d56de316fe4c2bf1b9dd67e15eff3e54b0d386c",
+  "plan_sha256": "d548b3eebc3b49b2025fceb5bfec49443395d9052c94e33e3cc0b8af91c57bb9",
+  "artifacts": [
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-plan-06.json",
+      "archive_path": "packed-attention-views-01--comparison-plan-06.json.gz",
+      "raw_bytes": 307796,
+      "raw_sha256": "d548b3eebc3b49b2025fceb5bfec49443395d9052c94e33e3cc0b8af91c57bb9",
+      "stored_bytes": 62787,
+      "stored_sha256": "817200d2ee58563084c8f924d0d27ae8c49074ceddd0207abe1435da2b20befb"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-external-comparison-protocol-06.json",
+      "archive_path": "packed-attention-views-01--root-external-comparison-protocol-06.json.gz",
+      "raw_bytes": 11355,
+      "raw_sha256": "7f7dcfb521ab06863ff52f37ca25d9c679fc8983daaad4cfdf0c396fe0b84853",
+      "stored_bytes": 3282,
+      "stored_sha256": "435c0511ba9a0e095068814ad6be5adb51bd26b5a3d943e6d4095c79ef53f5a0"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/human-readiness-comparison-06.json",
+      "archive_path": "packed-attention-views-01--human-readiness-comparison-06.json.gz",
+      "raw_bytes": 1250,
+      "raw_sha256": "cc8492f0771377441d83f49bdb7c32ce8b4d6f3fd841e5d24bcf866d5764358c",
+      "stored_bytes": 719,
+      "stored_sha256": "7e2001b1f27b88900b67eea6bb3fea346ed4c022413f65b1f041fe9f994d28dd"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/dispatch_comparison06.py",
+      "archive_path": "packed-attention-views-01--dispatch_comparison06.py.gz",
+      "raw_bytes": 9029,
+      "raw_sha256": "bf1fcda571d6523a63000b0e3473d93caa6b7bfdee163811bc1f2836f53208a1",
+      "stored_bytes": 3195,
+      "stored_sha256": "bd6cf8dda5ae89092cc27ef7d9258b41b7a9570dc11bc96a6dfe59a7d666a88a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root_admission_comparison06.py",
+      "archive_path": "packed-attention-views-01--root_admission_comparison06.py.gz",
+      "raw_bytes": 16666,
+      "raw_sha256": "b42722416b4a69b919198e58a6de9ca6b9f3df7c40ae6b74005091a5b1f20306",
+      "stored_bytes": 5288,
+      "stored_sha256": "3a91178afddb1b1466290f0a6b9aa54362822da4b0ee035f597645cf734fbf33"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/run_comparison_block_06.py",
+      "archive_path": "packed-attention-views-01--run_comparison_block_06.py.gz",
+      "raw_bytes": 34145,
+      "raw_sha256": "a5a8ff62c9210b400eff170c60d3ca4e87cf10840d27f51be83904d44b8d19e9",
+      "stored_bytes": 10309,
+      "stored_sha256": "ae0923d0b71f2e03422abf9a746c423577997b1e8d784212e5b4217fc58248bf"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/cache_support_comparison06.py",
+      "archive_path": "packed-attention-views-01--cache_support_comparison06.py.gz",
+      "raw_bytes": 16739,
+      "raw_sha256": "62c013b8cd10b5c493687262e948a893f4ea0f727a7ecfb17ec11e68a1c38788",
+      "stored_bytes": 4194,
+      "stored_sha256": "376b02f3192210c455e622cc5a4c1ebd2fb2e2e2ec152a11e0a90076638e21b2"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison_06_check.py",
+      "archive_path": "packed-attention-views-01--comparison_06_check.py.gz",
+      "raw_bytes": 21744,
+      "raw_sha256": "5c8f7abc552f3adc2d5b465ad01e88105d44dc803e3bc7f02dba632da9c846e4",
+      "stored_bytes": 5777,
+      "stored_sha256": "a2d1829aba9dea7a91e29bb1559809dc162e822b6d3011d4e2c0d7125e2ca06f"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison_cache_binding_06_check.py",
+      "archive_path": "packed-attention-views-01--comparison_cache_binding_06_check.py.gz",
+      "raw_bytes": 15401,
+      "raw_sha256": "fa897c8a49f72a757e624c506b8788b1813cd37ad07b01a557aeefd20c14d352",
+      "stored_bytes": 4715,
+      "stored_sha256": "0b2d4ff23a87fc8fe48fc9af9df07275e96b81e9ee412251972b3099dea73977"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root_comparison06_check.py",
+      "archive_path": "packed-attention-views-01--root_comparison06_check.py.gz",
+      "raw_bytes": 33185,
+      "raw_sha256": "10208c1d74aea613e2e69d84c959fadfbfc87d4d220c8f7aeb24eacc6d526d30",
+      "stored_bytes": 7659,
+      "stored_sha256": "29ac2f29dc5522ee460c0d38ed9d2e5e1ed11c57a1b09ec83a1a76e416dd67e7"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/run_drm_player_retry02.py",
+      "archive_path": "packed-attention-views-01--run_drm_player_retry02.py.gz",
+      "raw_bytes": 130387,
+      "raw_sha256": "05e35bfb723136d430e090c1515163c60bcce7a05f570fcbc6842b4c41e048fb",
+      "stored_bytes": 34122,
+      "stored_sha256": "3d411e9fd31898795477c6621394226d6f6f4c4402e426affe24095020afa0bf"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison06-merged-head-binding.json",
+      "archive_path": "packed-attention-views-01--comparison06-merged-head-binding.json.gz",
+      "raw_bytes": 3852,
+      "raw_sha256": "dc240a407388d288652419f86d7452527a74a4200956b171a9b83c9535b3f984",
+      "stored_bytes": 1777,
+      "stored_sha256": "91e30a4d826f343852b3af312ad5d032c6f0172cd04b3ce4f27250999a0acd87"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/PR49-postmerge-CI-complete.json",
+      "archive_path": "packed-attention-views-01--PR49-postmerge-CI-complete.json.gz",
+      "raw_bytes": 6573,
+      "raw_sha256": "669c4ab10e3db6234d915e517510947bcfdac32ea0673ed1fad6ba9bbaaacabc",
+      "stored_bytes": 1040,
+      "stored_sha256": "930bad38e9ccf68188091fd28ec7cdb7fb003684c9104dfaa7d8c190af1355ba"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/independent-source-review-06.json",
+      "archive_path": "packed-attention-views-01--independent-source-review-06.json.gz",
+      "raw_bytes": 11335,
+      "raw_sha256": "cce8b545feed3db8d0ff796aeba18a08753ff2a540201671024798f517bd0e31",
+      "stored_bytes": 3801,
+      "stored_sha256": "25548d8d8aa3e04725a6b410e867a24fc8484771de4ea6ed908ef14d8f34a37a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/independent-final-comparison-plan-review-06.json",
+      "archive_path": "packed-attention-views-01--independent-final-comparison-plan-review-06.json.gz",
+      "raw_bytes": 11632,
+      "raw_sha256": "92f336b84af9415dc90f6aa7e065a971217eed2308cd0f094bee95d5cfc22562",
+      "stored_bytes": 4483,
+      "stored_sha256": "ae8fe458fd95334a38d56970aaf6fe73d363a9f7531569fb7c47293f70ce73a3"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-comparison06-final-static-gate-01.json",
+      "archive_path": "packed-attention-views-01--root-comparison06-final-static-gate-01.json.gz",
+      "raw_bytes": 9454,
+      "raw_sha256": "f3d8dc72e12838506a04c8969282255a7f1514b858a7be1d34b7cfdb2b6cabd5",
+      "stored_bytes": 1609,
+      "stored_sha256": "6728a4a6a07bb86203b82e38a38cf1d56424b7a1e7f46c5bc607eb952bf6d243"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-comparison06-protocol-check-01.json",
+      "archive_path": "packed-attention-views-01--root-comparison06-protocol-check-01.json.gz",
+      "raw_bytes": 497,
+      "raw_sha256": "4263b26584f6d0d4cf5dd9d3e880022d24b8da39ab372ba7ddd4b96a010966f5",
+      "stored_bytes": 341,
+      "stored_sha256": "e30a869541f6de5acaa9b6de023802710a0470828622ad20bbc8654519a7b42e"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison06-check-result.json",
+      "archive_path": "packed-attention-views-01--comparison06-check-result.json.gz",
+      "raw_bytes": 482,
+      "raw_sha256": "d55555ccb05279001731d42711f450e7ab7ad1fd758325584ece44bab02474e9",
+      "stored_bytes": 351,
+      "stored_sha256": "029d701ac18446910f0e7fad24bd03cc31dc2175e44a7c8c94e256ac7777d72c"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-cache-binding06-check-result.json",
+      "archive_path": "packed-attention-views-01--comparison-cache-binding06-check-result.json.gz",
+      "raw_bytes": 493,
+      "raw_sha256": "a424a1098af7d755ba70b20ae8bc796b01d890eee0758aff323125b5dbedc39b",
+      "stored_bytes": 359,
+      "stored_sha256": "be7d32c9fbfca48ceaec7706f84d233e2a4c879a51a02606c33226423fcc6996"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-comparison06-check-result.json",
+      "archive_path": "packed-attention-views-01--root-comparison06-check-result.json.gz",
+      "raw_bytes": 484,
+      "raw_sha256": "f6a4d60ca6bc4d7fb3deeaf481b250bbf598d2d05866378e2dfa577d28bd93e1",
+      "stored_bytes": 352,
+      "stored_sha256": "3e0375616b451b71f6550f9c9f751ac753e23a7d70aae46f6481dad192473035"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-comparison06-check-after-known05-ids-result.json",
+      "archive_path": "packed-attention-views-01--root-comparison06-check-after-known05-ids-result.json.gz",
+      "raw_bytes": 279,
+      "raw_sha256": "7c48123339e853d60b1203d372e9190ae23daa1b48dd37e162f6f5f478a16c0d",
+      "stored_bytes": 227,
+      "stored_sha256": "736687996cd696fa713eede7a630f22193850da1028ca0fc6ebe8b47c37ace57"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/independent-comparison06-results-review.json",
+      "archive_path": "packed-attention-views-01--independent-comparison06-results-review.json.gz",
+      "raw_bytes": 14582,
+      "raw_sha256": "2e2a42c7a7da1313abf151542ed12aec0be86a3fcae2f09ce18e8c3e5df5d7ce",
+      "stored_bytes": 3864,
+      "stored_sha256": "389295453a7fd8538237e3d30fe7c66e473bd11ab8a47ef1beebe942c1d2de01"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/independent-comparison06-recordings-audit.json",
+      "archive_path": "packed-attention-views-01--independent-comparison06-recordings-audit.json.gz",
+      "raw_bytes": 21258,
+      "raw_sha256": "a08f19613905c242ea464e02bca0ee487982e840d05083da0139b2bf3d842f0e",
+      "stored_bytes": 3695,
+      "stored_sha256": "7c9899027ae13955d725abcb1c8a90b158fce36f5f7f9550b23336733661edcf"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/independent-comparison06-latency-attribution.json",
+      "archive_path": "packed-attention-views-01--independent-comparison06-latency-attribution.json.gz",
+      "raw_bytes": 12869,
+      "raw_sha256": "1bfe2e9de6958d8ea47ffe6dfae5c3131823c45ef3b5a2f08a8b8717f6d1f74f",
+      "stored_bytes": 4201,
+      "stored_sha256": "1d67d4486363da008f03751465ca347378893e82e58f8d121d7db976037bc7f2"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-final-root-audit-06.json",
+      "archive_path": "packed-attention-views-01--comparison-final-root-audit-06.json.gz",
+      "raw_bytes": 14400,
+      "raw_sha256": "1763549ae26b1694d0929b45c672ecbdef6ded5464644acefc0410a253bb007c",
+      "stored_bytes": 2705,
+      "stored_sha256": "4bb1392616e6075ed7cfe3f01635258e8e563f96c7e054a994b24142fd18e43a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-admission-06-block-1.json",
+      "archive_path": "packed-attention-views-01--comparison-admission-06-block-1.json.gz",
+      "raw_bytes": 4018,
+      "raw_sha256": "c6dcb746880097118ced2775e65c7d857d746b71619d4d47679e3df9d43d9aee",
+      "stored_bytes": 1565,
+      "stored_sha256": "0f6fe584b223fb18cfb2d3c274a04f1b732e9b022b8b8f44b005bdddf7ef735a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-audit-1.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-audit-1.json.gz",
+      "raw_bytes": 827,
+      "raw_sha256": "a78d23dfc013357e5d86f329ee4e4fbd160a8534f7064c9550eda8d07f133d3f",
+      "stored_bytes": 485,
+      "stored_sha256": "2e547e5e8bb6c0beb87a59e64a3cb5ab69a7982f0ada219b89c488288d73f3aa"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-player-1.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-player-1.json.gz",
+      "raw_bytes": 786,
+      "raw_sha256": "d8aa1af0b01b869a0a198484302ba29ef55f46eff05ea7362d14f8530ac37f52",
+      "stored_bytes": 494,
+      "stored_sha256": "a1176f87542fb19470f2b8f18cce6e5652dc3f43ece490a9ff7f91c73c5fefdf"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/result.json",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--result.json.gz",
+      "raw_bytes": 583082,
+      "raw_sha256": "806b5a599289a5abb4fa43b1cc80c76c6c0a3d0ba23306375890cc78d0c973bb",
+      "stored_bytes": 70010,
+      "stored_sha256": "3e7b4db967af78863a8980e59c432fcb9ad0da07cd6f67a5152528e227652085"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/comparison-summary.json",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--comparison-summary.json.gz",
+      "raw_bytes": 981,
+      "raw_sha256": "4e2e28635ff6b59501d4f82114460fe82f7992452a5e7461a783a48be542aa03",
+      "stored_bytes": 592,
+      "stored_sha256": "887ea3b56244d8d2150e1bc5775ad13e137fec02ae2dd53bade3ec026778c436"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--observations.jsonl.gz",
+      "raw_bytes": 808642,
+      "raw_sha256": "44b69f8025dd09e754740d884f2cb2937d87f61cbd03f64db55194fa8342a350",
+      "stored_bytes": 61670,
+      "stored_sha256": "86b5236083d77581de1c76668e25c11fd72b8ec14c8fd07821cf9d808fa91142"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/host-observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--host-observations.jsonl.gz",
+      "raw_bytes": 417384,
+      "raw_sha256": "cafeb45b2a71d414fa183ab08682b9aa3ea843f28a37cc66d5dadc7c02aefe44",
+      "stored_bytes": 34279,
+      "stored_sha256": "90b16eaa04ce6a80cfdd75c3935a052dcf8555882257394a6363eed5c88c489e"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/progress.json",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--progress.json.gz",
+      "raw_bytes": 616,
+      "raw_sha256": "6f37c345b998f5215540d58873a8964785d3f676c4ddb79d58ecae34f1834a08",
+      "stored_bytes": 367,
+      "stored_sha256": "9a1efca3ca2d9820280a0f3de4486c1d029759b4bcdc12b5e86a6eded32e3946"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/native.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--native.stdout.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/native.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--native.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/drm-traces/native-drm.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 82392,
+      "raw_sha256": "267498543659c1077e8f1bd5339a896b061f7d4e7adc9a3be26f1d927fb25e08",
+      "stored_bytes": 4406,
+      "stored_sha256": "fb228fdf6b6370270a816c30c5e38ebc64c982172a5a30f63b9bc86d6c422b45"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/drm-traces/native-request-trace.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline--drm-traces--native-request-trace.jsonl.gz",
+      "raw_bytes": 15860,
+      "raw_sha256": "4217d2d9bc085ae1c45ca033650f941ef6ef2a7becba938aa2a687e0bf25cf4e",
+      "stored_bytes": 2135,
+      "stored_sha256": "9f167bc59f9f38b2c22d6f55fffa07e784f700c5e969b271e0d0ac07d37a5116"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline.stdout.log.gz",
+      "raw_bytes": 583082,
+      "raw_sha256": "806b5a599289a5abb4fa43b1cc80c76c6c0a3d0ba23306375890cc78d0c973bb",
+      "stored_bytes": 70010,
+      "stored_sha256": "3e7b4db967af78863a8980e59c432fcb9ad0da07cd6f67a5152528e227652085"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A1-baseline.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-admission-06-block-2.json",
+      "archive_path": "packed-attention-views-01--comparison-admission-06-block-2.json.gz",
+      "raw_bytes": 6620,
+      "raw_sha256": "f250203a49b0d83126b9169ce51c9a89b9b9c56a1d7ca3704e53ba251ab049bb",
+      "stored_bytes": 2030,
+      "stored_sha256": "9eb99a7f4883fd8d497a8f1cabbdba7369d508661b790ee929cbb741874b0d7f"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-audit-2.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-audit-2.json.gz",
+      "raw_bytes": 826,
+      "raw_sha256": "10515537418bb01f9a6aca5b0e5ab1e4ab4f048fcf8fa4fbc48b4b32fe60bb06",
+      "stored_bytes": 485,
+      "stored_sha256": "a3a5f390c4fcd9a35c219aaff75bb1304dcdd21cdbc79b1964f8c15984813f1b"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-player-2.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-player-2.json.gz",
+      "raw_bytes": 786,
+      "raw_sha256": "462bf22abb95200b671220e78ededf1d527a45e447e23f17d8d5cb7c523123cb",
+      "stored_bytes": 494,
+      "stored_sha256": "a597401929bb977154a53abf3726772d3372ee77dc26447851c3bc6ee0d3f982"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/result.json",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--result.json.gz",
+      "raw_bytes": 562645,
+      "raw_sha256": "19e61cf756d9c0d980a2890cdb003a8b85d510d3ea17939f78917eb646feb524",
+      "stored_bytes": 69727,
+      "stored_sha256": "ccd4961c7e77cb168d53ce4528666b83eabe8afde13d471b4b4913e11a9f1ef8"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/comparison-summary.json",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--comparison-summary.json.gz",
+      "raw_bytes": 987,
+      "raw_sha256": "35f03e636e74a12357bd1b51a3e2f5a88efd79cacbccd5ae9cb0c6c0329bfbd3",
+      "stored_bytes": 601,
+      "stored_sha256": "2b709d85c4df5c26748d998abea7e6e20610dfe533109bf62d97d2dbc32c3c6f"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--observations.jsonl.gz",
+      "raw_bytes": 804186,
+      "raw_sha256": "ffc7357dcdd19657b01c33dccfa9538b1e21d4d5314eb0c5aadb86fe3501373b",
+      "stored_bytes": 60288,
+      "stored_sha256": "41b1a99c5165afbe86d6c7b559aa4f7e1618e5e90f3a2d86ff00963fef0190a0"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/host-observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--host-observations.jsonl.gz",
+      "raw_bytes": 448640,
+      "raw_sha256": "e90d21d16fc480d838ef3b02b75901d0a2a71c21c9a9bf0c215d4b844ec5667b",
+      "stored_bytes": 36831,
+      "stored_sha256": "c0d96fcce9a127e62655c567b90adae971790d5757f68792f40008c00f798f55"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/progress.json",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--progress.json.gz",
+      "raw_bytes": 614,
+      "raw_sha256": "7e522b4543147c1dc010f7015b28276f74e82af33411e5a721daa501efb1e53d",
+      "stored_bytes": 364,
+      "stored_sha256": "703f3416d12405845a64f50d0673d2133e82c06837c7405603788c30c9f2db8a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/native.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--native.stdout.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/native.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--native.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/drm-traces/native-drm.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 82340,
+      "raw_sha256": "7dc3f24efea0e2be427ab70fbf0fd8a6324ede17a3001b7fd2d71d60e886cf98",
+      "stored_bytes": 4453,
+      "stored_sha256": "39c2918a870634ecdf950dfe8161ffd2c6e881d950eadcd91966dc69fe6f68c9"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/drm-traces/native-request-trace.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed--drm-traces--native-request-trace.jsonl.gz",
+      "raw_bytes": 15822,
+      "raw_sha256": "171d4e3e6f457f30cd8946879ef966bf5d82d8224bf5a3df515275d2de61e0d6",
+      "stored_bytes": 2131,
+      "stored_sha256": "686d3a6143efc19a45bac28c11ab4cbca3fefc5de494a61ade802f8c7af532a4"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed.stdout.log.gz",
+      "raw_bytes": 562645,
+      "raw_sha256": "19e61cf756d9c0d980a2890cdb003a8b85d510d3ea17939f78917eb646feb524",
+      "stored_bytes": 69727,
+      "stored_sha256": "ccd4961c7e77cb168d53ce4528666b83eabe8afde13d471b4b4913e11a9f1ef8"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B1-packed.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-admission-06-block-3.json",
+      "archive_path": "packed-attention-views-01--comparison-admission-06-block-3.json.gz",
+      "raw_bytes": 9210,
+      "raw_sha256": "696edd3a5eed3b55c0a7bc3c2e8102f8f4b779442c83ee9591655876504be7eb",
+      "stored_bytes": 2269,
+      "stored_sha256": "227450f46b2bf3afb4fe4f314305de824f02a978492d2334520635c6debe7b56"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-audit-3.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-audit-3.json.gz",
+      "raw_bytes": 826,
+      "raw_sha256": "d2ae36655669cea6339974389c1673bd3d96f4ee80223b70f59b79a20b733aa8",
+      "stored_bytes": 485,
+      "stored_sha256": "7ac093fd52be488bc92d4df57043c1c2d028b8e92dfd0260ca29246bffb1df2b"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-player-3.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-player-3.json.gz",
+      "raw_bytes": 785,
+      "raw_sha256": "bf8a1baa587b52a180d890f0ab46fd95a5c89950a9e4b2e2c8473eb8582fe1be",
+      "stored_bytes": 494,
+      "stored_sha256": "60d4f92f774dce6ed0d5a18c4c2c385c388f2eeaf53de71e6c7264e8905ea555"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/result.json",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--result.json.gz",
+      "raw_bytes": 509854,
+      "raw_sha256": "6c350a0fb5f2b47a54d1fe851e49e67298e9201b6ac98056c6799ec4761d94d0",
+      "stored_bytes": 68713,
+      "stored_sha256": "0496aa2f115d9a253c8017571d5c2d703a83949dd6bc17a8df3de16804a72f31"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/comparison-summary.json",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--comparison-summary.json.gz",
+      "raw_bytes": 987,
+      "raw_sha256": "28a9466760f433503ddc2af458ebfa49de358d190410b7ce9d6167b445fd7757",
+      "stored_bytes": 601,
+      "stored_sha256": "e6f9f38a486e7c2a0b185440889af729eb69654a9b7c7026409f87dbc5f165a5"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--observations.jsonl.gz",
+      "raw_bytes": 805619,
+      "raw_sha256": "22a0e04cdbd5400a2b919cd7100181b405624cf78448996966604a7112ad3b72",
+      "stored_bytes": 60510,
+      "stored_sha256": "89216a97b11c2607a8659367838a6fe8bfe04bbaf57454df56c1cf78d2d19292"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/host-observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--host-observations.jsonl.gz",
+      "raw_bytes": 479685,
+      "raw_sha256": "116947ed151a53c18c8cdd5ac6833ac355f0321112a52ef41b2709bcff0e1956",
+      "stored_bytes": 39413,
+      "stored_sha256": "3cd7406ab7ef303b53e8a97c4dfa79d90d5a5a94b51ccdb81c0c0c915006d2b5"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/progress.json",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--progress.json.gz",
+      "raw_bytes": 614,
+      "raw_sha256": "caaa6e880d88295c583c23e823c7a87be2e72ad3fee6d149d28d01e3e1fafc2e",
+      "stored_bytes": 363,
+      "stored_sha256": "cfc4221bb0b831e9335df7649fa20bc6b943e442db20d2989fabb4f56c2c9e40"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/native.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--native.stdout.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/native.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--native.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/drm-traces/native-drm.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 85944,
+      "raw_sha256": "7f61a51b9d3c116fef826e1edbb3e585ba9989e4968c149b28c143a3a29c5553",
+      "stored_bytes": 4617,
+      "stored_sha256": "176837ebe26fde0cee21f6f0bc31efdf24617e2831e7c86d1bec369c135423b0"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/drm-traces/native-request-trace.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed--drm-traces--native-request-trace.jsonl.gz",
+      "raw_bytes": 16371,
+      "raw_sha256": "d319cd3b8639ede7660d29f279db2ff50398f968b212d6e241c3c760d688b77d",
+      "stored_bytes": 2154,
+      "stored_sha256": "7563ae72bfe39006eb3cdd3d1594cc1c0d0f2591e94020f72e511bb1e1dac8a7"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed.stdout.log.gz",
+      "raw_bytes": 509854,
+      "raw_sha256": "6c350a0fb5f2b47a54d1fe851e49e67298e9201b6ac98056c6799ec4761d94d0",
+      "stored_bytes": 68713,
+      "stored_sha256": "0496aa2f115d9a253c8017571d5c2d703a83949dd6bc17a8df3de16804a72f31"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-B2-packed.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-admission-06-block-4.json",
+      "archive_path": "packed-attention-views-01--comparison-admission-06-block-4.json.gz",
+      "raw_bytes": 11801,
+      "raw_sha256": "975dcbe988d735154a6eb1111627e0ce4d3c11daa817d75ec5988a87bd0b44ae",
+      "stored_bytes": 2487,
+      "stored_sha256": "504940a43f1bcefcea783ad5e6306b4c52724dba3cd5277c0da6e4e8496fdee1"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-audit-4.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-audit-4.json.gz",
+      "raw_bytes": 826,
+      "raw_sha256": "8dfb887dbe26e12747aea14869e909b0e779187c8ae60876d00a4116fcf64095",
+      "stored_bytes": 486,
+      "stored_sha256": "de5434d2819ab477c770b83696935e05b2e801b291f555cbf39f5efcb61d1ad3"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-player-4.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-player-4.json.gz",
+      "raw_bytes": 785,
+      "raw_sha256": "cb892e85613eb80a3ea025b9d05f7a0a1fa72f9138e3937eea1fdb45b9175823",
+      "stored_bytes": 493,
+      "stored_sha256": "2bffe308b7c5842d625305f3b8f7e6e11ca92edc5c7c377482fbeefa6968fbad"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/result.json",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--result.json.gz",
+      "raw_bytes": 566468,
+      "raw_sha256": "ddc5069251dc9827954162d4dcd57b6ee5ca71a65c7521340486575ae12d9359",
+      "stored_bytes": 69781,
+      "stored_sha256": "b659e01f86586372e089a4f0fb7538218b50427bc17cec5533de4b768cdd5c95"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/comparison-summary.json",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--comparison-summary.json.gz",
+      "raw_bytes": 992,
+      "raw_sha256": "e6937d9ad2d2789e645b0f19b547ca546c57eaca33f7883d4e1f1c91323b2411",
+      "stored_bytes": 600,
+      "stored_sha256": "2c61eb8f9575b2fa2632b4cb04fea7da586fc844667cf6a07c0fc6cbd415f49b"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--observations.jsonl.gz",
+      "raw_bytes": 807818,
+      "raw_sha256": "ad81df26677f49b3feb28a0520f4d771efa260ee0d296a7c6ac580957aebc55f",
+      "stored_bytes": 61169,
+      "stored_sha256": "ebd5b2d47b99403a934c8ae76cc0dddbd478e4e0d538a6dbb21d24d70f516b71"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/host-observations.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--host-observations.jsonl.gz",
+      "raw_bytes": 417822,
+      "raw_sha256": "36b6299fdf0595c5ad4dfe682663d7f25f0e86d039cb03ebfb0ea89548570fb1",
+      "stored_bytes": 33867,
+      "stored_sha256": "9733fc823b751c7d8ab15f864a3f594b7b6c5e998e35c0e7cefa5386f7407a53"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/progress.json",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--progress.json.gz",
+      "raw_bytes": 616,
+      "raw_sha256": "1a2e56841edca0e765eba1193db7322d89ed7539b8b7a2166ca77eadd71b93da",
+      "stored_bytes": 367,
+      "stored_sha256": "470e69ce76b5027e7ae3e5e70dcc215c3199b1455dd5ed865d38659668b320c8"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/native.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--native.stdout.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/native.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--native.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/drm-traces/native-drm.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 82392,
+      "raw_sha256": "1f8d97d5103f8d30f2b26dd7519b24ad829cc9f4836cc35b36110db71a5cf127",
+      "stored_bytes": 4388,
+      "stored_sha256": "92fb26606388f9a5b60fd1362b723a99f0e84d315713f68b7c5e958c9167d030"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/drm-traces/native-request-trace.jsonl",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline--drm-traces--native-request-trace.jsonl.gz",
+      "raw_bytes": 15860,
+      "raw_sha256": "7cee8a632155b14ecff0b05b0418368582569c7eceb0c7d1b2f08efc5094138d",
+      "stored_bytes": 2142,
+      "stored_sha256": "41a971323aaaabce15199f2567f257002ef7a55e56fbcb374575eee9fc21056c"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline.stdout.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline.stdout.log.gz",
+      "raw_bytes": 566468,
+      "raw_sha256": "ddc5069251dc9827954162d4dcd57b6ee5ca71a65c7521340486575ae12d9359",
+      "stored_bytes": 69781,
+      "stored_sha256": "b659e01f86586372e089a4f0fb7538218b50427bc17cec5533de4b768cdd5c95"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline.stderr.log",
+      "archive_path": "packed-attention-views-01--comparison-06-A2-baseline.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/root-dispatch-comparison-06-audit-5.json",
+      "archive_path": "packed-attention-views-01--root-dispatch-comparison-06-audit-5.json.gz",
+      "raw_bytes": 827,
+      "raw_sha256": "6c92cbc7af3f373ce2b2d53544f683e1ef994aa1b78875146337ab631c261241",
+      "stored_bytes": 486,
+      "stored_sha256": "ad4598317acbb0f3526e44f038afd11f97e10441a418c27b0c71c3aca3a9123c"
+    }
+  ],
+  "recorded_WAVs": [
+    {
+      "block": "A1-baseline",
+      "pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A1-baseline/master.wav",
+        "bytes": 48001112,
+        "sha256": "f879737fcdd2534f0e54cd4f78f2e838db858018af86cf3d8d4c46e44ac72f17",
+        "identity": [
+          65033,
+          5919161,
+          33152,
+          1000,
+          1000,
+          1,
+          48001112,
+          1792604887386747685,
+          1792604887386747685
+        ]
+      },
+      "frames": 6000128
+    },
+    {
+      "block": "B1-packed",
+      "pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B1-packed/master.wav",
+        "bytes": 47964248,
+        "sha256": "0f64632defaf6b9284fefe66039f08213abcc4b784b920921881f065be9375ec",
+        "identity": [
+          65033,
+          5919300,
+          33152,
+          1000,
+          1000,
+          1,
+          47964248,
+          1792605149081028104,
+          1792605149081028104
+        ]
+      },
+      "frames": 5995520
+    },
+    {
+      "block": "B2-packed",
+      "pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-B2-packed/master.wav",
+        "bytes": 50808920,
+        "sha256": "01b5f25111e978598b327056fad0ef13cdb8bbb4d576d49cfe0eac85b35b8415",
+        "identity": [
+          65033,
+          5919439,
+          33152,
+          1000,
+          1000,
+          1,
+          50808920,
+          1792605329628390527,
+          1792605329628390527
+        ]
+      },
+      "frames": 6351104
+    },
+    {
+      "block": "A2-baseline",
+      "pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/comparison-06-A2-baseline/master.wav",
+        "bytes": 48177240,
+        "sha256": "0e2f94649d04510fa97acad671d7f1a14164c09fa66e84eba56967443bc1b005",
+        "identity": [
+          65033,
+          5919578,
+          33152,
+          1000,
+          1000,
+          1,
+          48177240,
+          1792605611628425118,
+          1792605611628425118
+        ]
+      },
+      "frames": 6022144
+    }
+  ],
+  "excluded": [
+    "music",
+    "recordings",
+    "models",
+    "executables",
+    "caches"
+  ],
+  "scope": "Selected immutable comparison06 recipe, sources, readiness, saved diagnostic records and independent audits. Historical quality proofs and dependency binaries remain referenced by their frozen pins; this archive is not a transitive artifact closure. Raw host JSONL digests are captured after the run; no launch-pinned within-hop attribution or causal/sustained/UI/cancellation qualification."
+}
