@@ -7,6 +7,7 @@
 #include "../../tests/StemServiceFixture.hpp"
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDataStream>
 #include <QDir>
 #include <QEventLoop>
@@ -37,6 +38,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
+#include <exception>
 #include <iostream>
 #include <mutex>
 #include <poll.h>
@@ -926,6 +928,551 @@ void validatePrivate(const std::filesystem::path& runtime, const std::filesystem
     if (!output.is_absolute() || !std::filesystem::is_directory(output) || !std::filesystem::is_empty(output))
         throw std::runtime_error("Fresh absolute recording directory is required");
 }
+
+// Separate CLI mode keeps these measured scenarios out of the existing90s run.
+namespace liveFailure {
+using State = conflux::audio::LiveSession::State;
+constexpr std::uint64_t MiB = 1024 * 1024;
+constexpr std::uint64_t totalBytesLimit = 512 * MiB;
+constexpr std::uint64_t fileBytesLimit = 64 * MiB;
+constexpr std::uint64_t holdFrames = 8192;
+constexpr std::array<float, 4> bassOnly{0.F, 1.F, 0.F, 0.F};
+constexpr std::array<float, 2> aBass{.125F, -.0625F}, bBass{.0625F, -.03125F};
+constexpr std::array<float, 2> bothBass{.1875F, -.09375F};
+volatile std::sig_atomic_t stopOwner = 0;
+void requestStop(int) { stopOwner = 1; }
+Clock::time_point ownerDeadline;
+QJsonArray assertions;
+void insist(bool condition, const char* message)
+{
+    if (!condition) throw std::runtime_error(message);
+    if (assertions.size() == 256) throw std::runtime_error("Assertion evidence bound exceeded");
+    assertions.append(message);
+}
+void current()
+{
+    if (stopOwner || Clock::now() >= ownerDeadline)
+        throw std::runtime_error("Owned fixture interrupted or original75s owner deadline expired");
+}
+QString digest(const QString& path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly) || file.size() < 0 || std::uint64_t(file.size()) > fileBytesLimit)
+        throw std::runtime_error("Cannot hash bounded generated file");
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    if (!hash.addData(&file)) throw std::runtime_error("Generated file hash failed");
+    return QString::fromLatin1(hash.result().toHex());
+}
+void directory(const QString& path)
+{
+    if (QFileInfo::exists(path) || !QDir().mkdir(path) || ::chmod(QFile::encodeName(path).constData(), 0700))
+        throw std::runtime_error("Fresh owned private directory required");
+}
+std::uint64_t treeBytes(const QString& path)
+{
+    std::uint64_t bytes = 0, files = 0, directories = 0;
+    const std::filesystem::path root(QFile::encodeName(path).constData());
+    for (const auto& item : std::filesystem::recursive_directory_iterator(root)) {
+        struct stat st{};
+        if (::lstat(item.path().c_str(), &st)) {
+            if (errno == ENOENT) continue; // A worker may atomically retire its own stage.
+            throw std::runtime_error("Cannot inspect private resource bounds");
+        }
+        if (st.st_uid != ::geteuid() || S_ISLNK(st.st_mode))
+            throw std::runtime_error("Unexpected owner or symlink in private fixtures/cache");
+        if (S_ISDIR(st.st_mode)) {
+            if (++directories > 128) throw std::runtime_error("Private directory count exceeded");
+        } else if (S_ISREG(st.st_mode)) {
+            if (++files > 256 || st.st_size < 0 || std::uint64_t(st.st_size) > fileBytesLimit ||
+                st.st_nlink != 1 || std::uint64_t(st.st_size) > totalBytesLimit - bytes)
+                throw std::runtime_error("Private file/count/byte bound exceeded");
+            bytes += std::uint64_t(st.st_size);
+        } else throw std::runtime_error("Unexpected special file in private fixtures/cache");
+    }
+    return bytes;
+}
+QJsonObject snapshot(const State& s)
+{
+    return {{"output_frame", qint64(s.outputFrame)}, {"a_cursor", qint64(s.sourceFrame[0])},
+        {"b_cursor", qint64(s.sourceFrame[1])}, {"a_frames", qint64(s.sourceFrames[0])},
+        {"b_frames", qint64(s.sourceFrames[1])}, {"a_generation", qint64(s.sourceGeneration[0])},
+        {"b_generation", qint64(s.sourceGeneration[1])}, {"a_buffering", s.buffering[0]},
+        {"b_buffering", s.buffering[1]}, {"a_error", s.sourceReadError[0]},
+        {"b_error", s.sourceReadError[1]}, {"a_render_error", s.sourceReadErrorObserved[0]},
+        {"b_render_error", s.sourceReadErrorObserved[1]}, {"a_starved", qint64(s.starvedFrames[0])},
+        {"b_starved", qint64(s.starvedFrames[1])}, {"a_playing", s.playing[0]},
+        {"b_playing", s.playing[1]}, {"callbacks", qint64(s.callbacks)},
+        {"invalid_buffers", qint64(s.invalidBuffers)}, {"rejected", qint64(s.rejected)},
+        {"snapshot_drops", qint64(s.snapshotDrops)}, {"ready", s.ready}};
+}
+struct Evidence {
+    QString name, output, cache;
+    conflux::DeckController* controller = nullptr;
+    std::shared_ptr<conflux::library::LiveStemObservations> live;
+    QJsonArray snapshots, records;
+    QJsonObject actions;
+    std::uint64_t ordinal = 0, lastOutput = UINT64_MAX, maximumBytes = 0;
+    bool saved = false;
+    Evidence(QString nameValue, QString outputValue, QString cacheValue)
+        : name(std::move(nameValue)), output(std::move(outputValue)), cache(std::move(cacheValue)) {}
+    void drain()
+    {
+        if (live) {
+            conflux::library::LiveStemObservations::Record r;
+            while (live->tryPop(r)) {
+                if (r.ordinal != ++ordinal || records.size() >= 2048)
+                    throw std::runtime_error("Live observation ordinal or evidence bound failed");
+                records.append(QJsonObject{{"ordinal", qint64(r.ordinal)}, {"kind", int(r.kind)},
+                    {"observed_ns", qint64(r.observedNs)}, {"epoch", qint64(r.providerEpoch)},
+                    {"generation", qint64(r.workerGeneration)}, {"command_id", qint64(r.commandId)},
+                    {"request_id", qint64(r.requestId)}, {"lease_sequence", qint64(r.leaseSequence)},
+                    {"input_first", qint64(r.inputFirst44100)}, {"input_frames", qint64(r.inputFrames44100)},
+                    {"output_first", qint64(r.outputFirst48000)}, {"output_frames", qint64(r.outputFrames48000)}});
+            }
+        }
+        if (controller) {
+            const auto s = controller->audioState();
+            if (s.outputFrame != lastOutput) {
+                if (snapshots.size() >= 2048) throw std::runtime_error("Snapshot evidence bound exceeded");
+                auto row = snapshot(s);
+                row["recording"] = QJsonObject::fromVariantMap(controller->recording());
+                snapshots.append(row); lastOutput = s.outputFrame;
+                // Staging/retirement directories may be atomically removed while busy.
+                // Hard store admission and per-file limits still apply during those workers.
+                if (!controller->busy()) {
+                    maximumBytes = std::max(maximumBytes, treeBytes(output) + treeBytes(cache));
+                    if (maximumBytes > totalBytesLimit) throw std::runtime_error("Combined output/cache byte ceiling exceeded");
+                }
+            }
+        }
+    }
+    void write(bool passed, const QString& error = {})
+    {
+        if (saved) return;
+        drain();
+        QJsonObject counters;
+        if (live) {
+            const auto c = live->counters();
+            counters = {{"attempted", qint64(c.attemptedRecords)}, {"dropped", qint64(c.droppedRecords)},
+                {"invalid_clock_reads", qint64(c.invalidClockReads)}, {"producer_finished", c.producerFinished},
+                {"drained", qint64(ordinal)}, {"source_token", qint64(live->setup().sourceToken)}};
+        }
+        QJsonObject value{{"schema", 1}, {"scenario", name}, {"passed", passed}, {"qualified", false},
+            {"error", error}, {"actions", actions}, {"snapshots", snapshots}, {"live_records", records},
+            {"live_counters", counters}, {"maximum_observed_output_plus_cache_bytes", qint64(maximumBytes)}};
+        if (controller) value["recording_final"] = QJsonObject::fromVariantMap(controller->recording());
+        const auto bytes = QJsonDocument(value).toJson();
+        if (bytes.size() > 8 * qint64(MiB) || !save(QDir(output).filePath(name + "-evidence.json"), value))
+            throw std::runtime_error("Cannot retain bounded private scenario evidence");
+        saved = true;
+    }
+};
+template<class Predicate>
+void await(Evidence& e, Predicate&& predicate, const char* message, std::chrono::seconds limit = std::chrono::seconds(8))
+{
+    const auto end = std::min(ownerDeadline, Clock::now() + limit);
+    for (;;) {
+        current(); e.drain();
+        if (predicate()) return;
+        if (Clock::now() >= end) throw std::runtime_error(message);
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+        QThread::msleep(2);
+    }
+}
+conflux::library::PreparedTrackStore::Limits tightLimits()
+{
+    conflux::library::PreparedTrackStore::Limits value;
+    value.maxPreparedBytes = 16 * MiB; // Each30s stereo F32 leaf is11.52MB.
+    value.maxSourceBytes = 8 * MiB; // Each generated PCM16 source is<5.77MB.
+    value.maxCacheBytes = 256 * MiB;
+    value.maxEntries = 8;
+    return value;
+}
+void seedBank(const QString& source, const QString& cache, const conflux::library::StemEngine& engine, Evidence& e)
+{
+    std::stop_source cancellation;
+    auto future = QtConcurrent::run([source, cache, engine, stop = cancellation.get_token()] {
+        try {
+            auto bank = conflux::library::PreparedTrackStore(cache, tightLimits()).prepareStemBank(source, engine, stop);
+            if (bank.cacheHit || bank.stems.front().frames() < 12 * 48000 - 1 ||
+                bank.stems.front().frames() > 12 * 48000 + 1)
+                throw std::runtime_error("Generated12s prepared bank has unexpected geometry/cache identity");
+            return QString{};
+        } catch (const std::exception& error) {
+            return QString::fromUtf8(error.what()); // Preserve the worker error before Qt wraps exceptions.
+        } catch (...) { return QStringLiteral("Unknown prepared fixture worker failure"); }
+    });
+    try {
+        await(e, [&] { return future.isFinished(); }, "Prepared fixture bank did not complete", std::chrono::seconds(20));
+    } catch (...) {
+        const auto primary = std::current_exception();
+        cancellation.request_stop();
+        // Finish cancellation without replacing the original await/interruption failure.
+        while (!future.isFinished()) QThread::msleep(2);
+        try {
+            future.waitForFinished();
+            e.actions["seed_worker_error_during_cleanup"] = future.result();
+        } catch (const std::exception& secondary) {
+            e.actions["seed_secondary_cleanup_exception"] = secondary.what();
+        } catch (...) { e.actions["seed_secondary_cleanup_exception"] = "Unknown Qt cleanup exception"; }
+        std::rethrow_exception(primary);
+    }
+    future.waitForFinished();
+    const auto error = future.result();
+    if (!error.isEmpty()) throw std::runtime_error("Prepared fixture worker failed: " + error.toStdString());
+}
+class BoundService {
+public:
+    explicit BoundService(const QJsonObject& identity)
+    {
+        pid_ = identity["pid"].toInt(); ticks_ = identity["start_ticks"].toString().toLatin1();
+        fd_ = int(::syscall(SYS_pidfd_open, pid_, 0));
+        QFile stat(QString("/proc/%1/stat").arg(pid_));
+        if (pid_ <= 1 || ticks_.isEmpty() || fd_ < 0 || !stat.open(QIODevice::ReadOnly)) {
+            if (fd_ >= 0) ::close(fd_);
+            fd_ = -1;
+            throw std::runtime_error("Cannot bind exact live fixture process before induced exit");
+        }
+        const auto bytes = stat.readAll();
+        const auto fields = bytes.mid(bytes.lastIndexOf(") ") + 2).split(' ');
+        if (fields.size() <= 19 || fields[19] != ticks_ || ::getpgid(pid_) != pid_) {
+            ::close(fd_); fd_ = -1;
+            throw std::runtime_error("Fixture leader identity/group changed before induced exit");
+        }
+    }
+    ~BoundService() { if (fd_ >= 0) ::close(fd_); }
+    void terminateUnexpectedly()
+    {
+        if (::syscall(SYS_pidfd_send_signal, fd_, SIGKILL, nullptr, 0))
+            throw std::runtime_error("Identity-bound induced fixture exit failed");
+    }
+    bool groupGone() const { errno = 0; return ::kill(-pid_, 0) == -1 && errno == ESRCH; }
+private:
+    int fd_ = -1;
+    pid_t pid_ = 0;
+    QByteArray ticks_;
+};
+void continuousPeer(const State& before, const State& after)
+{
+    if (after.outputFrame <= before.outputFrame || after.sourceFrame[1] < before.sourceFrame[1] ||
+        after.sourceFrame[1] - before.sourceFrame[1] != after.outputFrame - before.outputFrame ||
+        after.sourceGeneration[1] != before.sourceGeneration[1] || !after.playing[1] ||
+        after.buffering[1] || after.sourceReadError[1] || after.sourceReadErrorObserved[1] ||
+        after.starvedFrames[1] != 0 || after.invalidBuffers || after.rejected || after.snapshotDrops)
+        throw std::runtime_error("Prepared bass peer/output atomic clocks or health changed");
+}
+std::array<float, 2> ramp(bool rising, std::uint32_t step)
+{
+    std::array<float, 2> value{};
+    const double fraction = double(step) / 240;
+    for (std::size_t channel = 0; channel < 2; ++channel) {
+        const auto a = static_cast<float>((rising ? fraction : 1 - fraction) * aBass[channel]);
+        value[channel] = static_cast<float>(double(a) + bBass[channel]);
+    }
+    return value;
+}
+QJsonObject inspectCompleteRecording(const QString& path, std::uint64_t expectedFrames, bool recovery)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly) || file.size() < 44 || std::uint64_t(file.size()) > fileBytesLimit)
+        throw std::runtime_error("Cannot read complete bounded generated recording");
+    const auto head = file.read(12);
+    if (head.size() != 12 || head.first(4) != "RIFF" || head.sliced(8, 4) != "WAVE" ||
+        qFromLittleEndian<quint32>(head.constData() + 4) != std::uint64_t(file.size() - 8))
+        throw std::runtime_error("Final RIFF geometry is inconsistent");
+    qint64 offset = -1; std::uint64_t pcmBytes = 0, factFrames = UINT64_MAX;
+    bool format = false;
+    for (qint64 pos = 12; pos + 8 <= file.size();) {
+        if (!file.seek(pos)) throw std::runtime_error("Cannot seek RIFF metadata");
+        const auto chunk = file.read(8);
+        if (chunk.size() != 8) throw std::runtime_error("Incomplete RIFF chunk header");
+        const auto count = qFromLittleEndian<quint32>(chunk.constData() + 4);
+        if (std::uint64_t(count) > std::uint64_t(file.size() - pos - 8))
+            throw std::runtime_error("RIFF chunk exceeds final file");
+        if (chunk.first(4) == "fmt ") {
+            std::array<char, 64> f{};
+            const auto read = file.read(f.data(), std::min<quint32>(count, f.size()));
+            format = read >= 16 && qFromLittleEndian<quint16>(f.data()) == 3 &&
+                qFromLittleEndian<quint16>(f.data() + 2) == 2 &&
+                qFromLittleEndian<quint32>(f.data() + 4) == 48000 &&
+                qFromLittleEndian<quint32>(f.data() + 8) == 384000 &&
+                qFromLittleEndian<quint16>(f.data() + 12) == 8 &&
+                qFromLittleEndian<quint16>(f.data() + 14) == 32;
+        } else if (chunk.first(4) == "fact") {
+            const auto f = file.read(4);
+            if (count < 4 || f.size() != 4 || factFrames != UINT64_MAX) throw std::runtime_error("Invalid fact chunk");
+            factFrames = qFromLittleEndian<quint32>(f.constData());
+        } else if (chunk.first(4) == "data") {
+            if (offset >= 0) throw std::runtime_error("Duplicate PCM chunk");
+            offset = pos + 8; pcmBytes = count;
+        }
+        pos += 8 + qint64(count) + (count & 1U);
+    }
+    if (!format || offset < 0 || pcmBytes % 8 || pcmBytes / 8 != expectedFrames ||
+        factFrames != expectedFrames || expectedFrames < 2 * holdFrames || !file.seek(offset))
+        throw std::runtime_error("WAV format/fact/accepted/written frame mismatch");
+    enum Phase { Both, FadeOut, Peer, FadeIn, Recovered } phase = Both;
+    std::uint32_t step = 0;
+    std::array<std::uint64_t, 5> counts{};
+    std::array<char, 4096 * 8> block{};
+    float maxError = 0;
+    const auto error = [&](const std::array<float, 2>& got, const std::array<float, 2>& wanted) {
+        return std::max(std::abs(got[0] - wanted[0]), std::abs(got[1] - wanted[1]));
+    };
+    for (std::uint64_t first = 0; first < expectedFrames;) {
+        const auto count = std::min<std::uint64_t>(4096, expectedFrames - first);
+        if (file.read(block.data(), qint64(count * 8)) != qint64(count * 8))
+            throw std::runtime_error("Complete generated PCM truncated");
+        for (std::uint64_t i = 0; i < count; ++i) {
+            std::array<float, 2> got{};
+            for (std::size_t c = 0; c < 2; ++c) {
+                got[c] = std::bit_cast<float>(std::uint32_t(qFromLittleEndian<quint32>(block.data() + i * 8 + c * 4)));
+                if (!std::isfinite(got[c])) throw std::runtime_error("Nonfinite generated master sample");
+            }
+            std::array<float, 2> wanted{};
+            if (phase == Both) {
+                if (error(got, bothBass) <= 1e-6F) wanted = bothBass;
+                else { phase = FadeOut; step = 1; wanted = ramp(false, step); }
+            } else if (phase == FadeOut) wanted = ramp(false, ++step);
+            else if (phase == Peer) {
+                if (error(got, bBass) <= 1e-6F) wanted = bBass;
+                else { phase = FadeIn; step = 1; wanted = ramp(true, step); }
+            } else if (phase == FadeIn) wanted = ramp(true, ++step);
+            else wanted = bothBass;
+            const auto deviation = error(got, wanted);
+            if (deviation > 1e-6F) throw std::runtime_error("Every-frame bass/peer/240-frame ramp oracle failed");
+            maxError = std::max(maxError, deviation); ++counts[phase];
+            if (phase == FadeOut && step == 240) phase = Peer;
+            if (phase == FadeIn && step == 240) phase = Recovered;
+        }
+        first += count;
+    }
+    if (counts[Both] < 1024 || counts[FadeOut] != 240 || counts[Peer] < holdFrames ||
+        (recovery ? (phase != Recovered || counts[FadeIn] != 240 || counts[Recovered] < 1024) :
+                    (phase != Peer || counts[FadeIn] || counts[Recovered])))
+        throw std::runtime_error("Required recorded baseline/held/recovered phases incomplete");
+    return {{"frames", qint64(expectedFrames)}, {"bytes", file.size()}, {"fact_frames", qint64(factFrames)},
+        {"sha256", digest(path)}, {"all_samples_finite", true}, {"every_frame_checked", true},
+        {"baseline_frames", qint64(counts[Both])}, {"fade_out_frames", qint64(counts[FadeOut])},
+        {"peer_only_frames", qint64(counts[Peer])}, {"fade_in_frames", qint64(counts[FadeIn])},
+        {"recovered_frames", qint64(counts[Recovered])}, {"maximum_oracle_error", maxError},
+        {"amplitude_tolerance", 1e-6}, {"unclassified_or_omitted_frames", 0}};
+}
+void scenario(const QString& output, const QString& privateRoot, bool exitScenario, QJsonArray& results)
+{
+    const auto name = exitScenario ? QStringLiteral("active-exit") : QStringLiteral("active-stall");
+    const auto local = QDir(output).filePath(name), cacheHome = QDir(privateRoot).filePath(name);
+    directory(local); directory(cacheHome);
+    Evidence evidence{name, output, privateRoot};
+    QJsonObject report{{"scenario", name}, {"qualified", false}};
+    const auto a = QDir(local).filePath("live-a.wav"), b = QDir(local).filePath("prepared-b.wav");
+    // Paused replacement reuses the distinct suitable B bank; no third bank or implicit mix fallback.
+    writeFixture(a, 8192, -4096, 30 * 44100, 44100);
+    writeFixture(b, 4096, -2048, 12 * 48000, 48000);
+    const auto fixture = conflux::test::makeStemServiceFixture(local, exitScenario ? "good" : "gate-after-first");
+    ServiceTrace services(fixture);
+    insist(qputenv("XDG_CACHE_HOME", QFile::encodeName(cacheHome)) &&
+           qputenv("XDG_DATA_HOME", QFile::encodeName(QDir(cacheHome).filePath("data"))),
+           "Scenario cache and library remain under the isolated private owner");
+    const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+    try { seedBank(b, cache, fixture.engine, evidence); }
+    catch (const std::exception& seedError) {
+        // Seeding precedes controller construction; retain its precise failure too.
+        try { evidence.write(false, QString::fromUtf8(seedError.what())); } catch (...) {}
+        throw;
+    }
+    conflux::DeckController::PreparationOptions options;
+    options.stemEngine = fixture.engine; options.stemServicePath = fixture.service; options.limits = tightLimits();
+    conflux::DeckController controller(options);
+    evidence.controller = &controller;
+    Sink sink("conflux-stall-continuity-" + name.toStdString() + "-" + std::to_string(::getpid()));
+    try {
+        QString left, right;
+        privateLivePair(controller, sink, left, right, insist);
+        controller.loadStemDeck(1, QUrl::fromLocalFile(b));
+        await(evidence, [&] { return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrames[1]; },
+            "Prepared bass peer did not install", std::chrono::seconds(15));
+        insist(controller.error().isEmpty() && controller.preparation()["cacheHit"].toBool() && !controller.liveStemObservations(1),
+            "Peer is an actual compatible complete prepared stem bank, not a full-track or live substitute");
+        controller.loadStemDeck(0, QUrl::fromLocalFile(a));
+        await(evidence, [&] {
+            if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+            return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrames[0];
+        }, "Genuine live A did not install", std::chrono::seconds(20));
+        evidence.live = controller.liveStemObservations(0); services.capture();
+        insist(evidence.live && !controller.preparation()["cacheHit"].toBool() && services.size() == 1 &&
+            services.alive(0) && services.count(0, "command", "load") == 1 && services.count(0, "command", "seek") == 0 &&
+            services.count(0, "fixture", "runtime") == 1,
+            "One genuine cache-miss live owner installs with one runtime/load and no constructor seek");
+        BoundService bound(services.identities()[0].toObject());
+        const auto handle = evidence.live; const auto token = handle->setup().sourceToken;
+        for (int deck = 0; deck < 2; ++deck)
+            for (int role = 0; role < 4; ++role) controller.setStemGain(deck, role, role == 1 ? 1.0 : 0.0);
+        await(evidence, [&] { const auto s = controller.audioState(); return s.stemGain[0] == bassOnly && s.stemGain[1] == bassOnly; },
+            "Both exact bass-only gain targets were not acknowledged");
+        controller.setPlaying(0, true); controller.setPlaying(1, true);
+        await(evidence, [&] { const auto s = controller.audioState(); return s.playing[0] && s.playing[1] &&
+            s.sourceFrame[0] >= 8192 && s.sourceFrame[1] >= 8192 && !s.buffering[0] && !s.buffering[1]; },
+            "Both generated selected-bass sources did not settle");
+        const auto baseline = controller.audioState(); const auto sessions = controller.completedSessions();
+        insist(baseline.deckGain == std::array<float, 2>{1.F, 1.F} && baseline.masterGain == 1.F,
+            "The independent selected-bass sample oracle uses acknowledged unity deck/master gains");
+        const auto wav = QDir(local).filePath("master.wav");
+        controller.startRecording(QUrl::fromLocalFile(wav));
+        await(evidence, [&] { return controller.recording()["status"].toString() == "Recording" &&
+            controller.recording()["acceptedFrames"].toULongLong() >= holdFrames; }, "Continuous recorder did not attach");
+        const auto before = controller.audioState();
+        evidence.actions["before"] = snapshot(before);
+        if (exitScenario) {
+            insist(services.alive(0) && services.count(0, "fixture", "complete") == 0 &&
+                before.sourceFrame[0] > 0 && before.sourceFrame[0] < before.sourceFrames[0],
+                "Induced exit targets a live incomplete producer during active playback, not an already-complete source");
+            bound.terminateUnexpectedly();
+            evidence.actions["induced_exit"] = "SIGKILL through retained exact-process pidfd; fixture has no descendant mode";
+            await(evidence, [&] { const auto s = controller.audioState(); return s.sourceReadError[0] &&
+                s.sourceReadErrorObserved[0] && s.buffering[0]; }, "Unexpected active producer exit was not exposed per deck");
+            insist(services.count(0, "fixture", "complete") == 0,
+                "The killed active fixture did not complete the source before its induced exit");
+        } else {
+            await(evidence, [&] { const auto s = controller.audioState(); return s.buffering[0] &&
+                s.sourceFrame[0] >= conflux::audio::PreparedPlayback::liveReserveFrames &&
+                s.sourceFrame[0] < s.sourceFrames[0]; }, "Active first-hop reserve did not naturally drain", std::chrono::seconds(12));
+        }
+        const auto held = controller.audioState();
+        const auto recordedHeld = controller.recording()["acceptedFrames"].toULongLong();
+        evidence.actions["held"] = snapshot(held);
+        await(evidence, [&] { const auto s = controller.audioState();
+            if (s.sourceFrame[0] != held.sourceFrame[0]) throw std::runtime_error("Held live A cursor advanced without supply");
+            // Cover a full240-frame availability fade plus8192 stable peer-only frames.
+            return s.outputFrame >= held.outputFrame + holdFrames + 512 &&
+                controller.recording()["acceptedFrames"].toULongLong() >= recordedHeld + holdFrames + 512;
+        }, "Prepared peer/output did not continue through the held A interval");
+        const auto continued = controller.audioState();
+        continuousPeer(before, continued); continuousPeer(held, continued);
+        insist(continued.sourceFrame[0] == held.sourceFrame[0] &&
+            continued.starvedFrames[0] >= held.starvedFrames[0] + holdFrames &&
+            controller.completedSessions() == sessions && controller.outputReady() && controller.error().isEmpty() &&
+            controller.recording()["active"].toBool() && controller.recording()["path"].toString() == wav &&
+            controller.recording()["acceptedFrames"].toULongLong() >= recordedHeld + holdFrames &&
+            controller.decks()[0].toMap()["sourceReadError"].toBool() == exitScenario,
+            "Exact held A cursor coexists with advancing suitable peer/output/recorder and truthful per-deck health");
+        evidence.actions["continued"] = snapshot(continued);
+        if (exitScenario) {
+            controller.loadStemDeck(0, QUrl::fromLocalFile(b)); // Explicit compatible prepared replacement; remains paused.
+            await(evidence, [&] { const auto s = controller.audioState(); return !controller.busy() &&
+                s.sourceGeneration[0] != held.sourceGeneration[0] && !controller.liveStemObservations(0) && services.gone(0); },
+                "Explicit prepared replacement did not retire the failed live owner", std::chrono::seconds(15));
+            const auto installed = controller.audioState();
+            insist(controller.preparation()["cacheHit"].toBool() && installed.stemBank[0] &&
+                !installed.playing[0] && installed.sourceFrame[0] == 0 && !installed.sourceReadError[0] &&
+                !installed.sourceReadErrorObserved[0] && !installed.buffering[0] && !installed.starvedFrames[0] &&
+                bound.groupGone() && services.size() == 1 && controller.completedSessions() == sessions,
+                "Explicit paused complete-bank replacement clears only the new generation and reaps old service/group/job");
+            evidence.actions["replacement"] = snapshot(installed);
+            await(evidence, [&] { return controller.audioState().outputFrame >= installed.outputFrame + holdFrames; },
+                "Prepared peer/recorder did not continue after explicit replacement");
+            continuousPeer(continued, controller.audioState());
+        } else {
+            // The marker is exclusive, inside the owned fixture directory, and not an arbitrary user path.
+            QFile marker(fixture.marker(".release"));
+            insist(marker.open(QIODevice::WriteOnly | QIODevice::NewOnly) && marker.write("release\n") == 8 && marker.flush(),
+                "Only the owned gate-after-first fixture receives its exclusive release marker");
+            marker.close();
+            await(evidence, [&] { const auto s = controller.audioState(); return !s.buffering[0] &&
+                s.sourceFrame[0] >= held.sourceFrame[0] + holdFrames; }, "Held source did not recover after same-owner release");
+            const auto recovered = controller.audioState();
+            continuousPeer(continued, recovered);
+            insist(controller.liveStemObservations(0) == handle && handle->setup().sourceToken == token &&
+                !recovered.sourceReadError[0] && !recovered.sourceReadErrorObserved[0] &&
+                services.size() == 1 && services.alive(0) && services.count(0, "command", "load") == 1 &&
+                services.count(0, "command", "seek") == 0 && services.count(0, "fixture", "runtime") == 1 &&
+                controller.completedSessions() == sessions,
+                "Natural reserve recovery keeps the exact service/source owner with no new load, runtime, seek or session");
+            evidence.actions["recovered"] = snapshot(recovered);
+        }
+        insist(controller.recording()["active"].toBool() && controller.recording()["path"].toString() == wav,
+            "Both actions preserve the same continuous master recorder");
+        controller.stopRecording();
+        await(evidence, [&] { return !controller.recording()["active"].toBool(); }, "Generated recording did not finalize");
+        const auto recording = controller.recording();
+        insist(recording["status"].toString() == "Complete" && recording["acceptedFrames"] == recording["writtenFrames"] &&
+            recording["overflowFrames"].toULongLong() == 0,
+            "Every accepted master frame finalizes without writer overflow");
+        current();
+        report["wav"] = inspectCompleteRecording(wav, recording["writtenFrames"].toULongLong(), !exitScenario);
+        current();
+        report["source_sha256"] = digest(a); report["peer_sha256"] = digest(b);
+        report["children"] = services.identities(); report["final_audio"] = snapshot(controller.audioState());
+        controller.shutdown(); evidence.drain();
+        const auto c = handle->counters();
+        insist(services.gone(0) && bound.groupGone() && c.producerFinished && !c.droppedRecords &&
+            !c.invalidClockReads && c.attemptedRecords == evidence.ordinal && !controller.busy() && !controller.outputReady(),
+            "Shutdown proves exact service/group/job retirement and complete loss-free local observations before safety cleanup");
+        std::optional<std::uint64_t> firstEpoch;
+        for (const auto& row : evidence.records) {
+            const auto epoch = row.toObject()["epoch"].toVariant().toULongLong();
+            if (!epoch) continue; // Setup/old-context rows can legitimately have no accepted epoch.
+            if (!firstEpoch) firstEpoch = epoch;
+            if (epoch != *firstEpoch) throw std::runtime_error("Unexpected new provider epoch in no-seek scenario");
+        }
+        insist(firstEpoch.has_value(), "Actual positive provider epoch is observed and unchanged through recovery/retirement");
+        evidence.actions["same_owner_provider_epoch"] = qint64(*firstEpoch);
+        const auto trace = QFileInfo(fixture.marker(".trace"));
+        insist(trace.size() <= 1024 * 1024, "Generated fixture process trace remains bounded");
+        report["passed"] = true;
+        evidence.write(true);
+        evidence.controller = nullptr;
+        insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome),
+            "Only the fully retired owned scenario cache is removed before the next scenario");
+        results.append(report);
+    } catch (const std::exception& error) {
+        controller.shutdown();
+        try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
+        evidence.controller = nullptr;
+        report["passed"] = false; report["error"] = error.what(); report["children"] = services.identities();
+        results.append(report);
+        throw;
+    }
+}
+
+int run(int argc, char** argv, bool functionalOnly)
+{
+    QJsonArray results;
+    QString error;
+    bool passed = false;
+    const auto begin = Clock::now(); ownerDeadline = begin + std::chrono::seconds(75);
+    try {
+        const std::filesystem::path runtime(argv[1]), output(argv[2]);
+        validatePrivate(runtime, output);
+        const rlimit noCore{0, 0}, fileLimit{fileBytesLimit, fileBytesLimit};
+        insist(::setrlimit(RLIMIT_CORE, &noCore) == 0 && ::setrlimit(RLIMIT_FSIZE, &fileLimit) == 0 &&
+            ::prctl(PR_SET_DUMPABLE, 0) == 0, "Owned generated fixtures have no core dumps and a hard64MiB per-file limit");
+        std::signal(SIGINT, requestStop); std::signal(SIGTERM, requestStop);
+        QCoreApplication app(argc, argv);
+        app.setOrganizationName("CONFLUX"); app.setApplicationName("preparation-controller-check");
+        const auto privateRoot = QString::fromStdString((runtime / "live-stall-owner").string());
+        directory(privateRoot);
+        pw_init(nullptr, nullptr);
+        scenario(QString::fromStdString(output.string()), privateRoot, false, results);
+        scenario(QString::fromStdString(output.string()), privateRoot, true, results);
+        insist(QDir(privateRoot).removeRecursively() && !QFileInfo::exists(privateRoot),
+            "All retired scenario cache/library trees are gone before private-daemon graph inspection");
+        current(); passed = true;
+    } catch (const std::exception& caught) { error = QString::fromUtf8(caught.what()); }
+    QJsonObject final{{"schema", 1}, {"passed", passed}, {"qualified", false}, {"checks", assertions},
+        {"error", error}, {"scenarios", results}, {"elapsed_seconds", std::chrono::duration<double>(Clock::now() - begin).count()},
+        {"limits", QJsonObject{{"owner_seconds", 75}, {"private_runner_seconds", functionalOnly ? 240 : 90},
+          {"per_file_hard_bytes", qint64(fileBytesLimit)}, {"prepared_cache_admission_bytes", qint64(256 * MiB)},
+          {"prepared_leaf_bytes", qint64(16 * MiB)}, {"source_bytes", qint64(8 * MiB)},
+          {"combined_observed_bytes", qint64(totalBytesLimit)}, {"files_per_tree", 256}, {"directories_per_tree", 128}}},
+        {"scope", "Generated virtual controller/recorder support check only. Explicit replacement remains paused. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification."}};
+    const auto bytes = QJsonDocument(final).toJson(QJsonDocument::Indented);
+    if (bytes.size() > 8 * qint64(MiB)) return 1;
+    std::cout << bytes.constData();
+    return passed ? 0 : 1;
+}
+
+} // namespace liveFailure
 } // namespace
 
 int main(int argc, char** argv)
@@ -939,8 +1486,16 @@ int main(int argc, char** argv)
         checks.append(message);
     };
     try {
-        if (argc != 3 && (argc != 4 || std::string_view(argv[3]) != "--functional-only"))
-            throw std::runtime_error("Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only]");
+        bool functionalOnly = false, liveFailureOnly = false;
+        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only]";
+        if (argc < 3) throw std::runtime_error(usage);
+        for (int argument = 3; argument < argc; ++argument) {
+            const std::string_view option(argv[argument]);
+            if (option == "--functional-only") functionalOnly = true;
+            else if (option == "--live-failure-only") liveFailureOnly = true;
+            else throw std::runtime_error(usage);
+        }
+        if (liveFailureOnly) return liveFailure::run(argc, argv, functionalOnly);
         const rlimit noCore{0, 0};
         require(::setrlimit(RLIMIT_CORE, &noCore) == 0 && ::prctl(PR_SET_DUMPABLE, 0) == 0,
                 "Expected failure cannot create a core dump");
@@ -1201,8 +1756,8 @@ int main(int argc, char** argv)
                 "Loading and shutting down preserve the persistent imported library record");
         observations["completion"] = completion;
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
-        runStemController(output, fixtures.path(), a, b, libraryId, argc == 4, require, observations);
-        runLiveStemController(output, fixtures.path(), a, argc == 4, require, observations);
+        runStemController(output, fixtures.path(), a, b, libraryId, functionalOnly, require, observations);
+        runLiveStemController(output, fixtures.path(), a, functionalOnly, require, observations);
         runLostLiveOwners(fixtures.path(), require, observations);
         passed = true;
     } catch (const std::exception& failure) {

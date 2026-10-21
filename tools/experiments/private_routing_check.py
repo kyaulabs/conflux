@@ -19,6 +19,8 @@ def main():
     parser.add_argument("output", type=Path, help="new evidence directory; must not exist")
     parser.add_argument("--functional-only", action="store_true",
                         help="skip only execution deadline assertions for instrumented functional checks")
+    parser.add_argument("--live-failure-only", action="store_true",
+                        help="run only the preparation binary's generated live stall/exit checks")
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)
     output = args.output.absolute()
@@ -146,6 +148,8 @@ context.modules = [
                     command = [str(binary), str(runtime), str(recordings)]
                     if args.functional_only:
                         command.append("--functional-only")
+                    if args.live_failure_only:
+                        command.append("--live-failure-only")
                     checker = subprocess.Popen(
                         command, env=environment,
                         stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)
