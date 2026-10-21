@@ -869,6 +869,13 @@ void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstal
     std::array<std::uint64_t, 2> rebuildCursor{}, rebuiltCursor{};
     std::uint64_t recorded = 0, written = 0, wrong = 0;
     std::array<std::uint64_t, 2> zeros{};
+    // Instrumented functional runs check reserve/ownership, not setup latency.
+    const auto candidatePrimeBudget = executionDeadlineGate ? 2s : 10s;
+    bool candidatePrimeAttempted = false, candidatePrimeReady = false;
+    std::int64_t candidatePrimeMs = 0;
+    int candidatePrimeErrorCode = 0;
+    std::string candidatePrimeError;
+    std::array<unsigned, 2> primeProducerStarts{}, primeProducerExits{};
     auto save = [&](bool passed, std::string_view error = {}) {
         master.saveOperands(diagnosticDirectory / (label + "-receiver.json"));
         std::ofstream output(diagnosticDirectory / (label + ".json"));
@@ -879,6 +886,14 @@ void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstal
                << ",\"completion_installed\":" << (returned ? (installed ? "true" : "false") : "null")
                << ",\"immediate_detach_branch\":" << (awaitInstalled ? "null" : returned ? json(installed ? "installed" : "uninstalled") : "null")
                << ",\"active_recovery_reserve_gating\":false,\"prime_reserve_frames\":" << PreparedPlayback::liveReserveFrames
+               << ",\"candidate_prime_budget_ms\":" << std::chrono::duration_cast<std::chrono::milliseconds>(candidatePrimeBudget).count()
+               << ",\"candidate_prime_attempted\":" << (candidatePrimeAttempted ? "true" : "false")
+               << ",\"candidate_prime_ready\":" << (candidatePrimeReady ? "true" : "false")
+               << ",\"candidate_prime_elapsed_ms\":" << candidatePrimeMs
+               << ",\"candidate_prime_error_code\":" << candidatePrimeErrorCode
+               << ",\"candidate_prime_error\":" << json(candidatePrimeError)
+               << ",\"producer_starts_at_prime_result\":[" << primeProducerStarts[0] << ',' << primeProducerStarts[1] << ']'
+               << ",\"producer_exits_at_prime_result\":[" << primeProducerExits[0] << ',' << primeProducerExits[1] << ']'
                << ",\"output_frames\":" << state.outputFrame << ",\"callbacks\":" << state.callbacks
                << ",\"source_generation\":" << state.sourceGeneration[0]
                << ",\"recorded_frames\":" << recorded << ",\"written_frames\":" << written
@@ -916,7 +931,17 @@ void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstal
         const auto oldStemTargets = state.stemGain[0];
         const auto oldCueFrame = state.cueFrame[0];
         auto candidate = liveOwnerFixture(awaitInstalled ? 602 : 604, frames, nextProducer);
-        require(candidate->prime(0, 2s), label + ": generated candidate primes its exact reserve");
+        candidatePrimeAttempted = true;
+        const auto primeStart = std::chrono::steady_clock::now();
+        candidatePrimeReady = candidate->prime(0, candidatePrimeBudget);
+        candidatePrimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - primeStart).count();
+        candidatePrimeErrorCode = candidate->errorCode();
+        candidatePrimeError = candidate->error();
+        primeProducerStarts = {oldProducer->started.load(), nextProducer->started.load()};
+        primeProducerExits = {oldProducer->exited.load(), nextProducer->exited.load()};
+        require(candidatePrimeReady, label + ": generated candidate primes its exact reserve (elapsed_ms=" +
+                std::to_string(candidatePrimeMs) + ", error=" + candidatePrimeError + ")");
         const auto* nextIdentity = candidate.get();
         require(session.requestSourceReplacement(0, candidate, 1) && !candidate,
                 label + ": one pending whole live owner transfers to the session");
