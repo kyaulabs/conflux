@@ -898,6 +898,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         throw std::length_error("Audio source byte budget exceeded");
     const auto originalDigest = scan(original.get(), std::uint64_t(originalBefore.st_size), stop).sha256;
     if (!unchanged(originalBefore, statusOf(original.get()))) throw std::runtime_error("Audio source changed during hashing");
+    auto presentation = readTrackPresentation(original.get(), sourcePath, stop);
     auto files = pinEngine(engine, stop);
     auto service = pinStemFile(servicePath, true, stop);
     const auto rootPath = QFileInfo(cacheRoot_).absoluteFilePath();
@@ -1030,6 +1031,6 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     observations->setup_ = setup; // Factory publication only; producer never reads this storage.
     return {std::move(playback), QString::fromLatin1(originalDigest), QString::fromLatin1(job->inputDigest),
         job->files[4].identity.value("sha256").toString(), job->inputFrames, plan.outputFrames(), job->charge,
-        std::move(overview), std::move(observations)};
+        std::move(overview), std::move(observations), std::move(presentation)};
 }
 } // namespace conflux::library

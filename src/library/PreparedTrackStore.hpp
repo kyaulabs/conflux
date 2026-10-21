@@ -4,6 +4,7 @@
 #include "audio/AudioFile.hpp"
 #include "audio/PreparedPlayback.hpp"
 #include "library/LiveStemObservations.hpp"
+#include "library/TrackPresentation.hpp"
 
 #include <QString>
 #include <array>
@@ -21,6 +22,7 @@ struct PreparedTrack {
     QString sourceSha256;
     QString artifactKey;
     bool cacheHit = false;
+    TrackPresentation presentation{};
 };
 
 // Explicit local engine inputs, not a shell command or a plugin interface.
@@ -39,6 +41,7 @@ struct PreparedStemTrack {
     QString sourceSha256;
     QString artifactKey;
     bool cacheHit = false;
+    TrackPresentation presentation{};
 };
 
 struct PreparedLiveStemTrack {
@@ -48,6 +51,7 @@ struct PreparedLiveStemTrack {
     // Normalized whole-source44100 overview, not a separated-stem waveform.
     std::vector<float> sourceOverview;
     std::shared_ptr<LiveStemObservations> observations;
+    TrackPresentation presentation{};
 };
 
 // Worker-owned persistent PCM preparation. No method belongs on the GUI or

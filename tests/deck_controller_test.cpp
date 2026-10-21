@@ -3,6 +3,7 @@
 #include "library/LiveStemObservations.hpp"
 #include "StemExportFixture.hpp"
 #include "StemServiceFixture.hpp"
+#include "TrackPresentationFixture.hpp"
 
 #include <QCoreApplication>
 #include <QJsonArray>
@@ -331,8 +332,9 @@ private slots:
             QVERIFY(directory.isValid() && runtime.isValid());
             RestoreEnvironment restore;
             isolateLiveController(directory.path(), runtime.path());
-            const auto source = directory.filePath("cached source.wav");
-            QVERIFY(writeWave(source, 2, 44100, 211));
+            const auto source = directory.filePath("cached source.flac");
+            QVERIFY(presentationFixture::writeFlac(source, "Cached stem title", "Generated artist", "Generated album",
+                presentationFixture::artwork(Qt::blue), 44100, 211));
             const auto engineRoot = directory.filePath("engine");
             QVERIFY(QDir().mkpath(engineRoot));
             const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
@@ -352,6 +354,9 @@ private slots:
             QVERIFY(deck["stemBank"].toBool() && controller.preparation()["cacheHit"].toBool());
             QCOMPARE(deck["name"].toString(), QFileInfo(source).fileName());
             QCOMPARE(deck["overviewStem"].toString(), QString("drums"));
+            QCOMPARE(deck["title"].toString(), QString("Cached stem title"));
+            QCOMPARE(deck["artist"].toString(), QString("Generated artist"));
+            QVERIFY(deck["artworkDataUrl"].toString().startsWith("data:image/png;base64,"));
             QCOMPARE(controller.audioState().sourceFrames[0], bank.stems[0].frames());
             QCOMPARE(controller.retainedPcmBytes(), bank.stems[0].frames() * 8 * 4);
             QCOMPARE(deck["waveform"].toList().size(), qsizetype(bank.stems[0].peaks().size()));
@@ -382,8 +387,9 @@ private slots:
             QVERIFY(directory.isValid() && runtime.isValid());
             RestoreEnvironment restore;
             isolateLiveController(directory.path(), runtime.path());
-            const auto source = directory.filePath("live source.wav");
-            QVERIFY(writeWave(source, 2, 44100, 211));
+            const auto source = directory.filePath("live source.flac");
+            QVERIFY(presentationFixture::writeFlac(source, "Live stem title", "Generated artist", "Generated album",
+                presentationFixture::artwork(Qt::blue), 44100, 211));
             const auto frames = expectedLiveFrames(source);
             const auto engineRoot = directory.filePath("engine");
             QVERIFY(QDir().mkpath(engineRoot));
@@ -400,6 +406,9 @@ private slots:
             QVERIFY(deck["stemBank"].toBool() && !controller.preparation()["cacheHit"].toBool());
             QCOMPARE(deck["name"].toString(), QFileInfo(source).fileName());
             QCOMPARE(deck["overviewStem"].toString(), QString("source"));
+            QCOMPARE(deck["title"].toString(), QString("Live stem title"));
+            QCOMPARE(deck["album"].toString(), QString("Generated album"));
+            QVERIFY(deck["artworkDataUrl"].toString().startsWith("data:image/png;base64,"));
             QCOMPARE(controller.audioState().sourceFrames[0], frames);
             QCOMPARE(deck["durationSeconds"].toDouble(), frames / 48000.0);
             QCOMPARE(deck["stemGains"].toList(), QVariantList({1.F, 1.F, 1.F, 1.F}));
@@ -1241,10 +1250,12 @@ private slots:
         qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
         qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
         qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
-        const auto first = directory.filePath("kept-track.wav");
-        const auto second = directory.filePath("cancelled-replacement.wav");
-        QVERIFY(writeWave(first, 2, 48000, 480));
-        QVERIFY(writeWave(second, 2, 48000, 960));
+        const auto first = directory.filePath("kept-track.flac");
+        const auto second = directory.filePath("cancelled-replacement.flac");
+        QVERIFY(presentationFixture::writeFlac(first, "Keep this title", "artist", "album",
+            presentationFixture::artwork(Qt::blue), 48000, 480));
+        QVERIFY(presentationFixture::writeFlac(second, "Replacement title", "artist", "album",
+            presentationFixture::artwork(Qt::red), 48000, 960));
         conflux::DeckController controller;
         bool installationObserved = false, lateAccepted = true;
         connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
@@ -1259,6 +1270,9 @@ private slots:
         QVERIFY(!lateAccepted);
         const auto original = controller.decks();
         QVERIFY(original[0].toMap()["loaded"].toBool());
+        QCOMPARE(original[0].toMap()["title"].toString(), QString("Keep this title"));
+        const auto retainedArt = original[0].toMap()["artworkDataUrl"].toString();
+        QVERIFY(!retainedArt.isEmpty());
         const auto submitted = controller.submittedCommands();
         controller.loadDeck(0, QUrl::fromLocalFile(second));
         QVERIFY(controller.cancelPreparation());
@@ -1269,7 +1283,9 @@ private slots:
         QCOMPARE(controller.submittedCommands(), submitted);
         controller.loadDeck(1, QUrl::fromLocalFile(second));
         QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
-        QCOMPARE(controller.decks()[1].toMap()["name"].toString(), QString("cancelled-replacement.wav"));
+        QCOMPARE(controller.decks()[1].toMap()["name"].toString(), QString("cancelled-replacement.flac"));
+        QCOMPARE(controller.decks()[1].toMap()["title"].toString(), QString("Replacement title"));
+        QVERIFY(controller.decks()[1].toMap()["artworkDataUrl"].toString() != retainedArt);
     }
 
     void actualDecodeFailures()
@@ -1352,13 +1368,16 @@ private slots:
         qputenv("XDG_RUNTIME_DIR", runtime.path().toUtf8());
         qputenv("PIPEWIRE_RUNTIME_DIR", runtime.path().toUtf8());
         qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
-        const auto original = directory.filePath("original.wav");
-        QVERIFY(writeWave(original, 2, 48000, 8));
+        const auto original = directory.filePath("original.flac");
+        QVERIFY(presentationFixture::writeFlac(original, "Original tagged title", "artist", "album",
+            presentationFixture::artwork(Qt::blue), 48000, 8));
         conflux::DeckController controller;
         controller.loadDeck(0, QUrl::fromLocalFile(original));
         QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
         const auto retained = controller.decks()[0].toMap();
         QVERIFY(retained["loaded"].toBool());
+        QCOMPARE(retained["title"].toString(), QString("Original tagged title"));
+        QVERIFY(!retained["artworkDataUrl"].toString().isEmpty());
         QVERIFY(!retained["replacing"].toBool());
         controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing-next.wav")));
         QVERIFY(controller.busy());

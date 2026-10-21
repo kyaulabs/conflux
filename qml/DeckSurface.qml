@@ -15,6 +15,11 @@ Item {
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
     readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
     readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
+    readonly property string trackTitle: deck.loaded ? (deck.title || deck.name) : "Browse a local track"
+    readonly property string artworkSource: deck.loaded && typeof deck.artworkDataUrl === "string"
+                                             && deck.artworkDataUrl.startsWith("data:image/png;base64,")
+                                             ? deck.artworkDataUrl : ""
+    readonly property bool compactDisplay: display.height < 232
     readonly property real edge: width >= 560 ? 22 : 16
     readonly property real sideWidth: width >= 560 ? 76 : 66
     readonly property real screenHeight: Math.max(174, Math.min(250, height * 0.28))
@@ -110,6 +115,7 @@ Item {
 
     Rectangle {
         id: display
+        objectName: "deck" + surface.deckIndex + "Display"
         x: surface.edge
         y: 40
         width: surface.width - 2 * surface.edge - surface.sideWidth - 14
@@ -137,42 +143,136 @@ Item {
             font.pixelSize: 10
             font.letterSpacing: 0.5
         }
-        Label {
+        Rectangle {
+            id: artworkFrame
+            objectName: "deck" + surface.deckIndex + "ArtworkFrame"
             x: 14
-            y: 32
-            width: parent.width - 28
-            text: surface.deck.loaded ? surface.deck.name : "Browse a local track"
-            elide: Text.ElideMiddle
-            color: "#EFF8F6"
-            font.family: Brand.ConfluxTheme.displayFont
-            font.pixelSize: surface.width >= 560 ? 26 : 22
-            Accessible.name: surface.deckName + " track: " + text
+            y: surface.compactDisplay ? 28 : 30
+            width: surface.compactDisplay ? 48 : 64
+            height: width
+            radius: 3
+            color: "#102024"
+            border.color: "#304B50"
+            Image {
+                id: artwork
+                objectName: "deck" + surface.deckIndex + "Artwork"
+                anchors.fill: parent
+                anchors.margins: 2
+                source: surface.artworkSource
+                fillMode: Image.PreserveAspectFit
+                asynchronous: true
+                cache: true
+                visible: status === Image.Ready
+                Accessible.role: Accessible.Graphic
+                Accessible.name: surface.deckName + " artwork for " + surface.trackTitle
+            }
+            Item {
+                objectName: "deck" + surface.deckIndex + "ArtworkPlaceholder"
+                anchors.fill: parent
+                visible: artwork.status !== Image.Ready
+                Accessible.role: Accessible.Graphic
+                Accessible.name: surface.deckName + " artwork unavailable"
+                Rectangle {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    y: 6
+                    width: parent.width * 0.52
+                    height: width
+                    radius: width / 2
+                    color: "#081215"
+                    border.color: "#3B5D62"
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: parent.width * 0.38
+                        height: width
+                        radius: width / 2
+                        color: surface.displayAccent
+                        opacity: 0.65
+                    }
+                }
+                Label {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 4
+                    text: surface.deck.loaded ? "NO ART" : "EMPTY"
+                    textFormat: Text.PlainText
+                    color: "#8EAAA7"
+                    font.family: Brand.ConfluxTheme.monoFont
+                    font.pixelSize: 7
+                }
+            }
         }
         Label {
+            id: titleLabel
+            objectName: "deck" + surface.deckIndex + "Title"
+            x: artworkFrame.x + artworkFrame.width + 10
+            y: artworkFrame.y
+            width: parent.width - x - 14
+            text: surface.trackTitle
+            textFormat: Text.PlainText
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            color: "#EFF8F6"
+            font.family: Brand.ConfluxTheme.displayFont
+            font.pixelSize: surface.compactDisplay ? 18 : 26
+            Accessible.name: surface.deckName + " title: " + text
+        }
+        Label {
+            id: trackArtist
+            objectName: "deck" + surface.deckIndex + "Artist"
+            x: titleLabel.x
+            y: titleLabel.y + titleLabel.height + 1
+            width: titleLabel.width
+            text: surface.deck.loaded ? (surface.deck.artist || "Artist unknown") : "—"
+            textFormat: Text.PlainText
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            color: "#B5CDC9"
+            font.family: Brand.ConfluxTheme.bodyFont
+            font.pixelSize: surface.compactDisplay ? 11 : 14
+            Accessible.name: surface.deckName + " artist: " + text
+        }
+        Label {
+            objectName: "deck" + surface.deckIndex + "Album"
+            x: titleLabel.x
+            y: trackArtist.y + trackArtist.height + 1
+            width: titleLabel.width
+            text: surface.deck.loaded ? (surface.deck.album || "Album unknown") : "—"
+            textFormat: Text.PlainText
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            color: "#8EAAA7"
+            font.family: Brand.ConfluxTheme.bodyFont
+            font.pixelSize: surface.compactDisplay ? 10 : 12
+            Accessible.name: surface.deckName + " album: " + text
+        }
+        Label {
+            objectName: "deck" + surface.deckIndex + "Elapsed"
             x: 14
-            y: 65
+            y: surface.compactDisplay ? 80 : 100
+            width: parent.width * 0.55 - 14
             text: surface.deck.loaded ? surface.timeText(seek.pressed ? seek.value : surface.deck.positionSeconds) : "—:—"
             color: "#F2F8F4"
             font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: surface.width >= 560 ? 36 : 29
+            font.pixelSize: surface.compactDisplay ? 26 : 36
         }
         Column {
             anchors.right: parent.right
             anchors.rightMargin: 14
-            y: 67
-            spacing: 4
-            Label { text: "REMAIN"; color: "#8EAAA7"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 9 }
+            y: surface.compactDisplay ? 80 : 101
+            spacing: 1
+            Label { text: "REMAIN"; color: "#8EAAA7"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
             Label {
+                objectName: "deck" + surface.deckIndex + "Remaining"
                 text: surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
                 color: surface.displayAccent
                 font.family: Brand.ConfluxTheme.monoFont
-                font.pixelSize: surface.width >= 560 ? 21 : 16
+                font.pixelSize: surface.compactDisplay ? 16 : 21
             }
         }
         Label {
             x: 14
-            y: 107
-            visible: display.height >= 210
+            y: 148
+            visible: !surface.compactDisplay
             text: surface.deck.loaded ? surface.transportStatus + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
@@ -181,9 +281,9 @@ Item {
         Canvas {
             id: waveform
             x: 14
-            y: parent.height - 71
+            y: parent.height - (surface.compactDisplay ? 59 : 71)
             width: parent.width - 28
-            height: 47
+            height: surface.compactDisplay ? 31 : 47
             onWidthChanged: requestPaint()
             onHeightChanged: requestPaint()
             onPaint: {
@@ -214,7 +314,7 @@ Item {
             x: 10
             y: waveform.y - 4
             width: parent.width - 20
-            height: 55
+            height: surface.compactDisplay ? 44 : 55
             leftPadding: 4
             rightPadding: 4
             from: 0

@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-20T23:53:02.322714+00:00",
+  "scope": "Native deck LCD cover art and song details; functional source preparation and UI verification. No physical audio/UI latency or M2 release qualification.",
+  "base_commit": "5acbfdc4ebb0e65cb7f2b53d70fa183347d955c0",
+  "source_pins": {
+    "src/library/TrackPresentation.cpp": {
+      "bytes": 11278,
+      "sha256": "ba84d55d477fef84966cb1009f50f7bfd40459b0f3fa2bda1a499d2019f73b28"
+    },
+    "src/library/TrackPresentation.hpp": {
+      "bytes": 855,
+      "sha256": "3b4a7128e580508d430b17e99bf8972200dbf0664c46d00f08e632d642e40eb0"
+    },
+    "src/library/PreparedTrackStore.cpp": {
+      "bytes": 53390,
+      "sha256": "252415aec25afee955f8a883663404c9f5018b07eb68ff035805234365626dad"
+    },
+    "src/library/PreparedTrackStore.hpp": {
+      "bytes": 3968,
+      "sha256": "7f1000a42b7f1ad3096c708051a7e9cf67fb8338b1600301f5750aea9a1ac94a"
+    },
+    "src/library/LiveStemBridge.cpp": {
+      "bytes": 63037,
+      "sha256": "63ce599a780d0dd91fe5b36a7850e48fa8faf205496019a5547bacc87476a7e3"
+    },
+    "src/ui/DeckController.cpp": {
+      "bytes": 59588,
+      "sha256": "dcd6b93d0d81ee8a6c2da0eda2bc56fd54910352a89d13170cea73c70931a5ae"
+    },
+    "src/ui/DeckController.hpp": {
+      "bytes": 12876,
+      "sha256": "79c3b9e3ec95d32adbdf527c8f42e9c558a020c37484c255e171b1849121fd58"
+    },
+    "qml/DeckSurface.qml": {
+      "bytes": 35832,
+      "sha256": "4b7109bdba5d5dfdaadca79571f1da9ef31ee614d88ae7d938deb68f12f36f98"
+    },
+    "tests/track_presentation_test.cpp": {
+      "bytes": 18330,
+      "sha256": "713292e1ade712210a1090093ae6abfbdcff5280b0d331877f0eac3e4854cb95"
+    },
+    "tests/TrackPresentationFixture.hpp": {
+      "bytes": 3098,
+      "sha256": "d8b2fce8e503165df2087502c81368a7798b8098d9ee17c0e40bd3d91e5e6e7b"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 82091,
+      "sha256": "2b84eeee2048a9dc965af9954019b323da29d3c226d695510ee9288276bc650c"
+    },
+    "tests/manual_ui_test.cpp": {
+      "bytes": 108228,
+      "sha256": "979961e289c5498c339ccf1dbd4b28b36e38ba8ef3bca85b88b847f59dcf874e"
+    },
+    "CMakeLists.txt": {
+      "bytes": 21153,
+      "sha256": "eb94c7bd3ce26b4480dba62b05fa3ebe78abe489378db539b4ef49023fd3e87d"
+    }
+  },
+  "input_snapshot": {
+    "files": 102,
+    "unchanged_after_checks": true,
+    "pin": {
+      "bytes": 16775,
+      "sha256": "2568d815ccadd075f6ddbe9bda0c224dbebaf5eb630c69dc59085f3def1d80ee"
+    }
+  },
+  "dependencies": {
+    "TagLib": "2.3.2",
+    "Qt": "6.12.0",
+    "libsndfile": "1.2.2",
+    "libsamplerate": "0.2.2"
+  },
+  "normal": {
+    "build": "passed",
+    "CTest": {
+      "passed": 41,
+      "failed": 0,
+      "seconds": 215.03
+    },
+    "smoke": {
+      "passed": true,
+      "frames_swapped": 121,
+      "platform": "offscreen",
+      "backend": "software"
+    },
+    "private_preparation": {
+      "passed": true,
+      "checks": 85,
+      "functional_only": true,
+      "owned_cleanup": true
+    }
+  },
+  "instrumented": {
+    "execution_passed": true,
+    "CTest": {
+      "passed": 41,
+      "failed": 0,
+      "seconds": 322.03
+    },
+    "private_checks": {
+      "private-routing": {
+        "passed": true,
+        "checks": 124,
+        "functional_only": true,
+        "owned_daemon_reaped": true,
+        "remaining_nodes_or_links": []
+      },
+      "private-preparation": {
+        "passed": true,
+        "checks": 85,
+        "functional_only": true,
+        "owned_daemon_reaped": true,
+        "remaining_nodes_or_links": []
+      }
+    },
+    "cpp": {
+      "line": {
+        "covered": 6330,
+        "total": 7270,
+        "percent": 87.07015130674003,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 9298,
+        "total": 17310,
+        "percent": 53.71461582900058,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1248,
+        "total": 1366,
+        "percent": 91.36163982430453,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 441,
+        "total": 536,
+        "percent": 82.27611940298507,
+        "above_80_percent": true
+      }
+    },
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "tools": {
+      "coverage": "7.16.2",
+      "gcovr": "8.7",
+      "numpy": "2.5.4"
+    },
+    "summary_pin": {
+      "bytes": 7874,
+      "sha256": "ca1604633b3eeb225e765438630a1c55beb68e86e124725fd6a52059f22d5e89"
+    }
+  },
+  "focused_regressions": {
+    "metadata_QtTest_passed": 18,
+    "UI_QtTest_passed": 12,
+    "test_first_failures_reproduced": true,
+    "scope": [
+      "source bytes and offsets unchanged",
+      "cached/live/normal publication",
+      "failed and cancelled replacement retention",
+      "bounded literal labels and unsupported metadata fallback",
+      "valid oversized PNG and dimensions",
+      "compressed and nested ID3 rejection",
+      "read-operation limits",
+      "both decks, themes, laptop sizes, artwork replacement and seek controls"
+    ]
+  },
+  "real_source_probe": {
+    "private_tracks": 4,
+    "covers_ready": 4,
+    "title_and_artist_present": 4,
+    "album_absent": 4,
+    "originals_unchanged": 4,
+    "audio_or_model_playback": false,
+    "private_media_committed": false
+  },
+  "visual_review": {
+    "rendering": "offscreen software; generated covers",
+    "sizes": [
+      [
+        1180,
+        760
+      ],
+      [
+        1680,
+        1020
+      ]
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "both_deck_LCDs_inspected": true
+  },
+  "independent_review": {
+    "passed": true,
+    "unresolved_findings": [],
+    "receipt_pin": {
+      "bytes": 8458,
+      "sha256": "d24bf387f4a3f5c66653e34880ed16d8258dbfefd4b46a1e1eec8b9b95c63830"
+    }
+  },
+  "presentation_limits": {
+    "formats": [
+      "FLAC",
+      "basic uncompressed MPEG ID3",
+      "Ogg Vorbis",
+      "Opus"
+    ],
+    "other_formats": "filename and no-art fallback; audio decoder support unchanged",
+    "tag_read_bytes_each": 8388608,
+    "tag_read_bytes_total": 16777216,
+    "tag_read_operations": 256,
+    "ID3_frame_callbacks": 256,
+    "encoded_cover_bytes": 4194304,
+    "image_dimension_each": 4096,
+    "thumbnail_dimension_each": 256,
+    "thumbnail_png_bytes": 262144,
+    "label_UTF16_units": 256
+  },
+  "M2_release_gate": "open; Best quality, normal runtime threads and strict p99 <4095ms target unchanged"
+}

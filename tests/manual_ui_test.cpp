@@ -2,6 +2,9 @@
 #include <QGuiApplication>
 #include <QAccessible>
 #include <QFontDatabase>
+#include <QBuffer>
+#include <QImage>
+#include <QMetaProperty>
 #include <QKeyEvent>
 #include <QInputMethodEvent>
 #include <QQmlApplicationEngine>
@@ -167,6 +170,17 @@ public:
     {
         auto state = decks_[deck].toMap();
         state["positionSeconds"] = position;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
+    void snapshotSongInfo(int deck, const QString& title, const QString& artist,
+                         const QString& album, const QString& artwork)
+    {
+        auto state = decks_[deck].toMap();
+        state["title"] = title;
+        state["artist"] = artist;
+        state["album"] = album;
+        state["artworkDataUrl"] = artwork;
         decks_[deck] = state;
         emit stateChanged();
     }
@@ -337,6 +351,18 @@ QQuickItem* visualItem(QQuickItem* root, const QString& name)
             return found;
     }
     return nullptr;
+}
+
+QString artworkDataUrl(const QColor& color)
+{
+    QImage cover(64, 64, QImage::Format_RGB32);
+    for (int y = 0; y < cover.height(); ++y)
+        for (int x = 0; x < cover.width(); ++x)
+            cover.setPixelColor(x, y, color.lighter(70 + (x + y) * 80 / 126));
+    QByteArray png;
+    QBuffer buffer(&png);
+    if (!buffer.open(QIODevice::WriteOnly) || !cover.save(&buffer, "PNG")) return {};
+    return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(png.toBase64());
 }
 
 struct UiFixture {
@@ -1887,6 +1913,140 @@ private slots:
         QTest::addColumn<QSize>("viewport");
         QTest::newRow("minimum") << QSize(1180, 760);
         QTest::newRow("default") << QSize(1680, 1020);
+    }
+
+    void deckLcdShowsLiteralSongInfoAndStableArtwork()
+    {
+        const auto artwork = artworkDataUrl(QColor("#48b8a4"));
+        QVERIFY(!artwork.isEmpty());
+        const QString title = "<b>Night & day</b>";
+        const QString artist = "Artist <img src='https://example.invalid/private'>";
+        const QString album = "Album & <i>version</i>";
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.snapshotSongInfo(deck, title, artist, album, artwork);
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* image = ui_->item((prefix + "Artwork").toUtf8().constData());
+            QVERIFY(image);
+            QTRY_COMPARE(image->property("status").toInt(), 1); // QML Image.Ready
+            QCOMPARE(image->property("source").toUrl(), QUrl(artwork));
+            QVERIFY(!ui_->item((prefix + "ArtworkPlaceholder").toUtf8().constData())->isVisible());
+            for (const auto& entry : {std::pair{"Title", title}, {"Artist", artist}, {"Album", album}}) {
+                auto* label = ui_->item((prefix + entry.first).toUtf8().constData());
+                QVERIFY(label);
+                QCOMPARE(label->property("text").toString(), entry.second);
+                QCOMPARE(label->property("textFormat").toInt(), int(Qt::PlainText));
+                auto* accessible = QAccessible::queryAccessibleInterface(label);
+                QVERIFY(accessible);
+                QVERIFY(accessible->text(QAccessible::Name).contains(entry.second));
+            }
+        }
+        auto* image = ui_->item("deck0Artwork");
+        const auto sourceProperty = image->metaObject()->property(image->metaObject()->indexOfProperty("source"));
+        QSignalSpy sourceChanges(image, sourceProperty.notifySignal());
+        QVERIFY(sourceChanges.isValid());
+        for (int index = 0; index < 8; ++index)
+            ui_->endpoint.snapshotPosition(0, index / 2.0);
+        QCoreApplication::processEvents();
+        QCOMPARE(sourceChanges.size(), 0); // Poll snapshots do not reload an unchanged cover.
+        const auto replacementArtwork = artworkDataUrl(QColor("#c49855"));
+        QVERIFY(!replacementArtwork.isEmpty());
+        ui_->endpoint.snapshotSongInfo(0, "New cover", "New artist", "New album", replacementArtwork);
+        QTRY_COMPARE(image->property("status").toInt(), 1);
+        QCOMPARE(image->property("source").toUrl(), QUrl(replacementArtwork));
+        QCOMPARE(sourceChanges.size(), 1);
+        ui_->endpoint.snapshotSongInfo(0, "Replacement", "New artist", "New album", {});
+        QTRY_COMPARE(ui_->item("deck0Title")->property("text").toString(), QString("Replacement"));
+        QTRY_VERIFY(image->property("source").toUrl().isEmpty());
+        QVERIFY(ui_->item("deck0ArtworkPlaceholder")->isVisible());
+        QCOMPARE(ui_->item("deck1Title")->property("text").toString(), title);
+        QCOMPARE(ui_->item("deck1Artwork")->property("source").toUrl(), QUrl(artwork));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void deckLcdMissingArtAndUnloadedMetadataStayExplicit()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.snapshotSongInfo(0, {}, {}, {}, "https://example.invalid/cover.png");
+        auto* title = ui_->item("deck0Title");
+        auto* artwork = ui_->item("deck0Artwork");
+        auto* placeholder = ui_->item("deck0ArtworkPlaceholder");
+        QVERIFY(title && artwork && placeholder);
+        QTRY_COMPARE(title->property("text").toString(), QString("Track 0"));
+        QCOMPARE(ui_->item("deck0Artist")->property("text").toString(), QString("Artist unknown"));
+        QCOMPARE(ui_->item("deck0Album")->property("text").toString(), QString("Album unknown"));
+        QVERIFY(artwork->property("source").toUrl().isEmpty());
+        QVERIFY(placeholder->isVisible());
+        ui_->endpoint.snapshotSongInfo(0, "Old title", "Old artist", "Old album", {});
+        ui_->endpoint.unloadState(0);
+        QTRY_COMPARE(title->property("text").toString(), QString("Browse a local track"));
+        QVERIFY(!ui_->item("deck0Artist")->property("text").toString().contains("Old artist"));
+        QVERIFY(!ui_->item("deck0Album")->property("text").toString().contains("Old album"));
+        QVERIFY(artwork->property("source").toUrl().isEmpty());
+        QVERIFY(placeholder->isVisible());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void deckLcdMetadataFitsWithTransport_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(1180, 760), QSize(1680, 1020)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height()).arg(dark ? "dark" : "light")))
+                    << viewport << dark;
+    }
+
+    void deckLcdMetadataFitsWithTransport()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        QTRY_VERIFY(ui_->center(ui_->item("themeToggle")).x() < viewport.width());
+        if (!dark)
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto artwork = artworkDataUrl(QColor(deck == 0 ? "#38bba8" : "#bf8a56"));
+            QVERIFY(!artwork.isEmpty());
+            ui_->endpoint.snapshotSongInfo(deck, QString(240, 'T'), QString(240, 'A'), QString(240, 'B'), artwork);
+            QTRY_COMPARE(ui_->item(QString("deck%1Artwork").arg(deck).toUtf8().constData())->property("status").toInt(), 1);
+            const auto prefix = QString("deck%1").arg(deck);
+            QStringList labels;
+            for (const auto* suffix : {"ArtworkFrame", "Title", "Artist", "Album", "Elapsed", "Remaining"})
+                labels.append(prefix + suffix);
+            verifyControlsFit(labels);
+            auto* display = ui_->item((prefix + "Display").toUtf8().constData());
+            QVERIFY(display);
+            const auto displayRect = [display] {
+                return display->mapRectToScene(QRectF(0, 0, display->width(), display->height()));
+            };
+            for (const auto& name : labels) {
+                auto* item = ui_->item(name.toUtf8().constData());
+                QTRY_VERIFY2(displayRect().adjusted(-.5, -.5, .5, .5).contains(
+                                 item->mapRectToScene(QRectF(0, 0, item->width(), item->height()))), qPrintable(name));
+                if (item->property("textFormat").isValid())
+                    QVERIFY2(item->implicitHeight() <= item->height() + .5,
+                             qPrintable(QString("%1 text height %2 exceeds %3").arg(name).arg(item->implicitHeight()).arg(item->height())));
+            }
+            auto* seek = ui_->item((prefix + "Seek").toUtf8().constData());
+            QTRY_VERIFY(displayRect().adjusted(-.5, -.5, .5, .5).contains(
+                            seek->mapRectToScene(QRectF(0, 0, seek->width(), seek->height()))));
+            seek->forceActiveFocus();
+            QTRY_VERIFY(seek->hasActiveFocus());
+            const auto count = ui_->endpoint.calls.size();
+            QTest::keyClick(ui_->window, Qt::Key_Right);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("seek"));
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["deck"].toInt(), deck);
+        }
+        verifyControlsFit({"deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain"});
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void viewportControlsFit()

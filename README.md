@@ -59,8 +59,8 @@ prototype; release installation packages are not available yet.
 
 Use Linux with a running PipeWire session. The native window targets Wayland.
 Build requirements are a C++20 compiler, CMake 3.25+, Ninja, pkg-config,
-PipeWire 0.3.65+, libsndfile 1.2+, libsamplerate 0.2.2+ and Qt 6.4+ with
-Quick, Quick Controls 2, SVG and Concurrent. Tests also use Qt Test and
+PipeWire 0.3.65+, libsndfile 1.2+, libsamplerate 0.2.2+, TagLib 1.13+ and
+Qt 6.4+ with Quick, Quick Controls 2, SVG and Concurrent. Tests also use Qt Test and
 Python 3.11+ with NumPy. Contributors also need Node.js and pnpm 11.28.5 for
 the repository's commit tools.
 
@@ -68,7 +68,7 @@ On Arch Linux, install the development dependencies:
 
 ```sh
 sudo pacman -S --needed base-devel cmake ninja pkgconf pipewire libsndfile \
-  libsamplerate qt6-base qt6-declarative qt6-svg python python-numpy pnpm
+  libsamplerate taglib qt6-base qt6-declarative qt6-svg python python-numpy pnpm
 ```
 
 Current Arch packages include the Wayland client plugin in `qt6-base`; see the

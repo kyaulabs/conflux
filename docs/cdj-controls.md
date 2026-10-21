@@ -30,7 +30,7 @@ the C/D strips must say they are unavailable.
 
 | Hardware group and position | CONFLUX behavior in this redraw |
 | --- | --- |
-| Display and browse area, top | Show the loaded filename, actual elapsed/total time, playback state and load status. The Library drawer accepts absolute local paths; LOAD calls `loadDeck`. Indexed library browsing, playlists and media-source selection remain unavailable. |
+| Display and browse area, top | Show embedded cover art, title, artist and album in each deck LCD, with a filename fallback and a NO ART placeholder. Actual elapsed/remaining time and the source overview remain available. The Library drawer imports and lists local tracks; LOAD A/B prepares the selected track. Playlists and media-source selection remain unavailable. |
 | Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview and preserves the stored cue. Beat quantization and scratch semantics remain unavailable. |
 | PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
