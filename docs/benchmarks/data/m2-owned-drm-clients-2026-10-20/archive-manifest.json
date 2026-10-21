@@ -1,0 +1,453 @@
+{
+  "schema": 1,
+  "status": "complete",
+  "created_at_utc": "2026-10-21T02:34:27.177174+00:00",
+  "source_head": "976a5eb414d4697219f6931c7405832f1bd66351",
+  "artifacts": [
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/drm_client_usage.hpp",
+      "archive_path": "drm-clients-01--drm_client_usage.hpp.gz",
+      "raw_bytes": 30254,
+      "raw_sha256": "c9defff6a216a816911c627ced030c40e1c70d141e2373a53768374506c1fd96",
+      "stored_bytes": 7974,
+      "stored_sha256": "18d28d871d52475638f70301d2724f633e5d48c53724d6b5958bbb0977bb3afe"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/drm_client_usage_test.cpp",
+      "archive_path": "drm-clients-01--drm_client_usage_test.cpp.gz",
+      "raw_bytes": 26969,
+      "raw_sha256": "96aad994c41576a918b9c76125d9c74c115ea78d961c2df5ef82ff8cf9c2aaa4",
+      "stored_bytes": 6806,
+      "stored_sha256": "b6af54b156032ca575e7de43ea08d095e17e05f2e314549f1dde7989b14783e2"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/htdemucs_segment.cpp",
+      "archive_path": "drm-clients-01--htdemucs_segment.cpp.gz",
+      "raw_bytes": 14913,
+      "raw_sha256": "e3e425659d5c9dd59f7dbba9f3e4d6eb6aff66f58321db70b92a0ec33f29a53a",
+      "stored_bytes": 3888,
+      "stored_sha256": "51a856390991681a5ebe56f701bb6110ff798a23d431f9f8e2692a72ad8a77c2"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/implementation-receipt.json",
+      "archive_path": "drm-clients-01--implementation-receipt.json.gz",
+      "raw_bytes": 7975,
+      "raw_sha256": "2fd6633a3d5dcc986989ccaf9d288bf049748faac81bbc9206ef2819e44b747c",
+      "stored_bytes": 3231,
+      "stored_sha256": "96f8bf899629945766644b57ec7096fd79d46636e4d79cd4802095f7fe644ab4"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/native-delta-01.diff",
+      "archive_path": "drm-clients-01--native-delta-01.diff.gz",
+      "raw_bytes": 32927,
+      "raw_sha256": "c73d995fe72915e23e2656a4f9e9475acc3bbcd6cb731250f0f5cc14c018808f",
+      "stored_bytes": 8151,
+      "stored_sha256": "b55264a1017d1d775b5e48824bc5fc7c90130c43432af6509b05ec3414a24499"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/build_recipe.json",
+      "archive_path": "drm-clients-01--build_recipe.json.gz",
+      "raw_bytes": 9888,
+      "raw_sha256": "0071d493d9ab10b3107edd217485d8c4c57743695ffdf496dc2c05fdb79f3a53",
+      "stored_bytes": 2435,
+      "stored_sha256": "c54960c262a3d6928136b266b0f383ca8faf525d7f8034a73021ce366f384b2e"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/adapter-build-result.json",
+      "archive_path": "drm-clients-01--adapter-build-result.json.gz",
+      "raw_bytes": 6903,
+      "raw_sha256": "d4b6a201645b003b0676cd6dc92154320c0f53977ee2c770036a0864289dacdf",
+      "stored_bytes": 1643,
+      "stored_sha256": "31c0fc3870c5cc4ca8cbf6ba22c0c0a3732db395538c0e02fcf2b521e49a3c9a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/compile-fixture.log",
+      "archive_path": "drm-clients-01--compile-fixture.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/run-CPU-fixture.log",
+      "archive_path": "drm-clients-01--run-CPU-fixture.log.gz",
+      "raw_bytes": 120,
+      "raw_sha256": "e75df66b4de6793b4a6ffa3e41467c102cb87c93c8b46d27a644e4b9110c45ff",
+      "stored_bytes": 128,
+      "stored_sha256": "16c35f578f8f6827f1d10b184074ac9203cb868ff30caf496456719b7f0369ce"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/compile-adapter.log",
+      "archive_path": "drm-clients-01--compile-adapter.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/link-adapter.log",
+      "archive_path": "drm-clients-01--link-adapter.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/independent-native-review-01.json",
+      "archive_path": "drm-clients-01--independent-native-review-01.json.gz",
+      "raw_bytes": 7110,
+      "raw_sha256": "af180b2801b43b185d2080047da1f6843e59fecdd43f9150be4a3f1638ee4450",
+      "stored_bytes": 3129,
+      "stored_sha256": "da4fc712952768ec3653178f2664564e50cd4825c924b15c602a3a332a3ea487"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/run_drm_player.py",
+      "archive_path": "drm-clients-01--run_drm_player.py.gz",
+      "raw_bytes": 125611,
+      "raw_sha256": "722784d8a1f5448791f43e46a94d3fa4e2dc2128c4faa2878c40dd372c532cfd",
+      "stored_bytes": 33023,
+      "stored_sha256": "2609cb9e8a9d0caf75c94d304c41edd4209a0bf1f470980f5b242213610e2d5e"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/run_drm_pcm.py",
+      "archive_path": "drm-clients-01--run_drm_pcm.py.gz",
+      "raw_bytes": 21881,
+      "raw_sha256": "a7961d2f1f776a017598c3bfad93789cbf6293d6219321fa76342bc1597c2eed",
+      "stored_bytes": 6241,
+      "stored_sha256": "9d996d35251c8fe2fadcf44eeade3a367410e79c46c6d6418394bba409872bdf"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/drm_trace_validation.py",
+      "archive_path": "drm-clients-01--drm_trace_validation.py.gz",
+      "raw_bytes": 15810,
+      "raw_sha256": "074343445da4692f344585f70c4927439ddbb5fc696a0b2e0c4f1d88cf40ded4",
+      "stored_bytes": 4739,
+      "stored_sha256": "58c34ce39dd4d41d2a47c92fbb187986cb42ba140f1bee920793a8bf8db733c0"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/context_capture.py",
+      "archive_path": "drm-clients-01--context_capture.py.gz",
+      "raw_bytes": 6796,
+      "raw_sha256": "f48908d3966f8c35a8701543e7a1c381bc071690316e014e0bedd82794ece724",
+      "stored_bytes": 2300,
+      "stored_sha256": "ad87c25fe2a8afbc673caafb3b65ac3f8202c3a48dc0e69b5f358ab25bfa3faf"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/service_drm.py",
+      "archive_path": "drm-clients-01--service_drm.py.gz",
+      "raw_bytes": 31199,
+      "raw_sha256": "50f5b94bbcee0ac4087dbd438deb8e1b0532502ad0d770b56bff20a2ff9b5586",
+      "stored_bytes": 8071,
+      "stored_sha256": "48d664d39aec90293235acaf7375fb3369078593aac1ed2a08806146b2b80467"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/cache_support.py",
+      "archive_path": "drm-clients-01--cache_support.py.gz",
+      "raw_bytes": 16534,
+      "raw_sha256": "ae6a4d488b3b18c181808bfeb1cc68000392028b9feacea69ab9b17edbc58331",
+      "stored_bytes": 4161,
+      "stored_sha256": "28f61d659a2b4362ce2e8a99238ba0bcbab01cf661a6186e550c48c5e8fb9065"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/drm_runner_check.py",
+      "archive_path": "drm-clients-01--drm_runner_check.py.gz",
+      "raw_bytes": 35116,
+      "raw_sha256": "fc58a46477118e6673e9bf7c534f7711a7c3e8b32e6d6c49c21f9e07fc1d292c",
+      "stored_bytes": 9517,
+      "stored_sha256": "d640ffdc12ac77735c10d37dd4a6a2a8bd3faa1ea61d52ef7169dd531c4fbf64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/runner-preparation-01.json",
+      "archive_path": "drm-clients-01--runner-preparation-01.json.gz",
+      "raw_bytes": 4744,
+      "raw_sha256": "7ea88edaf5751f9c73b9c375da2e9b8a5f72c2b218d91eb762472ec4303f3f74",
+      "stored_bytes": 2312,
+      "stored_sha256": "f2c4c7a7e5002bf0fb2aa8a56208763c69151f1f8d99e5a8457ea37b0277e10d"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/independent-runner-source-review-01.json",
+      "archive_path": "drm-clients-01--independent-runner-source-review-01.json.gz",
+      "raw_bytes": 6081,
+      "raw_sha256": "3817f20a9da89d461acd53f8f25ae0be614daac80e88786699946407a36fbb29",
+      "stored_bytes": 2675,
+      "stored_sha256": "860cb1ef555cf84c77cf75d19325e913c6c10af1b5f0b332052312554b83a7ae"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/runner-offline-result-01.json",
+      "archive_path": "drm-clients-01--runner-offline-result-01.json.gz",
+      "raw_bytes": 4532,
+      "raw_sha256": "8973b5e8b554847330e54f5b318c1dea6c8f51762820378544dcdc94f3334203",
+      "stored_bytes": 954,
+      "stored_sha256": "0bf1511f51b2238086a19a432a87f23ad34536f9f6ddd5a9b27347406092127a"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/runner-offline-stdout-01.log",
+      "archive_path": "drm-clients-01--runner-offline-stdout-01.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/runner-offline-stderr-01.log",
+      "archive_path": "drm-clients-01--runner-offline-stderr-01.log.gz",
+      "raw_bytes": 127,
+      "raw_sha256": "55d2155efbce685b3f6d4a14e4c46e5139b01095f4706a06b226706d9941dec0",
+      "stored_bytes": 55,
+      "stored_sha256": "80cf6a0ba3effa23c1bcf675dd7c1ddc1894911152a866df1be0a3768d45044b"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/normalized-input-preflight-01.json",
+      "archive_path": "drm-clients-01--normalized-input-preflight-01.json.gz",
+      "raw_bytes": 2728,
+      "raw_sha256": "01379d02a5c36f70e97ea3264a19a40d7292ee095b2962ef97ca90f7efa2ec55",
+      "stored_bytes": 1152,
+      "stored_sha256": "659267fd284651d9c41d0f6d23303ea73a1473cab2df452b308449319eaa32b2"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/final-plan-offline-gate-01.json",
+      "archive_path": "drm-clients-01--final-plan-offline-gate-01.json.gz",
+      "raw_bytes": 1127,
+      "raw_sha256": "410a36ed01bdaafc6aa89c3372bf78851a2420972647efbc7a0e70366a09c5f3",
+      "stored_bytes": 662,
+      "stored_sha256": "538209f0306d5fd67f5b5986883b47857d29370b5cebd0ca401b160352c9b67e"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/final-preparation-review-01.json",
+      "archive_path": "drm-clients-01--final-preparation-review-01.json.gz",
+      "raw_bytes": 3252,
+      "raw_sha256": "17389403d01c1c7cefb549cbd07ab4336c0b2ae9702a030114d338cfbe0bfa4e",
+      "stored_bytes": 1185,
+      "stored_sha256": "2e0d5c7163b016bf35387c9e7773124283b530864225088a266255997ace663c"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/independent-final-plan-review-01.json",
+      "archive_path": "drm-clients-01--independent-final-plan-review-01.json.gz",
+      "raw_bytes": 7354,
+      "raw_sha256": "bd2ea6c37adb5a2b0915812042da7d4c09a0ef6ab9b3342a8b4954139c22563a",
+      "stored_bytes": 2943,
+      "stored_sha256": "2056092eb8f63dd904c74ff78c8d4384ddba76965603b9116c8433bf6e3ba3b8"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/drm-clients-plan-01.json",
+      "archive_path": "drm-clients-01--drm-clients-plan-01.json.gz",
+      "raw_bytes": 47930,
+      "raw_sha256": "3a208f52301cd56d77f58802fcd6a7feea44ff177c7a5a93dc4a07477279831d",
+      "stored_bytes": 12538,
+      "stored_sha256": "d80fb2ce06164d2e40d6d1a93c33309d02d5975c352ad939864d3e63c94cfdb0"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/human-readiness-drm-clients-01.json",
+      "archive_path": "drm-clients-01--human-readiness-drm-clients-01.json.gz",
+      "raw_bytes": 1216,
+      "raw_sha256": "aac92816dd1dd856891cb0e493e1ceae7535f5308c6951071731f4780b60f166",
+      "stored_bytes": 699,
+      "stored_sha256": "73b40528d6d539c2dc2dfc4d3e7b259f0030337b21c08ff30b33266dafa794ba"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/root-external-protocol-01.json",
+      "archive_path": "drm-clients-01--root-external-protocol-01.json.gz",
+      "raw_bytes": 3543,
+      "raw_sha256": "21e84c9bf81442ba92c3fe3bda9c951e1f8fd5401fc395044def196a178b3797",
+      "stored_bytes": 1550,
+      "stored_sha256": "78bee60268ac90aae8747986d94759c64ac283c56d81861aed099dc1ca7636f2"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/root-pcm-launch-receipt-01.json",
+      "archive_path": "drm-clients-01--root-pcm-launch-receipt-01.json.gz",
+      "raw_bytes": 523,
+      "raw_sha256": "b4f46a61070ed6958da9031686ffe598c8435909bfaf2708d9a5b9b6172eb445",
+      "stored_bytes": 348,
+      "stored_sha256": "fc1502138c91435984dbcdcde48c2e65cf5ad4106059f2fc968ff43ed0ef5986"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/interstage-root-audit-01.json",
+      "archive_path": "drm-clients-01--interstage-root-audit-01.json.gz",
+      "raw_bytes": 2894,
+      "raw_sha256": "332a2601e6422a1e822c17f1746650a135d8f61b57883b597ecfe55b78efe421",
+      "stored_bytes": 1232,
+      "stored_sha256": "241a5eaf107a24e1ca418fa3b3f6d4211901689ec43ad95e61d543534570485c"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/pcm-equivalence-drm-clients-01/result.json",
+      "archive_path": "drm-clients-01--pcm-equivalence-drm-clients-01--result.json.gz",
+      "raw_bytes": 480358,
+      "raw_sha256": "d8aa041f489727a4e0e9c3ba4657213aff6da8a912ff12d6bb611ba3d087a2e1",
+      "stored_bytes": 80636,
+      "stored_sha256": "855d3258adb5945e8f7ab8812fed4d55bedacbb092339dd015a3602d8bad3ee8"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/pcm-equivalence-drm-clients-01/drm-traces/native-drm.jsonl",
+      "archive_path": "drm-clients-01--pcm-equivalence-drm-clients-01--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 60884,
+      "raw_sha256": "db8d660b20837d8bcdf10167789c733d1fa678472483adf9bec8b7f60d1afe6a",
+      "stored_bytes": 3451,
+      "stored_sha256": "ce6d5bbd54a0462fd32569962043a87af164aa5cedd0617d0383ecb5d54bdb76"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/result.json",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--result.json.gz",
+      "raw_bytes": 549543,
+      "raw_sha256": "c496de2b1d63c729ff62489a33a9aa0428f54deec33fa2d1042370afd5eb38b4",
+      "stored_bytes": 68253,
+      "stored_sha256": "a0ee50d7a1879bf8d43d7d1eb3044b616d3cec4295ef4718242ee3c1aecee850"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/observations.jsonl",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--observations.jsonl.gz",
+      "raw_bytes": 730543,
+      "raw_sha256": "37503f4deecfe5663e516a9f1252cf4ab76f0cedc6244426ad8152284f718569",
+      "stored_bytes": 56014,
+      "stored_sha256": "307c4de24857f23ab90f3c337a1ee78953b1a8ef93bc2dde8f2c4f89389d6888"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/host-observations.jsonl",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--host-observations.jsonl.gz",
+      "raw_bytes": 398693,
+      "raw_sha256": "a8a2d747f6c3304aa6cedf913b0961c167c0ecb1225f355b2a46431fbd3484a5",
+      "stored_bytes": 33001,
+      "stored_sha256": "8ded1a294c3c98a4d54aed6b7368a35a78b8d9252a827acaa4885d02cd8454df"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/native.stdout.log",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--native.stdout.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/native.stderr.log",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--native.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 20,
+      "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/drm-traces/native-drm.jsonl",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 85998,
+      "raw_sha256": "fdb8bf2b33769d4818f731ef56d44d00d97e5abe26f5c0f3afad7c8a546ca9d5",
+      "stored_bytes": 4615,
+      "stored_sha256": "55d775be93b71d0e3eaa7e1009c37b3a7c1518009be04a6c103c90461d0196d5"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/short-live-drm-clients-01/drm-traces/native-request-trace.jsonl",
+      "archive_path": "drm-clients-01--short-live-drm-clients-01--drm-traces--native-request-trace.jsonl.gz",
+      "raw_bytes": 16364,
+      "raw_sha256": "1edb8b074dc69d7d72ae5cd34ba9f2ceb7d9e6240e3ce826661b8a6fd7bd841f",
+      "stored_bytes": 2143,
+      "stored_sha256": "ec3cb1488d375bf957f1c59269ef95fa61022a0a8efba3b3a125b736292c2d92"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/root-player-launch-receipt-01.json",
+      "archive_path": "drm-clients-01--root-player-launch-receipt-01.json.gz",
+      "raw_bytes": 572,
+      "raw_sha256": "cc4b880b4f98bfa9d6864d2dbe7a179c3980f3a39f589579dbaf9a0fa6ed7867",
+      "stored_bytes": 373,
+      "stored_sha256": "1ce4e57edb678bccfe6aa961cda0c431aa9a888ff37f4cf336b9dcad2cb98eea"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/root-player-result-audit-01.json",
+      "archive_path": "drm-clients-01--root-player-result-audit-01.json.gz",
+      "raw_bytes": 1320,
+      "raw_sha256": "1bffbd03095394ca416852ee69ee260f1c8c69f7b99c9936742b9c8ce9c6c53e",
+      "stored_bytes": 670,
+      "stored_sha256": "b1d5fa8f3391eac3b54cf24bf0cdd8feb91a7df1f4bb7ce42090869198265103"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/independent-PCM16-audit-01.json",
+      "archive_path": "drm-clients-01--independent-PCM16-audit-01.json.gz",
+      "raw_bytes": 7106,
+      "raw_sha256": "f30dd6b7f06eda1c0d296fcb5eb1c033ef9bf753585c7c85b25a7436d92ee02b",
+      "stored_bytes": 2724,
+      "stored_sha256": "7490f8ac7db57f79650c3a35efd98f0c8d5f2ddb144fdb0014e3a616de4ecc2d"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/independent-player-audit-01.json",
+      "archive_path": "drm-clients-01--independent-player-audit-01.json.gz",
+      "raw_bytes": 24092,
+      "raw_sha256": "3d9854f8b6cd962480218a86a81ce205b878a16d4ffa160c33a5ef3a02df85f8",
+      "stored_bytes": 6407,
+      "stored_sha256": "e14887417ba83bc6b1cbdfd45c094ed96ff781620d81bced01356ae2279f8250"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/independent-offline-build-audit-01.json",
+      "archive_path": "drm-clients-01--independent-offline-build-audit-01.json.gz",
+      "raw_bytes": 8020,
+      "raw_sha256": "e2cc97de3b1f6ae02003e364e428397350789a9091da114c35e2faae53670725",
+      "stored_bytes": 2725,
+      "stored_sha256": "601a8ad6585e81b9c6f0caca8dd842687a657c1402f3c0f06c245187f3e02243"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/pcm-accounting-readout-01.json",
+      "archive_path": "drm-clients-01--pcm-accounting-readout-01.json.gz",
+      "raw_bytes": 8913,
+      "raw_sha256": "36e9401cabb2a3edc65c5cd13467697a32dc84c2b5101af8df678812ff21db10",
+      "stored_bytes": 2561,
+      "stored_sha256": "3827118e5ea638ee2471c65d27b830a77b50c7f64af21fdc30697fe506a9ae67"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/player-accounting-readout-01.json",
+      "archive_path": "drm-clients-01--player-accounting-readout-01.json.gz",
+      "raw_bytes": 67832,
+      "raw_sha256": "98bbf5102de5329ad084eebf820f44728cac01fec9421b39ce807dde420b63fa",
+      "stored_bytes": 11200,
+      "stored_sha256": "fbab9d726f3b89653f90d374f6bd1a459293257b8c9f9add77c3d41517e1deb0"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-clients-01/diagnostic-summary-01.json",
+      "archive_path": "drm-clients-01--diagnostic-summary-01.json.gz",
+      "raw_bytes": 9342,
+      "raw_sha256": "dbcb659f3fe306a0638544c17280f4643c43af9c721ffdde9ca94476dcd4fee0",
+      "stored_bytes": 3081,
+      "stored_sha256": "441a9a88d66f7a534644958287c97a6da1763df3a3887845180238b1d7549d8d"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-inventory-01/startup-inventory-01/result.json",
+      "archive_path": "drm-inventory-01--startup-inventory-01--result.json.gz",
+      "raw_bytes": 280097,
+      "raw_sha256": "7ec4a4653919ae5cdde629ff639effb6fa7eeb512132e7ea485438db759da94a",
+      "stored_bytes": 41877,
+      "stored_sha256": "077c838e4a1d3bdbb0930a6d1f7c9171be04ee9cbafc80d5481e2c21bebbca50"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-inventory-01/startup-inventory-01/drm-traces/native-drm.jsonl",
+      "archive_path": "drm-inventory-01--startup-inventory-01--drm-traces--native-drm.jsonl.gz",
+      "raw_bytes": 1920,
+      "raw_sha256": "ffd25c22f2d8a05f806c385de3d02552dee19df2c240510cddf4125cf9b6ac0e",
+      "stored_bytes": 535,
+      "stored_sha256": "6c97f2b93e72f1f65bdda340424af4abf04d67016003f2fa2d3056543682216c"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-inventory-01/root-startup-result-audit-01.json",
+      "archive_path": "drm-inventory-01--root-startup-result-audit-01.json.gz",
+      "raw_bytes": 1901,
+      "raw_sha256": "af4852c712de0854742b2fd5e249bc4eae4720ce3efca8d567a96900cde4b08e",
+      "stored_bytes": 970,
+      "stored_sha256": "66a497017882c6af26c526a8ae2441b52990face669264ed2dfee9ece19dd788"
+    },
+    {
+      "original_path": "benchmarks-local/m2-live-fallback-2026-10-20/drm-inventory-01/independent-startup-actual-audit-01.json",
+      "archive_path": "drm-inventory-01--independent-startup-actual-audit-01.json.gz",
+      "raw_bytes": 15752,
+      "raw_sha256": "cb1791c6cfd79bac929aef0d6de534b1d5cb7785bd7a9d637baff33e462d2eb6",
+      "stored_bytes": 5330,
+      "stored_sha256": "caa13293142fac099664ff9935a405bd3a1a0fbd29f81da26d42e7d69e59a906"
+    }
+  ],
+  "excluded": [
+    "models",
+    "native binaries/objects",
+    "recorded/user audio",
+    "large caches",
+    "dependency installations"
+  ],
+  "recorded_WAV": {
+    "frames": 6213888,
+    "bytes": 49711192,
+    "sha256": "b51902c0ce2bb16d8aba9ce646f0bcda48832bc90922c2573b3820c4619066a2"
+  },
+  "scope": "Audited diagnostic records and source snapshots; excludes replay of audio/model output from absent binaries/music. No latency/quality/visibleUI promotion."
+}

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "created_at_utc": "2026-10-21T02:34:27.296146+00:00",
+  "archive_manifest_sha256": "567825f68da1654c98ad1c3a41afc74a4c163c7380f88a6632e9578815200bd6",
+  "artifacts_verified": 54,
+  "stored_bytes": 460428,
+  "raw_bytes": 3225307,
+  "JSONL_records_parsed": 1457,
+  "all_original_raw_and_stored_hashes_match": true,
+  "source_or_model_executed": false,
+  "audio_or_GPU_run": false,
+  "scope": "Archive byte/hash/JSON integrity only. Functional/numerical/latency facts remain bound to included independent audits."
+}
