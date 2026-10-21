@@ -74,10 +74,18 @@ jobs:
           persist-credentials: false
       - uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177 # v2
         with:
-          tool: git-cliff@2.14.2,actionlint@1.7.12
+          tool: git-cliff@2.14.2
           fallback: none
+      - name: Install pinned actionlint
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/actionlint.tar.gz"
+          printf '%s  %s\n' 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 \
+            "$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
       - name: Validate workflows
-        run: actionlint
+        run: '"$RUNNER_TEMP/actionlint"'
       - name: Test release preparation and publication failures
         run: python3 tests/release_test.py
       - name: Validate release PR metadata
