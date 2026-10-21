@@ -61,9 +61,13 @@ equivalence with the older player binaries remains unproved. This single-case
 output check does not replace the required 16-case check before a later player
 experiment.
 
-The next investigation needs operation data from an actual slow player request.
+This probe left a need for operation data from an actual slow player request.
 Further delivery-queue tuning or adopting the packed candidate is unsupported
-by this probe. No additional laptop run has started.
+by this probe.
+
+The later [actual-player profile](player-attention-profile-2026-10-21.md)
+captured complete operation data for slow requests after all 16 output checks
+passed. Its instrumented sample p99 remained above the unchanged target.
 
 The [evidence manifest](data/m2-attention-node-profile-2026-10-21/archive-manifest.json)
 binds the source patch, build proof, recipes, readiness, failed attempt, completed
