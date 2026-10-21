@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "created_at_utc": "2026-10-21T18:04:52.790123+00:00",
+  "archive_manifest_sha256": "bf9acd0a3590af24d9c8c972c3d5e21fb29f0f71f996c422895ed983b35d2f55",
+  "artifacts_verified": 82,
+  "stored_bytes": 1158615,
+  "raw_bytes": 10582092,
+  "JSONL_records_parsed": 6292,
+  "all_original_raw_and_stored_hashes_match": true,
+  "source_or_model_executed": false,
+  "audio_or_GPU_run": false,
+  "scope": "Archive integrity, JSON/JSONL parsing and exact saved original snapshot comparison only. Audio and latency claims use included independent audits."
+}

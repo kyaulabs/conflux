@@ -6,6 +6,10 @@ player run delivered 21 validated hops: nearest-rank p99 and maximum were
 **6.128 seconds**, with **2/21 hops at or above target**. M2 remains open, and
 the candidate is not promoted to the product runtime.
 
+The subsequent [four-run comparison on 21 October](live-runtime-comparison-2026-10-21.md)
+completed without establishing a delivery improvement; the candidate remains
+unpromoted.
+
 | Check | Result |
 |---|---|
 | Actual Vulkan output comparison | All 16 full/seek cases and complete float outputs match the accepted reference exactly |
@@ -91,5 +95,5 @@ recordings and caches are excluded; the recording hash is retained. The native
 window stayed hidden with zero presented frames, so this does not qualify
 visible UI rendering or a thermal soak. The next useful performance step is a
 runtime-only baseline/candidate comparison, with reversed order before an
-effect claim. No further laptop run is queued; Best quality and the target stay
-unchanged.
+effect claim. That comparison is now recorded in the linked follow-up report.
+Best quality and the target stay unchanged.
