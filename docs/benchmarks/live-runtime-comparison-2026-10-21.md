@@ -84,4 +84,6 @@ binds the frozen recipe, readiness, saved results, traces, cleanup and independe
 audits. [Archive verification](data/m2-live-runtime-comparison-2026-10-21/verification.json)
 checks stored and decompressed hashes. Music, recordings, models, executables
 and caches remain outside source history; recording hashes are retained.
-No further laptop test is queued.
+The subsequent [attention operation profile](attention-node-profile-2026-10-21.md)
+measured the retained final head copies and Flash operations. Its single-request
+results do not change this player comparison's failed latency gate.
