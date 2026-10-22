@@ -3198,6 +3198,160 @@ private slots:
         QVERIFY(ui_->closeLibrary());
     }
 
+    void deckSurfacesGrowAndRemainUsableAcrossResize_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(2560, 1600), QSize(1920, 1080), QSize(1180, 760),
+                                    QSize(2560, 900), QSize(1920, 1600)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height()).arg(dark ? "dark" : "light")))
+                    << viewport << dark;
+    }
+
+    void deckSurfacesGrowAndRemainUsableAcrossResize()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        const QSize initialSize(1680, 1020);
+        QTRY_COMPARE(ui_->window->size(), initialSize);
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        if (!dark)
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
+        ui_->endpoint.loadState(0, 5.0);
+        ui_->endpoint.loadState(1, 5.0);
+        ui_->endpoint.setReady(true);
+        std::array<qreal, 2> initialJog{}, initialDisplay{}, initialSeek{};
+        QStringList outerControls{"deck0Gain", "deck1Gain", "masterGain", "cueGain", "crossfader",
+                                  "deck0CueSelect", "deck1CueSelect"};
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto tempo = UiEndpoint::tempoState(true);
+            tempo["active"] = true;
+            tempo["percent"] = deck == 0 ? 1.0 : -2.0;
+            ui_->endpoint.snapshotTempo(deck, tempo);
+            auto* jog = ui_->item((prefix + "Jog").toUtf8().constData());
+            auto* display = ui_->item((prefix + "Display").toUtf8().constData());
+            auto* seek = ui_->item((prefix + "Seek").toUtf8().constData());
+            QVERIFY(jog && display && seek);
+            initialJog[deck] = jog->width();
+            initialDisplay[deck] = display->height();
+            initialSeek[deck] = seek->height();
+            for (const auto* suffix : {"Display", "Browse", "Jog", "Cue", "Play", "Tempo", "TempoReset",
+                                       "MasterTempo", "LoopIn", "LoopOut", "LoopToggle"})
+                outerControls.append(prefix + QString::fromUtf8(suffix));
+        }
+        const auto acceptedBeforeResize = ui_->endpoint.decks();
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        const bool hasMoreSpace = viewport.width() > initialSize.width() && viewport.height() > initialSize.height();
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* jog = ui_->item((prefix + "Jog").toUtf8().constData());
+            auto* display = ui_->item((prefix + "Display").toUtf8().constData());
+            auto* seek = ui_->item((prefix + "Seek").toUtf8().constData());
+            if (hasMoreSpace) {
+                QTRY_VERIFY(jog->width() > initialJog[deck]);
+                QVERIFY(jog->width() > 390); // Extra space must no longer stop at the old cap.
+                QTRY_VERIFY(display->height() > initialDisplay[deck]);
+                QTRY_VERIFY(seek->height() > initialSeek[deck]);
+            } else {
+                // A short window must release vertical space even when it is wide.
+                QTRY_VERIFY(jog->width() < initialJog[deck]);
+            }
+            QCOMPARE(jog->width(), jog->height());
+            const auto displayRect = display->mapRectToScene(QRectF(0, 0, display->width(), display->height()));
+            const auto seekRect = seek->mapRectToScene(QRectF(0, 0, seek->width(), seek->height()));
+            QVERIFY(displayRect.adjusted(-.5, -.5, .5, .5).contains(seekRect));
+            QStringList insideControls;
+            for (const auto* suffix : {"ArtworkFrame", "Title", "Artist", "Album", "Elapsed", "BpmReference", "Seek"})
+                insideControls.append(prefix + QString::fromUtf8(suffix));
+            verifyControlsFit(insideControls); // Waveform interaction stays below the LCD metadata.
+            for (const auto& name : insideControls) {
+                auto* item = ui_->item(name.toUtf8().constData());
+                QVERIFY(displayRect.adjusted(-.5, -.5, .5, .5).contains(
+                    item->mapRectToScene(QRectF(0, 0, item->width(), item->height()))));
+            }
+        }
+        verifyControlsFit(outerControls); // In particular, jog, transport and tempo have separate lanes.
+        QCOMPARE(ui_->endpoint.decks(), acceptedBeforeResize);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        // The expanded waveform remains a real seek target, independently of its paint size.
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* seek = ui_->item((prefix + "Seek").toUtf8().constData());
+            const auto peerBefore = ui_->endpoint.decks()[1 - deck];
+            const auto point = seek->mapToScene(QPointF(seek->width() * .75, seek->height() * .75)).toPoint();
+            const auto before = ui_->endpoint.calls.size();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            verifyCueCall(before, "seek", deck);
+            const auto seconds = ui_->endpoint.calls.last().toMap()["value"].toDouble();
+            QVERIFY(seconds > 6 && seconds < 9);
+            QCOMPARE(ui_->endpoint.decks()[1 - deck], peerBefore);
+        }
+
+        if (viewport == QSize(2560, 1600)) {
+            // Hit the newly enlarged ring beyond the former 390px dial, on both decks.
+            for (int deck = 0; deck < 2; ++deck) {
+                const auto prefix = QString("deck%1").arg(deck);
+                auto* jog = ui_->item((prefix + "Jog").toUtf8().constData());
+                const auto radius = jog->width() * .43;
+                QVERIFY(radius > 195);
+                const auto top = jog->mapToScene(QPointF(jog->width() / 2, jog->height() / 2 - radius)).toPoint();
+                const auto right = jog->mapToScene(QPointF(jog->width() / 2 + radius, jog->height() / 2)).toPoint();
+                const auto peerBefore = ui_->endpoint.decks()[1 - deck];
+                auto before = ui_->endpoint.calls.size();
+                QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, top);
+                QTest::mouseMove(ui_->window, right);
+                QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, right);
+                QTRY_VERIFY(ui_->endpoint.calls.size() > before);
+                for (auto index = before; index < ui_->endpoint.calls.size(); ++index) {
+                    verifyCueCall(index, "jog", deck);
+                    QVERIFY(ui_->endpoint.calls[index].toMap()["frames"].toLongLong() > 0);
+                }
+                QCOMPARE(ui_->endpoint.decks()[1 - deck], peerBefore);
+                auto* play = ui_->item((prefix + "Play").toUtf8().constData());
+                before = ui_->endpoint.calls.size();
+                QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(play));
+                QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+                verifyCueCall(before, "playing", deck);
+                QVERIFY(ui_->endpoint.calls.last().toMap()["value"].toBool());
+                QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(play));
+                QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
+                verifyCueCall(before + 1, "playing", deck);
+                QVERIFY(!ui_->endpoint.calls.last().toMap()["value"].toBool());
+                auto* cue = ui_->item((prefix + "Cue").toUtf8().constData());
+                QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+                QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+                QTRY_COMPARE(ui_->endpoint.calls.size(), before + 4);
+                verifyCueCall(before + 2, "cuePress", deck);
+                verifyCueCall(before + 3, "cueRelease", deck);
+                QCOMPARE(ui_->endpoint.decks()[1 - deck], peerBefore);
+            }
+        }
+
+        const auto acceptedBeforeReturn = ui_->endpoint.decks();
+        const auto callsBeforeReturn = ui_->endpoint.calls.size();
+        ui_->window->resize(initialSize);
+        QTRY_COMPARE(ui_->window->size(), initialSize);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* jog = ui_->item((prefix + "Jog").toUtf8().constData());
+            QTRY_COMPARE(jog->width(), initialJog[deck]);
+            QCOMPARE(jog->height(), initialJog[deck]);
+            QTRY_COMPARE(ui_->item((prefix + "Display").toUtf8().constData())->height(), initialDisplay[deck]);
+            QTRY_COMPARE(ui_->item((prefix + "Seek").toUtf8().constData())->height(), initialSeek[deck]);
+        }
+        verifyControlsFit(outerControls);
+        QCOMPARE(ui_->endpoint.decks(), acceptedBeforeReturn);
+        QCOMPARE(ui_->endpoint.calls.size(), callsBeforeReturn);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void viewportControlsFit_data()
     {
         QTest::addColumn<QSize>("viewport");

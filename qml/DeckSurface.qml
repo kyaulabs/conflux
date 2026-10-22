@@ -37,11 +37,14 @@ Item {
     readonly property bool compactDisplay: display.height < 232
     readonly property real edge: width >= 560 ? 22 : 16
     readonly property real sideWidth: width >= 560 ? 76 : 66
-    readonly property real screenHeight: Math.max(174, Math.min(250, height * 0.28))
+    readonly property real screenHeight: Math.max(174, Math.min(height * 0.28,
+        (width - 2 * edge - sideWidth - 14) * 0.60))
     readonly property real hotCueTop: 40 + screenHeight + 20
     readonly property real loopTop: hotCueTop + 52
     readonly property real jogTop: loopTop + 60
-    readonly property real jogDiameter: Math.max(220, Math.min(390, width - 152, height - jogTop - 30))
+    // Reserve a transport/tempo lane on either side of the circular platter.
+    readonly property real jogDiameter: Math.max(220, Math.min(
+        width - 2 * (edge + 56 + 8), height - jogTop - 30))
     property var cachedWaveform: []
     signal browseRequested(int deck)
     implicitWidth: 470
@@ -357,9 +360,9 @@ Item {
         Canvas {
             id: waveform
             x: 14
-            y: parent.height - (surface.compactDisplay ? 59 : 71)
+            y: parent.height - height - 24
             width: parent.width - 28
-            height: surface.compactDisplay ? 31 : 47
+            height: surface.compactDisplay ? 31 : 47 + Math.max(0, display.height - 250)
             onWidthChanged: requestPaint()
             onHeightChanged: requestPaint()
             onPaint: {
@@ -390,7 +393,7 @@ Item {
             x: 10
             y: waveform.y - 4
             width: parent.width - 20
-            height: surface.compactDisplay ? 44 : 55
+            height: waveform.height + (surface.compactDisplay ? 13 : 8)
             leftPadding: 4
             rightPadding: 4
             from: 0
