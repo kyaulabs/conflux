@@ -11,6 +11,7 @@ PASS   : ManualUiTest::viewportControlsFit(minimum)
 PASS   : ManualUiTest::viewportControlsFit(default)
 PASS   : ManualUiTest::dragSeekSubmitsOnceOnRelease()
 PASS   : ManualUiTest::snapshotsAndErrorsDoNotSubmitCommands()
+PASS   : ManualUiTest::keyboardSeekAndGainRoutes()
 PASS   : ManualUiTest::cleanupTestCase()
-Totals: 12 passed, 0 failed, 0 skipped, 0 blacklisted, 6911ms
+Totals: 13 passed, 0 failed, 0 skipped, 0 blacklisted, 6520ms
 ********* Finished testing of ManualUiTest *********

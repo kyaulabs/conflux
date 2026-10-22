@@ -2881,7 +2881,8 @@ private slots:
         ui_->endpoint.setReady(true);
         auto* seek = ui_->item(QString("deck%1Seek").arg(deck).toUtf8().constData());
         auto* peer = ui_->item(QString("deck%1Seek").arg(1 - deck).toUtf8().constData());
-        QVERIFY(seek && peer && seek->isEnabled() && peer->isEnabled());
+        auto* input = ui_->item(QString("deck%1SeekInput").arg(deck).toUtf8().constData());
+        QVERIFY(seek && peer && input && seek->isEnabled() && peer->isEnabled());
         QSignalSpy polishedFrame(ui_->window, &QQuickWindow::frameSwapped);
         seek->polish();
         peer->polish();
@@ -2910,10 +2911,11 @@ private slots:
             QFAIL("Platform-cancel rows require Qt6.12 or later");
 #endif
         } else {
-            // Public Qt6.4-compatible grab-loss coverage, deliberately distinct
-            // from compositor cancellation. The physical contact is still down.
-            seek->ungrabTouchPoints();
+            // MouseArea owns Qt's synthesized single-touch mouse grab. Losing
+            // that actual grab must cancel; the contact is still down.
+            input->ungrabMouse();
         }
+        QTRY_VERIFY(!input->property("pressed").toBool());
         QTRY_VERIFY(!seek->property("pressed").toBool());
         QCOMPARE(ui_->endpoint.calls.size(), 0);
         QTRY_COMPARE(seek->property("value").toDouble(), 2.5);

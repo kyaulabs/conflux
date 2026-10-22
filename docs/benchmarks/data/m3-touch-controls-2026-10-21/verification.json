@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "recorded_at_utc": "2026-10-22T06:47:42.486168+00:00",
+  "recorded_at_utc": "2026-10-22T07:11:26.302144+00:00",
   "passed": true,
   "scope": "Offscreen Qt6.12 software-rendered UI regression tests with generated endpoint state. No physical touch, audio, laptop latency or overall mixing acceptance.",
   "source_pins": [
     {
       "path": "qml/DeckSurface.qml",
-      "bytes": 56822,
-      "sha256": "476bef813f9bbdb4bd4c193a76e7761782ad90c71a858994a4d6d995f2160ed6"
+      "bytes": 55463,
+      "sha256": "88ea509a42e08694564c58518d66ba95e468cf5da6ea7653ae80fedc80539e69"
     },
     {
       "path": "qml/MixerSurface.qml",
@@ -16,8 +16,8 @@
     },
     {
       "path": "tests/manual_ui_test.cpp",
-      "bytes": 204613,
-      "sha256": "8d445baee9fdf089b2bee51ecfefece64cc32cfc1395c6ae8e2c56816e00b161"
+      "bytes": 204757,
+      "sha256": "a598bcf4745f59b899e2213bdec58a5536e3d209d94ff02d77c27c906870de53"
     }
   ],
   "original_qml": [
@@ -40,7 +40,7 @@
   },
   "results": {
     "focused": {
-      "passed": 12,
+      "passed": 13,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0
@@ -51,35 +51,51 @@
       "skipped": 0,
       "exit_code": 0
     },
-    "original_ui_with_final_tests": {
+    "original_ui_regressions": {
       "passed": 2,
       "failed": 8,
       "skipped": 0,
       "exit_code": 8,
-      "interpretation": "Four cancelled seek rows submitted unwanted commands; two held channel gain rows jumped on ACK; two ownership-label layout rows lacked the new label."
+      "interpretation": "Four cancelled seek rows submitted unwanted commands; two held channel gain rows jumped on ACK; two ownership-label layout rows lacked the new label.",
+      "test_source": {
+        "path": "tests/manual_ui_test.cpp",
+        "bytes": 204613,
+        "sha256": "8d445baee9fdf089b2bee51ecfefece64cc32cfc1395c6ae8e2c56816e00b161"
+      },
+      "test_revision": "d7cf947464fcc362e7d35ec7d8725ef0f1e49dd5",
+      "fixture_note": "Regression-first native-Slider fixtures before the final MouseArea ownership change. Current grab-loss fixtures target the actual MouseArea mouse grab."
     }
   },
   "coverage": "No C++/Python product sources changed. QML remains numerically unmeasured; these functional tests do not establish a QML coverage percentage.",
   "limitations": [
-    "Qt6.4 uses native grab-loss rows; Qt6.12 additionally uses actual QTest platform cancellation. Supported-version CI is required before merge.",
+    "Qt6.4 uses MouseArea grab loss with synthesized single-touch mouse input; Qt6.12 additionally uses actual QTest platform cancellation. Supported-version CI is tracked separately.",
     "The full passing suite retains existing warnings from older CUE/layout fixtures.",
     "Hardware touch and the user overall two-track mixing verdict remain pending."
   ],
   "logs": [
     {
       "path": "docs/benchmarks/data/m3-touch-controls-2026-10-21/focused-ui.log",
-      "bytes": 1133,
-      "sha256": "ad305bbd0e7018e043ace3efe1f916a661845ffa8387fdc0c5c708a0566c31a3"
+      "bytes": 1184,
+      "sha256": "3b19a13c5585ff79cb59acc4524439095a150dcee6e2fe2eef61b1f497a60d99"
     },
     {
       "path": "docs/benchmarks/data/m3-touch-controls-2026-10-21/full-ui.log",
       "bytes": 11357,
-      "sha256": "66cb0f725e334b2d2ff28e1004ff3c022d0feb21de9133c91e086c3c2aca924f"
+      "sha256": "dc1e3eced57cf96a2f6f4cd0be42c969ab61d66b758093992f482ee3a85b1e6a"
     },
     {
       "path": "docs/benchmarks/data/m3-touch-controls-2026-10-21/original-ui-regressions.log",
       "bytes": 2691,
       "sha256": "f23e517cd407155c6dd7cf45a29727d0179ebfea66053c620127a09691692866"
     }
-  ]
+  ],
+  "supported_version_followup": {
+    "initial_runs": [
+      "https://github.com/kyaulabs/conflux/actions/runs/39736288893",
+      "https://github.com/kyaulabs/conflux/actions/runs/39737354921"
+    ],
+    "observed_failure": "Qt6.4 first lacked the EventPoint QML enum; after correcting that alias, valid releases still failed with the passive/native pointer split.",
+    "final_implementation": "The existing MouseArea pattern owns pointer press, release and cancellation; the native Slider retains focus, keyboard and accessible range.",
+    "final_CI": "See the final checks on https://github.com/kyaulabs/conflux/pull/62. These local results establish Qt6.12 only."
+  }
 }

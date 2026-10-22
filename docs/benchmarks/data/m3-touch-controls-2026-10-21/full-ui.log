@@ -146,5 +146,5 @@ PASS   : ManualUiTest::deckLcdMetadataFitsWithTransport(1680x1020-dark)
 PASS   : ManualUiTest::viewportControlsFit(minimum)
 PASS   : ManualUiTest::viewportControlsFit(default)
 PASS   : ManualUiTest::cleanupTestCase()
-Totals: 132 passed, 0 failed, 0 skipped, 0 blacklisted, 73998ms
+Totals: 132 passed, 0 failed, 0 skipped, 0 blacklisted, 44069ms
 ********* Finished testing of ManualUiTest *********
