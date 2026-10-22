@@ -674,6 +674,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
         return;
     }
     const auto cache = baseCache + "/prepared/v1";
+    const auto bpmCache = baseCache + "/analysis/bpm-v1";
     busy_ = true;
     error_.clear();
     loadCancellation_ = std::stop_source{};
@@ -698,7 +699,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                               std::move(presentation), std::move(waveform));
         }, Qt::QueuedConnection);
     };
-    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits,
+    loader_.setFuture(QtConcurrent::run([path, cache, bpmCache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits,
                                        report, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache, limits);
@@ -740,7 +741,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         auto original = store.prepare(path, stop);
                         analyzedSource = original.sourceSha256;
                         report("bpm", completedStages);
-                        prepared->bpm = library::analyzeBpm(original.audio, *bpmEngine, stop);
+                        prepared->bpm = library::analyzeBpmCached(original.audio, *bpmEngine, bpmCache, stop);
                     } catch (const library::BpmSourceError&) {
                         throw;
                     } catch (const std::exception&) {
@@ -767,7 +768,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 }
                 if (bpmEngine) {
                     report("bpm", completedStages);
-                    prepared->bpm = library::analyzeBpm(track.audio, *bpmEngine, stop);
+                    prepared->bpm = library::analyzeBpmCached(track.audio, *bpmEngine, bpmCache, stop);
                     ++completedStages;
                 }
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));

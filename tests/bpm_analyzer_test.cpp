@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QtTest>
@@ -25,11 +26,15 @@
 #include <thread>
 #include <vector>
 #include <fcntl.h>
+#include <sys/file.h>
 #include <unistd.h>
 
 namespace {
 using namespace conflux;
 using namespace std::chrono_literals;
+constexpr std::array cacheSourceNames{
+    "beat_this/utils.py", "beat_this/model/roformer.py", "beat_this/model/beat_tracker.py",
+    "beat_this/model/postprocessor.py", "beat_this/preprocessing.py", "beat_this/inference.py", "LICENSE"};
 void write(const QString& path, const QByteArray& bytes)
 {
     QFile file(path);
@@ -93,6 +98,8 @@ if MODE == 'limits':
     assert resource.getrlimit(resource.RLIMIT_CORE) == (0, 0)
     assert resource.getrlimit(resource.RLIMIT_AS) == (8589934592, 8589934592)
 P = pathlib.Path(__file__)
+with P.with_suffix('.invocations').open('ab') as invocations:
+    invocations.write(b'run\n')
 if MODE == 'require-venv':
     assert pathlib.Path(sys.prefix) == P.parent / 'venv' and sys.prefix != sys.base_prefix
 child = 0
@@ -140,6 +147,7 @@ if MODE == 'overprecision': value['bpm'] = 120.125
 if MODE == 'extra': value['surprise'] = 'ignored?'
 if MODE == 'missing': del value['bpm']
 if MODE == 'wrong-type': value['bpm'] = '120'
+if MODE == 'manual-status': value['status'] = 'Manual'
 # Synthetic protocol fixtures only: no model or musical accuracy is asserted.
 events = [{'frame': frame, 'downbeat': index in (0, 3)}
           for index, frame in enumerate((0, 960, 1920, a.frames - 1))]
@@ -210,7 +218,44 @@ if MODE in ('bad-exit', 'await-change-bad-exit'): sys.exit(7)
             std::this_thread::sleep_for(5ms);
         return QFileInfo::exists(marker);
     }
+    void prepareCacheIdentity() const
+    {
+        // These are protocol-fixture identities, not a fake BeatThis model.
+        // The generated worker never imports them or claims detector accuracy.
+        for (const auto* relative : cacheSourceNames) {
+            const auto path = directory.filePath(QString::fromLatin1(relative));
+            if (!QDir().mkpath(QFileInfo(path).absolutePath()))
+                throw std::runtime_error("Cannot create fake BPM source identity");
+            write(path, QByteArray("# Generated identity fixture: ") + relative + '\n');
+        }
+    }
+    QString cacheRoot() const
+    {
+        const auto path = directory.filePath("analysis-cache");
+        if (!QDir().mkdir(path) ||
+            !QFile::setPermissions(path, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner))
+            throw std::runtime_error("Cannot create private BPM analysis cache fixture");
+        return path;
+    }
+    int invocations() const { return read(directory.filePath("worker.invocations")).count('\n'); }
+    void useVenv()
+    {
+        const auto prefix = directory.filePath("venv");
+        if (!QDir().mkpath(prefix + "/bin")) throw std::runtime_error("Cannot create fake BPM venv");
+        const auto invocation = prefix + "/bin/python3";
+        if (symlink(QFile::encodeName(engine.pythonExecutable).constData(), QFile::encodeName(invocation).constData()))
+            throw std::runtime_error("Cannot create BPM interpreter invocation alias");
+        write(prefix + "/pyvenv.cfg", "home = " + QFile::encodeName(QFileInfo(engine.pythonExecutable).absolutePath()) +
+              "\ninclude-system-site-packages = false\n");
+        engine.pythonExecutable = invocation;
+    }
 };
+QString cacheEntry(const QString& root)
+{
+    const auto entries = QDir(root).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks | QDir::Hidden);
+    if (entries.size() != 1) throw std::runtime_error("Expected one completed BPM cache entry");
+    return QDir(root).filePath(entries.front());
+}
 void absent(const QString& marker)
 {
     const auto pids = QJsonDocument::fromJson(read(marker)).array();
@@ -228,6 +273,400 @@ void absent(const QString& marker)
 class BpmAnalyzerTest : public QObject {
     Q_OBJECT
 private slots:
+    void cachedValidatedMapsSkipTheSecondWorker_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        for (const auto* mode : {"good", "unknown-many", "one-beat", "unknown"})
+            QTest::newRow(mode) << QByteArray(mode);
+    }
+    void cachedValidatedMapsSkipTheSecondWorker()
+    {
+        QFETCH(QByteArray, mode);
+        Fixture fixture(mode);
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        QCOMPARE(lseek(fixture.pcm->descriptor(), 13, SEEK_SET), off_t(13));
+        const auto first = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        const bool estimated = mode == "good";
+        QCOMPARE(first.status, estimated ? QString("Estimated") : QString("Unknown"));
+        QCOMPARE(first.bpm.has_value(), estimated);
+        if (estimated) QCOMPARE(*first.bpm, 120.);
+        QVERIFY(first.error.isEmpty() && !first.cacheHit);
+        QCOMPARE(first.analysisFrames, Fixture::frames);
+        QCOMPARE(first.pcmSha256, QCryptographicHash::hash(read(fixture.directory.filePath("input.f32")),
+                                                         QCryptographicHash::Sha256).toHex());
+        const std::vector<std::uint32_t> expected = mode == "unknown" ? std::vector<std::uint32_t>{} :
+            mode == "one-beat" ? std::vector<std::uint32_t>{100} :
+            std::vector<std::uint32_t>{0, 960, 1920, std::uint32_t(Fixture::frames - 1)};
+        QCOMPARE(first.beats.size(), expected.size());
+        for (std::size_t index = 0; index < expected.size(); ++index) {
+            QCOMPARE(first.beats[index].frame, expected[index]);
+            QCOMPARE(first.beats[index].downbeat, mode == "one-beat" || index == 0 || index == 3);
+        }
+        const auto invocations = fixture.directory.filePath("worker.invocations");
+        QCOMPARE(read(invocations), QByteArray("run\n"));
+        QCOMPARE(lseek(fixture.pcm->descriptor(), 0, SEEK_CUR), off_t(13));
+        absent(fixture.marker);
+
+        const auto second = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        // Count real process entries before inspecting cacheHit: the delegating
+        // stub must fail on an actual second child, not just a missing flag.
+        QCOMPARE(read(invocations), QByteArray("run\n"));
+        QVERIFY(second.cacheHit);
+        QCOMPARE(second.status, first.status);
+        QCOMPARE(second.error, first.error);
+        QCOMPARE(second.bpm.has_value(), first.bpm.has_value());
+        if (first.bpm) QCOMPARE(*second.bpm, *first.bpm);
+        QCOMPARE(second.analysisFrames, first.analysisFrames);
+        QCOMPARE(second.pcmSha256, first.pcmSha256);
+        QCOMPARE(second.beats.size(), first.beats.size());
+        for (std::size_t index = 0; index < first.beats.size(); ++index) {
+            QCOMPARE(second.beats[index].frame, first.beats[index].frame);
+            QCOMPARE(second.beats[index].downbeat, first.beats[index].downbeat);
+        }
+        QCOMPARE(lseek(fixture.pcm->descriptor(), 0, SEEK_CUR), off_t(13));
+        absent(fixture.marker);
+    }
+    void cacheIdentityTracksActualProducerAndPcmBytes_data()
+    {
+        QTest::addColumn<QString>("changed");
+        for (const auto* part : {"pcm", "worker", "model", "python-invocation", "venv-config"})
+            QTest::newRow(part) << QString::fromLatin1(part);
+        for (const auto* relative : cacheSourceNames)
+            QTest::newRow(relative) << QStringLiteral("source:") + QString::fromLatin1(relative);
+    }
+    void cacheIdentityTracksActualProducerAndPcmBytes()
+    {
+        QFETCH(QString, changed);
+        Fixture fixture(changed == "venv-config" ? QByteArray("require-venv") : QByteArray("good"));
+        fixture.prepareCacheIdentity();
+        if (changed == "venv-config") fixture.useVenv();
+        const auto cache = fixture.cacheRoot();
+        QCOMPARE(lseek(fixture.pcm->descriptor(), 13, SEEK_SET), off_t(13));
+        const auto first = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(first.status, QString("Estimated"));
+        QVERIFY(!first.cacheHit && first.error.isEmpty());
+        QCOMPARE(fixture.invocations(), 1);
+        if (changed == "pcm") {
+            const float replacement = .875F;
+            QCOMPARE(pwrite(fixture.writable.value, &replacement, sizeof(replacement), 0), ssize_t(sizeof(replacement)));
+        } else if (changed == "python-invocation") {
+            const auto alias = fixture.directory.filePath("python-invocation");
+            QCOMPARE(symlink(QFile::encodeName(fixture.engine.pythonExecutable).constData(), QFile::encodeName(alias).constData()), 0);
+            fixture.engine.pythonExecutable = alias;
+        } else {
+            const auto path = changed == "worker" ? fixture.engine.workerPath :
+                changed == "model" ? fixture.engine.modelPath : changed == "venv-config" ?
+                fixture.directory.filePath("venv/pyvenv.cfg") : fixture.directory.filePath(changed.sliced(7));
+            write(path, read(path) + "\n# identity changed\n");
+        }
+        const auto second = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(second.status, QString("Estimated"));
+        QVERIFY(!second.cacheHit && second.error.isEmpty());
+        QCOMPARE(fixture.invocations(), 2);
+        QCOMPARE(second.analysisFrames, Fixture::frames);
+        QCOMPARE(second.pcmSha256, QCryptographicHash::hash(read(fixture.directory.filePath("input.f32")),
+                                                          QCryptographicHash::Sha256).toHex());
+        QCOMPARE(second.pcmSha256 == first.pcmSha256, changed != "pcm");
+        QCOMPARE(second.beats.size(), std::size_t(4));
+        const auto hit = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QVERIFY(hit.cacheHit && hit.error.isEmpty());
+        QCOMPARE(hit.pcmSha256, second.pcmSha256);
+        QCOMPARE(hit.beats.size(), second.beats.size());
+        QCOMPARE(fixture.invocations(), 2);
+        QCOMPARE(lseek(fixture.pcm->descriptor(), 0, SEEK_CUR), off_t(13));
+        absent(fixture.marker);
+    }
+    void corruptOrUnsafeEntriesAreNeverTrusted_data()
+    {
+        QTest::addColumn<QByteArray>("damage");
+        for (const auto* damage : {"timing-json", "timing-protocol", "timing-oversize", "manifest-json", "manifest-oversize",
+                                  "timing-symlink", "manifest-symlink", "entry-symlink", "root-symlink"})
+            QTest::newRow(damage) << QByteArray(damage);
+    }
+    void corruptOrUnsafeEntriesAreNeverTrusted()
+    {
+        QFETCH(QByteArray, damage);
+        Fixture fixture;
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        const auto first = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(first.status, QString("Estimated"));
+        QVERIFY(!first.cacheHit);
+        const auto entry = cacheEntry(cache);
+        const auto payload = entry + "/timing.jsonl", manifest = entry + "/manifest.json";
+        const auto pcmBefore = read(fixture.directory.filePath("input.f32"));
+        QString protectedPath, unsafeAlias, unsafeTarget;
+        QByteArray protectedBytes;
+        if (damage.endsWith("-symlink")) {
+            const auto source = damage == "timing-symlink" ? payload : damage == "manifest-symlink" ? manifest :
+                damage == "entry-symlink" ? entry : cache;
+            const auto outside = fixture.directory.filePath("outside-" + QString::fromLatin1(damage));
+            if (damage == "entry-symlink" || damage == "root-symlink") {
+                QVERIFY(QDir().rename(source, outside));
+                protectedPath = outside + (damage == "root-symlink" ? "/" + QFileInfo(entry).fileName() : QString{}) + "/timing.jsonl";
+            } else {
+                protectedBytes = read(source);
+                write(outside, protectedBytes);
+                QVERIFY(QFile::setPermissions(outside, QFileDevice::ReadOwner | QFileDevice::WriteOwner));
+                QVERIFY(QFile::remove(source));
+                protectedPath = outside;
+            }
+            QCOMPARE(symlink(QFile::encodeName(outside).constData(), QFile::encodeName(source).constData()), 0);
+            unsafeAlias = source; unsafeTarget = outside;
+            protectedBytes = read(protectedPath);
+        } else {
+            protectedPath = damage.startsWith("timing-") ? payload : manifest;
+            protectedBytes = damage == "timing-protocol" ? read(payload) : damage.endsWith("oversize") ?
+                QByteArray(damage.startsWith("timing-") ? 4 * 1024 * 1024 + 1 : 16385, 'x') : QByteArray("{not valid JSON}\n");
+            if (damage == "timing-protocol") {
+                const auto newline = protectedBytes.indexOf('\n');
+                auto header = QJsonDocument::fromJson(protectedBytes.first(newline)).object();
+                header["status"] = "Manual"; // Not a permitted worker/cache result, even with a matching payload hash.
+                protectedBytes = QJsonDocument(header).toJson(QJsonDocument::Compact) + '\n' + protectedBytes.sliced(newline + 1);
+                auto metadata = QJsonDocument::fromJson(read(manifest)).object();
+                metadata["timing_bytes"] = double(protectedBytes.size());
+                metadata["timing_sha256"] = QString::fromLatin1(QCryptographicHash::hash(protectedBytes, QCryptographicHash::Sha256).toHex());
+                write(manifest, QJsonDocument(metadata).toJson(QJsonDocument::Compact) + '\n');
+            }
+            write(protectedPath, protectedBytes);
+        }
+        const auto second = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(second.status, QString("Estimated"));
+        QVERIFY(!second.cacheHit && second.error.isEmpty());
+        QCOMPARE(fixture.invocations(), 2);
+        QCOMPARE(second.pcmSha256, first.pcmSha256);
+        QCOMPARE(read(protectedPath), protectedBytes); // No eviction, repair or writes through aliases.
+        if (!unsafeAlias.isEmpty()) {
+            QVERIFY(QFileInfo(unsafeAlias).isSymLink());
+            QCOMPARE(QFileInfo(unsafeAlias).symLinkTarget(), unsafeTarget);
+        }
+        QCOMPARE(read(fixture.directory.filePath("input.f32")), pcmBefore);
+        absent(fixture.marker);
+    }
+    void failedAndManualProtocolResultsAreNotCached_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        for (const auto* mode : {"bad-exit", "event-duplicate", "header-only", "manual-status"})
+            QTest::newRow(mode) << QByteArray(mode);
+    }
+    void failedAndManualProtocolResultsAreNotCached()
+    {
+        QFETCH(QByteArray, mode);
+        Fixture fixture(mode);
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        for (int invocation = 1; invocation <= 2; ++invocation) {
+            const auto result = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+            QCOMPARE(result.status, QString("Failed"));
+            QVERIFY(!result.cacheHit && !result.bpm && !result.error.isEmpty());
+            QVERIFY(result.beats.empty() && result.pcmSha256.isEmpty() && !result.analysisFrames);
+            QCOMPARE(fixture.invocations(), invocation);
+            QVERIFY(QDir(cache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden).isEmpty());
+            absent(fixture.marker);
+        }
+    }
+    void cachedHitStillHonorsCancellationAndSourceCorruption()
+    {
+        Fixture fixture;
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        QCOMPARE(library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache).status, QString("Estimated"));
+        const auto entry = cacheEntry(cache);
+        const auto manifestBefore = read(entry + "/manifest.json"), timingBefore = read(entry + "/timing.jsonl");
+        std::stop_source cancelled;
+        cancelled.request_stop();
+        const auto throwsCancellation = [&](const auto& operation) {
+            try { operation(); }
+            catch (const std::runtime_error& error) { return std::string(error.what()).find("cancel") != std::string::npos; }
+            return false;
+        };
+        QVERIFY(throwsCancellation([&] { (void)library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache, cancelled.get_token()); }));
+        const float nan = std::numeric_limits<float>::quiet_NaN();
+        QCOMPARE(pwrite(fixture.writable.value, &nan, sizeof(nan), 0), ssize_t(sizeof(nan)));
+        QVERIFY_EXCEPTION_THROWN(library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache), library::BpmSourceError);
+        QVERIFY(throwsCancellation([&] { (void)library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache, cancelled.get_token()); }));
+        QCOMPARE(fixture.invocations(), 1);
+        QCOMPARE(read(entry + "/manifest.json"), manifestBefore);
+        QCOMPARE(read(entry + "/timing.jsonl"), timingBefore);
+        absent(fixture.marker);
+    }
+    void cancelledMissReapsDescendantAndPublishesNothing()
+    {
+        Fixture fixture("partial-descendant");
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        std::stop_source cancellation;
+        auto future = std::async(std::launch::async, [&] {
+            try { (void)library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache, cancellation.get_token()); }
+            catch (const std::runtime_error& error) { return std::string(error.what()).find("cancel") != std::string::npos; }
+            return false;
+        });
+        const auto limit = std::chrono::steady_clock::now() + 2s;
+        const auto partial = fixture.directory.filePath("worker.partial");
+        while (!QFileInfo::exists(partial) && std::chrono::steady_clock::now() < limit)
+            std::this_thread::sleep_for(5ms);
+        const bool emitted = QFileInfo::exists(partial);
+        cancellation.request_stop();
+        const bool settled = future.wait_for(6s) == std::future_status::ready;
+        QVERIFY(emitted && settled);
+        QVERIFY(future.get());
+        QCOMPARE(fixture.invocations(), 1);
+        QVERIFY(QDir(cache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden).isEmpty());
+        absent(fixture.marker);
+    }
+    void changedPcmDuringMissWinsOverWorkerFailureAndCannotPublish()
+    {
+        Fixture fixture("await-change-bad-exit");
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        auto future = std::async(std::launch::async, [&] { return library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache); });
+        const bool started = fixture.started();
+        const float replacement = .875F;
+        const bool modified = pwrite(fixture.writable.value, &replacement, sizeof(replacement), 0) == sizeof(replacement);
+        write(fixture.directory.filePath("worker.release"), "release\n");
+        QVERIFY(started && modified);
+        QVERIFY_EXCEPTION_THROWN(future.get(), library::BpmSourceError);
+        QCOMPARE(fixture.invocations(), 1);
+        QVERIFY(QDir(cache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden).isEmpty());
+        absent(fixture.marker);
+    }
+    void producerMutationDuringMissCannotPublish_data()
+    {
+        QTest::addColumn<QByteArray>("changed");
+        for (const auto* part : {"worker", "model", "source"}) QTest::newRow(part) << QByteArray(part);
+    }
+    void producerMutationDuringMissCannotPublish()
+    {
+        QFETCH(QByteArray, changed);
+        Fixture fixture("await-change");
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        auto future = std::async(std::launch::async, [&] { return library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache); });
+        const bool started = fixture.started();
+        const auto path = changed == "worker" ? fixture.engine.workerPath : changed == "model" ?
+            fixture.engine.modelPath : fixture.directory.filePath("beat_this/model/beat_tracker.py");
+        write(path, read(path) + "\n# Changed after the child started\n");
+        write(fixture.directory.filePath("worker.release"), "release\n");
+        QVERIFY(started);
+        const auto result = future.get();
+        QCOMPARE(result.status, QString("Failed"));
+        QVERIFY(!result.cacheHit && !result.bpm && !result.error.isEmpty() && result.beats.empty());
+        QCOMPARE(fixture.invocations(), 1);
+        QVERIFY(QDir(cache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden).isEmpty());
+        absent(fixture.marker);
+    }
+    void busyCacheFallsBackWithoutReplacingTheRetainedResult()
+    {
+        Fixture fixture;
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        QCOMPARE(library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache).status, QString("Estimated"));
+        const auto entry = cacheEntry(cache);
+        const auto manifest = read(entry + "/manifest.json"), timing = read(entry + "/timing.jsonl");
+        CloseFd lock;
+        lock.value = open(QFile::encodeName(cache + "/.lock").constData(), O_RDWR | O_CLOEXEC | O_NOFOLLOW);
+        QVERIFY(lock.value >= 0);
+        QCOMPARE(flock(lock.value, LOCK_EX | LOCK_NB), 0);
+        const auto fallback = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(fallback.status, QString("Estimated"));
+        QVERIFY(!fallback.cacheHit && fallback.error.isEmpty());
+        QCOMPARE(fixture.invocations(), 2);
+        QCOMPARE(read(entry + "/manifest.json"), manifest);
+        QCOMPARE(read(entry + "/timing.jsonl"), timing);
+        QCOMPARE(flock(lock.value, LOCK_UN), 0);
+        const auto hit = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QVERIFY(hit.cacheHit && hit.error.isEmpty());
+        QCOMPARE(fixture.invocations(), 2);
+        absent(fixture.marker);
+    }
+    void cachePublicationIsBoundedAndIsolatedFromPreparedLibraryFiles()
+    {
+        Fixture fixture("exact-output-limit", 300000);
+        fixture.engine.maxSeconds = 10;
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        const auto prepared = fixture.directory.filePath("prepared/v1"), catalog = fixture.directory.filePath("catalog/library.json");
+        QVERIFY(QDir().mkpath(prepared) && QDir().mkpath(QFileInfo(catalog).absolutePath()));
+        const auto sentinel = prepared + "/retained.f32";
+        write(sentinel, "Existing prepared-cache sentinel\n");
+        write(catalog, "{\"existing_library\":true}\n");
+        const auto pcmBefore = read(fixture.directory.filePath("input.f32"));
+        const auto preparedBefore = read(sentinel), catalogBefore = read(catalog);
+        const auto first = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(first.status, QString("Unknown"));
+        QVERIFY(!first.cacheHit && first.error.isEmpty());
+        QCOMPARE(first.beats.size(), std::size_t(300));
+        const auto entry = cacheEntry(cache);
+        QCOMPARE(QFileInfo(entry + "/timing.jsonl").size(), qint64(4 * 1024 * 1024));
+        QVERIFY(QFileInfo(entry + "/manifest.json").size() > 0 && QFileInfo(entry + "/manifest.json").size() <= 16384);
+        QCOMPARE(QDir(entry).entryList(QDir::Files | QDir::NoDotAndDotDot), QStringList({"manifest.json", "timing.jsonl"}));
+        const auto second = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QVERIFY(second.cacheHit && second.error.isEmpty());
+        QCOMPARE(second.beats.size(), first.beats.size());
+        QCOMPARE(fixture.invocations(), 1);
+        QCOMPARE(read(sentinel), preparedBefore);
+        QCOMPARE(read(catalog), catalogBefore);
+        QCOMPARE(read(fixture.directory.filePath("input.f32")), pcmBefore);
+        absent(fixture.marker);
+
+        Fixture full;
+        full.prepareCacheIdentity();
+        const auto fullCache = full.cacheRoot();
+        for (int index = 0; index < 64; ++index) {
+            const auto reserved = QDir(fullCache).filePath(QString("%1").arg(index, 64, 16, QChar(u'0')));
+            QVERIFY(QDir().mkdir(reserved));
+            QVERIFY(QFile::setPermissions(reserved, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner));
+            for (const auto* name : {"manifest.json", "timing.jsonl"}) {
+                const auto path = reserved + '/' + QString::fromLatin1(name);
+                write(path, "Do not evict existing entries\n");
+                QVERIFY(QFile::setPermissions(path, QFileDevice::ReadOwner | QFileDevice::WriteOwner));
+            }
+        }
+        const auto entriesBefore = QDir(fullCache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+        const auto fallback = library::analyzeBpmCached(*full.pcm, full.engine, fullCache);
+        QCOMPARE(fallback.status, QString("Estimated"));
+        QVERIFY(!fallback.cacheHit && fallback.error.isEmpty());
+        QCOMPARE(full.invocations(), 1);
+        QCOMPARE(QDir(fullCache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden), entriesBefore);
+        for (const auto& name : entriesBefore)
+            for (const auto* leaf : {"manifest.json", "timing.jsonl"})
+                QCOMPARE(read(QDir(fullCache).filePath(name + '/' + QString::fromLatin1(leaf))), QByteArray("Do not evict existing entries\n"));
+        absent(full.marker);
+    }
+    void cacheByteBudgetDoesNotDeleteEntriesToMakePublicationFit()
+    {
+        Fixture fixture("exact-output-limit", 300000);
+        fixture.engine.maxSeconds = 10;
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        // 63 individually bounded occupied entries leave one directory slot,
+        // but insufficient aggregate space for the next 4 MiB payload. Sparse
+        // files test accounting, without writing/reading 253 MiB of contents.
+        for (int index = 0; index < 63; ++index) {
+            const auto directory = QDir(cache).filePath(QString("%1").arg(index, 64, 16, QChar(u'0')));
+            QVERIFY(QDir().mkdir(directory));
+            QVERIFY(QFile::setPermissions(directory, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner));
+            for (const auto* leaf : {"timing.jsonl", "manifest.json"}) {
+                QFile file(directory + '/' + QString::fromLatin1(leaf));
+                QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::NewOnly));
+                QVERIFY(file.resize(QByteArray(leaf) == "timing.jsonl" ? 4 * 1024 * 1024 : 16384));
+                QVERIFY(file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner));
+            }
+        }
+        const auto before = QDir(cache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden);
+        const auto result = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QCOMPARE(result.status, QString("Unknown"));
+        QVERIFY(!result.cacheHit && result.error.isEmpty());
+        QCOMPARE(result.beats.size(), std::size_t(300));
+        QCOMPARE(fixture.invocations(), 1);
+        QCOMPARE(QDir(cache).entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden), before);
+        for (const auto& name : before) {
+            QCOMPARE(QFileInfo(QDir(cache).filePath(name + "/timing.jsonl")).size(), qint64(4 * 1024 * 1024));
+            QCOMPARE(QFileInfo(QDir(cache).filePath(name + "/manifest.json")).size(), qint64(16384));
+        }
+        absent(fixture.marker);
+    }
     void estimatesAndUnknownPreservePreparedOffset()
     {
         for (const auto& mode : {QByteArray("good"), QByteArray("fragmented"), QByteArray("limits"), QByteArray("unknown"), QByteArray("one-beat"), QByteArray("unknown-many")}) {
