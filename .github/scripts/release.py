@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 MIXING_MARKER = "<!-- conflux-mixing-accepted -->"
+M2_MARKER = "<!-- conflux-m2-complete -->"
+M3_MARKER = "<!-- conflux-m3-complete -->"
 WORKFLOW = ".github/workflows/release.yml"
 
 
@@ -115,7 +117,7 @@ def floor(target, base, *, existing_sha=None):
     return previous
 
 
-def evidence(tree, path):
+def evidence(tree, path, target):
     require(type(path) is str and path.endswith(".md") and not path.startswith("/")
             and str(PurePosixPath(path)) == path and ".." not in PurePosixPath(path).parts,
             "Mixing evidence must be a relative tracked Markdown file")
@@ -123,9 +125,14 @@ def evidence(tree, path):
     require(len(entry) == 4 and entry[0] in ("100644", "100755") and entry[1] == "blob"
             and entry[3] == path, "Mixing evidence must be a tracked regular file")
     text = git("show", f"{tree}:{path}")
-    require(re.search(r"(?m)^" + re.escape(MIXING_MARKER) + r"\r?$", text)
-            and text.replace(MIXING_MARKER, "").strip(),
-            "Actual mixing acceptance must be recorded before release")
+    markers = (MIXING_MARKER, M2_MARKER, M3_MARKER) if target == "0.1.0" else (MIXING_MARKER,)
+    for marker in markers:
+        require(re.search(r"(?m)^" + re.escape(marker) + r"\r?$", text),
+                "Actual mixing acceptance must be recorded before release" if marker == MIXING_MARKER
+                else "First 0.1.0 release requires recorded " + ("M2" if marker == M2_MARKER else "M3") + " completion")
+    for marker in markers:
+        text = text.replace(marker, "")
+    require(text.strip(), "Acceptance evidence requires nonempty prose")
     return git("rev-parse", f"{tree}:{path}")
 
 
@@ -145,7 +152,7 @@ def validate_tree(head, target, *, existing_sha=None):
     git("merge-base", "--is-ancestor", base, "origin/develop")
     git("merge-base", "--is-ancestor", base, head)
     require(project_version(git("show", f"{head}:CMakeLists.txt")) == target, "CMake version differs")
-    require(evidence(head, provenance["mixing_evidence"]) == evidence(base, provenance["mixing_evidence"]),
+    require(evidence(head, provenance["mixing_evidence"], target) == evidence(base, provenance["mixing_evidence"], target),
             "Mixing evidence differs from recorded develop source")
     changelog = git("show", f"{head}:CHANGELOG.md")
     require(re.search(r"(?m)^##\s+.*(?<![0-9.])v?" + re.escape(target) + r"(?=[\]\s(])", changelog),
@@ -190,7 +197,7 @@ def prepare(target, mixing_evidence):
     git("fetch", "origin", "main", "develop", "--tags")
     base = git("rev-parse", "origin/develop")
     floor(target, base)
-    evidence(base, mixing_evidence)
+    evidence(base, mixing_evidence, target)
     cmake = git("show", f"{base}:CMakeLists.txt")
     old = project_version(cmake)
     changelog = cliff(base, None, "--tag", "v" + target)
