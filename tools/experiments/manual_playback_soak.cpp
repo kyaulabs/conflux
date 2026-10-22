@@ -549,6 +549,9 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         phase = "finalizing";
     } catch (const std::exception& error) {
         failure = QString::fromUtf8(error.what());
+        const auto detail = controller.error();
+        if (!detail.isEmpty() && !failure.contains(detail))
+            failure = (failure + "\n" + detail).left(qsizetype(Observations::failureDetailCapacity));
         if (measure.isValid() && !measurementIntervalsClosed) measuredWallMs = measure.elapsed();
         closeMeasurement(true);
         if (tailStarted) { diagnosticTail["status"] = "Failed"; diagnosticTail["error"] = failure; }

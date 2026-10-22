@@ -7,13 +7,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <string>
 
 namespace conflux::library {
 class PreparedTrackStore;
 namespace detail { struct LiveStemObservationWriter; }
 
-// Concrete service/bridge diagnostics. No PCM, paths, callbacks or subscribers.
+// Concrete service/bridge diagnostics. No PCM, callbacks or subscribers.
 class LiveStemObservations final {
 public:
     static constexpr std::size_t capacity = 256;
@@ -80,6 +82,12 @@ public:
     // context, never Setup while the factory may still be writing it.
     [[nodiscard]] const Setup& setup() const noexcept;
 
+    static constexpr std::size_t failureDetailCapacity = 4096;
+    // First causal bridge failure and bounded service stderr, retained after
+    // producer/job cleanup. Off-callback only: locks and returns an owned copy.
+    // An empty result means no bridge failure has been published.
+    [[nodiscard]] std::string failureDetail() const;
+
     enum class DiagnosticDrainState : std::uint8_t { NotRequested, Requested, ReadyForStop, Failed };
     struct DiagnosticDrainStatus {
         DiagnosticDrainState state = DiagnosticDrainState::NotRequested;
@@ -102,6 +110,9 @@ private:
     std::atomic<std::uint32_t> written_{0}, read_{0};
     std::atomic<std::uint64_t> attempted_{0}, dropped_{0}, clockErrors_{0};
     std::atomic<bool> producerFinished_{false};
+    mutable std::mutex failureMutex_;
+    std::array<char, failureDetailCapacity> failureDetail_{};
+    std::size_t failureDetailSize_ = 0;
     std::atomic_flag drainClaimed_ = ATOMIC_FLAG_INIT;
     std::atomic<DiagnosticDrainState> drainState_{DiagnosticDrainState::NotRequested};
     // Published once, before Requested release; immutable through stop/join.

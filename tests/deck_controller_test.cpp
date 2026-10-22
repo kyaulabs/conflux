@@ -404,6 +404,7 @@ private slots:
             QVERIFY(!controller.liveStemObservations(0));
             QTRY_VERIFY_WITH_TIMEOUT(safety.gone() && safety.jobsGone(), 10000);
             QVERIFY(handle->counters().producerFinished);
+            QVERIFY(handle->failureDetail().empty());
             controller.shutdown();
             QVERIFY(!controller.liveStemObservations(0));
         });
@@ -464,6 +465,39 @@ private slots:
             QCOMPARE(liveFixtureBytes(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls"), calls);
             QVERIFY(!QFileInfo::exists(fixture.marker(".started")));
             QVERIFY(liveFixtureRows(fixture).empty());
+        });
+    }
+
+    void postReadyPrimeFailureReportsCauseAndBoundedServiceStderr()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("source.wav"), engineRoot = directory.filePath("engine");
+            QVERIFY(writeWave(source, 2, 44100, 211) && QDir().mkpath(engineRoot));
+            auto fixture = conflux::test::makeStemServiceFixture(engineRoot, "error-after-ready");
+            fixture.engine.maxDiagnosticBytes = 8192;
+            ControllerServiceSafety safety{fixture};
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(fixture.marker(".failure-wait")), 10000);
+            QTRY_COMPARE_WITH_TIMEOUT(controller.preparation()["phase"].toString(), QString("prime"), 10000);
+            QVERIFY(controller.busy());
+            safety.capture();
+            conflux::test::writeFixtureBytes(fixture.marker(".failure-release"), "release\n");
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto error = controller.error();
+            QVERIFY2(error.startsWith("Cannot prime the prepared track: Live stem producer: "), qPrintable(error));
+            QVERIFY(error.contains("Live stem service: fixture post-ready primary error"));
+            QVERIFY(error.contains("[truncated; last bytes follow]") && error.endsWith("fixture stderr causal tail\n"));
+            QVERIFY(!error.contains("fixture stderr prefix") && error.toUtf8().size() < 4352);
+            QVERIFY(!controller.decks()[0].toMap()["loaded"].toBool() && !controller.liveStemObservations(0));
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone() && safety.jobsGone(), 10000);
+            controller.shutdown();
         });
     }
 

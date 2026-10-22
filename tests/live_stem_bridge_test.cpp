@@ -575,6 +575,7 @@ private slots:
                     "Factory loaded early or first real prime failed");
             stop(track); assertGone(fixture.marker(".started"));
             require(rootNames(root).isEmpty(), "Retained observation handle kept job/process ownership alive");
+            require(handle->failureDetail().empty(), "Normal playback/cancellation published a causal failure");
             std::vector<Observation> rows; drainObservations(handle, rows);
             const auto counters = handle->counters();
             require(counters.producerFinished && !counters.droppedRecords && !counters.invalidClockReads &&
@@ -1084,6 +1085,37 @@ private slots:
         QTest::addColumn<QByteArray>("mode");
         for (const auto* mode : {"accepted-gap", "runtime-future", "source-original", "wrong-hash", "wrong-origin", "wrong-final", "wrong-order", "sequence-gap", "chunk-bool-frames", "short", "changed-lease", "nonfinite", "fifo", "symlink", "complete-early", "error-then-clean", "unexpected-closed", "unknown-event", "stderr-flood"})
             QTest::newRow(mode) << QByteArray(mode);
+    }
+
+    void postReadyFailureRetainsCauseAndBoundedStderrAfterCleanup()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211);
+            auto fixture = conflux::test::makeStemServiceFixture(directory.path(), "error-after-ready");
+            fixture.engine.maxDiagnosticBytes = 8192;
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            const auto handle = live.observations;
+            require(handle->failureDetail().empty(), "A healthy returned factory already reported failure");
+            auto prime = std::async(std::launch::async, [&] { return live.playback->prime(0, std::chrono::seconds(10)); });
+            require(await([&] { return QFileInfo::exists(fixture.marker(".failure-wait")); }),
+                    "Post-ready failure fixture did not reach the real prime request");
+            require(handle->failureDetail().empty(), "Failure was published before the controlled service fault");
+            touch(fixture.marker(".failure-release"));
+            require(prime.wait_for(std::chrono::seconds(10)) == std::future_status::ready && !prime.get() &&
+                    live.playback->errorCode() == EIO, "Post-ready service error did not fail actual priming");
+            const auto detail = handle->failureDetail();
+            require(detail.starts_with("Live stem service: fixture post-ready primary error") &&
+                    detail.find("Service stderr: ") != std::string::npos &&
+                    detail.find("[truncated; last bytes follow]") != std::string::npos &&
+                    detail.ends_with("fixture stderr causal tail\n") &&
+                    detail.find("fixture stderr prefix") == std::string::npos &&
+                    detail.size() == Observations::failureDetailCapacity,
+                    "Failure lost its first cause, useful stderr tail or strict retained byte bound");
+            stop(live); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty() && handle->counters().producerFinished && handle->failureDetail() == detail,
+                    "Cleanup erased/replaced the causal failure or retained its live job");
+        });
     }
     void badMetadataOrLeaseCannotPublishAnyPrefix()
     {
