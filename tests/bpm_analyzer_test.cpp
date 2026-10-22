@@ -158,6 +158,10 @@ if MODE == 'alternate-timing':
               for index, frame in enumerate((1, 1001, 2001, 3001))]
 if MODE == 'exact-output-limit':
     events = [{'frame': index * 960, 'downbeat': index == 299} for index in range(300)]
+if MODE == 'local-variable':
+    events = [{'frame': frame, 'downbeat': index == 0}
+              for index, frame in enumerate((12000, 36000, 54000, 70000, 84400))]
+    value.update(bpm=None, beat_count=len(events))
 if MODE == 'event-bool-frame': events[0]['frame'] = False
 if MODE == 'event-negative': events[0]['frame'] = -1
 if MODE == 'event-fractional': events[0]['frame'] = .5
@@ -858,6 +862,115 @@ private slots:
         const auto result = library::analyzeBpm(*fixture.pcm, fixture.engine);
         QCOMPARE(result.status, QString("Estimated"));
         QVERIFY(result.bpm && *result.bpm == 120. && result.error.isEmpty());
+        absent(fixture.marker);
+    }
+    void localTempoTracksTransitionsAndSourceSeeks()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 144000;
+        estimate.bpm = 120.;
+        estimate.status = "Estimated";
+        estimate.beats = {{4800, true}, {28800, false}, {52800, true}, {70800, false},
+                          {86800, false}, {101200, true}, {113200, false}};
+        struct Row { std::uint64_t frame; std::uint32_t first, end; double bpm; };
+        // Deliberately seek backwards and across exact shared boundaries.
+        for (const auto row : {Row{113199, 101200, 113200, 240}, Row{4800, 4800, 28800, 120},
+                               Row{52800, 52800, 70800, 160}, Row{70800, 70800, 86800, 180},
+                               Row{86800, 86800, 101200, 200}, Row{28800, 28800, 52800, 120},
+                               Row{52799, 28800, 52800, 120}, Row{101200, 101200, 113200, 240}}) {
+            const auto interval = library::localTempoAt(estimate, row.frame);
+            QVERIFY(interval);
+            QCOMPARE(interval->firstFrame, row.first);
+            QCOMPARE(interval->endFrame, row.end);
+            QCOMPARE(interval->bpm, row.bpm);
+        }
+        for (const auto frame : std::array<std::uint64_t, 6>{0, 4799, 113200, 143999, 144000,
+                                                           std::numeric_limits<std::uint64_t>::max()})
+            QVERIFY(!library::localTempoAt(estimate, frame));
+        QCOMPARE(*estimate.bpm, 120.); // Local lookup must not rewrite the summary.
+    }
+    void localTempoUnknownSummaryKeepsSupportedIntervals()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 400000;
+        estimate.status = "Unknown";
+        estimate.beats = {{12000, true}, {156000, false}, {163200, false},
+                          {170399, false}, {314400, false}, {338400, true}};
+        const auto slow = library::localTempoAt(estimate, 12000);
+        const auto fast = library::localTempoAt(estimate, 156000);
+        const auto afterUnsupported = library::localTempoAt(estimate, 314400);
+        QVERIFY(slow && fast && afterUnsupported);
+        QCOMPARE(slow->bpm, 20.);
+        QCOMPARE(fast->bpm, 400.);
+        QCOMPARE(afterUnsupported->bpm, 120.);
+        QVERIFY(!library::localTempoAt(estimate, 163200)); // 7199 frames: above 400 BPM.
+        QVERIFY(!library::localTempoAt(estimate, 170399)); // 144001 frames: below 20 BPM.
+        QVERIFY(!estimate.bpm);
+        QCOMPARE(estimate.status, QString("Unknown"));
+    }
+    void localTempoRejectsMalformedWholeMaps_data()
+    {
+        QTest::addColumn<QByteArray>("fault");
+        for (const auto* fault : {"zero-frames", "too-many-frames", "zero-beats", "one-beat", "first-at-eof",
+                                  "duplicate-first", "duplicate-late", "descending-late", "at-eof", "beyond-eof",
+                                  "event-cap", "source-event-cap"})
+            QTest::newRow(fault) << QByteArray(fault);
+    }
+    void localTempoRejectsMalformedWholeMaps()
+    {
+        QFETCH(QByteArray, fault);
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 144000;
+        estimate.beats = {{0, true}, {24000, false}, {48000, false}, {72000, true}};
+        if (fault == "zero-frames") estimate.analysisFrames = 0;
+        if (fault == "too-many-frames") estimate.analysisFrames = audio::PreparedAudio::defaultMaxPreparedBytes / 8U + 1;
+        if (fault == "zero-beats") estimate.beats.clear();
+        if (fault == "one-beat") estimate.beats.resize(1);
+        if (fault == "first-at-eof") estimate.beats.front().frame = 144000;
+        if (fault == "duplicate-first") estimate.beats[1].frame = 0;
+        if (fault == "duplicate-late") estimate.beats.back().frame = 48000;
+        if (fault == "descending-late") estimate.beats.back().frame = 47000;
+        if (fault == "at-eof") estimate.beats.back().frame = 144000;
+        if (fault == "beyond-eof") estimate.beats.back().frame = std::numeric_limits<std::uint32_t>::max();
+        if (fault == "event-cap" || fault == "source-event-cap") {
+            estimate.analysisFrames = fault == "event-cap" ? audio::PreparedAudio::defaultMaxPreparedBytes / 8U : 48000;
+            estimate.beats.resize(fault == "event-cap" ? 34954 : 52);
+            estimate.beats[0] = {0, false}; estimate.beats[1] = {24000, false};
+            for (std::size_t index = 2; index < estimate.beats.size(); ++index)
+                estimate.beats[index] = {std::uint32_t(24000 + index - 1), false};
+        }
+        // The queried first interval is valid in all late-corruption/cap cases.
+        // Checking only neighbors would silently accept a malformed map.
+        QVERIFY(!library::localTempoAt(estimate, 12000));
+    }
+    void cachedLocalTempoMatchesTheOriginalTimingMap()
+    {
+        Fixture fixture("local-variable", 144000);
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        const auto first = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QVERIFY(first.error.isEmpty() && !first.cacheHit && !first.bpm);
+        QCOMPARE(first.status, QString("Unknown"));
+        QCOMPARE(fixture.invocations(), 1);
+        const auto second = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+        QVERIFY(second.cacheHit && second.error.isEmpty() && !second.bpm);
+        QCOMPARE(fixture.invocations(), 1);
+        struct Row { std::uint64_t frame; std::uint32_t first, end; double bpm; };
+        for (const auto row : {Row{84399, 70000, 84400, 200}, Row{12000, 12000, 36000, 120},
+                               Row{36000, 36000, 54000, 160}, Row{54000, 54000, 70000, 180},
+                               Row{35999, 12000, 36000, 120}, Row{70000, 70000, 84400, 200}}) {
+            const auto original = library::localTempoAt(first, row.frame);
+            const auto cached = library::localTempoAt(second, row.frame);
+            QVERIFY(original && cached);
+            QCOMPARE(original->firstFrame, row.first); QCOMPARE(cached->firstFrame, row.first);
+            QCOMPARE(original->endFrame, row.end); QCOMPARE(cached->endFrame, row.end);
+            QCOMPARE(original->bpm, row.bpm); QCOMPARE(cached->bpm, row.bpm);
+        }
+        for (const auto frame : {0U, 11999U, 84400U, 143999U, 144000U}) {
+            QVERIFY(!library::localTempoAt(first, frame));
+            QVERIFY(!library::localTempoAt(second, frame));
+        }
+        QCOMPARE(fixture.invocations(), 1);
         absent(fixture.marker);
     }
     void tempoTargetsStayInsideTheExactRail()

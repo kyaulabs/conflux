@@ -39,6 +39,22 @@ struct BpmEstimate {
     bool cacheHit = false; // True only after strict timing/source/producer revalidation.
 };
 
+struct BpmTempoInterval {
+    std::uint32_t firstFrame = 0, endFrame = 0;
+    double bpm = 0;
+};
+
+// Off-callback only: validates all timing geometry in a bounded O(beats) scan
+// (at most 34953 events), without allocation or a second stored map. Returns
+// the containing [firstFrame, endFrame) interval in original stereo48k frames;
+// a shared beat selects the following interval. No extrapolation before the
+// first beat or from the last beat. Missing/malformed timing or a selected
+// interval outside 20..400 BPM returns Unknown (nullopt). Whole-track summary,
+// downbeat flags and cacheHit do not change the measured interval. This is an
+// unqualified interbeat estimate, not confidence, meter or a sync contract.
+[[nodiscard]] std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate&,
+                                                        std::uint64_t sourceFrame) noexcept;
+
 class BpmSourceError : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;

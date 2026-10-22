@@ -550,6 +550,28 @@ BpmEstimate analyzeBpm(const audio::PreparedAudio& audio, const BpmEngine& engin
     }
 }
 
+std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate& estimate, std::uint64_t sourceFrame) noexcept
+{
+    const auto frames = estimate.analysisFrames;
+    if (!frames || frames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U || sourceFrame >= frames ||
+        estimate.beats.size() < 2 || estimate.beats.size() > std::min(maximumEvents, frames * 50U / 48000U + 1U))
+        return {};
+    auto previous = estimate.beats.front().frame;
+    if (previous >= frames) return {};
+    std::optional<BpmTempoInterval> selected;
+    for (std::size_t index = 1; index < estimate.beats.size(); ++index) {
+        const auto current = estimate.beats[index].frame;
+        if (current >= frames || current <= previous) return {};
+        if (sourceFrame >= previous && sourceFrame < current) {
+            const double bpm = 60. * 48000. / (current - previous);
+            if (std::isfinite(bpm) && bpm >= 20 && bpm <= 400)
+                selected = BpmTempoInterval{previous, current, bpm};
+        }
+        previous = current;
+    }
+    return selected;
+}
+
 std::optional<double> tempoPercentForBpm(double reference, double target) noexcept
 {
     if (!std::isfinite(reference) || reference < 20 || reference > 400 || !std::isfinite(target) ||
