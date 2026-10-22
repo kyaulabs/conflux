@@ -227,7 +227,7 @@ bool RenderCore::beginScratch(std::size_t deck, std::uint64_t token) noexcept
     const auto loop = loopState(deck);
     if (!state.source.scratchControl || !scratch.supported || scratch.active || scratch.errorCode ||
         token <= state.scratchToken || state.cueHeld || state.cuePreviewing ||
-        loop.inSet || loop.outSet || loop.cached || loop.active || tempoState(deck).active)
+        loop.inSet || loop.outSet || loop.cached || loop.active)
         return false;
     if (!state.source.scratchControl(state.source.context, AudioScratchCommand::Begin, 0, 0, state.frame))
         return false;
@@ -260,8 +260,10 @@ bool RenderCore::endScratch(std::size_t deck, std::uint64_t token) noexcept
     if (!std::isfinite(scratch.position) || scratch.position < 0 || scratch.position > double(state.source.frames) ||
         !state.source.scratchControl(state.source.context, AudioScratchCommand::End, 0, 0, state.frame))
         return false;
-    state.nominalPosition = scratch.position;
     state.frame = static_cast<std::uint64_t>(scratch.position);
+    // A processed restart accepts integer source frames, as an explicit seek
+    // does. Match its new generation before even a zero-frame pending read.
+    state.nominalPosition = tempoState(deck).active ? double(state.frame) : scratch.position;
     state.buffering = false;
     transition(state);
     notifyActivity(state);

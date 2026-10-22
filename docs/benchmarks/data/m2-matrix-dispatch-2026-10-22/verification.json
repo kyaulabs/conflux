@@ -1,0 +1,689 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "scope": "Actual saved matrix PCM16/player120 diagnostic. Instrumented, hidden and short; no normal latency, visible UI, musical accuracy, continuous thermal or hard-cancel qualification.",
+  "qualified": false,
+  "source_head": "a97b4ee77808a512707d3e99e4645c9f15f42aed",
+  "build_scope": "Pinned existing live-drain harness binary with current runtime-loaded QML. The source head anchors those UI bytes; it does not assert that the older harness binary was built from this commit.",
+  "configuration": {
+    "backend": "vulkan",
+    "deck_a_gain": 0.25,
+    "deck_b_gain": 1,
+    "master_gain": 0.25,
+    "prime_bound_seconds": 60,
+    "request_timeout_seconds": 30,
+    "stem_gains": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "threads": 2
+  },
+  "PCM_equivalence": {
+    "cases": 16,
+    "exact_matches": 16,
+    "cleanup_complete": true,
+    "native_trace_passed": true,
+    "attention_series_passed": true,
+    "matrix_series_passed": true
+  },
+  "player": {
+    "functional_passed": true,
+    "overall_passed": false,
+    "measured_wall_ms": 120008,
+    "service_hops": {
+      "count": 21,
+      "maximum_ms": 5161.067284992896,
+      "nearest_rank_p99_ms": 5161.067284992896,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 1,
+      "complete": true
+    },
+    "native_attempts": 22,
+    "stale_attempts_without_validated_hop": [
+      2
+    ],
+    "controls": [
+      {
+        "kind": "incomplete_generation_seek",
+        "generation_before": 1,
+        "recovery_poll_upper_ms": 4641.213254
+      },
+      {
+        "kind": "replay_recovery",
+        "generation_before": 2,
+        "recovery_poll_upper_ms": 2252.941137
+      },
+      {
+        "kind": "replay_recovery",
+        "generation_before": 3,
+        "recovery_poll_upper_ms": 3650.039476
+      },
+      {
+        "kind": "replay_recovery",
+        "generation_before": 4,
+        "recovery_poll_upper_ms": 4210.019047
+      },
+      {
+        "kind": "replay_recovery",
+        "generation_before": 5,
+        "recovery_poll_upper_ms": 3697.715924
+      }
+    ],
+    "control_buffering_frames": 879104,
+    "control_buffering_seconds": 18.314666666666668,
+    "steady_starved_frames": 0,
+    "peer_starved_frames": 0,
+    "source_read_failures": 0,
+    "invalid_buffers": 0,
+    "callback_deadline_misses": 0,
+    "recording_overflow_frames": 0,
+    "recorded_audio": {
+      "channels": 2,
+      "format": 65542,
+      "frames": 6009856,
+      "nonzero_samples": 11998821,
+      "peak_left": 0.053626637905836105,
+      "peak_right": 0.0534011572599411,
+      "sample_rate": 48000
+    },
+    "callback_timing": [
+      {
+        "at_least_100ms": 0,
+        "callbacks": 25439,
+        "driver_cycle_available": true,
+        "driver_discontinuity_flag_mask": 16,
+        "driver_position_discontinuities": 0,
+        "driver_position_observed": true,
+        "driver_recovery_flag_mask": 2,
+        "driver_recovery_flags": 0,
+        "execution_deadline_misses": 0,
+        "execution_p999_upper_us": 162,
+        "execution_p99_upper_us": 131,
+        "graph_quantum_max": 256,
+        "graph_quantum_min": 256,
+        "maximum_execution_ns": 432842
+      }
+    ],
+    "incomplete_generation_seek": {
+      "submitted": true,
+      "exercised": true,
+      "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+    },
+    "cancellation_scope": "Incomplete-generation seek exercised; old native attempt completed but had no validated hop. No direct hard-cancel/kill deadline measurement.",
+    "ui_coverage": {
+      "any_gap": true,
+      "capture_end": "Before controller shutdown and window close",
+      "checks": 12406,
+      "hidden_checks": 12406,
+      "hidden_policy_violated": false,
+      "maximum_frame_age_ns": 0,
+      "missing_frame_checks": 12406,
+      "missing_window_checks": 0,
+      "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+      "stale_frame_checks": 12406,
+      "unexposed_checks": 12406,
+      "visible_healthy_checks": 0,
+      "visible_ui_qualification_eligible": false,
+      "window_policy": "hidden"
+    },
+    "cleanup_proven": true,
+    "owned_processes_remaining": 0,
+    "owned_pipewire_remaining": 0,
+    "owned_cache_removed": true
+  },
+  "diagnosis": {
+    "identical_matrix_geometry_routes_and_dispatches": true,
+    "all_attempt_stats_ms": {
+      "native_elapsed_ms": {
+        "count": 22,
+        "minimum": 1535.538,
+        "median": 1660.2910655,
+        "p99_nearest_rank": 5093.293776,
+        "maximum": 5093.293776
+      },
+      "graph_compute_ms": {
+        "count": 22,
+        "minimum": 1482.264913,
+        "median": 1527.4070944999999,
+        "p99_nearest_rank": 4869.606919,
+        "maximum": 4869.606919
+      },
+      "query_total_ms": {
+        "count": 22,
+        "minimum": 1477.898322,
+        "median": 1517.3651089999998,
+        "p99_nearest_rank": 4849.320833,
+        "maximum": 4849.320833
+      },
+      "matrix_ms": {
+        "count": 22,
+        "minimum": 595.985901,
+        "median": 606.196508,
+        "p99_nearest_rank": 2129.700348,
+        "maximum": 2129.700348
+      },
+      "rest_ms": {
+        "count": 22,
+        "minimum": 877.633711,
+        "median": 909.6007145,
+        "p99_nearest_rank": 2719.620485,
+        "maximum": 2719.620485
+      },
+      "flash_query_ms": {
+        "count": 22,
+        "minimum": 264.105928,
+        "median": 265.370667,
+        "p99_nearest_rank": 1005.931949,
+        "maximum": 1005.931949
+      }
+    },
+    "worst_request": {
+      "request_id": 18,
+      "context": {
+        "generation": 5,
+        "preroll": false,
+        "request_id": 18,
+        "source_id": "cc94d9dce3cfc9b998260a462eb4a122ecb7c5670ec8b4642e1aa6d72842cf60",
+        "timestamp": 751196.220549726,
+        "window_start_frame": 773955
+      },
+      "hop_service_ms": 5161.067284992896,
+      "native_elapsed_ms": 5093.293776,
+      "graph_compute_ms": 4869.606919,
+      "query_total_ms": 4849.320833,
+      "matrix_ms": 2129.700348,
+      "rest_ms": 2719.620485,
+      "flash_query_ms": 1005.931949
+    },
+    "query_scope": "Query intervals include all work within the query; dispatch metadata provides no individual dispatch duration or exclusive-GPU-time attribution.",
+    "causality": "Distributed matrix/nonmatrix interval growth with unchanged matrix signatures. Sampled profile/clock/power-limit settings remain confounders; no proven stall cause.",
+    "next_hypothesis": "Private exact-shape tile experiment for largest recurring matrix query. No candidate promoted; exact PCM required before player comparison.",
+    "flash_query_is_subset_of_rest": true,
+    "flash_query_scope": "Flash query intervals only; excludes attention head-copy intervals and does not establish exclusive GPU time."
+  },
+  "thermal": {
+    "samples": 67,
+    "sample_interval_seconds": 2,
+    "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+    "maximum_observed_millidegrees_C": 92000,
+    "85000": {
+      "samples_at_or_above": 1,
+      "longest_consecutive_sample_span_seconds": 0.0
+    },
+    "95000": {
+      "samples_at_or_above": 0,
+      "longest_consecutive_sample_span_seconds": 0.0
+    },
+    "profile_epp_observations": [
+      {
+        "at_utc": "2026-10-22T07:42:06.237135+00:00",
+        "values": {
+          "/sys/firmware/acpi/platform_profile": "balanced",
+          "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+        }
+      },
+      {
+        "at_utc": "2026-10-22T07:42:53.401334+00:00",
+        "values": {
+          "/sys/firmware/acpi/platform_profile": "low-power",
+          "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+        }
+      }
+    ]
+  },
+  "gpu_snapshots": {
+    "samples": 67,
+    "actual_MHz_samples": 67,
+    "actual_MHz_min": 0,
+    "actual_MHz_max": 1350,
+    "read_errors_by_field": {},
+    "maximum_observed_snapshot_read_seconds": 0.006623074994422495,
+    "sample_interval_seconds": 2,
+    "qualified": false,
+    "scope": "Intermittent read-only actual versus requested/current GPU clocks and throttle reasons; no continuous or causal thermal/frequency claim."
+  },
+  "package_snapshots": {
+    "samples": 67,
+    "complete_samples": 67,
+    "complete": true,
+    "read_errors_by_field": {},
+    "numeric_ranges": {
+      "mmio/enabled": {
+        "unit": "kernel_integer",
+        "minimum": 1,
+        "maximum": 1
+      },
+      "mmio/constraint_0_power_limit_uw": {
+        "unit": "uW",
+        "minimum": 7500000,
+        "maximum": 15000000
+      },
+      "mmio/constraint_0_time_window_us": {
+        "unit": "us",
+        "minimum": 27983872,
+        "maximum": 27983872
+      },
+      "mmio/constraint_1_power_limit_uw": {
+        "unit": "uW",
+        "minimum": 64000000,
+        "maximum": 64000000
+      },
+      "mmio/constraint_1_time_window_us": {
+        "unit": "us",
+        "minimum": 2440,
+        "maximum": 2440
+      },
+      "msr/enabled": {
+        "unit": "kernel_integer",
+        "minimum": 1,
+        "maximum": 1
+      },
+      "msr/constraint_0_power_limit_uw": {
+        "unit": "uW",
+        "minimum": 64000000,
+        "maximum": 64000000
+      },
+      "msr/constraint_0_time_window_us": {
+        "unit": "us",
+        "minimum": 27983872,
+        "maximum": 27983872
+      },
+      "msr/constraint_1_power_limit_uw": {
+        "unit": "uW",
+        "minimum": 64000000,
+        "maximum": 64000000
+      },
+      "msr/constraint_1_time_window_us": {
+        "unit": "us",
+        "minimum": 2440,
+        "maximum": 2440
+      }
+    },
+    "maximum_observed_snapshot_read_seconds": 0.0108012460405007,
+    "sample_interval_seconds": 2,
+    "qualified": false,
+    "scope": "Intermittent separate MMIO/MSR constraint settings; no consumption, effective-limit, continuous or causal claim"
+  },
+  "unchanged_source_guard_seed": true,
+  "raw_data_location": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01",
+  "raw_data_pins": {
+    "matrix-player-plan-03.json": {
+      "bytes": 124906,
+      "sha256": "e82d421e793c9787c403e330e517d3bf7919d38a198ab207d4914b261501cc19"
+    },
+    "root-launch-source-review-04.json": {
+      "bytes": 13456,
+      "sha256": "b42224a15c168a7c562f8febfa4fa54a22b99fd1711c046ab12d3ceae7209cf5"
+    },
+    "root-build-receipt-01.json": {
+      "bytes": 356925,
+      "sha256": "b502d06b4cfda3900f028d584c466716893bd7e0e5c2c682690f81d3bf1c2748"
+    },
+    "root-fixture-result-01.json": {
+      "bytes": 4144,
+      "sha256": "84bd9a437253e5cfc25c8916fe5d659a9b6c25f5195b1679a62e558ada3c581f"
+    },
+    "root_saved_analysis_01.py": {
+      "bytes": 6181,
+      "sha256": "549d780d4751a5f68e312cd10b3695d469de6b155d7f1698bc55e0e62fac55ad"
+    },
+    "saved-analysis-01.json": {
+      "bytes": 172156,
+      "sha256": "adfb84dee52df1436102c96df6da04fdcc036adf610413ba5b38b5c10fb12149"
+    },
+    "pcm-equivalence-01/result.json": {
+      "bytes": 1313792,
+      "sha256": "02f6581bf861eaad2e4b40e546265723591fb8c08cde4b3ca4b5878201a85f81"
+    },
+    "interstage-root-audit-01.json": {
+      "bytes": 3096,
+      "sha256": "d5e1cf8977a70bb5655f96f0ec5d993da0322f5db4806d61925fa7b02e9bf86e"
+    },
+    "short-live-matrix-01/result.json": {
+      "bytes": 1028901,
+      "sha256": "b00f2df9ed09f825c29452dddd1338faf52e067c582e1585d13ad54215ddeafc"
+    },
+    "short-live-matrix-01/native-result.json": {
+      "bytes": 149096,
+      "sha256": "53d6ca0c913b3023d8554717d9499619e695662dc9256e34bf3b92d83f79a943"
+    },
+    "short-live-matrix-01/observations.jsonl": {
+      "bytes": 808395,
+      "sha256": "0e1f7122ea52ed8324547c1bbea64e60575a4d0566e8aef8eadeba5bd31717ea"
+    },
+    "short-live-matrix-01/drm-traces/native-profiler.stderr": {
+      "bytes": 3703659,
+      "sha256": "e1f43b04fb8509e39a7a73ff3d5dbedba925beeb2af4c36c5d7bc73a20e8e7de"
+    },
+    "short-live-matrix-01/drm-traces/native-profiler.stdout": {
+      "bytes": 8937,
+      "sha256": "c0829da60d1343587b9837ec657d42dc130c75d49cedc654b25823b9d7efe52a"
+    },
+    "short-live-matrix-01/drm-traces/native-drm.jsonl": {
+      "bytes": 82262,
+      "sha256": "9005e7dbfe6e8fef38709213001686c79f30585cf50c6eaf200432aebf4b0eba"
+    },
+    "short-live-matrix-01/drm-traces/native-request-trace.jsonl": {
+      "bytes": 15864,
+      "sha256": "8ad49e38cae0ed74b84cb06af75de16494bbcde69ac3677ca27af6f7b81cf841"
+    },
+    "short-live-matrix-01/master.wav": {
+      "bytes": 48078936,
+      "sha256": "e3a4ba3df210af34413645fd581e549f856fa2abf5b4450c39c0eef0eb341411"
+    }
+  },
+  "limits": [
+    "Short instrumented 21-hop sample; nearest-rank p99 equals maximum, without sustained/population qualification.",
+    "Hidden window: no visible-UI presentation qualification.",
+    "No new listening verdict or direct hard-cancel latency measurement.",
+    "Temperature samples every two seconds do not establish continuous excursion duration.",
+    "M2 service target remains strictly below 4095 ms; Best quality and two-thread default unchanged."
+  ],
+  "elapsed_after_original_readiness_seconds": 413.278186,
+  "original_operator_window_seconds": 960,
+  "legacy_analysis_field_note": "The verbatim saved-analysis artifact calls this field attention_ms. Its producer computes flash_ns only; published summary fields use flash_query_ms.",
+  "published_at_utc": "2026-10-22T10:34:08.910678+00:00",
+  "publication_scope": "Metadata from the previously completed run only; no new runtime/model/GPU/audio or host-test execution.",
+  "recording_scope": {
+    "frames": 6009856,
+    "seconds": 125.20533333333333,
+    "measured_player_seconds": 120.008,
+    "note": "Recording includes time outside the measured interval. Native EOF/idle close has a further unrecorded tail; this is not a full end-to-end audio continuity or listening qualification.",
+    "audio_published": false,
+    "private_audio_pin": {
+      "bytes": 48078936,
+      "sha256": "e3a4ba3df210af34413645fd581e549f856fa2abf5b4450c39c0eef0eb341411"
+    }
+  },
+  "independent_review": "Saved source/result hashes, actual PCM and player receipts, cleanup and original readiness checked; Flash-only scope label corrected before publication.",
+  "artifacts": [
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/matrix-player-plan-03.json",
+        "bytes": 124906,
+        "sha256": "e82d421e793c9787c403e330e517d3bf7919d38a198ab207d4914b261501cc19"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/matrix-player-plan-03.json.gz",
+        "bytes": 38725,
+        "sha256": "cd096da0793aa075bd36086197fff434f9fd319a1b69e7f9ec062c92d25fa710"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/root-launch-source-review-04.json",
+        "bytes": 13456,
+        "sha256": "b42224a15c168a7c562f8febfa4fa54a22b99fd1711c046ab12d3ceae7209cf5"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/root-launch-source-review-04.json.gz",
+        "bytes": 4106,
+        "sha256": "484bc702eda60bc0e98856d4c8ffa4d8fc4e50f436f7387326135cf30098c6df"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/root-build-receipt-01.json",
+        "bytes": 356925,
+        "sha256": "b502d06b4cfda3900f028d584c466716893bd7e0e5c2c682690f81d3bf1c2748"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/root-build-receipt-01.json.gz",
+        "bytes": 71366,
+        "sha256": "aa6a78438ec33a0d0fb1a0b4ae704144688c8923106245acaf03430cefe31161"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/root-fixture-result-01.json",
+        "bytes": 4144,
+        "sha256": "84bd9a437253e5cfc25c8916fe5d659a9b6c25f5195b1679a62e558ada3c581f"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/root-fixture-result-01.json.gz",
+        "bytes": 1373,
+        "sha256": "d07b6696828e086ba7f7471eae0a7e6becd82b4a306ac958d71c62363868dbef"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/root_saved_analysis_01.py",
+        "bytes": 6181,
+        "sha256": "549d780d4751a5f68e312cd10b3695d469de6b155d7f1698bc55e0e62fac55ad"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/root_saved_analysis_01.py.gz",
+        "bytes": 2393,
+        "sha256": "14ff23dcd016779a1b62e3bcbffe17b61addcd6c075955eee01167a144237c57"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/saved-analysis-01.json",
+        "bytes": 172156,
+        "sha256": "adfb84dee52df1436102c96df6da04fdcc036adf610413ba5b38b5c10fb12149"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/saved-analysis-01.json.gz",
+        "bytes": 8152,
+        "sha256": "f7d99a56ba4b74e184cb1531e8f5b39063e7a5113e3d962ef1262b74b4c412d2"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/pcm-equivalence-01/result.json",
+        "bytes": 1313792,
+        "sha256": "02f6581bf861eaad2e4b40e546265723591fb8c08cde4b3ca4b5878201a85f81"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/pcm-equivalence-01-result.json.gz",
+        "bytes": 191121,
+        "sha256": "5025808752ba5876e01306c2243c0bacbb8f0ce3ed1ddc483a9b3f7a64807c80"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/interstage-root-audit-01.json",
+        "bytes": 3096,
+        "sha256": "d5e1cf8977a70bb5655f96f0ec5d993da0322f5db4806d61925fa7b02e9bf86e"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/interstage-root-audit-01.json.gz",
+        "bytes": 1294,
+        "sha256": "d00a980c3a977e82d0f1ff5396f958367406888bd98fb53eab0ae22f0ebe885a"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/result.json",
+        "bytes": 1028901,
+        "sha256": "b00f2df9ed09f825c29452dddd1338faf52e067c582e1585d13ad54215ddeafc"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-result.json.gz",
+        "bytes": 88995,
+        "sha256": "74d87e74b9d7e022c8e92bb04f21a71a19221ba14598d649dca38e6938a6f207"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/native-result.json",
+        "bytes": 149096,
+        "sha256": "53d6ca0c913b3023d8554717d9499619e695662dc9256e34bf3b92d83f79a943"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-native-result.json.gz",
+        "bytes": 10791,
+        "sha256": "fe3146a214654301f3ef8733f44da7db3f63738ce0f1ff2f41ad05dbcece149a"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/observations.jsonl",
+        "bytes": 808395,
+        "sha256": "0e1f7122ea52ed8324547c1bbea64e60575a4d0566e8aef8eadeba5bd31717ea"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-observations.jsonl.gz",
+        "bytes": 61341,
+        "sha256": "504ab655f25734eff51a08de8e41cf9be67ad30ceeb5cf3a337647b0d7ab1356"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/drm-traces/native-profiler.stderr",
+        "bytes": 3703659,
+        "sha256": "e1f43b04fb8509e39a7a73ff3d5dbedba925beeb2af4c36c5d7bc73a20e8e7de"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-drm-traces-native-profiler.stderr.gz",
+        "bytes": 319819,
+        "sha256": "e31648257ce292e182dd5bb0ec3ef7e16914aad292d0a7ada82fa2e86b03dd3e"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/drm-traces/native-profiler.stdout",
+        "bytes": 8937,
+        "sha256": "c0829da60d1343587b9837ec657d42dc130c75d49cedc654b25823b9d7efe52a"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-drm-traces-native-profiler.stdout.gz",
+        "bytes": 1967,
+        "sha256": "4cdd3f3e0020eb09ea4d54eaf60af05ee89b7d9f9ea5efac960009f783e0cd1d"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/drm-traces/native-drm.jsonl",
+        "bytes": 82262,
+        "sha256": "9005e7dbfe6e8fef38709213001686c79f30585cf50c6eaf200432aebf4b0eba"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-drm-traces-native-drm.jsonl.gz",
+        "bytes": 4384,
+        "sha256": "fdcd9d68385e2aa4bb8c6fb52945643f7d7193cc140920252e047bb8f57ce394"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/drm-traces/native-request-trace.jsonl",
+        "bytes": 15864,
+        "sha256": "8ad49e38cae0ed74b84cb06af75de16494bbcde69ac3677ca27af6f7b81cf841"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-drm-traces-native-request-trace.jsonl.gz",
+        "bytes": 2163,
+        "sha256": "a6c77f54afb1d9e9b074f975731c76e203f9d5b0233135371040c09fd2acba0f"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/human-readiness-01.json",
+        "bytes": 1130,
+        "sha256": "cb2df9f96ce8aabe86b8740a3da34240b7b85bcbf3aea80155f2d3eb3a53911a"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/human-readiness-01.json.gz",
+        "bytes": 665,
+        "sha256": "646432d5db99e1842b4754c80be5bae354d1f9d2fe257164f65948a079afd575"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/drm-traces/native-profiler.capture.json",
+        "bytes": 1358,
+        "sha256": "3017e2060b184dcb0be972d03b6af3ee45d5993dc8c651797b7c6a8f1d310dc0"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-drm-traces-native-profiler.capture.json.gz",
+        "bytes": 569,
+        "sha256": "15dc9872bf5115618e17e2ec85376c4ed34f1ad60dd3212b8e606e736108fc1d"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/short-live-matrix-01/owned-pipewire-cleanup.json",
+        "bytes": 30,
+        "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/short-live-matrix-01-owned-pipewire-cleanup.json.gz",
+        "bytes": 50,
+        "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/matrix_series.py",
+        "bytes": 14405,
+        "sha256": "74a24f22fa1a888a58710fde896a875bf24acdb89a54b7ae306168354bcb8f15"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/matrix_series.py.gz",
+        "bytes": 4204,
+        "sha256": "cb1e321293249ccf01c120a99be47296cd3edb63e8dd4dc921e4f24b0285dda8"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/pcm-equivalence-01/native.stderr",
+        "bytes": 2692813,
+        "sha256": "1927d2c5e378e936cece8fac721ca27f398f5a9ac0988dd635c9254360c73b6d"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/pcm-equivalence-01-native.stderr.gz",
+        "bytes": 232493,
+        "sha256": "2e0c85c44ca3521f47190a5e9fd5bbfc8f41d80a4e7848572e6790ab9455e1da"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/pcm-equivalence-01/native.stdout",
+        "bytes": 6589,
+        "sha256": "459a423240586bef3f32717dcf4e9d21432d329dde0cb663ea896967e85b4b5a"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/pcm-equivalence-01-native.stdout.gz",
+        "bytes": 1555,
+        "sha256": "9a87ded5eba2a7e1df734ed919c16e08958b1bb883a1b193e7b861f834731926"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/root-parser-result-01.json",
+        "bytes": 1129,
+        "sha256": "bd2c8c6078d1f18bb3ca94125db77b253de5e633353c77f6f2298ec027aa20b3"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-dispatch-2026-10-22/root-parser-result-01.json.gz",
+        "bytes": 516,
+        "sha256": "6bd14e6d02b561c99e6c73f1b867a2dd20b2689283db101bd26b62a886ff37f7"
+      },
+      "transform": "gzip only; original bytes unchanged"
+    }
+  ]
+}

@@ -1302,7 +1302,7 @@ bool DeckController::canScratch(std::size_t deck) const
         !clips_[deck]->live() && !replacing_[deck] && !sourceIds_[deck].isEmpty() &&
         state_.scratch[deck].supported && !state_.scratch[deck].errorCode &&
         !state_.sourceReadError[deck] && !state_.cueHeld[deck] && !state_.cuePreview[deck] && !cueDown_[deck] &&
-        !state_.tempo[deck].active && !state_.loops[deck].inSet && !state_.loops[deck].outSet &&
+        !state_.loops[deck].inSet && !state_.loops[deck].outSet &&
         !state_.loops[deck].cached && !state_.loops[deck].active;
 }
 

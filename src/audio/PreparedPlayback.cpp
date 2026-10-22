@@ -437,7 +437,7 @@ void PreparedPlayback::seekLinear(std::uint64_t frame) noexcept
 AudioScratchState PreparedPlayback::scratchState() const noexcept
 {
     AudioScratchState state;
-    // Capability only; Begin enforces the loop/tempo interaction gates. Do not
+    // Capability only; Begin enforces the loop and source-health gates. Do not
     // call tempo status()/peek() from this pure scratch-state observation.
     state.supported = !live_ && !stopped_ && bool(scratchSource_);
     state.errorCode = scratchSetupError_;
@@ -456,17 +456,27 @@ bool PreparedPlayback::scratchControl(AudioScratchCommand command, std::int64_t 
 {
     if (live_ || stopped_ || !scratchSource_ || frame > frames_) return false;
     if (command == AudioScratchCommand::Begin) {
-        if (loop_.inSet || loop_.outSet || loop_.cached || tempoState().active || preparedRenderError()) return false;
+        if (loop_.inSet || loop_.outSet || loop_.cached || preparedRenderError()) return false;
         return scratchSource_->begin(frame);
     }
     if (command == AudioScratchCommand::Move) return scratchSource_->move(cumulativeFrames, intervalSeconds);
     if (command != AudioScratchCommand::End || !scratchSource_->active()) return false;
     const double position = scratchSource_->position();
     if (!std::isfinite(position) || position < 0 || position > double(frames_)) return false;
+    const auto restart = static_cast<std::uint64_t>(std::floor(position));
+    const auto tempo = tempoState();
+    // The parked producer retains the selection, but none of its queued PCM
+    // belongs to this consumed scratch cursor. Admit a fresh generation before
+    // ending healthy raw takeover. An already-failed producer stays failed:
+    // retain its generation/error so readTempo keeps the old queue muted, but
+    // allow release and Pause to make the deck replaceable.
+    if (tempo.active && !preparedRenderError() &&
+        !tempoSource_->request(restart, tempo.percent, tempo.keyLock))
+        return false;
     scratchSource_->end();
-    // One ordinary-reader refill at the consumed scratch cursor. The renderer
-    // synchronizes its frame from this same state, without another seek.
-    seekLinear(static_cast<std::uint64_t>(std::floor(position)));
+    // Legacy playback still needs its one ordinary-reader refill. Processed
+    // playback resumes the new generation; Reset handles its linear handoff.
+    if (!tempo.active) seekLinear(restart);
     return true;
 }
 
@@ -547,10 +557,10 @@ AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<fl
 {
     if (output.size() % StemBankSource::channels || frame > frames_) return {0, true};
     if (scratchSource_ && scratchSource_->active()) return readScratch(output);
-    if (tempoState().active) return readTempo(output);
-    // Optional inactive prefetch follows the actual ordinary cursor. Failure
-    // is scratch-only and never turns a healthy legacy read into a failure.
+    // Optional inactive prefetch follows the nominal source cursor during
+    // ordinary or processed playback. Failure remains scratch-only.
     if (scratchSource_) (void)scratchSource_->follow(frame);
+    if (tempoState().active) return readTempo(output);
     if (output.empty()) return {};
     if (loop_.cached) {
         if (frame < loop_.inFrame || frame > loop_.outFrame) return {0, true};

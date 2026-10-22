@@ -2171,18 +2171,30 @@ private slots:
     {
         QTest::addColumn<int>("deck");
         QTest::addColumn<bool>("playing");
-        QTest::newRow("deck-a-paused") << 0 << false;
-        QTest::newRow("deck-a-playing") << 0 << true;
-        QTest::newRow("deck-b-paused") << 1 << false;
-        QTest::newRow("deck-b-playing") << 1 << true;
+        QTest::addColumn<bool>("processed");
+        QTest::addColumn<double>("percent");
+        QTest::newRow("deck-a-paused") << 0 << false << false << 0.;
+        QTest::newRow("deck-a-playing") << 0 << true << false << 0.;
+        QTest::newRow("deck-b-paused") << 1 << false << false << 0.;
+        QTest::newRow("deck-b-playing") << 1 << true << false << 0.;
+        QTest::newRow("deck-a-active-zero-paused") << 0 << false << true << 0.;
+        QTest::newRow("deck-b-active-zero-paused") << 1 << false << true << 0.;
+        QTest::newRow("deck-a-active-six-playing") << 0 << true << true << 6.;
+        QTest::newRow("deck-b-active-six-playing") << 1 << true << true << 6.;
     }
 
     void vinylPointerUsesCumulativeTokenWithoutTransportMutation()
     {
-        QFETCH(int, deck); QFETCH(bool, playing);
+        QFETCH(int, deck); QFETCH(bool, playing); QFETCH(bool, processed); QFETCH(double, percent);
         ui_->endpoint.loadState(0, 5.0);
         ui_->endpoint.loadState(1, 5.0);
         ui_->endpoint.snapshotDeck(deck, {{"playing", playing}});
+        if (processed) {
+            auto tempo = UiEndpoint::tempoState(true);
+            tempo["active"] = true; tempo["percent"] = percent; tempo["appliedPercent"] = percent;
+            tempo["keyLock"] = true; tempo["generation"] = qulonglong(42);
+            ui_->endpoint.snapshotDeck(deck, {{"tempo", tempo}});
+        }
         ui_->endpoint.setReady(true);
         auto* jog = ui_->item(QString("deck%1Jog").arg(deck).toUtf8().constData());
         QVERIFY(jog);
@@ -2360,7 +2372,7 @@ private slots:
         auto baseline = ui_->endpoint.decks()[0].toMap();
         baseline["overviewStem"] = ""; // Reset the prior live-only field for each independent gate.
         const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
-        for (const auto* reason : {"unsupported", "live", "cue", "cue-held", "loop-in", "loop-cached", "active-zero-tempo", "read-error"}) {
+        for (const auto* reason : {"unsupported", "live", "cue", "cue-held", "loop-in", "loop-cached", "read-error"}) {
             auto fields = baseline;
             if (QString(reason) == "unsupported") fields["scratch"] = UiEndpoint::scratchState(false);
             else if (QString(reason) == "live") fields["overviewStem"] = "source";
@@ -2373,9 +2385,6 @@ private slots:
             else if (QString(reason).startsWith("loop")) {
                 auto loop = UiEndpoint::loopState(true);
                 loop[QString(reason) == "loop-in" ? "inSet" : "cached"] = true; fields["loop"] = loop;
-            } else if (QString(reason) == "active-zero-tempo") {
-                auto tempo = UiEndpoint::tempoState(true);
-                tempo["active"] = true; tempo["percent"] = 0.; fields["tempo"] = tempo;
             } else {
                 auto scratch = UiEndpoint::scratchState(true); scratch["errorCode"] = EIO; fields["scratch"] = scratch;
             }
