@@ -2414,6 +2414,10 @@ int main(int argc, char** argv)
         wait([&] { return !controller.busy() && controller.decks()[1].toMap()["loaded"].toBool() && controller.outputReady(); },
              "B did not load for imported cue jumps");
         const auto cueJumpBefore = controller.audioState();
+        const auto cueJumpSessionsBefore = controller.completedSessions();
+        const auto cueJumpCommandsBefore = controller.submittedCommands();
+        const std::array<std::uint64_t, 2> cueJumpSinkReceivedBefore{sink.received(0), sink.received(1)};
+        const auto cueJumpSinkWrongBefore = sink.wrong(), cueJumpSinkZerosBefore = sink.zeros();
         require(controller.decks()[1].toMap()["sourceId"].toString() == libraryId &&
                 !cueJumpBefore.playing[1] && !controller.jumpToImportedCue(0, libraryId, 0),
                 "Imported cue jumps require the exact loaded source identity");
@@ -2422,11 +2426,59 @@ int main(int argc, char** argv)
         require(controller.jumpToImportedCue(1, libraryId, 1), "Second imported cue submits an exact-frame seek");
         wait([&] { return controller.audioState().sourceFrame[1] == 47360; }, "Second imported cue did not land at frame47360");
         const auto cueJumped = controller.audioState();
-        require(!cueJumped.playing[1] && cueJumped.cueFrame[1] == cueJumpBefore.cueFrame[1] &&
-                cueJumped.playing[0] && cueJumped.sourceGeneration[0] == cueJumpBefore.sourceGeneration[0] &&
-                cueJumped.sourceFrame[0] - cueJumpBefore.sourceFrame[0] == cueJumped.outputFrame - cueJumpBefore.outputFrame &&
-                !cueJumped.invalidBuffers && !cueJumped.rejected && !sink.wrong() && !sink.zeros(),
-                "Exact cue jumps preserve paused B, its temporary CUE and the advancing peer clock/samples");
+        try {
+            require(!cueJumped.playing[1] && cueJumped.cueFrame[1] == cueJumpBefore.cueFrame[1] &&
+                    cueJumped.playing[0] && cueJumped.sourceGeneration[0] == cueJumpBefore.sourceGeneration[0] &&
+                    cueJumped.sourceFrame[0] - cueJumpBefore.sourceFrame[0] == cueJumped.outputFrame - cueJumpBefore.outputFrame &&
+                    !cueJumped.invalidBuffers && !cueJumped.rejected && !sink.wrong() && !sink.zeros(),
+                    "Exact cue jumps preserve paused B, its temporary CUE and the advancing peer clock/samples");
+        } catch (const std::exception& failure) {
+            const auto sinkWrong = sink.wrong(), sinkZeros = sink.zeros();
+            const std::array<std::uint64_t, 2> sinkReceived{sink.received(0), sink.received(1)};
+            const auto audio = [](const auto& state) {
+                return QJsonObject{
+                    {"output_frame", qint64(state.outputFrame)}, {"applied", qint64(state.applied)},
+                    {"rejected", qint64(state.rejected)}, {"last_command_id", qint64(state.lastCommandId)},
+                    {"callbacks", qint64(state.callbacks)}, {"invalid_buffers", qint64(state.invalidBuffers)},
+                    {"snapshot_drops", qint64(state.snapshotDrops)}, {"ready", state.ready},
+                    {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+                    {"source_total_frames", QJsonArray{qint64(state.sourceFrames[0]), qint64(state.sourceFrames[1])}},
+                    {"source_generations", QJsonArray{qint64(state.sourceGeneration[0]), qint64(state.sourceGeneration[1])}},
+                    {"playing", QJsonArray{state.playing[0], state.playing[1]}},
+                    {"cue_frames", QJsonArray{qint64(state.cueFrame[0]), qint64(state.cueFrame[1])}},
+                    {"cue_held", QJsonArray{state.cueHeld[0], state.cueHeld[1]}},
+                    {"cue_preview", QJsonArray{state.cuePreview[0], state.cuePreview[1]}},
+                    {"buffering", QJsonArray{state.buffering[0], state.buffering[1]}},
+                    {"starved_frames", QJsonArray{qint64(state.starvedFrames[0]), qint64(state.starvedFrames[1])}},
+                    {"source_read_error", QJsonArray{state.sourceReadError[0], state.sourceReadError[1]}},
+                    {"source_read_error_observed", QJsonArray{state.sourceReadErrorObserved[0], state.sourceReadErrorObserved[1]}},
+                    {"deck_gain", QJsonArray{state.deckGain[0], state.deckGain[1]}},
+                    {"master_gain", state.masterGain}, {"crossfader", state.crossfader}};
+            };
+            observations["cue_jump_failure"] = QJsonObject{
+                {"assertion_error", failure.what()}, {"controller_error", controller.error()},
+                {"busy", controller.busy()}, {"output_ready", controller.outputReady()},
+                {"completed_sessions_before", qint64(cueJumpSessionsBefore)},
+                {"completed_sessions_after", qint64(controller.completedSessions())},
+                {"submitted_commands_before", qint64(cueJumpCommandsBefore)},
+                {"submitted_commands_after", qint64(controller.submittedCommands())},
+                {"before_cue_jumps", audio(cueJumpBefore)}, {"after_cue_jumps", audio(cueJumped)},
+                {"sink_received_before", QJsonArray{qint64(cueJumpSinkReceivedBefore[0]), qint64(cueJumpSinkReceivedBefore[1])}},
+                {"sink_received_on_catch", QJsonArray{qint64(sinkReceived[0]), qint64(sinkReceived[1])}},
+                {"sink_wrong_before", qint64(cueJumpSinkWrongBefore)}, {"sink_wrong_on_catch", qint64(sinkWrong)},
+                {"sink_zeros_before", qint64(cueJumpSinkZerosBefore)}, {"sink_zeros_on_catch", qint64(sinkZeros)},
+                {"clauses", QJsonObject{
+                    {"B_paused", !cueJumped.playing[1]},
+                    {"B_temporary_cue_unchanged", cueJumped.cueFrame[1] == cueJumpBefore.cueFrame[1]},
+                    {"A_playing", cueJumped.playing[0]},
+                    {"A_generation_unchanged", cueJumped.sourceGeneration[0] == cueJumpBefore.sourceGeneration[0]},
+                    {"A_source_delta_equals_output_delta", cueJumped.sourceFrame[0] - cueJumpBefore.sourceFrame[0] ==
+                        cueJumped.outputFrame - cueJumpBefore.outputFrame},
+                    {"invalid_buffers_zero", !cueJumped.invalidBuffers}, {"rejected_zero", !cueJumped.rejected},
+                    {"sink_wrong_zero_on_catch", !sinkWrong}, {"sink_zeros_zero_on_catch", !sinkZeros}}},
+                {"scope", "Failure-only coherent before/after controller audio snapshots. Sink counters are separate asynchronous observations; catch-time sink clauses do not claim the assertion's exact read instant or a root cause."}};
+            throw;
+        }
         observations["cue_jump"] = QJsonObject{{"landed_frame", qint64(cueJumped.sourceFrame[1])},
             {"b_paused", !cueJumped.playing[1]}, {"temporary_cue_unchanged", true}, {"peer_clock_unchanged", true}};
         const auto phasePath = QString::fromStdString((output.parent_path() / "controller-preparation-phase.json").string());
