@@ -504,8 +504,8 @@ latency gate. It does not complete M6's full first-usable scope.
 On 21 October 2026, the user authorized M3 manual mixing controls in parallel
 with M2: crossfader, tempo/key-lock and loops. M2 remains open. Its Best-quality
 live-stem service target stays below 4.095 seconds at p99; the latest
-[instrumented player sample](../benchmarks/player-attention-profile-2026-10-21.md)
-reached 4.543 seconds and does not qualify normal latency. Complete and verify
+[instrumented player sample](../benchmarks/player-matrix-dispatch-2026-10-22.md)
+reached 5.161 seconds and does not qualify normal latency. Complete and verify
 each control before enabling it. The first real mixing trial still requires
 the user's acceptance before preparing `0.1.0`.
 
