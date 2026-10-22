@@ -27,6 +27,14 @@
 #include <time.h>
 
 int main(int argc, char** argv) {
+#if defined(Q_OS_LINUX)
+    // Use the desktop's system chooser instead of Qt Quick's generic fallback.
+    // Explicit theme choices and headless test platforms keep their own setup.
+    const auto requestedPlatform = qEnvironmentVariable("QT_QPA_PLATFORM");
+    if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORMTHEME") &&
+        !requestedPlatform.startsWith("offscreen") && !requestedPlatform.startsWith("minimal"))
+        qputenv("QT_QPA_PLATFORMTHEME", "xdgdesktopportal");
+#endif
     QGuiApplication app(argc, argv);
     QCoreApplication::setApplicationName("conflux");
     QCoreApplication::setApplicationVersion(CONFLUX_VERSION);

@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "scope": "Functional library chooser UI, generated offscreen fixtures and native system-portal setup; no audio/DSP/latency qualification.",
+  "normal_build": "passed, at most two compile jobs",
+  "focused_ui": {
+    "passed": 12,
+    "failed": 0
+  },
+  "full_ui": {
+    "passed": 116,
+    "failed": 0
+  },
+  "smoke": "passed",
+  "actionlint": "passed",
+  "source_review": "No remaining concrete source finding; native appearance is separately user-checked.",
+  "system_portal_advertised_filechooser_version": 4,
+  "native_appearance_acceptance_claimed": false,
+  "initial_fixture_failures": [
+    {
+      "passed": 10,
+      "failed": 5,
+      "reason": "Setting selectedFile did not select the fallback file-list entry; accepting a closed dialog correctly emitted no signal."
+    },
+    {
+      "passed": 6,
+      "failed": 2,
+      "reason": "Offscreen fallback window did not reactivate Main for subsequent keyboard input; test driver now requests activation and retains the focus assertion."
+    }
+  ],
+  "captures": "Generated empty-library fixture, not a system-picker appearance claim.",
+  "source_sha256": {
+    "qml/Main.qml": "8b9d55d780483b0fb348c4215307d133db36d6f8643f4966dd62d50203b6b5c7",
+    "src/main.cpp": "b47058e4b701ff276219261ce34875d14fd12ac3f54c9fc134e6e03496fe4175",
+    "tests/manual_ui_test.cpp": "ff9ac9003ad9ebff7c765da3d2a64b5d580f1c47abac81b036e252932a29e5bd",
+    "CMakeLists.txt": "b6d2521e19aea0b50e207da2e654e30bc7a15851507ed86d766eab135ed80bbd",
+    ".github/workflows/build.yml": "aa22b163a154eb639399ab55aad65aee36f92e661cc2c98ef7f63a0823536ce5"
+  }
+}

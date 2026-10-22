@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import "../brand/integration/qtquick" as Brand
 
@@ -44,6 +45,29 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+Q"; onActivated: Qt.quit() }
     Shortcut { sequence: "F6"; onActivated: Brand.ConfluxTheme.dark = !Brand.ConfluxTheme.dark }
     Shortcut { sequence: "Ctrl+O"; onActivated: window.browse(0) }
+
+    FileDialog {
+        id: localFileDialog
+        objectName: "libraryFileDialog"
+        property int targetDeck: -1
+        parentWindow: window
+        modality: Qt.WindowModal
+        title: targetDeck === 0 ? "Choose Deck A audio" : "Choose Deck B audio"
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["Audio files (*.wav *.flac *.mp3 *.ogg *.opus *.aiff *.aif)", "All files (*)"]
+        onAccepted: {
+            const deck = targetDeck
+            targetDeck = -1
+            if (!library.opened || deckController.busy || (deck !== 0 && deck !== 1)) return
+            const url = selectedFile.toString()
+            if (!url.startsWith("file:///") && !url.startsWith("file://localhost/")) return
+            const field = deck === 0 ? sourceA : sourceB
+            field.text = url
+            library.selectedId = ""
+            field.forceActiveFocus()
+        }
+        onRejected: targetDeck = -1
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -268,6 +292,7 @@ ApplicationWindow {
         objectName: "libraryDrawer"
         property int selectedDeck: 0
         property string selectedId: ""
+        onSelectedIdChanged: cancelFileBrowse()
         readonly property var selectedTrack: {
             const tracks = deckController.libraryTracks
             for (let index = 0; index < tracks.length; ++index)
@@ -288,9 +313,19 @@ ApplicationWindow {
             return parts.join(" · ")
         }
         function selectTrack(track) {
+            cancelFileBrowse()
             selectedId = track.id
             sourceA.text = track.path
             sourceB.text = track.path
+        }
+        function cancelFileBrowse() {
+            localFileDialog.targetDeck = -1
+            localFileDialog.close()
+        }
+        function browseFile(deck) {
+            if (!opened || deckController.busy || localFileDialog.visible || (deck !== 0 && deck !== 1)) return
+            localFileDialog.targetDeck = deck
+            localFileDialog.open()
         }
         function canLoad(path) {
             if (deckController.busy) return false
@@ -336,6 +371,13 @@ ApplicationWindow {
         height: Math.min(window.height - 48, 650)
         modal: true
         padding: 24
+        onAboutToHide: cancelFileBrowse()
+        Connections {
+            target: deckController
+            function onStateChanged() {
+                if (deckController.busy) library.cancelFileBrowse()
+            }
+        }
         background: Rectangle {
             color: Brand.ConfluxTheme.surface
             border.color: Brand.ConfluxTheme.divider
@@ -361,7 +403,7 @@ ApplicationWindow {
                     checked: false
                     Layout.minimumHeight: 44
                     Accessible.name: "Load prepared stems"
-                    Accessible.description: "Prepare four local stems when loading a deck. Import still saves the original track."
+                    Accessible.description: "Prepare four local stems when loading a deck. Add to Library still saves the original track."
                 }
                 Button {
                     objectName: "libraryClose"
@@ -373,7 +415,7 @@ ApplicationWindow {
                 }
             }
             Label {
-                text: "Import a local file to save it in the library, or load a path directly. Mono/stereo, 8–192 kHz · up to 11m39s per track. Replacing a track keeps the other deck and recording running."
+                text: "BROWSE chooses a file without loading it. ADD TO LIBRARY saves the path for later; LOAD A / B puts it on that deck. Mono/stereo, 8–192 kHz · up to 11m39s per track. Replacing a track keeps the other deck and recording running."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.muted
                 Layout.fillWidth: true
@@ -396,18 +438,29 @@ ApplicationWindow {
                     selectByMouse: true
                     Layout.fillWidth: true
                     Layout.minimumHeight: 44
-                    onTextEdited: library.selectedId = ""
+                    onTextEdited: { library.cancelFileBrowse(); library.selectedId = "" }
                     onAccepted: if (loadA.enabled) library.load(0)
                     Accessible.name: "Deck A local audio path"
                 }
                 Button {
+                    objectName: "deck0FileBrowse"
+                    text: "BROWSE…"
+                    enabled: library.opened && !deckController.busy && !localFileDialog.visible
+                    Layout.minimumWidth: 104
+                    Layout.minimumHeight: 44
+                    onClicked: library.browseFile(0)
+                    Accessible.name: "Browse for Deck A audio file"
+                    Accessible.description: "Choose a file for this path. This does not load or add it to the library."
+                }
+                Button {
                     objectName: "deck0Import"
-                    text: "IMPORT"
+                    text: "ADD TO LIBRARY"
                     enabled: deckController.libraryReady && !deckController.busy && sourceA.text.trim().length > 0
-                    Layout.minimumWidth: 100
+                    Layout.minimumWidth: 156
                     Layout.minimumHeight: 44
                     onClicked: deckController.importTrack(window.localUrl(sourceA.text))
-                    Accessible.name: "Import Deck A path into local library"
+                    Accessible.name: "Add Deck A path to local library"
+                    Accessible.description: "Save this track in the library without loading a deck."
                 }
                 Button {
                     id: loadA
@@ -438,18 +491,29 @@ ApplicationWindow {
                     selectByMouse: true
                     Layout.fillWidth: true
                     Layout.minimumHeight: 44
-                    onTextEdited: library.selectedId = ""
+                    onTextEdited: { library.cancelFileBrowse(); library.selectedId = "" }
                     onAccepted: if (loadB.enabled) library.load(1)
                     Accessible.name: "Deck B local audio path"
                 }
                 Button {
+                    objectName: "deck1FileBrowse"
+                    text: "BROWSE…"
+                    enabled: library.opened && !deckController.busy && !localFileDialog.visible
+                    Layout.minimumWidth: 104
+                    Layout.minimumHeight: 44
+                    onClicked: library.browseFile(1)
+                    Accessible.name: "Browse for Deck B audio file"
+                    Accessible.description: "Choose a file for this path. This does not load or add it to the library."
+                }
+                Button {
                     objectName: "deck1Import"
-                    text: "IMPORT"
+                    text: "ADD TO LIBRARY"
                     enabled: deckController.libraryReady && !deckController.busy && sourceB.text.trim().length > 0
-                    Layout.minimumWidth: 100
+                    Layout.minimumWidth: 156
                     Layout.minimumHeight: 44
                     onClicked: deckController.importTrack(window.localUrl(sourceB.text))
-                    Accessible.name: "Import Deck B path into local library"
+                    Accessible.name: "Add Deck B path to local library"
+                    Accessible.description: "Save this track in the library without loading a deck."
                 }
                 Button {
                     id: loadB
@@ -466,7 +530,7 @@ ApplicationWindow {
                 objectName: "libraryStatus"
                 text: deckController.libraryError.length > 0 ? deckController.libraryError
                       : !deckController.libraryReady ? "Loading saved library…"
-                      : deckController.libraryTracks.length === 0 ? "Library is empty. Import a path to save your first track."
+                      : deckController.libraryTracks.length === 0 ? "Library is empty. Choose a path, then ADD TO LIBRARY to save your first track."
                       : library.selectedId.length > 0 && (library.selectedTrack === null || !library.selectedTrack.available)
                         ? "Selected source is missing. Edit a path to load another file."
                       : "Select a saved track, then LOAD A or LOAD B."

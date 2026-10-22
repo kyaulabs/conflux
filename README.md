@@ -63,9 +63,13 @@ prototype; release installation packages are not available yet.
 Use Linux with a running PipeWire session. The native window targets Wayland.
 Build requirements are a C++20 compiler, CMake 3.25+, Ninja, pkg-config,
 PipeWire 0.3.65+, libsndfile 1.2+, libsamplerate 0.2.2+, Rubber Band 3.3+, TagLib 1.13+ and
-Qt 6.4+ with Quick, Quick Controls 2, SVG and Concurrent. Tests also use Qt Test and
-Python 3.11+ with NumPy. Contributors also need Node.js and pnpm 11.28.5 for
+Qt 6.4+ with Quick, Quick Controls 2, Quick Dialogs, SVG and Concurrent. Tests
+also use Qt Test and Python 3.11+ with NumPy. Contributors also need Node.js and pnpm 11.28.5 for
 the repository's commit tools.
+
+System file dialogs use Qt's portal platform theme, `xdg-desktop-portal` and a
+desktop FileChooser backend, such as `xdg-desktop-portal-kde` on KDE. Explicit
+Qt platform-theme selections remain in effect.
 
 On Arch Linux, install the development dependencies:
 
