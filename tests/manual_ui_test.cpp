@@ -1463,6 +1463,104 @@ private slots:
         QCOMPARE(ui_->endpoint.cueGain(), cue);
     }
 
+    void cueSheetBrowseBeforeSelectingSource_data()
+    {
+        QTest::addColumn<bool>("keyboard");
+        QTest::newRow("pointer") << false;
+        QTest::newRow("keyboard") << true;
+    }
+
+    void cueSheetBrowseBeforeSelectingSource()
+    {
+        QFETCH(bool, keyboard);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto local = directory.filePath(QString::fromUtf8("Club 夜 #%.cue"));
+        QFile file(local);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        const QString id(64, QLatin1Char('c'));
+        ui_->endpoint.setLibrary({QVariantMap{{"id", id}, {"name", "Club XL"},
+            {"path", "/tmp/club.flac"}, {"available", true}}});
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(0));
+        auto* drawer = ui_->object("libraryDrawer");
+        auto* browse = ui_->item("libraryCueBrowse");
+        auto* path = ui_->item("libraryCuePath");
+        auto* importButton = ui_->item("libraryCueImport");
+        auto* status = ui_->item("libraryCueStatus");
+        QVERIFY(drawer && browse && path && importButton && status);
+        QCOMPARE(drawer->property("selectedId").toString(), QString{});
+        QVERIFY2(browse->isEnabled(), "Choosing a sheet must not require selecting its import target first");
+        QVERIFY(!importButton->isEnabled());
+        QVERIFY(importButton->opacity() < .5);
+        QVERIFY(status->property("text").toString().contains("select", Qt::CaseInsensitive));
+        QVERIFY(path->setProperty("text", "/tmp/previous.cue"));
+        QVERIFY(ui_->useNonNativeFileDialog("libraryCueFileDialog"));
+        auto* dialog = ui_->object("libraryCueFileDialog");
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        auto openChooser = [&] {
+            QTRY_VERIFY(browse->isEnabled());
+            if (keyboard) {
+                browse->forceActiveFocus();
+                QTRY_VERIFY(browse->hasActiveFocus());
+                QTest::keyClick(ui_->window, Qt::Key_Space);
+            } else {
+                QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(browse));
+            }
+        };
+        openChooser();
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* cancelledChoice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTest::mouseClick(cancelledChoice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(cancelledChoice));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "reject", Qt::DirectConnection));
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        // A late native callback after cancellation is not a fresh unbound pick.
+        QVERIFY(dialog->setProperty("selectedFile", QUrl::fromLocalFile(local)));
+        QCOMPARE(dialog->property("selectedFile").toUrl(), QUrl::fromLocalFile(local));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "accepted", Qt::DirectConnection));
+        QCOMPARE(path->property("text").toString(), QString("/tmp/previous.cue"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        ui_->window->requestActivate();
+        QTRY_VERIFY(ui_->window->isActive());
+        openChooser();
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTRY_COMPARE(choice->property("file").toUrl(), QUrl::fromLocalFile(local));
+        QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection));
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QTRY_COMPARE(QUrl(path->property("text").toString()).toLocalFile(), local);
+        QCOMPARE(drawer->property("selectedId").toString(), QString{});
+        QVERIFY(!importButton->isEnabled());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        ui_->window->requestActivate();
+        QTRY_VERIFY(ui_->window->isActive());
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_VERIFY(importButton->isEnabled());
+        QCOMPARE(importButton->opacity(), 1.0);
+        QVERIFY(status->property("text").toString().contains("Club XL"));
+        QCOMPARE(QUrl(path->property("text").toString()).toLocalFile(), local);
+        if (keyboard) {
+            importButton->forceActiveFocus();
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.first().toMap();
+        QCOMPARE(call["action"].toString(), QString("cueImport"));
+        QCOMPARE(call["id"].toString(), id);
+        QCOMPARE(call["url"].toUrl().toLocalFile(), local);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+    }
+
     void cueSheetBrowseChoosesOnlyPathForSelectedSource_data()
     {
         QTest::addColumn<bool>("keyboard");
@@ -1492,7 +1590,7 @@ private slots:
         auto* path = ui_->item("libraryCuePath");
         auto* importButton = ui_->item("libraryCueImport");
         QVERIFY(browse && path && importButton);
-        QVERIFY(!browse->isEnabled());
+        QVERIFY(browse->isEnabled());
         QTRY_VERIFY(ui_->item("libraryTrack0"));
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
         QTRY_VERIFY(browse->isEnabled());

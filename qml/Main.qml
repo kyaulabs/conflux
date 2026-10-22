@@ -73,24 +73,27 @@ ApplicationWindow {
         id: cueFileDialog
         objectName: "libraryCueFileDialog"
         property string targetSourceId: ""
+        property bool pendingSelection: false
         parentWindow: window
         modality: Qt.WindowModal
-        title: "Choose CUE sheet for selected track"
+        title: library.selectedTrack === null ? "Choose CUE sheet" : "Choose CUE sheet for " + library.selectedTrack.name
         fileMode: FileDialog.OpenFile
         nameFilters: ["CUE sheets (*.cue *.CUE)", "All files (*)"]
         onAccepted: {
             const sourceId = targetSourceId
+            const pending = pendingSelection
+            pendingSelection = false
             targetSourceId = ""
-            if (!library.opened || deckController.busy || !deckController.libraryReady
-                || sourceId.length === 0 || sourceId !== library.selectedId
-                || library.selectedTrack === null || !library.selectedTrack.available) return
+            if (!pending || !library.opened || deckController.busy || !deckController.libraryReady
+                || sourceId !== library.selectedId
+                || (sourceId.length > 0 && (library.selectedTrack === null || !library.selectedTrack.available))) return
             const url = selectedFile.toString()
             if (!url.startsWith("file:///") && !url.startsWith("file://localhost/")) return
             cuePath.text = url
             library.cuePathSourceId = sourceId
             cuePath.forceActiveFocus()
         }
-        onRejected: targetSourceId = ""
+        onRejected: { pendingSelection = false; targetSourceId = "" }
     }
 
     ColumnLayout {
@@ -392,17 +395,19 @@ ApplicationWindow {
             localFileDialog.open()
         }
         function cancelCueBrowse() {
+            cueFileDialog.pendingSelection = false
             cueFileDialog.targetSourceId = ""
             cueFileDialog.close()
         }
         function canBrowseCues() {
             return opened && deckController.libraryReady && !deckController.busy
-                   && selectedTrack !== null && selectedTrack.available
+                   && (selectedId.length === 0 || (selectedTrack !== null && selectedTrack.available))
                    && !localFileDialog.visible && !cueFileDialog.visible
         }
         function browseCues() {
             if (!canBrowseCues()) return
             cueFileDialog.targetSourceId = selectedId
+            cueFileDialog.pendingSelection = true
             cueFileDialog.open()
         }
         function canLoad(path) {
@@ -717,6 +722,7 @@ ApplicationWindow {
                             objectName: "libraryCueBrowse"
                             text: "BROWSE…"
                             enabled: library.canBrowseCues()
+                            opacity: enabled ? 1 : .4
                             Layout.minimumWidth: 88
                             Layout.minimumHeight: 44
                             onClicked: library.browseCues()
@@ -728,6 +734,7 @@ ApplicationWindow {
                             objectName: "libraryCueImport"
                             text: "IMPORT CUES"
                             enabled: library.canImportCues()
+                            opacity: enabled ? 1 : .4
                             Layout.minimumWidth: 140
                             Layout.minimumHeight: 44
                             onClicked: deckController.importCueSheet(library.selectedId, window.localUrl(cuePath.text))
@@ -736,14 +743,20 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "libraryCueStatus"
-                        text: library.selectedTrack === null ? "Select a saved track to import its .cue sheet."
+                        text: !deckController.libraryReady ? "Wait for the library to finish opening."
+                              : deckController.busy ? "Wait for preparation to finish before choosing or importing cues."
+                              : cueFileDialog.visible ? "Choose a CUE sheet in the system Open window."
+                              : library.selectedTrack === null ? "Choose a CUE sheet, then select its saved track from the list. Use ADD TO LIBRARY first if the track is not listed."
                               : !library.selectedTrack.available ? "The selected source is missing."
-                              : library.selectedCues.length === 0 ? "No imported cues. Import never loads or seeks a deck."
-                              : "Jump on a deck loaded with this source."
+                              : "Cue target: " + library.selectedTrack.name + ". "
+                                + (cuePath.text.trim().length === 0 ? "Choose its .cue sheet to import."
+                                   : library.selectedCues.length === 0 ? "IMPORT CUES saves markers without loading or seeking a deck."
+                                   : library.selectedCues.length + " imported cues. Jump on a deck loaded with this source.")
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.muted
                         Layout.fillWidth: true
+                        Accessible.name: text
                     }
                     ListView {
                         id: importedCues
