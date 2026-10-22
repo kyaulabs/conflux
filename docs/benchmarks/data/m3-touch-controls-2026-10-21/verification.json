@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T06:47:42.486168+00:00",
+  "passed": true,
+  "scope": "Offscreen Qt6.12 software-rendered UI regression tests with generated endpoint state. No physical touch, audio, laptop latency or overall mixing acceptance.",
+  "source_pins": [
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 56822,
+      "sha256": "476bef813f9bbdb4bd4c193a76e7761782ad90c71a858994a4d6d995f2160ed6"
+    },
+    {
+      "path": "qml/MixerSurface.qml",
+      "bytes": 23170,
+      "sha256": "64fb2d24988924c61fd5d34f99bb68d0bbf4d71320c370d2fdb528ddfd2465c7"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 204613,
+      "sha256": "8d445baee9fdf089b2bee51ecfefece64cc32cfc1395c6ae8e2c56816e00b161"
+    }
+  ],
+  "original_qml": [
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 53334,
+      "sha256": "16059883071c45e37bcd0703fc9cc59efda93d187b085efbf3559232b4c74264"
+    },
+    {
+      "path": "qml/MixerSurface.qml",
+      "bytes": 22850,
+      "sha256": "3bdbfb589767c1499b344bb7e9533de47a344d754802179bec887963e2a6ce12"
+    }
+  ],
+  "environment": {
+    "QT_QPA_PLATFORM": "offscreen",
+    "QT_QUICK_BACKEND": "software",
+    "QT_QUICK_CONTROLS_STYLE": "Basic",
+    "Qt": "6.12.0"
+  },
+  "results": {
+    "focused": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "full": {
+      "passed": 132,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0
+    },
+    "original_ui_with_final_tests": {
+      "passed": 2,
+      "failed": 8,
+      "skipped": 0,
+      "exit_code": 8,
+      "interpretation": "Four cancelled seek rows submitted unwanted commands; two held channel gain rows jumped on ACK; two ownership-label layout rows lacked the new label."
+    }
+  },
+  "coverage": "No C++/Python product sources changed. QML remains numerically unmeasured; these functional tests do not establish a QML coverage percentage.",
+  "limitations": [
+    "Qt6.4 uses native grab-loss rows; Qt6.12 additionally uses actual QTest platform cancellation. Supported-version CI is required before merge.",
+    "The full passing suite retains existing warnings from older CUE/layout fixtures.",
+    "Hardware touch and the user overall two-track mixing verdict remain pending."
+  ],
+  "logs": [
+    {
+      "path": "docs/benchmarks/data/m3-touch-controls-2026-10-21/focused-ui.log",
+      "bytes": 1133,
+      "sha256": "ad305bbd0e7018e043ace3efe1f916a661845ffa8387fdc0c5c708a0566c31a3"
+    },
+    {
+      "path": "docs/benchmarks/data/m3-touch-controls-2026-10-21/full-ui.log",
+      "bytes": 11357,
+      "sha256": "66cb0f725e334b2d2ff28e1004ff3c022d0feb21de9133c91e086c3c2aca924f"
+    },
+    {
+      "path": "docs/benchmarks/data/m3-touch-controls-2026-10-21/original-ui-regressions.log",
+      "bytes": 2691,
+      "sha256": "f23e517cd407155c6dd7cf45a29727d0179ebfea66053c620127a09691692866"
+    }
+  ]
+}
