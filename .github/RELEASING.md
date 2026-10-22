@@ -5,12 +5,12 @@ Work lands in `develop` through reviewed PRs. A release branch starts at the exa
 merges into `main` through a reviewed PR. The Release workflow checks that merge,
 runs Build against it, then creates the tag and branded GitHub release.
 
-The first `0.1.0` release requires the first accepted real two-deck mixing trial
-and a committed record of that acceptance. It is a development release, separate
-from M6's full first-usable-release scope. M2's **4.095-second p99 live-stem target**
-remains a blocker for completing M2. The [development plan](../docs/handoff/PLAN.md#implementation-sequence-and-exit-criteria)
-defines the full M6 acceptance criteria. This setup does not establish either
-gate as passed or create a release branch.
+The first `0.1.0` release requires completed M2 and M3 milestones, an accepted real
+two-deck mixing trial, and a committed record of that evidence. M2's Best-quality
+live-stem latency must remain below **4.095 seconds at p99**. This development
+release remains separate from M6's full first-usable-release scope in the
+[development plan](../docs/handoff/PLAN.md#implementation-sequence-and-exit-criteria).
+Neither milestone is complete yet; no release branch has been prepared.
 
 ## Versioning
 
@@ -33,12 +33,17 @@ commits, so release notes focus on releasable changes and list merged work once.
 
 ## Prepare a release
 
-Merge the intended changes and the accepted mixing record into `develop` first.
+Merge the intended changes and the acceptance record into `develop` first.
 The record must be a tracked, nonsymlink Markdown file at the recorded develop
 commit. Add `<!-- conflux-mixing-accepted -->` on its own line only after the user
-accepts a real mixing trial and the relevant functionality tests pass. Record unavailable
-interface or headphone-isolation checks explicitly. The helper requires nonempty
-prose and preserves the record's exact bytes through the release and main merge.
+accepts a real mixing trial and the relevant functionality tests pass. For
+`0.1.0`, the same record must also contain `<!-- conflux-m2-complete -->` and
+`<!-- conflux-m3-complete -->`, each on its own line. Add those declarations only
+after each milestone's required evidence passes and is recorded. Link that
+evidence in the record; the declarations do not waive latency, musical or
+interaction checks. Record unavailable interface or headphone-isolation checks
+explicitly. The helper requires prose beyond the declarations and preserves the
+record's exact bytes through the release and main merge.
 
 Install git-cliff **2.14.2**, matching CI. From a clean working tree, replace the
 evidence path below with the actual committed record:
@@ -57,7 +62,7 @@ release's scope. Review the generated changes before staging:
 ```sh
 git add CMakeLists.txt CHANGELOG.md .github/release.json
 git commit -S -m 'chore(release): prepare 0.1.0' \
-  -m 'Record the accepted two-deck mixing trial and exact develop source. Align the application version and generated changelog for the reviewed main release.'
+  -m 'Record M2 and M3 completion, the accepted two-deck mixing trial and exact develop source. Align the application version and generated changelog for the reviewed main release.'
 git push -u origin release/0.1.0
 ```
 

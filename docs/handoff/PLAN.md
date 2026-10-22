@@ -493,12 +493,13 @@ Finish each small, working slice and its relevant checks before expanding it.
 The first usable release includes the confirmed scope; early prototypes are
 milestones toward it, not a reason to quietly discard difficult requirements.
 
-On 21 October 2026, the user requested development releases starting at the
-first accepted real two-deck mixing trial, with `0.1.0` as the first version.
+On 21 October 2026, the user set the first development release at `0.1.0`, after
+completing M2 and M3 and accepting a real two-deck mixing trial.
 Follow the [release process](../../.github/RELEASING.md): signed conventional
 commits, git-cliff/SemVer versioning, reviewed `release/X.Y.Z` merges into `main`,
-then a bot-created back-merge PR into `develop`. A development release does not
-close M2's live-stem latency gate or complete M6's full first-usable scope.
+then a bot-created back-merge PR into `develop`. The initial release requires
+recorded evidence for both milestones, including M2's unchanged live-stem
+latency gate. It does not complete M6's full first-usable scope.
 
 On 21 October 2026, the user authorized M3 manual mixing controls in parallel
 with M2: crossfader, tempo/key-lock and loops. M2 remains open. Its Best-quality

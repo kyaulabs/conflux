@@ -45,7 +45,7 @@ jobs:
         with:
           tool: git-cliff@2.14.2
           fallback: none
-      - name: Validate merged release, version and mixing acceptance
+      - name: Validate merged release, version and acceptance gates
         id: release
         env:
           GITHUB_TOKEN: ${{ github.token }}

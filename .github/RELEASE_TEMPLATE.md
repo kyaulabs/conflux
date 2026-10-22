@@ -9,10 +9,12 @@
 A native Linux DJ application built with C++20, Qt Quick and PipeWire.
 
 Review the verification and remaining limitations below before using this release.
-The [M2 live-stem gate](https://github.com/{{REPOSITORY}}/blob/{{TAG}}/docs/M2.md)
-requires **4.095 seconds p99**. Completing M2 and the full
+The initial `0.1.0` release requires completed M2 and M3 milestones and accepted
+real two-deck mixing. The
+[M2 live-stem gate](https://github.com/{{REPOSITORY}}/blob/{{TAG}}/docs/M2.md)
+requires p99 below **4.095 seconds**. The full
 [M6 first-usable-release criteria](https://github.com/{{REPOSITORY}}/blob/{{TAG}}/docs/handoff/PLAN.md#implementation-sequence-and-exit-criteria)
-requires their recorded acceptance evidence; a version tag does not waive those gates.
+require their own recorded acceptance evidence.
 
 Changes since {{PREVIOUS}}.
 

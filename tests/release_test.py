@@ -252,7 +252,9 @@ class ReleaseGitCliffTests(unittest.TestCase):
         (self.path / "cliff.toml").write_bytes((REPO / "cliff.toml").read_bytes())
         (self.path / "CMakeLists.txt").write_text("project(CONFLUX VERSION 0.0.0 LANGUAGES CXX)\n")
         (self.path / "CHANGELOG.md").write_text("# Changelog\n")
-        (self.path / "docs/mixing.md").write_text(release.MIXING_MARKER + "\nSynthetic fixture acceptance; not actual product acceptance.\n")
+        self.acceptance = "\n".join((release.MIXING_MARKER, release.M2_MARKER, release.M3_MARKER)) + \
+            "\nSynthetic fixture acceptance and milestone completion; not actual product acceptance.\n"
+        (self.path / "docs/mixing.md").write_text(self.acceptance)
         (self.path / ".github/RELEASE_TEMPLATE.md").write_text("{{VERSION}} {{PREVIOUS}}\n{{CHANGES}}\n{{COMPARE}}\n{{VERIFICATION}}\n")
         self.commit("feat: initial fixture")
         self.base = self.g("rev-parse", "HEAD")
@@ -298,6 +300,48 @@ class ReleaseGitCliffTests(unittest.TestCase):
                 (self.path / "change.txt").write_text(str(index)); self.commit(message)
                 self.assertEqual(release.recommend(self.g("rev-parse", "HEAD"), "0.1.0"), expected)
 
+    def test_initial_prepare_requires_mixing_both_milestones_and_real_prose(self):
+        markers = (release.MIXING_MARKER, release.M2_MARKER, release.M3_MARKER)
+        cases = [("mixing-only", release.MIXING_MARKER + "\nSynthetic acceptance.\n", "M2")]
+        for marker, label in zip(markers, ("mixing", "M2", "M3")):
+            cases.append(("missing-" + label, self.acceptance.replace(marker + "\n", ""),
+                          "Actual mixing acceptance" if marker == release.MIXING_MARKER else label))
+        for marker, label in ((release.M2_MARKER, "M2"), (release.M3_MARKER, "M3")):
+            for kind, replacement in (("inline", "Completion syntax: " + marker),
+                                      ("quoted", "`" + marker + "`"), ("blockquote", "> " + marker)):
+                cases.append((kind + "-" + label, self.acceptance.replace(marker, replacement), label))
+        cases.append(("markers-only", "\n".join(markers) + "\n", "nonempty prose"))
+        for label, text, error in cases:
+            with self.subTest(evidence=label):
+                (self.path / "docs/mixing.md").write_text(text)
+                self.commit("docs: synthetic rejected " + label)
+                before = self.g("rev-parse", "HEAD")
+                with self.assertRaisesRegex(ValueError, error):
+                    release.prepare("0.1.0", "docs/mixing.md")
+                self.assertEqual(self.g("branch", "--show-current"), "develop")
+                self.assertEqual(self.g("rev-parse", "HEAD"), before)
+                self.assertFalse((self.path / ".github/release.json").exists())
+        # Later releases keep their existing mixing-only eligibility contract.
+        (self.path / "docs/mixing.md").write_text(release.MIXING_MARKER + "\nSynthetic later acceptance.\n")
+        self.commit("docs: synthetic later release evidence")
+        head = self.g("rev-parse", "HEAD")
+        self.assertEqual(release.evidence(head, "docs/mixing.md", "0.1.1"),
+                         self.g("rev-parse", head + ":docs/mixing.md"))
+
+    def test_initial_validation_rechecks_completion_and_exact_evidence_blob(self):
+        release.prepare("0.1.0", "docs/mixing.md")
+        self.commit("chore(release): synthetic complete initial release")
+        head = self.g("rev-parse", "HEAD")
+        self.assertEqual(release.validate_tree(head, "0.1.0")[1]["develop_sha"], self.base)
+        (self.path / "docs/mixing.md").write_text(self.acceptance.replace(release.M2_MARKER + "\n", ""))
+        self.commit("docs: synthetic missing M2 declaration")
+        with self.assertRaisesRegex(ValueError, "M2"):
+            release.validate_tree(self.g("rev-parse", "HEAD"), "0.1.0")
+        (self.path / "docs/mixing.md").write_text(self.acceptance + "Different evidence bytes.\n")
+        self.commit("docs: synthetic changed completion record")
+        with self.assertRaisesRegex(ValueError, "evidence differs"):
+            release.validate_tree(self.g("rev-parse", "HEAD"), "0.1.0")
+
     def test_real_merge_subjects_are_skipped_and_evidence_is_not_a_filename_claim(self):
         self.g("tag", "v0.1.0")
         for index in range(2):
@@ -307,14 +351,14 @@ class ReleaseGitCliffTests(unittest.TestCase):
         self.assertIsNone(release.recommend(self.g("rev-parse", "HEAD"), "0.1.0"))
         for path in ("../docs/mixing.md", "/docs/mixing.md", "CMakeLists.txt", "docs/missing.md"):
             with self.subTest(path=path), self.assertRaises((ValueError, subprocess.CalledProcessError)):
-                release.evidence(self.base, path)
+                release.evidence(self.base, path, "0.1.0")
         (self.path / "docs/mixing.md").write_text("No actual acceptance marker.\n"); self.commit("docs: remove fixture marker")
         with self.assertRaisesRegex(ValueError, "Actual mixing acceptance"):
-            release.evidence(self.g("rev-parse", "HEAD"), "docs/mixing.md")
+            release.evidence(self.g("rev-parse", "HEAD"), "docs/mixing.md", "0.1.0")
         (self.path / "docs/mixing.md").write_text("Use `" + release.MIXING_MARKER + "` only after acceptance.\n")
         self.commit("docs: explain marker syntax")
         with self.assertRaisesRegex(ValueError, "Actual mixing acceptance"):
-            release.evidence(self.g("rev-parse", "HEAD"), "docs/mixing.md")
+            release.evidence(self.g("rev-parse", "HEAD"), "docs/mixing.md", "0.1.0")
 
 
 if __name__ == "__main__":
