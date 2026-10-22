@@ -4,20 +4,31 @@
 #include "library/StemServiceJsonl.hpp"
 
 #include <QDir>
+#include <QCryptographicHash>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
 #include <QProcessEnvironment>
+#include <QRandomGenerator>
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <chrono>
 #include <cmath>
 #include <exception>
+#include <cerrno>
 #include <fcntl.h>
+#include <linux/fs.h>
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include <sys/file.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 
 namespace conflux::library {
@@ -25,6 +36,9 @@ namespace {
 using Clock = std::chrono::steady_clock;
 constexpr qsizetype maximumHeader = 4096, maximumOutput = 4 * 1024 * 1024, maximumDiagnostics = 65536;
 constexpr std::uint64_t maximumEvents = 34953;
+constexpr qsizetype maximumManifest = 16 * 1024;
+constexpr std::uint64_t maximumCacheBytes = 256ULL * 1024 * 1024;
+constexpr std::size_t maximumCacheEntries = 64;
 
 QString asset(const QString& path, bool directory = false, bool executable = false)
 {
@@ -43,6 +57,284 @@ void deadline(Clock::time_point end, std::stop_token stop)
 {
     detail::checkStop(stop);
     if (Clock::now() >= end) throw std::runtime_error("BPM analysis deadline exceeded");
+}
+
+// These are the source buffers executed by the isolated worker. The worker
+// also checks dependency versions on a miss; this is deliberately a critical
+// producer closure, not a claim to hash every installed Python package.
+constexpr std::array sourceFiles{
+    "beat_this/utils.py", "beat_this/model/roformer.py", "beat_this/model/beat_tracker.py",
+    "beat_this/model/postprocessor.py", "beat_this/preprocessing.py", "beat_this/inference.py", "LICENSE"};
+
+struct Producer {
+    std::vector<detail::EngineFile> files;
+    std::vector<QString> absent;
+    QJsonObject identity;
+};
+
+Producer producer(const BpmEngine& engine, std::uint64_t frames, const QByteArray& digest,
+                  Clock::time_point end, std::stop_token stop)
+{
+    Producer result;
+    QJsonArray rows;
+    const auto add = [&](const QString& role, const QString& path, bool small) {
+        deadline(end, stop);
+        auto file = detail::pinStemFile(path, small, stop);
+        rows.append(QJsonObject{{"role", role}, {"invocation", file.invocation}, {"path", file.path},
+                                {"bytes", file.identity.value("bytes")}, {"sha256", file.identity.value("sha256")}});
+        result.files.push_back(std::move(file));
+    };
+    const auto python = asset(engine.pythonExecutable, false, true);
+    const auto source = asset(engine.sourceDirectory, true);
+    add(QStringLiteral("python"), python, false);
+    (void)asset(engine.workerPath);
+    (void)asset(engine.modelPath);
+    add(QStringLiteral("worker"), engine.workerPath, true);
+    add(QStringLiteral("model"), engine.modelPath, false);
+    for (const auto* relative : sourceFiles)
+        add(QString::fromLatin1(relative), QDir(engine.sourceDirectory).filePath(QString::fromLatin1(relative)), true);
+    // CPython searches the executable directory and its parent for pyvenv.cfg.
+    // Preserve invocation spelling: resolving a venv symlink loses its prefix.
+    const QDir binaryDirectory(QFileInfo(python).absolutePath());
+    QJsonArray missing;
+    for (const auto& path : {binaryDirectory.filePath(QStringLiteral("pyvenv.cfg")),
+                            QDir::cleanPath(binaryDirectory.filePath(QStringLiteral("../pyvenv.cfg")))}) {
+        struct stat status{};
+        if (lstat(QFile::encodeName(path).constData(), &status) == 0) {
+            add(QStringLiteral("venv"), path, true);
+        } else if (errno == ENOENT) {
+            result.absent.push_back(path);
+            missing.append(path);
+        } else detail::ioError("Cannot inspect BPM interpreter configuration");
+    }
+    result.identity = {{"schema", 1}, {"recipe", QString::fromLatin1(bpmAnalysisRecipe)},
+        {"wire_schema", 2}, {"frames", double(frames)}, {"pcm_sha256", QString::fromLatin1(digest)},
+        {"format", QStringLiteral("stereo-f32le-48000")}, {"source_directory", source},
+        {"files", rows}, {"absent_venv", missing}};
+    if (QJsonDocument(result.identity).toJson(QJsonDocument::Compact).size() + 256 > maximumManifest)
+        throw std::length_error("BPM producer identity exceeds the cache manifest budget");
+    return result;
+}
+
+void verifyProducer(const Producer& producer, Clock::time_point end, std::stop_token stop)
+{
+    for (const auto& file : producer.files) {
+        deadline(end, stop);
+        detail::verifyStemFile(file, stop);
+    }
+    for (const auto& path : producer.absent) {
+        struct stat status{};
+        if (lstat(QFile::encodeName(path).constData(), &status) == 0 || errno != ENOENT)
+            throw std::runtime_error("BPM interpreter configuration changed during analysis");
+    }
+    deadline(end, stop);
+}
+
+bool privateDirectory(const struct stat& status)
+{ return S_ISDIR(status.st_mode) && status.st_uid == getuid() && (status.st_mode & 0777) == 0700; }
+
+bool privateFile(const struct stat& status)
+{ return S_ISREG(status.st_mode) && status.st_uid == getuid() && status.st_nlink == 1 && (status.st_mode & 0777) == 0600; }
+
+// Walk every component with NOFOLLOW, including when creating the separate
+// analysis namespace. Never chmod an existing directory or repair foreign data.
+std::unique_ptr<detail::Descriptor> cacheRoot(const QString& path, Clock::time_point end, std::stop_token stop)
+{
+    if (!QFileInfo(path).isAbsolute() || path.contains(QChar(0)) || path.size() > 4096 ||
+        QDir::cleanPath(path) != path || path == QStringLiteral("/"))
+        throw std::invalid_argument("BPM cache requires a clean absolute private directory");
+    auto current = std::make_unique<detail::Descriptor>(open("/", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
+    if (current->get() < 0) detail::ioError("Cannot open BPM cache ancestor");
+    const auto parts = path.split('/', Qt::SkipEmptyParts);
+    for (const auto& part : parts) {
+        deadline(end, stop);
+        const auto name = QFile::encodeName(part);
+        int opened = openat(current->get(), name.constData(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        if (opened < 0 && errno == ENOENT) {
+            if (mkdirat(current->get(), name.constData(), 0700) != 0 && errno != EEXIST)
+                detail::ioError("Cannot create private BPM cache directory");
+            opened = openat(current->get(), name.constData(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        }
+        if (opened < 0) detail::ioError("Cannot open private BPM cache directory");
+        current = std::make_unique<detail::Descriptor>(opened);
+    }
+    if (!privateDirectory(detail::statusOf(current->get())))
+        throw std::runtime_error("BPM cache directory is not owned and private");
+    return current;
+}
+
+class CacheLock {
+public:
+    explicit CacheLock(int root)
+        : file_(openat(root, ".lock", O_RDWR | O_CREAT | O_NONBLOCK | O_CLOEXEC | O_NOFOLLOW, 0600))
+    {
+        if (file_.get() < 0) throw std::runtime_error("BPM analysis cache is unavailable or busy");
+        const auto status = detail::statusOf(file_.get());
+        if (!privateFile(status) || status.st_size != 0 ||
+            !detail::unchanged(status, detail::childStatus(root, ".lock")) ||
+            flock(file_.get(), LOCK_EX | LOCK_NB) != 0)
+            throw std::runtime_error("BPM analysis cache is unavailable or busy");
+    }
+private:
+    detail::Descriptor file_;
+};
+
+bool stageName(const std::string& name)
+{
+    return name.size() == 23 && name.starts_with(".stage-") &&
+        std::all_of(name.begin() + 7, name.end(), [](char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'); });
+}
+
+struct CacheUsage { std::size_t entries = 0; std::uint64_t bytes = 0; };
+CacheUsage cacheUsage(int root, Clock::time_point end, std::stop_token stop)
+{
+    CacheUsage usage;
+    for (const auto& name : detail::directoryNames(root, maximumCacheEntries + 1, stop)) {
+        deadline(end, stop);
+        if (name == ".lock") continue;
+        const auto status = detail::childStatus(root, name);
+        if ((!detail::hexDigest(QByteArray::fromStdString(name)) && !stageName(name)) || !privateDirectory(status))
+            throw std::runtime_error("Unsafe BPM cache entry");
+        if (++usage.entries > maximumCacheEntries) throw std::length_error("BPM cache entry budget exceeded");
+        detail::Descriptor entry(openat(root, name.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
+        if (entry.get() < 0) detail::ioError("Cannot open BPM cache entry");
+        for (const auto& leaf : detail::directoryNames(entry.get(), 2, stop)) {
+            const auto file = detail::childStatus(entry.get(), leaf);
+            const auto maximum = leaf == "timing.jsonl" ? maximumOutput : leaf == "manifest.json" ? maximumManifest : 0;
+            if (!maximum || !privateFile(file) || file.st_size < 0 || file.st_size > maximum)
+                throw std::runtime_error("Unsafe or oversized BPM cache file");
+            if (std::uint64_t(file.st_size) > maximumCacheBytes - usage.bytes)
+                throw std::length_error("BPM cache byte budget exceeded");
+            usage.bytes += std::uint64_t(file.st_size);
+        }
+    }
+    return usage;
+}
+
+QByteArray cacheBytes(int directory, const char* name, qsizetype maximum,
+                      Clock::time_point end, std::stop_token stop)
+{
+    detail::Descriptor file(openat(directory, name, O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOFOLLOW));
+    if (file.get() < 0) detail::ioError("Cannot open BPM cache file");
+    const auto before = detail::statusOf(file.get());
+    if (!privateFile(before) || before.st_size <= 0 || before.st_size > maximum)
+        throw std::runtime_error("BPM cache file geometry differs");
+    QByteArray raw(qsizetype(before.st_size), Qt::Uninitialized);
+    for (qsizetype offset = 0; offset < raw.size();) {
+        deadline(end, stop);
+        const auto count = pread(file.get(), raw.data() + offset, std::size_t(raw.size() - offset), off_t(offset));
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) throw std::runtime_error("BPM cache file changed or was truncated");
+        offset += qsizetype(count);
+    }
+    const auto named = detail::childStatus(directory, name);
+    if (!detail::unchanged(before, detail::statusOf(file.get())) || !detail::unchanged(before, named))
+        throw std::runtime_error("BPM cache file changed while reading");
+    return raw;
+}
+
+QByteArray cacheKey(const QJsonObject& identity)
+{ return QCryptographicHash::hash(QJsonDocument(identity).toJson(QJsonDocument::Compact), QCryptographicHash::Sha256).toHex(); }
+
+std::optional<QByteArray> cachedTiming(int root, const QJsonObject& identity,
+                                     Clock::time_point end, std::stop_token stop)
+{
+    CacheLock lock(root);
+    (void)cacheUsage(root, end, stop);
+    const auto key = cacheKey(identity);
+    detail::Descriptor entry(openat(root, key.constData(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
+    if (entry.get() < 0) {
+        if (errno == ENOENT) return {};
+        detail::ioError("Cannot open BPM analysis artifact");
+    }
+    const auto metadata = cacheBytes(entry.get(), "manifest.json", maximumManifest, end, stop);
+    detail::StemServiceJsonl parser;
+    const auto parsed = parser.feed(metadata);
+    parser.finish();
+    if (!parsed.object || parsed.consumed != metadata.size()) throw std::runtime_error("Invalid BPM cache manifest");
+    const auto manifest = *parsed.object;
+    const auto timing = cacheBytes(entry.get(), "timing.jsonl", maximumOutput, end, stop);
+    if (manifest.size() != 4 || manifest.value("schema") != QJsonValue(1) ||
+        manifest.value("identity") != QJsonValue(identity) ||
+        manifest.value("timing_bytes") != QJsonValue(double(timing.size())) ||
+        manifest.value("timing_sha256").toString().toLatin1() != QCryptographicHash::hash(timing, QCryptographicHash::Sha256).toHex())
+        throw std::runtime_error("BPM cache artifact identity differs");
+    return timing;
+}
+
+class CacheStage {
+public:
+    explicit CacheStage(int root) : root_(root), name_(".stage-" +
+        QByteArray::number(QRandomGenerator::system()->generate64(), 16).rightJustified(16, '0'))
+    {
+        if (mkdirat(root_, name_.constData(), 0700) != 0) detail::ioError("Cannot create BPM cache stage");
+        detail::Descriptor opened(openat(root_, name_.constData(), O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
+        if (opened.get() < 0) detail::ioError("Cannot open BPM cache stage");
+        identity_ = detail::statusOf(opened.get());
+        if (!privateDirectory(identity_)) throw std::runtime_error("Unsafe BPM cache stage");
+        directory_ = opened.release();
+    }
+    ~CacheStage()
+    {
+        if (directory_ < 0) return;
+        if (!published_) {
+            // Only our unpredictable stage, never stale entries or other files.
+            (void)unlinkat(directory_, "timing.jsonl", 0);
+            (void)unlinkat(directory_, "manifest.json", 0);
+            struct stat current{};
+            if (fstatat(root_, name_.constData(), &current, AT_SYMLINK_NOFOLLOW) == 0 &&
+                current.st_dev == identity_.st_dev && current.st_ino == identity_.st_ino)
+                (void)unlinkat(root_, name_.constData(), AT_REMOVEDIR);
+        }
+        close(directory_);
+    }
+    void write(const char* name, const QByteArray& bytes, Clock::time_point end, std::stop_token stop)
+    {
+        deadline(end, stop);
+        detail::Descriptor file(openat(directory_, name, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, 0600));
+        if (file.get() < 0) detail::ioError("Cannot create BPM cache artifact");
+        detail::writeAll(file.get(), bytes.constData(), std::size_t(bytes.size()), stop);
+        if (fsync(file.get()) != 0) detail::ioError("Cannot synchronize BPM cache artifact");
+        deadline(end, stop);
+    }
+    void publish(const QByteArray& key, Clock::time_point end, std::stop_token stop)
+    {
+        deadline(end, stop);
+        const auto named = detail::childStatus(root_, name_.toStdString());
+        if (named.st_dev != identity_.st_dev || named.st_ino != identity_.st_ino || !privateDirectory(named))
+            throw std::runtime_error("BPM cache staging path changed");
+        // Do not replace even an empty directory that appeared after lookup.
+        if (fsync(directory_) != 0 || syscall(SYS_renameat2, root_, name_.constData(), root_, key.constData(), RENAME_NOREPLACE) != 0)
+            detail::ioError("Cannot publish BPM cache artifact");
+        published_ = true;
+        if (fsync(root_) != 0) detail::ioError("Cannot synchronize BPM cache directory");
+    }
+private:
+    int root_, directory_ = -1;
+    QByteArray name_;
+    struct stat identity_{};
+    bool published_ = false;
+};
+
+void cacheTiming(int root, const QJsonObject& identity, const QByteArray& timing,
+                 Clock::time_point end, std::stop_token stop)
+{
+    CacheLock lock(root);
+    const auto usage = cacheUsage(root, end, stop);
+    const auto key = cacheKey(identity);
+    struct stat existing{};
+    if (fstatat(root, key.constData(), &existing, AT_SYMLINK_NOFOLLOW) == 0) return;
+    if (errno != ENOENT) detail::ioError("Cannot inspect BPM cache destination");
+    const auto metadata = QJsonDocument(QJsonObject{{"schema", 1}, {"identity", identity},
+        {"timing_bytes", double(timing.size())}, {"timing_sha256", QString::fromLatin1(
+            QCryptographicHash::hash(timing, QCryptographicHash::Sha256).toHex())}}).toJson(QJsonDocument::Compact) + '\n';
+    if (timing.size() > maximumOutput || metadata.size() > maximumManifest || usage.entries >= maximumCacheEntries ||
+        std::uint64_t(timing.size() + metadata.size()) > maximumCacheBytes - usage.bytes)
+        throw std::length_error("BPM cache lacks bounded publication headroom");
+    CacheStage stage(root);
+    stage.write("timing.jsonl", timing, end, stop);
+    stage.write("manifest.json", metadata, end, stop);
+    stage.publish(key, end, stop);
 }
 
 void collect(QProcess& process, QProcess::ProcessChannel channel, QByteArray& retained, qsizetype maximum)
@@ -123,7 +415,8 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
     return estimate;
 }
 
-BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, std::stop_token stop)
+BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, std::stop_token stop,
+                    const QString& cachePath = {})
 {
     detail::checkStop(stop);
     if (engine.maxSeconds < 1 || engine.maxSeconds > 180)
@@ -147,6 +440,38 @@ BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, 
     } catch (const std::exception& error) {
         if (stop.stop_requested()) throw;
         throw BpmSourceError(error.what());
+    }
+    const auto verifyInput = [&] {
+        try { detail::verifySource(audio.descriptor(), before, digest, stop); }
+        catch (const std::exception& error) {
+            if (stop.stop_requested()) throw;
+            throw BpmSourceError(error.what());
+        }
+    };
+    std::unique_ptr<Producer> inputs;
+    std::unique_ptr<detail::Descriptor> cache;
+    std::optional<BpmEstimate> hit;
+    if (!cachePath.isEmpty()) {
+        try {
+            cache = cacheRoot(cachePath, end, stop);
+            inputs = std::make_unique<Producer>(producer(engine, frames, digest, end, stop));
+            if (const auto raw = cachedTiming(cache->get(), inputs->identity, end, stop)) {
+                hit = timingResult(*raw, frames, digest, end, stop);
+                verifyProducer(*inputs, end, stop);
+            }
+        } catch (...) {
+            // An unavailable, foreign, corrupt or full cache never prevents
+            // fresh analysis. Keep the same deadline and check cancellation.
+            // Keep a completely pinned producer even if only the cache read
+            // failed, so a subsequent worker cannot conceal changed inputs.
+            hit.reset(); cache.reset();
+        }
+        if (hit) {
+            verifyInput();
+            deadline(end, stop);
+            hit->cacheHit = true;
+            return *hit;
+        }
     }
     QByteArray output, diagnostics;
     std::exception_ptr workerFailure;
@@ -186,21 +511,26 @@ BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, 
         collect(process, QProcess::StandardError, diagnostics, maximumDiagnostics);
         normal = process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
         if (!owned.finish()) throw std::runtime_error("Cannot prove BPM process-group cleanup");
+        if (inputs) verifyProducer(*inputs, end, stop);
     } catch (...) {
         workerFailure = std::current_exception(); // Owned process cleanup has already run.
     }
     // Even an optional worker failure must not conceal changed/corrupt source
     // bytes. Cancellation takes precedence and is discarded by the load gate.
-    try {
-        detail::verifySource(audio.descriptor(), before, digest, stop);
-    } catch (const std::exception& error) {
-        if (stop.stop_requested()) throw;
-        throw BpmSourceError(error.what());
-    }
+    verifyInput();
     deadline(end, stop);
     if (workerFailure) std::rethrow_exception(workerFailure);
     if (!normal) throw std::runtime_error("Local BPM analysis failed: " + diagnostics.right(2048).toStdString());
-    return timingResult(output, frames, digest, end, stop);
+    auto result = timingResult(output, frames, digest, end, stop);
+    if (cache && inputs) {
+        try { cacheTiming(cache->get(), inputs->identity, output, end, stop); }
+        catch (...) { /* Optional publication; never replace/delete existing data. */ }
+        // Publication performs I/O too. Do not hide a source/producer mutation
+        // that happened after the first final verification.
+        verifyInput();
+        verifyProducer(*inputs, end, stop);
+    }
+    return result;
 }
 } // namespace
 
@@ -226,6 +556,23 @@ std::optional<double> tempoPercentForBpm(double reference, double target) noexce
         target < reference * .94 || target > reference * 1.06)
         return {};
     return std::clamp(100 * (target / reference - 1), -6., 6.);
+}
+
+BpmEstimate analyzeBpmCached(const audio::PreparedAudio& audio, const BpmEngine& engine,
+                             const QString& absoluteCacheRoot, std::stop_token stop)
+{
+    try { return analyze(audio, engine, stop, absoluteCacheRoot); }
+    catch (const BpmSourceError&) {
+        if (stop.stop_requested()) throw std::runtime_error("BPM analysis cancelled");
+        throw;
+    }
+    catch (const std::exception& error) {
+        if (stop.stop_requested()) throw std::runtime_error("BPM analysis cancelled");
+        return {{}, QStringLiteral("Failed"), QString::fromUtf8(error.what()).left(2048)};
+    } catch (...) {
+        if (stop.stop_requested()) throw std::runtime_error("BPM analysis cancelled");
+        return {{}, QStringLiteral("Failed"), QStringLiteral("BPM analysis failed")};
+    }
 }
 
 } // namespace conflux::library

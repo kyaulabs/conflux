@@ -1,0 +1,283 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-22T10:19:32.960360+00:00",
+  "status": "passed",
+  "source_parent": "1a6aa1592d6c93b5e598f8e37a32f663994a0dd6",
+  "scope": "Validated persistent original-mix BPM/beat-result cache; synthetic CPU workers, offscreen UI and isolated generated audio only.",
+  "tested_sources": [
+    {
+      "path": "src/library/BpmAnalyzer.cpp",
+      "bytes": 29188,
+      "sha256": "4573539a8c1508d24a0214ba524229ba37c7123cdf7bf090db91503657dcb2ec"
+    },
+    {
+      "path": "src/library/BpmAnalyzer.hpp",
+      "bytes": 3199,
+      "sha256": "c9c3b9544cf635c30d90032701af95a8840739802007a145e39d3c81e17d7181"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 83131,
+      "sha256": "f5fc42380e17d38a01a0476b047fdb4b0300b3ba93c4a16e7238cc4179f54cdb"
+    },
+    {
+      "path": "tests/bpm_analyzer_test.cpp",
+      "bytes": 48048,
+      "sha256": "dc2bb6c92812a251fa11b723d8632fe518259c3ceb0f81e22a34446880f7d5ee"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 124195,
+      "sha256": "d95b56ea537a9770543cec997e65de6f56e3f512c28d3127d8cc3bb04853311c"
+    }
+  ],
+  "checks": {
+    "ctest": {
+      "passed": 51,
+      "failed": 0
+    },
+    "focused_analyzer_before_additional_lock_case": {
+      "passed": 97,
+      "failed": 0
+    },
+    "focused_controller": {
+      "passed": 3,
+      "failed": 0
+    },
+    "busy_lock_case": "Included in final full CTest run; retained artifact and fresh-worker fallback assertions.",
+    "software_smoke": {
+      "rendered": true
+    },
+    "private_virtual_audio": {
+      "private-preparation-01": {
+        "passed": true,
+        "checks": 134,
+        "cleanup_verified": true,
+        "execution_deadline_gate": false
+      },
+      "private-live-failure-01": {
+        "passed": true,
+        "checks": 31,
+        "cleanup_verified": true,
+        "execution_deadline_gate": true
+      }
+    }
+  },
+  "tdd": {
+    "red_exit": 4,
+    "failure": "Four valid summary/map variants each started a second actual worker instead of reusing the saved result.",
+    "green": "Actual invocation counts, source/producer mutation, strict protocol, cancellation, unsafe artifacts and storage bounds pass."
+  },
+  "retained_setup_failures": [
+    {
+      "log": "green-build-01.log",
+      "cause": "Attempted a nonexistent CMake preset.",
+      "resolution": "Build the existing build/dev tree."
+    },
+    {
+      "log": "green-build-02.log",
+      "cause": "Four C++ test expressions used Python exponent syntax.",
+      "resolution": "Use explicit integer multiplication; embedded Python expressions remain unchanged."
+    }
+  ],
+  "behavior": {
+    "normal_and_stem_loads": "Reuse analysis of the same original mix.",
+    "manual_bpm": "Per-deck transient override remains separate; not cached.",
+    "valid_unknown_maps": "Cached and revalidated without inventing a BPM.",
+    "unavailable_cache": "Fresh analysis within the original deadline; no eviction or repair.",
+    "bounds": {
+      "directories_including_stage": 64,
+      "aggregate_bytes": 268435456,
+      "timing_bytes": 4194304,
+      "manifest_bytes": 16384
+    }
+  },
+  "limits": [
+    "Producer identity covers interpreter invocation/binary/adjacent venv configuration, worker, model and six executed upstream source files plus license; not every installed Python dependency.",
+    "No new real-model execution, physical playback, sustained test, visible compositor qualification or musical accuracy measurement.",
+    "No track-load latency benchmark or live-stem latency qualification; Best quality and the 4.095-second p99 target remain unchanged."
+  ],
+  "coverage": "Exact-head CI measurement pending at source commit; QML/native stem adapter remain numerically unmeasured.",
+  "artifacts": [
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/red-build-01.log",
+        "bytes": 413,
+        "sha256": "583d7678414701962d401567e04ad0c08c3726cb7fab3dde9e745028ca7f0a19"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/red-build-01.log.gz",
+        "bytes": 214,
+        "sha256": "8a9a7d5a217febea9837b5e0478b346cdfb9b06ac1ad355f66e1c3b5e319b93d"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/red-test-01.log",
+        "bytes": 1514,
+        "sha256": "a92fff1d984036af17a904ac6f194d580fff4f06a28299223895aca89fd44581"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/red-test-01.log.gz",
+        "bytes": 464,
+        "sha256": "f17233546254d37962b63ee78a1e4d3d5b5d127d71c81f17dff02991fbe66a51"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/green-build-01.log",
+        "bytes": 150,
+        "sha256": "c2227170d7255288b42013c4686ed6799582aee9da42a162d615e68cf02f2b19"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/green-build-01.log.gz",
+        "bytes": 121,
+        "sha256": "fe4485593ab5a7f972c4a303addc64481ee327ce4a02e66014dda4d4a9711dbc"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/green-build-02.log",
+        "bytes": 3691,
+        "sha256": "f1cf7b504324b717805020fb4f52380cce1a7cf1aad26a2c2a076b82629641b6"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/green-build-02.log.gz",
+        "bytes": 1053,
+        "sha256": "8f6c07a08120e56db0a825473664c6f6da2cd0949b8a4a3795ae7c6e35ae40dc"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/green-build-03.log",
+        "bytes": 495,
+        "sha256": "29788f1fc0797bff0e18193d07cdc8b670f104bbf81b685f9ff4cbd64a647bbc"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/green-build-03.log.gz",
+        "bytes": 227,
+        "sha256": "8bbfd7d2d4f885bdf8df5a9e30f975bc745b3ced6bb7aadc671eaa2540ba59c6"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/green-bpm-test-01.log",
+        "bytes": 7087,
+        "sha256": "096cd2d2c98ca5b07fa8ea6234f7564281bdd2ee6bf11ea4ef983ef61ad31e20"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/green-bpm-test-01.log.gz",
+        "bytes": 1342,
+        "sha256": "d9a3ce3d3962eff12284373247e96b429ce6deed627c49552d79c64d4478d451"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/green-controller-test-01.log",
+        "bytes": 489,
+        "sha256": "cbe6859d086bedc23bcc0c2bc26db677cf85c99cab9b3b614451acbb303a3461"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/green-controller-test-01.log.gz",
+        "bytes": 293,
+        "sha256": "00fbc575346dcf181fcf226b0883968e27790616689a7d731ad9f7ac417ffa95"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/full-build-01.log",
+        "bytes": 2992,
+        "sha256": "3d2c4c2ecc6d444bf671e24f75679d4e13e1d228278b42137fbfbd2f9b105b28"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/full-build-01.log.gz",
+        "bytes": 871,
+        "sha256": "33b47fbe13ee3c24d30dadc5bf8181d8bd733274bffb8db971644c37fa634f92"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/lock-regression-build-01.log",
+        "bytes": 217,
+        "sha256": "7ae623f9bc068bf34ef0b4cf02400dc4445ed69de9cd5bb14c4187459c9229ab"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/lock-regression-build-01.log.gz",
+        "bytes": 164,
+        "sha256": "84af56862cb02ac17afbb92046e18889d3ed80524b51701f2c1748f56f342d06"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/full-tests-01.log",
+        "bytes": 5474,
+        "sha256": "f4739317f14e3df40576805faa3b05a9ebffe502a34f34929601cd8d9f7c34c1"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/full-tests-01.log.gz",
+        "bytes": 1163,
+        "sha256": "39ac38143a5c9e4ccc01bddcd16ab79bfaf4ccb19fb320a503643cf3b498e9f4"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/smoke-01.log",
+        "bytes": 669,
+        "sha256": "919b1aae1e6a190f71eab7d6e155d0f7aabd63eaa1ead6c2e051d0e92373d5ac"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/smoke-01.log.gz",
+        "bytes": 423,
+        "sha256": "c50c0cdaf3dca4bb90cf0d9c334e4153bb114939fa15e832b6cce69f87a8ea15"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/private-preparation-01/result.json",
+        "bytes": 48329,
+        "sha256": "d625d69883107df9aced7d37be680e3ea96b5417db0fcfedeb89808f9617caeb"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/private-preparation-01-result.json.gz",
+        "bytes": 7170,
+        "sha256": "f90bf2606c82578fc4dbee82ea590c4e643f0bc3684ae39102a1482ed96e0889"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/private-preparation-01/check.stdout.json",
+        "bytes": 30323,
+        "sha256": "e34f9cfdeac4939ac85b3dc3fea9f0ae0cbaf65832961f96b26431f9ef305d47"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/private-preparation-01-check.stdout.json.gz",
+        "bytes": 6402,
+        "sha256": "6ae9bceb30f869221fa70b74d9e995faa074b31bf8aa47f6b66e0ca3ace47e92"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/private-live-failure-01/result.json",
+        "bytes": 7801,
+        "sha256": "6569f6720d2aa19fe09613f0c3520ef2db9c7817132f34aeefaaa4a743d8ae4b"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/private-live-failure-01-result.json.gz",
+        "bytes": 2287,
+        "sha256": "7416e6bab74a68a09e004185a65858c70d47811090fede320dde92a79696914a"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-analysis-cache-2026-10-22/01/private-live-failure-01/check.stdout.json",
+        "bytes": 7984,
+        "sha256": "1473dd9bfb737cd83e475aad017baefb5fda64d5f19b3ce9a8483c8cd05e5b8d"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-bpm-cache-2026-10-22/private-live-failure-01-check.stdout.json.gz",
+        "bytes": 2112,
+        "sha256": "a4cb053838543b772e53ca0bedfb5c8a60862636bbcfbffdd142af96b74d5cf3"
+      }
+    }
+  ]
+}
