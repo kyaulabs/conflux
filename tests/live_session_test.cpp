@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/LiveSession.hpp"
+#include "audio/PreparedScratchSource.hpp"
 
 #include <array>
 #include <chrono>
@@ -14,6 +15,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <unistd.h>
 
 namespace {
 using conflux::audio::LiveSession;
@@ -93,6 +95,62 @@ bool preparedTempoSurvivesQuiescedReconstruction()
     auto finalOwners = rebuilt.stopAndTakePlaybacks();
     passed &= require(finalOwners.active[0].get() == owner && validUnconsumed(rebuilt.stoppedState()) &&
                       !finalOwners.active[0]->errorCode(), "reconstruction failed to retain its healthy whole owner");
+    return passed;
+}
+
+bool scratchFailureReportsOnlyWhileActive()
+{
+    using namespace conflux::audio;
+    using namespace std::chrono_literals;
+    // No server or callback: the source hooks and final snapshot have one
+    // quiescent owner, as during a whole-owner session handoff.
+    constexpr auto frames = PreparedScratchSource::windowFrames * 2;
+    bool passed = true;
+    for (const bool remainActive : {false, true}) {
+        const auto closeFile = [](std::FILE* file) { if (file) std::fclose(file); };
+        const auto raw = std::unique_ptr<std::FILE, decltype(closeFile)>(std::tmpfile(), closeFile);
+        const std::vector<float> pcm(frames * 2, .125F);
+        if (!raw || std::fwrite(pcm.data(), sizeof(float), pcm.size(), raw.get()) != pcm.size() ||
+            std::fflush(raw.get()) != 0)
+            throw std::runtime_error("Cannot prepare scratch health PCM");
+        LiveSession::PlaybackSources sources{};
+        sources[0] = std::make_unique<PreparedPlayback>(fileno(raw.get()), frames);
+        auto* const owner = sources[0].get();
+        LiveSession session(std::move(sources), {});
+        const auto source = owner->sourceRef();
+        std::array<float, 128> output{};
+        const auto readyDeadline = std::chrono::steady_clock::now() + 2s;
+        while (source.scratchState(source.context).pending && std::chrono::steady_clock::now() < readyDeadline) {
+            (void)source.read(source.context, 0, output);
+            std::this_thread::sleep_for(1ms);
+        }
+        if (source.scratchState(source.context).pending || source.scratchState(source.context).errorCode)
+            throw std::runtime_error("Cannot prime scratch health window");
+        // Force a genuinely obsolete file identity, then request a different
+        // scratch window. The ordinary reader's healthy primed PCM is retained.
+        const float replacement = .25F;
+        if (::pwrite(fileno(raw.get()), &replacement, sizeof(replacement),
+                     off_t(pcm.size() * sizeof(float) - sizeof(float))) != sizeof(replacement) ||
+            !source.scratchControl(source.context, AudioScratchCommand::Begin, 0, 0,
+                                   PreparedScratchSource::windowFrames + 4096))
+            throw std::runtime_error("Cannot start scratch identity-failure check");
+        const auto deadline = std::chrono::steady_clock::now() + 2s;
+        while (!source.scratchState(source.context).errorCode && std::chrono::steady_clock::now() < deadline) {
+            (void)source.read(source.context, 0, output);
+            std::this_thread::sleep_for(1ms);
+        }
+        const auto scratch = source.scratchState(source.context);
+        if (!scratch.active || !scratch.errorCode || owner->errorCode())
+            throw std::runtime_error("Scratch identity error did not remain isolated from ordinary playback");
+        if (!remainActive && !source.scratchControl(source.context, AudioScratchCommand::End, 0, 0, 0))
+            throw std::runtime_error("Cannot end failed scratch gesture");
+        const auto retained = session.stopAndTakePlaybacks();
+        const auto state = session.stoppedState();
+        passed &= require(retained.active[0].get() == owner && state.scratch[0].errorCode == scratch.errorCode &&
+                          state.scratch[0].active == remainActive && state.sourceReadError[0] == remainActive &&
+                          !state.sourceReadErrorObserved[0] && !state.callbacks,
+                          "Snapshot hid an active scratch error or poisoned inactive optional scratch health");
+    }
     return passed;
 }
 
@@ -206,6 +264,7 @@ int main()
                           "stopping a healthy bank changed its crossfader or invented a reader error");
 
         passed &= preparedTempoSurvivesQuiescedReconstruction();
+        passed &= scratchFailureReportsOnlyWhileActive();
 
         const std::array<float, 4> a{.25F, -.5F, .75F, -.25F};
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};

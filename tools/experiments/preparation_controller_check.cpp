@@ -765,6 +765,163 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
 }
 
 
+template<class Check>
+void runScratchController(const std::filesystem::path& output, const QString& a,
+                          const QString& b, Check&& require, QJsonObject& observations)
+{
+    // Separate from every recorded forward-playback oracle above: a held
+    // scratch intentionally produces silence and may move the source backwards.
+    conflux::DeckController controller;
+    Sink sink("conflux-scratch-controller-master-" + std::to_string(::getpid()));
+    controller.refreshAudioRouting();
+    QString left, right;
+    wait([&] {
+        for (const auto& value : controller.audioRouting()["ports"].toList()) {
+            const auto port = value.toMap();
+            const auto prefix = QString::fromStdString(sink.name()) + " · input_";
+            if (port["label"].toString() == prefix + "0 [FL]") left = port["key"].toString();
+            if (port["label"].toString() == prefix + "1 [FR]") right = port["key"].toString();
+        }
+        return !left.isEmpty() && !right.isEmpty();
+    }, "Scratch controller private routing discovery timed out");
+    controller.configureAudioRouting(left, right, {}, {});
+    controller.loadDeck(0, QUrl::fromLocalFile(a));
+    wait([&] { return !controller.busy() && controller.outputReady(); }, "Scratch target did not load");
+    controller.loadDeck(1, QUrl::fromLocalFile(b));
+    wait([&] { return !controller.busy() && controller.decks()[1].toMap()["loaded"].toBool(); }, "Scratch peer did not load");
+    controller.setDeckGain(1, 0.0);
+    controller.setPlaying(1, true);
+    controller.seekSeconds(0, 1.0);
+    wait([&] { const auto state = controller.audioState(); return state.playing[1] && !state.playing[0] &&
+                      state.deckGain[1] == 0.F && state.sourceFrame[0] == 48000 && state.scratch[0].supported; },
+         "Scratch target/advancing muted peer did not acknowledge initial controls");
+    const auto initial = controller.audioState();
+    const auto sessions = controller.completedSessions();
+    QJsonArray snapshots;
+    QJsonObject detail{{"scope", "Generated stereo PCM, actual controller/native acknowledgements and private virtual PipeWire only. No musical scratch, physical output, sample-amplitude or latency qualification."}};
+    const auto detailPath = QString::fromStdString((output / "generated-scratch-controller-detail.json").string());
+    auto healthy = [&] {
+        const auto state = controller.audioState();
+        if (!controller.error().isEmpty() || !controller.outputReady() || controller.completedSessions() != sessions ||
+            state.sourceGeneration[1] != initial.sourceGeneration[1] || state.sourceFrames[1] != initial.sourceFrames[1] ||
+            !state.playing[1] || state.sourceFrame[1] >= state.sourceFrames[1] ||
+            state.invalidBuffers != initial.invalidBuffers || state.rejected != initial.rejected ||
+            state.sourceReadError[0] || state.sourceReadError[1] ||
+            state.sourceReadErrorObserved[0] || state.sourceReadErrorObserved[1] ||
+            state.deckGain != initial.deckGain || state.stemGain != initial.stemGain ||
+            state.masterGain != initial.masterGain || state.crossfader != initial.crossfader ||
+            state.cueGain != initial.cueGain || state.cueFrame != initial.cueFrame ||
+            state.cueSelected != initial.cueSelected || state.cueHeld != initial.cueHeld || state.cuePreview != initial.cuePreview)
+            throw std::runtime_error("Scratch changed the shared peer/gain/cue/session health");
+        return state;
+    };
+    auto peerAdvanced = [&](const auto& before, const auto& after) {
+        require(after.outputFrame > before.outputFrame && after.sourceFrame[1] >= before.sourceFrame[1] &&
+                after.sourceFrame[1] - before.sourceFrame[1] == after.outputFrame - before.outputFrame,
+                "Scratch leaves the playing peer on the exact shared output clock");
+    };
+    auto note = [&](const char* stage) {
+        const auto state = healthy();
+        if (snapshots.size() >= 16) throw std::runtime_error("Scratch snapshot evidence bound exceeded");
+        snapshots.append(QJsonObject{{"stage", stage}, {"output_frame", qint64(state.outputFrame)},
+            {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+            {"source_generations", QJsonArray{qint64(state.sourceGeneration[0]), qint64(state.sourceGeneration[1])}},
+            {"applied", qint64(state.applied)}, {"submitted", qint64(controller.submittedCommands())},
+            {"scratch", QJsonObject::fromVariantMap(controller.decks()[0].toMap()["scratch"].toMap())}});
+    };
+    auto begin = [&] {
+        const auto token = controller.beginScratch(0);
+        require(!token.isEmpty(), "Prepared scratch Begin is admitted through the actual controller");
+        const auto nativeToken = token.toULongLong(nullptr, 16);
+        wait([&] { const auto state = healthy(); return state.scratch[0].active && !state.scratch[0].pending &&
+                          state.scratch[0].scratchToken == nativeToken; }, "Scratch Begin did not receive its matching native acknowledgement");
+        require(controller.decks()[0].toMap()["scratch"].toMap()["scratchToken"].toString() == token,
+                "Published scratch identity is the actual native acknowledgement");
+        return token;
+    };
+    try {
+        const auto pausedToken = begin();
+        const auto held = healthy();
+        require(!held.playing[0] && held.sourceFrame[0] == 48000, "Paused Begin preserves its captured source frame");
+        note("paused-held");
+        const auto holdStart = Clock::now();
+        wait([&] { const auto state = healthy(); return Clock::now() - holdStart >= std::chrono::milliseconds(1100) &&
+                          state.outputFrame >= held.outputFrame + 1024; }, "Stationary scratch contact did not survive over one second");
+        const auto afterHold = healthy();
+        require(afterHold.scratch[0].active && afterHold.sourceFrame[0] == held.sourceFrame[0] &&
+                afterHold.scratch[0].position == held.scratch[0].position,
+                "A stationary contact holds the paused source while callbacks and the peer continue");
+        detail["stationary_hold_milliseconds"] = qint64(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - holdStart).count());
+        peerAdvanced(held, afterHold); note("after-long-hold");
+        require(controller.moveScratch(0, pausedToken, 960), "The same scratch token accepts motion after a stationary hold longer than one second");
+        wait([&] { const auto state = healthy(); return state.scratch[0].position > afterHold.scratch[0].position; },
+             "Resumed scratch motion did not advance actual consumed source position");
+        const auto moved = healthy();
+        require(!moved.playing[0] && moved.scratch[0].position <= afterHold.scratch[0].position + 960,
+                "Paused scratch consumes bounded requested motion without changing play state");
+        note("paused-moved");
+        require(controller.endScratch(0, pausedToken), "Paused scratch End is admitted once");
+        wait([&] { return !healthy().scratch[0].active; }, "Paused scratch End was not acknowledged");
+        const auto pausedEnd = healthy();
+        require(!pausedEnd.playing[0] && pausedEnd.sourceFrame[0] == std::uint64_t(std::floor(pausedEnd.scratch[0].position)) &&
+                !controller.endScratch(0, pausedToken) && !controller.moveScratch(0, pausedToken, 1920),
+                "End restores the paused linear cursor at actual scratch position and revokes the old token");
+        note("paused-End");
+
+        controller.setPlaying(0, true);
+        wait([&] { return healthy().playing[0]; }, "Scratch target did not acknowledge Play");
+        const auto playingToken = begin();
+        const auto playingHeld = healthy();
+        const auto submitted = controller.submittedCommands();
+        require(playingToken != pausedToken && !controller.endScratch(0, pausedToken) &&
+                !controller.moveScratch(0, pausedToken, -960) && controller.submittedCommands() == submitted && healthy().scratch[0].active,
+                "Old Move/End cannot submit commands against a newer playing gesture");
+        require(controller.moveScratch(0, playingToken, -960), "Playing scratch accepts reverse motion");
+        wait([&] { return healthy().scratch[0].position < playingHeld.scratch[0].position; }, "Playing scratch did not consume reverse motion");
+        require(healthy().playing[0], "Scratch motion preserves the acknowledged playing transport");
+        note("playing-reverse");
+        require(controller.endScratch(0, playingToken), "Playing scratch End is admitted");
+        wait([&] { const auto state = healthy(); return !state.scratch[0].active && state.playing[0]; }, "Playing scratch End did not resume linear playback");
+        const auto resumed = healthy();
+        wait([&] { return healthy().sourceFrame[0] >= resumed.sourceFrame[0] + 1024; }, "Linear playback did not advance after scratch release");
+        peerAdvanced(playingHeld, healthy()); note("playing-End-linear");
+
+        const auto replacedToken = begin();
+        const auto replacedGeneration = healthy().sourceGeneration[0];
+        controller.loadDeck(0, QUrl::fromLocalFile(b));
+        wait([&] { const auto state = healthy(); return !controller.busy() && state.sourceGeneration[0] != replacedGeneration &&
+                          !state.scratch[0].active && !state.playing[0]; }, "Replacement did not release scratch and install the new paused source");
+        require(!controller.decks()[0].toMap()["sourceId"].toString().isEmpty() &&
+                controller.decks()[0].toMap()["sourceId"] == controller.decks()[1].toMap()["sourceId"],
+                "Scratch replacement installs the same generated B content identity as the preserved peer");
+        const auto replacementToken = begin();
+        const auto beforeStale = controller.submittedCommands();
+        require(replacementToken != replacedToken && !controller.endScratch(0, replacedToken) &&
+                !controller.moveScratch(0, replacedToken, 480) && controller.submittedCommands() == beforeStale && healthy().scratch[0].active,
+                "Replaced-source tokens cannot move or release the new source's gesture");
+        note("replacement-new-gesture");
+        const auto sameFrame = healthy().sourceFrame[0];
+        controller.seekSeconds(0, sameFrame / 48000.0);
+        wait([&] { return !healthy().scratch[0].active; }, "Same-frame explicit seek did not revoke active scratch");
+        require(!controller.moveScratch(0, replacementToken, 960) && !controller.endScratch(0, replacementToken) &&
+                healthy().sourceFrame[0] == sameFrame, "Same-frame transport retires the controller token without moving the paused cursor");
+        peerAdvanced(initial, healthy()); note("same-frame-seek-retired");
+        detail["passed"] = true;
+        detail["snapshots"] = snapshots;
+        require(save(detailPath, detail), "Actual controller scratch acknowledgements are retained separately from forward audio oracles");
+        controller.shutdown();
+        require(controller.completedSessions() == sessions + 1 && !controller.outputReady() && !controller.busy(),
+                "Scratch controller shuts down its sole private session and all optional workers");
+        observations["scratch_controller"] = detail;
+    } catch (const std::exception& error) {
+        detail["passed"] = false; detail["error"] = error.what(); detail["snapshots"] = snapshots;
+        (void)save(detailPath, detail);
+        controller.shutdown();
+        throw;
+    }
+}
+
+
 // The fake service has no native descendants in these modes. Bind every
 // observed leader while alive; pidfd fallback is test safety after controller
 // unwind, never a replacement for the product cleanup assertions below.
@@ -2032,6 +2189,7 @@ int main(int argc, char** argv)
         observations["completion"] = completion;
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         runStemController(output, fixtures.path(), a, b, libraryId, functionalOnly, require, observations);
+        runScratchController(output, a, b, require, observations);
         runLiveStemController(output, fixtures.path(), a, functionalOnly, require, observations);
         runLostLiveOwners(fixtures.path(), require, observations);
         passed = true;

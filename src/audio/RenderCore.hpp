@@ -31,7 +31,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -40,6 +40,8 @@ public:
         std::int64_t deltaFrames = 0;
         std::uint32_t stem = 0;
         double tempoPercent = 0;
+        std::uint64_t scratchToken = 0, sourceGeneration = 0;
+        double scratchIntervalSeconds = 0;
     };
 
     explicit RenderCore(bool tone = false);
@@ -85,6 +87,11 @@ public:
     // Positional search, not scratch or speed control. Clamp from the owner's
     // current cursor; preserve play request/cue and cancel temporary preview.
     bool jog(std::size_t deck, std::int64_t deltaFrames) noexcept;
+    bool beginScratch(std::size_t deck, std::uint64_t token) noexcept;
+    bool moveScratch(std::size_t deck, std::uint64_t token, std::int64_t cumulativeFrames,
+                     double intervalSeconds) noexcept;
+    bool endScratch(std::size_t deck, std::uint64_t token) noexcept;
+    [[nodiscard]] AudioScratchState scratchState(std::size_t deck) const noexcept;
     // Caller validates finite PCM and retains its owner. Only an inactive deck
     // whose decay has completed may swap; no scan, allocation or ownership here.
     bool replaceSource(std::size_t deck, AudioSource source) noexcept;
@@ -160,6 +167,7 @@ private:
         std::uint64_t frame = 0;
         double nominalPosition = 0;
         std::uint64_t cueFrame = 0;
+        std::uint64_t scratchToken = 0;
         std::uint64_t starvedFrames = 0;
         float gain = 1.0F;
         GainRamp gainRamp{};

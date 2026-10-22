@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Window
 import "../brand/integration/qtquick" as Brand
 
 Item {
@@ -18,12 +19,26 @@ Item {
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
     readonly property var tempoState: deck.tempo || ({})
+    readonly property var scratchState: deck.scratch || ({})
+    readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property real referenceBpm: Number(bpmState.reference) || 0
     readonly property bool hasReferenceBpm: Boolean(deck.loaded) && Number.isFinite(referenceBpm) && referenceBpm >= 20 && referenceBpm <= 400
     readonly property real acknowledgedBpm: hasReferenceBpm ? referenceBpm * (1 + (Number(tempoState.percent) || 0) / 100) : 0
     readonly property bool canEditBpm: Boolean(deck.loaded) && !deck.replacing && !showingPreparation
     readonly property bool hasLoop: Boolean(loop.inSet) || Boolean(loop.outSet) || Boolean(loop.cached)
+    readonly property bool canScratch: canControl && Boolean(scratchState.supported)
+                                       && deck.overviewStem !== "source" && !deck.cueHeld && !deck.cuePreview
+                                       && !deck.sourceReadError && !scratchState.errorCode
+                                       && !hasLoop && !loop.active && !tempoState.active
+    readonly property string scratchUnavailableReason: !deck.loaded ? "Load a prepared track first."
+        : !canControl ? "Wait for audio output or track installation."
+        : deck.overviewStem === "source" ? "Live stems do not support vinyl scratch."
+        : deck.cueHeld || deck.cuePreview ? "Release CUE before scratching."
+        : hasLoop || loop.active ? "Clear the stored manual loop first."
+        : tempoState.active ? "Press TEMPO RESET before scratching, including at zero speed change."
+        : deck.sourceReadError || scratchState.errorCode ? "The prepared scratch source has a read error."
+        : "Vinyl scratch is unavailable for this prepared source."
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
                                     && !deck.cuePreview && !hasLoop
     readonly property bool canResetTempo: canControl && Boolean(tempoState.supported)
@@ -59,7 +74,9 @@ Item {
         return Math.floor(value / 60) + ":" + String(value % 60).padStart(2, "0")
     }
     onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
-    onSourceIdChanged: { if (bpmEditor) bpmEditor.close() }
+    onSourceIdChanged: { if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch() }
+    onScratchSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
+    onCanScratchChanged: { if (!canScratch && jogInput) jogInput.finishScratch() }
     onLoadProgressChanged: { if (waveform) waveform.requestPaint() }
     onShowingPreparationChanged: { if (waveform) waveform.requestPaint() }
     function refreshWaveform() {
@@ -792,20 +809,31 @@ Item {
         height: width
         enabled: surface.canControl
         activeFocusOnTab: true
+        readonly property var hostWindow: jog.Window.window
         readonly property real value: Number(surface.deck.positionSeconds) || 0
         readonly property real minimumValue: 0
         readonly property real maximumValue: Number(surface.deck.durationSeconds) || 0
         readonly property real stepSize: 0.01
         Accessible.role: Accessible.Dial
         Accessible.focusable: true
-        Accessible.name: surface.deckName + " jog search"
-        Accessible.description: "Search the track while keeping its play or pause state. Drag clockwise to move forward, two seconds per turn. Arrow keys or wheel move 10 milliseconds; hold Shift for one second."
+        Accessible.name: surface.deckName + " vinyl scratch and jog search"
+        Accessible.description: (surface.canScratch
+            ? "Hold to stop the prepared audio; drag clockwise or counterclockwise to scratch at two source seconds per turn. Release to restore the previous play or pause request."
+            : surface.scratchUnavailableReason)
+            + " Arrow keys or wheel remain track search: ten milliseconds, or one second with Shift."
         Accessible.onIncreaseAction: jog.step(480)
         Accessible.onDecreaseAction: jog.step(-480)
         function step(frames) {
+            // A search action terminates a held pointer transaction first.
+            jogInput.finishScratch()
             return surface.canControl && surface.controller.jogFrames(surface.deckIndex, frames)
         }
         Keys.onPressed: event => {
+            if (event.key === Qt.Key_Escape && jogInput.scratchToken.length > 0) {
+                jogInput.finishScratch()
+                event.accepted = true
+                return
+            }
             if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
                 return
             let direction = 0
@@ -888,39 +916,51 @@ Item {
         }
         MouseArea {
             id: jogInput
+            objectName: "deck" + surface.deckIndex + "ScratchInput"
             anchors.fill: parent
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton
             preventStealing: true
+            property string scratchToken: ""
+            property string gestureSourceId: ""
+            property string gestureSourceGeneration: ""
             property bool dragging: false
             property bool angleValid: false
             property real previousAngle: 0
-            property real fractionalFrames: 0
+            property real cumulativeFrames: 0
+            property real lastSentFrames: 0
             function radiusAt(x, y) { return Math.hypot(x - width / 2, y - height / 2) }
-            function resetDrag() {
+            function ownerCurrent() {
+                const current = surface.controller.decks[surface.deckIndex] || ({})
+                return gestureSourceId === String(current.sourceId || "")
+                    && gestureSourceGeneration === String(current.sourceGeneration || "0")
+            }
+            function finishScratch() {
+                const token = scratchToken
+                // Clear before invoking a synchronous controller notification.
+                scratchToken = ""
                 dragging = false
                 angleValid = false
-                fractionalFrames = 0
+                cumulativeFrames = 0
+                lastSentFrames = 0
+                gestureSourceId = ""
+                gestureSourceGeneration = ""
+                if (token.length > 0)
+                    surface.controller.endScratch(surface.deckIndex, token)
+                // Queue-full release retry belongs to the source/token-bound controller.
             }
-            onPressed: mouse => {
-                if (radiusAt(mouse.x, mouse.y) > width / 2) {
-                    mouse.accepted = false
+            function moveAt(x, y) {
+                if (!dragging || scratchToken.length === 0)
+                    return
+                if (!ownerCurrent() || !surface.canScratch) {
+                    finishScratch()
                     return
                 }
-                jog.forceActiveFocus(Qt.MouseFocusReason)
-                dragging = true
-                fractionalFrames = 0
-                angleValid = radiusAt(mouse.x, mouse.y) >= width * 0.15
-                previousAngle = Math.atan2(mouse.y - height / 2, mouse.x - width / 2)
-            }
-            onPositionChanged: mouse => {
-                if (!pressed || !dragging)
-                    return
-                if (radiusAt(mouse.x, mouse.y) < width * 0.15) {
+                if (radiusAt(x, y) < width * 0.15) {
                     angleValid = false
                     return
                 }
-                const next = Math.atan2(mouse.y - height / 2, mouse.x - width / 2)
+                const next = Math.atan2(y - height / 2, x - width / 2)
                 let angle = next - previousAngle
                 previousAngle = next
                 if (!angleValid) {
@@ -931,16 +971,53 @@ Item {
                     angle -= 2 * Math.PI
                 else if (angle < -Math.PI)
                     angle += 2 * Math.PI
-                fractionalFrames += angle * 96000 / (2 * Math.PI)
-                const frames = Math.trunc(fractionalFrames)
-                fractionalFrames -= frames
-                if (frames && !jog.step(frames))
-                    resetDrag()
+                cumulativeFrames += angle * 96000 / (2 * Math.PI)
+                const frames = Math.trunc(cumulativeFrames)
+                if (!Number.isSafeInteger(frames)) {
+                    finishScratch()
+                    return
+                }
+                if (frames === lastSentFrames)
+                    return
+                lastSentFrames = frames
+                if (!surface.controller.moveScratch(surface.deckIndex, scratchToken, frames))
+                    finishScratch()
             }
-            onReleased: resetDrag()
-            onCanceled: resetDrag()
-            onEnabledChanged: { if (!enabled) resetDrag() }
-            onVisibleChanged: { if (!visible) resetDrag() }
+            onPressed: mouse => {
+                if (!surface.canScratch || radiusAt(mouse.x, mouse.y) > width / 2) {
+                    mouse.accepted = false
+                    return
+                }
+                jog.forceActiveFocus(Qt.MouseFocusReason)
+                const current = surface.controller.decks[surface.deckIndex] || ({})
+                const source = String(current.sourceId || "")
+                const generation = String(current.sourceGeneration || "0")
+                const angle = Math.atan2(mouse.y - height / 2, mouse.x - width / 2)
+                const validAngle = radiusAt(mouse.x, mouse.y) >= width * 0.15
+                const token = surface.controller.beginScratch(surface.deckIndex)
+                if (typeof token !== "string" || token.length === 0) {
+                    mouse.accepted = false
+                    return
+                }
+                scratchToken = token
+                gestureSourceId = source
+                gestureSourceGeneration = generation
+                dragging = true
+                cumulativeFrames = 0
+                lastSentFrames = 0
+                previousAngle = angle
+                angleValid = validAngle
+                // Begin may synchronously replace/disable the source or release focus.
+                if (!pressed || !surface.canScratch || !ownerCurrent() || !jog.activeFocus
+                    || !jog.hostWindow || !jog.hostWindow.active)
+                    finishScratch()
+            }
+            onPositionChanged: mouse => { if (pressed) moveAt(mouse.x, mouse.y) }
+            onReleased: mouse => { moveAt(mouse.x, mouse.y); finishScratch() }
+            onCanceled: finishScratch()
+            onEnabledChanged: { if (!enabled) finishScratch() }
+            onVisibleChanged: { if (!visible) finishScratch() }
+            Component.onDestruction: finishScratch()
             onWheel: wheel => {
                 const steps = wheel.pixelDelta.y ? wheel.pixelDelta.y / 40 : wheel.angleDelta.y / 120
                 if (!steps) {
@@ -954,10 +1031,25 @@ Item {
                 wheel.accepted = true
             }
         }
-        onActiveFocusChanged: { if (!activeFocus) jogInput.resetDrag() }
+        onActiveFocusChanged: { if (!activeFocus) jogInput.finishScratch() }
+        onHostWindowChanged: { if ((!hostWindow || !hostWindow.active) && jogInput) jogInput.finishScratch() }
+        Connections {
+            target: jog.hostWindow
+            function onActiveChanged() { if (!jog.hostWindow || !jog.hostWindow.active) jogInput.finishScratch() }
+            function onVisibleChanged() { if (!jog.hostWindow || !jog.hostWindow.visible) jogInput.finishScratch() }
+        }
+        Connections {
+            target: surface.controller
+            function onStateChanged() {
+                if (jogInput.scratchToken.length > 0 && !jogInput.ownerCurrent())
+                    jogInput.finishScratch()
+            }
+        }
         ToolTip.visible: jogInput.containsMouse && !jogInput.pressed
         ToolTip.delay: 650
-        ToolTip.text: "JOG SEARCH · Drag: 2 s per turn · Arrows/wheel: 10 ms · Shift: 1 s"
+        ToolTip.text: surface.canScratch
+            ? "VINYL · Hold to stop · Drag either direction · Release to resume · Arrows/wheel: search"
+            : "VINYL UNAVAILABLE · " + surface.scratchUnavailableReason + " Arrows/wheel: search"
     }
 
     Column {

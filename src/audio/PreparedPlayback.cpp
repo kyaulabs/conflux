@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/PreparedPlayback.hpp"
+#include "audio/PreparedScratchSource.hpp"
 #include "audio/PreparedLoopCache.hpp"
 #include "audio/PreparedTempoSource.hpp"
 #include "audio/StemBankSource.hpp"
@@ -29,6 +30,7 @@ static_assert(PreparedPlayback::liveReserveFrames == Recovery::reserveFrames);
 static_assert(PreparedPlayback::liveWait == Recovery::maximumWait);
 static_assert(PreparedPlayback::stemCount == StemBankSource::stemCount);
 static_assert(PreparedTempoSource::blockFrames == StemBankSource::blockFrames);
+static_assert(PreparedScratchSource::maxReadFrames == StemBankSource::blockFrames);
 void validateGeometry(int fd, std::uint64_t frames)
 {
     constexpr std::uint64_t frameBytes = 2 * sizeof(float);
@@ -220,6 +222,7 @@ PreparedPlayback::PreparedPlayback(int normalizedFd, std::uint64_t frames) : fra
     const std::array normalizedFds{normalizedFd};
     createLoopCache(normalizedFds);
     createTempoSource(normalizedFds);
+    createScratchSource(normalizedFds);
 }
 
 PreparedPlayback::PreparedPlayback(std::array<int, stemCount> normalizedFds, std::uint64_t frames)
@@ -234,6 +237,7 @@ PreparedPlayback::PreparedPlayback(std::array<int, stemCount> normalizedFds, std
     bank_ = std::make_unique<StemBankSource>(sources);
     createLoopCache(normalizedFds);
     createTempoSource(normalizedFds);
+    createScratchSource(normalizedFds);
 }
 
 PreparedPlayback::~PreparedPlayback() { stop(); }
@@ -272,6 +276,23 @@ void PreparedPlayback::createTempoSource(std::span<const int> fds) noexcept
     }
 }
 
+void PreparedPlayback::createScratchSource(std::span<const int> fds) noexcept
+{
+    // Optional duplicated raw FDs/window storage must not make healthy legacy
+    // playback fail. Construction and worker start belong off callback.
+    try {
+        scratchSource_ = std::make_unique<PreparedScratchSource>(fds, frames_);
+    } catch (const std::system_error& error) {
+        scratchSetupError_ = error.code().value() > 0 ? error.code().value() : EIO;
+    } catch (const std::bad_alloc&) {
+        scratchSetupError_ = ENOMEM;
+    } catch (const std::invalid_argument&) {
+        scratchSetupError_ = EINVAL;
+    } catch (...) {
+        scratchSetupError_ = EIO;
+    }
+}
+
 AudioSource PreparedPlayback::sourceRef() noexcept
 {
     if (!live_) {
@@ -303,6 +324,13 @@ AudioSource PreparedPlayback::sourceRef() noexcept
         source.tempoState = [](const void* context) noexcept {
             return static_cast<const PreparedPlayback*>(context)->tempoState();
         };
+        source.scratchControl = [](void* context, AudioScratchCommand command, std::int64_t cumulativeFrames,
+                                   double intervalSeconds, std::uint64_t frame) noexcept {
+            return static_cast<PreparedPlayback*>(context)->scratchControl(command, cumulativeFrames, intervalSeconds, frame);
+        };
+        source.scratchState = [](const void* context) noexcept {
+            return static_cast<const PreparedPlayback*>(context)->scratchState();
+        };
         return source;
     }
     return {frames_, nullptr, this,
@@ -332,7 +360,8 @@ int PreparedPlayback::preparedRenderError() const noexcept
 AudioLoopState PreparedPlayback::loopState() const noexcept
 {
     auto state = loop_;
-    state.supported = !live_ && bool(loopCache_) && !tempoState().active;
+    state.supported = !live_ && bool(loopCache_) && !tempoState().active &&
+        !(scratchSource_ && scratchSource_->active());
     state.errorCode = loopSetupError_;
     if (loopCache_) {
         state.residentBytes = loopCache_->residentBytes();
@@ -353,7 +382,7 @@ AudioTempoState PreparedPlayback::tempoState() const noexcept
     state.errorCode = tempoSetupError_;
     if (tempoSource_) {
         state = tempoSource_->status();
-        state.supported = !stopped_;
+        state.supported = !stopped_ && !(scratchSource_ && scratchSource_->active());
         if (!state.active) state.keyLock = tempoKeyLock_;
     }
     return state;
@@ -362,7 +391,7 @@ AudioTempoState PreparedPlayback::tempoState() const noexcept
 bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, bool keyLock,
                                     std::uint64_t frame) noexcept
 {
-    if (live_ || stopped_ || !tempoSource_ || frame > frames_ ||
+    if (live_ || stopped_ || !tempoSource_ || (scratchSource_ && scratchSource_->active()) || frame > frames_ ||
         !std::isfinite(percent) || percent < -6 || percent > 6)
         return false;
     const auto state = tempoSource_->status();
@@ -405,6 +434,42 @@ void PreparedPlayback::seekLinear(std::uint64_t frame) noexcept
     source.discontinuity(source.context, frame);
 }
 
+AudioScratchState PreparedPlayback::scratchState() const noexcept
+{
+    AudioScratchState state;
+    // Capability only; Begin enforces the loop/tempo interaction gates. Do not
+    // call tempo status()/peek() from this pure scratch-state observation.
+    state.supported = !live_ && !stopped_ && bool(scratchSource_);
+    state.errorCode = scratchSetupError_;
+    if (scratchSource_) {
+        state.position = scratchSource_->position();
+        state.generation = scratchSource_->generation();
+        state.active = scratchSource_->active();
+        state.pending = scratchSource_->pending();
+        if (const int code = scratchSource_->errorCode()) state.errorCode = code;
+    }
+    return state;
+}
+
+bool PreparedPlayback::scratchControl(AudioScratchCommand command, std::int64_t cumulativeFrames,
+                                      double intervalSeconds, std::uint64_t frame) noexcept
+{
+    if (live_ || stopped_ || !scratchSource_ || frame > frames_) return false;
+    if (command == AudioScratchCommand::Begin) {
+        if (loop_.inSet || loop_.outSet || loop_.cached || tempoState().active || preparedRenderError()) return false;
+        return scratchSource_->begin(frame);
+    }
+    if (command == AudioScratchCommand::Move) return scratchSource_->move(cumulativeFrames, intervalSeconds);
+    if (command != AudioScratchCommand::End || !scratchSource_->active()) return false;
+    const double position = scratchSource_->position();
+    if (!std::isfinite(position) || position < 0 || position > double(frames_)) return false;
+    scratchSource_->end();
+    // One ordinary-reader refill at the consumed scratch cursor. The renderer
+    // synchronizes its frame from this same state, without another seek.
+    seekLinear(static_cast<std::uint64_t>(std::floor(position)));
+    return true;
+}
+
 void PreparedPlayback::clearLoop() noexcept
 {
     if (!loop_.inSet && !loop_.outSet && !loop_.cached) return;
@@ -416,6 +481,10 @@ void PreparedPlayback::clearLoop() noexcept
 void PreparedPlayback::seekPrepared(std::uint64_t frame) noexcept
 {
     if (frame > frames_) return;
+    if (scratchSource_) {
+        scratchSource_->end();
+        (void)scratchSource_->relocate(frame);
+    }
     clearLoop();
     seekLinear(frame);
     if (tempoSource_) {
@@ -427,6 +496,7 @@ void PreparedPlayback::seekPrepared(std::uint64_t frame) noexcept
 bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame) noexcept
 {
     if (live_ || stopped_ || frame > frames_) return false;
+    if (scratchSource_ && scratchSource_->active()) return false;
     if (command == AudioLoopCommand::Clear) {
         const bool wasCached = loop_.cached;
         clearLoop();
@@ -476,7 +546,11 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
 AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<float> output) noexcept
 {
     if (output.size() % StemBankSource::channels || frame > frames_) return {0, true};
+    if (scratchSource_ && scratchSource_->active()) return readScratch(output);
     if (tempoState().active) return readTempo(output);
+    // Optional inactive prefetch follows the actual ordinary cursor. Failure
+    // is scratch-only and never turns a healthy legacy read into a failure.
+    if (scratchSource_) (void)scratchSource_->follow(frame);
     if (output.empty()) return {};
     if (loop_.cached) {
         if (frame < loop_.inFrame || frame > loop_.outFrame) return {0, true};
@@ -505,6 +579,47 @@ AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<fl
     }
     const auto source = bank_ ? bank_->sourceRef() : readers_[0]->sourceRef();
     return source.read(source.context, frame, output);
+}
+
+AudioReadResult PreparedPlayback::readScratch(std::span<float> output) noexcept
+{
+    AudioReadResult result;
+    result.positionValid = true;
+    result.nominalPosition = scratchSource_->position();
+    if (output.size() / StemBankSource::channels > PreparedScratchSource::maxReadFrames) {
+        result.failed = true;
+        return result;
+    }
+    if (output.empty()) return result;
+    if (preparedRenderError()) { result.failed = true; return result; }
+    const auto requested = output.size() / StemBankSource::channels;
+    const auto raw = scratchSource_->read(requested);
+    result.nominalPosition = raw.nominalPosition;
+    if (raw.frames > requested || !std::isfinite(raw.nominalPosition) || raw.nominalPosition < 0 ||
+        raw.nominalPosition > double(frames_) || scratchSource_->leafCount() != (bank_ ? stemCount : 1)) {
+        result.failed = true;
+        return result;
+    }
+    for (std::size_t stem = 0; stem < scratchSource_->leafCount(); ++stem) {
+        if (raw.leaves[stem].size() != raw.frames * StemBankSource::channels) {
+            result.failed = true;
+            return result;
+        }
+    }
+    if (raw.frames) {
+        auto clipped = output.first(raw.frames * StemBankSource::channels);
+        if (bank_) {
+            const auto mixed = bank_->readCached(raw.leaves, 0, clipped);
+            result.frames = mixed.frames;
+            result.failed = mixed.failed || mixed.frames != raw.frames;
+        } else {
+            std::copy_n(raw.leaves[0].data(), clipped.size(), clipped.data());
+            result.frames = raw.frames;
+        }
+    }
+    result.failed = result.failed || raw.failed;
+    // Never EOF while a platter is held, including a reverse-ready hold at F.
+    return result;
 }
 
 AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
@@ -608,6 +723,7 @@ void PreparedPlayback::resetBankForSession() { resetBankForSessionAt(0); }
 void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
 {
     if (stopped_) throw std::logic_error("Cannot reuse a stopped playback owner");
+    if (scratchSource_) scratchSource_->end();
     if (!live_) clearLoop();
     if (!bank_) return;
     std::array<AudioSource, stemCount> sources{};
@@ -641,6 +757,12 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     }
     primeError_.store(0, std::memory_order_relaxed);
     if (live_ && live_->code()) return false;
+    // Do not wait for or require the optional scratch cache for normal load.
+    // A later valid Begin may be pending while its bounded worker catches up.
+    if (scratchSource_) {
+        scratchSource_->end();
+        (void)scratchSource_->relocate(frame);
+    }
     if (live_) {
         setLiveActive(false);
         seekLive(frame);
@@ -837,6 +959,10 @@ void PreparedPlayback::stop() noexcept
         if (live_->thread.joinable()) live_->thread.join();
     }
     if (tempoSource_) tempoSource_->stop();
+    if (scratchSource_) {
+        scratchSource_->end();
+        scratchSource_->stop();
+    }
     if (loopCache_) {
         loop_ = {};
         loopCache_->stop();

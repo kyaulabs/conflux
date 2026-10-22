@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-22T09:47:11.805930+00:00",
+  "status": "passed",
+  "source_parent": "cf0eb73229f69ed2b150ac49cac3e1d36b547f71",
+  "scope": "Prepared-track vinyl scratching; generated CPU, offscreen UI and isolated virtual-audio verification. No new physical, musical, sustained, GPU/model or live-stem latency qualification.",
+  "tested_sources": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 26745,
+      "sha256": "c286343224db432ddd913880e0893b64bfbcdc93d2bacfa544ac12468f3e29a8"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 65757,
+      "sha256": "26f5971fe4a0a241b142b46a9bef94cc53edab77b6d067140cc7af921647b9ea"
+    },
+    {
+      "path": "src/audio/AudioSource.hpp",
+      "bytes": 4933,
+      "sha256": "e63550818cc9631b0ed6efad6278f9f02ec1ff7dff0c7c4baff5f2cda5f19515"
+    },
+    {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 11905,
+      "sha256": "7609f3e41d2d0dcac8f2fb1047fa1f41f1ee0f4d9bc2cd135975d20e46566c21"
+    },
+    {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 34029,
+      "sha256": "5492609675dc47658439859de833513f4cf0466bc9d47f8cc8974ddd23f7830b"
+    },
+    {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 7128,
+      "sha256": "a6b328c36bb2194f9530b898143fa07e9da9186425e422f4ca55b0359752d400"
+    },
+    {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 60905,
+      "sha256": "19e4d9d01ff96ecfe65aa99fd27ef1cfa7b25d9b584d04de4822ba410b404c95"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.hpp",
+      "bytes": 6630,
+      "sha256": "5effe3c9ae08ab3a1d8b8ffaa3c2010b25426de80e426f33df0878733e90f343"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.cpp",
+      "bytes": 42821,
+      "sha256": "cf2cf024a287d7af2d171b94cc89a42873e355e25a58e0001284384ec3df4f0e"
+    },
+    {
+      "path": "src/audio/PreparedScratchSource.hpp",
+      "bytes": 4983,
+      "sha256": "e153eec7c5c5975837e45960e6cf28279a18ebad3e9dd2aafb6962532b9584d2"
+    },
+    {
+      "path": "src/audio/PreparedScratchSource.cpp",
+      "bytes": 25060,
+      "sha256": "d41ab0b170b5957f95ef8eb23be1933a44c63f30b413136726a8d61529b89bab"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 15249,
+      "sha256": "56952dd28d6888e7dca8808ac0b98585ee7ebc964585cc5f454b1a988ca423bf"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 83031,
+      "sha256": "ff19ba9a087c1a02d045af0d31365c0038d4bf1bb44c23966799acf50d6a9e1f"
+    },
+    {
+      "path": "tests/audio_prepared_scratch_test.cpp",
+      "bytes": 40059,
+      "sha256": "06e46a7b8cd1d181de34fb5c034686bdb82f34f5ac00722b77c3998d455b1273"
+    },
+    {
+      "path": "tests/audio_scratch_transport_test.cpp",
+      "bytes": 9681,
+      "sha256": "f9900c6967ab51d1328515697b1c2dc843bf39f94fddb28aa20dcc5b5dbf9170"
+    },
+    {
+      "path": "tests/audio_scratch_playback_test.cpp",
+      "bytes": 26669,
+      "sha256": "a14f6900d3831e9b694510df7e10bc231a8dc15fab221c3115fc3fd751ec72a1"
+    },
+    {
+      "path": "tests/audio_prepared_playback_test.cpp",
+      "bytes": 14072,
+      "sha256": "a0a664ad84af7c271c68007e1c6c706b4974f978fe2faf92607b0b83c37d76ef"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 119862,
+      "sha256": "dd841d434342082ced92cb3cc97c0ada4f6a36591d91c0c974825acf2f5a99b1"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 244145,
+      "sha256": "c43384927172c44d17932cf1ef3f8473dac25f76b01f514cce480f63ab3d817e"
+    },
+    {
+      "path": "tests/live_session_test.cpp",
+      "bytes": 24697,
+      "sha256": "d8450d86aa53fe38e5798797e3b808388dc4b0b6cb8bfd141508f3a9812dd1ea"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 153314,
+      "sha256": "4c3b51fed00f836b38ecef56a362fb29a2366f391ca1983bce5f17759cc23929"
+    }
+  ],
+  "checks": {
+    "ctest": {
+      "passed": 51,
+      "failed": 0,
+      "aggregation": "49 passing entries in full run plus two passing focused reruns after replacing aliased TMPDIR with its canonical path; product source unchanged."
+    },
+    "software_smoke": {
+      "rendered": true
+    },
+    "private_virtual_audio": {
+      "product-private-preparation-02": {
+        "checks": 134,
+        "passed": true,
+        "cleanup_verified": true
+      },
+      "product-private-live-failure-01": {
+        "checks": 31,
+        "passed": true,
+        "cleanup_verified": true
+      }
+    }
+  },
+  "retained_failed_attempts": [
+    {
+      "kind": "TDD stop-boundary regression",
+      "exit": 1,
+      "failure": "Scratch motion-to-hold boundary contains an unbounded PCM step",
+      "resolution": "Shared 240-frame attack/release envelope; stopped cursor stays fixed and settles to exact zero."
+    },
+    {
+      "kind": "existing descriptor-lifetime oracle",
+      "failed_entries": 1,
+      "failure": "Bank owners did not retain independent reader/cache/tempo FDs",
+      "resolution": "Exact expected ownership includes four new scratch-worker duplicate FDs; retirement and leak checks stay exact."
+    },
+    {
+      "kind": "temporary-directory alias",
+      "failed_entries": [
+        "stem-soak",
+        "bpm-analyzer"
+      ],
+      "failure": "Aliased TMPDIR changed canonical-source and virtualenv identity expectations.",
+      "resolution": "Focused unchanged-source rerun uses the canonical home-backed temporary directory; the short alias is reserved for private PipeWire socket paths."
+    }
+  ],
+  "limits": {
+    "prepared_only": true,
+    "processed_tempo_supported": false,
+    "stored_loop_supported": false,
+    "maximum_speed": 8,
+    "source_seconds_per_pointer_turn": 2,
+    "motion_envelope_frames": 240,
+    "motion_input_watchdog_ms": 30,
+    "watchdog_scope": "Checked once per read block, followed by rate slew; not a hard audible-stop deadline."
+  },
+  "coverage": {
+    "current_change": "CI measurement pending at source commit",
+    "qml_and_native_stem_adapter": "Not numerically measured"
+  },
+  "user_acceptance": "Pending scratch/listening and UI/CUE-sheet recheck. Earlier mixing, crossfader and recording/replay feedback was positive; it does not accept this new audio path.",
+  "artifacts": [
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-final-build-01.log",
+        "bytes": 13705,
+        "sha256": "442679e6226ad0c3701587c86eae3f2e537916190ba67ea7a95d817b04d790c0"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-final-build-01.log.gz",
+        "bytes": 2553,
+        "sha256": "16cee3c405add2d1c97a2557930784f11c64382e8b7ba1e446954ae678aa3ad1"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-final-build-02.log",
+        "bytes": 1376,
+        "sha256": "a0272a6d7064c302fe4eb78741d06e2ee44400a0a15d14dc9965629049c6a962"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-final-build-02.log.gz",
+        "bytes": 441,
+        "sha256": "5347e7c13e249e59d338c69561e35915c9cb2172eb7379b2a9c6c88317270269"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-final-tests-01.log",
+        "bytes": 77188,
+        "sha256": "be6e69ab073f68f441feb7d7e08952e3570e7bad076bdff0c5c1a9c1c5a11e20"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-final-tests-01.log.gz",
+        "bytes": 12204,
+        "sha256": "0b2340dcccef1963a5b7bc167c027ebdaf5e10202e318bea6ffc37c463a7ce5d"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-final-tests-02.log",
+        "bytes": 5699,
+        "sha256": "69a34c8fd804a952903cf3734dc61f1002cc3dcb46277e6b02d5c852da7d31d3"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-final-tests-02.log.gz",
+        "bytes": 1345,
+        "sha256": "351760b1e72b32d5c5ad4bc2da78f670d1f32f9fdb1560ee25ff21f60d2f0ffd"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-final-smoke-01.log",
+        "bytes": 669,
+        "sha256": "c7df0417b73cbcda24890239ec434cdb2fa7b58c428c2e5571241725648ab043"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-final-smoke-01.log.gz",
+        "bytes": 424,
+        "sha256": "f22063b176f32711e548cd05732f3cacf0d62130f9bd6686c17b320b3ce5d8a6"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-envelope-red-test-01.log",
+        "bytes": 96,
+        "sha256": "24f43235dcd0a551b2b555dc5eca9101b72b0fbc954b86d4a4555041a8210474"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-envelope-red-test-01.log.gz",
+        "bytes": 103,
+        "sha256": "d7a94acdecbecc2424d5487b3fb13d3bc9358fc1f2b2075887e78cd3b9086bfd"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-envelope-green-tests-01.log",
+        "bytes": 652,
+        "sha256": "c84c8107967dd98209134976a7375b83fb18a451a89a9a7a5afb2fecbbe268e5"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-envelope-green-tests-01.log.gz",
+        "bytes": 264,
+        "sha256": "180411c1444ffaa688bcae36f050914bba43db4f996a09e4c83ada5f9d54ee30"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-regressions-01.log",
+        "bytes": 5112,
+        "sha256": "eee848ab4e2d0cb2ab30478a6f2146d10d9b4bd5fe1b25bab6a5ae174a1fd21e"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-regressions-01.log.gz",
+        "bytes": 1187,
+        "sha256": "5f4b8e8bb7fd3128ff100ef52e13d0e20ae93795d1d926c19cd5d8f04d7b91be"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-private-preparation-02/result.json",
+        "bytes": 48237,
+        "sha256": "54861fbe85473dc24f287b083febbec80ad21855509141498936caf354465ff8"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-private-preparation-02-result.json.gz",
+        "bytes": 7181,
+        "sha256": "9cdf87175db391e3c236820eb281797a55fe63172216fa5f89acb40923793390"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-private-preparation-02/check.stdout.json",
+        "bytes": 30231,
+        "sha256": "ad790cff65d4df1fff6b6f92d69aeaac2f3e64b0e32f2756cf6d14ff0638278c"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-private-preparation-02-check.stdout.json.gz",
+        "bytes": 6405,
+        "sha256": "7ca577a4d35dbdd9d1698243fdc4fd474c4d4445764449960d59e679c5c4f42b"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-private-live-failure-01/result.json",
+        "bytes": 7801,
+        "sha256": "065979088a2609e253e3334724f5b74c104a9311ed9f57ef0311a249eff55da2"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-private-live-failure-01-result.json.gz",
+        "bytes": 2289,
+        "sha256": "cb10412ec6bab01ce4b23bf21e300b425e651cce756440e2920ebbd8cb000514"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-private-live-failure-01/check.stdout.json",
+        "bytes": 7984,
+        "sha256": "e9b322d57090d88ebfddf3f4756cb6acf1254d10951a1a960cc3976cfda591d3"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/product-private-live-failure-01-check.stdout.json.gz",
+        "bytes": 2116,
+        "sha256": "9cb145b6a623deb1c9442e0458a4ebdec0dae0bd1414d6542770b5dcc632d9d8"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-prototype-01/product-private-preparation-02/recordings/generated-scratch-controller-detail.json",
+        "bytes": 5243,
+        "sha256": "18db6352df552dab4ab725564d8797c78c380f6035e3cc103c4b836171033128"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-vinyl-scratch-2026-10-22/scratch-controller-detail.json.gz",
+        "bytes": 685,
+        "sha256": "2a4d9fbce5045a9a2dcb3ad4e003fc48ff476dc978872623bdc8b8aad7679422"
+      }
+    }
+  ]
+}

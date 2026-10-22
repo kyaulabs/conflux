@@ -286,6 +286,69 @@ void verifyNoPlayback(const conflux::DeckController& controller)
 class DeckControllerTest final : public QObject {
     Q_OBJECT
 private slots:
+    void scratchPublicRejectionPreservesEmptyDecks()
+    {
+        conflux::DeckController controller;
+        const auto original = controller.decks();
+        const auto submitted = controller.submittedCommands();
+        for (const int deck : {-1, 0, 1, 2}) {
+            QVERIFY(controller.beginScratch(deck).isEmpty());
+            for (const auto& token : {QString{}, QStringLiteral("0000000000000001"),
+                                      QStringLiteral("ffffffffffffffff"), QStringLiteral("not-a-token")}) {
+                QVERIFY(!controller.moveScratch(deck, token, std::numeric_limits<qint64>::min()));
+                QVERIFY(!controller.moveScratch(deck, token, std::numeric_limits<qint64>::max()));
+                QVERIFY(!controller.endScratch(deck, token));
+                QCOMPARE(controller.decks(), original);
+                QCOMPARE(controller.submittedCommands(), submitted);
+            }
+        }
+        controller.shutdown();
+        const auto stopped = controller.decks();
+        for (const int deck : {0, 1}) {
+            QVERIFY(controller.beginScratch(deck).isEmpty());
+            QVERIFY(!controller.moveScratch(deck, QStringLiteral("0000000000000001"), 120));
+            QVERIFY(!controller.endScratch(deck, QStringLiteral("0000000000000001")));
+        }
+        QCOMPARE(controller.decks(), stopped);
+        QCOMPARE(controller.submittedCommands(), submitted);
+    }
+
+    void scratchUnavailableOutputAndWrongTokenPreserveLoadedSources()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("scratch-unready.wav");
+        QVERIFY(writeWave(source, 2, 48000, 4800));
+        conflux::DeckController controller;
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+        QVERIFY(!controller.outputReady()); // Deliberately unavailable owned-test remote.
+        const auto accepted = controller.decks();
+        const auto submitted = controller.submittedCommands();
+        const auto state = controller.audioState();
+        for (const int deck : {0, 1}) {
+            QVERIFY(controller.beginScratch(deck).isEmpty());
+            QVERIFY(!controller.moveScratch(deck, QStringLiteral("0000000000000001"), 48000));
+            QVERIFY(!controller.endScratch(deck, QStringLiteral("0000000000000001")));
+            QCOMPARE(controller.decks(), accepted);
+            QCOMPARE(controller.submittedCommands(), submitted);
+            QVERIFY(controller.audioState().sourceFrame == state.sourceFrame);
+            QVERIFY(controller.audioState().sourceGeneration == state.sourceGeneration);
+        }
+        controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing-scratch-replacement.wav")));
+        QVERIFY(controller.beginScratch(0).isEmpty());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks(), accepted);
+        QVERIFY(!controller.endScratch(0, QStringLiteral("0000000000000001")));
+        QCOMPARE(controller.decks(), accepted);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        // Positive token issuance, ACK and queue-full retry are intentionally
+        // NOT claimed here: root's owned virtual-PipeWire integration covers them.
+    }
+
     void observationsFollowCurrentLiveClipWithoutOwningItsLifetime()
     {
         liveControllerChecked([&] {

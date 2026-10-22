@@ -10,6 +10,7 @@
 #include "library/BpmAnalyzer.hpp"
 
 #include <QFutureWatcher>
+#include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
 #include <QUrl>
@@ -86,6 +87,9 @@ public:
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
     Q_INVOKABLE bool jogFrames(int deck, qint64 deltaFrames);
+    Q_INVOKABLE QString beginScratch(int deck);
+    Q_INVOKABLE bool moveScratch(int deck, const QString& token, qint64 cumulativeFrames);
+    Q_INVOKABLE bool endScratch(int deck, const QString& token);
     Q_INVOKABLE void setDeckGain(int deck, double gain);
     Q_INVOKABLE void setStemGain(int deck, int stem, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
@@ -218,6 +222,19 @@ private:
     void poll();
     bool submit(audio::RenderCore::Command command);
     bool flushCueReleases();
+    struct ScratchIdentity {
+        QString token, sourceId;
+        std::uint64_t nativeToken = 0, sourceGeneration = 0;
+    };
+    struct ScratchGesture {
+        ScratchIdentity identity;
+        QElapsedTimer interval;
+    };
+    bool sameScratchSource(std::size_t deck, const ScratchIdentity& identity) const;
+    bool canScratch(std::size_t deck) const;
+    bool scratchBusy(std::size_t deck) const;
+    void queueScratchEnd(std::size_t deck);
+    bool flushScratchEnds();
     void stopSession();
     void fail(const QString& error);
     std::array<std::shared_ptr<const PreparedPcm>, 2> clips_{};
@@ -238,6 +255,10 @@ private:
     std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
+    // GUI ownership only, not optimistic render state. One pending release per
+    // deck blocks a new gesture until queued or the old source is retired.
+    std::array<std::optional<ScratchGesture>, 2> scratchGestures_{};
+    std::array<std::optional<ScratchIdentity>, 2> scratchEnds_{};
     std::array<bool, 2> replacing_{};
     std::shared_ptr<PreparedLoad> pendingLoad_;
     std::unique_ptr<audio::PreparedPlayback> pendingRetired_;

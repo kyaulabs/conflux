@@ -13,6 +13,7 @@ struct AudioReadResult {
     // Processed prepared sources report their fractional nominal transport
     // cursor after this prefix. It is separate from output delivery and file
     // read-ahead; Rubber Band does not supply an exact per-sample source map.
+    // Active scratching reports its consumed cursor, which may move backwards.
     bool positionValid = false;
     double nominalPosition = 0;
     // True only after the consumer has reached the backend's final marker,
@@ -31,6 +32,15 @@ struct AudioTempoState {
 };
 
 enum class AudioLoopCommand { In, Out, Toggle, Clear };
+
+enum class AudioScratchCommand { Begin, Move, End };
+
+struct AudioScratchState {
+    double position = 0;
+    std::uint64_t generation = 0, scratchToken = 0;
+    int errorCode = 0;
+    bool supported = false, active = false, pending = false;
+};
 
 struct AudioLoopState {
     static constexpr std::uint64_t minimumFrames = 256;
@@ -73,6 +83,14 @@ struct AudioSource {
     bool (*tempoControl)(void*, AudioTempoCommand, double percent, bool keyLock,
                          std::uint64_t frame) noexcept = nullptr;
     AudioTempoState (*tempoState)(const void*) noexcept = nullptr;
+
+    // Prepared-only track-derived platter motion. One render owner controls
+    // the source; reads return the actual fractional position, which may move
+    // backwards or stay fixed while held. Source hooks do not own gesture IDs;
+    // RenderCore guards tokens and stamps them into the reported state.
+    bool (*scratchControl)(void*, AudioScratchCommand, std::int64_t cumulativeFrames,
+                           double intervalSeconds, std::uint64_t capturedFrame) noexcept = nullptr;
+    AudioScratchState (*scratchState)(const void*) noexcept = nullptr;
 
     [[nodiscard]] bool isMemory() const noexcept { return memory != nullptr; }
 

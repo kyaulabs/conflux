@@ -210,12 +210,12 @@ void wholeBankHandoffLifetime()
 {
     Fixture first, second;
     const auto baseline = descriptors();
-    // Four read-ahead, four optional loop-cache and four tempo-worker FDs.
-    constexpr std::size_t descriptorsPerBank = 12;
+    // Four each: read-ahead, optional loop cache, tempo and scratch workers.
+    constexpr std::size_t descriptorsPerBank = 16;
     auto active = std::make_unique<PreparedPlayback>(first.fds(), Fixture::frames);
     auto candidate = std::make_unique<PreparedPlayback>(second.fds(), Fixture::frames);
     require(active->prime(0, 1s) && candidate->prime(0, 1s), "Cannot prime handoff banks");
-    require(descriptors() == baseline + 2 * descriptorsPerBank, "Bank owners did not retain independent reader/cache/tempo FDs");
+    require(descriptors() == baseline + 2 * descriptorsPerBank, "Bank owners did not retain independent reader/cache/tempo/scratch FDs");
     RenderCore core(active->sourceRef());
     std::array<float, 128> output{};
     require(core.render(output) && core.setPlaying(0, false) && core.render(output), "Cannot silence old bank");
@@ -232,7 +232,7 @@ void wholeBankHandoffLifetime()
     auto retired = std::move(active);
     active = std::move(candidate);
     retired.reset();
-    require(descriptors() == baseline + descriptorsPerBank, "Retirement did not release all old reader/cache/tempo FDs");
+    require(descriptors() == baseline + descriptorsPerBank, "Retirement did not release all old reader/cache/tempo/scratch FDs");
     require(core.setPlaying(0, true) && core.render(output) && same(output, std::span(second.sum).first(output.size())),
             "New bank stopped or lost samples after old whole-owner destruction");
     auto cancelled = std::make_unique<PreparedPlayback>(first.fds(), Fixture::frames);

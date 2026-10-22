@@ -52,6 +52,7 @@ public:
         std::array<bool, RenderCore::deckCount> stemBank{};
         std::array<AudioLoopState, RenderCore::deckCount> loops{};
         std::array<AudioTempoState, RenderCore::deckCount> tempo{};
+        std::array<AudioScratchState, RenderCore::deckCount> scratch{};
         std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{};
         float masterGain = 1.0F;
         float crossfader = 0.5F;

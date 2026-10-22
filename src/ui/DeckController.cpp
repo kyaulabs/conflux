@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#include "ui/DeckController.hpp"
+#include "DeckController.hpp"
 #include "library/PreparedTrackStore.hpp"
 #include "library/CueSheet.hpp"
 
@@ -31,6 +31,19 @@ std::uint64_t nextLiveSourceToken()
             throw std::overflow_error("Live stem source identity exhausted");
         if (last.compare_exchange_weak(current, current + 1, std::memory_order_relaxed))
             return current + 1;
+    }
+}
+
+bool nextScratchToken(std::uint64_t& result) noexcept
+{
+    static std::atomic<std::uint64_t> last{0};
+    auto current = last.load(std::memory_order_relaxed);
+    for (;;) {
+        if (current == std::numeric_limits<std::uint64_t>::max()) return false;
+        if (last.compare_exchange_weak(current, current + 1, std::memory_order_relaxed)) {
+            result = current + 1;
+            return true;
+        }
     }
 }
 
@@ -259,6 +272,14 @@ QVariantList DeckController::decks() const
                 {"manual", bpmOverrides_[deck].has_value()},
                 {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
             {"replacing", replacing_[deck]},
+            {"scratch", QVariantMap{
+                {"position", state_.scratch[deck].position},
+                {"generation", QVariant::fromValue<qulonglong>(state_.scratch[deck].generation)},
+                {"errorCode", state_.scratch[deck].errorCode},
+                {"supported", state_.scratch[deck].supported}, {"active", state_.scratch[deck].active},
+                {"pending", state_.scratch[deck].pending},
+                {"scratchToken", state_.scratch[deck].scratchToken ?
+                    QString::number(state_.scratch[deck].scratchToken, 16).rightJustified(16, QChar(u'0')) : QString{}}}},
             {"loading", loading},
             {"pendingName", loading ? pendingName_ : QString{}},
             {"pendingPath", loading ? pendingPath_ : QString{}},
@@ -808,6 +829,10 @@ void DeckController::stopSession()
     ready_ = false;
     cueDown_.fill(false);
     cueReleasePending_.fill(false);
+    // The native owner is quiesced. Old GUI releases must never enter a later
+    // session's queue, even when that session restores the same source/frame.
+    scratchGestures_.fill({});
+    scratchEnds_.fill({});
 }
 
 void DeckController::loaded()
@@ -864,6 +889,7 @@ void DeckController::loaded()
     if (closing_) return;
     pendingLoad_ = result.prepared;
     if (session_) {
+        queueScratchEnd(std::size_t(pendingDeck_));
         replacing_[pendingDeck_] = true;
         pendingGeneration_ = ++nextSourceGeneration_;
         // End the old gesture before publication. A queue-full release is
@@ -894,6 +920,7 @@ void DeckController::loaded()
     state_.stemBank[pendingDeck_] = clips_[pendingDeck_]->stemBank();
     state_.loops[pendingDeck_] = {};
     state_.tempo[pendingDeck_] = {};
+    state_.scratch[pendingDeck_] = {};
     state_.stemGain[pendingDeck_].fill(state_.stemBank[pendingDeck_] ? 1.0F : 0.0F);
     state_.sourceGeneration[pendingDeck_] = 0;
     state_.playing[pendingDeck_] = false;
@@ -967,7 +994,7 @@ void DeckController::publishReplacement()
 {
     if (!pendingLoad_ || !replacing_[pendingDeck_] || replacementPublished_ ||
         !session_ || !session_->ready()) return;
-    if (!flushCueReleases()) return;
+    if (!flushScratchEnds() || !flushCueReleases()) return;
     replacementPublished_ = session_->requestSourceReplacement(std::size_t(pendingDeck_),
         pendingLoad_->playback, pendingGeneration_);
 }
@@ -1020,6 +1047,8 @@ void DeckController::settleReplacement(bool stopped)
     names_[pendingDeck_] = pendingName_;
     if (sourceIds_[pendingDeck_] != pendingLoad_->sourceId) bpmOverrides_[pendingDeck_].reset();
     sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
+    scratchGestures_[pendingDeck_].reset();
+    scratchEnds_[pendingDeck_].reset();
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
     bpmEstimates_[pendingDeck_] = std::move(pendingLoad_->bpm);
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
@@ -1121,6 +1150,7 @@ void DeckController::installed()
             state_.stemBank[deck] = false;
             state_.loops[deck] = {};
             state_.tempo[deck] = {};
+            state_.scratch[deck] = {};
             state_.stemGain[deck].fill(0.F);
             state_.deckGain[deck] = 1.F;
             state_.meters.deck[deck] = {};
@@ -1171,6 +1201,7 @@ void DeckController::poll()
         pollRecording();
         return;
     }
+    flushScratchEnds();
     flushCueReleases();
     audio::LiveSession::State snapshot;
     // The queue is bounded; GUI delay can drop intermediate snapshots. Drain at
@@ -1203,7 +1234,18 @@ void DeckController::poll()
 
 bool DeckController::submit(audio::RenderCore::Command command)
 {
+    using Type = audio::RenderCore::Command::Type;
+    const bool transportEndsScratch = command.deck < scratchGestures_.size() &&
+        (command.type == Type::Play || command.type == Type::Pause || command.type == Type::Seek ||
+         command.type == Type::Jog || command.type == Type::CuePress || command.type == Type::RetrySource);
+    const auto failedTransport = [&] {
+        if (transportEndsScratch) {
+            queueScratchEnd(command.deck);
+            (void)flushScratchEnds();
+        }
+    };
     if (closing_ || !ready_ || !session_) {
+        failedTransport();
         fail("Audio output is not ready.");
         return false;
     }
@@ -1211,26 +1253,160 @@ bool DeckController::submit(audio::RenderCore::Command command)
                         command.type == audio::RenderCore::Command::Type::Crossfader ||
                         command.type == audio::RenderCore::Command::Type::CueGain;
     if (!global && command.deck < replacing_.size() && replacing_[command.deck]) {
+        failedTransport();
         fail("Wait for this deck's prepared track to finish installing.");
+        return false;
+    }
+    const bool modeChange = command.type == Type::LoopIn || command.type == Type::LoopOut ||
+        command.type == Type::LoopToggle || command.type == Type::TempoPercent ||
+        command.type == Type::MasterTempo || command.type == Type::TempoReset;
+    if (modeChange && command.deck < scratchGestures_.size() && scratchBusy(command.deck)) {
+        fail("End the vinyl gesture before changing loops or tempo.");
         return false;
     }
     // Release has priority over later slider/play events. Never lose a release
     // just because the bounded transport queue was full at pointer-up.
+    if (!flushScratchEnds()) {
+        failedTransport();
+        fail("Scratch release is waiting for the audio control queue.");
+        return false;
+    }
     if (!flushCueReleases()) {
+        failedTransport();
         fail("Cue release is waiting for the audio control queue.");
         return false;
     }
     if (!session_->submit(command)) {
+        failedTransport();
         fail("Audio control queue is full. Try the control again.");
         return false;
     }
+    // The queued native transport command cancels scratch itself. Do not add a
+    // redundant End+seek; source/token guards reject a later old-pointer Move.
+    if (transportEndsScratch) scratchGestures_[command.deck].reset();
     ++submitted_;
     error_.clear();
     return true;
 }
 
+bool DeckController::sameScratchSource(std::size_t deck, const ScratchIdentity& identity) const
+{
+    return deck < clips_.size() && clips_[deck] && sourceIds_[deck] == identity.sourceId &&
+        state_.sourceGeneration[deck] == identity.sourceGeneration;
+}
+
+bool DeckController::canScratch(std::size_t deck) const
+{
+    return !closing_ && ready_ && session_ && deck < clips_.size() && clips_[deck] &&
+        !clips_[deck]->live() && !replacing_[deck] && !sourceIds_[deck].isEmpty() &&
+        state_.scratch[deck].supported && !state_.scratch[deck].errorCode &&
+        !state_.sourceReadError[deck] && !state_.cueHeld[deck] && !state_.cuePreview[deck] && !cueDown_[deck] &&
+        !state_.tempo[deck].active && !state_.loops[deck].inSet && !state_.loops[deck].outSet &&
+        !state_.loops[deck].cached && !state_.loops[deck].active;
+}
+
+bool DeckController::scratchBusy(std::size_t deck) const
+{
+    return scratchGestures_[deck].has_value() || scratchEnds_[deck].has_value() || state_.scratch[deck].active;
+}
+
+void DeckController::queueScratchEnd(std::size_t deck)
+{
+    if (!scratchGestures_[deck]) return;
+    // Revoke first: direct GUI observers and duplicate pointer-up cannot move
+    // this accepted gesture while its release waits for bounded queue space.
+    auto identity = std::move(scratchGestures_[deck]->identity);
+    scratchGestures_[deck].reset();
+    if (sameScratchSource(deck, identity)) scratchEnds_[deck] = std::move(identity);
+}
+
+bool DeckController::flushScratchEnds()
+{
+    for (std::size_t deck = 0; deck < scratchEnds_.size(); ++deck) {
+        if (!scratchEnds_[deck]) continue;
+        const auto& identity = *scratchEnds_[deck];
+        if (!sameScratchSource(deck, identity)) { scratchEnds_[deck].reset(); continue; }
+        if (!session_) return false;
+        audio::RenderCore::Command command;
+        command.type = audio::RenderCore::Command::Type::ScratchEnd;
+        command.deck = std::uint32_t(deck);
+        command.scratchToken = identity.nativeToken;
+        command.sourceGeneration = identity.sourceGeneration;
+        if (!session_->submit(command)) return false;
+        scratchEnds_[deck].reset();
+        ++submitted_;
+    }
+    if (error_ == "Scratch release is waiting for the audio control queue.") error_.clear();
+    return true;
+}
+
+QString DeckController::beginScratch(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !canScratch(std::size_t(deck))) return {};
+    if (!flushScratchEnds() || scratchBusy(std::size_t(deck))) return {};
+    std::uint64_t nativeToken = 0;
+    if (!nextScratchToken(nativeToken)) { fail("Vinyl gesture identity exhausted."); return {}; }
+    ScratchGesture gesture;
+    gesture.identity = {QString::number(nativeToken, 16).rightJustified(16, QChar(u'0')),
+                        sourceIds_[deck], nativeToken, state_.sourceGeneration[deck]};
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::ScratchBegin;
+    command.deck = std::uint32_t(deck);
+    command.scratchToken = nativeToken;
+    command.sourceGeneration = gesture.identity.sourceGeneration;
+    if (!submit(command)) return {};
+    gesture.interval.start();
+    scratchGestures_[deck] = std::move(gesture);
+    return scratchGestures_[deck]->identity.token;
+}
+
+bool DeckController::moveScratch(int deck, const QString& token, qint64 cumulativeFrames)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !scratchGestures_[deck] ||
+        token != scratchGestures_[deck]->identity.token) return false;
+    auto& gesture = *scratchGestures_[deck];
+    if (!sameScratchSource(std::size_t(deck), gesture.identity)) {
+        scratchGestures_[deck].reset();
+        return false;
+    }
+    const qint64 elapsed = gesture.interval.nsecsElapsed();
+    if (!canScratch(std::size_t(deck)) || elapsed <= 0) {
+        queueScratchEnd(std::size_t(deck));
+        (void)flushScratchEnds();
+        return false;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::ScratchMove;
+    command.deck = std::uint32_t(deck);
+    command.scratchToken = gesture.identity.nativeToken;
+    command.sourceGeneration = gesture.identity.sourceGeneration;
+    command.deltaFrames = cumulativeFrames;
+    // A stationary contact remains valid. After the source's 30 ms motion
+    // watchdog has stopped it, treat the next event as a fresh motion burst
+    // rather than averaging its velocity over the entire stationary hold.
+    // The source still bounds speed and consumes only the requested distance.
+    command.scratchIntervalSeconds = double(std::min<qint64>(elapsed, 30000000LL)) / 1000000000.;
+    if (!submit(command)) {
+        queueScratchEnd(std::size_t(deck));
+        (void)flushScratchEnds();
+        return false;
+    }
+    gesture.interval.start();
+    return true;
+}
+
+bool DeckController::endScratch(int deck, const QString& token)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !scratchGestures_[deck] ||
+        token != scratchGestures_[deck]->identity.token) return false;
+    queueScratchEnd(std::size_t(deck));
+    if (!flushScratchEnds()) fail("Scratch release is waiting for the audio control queue.");
+    return true; // Accepted locally; the public map still waits for native ACK.
+}
+
 bool DeckController::flushCueReleases()
 {
+    if (!flushScratchEnds()) return false;
     for (std::size_t deck = 0; deck < cueReleasePending_.size(); ++deck) {
         if (!cueReleasePending_[deck])
             continue;

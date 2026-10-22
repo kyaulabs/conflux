@@ -16,7 +16,7 @@ pkg_check_modules(RubberBand REQUIRED IMPORTED_TARGET rubberband>=3.3)
 
 add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp
     src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/PreparedLoopCache.cpp src/audio/StemBankSource.cpp
-    src/audio/TempoProcessor.cpp src/audio/PreparedTempoSource.cpp
+    src/audio/TempoProcessor.cpp src/audio/PreparedTempoSource.cpp src/audio/PreparedScratchSource.cpp
     src/audio/LiveStemBuffer.cpp src/audio/StemRateConverter.cpp src/audio/LiveRecoveryPolicy.cpp
     src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
     src/audio/AudioRouting.cpp)
@@ -113,6 +113,25 @@ if(BUILD_TESTING)
     target_link_libraries(conflux-audio-tempo-transport-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-tempo-transport-test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME audio-tempo-transport COMMAND conflux-audio-tempo-transport-test)
+    add_executable(conflux-audio-scratch-transport-test tests/audio_scratch_transport_test.cpp)
+    target_link_libraries(conflux-audio-scratch-transport-test PRIVATE conflux-audio)
+    target_compile_options(conflux-audio-scratch-transport-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-scratch-transport COMMAND conflux-audio-scratch-transport-test)
+    add_executable(conflux-audio-prepared-scratch-test tests/audio_prepared_scratch_test.cpp)
+    target_link_libraries(conflux-audio-prepared-scratch-test PRIVATE conflux-audio Threads::Threads)
+    target_compile_definitions(conflux-audio-prepared-scratch-test PRIVATE _LARGEFILE64_SOURCE)
+    target_compile_options(conflux-audio-prepared-scratch-test PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_options(conflux-audio-prepared-scratch-test PRIVATE
+        -Wl,--wrap=pread -Wl,--wrap=pread64 -Wl,--wrap=__pread_chk -Wl,--wrap=__pread64_chk)
+    add_test(NAME audio-prepared-scratch COMMAND conflux-audio-prepared-scratch-test)
+    add_executable(conflux-audio-scratch-playback-test tests/audio_scratch_playback_test.cpp)
+    target_link_libraries(conflux-audio-scratch-playback-test PRIVATE conflux-audio Threads::Threads)
+    target_compile_definitions(conflux-audio-scratch-playback-test PRIVATE _LARGEFILE64_SOURCE)
+    target_compile_options(conflux-audio-scratch-playback-test PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_options(conflux-audio-scratch-playback-test PRIVATE
+        -Wl,--wrap=pread -Wl,--wrap=pread64 -Wl,--wrap=__pread_chk -Wl,--wrap=__pread64_chk)
+    add_test(NAME audio-scratch-playback COMMAND conflux-audio-scratch-playback-test)
+    set_tests_properties(audio-scratch-transport audio-prepared-scratch audio-scratch-playback PROPERTIES TIMEOUT 60)
     add_executable(conflux-audio-prepared-tempo-test tests/audio_prepared_tempo_test.cpp)
     target_link_libraries(conflux-audio-prepared-tempo-test PRIVATE conflux-audio Threads::Threads)
     target_compile_options(conflux-audio-prepared-tempo-test PRIVATE -Wall -Wextra -Wpedantic)
@@ -313,7 +332,7 @@ if(CONFLUX_BUILD_UI)
         target_compile_options(conflux-prepare-audio-check PRIVATE -Wall -Wextra -Wpedantic)
         set_tests_properties(deck-controller manual-ui PROPERTIES TIMEOUT 60
             ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Basic")
-        set_tests_properties(manual-ui PROPERTIES TIMEOUT 120)
+        set_tests_properties(manual-ui PROPERTIES TIMEOUT 180)
     endif()
     install(TARGETS conflux RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     install(FILES tools/timing/analyze_bpm.py DESTINATION ${CMAKE_INSTALL_DATADIR}/conflux)

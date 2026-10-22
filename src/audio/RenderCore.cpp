@@ -18,6 +18,9 @@ AudioSource validatedMemory(std::span<const float> pcm)
 }
 bool validSource(AudioSource source) noexcept
 {
+    if (bool(source.scratchControl) != bool(source.scratchState) ||
+        (source.scratchControl && (!source.frames || source.memory || !source.read || !source.context)))
+        return false;
     if (bool(source.tempoControl) != bool(source.tempoState) ||
         (source.tempoControl && (!source.frames || source.memory || !source.read || !source.context)))
         return false;
@@ -113,6 +116,7 @@ void RenderCore::transition(Deck& deck) noexcept
 
 bool RenderCore::renderActive(const Deck& deck) noexcept
 {
+    if (deck.source.scratchState && deck.source.scratchState(deck.source.context).active) return true;
     if (!deck.playing && !deck.cuePreviewing) return false;
     if (deck.source.tempoState) {
         const auto tempo = deck.source.tempoState(deck.source.context);
@@ -136,7 +140,8 @@ void RenderCore::moveCursor(Deck& deck, std::uint64_t frame) noexcept
 {
     deck.buffering = false;
     const bool processed = deck.source.tempoState && deck.source.tempoState(deck.source.context).active;
-    if (deck.frame == frame && !processed)
+    const bool scratching = deck.source.scratchState && deck.source.scratchState(deck.source.context).active;
+    if (deck.frame == frame && !processed && !scratching)
         return;
     deck.frame = frame;
     deck.nominalPosition = double(frame);
@@ -205,12 +210,70 @@ AudioTempoState RenderCore::tempoState(std::size_t deck) const noexcept
     return source.tempoState(source.context);
 }
 
+AudioScratchState RenderCore::scratchState(std::size_t deck) const noexcept
+{
+    if (deck >= deckCount || !decks_[deck].source.scratchState) return {};
+    const auto& source = decks_[deck].source;
+    auto result = source.scratchState(source.context);
+    result.scratchToken = decks_[deck].scratchToken;
+    return result;
+}
+
+bool RenderCore::beginScratch(std::size_t deck, std::uint64_t token) noexcept
+{
+    if (deck >= deckCount || !token) return false;
+    auto& state = decks_[deck];
+    const auto scratch = scratchState(deck);
+    const auto loop = loopState(deck);
+    if (!state.source.scratchControl || !scratch.supported || scratch.active || scratch.errorCode ||
+        token <= state.scratchToken || state.cueHeld || state.cuePreviewing ||
+        loop.inSet || loop.outSet || loop.cached || loop.active || tempoState(deck).active)
+        return false;
+    if (!state.source.scratchControl(state.source.context, AudioScratchCommand::Begin, 0, 0, state.frame))
+        return false;
+    state.scratchToken = token;
+    state.nominalPosition = double(state.frame);
+    state.buffering = false;
+    transition(state);
+    notifyActivity(state);
+    return true;
+}
+
+bool RenderCore::moveScratch(std::size_t deck, std::uint64_t token, std::int64_t cumulativeFrames,
+                             double intervalSeconds) noexcept
+{
+    if (deck >= deckCount || !token || token != decks_[deck].scratchToken ||
+        !std::isfinite(intervalSeconds) || intervalSeconds <= 0 || intervalSeconds > 1 ||
+        !scratchState(deck).active)
+        return false;
+    auto& state = decks_[deck];
+    return state.source.scratchControl(state.source.context, AudioScratchCommand::Move,
+                                       cumulativeFrames, intervalSeconds, state.frame);
+}
+
+bool RenderCore::endScratch(std::size_t deck, std::uint64_t token) noexcept
+{
+    if (deck >= deckCount || !token || token != decks_[deck].scratchToken) return false;
+    auto& state = decks_[deck];
+    const auto scratch = scratchState(deck);
+    if (!scratch.active) return true;
+    if (!std::isfinite(scratch.position) || scratch.position < 0 || scratch.position > double(state.source.frames) ||
+        !state.source.scratchControl(state.source.context, AudioScratchCommand::End, 0, 0, state.frame))
+        return false;
+    state.nominalPosition = scratch.position;
+    state.frame = static_cast<std::uint64_t>(scratch.position);
+    state.buffering = false;
+    transition(state);
+    notifyActivity(state);
+    return true;
+}
+
 bool RenderCore::changeTempo(std::size_t deck, AudioTempoCommand command, double percent, bool keyLock) noexcept
 {
     if (deck >= deckCount || !std::isfinite(percent) || percent < -6.0 || percent > 6.0)
         return false;
     auto& state = decks_[deck];
-    if (state.cuePreviewing || !state.source.tempoControl) return false;
+    if (state.cuePreviewing || scratchState(deck).active || !state.source.tempoControl) return false;
     const auto before = tempoState(deck);
     if (!state.source.tempoControl(state.source.context, command, percent, keyLock, state.frame))
         return false;
@@ -244,7 +307,7 @@ bool RenderCore::loopIn(std::size_t deck) noexcept
 {
     if (deck >= deckCount) return false;
     auto& state = decks_[deck];
-    return !state.cuePreviewing && state.source.loopControl &&
+    return !state.cuePreviewing && !scratchState(deck).active && state.source.loopControl &&
         state.source.loopControl(state.source.context, AudioLoopCommand::In, state.frame);
 }
 
@@ -252,7 +315,7 @@ bool RenderCore::loopOut(std::size_t deck) noexcept
 {
     if (deck >= deckCount) return false;
     auto& state = decks_[deck];
-    if (!state.playing || state.cuePreviewing || !state.source.loopControl ||
+    if (!state.playing || state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
         !state.source.loopControl(state.source.context, AudioLoopCommand::Out, state.frame))
         return false;
     const bool wasActive = renderActive(state);
@@ -267,7 +330,7 @@ bool RenderCore::loopToggle(std::size_t deck) noexcept
 {
     if (deck >= deckCount) return false;
     auto& state = decks_[deck];
-    if (state.cuePreviewing || !state.source.loopControl ||
+    if (state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
         !state.source.loopControl(state.source.context, AudioLoopCommand::Toggle, state.frame))
         return false;
     if (const auto loop = loopState(deck); loop.active) {
@@ -300,7 +363,7 @@ bool RenderCore::isDeckSilentForReplacement(std::size_t deck) const noexcept
 {
     if (deck >= deckCount) return false;
     const auto& state = decks_[deck];
-    return !state.playing && !state.cuePreviewing && !state.transition;
+    return !state.playing && !state.cuePreviewing && !state.transition && !scratchState(deck).active;
 }
 
 bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
@@ -321,6 +384,7 @@ bool RenderCore::setPlaying(std::size_t deck, bool playing) noexcept
     if (deck >= deckCount || !decks_[deck].source.frames)
         return false;
     auto& state = decks_[deck];
+    if (scratchState(deck).active && !endScratch(deck, state.scratchToken)) return false;
     const bool active = state.playing || state.cuePreviewing;
     const bool wasRenderActive = renderActive(state);
     state.playing = playing;
@@ -476,6 +540,10 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::TempoPercent: return setTempoPercent(command.deck, command.tempoPercent);
     case Command::Type::MasterTempo: return toggleMasterTempo(command.deck);
     case Command::Type::TempoReset: return resetTempo(command.deck);
+    case Command::Type::ScratchBegin: return beginScratch(command.deck, command.scratchToken);
+    case Command::Type::ScratchMove: return moveScratch(command.deck, command.scratchToken,
+        command.deltaFrames, command.scratchIntervalSeconds);
+    case Command::Type::ScratchEnd: return endScratch(command.deck, command.scratchToken);
     }
     return false;
 }
@@ -644,7 +712,7 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
     std::array<bool, deckCount> stalled{};
     for (std::size_t index = 0; index < deckCount; ++index)
         if (renderActive(decks_[index]))
-            needed[index] = (tempoState(index).active || loopState(index).active) ? frames :
+            needed[index] = (scratchState(index).active || tempoState(index).active || loopState(index).active) ? frames :
                 std::min<std::uint64_t>(frames, sourceFrames(index) - decks_[index].frame);
 
     for (std::size_t offset = 0; offset < frames;) {
@@ -674,9 +742,10 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
                 auto buffer = std::span(sourceScratch_[index]).first(requested * channels);
                 auto result = deck.source.read(deck.source.context, deck.frame, buffer);
                 const bool processed = tempoState(index).active;
-                if ((processed && !result.positionValid) ||
-                    (result.positionValid && (!processed || !std::isfinite(result.nominalPosition) ||
-                        result.nominalPosition < deck.nominalPosition ||
+                const bool scratching = scratchState(index).active;
+                if (((processed || scratching) && !result.positionValid) ||
+                    (result.positionValid && ((!processed && !scratching) || !std::isfinite(result.nominalPosition) ||
+                        (!scratching && result.nominalPosition < deck.nominalPosition) || result.nominalPosition < 0 ||
                         result.nominalPosition > double(deck.source.frames) ||
                         (!result.frames && !result.finished && result.nominalPosition != deck.nominalPosition))) ||
                     (result.finished && !processed) || result.frames > requested || std::ranges::any_of(

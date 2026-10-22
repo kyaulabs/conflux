@@ -634,7 +634,16 @@ public:
         for (std::size_t count = 0; count < TransportQueue::capacity; ++count) {
             RenderCore::Command command;
             if (!commands_.tryPop(command)) break;
-            renderer_.apply(command) ? ++applied_ : ++rejected_;
+            const bool scratch = command.type == RenderCore::Command::Type::ScratchBegin ||
+                command.type == RenderCore::Command::Type::ScratchMove ||
+                command.type == RenderCore::Command::Type::ScratchEnd;
+            const bool validDeck = command.deck < sourceGeneration_.size();
+            const bool stale = scratch && validDeck && command.sourceGeneration != sourceGeneration_[command.deck];
+            // A paired release of an already retired source is a safe no-op;
+            // it must never stop a new source's gesture. Stale new motion fails.
+            const bool applied = scratch && !validDeck ? false : stale ?
+                command.type == RenderCore::Command::Type::ScratchEnd && command.scratchToken != 0 : renderer_.apply(command);
+            applied ? ++applied_ : ++rejected_;
             lastCommandId_ = command.id;
         }
     }
@@ -689,7 +698,11 @@ public:
             state.buffering[deck] = renderer_.isBuffering(deck);
             state.starvedFrames[deck] = renderer_.starvedFrames(deck);
             state.sourceReadErrorObserved[deck] = renderer_.readFailed(deck);
-            state.sourceReadError[deck] = activePlaybacks_[deck] ? bool(activePlaybacks_[deck]->errorCode()) : renderer_.readFailed(deck);
+            state.scratch[deck] = renderer_.scratchState(deck);
+            state.sourceReadError[deck] = activePlaybacks_[deck]
+                ? bool(activePlaybacks_[deck]->errorCode()) ||
+                    (state.scratch[deck].active && state.scratch[deck].errorCode != 0)
+                : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
             state.stemBank[deck] = renderer_.isStemBank(deck);
             state.loops[deck] = renderer_.loopState(deck);
