@@ -3,10 +3,13 @@
 
 #include "audio/AudioFile.hpp"
 
+#include <QByteArray>
 #include <QString>
+#include <cstdint>
 #include <optional>
 #include <stdexcept>
 #include <stop_token>
+#include <vector>
 
 namespace conflux::library {
 
@@ -17,10 +20,22 @@ struct BpmEngine {
     int maxSeconds = 180; // Worker deadline, 1..180; bounded cleanup follows it.
 };
 
+// Unqualified detector estimates in the original prepared stereo48k clock.
+// They are not a constant-tempo grid or a deck-synchronization contract.
+struct BpmBeat {
+    std::uint32_t frame = 0;
+    bool downbeat = false;
+};
+
 struct BpmEstimate {
     std::optional<double> bpm;
     QString status = QStringLiteral("Unavailable");
     QString error;
+    // Retained once with the accepted analysis; UI snapshots project only the
+    // existing summary. Unknown may still contain valid source-frame events.
+    std::uint64_t analysisFrames = 0;
+    QByteArray pcmSha256{};
+    std::vector<BpmBeat> beats{};
 };
 
 class BpmSourceError : public std::runtime_error {

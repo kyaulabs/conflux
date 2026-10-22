@@ -1552,7 +1552,8 @@ private slots:
         QVERIFY(asset.open(QIODevice::WriteOnly)); asset.write("fixture"); asset.close();
         QFile worker(script);
         QVERIFY(worker.open(QIODevice::WriteOnly));
-        worker.write("import argparse, hashlib, json, sys\np=argparse.ArgumentParser()\np.add_argument('--source-dir')\np.add_argument('--model')\np.add_argument('--frames',type=int)\na=p.parse_args()\nb=sys.stdin.buffer.read()\nprint(json.dumps(dict(schema=1,recipe='beat-this-final0-linear-mel-v1',frames=a.frames,pcm_sha256=hashlib.sha256(b).hexdigest(),bpm=120.0,beat_count=4)))\n");
+        worker.write("import argparse, hashlib, json, sys\np=argparse.ArgumentParser()\np.add_argument('--source-dir')\np.add_argument('--model')\np.add_argument('--frames',type=int)\na=p.parse_args()\nb=sys.stdin.buffer.read()\nprint(json.dumps(dict(schema=2,recipe='beat-this-final0-linear-mel-v1',frames=a.frames,pcm_sha256=hashlib.sha256(b).hexdigest(),bpm=120.0,beat_count=4)))\n");
+        worker.write("for frame in (0, 960, 1920, 2880): print(json.dumps(dict(frame=frame,downbeat=(frame==0))))\n");
         worker.close();
         conflux::DeckController::PreparationOptions options;
         options.bpmEngine = conflux::library::BpmEngine{"/usr/bin/python3", directory.path(), model, script};

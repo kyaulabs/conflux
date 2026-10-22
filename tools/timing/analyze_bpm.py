@@ -9,6 +9,8 @@ and its LICENSE; no third-party code or weights are bundled here.
 
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
+Timing rows retain the same beat/downbeat estimates; their source-frame
+validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
 
@@ -26,7 +28,8 @@ import types
 
 RATE, CHANNELS, FPS = 48000, 2, 50
 MAX_FRAMES = 33554432
-MAX_OUTPUT_BYTES = 4096
+MAX_EVENTS = 34953
+MAX_OUTPUT_BYTES = 4 * 1024**2
 RECIPE = "beat-this-final0-linear-mel-v1"
 MODEL_BYTES = 81058141
 MODEL_SHA256 = "8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331"
@@ -92,7 +95,7 @@ def source_mask(frames, resampled_lengths, logit_frames):
 
 def source_beat_frames(seconds, frames):
     validate_frames(frames)
-    if type(seconds) not in (list, tuple) or len(seconds) > frames * FPS // RATE + 1:
+    if type(seconds) not in (list, tuple) or len(seconds) > min(MAX_EVENTS, frames * FPS // RATE + 1):
         raise ValueError("invalid bounded beat stream")
     result, previous = [], None
     for value in seconds:
@@ -121,20 +124,31 @@ def summarize_beats(seconds, frames):
     return (round(bpm, 1) if 20 <= bpm <= 400 else None), len(beat_frames)
 
 
-def encode_result(frames, pcm_sha256, bpm, beat_count):
-    validate_frames(frames)
+def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
+    # Keep the existing source-time validation, including rejection of a
+    # timestamp that rounds to EOF. Never sort, filter, or repair detector output.
+    beat_frames = source_beat_frames(beat_seconds, frames)
+    downbeat_frames = source_beat_frames(downbeat_seconds, frames)
+    if not set(downbeat_seconds).issubset(beat_seconds):
+        raise ValueError("downbeat stream is not a subset of beats")
+    beat_count = len(beat_frames)
     if (type(pcm_sha256) is not str or len(pcm_sha256) != 64 or
             any(c not in "0123456789abcdef" for c in pcm_sha256) or
-            type(beat_count) is not int or not 0 <= beat_count <= frames * FPS // RATE + 1 or
             (bpm is not None and (type(bpm) not in (int, float) or not 20 <= bpm <= 400 or
                                  not math.isfinite(bpm) or beat_count < 2 or round(bpm, 1) != bpm))):
         raise ValueError("invalid BPM summary output")
-    value = {"schema": 1, "recipe": RECIPE, "frames": frames,
+    value = {"schema": 2, "recipe": RECIPE, "frames": frames,
              "pcm_sha256": pcm_sha256, "bpm": bpm, "beat_count": beat_count}
-    raw = (json.dumps(value, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii")
+    raw = bytearray((json.dumps(value, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii"))
     if len(raw) > MAX_OUTPUT_BYTES:
-        raise ValueError("BPM summary exceeds output limit")
-    return raw
+        raise ValueError("BPM timing output exceeds output limit")
+    downbeats = set(downbeat_frames)
+    for frame in beat_frames:
+        event = {"frame": frame, "downbeat": frame in downbeats}
+        raw.extend((json.dumps(event, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii"))
+        if len(raw) > MAX_OUTPUT_BYTES:
+            raise ValueError("BPM timing output exceeds output limit")
+    return bytes(raw)
 
 
 def identity(value):
@@ -267,11 +281,8 @@ def run(source_dir, model_path, frames, stream):
     postprocessor = upstream.Postprocessor(type="minimal", fps=FPS)
     beats, downbeats = postprocessor(beat, downbeat, padding_mask=torch.tensor(mask, dtype=torch.bool))
     seconds, down_seconds = [float(x) for x in beats], [float(x) for x in downbeats]
-    source_beat_frames(down_seconds, frames)
-    if not set(down_seconds).issubset(seconds):
-        raise ValueError("downbeat stream is not a subset of beats")
-    bpm, beat_count = summarize_beats(seconds, frames)
-    return encode_result(frames, pcm_sha256, bpm, beat_count)
+    bpm, _beat_count = summarize_beats(seconds, frames)
+    return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds)
 
 
 def main():

@@ -81,20 +81,92 @@ class AnalyzeBpmTest(unittest.TestCase):
         frames = 120 * 48000
         self.assertEqual(len(bpm.source_mask(frames, [120 * 22050] * 2, 6001)), 6001)
 
-    def test_output_is_small_versioned_summary_with_null_unknown(self):
+    def test_schema2_keeps_summary_and_exact_source_frame_events(self):
         digest = hashlib.sha256(b"fixture").hexdigest()
-        raw = bpm.encode_result(bpm.MAX_FRAMES, digest, 120.1, 42)
-        self.assertLessEqual(len(raw), 4096)
+        seconds = [0, .5, .75, 1.25]
+        estimate, count = bpm.summarize_beats(seconds, 96000)
+        raw = bpm.encode_result(96000, digest, estimate, seconds, [0, .75])
         self.assertTrue(raw.endswith(b"\n"))
-        self.assertEqual(json.loads(raw), {"schema": 1, "recipe": "beat-this-final0-linear-mel-v1",
-                         "frames": 33554432, "pcm_sha256": digest, "bpm": 120.1, "beat_count": 42})
-        self.assertIsNone(json.loads(bpm.encode_result(48000, digest, None, 1))["bpm"])
-        for value, count in ((float("nan"), 2), (float("inf"), 2), (True, 2),
-                             (19.9, 2), (400.1, 2), (120.11, 2), (120, 1), (None, True), (None, 52)):
-            with self.subTest(value=value, count=count), self.assertRaises(ValueError):
-                bpm.encode_result(48000, digest, value, count)
+        self.assertLessEqual(len(raw), bpm.MAX_OUTPUT_BYTES)
+        lines = raw.splitlines()
+        header, *events = [json.loads(line) for line in lines]
+        self.assertEqual(header, {"schema": 2, "recipe": "beat-this-final0-linear-mel-v1",
+                         "frames": 96000, "pcm_sha256": digest, "bpm": 120.0, "beat_count": count})
+        self.assertEqual(set(header), {"schema", "recipe", "frames", "pcm_sha256", "bpm", "beat_count"})
+        self.assertEqual(len(events), header["beat_count"])
+        self.assertEqual(events, [{"frame": 0, "downbeat": True},
+                                 {"frame": 24000, "downbeat": False},
+                                 {"frame": 36000, "downbeat": True},
+                                 {"frame": 60000, "downbeat": False}])
+        self.assertTrue(all(type(event["frame"]) is int and type(event["downbeat"]) is bool for event in events))
+        self.assertTrue(all(len(line) + 1 <= 64 for line in lines[1:]))
+
+    def test_unknown_summary_preserves_zero_one_and_outlier_timing(self):
+        digest = hashlib.sha256(b"fixture").hexdigest()
+        for seconds, downbeats in (([], []), ([.5], [.5]), ([0, 3.01], [0])):
+            with self.subTest(seconds=seconds):
+                estimate, count = bpm.summarize_beats(seconds, 192000)
+                self.assertIsNone(estimate)
+                header, *events = [json.loads(line) for line in
+                    bpm.encode_result(192000, digest, estimate, seconds, downbeats).splitlines()]
+                self.assertIsNone(header["bpm"])
+                self.assertEqual(header["beat_count"], count)
+                self.assertEqual([event["frame"] for event in events], bpm.source_beat_frames(seconds, 192000))
+        # Local intervals remain actual adjacent intervals, not a constant grid
+        # reconstructed from the whole-track median.
+        seconds = [0, .5, .75]
+        estimate, _count = bpm.summarize_beats(seconds, 96000)
+        header, *events = [json.loads(line) for line in
+            bpm.encode_result(96000, digest, estimate, seconds, []).splitlines()]
+        self.assertEqual(header["bpm"], 180.0)
+        frames = [event["frame"] for event in events]
+        self.assertEqual([60 * bpm.RATE / (b - a) for a, b in zip(frames, frames[1:])], [120.0, 240.0])
+
+    def test_output_rejects_invalid_summary_events_and_downbeat_membership(self):
+        digest = hashlib.sha256(b"fixture").hexdigest()
+        for value, seconds in ((float("nan"), [0, .5]), (float("inf"), [0, .5]),
+                               (True, [0, .5]), (19.9, [0, .5]), (400.1, [0, .5]),
+                               (120.11, [0, .5]), (120, [.5])):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                bpm.encode_result(48000, digest, value, seconds, [])
+        for stream in ([float("nan")], [float("inf")], [True], ["0.5"], [-.1],
+                       [1], [.999999], [0, 0], [.5, .25], [0, 1 / 96000], [10**1000]):
+            with self.subTest(beats=stream), self.assertRaises(ValueError):
+                bpm.encode_result(48000, digest, None, stream, [])
+            with self.subTest(downbeats=stream), self.assertRaises(ValueError):
+                bpm.encode_result(48000, digest, 120.0, [0, .5], stream)
+        # A nonmember that rounds to an existing beat frame is still not an
+        # original downbeat timestamp; preserve the exact subset requirement.
+        for downbeats in ([.25], [1 / 480000], [.5, 0], [.5, .5]):
+            with self.subTest(downbeats=downbeats), self.assertRaises(ValueError):
+                bpm.encode_result(48000, digest, 120.0, [0, .5], downbeats)
         with self.assertRaises(ValueError):
-            bpm.encode_result(48000, "x" * 64, None, 0)
+            bpm.encode_result(48000, "x" * 64, None, [], [])
+
+    def test_maximum_event_geometry_and_whole_output_cap(self):
+        digest = hashlib.sha256(b"fixture").hexdigest()
+        self.assertEqual(bpm.MAX_EVENTS, bpm.MAX_FRAMES * bpm.FPS // bpm.RATE + 1)
+        seconds = [index / bpm.FPS for index in range(bpm.MAX_EVENTS)]
+        raw = bpm.encode_result(bpm.MAX_FRAMES, digest, None, seconds, [seconds[0], seconds[-1]])
+        header, *events = [json.loads(line) for line in raw.splitlines()]
+        self.assertEqual(header["beat_count"], 34953)
+        self.assertEqual(len(events), 34953)
+        self.assertEqual(events[-1], {"frame": (bpm.MAX_EVENTS - 1) * 960, "downbeat": True})
+        self.assertLess(events[-1]["frame"], bpm.MAX_FRAMES)
+        self.assertLessEqual(len(raw), 4 * 1024**2)
+        self.assertTrue(all(len(line) + 1 <= 64 for line in raw.splitlines()[1:]))
+        with self.assertRaises(ValueError):
+            bpm.encode_result(bpm.MAX_FRAMES, digest, None, seconds + [seconds[-1] + .02], [])
+        with self.assertRaises(ValueError):
+            bpm.encode_result(48000, digest, None, seconds[:52], [])
+        with patch.object(bpm, "MAX_EVENTS", 3), self.assertRaises(ValueError):
+            bpm.encode_result(96000, digest, None, [0, .5, 1, 1.5], [])
+        small = bpm.encode_result(48000, digest, 120.0, [0, .5], [0])
+        with patch.object(bpm, "MAX_OUTPUT_BYTES", len(small) - 1), self.assertRaises(ValueError):
+            bpm.encode_result(48000, digest, 120.0, [0, .5], [0])
+        empty = bpm.encode_result(48000, digest, None, [], [])
+        with patch.object(bpm, "MAX_OUTPUT_BYTES", len(empty) - 1), self.assertRaises(ValueError):
+            bpm.encode_result(48000, digest, None, [], [])
 
     def test_pinned_regular_file_content_and_symlink_rejection(self):
         with tempfile.TemporaryDirectory(prefix="conflux-bpm-test-") as temporary:

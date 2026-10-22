@@ -53,10 +53,10 @@ struct Fixture {
     library::BpmEngine engine;
     QString marker;
     static constexpr std::uint64_t frames = 4099;
-    explicit Fixture(const QByteArray& mode = "good")
+    explicit Fixture(const QByteArray& mode = "good", std::uint64_t frameCount = frames)
     {
         if (!directory.isValid()) throw std::runtime_error("Cannot create private BPM fixture directory");
-        std::vector<float> samples(frames * 2);
+        std::vector<float> samples(frameCount * 2);
         for (std::size_t index = 0; index < samples.size(); ++index)
             samples[index] = float(int(index % 113) - 56) / 32.F;
         samples[0] = -0.F; samples[1] = 0.F;
@@ -67,7 +67,7 @@ struct Fixture {
         const auto fd = open(QFile::encodeName(raw).constData(), O_RDONLY | O_CLOEXEC);
         if (fd < 0) throw std::runtime_error("Cannot open prepared BPM fixture");
         try {
-            auto prepared = audio::reopenPreparedAudio(fd, frames, std::vector<float>(512, 1.F));
+            auto prepared = audio::reopenPreparedAudio(fd, frameCount, std::vector<float>(512, 1.F));
             pcm = std::make_unique<audio::PreparedAudio>(std::move(prepared));
         } catch (...) { close(fd); throw; }
         close(fd);
@@ -96,7 +96,7 @@ P = pathlib.Path(__file__)
 if MODE == 'require-venv':
     assert pathlib.Path(sys.prefix) == P.parent / 'venv' and sys.prefix != sys.base_prefix
 child = 0
-if MODE == 'descendant':
+if MODE in ('descendant', 'partial-descendant'):
     child = os.fork()
     if child == 0:
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -109,23 +109,26 @@ if MODE == 'descendant':
 P.with_suffix('.started').write_text(json.dumps([os.getpid(), child]))
 if MODE in ('block', 'descendant'):
     time.sleep(60)
-if MODE in ('await-change', 'await-change-bad-exit'):
+if MODE in ('await-change', 'await-change-bad-exit', 'await-change-bad-protocol'):
     while not P.with_suffix('.release').exists():
         time.sleep(.005)
 if MODE == 'stdout-flood':
-    sys.stdout.buffer.write(b'x' * 5000); sys.stdout.buffer.flush(); time.sleep(60)
+    sys.stdout.buffer.write(b'x' * (4 * 1024**2 + 1)); sys.stdout.buffer.flush(); time.sleep(60)
 if MODE == 'stderr-flood':
     sys.stderr.buffer.write(b'x' * 70000); sys.stderr.buffer.flush(); time.sleep(60)
-value = {'schema': 1, 'recipe': 'beat-this-final0-linear-mel-v1', 'frames': a.frames,
+value = {'schema': 2, 'recipe': 'beat-this-final0-linear-mel-v1', 'frames': a.frames,
          'pcm_sha256': hashlib.sha256(data).hexdigest(), 'bpm': 120., 'beat_count': 4}
 if MODE == 'unknown': value.update(bpm=None, beat_count=0)
 if MODE == 'one-beat': value.update(bpm=None, beat_count=1)
+if MODE == 'unknown-many': value.update(bpm=None)
+if MODE == 'exact-output-limit': value.update(bpm=None, beat_count=300)
+if MODE == 'schema-one': value['schema'] = 1
 if MODE == 'wrong-hash': value['pcm_sha256'] = '0' * 64
 if MODE == 'wrong-frames': value['frames'] += 1
 if MODE == 'wrong-recipe': value['recipe'] += '-other'
 if MODE == 'bool-schema': value['schema'] = True
 if MODE == 'fractional-count': value['beat_count'] = 2.5
-if MODE == 'oversized-count': value['beat_count'] = 60001
+if MODE == 'oversized-count': value['beat_count'] = 34954
 if MODE == 'source-count-limit': value['beat_count'] = a.frames * 50 // 48000 + 2
 if MODE == 'negative-count': value['beat_count'] = -1
 if MODE == 'bool-count': value['beat_count'] = True
@@ -137,12 +140,65 @@ if MODE == 'overprecision': value['bpm'] = 120.125
 if MODE == 'extra': value['surprise'] = 'ignored?'
 if MODE == 'missing': del value['bpm']
 if MODE == 'wrong-type': value['bpm'] = '120'
-out = json.dumps(value)
-if MODE == 'duplicate': out = '{"schema":0,' + out[1:]
-if MODE == 'malformed': out = '{not-json'
-if MODE == 'two-results': out += '\n' + json.dumps(value)
-if MODE == 'pretty': out = json.dumps(value, indent=2)
-print(out)
+# Synthetic protocol fixtures only: no model or musical accuracy is asserted.
+events = [{'frame': frame, 'downbeat': index in (0, 3)}
+          for index, frame in enumerate((0, 960, 1920, a.frames - 1))]
+if MODE == 'unknown': events = []
+if MODE == 'one-beat': events = [{'frame': 100, 'downbeat': True}]
+if MODE == 'alternate-timing':
+    events = [{'frame': frame, 'downbeat': index == 1}
+              for index, frame in enumerate((1, 1001, 2001, 3001))]
+if MODE == 'exact-output-limit':
+    events = [{'frame': index * 960, 'downbeat': index == 299} for index in range(300)]
+if MODE == 'event-bool-frame': events[0]['frame'] = False
+if MODE == 'event-negative': events[0]['frame'] = -1
+if MODE == 'event-fractional': events[0]['frame'] = .5
+if MODE == 'event-eof': events[-1]['frame'] = a.frames
+if MODE in ('event-duplicate', 'await-change-bad-protocol'): events[1]['frame'] = events[0]['frame']
+if MODE == 'event-reversed': events[1], events[2] = events[2], events[1]
+if MODE == 'event-numeric-downbeat': events[0]['downbeat'] = 1
+if MODE == 'event-null-downbeat': events[0]['downbeat'] = None
+if MODE == 'event-missing': del events[0]['downbeat']
+if MODE == 'event-extra': events[0]['extra'] = 0
+if MODE == 'missing-event': events.pop()
+if MODE == 'extra-event': events.append({'frame': a.frames - 1, 'downbeat': False})
+header = json.dumps(value, separators=(',', ':'))
+rows = [json.dumps(event, separators=(',', ':')) for event in events]
+if MODE == 'event-duplicate-key': rows[0] = '{"frame":0,"frame":1,"downbeat":true}'
+if MODE == 'event-exponent': rows[0] = '{"frame":0e0,"downbeat":true}'
+if MODE == 'event-float-spelling': rows[0] = '{"frame":0.0,"downbeat":true}'
+if MODE == 'event-over-line': rows[0] += ' ' * 16384
+if MODE == 'duplicate': header = '{"schema":0,' + header[1:]
+if MODE == 'malformed': header = '{not-json'
+if MODE == 'pretty': header = json.dumps(value, indent=2)
+if MODE == 'header-over-limit': header += ' ' * (4097 - len(header) - 1)
+if MODE == 'blank-row': rows.insert(1, '')
+lines = [header, *rows]
+if MODE == 'exact-output-limit':
+    remaining = 4 * 1024**2 - len(('\n'.join(lines) + '\n').encode())
+    for index in range(1, len(lines)):
+        padding = min(remaining, 16383 - len(lines[index].encode()))
+        lines[index] += ' ' * padding
+        remaining -= padding
+    assert remaining == 0
+out = '\n'.join(lines) + '\n'
+if MODE == 'two-results': out += out
+if MODE == 'header-only': out = header + '\n'
+if MODE == 'missing-header-lf': out = header + '\n'.join(rows) + '\n'
+if MODE == 'event-before-header': out = rows[0] + '\n' + out
+if MODE == 'unterminated': out = out[:-1]
+if MODE == 'trailing-bytes': out += 'x'
+if MODE == 'partial-descendant':
+    sys.stdout.write(header + '\n' + rows[0] + '\n'); sys.stdout.flush()
+    P.with_suffix('.partial').write_text('header and one event flushed\n')
+    time.sleep(60)
+if MODE == 'fragmented':
+    encoded = out.encode()
+    for index in range(0, len(encoded), 3):
+        os.write(sys.stdout.fileno(), encoded[index:index + 3])
+else:
+    sys.stdout.write(out)
+    sys.stdout.flush()
 if MODE in ('bad-exit', 'await-change-bad-exit'): sys.exit(7)
 )PY";
         write(engine.workerPath, script);
@@ -174,16 +230,27 @@ class BpmAnalyzerTest : public QObject {
 private slots:
     void estimatesAndUnknownPreservePreparedOffset()
     {
-        for (const auto& mode : {QByteArray("good"), QByteArray("pretty"), QByteArray("limits"), QByteArray("unknown"), QByteArray("one-beat")}) {
+        for (const auto& mode : {QByteArray("good"), QByteArray("fragmented"), QByteArray("limits"), QByteArray("unknown"), QByteArray("one-beat"), QByteArray("unknown-many")}) {
             Fixture fixture(mode);
             QCOMPARE(fcntl(fixture.pcm->descriptor(), F_GETFL) & O_ACCMODE, O_RDONLY);
             QCOMPARE(lseek(fixture.pcm->descriptor(), 13, SEEK_SET), off_t(13));
             const auto result = library::analyzeBpm(*fixture.pcm, fixture.engine);
             QVERIFY(result.error.isEmpty());
-            const bool estimated = mode == "good" || mode == "pretty" || mode == "limits";
+            const bool estimated = mode == "good" || mode == "fragmented" || mode == "limits";
             QCOMPARE(result.status, estimated ? QString("Estimated") : QString("Unknown"));
             QCOMPARE(result.bpm.has_value(), estimated);
             if (estimated) QCOMPARE(*result.bpm, 120.);
+            QCOMPARE(result.analysisFrames, Fixture::frames);
+            QCOMPARE(result.pcmSha256, QCryptographicHash::hash(read(fixture.directory.filePath("input.f32")),
+                                                              QCryptographicHash::Sha256).toHex());
+            const std::vector<std::uint32_t> expected = mode == "unknown" ? std::vector<std::uint32_t>{} :
+                mode == "one-beat" ? std::vector<std::uint32_t>{100} :
+                std::vector<std::uint32_t>{0, 960, 1920, std::uint32_t(Fixture::frames - 1)};
+            QCOMPARE(result.beats.size(), expected.size());
+            for (std::size_t index = 0; index < expected.size(); ++index) {
+                QCOMPARE(result.beats[index].frame, expected[index]);
+                QCOMPARE(result.beats[index].downbeat, mode == "one-beat" || index == 0 || index == 3);
+            }
             QCOMPARE(lseek(fixture.pcm->descriptor(), 0, SEEK_CUR), off_t(13));
             absent(fixture.marker);
         }
@@ -193,7 +260,12 @@ private slots:
         QTest::addColumn<QByteArray>("mode");
         for (const auto* mode : {"wrong-hash", "wrong-frames", "wrong-recipe", "bool-schema", "fractional-count",
              "oversized-count", "source-count-limit", "negative-count", "bool-count", "insufficient-beats", "nonfinite", "low-bpm",
-             "high-bpm", "overprecision", "extra", "missing", "wrong-type", "duplicate", "malformed", "two-results", "bad-exit"})
+             "high-bpm", "overprecision", "extra", "missing", "wrong-type", "duplicate", "malformed", "two-results", "bad-exit",
+             "schema-one", "pretty", "header-over-limit", "header-only", "missing-header-lf", "event-before-header",
+             "event-bool-frame", "event-negative", "event-fractional", "event-eof", "event-duplicate", "event-reversed",
+             "event-numeric-downbeat", "event-null-downbeat", "event-missing", "event-extra", "event-duplicate-key",
+             "event-exponent", "event-float-spelling", "event-over-line", "missing-event", "extra-event",
+             "blank-row", "unterminated", "trailing-bytes"})
             QTest::newRow(mode) << QByteArray(mode);
     }
     void invalidWorkerResults()
@@ -203,6 +275,8 @@ private slots:
         const auto result = library::analyzeBpm(*fixture.pcm, fixture.engine);
         QCOMPARE(result.status, QString("Failed"));
         QVERIFY(!result.bpm && !result.error.isEmpty());
+        QCOMPARE(result.analysisFrames, std::uint64_t(0));
+        QVERIFY(result.pcmSha256.isEmpty() && result.beats.empty());
         absent(fixture.marker);
     }
     void boundedWorkerFailures_data()
@@ -243,7 +317,7 @@ private slots:
     }
     void changedAndNonfinitePcmFailTheLoad()
     {
-        for (const auto& mode : {QByteArray("await-change"), QByteArray("await-change-bad-exit")}) {
+        for (const auto& mode : {QByteArray("await-change"), QByteArray("await-change-bad-exit"), QByteArray("await-change-bad-protocol")}) {
             for (const bool truncate : {false, true}) {
                 Fixture fixture(mode);
                 auto future = std::async(std::launch::async, [&] { return library::analyzeBpm(*fixture.pcm, fixture.engine); });
@@ -266,6 +340,58 @@ private slots:
         QCOMPARE(ftruncate(truncated.writable.value, 16), 0);
         QVERIFY_EXCEPTION_THROWN(library::analyzeBpm(*truncated.pcm, truncated.engine), library::BpmSourceError);
         QVERIFY(!QFileInfo::exists(truncated.marker));
+    }
+    void timingMapsKeepTheirOwnPreparedIdentity()
+    {
+        Fixture first, second("alternate-timing");
+        const float changed = .875F;
+        QCOMPARE(pwrite(second.writable.value, &changed, sizeof(changed), 0), ssize_t(sizeof(changed)));
+        const auto a = library::analyzeBpm(*first.pcm, first.engine);
+        const auto b = library::analyzeBpm(*second.pcm, second.engine);
+        QCOMPARE(a.status, QString("Estimated"));
+        QCOMPARE(b.status, QString("Estimated"));
+        QCOMPARE(a.analysisFrames, b.analysisFrames);
+        QVERIFY(a.pcmSha256 != b.pcmSha256);
+        QCOMPARE(b.pcmSha256, QCryptographicHash::hash(read(second.directory.filePath("input.f32")),
+                                                     QCryptographicHash::Sha256).toHex());
+        QCOMPARE(a.beats.front().frame, std::uint32_t(0));
+        QCOMPARE(b.beats.front().frame, std::uint32_t(1));
+        QVERIFY(a.beats.front().downbeat && !b.beats.front().downbeat && b.beats[1].downbeat);
+        absent(first.marker);
+        absent(second.marker);
+    }
+    void wholeOutputLimitIsInclusive()
+    {
+        Fixture fixture("exact-output-limit", 300000);
+        fixture.engine.maxSeconds = 10; // Bounded protocol parsing, not model inference.
+        const auto result = library::analyzeBpm(*fixture.pcm, fixture.engine);
+        QCOMPARE(result.status, QString("Unknown"));
+        QVERIFY(!result.bpm && result.error.isEmpty());
+        QCOMPARE(result.analysisFrames, std::uint64_t(300000));
+        QCOMPARE(result.beats.size(), std::size_t(300));
+        QCOMPARE(result.beats.back().frame, std::uint32_t(299 * 960));
+        QVERIFY(result.beats.back().downbeat);
+        absent(fixture.marker);
+    }
+    void cancellationDuringPartialMapReapsOwnedDescendant()
+    {
+        Fixture fixture("partial-descendant");
+        std::stop_source cancellation;
+        auto future = std::async(std::launch::async, [&] {
+            try { (void)library::analyzeBpm(*fixture.pcm, fixture.engine, cancellation.get_token()); }
+            catch (const std::runtime_error& error) { return std::string(error.what()).find("cancel") != std::string::npos; }
+            return false;
+        });
+        const auto limit = std::chrono::steady_clock::now() + 2s;
+        const auto partial = fixture.directory.filePath("worker.partial");
+        while (!QFileInfo::exists(partial) && std::chrono::steady_clock::now() < limit)
+            std::this_thread::sleep_for(5ms);
+        const bool emitted = QFileInfo::exists(partial);
+        cancellation.request_stop();
+        const bool settled = future.wait_for(6s) == std::future_status::ready;
+        QVERIFY(emitted && settled);
+        QVERIFY(future.get());
+        absent(fixture.marker);
     }
     void configurationFailureDoesNotLaunch()
     {
