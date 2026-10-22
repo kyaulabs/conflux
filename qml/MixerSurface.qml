@@ -185,7 +185,6 @@ Rectangle {
                                 from: 0
                                 to: 1
                                 stepSize: 0.01
-                                value: strip.audioDeck >= 0 ? strip.deck.gain : 0
                                 enabled: strip.available
                                 focusPolicy: Qt.StrongFocus
                                 leftPadding: 3
@@ -196,6 +195,13 @@ Rectangle {
                                 Accessible.description: strip.audioDeck < 0 ? "Additional decks are not implemented."
                                                            : "Linear channel level, zero to one hundred percent."
                                 onMoved: root.controller.setDeckGain(strip.audioDeck, value)
+                                Binding {
+                                    target: levelFader
+                                    property: "value"
+                                    value: strip.audioDeck >= 0 ? strip.deck.gain : 0
+                                    when: !levelFader.pressed
+                                    restoreMode: Binding.RestoreNone
+                                }
                                 ToolTip.visible: hovered || activeFocus
                                 ToolTip.text: strip.audioDeck < 0 ? "Additional decks are not implemented."
                                              : !strip.deck.loaded ? "Load Deck " + strip.modelData.name + " to change its level."

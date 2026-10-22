@@ -134,9 +134,14 @@ Item {
         }
     }
     Label {
+        objectName: "deck" + surface.deckIndex + "Ownership"
         x: surface.edge
         y: 13
-        text: surface.deckName.toUpperCase() + "  /  LOCAL PLAYER"
+        width: surface.width - 2 * surface.edge - 20
+        height: 20
+        text: surface.deckName.toUpperCase() + " / MANUAL"
+        elide: Text.ElideRight
+        Accessible.name: surface.deckName + " control ownership: Manual"
         font.family: Brand.ConfluxTheme.displayFont
         font.pixelSize: 14
         font.letterSpacing: 1.2
@@ -400,32 +405,65 @@ Item {
             to: Math.max(0.001, Number(surface.deck.durationSeconds) || 0)
             stepSize: 0.1
             enabled: surface.canControl
-            property real pendingSeek: 0
-            property bool dragged: false
+            pressed: seekInput.gestureActive && seekInput.pressed
             Accessible.name: surface.deckName + " overview position"
             Accessible.description: "Seek within the loaded track. Overview peaks are normalized to that source."
             onMoved: {
-                pendingSeek = value
-                if (pressed)
-                    dragged = true
-                else if (surface.canControl)
+                // Pointer previews commit on release; keyboard moves stay native.
+                if (!seekInput.gestureActive && surface.canControl)
                     surface.controller.seekSeconds(surface.deckIndex, value)
             }
-            onPressedChanged: {
-                if (pressed) {
-                    dragged = false
-                } else if (dragged) {
-                    if (surface.canControl)
-                        surface.controller.seekSeconds(surface.deckIndex, pendingSeek)
-                    dragged = false
-                }
-            }
+            onActiveFocusChanged: { if (!activeFocus && seekInput) seekInput.gestureActive = false }
             Binding {
                 target: seek
                 property: "value"
                 value: Number(surface.deck.positionSeconds) || 0
-                when: !seek.pressed
+                when: !seekInput.gestureActive
                 restoreMode: Binding.RestoreNone
+            }
+            MouseArea {
+                id: seekInput
+                objectName: "deck" + surface.deckIndex + "SeekInput"
+                anchors.fill: parent
+                z: 1
+                enabled: seek.enabled
+                acceptedButtons: Qt.LeftButton
+                preventStealing: true
+                Accessible.ignored: true
+                property bool gestureActive: false
+                property string gestureSource: ""
+                function valueAtPointer(pointerX) {
+                    const span = Math.max(1, seek.availableWidth - seek.handle.width)
+                    let position = Math.max(0, Math.min(1,
+                        (pointerX - seek.leftPadding - seek.handle.width / 2) / span))
+                    if (seek.mirrored)
+                        position = 1 - position
+                    return Math.max(seek.from, Math.min(seek.to, seek.valueAt(position)))
+                }
+                onPressed: mouse => {
+                    seek.forceActiveFocus(Qt.MouseFocusReason)
+                    gestureSource = surface.sourceId
+                    gestureActive = true
+                    seek.value = valueAtPointer(mouse.x)
+                }
+                onPositionChanged: mouse => {
+                    if (pressed && gestureActive)
+                        seek.value = valueAtPointer(mouse.x)
+                }
+                onReleased: mouse => {
+                    const seconds = valueAtPointer(mouse.x)
+                    const commit = gestureActive && surface.canControl && gestureSource === surface.sourceId
+                    gestureActive = false
+                    if (commit)
+                        surface.controller.seekSeconds(surface.deckIndex, seconds)
+                }
+                onCanceled: gestureActive = false
+                onEnabledChanged: { if (!enabled) gestureActive = false }
+                onVisibleChanged: { if (!visible) gestureActive = false }
+                Connections {
+                    target: surface
+                    function onSourceIdChanged() { seekInput.gestureActive = false }
+                }
             }
             background: Rectangle {
                 x: seek.leftPadding

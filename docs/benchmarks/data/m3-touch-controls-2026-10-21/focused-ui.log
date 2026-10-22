@@ -1,0 +1,17 @@
+********* Start testing of ManualUiTest *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 16.2.1 20260810), arch unknown
+PASS   : ManualUiTest::initTestCase()
+PASS   : ManualUiTest::touchSeekCancellationRestoresAcknowledgedPosition(deck-a-grab-loss)
+PASS   : ManualUiTest::touchSeekCancellationRestoresAcknowledgedPosition(deck-b-grab-loss)
+PASS   : ManualUiTest::touchSeekCancellationRestoresAcknowledgedPosition(deck-a-platform-cancel)
+PASS   : ManualUiTest::touchSeekCancellationRestoresAcknowledgedPosition(deck-b-platform-cancel)
+PASS   : ManualUiTest::touchChannelGainKeepsHeldValueUntilRelease(deck-a)
+PASS   : ManualUiTest::touchChannelGainKeepsHeldValueUntilRelease(deck-b)
+PASS   : ManualUiTest::viewportControlsFit(minimum)
+PASS   : ManualUiTest::viewportControlsFit(default)
+PASS   : ManualUiTest::dragSeekSubmitsOnceOnRelease()
+PASS   : ManualUiTest::snapshotsAndErrorsDoNotSubmitCommands()
+PASS   : ManualUiTest::keyboardSeekAndGainRoutes()
+PASS   : ManualUiTest::cleanupTestCase()
+Totals: 13 passed, 0 failed, 0 skipped, 0 blacklisted, 6520ms
+********* Finished testing of ManualUiTest *********

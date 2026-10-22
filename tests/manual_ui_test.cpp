@@ -15,6 +15,8 @@
 #include <QQuickItem>
 #include <QQuickStyle>
 #include <QQuickWindow>
+#include <QPointingDevice>
+#include <QStyleHints>
 #include <QTemporaryDir>
 #include <QUrl>
 #include <QVariantList>
@@ -541,6 +543,17 @@ private slots:
     }
     void cleanup()
     {
+        if (touchActive_ && ui_ && ui_->window) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
+            QTest::touchEvent(ui_->window, touchDevice_.get(), false).cancel();
+#else
+            // Retire the known contact through Qt's input path before the
+            // window is destroyed; Qt6.4 has no public platform-cancel helper.
+            QTest::touchEvent(ui_->window, touchDevice_.get(), false)
+                .release(0, QPoint(0, 0), ui_->window).commit();
+#endif
+            touchActive_ = false;
+        }
         ui_.reset();
         QCoreApplication::sendPostedEvents();
         QCoreApplication::processEvents();
@@ -2845,6 +2858,182 @@ private slots:
         QCOMPARE(call.value("value").toDouble(), seek->property("value").toDouble());
     }
 
+    void touchSeekCancellationRestoresAcknowledgedPosition_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<bool>("platformCancel");
+        QTest::newRow("deck-a-grab-loss") << 0 << false;
+        QTest::newRow("deck-b-grab-loss") << 1 << false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
+        QTest::newRow("deck-a-platform-cancel") << 0 << true;
+        QTest::newRow("deck-b-platform-cancel") << 1 << true;
+#endif
+    }
+
+    void touchSeekCancellationRestoresAcknowledgedPosition()
+    {
+        QFETCH(int, deck);
+        QFETCH(bool, platformCancel);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 1.0);
+        ui_->endpoint.loadState(1, 1.0);
+        ui_->endpoint.setReady(true);
+        auto* seek = ui_->item(QString("deck%1Seek").arg(deck).toUtf8().constData());
+        auto* peer = ui_->item(QString("deck%1Seek").arg(1 - deck).toUtf8().constData());
+        auto* input = ui_->item(QString("deck%1SeekInput").arg(deck).toUtf8().constData());
+        QVERIFY(seek && peer && input && seek->isEnabled() && peer->isEnabled());
+        QSignalSpy polishedFrame(ui_->window, &QQuickWindow::frameSwapped);
+        seek->polish();
+        peer->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polishedFrame.count() > 0);
+        const auto peerState = ui_->endpoint.decks()[1 - deck];
+        const auto start = seek->mapToScene(QPointF(seek->width() * .25, seek->height() / 2)).toPoint();
+        const auto end = seek->mapToScene(QPointF(seek->width() * .75, seek->height() / 2)).toPoint();
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, start, ui_->window).commit();
+        QTRY_VERIFY(seek->property("pressed").toBool());
+        touch.move(0, end, ui_->window).commit();
+        QTRY_VERIFY(seek->property("value").toDouble() > 5.0);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        ui_->endpoint.snapshotPosition(deck, 2.5);
+        QVERIFY(seek->property("value").toDouble() > 5.0); // A held preview ignores telemetry.
+
+        if (platformCancel) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
+            // This clears Qt's platform input state as well as the sequence's
+            // remembered points. A real cancel is followed by a fresh press.
+            QVERIFY(touch.cancel());
+            touchActive_ = false;
+#else
+            QFAIL("Platform-cancel rows require Qt6.12 or later");
+#endif
+        } else {
+            // MouseArea owns Qt's synthesized single-touch mouse grab. Losing
+            // that actual grab must cancel; the contact is still down.
+            input->ungrabMouse();
+        }
+        QTRY_VERIFY(!input->property("pressed").toBool());
+        QTRY_VERIFY(!seek->property("pressed").toBool());
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QTRY_COMPARE(seek->property("value").toDouble(), 2.5);
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peerState);
+        QCOMPARE(peer->property("value").toDouble(), 1.0);
+        if (!platformCancel) {
+            // Release the still-active contact after grab loss. It must not
+            // commit the invalid preview or affect the other deck.
+            touch.release(0, end, ui_->window).commit();
+            touchActive_ = false;
+        }
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+
+        touchActive_ = true;
+        touch.press(0, start, ui_->window).commit();
+        QTRY_VERIFY(seek->property("pressed").toBool());
+        touch.move(0, end, ui_->window).commit();
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        touch.release(0, end, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_VERIFY(!seek->property("pressed").toBool());
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "seek", deck);
+        const auto accepted = ui_->endpoint.calls[0].toMap()["value"].toDouble();
+        QVERIFY(accepted > 5.0);
+        QCOMPARE(seek->property("value").toDouble(), accepted);
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peerState);
+        QCOMPARE(peer->property("value").toDouble(), 1.0);
+    }
+
+    void touchChannelGainKeepsHeldValueUntilRelease_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::newRow("deck-a") << 0;
+        QTest::newRow("deck-b") << 1;
+    }
+
+    void touchChannelGainKeepsHeldValueUntilRelease()
+    {
+        QFETCH(int, deck);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        auto* gain = ui_->item(QString("deck%1Gain").arg(deck).toUtf8().constData());
+        auto* peer = ui_->item(QString("deck%1Gain").arg(1 - deck).toUtf8().constData());
+        QVERIFY(gain && peer && gain->isEnabled() && peer->isEnabled());
+        auto* handle = qvariant_cast<QQuickItem*>(gain->property("handle"));
+        QVERIFY(handle);
+        QSignalSpy polishedFrame(ui_->window, &QQuickWindow::frameSwapped);
+        gain->polish();
+        handle->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polishedFrame.count() > 0);
+        QVERIFY(handle->width() > 0 && handle->height() > 0);
+        const auto localStart = handle->mapToItem(gain, QPointF(handle->width() / 2, handle->height() / 2));
+        const auto configuredThreshold = gain->property("touchDragThreshold").toDouble();
+        const auto threshold = configuredThreshold < 0 ? QGuiApplication::styleHints()->startDragDistance()
+                                                      : qRound(configuredThreshold);
+        QVERIFY2(localStart.y() > threshold + 2, "Fader handle has insufficient room for a native upward touch drag");
+        const auto start = gain->mapToScene(localStart).toPoint();
+        const auto first = gain->mapToScene(QPointF(localStart.x(), localStart.y() - threshold - 2)).toPoint();
+        const auto end = gain->mapToScene(QPointF(localStart.x(),
+            std::max(0.0, localStart.y() - threshold - 2 - std::max(8, threshold)))).toPoint();
+        const auto gestureState = [&] {
+            return QString("value=%1 pressed=%2 keepTouchGrab=%3 size=%4x%5 threshold=%6 start=(%7,%8) first=(%9,%10) end=(%11,%12)")
+                .arg(gain->property("value").toDouble()).arg(gain->property("pressed").toBool())
+                .arg(gain->keepTouchGrab()).arg(gain->width()).arg(gain->height()).arg(threshold)
+                .arg(start.x()).arg(start.y()).arg(first.x()).arg(first.y()).arg(end.x()).arg(end.y());
+        };
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, start, ui_->window).commit();
+        QTRY_VERIFY(gain->property("pressed").toBool());
+        touch.move(0, first, ui_->window).commit();
+        QTRY_VERIFY2_WITH_TIMEOUT(gain->keepTouchGrab(), qPrintable(gestureState()), 3000);
+        const auto firstValue = gain->property("value").toDouble();
+        touch.move(0, end, ui_->window).commit();
+        QTRY_VERIFY2_WITH_TIMEOUT(gain->property("value").toDouble() > std::max(.5, firstValue),
+                                 qPrintable(gestureState()), 3000);
+        QVERIFY(!ui_->endpoint.calls.isEmpty());
+        const auto held = gain->property("value").toDouble();
+        const auto count = ui_->endpoint.calls.size();
+        for (const auto& value : ui_->endpoint.calls) {
+            QCOMPARE(value.toMap()["action"].toString(), QString("gain"));
+            QCOMPARE(value.toMap()["deck"].toInt(), deck);
+        }
+        ui_->endpoint.snapshotDeck(deck, {{"gain", .13}});
+        QVERIFY(std::abs(gain->property("value").toDouble() - held) < 1e-6);
+        ui_->endpoint.snapshotDeck(1 - deck, {{"gain", .8}});
+        QTRY_COMPARE(peer->property("value").toDouble(), .8);
+        QVERIFY(std::abs(gain->property("value").toDouble() - held) < 1e-6);
+        QCOMPARE(ui_->endpoint.calls.size(), count); // Snapshots cannot issue gain commands.
+        touch.release(0, end, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_VERIFY(!gain->property("pressed").toBool());
+        // Native Slider release may reassert the final finger value before it
+        // clears pressed. That real input supersedes the earlier telemetry ACK.
+        const auto releasedCount = ui_->endpoint.calls.size();
+        QVERIFY(releasedCount >= count && releasedCount <= count + 1);
+        if (releasedCount == count + 1) {
+            const auto call = ui_->endpoint.calls.last().toMap();
+            QCOMPARE(call["action"].toString(), QString("gain"));
+            QCOMPARE(call["deck"].toInt(), deck);
+            QVERIFY(std::abs(call["value"].toDouble() - held) < 1e-6);
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["gain"].toDouble(), call["value"].toDouble());
+        } else {
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["gain"].toDouble(), .13);
+        }
+        QTRY_COMPARE(gain->property("value").toDouble(), ui_->endpoint.decks()[deck].toMap()["gain"].toDouble());
+        ui_->endpoint.snapshotDeck(deck, {{"gain", .21}});
+        QTRY_COMPARE(gain->property("value").toDouble(), .21);
+        QCOMPARE(ui_->endpoint.calls.size(), releasedCount); // A fresh ACK is never an input command.
+        QCOMPARE(ui_->endpoint.decks()[1 - deck].toMap()["gain"].toDouble(), .8);
+        QCOMPARE(peer->property("value").toDouble(), .8);
+    }
+
     void snapshotsAndErrorsDoNotSubmitCommands()
     {
         ui_->endpoint.loadState(0, 3.0);
@@ -3502,7 +3691,21 @@ private slots:
         // control dimensions, or decorative elements inside the deck surfaces.
         verifyControlsFit({"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain",
                            "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain",
-                           "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect", "audioSettingsOpen", "themeToggle"});
+                           "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect", "audioSettingsOpen", "themeToggle",
+                           "deck0Ownership", "deck1Ownership"});
+        for (int deck = 0; deck < 2; ++deck) {
+            auto* ownership = ui_->item(QString("deck%1Ownership").arg(deck).toUtf8().constData());
+            QVERIFY(ownership);
+            const auto expected = deck == 0 ? QString("DECK A / MANUAL") : QString("DECK B / MANUAL");
+            QTRY_COMPARE(ownership->property("text").toString(), expected);
+            auto* accessible = QAccessible::queryAccessibleInterface(ownership);
+            QVERIFY(accessible);
+            QCOMPARE(accessible->text(QAccessible::Name),
+                     deck == 0 ? QString("Deck A control ownership: Manual") : QString("Deck B control ownership: Manual"));
+            QVERIFY(ownership->implicitWidth() <= ownership->width() + .5);
+            QVERIFY(ownership->implicitHeight() <= ownership->height() + .5);
+        }
+        QVERIFY(ui_->endpoint.calls.isEmpty());
         QVERIFY(ui_->openLibrary(0));
         verifyControlsFit({"deck0Path", "deck0Load", "deck1Path", "deck1Load", "libraryClose"});
         QVERIFY(ui_->closeLibrary());
@@ -3553,7 +3756,11 @@ private:
         }
     }
 
+    // QtTest retains registered touch devices; share one across methods and
+    // delete it only when the test object is destroyed.
+    std::unique_ptr<QPointingDevice> touchDevice_{QTest::createTouchDevice()};
     std::unique_ptr<UiFixture> ui_;
+    bool touchActive_ = false;
 };
 
 } // namespace
