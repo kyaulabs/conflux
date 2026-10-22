@@ -186,8 +186,11 @@ private:
     bool started_ = false;
 };
 
-QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames, std::uint64_t expectedFrames)
+QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames, std::uint64_t expectedFrames,
+                                 float expectedGain = 1.F)
 {
+    if (!std::isfinite(expectedGain) || expectedGain < 0.F || expectedGain > 1.F)
+        throw std::runtime_error("Invalid generated master recording oracle gain");
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly) || file.size() < 44 || file.size() > 128 * 1024 * 1024)
         throw std::runtime_error("Cannot read bounded generated stem recording");
@@ -238,10 +241,11 @@ QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames
             for (std::size_t channel = 0; channel < 2; ++channel) {
                 const auto bits = qFromLittleEndian<quint32>(block.data() + index * 8 + channel * 4);
                 const auto value = std::bit_cast<float>(std::uint32_t(bits));
-                if (!std::isfinite(value) || std::abs(value) > std::abs(expected[channel]) + 1e-6F)
+                const auto target = expected[channel] * expectedGain;
+                if (!std::isfinite(value) || std::abs(value) > std::abs(target) + 1e-6F)
                     throw std::runtime_error("Stem recording contains nonfinite or unexpected master audio");
                 if (frame < prefixFrames || frame + 1024 >= frames)
-                    maximumError = std::max(maximumError, std::abs(value - expected[channel]));
+                    maximumError = std::max(maximumError, std::abs(value - target));
             }
             checkedFrames += frame < prefixFrames || frame + 1024 >= frames;
         }
@@ -249,6 +253,7 @@ QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames
     }
     if (maximumError > 1e-6F) throw std::runtime_error("Stem recording lost its independent master prefix or tail");
     return {{"frames", qint64(frames)}, {"prefix_frames", qint64(prefixFrames)},
+        {"expected_master_multiplier", expectedGain},
         {"checked_prefix_or_tail_frames", qint64(checkedFrames)}, {"maximum_prefix_or_tail_error", maximumError},
         {"scope", "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."}};
 }
@@ -473,12 +478,102 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
     require(!routed.invalidBuffers && !routed.rejected && !routed.sourceReadErrorObserved[0] &&
             !routed.sourceReadErrorObserved[1] && !routed.sourceReadError[0] && !routed.sourceReadError[1],
             "Prepared bank integration reports no invalid buffers, rejected commands or source read failures");
+
+    // Crossfader is global even while A (the command's default deck index) is
+    // replacing. B stays muted but advancing, so its independent transport and
+    // cue state can be checked without changing the recording oracle.
+    sink.validate(false); // Intentional gain ramps and target replacement follow.
+    const auto beforeCrossfader = controller.audioState();
+    bool crossfaderRequestedWhileReplacing = false, crossfaderCommandAccepted = false;
+    bool deckScopedCommandRejected = false;
+    std::uint64_t crossfaderCommandsBefore = 0;
+    const auto crossfaderConnection = QObject::connect(&controller, &conflux::DeckController::stateChanged,
+        &controller, [&] {
+            if (crossfaderRequestedWhileReplacing || !controller.decks()[0].toMap()["replacing"].toBool()) return;
+            crossfaderRequestedWhileReplacing = true; // Setter failure also emits stateChanged.
+            const auto deckCommandsBefore = controller.submittedCommands();
+            controller.setDeckGain(0, .5);
+            deckScopedCommandRejected = controller.submittedCommands() == deckCommandsBefore &&
+                !controller.error().isEmpty();
+            crossfaderCommandsBefore = controller.submittedCommands();
+            controller.setCrossfader(.75);
+            crossfaderCommandAccepted = controller.submittedCommands() == crossfaderCommandsBefore + 1 &&
+                controller.error().isEmpty();
+        }, Qt::DirectConnection);
+    try {
+        controller.loadDeck(0, QUrl::fromLocalFile(a));
+        wait([&] { return !controller.busy() && !controller.audioState().stemBank[0]; },
+             "Crossfader target A replacement did not finish");
+    } catch (...) {
+        QObject::disconnect(crossfaderConnection);
+        throw;
+    }
+    QObject::disconnect(crossfaderConnection);
+    const auto crossfaderInstalled = controller.audioState();
+    require(crossfaderRequestedWhileReplacing && deckScopedCommandRejected && crossfaderCommandAccepted &&
+            controller.error().isEmpty() &&
+            crossfaderInstalled.crossfader == .75F && controller.crossfader() == .75 &&
+            crossfaderInstalled.applied > beforeCrossfader.applied &&
+            crossfaderInstalled.sourceGeneration[0] > beforeCrossfader.sourceGeneration[0] &&
+            !crossfaderInstalled.playing[0] && !crossfaderInstalled.sourceFrame[0] &&
+            crossfaderInstalled.sourceGeneration[1] == beforeCrossfader.sourceGeneration[1] &&
+            crossfaderInstalled.playing[1] && crossfaderInstalled.deckGain[1] == 0.F &&
+            crossfaderInstalled.sourceFrame[1] - beforeCrossfader.sourceFrame[1] ==
+                crossfaderInstalled.outputFrame - beforeCrossfader.outputFrame &&
+            crossfaderInstalled.cueFrame[1] == beforeCrossfader.cueFrame[1] &&
+            crossfaderInstalled.cueSelected == beforeCrossfader.cueSelected &&
+            crossfaderInstalled.cueGain == beforeCrossfader.cueGain &&
+            controller.completedSessions() == sessions + 1,
+            "Target deck controls stay blocked while global crossfader applies during A replacement and survives the swap without resetting peer or cue state");
+
+    // Known A samples at x=.75 have a .5 send; master .5 must therefore reach
+    // the recorder at .25 of the original amplitude. Attach after all ramps,
+    // then check every recorded frame rather than guessing callback boundaries.
+    controller.setPlaying(0, true);
+    controller.setMasterGain(.5);
+    wait([&] {
+        const auto state = controller.audioState();
+        return state.playing[0] && state.sourceFrame[0] >= 4096 && state.crossfader == .75F && state.masterGain == .5F;
+    }, "Crossfader/master targets or restarted A were not acknowledged");
+    const auto crossfaderSettledAt = controller.audioState().outputFrame;
+    wait([&] { return controller.audioState().outputFrame >= crossfaderSettledAt + 1024; },
+         "Crossfader/master ramps did not settle before recording");
+    const auto crossfaderPath = QString::fromStdString((output / "generated-crossfader-controller.wav").string());
+    controller.startRecording(QUrl::fromLocalFile(crossfaderPath));
+    wait([&] { return controller.recording()["status"].toString() == "Recording" &&
+                      controller.recording()["acceptedFrames"].toULongLong() >= 2048; },
+         "Post-master crossfader recording did not attach");
+    controller.stopRecording();
+    wait([&] { return !controller.recording()["active"].toBool(); }, "Crossfader recording did not finalize");
+    const auto crossfaderRecording = controller.recording();
+    require(crossfaderRecording["status"].toString() == "Complete" &&
+            crossfaderRecording["error"].toString().isEmpty() &&
+            crossfaderRecording["acceptedFrames"] == crossfaderRecording["writtenFrames"] &&
+            crossfaderRecording["overflowFrames"].toULongLong() == 0,
+            "Crossfader recorder finalizes all accepted post-master frames without overflow");
+    const auto crossfaderFrames = crossfaderRecording["writtenFrames"].toULongLong();
+    const auto crossfaderWav = inspectStemRecording(crossfaderPath, crossfaderFrames, crossfaderFrames, .25F);
+    const auto afterCrossfader = controller.audioState();
+    require(afterCrossfader.crossfader == .75F && afterCrossfader.masterGain == .5F &&
+            !afterCrossfader.invalidBuffers && !afterCrossfader.rejected &&
+            !afterCrossfader.sourceReadError[0] && !afterCrossfader.sourceReadError[1] &&
+            !afterCrossfader.sourceReadErrorObserved[0] && !afterCrossfader.sourceReadErrorObserved[1] &&
+            controller.completedSessions() == sessions + 1,
+            "Crossfader recording preserves its applied global targets and healthy shared session");
+
     const auto final = controller.audioState();
     sink.validate(false);
     controller.shutdown();
     require(controller.completedSessions() == sessions + 2 && !controller.outputReady() && !controller.busy(),
             "Only explicit routing rebuild and shutdown complete the stem controller's sessions");
     observations["stem_controller"] = QJsonObject{{"recording", wav},
+        {"crossfader", QJsonObject{{"submitted_while_A_replacing", crossfaderRequestedWhileReplacing},
+            {"deck_scoped_command_rejected", deckScopedCommandRejected},
+            {"command_accepted", crossfaderCommandAccepted}, {"commands_before", qint64(crossfaderCommandsBefore)},
+            {"position", afterCrossfader.crossfader}, {"master_gain", afterCrossfader.masterGain},
+            {"A_generation_before", qint64(beforeCrossfader.sourceGeneration[0])},
+            {"A_generation_after", qint64(crossfaderInstalled.sourceGeneration[0])},
+            {"recording", crossfaderWav}}},
         {"virtual_sink_sample_gate", !functionalOnly},
         {"virtual_sink_wrong_samples", qint64(sink.wrong())}, {"virtual_sink_zero_samples", qint64(sink.zeros())},
         {"replacement_fixture_frames", qint64(targetFrames)},

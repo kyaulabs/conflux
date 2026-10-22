@@ -1169,10 +1169,76 @@ private slots:
         QVERIFY(!controller.busy());
         QVERIFY(controller.error().isEmpty());
         QCOMPARE(controller.masterGain(), 1.0);
+        QCOMPARE(controller.crossfader(), .5);
+        QVERIFY(controller.property("crossfader").isValid());
+        QCOMPARE(controller.property("crossfader").toDouble(), .5);
         verifyNoPlayback(controller);
         controller.shutdown();
         controller.shutdown();
         verifyNoPlayback(controller);
+    }
+
+    void crossfaderRequiresReadyOutputAndPreservesLoadedDecks()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto a = directory.filePath("crossfader-a.wav"), b = directory.filePath("crossfader-b.wav");
+        QVERIFY(writeWave(a, 2, 48000, 480));
+        QVERIFY(writeWave(b, 2, 48000, 960));
+        conflux::DeckController controller;
+        controller.loadDeck(0, QUrl::fromLocalFile(a));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        controller.loadDeck(1, QUrl::fromLocalFile(b));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+        QVERIFY(controller.decks()[1].toMap()["loaded"].toBool());
+        QVERIFY(!controller.outputReady());
+        const auto decks = controller.decks();
+        const auto recording = controller.recording();
+        const auto master = controller.masterGain(), cue = controller.cueGain();
+        const auto submitted = controller.submittedCommands();
+        const auto sessions = controller.completedSessions();
+
+        // A valid position still requires current output readiness; it cannot
+        // become a speculative UI value while no callback can acknowledge it.
+        for (const auto position : {0., .25, .5, .75, 1.}) {
+            QSignalSpy changed(&controller, &conflux::DeckController::stateChanged);
+            controller.setCrossfader(position);
+            QVERIFY(!controller.error().isEmpty());
+            QVERIFY(!changed.isEmpty());
+            QCOMPARE(controller.crossfader(), .5);
+            QCOMPARE(controller.property("crossfader").toDouble(), .5);
+            QCOMPARE(controller.decks(), decks);
+            QCOMPARE(controller.masterGain(), master);
+            QCOMPARE(controller.cueGain(), cue);
+            QCOMPARE(controller.recording(), recording);
+            QCOMPARE(controller.submittedCommands(), submitted);
+        }
+        const auto outputNotReady = controller.error();
+        for (const auto position : {-.1, 1.1, std::nextafter(0., -1.), std::nextafter(1., 2.),
+                                   std::numeric_limits<double>::infinity(),
+                                   -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN()}) {
+            controller.setCrossfader(position);
+            QVERIFY(!controller.error().isEmpty());
+            // Invalid values must fail their own validation rather than just
+            // happen to be rejected by the unavailable-output gate.
+            QVERIFY(controller.error() != outputNotReady);
+            QCOMPARE(controller.crossfader(), .5);
+            QCOMPARE(controller.decks(), decks);
+            QCOMPARE(controller.masterGain(), master);
+            QCOMPARE(controller.cueGain(), cue);
+            QCOMPARE(controller.recording(), recording);
+            QCOMPARE(controller.submittedCommands(), submitted);
+        }
+        QCOMPARE(controller.completedSessions(), sessions);
+        controller.shutdown();
+        controller.setCrossfader(.75);
+        QCOMPARE(controller.crossfader(), .5);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        QVERIFY(!controller.outputReady());
     }
 
     void invalidDeckAndUrl()

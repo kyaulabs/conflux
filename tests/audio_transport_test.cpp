@@ -36,6 +36,7 @@ struct State {
     std::array<bool, 2> playing;
     std::array<float, 2> gain;
     float master;
+    float crossfader;
     bool operator==(const State&) const = default;
 };
 
@@ -44,7 +45,7 @@ State state(const RenderCore& core)
     return {core.frameClock(), {core.sourceFrame(0), core.sourceFrame(1)},
             {core.sourceFrames(0), core.sourceFrames(1)},
             {core.isPlaying(0), core.isPlaying(1)},
-            {core.deckGain(0), core.deckGain(1)}, core.masterGain()};
+            {core.deckGain(0), core.deckGain(1)}, core.masterGain(), core.crossfader()};
 }
 
 constexpr std::array<float, 10> sourceA{
@@ -175,6 +176,70 @@ bool numericHeadroomAndFiniteOverflow()
     return passed;
 }
 
+bool crossfaderMixing()
+{
+    // Literal coefficient pairs make the oracle independent of the curve code.
+    constexpr std::array<float, 5> positions{0.F, .25F, .5F, .75F, 1.F};
+    constexpr std::array<std::array<double, 2>, 5> coefficients{{{1., 0.}, {1., .5}, {1., 1.}, {.5, 1.}, {0., 1.}}};
+    constexpr std::array<float, 8> a{1.25F, -1.5F, -.625F, .75F, .1234567F, -.9876543F, .5F, -.25F};
+    constexpr std::array<float, 8> b{1.5F, -1.75F, .5F, -.25F, -.3333333F, .7654321F, -.75F, .125F};
+    bool passed = true;
+    for (std::size_t position = 0; position < positions.size(); ++position) {
+        for (const bool gained : {false, true}) {
+            RenderCore core(a, b), reference(a, b);
+            const float gainA = gained ? .37F : 1.F, gainB = gained ? .61F : 1.F, master = gained ? .73F : 1.F;
+            for (auto* item : {&core, &reference}) {
+                passed &= require(item->setDeckGain(0, gainA) && item->setDeckGain(1, gainB) &&
+                                      item->setMasterGain(master) && item->setCueSelected(0, true) &&
+                                      item->setCueSelected(1, true) && item->setCueGain(.5F),
+                                  "crossfader bus setup failed");
+            }
+            passed &= require(core.crossfader() == .5F && core.apply({Type::Crossfader, 123, 0, positions[position]}) &&
+                                  core.crossfader() == positions[position], "global crossfader command/target rejected");
+            std::array<float, a.size()> output{}, cue{}, referenceOutput{}, referenceCue{}, expected{};
+            for (std::size_t sample = 0; sample < a.size(); ++sample) {
+                const double left = double(a[sample]) * (double(gainA) * coefficients[position][0]);
+                const double right = double(b[sample]) * (double(gainB) * coefficients[position][1]);
+                expected[sample] = static_cast<float>((left + right) * double(master));
+            }
+            passed &= require(core.renderBuses(output, cue) && reference.renderBuses(referenceOutput, referenceCue) &&
+                                  output == expected && cue == referenceCue && core.sourceFrame(0) == 4 &&
+                                  core.sourceFrame(1) == 4 && core.frameClock() == 4 &&
+                                  core.deckGain(0) == gainA && core.deckGain(1) == gainB && core.masterGain() == master &&
+                                  core.isCueSelected(0) && core.isCueSelected(1),
+                              "crossfader stereo mix/headroom, pre-fader cue or muted-source clocks differ");
+            for (std::size_t deck = 0; deck < 2; ++deck) {
+                const auto& meter = core.meters().deck[deck];
+                const auto& expectedMeter = reference.meters().deck[deck];
+                passed &= require(meter.peak == expectedMeter.peak && meter.rms == expectedMeter.rms &&
+                                      meter.overrangeSamples == expectedMeter.overrangeSamples,
+                                  "crossfader changed pre-fader deck meters");
+            }
+        }
+    }
+    // At either endpoint, an excluded peer must not turn the audible -0 into +0.
+    constexpr std::array<float, 4> signedZero{-0.F, 0.F, 2.75F, -3.25F};
+    const std::span<const float> audible(signedZero), peer(sourceB);
+    for (const bool right : {false, true}) {
+        RenderCore core(right ? peer : audible, right ? audible : peer);
+        std::array<float, 4> output{};
+        passed &= require(core.setCrossfader(right ? 1.F : 0.F) && core.render(output), "crossfader endpoint failed");
+        for (std::size_t sample = 0; sample < output.size(); ++sample)
+            passed &= require(std::bit_cast<std::uint32_t>(output[sample]) ==
+                                  std::bit_cast<std::uint32_t>(signedZero[sample]),
+                              "crossfader endpoint changed sole-contributor bits or signed zero");
+    }
+    RenderCore legacy(signedZero), centered(signedZero);
+    std::array<float, 4> original{}, explicitCenter{};
+    passed &= require(centered.setCrossfader(.5F) && legacy.render(original) && centered.render(explicitCenter),
+                      "center crossfader render failed");
+    for (std::size_t sample = 0; sample < original.size(); ++sample)
+        passed &= require(std::bit_cast<std::uint32_t>(original[sample]) ==
+                              std::bit_cast<std::uint32_t>(explicitCenter[sample]),
+                          "explicit center changed legacy signed-zero/headroom bits");
+    return passed;
+}
+
 bool commandsAndRejectedState()
 {
     bool passed = true;
@@ -200,6 +265,7 @@ bool commandsAndRejectedState()
 
     const auto pcmA = source(1024, 3), pcmB = source(997, 11);
     RenderCore actual(pcmA, pcmB), untouched(pcmA, pcmB);
+    passed &= require(actual.setCrossfader(.25F) && untouched.setCrossfader(.25F), "rejected-state crossfader setup failed");
     const auto reject = [&](const auto& operation) {
         const auto before = state(actual);
         bool ok = require(!operation() && state(actual) == before, "rejected command changed public transport state");
@@ -223,8 +289,10 @@ bool commandsAndRejectedState()
                            -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()}) {
         passed &= reject([&] { return actual.setDeckGain(0, bad); });
         passed &= reject([&] { return actual.setMasterGain(bad); });
+        passed &= reject([&] { return actual.setCrossfader(bad); });
         passed &= reject([&] { return actual.apply({Type::DeckGain, 1, 0, bad}); });
         passed &= reject([&] { return actual.apply({Type::MasterGain, 0, 0, bad}); });
+        passed &= reject([&] { return actual.apply({Type::Crossfader, 0, 0, bad}); });
     }
     for (const Command bad : {Command{Type::Play, 2}, Command{Type::Pause, 2},
                               Command{Type::Seek, 2, 0}, Command{Type::DeckGain, 2, 0, .5F},
@@ -397,6 +465,7 @@ int main()
     try {
         bool passed = mixingAndIndependentTransport();
         passed &= numericHeadroomAndFiniteOverflow();
+        passed &= crossfaderMixing();
         passed &= commandsAndRejectedState();
         passed &= legacyAndPartitionParity();
         passed &= queueCapacityAndWrap();

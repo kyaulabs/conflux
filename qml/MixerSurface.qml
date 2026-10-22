@@ -361,44 +361,79 @@ Rectangle {
             }
         }
 
-        Rectangle {
+        Slider {
+            id: crossfader
+            objectName: "crossfader"
             Layout.fillWidth: true
             Layout.preferredHeight: 54
-            color: Brand.ConfluxTheme.dark ? "#171A1F" : "#D8DAD7"
-            border.color: Brand.ConfluxTheme.dark ? "#414750" : "#A7ACA9"
-            radius: 3
-            Accessible.name: "Crossfader unavailable"
-            Accessible.description: "Crossfader routing is not implemented."
-            Text {
-                anchors.top: parent.top
-                anchors.topMargin: 4
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "CROSSFADER / UNAVAILABLE"
-                color: root.etched
-                font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 10
+            from: 0
+            to: 1
+            stepSize: 0.01
+            live: true
+            leftPadding: 21
+            rightPadding: 21
+            topPadding: 24
+            bottomPadding: 11
+            enabled: root.controller.outputReady
+            focusPolicy: Qt.StrongFocus
+            Accessible.name: "Crossfader A to B"
+            Accessible.description: "Left plays Deck A only; right plays Deck B only. Center keeps both channel levels unchanged. Headphone cue is independent."
+            onMoved: root.controller.setCrossfader(value)
+            Binding {
+                target: crossfader
+                property: "value"
+                value: root.controller.crossfader
+                when: !crossfader.pressed
+                restoreMode: Binding.RestoreNone
             }
-            Rectangle {
-                anchors.horizontalCenter: parent.horizontalCenter
-                y: 31
-                width: parent.width - 42
-                height: 6
+            background: Rectangle {
+                width: crossfader.width
+                height: crossfader.height
+                color: Brand.ConfluxTheme.dark ? "#171A1F" : "#D8DAD7"
+                border.color: crossfader.activeFocus ? Brand.ConfluxTheme.primary
+                                                     : Brand.ConfluxTheme.dark ? "#414750" : "#A7ACA9"
+                border.width: crossfader.activeFocus ? 2 : 1
                 radius: 3
-                color: Brand.ConfluxTheme.dark ? "#05070A" : "#767E84"
-                border.color: Brand.ConfluxTheme.controlBorder
+                Text {
+                    anchors.top: parent.top
+                    anchors.topMargin: 4
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "A  /  CROSSFADER  /  B"
+                    color: crossfader.enabled ? Brand.ConfluxTheme.text : root.etched
+                    font.family: Brand.ConfluxTheme.displayFont
+                    font.pixelSize: 10
+                }
                 Rectangle {
-                    anchors.centerIn: parent
-                    width: 22
-                    height: 19
-                    radius: 2
-                    color: Brand.ConfluxTheme.dark ? "#5C636B" : "#A4ABA9"
+                    x: crossfader.leftPadding
+                    y: 31
+                    width: crossfader.availableWidth
+                    height: 6
+                    radius: 3
+                    color: Brand.ConfluxTheme.dark ? "#05070A" : "#767E84"
                     border.color: Brand.ConfluxTheme.controlBorder
-                    Rectangle { anchors.centerIn: parent; width: 2; height: 15; color: "#1B2025" }
+                }
+                Rectangle {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    y: 26
+                    width: 1
+                    height: 16
+                    color: root.etched
                 }
             }
-            HoverHandler { id: crossHover }
-            ToolTip.visible: crossHover.hovered
-            ToolTip.text: "Crossfader routing is not implemented."
+            handle: Rectangle {
+                x: crossfader.leftPadding + crossfader.visualPosition * (crossfader.availableWidth - width)
+                y: crossfader.topPadding + (crossfader.availableHeight - height) / 2
+                width: 22
+                height: 19
+                radius: 2
+                opacity: crossfader.enabled ? 1 : .5
+                color: Brand.ConfluxTheme.dark ? "#5C636B" : "#A4ABA9"
+                border.color: crossfader.activeFocus ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
+                Rectangle { anchors.centerIn: parent; width: 2; height: 15; color: "#1B2025" }
+            }
+            ToolTip.visible: hovered || activeFocus
+            ToolTip.text: !enabled ? "Audio output must be ready to use the crossfader."
+                                  : "Position " + Math.round(value * 100) + "%: A at left, both at center, B at right. Channel levels and headphone cue stay independent."
         }
 
         Text {

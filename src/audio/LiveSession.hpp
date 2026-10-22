@@ -30,6 +30,7 @@ public:
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<float, RenderCore::deckCount> deckGain{1.0F, 1.0F};
         float masterGain = 1.0F;
+        float crossfader = 0.5F;
         std::array<bool, RenderCore::deckCount> cueSelected{};
         float cueGain = 1.0F;
         std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{{
@@ -50,6 +51,7 @@ public:
         std::array<bool, RenderCore::deckCount> stemBank{};
         std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{};
         float masterGain = 1.0F;
+        float crossfader = 0.5F;
         std::array<bool, RenderCore::deckCount> cueSelected{};
         float cueGain = 1.0F;
         RenderCore::Meters meters{};

@@ -63,6 +63,8 @@ struct Reader {
     bool ready = true, failed = false;
     std::uint64_t expected = 0;
     bool badPosition = false;
+    std::array<float, 4> stemTargets{.25F, .5F, .75F, 1.F};
+    std::size_t stemWrites = 0;
     AudioSource source() noexcept { return {pcm.size() / 2, nullptr, this, read, discontinuity}; }
     static AudioReadResult read(void* context, std::uint64_t first, std::span<float> output) noexcept
     {
@@ -84,6 +86,19 @@ struct Reader {
         auto& self = *static_cast<Reader*>(context);
         ++self.discontinuities;
         self.expected = first;
+    }
+    static bool setStemGain(void* context, std::size_t stem, float gain) noexcept
+    {
+        auto& self = *static_cast<Reader*>(context);
+        ++self.stemWrites;
+        if (stem >= self.stemTargets.size()) return false;
+        self.stemTargets[stem] = gain;
+        return true;
+    }
+    static float stemGain(const void* context, std::size_t stem) noexcept
+    {
+        const auto& self = *static_cast<const Reader*>(context);
+        return stem < self.stemTargets.size() ? self.stemTargets[stem] : 0.F;
     }
 };
 
@@ -147,6 +162,83 @@ bool gainRamps()
     passed &= require(channelEquals(on.cue, onL, onR) && channelEquals(off.cue, offL, offR),
                       "headphone selection did not use its own five-frame send ramp");
     passed &= require(on.master == constant(5) && off.master == constant(5), "cue selection changed the master bus");
+    return passed;
+}
+
+bool crossfaderRamps()
+{
+    // Orthogonal stereo signals expose each coefficient independently.
+    const auto a = constant(1024, 1.F, 0.F), b = constant(1024, 0.F, 1.F);
+    Reader readerA{a}, readerB{b};
+    auto bank = readerA.source();
+    // A control spy checks that master-only fading never writes stem targets;
+    // the PCM is already mixed by the source, as required by AudioSource.
+    bank.setStemGain = Reader::setStemGain;
+    bank.stemGain = Reader::stemGain;
+    RenderCore core(bank, readerB.source());
+    bool passed = require(core.setCueSelected(0, true) && core.setCueSelected(1, true) && core.configureRamps(240),
+                          "240-frame crossfader setup failed");
+    render(core, 240); // Finish the unrelated initial transport fade.
+    const auto targets = readerA.stemTargets;
+    const auto calls = std::array{readerA.calls, readerB.calls};
+    passed &= require(core.setCrossfader(0.F) && core.crossfader() == 0.F && core.frameClock() == 240 &&
+                          core.sourceFrame(0) == 240 && core.sourceFrame(1) == 240 &&
+                          readerA.calls == calls[0] && readerB.calls == calls[1],
+                      "crossfader target caused source reads or transport changes");
+    const auto left = render(core, 240);
+    bool leftRamp = true;
+    for (std::size_t frame = 0; frame < 240; ++frame) {
+        const float expected = static_cast<float>(double(239 - frame) / 240.);
+        leftRamp &= left.master[frame * 2] == 1.F && std::abs(left.master[frame * 2 + 1] - expected) <= 1e-7F;
+    }
+    passed &= require(leftRamp && left.master.back() == 0.F && left.cue == constant(240, 1.F, 1.F),
+                      "left crossfader send did not settle in exactly 240 frames independently of cue");
+    passed &= require(core.setCrossfader(1.F), "right crossfader target failed");
+    const auto right = render(core, 240);
+    bool rightRamp = true;
+    for (std::size_t frame = 0; frame < 240; ++frame) {
+        const float expectedA = static_cast<float>(double(239 - frame) / 240.);
+        const float expectedB = static_cast<float>(double(frame + 1) / 240.);
+        rightRamp &= std::abs(right.master[frame * 2] - expectedA) <= 1e-7F &&
+                     std::abs(right.master[frame * 2 + 1] - expectedB) <= 1e-7F;
+    }
+    passed &= require(rightRamp && right.master[478] == 0.F && right.master[479] == 1.F &&
+                          right.cue == constant(240, 1.F, 1.F) && core.sourceFrame(0) == 720 &&
+                          core.sourceFrame(1) == 720 && readerA.expected == 720 && readerB.expected == 720 &&
+                          !readerA.badPosition && !readerB.badPosition && readerA.stemWrites == 0 &&
+                          readerA.stemTargets == targets && core.deckGain(0) == 1.F && core.deckGain(1) == 1.F &&
+                          core.masterGain() == 1.F && core.cueGain() == 1.F,
+                      "crossfader ramp changed cue, source advancement, stem/channel targets or callback positions");
+    for (std::size_t stem = 0; stem < targets.size(); ++stem)
+        passed &= require(core.stemGain(0, stem) == targets[stem], "crossfader changed an owned stem target");
+
+    RenderCore interrupted(a, b);
+    interrupted.setCueSelected(0, true); interrupted.setCueSelected(1, true);
+    interrupted.configureRamps(4); render(interrupted, 4);
+    interrupted.setCrossfader(0.F);
+    passed &= require(render(interrupted, 1).master == std::vector<float>{1.F, .75F},
+                      "first crossfader ramp step jumped to the endpoint");
+    interrupted.setCrossfader(1.F);
+    interrupted.setCrossfader(.75F); // Both anchors still refer to the last emitted pair (1, .75).
+    auto first = render(interrupted, 2);
+    interrupted.setCrossfader(.75F); // Duplicate cannot restart either coefficient.
+    const auto clock = interrupted.frameClock(), cursor = interrupted.sourceFrame();
+    std::array<float, 3> odd{42.F, 42.F, 42.F};
+    std::array<float, 4> aliased{42.F, 42.F, 42.F, 42.F};
+    passed &= require(!interrupted.render(odd) && !interrupted.renderBuses(aliased, aliased) &&
+                          interrupted.renderBuses({}, {}) && !interrupted.setCrossfader(-.1F) &&
+                          !interrupted.setCrossfader(std::numeric_limits<float>::quiet_NaN()) &&
+                          interrupted.frameClock() == clock && interrupted.sourceFrame() == cursor &&
+                          interrupted.crossfader() == .75F && odd == std::array<float, 3>{42.F, 42.F, 42.F} &&
+                          aliased == std::array<float, 4>{42.F, 42.F, 42.F, 42.F},
+                      "invalid output/target consumed a pending crossfader step or wrote output");
+    const auto second = render(interrupted, 2);
+    first.master.insert(first.master.end(), second.master.begin(), second.master.end());
+    constexpr std::array<float, 4> expectedA{.875F, .75F, .625F, .5F};
+    constexpr std::array<float, 4> expectedB{.8125F, .875F, .9375F, 1.F};
+    passed &= require(channelEquals(first.master, expectedA, expectedB) && first.cue == constant(2, 1.F, 1.F) &&
+                          second.cue == constant(2, 1.F, 1.F),
+                      "retarget/duplicate crossfader ramp reanchored, restarted or affected pre-fader cue");
     return passed;
 }
 
@@ -315,19 +407,19 @@ bool partitionParity()
         Output result;
         for (std::size_t event = 0; event + 1 < events.size(); ++event) {
             switch (events[event]) {
-            case 7: core.setDeckGain(0, .2F); break;
+            case 7: core.setDeckGain(0, .2F); core.setCrossfader(0.F); break;
             case 9: core.setCueSelected(1, true); break;
-            case 13: core.setMasterGain(.5F); core.setCueGain(.6F); break;
+            case 13: core.setMasterGain(.5F); core.setCueGain(.6F); core.setCrossfader(1.F); break;
             case 18: core.seek(0, 80); break;
             case 23: core.setPlaying(1, false); break;
-            case 27: core.jog(0, -3); break;
+            case 27: core.jog(0, -3); core.setCrossfader(.25F); break;
             case 33: core.setPlaying(1, true); break;
             case 40: core.cuePress(0); break;
             case 41: core.cueRelease(0); break;
             case 45: core.cuePress(0); break;
             case 47: core.setPlaying(0, true); break;
             case 48: core.cueRelease(0); break;
-            case 55: core.setDeckGain(0, 1.F); break;
+            case 55: core.setDeckGain(0, 1.F); core.setCrossfader(.5F); break;
             case 70: core.setPlaying(0, false); core.setPlaying(1, false); break;
             case 73: core.seek(0, 12); break;
             }
@@ -348,19 +440,20 @@ bool partitionParity()
                        whole.frameClock() == 80 && split.frameClock() == 80 && streamed.frameClock() == 80 &&
                        whole.sourceFrame(0) == split.sourceFrame(0) && split.sourceFrame(0) == streamed.sourceFrame(0) &&
                        whole.sourceFrame(1) == split.sourceFrame(1) && split.sourceFrame(1) == streamed.sourceFrame(1) &&
+                       whole.crossfader() == .5F && split.crossfader() == .5F && streamed.crossfader() == .5F &&
                        whole.meters().master.overrangeSamples == split.meters().master.overrangeSamples &&
                        whole.meters().cue.overrangeSamples == split.meters().cue.overrangeSamples &&
                        !readerA.badPosition && !readerB.badPosition,
-                   "fixed-event gain/transport/jog/CUE ramps changed across partitions or memory/stream sources");
+                   "fixed-event gain/crossfader/transport/jog/CUE ramps changed across partitions or memory/stream sources");
 }
 } // namespace
 
 int main()
 {
     try {
-        const bool legacy = legacyAndConfiguration(), gains = gainRamps(), transport = transportAndCue();
+        const bool legacy = legacyAndConfiguration(), gains = gainRamps(), crossfader = crossfaderRamps(), transport = transportAndCue();
         const bool unavailable = eofStarvationAndInvalidOutput(), replacement = jogAndReplacement(), partitions = partitionParity();
-        return legacy && gains && transport && unavailable && replacement && partitions ? 0 : 1;
+        return legacy && gains && crossfader && transport && unavailable && replacement && partitions ? 0 : 1;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

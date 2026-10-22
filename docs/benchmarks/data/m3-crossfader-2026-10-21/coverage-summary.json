@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T00:40:40.717016+00:00",
+  "kind": "Incremental measurement after support-only fixture corrections; original failed full attempt retained separately.",
+  "product_source_unchanged": true,
+  "cpp": {
+    "line": {
+      "covered": 6421,
+      "total": 7360,
+      "percent": 87.24184782608695
+    },
+    "branch": {
+      "covered": 9437,
+      "total": 17483,
+      "percent": 53.9781502030544
+    }
+  },
+  "python": {
+    "line": {
+      "covered": 1248,
+      "total": 1366,
+      "percent": 91.36163982430453
+    },
+    "branch": {
+      "covered": 441,
+      "total": 536,
+      "percent": 82.27611940298507
+    }
+  },
+  "unmeasured_product_sources": {
+    "qml": [
+      "qml/DeckButton.qml",
+      "qml/DeckSurface.qml",
+      "qml/Harness.qml",
+      "qml/Main.qml",
+      "qml/MixerSurface.qml",
+      "qml/StereoMeter.qml",
+      "qml/SurfaceKnob.qml",
+      "brand/integration/qtquick/ConfluxTheme.qml"
+    ],
+    "native_stem_adapter": [
+      "tools/runtime/htdemucs_segment.cpp"
+    ]
+  },
+  "normal_CTest_entries_passed": 41,
+  "instrumented_CTest_entries_passed": 41,
+  "corrected_strict_routing_checks": 142,
+  "corrected_instrumented_routing_checks": 136,
+  "instrumented_preparation_retry_checks": 88,
+  "physical_test": false,
+  "M2_open": true,
+  "fresh_full_CI_required_after_capture": true
+}

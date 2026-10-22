@@ -85,6 +85,8 @@ bool RenderCore::configureRamps(std::uint32_t frames) noexcept
     rampFrames_ = frames;
     masterRamp_.snap(masterGain_);
     cueRamp_.snap(cueGain_);
+    crossfaderRamps_[0].snap(std::min(1.0, 2.0 * (1.0 - double(crossfader_))));
+    crossfaderRamps_[1].snap(std::min(1.0, 2.0 * double(crossfader_)));
     for (auto& deck : decks_) {
         deck.gainRamp.snap(deck.gain);
         deck.cueRamp.snap(deck.cueSelected ? 1.0 : 0.0);
@@ -257,6 +259,16 @@ bool RenderCore::setMasterGain(float gain) noexcept
     return true;
 }
 
+bool RenderCore::setCrossfader(float position) noexcept
+{
+    if (!std::isfinite(position) || position < 0.0F || position > 1.0F)
+        return false;
+    crossfader_ = position;
+    crossfaderRamps_[0].set(std::min(1.0, 2.0 * (1.0 - double(position))), rampFrames_);
+    crossfaderRamps_[1].set(std::min(1.0, 2.0 * double(position)), rampFrames_);
+    return true;
+}
+
 bool RenderCore::setCueSelected(std::size_t deck, bool selected) noexcept
 {
     if (deck >= deckCount || !decks_[deck].source.frames)
@@ -332,6 +344,7 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::Seek: return seek(command.deck, command.frame);
     case Command::Type::DeckGain: return setDeckGain(command.deck, command.gain);
     case Command::Type::MasterGain: return setMasterGain(command.gain);
+    case Command::Type::Crossfader: return setCrossfader(command.gain);
     case Command::Type::CuePress: return cuePress(command.deck);
     case Command::Type::CueRelease: return cueRelease(command.deck);
     case Command::Type::CueOn: return setCueSelected(command.deck, true);
@@ -433,12 +446,16 @@ void RenderCore::mixDeck(std::size_t index, bool available, float rawLeft, float
     }
     deck.last = samples;
     const double gain = deck.gainRamp.next(rampFrames_);
+    const double crossfaderGain = crossfaderRamps_[index].next(rampFrames_);
     const double cueSend = deck.cueRamp.next(rampFrames_);
     measure(meters_.deck[index], samples[0], samples[1]);
     if (!available && samples[0] == 0.F && samples[1] == 0.F) return;
-    const double deckLeft = double(samples[0]) * gain, deckRight = double(samples[1]) * gain;
-    if (contributed) { left += deckLeft; right += deckRight; }
-    else { left = deckLeft; right = deckRight; contributed = true; }
+    if (crossfaderGain != 0.0) {
+        const double scale = gain * crossfaderGain;
+        const double deckLeft = double(samples[0]) * scale, deckRight = double(samples[1]) * scale;
+        if (contributed) { left += deckLeft; right += deckRight; }
+        else { left = deckLeft; right = deckRight; contributed = true; }
+    }
     if (!cueSend) return;
     const double headphoneLeft = double(samples[0]) * cueSend, headphoneRight = double(samples[1]) * cueSend;
     if (cueContributed) { cueLeft += headphoneLeft; cueRight += headphoneRight; }
