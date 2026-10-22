@@ -1,0 +1,428 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "scope": "Exact native C4 human sound/control acceptance receipt and source-equivalence provenance only; saved metadata and source hash checks, no new trial or workload.",
+  "human_sound_control_acceptance": true,
+  "qualified": false,
+  "M2_complete": false,
+  "M3_complete": false,
+  "release_complete": false,
+  "original_receipt": {
+    "path": "benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/user-trial/native-acceptance-01.json",
+    "bytes": 1749,
+    "sha256": "353f9e108262bee236d10b556ce6ee3ae0d83b68396509c571f908ca88922be9"
+  },
+  "saved_receipt": {
+    "path": "docs/benchmarks/data/m3-native-acceptance-2026-10-22/native-acceptance-01.json",
+    "bytes": 1749,
+    "sha256": "353f9e108262bee236d10b556ce6ee3ae0d83b68396509c571f908ca88922be9"
+  },
+  "receipt_transform": "Exact byte copy; no fields or wording changed.",
+  "accepted_binary_metadata_only": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/user-trial/conflux",
+    "bytes": 19638976,
+    "sha256": "c6c9ef0bc58675b5d8e5d2e4cdc197761ff0a21a320903ea25096656e0957e70"
+  },
+  "accepted_snapshot_manifest": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/integration-manifest-01.json",
+    "bytes": 74418,
+    "sha256": "b2d0dda8c07267b30f0a40cce6379c7bfc1eb9524da1d2c5799c9a94855689ea"
+  },
+  "trial_request_verbatim": "Two-track mixing; scratch both directions with BPM changed and Master Tempo on/off; HI/MID/LOW EQ; record/replay; loading progress, recording dot and deck focus colors",
+  "human_reply_verbatim": "Finished—the sound and controls are acceptable",
+  "native_process_exit_scope_verbatim": "not retained; process absence observed, startup log empty",
+  "source_equivalence": {
+    "comparison_tree": "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01",
+    "comparison_head_root_reported": "9827328b61c40dc361259dd78c82a3ca487404df",
+    "integrated_PR": "https://github.com/kyaulabs/conflux/pull/72",
+    "PR_merge_commit_root_reported": "889fc3131dca924ab10f75c7b46c96cf3f72dc47",
+    "git_provenance": "Head, PR merge and clean-tree status supplied by root; publication author ran no Git commands.",
+    "original_proof": {
+      "path": "benchmarks-local/m3-parallel-2026-10-22/channel-eq-01/pr72-integration-source-01.json",
+      "bytes": 11670,
+      "sha256": "30f732c6de4fae8a3aebc36d9d160d141a9c82c59a3f416b99453a6b298f3100"
+    },
+    "original_proof_decoded": {
+      "schema": 1,
+      "recorded_at_utc": "2026-10-22T21:07:30.960594+00:00",
+      "scope": "Root byte comparison of productsrc/qml to exact acceptedC4; test/support changes need final CI",
+      "product_files_identical_to_C4": [
+        {
+          "path": "src/probe_main.cpp",
+          "bytes": 33738,
+          "sha256": "a150fb079bb7cb94853d81882d0b315a9034ce9dbd318e68db42165717c8f4a6"
+        },
+        {
+          "path": "src/main.cpp",
+          "bytes": 15128,
+          "sha256": "b47058e4b701ff276219261ce34875d14fd12ac3f54c9fc134e6e03496fe4175"
+        },
+        {
+          "path": "src/audio/PcmReadAhead.hpp",
+          "bytes": 1427,
+          "sha256": "6d15bbe4ed713c6c4b5359627b17484c9cfd068ef4d20d2293b41aee3e4dc104"
+        },
+        {
+          "path": "src/audio/StemRateConverter.cpp",
+          "bytes": 11478,
+          "sha256": "10cb293092678e6693c04e8e39059d751b487e95dc948087bb7c02f657c27960"
+        },
+        {
+          "path": "src/audio/StemRateConverter.hpp",
+          "bytes": 4253,
+          "sha256": "c2e5b0749b2db3f60ef3c4e361a07e744be90bd77eabcb9d5e40069526e7c094"
+        },
+        {
+          "path": "src/audio/LiveStemBuffer.cpp",
+          "bytes": 10051,
+          "sha256": "76b45bc75459a97b523d49c89d251e2c67ccda8143fde4a58e76cb0fd77de1b3"
+        },
+        {
+          "path": "src/audio/RenderCore.cpp",
+          "bytes": 34964,
+          "sha256": "eedd7d6243d3c0c9fd84917fb5eb1e03cec916548010ce6b871104e70db1e022"
+        },
+        {
+          "path": "src/audio/AudioRouting.cpp",
+          "bytes": 4518,
+          "sha256": "2b4d0272e7a1451286c675a0f6be059d4eefd91f06f27f0e80142656f78e1799"
+        },
+        {
+          "path": "src/audio/LiveStemBuffer.hpp",
+          "bytes": 3615,
+          "sha256": "2e97c8a9a327f49388cab78d394358ff15fcffb75106adbf2dc2bcfaf06c0683"
+        },
+        {
+          "path": "src/audio/ChannelEq.hpp",
+          "bytes": 1512,
+          "sha256": "041e20f7df267e1ed79c145b741236717fd2de4767a83ceeb1d15f3a2ddde9bd"
+        },
+        {
+          "path": "src/audio/AudioRouting.hpp",
+          "bytes": 2072,
+          "sha256": "4b51e7c67c3b80c60971d41c9855f17e9bf2df2d37d206fe3d54ef5683f9f65d"
+        },
+        {
+          "path": "src/audio/PreparedTempoSource.hpp",
+          "bytes": 4357,
+          "sha256": "fd2bb99d33ad314394901c04e62addefb7f1fbe9d953b2767b89d9d5005788f4"
+        },
+        {
+          "path": "src/audio/PreparedTempoSource.cpp",
+          "bytes": 24734,
+          "sha256": "20f21b55a6ec110555ebdb2f5e14fe1be2844a07af1c17bdaf7ae58c1c1c59be"
+        },
+        {
+          "path": "src/audio/LiveRecoveryPolicy.hpp",
+          "bytes": 3286,
+          "sha256": "0b26f1f0bebd82cdbabc3412ec00f851388dbcfd517c572d5999ff47002d5263"
+        },
+        {
+          "path": "src/audio/LiveSession.hpp",
+          "bytes": 7324,
+          "sha256": "7ac3aa00dbc9dbf228098759f4a58e340c1293b1dc89a324bc18af2f82c53a70"
+        },
+        {
+          "path": "src/audio/RenderCore.hpp",
+          "bytes": 12424,
+          "sha256": "f3b010134ab3e0cef3bc8e073a121325d5a4b34e785f9fdd2f01ccfcabdd2bf2"
+        },
+        {
+          "path": "src/audio/PreparedPlayback.hpp",
+          "bytes": 6630,
+          "sha256": "5effe3c9ae08ab3a1d8b8ffaa3c2010b25426de80e426f33df0878733e90f343"
+        },
+        {
+          "path": "src/audio/PreparedPlayback.cpp",
+          "bytes": 43396,
+          "sha256": "13677634784ed46f65a95c625405c66c7d6ac0f135fa047404402c98bc84a737"
+        },
+        {
+          "path": "src/audio/AudioFile.cpp",
+          "bytes": 21934,
+          "sha256": "e66dfcc96dedbe23001e273c724f92b58d1a03e7c0f4b154ca61b69e6d3d6a1d"
+        },
+        {
+          "path": "src/audio/SourceHandoff.hpp",
+          "bytes": 3529,
+          "sha256": "f047dc8d95f93c8a7709cb94ce36cd7fc3346855ade79ce9bfffd06571fa6b38"
+        },
+        {
+          "path": "src/audio/TransportQueue.hpp",
+          "bytes": 1518,
+          "sha256": "84b2a1ba0ac25f9d97ddb82fcedb337b89115e970c152be2fccc1c0d72607f21"
+        },
+        {
+          "path": "src/audio/LiveSession.cpp",
+          "bytes": 61305,
+          "sha256": "d587a4525b5a9ba1c850891acd006b3e74a006ba63757502e4662babebd54599"
+        },
+        {
+          "path": "src/audio/StereoRecorder.cpp",
+          "bytes": 10444,
+          "sha256": "239f25c2b59089533f56e3e12fe8dc2b603fc240eec0e10f9c8b1ac561d8961a"
+        },
+        {
+          "path": "src/audio/PipeWireMetadata.hpp",
+          "bytes": 4801,
+          "sha256": "3d41c6ede2a9cb65f578ad40f46dc9ea620df11cbc40883bf2272b0752870d8b"
+        },
+        {
+          "path": "src/audio/CallbackTiming.cpp",
+          "bytes": 3202,
+          "sha256": "54d97fdb6649d7128e45ff2fa26524aff36f7f59294c504b95eae0d947f74baf"
+        },
+        {
+          "path": "src/audio/PreparedLoopCache.cpp",
+          "bytes": 11321,
+          "sha256": "0044ca23b3a360158d93aee402f6590238512c06c66763dc7cc96cbf4ce0a821"
+        },
+        {
+          "path": "src/audio/CallbackTiming.hpp",
+          "bytes": 3395,
+          "sha256": "b575e4815b4bd485a39821662229412e5d8b08862014c040e1a3ce46243cf3df"
+        },
+        {
+          "path": "src/audio/LiveRecoveryPolicy.cpp",
+          "bytes": 2510,
+          "sha256": "fa23f8541d9aed8a54295e3fa4ddc4a658cb5da611610c6a9f4b8542f94c3014"
+        },
+        {
+          "path": "src/audio/ChannelEq.cpp",
+          "bytes": 5113,
+          "sha256": "12379c8f989c0803b801d0ab68718b4237bde5cdc2613c3ebab57cd33a397acf"
+        },
+        {
+          "path": "src/audio/PreparedScratchSource.cpp",
+          "bytes": 25060,
+          "sha256": "d41ab0b170b5957f95ef8eb23be1933a44c63f30b413136726a8d61529b89bab"
+        },
+        {
+          "path": "src/audio/AudioSource.hpp",
+          "bytes": 4933,
+          "sha256": "e63550818cc9631b0ed6efad6278f9f02ec1ff7dff0c7c4baff5f2cda5f19515"
+        },
+        {
+          "path": "src/audio/AudioFile.hpp",
+          "bytes": 6530,
+          "sha256": "7c51ed5e4687d77ad314e409ff98ee17a5bdef87fd0277c03eab63ab52907fe0"
+        },
+        {
+          "path": "src/audio/PreparedScratchSource.hpp",
+          "bytes": 4983,
+          "sha256": "e153eec7c5c5975837e45960e6cf28279a18ebad3e9dd2aafb6962532b9584d2"
+        },
+        {
+          "path": "src/audio/TempoProcessor.hpp",
+          "bytes": 5262,
+          "sha256": "f5fbcff30acf4216af717053c7c8686813fc64ccb1221caa76f96697f33ad628"
+        },
+        {
+          "path": "src/audio/PcmReadAhead.cpp",
+          "bytes": 12446,
+          "sha256": "f9e438214ee8ff4bd367c594aad688bc224c0b43dc6f1b26a1df48a16a2efd0b"
+        },
+        {
+          "path": "src/audio/TempoProcessor.cpp",
+          "bytes": 17249,
+          "sha256": "8a27f0182e3991549d508551fa6d528cebc664ee6df5ea0ba38584e1261c290b"
+        },
+        {
+          "path": "src/audio/RecorderTap.hpp",
+          "bytes": 2510,
+          "sha256": "0bf33bea4ae0209e67f6daee0cf3a7410071150120b7e9a8e6b1f33dac7752c0"
+        },
+        {
+          "path": "src/audio/PreparedLoopCache.hpp",
+          "bytes": 2598,
+          "sha256": "bf8bca749ad2164fe887841f231cbec7917d42e24f94cb568d703f1987482ed4"
+        },
+        {
+          "path": "src/audio/StemBankSource.cpp",
+          "bytes": 8148,
+          "sha256": "62ee2ae2fd4d786061a8c8f34d091e4466298cad3f73bed8b3f09d0454444d75"
+        },
+        {
+          "path": "src/audio/StemBankSource.hpp",
+          "bytes": 4043,
+          "sha256": "ddf21a1ed150eb05b0e3c39863adb9d80fe18c90653982cc008eb9407e36035b"
+        },
+        {
+          "path": "src/audio/StereoRecorder.hpp",
+          "bytes": 1962,
+          "sha256": "0dd93ec785529f09b0c23003ad799fc5bf77a6b4148f62fe237ab5d8bc1675bd"
+        },
+        {
+          "path": "src/ui/DeckController.hpp",
+          "bytes": 15314,
+          "sha256": "f0dbc8537a2392c83a99419fa45bc2c50ed31809a38ac157738568db43de8ec9"
+        },
+        {
+          "path": "src/ui/DeckController.cpp",
+          "bytes": 83937,
+          "sha256": "543c95c2b5b788e07ecb3ea4c50e4e1c4fc6040efd56dca91ca96388d86fc420"
+        },
+        {
+          "path": "src/library/CueSheet.hpp",
+          "bytes": 672,
+          "sha256": "8af27eddd5e8e69c4a47afef58feac65bfd1f1a4484d036fc453ef9221adadbb"
+        },
+        {
+          "path": "src/library/LibraryCatalog.cpp",
+          "bytes": 15431,
+          "sha256": "d2f6db6aa7efd8c2cb691e5e64176541c5aa57abed844f59852c2531bf408fe5"
+        },
+        {
+          "path": "src/library/BpmAnalyzer.hpp",
+          "bytes": 3199,
+          "sha256": "c9c3b9544cf635c30d90032701af95a8840739802007a145e39d3c81e17d7181"
+        },
+        {
+          "path": "src/library/LiveStemBridge.cpp",
+          "bytes": 68217,
+          "sha256": "e2c39063d37787960eb35a521380076a3e94b47167f60b80e41a5495ee6364c3"
+        },
+        {
+          "path": "src/library/LibraryCatalog.hpp",
+          "bytes": 1554,
+          "sha256": "245984d3b10e1b7d71525731b7dd7f17d40cfee778170c6dec39436ca85701b9"
+        },
+        {
+          "path": "src/library/StemEngineSupport.hpp",
+          "bytes": 3042,
+          "sha256": "d6ecb58c2b745c3628210833351e824b5e1b343a7d9ee34efd721251c82fc109"
+        },
+        {
+          "path": "src/library/BpmAnalyzer.cpp",
+          "bytes": 29188,
+          "sha256": "4573539a8c1508d24a0214ba524229ba37c7123cdf7bf090db91503657dcb2ec"
+        },
+        {
+          "path": "src/library/PreparedTrackStore.cpp",
+          "bytes": 53390,
+          "sha256": "252415aec25afee955f8a883663404c9f5018b07eb68ff035805234365626dad"
+        },
+        {
+          "path": "src/library/StemServiceJsonl.hpp",
+          "bytes": 3103,
+          "sha256": "1865e9ce016fd7a2e7395be7dde5b27006be6b67c378d9c4a7c4172d7a880265"
+        },
+        {
+          "path": "src/library/StemServiceJsonl.cpp",
+          "bytes": 10325,
+          "sha256": "c7a9c1a8100a57509b7e03b6eccf4311656cab529027cd65a233f4311cf03f28"
+        },
+        {
+          "path": "src/library/TrackPresentation.hpp",
+          "bytes": 855,
+          "sha256": "3b4a7128e580508d430b17e99bf8972200dbf0664c46d00f08e632d642e40eb0"
+        },
+        {
+          "path": "src/library/TrackPresentation.cpp",
+          "bytes": 11508,
+          "sha256": "d10186512dcfcff162192446025aca410744017862ec69bb712ce31a8c26f3a1"
+        },
+        {
+          "path": "src/library/StemEngineSupport.cpp",
+          "bytes": 12360,
+          "sha256": "58bc886321071f99b6e537d510cfaa343da8b9c49c89cae1e83bce0a45e2a475"
+        },
+        {
+          "path": "src/library/CueSheet.cpp",
+          "bytes": 12461,
+          "sha256": "759bc1e483d84d4bc5aaa809f2b25f7f1259a3402a0df57ad53add50eaf1dcec"
+        },
+        {
+          "path": "src/library/LiveStemObservations.hpp",
+          "bytes": 5685,
+          "sha256": "fa098a0afa224d3796b8561b8163f32ddaf93c238199dac2a4436afff549880c"
+        },
+        {
+          "path": "src/library/PreparedTrackStore.hpp",
+          "bytes": 3968,
+          "sha256": "7f1000a42b7f1ad3096c708051a7e9cf67fb8338b1600301f5750aea9a1ac94a"
+        },
+        {
+          "path": "qml/WindowActions.qml",
+          "bytes": 1739,
+          "sha256": "92d79e3cf0d5bca428251cfda4b0de0a0e2fae13b2368797610e4bb24ec6b524"
+        },
+        {
+          "path": "qml/Harness.qml",
+          "bytes": 4257,
+          "sha256": "b276894c14b718276b6e2e5224c575b848faaddb2ba142747e452b1b94970aeb"
+        },
+        {
+          "path": "qml/SurfaceKnob.qml",
+          "bytes": 5834,
+          "sha256": "8e5aac9da3318d9b94d7cd6d3a8bb9d07a483b4c630bccb4573ad05c984177a9"
+        },
+        {
+          "path": "qml/StereoMeter.qml",
+          "bytes": 4262,
+          "sha256": "bcae2b2ab59a17c60d64eae8a7c4b7ff3fbcdafa803e476ad61c60150ec6cae8"
+        },
+        {
+          "path": "qml/MixerSurface.qml",
+          "bytes": 31703,
+          "sha256": "4225c8f7844aa381a8955d239effb28e831060db7916adadbeb767462fe7a767"
+        },
+        {
+          "path": "qml/DeckSurface.qml",
+          "bytes": 68566,
+          "sha256": "10efb88d2fccf367ec2c7a0b8af360a459409c1b699308323df64186d0f600ba"
+        },
+        {
+          "path": "qml/Main.qml",
+          "bytes": 59821,
+          "sha256": "1b4147b934f937c013ea9eadad3632b00f6635d1e338cee7810eb78237d4dfdc"
+        },
+        {
+          "path": "qml/DeckButton.qml",
+          "bytes": 8051,
+          "sha256": "1a8a552d648d3402648842cab4b4972a09385930aa9ad879f6a7064570d05c54"
+        }
+      ],
+      "independent_resolution": "audio_harness GO; two conflict files only; eight processed scratch cases retained",
+      "resolved_pins": [
+        {
+          "path": "qml/Main.qml",
+          "sha256": "1b4147b934f937c013ea9eadad3632b00f6635d1e338cee7810eb78237d4dfdc"
+        },
+        {
+          "path": "tests/audio_prepared_scratch_test.cpp",
+          "sha256": "2e8520b1c00963b651cf4460e93a3f5c1e695ae5a1f59f6108ce8e82558adb16"
+        },
+        {
+          "path": "tests/audio_scratch_playback_test.cpp",
+          "sha256": "2c71d48e2397d18c51b999105580fb66ad23e55c886686e392c04dda53c06da9"
+        }
+      ]
+    },
+    "independent_recheck": {
+      "product_source_QML_files": 67,
+      "total_source_bytes": 968145,
+      "proof_rows_equal_accepted_manifest_rows": true,
+      "all_source_QML_paths_accounted_for": true,
+      "all_67_C4_source_and_comparison_tree_sizes_SHA256_equal": true,
+      "binary_payload_rescanned": false,
+      "scope": "src/ and qml/ source identity only. No new comparison of CMake, brand, tools, test/support files, libraries, build environment or generated/current binaries."
+    },
+    "documentation_branch_note": "Destination scratch-tempo-01 report branch was based on pre-EQ d23ee53a. It is not the product comparison tree and is not claimed byte-identical to accepted C4."
+  },
+  "unqualified": [
+    "Physical touchscreen use and real assistive-technology interaction.",
+    "Engine/UI contention under the supported workload.",
+    "M2 live-stem service p99 strictly below 4095 ms and a 60-minute normal actual-player qualification.",
+    "Beat/downbeat/phrase/key accuracy and other remaining M2 requirements.",
+    "Normal native exit code for this human trial; original receipt retained process absence rather than an exit status.",
+    "Whole-product test/coverage completion, reproducible binary identity, milestone completion or release acceptance."
+  ],
+  "publication_checks": [
+    "Original receipt SHA/size retained; saved bytes reread and compared exactly.",
+    "Original accepted manifest bytes/SHA match the receipt.",
+    "Original root integration proof SHA/size retained and decoded fields preserved.",
+    "All 67 product src/QML rows match accepted manifest, actual C4 source and the separate PR #72 integration tree.",
+    "Source reads/hash and JSON copy only; no tests, builds, Git, native launch, helper imports, models, hardware, audio or GPU execution."
+  ]
+}
