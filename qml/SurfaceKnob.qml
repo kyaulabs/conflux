@@ -12,6 +12,7 @@ Item {
     property real knobDiameter: 30
     property color indicatorColor: Brand.ConfluxTheme.primary
     property alias value: dial.value
+    property real acknowledgedValue: 0.5
     signal moved(real newValue)
     implicitWidth: Math.max(46, knobDiameter + 12)
     implicitHeight: knobDiameter + 17
@@ -23,6 +24,10 @@ Item {
     ToolTip.text: helpText
     ToolTip.delay: 350
     HoverHandler { id: hover }
+    function refreshAcknowledgement(value) {
+        dial.refreshAcknowledgement(value)
+    }
+    onAcknowledgedValueChanged: refreshAcknowledgement(acknowledgedValue)
 
     Dial {
         id: dial
@@ -33,14 +38,57 @@ Item {
         height: width
         from: 0
         to: 1
+        readonly property real minimumValue: Math.min(from, to)
+        readonly property real maximumValue: Math.max(from, to)
         stepSize: 0.01
-        value: 0.5
         enabled: root.activeControl
         focusPolicy: Qt.StrongFocus
         inputMode: Dial.Vertical
         Accessible.name: root.caption
         Accessible.description: root.helpText
-        onMoved: root.moved(value)
+        property bool initialized: false
+        property bool restoringAcknowledgement: false
+        property real acceptedValue: 0.5
+        function refreshAcknowledgement(candidate) {
+            if (!initialized || !Number.isFinite(candidate))
+                return
+            const previousGuard = restoringAcknowledgement
+            restoringAcknowledgement = true
+            acceptedValue = Math.max(from, Math.min(to, candidate))
+            if (!pressed)
+                value = acceptedValue
+            restoringAcknowledgement = previousGuard
+        }
+        function restoreAccepted() {
+            if (!initialized || pressed)
+                return
+            const previousGuard = restoringAcknowledgement
+            restoringAcknowledgement = true
+            value = acceptedValue
+            restoringAcknowledgement = previousGuard
+        }
+        function requestValue(candidate) {
+            if (initialized && root.activeControl && Number.isFinite(candidate))
+                root.moved(Math.max(from, Math.min(to, candidate)))
+        }
+        onValueChanged: {
+            if (!initialized || restoringAcknowledgement)
+                return
+            if (!Number.isFinite(value)) {
+                restoreAccepted()
+            } else if (pressed) {
+                requestValue(value)
+            } else if (value !== acceptedValue) {
+                const candidate = value
+                const previousGuard = restoringAcknowledgement
+                restoringAcknowledgement = true
+                requestValue(candidate)
+                value = acceptedValue
+                restoringAcknowledgement = previousGuard
+            }
+        }
+        onPressedChanged: { if (!pressed) restoreAccepted() }
+        Component.onCompleted: { initialized = true; refreshAcknowledgement(root.acknowledgedValue) }
 
         background: Rectangle {
             radius: width / 2

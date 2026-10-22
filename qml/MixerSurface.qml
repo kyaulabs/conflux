@@ -20,6 +20,15 @@ Rectangle {
     }
     readonly property color etched: Brand.ConfluxTheme.dark ? "#949AA3" : "#555B63"
     readonly property real smallKnob: height < 760 ? 27 : 34
+    function refreshLevelKnobs() {
+        masterLevelKnob.refreshAcknowledgement(Number(controller.masterGain))
+        cueLevelKnob.refreshAcknowledgement(Number(controller.cueGain))
+    }
+    Component.onCompleted: refreshLevelKnobs()
+    Connections {
+        target: root.controller
+        function onStateChanged() { root.refreshLevelKnobs() }
+    }
 
     // Fine horizontal lines suggest a brushed face without a bitmap texture.
     Repeater {
@@ -184,6 +193,8 @@ Rectangle {
                                 orientation: Qt.Vertical
                                 from: 0
                                 to: 1
+                                readonly property real minimumValue: Math.min(from, to)
+                                readonly property real maximumValue: Math.max(from, to)
                                 stepSize: 0.01
                                 enabled: strip.available
                                 focusPolicy: Qt.StrongFocus
@@ -194,13 +205,58 @@ Rectangle {
                                 Accessible.name: "Deck " + strip.modelData.name + " gain"
                                 Accessible.description: strip.audioDeck < 0 ? "Additional decks are not implemented."
                                                            : "Linear channel level, zero to one hundred percent."
-                                onMoved: root.controller.setDeckGain(strip.audioDeck, value)
-                                Binding {
-                                    target: levelFader
-                                    property: "value"
-                                    value: strip.audioDeck >= 0 ? strip.deck.gain : 0
-                                    when: !levelFader.pressed
-                                    restoreMode: Binding.RestoreNone
+                                property bool initialized: false
+                                property bool restoringAcknowledgement: false
+                                property real acknowledgedValue: 0
+                                function refreshAcknowledgement() {
+                                    if (!initialized)
+                                        return
+                                    const current = strip.audioDeck >= 0 ? root.controller.decks[strip.audioDeck] : null
+                                    const next = current ? Number(current.gain) : 0
+                                    if (!Number.isFinite(next))
+                                        return
+                                    const previousGuard = restoringAcknowledgement
+                                    restoringAcknowledgement = true
+                                    acknowledgedValue = Math.max(from, Math.min(to, next))
+                                    if (!pressed)
+                                        value = acknowledgedValue
+                                    restoringAcknowledgement = previousGuard
+                                }
+                                function restoreAccepted() {
+                                    if (!initialized || pressed)
+                                        return
+                                    const previousGuard = restoringAcknowledgement
+                                    restoringAcknowledgement = true
+                                    value = acknowledgedValue
+                                    restoringAcknowledgement = previousGuard
+                                }
+                                function requestValue(candidate) {
+                                    const current = strip.audioDeck >= 0 ? root.controller.decks[strip.audioDeck] : null
+                                    if (initialized && current && current.loaded && !current.replacing &&
+                                            root.controller.outputReady && Number.isFinite(candidate))
+                                        root.controller.setDeckGain(strip.audioDeck, Math.max(from, Math.min(to, candidate)))
+                                }
+                                onValueChanged: {
+                                    if (!initialized || restoringAcknowledgement)
+                                        return
+                                    if (!Number.isFinite(value)) {
+                                        restoreAccepted()
+                                    } else if (pressed) {
+                                        requestValue(value)
+                                    } else if (value !== acknowledgedValue) {
+                                        const candidate = value
+                                        const previousGuard = restoringAcknowledgement
+                                        restoringAcknowledgement = true
+                                        requestValue(candidate)
+                                        value = acknowledgedValue
+                                        restoringAcknowledgement = previousGuard
+                                    }
+                                }
+                                onPressedChanged: { if (!pressed) restoreAccepted() }
+                                Component.onCompleted: { initialized = true; refreshAcknowledgement() }
+                                Connections {
+                                    target: root.controller
+                                    function onStateChanged() { levelFader.refreshAcknowledgement() }
                                 }
                                 ToolTip.visible: hovered || activeFocus
                                 ToolTip.text: strip.audioDeck < 0 ? "Additional decks are not implemented."
@@ -291,12 +347,13 @@ Rectangle {
                 Layout.fillHeight: true
                 spacing: 9
                 SurfaceKnob {
+                    id: masterLevelKnob
                     Layout.fillWidth: true
                     knobDiameter: 46
                     caption: "MASTER LEVEL"
                     dialObjectName: "masterGain"
                     activeControl: root.controller.outputReady
-                    value: root.controller.masterGain
+                    acknowledgedValue: root.controller.masterGain
                     indicatorColor: Brand.ConfluxTheme.primary
                     helpText: "Linear master level, zero to one hundred percent."
                     onMoved: function(newValue) { root.controller.setMasterGain(newValue) }
@@ -327,12 +384,13 @@ Rectangle {
                     caption: "Post-gain master peak and RMS"
                 }
                 SurfaceKnob {
+                    id: cueLevelKnob
                     Layout.fillWidth: true
                     knobDiameter: 34
                     caption: "CUE LEVEL"
                     dialObjectName: "cueGain"
                     activeControl: root.controller.outputReady
-                    value: root.controller.cueGain
+                    acknowledgedValue: root.controller.cueGain
                     indicatorColor: Brand.ConfluxTheme.primary
                     helpText: "Separate headphone level " + Math.round(root.controller.cueGain * 100) + "%. No cue audio is sent to the master output."
                     onMoved: function(newValue) { root.controller.setCueGain(newValue) }
@@ -374,6 +432,8 @@ Rectangle {
             Layout.preferredHeight: 54
             from: 0
             to: 1
+            readonly property real minimumValue: Math.min(from, to)
+            readonly property real maximumValue: Math.max(from, to)
             stepSize: 0.01
             live: true
             leftPadding: 21
@@ -384,13 +444,55 @@ Rectangle {
             focusPolicy: Qt.StrongFocus
             Accessible.name: "Crossfader A to B"
             Accessible.description: "Left plays Deck A only; right plays Deck B only. Center keeps both channel levels unchanged. Headphone cue is independent."
-            onMoved: root.controller.setCrossfader(value)
-            Binding {
-                target: crossfader
-                property: "value"
-                value: root.controller.crossfader
-                when: !crossfader.pressed
-                restoreMode: Binding.RestoreNone
+            property bool initialized: false
+            property bool restoringAcknowledgement: false
+            property real acknowledgedValue: 0.5
+            function refreshAcknowledgement() {
+                if (!initialized)
+                    return
+                const next = Number(root.controller.crossfader)
+                if (!Number.isFinite(next))
+                    return
+                const previousGuard = restoringAcknowledgement
+                restoringAcknowledgement = true
+                acknowledgedValue = Math.max(from, Math.min(to, next))
+                if (!pressed)
+                    value = acknowledgedValue
+                restoringAcknowledgement = previousGuard
+            }
+            function restoreAccepted() {
+                if (!initialized || pressed)
+                    return
+                const previousGuard = restoringAcknowledgement
+                restoringAcknowledgement = true
+                value = acknowledgedValue
+                restoringAcknowledgement = previousGuard
+            }
+            function requestValue(candidate) {
+                if (initialized && root.controller.outputReady && Number.isFinite(candidate))
+                    root.controller.setCrossfader(Math.max(from, Math.min(to, candidate)))
+            }
+            onValueChanged: {
+                if (!initialized || restoringAcknowledgement)
+                    return
+                if (!Number.isFinite(value)) {
+                    restoreAccepted()
+                } else if (pressed) {
+                    requestValue(value)
+                } else if (value !== acknowledgedValue) {
+                    const candidate = value
+                    const previousGuard = restoringAcknowledgement
+                    restoringAcknowledgement = true
+                    requestValue(candidate)
+                    value = acknowledgedValue
+                    restoringAcknowledgement = previousGuard
+                }
+            }
+            onPressedChanged: { if (!pressed) restoreAccepted() }
+            Component.onCompleted: { initialized = true; refreshAcknowledgement() }
+            Connections {
+                target: root.controller
+                function onStateChanged() { crossfader.refreshAcknowledgement() }
             }
             background: Rectangle {
                 width: crossfader.width

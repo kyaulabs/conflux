@@ -125,6 +125,9 @@ public:
     double cueGain() const { return cue_; }
     double crossfader() const { return crossfader_; }
     void snapshotCrossfader(double value) { crossfader_ = value; emit stateChanged(); }
+    void snapshotMasterGain(double value) { master_ = value; emit stateChanged(); }
+    void snapshotCueGain(double value) { cue_ = value; emit stateChanged(); }
+    void setNumericAcknowledgement(bool value) { acknowledgeNumeric_ = value; }
     QVariantMap meters() const { return meters_; }
     QVariantMap audioRouting() const { return routing_; }
     QVariantMap recording() const { return recording_; }
@@ -279,7 +282,7 @@ public:
     Q_INVOKABLE void seekSeconds(int deck, double seconds)
     {
         calls.append(QVariantMap{{"action", "seek"}, {"deck", deck}, {"value", seconds}});
-        snapshotPosition(deck, seconds);
+        if (acknowledgeNumeric_) snapshotPosition(deck, seconds);
     }
     Q_INVOKABLE bool jogFrames(int deck, qint64 frames)
     {
@@ -334,11 +337,12 @@ public:
     Q_INVOKABLE void setStemGain(int deck, int stem, double gain)
     {
         calls.append(QVariantMap{{"action", "stemGain"}, {"deck", deck}, {"stem", stem}, {"value", gain}});
-        snapshotStemGain(deck, stem, gain);
+        if (acknowledgeNumeric_) snapshotStemGain(deck, stem, gain);
     }
     Q_INVOKABLE void setDeckGain(int deck, double gain)
     {
         calls.append(QVariantMap{{"action", "gain"}, {"deck", deck}, {"value", gain}});
+        if (!acknowledgeNumeric_) return;
         auto state = decks_[deck].toMap();
         state["gain"] = gain;
         decks_[deck] = state;
@@ -347,19 +351,21 @@ public:
     Q_INVOKABLE void setMasterGain(double gain)
     {
         calls.append(QVariantMap{{"action", "master"}, {"value", gain}});
+        if (!acknowledgeNumeric_) return;
         master_ = gain;
         emit stateChanged();
     }
     Q_INVOKABLE void setCueGain(double gain)
     {
         calls.append(QVariantMap{{"action", "cueGain"}, {"value", gain}});
+        if (!acknowledgeNumeric_) return;
         cue_ = gain;
         emit stateChanged();
     }
     Q_INVOKABLE void setCrossfader(double position)
     {
         calls.append(QVariantMap{{"action", "crossfader"}, {"value", position}});
-        snapshotCrossfader(position);
+        if (acknowledgeNumeric_) snapshotCrossfader(position);
     }
     // Command recording deliberately does not acknowledge a loop or move the
     // cursor. Tests deliver separate snapshots, as the audio owner does.
@@ -446,6 +452,7 @@ private:
     bool busy_ = false, ready_ = false, stemsAvailable_ = false;
     bool libraryReady_ = true;
     bool acceptCue_ = true, acceptJog_ = true;
+    bool acknowledgeNumeric_ = true;
     bool acceptScratchBegin_ = true, acceptScratchMove_ = true;
     quint64 scratchSerial_ = 0;
     std::array<QString, 2> scratchTokens_{};
@@ -3160,6 +3167,127 @@ private slots:
                 }
             }
         }
+    }
+
+    void existingControlsAccessibleNumericWaitsForAcknowledgement_data()
+    {
+        QTest::addColumn<QString>("objectName");
+        QTest::addColumn<QString>("action");
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<int>("stem");
+        QTest::newRow("crossfader") << QString("crossfader") << QString("crossfader") << -1 << -1;
+        QTest::newRow("master") << QString("masterGain") << QString("master") << -1 << -1;
+        QTest::newRow("headphone") << QString("cueGain") << QString("cueGain") << -1 << -1;
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            QTest::newRow(qPrintable(prefix + "-gain")) << prefix + "Gain" << QString("gain") << deck << -1;
+            QTest::newRow(qPrintable(prefix + "-seek")) << prefix + "Seek" << QString("seek") << deck << -1;
+            for (int stem = 0; stem < 4; ++stem)
+                QTest::newRow(qPrintable(prefix + QString("-stem%1").arg(stem)))
+                    << prefix + QString("Stem%1Gain").arg(stem) << QString("stemGain") << deck << stem;
+        }
+    }
+
+    void existingControlsAccessibleNumericWaitsForAcknowledgement()
+    {
+        QFETCH(QString, objectName); QFETCH(QString, action); QFETCH(int, deck); QFETCH(int, stem);
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1);
+        ui_->endpoint.setOverviewStem(0, "drums"); ui_->endpoint.setOverviewStem(1, "drums");
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.setNumericAcknowledgement(false);
+        auto* control = ui_->item(objectName.toUtf8().constData());
+        QVERIFY(control);
+        QTRY_VERIFY(control->isEnabled());
+        auto* accessible = QAccessible::queryAccessibleInterface(control);
+        QVERIFY(accessible && accessible->valueInterface());
+        auto* numeric = accessible->valueInterface();
+        QVERIFY(numeric->minimumValue().isValid());
+        QVERIFY(numeric->maximumValue().isValid());
+        QCOMPARE(numeric->minimumValue().toDouble(), 0.0);
+        QCOMPARE(numeric->maximumValue().toDouble(), action == "seek" ? 10.0 : 1.0);
+        const auto acceptedValue = numeric->currentValue().toDouble();
+        const auto acceptedDecks = ui_->endpoint.decks();
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain(), crossfader = ui_->endpoint.crossfader();
+        const double requested = action == "seek" ? 4.0 : .75;
+        const double acknowledged = action == "seek" ? 6.25 : .35;
+        auto publish = [&](double value) {
+            if (action == "seek") ui_->endpoint.snapshotPosition(deck, value);
+            else if (action == "gain") ui_->endpoint.snapshotDeck(deck, {{"gain", value}});
+            else if (action == "stemGain") ui_->endpoint.snapshotStemGain(deck, stem, value);
+            else if (action == "master") ui_->endpoint.snapshotMasterGain(value);
+            else if (action == "cueGain") ui_->endpoint.snapshotCueGain(value);
+            else ui_->endpoint.snapshotCrossfader(value);
+        };
+        QVERIFY(ui_->endpoint.calls.isEmpty()); // Initial snapshot binding is not an input request.
+        numeric->setCurrentValue(requested); // Actual Qt value setter, not a moved signal or QML function call.
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls[0].toMap();
+        QCOMPARE(call["action"].toString(), action);
+        QCOMPARE(call["value"].toDouble(), requested);
+        if (deck >= 0) QCOMPARE(call["deck"].toInt(), deck);
+        if (stem >= 0) QCOMPARE(call["stem"].toInt(), stem);
+        QCOMPARE(ui_->endpoint.decks(), acceptedDecks);
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
+        QCOMPARE(ui_->endpoint.crossfader(), crossfader);
+        QTRY_COMPARE(numeric->currentValue().toDouble(), acceptedValue);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 1); // Restoration must not submit a second command.
+
+        publish(acknowledged); // Only a later engine snapshot changes the displayed accepted value.
+        QTRY_COMPARE(numeric->currentValue().toDouble(), acknowledged);
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        const auto acknowledgedDecks = ui_->endpoint.decks();
+        const double nextRequest = action == "seek" ? 3.0 : .65;
+        numeric->setCurrentValue(nextRequest);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        const auto next = ui_->endpoint.calls[1].toMap();
+        QCOMPARE(next["action"].toString(), action);
+        QCOMPARE(next["value"].toDouble(), nextRequest);
+        if (deck >= 0) QCOMPARE(next["deck"].toInt(), deck);
+        if (stem >= 0) QCOMPARE(next["stem"].toInt(), stem);
+        QCOMPARE(ui_->endpoint.decks(), acknowledgedDecks);
+        QTRY_COMPARE(numeric->currentValue().toDouble(), acknowledged);
+
+        // Global master/cue/crossfader controls deliberately do not require a
+        // loaded deck or stop during replacement. Per-deck controls do.
+        QStringList gates{"output-unready"};
+        if (deck >= 0) gates << "unloaded" << "replacing";
+        for (const auto& gate : gates) {
+            if (gate == "output-unready") ui_->endpoint.setReady(false);
+            else if (gate == "unloaded") ui_->endpoint.snapshotDeck(deck, {{"loaded", false}});
+            else ui_->endpoint.setReplacing(deck, true);
+            QTRY_VERIFY(!control->isEnabled());
+            const auto guardedDecks = ui_->endpoint.decks();
+            const auto guardedMaster = ui_->endpoint.masterGain(), guardedCue = ui_->endpoint.cueGain(),
+                       guardedCrossfader = ui_->endpoint.crossfader();
+            numeric->setCurrentValue(action == "seek" ? 4.5 : .8);
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), 2);
+            QTRY_COMPARE(numeric->currentValue().toDouble(), acknowledged);
+            QCOMPARE(ui_->endpoint.decks(), guardedDecks);
+            QCOMPARE(ui_->endpoint.masterGain(), guardedMaster);
+            QCOMPARE(ui_->endpoint.cueGain(), guardedCue);
+            QCOMPARE(ui_->endpoint.crossfader(), guardedCrossfader);
+            ui_->endpoint.setReady(true);
+            if (deck >= 0) ui_->endpoint.snapshotDeck(deck, {{"loaded", true}, {"replacing", false}});
+            QTRY_VERIFY(control->isEnabled());
+            QCOMPARE(ui_->endpoint.calls.size(), 2);
+        }
+        publish(action == "seek" ? 5.5 : .45); // Binding remains alive after rejected direct writes.
+        QTRY_COMPARE(numeric->currentValue().toDouble(), action == "seek" ? 5.5 : .45);
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+        if (action == "seek") {
+            // A shorter replacement clamps the old range. That metadata
+            // change must not become an input command for the new source.
+            ui_->endpoint.snapshotDeck(deck, {{"sourceId", "shorter-accessible-source"},
+                {"durationSeconds", 2.0}, {"positionSeconds", 1.25}});
+            QTRY_COMPARE(numeric->currentValue().toDouble(), 1.25);
+            QCOMPARE(numeric->maximumValue().toDouble(), 2.0);
+            QCOMPARE(ui_->endpoint.calls.size(), 2);
+        }
+        if (deck >= 0) QCOMPARE(ui_->endpoint.decks()[1 - deck], acceptedDecks[1 - deck]);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void tempoAccessibleNumericEntryWaitsForAcknowledgement()

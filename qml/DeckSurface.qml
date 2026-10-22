@@ -110,10 +110,10 @@ Item {
             tempo.value = tempo.acknowledgedValue
         tempo.restoringAcknowledgement = previousGuard
     }
-    Component.onCompleted: { refreshWaveform(); refreshTempo() }
+    Component.onCompleted: { refreshWaveform(); refreshTempo(); seek.refreshAccepted() }
     Connections {
         target: surface.controller
-        function onStateChanged() { surface.refreshWaveform(); surface.refreshTempo() }
+        function onStateChanged() { surface.refreshWaveform(); surface.refreshTempo(); seek.refreshAccepted() }
     }
     Connections {
         target: Brand.ConfluxTheme
@@ -439,26 +439,47 @@ Item {
             leftPadding: 4
             rightPadding: 4
             from: 0
-            to: Math.max(0.001, Number(surface.deck.durationSeconds) || 0)
+            to: 0.001
+            // Qt 6.4's accessibility bridge reads these range properties.
+            readonly property real minimumValue: Math.min(from, to)
+            readonly property real maximumValue: Math.max(from, to)
             stepSize: 0.1
             enabled: surface.canControl
             visible: !surface.showingPreparation
             pressed: seekInput.gestureActive && seekInput.pressed
             Accessible.name: surface.deckName + " overview position"
             Accessible.description: "Seek within the loaded track. Overview peaks are normalized to that source."
-            onMoved: {
-                // Pointer previews commit on release; keyboard moves stay native.
-                if (!seekInput.gestureActive && surface.canControl)
-                    surface.controller.seekSeconds(surface.deckIndex, value)
+            property bool inputReady: false
+            property bool restoringAcknowledgement: false
+            property real acknowledgedValue: 0
+            function refreshAccepted() {
+                const current = surface.controller.decks[surface.deckIndex] || ({})
+                const duration = Number(current.durationSeconds)
+                const position = Number(current.positionSeconds)
+                const previousGuard = restoringAcknowledgement
+                restoringAcknowledgement = true
+                // Keep range clamps and source replacement in the same guarded
+                // snapshot; neither is an input request.
+                to = Number.isFinite(duration) && duration > 0 ? duration : 0.001
+                acknowledgedValue = Number.isFinite(position) ? Math.max(0, Math.min(to, position)) : 0
+                if (!seekInput.gestureActive)
+                    value = acknowledgedValue
+                restoringAcknowledgement = previousGuard
+            }
+            onValueChanged: {
+                // Custom pointer previews have one separate release commit.
+                if (!inputReady || restoringAcknowledgement || seekInput.gestureActive)
+                    return
+                const candidate = value
+                restoringAcknowledgement = true
+                if (surface.canControl && Number.isFinite(candidate)
+                    && Math.abs(candidate - acknowledgedValue) > 1e-9)
+                    surface.controller.seekSeconds(surface.deckIndex, candidate)
+                refreshAccepted()
+                restoringAcknowledgement = false
             }
             onActiveFocusChanged: { if (!activeFocus && seekInput) seekInput.gestureActive = false }
-            Binding {
-                target: seek
-                property: "value"
-                value: Number(surface.deck.positionSeconds) || 0
-                when: !seekInput.gestureActive
-                restoreMode: Binding.RestoreNone
-            }
+            Component.onCompleted: { inputReady = true; refreshAccepted() }
             MouseArea {
                 id: seekInput
                 objectName: "deck" + surface.deckIndex + "SeekInput"
@@ -470,6 +491,7 @@ Item {
                 Accessible.ignored: true
                 property bool gestureActive: false
                 property string gestureSource: ""
+                onGestureActiveChanged: { if (!gestureActive) seek.refreshAccepted() }
                 function valueAtPointer(pointerX) {
                     const span = Math.max(1, seek.availableWidth - seek.handle.width)
                     let position = Math.max(0, Math.min(1,
@@ -638,19 +660,42 @@ Item {
                 bottomPadding: 0
                 from: 0
                 to: 1
+                readonly property real minimumValue: Math.min(from, to)
+                readonly property real maximumValue: Math.max(from, to)
                 stepSize: 0.01
                 enabled: surface.canControl
                 Accessible.name: surface.deckName + " " + modelData.toLowerCase() + " stem gain"
                 Accessible.description: "Level from zero to one. Muted stems keep the shared track position."
-                onMoved: if (surface.canControl && surface.deck.stemBank)
-                             surface.controller.setStemGain(surface.deckIndex, index, value)
-                Binding {
-                    target: stemLevel
-                    property: "value"
-                    value: surface.deck.stemGains && surface.deck.stemGains.length === 4
-                           ? Number(surface.deck.stemGains[stemLevel.index]) : 1
-                    when: !stemLevel.pressed
-                    restoreMode: Binding.RestoreNone
+                property bool inputReady: false
+                property bool restoringAcknowledgement: false
+                property real acknowledgedValue: 1
+                function refreshAccepted() {
+                    const current = surface.controller.decks[surface.deckIndex] || ({})
+                    const gains = current.stemGains || []
+                    const gain = gains.length === 4 ? Number(gains[index]) : 1
+                    const previousGuard = restoringAcknowledgement
+                    restoringAcknowledgement = true
+                    acknowledgedValue = Number.isFinite(gain) ? Math.max(0, Math.min(1, gain)) : 1
+                    if (!pressed)
+                        value = acknowledgedValue
+                    restoringAcknowledgement = previousGuard
+                }
+                onValueChanged: {
+                    if (!inputReady || restoringAcknowledgement)
+                        return
+                    const candidate = value
+                    restoringAcknowledgement = true
+                    if (surface.canControl && surface.deck.stemBank && Number.isFinite(candidate)
+                        && (pressed || Math.abs(candidate - acknowledgedValue) > 1e-9))
+                        surface.controller.setStemGain(surface.deckIndex, index, candidate)
+                    refreshAccepted()
+                    restoringAcknowledgement = false
+                }
+                onPressedChanged: { if (!pressed) refreshAccepted() }
+                Component.onCompleted: { inputReady = true; refreshAccepted() }
+                Connections {
+                    target: surface.controller
+                    function onStateChanged() { stemLevel.refreshAccepted() }
                 }
                 background: Item {
                     x: stemLevel.leftPadding
