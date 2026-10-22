@@ -474,7 +474,7 @@ Item {
                         finishGesture(false, 0)
                     } else if (transition === PointerDevice.UngrabPassive && gestureActive) {
                         const point = seek.mapFromItem(null, eventPoint.scenePosition.x, eventPoint.scenePosition.y)
-                        finishGesture(eventPoint.state === EventPoint.Released, valueAtPointer(point.x))
+                        finishGesture(eventPoint.state === Qt.TouchPointReleased, valueAtPointer(point.x))
                     }
                 }
                 onCanceled: invalidateGesture()
