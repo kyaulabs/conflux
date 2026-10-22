@@ -86,7 +86,8 @@ public:
     {
         for (int deck = 0; deck < 2; ++deck)
             decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"sourceId", ""}, {"playing", false}, {"replacing", false},
-                                      {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
+                                      {"gain", .5}, {"eqGainDb", QVariantList{0., 0., 0.}},
+                                      {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()}, {"tempo", tempoState()}, {"bpm", bpmState()},
                                       {"scratch", scratchState()}, {"sourceGeneration", qulonglong(0)},
@@ -195,7 +196,7 @@ public:
     void loadState(int deck, double position = 2.0)
     {
         decks_[deck] = QVariantMap{{"loaded", true}, {"name", QString("Track %1").arg(deck)}, {"sourceId", ""}, {"replacing", false},
-                                   {"playing", false}, {"gain", .5},
+                                   {"playing", false}, {"gain", .5}, {"eqGainDb", QVariantList{0., 0., 0.}},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                    {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)}, {"tempo", tempoState(true)}, {"bpm", bpmState(120)},
@@ -338,6 +339,20 @@ public:
     {
         calls.append(QVariantMap{{"action", "stemGain"}, {"deck", deck}, {"stem", stem}, {"value", gain}});
         if (acknowledgeNumeric_) snapshotStemGain(deck, stem, gain);
+    }
+    void snapshotEqGain(int deck, int band, double db)
+    {
+        auto state = decks_[deck].toMap();
+        auto gains = state["eqGainDb"].toList();
+        gains[band] = db;
+        state["eqGainDb"] = gains;
+        decks_[deck] = state;
+        emit stateChanged();
+    }
+    Q_INVOKABLE void setEqGainDb(int deck, int band, double db)
+    {
+        calls.append(QVariantMap{{"action", "eq"}, {"deck", deck}, {"band", band}, {"value", db}});
+        if (acknowledgeNumeric_) snapshotEqGain(deck, band, db);
     }
     Q_INVOKABLE void setDeckGain(int deck, double gain)
     {
@@ -3060,7 +3075,7 @@ private slots:
         ui_->endpoint.loadState(0);
         ui_->endpoint.loadState(1);
         ui_->endpoint.setReady(true);
-        unsigned hotCues = 0, equalizers = 0, memoryCalls = 0;
+        unsigned hotCues = 0, trims = 0, colors = 0, activeEq = 0, reservedEq = 0, memoryCalls = 0;
         const auto inspect = [&](auto&& self, QQuickItem* item) -> void {
             const auto reason = item->property("unavailableReason").toString();
             if (reason.contains("Hot cues") || reason.contains("Memory cue")) {
@@ -3068,15 +3083,194 @@ private slots:
                 hotCues += reason.contains("Hot cues");
                 memoryCalls += reason.contains("Memory cue");
             }
-            if (item->property("helpText").toString() == "Channel equalization is not implemented.") {
+            const auto help = item->property("helpText").toString();
+            if (help.startsWith("Input trim is not implemented.") ||
+                    help.startsWith("Channel filter and color effects are not implemented.")) {
                 QVERIFY(!item->property("activeControl").toBool());
-                ++equalizers;
+                trims += help.startsWith("Input trim");
+                colors += help.startsWith("Channel filter");
+            }
+            const auto caption = item->property("caption").toString();
+            if (caption == "HI" || caption == "MID" || caption == "LOW") {
+                if (item->property("activeControl").toBool()) ++activeEq;
+                else ++reservedEq;
             }
             for (auto* child : item->childItems()) self(self, child);
         };
         inspect(inspect, ui_->window->contentItem());
-        QVERIFY(hotCues > 0 && equalizers > 0 && memoryCalls > 0);
+        QVERIFY(hotCues > 0 && trims == 4 && colors == 4 && memoryCalls > 0);
+        QCOMPARE(activeEq, 6U);
+        QCOMPARE(reservedEq, 6U); // C and D remain reserved.
         QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
+    void channelEqAccessibleNumericWaitsForAcknowledgement_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<int>("band");
+        QTest::addColumn<bool>("dark");
+        for (int deck = 0; deck < 2; ++deck)
+            for (int band = 0; band < 3; ++band)
+                for (bool dark : {false, true})
+                    QTest::newRow(qPrintable(QString("deck%1-band%2-%3").arg(deck).arg(band).arg(dark ? "dark" : "light")))
+                        << deck << band << dark;
+    }
+
+    void channelEqAccessibleNumericWaitsForAcknowledgement()
+    {
+        QFETCH(int, deck); QFETCH(int, band); QFETCH(bool, dark);
+        ui_->window->resize(1280, 800);
+        QTRY_COMPARE(ui_->window->size(), QSize(1280, 800));
+        verifyControlsFit({"themeToggle"});
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.setNumericAcknowledgement(false);
+        ui_->endpoint.snapshotEqGain(deck, band, -6.5);
+        const std::array names{"LOW", "MID", "HI"};
+        auto* dial = ui_->item(QString("deck%1Eq%2").arg(deck).arg(names[band]).toUtf8().constData());
+        QVERIFY(dial);
+        QTRY_VERIFY(dial->isEnabled());
+        auto* accessible = QAccessible::queryAccessibleInterface(dial);
+        QVERIFY(accessible && accessible->valueInterface());
+        auto* numeric = accessible->valueInterface();
+        QCOMPARE(numeric->minimumValue().toDouble(), 0.0);
+        QCOMPARE(numeric->maximumValue().toDouble(), 1.0);
+        QTRY_COMPARE(numeric->currentValue().toDouble(), .375);
+        const auto description = accessible->text(QAccessible::Description);
+        QVERIFY(description.contains("dB") && description.contains("cut", Qt::CaseInsensitive) &&
+                description.contains("boost", Qt::CaseInsensitive));
+        QVERIFY(accessible->text(QAccessible::Name).contains(deck == 0 ? "Deck A" : "Deck B"));
+        const auto accepted = ui_->endpoint.decks();
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain(), crossfader = ui_->endpoint.crossfader();
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        // Independent endpoint/quarter/neutral oracles, not a copy of the QML conversion.
+        for (const auto [position, db] : {std::pair{0., -26.}, {.25, -13.}, {.5, 0.}, {.75, 3.}, {1., 6.}}) {
+            const auto before = ui_->endpoint.calls.size();
+            numeric->setCurrentValue(position);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            const auto call = ui_->endpoint.calls.last().toMap();
+            QCOMPARE(call["action"].toString(), QString("eq"));
+            QCOMPARE(call["deck"].toInt(), deck);
+            QCOMPARE(call["band"].toInt(), band);
+            QCOMPARE(call["value"].toDouble(), db);
+            QTRY_COMPARE(numeric->currentValue().toDouble(), .375);
+            QCOMPARE(ui_->endpoint.decks(), accepted);
+        }
+        const auto count = ui_->endpoint.calls.size();
+        ui_->endpoint.snapshotEqGain(deck, band, 1.5);
+        QTRY_COMPARE(numeric->currentValue().toDouble(), .625);
+        QVERIFY(accessible->text(QAccessible::Description).contains("1.5"));
+        QCOMPARE(ui_->endpoint.calls.size(), count); // ACK is never an input request.
+        for (const auto& gate : {QString("output"), QString("unloaded"), QString("replacing")}) {
+            if (gate == "output") ui_->endpoint.setReady(false);
+            else ui_->endpoint.snapshotDeck(deck, {{gate == "unloaded" ? "loaded" : "replacing", gate != "unloaded"}});
+            QTRY_VERIFY(!dial->isEnabled());
+            numeric->setCurrentValue(.9); // Qt's actual value interface bypasses disabled pointer input.
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), count);
+            QTRY_COMPARE(numeric->currentValue().toDouble(), .625);
+            ui_->endpoint.setReady(true);
+            ui_->endpoint.snapshotDeck(deck, {{"loaded", true}, {"replacing", false}});
+            QTRY_VERIFY(dial->isEnabled());
+        }
+        // EQ belongs to the channel. Replacement snapshots may retain or update
+        // targets, but neither a source change nor that ACK submits a command.
+        ui_->endpoint.snapshotDeck(deck, {{"sourceId", "replacement-eq-source"}, {"sourceGeneration", qulonglong(2)}});
+        ui_->endpoint.snapshotEqGain(deck, band, -13.);
+        QTRY_COMPARE(numeric->currentValue().toDouble(), .25);
+        QCOMPARE(ui_->endpoint.calls.size(), count);
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], accepted[1 - deck]);
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
+        QCOMPARE(ui_->endpoint.crossfader(), crossfader);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void channelEqPointerAndKeyboardKeepHeldAcknowledgement_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<bool>("touch");
+        QTest::addColumn<bool>("dark");
+        for (int deck = 0; deck < 2; ++deck)
+            for (bool touch : {false, true})
+                for (bool dark : {false, true})
+                    QTest::newRow(qPrintable(QString("deck%1-%2-%3").arg(deck).arg(touch ? "touch" : "mouse").arg(dark ? "dark" : "light")))
+                        << deck << touch << dark;
+    }
+
+    void channelEqPointerAndKeyboardKeepHeldAcknowledgement()
+    {
+        QFETCH(int, deck); QFETCH(bool, touch); QFETCH(bool, dark);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        verifyControlsFit({"themeToggle"});
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.setNumericAcknowledgement(false);
+        auto* dial = ui_->item(QString("deck%1EqHI").arg(deck).toUtf8().constData());
+        auto* peer = ui_->item(QString("deck%1EqHI").arg(1 - deck).toUtf8().constData());
+        QVERIFY(dial && peer);
+        QTRY_VERIFY(dial->isEnabled() && peer->isEnabled());
+        verifyControlsFit({"deck0EqHI", "deck0EqMID", "deck0EqLOW", "deck1EqHI", "deck1EqMID", "deck1EqLOW"});
+        const auto peerBefore = ui_->endpoint.decks()[1 - deck];
+        const auto start = ui_->center(dial);
+        const auto end = start - QPoint(0, std::max(24, QGuiApplication::styleHints()->startDragDistance() + 8));
+        bool mouseHeld = false;
+        const auto releaseMouse = qScopeGuard([&] {
+            if (mouseHeld) QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, end);
+        });
+        auto contact = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        if (touch) { touchActive_ = true; contact.press(0, start, ui_->window).commit(); }
+        else { mouseHeld = true; QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, start); }
+        QTRY_VERIFY(dial->property("pressed").toBool());
+        if (touch) contact.move(0, end, ui_->window).commit();
+        else QTest::mouseMove(ui_->window, end);
+        QTRY_VERIFY(!ui_->endpoint.calls.isEmpty());
+        const auto held = dial->property("value").toDouble();
+        QVERIFY(held > .5);
+        const auto beforeAck = ui_->endpoint.calls.size();
+        ui_->endpoint.snapshotEqGain(deck, 2, -13.);
+        QTRY_COMPARE(dial->property("value").toDouble(), held);
+        ui_->endpoint.snapshotEqGain(1 - deck, 2, 3.);
+        QTRY_COMPARE(peer->property("value").toDouble(), .75);
+        QCOMPARE(ui_->endpoint.calls.size(), beforeAck);
+        if (touch) { contact.release(0, end, ui_->window).commit(); touchActive_ = false; }
+        else { QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, end); mouseHeld = false; }
+        QTRY_VERIFY(!dial->property("pressed").toBool());
+        QTRY_COMPARE(dial->property("value").toDouble(), .25);
+        for (const auto& entry : ui_->endpoint.calls) {
+            const auto call = entry.toMap();
+            QCOMPARE(call["action"].toString(), QString("eq"));
+            QCOMPARE(call["deck"].toInt(), deck);
+            QCOMPARE(call["band"].toInt(), 2);
+            QVERIFY(call["value"].toDouble() >= -26. && call["value"].toDouble() <= 6.);
+        }
+        ui_->endpoint.snapshotEqGain(deck, 2, 0.);
+        QTRY_COMPARE(dial->property("value").toDouble(), .5);
+        auto count = ui_->endpoint.calls.size();
+        dial->forceActiveFocus();
+        QTRY_VERIFY(dial->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Right);
+        ++count;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), count);
+        QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() - .12) < 1e-9);
+        QTRY_COMPARE(dial->property("value").toDouble(), .5);
+        QTest::keyClick(ui_->window, Qt::Key_Home);
+        ++count;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), count);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), -26.);
+        QTest::keyClick(ui_->window, Qt::Key_End);
+        ++count;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), count);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 6.);
+        QTRY_COMPARE(dial->property("value").toDouble(), .5);
+        // Only the explicit peer snapshot above changes the other strip.
+        auto expectedPeer = peerBefore.toMap();
+        expectedPeer["eqGainDb"] = QVariantList{0., 0., 3.};
+        QCOMPARE(ui_->endpoint.decks()[1 - deck].toMap(), expectedPeer);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void tempoCommandsWaitForAcknowledgedDeckSnapshots()

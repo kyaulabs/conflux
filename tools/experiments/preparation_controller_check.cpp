@@ -40,6 +40,7 @@
 #include <filesystem>
 #include <exception>
 #include <iostream>
+#include <limits>
 #include <mutex>
 #include <poll.h>
 #include <stdexcept>
@@ -139,6 +140,7 @@ public:
     Sink& operator=(const Sink&) = delete;
     const std::string& name() const { return name_; }
     void validate(bool value) { armed_.store(value, std::memory_order_release); }
+    bool observingValidation() const { return observedArmed_.load(std::memory_order_acquire); }
     std::uint64_t received(std::size_t channel) const { return received_[channel].load(); }
     std::uint64_t wrong() const { return wrong_.load(); }
     std::uint64_t zeros() const { return zeros_.load(); }
@@ -157,6 +159,7 @@ private:
         if (!position || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
         const bool armed = self.armed_.load(std::memory_order_acquire);
+        std::array<std::uint64_t, 2> received{};
         for (std::size_t channel = 0; channel < self.ports_.size(); ++channel) {
             const auto* samples = static_cast<const float*>(pw_filter_get_dsp_buffer(self.ports_[channel], frames));
             if (!samples || !armed) continue;
@@ -165,10 +168,15 @@ private:
                 zeros += samples[frame] == 0.F;
                 wrong += !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
             }
-            self.received_[channel].fetch_add(frames, std::memory_order_relaxed);
             self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
             self.zeros_.fetch_add(zeros, std::memory_order_relaxed);
+            received[channel] = frames;
         }
+        // Counts acknowledge both channels' completed sample/error checks.
+        // Disarming is observed only after any previously armed work finishes.
+        self.observedArmed_.store(armed, std::memory_order_release);
+        for (std::size_t channel = 0; channel < received.size(); ++channel)
+            self.received_[channel].fetch_add(received[channel], std::memory_order_release);
     }
     static const pw_filter_events& events()
     {
@@ -181,13 +189,14 @@ private:
     std::array<std::atomic<std::uint64_t>, 2> received_{};
     std::atomic<std::uint64_t> wrong_{0}, zeros_{0};
     std::atomic<bool> armed_{false};
+    std::atomic<bool> observedArmed_{false};
     pw_thread_loop* loop_ = nullptr;
     pw_filter* filter_ = nullptr;
     bool started_ = false;
 };
 
 QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames, std::uint64_t expectedFrames,
-                                 float expectedGain = 1.F)
+                                 float expectedGain = 1.F, bool excludeRebuildMiddle = false)
 {
     if (!std::isfinite(expectedGain) || expectedGain < 0.F || expectedGain > 1.F)
         throw std::runtime_error("Invalid generated master recording oracle gain");
@@ -242,9 +251,11 @@ QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames
                 const auto bits = qFromLittleEndian<quint32>(block.data() + index * 8 + channel * 4);
                 const auto value = std::bit_cast<float>(std::uint32_t(bits));
                 const auto target = expected[channel] * expectedGain;
-                if (!std::isfinite(value) || std::abs(value) > std::abs(target) + 1e-6F)
+                const bool steady = frame < prefixFrames || frame + 1024 >= frames;
+                if (!std::isfinite(value) || ((!excludeRebuildMiddle || steady) &&
+                        std::abs(value) > std::abs(target) + 1e-6F))
                     throw std::runtime_error("Stem recording contains nonfinite or unexpected master audio");
-                if (frame < prefixFrames || frame + 1024 >= frames)
+                if (steady)
                     maximumError = std::max(maximumError, std::abs(value - target));
             }
             checkedFrames += frame < prefixFrames || frame + 1024 >= frames;
@@ -255,7 +266,10 @@ QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames
     return {{"frames", qint64(frames)}, {"prefix_frames", qint64(prefixFrames)},
         {"expected_master_multiplier", expectedGain},
         {"checked_prefix_or_tail_frames", qint64(checkedFrames)}, {"maximum_prefix_or_tail_error", maximumError},
-        {"scope", "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."}};
+        {"transient_middle_frames_excluded", qint64(excludeRebuildMiddle ? frames - checkedFrames : 0)},
+        {"scope", excludeRebuildMiddle
+            ? "Generated steady master prefix/tail checked at 1e-6; explicit rebuild middle checked only for finiteness, with no continuous-delivery claim."
+            : "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."}};
 }
 
 template<class Check>
@@ -502,14 +516,74 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
         }, Qt::DirectConnection);
     try {
         controller.loadDeck(0, QUrl::fromLocalFile(a));
-        wait([&] { return !controller.busy() && !controller.audioState().stemBank[0]; },
-             "Crossfader target A replacement did not finish");
+        // Replacement and global controls use independent mailboxes. Observe
+        // both acknowledgements before checking their shared invariants.
+        wait([&] {
+            const auto state = controller.audioState();
+            return !controller.busy() && !state.stemBank[0] && state.crossfader == .75F;
+        }, "Crossfader acknowledgement and target A replacement did not finish");
     } catch (...) {
         QObject::disconnect(crossfaderConnection);
         throw;
     }
     QObject::disconnect(crossfaderConnection);
     const auto crossfaderInstalled = controller.audioState();
+    if (!(crossfaderRequestedWhileReplacing && deckScopedCommandRejected && crossfaderCommandAccepted &&
+            controller.error().isEmpty() &&
+            crossfaderInstalled.crossfader == .75F && controller.crossfader() == .75 &&
+            crossfaderInstalled.applied > beforeCrossfader.applied &&
+            crossfaderInstalled.sourceGeneration[0] > beforeCrossfader.sourceGeneration[0] &&
+            !crossfaderInstalled.playing[0] && !crossfaderInstalled.sourceFrame[0] &&
+            crossfaderInstalled.sourceGeneration[1] == beforeCrossfader.sourceGeneration[1] &&
+            crossfaderInstalled.playing[1] && crossfaderInstalled.deckGain[1] == 0.F &&
+            crossfaderInstalled.sourceFrame[1] - beforeCrossfader.sourceFrame[1] ==
+                crossfaderInstalled.outputFrame - beforeCrossfader.outputFrame &&
+            crossfaderInstalled.cueFrame[1] == beforeCrossfader.cueFrame[1] &&
+            crossfaderInstalled.cueSelected == beforeCrossfader.cueSelected &&
+            crossfaderInstalled.cueGain == beforeCrossfader.cueGain &&
+            controller.completedSessions() == sessions + 1)) {
+        const auto audio = [](const auto& state) {
+            return QJsonObject{
+                {"applied", qint64(state.applied)}, {"output_frame", qint64(state.outputFrame)},
+                {"source_generations", QJsonArray{qint64(state.sourceGeneration[0]), qint64(state.sourceGeneration[1])}},
+                {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+                {"source_total_frames", QJsonArray{qint64(state.sourceFrames[0]), qint64(state.sourceFrames[1])}},
+                {"playing", QJsonArray{state.playing[0], state.playing[1]}},
+                {"deck_gain", QJsonArray{state.deckGain[0], state.deckGain[1]}},
+                {"cue_frames", QJsonArray{qint64(state.cueFrame[0]), qint64(state.cueFrame[1])}},
+                {"cue_selected", QJsonArray{state.cueSelected[0], state.cueSelected[1]}},
+                {"cue_gain", state.cueGain}, {"crossfader", state.crossfader}};
+        };
+        observations["crossfader_replacement_failure"] = QJsonObject{
+            {"requested_while_replacing", crossfaderRequestedWhileReplacing},
+            {"deck_scoped_command_rejected", deckScopedCommandRejected},
+            {"crossfader_command_accepted", crossfaderCommandAccepted},
+            {"crossfader_commands_before", qint64(crossfaderCommandsBefore)},
+            {"submitted_commands", qint64(controller.submittedCommands())},
+            {"controller_error", controller.error()}, {"controller_crossfader", controller.crossfader()},
+            {"completed_sessions", qint64(controller.completedSessions())},
+            {"sessions_before_rebuild", qint64(sessions)}, {"expected_completed_sessions", qint64(sessions + 1)},
+            {"before_crossfader", audio(beforeCrossfader)}, {"crossfader_installed", audio(crossfaderInstalled)},
+            {"clauses", QJsonObject{
+                {"requested_while_replacing", crossfaderRequestedWhileReplacing},
+                {"deck_scoped_command_rejected", deckScopedCommandRejected},
+                {"crossfader_command_accepted", crossfaderCommandAccepted},
+                {"controller_error_empty", controller.error().isEmpty()},
+                {"audio_crossfader_075", crossfaderInstalled.crossfader == .75F},
+                {"controller_crossfader_075", controller.crossfader() == .75},
+                {"applied_advanced", crossfaderInstalled.applied > beforeCrossfader.applied},
+                {"A_generation_advanced", crossfaderInstalled.sourceGeneration[0] > beforeCrossfader.sourceGeneration[0]},
+                {"A_paused", !crossfaderInstalled.playing[0]}, {"A_cursor_zero", !crossfaderInstalled.sourceFrame[0]},
+                {"B_generation_unchanged", crossfaderInstalled.sourceGeneration[1] == beforeCrossfader.sourceGeneration[1]},
+                {"B_playing", crossfaderInstalled.playing[1]}, {"B_gain_zero", crossfaderInstalled.deckGain[1] == 0.F},
+                {"B_source_delta_equals_output_delta", crossfaderInstalled.sourceFrame[1] - beforeCrossfader.sourceFrame[1] ==
+                    crossfaderInstalled.outputFrame - beforeCrossfader.outputFrame},
+                {"B_cue_frame_unchanged", crossfaderInstalled.cueFrame[1] == beforeCrossfader.cueFrame[1]},
+                {"cue_selection_unchanged", crossfaderInstalled.cueSelected == beforeCrossfader.cueSelected},
+                {"cue_gain_unchanged", crossfaderInstalled.cueGain == beforeCrossfader.cueGain},
+                {"completed_sessions_expected", controller.completedSessions() == sessions + 1}}},
+            {"scope", "Failure-only public snapshots and exact assertion operands; no coherent callback-time or root-cause inference."}};
+    }
     require(crossfaderRequestedWhileReplacing && deckScopedCommandRejected && crossfaderCommandAccepted &&
             controller.error().isEmpty() &&
             crossfaderInstalled.crossfader == .75F && controller.crossfader() == .75 &&
@@ -918,6 +992,146 @@ void runScratchController(const std::filesystem::path& output, const QString& a,
         (void)save(detailPath, detail);
         controller.shutdown();
         throw;
+    }
+}
+
+template<class Check>
+void runEqController(const std::filesystem::path& output, const QString& a, const QString& b,
+                     Check&& require, QJsonObject& observations)
+{
+    const auto deadline = Clock::now() + std::chrono::seconds(8);
+    auto await = [&](auto&& predicate, const char* message) {
+        wait([&] {
+            if (Clock::now() >= deadline) throw std::runtime_error("Generated EQ phase exceeded its bounded wait");
+            return predicate();
+        }, message);
+    };
+    conflux::DeckController controller;
+    Sink master("conflux-eq-master-" + std::to_string(::getpid()));
+    Sink cue("conflux-eq-cue-" + std::to_string(::getpid()), 1e-6F);
+    controller.refreshAudioRouting();
+    std::array<QString, 4> ports;
+    await([&] {
+        for (const auto& value : controller.audioRouting()["ports"].toList()) {
+            const auto port = value.toMap();
+            for (std::size_t bus = 0; bus < 2; ++bus)
+                for (std::size_t channel = 0; channel < 2; ++channel) {
+                    const auto label = QString::fromStdString(bus ? cue.name() : master.name()) +
+                        QString(" · input_%1 [%2]").arg(int(channel)).arg(channel ? "FR" : "FL");
+                    if (port["label"].toString() == label) ports[bus * 2 + channel] = port["key"].toString();
+                }
+        }
+        return std::all_of(ports.begin(), ports.end(), [](const auto& port) { return !port.isEmpty(); });
+    }, "EQ master/cue private pairs were not discovered");
+    controller.configureAudioRouting(ports[0], ports[1], ports[2], ports[3]);
+    controller.loadDeck(0, QUrl::fromLocalFile(a));
+    await([&] { return !controller.busy() && controller.outputReady(); }, "EQ A did not load");
+    controller.loadDeck(1, QUrl::fromLocalFile(b));
+    await([&] { return !controller.busy() && controller.decks()[1].toMap()["loaded"].toBool(); }, "EQ B did not load");
+    constexpr std::array<float, 3> cut{-26.F, 3.F, -7.F}, peer{6.F, -9.F, 4.F};
+    auto target = cut;
+    for (int band = 0; band < 3; ++band) {
+        controller.setEqGainDb(0, band, target[band]); controller.setEqGainDb(1, band, peer[band]);
+    }
+    const auto boost = std::pow(10., 6. / 20.);
+    controller.setDeckGain(0, .5); controller.setDeckGain(1, 0.);
+    controller.setMasterGain(.5); controller.setCrossfader(.75);
+    controller.setCueGain(1. / boost); controller.setCueSelected(0, true);
+    controller.setPlaying(0, true); controller.setPlaying(1, true);
+    await([&] { const auto s = controller.audioState(); return s.eqGainDb[0] == target && s.eqGainDb[1] == peer &&
+        s.playing[0] && s.playing[1] && s.deckGain[0] == .5F && s.deckGain[1] == 0.F &&
+        s.masterGain == .5F && s.crossfader == .75F && s.cueSelected[0] && s.cueReady; }, "EQ targets/routes were not acknowledged");
+    const auto initial = controller.audioState();
+    const auto sessions = controller.completedSessions(), submitted = controller.submittedCommands();
+    for (const double bad : {std::numeric_limits<double>::quiet_NaN(), -26.1, 6.1}) controller.setEqGainDb(0, 0, bad);
+    controller.setEqGainDb(2, 0, 1.); controller.setEqGainDb(0, 3, 1.);
+    require(controller.submittedCommands() == submitted && controller.audioState().eqGainDb == initial.eqGainDb,
+            "Invalid real-controller EQ requests do not enter the queue or mutate targets");
+    controller.setEqGainDb(0, 0, -26.); // Clear the expected validation error through a valid request.
+    auto settle = [&] {
+        const auto first = controller.audioState().outputFrame;
+        await([&] { return controller.audioState().outputFrame >= first + 4096; }, "EQ ramps/DC filter state did not settle");
+    };
+    auto finishRecording = [&](const QString& path, std::uint64_t prefix, float multiplier, bool rebuild) {
+        controller.stopRecording();
+        await([&] { return !controller.recording()["active"].toBool(); }, "EQ recording did not finalize");
+        const auto r = controller.recording(); const auto frames = r["writtenFrames"].toULongLong();
+        require(r["status"].toString() == "Complete" && r["error"].toString().isEmpty() &&
+                r["acceptedFrames"] == r["writtenFrames"] && r["overflowFrames"].toULongLong() == 0,
+                "EQ master recorder drains exactly its accepted frames without overflow");
+        return inspectStemRecording(path, prefix ? prefix : frames, frames, multiplier, rebuild);
+    };
+    const auto detailPath = QString::fromStdString((output / "generated-eq-controller-detail.json").string());
+    QJsonObject detail{{"scope", "Generated constant PCM; queued EQ ACK, source replacement, routing restore, analytic DC master and prefader cue samples. No musical/frequency-response, continuous-delivery, hardware or latency qualification."}};
+    try {
+        settle();
+        const auto cutPath = QString::fromStdString((output / "generated-eq-cut.wav").string());
+        controller.startRecording(QUrl::fromLocalFile(cutPath));
+        await([&] { return controller.recording()["status"].toString() == "Recording" &&
+            controller.recording()["acceptedFrames"].toULongLong() >= 2048; }, "Cut EQ recording did not attach");
+        detail["cut_recording"] = finishRecording(cutPath, 0, float(std::pow(10., -26. / 20.) * .125), false);
+        target[0] = 6.F; controller.setEqGainDb(0, 0, target[0]);
+        await([&] { return controller.audioState().eqGainDb[0] == target; }, "Boost EQ was not acknowledged");
+        const auto beforeReplace = controller.audioState();
+        controller.loadDeck(0, QUrl::fromLocalFile(a));
+        await([&] { return !controller.busy() && controller.audioState().sourceGeneration[0] > beforeReplace.sourceGeneration[0]; }, "EQ source replacement did not finish");
+        const auto installed = controller.audioState();
+        require(installed.eqGainDb[0] == target && installed.eqGainDb[1] == peer && !installed.playing[0] &&
+                installed.playing[1] && installed.sourceGeneration[1] == beforeReplace.sourceGeneration[1] &&
+                installed.sourceFrame[1] - beforeReplace.sourceFrame[1] == installed.outputFrame - beforeReplace.outputFrame &&
+                installed.deckGain[1] == 0.F && installed.masterGain == .5F && installed.crossfader == .75F &&
+                controller.completedSessions() == sessions, "Source handoff preserves channel EQ and the advancing muted peer/globals");
+        controller.setDeckGain(0, .5); controller.setCueSelected(0, true); controller.setPlaying(0, true);
+        await([&] { const auto s = controller.audioState(); return s.playing[0] && s.deckGain[0] == .5F && s.cueSelected[0]; }, "Replaced EQ A did not restart");
+        settle();
+        auto checkCue = [&] {
+            const auto left = cue.received(0), right = cue.received(1);
+            cue.validate(true);
+            await([&] { return cue.received(0) >= left + 1024 && cue.received(1) >= right + 1024; }, "Fresh equalized cue samples did not arrive");
+            require(!cue.wrong() && !cue.zeros(), "Prefader cue contains analytic boosted PCM independently of channel/master/crossfader gains");
+        };
+        checkCue();
+        const auto boostPath = QString::fromStdString((output / "generated-eq-boost.wav").string());
+        controller.startRecording(QUrl::fromLocalFile(boostPath));
+        await([&] { return controller.recording()["status"].toString() == "Recording" &&
+            controller.recording()["acceptedFrames"].toULongLong() >= 2048; }, "Boost EQ recording did not attach");
+        const auto prefix = controller.recording()["acceptedFrames"].toULongLong();
+        const auto beforeRoute = controller.audioState(); const auto sourceIds = controller.decks(); cue.validate(false);
+        // checkCue above proved a completed armed callback, so this false ACK
+        // cannot be the initial default or precede in-flight armed sample work.
+        await([&] { return !cue.observingValidation(); }, "Cue validation did not acknowledge disarm before rebuild");
+        controller.configureAudioRouting(ports[0], ports[1], ports[2], ports[3]);
+        await([&] { return !controller.busy() && controller.outputReady() && controller.completedSessions() == sessions + 1 &&
+            controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096; }, "EQ routing rebuild did not restore and settle");
+        const auto restored = controller.audioState();
+        require(restored.eqGainDb == beforeRoute.eqGainDb && restored.playing == beforeRoute.playing &&
+                restored.deckGain == beforeRoute.deckGain && restored.masterGain == beforeRoute.masterGain &&
+                restored.crossfader == beforeRoute.crossfader && restored.cueGain == beforeRoute.cueGain &&
+                restored.cueSelected == beforeRoute.cueSelected && restored.cueFrame == beforeRoute.cueFrame &&
+                restored.sourceFrames == beforeRoute.sourceFrames && restored.sourceFrame[1] >= beforeRoute.sourceFrame[1] &&
+                controller.decks()[0].toMap()["sourceId"] == sourceIds[0].toMap()["sourceId"] &&
+                controller.decks()[1].toMap()["sourceId"] == sourceIds[1].toMap()["sourceId"] && controller.recording()["active"].toBool() &&
+                controller.recording()["path"].toString() == boostPath,
+                "Explicit routing rebuild restores all EQ targets, transport, cue and gains with the same active writer");
+        checkCue();
+        detail["boost_rebuild_recording"] = finishRecording(boostPath, prefix, float(boost * .125), true);
+        const auto final = controller.audioState();
+        require(controller.error().isEmpty() && !final.invalidBuffers && !final.rejected &&
+                !final.sourceReadError[0] && !final.sourceReadError[1] && !final.sourceReadErrorObserved[0] &&
+                !final.sourceReadErrorObserved[1] && !final.starvedFrames[0] && !final.starvedFrames[1], "EQ phase retains healthy prepared sources and queue");
+        detail["eq_a"] = QJsonArray{target[0], target[1], target[2]}; detail["eq_b"] = QJsonArray{peer[0], peer[1], peer[2]};
+        detail["cue_checked_left_frames"] = qint64(cue.received(0)); detail["cue_checked_right_frames"] = qint64(cue.received(1));
+        detail["cue_gain"] = final.cueGain; detail["passed"] = true;
+        detail["replacement_generations"] = QJsonArray{qint64(beforeReplace.sourceGeneration[0]), qint64(installed.sourceGeneration[0])};
+        detail["peer_replacement_advance"] = qint64(installed.sourceFrame[1] - beforeReplace.sourceFrame[1]);
+        detail["rebuild_source_frames_before"] = QJsonArray{qint64(beforeRoute.sourceFrame[0]), qint64(beforeRoute.sourceFrame[1])};
+        detail["rebuild_source_frames_after"] = QJsonArray{qint64(restored.sourceFrame[0]), qint64(restored.sourceFrame[1])};
+        require(save(detailPath, detail), "Bounded EQ controller/sample evidence is retained");
+        controller.shutdown(); observations["eq_controller"] = detail;
+    } catch (const std::exception& error) {
+        detail["passed"] = false; detail["error"] = error.what();
+        detail["recording_at_failure"] = QJsonObject::fromVariantMap(controller.recording());
+        (void)save(detailPath, detail); controller.shutdown(); throw;
     }
 }
 
@@ -1928,6 +2142,10 @@ int main(int argc, char** argv)
             else throw std::runtime_error(usage);
         }
         if (liveFailureOnly) return liveFailure::run(argc, argv, functionalOnly);
+        // Gcov cold-cache throughput is outside functional load-latency qualification.
+        // Only initial A readiness and cold B import setup receive this allowance.
+        const auto setupTimeout = std::chrono::seconds(functionalOnly ? 30 : 8);
+        const auto setupTimeoutMilliseconds = int(std::chrono::duration_cast<std::chrono::milliseconds>(setupTimeout).count());
         const rlimit noCore{0, 0};
         require(::setrlimit(RLIMIT_CORE, &noCore) == 0 && ::prctl(PR_SET_DUMPABLE, 0) == 0,
                 "Expected failure cannot create a core dump");
@@ -1963,7 +2181,32 @@ int main(int argc, char** argv)
         controller.configureAudioRouting(left, right, {}, {});
         require(controller.error().isEmpty(), "Exact private master pair is configured with cue disabled");
         controller.loadDeck(0, QUrl::fromLocalFile(a));
-        wait([&] { return !controller.busy() && controller.outputReady(); }, "Initial prepared A output did not become ready");
+        try {
+            wait([&] { return !controller.busy() && controller.outputReady(); },
+                 "Initial prepared A output did not become ready", true, setupTimeout);
+        } catch (const std::exception& failure) {
+            const auto state = controller.audioState();
+            observations["initial_readiness_failure"] = QJsonObject{
+                {"wait_error", failure.what()}, {"wait_milliseconds", setupTimeoutMilliseconds}, {"busy", controller.busy()},
+                {"output_ready", controller.outputReady()}, {"error", controller.error()},
+                {"preparation", QJsonObject::fromVariantMap(controller.preparation())},
+                {"decks", QJsonArray::fromVariantList(controller.decks())},
+                {"completed_sessions", qint64(controller.completedSessions())},
+                {"submitted_commands", qint64(controller.submittedCommands())},
+                {"audio", QJsonObject{
+                    {"ready", state.ready}, {"graph_rate", int(state.graphRate)},
+                    {"output_frame", qint64(state.outputFrame)}, {"callbacks", qint64(state.callbacks)},
+                    {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+                    {"source_total_frames", QJsonArray{qint64(state.sourceFrames[0]), qint64(state.sourceFrames[1])}},
+                    {"source_generations", QJsonArray{qint64(state.sourceGeneration[0]), qint64(state.sourceGeneration[1])}},
+                    {"playing", QJsonArray{state.playing[0], state.playing[1]}},
+                    {"buffering", QJsonArray{state.buffering[0], state.buffering[1]}},
+                    {"source_read_error", QJsonArray{state.sourceReadError[0], state.sourceReadError[1]}},
+                    {"source_read_error_observed", QJsonArray{state.sourceReadErrorObserved[0], state.sourceReadErrorObserved[1]}},
+                    {"invalid_buffers", qint64(state.invalidBuffers)}, {"rejected", qint64(state.rejected)}}},
+                {"scope", "Last published public controller state before failure unwind; no worker stack or precise internal-stage timing inference."}};
+            throw;
+        }
         require(controller.error().isEmpty() && controller.decks()[0].toMap()["loaded"].toBool(),
                 "Generated A loads on the private output");
         controller.setPlaying(0, true);
@@ -2010,8 +2253,55 @@ int main(int argc, char** argv)
                 !gatedImport.sourceReadError[0] && !gatedImport.starvedFrames[0] && !sink.wrong() && !sink.zeros(),
                 "GUI polling during pending import preserves the same healthy advancing A session");
         importGate.unlock();
-        require(QThreadPool::globalInstance()->waitForDone(8000),
-                "B import preparation finishes while GUI completion remains queued");
+        auto* const importPool = QThreadPool::globalInstance();
+        const bool importDone = importPool->waitForDone(setupTimeoutMilliseconds);
+        if (!importDone) {
+            const auto state = controller.audioState();
+            QJsonArray cacheFiles;
+            const auto cacheRoot = std::filesystem::path(QFile::encodeName(
+                QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath("prepared/v1")).constData());
+            std::error_code metadataError;
+            std::filesystem::recursive_directory_iterator entry(cacheRoot,
+                std::filesystem::directory_options::skip_permission_denied, metadataError), end;
+            std::size_t visited = 0, metadataErrors = 0;
+            for (; !metadataError && entry != end && visited < 64; entry.increment(metadataError)) {
+                ++visited;
+                struct stat status{};
+                if (::lstat(entry->path().c_str(), &status)) {
+                    ++metadataErrors;
+                    entry.disable_recursion_pending();
+                    continue;
+                }
+                if (S_ISLNK(status.st_mode)) {
+                    entry.disable_recursion_pending();
+                    continue;
+                }
+                if (!S_ISREG(status.st_mode)) continue;
+                cacheFiles.append(QJsonObject{
+                    {"relative_path", QString::fromStdString(entry->path().lexically_relative(cacheRoot).generic_string())},
+                    {"bytes", qint64(status.st_size)}});
+            }
+            observations["queued_import_failure"] = QJsonObject{
+                {"worker_pool_done", importDone}, {"wait_milliseconds", setupTimeoutMilliseconds},
+                {"busy", controller.busy()}, {"output_ready", controller.outputReady()},
+                {"error", controller.error()}, {"preparation", QJsonObject::fromVariantMap(controller.preparation())},
+                {"pool_active_threads", importPool->activeThreadCount()}, {"pool_max_threads", importPool->maxThreadCount()},
+                {"audio", QJsonObject{
+                    {"output_frame", qint64(state.outputFrame)}, {"callbacks", qint64(state.callbacks)},
+                    {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+                    {"source_total_frames", QJsonArray{qint64(state.sourceFrames[0]), qint64(state.sourceFrames[1])}},
+                    {"playing", QJsonArray{state.playing[0], state.playing[1]}},
+                    {"source_read_error", QJsonArray{state.sourceReadError[0], state.sourceReadError[1]}},
+                    {"source_read_error_observed", QJsonArray{state.sourceReadErrorObserved[0], state.sourceReadErrorObserved[1]}},
+                    {"starved_frames", QJsonArray{qint64(state.starvedFrames[0]), qint64(state.starvedFrames[1])}}}},
+                {"sink", QJsonObject{{"received_left", qint64(sink.received(0))},
+                    {"received_right", qint64(sink.received(1))}, {"wrong", qint64(sink.wrong())}, {"zeros", qint64(sink.zeros())}}},
+                {"cache_metadata", QJsonObject{{"regular_files", cacheFiles}, {"entries_visited", qint64(visited)},
+                    {"entry_bound", 64}, {"truncated", entry != end && !metadataError},
+                    {"status_errors", qint64(metadataErrors)}, {"iteration_error", QString::fromStdString(metadataError.message())}}},
+                {"scope", "GUI completion remains withheld. Preparation/audio are last GUI-published snapshots; pool, sink and bounded cache metadata are separately sampled, not a coherent worker-stage or timing proof. No PCM contents read."}};
+        }
+        require(importDone, "B import preparation finishes while GUI completion remains queued");
         wait([&] { return sink.received(0) >= importReceived + 1024; },
              "A did not render while import completion was withheld", false);
         require(controller.preparation()["cancellable"].toBool() && controller.libraryTracks().isEmpty() &&
@@ -2190,6 +2480,7 @@ int main(int argc, char** argv)
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         runStemController(output, fixtures.path(), a, b, libraryId, functionalOnly, require, observations);
         runScratchController(output, a, b, require, observations);
+        runEqController(output, a, b, require, observations);
         runLiveStemController(output, fixtures.path(), a, functionalOnly, require, observations);
         runLostLiveOwners(fixtures.path(), require, observations);
         passed = true;
@@ -2208,7 +2499,7 @@ int main(int argc, char** argv)
     }
     const QJsonObject result{{"passed", passed}, {"error", error}, {"checks", checks},
         {"execution_deadline_gate", false}, {"observations", observations},
-        {"scope", "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; no model, hardware or latency qualification."}};
+        {"scope", "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional-only mode allows 30s for initial A readiness and cold B import setup (8s otherwise). Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; no model, hardware or latency qualification."}};
     std::cout << QJsonDocument(result).toJson(QJsonDocument::Compact).constData() << '\n';
     return passed ? 0 : 1;
 }

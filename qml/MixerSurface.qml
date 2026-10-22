@@ -125,13 +125,40 @@ Rectangle {
                         Repeater {
                             model: ["TRIM", "HI", "MID", "LOW", "COLOR"]
                             SurfaceKnob {
+                                id: eqKnob
                                 required property string modelData
+                                readonly property int eqBand: modelData === "LOW" ? 0 : modelData === "MID" ? 1 : modelData === "HI" ? 2 : -1
+                                readonly property string bandName: modelData === "HI" ? "high" : modelData === "MID" ? "mid" : "low"
+                                readonly property real acceptedDb: {
+                                    const gains = strip.deck ? strip.deck.eqGainDb : null
+                                    const db = gains && eqBand >= 0 ? Number(gains[eqBand]) : 0
+                                    return Number.isFinite(db) ? Math.max(-26, Math.min(6, db)) : 0
+                                }
+                                readonly property string dbText: (acceptedDb > 0 ? "+" : "") + acceptedDb.toFixed(1) + " dB"
+                                readonly property string effectText: acceptedDb < 0 ? "cut" : acceptedDb > 0 ? "boost" : "neutral"
+                                function normalizedDb(db) {
+                                    return db <= 0 ? .5 + db / 52 : .5 + db / 12
+                                }
                                 Layout.fillWidth: true
                                 knobDiameter: root.smallKnob
                                 caption: modelData
+                                dialObjectName: eqBand >= 0 ? (strip.audioDeck >= 0 ? "deck" + strip.audioDeck : "reserved" + strip.modelData.name) + "Eq" + modelData : ""
+                                activeControl: eqBand >= 0 && strip.available
+                                acknowledgedValue: normalizedDb(acceptedDb)
+                                indicatorColor: strip.deckColor
+                                accessibleName: eqBand < 0 ? modelData : (strip.audioDeck >= 0 ? "Deck " : "Reserved channel ") + strip.modelData.name + " " + bandName + " EQ, " + dbText + " " + effectText
                                 helpText: modelData === "TRIM" ? "Input trim is not implemented. Use CHANNEL LEVEL."
                                           : modelData === "COLOR" ? "Channel filter and color effects are not implemented."
-                                          : "Channel equalization is not implemented."
+                                          : strip.audioDeck < 0 ? "Additional decks are not implemented."
+                                          : "Deck " + strip.modelData.name + " " + bandName + " EQ accepted target: " + dbText + " " + effectText + ". Cut up to 26 dB or boost up to 6 dB; center is 0 dB."
+                                onMoved: function(newValue) {
+                                    if (activeControl)
+                                        root.controller.setEqGainDb(strip.audioDeck, eqBand, newValue <= .5 ? (newValue - .5) * 52 : (newValue - .5) * 12)
+                                }
+                                Connections {
+                                    target: strip.audioDeck >= 0 && eqKnob.eqBand >= 0 ? root.controller : null
+                                    function onStateChanged() { eqKnob.refreshAcknowledgement(eqKnob.normalizedDb(eqKnob.acceptedDb)) }
+                                }
                             }
                         }
 
@@ -547,7 +574,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             Layout.preferredHeight: 24
-            text: "A / B LEVEL · HEADPHONE CUE · METERS\nEQ · FILTER · FX INACTIVE"
+            text: "A / B LEVEL · EQ · HEADPHONE CUE · METERS\nTRIM · FILTER · FX INACTIVE"
             horizontalAlignment: Text.AlignHCenter
             color: root.etched
             font.family: Brand.ConfluxTheme.displayFont

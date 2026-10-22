@@ -145,6 +145,9 @@ public:
             activePlaybacks_[deck] = playbacks_[deck].get();
             if (!std::isfinite(initial.deckGain[deck]) || initial.deckGain[deck] < 0 || initial.deckGain[deck] > 1)
                 throw std::invalid_argument("Invalid initial deck gain");
+            for (std::size_t band = 0; band < RenderCore::eqBandCount; ++band)
+                if (!renderer_.setEqGainDb(deck, band, initial.eqGainDb[deck][band]))
+                    throw std::invalid_argument("Invalid initial channel EQ");
             for (std::size_t stem = 0; stem < RenderCore::stemCount; ++stem) {
                 const auto gain = initial.stemGain[deck][stem];
                 if (!std::isfinite(gain) || gain < 0.F || gain > 1.F)
@@ -704,6 +707,8 @@ public:
                     (state.scratch[deck].active && state.scratch[deck].errorCode != 0)
                 : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
+            for (std::size_t band = 0; band < RenderCore::eqBandCount; ++band)
+                state.eqGainDb[deck][band] = renderer_.eqGainDb(deck, band);
             state.stemBank[deck] = renderer_.isStemBank(deck);
             state.loops[deck] = renderer_.loopState(deck);
             state.tempo[deck] = renderer_.tempoState(deck);

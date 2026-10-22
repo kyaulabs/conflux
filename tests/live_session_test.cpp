@@ -67,6 +67,8 @@ bool preparedTempoSurvivesQuiescedReconstruction()
     initial.deckGain[0] = .5F;
     initial.cueSelected[0] = true;
     initial.crossfader = .25F;
+    constexpr std::array<std::array<float, 3>, 2> eqTargets{{{-18.F, 4.F, -7.F}, {6.F, -26.F, 2.F}}};
+    initial.eqGainDb = eqTargets;
     LiveSession first(std::move(sources), initial);
     auto validUnconsumed = [&](const LiveSession::State& state) {
         const auto tempo = state.tempo[0];
@@ -74,24 +76,25 @@ bool preparedTempoSurvivesQuiescedReconstruction()
             state.sourceFrame[0] == initialFrame && state.sourcePosition[0] == double(initialFrame) &&
             state.sourceFrames[0] == frames && state.playing[0] && !state.sourceReadError[0] &&
             state.cueFrame[0] == initial.cueFrame[0] && state.cueSelected[0] &&
-            state.deckGain[0] == .5F && state.crossfader == .25F &&
+            state.deckGain[0] == .5F && state.crossfader == .25F && state.eqGainDb == eqTargets &&
             tempo.supported && tempo.active && tempo.pending && !tempo.finished && !tempo.errorCode &&
             tempo.percent == 6 && tempo.keyLock && tempo.appliedPercent == 0 && !state.tempo[1].supported;
     };
     const auto primed = first.stoppedState();
     bool passed = require(!sources[0] && validUnconsumed(primed) &&
                           primed.tempo[0].generation > selectedGeneration,
-                          "session prime lost prepared tempo or consumed prefetched audio");
+                          "session prime lost prepared tempo/EQ targets or consumed prefetched audio");
     auto retained = first.stopAndTakePlaybacks();
     const auto captured = first.stoppedState();
     passed &= require(retained.active[0].get() == owner && !retained.replacement && validUnconsumed(captured) &&
                       captured.tempo[0].generation == primed.tempo[0].generation,
-                      "quiesced extraction stopped its owner, changed tempo or advanced source/output position");
+                      "quiesced extraction stopped its owner, changed tempo/EQ targets or advanced source/output position");
     initial.sourceFrame = captured.sourceFrame;
+    initial.eqGainDb = captured.eqGainDb;
     LiveSession rebuilt(std::move(retained.active), initial);
     const auto reprime = rebuilt.stoppedState();
     passed &= require(validUnconsumed(reprime) && reprime.tempo[0].generation > captured.tempo[0].generation,
-                      "reconstructed session lost tempo mode, reused queued generation or consumed its readiness prefix");
+                      "reconstructed session lost tempo/EQ targets, reused queued generation or consumed its readiness prefix");
     auto finalOwners = rebuilt.stopAndTakePlaybacks();
     passed &= require(finalOwners.active[0].get() == owner && validUnconsumed(rebuilt.stoppedState()) &&
                       !finalOwners.active[0]->errorCode(), "reconstruction failed to retain its healthy whole owner");
@@ -337,6 +340,19 @@ int main()
         invalid = initial;
         invalid.playing[1] = true;
         passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial deck was accepted playing");
+        for (std::size_t deck = 0; deck < 2; ++deck) {
+            for (std::size_t band = 0; band < 3; ++band) {
+                for (const auto gain : {std::nextafter(-26.F, -std::numeric_limits<float>::infinity()),
+                                       std::nextafter(6.F, std::numeric_limits<float>::infinity()),
+                                       std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::quiet_NaN()}) {
+                    invalid = {};
+                    invalid.eqGainDb[deck][band] = gain;
+                    passed &= rejects([&] { LiveSession rejected(a, {}, invalid); },
+                                      "invalid initial EQ target was accepted on a loaded or unloaded channel");
+                }
+            }
+        }
         for (const auto gain : {-.1F, 1.1F, std::numeric_limits<float>::infinity(),
                                -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()}) {
             invalid = initial;

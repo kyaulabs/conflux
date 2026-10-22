@@ -6,6 +6,7 @@ import "../brand/integration/qtquick" as Brand
 Item {
     id: root
     property string caption: ""
+    property string accessibleName: caption
     property string helpText: ""
     property string dialObjectName: ""
     property bool activeControl: false
@@ -18,7 +19,7 @@ Item {
     implicitHeight: knobDiameter + 17
 
     Accessible.role: Accessible.Grouping
-    Accessible.name: caption
+    Accessible.name: accessibleName
     Accessible.description: helpText
     ToolTip.visible: hover.hovered || dial.activeFocus
     ToolTip.text: helpText
@@ -44,7 +45,7 @@ Item {
         enabled: root.activeControl
         focusPolicy: Qt.StrongFocus
         inputMode: Dial.Vertical
-        Accessible.name: root.caption
+        Accessible.name: root.accessibleName
         Accessible.description: root.helpText
         property bool initialized: false
         property bool restoringAcknowledgement: false

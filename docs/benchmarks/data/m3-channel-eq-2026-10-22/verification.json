@@ -1,0 +1,479 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T20:56:30.348929+00:00",
+  "base_commit": "91f7c75b458b987e0ad3a759891afa36d038ebd1",
+  "scope": "Channel EQ functional verification and frozen combined native acceptance; no M2 timing, hardware or sustained qualification",
+  "tested_source": {
+    "base": "91f7c75b458b987e0ad3a759891afa36d038ebd1",
+    "recorded_at_utc": "2026-10-22T20:39:36.023075+00:00",
+    "files": [
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 27453,
+        "sha256": "12790d6132b468aa1856a1acd96a0736b25603afc7b0aabd1430bdacad6763f7"
+      },
+      {
+        "path": "docs/cdj-controls.md",
+        "bytes": 12995,
+        "sha256": "f26e87f24f8c850695b1e7a1f1b9fd518ac08e6cbd2bd80ec20c5f67d0e35327"
+      },
+      {
+        "path": "qml/Main.qml",
+        "bytes": 59791,
+        "sha256": "536726b3f0687b06d60d13daf1af82d3a37d90bc06fc62528322452e94aadc65"
+      },
+      {
+        "path": "qml/MixerSurface.qml",
+        "bytes": 31703,
+        "sha256": "4225c8f7844aa381a8955d239effb28e831060db7916adadbeb767462fe7a767"
+      },
+      {
+        "path": "qml/SurfaceKnob.qml",
+        "bytes": 5834,
+        "sha256": "8e5aac9da3318d9b94d7cd6d3a8bb9d07a483b4c630bccb4573ad05c984177a9"
+      },
+      {
+        "path": "src/audio/ChannelEq.cpp",
+        "bytes": 5113,
+        "sha256": "12379c8f989c0803b801d0ab68718b4237bde5cdc2613c3ebab57cd33a397acf"
+      },
+      {
+        "path": "src/audio/ChannelEq.hpp",
+        "bytes": 1512,
+        "sha256": "041e20f7df267e1ed79c145b741236717fd2de4767a83ceeb1d15f3a2ddde9bd"
+      },
+      {
+        "path": "src/audio/LiveSession.cpp",
+        "bytes": 61305,
+        "sha256": "d587a4525b5a9ba1c850891acd006b3e74a006ba63757502e4662babebd54599"
+      },
+      {
+        "path": "src/audio/LiveSession.hpp",
+        "bytes": 7324,
+        "sha256": "7ac3aa00dbc9dbf228098759f4a58e340c1293b1dc89a324bc18af2f82c53a70"
+      },
+      {
+        "path": "src/audio/RenderCore.cpp",
+        "bytes": 34788,
+        "sha256": "b79c276761d30a92f7883b1e8cdd3b03c3a64890769d8ec3a537037bf97153e4"
+      },
+      {
+        "path": "src/audio/RenderCore.hpp",
+        "bytes": 12424,
+        "sha256": "f3b010134ab3e0cef3bc8e073a121325d5a4b34e785f9fdd2f01ccfcabdd2bf2"
+      },
+      {
+        "path": "src/ui/DeckController.cpp",
+        "bytes": 83967,
+        "sha256": "0fc4c09d2373340ba1921d96e3a0243609bd7501b846fb9767d44546ce48cca7"
+      },
+      {
+        "path": "src/ui/DeckController.hpp",
+        "bytes": 15314,
+        "sha256": "f0dbc8537a2392c83a99419fa45bc2c50ed31809a38ac157738568db43de8ec9"
+      },
+      {
+        "path": "tests/audio_eq_test.cpp",
+        "bytes": 12018,
+        "sha256": "1e57d9f6e71f6fb21bc5de16ff5dd3fd21ceb4de16b2e0976145729895f63730"
+      },
+      {
+        "path": "tests/audio_prepared_scratch_test.cpp",
+        "bytes": 42739,
+        "sha256": "2e8520b1c00963b651cf4460e93a3f5c1e695ae5a1f59f6108ce8e82558adb16"
+      },
+      {
+        "path": "tests/audio_scratch_playback_test.cpp",
+        "bytes": 28975,
+        "sha256": "03dffbb01d2c89ff3699b3d585a2160082012cdc181976539a5969762cb38ac1"
+      },
+      {
+        "path": "tests/channel_eq_test.cpp",
+        "bytes": 14831,
+        "sha256": "b870af82ff73351a594f791b93a4c88c9dcb887f00c99a8574d1ca350f645d04"
+      },
+      {
+        "path": "tests/deck_controller_test.cpp",
+        "bytes": 127281,
+        "sha256": "443d0f2b59025d0a092b139c3293c6ee66a515dcf57b3a31088ef42fa3a30999"
+      },
+      {
+        "path": "tests/live_session_test.cpp",
+        "bytes": 25786,
+        "sha256": "05e02ba91dbf8fe77d7b5aed33a6a77a6bd162399481f5261875aed2f5fd622e"
+      },
+      {
+        "path": "tests/manual_ui_test.cpp",
+        "bytes": 276758,
+        "sha256": "c853e78971871573713baa9ca36f7b353a952b119b36c8bd82769e21013c801e"
+      },
+      {
+        "path": "tools/experiments/preparation_controller_check.cpp",
+        "bytes": 176835,
+        "sha256": "e146103e2dd80bf0a09bd65d77b430bff1e5884986d8372d1c58b458382b4fa9"
+      },
+      {
+        "path": "tools/experiments/private_routing_check.py",
+        "bytes": 10216,
+        "sha256": "56b770bff0c7e4453b7b4a741e6bb48d6d530c8e0d0b2a936db018a0a6ca249c"
+      }
+    ],
+    "scope": "Final support source: replacement/crossfader acknowledgement wait made explicit with same8sdeadline/all18invariants retained; functionalsetup30s only2cold steps; nativeC4accepted separately. Fullfreshcountercoverage pending."
+  },
+  "execution": {
+    "schema": 1,
+    "started_at_utc": "2026-10-22T20:40:49.744152+00:00",
+    "command": [
+      "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+      "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/tools/coverage/run.py",
+      "--jobs",
+      "2",
+      "--private-routing"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 810.1859911310021,
+    "max_compiler_jobs": 2,
+    "TMPDIR": "/home/kyau/projects/kyaulabs/conflux",
+    "source_manifest": {
+      "bytes": 3935,
+      "sha256": "d7134b23e222a44edb5b8531371bc40a10e70355e579d51b4695104923b4e207"
+    },
+    "report_directory": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/channel-eq-01/coverage-attempt-02-reports",
+    "scope": "Complete fresh-counter CTest/offscreen/private generated virtual daemon functional coverage; no model, GPU, hardware, latency or QML source coverage qualification"
+  },
+  "coverage": {
+    "schema": 1,
+    "scope": "Instrumented CTest suite, offscreen smoke and optional private routing/preparation checks; not a latency, native-device or QML coverage measurement.",
+    "private_routing_requested": true,
+    "private_routing_execution_deadline_gate": false,
+    "interpreter": "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+    "cpp_flags": "--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+    "measured_sources": {
+      "cpp": "src/** including main, probe and instrumented headers",
+      "python": "tools/stems/** and tools/timing/**"
+    },
+    "unmeasured_product_sources": {
+      "qml": [
+        "qml/DeckButton.qml",
+        "qml/DeckSurface.qml",
+        "qml/Harness.qml",
+        "qml/Main.qml",
+        "qml/MixerSurface.qml",
+        "qml/StereoMeter.qml",
+        "qml/SurfaceKnob.qml",
+        "qml/WindowActions.qml",
+        "brand/integration/qtquick/ConfluxTheme.qml"
+      ],
+      "native_stem_adapter": [
+        "tools/runtime/htdemucs_segment.cpp"
+      ]
+    },
+    "separate_support_scope": [
+      "tools/benchmarks/**",
+      "tools/experiments/**",
+      "tools/coverage/**",
+      "tests/**",
+      "brand/source/**"
+    ],
+    "line_target": {
+      "operator": ">",
+      "percent": 80,
+      "enforced_in_this_baseline": false,
+      "measured_status": "met_for_both_measured_scopes",
+      "whole_product_status": "unmeasured_sources_remain"
+    },
+    "tools": {
+      "coverage": "7.16.2",
+      "gcovr": "8.7",
+      "numpy": "2.5.4"
+    },
+    "cpp": {
+      "line": {
+        "covered": 8814,
+        "total": 9950,
+        "percent": 88.58291457286433,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 12308,
+        "total": 22048,
+        "percent": 55.82365747460087,
+        "above_80_percent": false
+      },
+      "missing_compiled_source_reports": []
+    },
+    "python": {
+      "line": {
+        "covered": 1368,
+        "total": 1582,
+        "percent": 86.47281921618205,
+        "above_80_percent": true
+      },
+      "branch": {
+        "covered": 480,
+        "total": 614,
+        "percent": 78.17589576547232,
+        "above_80_percent": false
+      }
+    },
+    "stages": {
+      "configure": {
+        "command": [
+          "cmake",
+          "-S",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01",
+          "-B",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DBUILD_TESTING=ON",
+          "-DCMAKE_CXX_FLAGS=--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic",
+          "-DCMAKE_EXE_LINKER_FLAGS=--coverage",
+          "-DCMAKE_SHARED_LINKER_FLAGS=--coverage",
+          "-DPython3_EXECUTABLE=/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python"
+        ],
+        "exit": 0,
+        "log": "configure.log",
+        "timed_out": false
+      },
+      "build": {
+        "command": [
+          "cmake",
+          "--build",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage",
+          "--parallel",
+          "2"
+        ],
+        "exit": 0,
+        "log": "build.log",
+        "timed_out": false
+      },
+      "ctest": {
+        "command": [
+          "ctest",
+          "--test-dir",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage",
+          "--output-on-failure",
+          "--timeout",
+          "120"
+        ],
+        "exit": 0,
+        "log": "ctest.log",
+        "timed_out": false
+      },
+      "smoke": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/conflux",
+          "--smoke-test"
+        ],
+        "exit": 0,
+        "log": "smoke.log",
+        "timed_out": false
+      },
+      "private-routing": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-c",
+          "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/tools/experiments/private_routing_check.py",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/conflux-manual-routing-check",
+          "/home/kyau/projects/kyaulabs/conflux/conflux-coverage-private-routing-m_oojpyp/evidence",
+          "--functional-only"
+        ],
+        "exit": 0,
+        "log": "private-routing.log",
+        "timed_out": false
+      },
+      "private-preparation": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-c",
+          "import runpy, signal, sys\ndef stop(*_):\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    raise InterruptedError('Coverage stage timed out')\nsignal.signal(signal.SIGTERM, stop)\nsys.argv = sys.argv[1:]\nrunpy.run_path(sys.argv[0], run_name='__main__')\n",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/tools/experiments/private_routing_check.py",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/conflux-preparation-controller-check",
+          "/home/kyau/projects/kyaulabs/conflux/conflux-coverage-private-preparation-sjbja4g0/evidence",
+          "--functional-only"
+        ],
+        "exit": 0,
+        "log": "private-preparation.log",
+        "timed_out": false
+      },
+      "gcovr": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-m",
+          "gcovr",
+          "--root",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01",
+          "--filter",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible\\-controls\\-01/src/",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage",
+          "--json",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/cpp.json",
+          "--json-summary",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/cpp-summary.json",
+          "--html-details",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/cpp.html",
+          "--cobertura",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/cpp.xml",
+          "--print-summary"
+        ],
+        "exit": 0,
+        "log": "gcovr.log",
+        "timed_out": false
+      },
+      "python-combine": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "combine",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/python-coverage.ini",
+          "--keep",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/python-data"
+        ],
+        "exit": 0,
+        "log": "python-combine.log",
+        "timed_out": false
+      },
+      "python-json": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "json",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/python-coverage.ini",
+          "-o",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/python.json"
+        ],
+        "exit": 0,
+        "log": "python-json.log",
+        "timed_out": false
+      },
+      "python-html": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "html",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/python-coverage.ini",
+          "-d",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/python-html"
+        ],
+        "exit": 0,
+        "log": "python-html.log",
+        "timed_out": false
+      },
+      "python-xml": {
+        "command": [
+          "/home/kyau/projects/kyaulabs/conflux/build/coverage-venv/bin/python",
+          "-m",
+          "coverage",
+          "xml",
+          "--rcfile",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/python-coverage.ini",
+          "-o",
+          "/home/kyau/projects/kyaulabs/conflux/build/worktrees/accessible-controls-01/build/coverage/reports/python.xml"
+        ],
+        "exit": 0,
+        "log": "python-xml.log",
+        "timed_out": false
+      }
+    },
+    "errors": [],
+    "execution_passed": true
+  },
+  "ctest": {
+    "groups": 53,
+    "passed": 53,
+    "failed": 0,
+    "elapsed_seconds": 530.24,
+    "manual_ui": {
+      "passed": 213,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "offscreen_smoke_frames": 131,
+  "private_checks": {
+    "private-routing": {
+      "passed": true,
+      "checks": 136,
+      "execution_deadline_gate": false,
+      "cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "daemon_reaped": true,
+      "result_pin": {
+        "bytes": 15015,
+        "sha256": "2d303e3fbb79c78fc4a4100104b0078c95697011ef935cac66695368ac6891b6"
+      }
+    },
+    "private-preparation": {
+      "passed": true,
+      "checks": 143,
+      "execution_deadline_gate": false,
+      "cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      },
+      "daemon_reaped": true,
+      "result_pin": {
+        "bytes": 51139,
+        "sha256": "fb7d2c59611943540d24ff098fe8f755331f34a9b70704ee24fe2b79166d821a"
+      }
+    }
+  },
+  "human_native_acceptance": {
+    "schema": 1,
+    "recorded_at_utc": "2026-10-22T20:18:51.964461+00:00",
+    "type": "human_native_acceptance",
+    "question_item_id": "[\"request_user_input_async\",\"call_2c801d0a987549e6b4b652eca2ee7b37\",0]",
+    "question": "The updated CONFLUX client has closed. Did you finish the combined scratching/BPM/Master Tempo/EQ/recording check, or do you need it reopened? If you finished, please give your overall verdict and name any track/action that failed.",
+    "answer": "Finished\u2014the sound and controls are acceptable",
+    "accepted": true,
+    "binary": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/user-trial/conflux",
+      "bytes": 19638976,
+      "sha256": "c6c9ef0bc58675b5d8e5d2e4cdc197761ff0a21a320903ea25096656e0957e70"
+    },
+    "integration_manifest": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/integration-manifest-01.json",
+      "bytes": 74418,
+      "sha256": "b2d0dda8c07267b30f0a40cce6379c7bfc1eb9524da1d2c5799c9a94855689ea"
+    },
+    "prior_trial_request": "Two-track mixing; scratch both directions with BPM changed and Master Tempo on/off; HI/MID/LOW EQ; record/replay; loading progress, recording dot and deck focus colors",
+    "native_client_closed": true,
+    "native_process_exit_code": "not retained; process absence observed, startup log empty",
+    "scope": "Overall human sound/control acceptance for exact C4 combined snapshot only; prior separate CUE import acceptance retained",
+    "does_not_establish": [
+      "M2 live-stem p99 <4095ms",
+      "60-minute normal actual-player qualification",
+      "whole-product coverage",
+      "beat/downbeat/phrase/key accuracy gates",
+      "release or milestone completion"
+    ]
+  },
+  "combined_native_automated_checks": {
+    "integration_groups": 7,
+    "manual_ui_results": 217
+  },
+  "failed_attempts_retained": {
+    "coverage_attempt_01": "Failed scratch fixtures/private readiness; excluded from final percentages.",
+    "private_preparation_03_04": "Instrumented cold setup timed out. Bounded functional-only setup allowance added for two cold steps.",
+    "private_preparation_05": "Compound crossfader check failed; exact failing clause unproven. Independent crossfader acknowledgement precondition now explicit.",
+    "private_preparation_06": "Preceding diagnostic source passed all 143 checks before final ACK precondition."
+  },
+  "gate_effect": {
+    "native_mixing_trial": "accepted for frozen C4 snapshot",
+    "M2_live_stem_latency": "open; p99 must be below 4095 ms",
+    "normal_60_minute_actual_player": "pending",
+    "musical_analysis_accuracy": "open",
+    "release_0_1_0": "blocked by remaining milestone gates"
+  }
+}

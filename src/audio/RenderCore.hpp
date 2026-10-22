@@ -2,6 +2,7 @@
 #pragma once
 
 #include "audio/AudioSource.hpp"
+#include "audio/ChannelEq.hpp"
 
 #include <array>
 #include <cstddef>
@@ -19,6 +20,7 @@ public:
     static constexpr float amplitude = 0.01F;
     static constexpr std::size_t deckCount = 2;
     static constexpr std::size_t stemCount = 4;
+    static constexpr std::size_t eqBandCount = ChannelEq::bandCount;
 
     struct StereoMeter {
         std::array<double, channels> peak{}, rms{};
@@ -31,7 +33,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd, EqGain };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -39,6 +41,8 @@ public:
         std::uint32_t id = 0;
         std::int64_t deltaFrames = 0;
         std::uint32_t stem = 0;
+        std::uint32_t band = 0;
+        float eqGainDb = 0;
         double tempoPercent = 0;
         std::uint64_t scratchToken = 0, sourceGeneration = 0;
         double scratchIntervalSeconds = 0;
@@ -98,6 +102,10 @@ public:
     [[nodiscard]] bool isDeckSilentForReplacement(std::size_t deck) const noexcept;
     bool setPlaying(std::size_t deck, bool playing) noexcept;
     bool setDeckGain(std::size_t deck, float gain) noexcept;
+    // Channel-owned Low/Mid/High EQ; retained across track replacement. It runs
+    // before transport smoothing, meters and the pre-fader headphone send.
+    bool setEqGainDb(std::size_t deck, std::size_t band, float db) noexcept;
+    [[nodiscard]] float eqGainDb(std::size_t deck, std::size_t band) const noexcept;
     // Fixed bank targets are owned by the source; normal/unloaded decks reject.
     bool setStemGain(std::size_t deck, std::size_t stem, float gain) noexcept;
     [[nodiscard]] bool isStemBank(std::size_t deck = 0) const noexcept;
@@ -150,7 +158,7 @@ public:
     { return deck < deckCount && decks_[deck].cueSelected; }
     [[nodiscard]] float cueGain() const noexcept { return cueGain_; }
     // Peak/RMS cover the last nonempty block, including silence in its RMS
-    // denominator. Decks measure pre-fader PCM including transport decay; buses measure actual
+    // denominator. Decks measure post-EQ pre-fader PCM including transport decay; buses measure actual
     // post-gain float output. abs(sample)>1 counts accumulate for this renderer.
     [[nodiscard]] const Meters& meters() const noexcept { return meters_; }
 
@@ -172,6 +180,7 @@ private:
         float gain = 1.0F;
         GainRamp gainRamp{};
         GainRamp cueRamp{0.0, 0.0, 0.0, 0};
+        ChannelEq eq{};
         std::array<float, channels> last{}, transitionStart{};
         std::uint32_t transitionPosition = 0;
         bool transition = false, available = false;

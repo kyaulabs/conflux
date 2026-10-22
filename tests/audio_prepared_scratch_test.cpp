@@ -291,7 +291,9 @@ void geometryOwnershipAndControls() {
 void warmToTarget(Source &source, double target, double stepBound = 1) {
     require(std::isfinite(target) && std::isfinite(stepBound) && stepBound > 0 && stepBound <= Source::maximumSpeed,
             "Invalid fixture warm target or motion bound");
-    for (std::size_t i = 0; source.position() != target && i < 2000; ++i) {
+    const auto began = Clock::now();
+    std::size_t iterations = 0;
+    for (; source.position() != target && iterations < 2000; ++iterations) {
         const auto before = source.position();
         require(std::isfinite(before), "Warm movement started from a nonfinite cursor");
         const auto remaining = std::abs(target - before);
@@ -306,6 +308,15 @@ void warmToTarget(Source &source, double target, double stepBound = 1) {
         require(value.frames == batch && !value.failed && !source.errorCode(), "Warm movement unexpectedly lacked healthy PCM");
         require(std::isfinite(after) && moved > 0 && moved <= remaining && moved <= stepBound * double(batch),
                 "Warm movement stopped, reversed, overshot or exceeded its bounded source advance");
+    }
+    if (source.position() != target) {
+        std::cerr.precision(17);
+        std::cerr << "warm target failure: target=" << target << " position=" << source.position()
+                  << " iterations=" << iterations << " step_bound=" << stepBound
+                  << " helper_elapsed_ms=" << std::chrono::duration<double, std::milli>(Clock::now() - began).count()
+                  << " active=" << source.active() << " pending=" << source.pending()
+                  << " error=" << source.errorCode() << " leaves=" << source.leafCount()
+                  << " epoch=" << source.epoch() << '\n';
     }
     require(source.position() == target, "Bounded movement did not stop at exact target");
 }

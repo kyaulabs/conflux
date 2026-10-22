@@ -91,6 +91,7 @@ public:
     Q_INVOKABLE bool moveScratch(int deck, const QString& token, qint64 cumulativeFrames);
     Q_INVOKABLE bool endScratch(int deck, const QString& token);
     Q_INVOKABLE void setDeckGain(int deck, double gain);
+    Q_INVOKABLE void setEqGainDb(int deck, int band, double db);
     Q_INVOKABLE void setStemGain(int deck, int stem, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
     Q_INVOKABLE void setCrossfader(double position);

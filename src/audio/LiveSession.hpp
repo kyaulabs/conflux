@@ -29,6 +29,7 @@ public:
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<float, RenderCore::deckCount> deckGain{1.0F, 1.0F};
+        std::array<std::array<float, RenderCore::eqBandCount>, RenderCore::deckCount> eqGainDb{};
         float masterGain = 1.0F;
         float crossfader = 0.5F;
         std::array<bool, RenderCore::deckCount> cueSelected{};
@@ -49,6 +50,7 @@ public:
         std::array<bool, RenderCore::deckCount> sourceReadErrorObserved{};
         std::array<std::uint64_t, RenderCore::deckCount> starvedFrames{};
         std::array<float, RenderCore::deckCount> deckGain{};
+        std::array<std::array<float, RenderCore::eqBandCount>, RenderCore::deckCount> eqGainDb{};
         std::array<bool, RenderCore::deckCount> stemBank{};
         std::array<AudioLoopState, RenderCore::deckCount> loops{};
         std::array<AudioTempoState, RenderCore::deckCount> tempo{};

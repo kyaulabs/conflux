@@ -1401,6 +1401,62 @@ private slots:
         QVERIFY(!controller.outputReady());
     }
 
+    void channelEqRequiresReadyOutputAndRejectsInvalidControls()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto a = directory.filePath("eq-a.wav"), b = directory.filePath("eq-b.wav");
+        QVERIFY(writeWave(a, 2, 48000, 480));
+        QVERIFY(writeWave(b, 2, 48000, 960));
+        conflux::DeckController controller;
+        controller.loadDeck(0, QUrl::fromLocalFile(a));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        controller.loadDeck(1, QUrl::fromLocalFile(b));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(!controller.outputReady());
+        const auto decks = controller.decks();
+        for (const auto& deck : decks)
+            QCOMPARE(deck.toMap()["eqGainDb"].toList(), QVariantList({0.F, 0.F, 0.F}));
+        const auto state = controller.audioState();
+        const auto submitted = controller.submittedCommands();
+        const auto recording = controller.recording();
+        for (int deck = 0; deck < 2; ++deck)
+            for (int band = 0; band < 3; ++band)
+                for (const auto db : {-26., 0., 6.}) {
+                    controller.setEqGainDb(deck, band, db);
+                    QVERIFY(!controller.error().isEmpty());
+                    QCOMPARE(controller.decks(), decks);
+                    QCOMPARE(controller.audioState().eqGainDb, state.eqGainDb);
+                    QCOMPARE(controller.submittedCommands(), submitted);
+                }
+        const auto outputNotReady = controller.error();
+        for (const auto db : {std::nextafter(-26., -27.), std::nextafter(6., 7.),
+                              std::numeric_limits<double>::infinity(),
+                              -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN()}) {
+            controller.setEqGainDb(0, 1, db);
+            QVERIFY(!controller.error().isEmpty() && controller.error() != outputNotReady);
+            QCOMPARE(controller.decks(), decks);
+            QCOMPARE(controller.submittedCommands(), submitted);
+        }
+        for (const auto indices : {std::pair{-1, 0}, std::pair{2, 0}, std::pair{0, -1}, std::pair{1, 3}}) {
+            controller.setEqGainDb(indices.first, indices.second, 1.);
+            QVERIFY(!controller.error().isEmpty() && controller.error() != outputNotReady);
+            QCOMPARE(controller.decks(), decks);
+            QCOMPARE(controller.submittedCommands(), submitted);
+        }
+        QCOMPARE(controller.recording(), recording);
+        QCOMPARE(controller.masterGain(), double(state.masterGain));
+        QCOMPARE(controller.cueGain(), double(state.cueGain));
+        QCOMPARE(controller.crossfader(), double(state.crossfader));
+        controller.shutdown();
+        controller.setEqGainDb(0, 0, -9.);
+        QCOMPARE(controller.audioState().eqGainDb, state.eqGainDb);
+        QCOMPARE(controller.submittedCommands(), submitted);
+    }
+
     void manualLoopsRejectInvalidUnloadedAndUnreadyDecksWithoutSpeculation()
     {
         QTemporaryDir directory, runtime;
