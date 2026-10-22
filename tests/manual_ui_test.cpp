@@ -2101,6 +2101,7 @@ private slots:
             QVERIFY(accessible);
             QCOMPARE(accessible->role(), QAccessible::Slider);
             QCOMPARE(accessible->text(QAccessible::Name), deck == 0 ? QString("Deck A tempo percent") : QString("Deck B tempo percent"));
+            QVERIFY(accessible->rect().contains(ui_->window->mapToGlobal(ui_->center(rail))));
             QVERIFY(accessible->text(QAccessible::Description).contains("Down increases speed"));
             QVERIFY(accessible->valueInterface());
             QCOMPARE(accessible->valueInterface()->currentValue().toDouble(), -1.25);

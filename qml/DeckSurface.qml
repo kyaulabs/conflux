@@ -861,11 +861,12 @@ Item {
             width: 44
             height: parent.height - 112
             orientation: Qt.Vertical
-            // Keep Qt's accessible range ascending. Rotating only the slider
-            // gives the CDJ's downward-positive physical rail and native drag.
-            from: -6
-            to: 6
-            rotation: 180
+            // A descending range gives the CDJ's downward-positive native drag.
+            from: 6
+            to: -6
+            // Qt 6.4's accessibility bridge reads these range properties.
+            readonly property real minimumValue: Math.min(from, to)
+            readonly property real maximumValue: Math.max(from, to)
             stepSize: .05
             live: true
             focusPolicy: Qt.StrongFocus
@@ -937,7 +938,7 @@ Item {
                     model: 11
                     Rectangle {
                         required property int index
-                        x: parent.width - 15 // The slider rotation places ticks at the physical left.
+                        x: index === 5 ? 0 : 7
                         y: index * (parent.height - 1) / 10
                         width: index === 5 ? 15 : 8
                         height: 1

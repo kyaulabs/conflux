@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-22T03:07:18.538228+00:00",
+  "scope": "Supported Qt6.4 screen-reader limits and geometry followup; no DSP, physical audio, latency or mixing acceptance change",
+  "original_source_head": "701452ef2404cfafca8e6e9f866d22c0adfb022b",
+  "original_failed_runs": [
+    39714064925,
+    39714132787
+  ],
+  "original_failure": "Ubuntu24.04 Qt6.4.2: four tempo accessible-range rows failed; other90 Qt results passed. Supported Qt6.4 reads only minimumValue/maximumValue; rotated accessible geometry also omits the transform extent.",
+  "fix": "Explicit ordered minimumValue/maximumValue on the unrotated descending CDJ rail; physical direction and commands preserved. Existing four layout rows also verify actual accessible rectangle contains the visual center.",
+  "primary_sources": [
+    "https://raw.githubusercontent.com/qt/qtdeclarative/v6.4.2/src/quick/accessible/qaccessiblequickitem.cpp",
+    "https://raw.githubusercontent.com/qt/qtdeclarative/v6.12.0/src/quick/accessible/qaccessiblequickitem.cpp"
+  ],
+  "local_followup": {
+    "command": [
+      "build/dev/conflux-manual-ui-test",
+      "tempoCommandsWaitForAcknowledgedDeckSnapshots",
+      "tempoPointerDirectionAndRejectedRequestRestore",
+      "tempoAvailabilityAndFailureReset",
+      "tempoAccessibleNumericEntryWaitsForAcknowledgement",
+      "tempoAccessibleAtLaptopSizes"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.5180954809766263,
+    "scope": "Final unrotated descending native rail, explicit ordered accessibility bounds and actual accessible rectangle; Qt6.12 local, Qt6.4 fresh CI required"
+  },
+  "local_Qt_results": {
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0
+  },
+  "local_build": {
+    "command": [
+      "cmake",
+      "--build",
+      "build/dev",
+      "--parallel",
+      "1",
+      "--target",
+      "conflux-manual-ui-test"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 92.66999308299273,
+    "scope": "One compiler job; add actual accessible-rectangle regression to supported-version bounds checks"
+  },
+  "changed_source_hashes": {
+    "qml/DeckSurface.qml": "d39282572aa9eb641d4d93d26f6edc6b4bb11447f3dad8cb23f5243f8a2355f7",
+    "tests/manual_ui_test.cpp": "9340c9a0bafb121267fd849ffc876f0771570b02f5aa38ec31c4d704216b2a66"
+  },
+  "independent_review": "outside_run_audit: no concrete blocker; all prior input oracles retained; library_level_ui independently identified Qt-version behavior from primary source",
+  "remote_validation": "Fresh final-head Build workflows are tracked in https://github.com/kyaulabs/conflux/pull/57; this local record does not claim their result.",
+  "running_manual_player": "Existing Qt6.12 interactive player is not restarted; audio engine and manual audio trial are unchanged by this metadata-only followup."
+}
