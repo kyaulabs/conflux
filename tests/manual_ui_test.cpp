@@ -71,6 +71,11 @@ public:
                 {"keyLock", false}, {"active", false}, {"pending", false}, {"finished", false},
                 {"errorCode", 0}, {"generation", qulonglong(0)}};
     }
+    static QVariantMap scratchState(bool supported = false)
+    {
+        return {{"supported", supported}, {"active", false}, {"pending", false},
+                {"errorCode", 0}, {"generation", qulonglong(0)}};
+    }
     static QVariantMap bpmState(double reference = 0)
     {
         return {{"estimated", reference}, {"reference", reference}, {"manual", false},
@@ -83,6 +88,7 @@ public:
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()}, {"tempo", tempoState()}, {"bpm", bpmState()},
+                                      {"scratch", scratchState()}, {"sourceGeneration", qulonglong(0)},
                                       {"waveform", QVariantList{}}, {"loading", false}, {"pendingName", ""}, {"pendingPath", ""},
                                       {"pendingPresentation", QVariantMap{}}, {"pendingWaveform", QVariantList{}},
                                       {"loadPhase", ""}, {"loadPhaseText", ""}, {"loadCompletedStages", 0},
@@ -147,6 +153,9 @@ public:
     void setError(const QString& value) { error_ = value; emit stateChanged(); }
     void setCueAccepted(bool value) { acceptCue_ = value; }
     void setJogAccepted(bool value) { acceptJog_ = value; }
+    void setScratchAccepted(bool begin, bool move = true)
+    { acceptScratchBegin_ = begin; acceptScratchMove_ = move; }
+    void setScratchInvalidateOnBegin(const QString& reason) { invalidateScratchBegin_ = reason; }
     void setReplacing(int deck, bool value)
     {
         auto state = decks_[deck].toMap();
@@ -186,6 +195,7 @@ public:
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                    {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)}, {"tempo", tempoState(true)}, {"bpm", bpmState(120)},
+                                   {"scratch", scratchState(true)}, {"sourceGeneration", qulonglong(1)},
                                    {"waveform", QVariantList{.15, .5, .9, .3, .1}}, {"loading", false},
                                    {"pendingName", ""}, {"pendingPath", ""}, {"pendingPresentation", QVariantMap{}},
                                    {"pendingWaveform", QVariantList{}}, {"loadPhase", ""}, {"loadPhaseText", ""},
@@ -278,6 +288,37 @@ public:
         const auto state = decks_[deck].toMap();
         snapshotPosition(deck, std::clamp(state["positionSeconds"].toDouble() + frames / 48000.0,
                                          0.0, state["durationSeconds"].toDouble()));
+        return true;
+    }
+    // This endpoint records routing only. It neither produces scratch PCM nor
+    // changes acknowledged position/play state; native/controller tests own that.
+    Q_INVOKABLE QString beginScratch(int deck)
+    {
+        if (deck < 0 || deck > 1) return {};
+        const auto token = acceptScratchBegin_
+            ? QString::number(++scratchSerial_, 16).rightJustified(16, '0') : QString{};
+        calls.append(QVariantMap{{"action", "scratchBegin"}, {"deck", deck}, {"token", token}});
+        if (token.isEmpty()) return {};
+        scratchTokens_[deck] = token;
+        // Simulate a synchronous source/enable notification before Begin returns.
+        if (invalidateScratchBegin_ == "generation")
+            snapshotDeck(deck, {{"sourceGeneration",
+                decks_[deck].toMap()["sourceGeneration"].toULongLong() + 1}});
+        else if (invalidateScratchBegin_ == "replacing")
+            setReplacing(deck, true);
+        return token;
+    }
+    Q_INVOKABLE bool moveScratch(int deck, const QString& token, qint64 cumulativeFrames)
+    {
+        calls.append(QVariantMap{{"action", "scratchMove"}, {"deck", deck}, {"token", token},
+                                 {"frames", cumulativeFrames}});
+        return deck >= 0 && deck < 2 && token == scratchTokens_[deck] && acceptScratchMove_;
+    }
+    Q_INVOKABLE bool endScratch(int deck, const QString& token)
+    {
+        calls.append(QVariantMap{{"action", "scratchEnd"}, {"deck", deck}, {"token", token}});
+        if (deck < 0 || deck > 1 || token != scratchTokens_[deck]) return false;
+        scratchTokens_[deck].clear();
         return true;
     }
     void snapshotStemGain(int deck, int stem, double gain)
@@ -404,6 +445,10 @@ private:
     bool busy_ = false, ready_ = false, stemsAvailable_ = false;
     bool libraryReady_ = true;
     bool acceptCue_ = true, acceptJog_ = true;
+    bool acceptScratchBegin_ = true, acceptScratchMove_ = true;
+    quint64 scratchSerial_ = 0;
+    std::array<QString, 2> scratchTokens_{};
+    QString invalidateScratchBegin_;
     QString error_;
     QString libraryError_;
     double master_ = .5;
@@ -2044,49 +2089,257 @@ private slots:
         }
     }
 
-    void jogDragWrapsAngleAndStopsAfterRejectedMotion()
+    void vinylPointerUsesCumulativeTokenWithoutTransportMutation_data()
     {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<bool>("playing");
+        QTest::newRow("deck-a-paused") << 0 << false;
+        QTest::newRow("deck-a-playing") << 0 << true;
+        QTest::newRow("deck-b-paused") << 1 << false;
+        QTest::newRow("deck-b-playing") << 1 << true;
+    }
+
+    void vinylPointerUsesCumulativeTokenWithoutTransportMutation()
+    {
+        QFETCH(int, deck); QFETCH(bool, playing);
         ui_->endpoint.loadState(0, 5.0);
+        ui_->endpoint.loadState(1, 5.0);
+        ui_->endpoint.snapshotDeck(deck, {{"playing", playing}});
         ui_->endpoint.setReady(true);
-        auto* jog = ui_->item("deck0Jog");
+        auto* jog = ui_->item(QString("deck%1Jog").arg(deck).toUtf8().constData());
+        QVERIFY(jog);
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        constexpr double pi = 3.14159265358979323846;
         auto point = [jog](double angle) {
             const auto radius = jog->width() * .35;
             return jog->mapToScene(QPointF(jog->width() / 2 + std::cos(angle) * radius,
                                           jog->height() / 2 + std::sin(angle) * radius)).toPoint();
         };
-        constexpr double pi = 3.14159265358979323846;
-        auto totalFrames = [&] {
-            qint64 frames = 0;
-            for (const auto& item : ui_->endpoint.calls) {
-                const auto call = item.toMap();
-                if (call["action"].toString() == "jog") frames += call["frames"].toLongLong();
-            }
-            return frames;
-        };
+        const auto stateBefore = ui_->endpoint.decks();
         QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(-pi / 2));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto token = ui_->endpoint.calls.first().toMap()["token"].toString();
+        QVERIFY(!token.isEmpty());
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("scratchBegin"));
         QTest::mouseMove(ui_->window, point(0));
+        QTRY_COMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchMove"));
+        QTRY_VERIFY(std::abs(ui_->endpoint.calls.last().toMap()["frames"].toLongLong() - 24000) < 500);
+        QTest::mouseMove(ui_->window, point(pi / 2));
+        QTRY_VERIFY(std::abs(ui_->endpoint.calls.last().toMap()["frames"].toLongLong() - 48000) < 500);
+        QTest::mouseMove(ui_->window, point(0));
+        QTRY_VERIFY(std::abs(ui_->endpoint.calls.last().toMap()["frames"].toLongLong() - 24000) < 500);
+        QCOMPARE(ui_->endpoint.decks(), stateBefore); // Pointer contact has no speculative seek/play ACK.
         QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
-        QTRY_VERIFY(!ui_->endpoint.calls.isEmpty());
-        QVERIFY(std::abs(totalFrames() - 24000) < 500);
-        ui_->endpoint.calls.clear();
+        QTRY_COMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
+        int begins = 0, moves = 0, ends = 0;
+        for (const auto& item : ui_->endpoint.calls) {
+            const auto call = item.toMap();
+            const auto action = call["action"].toString();
+            QCOMPARE(call["deck"].toInt(), deck);
+            QCOMPARE(call["token"].toString(), token);
+            if (action == "scratchBegin") ++begins;
+            else if (action == "scratchMove") ++moves;
+            else if (action == "scratchEnd") ++ends;
+            else QFAIL("Vinyl pointer must not submit jog, seek or play commands");
+        }
+        QCOMPARE(begins, 1); QVERIFY(moves >= 3); QCOMPARE(ends, 1);
+        QCOMPARE(ui_->endpoint.decks(), stateBefore);
+    }
+
+    void vinylSeamDeadZoneAndRejectedMotionNeedFreshPress()
+    {
+        ui_->endpoint.loadState(0, 5.0); ui_->endpoint.setReady(true);
+        auto* jog = ui_->item("deck0Jog");
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
+        constexpr double pi = 3.14159265358979323846;
+        auto point = [jog](double angle) {
+            const auto radius = jog->width() * .35;
+            return jog->mapToScene(QPointF(jog->width() / 2 + std::cos(angle) * radius,
+                                          jog->height() / 2 + std::sin(angle) * radius)).toPoint();
+        };
         QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(pi - .15));
         QTest::mouseMove(ui_->window, point(-pi + .15));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        const auto seam = ui_->endpoint.calls.last().toMap()["frames"].toLongLong();
+        QVERIFY(seam > 3000 && seam < 6000); // Short angular seam, not almost a full revolution.
         QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(-pi + .15));
-        QTRY_VERIFY(!ui_->endpoint.calls.isEmpty());
-        QVERIFY(totalFrames() > 3000 && totalFrames() < 6000); // Crosses atan2's seam once.
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
         ui_->endpoint.calls.clear();
-        ui_->endpoint.setJogAccepted(false);
-        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
-        QTest::mouseMove(ui_->window, point(.3));
-        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
-        ui_->endpoint.setJogAccepted(true);
-        QTest::mouseMove(ui_->window, point(.6));
-        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(.6));
-        QCOMPARE(ui_->endpoint.calls.size(), 1); // A rejected drag needs a fresh press.
         QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jog));
         QTest::mouseMove(ui_->window, point(0));
         QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
-        QCOMPARE(ui_->endpoint.calls.size(), 1); // Leaving the dead zone never jumps.
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls[0].toMap()["action"].toString(), QString("scratchBegin"));
+        QCOMPARE(ui_->endpoint.calls[1].toMap()["action"].toString(), QString("scratchEnd"));
+        ui_->endpoint.calls.clear();
+        ui_->endpoint.setScratchAccepted(false);
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QTest::mouseMove(ui_->window, point(.3));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(.3));
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QVERIFY(ui_->endpoint.calls.first().toMap()["token"].toString().isEmpty());
+        ui_->endpoint.calls.clear();
+        ui_->endpoint.setScratchAccepted(true, false);
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QTest::mouseMove(ui_->window, point(.3));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3); // Begin, failed Move, exactly one End.
+        const auto oldToken = ui_->endpoint.calls.first().toMap()["token"].toString();
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
+        ui_->endpoint.setScratchAccepted(true);
+        QTest::mouseMove(ui_->window, point(.6));
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(.6));
+        QCOMPARE(ui_->endpoint.calls.size(), 3);
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        QVERIFY(ui_->endpoint.calls.last().toMap()["token"].toString() != oldToken);
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point(0));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
+    }
+
+    void vinylCancellationPairsExactlyOneOldSourceToken_data()
+    {
+        QTest::addColumn<int>("deck"); QTest::addColumn<QString>("reason");
+        for (const auto* reason : {"ungrab", "focus", "hidden", "window", "output", "escape"})
+            QTest::newRow(reason) << 0 << QString::fromLatin1(reason);
+        QTest::newRow("peer-deck-ungrab") << 1 << QString("ungrab");
+        QTest::newRow("source-swap") << 1 << QString("source");
+        QTest::newRow("same-id-new-generation") << 1 << QString("generation");
+        QTest::newRow("replacement") << 1 << QString("replacement");
+    }
+
+    void vinylCancellationPairsExactlyOneOldSourceToken()
+    {
+        QFETCH(int, deck); QFETCH(QString, reason);
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1); ui_->endpoint.setReady(true);
+        auto* jog = ui_->item(QString("deck%1Jog").arg(deck).toUtf8().constData());
+        auto* input = ui_->item(QString("deck%1ScratchInput").arg(deck).toUtf8().constData());
+        QVERIFY(jog && input);
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
+        const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto token = ui_->endpoint.calls.first().toMap()["token"].toString();
+        QVERIFY(!token.isEmpty());
+        if (reason == "ungrab") input->ungrabMouse();
+        else if (reason == "focus") ui_->item("masterGain")->forceActiveFocus();
+        else if (reason == "hidden") jog->setVisible(false);
+        else if (reason == "window") ui_->window->hide();
+        else if (reason == "output") ui_->endpoint.setReady(false);
+        else if (reason == "escape") QTest::keyClick(ui_->window, Qt::Key_Escape);
+        else if (reason == "source") ui_->endpoint.setSourceId(deck, "new-source");
+        else if (reason == "generation") ui_->endpoint.snapshotDeck(deck, {{"sourceGeneration", qulonglong(2)}});
+        else if (reason == "replacement") ui_->endpoint.setReplacing(deck, true);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["token"].toString(), token);
+        QCOMPARE(input->property("scratchToken").toString(), QString{});
+        ui_->endpoint.setReady(true); ui_->endpoint.setReplacing(deck, false); jog->setVisible(true);
+        if (reason == "window") {
+            ui_->window->show(); ui_->window->requestActivate();
+            QTRY_VERIFY(ui_->window->isActive());
+        }
+        // Retire the original mouse contact, without submitting another End to
+        // a new source or resurrecting the cancelled transaction.
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+    }
+
+    void vinylReentrantBeginStillPairsItsAcceptedToken_data()
+    {
+        QTest::addColumn<QString>("reason");
+        QTest::newRow("same-source-new-generation") << QString("generation");
+        QTest::newRow("becomes-replacing") << QString("replacing");
+    }
+
+    void vinylReentrantBeginStillPairsItsAcceptedToken()
+    {
+        QFETCH(QString, reason);
+        ui_->endpoint.loadState(0); ui_->endpoint.setReady(true);
+        ui_->endpoint.setScratchInvalidateOnBegin(reason);
+        auto* jog = ui_->item("deck0Jog");
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
+        const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls[0].toMap()["action"].toString(), QString("scratchBegin"));
+        QCOMPARE(ui_->endpoint.calls[1].toMap()["action"].toString(), QString("scratchEnd"));
+        QCOMPARE(ui_->endpoint.calls[0].toMap()["token"], ui_->endpoint.calls[1].toMap()["token"]);
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+    }
+
+    void vinylModeGatesPointerWhileKeyboardStillSearches()
+    {
+        ui_->endpoint.loadState(0, 5); ui_->endpoint.setReady(true);
+        auto* jog = ui_->item("deck0Jog");
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
+        auto baseline = ui_->endpoint.decks()[0].toMap();
+        baseline["overviewStem"] = ""; // Reset the prior live-only field for each independent gate.
+        const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
+        for (const auto* reason : {"unsupported", "live", "cue", "cue-held", "loop-in", "loop-cached", "active-zero-tempo", "read-error"}) {
+            auto fields = baseline;
+            if (QString(reason) == "unsupported") fields["scratch"] = UiEndpoint::scratchState(false);
+            else if (QString(reason) == "live") fields["overviewStem"] = "source";
+            else if (QString(reason) == "cue") fields["cuePreview"] = true;
+            else if (QString(reason) == "cue-held") {
+                // Holding CUE may set a cue point without temporary preview.
+                // That distinct state must also reject pointer scratch.
+                fields["cueHeld"] = true; fields["cuePreview"] = false;
+            }
+            else if (QString(reason).startsWith("loop")) {
+                auto loop = UiEndpoint::loopState(true);
+                loop[QString(reason) == "loop-in" ? "inSet" : "cached"] = true; fields["loop"] = loop;
+            } else if (QString(reason) == "active-zero-tempo") {
+                auto tempo = UiEndpoint::tempoState(true);
+                tempo["active"] = true; tempo["percent"] = 0.; fields["tempo"] = tempo;
+            } else {
+                auto scratch = UiEndpoint::scratchState(true); scratch["errorCode"] = EIO; fields["scratch"] = scratch;
+            }
+            ui_->endpoint.snapshotDeck(0, fields);
+            ui_->endpoint.calls.clear();
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QVERIFY2(ui_->endpoint.calls.isEmpty(), reason);
+            jog->forceActiveFocus(); QTRY_VERIFY(jog->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Right);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+            QCOMPARE(ui_->endpoint.calls[0].toMap()["action"].toString(), QString("jog"));
+            QCOMPARE(ui_->endpoint.calls[0].toMap()["frames"].toLongLong(), qint64(480));
+        }
+    }
+
+    void vinylPlatformTouchCancelEndsOnceAndAllowsFreshContact()
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
+        ui_->endpoint.loadState(0); ui_->endpoint.setReady(true);
+        auto* jog = ui_->item("deck0Jog");
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
+        const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, point, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto first = ui_->endpoint.calls.first().toMap()["token"].toString();
+        QVERIFY(touch.cancel()); touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
+        touchActive_ = true;
+        touch.press(0, point, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        QVERIFY(ui_->endpoint.calls.last().toMap()["token"].toString() != first);
+        touch.release(0, point, ui_->window).commit(); touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
+#else
+        QSKIP("Qt6.4 has no public platform-cancel helper; actual mouse-grab loss is covered separately");
+#endif
     }
 
     void replacementGatesOnlyItsDeckAndCancelsJogGesture()
@@ -2095,9 +2348,15 @@ private slots:
         ui_->endpoint.loadState(1);
         ui_->endpoint.setReady(true);
         auto* jog = ui_->item("deck0Jog");
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
         const auto start = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
         QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, start);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls[0].toMap()["action"].toString(), QString("scratchBegin"));
         ui_->endpoint.setReplacing(0, true);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls[1].toMap()["action"].toString(), QString("scratchEnd"));
         for (const auto* name : {"deck0Jog", "deck0Play", "deck0Seek", "deck0Gain", "deck0Cue", "deck0CueSelect"})
             QTRY_VERIFY2(!ui_->item(name)->isEnabled(), name);
         for (const auto* name : {"deck1Jog", "deck1Play", "deck1Gain", "deck1CueSelect", "masterGain", "cueGain"})
@@ -2106,7 +2365,7 @@ private slots:
         QTRY_VERIFY(jog->isEnabled());
         QTest::mouseMove(ui_->window, ui_->center(jog));
         QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(jog));
-        QCOMPARE(ui_->endpoint.calls.size(), 0);
+        QCOMPARE(ui_->endpoint.calls.size(), 2); // Replacement cannot revive the pointer token.
     }
 
     void pointerCueHoldRoutesBothDecks()
@@ -3882,6 +4141,10 @@ private slots:
             for (int deck = 0; deck < 2; ++deck) {
                 const auto prefix = QString("deck%1").arg(deck);
                 auto* jog = ui_->item((prefix + "Jog").toUtf8().constData());
+                const auto tempoBefore = ui_->endpoint.decks()[deck].toMap()["tempo"].toMap();
+                // Explicitly acknowledge TEMPO RESET before the pointer-only
+                // vinyl path; the layout above still checks active tempo.
+                ui_->endpoint.snapshotTempo(deck, UiEndpoint::tempoState(true));
                 const auto radius = jog->width() * .43;
                 QVERIFY(radius > 195);
                 const auto top = jog->mapToScene(QPointF(jog->width() / 2, jog->height() / 2 - radius)).toPoint();
@@ -3891,12 +4154,15 @@ private slots:
                 QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, top);
                 QTest::mouseMove(ui_->window, right);
                 QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, right);
-                QTRY_VERIFY(ui_->endpoint.calls.size() > before);
-                for (auto index = before; index < ui_->endpoint.calls.size(); ++index) {
-                    verifyCueCall(index, "jog", deck);
+                QTRY_VERIFY(ui_->endpoint.calls.size() >= before + 3);
+                verifyCueCall(before, "scratchBegin", deck);
+                verifyCueCall(ui_->endpoint.calls.size() - 1, "scratchEnd", deck);
+                for (auto index = before + 1; index + 1 < ui_->endpoint.calls.size(); ++index) {
+                    verifyCueCall(index, "scratchMove", deck);
                     QVERIFY(ui_->endpoint.calls[index].toMap()["frames"].toLongLong() > 0);
                 }
                 QCOMPARE(ui_->endpoint.decks()[1 - deck], peerBefore);
+                ui_->endpoint.snapshotTempo(deck, tempoBefore);
                 auto* play = ui_->item((prefix + "Play").toUtf8().constData());
                 before = ui_->endpoint.calls.size();
                 QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(play));

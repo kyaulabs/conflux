@@ -6,7 +6,7 @@ The [CDJ-3000 operating instructions, pages 14–16](https://downloads.support.a
 identify the controls; pages 47–49 distinguish tempo, Master Tempo and jog
 operations. This inventory covers the visual redesign and the existing manual
 audio functions, including independent headphone cue, metering and stereo
-recording. Source-peak overviews leave audio PCM unchanged. Positional jog,
+recording. Source-peak overviews leave audio PCM unchanged. Platter scratching,
 5 ms live ramps and source handoffs use the same output session. M1's sustained
 playback run and speaker listening acceptance are complete within the
 [tested manual-audio scope](M1.md). Physical headphone isolation remains
@@ -31,7 +31,7 @@ the C/D strips must say they are unavailable.
 | Hardware group and position | CONFLUX behavior in this redraw |
 | --- | --- |
 | Display and browse area, top | Show embedded cover art, title, artist and album in each deck LCD, with a filename fallback and a NO ART placeholder. Elapsed/remaining source time and the source overview remain available; processed tempo uses a nominal source cursor, clamped at the track end while its actual tail drains. The Library drawer imports and lists local tracks; LOAD A/B prepares the selected track. Playlists and media-source selection remain unavailable. |
-| Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview and preserves the stored cue. Beat quantization and scratch semantics remain unavailable. |
+| Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview or active scratch and preserves the stored cue. Beat quantization remains unavailable. |
 | PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
 | Loop IN/OUT/RELOOP | Prepared normal audio and stem banks call `loopIn`, `loopOut` and `loopToggle`. IN prepares up to 64 seconds; OUT captures the render cursor and repeats from IN once cache is ready. EXIT continues past OUT; RELOOP returns to IN. Minimum span is 256 frames; pause retains it, while seek/jog/transport CUE, retry, replacement and output rebuild clear it. Live stems and loop-point editing remain unavailable. |
@@ -40,7 +40,7 @@ the C/D strips must say they are unavailable.
 | Mixer CUE and CUE LEVEL | Toggle A/B `setCueSelected` for the separate pre-fader headphone bus; `setCueGain` controls its independent level in [0,1]. Selection follows the deck's transport and does not start a paused deck. This is separate from the temporary transport CUE button. C/D remain disabled. |
 | Stereo meters beside channel faders and master/cue controls | Show actual pre-fader A/B and post-gain master/cue peak markers and RMS fills, from −60 to 0 dBFS. OVR reflects cumulative samples above ±1 in the current render session. Hover/accessibility text gives numeric values. Internal cue metering can be nonzero while CUE UNROUTED shows that no headphone audio is routed. |
 | AUDIO / REC, top bar | Refresh playback ports and select explicit stereo master/cue pairs. Default selection applies only to master; cue requires four distinct destination ports across the two pairs. Record the post-master mix to a new absolute `.wav` path, with visible recording/finalization/error state and saved path. |
-| Jog, jog mode/adjust and brake | The jog performs positional search with `jogFrames`: drag clockwise/backward at two seconds per revolution, use Right/Up or Left/Down for ±10 ms, or use the wheel at 10 ms per notch. Shift changes key/wheel steps to one second. Search clamps at source boundaries, preserves playing request/stored cue and cancels preview. Scratch, pitch bend, jog-mode adjustment and brake processing remain unavailable. |
+| Jog, jog mode/adjust and brake | Hold and drag to scratch the actual prepared stereo track or four-stem bank, following speed and direction at two source seconds per turn, limited to ±8×. Release resumes the previous play/pause request at the consumed cursor. Reset tempo and clear stored loops first; live stems and processed tempo do not support vinyl mode. Right/Up or Left/Down still search ±10 ms; the wheel searches 10 ms per notch, with Shift giving one-second steps. Search clamps to the source, preserves playing request/stored cue and cancels preview or scratch. Pitch bend, jog-mode adjustment and adjustable braking remain unavailable. |
 | CUE, lower left | One temporary cue per deck, initially frame zero. Press while paused away from the cue to replace it; press during playback to return and pause. Hold at the paused cue to preview. Indicators use acknowledged cue/preview state. |
 | Hot Cues A–H and cue memory | Disabled: Hot Cues, persistent cue memory and memory navigation are not implemented. |
 | SEARCH/TRACK SEARCH and direction | Disabled: held fast search, track navigation, reverse and slip playback are not implemented. Use the explicit position rail for current seeking. |

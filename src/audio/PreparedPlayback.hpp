@@ -19,6 +19,7 @@ namespace conflux::audio {
 class StemBankSource;
 class PreparedLoopCache;
 class PreparedTempoSource;
+class PreparedScratchSource;
 
 // One whole playback owner: a normal stereo source or four aligned stems.
 // Construction, prime, error text and stop/join belong off the audio callback.
@@ -86,8 +87,10 @@ private:
     PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_t frames);
     void createLoopCache(std::span<const int> fds) noexcept;
     void createTempoSource(std::span<const int> fds) noexcept;
+    void createScratchSource(std::span<const int> fds) noexcept;
     AudioReadResult readPrepared(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readTempo(std::span<float> output) noexcept;
+    AudioReadResult readScratch(std::span<float> output) noexcept;
     void seekPrepared(std::uint64_t frame) noexcept;
     void seekLinear(std::uint64_t frame) noexcept;
     void clearLoop() noexcept;
@@ -95,6 +98,9 @@ private:
     [[nodiscard]] AudioLoopState loopState() const noexcept;
     bool tempoControl(AudioTempoCommand command, double percent, bool keyLock, std::uint64_t frame) noexcept;
     [[nodiscard]] AudioTempoState tempoState() const noexcept;
+    bool scratchControl(AudioScratchCommand command, std::int64_t cumulativeFrames,
+                        double intervalSeconds, std::uint64_t frame) noexcept;
+    [[nodiscard]] AudioScratchState scratchState() const noexcept;
     [[nodiscard]] int preparedRenderError() const noexcept;
     AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
     void seekLive(std::uint64_t frame) noexcept;
@@ -105,9 +111,12 @@ private:
     std::unique_ptr<StemBankSource> bank_;
     std::unique_ptr<PreparedLoopCache> loopCache_;
     std::unique_ptr<PreparedTempoSource> tempoSource_;
+    // Optional bounded bidirectional PCM windows, owned with this playback.
+    std::unique_ptr<PreparedScratchSource> scratchSource_;
     AudioLoopState loop_{}; // Sole render owner, or control after quiescence.
     int loopSetupError_ = 0;
     int tempoSetupError_ = 0;
+    int scratchSetupError_ = 0;
     bool tempoKeyLock_ = false; // Legacy unity selection does not start DSP.
     std::uint64_t frames_;
     std::atomic<int> primeError_{0};
