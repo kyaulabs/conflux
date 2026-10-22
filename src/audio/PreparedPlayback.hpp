@@ -17,6 +17,7 @@
 
 namespace conflux::audio {
 class StemBankSource;
+class PreparedLoopCache;
 
 // One whole playback owner: a normal stereo source or four aligned stems.
 // Construction, prime, error text and stop/join belong off the audio callback.
@@ -82,6 +83,14 @@ public:
 
 private:
     PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_t frames);
+    void createLoopCache(std::span<const int> fds) noexcept;
+    AudioReadResult readPrepared(std::uint64_t frame, std::span<float> output) noexcept;
+    void seekPrepared(std::uint64_t frame) noexcept;
+    void seekLinear(std::uint64_t frame) noexcept;
+    void clearLoop() noexcept;
+    bool loopControl(AudioLoopCommand command, std::uint64_t frame) noexcept;
+    [[nodiscard]] AudioLoopState loopState() const noexcept;
+    [[nodiscard]] int preparedRenderError() const noexcept;
     AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
     void seekLive(std::uint64_t frame) noexcept;
     void setLiveActive(bool active) noexcept;
@@ -89,6 +98,9 @@ private:
     std::unique_ptr<LiveState> live_;
     std::array<std::unique_ptr<PcmReadAhead>, stemCount> readers_{};
     std::unique_ptr<StemBankSource> bank_;
+    std::unique_ptr<PreparedLoopCache> loopCache_;
+    AudioLoopState loop_{}; // Sole render owner, or control after quiescence.
+    int loopSetupError_ = 0;
     std::uint64_t frames_;
     std::atomic<int> primeError_{0};
     bool stopped_ = false;

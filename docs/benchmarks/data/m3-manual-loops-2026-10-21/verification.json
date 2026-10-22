@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T01:21:52.622951+00:00",
+  "base_commit": "d3193b25d1e9001f83343534e3095e0c47c37921",
+  "branch": "feat/kyau-b053c6-manual-loops",
+  "scope": "Generated PCM, normal and instrumented automated functionality; no physical audio, listening, touch, sustained load or live-stem latency qualification.",
+  "normal_ctest": {
+    "passed": true,
+    "entries": 43,
+    "elapsed_seconds": 258.44
+  },
+  "instrumented_ctest": {
+    "passed": true,
+    "entries": 43,
+    "elapsed_seconds": 291.83
+  },
+  "normal_private_preparation": {
+    "passed": true,
+    "check_count": 108,
+    "execution_deadline_gate": false,
+    "harness_timeout_seconds": 240,
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true
+  },
+  "instrumented_private_preparation": {
+    "passed": true,
+    "check_count": 108,
+    "execution_deadline_gate": false,
+    "harness_timeout_seconds": 240,
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true
+  },
+  "normal_strict_private_routing": {
+    "passed": true,
+    "check_count": 142,
+    "execution_deadline_gate": true,
+    "harness_timeout_seconds": 90,
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true
+  },
+  "instrumented_private_routing": {
+    "passed": true,
+    "check_count": 136,
+    "execution_deadline_gate": false,
+    "harness_timeout_seconds": 240,
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true
+  },
+  "normal_loop_recording": {
+    "IN_frame": 2400,
+    "OUT_frame": 4960,
+    "cached_remainder_observed_at_EXIT_ack": false,
+    "every_recorded_frame_checked": true,
+    "length_frames": 2560,
+    "maximum_fixture_loop_frames": 24000,
+    "normal_cache_payload_budget_bytes": 24576000,
+    "passed": true,
+    "recorded_frames": 24064,
+    "recording": {
+      "checked_prefix_or_tail_frames": 24064,
+      "expected_master_multiplier": 0.25,
+      "frames": 24064,
+      "maximum_prefix_or_tail_error": 0,
+      "prefix_frames": 24064,
+      "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."
+    },
+    "scope": "Generated constant prepared PCM, queued controller controls, cursor accounting and every recorded master frame. No physical, musical, delivery-latency or sustained qualification.",
+    "snapshot_count": 13
+  },
+  "instrumented_loop_recording": {
+    "IN_frame": 2400,
+    "OUT_frame": 4704,
+    "cached_remainder_observed_at_EXIT_ack": false,
+    "every_recorded_frame_checked": true,
+    "length_frames": 2304,
+    "maximum_fixture_loop_frames": 24000,
+    "normal_cache_payload_budget_bytes": 24576000,
+    "passed": true,
+    "recorded_frames": 21504,
+    "recording": {
+      "checked_prefix_or_tail_frames": 21504,
+      "expected_master_multiplier": 0.25,
+      "frames": 21504,
+      "maximum_prefix_or_tail_error": 0,
+      "prefix_frames": 21504,
+      "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."
+    },
+    "scope": "Generated constant prepared PCM, queued controller controls, cursor accounting and every recorded master frame. No physical, musical, delivery-latency or sustained qualification.",
+    "snapshot_count": 13
+  },
+  "controller_Qt_results": 37,
+  "QML_Qt_results": 86,
+  "strict_TDD_claimed": false,
+  "pending": [
+    "Tempo/key-lock",
+    "Physical/touch and musical mixing acceptance",
+    "M2 Best-quality live-stem p99 strictly below4095ms; latest instrumented sample4542.598429ms is not normal qualification",
+    "First accepted real two-deck mixing trial before0.1.0"
+  ],
+  "cache_memory_safety": {
+    "address_and_undefined_sanitizers": "passed isolated PreparedLoopCache regressions",
+    "build_and_run": "sanitizer.json",
+    "prior_attempt": "Default PIE test binary could not initialize ASan shadow in sandbox; non-PIE build ran successfully. This was an environment startup failure, not an executed cache failure."
+  }
+}

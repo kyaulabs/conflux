@@ -14,7 +14,7 @@ pkg_check_modules(SndFile REQUIRED IMPORTED_TARGET sndfile>=1.2)
 pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate>=0.2.2)
 
 add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp
-    src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/StemBankSource.cpp
+    src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/PreparedLoopCache.cpp src/audio/StemBankSource.cpp
     src/audio/LiveStemBuffer.cpp src/audio/StemRateConverter.cpp src/audio/LiveRecoveryPolicy.cpp
     src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
     src/audio/AudioRouting.cpp)
@@ -90,6 +90,19 @@ if(BUILD_TESTING)
     target_compile_options(conflux-audio-prepared-playback-test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME audio-prepared-playback COMMAND conflux-audio-prepared-playback-test)
     set_tests_properties(audio-prepared-playback PROPERTIES TIMEOUT 30)
+    add_executable(conflux-audio-loop-cache-test tests/audio_loop_cache_test.cpp)
+    target_link_libraries(conflux-audio-loop-cache-test PRIVATE conflux-audio Threads::Threads)
+    target_compile_options(conflux-audio-loop-cache-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-loop-cache COMMAND conflux-audio-loop-cache-test)
+    set_tests_properties(audio-loop-cache PROPERTIES TIMEOUT 30)
+    add_executable(conflux-audio-loops-test tests/audio_loops_test.cpp)
+    target_link_libraries(conflux-audio-loops-test PRIVATE conflux-audio Threads::Threads)
+    target_compile_definitions(conflux-audio-loops-test PRIVATE _LARGEFILE64_SOURCE)
+    target_compile_options(conflux-audio-loops-test PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_options(conflux-audio-loops-test PRIVATE
+        -Wl,--wrap=pread -Wl,--wrap=pread64 -Wl,--wrap=__pread_chk -Wl,--wrap=__pread64_chk)
+    add_test(NAME audio-loops COMMAND conflux-audio-loops-test)
+    set_tests_properties(audio-loops PROPERTIES TIMEOUT 30)
     add_executable(conflux-audio-preparation-test tests/audio_preparation_test.cpp)
     target_link_libraries(conflux-audio-preparation-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-preparation-test PRIVATE -Wall -Wextra -Wpedantic)

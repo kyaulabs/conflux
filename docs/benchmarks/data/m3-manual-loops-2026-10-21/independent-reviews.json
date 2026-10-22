@@ -1,0 +1,57 @@
+{
+  "recorded_at_utc": "2026-10-22T01:10:07.633551+00:00",
+  "kind": "Independent static review messages; no reviewer execution",
+  "reviews": [
+    {
+      "reviewer": "library_level_ui",
+      "scope": "PreparedLoopCache by outside_run_audit",
+      "findings": []
+    },
+    {
+      "reviewer": "outside_run_audit",
+      "scope": "AudioSource/RenderCore hooks and two-deck splitting by root",
+      "findings": [
+        {
+          "finding": "OUT at EOF lacked render activity notification",
+          "status": "fixed and reviewer confirmed"
+        }
+      ]
+    },
+    {
+      "reviewer": "library_level_ui",
+      "scope": "Controller/session/QML and outside-authored UI regressions",
+      "findings": [
+        {
+          "finding": "UI OUT minimum differed from engine256 frames",
+          "status": "shared minimumOutSeconds snapshot added;255/256 cases passed both decks"
+        }
+      ]
+    },
+    {
+      "reviewer": "pcm_admission_review",
+      "scope": "PreparedPlayback/StemBankSource by library_level_ui plus root RenderCore and docs",
+      "findings": []
+    },
+    {
+      "reviewer": "pcm_admission_review",
+      "scope": "Queued controller/recording harness extension by outside_run_audit",
+      "findings": []
+    },
+    {
+      "reviewer": "pcm_admission_review",
+      "scope": "Final saved counts/cleanup/coverage audit, read only",
+      "findings": []
+    },
+    {
+      "reviewer": "outside_run_audit",
+      "scope": "Final prepared fa\u00e7ade, RenderCore ownership/EOF and loop splitter; cache portion is author recheck only",
+      "findings": []
+    }
+  ],
+  "limits": [
+    "Authors are not counted as independent reviewers of their own code/tests.",
+    "Rapid standalone cache request tests do not by themselves prove in-flight cancellation; deterministic wrapped pread integration does.",
+    "Constant private recording proves amplitudes and cursor accounting; arbitrary-wave alignment is covered separately by exact core oracles.",
+    "No physical, musical, sustained or live-stem latency qualification."
+  ]
+}

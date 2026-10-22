@@ -210,10 +210,12 @@ void wholeBankHandoffLifetime()
 {
     Fixture first, second;
     const auto baseline = descriptors();
+    // Four independent read-ahead FDs plus four optional resident-cache FDs.
+    constexpr std::size_t descriptorsPerBank = 8;
     auto active = std::make_unique<PreparedPlayback>(first.fds(), Fixture::frames);
     auto candidate = std::make_unique<PreparedPlayback>(second.fds(), Fixture::frames);
     require(active->prime(0, 1s) && candidate->prime(0, 1s), "Cannot prime handoff banks");
-    require(descriptors() == baseline + 8, "Bank owners did not retain four independent duplicated FDs each");
+    require(descriptors() == baseline + 2 * descriptorsPerBank, "Bank owners did not retain independent reader/cache FDs");
     RenderCore core(active->sourceRef());
     std::array<float, 128> output{};
     require(core.render(output) && core.setPlaying(0, false) && core.render(output), "Cannot silence old bank");
@@ -224,13 +226,13 @@ void wholeBankHandoffLifetime()
             core.isDeckSilentForReplacement(0) && core.replaceSource(0, request.source), "Whole-bank swap failed");
     require(core.render(output) && mailbox.complete(true, {64, 0, false}, core.frameClock()),
             "Callback-end acknowledgement failed");
-    require(descriptors() == baseline + 8, "Old bank was retired before control acquired acknowledgement");
+    require(descriptors() == baseline + 2 * descriptorsPerBank, "Old bank was retired before control acquired acknowledgement");
     SourceHandoff::Completion completion;
     require(mailbox.takeCompletion(completion) && completion.installed, "Control did not acquire whole-bank completion");
     auto retired = std::move(active);
     active = std::move(candidate);
     retired.reset();
-    require(descriptors() == baseline + 4, "Retirement did not release all four old readers");
+    require(descriptors() == baseline + descriptorsPerBank, "Retirement did not release all old reader/cache FDs");
     require(core.setPlaying(0, true) && core.render(output) && same(output, std::span(second.sum).first(output.size())),
             "New bank stopped or lost samples after old whole-owner destruction");
     auto cancelled = std::make_unique<PreparedPlayback>(first.fds(), Fixture::frames);
@@ -239,7 +241,7 @@ void wholeBankHandoffLifetime()
     mailbox.quiesce();
     require(mailbox.takeCompletion(completion) && !completion.installed, "Quiesce falsely installed a bank");
     cancelled.reset();
-    require(descriptors() == baseline + 4 && !active->errorCode(), "Cancelled bank cleanup affected the retained whole owner");
+    require(descriptors() == baseline + descriptorsPerBank && !active->errorCode(), "Cancelled bank cleanup affected the retained whole owner");
 }
 } // namespace
 

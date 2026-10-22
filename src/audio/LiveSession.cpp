@@ -691,6 +691,7 @@ public:
             state.sourceReadError[deck] = activePlaybacks_[deck] ? bool(activePlaybacks_[deck]->errorCode()) : renderer_.readFailed(deck);
             state.deckGain[deck] = renderer_.deckGain(deck);
             state.stemBank[deck] = renderer_.isStemBank(deck);
+            state.loops[deck] = renderer_.loopState(deck);
             for (std::size_t stem = 0; stem < RenderCore::stemCount; ++stem)
                 state.stemGain[deck][stem] = renderer_.stemGain(deck, stem);
         }

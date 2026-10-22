@@ -311,6 +311,16 @@ private slots:
             auto handle = controller.liveStemObservations(0);
             QVERIFY2(handle, qPrintable(controller.error()));
             QVERIFY(handle == controller.liveStemObservations(0) && !controller.liveStemObservations(1));
+            const auto liveDecks = controller.decks();
+            const auto submitted = controller.submittedCommands();
+            for (const auto command : {&conflux::DeckController::loopIn, &conflux::DeckController::loopOut,
+                                       &conflux::DeckController::loopToggle}) {
+                (controller.*command)(0);
+                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QCOMPARE(controller.decks(), liveDecks);
+                QCOMPARE(controller.submittedCommands(), submitted);
+                QVERIFY(controller.liveStemObservations(0) == handle);
+            }
             QCOMPARE(handle->setup().outputFrames48000, controller.audioState().sourceFrames[0]);
             safety.capture();
             QVERIFY(!safety.children.empty() && !safety.gone());
@@ -1237,6 +1247,66 @@ private slots:
         controller.shutdown();
         controller.setCrossfader(.75);
         QCOMPARE(controller.crossfader(), .5);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        QVERIFY(!controller.outputReady());
+    }
+
+    void manualLoopsRejectInvalidUnloadedAndUnreadyDecksWithoutSpeculation()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        conflux::DeckController controller;
+        const auto commands = {&conflux::DeckController::loopIn, &conflux::DeckController::loopOut,
+                               &conflux::DeckController::loopToggle};
+        const auto empty = controller.decks();
+        for (const int deck : {-1, 0, 1, 2}) {
+            for (const auto command : commands) {
+                (controller.*command)(deck);
+                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+                QCOMPARE(controller.decks(), empty);
+            }
+        }
+        const auto a = directory.filePath("loop-a.wav"), b = directory.filePath("loop-b.wav");
+        QVERIFY(writeWave(a, 2, 48000, 4800) && writeWave(b, 2, 48000, 9600));
+        for (int deck = 0; deck < 2; ++deck) {
+            controller.loadDeck(deck, QUrl::fromLocalFile(deck == 0 ? a : b));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QVERIFY(controller.decks()[deck].toMap()["loaded"].toBool());
+        }
+        QVERIFY(!controller.outputReady());
+        const auto decks = controller.decks();
+        for (const auto& value : decks) {
+            const auto loop = value.toMap()["loop"].toMap();
+            for (const auto* key : {"supported", "inSet", "ready", "outSet", "active", "cached", "inSeconds", "minimumOutSeconds",
+                                    "outSeconds", "limitSeconds", "residentBytes", "errorCode"})
+                QVERIFY2(loop.contains(key), key);
+            QVERIFY(!loop["inSet"].toBool() && !loop["outSet"].toBool() && !loop["active"].toBool());
+            QCOMPARE(loop["minimumOutSeconds"].toDouble(), 256.0 / 48000.0);
+        }
+        const auto recording = controller.recording();
+        const auto submitted = controller.submittedCommands();
+        const auto sessions = controller.completedSessions();
+        const auto master = controller.masterGain(), cue = controller.cueGain(), crossfader = controller.crossfader();
+        for (int deck = 0; deck < 2; ++deck) {
+            for (const auto command : commands) {
+                QSignalSpy changed(&controller, &conflux::DeckController::stateChanged);
+                (controller.*command)(deck);
+                QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
+                QVERIFY(!changed.isEmpty());
+                QCOMPARE(controller.decks(), decks); // Includes both peers, transport, CUE and loop flags.
+                QCOMPARE(controller.submittedCommands(), submitted);
+                QCOMPARE(controller.recording(), recording);
+                QCOMPARE(controller.masterGain(), master);
+                QCOMPARE(controller.cueGain(), cue);
+                QCOMPARE(controller.crossfader(), crossfader);
+            }
+        }
+        QCOMPARE(controller.completedSessions(), sessions);
+        controller.shutdown();
+        for (const auto command : commands) (controller.*command)(0);
         QCOMPARE(controller.submittedCommands(), submitted);
         QVERIFY(!controller.outputReady());
     }
