@@ -22,8 +22,10 @@
 #include <memory>
 #include <algorithm>
 #include <array>
+#include <cerrno>
 #include <cmath>
 #include <limits>
+#include <vector>
 
 namespace {
 
@@ -52,13 +54,19 @@ public:
         return {{"peakLeft", 0.0}, {"peakRight", 0.0}, {"rmsLeft", 0.0}, {"rmsRight", 0.0},
                 {"overrangeLeft", 0}, {"overrangeRight", 0}};
     }
+    static QVariantMap loopState(bool supported = false)
+    {
+        return {{"supported", supported}, {"inSet", false}, {"ready", false}, {"outSet", false},
+                {"active", false}, {"cached", false}, {"inSeconds", 0.0}, {"minimumOutSeconds", 256.0 / 48000.0}, {"outSeconds", 0.0},
+                {"limitSeconds", 0.0}, {"residentBytes", qulonglong(0)}, {"errorCode", 0}};
+    }
     UiEndpoint()
     {
         for (int deck = 0; deck < 2; ++deck)
             decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"sourceId", ""}, {"playing", false}, {"replacing", false},
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
-                                      {"cueSelected", false}, {"meter", silentMeter()},
+                                      {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()},
                                       {"waveform", QVariantList{}}});
         meters_ = {{"master", silentMeter()}, {"cue", silentMeter()}, {"blockFrames", 256}};
         QVariantList ports;
@@ -158,7 +166,7 @@ public:
                                    {"playing", false}, {"gain", .5},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
-                                   {"cueSelected", false}, {"meter", silentMeter()},
+                                   {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)},
                                    {"waveform", QVariantList{.15, .5, .9, .3, .1}}};
         emit stateChanged();
     }
@@ -176,6 +184,15 @@ public:
         decks_[deck] = state;
         emit stateChanged();
     }
+    void snapshotDeck(int deck, const QVariantMap& fields)
+    {
+        auto state = decks_[deck].toMap();
+        for (auto it = fields.cbegin(); it != fields.cend(); ++it) state[it.key()] = it.value();
+        decks_[deck] = state;
+        emit stateChanged();
+    }
+    void snapshotLoop(int deck, const QVariantMap& loop)
+    { snapshotDeck(deck, {{"loop", loop}}); }
     void snapshotSongInfo(int deck, const QString& title, const QString& artist,
                          const QString& album, const QString& artwork)
     {
@@ -276,6 +293,14 @@ public:
         calls.append(QVariantMap{{"action", "crossfader"}, {"value", position}});
         snapshotCrossfader(position);
     }
+    // Command recording deliberately does not acknowledge a loop or move the
+    // cursor. Tests deliver separate snapshots, as the audio owner does.
+    Q_INVOKABLE void loopIn(int deck)
+    { calls.append(QVariantMap{{"action", "loopIn"}, {"deck", deck}}); }
+    Q_INVOKABLE void loopOut(int deck)
+    { calls.append(QVariantMap{{"action", "loopOut"}, {"deck", deck}}); }
+    Q_INVOKABLE void loopToggle(int deck)
+    { calls.append(QVariantMap{{"action", "loopToggle"}, {"deck", deck}}); }
     Q_INVOKABLE void setCueSelected(int deck, bool selected)
     {
         calls.append(QVariantMap{{"action", "cueSelected"}, {"deck", deck}, {"value", selected}});
@@ -1541,6 +1566,251 @@ private slots:
         QCOMPARE(call.value("action").toString(), QString("master"));
         QCOMPARE(call.value("value").toDouble(), ui_->endpoint.masterGain());
         QVERIFY(ui_->endpoint.masterGain() > .5 && ui_->endpoint.masterGain() <= 1);
+    }
+
+    void manualLoopsRoutePressesAndWaitForAcknowledgedSnapshots()
+    {
+        ui_->endpoint.loadState(0, 3.0);
+        ui_->endpoint.loadState(1, 3.0);
+        ui_->endpoint.setReady(true);
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain(), crossfader = ui_->endpoint.crossfader();
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* in = ui_->item((prefix + "LoopIn").toUtf8().constData());
+            auto* out = ui_->item((prefix + "LoopOut").toUtf8().constData());
+            auto* toggle = ui_->item((prefix + "LoopToggle").toUtf8().constData());
+            auto* status = ui_->item((prefix + "LoopStatus").toUtf8().constData());
+            QVERIFY(in && out && toggle && status);
+            ui_->endpoint.snapshotDeck(deck, {{"playing", true}});
+            QTRY_VERIFY(in->isEnabled());
+            QVERIFY(!out->isEnabled() && !toggle->isEnabled());
+            const auto beforeIn = ui_->endpoint.decks();
+            auto count = ui_->endpoint.calls.size();
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(in));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1); // Dispatch belongs to press, not release.
+            verifyCueCall(count, "loopIn", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeIn);
+            QVERIFY(!in->parentItem()->property("indicatorOn").toBool());
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(in));
+            QCOMPARE(ui_->endpoint.calls.size(), count + 1);
+
+            auto loop = UiEndpoint::loopState(true);
+            loop["inSet"] = true; loop["inSeconds"] = 1.0; loop["minimumOutSeconds"] = (48000.0 + 256.0) / 48000.0;
+            loop["limitSeconds"] = 8.0;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            QTRY_VERIFY(status->property("text").toString().contains("PREPARING IN"));
+            QVERIFY(in->parentItem()->property("indicatorOn").toBool());
+            QVERIFY(!out->isEnabled() && !toggle->isEnabled());
+            loop["ready"] = true; loop["residentBytes"] = qulonglong(7 * 48000 * 8);
+            ui_->endpoint.snapshotLoop(deck, loop);
+            QTRY_VERIFY(out->isEnabled());
+            QVERIFY(status->property("text").toString().contains("OUT READY"));
+
+            out->forceActiveFocus();
+            QTRY_VERIFY(out->hasActiveFocus());
+            const auto beforeOut = ui_->endpoint.decks();
+            count = ui_->endpoint.calls.size();
+            QTest::keyPress(ui_->window, Qt::Key_Space);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "loopOut", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeOut);
+            QVERIFY(!out->parentItem()->property("indicatorOn").toBool());
+            QVERIFY(!toggle->isEnabled());
+            QTest::keyRelease(ui_->window, Qt::Key_Space);
+            QCOMPARE(ui_->endpoint.calls.size(), count + 1);
+
+            loop["outSet"] = true; loop["active"] = true; loop["cached"] = true; loop["outSeconds"] = 3.0;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            QTRY_VERIFY(toggle->isEnabled());
+            QVERIFY(!out->isEnabled());
+            QCOMPARE(toggle->parentItem()->property("displayText").toString(), QString("EXIT"));
+            QVERIFY(status->property("text").toString().startsWith("LOOP "));
+            const auto beforeExit = ui_->endpoint.decks();
+            count = ui_->endpoint.calls.size();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(toggle));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "loopToggle", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeExit);
+            QCOMPARE(toggle->parentItem()->property("displayText").toString(), QString("EXIT"));
+
+            loop["active"] = false;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            ui_->endpoint.snapshotDeck(deck, {{"playing", false}});
+            QTRY_COMPARE(toggle->parentItem()->property("displayText").toString(), QString("RELOOP"));
+            QVERIFY(status->property("text").toString().startsWith("RELOOP "));
+            QVERIFY(toggle->isEnabled()); // Acknowledged bounds may be relooped from pause.
+            toggle->forceActiveFocus();
+            QTRY_VERIFY(toggle->hasActiveFocus());
+            const auto beforeReloop = ui_->endpoint.decks();
+            count = ui_->endpoint.calls.size();
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "loopToggle", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeReloop);
+        }
+        for (const auto& value : ui_->endpoint.calls) {
+            const auto action = value.toMap()["action"].toString();
+            QVERIFY(action == "loopIn" || action == "loopOut" || action == "loopToggle");
+        }
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
+        QCOMPARE(ui_->endpoint.crossfader(), crossfader);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void manualLoopAvailabilityKeepsInvalidPressesOutOfTheCommandPath()
+    {
+        struct Scenario {
+            QString name;
+            QVariantMap deck, loop;
+            bool outputReady;
+            std::array<bool, 3> enabled;
+        };
+        const std::vector<Scenario> scenarios{
+            {"prepared", {}, {}, true, {true, true, false}},
+            {"unloaded", {{"loaded", false}}, {}, true, {false, false, false}},
+            {"output-unready", {}, {}, false, {false, false, false}},
+            {"replacing", {{"replacing", true}}, {}, true, {false, false, false}},
+            {"live-source", {}, {{"supported", false}}, true, {false, false, false}},
+            {"cue-preview", {{"cuePreview", true}}, {}, true, {false, false, false}},
+            {"source-read-error", {{"sourceReadError", true}}, {}, true, {false, false, false}},
+            {"IN-pending", {}, {{"ready", false}}, true, {true, false, false}},
+            {"no-IN", {}, {{"inSet", false}, {"ready", false}}, true, {true, false, false}},
+            {"paused", {{"playing", false}}, {}, true, {true, false, false}},
+            {"at-IN", {{"positionSeconds", 1.0}}, {}, true, {true, false, false}},
+            {"255-frame-OUT", {{"positionSeconds", (48000.0 + 255.0) / 48000.0}}, {}, true, {true, false, false}},
+            {"256-frame-OUT", {{"positionSeconds", (48000.0 + 256.0) / 48000.0}}, {}, true, {true, true, false}},
+            {"at-limit", {{"positionSeconds", 8.0}}, {}, true, {true, true, false}},
+            {"past-limit", {{"positionSeconds", 9.0}}, {}, true, {true, false, false}},
+            {"EOF-past-limit", {{"positionSeconds", 10.0}}, {}, true, {false, false, false}},
+            {"OUT-at-EOF", {{"positionSeconds", 10.0}}, {{"limitSeconds", 10.0}}, true, {false, true, false}},
+            {"cache-error", {}, {{"ready", false}, {"errorCode", EIO}}, true, {true, false, false}},
+            {"reloop-ready", {{"playing", false}}, {{"outSet", true}}, true, {true, false, true}},
+            {"active-loop", {}, {{"outSet", true}, {"active", true}, {"cached", true}}, true, {true, false, true}},
+        };
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        const std::array<const char*, 3> suffixes{"LoopIn", "LoopOut", "LoopToggle"};
+        for (int deck = 0; deck < 2; ++deck) {
+            for (const auto& scenario : scenarios) {
+                QVariantMap state{{"loaded", true}, {"replacing", false}, {"playing", true}, {"cuePreview", false},
+                                  {"sourceReadError", false}, {"positionSeconds", 3.0}, {"durationSeconds", 10.0}};
+                auto loop = UiEndpoint::loopState(true);
+                loop["inSet"] = true; loop["ready"] = true; loop["inSeconds"] = 1.0;
+                loop["minimumOutSeconds"] = (48000.0 + 256.0) / 48000.0; loop["limitSeconds"] = 8.0;
+                for (auto it = scenario.deck.cbegin(); it != scenario.deck.cend(); ++it) state[it.key()] = it.value();
+                for (auto it = scenario.loop.cbegin(); it != scenario.loop.cend(); ++it) loop[it.key()] = it.value();
+                state["loop"] = loop;
+                ui_->endpoint.setReady(scenario.outputReady);
+                ui_->endpoint.snapshotDeck(deck, state);
+                for (std::size_t index = 0; index < suffixes.size(); ++index) {
+                    const auto name = QString("deck%1%2").arg(deck).arg(suffixes[index]).toUtf8();
+                    auto* control = ui_->item(name.constData());
+                    QVERIFY(control);
+                    QTRY_VERIFY2(control->isEnabled() == scenario.enabled[index],
+                                 qPrintable(scenario.name + ": " + QString::fromUtf8(name)));
+                    if (!scenario.enabled[index]) {
+                        const auto count = ui_->endpoint.calls.size();
+                        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(control));
+                        QCOMPARE(ui_->endpoint.calls.size(), count);
+                    }
+                }
+                const auto status = QString("deck%1LoopStatus").arg(deck).toUtf8();
+                if (scenario.name == "cache-error")
+                    QVERIFY(ui_->item(status.constData())->property("text").toString().contains("CACHE ERROR"));
+                if (scenario.name == "past-limit")
+                    QVERIFY(ui_->item(status.constData())->property("text").toString().contains("IN RANGE ENDED"));
+                if (scenario.name == "at-IN" || scenario.name == "255-frame-OUT")
+                    QCOMPARE(ui_->item(status.constData())->property("text").toString(), QString("IN SET / WAIT FOR OUT"));
+                if (scenario.name == "256-frame-OUT") {
+                    QVERIFY(ui_->item(status.constData())->property("text").toString().contains("OUT READY"));
+                    const auto count = ui_->endpoint.calls.size();
+                    const auto before = ui_->endpoint.decks();
+                    auto* out = ui_->item(QString("deck%1LoopOut").arg(deck).toUtf8().constData());
+                    QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(out));
+                    QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+                    verifyCueCall(count, "loopOut", deck);
+                    QCOMPARE(ui_->endpoint.decks(), before);
+                }
+            }
+        }
+        QCOMPARE(ui_->endpoint.calls.size(), 2); // Only the exact 256-frame boundary presses above.
+    }
+
+    void manualLoopControlsAreAccessibleAndFit_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(1180, 760), QSize(1680, 1020)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height()).arg(dark ? "dark" : "light")))
+                    << viewport << dark;
+    }
+
+    void manualLoopControlsAreAccessibleAndFit()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        ui_->endpoint.setReady(true);
+        QStringList controls;
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            auto loop = UiEndpoint::loopState(true);
+            loop["inSet"] = true; loop["ready"] = true; loop["outSet"] = true;
+            loop["active"] = true; loop["cached"] = true; loop["inSeconds"] = 1.0;
+            loop["minimumOutSeconds"] = (48000.0 + 256.0) / 48000.0; loop["outSeconds"] = 3.0;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            for (const auto* suffix : {"LoopIn", "LoopOut", "LoopToggle", "LoopStatus", "Cue", "Play"})
+                controls.append(QString("deck%1%2").arg(deck).arg(suffix));
+            const auto label = deck == 0 ? QString("Deck A") : QString("Deck B");
+            for (const auto& entry : {std::pair{"LoopIn", label + " loop IN"},
+                                      std::pair{"LoopOut", label + " loop OUT"},
+                                      std::pair{"LoopToggle", label + " loop EXIT"}}) {
+                auto* button = ui_->item(QString("deck%1%2").arg(deck).arg(entry.first).toUtf8().constData());
+                auto* accessible = QAccessible::queryAccessibleInterface(button);
+                QVERIFY(accessible);
+                QCOMPARE(accessible->role(), QAccessible::Button);
+                QCOMPARE(accessible->text(QAccessible::Name), entry.second);
+                const auto description = QString::fromUtf8(entry.first) == "LoopIn" ? "64 seconds" :
+                                         QString::fromUtf8(entry.first) == "LoopOut" ? "loop end" : "without jumping";
+                QVERIFY(accessible->text(QAccessible::Description).contains(description));
+            }
+            auto* status = ui_->item(QString("deck%1LoopStatus").arg(deck).toUtf8().constData());
+            auto* accessible = QAccessible::queryAccessibleInterface(status);
+            QVERIFY(accessible);
+            QVERIFY(accessible->text(QAccessible::Name).contains(label));
+            QVERIFY(accessible->text(QAccessible::Name).contains(status->property("text").toString()));
+        }
+        verifyControlsFit(controls);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void manualLoopsDoNotEnableUnimplementedControls()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        unsigned hotCues = 0, tempo = 0, equalizers = 0, memoryCalls = 0;
+        const auto inspect = [&](auto&& self, QQuickItem* item) -> void {
+            const auto reason = item->property("unavailableReason").toString();
+            if (reason.contains("Hot cues") || reason.contains("Pitch-independent tempo") || reason.contains("Memory cue")) {
+                QVERIFY(!item->property("available").toBool());
+                hotCues += reason.contains("Hot cues");
+                tempo += reason.contains("Pitch-independent tempo");
+                memoryCalls += reason.contains("Memory cue");
+            }
+            if (item->property("helpText").toString() == "Channel equalization is not implemented.") {
+                QVERIFY(!item->property("activeControl").toBool());
+                ++equalizers;
+            }
+            for (auto* child : item->childItems()) self(self, child);
+        };
+        inspect(inspect, ui_->window->contentItem());
+        QVERIFY(hotCues > 0 && tempo > 0 && equalizers > 0 && memoryCalls > 0);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
     void crossfaderSnapshotsAndOutputGating()

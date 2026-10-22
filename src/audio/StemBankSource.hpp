@@ -48,6 +48,12 @@ public:
     // [0,1]; summation still preserves headroom above +/-1 with double arithmetic.
     bool setGain(std::size_t stem, float gain) noexcept;
     [[nodiscard]] float gain(std::size_t stem) const noexcept;
+    // Render-owner resident reads share the same gain ramps while the linear
+    // providers, staged surplus and cursor remain parked for loop exit.
+    [[nodiscard]] AudioReadResult readCached(
+        const std::array<std::span<const float>, stemCount>& leaves,
+        std::uint64_t offsetFrames, std::span<float> output) noexcept;
+    [[nodiscard]] bool hasReadFailure() const noexcept;
 
 private:
     struct GainRamp {
@@ -69,6 +75,8 @@ private:
     AudioReadResult read(std::uint64_t frame, std::span<float> output) noexcept;
     void discontinuity(std::uint64_t frame) noexcept;
     void fill(StagedStem& stem, std::size_t wanted) noexcept;
+    void mix(const std::array<std::span<const float>, stemCount>& inputs,
+             std::size_t frames, std::span<float> output) noexcept;
 
     std::array<StagedStem, stemCount> stems_{};
     std::array<GainRamp, stemCount> gains_{};

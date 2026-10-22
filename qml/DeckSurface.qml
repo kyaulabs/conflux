@@ -12,6 +12,8 @@ Item {
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
+    readonly property var loop: deck.loop || ({})
+    readonly property bool canLoop: canControl && Boolean(loop.supported) && !deck.sourceReadError && !deck.cuePreview
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
     readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
     readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
@@ -517,11 +519,66 @@ Item {
         x: surface.edge
         y: surface.loopTop
         spacing: 5
-        DeckButton { width: 44; height: 36; text: "IN"; indicatorColor: Brand.ConfluxTheme.warning; available: false; unavailableReason: "Loop in/out points are not implemented." }
-        DeckButton { width: 44; height: 36; text: "OUT"; indicatorColor: Brand.ConfluxTheme.warning; available: false; unavailableReason: "Loop in/out points are not implemented." }
-        DeckButton { width: 62; height: 36; text: "RELOOP"; available: false; unavailableReason: "Loop recall is not implemented." }
+        DeckButton {
+            width: 44; height: 36; text: "IN"
+            buttonObjectName: "deck" + surface.deckIndex + "LoopIn"
+            accessibleName: surface.deckName + " loop IN"
+            indicatorColor: Brand.ConfluxTheme.warning
+            indicatorOn: Boolean(surface.loop.inSet)
+            available: surface.canLoop && surface.deck.positionSeconds < surface.deck.durationSeconds
+            actionDescription: "Capture the loop start at the current audio position and prepare up to 64 seconds."
+            unavailableReason: "Manual loops require ready prepared audio and a position before the track ends."
+            onPressed: surface.controller.loopIn(surface.deckIndex)
+        }
+        DeckButton {
+            width: 44; height: 36; text: "OUT"
+            buttonObjectName: "deck" + surface.deckIndex + "LoopOut"
+            accessibleName: surface.deckName + " loop OUT"
+            indicatorColor: Brand.ConfluxTheme.warning
+            indicatorOn: Boolean(surface.loop.outSet)
+            available: surface.canLoop && surface.deck.playing && Boolean(surface.loop.ready)
+                       && !surface.loop.outSet && surface.deck.positionSeconds >= surface.loop.minimumOutSeconds
+                       && surface.deck.positionSeconds <= surface.loop.limitSeconds
+            actionDescription: "Capture the current audio position as the loop end and repeat from IN."
+            unavailableReason: "Set IN, wait for preparation, then press OUT during playback within the prepared range."
+            onPressed: surface.controller.loopOut(surface.deckIndex)
+        }
+        DeckButton {
+            width: 62; height: 36; text: "RELOOP"
+            displayText: surface.loop.active ? "EXIT" : "RELOOP"
+            buttonObjectName: "deck" + surface.deckIndex + "LoopToggle"
+            accessibleName: surface.deckName + (surface.loop.active ? " loop EXIT" : " RELOOP")
+            indicatorColor: Brand.ConfluxTheme.warning
+            indicatorOn: Boolean(surface.loop.active)
+            available: surface.canLoop && Boolean(surface.loop.ready) && Boolean(surface.loop.outSet)
+            actionDescription: surface.loop.active ? "Exit the loop and continue past OUT without jumping."
+                                                   : "Start the stored loop again from IN."
+            unavailableReason: "Set a prepared IN and OUT loop before using RELOOP or EXIT."
+            onPressed: surface.controller.loopToggle(surface.deckIndex)
+        }
         DeckButton { width: 45; height: 36; text: "CALL ◀"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
         DeckButton { width: 45; height: 36; text: "CALL ▶"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
+    }
+    Label {
+        objectName: "deck" + surface.deckIndex + "LoopStatus"
+        x: surface.edge
+        y: surface.loopTop + 39
+        width: surface.width - 2 * surface.edge - 75
+        height: 15
+        text: surface.loop.errorCode ? "LOOP CACHE ERROR / RELOAD OR SET IN"
+              : !surface.loop.supported ? "MANUAL LOOP / PREPARED AUDIO"
+              : !surface.loop.inSet ? "MANUAL LOOP / SET IN"
+              : !surface.loop.ready ? "LOOP / PREPARING IN"
+              : surface.loop.outSet ? (surface.loop.active ? "LOOP " : "RELOOP ")
+                    + surface.timeText(surface.loop.inSeconds) + " – " + surface.timeText(surface.loop.outSeconds)
+              : surface.deck.positionSeconds > surface.loop.limitSeconds ? "IN RANGE ENDED / SET IN AGAIN"
+              : surface.deck.positionSeconds < surface.loop.minimumOutSeconds ? "IN SET / WAIT FOR OUT"
+              : "IN " + surface.timeText(surface.loop.inSeconds) + " / OUT READY"
+        color: surface.loop.active ? Brand.ConfluxTheme.warning : Brand.ConfluxTheme.muted
+        font.family: Brand.ConfluxTheme.monoFont
+        font.pixelSize: 9
+        elide: Text.ElideRight
+        Accessible.name: surface.deckName + " " + text
     }
     DeckButton {
         x: surface.width - surface.edge - 66

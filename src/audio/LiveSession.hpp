@@ -49,6 +49,7 @@ public:
         std::array<std::uint64_t, RenderCore::deckCount> starvedFrames{};
         std::array<float, RenderCore::deckCount> deckGain{};
         std::array<bool, RenderCore::deckCount> stemBank{};
+        std::array<AudioLoopState, RenderCore::deckCount> loops{};
         std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{};
         float masterGain = 1.0F;
         float crossfader = 0.5F;

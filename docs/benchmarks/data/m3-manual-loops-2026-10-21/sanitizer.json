@@ -1,0 +1,35 @@
+[
+  {
+    "stage": "compile",
+    "command": [
+      "c++",
+      "-std=c++20",
+      "-O1",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-fno-pie",
+      "-no-pie",
+      "-pthread",
+      "-Isrc",
+      "src/audio/PreparedLoopCache.cpp",
+      "tests/audio_loop_cache_test.cpp",
+      "-o",
+      "benchmarks-local/m3-parallel-2026-10-21/manual-loops-01/loop-cache-sanitized-fixed-address"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 19.549632954061963
+  },
+  {
+    "stage": "run",
+    "command": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=5",
+      "30",
+      "benchmarks-local/m3-parallel-2026-10-21/manual-loops-01/loop-cache-sanitized-fixed-address"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.2700283970916644
+  }
+]

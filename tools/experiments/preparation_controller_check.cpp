@@ -561,12 +561,192 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
             controller.completedSessions() == sessions + 1,
             "Crossfader recording preserves its applied global targets and healthy shared session");
 
+    // Exercise queued controls on the already installed normal A. Constant PCM
+    // supplies an independent all-frame amplitude oracle; exact cursor deltas
+    // separately check wraps and linear EXIT, not arbitrary-wave alignment.
+    using LoopSnapshot = conflux::audio::LiveSession::State;
+    constexpr std::uint64_t loopInFrame = 2400, maximumLoopLength = 48000 / 2;
+    constexpr std::uint64_t normalLoopByteBudget = 64ULL * 48000 * 8;
+    const auto loopSessions = controller.completedSessions();
+    QJsonArray loopSnapshots;
+    QJsonObject loopDetail{{"scope", "Generated constant prepared PCM, queued controller controls, cursor accounting and every recorded master frame. No physical, musical, delivery-latency or sustained qualification."},
+        {"normal_cache_payload_budget_bytes", qint64(normalLoopByteBudget)},
+        {"maximum_fixture_loop_frames", qint64(maximumLoopLength)}};
+    const auto loopDetailPath = QString::fromStdString((output / "generated-loop-controller-detail.json").string());
+    auto loopHealth = [&] {
+        if (!controller.error().isEmpty()) throw std::runtime_error("Manual loop controller error: " + controller.error().toStdString());
+        const auto state = controller.audioState();
+        if (!controller.outputReady() || controller.completedSessions() != loopSessions ||
+            state.sourceGeneration != afterCrossfader.sourceGeneration || state.sourceFrames != afterCrossfader.sourceFrames ||
+            state.invalidBuffers != afterCrossfader.invalidBuffers || state.rejected != afterCrossfader.rejected ||
+            state.sourceReadError[0] || state.sourceReadError[1] || state.sourceReadErrorObserved[0] || state.sourceReadErrorObserved[1] ||
+            state.loops[0].errorCode || !state.playing[1] || state.sourceFrame[1] >= state.sourceFrames[1] ||
+            state.deckGain != afterCrossfader.deckGain || state.stemGain != afterCrossfader.stemGain ||
+            state.masterGain != afterCrossfader.masterGain || state.crossfader != afterCrossfader.crossfader ||
+            state.cueGain != afterCrossfader.cueGain || state.cueFrame != afterCrossfader.cueFrame ||
+            state.cueSelected != afterCrossfader.cueSelected || state.cueHeld != afterCrossfader.cueHeld ||
+            state.cuePreview != afterCrossfader.cuePreview)
+            throw std::runtime_error("Manual loop changed shared source/peer/cue/gain health or exhausted the normal peer");
+        return state;
+    };
+    auto noteLoop = [&](const char* stage, const LoopSnapshot& state) {
+        if (loopSnapshots.size() >= 20) throw std::runtime_error("Manual-loop snapshot evidence bound exceeded");
+        const auto& loop = state.loops[0];
+        loopSnapshots.append(QJsonObject{{"stage", stage}, {"output_frame", qint64(state.outputFrame)},
+            {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+            {"source_generations", QJsonArray{qint64(state.sourceGeneration[0]), qint64(state.sourceGeneration[1])}},
+            {"callbacks", qint64(state.callbacks)}, {"submitted", qint64(controller.submittedCommands())},
+            {"applied", qint64(state.applied)}, {"rejected", qint64(state.rejected)}, {"last_command_id", qint64(state.lastCommandId)},
+            {"A_starved_frames", qint64(state.starvedFrames[0])}, {"B_starved_frames", qint64(state.starvedFrames[1])},
+            {"A_buffering", state.buffering[0]}, {"B_buffering", state.buffering[1]},
+            {"loop", QJsonObject{{"IN", qint64(loop.inFrame)}, {"OUT", qint64(loop.outFrame)},
+                {"limit", qint64(loop.limitFrame)}, {"ready", loop.ready}, {"in_set", loop.inSet},
+                {"out_set", loop.outSet}, {"active", loop.active}, {"cached", loop.cached},
+                {"resident_bytes", qint64(loop.residentBytes)}, {"error_code", loop.errorCode}}},
+            {"acknowledged_deck_map", QJsonObject::fromVariantMap(controller.decks()[0].toMap()["loop"].toMap())}});
+    };
+    auto advancingPeer = [](const LoopSnapshot& before, const LoopSnapshot& after) {
+        return after.outputFrame >= before.outputFrame && after.sourceFrame[1] >= before.sourceFrame[1] &&
+            after.sourceFrame[1] - before.sourceFrame[1] == after.outputFrame - before.outputFrame;
+    };
+    try {
+        noteLoop("before-pause", loopHealth());
+        auto before = controller.audioState();
+        auto submitted = controller.submittedCommands();
+        controller.setPlaying(0, false);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty(), "Manual-loop pause is queued on the existing controller session");
+        wait([&] { const auto state = loopHealth(); return !state.playing[0] && state.applied == before.applied + 1; }, "Manual-loop pause was not acknowledged");
+        noteLoop("paused", controller.audioState());
+        before = controller.audioState(); submitted = controller.submittedCommands();
+        controller.seekSeconds(0, loopInFrame / 48000.0);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty(), "Paused loop IN cursor seek is queued");
+        wait([&] { const auto state = loopHealth(); return !state.playing[0] && state.sourceFrame[0] == loopInFrame && state.applied == before.applied + 1; }, "Paused loop IN cursor was not acknowledged exactly");
+        noteLoop("paused-IN-cursor", controller.audioState());
+        before = controller.audioState(); submitted = controller.submittedCommands();
+        controller.loopIn(0);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty() &&
+                !controller.audioState().loops[0].inSet && controller.audioState().sourceFrame[0] == loopInFrame &&
+                controller.audioState().applied == before.applied,
+                "IN queues without speculative loop state before callback acknowledgement");
+        wait([&] { const auto state = loopHealth(); return state.applied == before.applied + 1 && state.loops[0].inSet && state.loops[0].ready; }, "Queued paused IN did not prepare its bounded PCM cache");
+        const auto preparedIn = loopHealth();
+        const auto inMap = controller.decks()[0].toMap()["loop"].toMap();
+        require(!preparedIn.playing[0] && preparedIn.sourceFrame[0] == loopInFrame && preparedIn.loops[0].inFrame == loopInFrame &&
+                !preparedIn.loops[0].outSet && !preparedIn.loops[0].active && inMap["inSet"].toBool() && inMap["ready"].toBool() &&
+                inMap["inSeconds"].toDouble() == loopInFrame / 48000.0 && preparedIn.loops[0].residentBytes > 0 &&
+                preparedIn.loops[0].residentBytes <= normalLoopByteBudget,
+                "Paused IN captures exact frame2400 and exposes only its acknowledged bounded normal-PCM cache");
+        noteLoop("IN-ready", preparedIn);
+        before = controller.audioState(); submitted = controller.submittedCommands();
+        controller.setPlaying(0, true);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty(), "Loop target restart is queued without changing peer or gains");
+        wait([&] { const auto state = loopHealth(); return state.applied == before.applied + 1 && state.playing[0] && state.sourceFrame[0] >= loopInFrame + 2048; }, "Loop target did not pass its existing transport ramp and OUT margin");
+        const auto beforeOut = loopHealth();
+        submitted = controller.submittedCommands();
+        controller.loopOut(0);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty() &&
+                !controller.audioState().loops[0].outSet && controller.audioState().sourceFrame[0] == beforeOut.sourceFrame[0] &&
+                controller.audioState().applied == beforeOut.applied,
+                "OUT queues without a speculative cursor jump or loop activation");
+        wait([&] { const auto state = loopHealth(); return state.applied == beforeOut.applied + 1 && state.loops[0].ready && state.loops[0].outSet && state.loops[0].active; }, "Queued OUT did not enter its prepared loop");
+        const auto outAck = loopHealth();
+        const auto in = outAck.loops[0].inFrame, out = outAck.loops[0].outFrame, length = out - in;
+        require(in == loopInFrame && out >= beforeOut.sourceFrame[0] && length >= 2048 && length <= maximumLoopLength &&
+                out <= outAck.loops[0].limitFrame && outAck.sourceFrame[0] >= in && outAck.sourceFrame[0] < out &&
+                outAck.loops[0].cached && advancingPeer(preparedIn, outAck),
+                "Callback-captured OUT has a short valid range and rewinds only A while the muted peer clock stays exact");
+        loopDetail["IN_frame"] = qint64(in); loopDetail["OUT_frame"] = qint64(out); loopDetail["length_frames"] = qint64(length);
+        noteLoop("OUT-active", outAck);
+
+        const auto loopPath = QString::fromStdString((output / "generated-loop-controller.wav").string());
+        controller.startRecording(QUrl::fromLocalFile(loopPath));
+        wait([&] { (void)loopHealth(); return controller.recording()["status"].toString() == "Recording" && controller.recording()["acceptedFrames"].toULongLong() >= 1024; }, "Loop recording did not attach after settled OUT");
+        const auto first = loopHealth(); noteLoop("recording-first-anchor", first);
+        wait([&] { return loopHealth().outputFrame >= first.outputFrame + 3 * length; }, "Active loop did not render three complete wrap intervals");
+        const auto repeated = loopHealth(); noteLoop("after-three-wrap-intervals", repeated);
+        const auto repeatedExpected = in + (first.sourceFrame[0] - in + repeated.outputFrame - first.outputFrame) % length;
+        require(repeated.sourceFrame[0] == repeatedExpected && advancingPeer(first, repeated) &&
+                repeated.starvedFrames == first.starvedFrames && !repeated.buffering[0] && !repeated.buffering[1],
+                "Repeated loop cursor follows exact modulo output frames while the peer advances once and neither deck starves");
+        submitted = controller.submittedCommands();
+        controller.loopToggle(0);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty() && controller.audioState().loops[0].active,
+                "EXIT is queued without speculative loop state");
+        wait([&] { const auto state = loopHealth(); return state.applied == repeated.applied + 1 && !state.loops[0].active; }, "Queued EXIT was not acknowledged");
+        const auto exited = loopHealth(); noteLoop("EXIT-acknowledged", exited);
+        require(exited.loops[0].outSet && exited.loops[0].ready && exited.sourceFrame[0] >= in &&
+                (exited.sourceFrame[0] - in) % length ==
+                    (repeated.sourceFrame[0] - in + exited.outputFrame - repeated.outputFrame) % length &&
+                advancingPeer(repeated, exited), "EXIT preserves the running loop phase modulo its pre-acknowledgement wraps");
+        loopDetail["cached_remainder_observed_at_EXIT_ack"] = exited.loops[0].cached;
+        wait([&] { const auto state = loopHealth(); return !state.loops[0].cached && state.sourceFrame[0] >= out + 512; }, "EXIT did not consume the cached remainder and resume past the parked OUT");
+        const auto linear = loopHealth(); noteLoop("EXIT-linear-past-OUT", linear);
+        require(!linear.loops[0].active && linear.loops[0].outSet &&
+                linear.sourceFrame[0] - exited.sourceFrame[0] == linear.outputFrame - exited.outputFrame &&
+                advancingPeer(exited, linear) && linear.starvedFrames == first.starvedFrames,
+                "After EXIT acknowledgement A continues linearly without a cursor jump or lost samples and B remains independent");
+        submitted = controller.submittedCommands();
+        controller.loopToggle(0);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty() && !controller.audioState().loops[0].active,
+                "RELOOP after linear playback is queued without optimistic activation");
+        wait([&] { const auto state = loopHealth(); return state.applied == linear.applied + 1 && state.loops[0].active && state.loops[0].cached; }, "Queued RELOOP did not return to the retained prepared range");
+        const auto relooped = loopHealth(); noteLoop("RELOOP-acknowledged", relooped);
+        require(relooped.sourceFrame[0] >= in && relooped.sourceFrame[0] < out && relooped.loops[0].inFrame == in &&
+                relooped.loops[0].outFrame == out && relooped.playing[0] && advancingPeer(linear, relooped),
+                "RELOOP returns the playing target to its original cached bounds without disturbing the peer");
+        wait([&] { return loopHealth().outputFrame >= relooped.outputFrame + 2 * length; }, "RELOOP did not render two complete wrap intervals");
+        const auto twice = loopHealth(); noteLoop("RELOOP-after-two-wrap-intervals", twice);
+        require(twice.sourceFrame[0] == in + (relooped.sourceFrame[0] - in + twice.outputFrame - relooped.outputFrame) % length &&
+                advancingPeer(relooped, twice) && twice.starvedFrames == first.starvedFrames && !twice.buffering[0] && !twice.buffering[1],
+                "RELOOP repeats exact modulo clocks with no cache or peer starvation");
+        controller.stopRecording();
+        wait([&] { (void)loopHealth(); return !controller.recording()["active"].toBool(); }, "Loop recording did not finalize before further transport changes");
+        const auto loopRecording = controller.recording();
+        const auto loopFrames = loopRecording["writtenFrames"].toULongLong();
+        require(loopRecording["status"].toString() == "Complete" && loopRecording["error"].toString().isEmpty() &&
+                loopRecording["acceptedFrames"] == loopRecording["writtenFrames"] && loopFrames >= 5 * length &&
+                loopRecording["overflowFrames"].toULongLong() == 0,
+                "Loop recorder drains every accepted frame across wraps, EXIT and RELOOP without overflow");
+        const auto loopWav = inspectStemRecording(loopPath, loopFrames, loopFrames, .25F);
+        require(loopWav["checked_prefix_or_tail_frames"].toInteger() == qint64(loopFrames),
+                "Every recorded loop/EXIT/RELOOP frame matches the independent post-master quarter-amplitude oracle");
+        loopDetail["recording"] = loopWav;
+        loopDetail["every_recorded_frame_checked"] = true;
+        loopDetail["recorded_frames"] = qint64(loopFrames);
+
+        before = loopHealth(); submitted = controller.submittedCommands();
+        controller.setPlaying(0, false);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty(), "Recorded loop pauses before the same-frame clear check");
+        wait([&] { const auto state = loopHealth(); return !state.playing[0] && state.applied == before.applied + 1; }, "Recorded loop pause was not acknowledged");
+        const auto paused = loopHealth(); noteLoop("paused-before-same-frame-clear", paused);
+        submitted = controller.submittedCommands();
+        controller.seekSeconds(0, paused.sourceFrame[0] / 48000.0);
+        require(controller.submittedCommands() == submitted + 1 && controller.error().isEmpty(), "Same-frame paused seek queues explicit loop invalidation");
+        wait([&] { const auto state = loopHealth(); return state.applied == paused.applied + 1 && !state.loops[0].inSet &&
+                      !state.loops[0].outSet && !state.loops[0].cached && !state.loops[0].active && !state.loops[0].residentBytes; },
+             "Same-frame paused seek did not clear bounds and release the optional cache");
+        const auto cleared = loopHealth(); noteLoop("same-frame-cleared", cleared);
+        require(cleared.sourceFrame[0] == paused.sourceFrame[0] && !cleared.playing[0] && advancingPeer(paused, cleared),
+                "Same-frame seek clears loop storage without moving its paused target or resetting the advancing peer");
+        loopDetail["passed"] = true;
+        loopDetail["snapshots"] = loopSnapshots;
+        require(save(loopDetailPath, loopDetail), "Bounded queued-loop controller and all-frame recording evidence is retained");
+    } catch (const std::exception& error) {
+        loopDetail["passed"] = false; loopDetail["error"] = error.what();
+        try { noteLoop("failure-current", controller.audioState()); } catch (...) {}
+        loopDetail["recording_at_failure"] = QJsonObject::fromVariantMap(controller.recording());
+        loopDetail["snapshots"] = loopSnapshots;
+        (void)save(loopDetailPath, loopDetail);
+        throw;
+    }
+
     const auto final = controller.audioState();
     sink.validate(false);
     controller.shutdown();
     require(controller.completedSessions() == sessions + 2 && !controller.outputReady() && !controller.busy(),
             "Only explicit routing rebuild and shutdown complete the stem controller's sessions");
     observations["stem_controller"] = QJsonObject{{"recording", wav},
+        {"manual_loop", loopDetail},
         {"crossfader", QJsonObject{{"submitted_while_A_replacing", crossfaderRequestedWhileReplacing},
             {"deck_scoped_command_rejected", deckScopedCommandRejected},
             {"command_accepted", crossfaderCommandAccepted}, {"commands_before", qint64(crossfaderCommandsBefore)},

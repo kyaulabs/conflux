@@ -87,6 +87,51 @@ float StemBankSource::gain(std::size_t stem) const noexcept
     return stem < stemCount ? static_cast<float>(gains_[stem].target) : 0.F;
 }
 
+bool StemBankSource::hasReadFailure() const noexcept
+{
+    return std::ranges::any_of(stems_, [](const StagedStem& stem) { return stem.failed; });
+}
+
+AudioReadResult StemBankSource::readCached(
+    const std::array<std::span<const float>, stemCount>& leaves,
+    std::uint64_t offsetFrames, std::span<float> output) noexcept
+{
+    if (output.size() % channels || output.size() / channels > blockFrames ||
+        leaves.front().size() % channels || offsetFrames > leaves.front().size() / channels)
+        return {0, true};
+    if (std::ranges::any_of(leaves, [&](const auto leaf) { return leaf.size() != leaves.front().size(); }))
+        return {0, true};
+    if (output.empty()) return {};
+    started_ = true;
+    if (hasReadFailure()) return {0, true};
+    const auto count = std::min(output.size() / channels,
+        leaves.front().size() / channels - static_cast<std::size_t>(offsetFrames));
+    std::array<std::span<const float>, stemCount> inputs{};
+    for (std::size_t stem = 0; stem < stemCount; ++stem) {
+        inputs[stem] = leaves[stem].subspan(static_cast<std::size_t>(offsetFrames) * channels, count * channels);
+        if (std::ranges::any_of(inputs[stem], [](float sample) { return !std::isfinite(sample); }))
+            return {0, true};
+    }
+    mix(inputs, count, output);
+    return {count, false};
+}
+
+void StemBankSource::mix(const std::array<std::span<const float>, stemCount>& inputs,
+                         std::size_t frames, std::span<float> output) noexcept
+{
+    constexpr double limit = std::numeric_limits<float>::max();
+    for (std::size_t index = 0; index < frames; ++index) {
+        std::array<double, channels> mixed{};
+        for (std::size_t stem = 0; stem < stemCount; ++stem) {
+            const double gain = gains_[stem].next(rampFrames_);
+            for (std::size_t channel = 0; channel < channels; ++channel)
+                mixed[channel] += double(inputs[stem][index * channels + channel]) * gain;
+        }
+        for (std::size_t channel = 0; channel < channels; ++channel)
+            output[index * channels + channel] = static_cast<float>(std::clamp(mixed[channel], -limit, limit));
+    }
+}
+
 void StemBankSource::discontinuity(std::uint64_t frame) noexcept
 {
     if (frame > frames_) return;
@@ -147,18 +192,10 @@ AudioReadResult StemBankSource::read(std::uint64_t frame, std::span<float> outpu
         common = std::min(common, stem.count);
         failed |= stem.failed;
     }
-    constexpr double limit = std::numeric_limits<float>::max();
-    for (std::size_t index = 0; index < common; ++index) {
-        std::array<double, channels> mixed{};
-        for (std::size_t stem = 0; stem < stemCount; ++stem) {
-            const double gain = gains_[stem].next(rampFrames_);
-            const auto first = (stems_[stem].offset + index) * channels;
-            for (std::size_t channel = 0; channel < channels; ++channel)
-                mixed[channel] += double(stems_[stem].samples[first + channel]) * gain;
-        }
-        for (std::size_t channel = 0; channel < channels; ++channel)
-            output[index * channels + channel] = static_cast<float>(std::clamp(mixed[channel], -limit, limit));
-    }
+    std::array<std::span<const float>, stemCount> inputs{};
+    for (std::size_t stem = 0; stem < stemCount; ++stem)
+        inputs[stem] = std::span(stems_[stem].samples).subspan(stems_[stem].offset * channels, common * channels);
+    mix(inputs, common, output);
     for (auto& stem : stems_) {
         stem.offset += common;
         stem.count -= common;

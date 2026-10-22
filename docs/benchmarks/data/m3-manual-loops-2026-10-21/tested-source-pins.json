@@ -1,0 +1,134 @@
+{
+  "recorded_at_utc": "2026-10-22T01:06:28.375400+00:00",
+  "base_commit": "d3193b25d1e9001f83343534e3095e0c47c37921",
+  "branch": "feat/kyau-b053c6-manual-loops",
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 22286,
+      "sha256": "ab84af92663dd3e18f4f69031e83c14e058af3bed5c0956b8fc51bfb707a7eae"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6814,
+      "sha256": "a5ababaff2936a3a22dde097e189a7bb1dec91cf3eb65948c65ddf6efc7db801"
+    },
+    {
+      "path": "docs/M3.md",
+      "bytes": 3814,
+      "sha256": "29a4e8afede503a4283ceac0838de7a4bab56ac74d9089287d1ac6237713c916"
+    },
+    {
+      "path": "docs/cdj-controls.md",
+      "bytes": 11323,
+      "sha256": "01c82858a3b6f8bba65454a6ebbbd42d799eead02dec7935a30bb6643d93e469"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 39228,
+      "sha256": "d647720e1aa767050e09c5188221c7393e8e52767d0a4c9a4c284fde50001a02"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 47503,
+      "sha256": "a744a33e23068db148f15282ac511f56db7f71cf23d22413360cab787ea1a59e"
+    },
+    {
+      "path": "src/audio/AudioSource.hpp",
+      "bytes": 2532,
+      "sha256": "fb6bef829237830433e5303f13297397c8b189a766dc60a8d2a68dcccda13bb4"
+    },
+    {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 59814,
+      "sha256": "56316d5d81d77f3fe25e1e16b695fb89fc9ade3889a5f77e1d083df190843328"
+    },
+    {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 6920,
+      "sha256": "fb698e744b9bf26a7691afc1fa2d44fbbe977181989557fca93516d01abd800e"
+    },
+    {
+      "path": "src/audio/PreparedLoopCache.cpp",
+      "bytes": 11321,
+      "sha256": "0044ca23b3a360158d93aee402f6590238512c06c66763dc7cc96cbf4ce0a821"
+    },
+    {
+      "path": "src/audio/PreparedLoopCache.hpp",
+      "bytes": 2598,
+      "sha256": "bf8bca749ad2164fe887841f231cbec7917d42e24f94cb568d703f1987482ed4"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.cpp",
+      "bytes": 28605,
+      "sha256": "93e277a41e9e9b0e2e7a827ac12d27b36eff4e5babdbc364a1580dcc57632f62"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.hpp",
+      "bytes": 5580,
+      "sha256": "817819e5371b477705d3f34b6c9850ec5e022a5b9bf0d2cfc6611e625264b489"
+    },
+    {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 26503,
+      "sha256": "ba9740c1e8dece11c2fffc34a312496c24cdf8ee79b6cfcf72af8dabf9ed4a8a"
+    },
+    {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 10742,
+      "sha256": "341b584b60dd0a6dfd400f030869a380e2ddd1411d007b972340dd0bdac7362f"
+    },
+    {
+      "path": "src/audio/StemBankSource.cpp",
+      "bytes": 8148,
+      "sha256": "62ee2ae2fd4d786061a8c8f34d091e4466298cad3f73bed8b3f09d0454444d75"
+    },
+    {
+      "path": "src/audio/StemBankSource.hpp",
+      "bytes": 4043,
+      "sha256": "ddf21a1ed150eb05b0e3c39863adb9d80fe18c90653982cc008eb9407e36035b"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 62282,
+      "sha256": "3b2018dc9e99b28a5ca3a5d94ecf45615bd18494c64a6791e0eeeced45518693"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 13181,
+      "sha256": "529776617ab2f6715152df48dc62966b5afa25cd8a6c992603f913ad58c200d8"
+    },
+    {
+      "path": "tests/audio_loop_cache_test.cpp",
+      "bytes": 15430,
+      "sha256": "3b772af7dee23d5497baddf7e016d66c87dcd9a3a3c5af1c984aa587fb61a12a"
+    },
+    {
+      "path": "tests/audio_loops_test.cpp",
+      "bytes": 29938,
+      "sha256": "83e534b5f3824311d717edb3ba71c4474864eb0ca53ceb51a9abeb57e7cac98b"
+    },
+    {
+      "path": "tests/audio_prepared_playback_test.cpp",
+      "bytes": 14043,
+      "sha256": "0a4d9f74742188aea819a1d864f31d6cc3f712cfc41dc147f521fad7245a0096"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 89718,
+      "sha256": "4578c4c9b44ec85d800230a92bf499ccb9b279629db6d585400295131a5d9773"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 131364,
+      "sha256": "0a44cda3389c1554e1edb7f9c8992df707751705962dc42375ec5c17932f6420"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 141547,
+      "sha256": "f1ce52f196ac41fa6de7769d3256fc6814b96f9aa4b6539409cb198d16ae203c"
+    }
+  ],
+  "physical_test": false,
+  "strict_TDD_claimed": false
+}

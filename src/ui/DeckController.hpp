@@ -88,6 +88,9 @@ public:
     Q_INVOKABLE void setStemGain(int deck, int stem, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
     Q_INVOKABLE void setCrossfader(double position);
+    Q_INVOKABLE void loopIn(int deck);
+    Q_INVOKABLE void loopOut(int deck);
+    Q_INVOKABLE void loopToggle(int deck);
     Q_INVOKABLE void setCueGain(double gain);
     Q_INVOKABLE void setCueSelected(int deck, bool selected);
     Q_INVOKABLE void refreshAudioRouting();

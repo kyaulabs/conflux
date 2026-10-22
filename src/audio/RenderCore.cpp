@@ -18,6 +18,9 @@ AudioSource validatedMemory(std::span<const float> pcm)
 }
 bool validSource(AudioSource source) noexcept
 {
+    if (bool(source.loopControl) != bool(source.loopState) ||
+        (source.loopControl && (!source.frames || source.memory || !source.read || !source.context)))
+        return false;
     const bool controls = source.setStemGain && source.stemGain;
     if (bool(source.setStemGain) != bool(source.stemGain) ||
         (controls && (!source.frames || source.memory || !source.read || !source.context)))
@@ -144,6 +147,8 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
     auto& state = decks_[deck];
     const bool active = state.playing || state.cuePreviewing;
     const bool wasRenderActive = renderActive(state);
+    if (state.source.loopControl)
+        state.source.loopControl(state.source.context, AudioLoopCommand::Clear, frame);
     moveCursor(state, frame);
     state.cuePreviewing = false;
     if (active != state.playing) transition(state);
@@ -166,9 +171,58 @@ bool RenderCore::retrySource(std::size_t deck) noexcept
     auto& state = decks_[deck];
     if (!state.source.frames || state.source.isMemory() || !state.source.read || !state.source.discontinuity)
         return false;
+    if (state.source.loopControl)
+        state.source.loopControl(state.source.context, AudioLoopCommand::Clear, state.frame);
     state.buffering = false;
     transition(state);
     state.source.discontinuity(state.source.context, state.frame);
+    return true;
+}
+
+AudioLoopState RenderCore::loopState(std::size_t deck) const noexcept
+{
+    if (deck >= deckCount || !decks_[deck].source.loopState) return {};
+    const auto& source = decks_[deck].source;
+    return source.loopState(source.context);
+}
+
+bool RenderCore::loopIn(std::size_t deck) noexcept
+{
+    if (deck >= deckCount) return false;
+    auto& state = decks_[deck];
+    return !state.cuePreviewing && state.source.loopControl &&
+        state.source.loopControl(state.source.context, AudioLoopCommand::In, state.frame);
+}
+
+bool RenderCore::loopOut(std::size_t deck) noexcept
+{
+    if (deck >= deckCount) return false;
+    auto& state = decks_[deck];
+    if (!state.playing || state.cuePreviewing || !state.source.loopControl ||
+        !state.source.loopControl(state.source.context, AudioLoopCommand::Out, state.frame))
+        return false;
+    const bool wasActive = renderActive(state);
+    state.frame = loopState(deck).inFrame;
+    state.buffering = false;
+    if (wasActive != renderActive(state)) notifyActivity(state);
+    return true;
+}
+
+bool RenderCore::loopToggle(std::size_t deck) noexcept
+{
+    if (deck >= deckCount) return false;
+    auto& state = decks_[deck];
+    if (state.cuePreviewing || !state.source.loopControl ||
+        !state.source.loopControl(state.source.context, AudioLoopCommand::Toggle, state.frame))
+        return false;
+    if (const auto loop = loopState(deck); loop.active) {
+        const bool wasActive = renderActive(state);
+        state.frame = loop.inFrame;
+        state.playing = true;
+        state.buffering = false;
+        if (!wasActive) transition(state);
+        notifyActivity(state);
+    }
     return true;
 }
 
@@ -196,6 +250,8 @@ bool RenderCore::isDeckSilentForReplacement(std::size_t deck) const noexcept
 bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
 {
     if (!source.frames || !validSource(source) || !isDeckSilentForReplacement(deck)) return false;
+    if (decks_[deck].source.loopControl)
+        decks_[deck].source.loopControl(decks_[deck].source.context, AudioLoopCommand::Clear, decks_[deck].frame);
     if (decks_[deck].source.setRenderActive)
         decks_[deck].source.setRenderActive(decks_[deck].source.context, false);
     decks_[deck] = Deck{};
@@ -297,6 +353,9 @@ bool RenderCore::cuePress(std::size_t deck) noexcept
     state.cueHeld = true;
     const bool active = state.playing || state.cuePreviewing;
     const bool wasRenderActive = renderActive(state);
+    if (state.source.loopControl)
+        state.source.loopControl(state.source.context, AudioLoopCommand::Clear,
+                                 state.playing ? state.cueFrame : state.frame);
     if (state.playing) {
         moveCursor(state, state.cueFrame);
         state.playing = false;
@@ -353,6 +412,9 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::Jog: return jog(command.deck, command.deltaFrames);
     case Command::Type::StemGain: return setStemGain(command.deck, command.stem, command.gain);
     case Command::Type::RetrySource: return retrySource(command.deck);
+    case Command::Type::LoopIn: return loopIn(command.deck);
+    case Command::Type::LoopOut: return loopOut(command.deck);
+    case Command::Type::LoopToggle: return loopToggle(command.deck);
     }
     return false;
 }
@@ -519,10 +581,20 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
     std::array<bool, deckCount> stalled{};
     for (std::size_t index = 0; index < deckCount; ++index)
         if (decks_[index].playing || decks_[index].cuePreviewing)
-            needed[index] = std::min<std::uint64_t>(frames, sourceFrames(index) - decks_[index].frame);
+            needed[index] = loopState(index).active ? frames :
+                std::min<std::uint64_t>(frames, sourceFrames(index) - decks_[index].frame);
 
     for (std::size_t offset = 0; offset < frames;) {
-        const auto count = std::min(sourceBlockFrames, frames - offset);
+        auto count = std::min(sourceBlockFrames, frames - offset);
+        // Split both buses at either deck's cached OUT. The source's normal
+        // reader remains parked there while repetitions use resident PCM.
+        for (std::size_t index = 0; index < deckCount; ++index) {
+            const auto& deck = decks_[index];
+            if (stalled[index] || delivered[index] == needed[index]) continue;
+            const auto loop = loopState(index);
+            if (loop.cached && deck.frame < loop.outFrame)
+                count = std::min<std::size_t>(count, loop.outFrame - deck.frame);
+        }
         std::array<std::size_t, deckCount> available{};
         std::array<const float*, deckCount> samples{};
         for (std::size_t index = 0; index < deckCount; ++index) {
@@ -565,6 +637,9 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
         for (std::size_t index = 0; index < deckCount; ++index) {
             decks_[index].frame += available[index];
             delivered[index] += available[index];
+            const auto loop = loopState(index);
+            if (loop.active && decks_[index].frame == loop.outFrame)
+                decks_[index].frame = loop.inFrame;
         }
         offset += count;
     }

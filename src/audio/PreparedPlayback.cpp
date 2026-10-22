@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/PreparedPlayback.hpp"
+#include "audio/PreparedLoopCache.hpp"
 #include "audio/StemBankSource.hpp"
 #include "audio/LiveRecoveryPolicy.hpp"
 
@@ -7,6 +8,7 @@
 #include <cerrno>
 #include <condition_variable>
 #include <mutex>
+#include <new>
 #include <thread>
 #include <utility>
 #include <limits>
@@ -212,6 +214,8 @@ PreparedPlayback::PreparedPlayback(int normalizedFd, std::uint64_t frames) : fra
 {
     validateGeometry(normalizedFd, frames);
     readers_[0] = std::make_unique<PcmReadAhead>(normalizedFd, frames);
+    const std::array normalizedFds{normalizedFd};
+    createLoopCache(normalizedFds);
 }
 
 PreparedPlayback::PreparedPlayback(std::array<int, stemCount> normalizedFds, std::uint64_t frames)
@@ -224,13 +228,54 @@ PreparedPlayback::PreparedPlayback(std::array<int, stemCount> normalizedFds, std
         sources[stem] = readers_[stem]->sourceRef();
     }
     bank_ = std::make_unique<StemBankSource>(sources);
+    createLoopCache(normalizedFds);
 }
 
 PreparedPlayback::~PreparedPlayback() { stop(); }
 
+void PreparedPlayback::createLoopCache(std::span<const int> fds) noexcept
+{
+    // Optional loop resources must not turn a healthy linear owner into a
+    // failed load. Cache construction and worker creation are off callback.
+    try {
+        loopCache_ = std::make_unique<PreparedLoopCache>(fds, frames_);
+    } catch (const std::system_error& error) {
+        loopSetupError_ = error.code().value() > 0 ? error.code().value() : EIO;
+    } catch (const std::bad_alloc&) {
+        loopSetupError_ = ENOMEM;
+    } catch (const std::invalid_argument&) {
+        loopSetupError_ = EINVAL;
+    } catch (...) {
+        loopSetupError_ = EIO;
+    }
+}
+
 AudioSource PreparedPlayback::sourceRef() noexcept
 {
-    if (!live_) return bank_ ? bank_->sourceRef() : readers_[0]->sourceRef();
+    if (!live_) {
+        AudioSource source{frames_, nullptr, this,
+            [](void* context, std::uint64_t frame, std::span<float> output) noexcept {
+                return static_cast<PreparedPlayback*>(context)->readPrepared(frame, output);
+            },
+            [](void* context, std::uint64_t frame) noexcept {
+                static_cast<PreparedPlayback*>(context)->seekPrepared(frame);
+            }};
+        if (bank_) {
+            source.setStemGain = [](void* context, std::size_t stem, float gain) noexcept {
+                return static_cast<PreparedPlayback*>(context)->bank_->setGain(stem, gain);
+            };
+            source.stemGain = [](const void* context, std::size_t stem) noexcept {
+                return static_cast<const PreparedPlayback*>(context)->bank_->gain(stem);
+            };
+        }
+        source.loopControl = [](void* context, AudioLoopCommand command, std::uint64_t frame) noexcept {
+            return static_cast<PreparedPlayback*>(context)->loopControl(command, frame);
+        };
+        source.loopState = [](const void* context) noexcept {
+            return static_cast<const PreparedPlayback*>(context)->loopState();
+        };
+        return source;
+    }
     return {frames_, nullptr, this,
         [](void* context, std::uint64_t frame, std::span<float> output) noexcept {
             return static_cast<PreparedPlayback*>(context)->readLive(frame, output);
@@ -247,6 +292,129 @@ AudioSource PreparedPlayback::sourceRef() noexcept
         [](void* context, bool active) noexcept {
             static_cast<PreparedPlayback*>(context)->setLiveActive(active);
         }};
+}
+
+int PreparedPlayback::preparedRenderError() const noexcept
+{
+    if (const int code = errorCode()) return code;
+    return bank_ && bank_->hasReadFailure() ? EIO : 0;
+}
+
+AudioLoopState PreparedPlayback::loopState() const noexcept
+{
+    auto state = loop_;
+    state.supported = !live_ && bool(loopCache_);
+    state.errorCode = loopSetupError_;
+    if (loopCache_) {
+        state.residentBytes = loopCache_->residentBytes();
+        if (const int code = loopCache_->errorCode()) state.errorCode = code;
+        const auto* view = loopCache_->view();
+        state.ready = state.inSet && view && view->firstFrame == state.inFrame &&
+            view->frames == state.limitFrame - state.inFrame && view->leafCount == (bank_ ? stemCount : 1);
+    }
+    if (const int code = preparedRenderError()) state.errorCode = code;
+    state.ready = state.ready && !state.errorCode;
+    return state;
+}
+
+void PreparedPlayback::seekLinear(std::uint64_t frame) noexcept
+{
+    const auto source = bank_ ? bank_->sourceRef() : readers_[0]->sourceRef();
+    source.discontinuity(source.context, frame);
+}
+
+void PreparedPlayback::clearLoop() noexcept
+{
+    if (!loop_.inSet && !loop_.outSet && !loop_.cached) return;
+    // Invalidate every cached borrow before the worker may retire its storage.
+    loop_ = {};
+    if (loopCache_) (void)loopCache_->cancel();
+}
+
+void PreparedPlayback::seekPrepared(std::uint64_t frame) noexcept
+{
+    if (frame > frames_) return;
+    clearLoop();
+    seekLinear(frame);
+}
+
+bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame) noexcept
+{
+    if (live_ || stopped_ || frame > frames_) return false;
+    if (command == AudioLoopCommand::Clear) {
+        const bool wasCached = loop_.cached;
+        clearLoop();
+        // Clear can precede a same-frame seek, for which RenderCore need not
+        // send another discontinuity. Restore the parked reader here as well.
+        if (wasCached) seekLinear(frame);
+        return true;
+    }
+    if (!loopCache_) return false;
+    if (command == AudioLoopCommand::In) {
+        if (frame == frames_ || preparedRenderError()) return false;
+        const bool wasCached = loop_.cached;
+        loop_ = {};
+        if (wasCached) seekLinear(frame);
+        if (!loopCache_->request(frame)) return false;
+        loop_.inFrame = frame;
+        loop_.limitFrame = frame + std::min(PreparedLoopCache::maxFrames, frames_ - frame);
+        loop_.inSet = true;
+        return true;
+    }
+    if (command == AudioLoopCommand::Out) {
+        if (loop_.outSet || !loopState().ready || frame <= loop_.inFrame ||
+            frame > loop_.limitFrame || frame - loop_.inFrame < AudioLoopState::minimumFrames)
+            return false;
+        loop_.outFrame = frame;
+        loop_.outSet = loop_.active = loop_.cached = true;
+        return true;
+    }
+    if (command == AudioLoopCommand::Toggle && loop_.outSet) {
+        if (loop_.active) {
+            loop_.active = false;
+            return true;
+        }
+        if (!loopState().ready) return false;
+        // Before the cached EXIT remainder ends, the original bank still owns
+        // its OUT staging. Only a resumed linear reader needs one new seek.
+        if (!loop_.cached) seekLinear(loop_.outFrame);
+        loop_.active = loop_.cached = true;
+        return true;
+    }
+    return false;
+}
+
+AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<float> output) noexcept
+{
+    if (output.size() % StemBankSource::channels || frame > frames_) return {0, true};
+    if (output.empty()) return {};
+    if (loop_.cached) {
+        if (frame < loop_.inFrame || frame > loop_.outFrame) return {0, true};
+        if (frame == loop_.outFrame) {
+            if (loop_.active) return {0, true}; // Natural wraps are render-owned.
+            loop_.cached = false;
+        } else {
+            if (preparedRenderError()) return {0, true};
+            const auto* view = loopCache_->view();
+            if (!view || view->firstFrame != loop_.inFrame ||
+                loop_.outFrame - loop_.inFrame > view->frames ||
+                view->leafCount != (bank_ ? stemCount : 1)) return {0, true};
+            const auto count = static_cast<std::size_t>(std::min<std::uint64_t>(
+                output.size() / StemBankSource::channels, loop_.outFrame - frame));
+            auto clipped = output.first(count * StemBankSource::channels);
+            const auto offset = frame - loop_.inFrame;
+            if (bank_) {
+                std::array<std::span<const float>, stemCount> leaves{};
+                for (std::size_t stem = 0; stem < stemCount; ++stem) leaves[stem] = view->leaves[stem];
+                return bank_->readCached(leaves, offset, clipped);
+            }
+            std::copy_n(view->leaves[0].data() + offset * StemBankSource::channels,
+                        clipped.size(), clipped.data());
+            return {count, false};
+        }
+    }
+    const auto source = bank_ ? bank_->sourceRef() : readers_[0]->sourceRef();
+    return source.read(source.context, frame, output);
 }
 
 AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float> output) noexcept
@@ -298,6 +466,7 @@ void PreparedPlayback::resetBankForSession() { resetBankForSessionAt(0); }
 void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
 {
     if (stopped_) throw std::logic_error("Cannot reuse a stopped playback owner");
+    if (!live_) clearLoop();
     if (!bank_) return;
     std::array<AudioSource, stemCount> sources{};
     if (live_) sources = live_->buffer.sourceRefs();
@@ -313,6 +482,7 @@ void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
 
 bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
 {
+    if (!live_) clearLoop();
     // An explicit attempt supersedes every older success, even when argument
     // validation or an already-cancelled token prevents a new request.
     unusedLivePrime_ = false;
@@ -393,6 +563,7 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
 
 bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
 {
+    if (!live_) clearLoop();
     // Validate the effective timeout before considering an already-ready bank.
     // Preserve ordinary prime's live cap and transient-error retry behavior.
     const auto now = Clock::now();
@@ -484,6 +655,10 @@ void PreparedPlayback::stop() noexcept
         // owner belongs on the off-GUI retirement worker after render quiescence.
         live_->thread.request_stop();
         if (live_->thread.joinable()) live_->thread.join();
+    }
+    if (loopCache_) {
+        loop_ = {};
+        loopCache_->stop();
     }
     for (auto& reader : readers_)
         if (reader) reader->stop();

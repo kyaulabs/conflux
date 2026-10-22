@@ -31,7 +31,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -70,6 +70,13 @@ public:
     // Render owner: explicitly invalidate a callback source at the same cursor,
     // preserving transport/cue/gains and cumulative diagnostics.
     bool retrySource(std::size_t deck) noexcept;
+    // Manual prepared-audio loops capture this owner's cursor at command
+    // application. OUT starts repetition; Toggle exits or returns to IN.
+    // Pause retains bounds. Explicit seek/jog/CUE/retry clears them.
+    bool loopIn(std::size_t deck) noexcept;
+    bool loopOut(std::size_t deck) noexcept;
+    bool loopToggle(std::size_t deck) noexcept;
+    [[nodiscard]] AudioLoopState loopState(std::size_t deck) const noexcept;
     // Positional search, not scratch or speed control. Clamp from the owner's
     // current cursor; preserve play request/cue and cancel temporary preview.
     bool jog(std::size_t deck, std::int64_t deltaFrames) noexcept;

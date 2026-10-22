@@ -233,6 +233,17 @@ QVariantList DeckController::decks() const
             {"overviewStem", clips_[deck] && clips_[deck]->live() ? "source" :
                              clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
             {"stemBank", state_.stemBank[deck]},
+            {"loop", QVariantMap{
+                {"supported", state_.loops[deck].supported}, {"inSet", state_.loops[deck].inSet},
+                {"ready", state_.loops[deck].ready}, {"outSet", state_.loops[deck].outSet},
+                {"active", state_.loops[deck].active}, {"cached", state_.loops[deck].cached},
+                {"inSeconds", state_.loops[deck].inFrame / double(audio::RenderCore::sampleRate)},
+                {"minimumOutSeconds", (state_.loops[deck].inFrame + audio::AudioLoopState::minimumFrames)
+                    / double(audio::RenderCore::sampleRate)},
+                {"outSeconds", state_.loops[deck].outFrame / double(audio::RenderCore::sampleRate)},
+                {"limitSeconds", state_.loops[deck].limitFrame / double(audio::RenderCore::sampleRate)},
+                {"residentBytes", QVariant::fromValue<qulonglong>(state_.loops[deck].residentBytes)},
+                {"errorCode", state_.loops[deck].errorCode}}},
             {"stemGains", QVariantList{state_.stemGain[deck][0], state_.stemGain[deck][1],
                                        state_.stemGain[deck][2], state_.stemGain[deck][3]}},
             {"playing", state_.playing[deck]},
@@ -734,6 +745,7 @@ void DeckController::loaded()
     state_.starvedFrames[pendingDeck_] = 0;
     state_.sourceFrames[pendingDeck_] = clips_[pendingDeck_]->frames();
     state_.stemBank[pendingDeck_] = clips_[pendingDeck_]->stemBank();
+    state_.loops[pendingDeck_] = {};
     state_.stemGain[pendingDeck_].fill(state_.stemBank[pendingDeck_] ? 1.0F : 0.0F);
     state_.sourceGeneration[pendingDeck_] = 0;
     state_.playing[pendingDeck_] = false;
@@ -940,6 +952,7 @@ void DeckController::installed()
             state_.cueHeld[deck] = state_.cuePreview[deck] = false;
             state_.buffering[deck] = state_.sourceReadError[deck] = state_.sourceReadErrorObserved[deck] = false;
             state_.stemBank[deck] = false;
+            state_.loops[deck] = {};
             state_.stemGain[deck].fill(0.F);
             state_.deckGain[deck] = 1.F;
             state_.meters.deck[deck] = {};
@@ -1188,6 +1201,42 @@ void DeckController::setCrossfader(double position)
     audio::RenderCore::Command command;
     command.type = audio::RenderCore::Command::Type::Crossfader;
     command.gain = float(position);
+    submit(command);
+}
+
+void DeckController::loopIn(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
+        fail("Load prepared audio before using manual loops.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::LoopIn;
+    command.deck = std::uint32_t(deck);
+    submit(command);
+}
+
+void DeckController::loopOut(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
+        fail("Load prepared audio before using manual loops.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::LoopOut;
+    command.deck = std::uint32_t(deck);
+    submit(command);
+}
+
+void DeckController::loopToggle(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
+        fail("Load prepared audio before using manual loops.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::LoopToggle;
+    command.deck = std::uint32_t(deck);
     submit(command);
 }
 
