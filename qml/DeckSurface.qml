@@ -30,13 +30,12 @@ Item {
     readonly property bool canScratch: canControl && Boolean(scratchState.supported)
                                        && deck.overviewStem !== "source" && !deck.cueHeld && !deck.cuePreview
                                        && !deck.sourceReadError && !scratchState.errorCode
-                                       && !hasLoop && !loop.active && !tempoState.active
+                                       && !hasLoop && !loop.active
     readonly property string scratchUnavailableReason: !deck.loaded ? "Load a prepared track first."
         : !canControl ? "Wait for audio output or track installation."
         : deck.overviewStem === "source" ? "Live stems do not support vinyl scratch."
         : deck.cueHeld || deck.cuePreview ? "Release CUE before scratching."
         : hasLoop || loop.active ? "Clear the stored manual loop first."
-        : tempoState.active ? "Press TEMPO RESET before scratching, including at zero speed change."
         : deck.sourceReadError || scratchState.errorCode ? "The prepared scratch source has a read error."
         : "Vinyl scratch is unavailable for this prepared source."
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
@@ -818,7 +817,7 @@ Item {
         Accessible.focusable: true
         Accessible.name: surface.deckName + " vinyl scratch and jog search"
         Accessible.description: (surface.canScratch
-            ? "Hold to stop the prepared audio; drag clockwise or counterclockwise to scratch at two source seconds per turn. Release to restore the previous play or pause request."
+            ? "Hold to stop the prepared audio; drag clockwise or counterclockwise to scratch raw track audio at two source seconds per turn. Release to restore the previous play or pause request and selected BPM and Master Tempo."
             : surface.scratchUnavailableReason)
             + " Arrow keys or wheel remain track search: ten milliseconds, or one second with Shift."
         Accessible.onIncreaseAction: jog.step(480)
@@ -1048,7 +1047,7 @@ Item {
         ToolTip.visible: jogInput.containsMouse && !jogInput.pressed
         ToolTip.delay: 650
         ToolTip.text: surface.canScratch
-            ? "VINYL · Hold to stop · Drag either direction · Release to resume · Arrows/wheel: search"
+            ? "VINYL · Raw scratch while held · Release to resume selected BPM/Master Tempo · Arrows/wheel: search"
             : "VINYL UNAVAILABLE · " + surface.scratchUnavailableReason + " Arrows/wheel: search"
     }
 
@@ -1248,6 +1247,7 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             y: parent.height - 68
             text: surface.tempoState.errorCode ? (surface.tempoState.active ? "ERROR / RESET" : "TEMPO ERROR")
+                  : surface.scratchState.active ? "SCRATCH"
                   : !surface.tempoState.supported ? "UNAVAILABLE"
                   : surface.tempoState.pending ? "PENDING"
                   : surface.tempoState.finished ? "FINISHED"

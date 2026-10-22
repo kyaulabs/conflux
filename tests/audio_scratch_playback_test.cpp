@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/PreparedPlayback.hpp"
 #include "audio/PreparedScratchSource.hpp"
+#include "audio/PreparedTempoSource.hpp"
 #include "audio/RenderCore.hpp"
 
 #include <algorithm>
 #include <array>
 #include <bit>
 #include <chrono>
+#include <cerrno>
 #include <cmath>
 #include <condition_variable>
 #include <cstdint>
@@ -106,14 +108,26 @@ void readyWhileHeld(RenderCore& core)
         std::this_thread::sleep_for(1ms);
     }
 }
-void warm(RenderCore& core, double target)
+void warm(RenderCore& core, double target, double stepBound = 1)
 {
+    require(std::isfinite(target) && std::isfinite(stepBound) && stepBound > 0 && stepBound <= PreparedScratchSource::maximumSpeed,
+            "Invalid fixture warm target or motion bound");
     const auto deadline = Clock::now() + 2s;
     for (std::size_t count = 0; core.sourcePosition() != target; ++count) {
         require(count < 2000 && Clock::now() < deadline, "Prepared scratch did not reach finite nearby target");
-        const auto before = core.sourcePosition(); render(core, 1);
-        require(!core.readFailed(0) && std::abs(core.sourcePosition() - before) <= 8,
-                "Actual playback rejected signed scratch metadata or jumped cursor");
+        const auto before = core.sourcePosition();
+        require(std::isfinite(before), "Prepared scratch warm started from a nonfinite cursor");
+        const auto remaining = std::abs(target - before);
+        // Simulate bounded callback blocks without reading held surplus after
+        // the target; this preserves the next full-envelope PCM assertion.
+        const auto batch = static_cast<std::size_t>(std::clamp(std::ceil(remaining / stepBound),
+            1., double(PreparedScratchSource::maxReadFrames)));
+        render(core, batch);
+        const auto after = core.sourcePosition();
+        const auto moved = (target > before ? 1 : -1) * (after - before);
+        require(!core.readFailed(0) && !core.isBuffering(0) && !core.scratchState(0).errorCode &&
+            std::isfinite(after) && moved > 0 && moved <= remaining && moved <= stepBound * double(batch),
+            "Prepared scratch warm stopped, lacked healthy PCM, reversed, overshot or exceeded its bounded source advance");
     }
 }
 // A normal refill may be unavailable: retain source position and let the peer
@@ -280,6 +294,224 @@ void explicitCancellationAndTokens()
     require(core.setPlaying(0, false) && !core.scratchState(0).active && !core.isPlaying(), "Explicit pause did not cancel held scratch");
 }
 
+void processedTempoScratchReprimesAtConsumedCursor()
+{
+    Fixture fixture(96000); auto owner = fixture.owner(false);
+    constexpr std::uint64_t initialFrame = 24000;
+    require(owner->prime(initialFrame, 2s), "Cannot prime processed scratch fixture");
+    const auto peer = peerSignal(); RenderCore core(owner->sourceRef(), AudioSource::fromMemory(peer));
+    require(core.restorePrimedCursor(0, initialFrame) && core.setDeckGain(1, 0) && core.setCueSelected(0, true) &&
+        core.setTempoPercent(0, 6) && core.toggleMasterTempo(0) && owner->prime(initialFrame, 2s),
+        "Cannot prepare actual +6 percent Master Tempo playback");
+    // Collect only delivered frames, preserving real initial/refill starvation.
+    // Muted peer data must still advance with every output callback.
+    auto processedFrames = [&](std::size_t count) {
+        std::vector<float> delivered; delivered.reserve(count * 2);
+        const auto deadline = Clock::now() + 2s;
+        while (delivered.size() < count * 2) {
+            require(Clock::now() < deadline, "Processed scratch handoff did not deliver its bounded prefix");
+            const auto before = core.sourcePosition();
+            const auto clock = core.frameClock(), peerFrame = core.sourceFrame(1);
+            const auto output = render(core, 1);
+            require(core.frameClock() == clock + 1 && core.sourceFrame(1) == peerFrame + 1 &&
+                !core.readFailed(0) && !owner->errorCode() && !core.tempoState(0).finished,
+                "Processed scratch handoff failed or stopped peer/output clocks");
+            if (core.sourcePosition() == before) {
+                require(core.isBuffering(0) && output.master[0] == 0.F && output.master[1] == 0.F &&
+                    output.cue[0] == 0.F && output.cue[1] == 0.F,
+                    "Unavailable processed data advanced source or leaked stale PCM");
+                std::this_thread::sleep_for(1ms);
+                continue;
+            }
+            require(std::abs(core.sourcePosition() - before - 1.06) < 1e-8 &&
+                output.master == output.cue, "Processed frame lost selected speed or stereo bus routing");
+            delivered.insert(delivered.end(), output.cue.begin(), output.cue.end());
+        }
+        return delivered;
+    };
+    (void)processedFrames(257); // Consume real R3 output; leave its continuation queued/prefetched.
+    const auto selected = core.tempoState(0);
+    require(selected.active && selected.percent == 6 && selected.keyLock && selected.appliedPercent == 6,
+            "Processed scratch setup did not consume the selected native configuration");
+    const auto capturedFrame = core.sourceFrame();
+    require(core.beginScratch(0, 30), "Selected nonunity Master Tempo incorrectly rejects raw scratching");
+    readyWhileHeld(core);
+    require(core.scratchState(0).active && core.sourcePosition() == double(capturedFrame) && core.isPlaying() &&
+        core.tempoState(0).generation == selected.generation && core.tempoState(0).percent == 6 &&
+        core.tempoState(0).keyLock && !core.setTempoPercent(0, 5) && !core.toggleMasterTempo(0),
+        "Raw takeover lost the selected tempo, changed play request or permitted a held-gesture mode edit");
+    require(core.moveScratch(0, 30, 256, 256.0 / 48000), "Cannot warm processed-deck raw scratch");
+    warm(core, double(capturedFrame + 256));
+    const auto turn = core.sourcePosition();
+    require(core.moveScratch(0, 30, -224, 480.0 / (48000 * .75)), "Cannot reverse processed-deck raw scratch");
+    bool fractionalReverse = false;
+    for (std::size_t frame = 0; frame < 304; ++frame) {
+        const auto before = core.sourcePosition(); const auto output = render(core, 1);
+        const auto after = core.sourcePosition();
+        require(!core.readFailed(0) && !owner->errorCode() && core.isPlaying(), "Raw takeover failed or stopped playback");
+        if (frame >= 300 && after < before && after != std::floor(after)) {
+            for (std::size_t channel = 0; channel < 2; ++channel)
+                require(near(output.cue[channel], signal(after, 0, channel), 1e-5) &&
+                    near(output.master[channel], signal(after, 0, channel), 1e-5),
+                    "Processed deck scratch was not original track-derived reverse stereo PCM");
+            fractionalReverse = true;
+            break;
+        }
+    }
+    const auto released = core.sourcePosition();
+    const auto restart = static_cast<std::uint64_t>(std::floor(released));
+    require(fractionalReverse && released < turn && released != double(restart),
+            "Generated gesture did not exercise a consumed noninteger reverse release");
+    require(core.endScratch(0, 30) && !core.scratchState(0).active && core.isPlaying() &&
+        core.sourceFrame() == restart && core.sourcePosition() == double(restart),
+        "Processed release failed to adopt the same integer source coordinate as its new generation");
+    const auto resumedState = core.tempoState(0);
+    require(resumedState.active && resumedState.pending && !resumedState.finished && !resumedState.errorCode &&
+        resumedState.percent == 6 && resumedState.keyLock && resumedState.generation > selected.generation &&
+        !core.moveScratch(0, 30, 1000, .01),
+        "Processed release reused a queued generation, lost its selection or revived a released gesture");
+    constexpr std::size_t prefixFrames = 2049;
+    const auto resumed = processedFrames(prefixFrames);
+    // Independent fresh producer at the consumed release coordinate is a
+    // discontinuity oracle, not a DSP quality/pitch oracle. Never compare with
+    // the paused old tempo queue or nominally crop its output.
+    const std::array<int, 1> fd{fileno(fixture.files[0].get())};
+    PreparedTempoSource reference(fd, fixture.frames);
+    require(reference.request(restart, 6, true), "Cannot start fresh release-coordinate reference");
+    std::vector<float> expected; expected.reserve(resumed.size());
+    const auto deadline = Clock::now() + 2s;
+    while (expected.size() < resumed.size()) {
+        require(Clock::now() < deadline && !reference.errorCode(), "Fresh release-coordinate reference did not settle");
+        const auto view = reference.peek();
+        if (!view) { std::this_thread::sleep_for(1ms); continue; }
+        require(!view.terminal && !view.errorCode && view.leafCount == 1,
+                "Fresh release-coordinate reference ended before the bounded prefix");
+        const auto count = std::min(view.frames, (resumed.size() - expected.size()) / 2);
+        expected.insert(expected.end(), view.leaves[0].begin(), view.leaves[0].begin() + count * 2);
+        require(reference.consume(count), "Cannot consume fresh release-coordinate reference");
+    }
+    for (std::size_t sample = 0; sample < resumed.size(); ++sample)
+        require(near(resumed[sample], expected[sample]), "Scratch release exposed queued pre-scratch tempo PCM");
+    require(core.tempoState(0).generation == resumedState.generation && core.tempoState(0).appliedPercent == 6 &&
+        !core.readFailed(0) && !owner->errorCode(), "Fresh processed continuation changed mode or failed after delivery");
+}
+
+// Real stereo/four-stem rate and pitch-mode handoffs, paused and playing.
+void processedScratchModeMatrix()
+{
+    for (const bool bank : {false, true})
+        for (const double percent : {-6.0, 6.0})
+            for (const bool keyLock : {false, true}) {
+                Fixture fixture(96000);
+                auto owner = fixture.owner(bank);
+                const auto source = owner->sourceRef();
+                if (bank) {
+                    constexpr std::array<float, 4> initial{1, .25F, .5F, 0};
+                    for (std::size_t leaf = 0; leaf < 4; ++leaf)
+                        require(source.setStemGain(source.context, leaf, initial[leaf]), "Cannot initialize processed bank gains");
+                    require(owner->configureStemRamps(8), "Cannot configure processed bank gain ramps");
+                }
+                constexpr std::uint64_t initial = 24000;
+                require(owner->prime(initial, 2s), "Cannot prime processed mode matrix source");
+                const auto peer = peerSignal();
+                RenderCore core(source, AudioSource::fromMemory(peer));
+                require(core.restorePrimedCursor(0, initial) && core.setDeckGain(0, .5F) && core.setDeckGain(1, 0) &&
+                    core.setMasterGain(.5F) && core.setCueSelected(0, true) && core.setCueGain(.5F) &&
+                    core.setTempoPercent(0, percent) && (!keyLock || core.toggleMasterTempo(0)) && owner->prime(initial, 2s),
+                    "Cannot select actual processed matrix configuration");
+                const double step = 1 + percent / 100;
+                auto delivered = [&](std::size_t wanted) {
+                    const auto deadline = Clock::now() + 2s;
+                    for (std::size_t count = 0; count < wanted;) {
+                        require(Clock::now() < deadline, "Processed matrix prefix did not settle");
+                        const auto before = core.sourcePosition();
+                        const auto clock = core.frameClock(), peerFrame = core.sourceFrame(1);
+                        const auto out = render(core, 1);
+                        require(core.frameClock() == clock + 1 && core.sourceFrame(1) == peerFrame + 1 &&
+                            core.isPlaying() && !core.readFailed(0) && !owner->errorCode() && !core.tempoState(0).finished,
+                            "Processed matrix failed health/play/peer clocks");
+                        if (core.sourcePosition() == before) {
+                            require(core.isBuffering(0) && out.master[0] == 0.F && out.master[1] == 0.F &&
+                                out.cue[0] == 0.F && out.cue[1] == 0.F, "Processed starvation leaked stale PCM");
+                            std::this_thread::sleep_for(1ms);
+                            continue;
+                        }
+                        require(std::abs(core.sourcePosition() - before - step) < 1e-8,
+                                "Consumed matrix frame lost selected nominal speed");
+                        for (std::size_t channel = 0; channel < 2; ++channel)
+                            require(std::isfinite(out.cue[channel]) && near(out.master[channel], double(out.cue[channel]) * .5),
+                                    "Processed matrix changed stereo bus gains");
+                        ++count;
+                    }
+                };
+                std::uint64_t token = 100;
+                for (const bool playing : {false, true}) {
+                    require(core.setPlaying(0, true), "Cannot deliver selected mode before scratch");
+                    delivered(64); // Positive consumed backend PCM, not configuration/prefetch alone.
+                    const auto selected = core.tempoState(0);
+                    require(selected.active && selected.percent == percent && selected.appliedPercent == percent &&
+                        selected.keyLock == keyLock, "Matrix setup did not consume selected backend configuration");
+                    const auto first = core.sourceFrame();
+                    require(core.setPlaying(0, playing) && core.beginScratch(0, ++token), "Selected processed mode rejected raw takeover");
+                    readyWhileHeld(core);
+                    const std::array<double, 4> gains = playing ? std::array<double, 4>{0, .75, .25, 1}
+                                                               : std::array<double, 4>{.25, 0, .5, .75};
+                    if (bank)
+                        for (std::size_t leaf = 0; leaf < 4; ++leaf)
+                            require(core.setStemGain(0, leaf, float(gains[leaf])), "Held processed deck rejected stem gains");
+                    const auto clock = core.frameClock(), peerFrame = core.sourceFrame(1);
+                    const auto held = render(core, 17); // Also settles the eight-frame bank gain ramp on raw zero input.
+                    require(core.sourcePosition() == double(first) && core.isPlaying() == playing &&
+                        core.frameClock() == clock + 17 && core.sourceFrame(1) == peerFrame + 17 &&
+                        core.tempoState(0).generation == selected.generation && !core.readFailed(0),
+                        "Held raw takeover consumed processed queue or changed play request");
+                    for (const auto& bus : {held.master, held.cue})
+                        require(std::ranges::all_of(bus, [](float value) { return value == 0.F; }), "Fresh held platter was not silent");
+                    require(core.moveScratch(0, token, -1024, 1024.0 / 48000), "Cannot start matrix reverse motion");
+                    render(core, 512); // One bounded block opens the shared motion envelope; no exact startup-speed oracle.
+                    const auto before = core.sourcePosition();
+                    require(before < double(first) && double(first) - before <= 512 &&
+                        core.moveScratch(0, token, -1536, 512.0 / 48000), "Matrix motion jumped or failed reverse direction");
+                    const auto raw = render(core, 16);
+                    for (std::size_t frame = 0; frame < 16; ++frame)
+                        for (std::size_t channel = 0; channel < 2; ++channel) {
+                            double expected = 0;
+                            for (std::size_t leaf = 0; leaf < (bank ? 4U : 1U); ++leaf)
+                                expected += signal(before - double(frame + 1), leaf, channel) * (bank ? gains[leaf] : 1);
+                            require(near(raw.master[frame * 2 + channel], expected * .25, 1e-5) &&
+                                near(raw.cue[frame * 2 + channel], expected * .5, 1e-5),
+                                "Processed matrix raw reverse lost original stereo/leaf/gain geometry");
+                        }
+                    require(core.sourcePosition() == before - 16 && core.isPlaying() == playing && !core.readFailed(0),
+                            "Matrix consumed scratch cursor/play request differs");
+                    const auto restart = static_cast<std::uint64_t>(std::floor(core.sourcePosition()));
+                    require(core.endScratch(0, token) && !core.scratchState(0).active && core.isPlaying() == playing &&
+                        core.sourcePosition() == double(restart), "Processed matrix release lost consumed integer coordinate");
+                    const auto resumed = core.tempoState(0);
+                    require(resumed.active && resumed.pending && resumed.generation > selected.generation &&
+                        resumed.percent == percent && resumed.keyLock == keyLock && !resumed.errorCode && !resumed.finished &&
+                        !core.moveScratch(0, token, -2048, .01), "Matrix release lost selection/new generation/token lifetime");
+                    if (!playing) {
+                        const auto pausedClock = core.frameClock(), pausedPeer = core.sourceFrame(1);
+                        const auto silent = render(core, 19);
+                        require(core.sourcePosition() == double(restart) && !core.isPlaying() &&
+                            core.frameClock() == pausedClock + 19 && core.sourceFrame(1) == pausedPeer + 19 &&
+                            std::ranges::all_of(silent.master, [](float value) { return value == 0.F; }) &&
+                            std::ranges::all_of(silent.cue, [](float value) { return value == 0.F; }),
+                            "Paused processed release consumed prefetch, emitted PCM or stopped peer/output clocks");
+                    }
+                    require(core.setPlaying(0, true), "Cannot resume matrix selected processing");
+                    delivered(16); // Actual first current-generation output; full2049-frame oracle is a separate case.
+                    require(core.tempoState(0).generation == resumed.generation && core.tempoState(0).appliedPercent == percent &&
+                        core.deckGain(0) == .5F && core.masterGain() == .5F && core.crossfader() == .5F && core.cueGain() == .5F,
+                        "Matrix resume changed generation, processing or bus gains");
+                    if (bank)
+                        for (std::size_t leaf = 0; leaf < 4; ++leaf)
+                            require(core.stemGain(0, leaf) == gains[leaf], "Processed restart lost render-side stem gain target");
+                }
+            }
+}
+
 void loopTempoGatesAndReverseFromEof()
 {
     Fixture fixture(8192); auto owner = fixture.owner(false); require(owner->prime(1000, 2s), "Cannot prime interaction fixture");
@@ -291,16 +523,19 @@ void loopTempoGatesAndReverseFromEof()
     require(core.seek(0, 1000) && core.beginScratch(0, 1), "Cannot scratch after clearing loop explicitly"); readyWhileHeld(core);
     require(!core.loopIn(0) && !core.loopOut(0) && !core.loopToggle(0) && !core.setTempoPercent(0, 2) &&
         !core.toggleMasterTempo(0) && core.scratchState(0).active && core.endScratch(0, 1), "Scratch failed reciprocal loop/tempo exclusion");
-    require(core.setTempoPercent(0, 2), "Cannot start real prepared tempo for exclusion");
+    require(core.setTempoPercent(0, 2), "Cannot start real prepared tempo for raw takeover");
     const auto tempo = core.tempoState(0);
-    require(tempo.active && !core.beginScratch(0, 2) && core.tempoState(0).active && core.tempoState(0).percent == 2 &&
-        core.sourcePosition() == 1000, "Scratch rejection reset active tempo/configuration");
-    require(core.resetTempo(0) && core.seek(0, fixture.frames) && core.setPlaying(0, false) && core.beginScratch(0, 2),
+    require(tempo.active && core.beginScratch(0, 2) && core.tempoState(0).active && core.tempoState(0).percent == 2 &&
+        core.sourcePosition() == 1000, "Raw scratch takeover reset active tempo/configuration");
+    readyWhileHeld(core);
+    require(core.endScratch(0, 2) && core.tempoState(0).active && core.tempoState(0).percent == 2 &&
+        core.tempoState(0).generation > tempo.generation, "Raw scratch release failed to re-prime the selected tempo");
+    require(core.resetTempo(0) && core.seek(0, fixture.frames) && core.setPlaying(0, false) && core.beginScratch(0, 3),
             "Cannot hold exact EOF after explicit tempo reset"); readyWhileHeld(core);
     render(core, 7);
     require(core.sourcePosition() == double(fixture.frames) && !core.isPlaying() && !core.readFailed(0), "Held EOF became finished or failed");
-    require(core.moveScratch(0, 2, -256, 256.0 / 48000), "Cannot move backward from EOF"); warm(core, double(fixture.frames - 256));
-    require(core.moveScratch(0, 2, -736, .01) && core.setDeckGain(1, 0), "Cannot continue exact reverse EOF motion");
+    require(core.moveScratch(0, 3, -256, 256.0 / 48000), "Cannot move backward from EOF"); warm(core, double(fixture.frames - 256));
+    require(core.moveScratch(0, 3, -736, .01) && core.setDeckGain(1, 0), "Cannot continue exact reverse EOF motion");
     const auto reversed = render(core, 480);
     for (std::size_t frame = 0; frame < 480; ++frame)
         for (std::size_t channel = 0; channel < 2; ++channel)
@@ -359,6 +594,130 @@ std::set<int> matchingDescriptors(const Fixture& fixture)
     }
     return result;
 }
+void failedProcessedScratchCanReleaseAndReplace()
+{
+    for (const bool explicitEnd : {false, true}) {
+        constexpr std::uint64_t initial = 24000;
+        Fixture fixture(96000);
+        const auto originals = matchingDescriptors(fixture);
+        auto owner = fixture.owner(false);
+        require(owner->prime(initial, 2s), "Cannot prime real error-release playback");
+        const auto source = owner->sourceRef();
+        const auto peer = peerSignal();
+        const auto replacement = peerSignal(4096);
+        RenderCore core(source, AudioSource::fromMemory(peer));
+        require(core.restorePrimedCursor(0, initial) && core.setDeckGain(1, .25F) &&
+            core.setCueSelected(0, true) && core.configureRamps(8),
+            "Cannot configure failed-tempo replacement buses");
+        // Ordinary prime has completed; scratch reads at0. Gate the first
+        // tempo input for Stop-first, or the next1024-frame read for End.
+        // Gate is destroyed before owner on every assertion failure as well.
+        const auto blockedFrame = initial + (explicitEnd ? PreparedTempoSource::blockFrames : 0);
+        Gate gate(fileno(fixture.files[0].get()), blockedFrame * 8);
+        require(core.setTempoPercent(0, 6), "Cannot start blocked tempo generation");
+        gate.entered();
+        if (explicitEnd) {
+            const auto deliveryDeadline = Clock::now() + 2s;
+            while (core.sourcePosition() == double(initial)) {
+                require(Clock::now() < deliveryDeadline,
+                    "Blocked second tempo read did not leave an actual processed prefix");
+                const auto clock = core.frameClock(), peerFrame = core.sourceFrame(1);
+                const auto out = render(core, 1); // Stop after the first actual delivery.
+                require(core.frameClock() == clock + 1 && core.sourceFrame(1) == peerFrame + 1 &&
+                    !core.readFailed(0) && !core.readFailed(1) && !owner->errorCode(),
+                    "Consuming the queued prefix failed or interrupted peer/output clocks");
+                for (const auto& bus : {out.master, out.cue})
+                    require(std::ranges::all_of(bus, [](float value) { return std::isfinite(value); }),
+                        "Queued processed prefix produced nonfinite bus output");
+                if (core.sourcePosition() == double(initial)) {
+                    require(core.isBuffering(0) && out.cue[0] == 0.F && out.cue[1] == 0.F,
+                        "Unavailable processed prefix advanced or leaked old source PCM");
+                    std::this_thread::sleep_for(1ms);
+                }
+            }
+            const auto consumed = core.tempoState(0);
+            require(std::abs(core.sourcePosition() - double(initial) - 1.06) < 1e-8 &&
+                core.sourceFrame() == initial + 1 && consumed.appliedPercent == 6 &&
+                consumed.active && !consumed.keyLock && !consumed.pending &&
+                !consumed.finished && !consumed.errorCode,
+                "Second-read fixture lacks exactly one consumed SRC frame and a remaining queued prefix");
+            // status.pending==false requires peek() to retain a current slot
+            // after that consumed frame. The next input read is still gated,
+            // so no EOF/error marker or later input can satisfy this proof.
+        }
+        const auto heldFrame = core.sourceFrame();
+        constexpr std::uint64_t token = 501;
+        require(core.beginScratch(0, token), "Cannot enter raw takeover before tempo failure");
+        readyWhileHeld(core); // Healthy publication must finish BEFORE truncation.
+        render(core, 16); // Settle existing bus ramps while the fresh hold is silent.
+        require(core.sourcePosition() == double(heldFrame) && core.isPlaying() &&
+            core.scratchState(0).active && !core.readFailed(0),
+            "Held failure setup consumed source data or changed play state");
+        const auto selected = core.tempoState(0);
+        require(selected.active && selected.percent == 6 && !selected.errorCode,
+            "Blocked tempo setup did not retain its selected current generation");
+        require(ftruncate(fileno(fixture.files[0].get()), 0) == 0,
+            "Cannot truncate the real blocked tempo input");
+        gate.release(); // The already-admitted pread returns0: actual worker EIO.
+
+        const auto peerOnly = [&](std::size_t count) {
+            const auto clock = core.frameClock(), peerFrame = core.sourceFrame(1);
+            const auto position = core.sourcePosition();
+            require(peerFrame + count <= peer.size() / 2, "Error fixture exhausted its independent peer");
+            const auto out = render(core, count);
+            require(core.frameClock() == clock + count && core.sourceFrame(1) == peerFrame + count &&
+                core.sourcePosition() == position && !core.readFailed(1),
+                "Failed target moved its cursor or interrupted the healthy peer/output clocks");
+            for (std::size_t frame = 0; frame < count; ++frame)
+                for (std::size_t channel = 0; channel < 2; ++channel)
+                    require(near(out.master[frame * 2 + channel],
+                        double(peer[(peerFrame + frame) * 2 + channel]) * .25) &&
+                        out.cue[frame * 2 + channel] == 0.F,
+                        "Failed tempo exposed queued processed/raw/linear PCM or contaminated peer/cue output");
+        };
+        const auto deadline = Clock::now() + 2s;
+        while (!core.tempoState(0).errorCode) {
+            require(Clock::now() < deadline, "Real blocked tempo read did not publish its failure");
+            peerOnly(16);
+            std::this_thread::sleep_for(1ms);
+        }
+        const auto failed = core.tempoState(0);
+        require(failed.errorCode == EIO && owner->errorCode() == EIO &&
+            failed.generation == selected.generation && failed.percent == selected.percent &&
+            failed.keyLock == selected.keyLock && failed.active && !failed.finished &&
+            core.scratchState(0).active && core.isPlaying(),
+            "Fixture did not retain the actual current-generation tempo EIO while held");
+        peerOnly(16);
+        require(core.readFailed(0), "Failed held source was not reported as a source read failure");
+        // Pause-first remains the actual Stop/replacement regression. The
+        // second fixture checks explicit End with a retained processed prefix.
+        if (explicitEnd) {
+            require(core.endScratch(0, token), "Errored processed scratch cannot explicitly release");
+            peerOnly(16); // Playing failure must not expose its old queued prefix.
+        }
+        require(core.setPlaying(0, false), "Errored processed scratch prevents Pause/replacement");
+        require(!core.scratchState(0).active && !core.isPlaying() &&
+            core.sourcePosition() == double(heldFrame) && !core.moveScratch(0, token, 64, .01),
+            "Failed release retained its gesture, moved the cursor or ignored Pause");
+        const auto retained = source.tempoState(source.context);
+        require(retained.errorCode == failed.errorCode && retained.generation == failed.generation &&
+            retained.percent == failed.percent && retained.keyLock == failed.keyLock &&
+            retained.active && !retained.finished && owner->errorCode() == EIO,
+            "Error release cleared/retried the failed generation or changed its selection");
+        peerOnly(16); // Also drains the configured eight-frame transport transition.
+        require(core.isDeckSilentForReplacement(0) &&
+            core.replaceSource(0, AudioSource::fromMemory(replacement)),
+            "Released failed scratch cannot reach silence and replace its source");
+        require(!core.isPlaying() && !core.readFailed(0) && core.sourcePosition() == 0 &&
+            core.sourceFrames(0) == replacement.size() / 2,
+            "Replacement retained failed-source transport or health state");
+        peerOnly(16);
+        owner->stop(); // Renderer now borrows only the two memory sources.
+        require(matchingDescriptors(fixture) == originals,
+            "Failed-source replacement left an owned reader/tempo/scratch descriptor alive");
+    }
+}
+
 void pendingMovementAndQuiescedCleanup()
 {
     constexpr std::uint64_t window = PreparedScratchSource::windowFrames;
@@ -421,12 +780,15 @@ extern "C" ssize_t __wrap___pread64_chk(int fd, void* out, size_t size, off64_t 
 int main()
 {
     try {
+        failedProcessedScratchCanReleaseAndReplace();
         normalPlatterBusAndRelease();
         sharedStemGainsAndLinearContinuation();
         explicitCancellationAndTokens();
+        processedTempoScratchReprimesAtConsumedCursor();
+        processedScratchModeMatrix();
         loopTempoGatesAndReverseFromEof();
         pendingMovementAndQuiescedCleanup();
-        std::cout << "audio scratch playback: 5 functional cases passed\n";
+        std::cout << "audio scratch playback: 8 functional cases passed\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "audio scratch playback: " << error.what() << '\n';

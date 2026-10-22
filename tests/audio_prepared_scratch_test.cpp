@@ -288,10 +288,24 @@ void geometryOwnershipAndControls() {
             "Quiesced stop did not join/release/disable owner");
 }
 
-void warmToTarget(Source &source, double target) {
+void warmToTarget(Source &source, double target, double stepBound = 1) {
+    require(std::isfinite(target) && std::isfinite(stepBound) && stepBound > 0 && stepBound <= Source::maximumSpeed,
+            "Invalid fixture warm target or motion bound");
     for (std::size_t i = 0; source.position() != target && i < 2000; ++i) {
-        const auto value = source.read(1);
-        require(value.frames == 1 && !value.failed, "Warm movement unexpectedly lacked PCM");
+        const auto before = source.position();
+        require(std::isfinite(before), "Warm movement started from a nonfinite cursor");
+        const auto remaining = std::abs(target - before);
+        // Bound by remaining distance and this gesture's maximum step so the
+        // target cannot precede the last requested frame. No held surplus may
+        // fade the envelope before the following exact unit-rate oracle.
+        const auto batch = static_cast<std::size_t>(std::clamp(std::ceil(remaining / stepBound),
+            1., double(Source::maxReadFrames)));
+        const auto value = source.read(batch);
+        const auto after = source.position();
+        const auto moved = (target > before ? 1 : -1) * (after - before);
+        require(value.frames == batch && !value.failed && !source.errorCode(), "Warm movement unexpectedly lacked healthy PCM");
+        require(std::isfinite(after) && moved > 0 && moved <= remaining && moved <= stepBound * double(batch),
+                "Warm movement stopped, reversed, overshot or exceeded its bounded source advance");
     }
     require(source.position() == target, "Bounded movement did not stop at exact target");
 }
@@ -301,9 +315,12 @@ void exactUnitMotionAndStemOrder() {
     for (const auto leafCount : {1U, 4U}) {
         Source source(std::span<const int>(fds).first(leafCount), Fixture::frames);
         require(source.prime(9505, 5s) && source.begin(9505), "Cannot begin prepared normal/bank scratch");
-        // Warm sustained motion, then continue immediately: the complete
-        // independent unit-rate PCM oracle runs with the motion gate at unity.
-        require(source.move(512, 512.0 / Source::sampleRate), "Cannot warm forward motion");
+        // Finish a short real startup segment at an integer cursor before
+        // adding new unit-rate displacement. Both targets precede the unchanged
+        // exact PCM oracle; no expired motion is resent or target skipped.
+        require(source.move(64, 64.0 / Source::sampleRate), "Cannot start forward warm motion");
+        warmToTarget(source, 9569);
+        require(source.move(512, 448.0 / Source::sampleRate), "Cannot continue forward warm motion");
         warmToTarget(source, 10017);
         require(source.move(992, .01), "Cannot request exact unit forward motion");
         const auto value = source.read(480);
@@ -315,7 +332,9 @@ void exactUnitMotionAndStemOrder() {
                         "Unit forward PCM changed bits, signed zero, headroom, stereo or stem order");
         require(source.epoch() == source.generation(), "Generation alias mismatch");
         source.end();
-        require(source.begin(10495) && source.move(-512, 512.0 / Source::sampleRate), "Cannot warm reverse motion");
+        require(source.begin(10495) && source.move(-64, 64.0 / Source::sampleRate), "Cannot start reverse warm motion");
+        warmToTarget(source, 10431);
+        require(source.move(-512, 448.0 / Source::sampleRate), "Cannot continue reverse warm motion");
         warmToTarget(source, 9983);
         require(source.move(-992, .01), "Cannot request exact unit reverse motion");
         const auto reverse = source.read(480);
@@ -381,7 +400,7 @@ void endpointOvershootAndSmallReverse() {
     require(source.prime(Fixture::frames - 64, 5s) && source.begin(Fixture::frames - 64) &&
                 source.move(std::numeric_limits<std::int64_t>::max(), .01),
             "Cannot overshoot EOF with legal cumulative input");
-    warmToTarget(source, Fixture::frames);
+    warmToTarget(source, Fixture::frames, Source::maximumSpeed);
     const auto epoch = source.epoch();
     require(source.move(std::numeric_limits<std::int64_t>::max() - 1, .01),
             "Cannot request a one-frame reverse after overshoot");
@@ -400,7 +419,7 @@ void endpointOvershootAndSmallReverse() {
     source.end();
     require(source.begin(64) && source.move(std::numeric_limits<std::int64_t>::min(), .01),
             "Cannot overshoot beginning");
-    warmToTarget(source, 0);
+    warmToTarget(source, 0, Source::maximumSpeed);
     require(source.move(std::numeric_limits<std::int64_t>::min() + 1, .01),
             "Cannot request one-frame forward after negative overshoot");
     for (std::size_t i = 0; source.position() != 1 && i < 2000; ++i) {
@@ -443,8 +462,12 @@ void sameEpochBidirectionalWindowRollover() {
     }
     Source source(fds, frames);
     require(source.residentBytes() == 3ULL * 4 * Source::windowFrames * 8 && source.prime(17, 5s) && source.begin(17) &&
-                source.move(512, 512.0 / Source::sampleRate),
+                source.move(64, 64.0 / Source::sampleRate),
             "Cannot prepare bidirectional rollover fixture");
+    // Preserve the original 512-frame endpoint and later cumulative sequence,
+    // using two genuine unit-rate gesture segments through an integer cursor.
+    warmToTarget(source, 81);
+    require(source.move(512, 448.0 / Source::sampleRate), "Cannot continue forward rollover warm motion");
     warmToTarget(source, 529);
     const auto epoch = source.epoch();
     std::uint64_t checkedFrames = 0;
@@ -484,8 +507,10 @@ void sameEpochBidirectionalWindowRollover() {
     traverse(1, 400000, 512);
     source.end();
     const auto reverseStart = std::uint64_t(source.position());
-    require(source.begin(reverseStart) && source.move(-512, 512.0 / Source::sampleRate),
+    require(source.begin(reverseStart) && source.move(-64, 64.0 / Source::sampleRate),
             "Cannot reverse after repeated window publications");
+    warmToTarget(source, double(reverseStart - 64));
+    require(source.move(-512, 448.0 / Source::sampleRate), "Cannot continue reverse rollover warm motion");
     warmToTarget(source, double(reverseStart - 512));
     traverse(-1, 50000, -512);
     require(checkedFrames > 700000 && source.epoch() == epoch &&

@@ -157,25 +157,31 @@ void modesAndReplacement() {
     require(!c.beginScratch(0, 1) && s.beginCalls == 0, "Stored loop changed");
     s.loop = {};
     s.tempo.active = true;
-    require(!c.beginScratch(0, 1) && s.beginCalls == 0, "Tempo changed");
+    s.tempo.percent = 6;
+    s.tempo.keyLock = true;
+    require(c.beginScratch(0, 1) && s.beginCalls == 1 && c.scratchState(0).active &&
+                c.tempoState(0).active && c.tempoState(0).percent == 6 && c.tempoState(0).keyLock,
+            "Raw takeover rejected or changed the selected tempo");
+    require(c.endScratch(0, 1) && s.endCalls == 1 && !c.scratchState(0).active && !c.isPlaying(),
+            "Raw takeover release changed the paused play request");
     s.tempo = {};
     c.setCueFrame(0, 99);
     require(c.cuePress(0) && c.isCueHeld() && !c.isCuePreviewing(), "Held CUE setup failed");
-    require(!c.beginScratch(0, 1) && c.isCueHeld(), "Held CUE overridden");
+    require(!c.beginScratch(0, 2) && c.isCueHeld(), "Held CUE overridden");
     c.cueRelease(0);
-    require(c.beginScratch(0, 1) && !c.loopIn(0) && !c.setTempoPercent(0, 1), "Scratch mode gate failed");
+    require(c.beginScratch(0, 2) && !c.loopIn(0) && !c.setTempoPercent(0, 1), "Scratch mode gate failed");
     const auto seeks = s.seekCalls;
     require(c.seek(0, c.sourceFrame()) && !c.scratchState(0).active && s.seekCalls == seeks + 1,
             "Same-frame cancellation failed");
-    require(c.beginScratch(0, 2) && c.retrySource(0) && !c.scratchState(0).active, "Retry cancellation failed");
-    require(c.beginScratch(0, 3) && !c.isDeckSilentForReplacement(0), "Paused scratch retired");
+    require(c.beginScratch(0, 3) && c.retrySource(0) && !c.scratchState(0).active, "Retry cancellation failed");
+    require(c.beginScratch(0, 4) && !c.isDeckSilentForReplacement(0), "Paused scratch retired");
     std::vector<float> next(128, .25F);
     require(!c.replaceSource(0, AudioSource::fromMemory(next)), "Active scratch replaced");
     require(c.setPlaying(0, false) && !c.scratchState(0).active && c.isDeckSilentForReplacement(0),
             "Pause failed to release");
-    require(c.replaceSource(0, AudioSource::fromMemory(next)) && !c.moveScratch(0, 3, 1, .01) && !c.endScratch(0, 3),
+    require(c.replaceSource(0, AudioSource::fromMemory(next)) && !c.moveScratch(0, 4, 1, .01) && !c.endScratch(0, 4),
             "Retired token reached source");
-    require(!c.beginScratch(0, 4), "Unsupported memory source accepted");
+    require(!c.beginScratch(0, 5), "Unsupported memory source accepted");
 }
 void guards() {
     Source s;
