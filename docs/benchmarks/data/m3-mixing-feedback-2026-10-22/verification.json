@@ -1,0 +1,242 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-22T08:57:09.583274+00:00",
+  "status": "passed",
+  "source_parent": "ef489292a1f9bc61f7e14db3bd9a40a8f64e9f7b",
+  "scope": "Working-tree UI feedback changes; offline and private virtual audio tests. No new physical/model/GPU, latency, musical or overall user-acceptance qualification.",
+  "tested_sources": [
+    {
+      "path": "qml/DeckButton.qml",
+      "bytes": 8051,
+      "sha256": "1a8a552d648d3402648842cab4b4972a09385930aa9ad879f6a7064570d05c54"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 60309,
+      "sha256": "9e50b85b8622722ed24b6f2180f1af40426ff0f51b36c37bcc73ad2fa1f21019"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 58382,
+      "sha256": "d0d5e0ca7aaf79e7dd86e8f4c72c378b40531e26bf5dc799215a6fdf890e1509"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 74767,
+      "sha256": "68ffea55ac5c17cf41852c6178ece10a6bb7cc232cab80a15ec005bfd7c08ada"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 14249,
+      "sha256": "0098807454d63daa63f385d86eb093ea71b040147c72743d503f2fbdd0944da7"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 116350,
+      "sha256": "a8cefa45c7807b5674e7dbdaa87f600ec410c388351c4147f36b73f5c6bd7722"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 228002,
+      "sha256": "84a3b7e30a862503912faf99295bee91f91ca475dfe92e8d524e2e3a75817423"
+    }
+  ],
+  "checks": {
+    "remaining_ctest_entries": {
+      "passed": 46,
+      "failed": 0
+    },
+    "controller": {
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0
+    },
+    "manual_ui": {
+      "passed": 148,
+      "failed": 0,
+      "skipped": 0
+    },
+    "smoke": {
+      "exit": 0,
+      "rendered": true
+    },
+    "private_virtual_audio": {
+      "private-preparation-03": {
+        "passed": true,
+        "checks": 108,
+        "cleanup_verified": true,
+        "scope": "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; no model, hardware or latency qualification."
+      },
+      "private-live-failure-01": {
+        "passed": true,
+        "checks": 31,
+        "cleanup_verified": true,
+        "scope": "Generated virtual controller/recorder support check only. Explicit replacement remains paused. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification."
+      }
+    }
+  },
+  "retained_failed_attempts": [
+    {
+      "kind": "initial regression expectations",
+      "controller": "Mid-cancellation comparison now accounts for new pending fields while checking every active-source key.",
+      "ui": "Recording-indicator rows now wait for Qt Row polish before inspecting centering and bounds."
+    },
+    {
+      "kind": "environment",
+      "first": "Prepared cache write failed because /tmp had insufficient free space.",
+      "second": "Home-backed temporary runtime path exceeded the Unix socket path limit.",
+      "successful_setup": "Task-owned short /tmp alias to a home-backed temporary directory; product and harness behavior unchanged."
+    }
+  ],
+  "coverage": {
+    "current_change": "CI measurement pending at source commit",
+    "qml": "not numerically measured"
+  },
+  "user_acceptance": "Pending UI recheck, CUE-sheet use and requested track-derived vinyl scratching. User reported mixing, crossfader, recording/replay worked well.",
+  "artifacts": [
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/build-01.log",
+        "bytes": 5361,
+        "sha256": "6e84f115cd994791d4806b967517d9d0d92c60a8687df9575dcfa08fbab68ac9"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/build-01.log.gz",
+        "bytes": 1366,
+        "sha256": "592fdf800e215602ac3881d9909ff106708573041fd089d1847204669deba4fd"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/targeted-tests-01.log",
+        "bytes": 17409,
+        "sha256": "0fdf5ff8a65e80f81b4f858745f2f21cabd871438270d5b7b8dd7b52f473eba3"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/failed-first-targeted-tests.log.gz",
+        "bytes": 3652,
+        "sha256": "70994bdd442b276b0f00b8cae01dcce5d23970aa777ba882f9e141ad55f91a7b"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/controller-tests-02.log",
+        "bytes": 3500,
+        "sha256": "1d2d3a713b6c807610610956decabffe6a3e159144f5954c321b886d15553dbc"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/controller-tests-02.log.gz",
+        "bytes": 1138,
+        "sha256": "0af6f675e215b4fa69aa910dc58ab1973fc7668de805254ddde1d618af8509b6"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/ui-tests-02.log",
+        "bytes": 12636,
+        "sha256": "0ca65f2123aa937a0c272ece329d0d076717dde89b09594cbeaa9aae19bd0646"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/ui-tests-02.log.gz",
+        "bytes": 2441,
+        "sha256": "10cf3bd079ea602b07489a5a1bc17719eef5c5f6fb03d24da00bcff99d47a0f1"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/remaining-tests-01.log",
+        "bytes": 4938,
+        "sha256": "96508582a15d31b6dc1a3ae781c8a250314142b8dea56e4f4517479b11688181"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/remaining-tests-01.log.gz",
+        "bytes": 1072,
+        "sha256": "e8a4681eecc6ad8e9348b8d7d695420037197f2d8be1095e4c5fcd5c78475844"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/smoke-01.log",
+        "bytes": 667,
+        "sha256": "c378992c264a8e2bb7b2cfe55d594e3ac3bf7c256e54883e7a73936bf5c76ded"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/smoke-01.log.gz",
+        "bytes": 423,
+        "sha256": "ee3c3ea032da5dd3db9e6fd6a5b73147b135be06289037c4d570e396af49fda4"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/private-preparation/result.json",
+        "bytes": 7617,
+        "sha256": "d2bfc9d194711bc7721e68ba90ad86a0d239d5be9f836e972e9dda7df1968e31"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/full-tmp-failure.json.gz",
+        "bytes": 1966,
+        "sha256": "924e6e283e690bedaac58e6ebf8679f3528b9dda463cbbe3602a2f0483417059"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/private-preparation-02/result.json",
+        "bytes": 324,
+        "sha256": "3365be08b8b695e973be81901b744ecf3e9e4b95d5458bda69f67eb4529d68e9"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/long-socket-path-failure.json.gz",
+        "bytes": 235,
+        "sha256": "9b928637f9ef0bfbe5b39b5d82786d3c6a28bf87521df5239a79b1a82ea5f2da"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/private-preparation-03/result.json",
+        "bytes": 41063,
+        "sha256": "d4568179bd542f60009dad27a1196313fa6f20c90b06c88d64c7b7bb3fc03f86"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/private-preparation.json.gz",
+        "bytes": 6273,
+        "sha256": "3ebce7fcfb9d3bbed34879ac3c6d6e477518f6b97d0e4470d96d38fc81d2867a"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/private-preparation-03/check.stdout.json",
+        "bytes": 25951,
+        "sha256": "8d6913f05cf94f08c97ba06dbc16db202e7c97419f98f4fb91300055603824d5"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/private-preparation-details.json.gz",
+        "bytes": 5565,
+        "sha256": "37d7e44f3ba99382bcbdcff3eea92903da0ef8f5d18f9997bb6833d2094a1e53"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/private-live-failure-01/result.json",
+        "bytes": 7792,
+        "sha256": "b43c3cc5228e781fb9cbdad246ca9bd6f0921034859ebe2c48db89661f3e59b8"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/private-live-failure.json.gz",
+        "bytes": 2283,
+        "sha256": "760139efd6c0203cf4a59b5c99cc3d32f6bb7ed57daeddccaa848a1fa86dc4c9"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/mixing-feedback-01/private-live-failure-01/check.stdout.json",
+        "bytes": 7975,
+        "sha256": "962b4c3e949bd37485e6c787d7dc8547b9038e0cced02e0905dbe43e5bd3444d"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-mixing-feedback-2026-10-22/private-live-failure-details.json.gz",
+        "bytes": 2112,
+        "sha256": "c0e188a961489061e0153174e7ff2ec677cfadce729931aba6a539f9303269e2"
+      }
+    }
+  ]
+}

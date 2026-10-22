@@ -187,6 +187,10 @@ private:
     void catalogFinished();
     void beginPreparation(int deck, const QUrl& url, bool importOnly,
                           const QString& expectedSource = {}, bool stems = false);
+    bool preparationActive() const;
+    void updatePreparation(std::uint64_t serial, QString phase, int completedStages,
+                           std::optional<library::TrackPresentation> presentation = {},
+                           QVariantList waveform = {});
     void loadLibrary(int deck, const QString& sourceId, bool stems);
     void installed();
     void installSession(std::unique_ptr<audio::PreparedPlayback> retiredPlayback = {},
@@ -265,6 +269,11 @@ private:
     QTimer pollTimer_;
     QString error_;
     QString pendingName_;
+    QString pendingPath_, preparationPhase_;
+    library::TrackPresentation pendingPresentation_;
+    QVariantList pendingWaveform_;
+    std::uint64_t preparationSerial_ = 0;
+    int preparationCompletedStages_ = 0, preparationTotalStages_ = 0;
     QString preparationStatus_ = "Idle";
     bool preparationCacheHit_ = false;
     bool pendingImport_ = false, pendingStems_ = false;

@@ -20,6 +20,7 @@
 #include <QSignalSpy>
 #include <QStandardPaths>
 #include <QTemporaryDir>
+#include <QThread>
 #include <QThreadPool>
 #include <QtTest>
 
@@ -368,6 +369,9 @@ private slots:
             conflux::DeckController controller(options);
             QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 10000);
             controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QVERIFY(controller.decks()[0].toMap()["loading"].toBool());
+            QCOMPARE(controller.decks()[0].toMap()["loadPhase"].toString(), QString("stems"));
+            QVERIFY(controller.preparation()["stems"].toBool());
             QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
             auto deck = controller.decks()[0].toMap();
             QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
@@ -565,7 +569,17 @@ private slots:
             QTRY_VERIFY_WITH_TIMEOUT(*guiTurn, 10000);
             QVERIFY(controller.busy());
             QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
-            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.decks()[0], before[0]);
+            const auto cancelling = controller.decks()[1].toMap();
+            const auto accepted = before[1].toMap();
+            QVERIFY(cancelling["loading"].toBool());
+            QCOMPARE(cancelling["loadPhase"].toString(), QString("cancel"));
+            QCOMPARE(cancelling["pendingName"].toString(), QString("cancel live.wav"));
+            QVERIFY(cancelling["pendingWaveform"].toList().isEmpty());
+            const QStringList pendingFields{"loading", "pendingName", "pendingPath", "pendingPresentation",
+                "pendingWaveform", "loadPhase", "loadPhaseText", "loadCompletedStages", "loadTotalStages", "loadProgress"};
+            for (auto it = accepted.cbegin(); it != accepted.cend(); ++it)
+                if (!pendingFields.contains(it.key())) QCOMPARE(cancelling[it.key()], it.value());
             QCOMPARE(controller.retainedPcmBytes(), retained);
             QVERIFY(QFileInfo::exists(job) && !safety.gone());
             barrier.release();
@@ -1539,6 +1553,132 @@ private slots:
         QVERIFY(!controller.decks()[0].toMap()["bpm"].toMap()["manual"].toBool());
     }
 
+    void pendingPresentationPrecedesBpmAndPreservesActiveTrack()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto original = directory.filePath("kept.flac"), next = directory.filePath("pending.flac");
+        QVERIFY(presentationFixture::writeFlac(original, "Current title", "Current artist", "Current album",
+            presentationFixture::artwork(Qt::blue), 48000, 4800));
+        QVERIFY(presentationFixture::writeFlac(next, "Pending title", "Pending artist", "Pending album",
+            presentationFixture::artwork(Qt::red), 48000, 9600));
+        const auto model = directory.filePath("model"), script = directory.filePath("bpm.py");
+        const auto marker = directory.filePath("bpm-started"), release = directory.filePath("bpm-release");
+        QFile modelFile(model);
+        QVERIFY(modelFile.open(QIODevice::WriteOnly)); modelFile.write("fixture"); modelFile.close();
+        const QByteArray protocol =
+            "print(json.dumps(dict(schema=2,recipe='beat-this-final0-linear-mel-v1',frames=a.frames,pcm_sha256=hashlib.sha256(b).hexdigest(),bpm=120.0,beat_count=4)))\n"
+            "for frame in (0,960,1920,2880): print(json.dumps(dict(frame=frame,downbeat=(frame==0))))\n";
+        const QByteArray preamble = "import argparse,hashlib,json,sys,time\nfrom pathlib import Path\n"
+            "p=argparse.ArgumentParser()\np.add_argument('--source-dir')\np.add_argument('--model')\np.add_argument('--frames',type=int)\n"
+            "a=p.parse_args()\nb=sys.stdin.buffer.read()\n";
+        QFile worker(script);
+        QVERIFY(worker.open(QIODevice::WriteOnly)); worker.write(preamble + protocol); worker.close();
+        conflux::DeckController::PreparationOptions options;
+        options.bpmEngine = conflux::library::BpmEngine{"/usr/bin/python3", directory.path(), model, script};
+        conflux::DeckController controller(options);
+        controller.loadDeck(0, QUrl::fromLocalFile(original));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto accepted = controller.decks();
+        QVERIFY(accepted[0].toMap()["loaded"].toBool());
+        const auto submitted = controller.submittedCommands();
+        const auto quoted = [](const QString& path) {
+            return QJsonDocument(QJsonArray{path}).toJson(QJsonDocument::Compact).mid(1).chopped(1);
+        };
+        QVERIFY(worker.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        worker.write(preamble + "Path(" + quoted(marker) + ").touch()\nwhile not Path(" + quoted(release) +
+                     ").exists(): time.sleep(.005)\n" + protocol); worker.close();
+        bool guiOnly = true, primeObserved = false, installObserved = false, progressBounded = true;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            guiOnly = guiOnly && QThread::currentThread() == controller.thread();
+            const auto pending = controller.decks()[0].toMap();
+            if (!pending["loading"].toBool()) return;
+            const auto phase = pending["loadPhase"].toString();
+            primeObserved = primeObserved || phase == "prime";
+            installObserved = installObserved || phase == "install";
+            progressBounded = progressBounded && pending["loadProgress"].toDouble() >= 0. &&
+                pending["loadProgress"].toDouble() <= .75;
+        }, Qt::DirectConnection);
+        controller.loadDeck(0, QUrl::fromLocalFile(next));
+        auto pending = controller.decks()[0].toMap();
+        QVERIFY(pending["loading"].toBool());
+        QCOMPARE(pending["pendingName"].toString(), QString("pending.flac"));
+        QCOMPARE(pending["pendingPath"].toString(), next);
+        QCOMPARE(pending["loadPhase"].toString(), QString("decode-cache"));
+        QCOMPARE(pending["loadProgress"].toDouble(), 0.);
+        QVERIFY(pending["pendingPresentation"].toMap()["title"].toString().isEmpty());
+        QVERIFY(pending["pendingWaveform"].toList().isEmpty());
+        QCOMPARE(pending["title"], accepted[0].toMap()["title"]);
+        QCOMPARE(pending["sourceId"], accepted[0].toMap()["sourceId"]);
+        QCOMPARE(controller.decks()[1], accepted[1]);
+        QVERIFY(!controller.preparation()["stems"].toBool());
+        QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(marker), 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(controller.decks()[0].toMap()["loadPhase"].toString(), QString("bpm"), 5000);
+        pending = controller.decks()[0].toMap();
+        QCOMPARE(pending["pendingPresentation"].toMap()["title"].toString(), QString("Pending title"));
+        QCOMPARE(pending["pendingPresentation"].toMap()["artist"].toString(), QString("Pending artist"));
+        QVERIFY(!pending["pendingPresentation"].toMap()["artworkDataUrl"].toString().isEmpty());
+        QVERIFY(!pending["pendingWaveform"].toList().isEmpty());
+        QCOMPARE(pending["waveform"], accepted[0].toMap()["waveform"]);
+        QCOMPARE(pending["name"], accepted[0].toMap()["name"]);
+        QCOMPARE(pending["loadCompletedStages"].toInt(), 1);
+        QCOMPARE(pending["loadTotalStages"].toInt(), 4);
+        QCOMPARE(pending["loadProgress"].toDouble(), .25);
+        QCOMPARE(controller.preparation()["phase"].toString(), QString("bpm"));
+        QVERIFY(controller.preparation()["indeterminate"].toBool());
+        QCOMPARE(controller.submittedCommands(), submitted);
+        QFile allow(release); QVERIFY(allow.open(QIODevice::WriteOnly)); allow.close();
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(guiOnly && primeObserved && installObserved && progressBounded);
+        const auto installed = controller.decks()[0].toMap();
+        QCOMPARE(installed["title"].toString(), QString("Pending title"));
+        QVERIFY(!installed["loading"].toBool());
+        QVERIFY(installed["pendingName"].toString().isEmpty() && installed["pendingWaveform"].toList().isEmpty());
+        QCOMPARE(controller.decks()[1], accepted[1]);
+    }
+
+    void queuedPreparationProgressCannotReviveCancelledLoad()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto cancelled = directory.filePath("cancelled.flac"), next = directory.filePath("next.flac");
+        QVERIFY(presentationFixture::writeFlac(cancelled, "Obsolete title", "artist", "album",
+            presentationFixture::artwork(Qt::blue), 48000, 4800));
+        QVERIFY(presentationFixture::writeFlac(next, "Next deck title", "artist", "album",
+            presentationFixture::artwork(Qt::red), 48000, 9600));
+        conflux::DeckController controller;
+        const auto original = controller.decks();
+        controller.loadDeck(0, QUrl::fromLocalFile(cancelled));
+        // Finish the real decode/prime without delivering its queued GUI updates.
+        QVERIFY(QThreadPool::globalInstance()->waitForDone(5000));
+        QVERIFY(controller.decks()[0].toMap()["pendingWaveform"].toList().isEmpty());
+        QVERIFY(controller.cancelPreparation());
+        bool obsoletePreview = false;
+        connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
+            const auto deck = controller.decks()[0].toMap();
+            obsoletePreview = obsoletePreview || !deck["pendingWaveform"].toList().isEmpty() ||
+                !deck["pendingPresentation"].toMap()["title"].toString().isEmpty();
+        }, Qt::DirectConnection);
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(!obsoletePreview);
+        QCOMPARE(controller.decks(), original);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        controller.loadDeck(1, QUrl::fromLocalFile(next));
+        QCOMPARE(controller.decks()[0], original[0]);
+        const auto pending = controller.decks()[1].toMap();
+        QVERIFY(pending["loading"].toBool());
+        QCOMPARE(pending["pendingName"].toString(), QString("next.flac"));
+        QVERIFY(pending["pendingWaveform"].toList().isEmpty());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[1].toMap()["title"].toString(), QString("Next deck title"));
+        QCOMPARE(controller.decks()[0], original[0]);
+        QVERIFY(!obsoletePreview);
+    }
+
     void automaticBpmFailurePreservesPlayableAudioAndCancellation()
     {
         QTemporaryDir directory, runtime;
@@ -1791,7 +1931,11 @@ private slots:
         QVERIFY(!retained["replacing"].toBool());
         controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing-next.wav")));
         QVERIFY(controller.busy());
-        QCOMPARE(controller.decks()[0].toMap(), retained);
+        const auto pending = controller.decks()[0].toMap();
+        QVERIFY(pending["loading"].toBool());
+        QCOMPARE(pending["pendingName"].toString(), QString("missing-next.wav"));
+        for (const auto key : {"name", "title", "sourceId", "artworkDataUrl", "waveform"})
+            QCOMPARE(pending[key], retained[key]);
         QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
         QVERIFY(!controller.error().isEmpty());
         QCOMPARE(controller.decks()[0].toMap(), retained);

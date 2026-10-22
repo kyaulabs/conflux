@@ -11,6 +11,9 @@ Item {
     required property int deckIndex
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
+    readonly property bool showingPreparation: Boolean(deck.loading)
+    readonly property var presentation: showingPreparation ? (deck.pendingPresentation || ({})) : deck
+    readonly property real loadProgress: showingPreparation ? Math.max(0, Math.min(1, Number(deck.loadProgress) || 0)) : 1
     readonly property string sourceId: String(deck.sourceId || "")
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
@@ -19,7 +22,7 @@ Item {
     readonly property real referenceBpm: Number(bpmState.reference) || 0
     readonly property bool hasReferenceBpm: Boolean(deck.loaded) && Number.isFinite(referenceBpm) && referenceBpm >= 20 && referenceBpm <= 400
     readonly property real acknowledgedBpm: hasReferenceBpm ? referenceBpm * (1 + (Number(tempoState.percent) || 0) / 100) : 0
-    readonly property bool canEditBpm: Boolean(deck.loaded) && !deck.replacing
+    readonly property bool canEditBpm: Boolean(deck.loaded) && !deck.replacing && !showingPreparation
     readonly property bool hasLoop: Boolean(loop.inSet) || Boolean(loop.outSet) || Boolean(loop.cached)
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
                                     && !deck.cuePreview && !hasLoop
@@ -30,10 +33,11 @@ Item {
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
     readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
     readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
-    readonly property string trackTitle: deck.loaded ? (deck.title || deck.name) : "Browse a local track"
-    readonly property string artworkSource: deck.loaded && typeof deck.artworkDataUrl === "string"
-                                             && deck.artworkDataUrl.startsWith("data:image/png;base64,")
-                                             ? deck.artworkDataUrl : ""
+    readonly property string trackTitle: showingPreparation ? (presentation.title || deck.pendingName || "Preparing track…")
+                                         : deck.loaded ? (deck.title || deck.name) : "Browse a local track"
+    readonly property string artworkSource: (showingPreparation || deck.loaded) && typeof presentation.artworkDataUrl === "string"
+                                             && presentation.artworkDataUrl.startsWith("data:image/png;base64,")
+                                             ? presentation.artworkDataUrl : ""
     readonly property bool compactDisplay: display.height < 232
     readonly property real edge: width >= 560 ? 22 : 16
     readonly property real sideWidth: width >= 560 ? 76 : 66
@@ -56,8 +60,11 @@ Item {
     }
     onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
     onSourceIdChanged: { if (bpmEditor) bpmEditor.close() }
+    onLoadProgressChanged: { if (waveform) waveform.requestPaint() }
+    onShowingPreparationChanged: { if (waveform) waveform.requestPaint() }
     function refreshWaveform() {
-        const next = deck.waveform || []
+        const current = controller.decks[deckIndex] || ({})
+        const next = (current.loading ? current.pendingWaveform : current.waveform) || []
         let unchanged = next.length === cachedWaveform.length
         for (let index = 0; unchanged && index < next.length; ++index)
             unchanged = Number(next[index]) === Number(cachedWaveform[index])
@@ -178,13 +185,17 @@ Item {
             x: 14
             y: 12
             objectName: "deck" + surface.deckIndex + "WaveformKind"
-            text: !surface.deck.loaded ? "NO TRACK LOADED"
+            text: surface.showingPreparation ? "PREPARING · " + (surface.deck.loadPhaseText || "Reading audio")
+                  : !surface.deck.loaded ? "NO TRACK LOADED"
                   : surface.deck.overviewStem === "drums" ? "PREPARED STEMS · DRUMS WAVEFORM"
                   : surface.deck.overviewStem === "source" ? "LIVE STEMS · SOURCE WAVEFORM" : "LOCAL FILE"
             color: surface.displayAccent
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 10
             font.letterSpacing: 0.5
+            width: parent.width - 28
+            elide: Text.ElideRight
+            textFormat: Text.PlainText
         }
         Rectangle {
             id: artworkFrame
@@ -205,6 +216,7 @@ Item {
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 cache: true
+                opacity: surface.showingPreparation ? 0.4 + 0.6 * surface.loadProgress : 1
                 visible: status === Image.Ready
                 Accessible.role: Accessible.Graphic
                 Accessible.name: surface.deckName + " artwork for " + surface.trackTitle
@@ -236,7 +248,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 4
-                    text: surface.deck.loaded ? "NO ART" : "EMPTY"
+                    text: surface.showingPreparation ? "LOADING" : surface.deck.loaded ? "NO ART" : "EMPTY"
                     textFormat: Text.PlainText
                     color: "#8EAAA7"
                     font.family: Brand.ConfluxTheme.monoFont
@@ -254,7 +266,7 @@ Item {
             textFormat: Text.PlainText
             elide: Text.ElideRight
             maximumLineCount: 1
-            color: "#EFF8F6"
+            color: surface.showingPreparation ? "#98AAA7" : "#EFF8F6"
             font.family: Brand.ConfluxTheme.displayFont
             font.pixelSize: surface.compactDisplay ? 18 : 26
             Accessible.name: surface.deckName + " title: " + text
@@ -265,7 +277,8 @@ Item {
             x: titleLabel.x
             y: titleLabel.y + titleLabel.height + 1
             width: titleLabel.width
-            text: surface.deck.loaded ? (surface.deck.artist || "Artist unknown") : "—"
+            text: surface.showingPreparation ? (surface.presentation.artist || "Reading track information…")
+                  : surface.deck.loaded ? (surface.deck.artist || "Artist unknown") : "—"
             textFormat: Text.PlainText
             elide: Text.ElideRight
             maximumLineCount: 1
@@ -279,7 +292,8 @@ Item {
             x: titleLabel.x
             y: trackArtist.y + trackArtist.height + 1
             width: titleLabel.width - (surface.compactDisplay ? 96 : 0)
-            text: surface.deck.loaded ? (surface.deck.album || "Album unknown") : "—"
+            text: surface.showingPreparation ? (surface.presentation.album || "")
+                  : surface.deck.loaded ? (surface.deck.album || "Album unknown") : "—"
             textFormat: Text.PlainText
             elide: Text.ElideRight
             maximumLineCount: 1
@@ -293,7 +307,7 @@ Item {
             x: 14
             y: surface.compactDisplay ? 80 : 100
             width: parent.width * 0.55 - 14
-            text: surface.deck.loaded ? surface.timeText(seek.pressed ? seek.value : surface.deck.positionSeconds) : "—:—"
+            text: surface.showingPreparation ? "—:—" : surface.deck.loaded ? surface.timeText(seek.pressed ? seek.value : surface.deck.positionSeconds) : "—:—"
             color: "#F2F8F4"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: surface.compactDisplay ? 26 : 36
@@ -308,7 +322,8 @@ Item {
             height: 44
             padding: 0
             enabled: surface.canEditBpm
-            text: surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM · " + (surface.bpmState.manual ? "MANUAL" : "ESTIMATED")
+            text: surface.showingPreparation ? "Preparing track; BPM not yet available"
+                  : surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM · " + (surface.bpmState.manual ? "MANUAL" : "ESTIMATED")
                   : "BPM UNKNOWN · SET REFERENCE"
             Accessible.name: surface.deckName + " tempo, " + text + ", edit reference BPM"
             Accessible.description: "Edit the track's original-speed BPM. This changes the reference number, not the audio or deck sync."
@@ -320,7 +335,7 @@ Item {
                     y: 0
                     width: parent.width
                     height: 20
-                    text: surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM" : "— BPM"
+                    text: surface.showingPreparation ? "… BPM" : surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM" : "— BPM"
                     textFormat: Text.PlainText
                     color: surface.displayAccent
                     font.family: Brand.ConfluxTheme.monoFont
@@ -332,7 +347,7 @@ Item {
                     y: 20
                     width: parent.width
                     height: 10
-                    text: surface.hasReferenceBpm ? (surface.bpmState.manual ? "MANUAL" : "ESTIMATED") : "SET REFERENCE"
+                    text: surface.showingPreparation ? "PREPARING" : surface.hasReferenceBpm ? (surface.bpmState.manual ? "MANUAL" : "ESTIMATED") : "SET REFERENCE"
                     color: "#8EAAA7"
                     font.family: Brand.ConfluxTheme.monoFont
                     font.pixelSize: 8
@@ -344,7 +359,7 @@ Item {
                     y: 30
                     width: parent.width
                     height: 14
-                    text: surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
+                    text: !surface.showingPreparation && surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
                     color: surface.displayAccent
                     font.family: Brand.ConfluxTheme.monoFont
                     font.pixelSize: 9
@@ -357,13 +372,18 @@ Item {
             x: 14
             y: 148
             visible: !surface.compactDisplay
-            text: surface.deck.loaded ? surface.transportStatus + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
+            text: surface.showingPreparation ? (surface.deck.loaded ? "CURRENT AUDIO: " + surface.deck.name : "WAITING FOR PREPARED AUDIO")
+                  : surface.deck.loaded ? surface.transportStatus + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
+            textFormat: Text.PlainText
+            width: parent.width - 28
+            elide: Text.ElideRight
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 9
         }
         Canvas {
             id: waveform
+            objectName: "deck" + surface.deckIndex + "Waveform"
             x: 14
             y: parent.height - height - 24
             width: parent.width - 28
@@ -383,10 +403,11 @@ Item {
                 if (!values.length)
                     return
                 const step = width / values.length
-                ctx.fillStyle = surface.displayAccent
                 for (let index = 0; index < values.length; ++index) {
                     const peak = Math.max(0, Math.min(1, Number(values[index]) || 0))
                     const bar = peak * (height - 6)
+                    ctx.fillStyle = surface.showingPreparation && index / values.length >= surface.loadProgress
+                                    ? "#52605E" : surface.displayAccent
                     if (bar > 0)
                         ctx.fillRect(index * step, (height - bar) / 2, Math.max(1, step * 0.72), bar)
                 }
@@ -405,6 +426,7 @@ Item {
             to: Math.max(0.001, Number(surface.deck.durationSeconds) || 0)
             stepSize: 0.1
             enabled: surface.canControl
+            visible: !surface.showingPreparation
             pressed: seekInput.gestureActive && seekInput.pressed
             Accessible.name: surface.deckName + " overview position"
             Accessible.description: "Seek within the loaded track. Overview peaks are normalized to that source."
@@ -472,7 +494,7 @@ Item {
                 height: seek.height - 2
                 color: "transparent"
                 radius: 2
-                border.color: seek.activeFocus ? Brand.ConfluxTheme.primary : "transparent"
+                border.color: seek.activeFocus ? surface.deckColor : "transparent"
                 border.width: 2
             }
             handle: Rectangle {
@@ -485,6 +507,53 @@ Item {
             }
         }
 
+        Item {
+            objectName: "deck" + surface.deckIndex + "LoadFeedback"
+            x: 14
+            y: parent.height - 20
+            width: parent.width - 28
+            height: 15
+            visible: surface.showingPreparation
+            Accessible.role: Accessible.ProgressBar
+            Accessible.name: surface.deckName + " preparing " + surface.trackTitle
+            Accessible.description: (surface.deck.loadPhaseText || "Preparing audio")
+                                    + ". Completed stages: " + (surface.deck.loadCompletedStages || 0)
+                                    + " of " + (surface.deck.loadTotalStages || 0)
+            Rectangle {
+                y: 0
+                width: parent.width
+                height: 3
+                color: "#344240"
+                Rectangle {
+                    objectName: "deck" + surface.deckIndex + "LoadProgress"
+                    width: parent.width * surface.loadProgress
+                    height: parent.height
+                    color: surface.displayAccent
+                }
+            }
+            Label {
+                objectName: "deck" + surface.deckIndex + "LoadStatus"
+                y: 4
+                width: parent.width - 16
+                height: 11
+                text: surface.deck.loadPhase === "cancel" ? "CANCELLING…"
+                      : (surface.deck.loadCompletedStages || 0) + "/" + (surface.deck.loadTotalStages || 0)
+                        + " STAGES · " + (surface.deck.loadPhaseText || "Preparing audio")
+                textFormat: Text.PlainText
+                elide: Text.ElideRight
+                color: "#B5CDC9"
+                font.family: Brand.ConfluxTheme.monoFont
+                font.pixelSize: 8
+            }
+            BusyIndicator {
+                anchors.right: parent.right
+                y: 3
+                width: 12
+                height: 12
+                running: surface.showingPreparation && surface.visible
+            }
+        }
+
     }
 
     Column {
@@ -493,6 +562,7 @@ Item {
         width: surface.sideWidth
         spacing: 7
         DeckButton {
+            focusColor: surface.deckColor
             anchors.horizontalCenter: parent.horizontalCenter
             width: 54
             height: 54
@@ -506,6 +576,7 @@ Item {
         }
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BROWSE"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 11; color: Brand.ConfluxTheme.text }
         DeckButton {
+            focusColor: surface.deckColor
             width: parent.width
             height: 44
             text: "LOAD"
@@ -513,6 +584,7 @@ Item {
             onClicked: surface.browseRequested(surface.deckIndex)
         }
         DeckButton {
+            focusColor: surface.deckColor
             width: parent.width
             height: 34
             text: "SOURCE"
@@ -597,7 +669,7 @@ Item {
                     radius: 2
                     color: Brand.ConfluxTheme.raised
                     border.width: 2
-                    border.color: stemLevel.activeFocus ? Brand.ConfluxTheme.primary : surface.deckColor
+                    border.color: stemLevel.activeFocus ? surface.deckColor : surface.deckColor
                     opacity: stemLevel.enabled ? 1 : 0.4
                 }
             }
@@ -611,6 +683,7 @@ Item {
         Repeater {
             model: 8
             DeckButton {
+                focusColor: surface.deckColor
                 required property int index
                 width: (surface.width - 2 * surface.edge - 35) / 8
                 height: 36
@@ -626,6 +699,7 @@ Item {
         y: surface.loopTop
         spacing: 5
         DeckButton {
+            focusColor: surface.deckColor
             width: 44; height: 36; text: "IN"
             buttonObjectName: "deck" + surface.deckIndex + "LoopIn"
             accessibleName: surface.deckName + " loop IN"
@@ -637,6 +711,7 @@ Item {
             onPressed: surface.controller.loopIn(surface.deckIndex)
         }
         DeckButton {
+            focusColor: surface.deckColor
             width: 44; height: 36; text: "OUT"
             buttonObjectName: "deck" + surface.deckIndex + "LoopOut"
             accessibleName: surface.deckName + " loop OUT"
@@ -650,6 +725,7 @@ Item {
             onPressed: surface.controller.loopOut(surface.deckIndex)
         }
         DeckButton {
+            focusColor: surface.deckColor
             width: 62; height: 36; text: "RELOOP"
             displayText: surface.loop.active ? "EXIT" : "RELOOP"
             buttonObjectName: "deck" + surface.deckIndex + "LoopToggle"
@@ -662,8 +738,8 @@ Item {
             unavailableReason: "Set a prepared IN and OUT loop before using RELOOP or EXIT."
             onPressed: surface.controller.loopToggle(surface.deckIndex)
         }
-        DeckButton { width: 45; height: 36; text: "CALL ◀"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
-        DeckButton { width: 45; height: 36; text: "CALL ▶"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
+        DeckButton { focusColor: surface.deckColor; width: 45; height: 36; text: "CALL ◀"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
+        DeckButton { focusColor: surface.deckColor; width: 45; height: 36; text: "CALL ▶"; fontPixelSize: 9; available: false; unavailableReason: "Memory cue navigation is not implemented." }
     }
     Label {
         objectName: "deck" + surface.deckIndex + "LoopStatus"
@@ -688,6 +764,7 @@ Item {
         Accessible.name: surface.deckName + " " + text
     }
     DeckButton {
+        focusColor: surface.deckColor
         x: surface.width - surface.edge - 66
         y: surface.loopTop
         width: 66
@@ -699,7 +776,9 @@ Item {
         indicatorColor: Brand.ConfluxTheme.warning
         indicatorOn: Boolean(surface.tempoState.keyLock)
         available: surface.canTempo
-        actionDescription: "Keep musical pitch when changing tempo. The indicator follows the accepted setting."
+        actionDescription: "On: changing BPM keeps the original pitch. Off: faster playback raises pitch and slower playback lowers it."
+        toolTipText: "MASTER TEMPO · " + (surface.tempoState.keyLock ? "ON: pitch stays the same as BPM changes."
+                                                                      : "OFF: pitch rises or falls with BPM. Press to preserve pitch.")
         unavailableReason: "Master Tempo requires ready prepared audio without a cue preview, read error or stored loop."
         onPressed: surface.controller.toggleMasterTempo(surface.deckIndex)
     }
@@ -756,7 +835,7 @@ Item {
             radius: width / 2
             color: "transparent"
             border.width: 3
-            border.color: jog.activeFocus ? Brand.ConfluxTheme.primary : "transparent"
+            border.color: jog.activeFocus ? surface.deckColor : "transparent"
         }
         Canvas {
             id: knurl
@@ -886,6 +965,7 @@ Item {
         y: surface.height - 151
         spacing: 10
         DeckButton {
+            focusColor: surface.deckColor
             id: cue
             property bool acceptedCue: false
             width: 56
@@ -924,6 +1004,7 @@ Item {
             onCanceled: releaseCue()
         }
         DeckButton {
+            focusColor: surface.deckColor
             width: 56
             height: 56
             round: true
@@ -1056,7 +1137,7 @@ Item {
                 radius: 2
                 color: Brand.ConfluxTheme.raised
                 border.width: tempo.activeFocus ? 2 : 1
-                border.color: tempo.activeFocus ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
+                border.color: tempo.activeFocus ? surface.deckColor : Brand.ConfluxTheme.controlBorder
                 Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: parent.height / 2; width: parent.width - 5; height: 1; color: Brand.ConfluxTheme.muted }
             }
         }
@@ -1086,6 +1167,7 @@ Item {
             Accessible.name: surface.deckName + " tempo " + text
         }
         DeckButton {
+            focusColor: surface.deckColor
             x: 0
             y: parent.height - 44
             width: 48

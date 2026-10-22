@@ -12,6 +12,8 @@ Item {
     property string accessibleName: text
     property string unavailableReason: ""
     property string actionDescription: unavailableReason
+    property string toolTipText: ""
+    property color focusColor: Brand.ConfluxTheme.primary
     property bool holdAction: false
     readonly property bool held: physicalPress
     readonly property var hostWindow: face.Window.window
@@ -141,7 +143,7 @@ Item {
         background: Rectangle {
             radius: control.round ? width / 2 : 4
             border.width: face.activeFocus ? 2 : 1
-            border.color: face.activeFocus ? Brand.ConfluxTheme.primary
+            border.color: face.activeFocus ? control.focusColor
                          : (control.round && control.indicatorColor.a > 0
                             ? Qt.rgba(control.indicatorColor.r, control.indicatorColor.g,
                                       control.indicatorColor.b, control.indicatorOn ? 1 : 0.58)
@@ -195,7 +197,8 @@ Item {
         hoverEnabled: true
         acceptedButtons: Qt.NoButton
     }
-    ToolTip.visible: tipHover.containsMouse && unavailableReason.length > 0
+    ToolTip.visible: available ? face.hovered && toolTipText.length > 0
+                               : tipHover.containsMouse && unavailableReason.length > 0
     ToolTip.delay: 450
-    ToolTip.text: unavailableReason
+    ToolTip.text: available ? toolTipText : unavailableReason
 }

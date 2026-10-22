@@ -83,7 +83,10 @@ public:
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()}, {"tempo", tempoState()}, {"bpm", bpmState()},
-                                      {"waveform", QVariantList{}}});
+                                      {"waveform", QVariantList{}}, {"loading", false}, {"pendingName", ""}, {"pendingPath", ""},
+                                      {"pendingPresentation", QVariantMap{}}, {"pendingWaveform", QVariantList{}},
+                                      {"loadPhase", ""}, {"loadPhaseText", ""}, {"loadCompletedStages", 0},
+                                      {"loadTotalStages", 0}, {"loadProgress", 0.0}});
         meters_ = {{"master", silentMeter()}, {"cue", silentMeter()}, {"blockFrames", 256}};
         QVariantList ports;
         for (int port = 1; port <= 4; ++port)
@@ -183,7 +186,10 @@ public:
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                    {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)}, {"tempo", tempoState(true)}, {"bpm", bpmState(120)},
-                                   {"waveform", QVariantList{.15, .5, .9, .3, .1}}};
+                                   {"waveform", QVariantList{.15, .5, .9, .3, .1}}, {"loading", false},
+                                   {"pendingName", ""}, {"pendingPath", ""}, {"pendingPresentation", QVariantMap{}},
+                                   {"pendingWaveform", QVariantList{}}, {"loadPhase", ""}, {"loadPhaseText", ""},
+                                   {"loadCompletedStages", 0}, {"loadTotalStages", 0}, {"loadProgress", 0.0}};
         emit stateChanged();
     }
     void unloadState(int deck)
@@ -463,9 +469,9 @@ struct UiFixture {
     { return window ? visualItem(window->contentItem(), QString::fromUtf8(name)) : nullptr; }
     QObject* object(const char* name) const
     { return window ? window->findChild<QObject*>(QString::fromUtf8(name)) : nullptr; }
-    bool useNonNativeFileDialog() const
+    bool useNonNativeFileDialog(const char* name = "libraryFileDialog") const
     {
-        auto* dialog = object("libraryFileDialog");
+        auto* dialog = object(name);
         if (!dialog) return false;
         QQmlExpression option(qmlContext(dialog), dialog, QStringLiteral("FileDialog.DontUseNativeDialog"));
         const auto value = option.evaluate();
@@ -837,6 +843,129 @@ private slots:
         QCOMPARE(ui_->endpoint.calls.size(), 0);
     }
 
+    void deckPendingPresentationIsIsolatedAndRestoresActiveSource_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<QString>("outcome");
+        for (int deck = 0; deck < 2; ++deck)
+            for (const auto* outcome : {"Cancelled", "Failed"})
+                QTest::newRow(qPrintable(QString("deck%1-%2").arg(deck).arg(outcome))) << deck << QString::fromLatin1(outcome);
+    }
+
+    void deckPendingPresentationIsIsolatedAndRestoresActiveSource()
+    {
+        QFETCH(int, deck);
+        QFETCH(QString, outcome);
+        for (int current = 0; current < 2; ++current) {
+            ui_->endpoint.loadState(current);
+            ui_->endpoint.setSourceId(current, QString(64, QChar('a' + current)));
+            ui_->endpoint.snapshotSongInfo(current, QString("Active title %1").arg(current),
+                                          "Active artist", "Active album", artworkDataUrl(QColor("#528ba1")));
+        }
+        ui_->endpoint.setReady(true);
+        const auto accepted = ui_->endpoint.decks();
+        const auto peer = accepted[1 - deck];
+        const auto prefix = QString("deck%1").arg(deck);
+        auto* title = ui_->item((prefix + "Title").toUtf8().constData());
+        auto* artist = ui_->item((prefix + "Artist").toUtf8().constData());
+        auto* image = ui_->item((prefix + "Artwork").toUtf8().constData());
+        auto* seek = ui_->item((prefix + "Seek").toUtf8().constData());
+        auto* reference = ui_->item((prefix + "BpmReference").toUtf8().constData());
+        auto* feedback = ui_->item((prefix + "LoadFeedback").toUtf8().constData());
+        auto* progress = ui_->item((prefix + "LoadProgress").toUtf8().constData());
+        auto* status = ui_->item((prefix + "LoadStatus").toUtf8().constData());
+        auto* display = ui_->item((prefix + "Display").toUtf8().constData());
+        QVERIFY(title && artist && image && seek && reference && feedback && progress && status && display);
+        auto* surface = display->parentItem();
+        const auto oldArtwork = image->property("source").toUrl();
+        QQmlExpression waveform(qmlContext(surface), surface, "JSON.stringify(cachedWaveform)");
+        const auto oldWaveform = waveform.evaluate().toString();
+        QVERIFY(!waveform.hasError());
+        const QString pending = QString::fromUtf8("Incoming 夜 #%.wav");
+        ui_->endpoint.setPreparation("Preparing", deck, true, false, pending);
+        ui_->endpoint.snapshotDeck(deck, {{"loading", true}, {"pendingName", pending}, {"pendingPath", "/tmp/incoming.wav"},
+                                           {"loadPhase", "decode-cache"}, {"loadPhaseText", "Preparing source"},
+                                           {"loadCompletedStages", 0}, {"loadTotalStages", 4}, {"loadProgress", 0.0}});
+        QTRY_COMPARE(title->property("text").toString(), pending);
+        QTRY_VERIFY(feedback->isVisible());
+        QTRY_VERIFY(!seek->isVisible()); // New overview must never seek the still-active source.
+        QVERIFY(!reference->isEnabled());
+        QCOMPARE(progress->width(), 0.0);
+        QVERIFY(status->property("text").toString().contains("0/4 STAGES"));
+        QVERIFY(!status->property("text").toString().contains('%'));
+        QCOMPARE(ui_->endpoint.decks()[deck].toMap()["sourceId"], accepted[deck].toMap()["sourceId"]);
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peer);
+        for (int current = 0; current < 2; ++current)
+            QVERIFY(ui_->item(QString("deck%1Play").arg(current).toUtf8().constData())->isEnabled());
+        const QVariantList peaks{.05, .8, .4, .6};
+        const auto pendingArtwork = artworkDataUrl(QColor("#ba7938"));
+        ui_->endpoint.snapshotDeck(deck, {{"pendingPresentation", QVariantMap{{"title", "Incoming title"}, {"artist", "Incoming artist"},
+                                                                             {"album", "Incoming album"}, {"artworkDataUrl", pendingArtwork}}},
+                                           {"pendingWaveform", peaks}, {"loadPhase", "bpm"}, {"loadPhaseText", "Analyzing BPM"},
+                                           {"loadCompletedStages", 1}, {"loadProgress", .25}});
+        QTRY_COMPARE(title->property("text").toString(), QString("Incoming title"));
+        QCOMPARE(artist->property("text").toString(), QString("Incoming artist"));
+        QCOMPARE(image->property("source").toUrl(), QUrl(pendingArtwork));
+        QTRY_COMPARE(waveform.evaluate().toString(), QString("[0.05,0.8,0.4,0.6]"));
+        QVERIFY(!waveform.hasError());
+        QTRY_VERIFY(progress->width() > 0 && progress->width() < progress->parentItem()->width());
+        const auto decodedWidth = progress->width();
+        QVERIFY(status->property("text").toString().contains("1/4 STAGES"));
+        auto* accessible = QAccessible::queryAccessibleInterface(feedback);
+        QVERIFY(accessible);
+        QCOMPARE(accessible->role(), QAccessible::ProgressBar);
+        QVERIFY(accessible->text(QAccessible::Description).contains("Completed stages: 1 of 4"));
+        ui_->endpoint.snapshotDeck(deck, {{"loadPhase", "prime"}, {"loadPhaseText", "Priming audio"},
+                                           {"loadCompletedStages", 2}, {"loadProgress", .5}});
+        QTRY_VERIFY(progress->width() > decodedWidth && progress->width() < progress->parentItem()->width());
+        QVERIFY(status->property("text").toString().contains("2/4 STAGES"));
+        QVERIFY(!status->property("text").toString().contains('%'));
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peer);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        if (outcome == "Cancelled") {
+            ui_->endpoint.snapshotDeck(deck, {{"loadPhase", "cancel"}, {"loadPhaseText", "Cancelling preparation"}});
+            QTRY_COMPARE(status->property("text").toString(), QString("CANCELLING…"));
+        }
+        ui_->endpoint.snapshotDeck(deck, {{"loading", false}, {"pendingName", ""}, {"pendingPath", ""},
+                                           {"pendingPresentation", QVariantMap{}}, {"pendingWaveform", QVariantList{}},
+                                           {"loadPhase", ""}, {"loadPhaseText", ""}, {"loadCompletedStages", 0},
+                                           {"loadTotalStages", 0}, {"loadProgress", 0.0}});
+        ui_->endpoint.setPreparation(outcome, deck);
+        QTRY_VERIFY(!feedback->isVisible());
+        QTRY_COMPARE(title->property("text").toString(), QString("Active title %1").arg(deck));
+        QCOMPARE(artist->property("text").toString(), QString("Active artist"));
+        QCOMPARE(image->property("source").toUrl(), oldArtwork);
+        QTRY_COMPARE(waveform.evaluate().toString(), oldWaveform);
+        QVERIFY(seek->isVisible() && seek->isEnabled());
+        QVERIFY(reference->isEnabled());
+        QCOMPARE(ui_->endpoint.decks(), accepted);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
+    void deckFocusUsesItsOwnColorWithoutSubmittingCommands()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        std::array<QColor, 2> colors;
+        for (int deck = 0; deck < 2; ++deck) {
+            auto* display = ui_->item(QString("deck%1Display").arg(deck).toUtf8().constData());
+            QVERIFY(display);
+            colors[deck] = display->parentItem()->property("deckColor").value<QColor>();
+            QVERIFY(colors[deck].isValid());
+            for (const auto* suffix : {"Play", "Seek"}) {
+                auto* control = ui_->item(QString("deck%1%2").arg(deck).arg(suffix).toUtf8().constData());
+                control->forceActiveFocus();
+                QTRY_VERIFY(control->hasActiveFocus());
+                QQmlExpression border(qmlContext(control), control, "background.border.color");
+                QTRY_COMPARE(border.evaluate().value<QColor>(), colors[deck]);
+                QVERIFY(!border.hasError());
+            }
+        }
+        QVERIFY(colors[0] != colors[1]);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
     void libraryImportsLiteralPaths_data()
     {
         QTest::addColumn<int>("deck");
@@ -1117,7 +1246,14 @@ private slots:
         QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
         QVERIFY(ui_->openLibrary(0));
         verifyControlsFit({"deck0Path", "deck0FileBrowse", "deck0Import", "deck0Load",
-                           "deck1Path", "deck1FileBrowse", "deck1Import", "deck1Load", "libraryClose"});
+                           "deck1Path", "deck1FileBrowse", "deck1Import", "deck1Load", "libraryClose",
+                           "libraryCuePath", "libraryCueBrowse", "libraryCueImport"});
+        auto* cueBrowse = ui_->item("libraryCueBrowse");
+        QVERIFY(cueBrowse->width() >= 44 && cueBrowse->height() >= 44);
+        auto* cueAccessible = QAccessible::queryAccessibleInterface(cueBrowse);
+        QVERIFY(cueAccessible);
+        QCOMPARE(cueAccessible->role(), QAccessible::Button);
+        QVERIFY(cueAccessible->text(QAccessible::Description).contains("without importing"));
         for (int deck = 0; deck < 2; ++deck) {
             auto* browse = ui_->item(QString("deck%1FileBrowse").arg(deck).toUtf8().constData());
             QVERIFY(browse->width() >= 44 && browse->height() >= 44);
@@ -1272,6 +1408,210 @@ private slots:
         QCOMPARE(ui_->endpoint.decks(), decks);
         QCOMPARE(ui_->endpoint.masterGain(), master);
         QCOMPARE(ui_->endpoint.cueGain(), cue);
+    }
+
+    void cueSheetBrowseChoosesOnlyPathForSelectedSource_data()
+    {
+        QTest::addColumn<bool>("keyboard");
+        QTest::newRow("pointer") << false;
+        QTest::newRow("keyboard") << true;
+    }
+
+    void cueSheetBrowseChoosesOnlyPathForSelectedSource()
+    {
+        QFETCH(bool, keyboard);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto local = directory.filePath(QString::fromUtf8("Música 夜 #part%23%.cue"));
+        QFile file(local);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        const QString id(64, QLatin1Char('c')), otherId(64, QLatin1Char('d'));
+        ui_->endpoint.setLibrary({
+            QVariantMap{{"id", id}, {"name", "Selected source"}, {"path", "/tmp/selected.wav"}, {"available", true}},
+            QVariantMap{{"id", otherId}, {"name", "Other source"}, {"path", "/tmp/other.wav"}, {"available", true}}});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(0));
+        auto* browse = ui_->item("libraryCueBrowse");
+        auto* path = ui_->item("libraryCuePath");
+        auto* importButton = ui_->item("libraryCueImport");
+        QVERIFY(browse && path && importButton);
+        QVERIFY(!browse->isEnabled());
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_VERIFY(browse->isEnabled());
+        QVERIFY(ui_->useNonNativeFileDialog("libraryCueFileDialog"));
+        auto* dialog = ui_->object("libraryCueFileDialog");
+        QVERIFY(dialog);
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        QSignalSpy accepted(dialog, SIGNAL(accepted()));
+        QVERIFY(accepted.isValid());
+        if (keyboard) {
+            browse->forceActiveFocus();
+            QTRY_VERIFY(browse->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(browse));
+        }
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTRY_COMPARE(choice->property("file").toUrl(), QUrl::fromLocalFile(local));
+        QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection));
+        QCOMPARE(accepted.size(), 1);
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        ui_->window->requestActivate();
+        QTRY_VERIFY(ui_->window->isActive());
+        QTRY_COMPARE(QUrl(path->property("text").toString()).toLocalFile(), local);
+        QCOMPARE(ui_->object("libraryDrawer")->property("selectedId").toString(), id);
+        for (const auto* name : {"deck0Path", "deck1Path"})
+            QCOMPARE(ui_->item(name)->property("text").toString(), QString("/tmp/selected.wav"));
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QTRY_VERIFY(importButton->isEnabled());
+        if (keyboard) {
+            path->forceActiveFocus();
+            QTRY_VERIFY(path->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Return);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.first().toMap();
+        QCOMPARE(call["action"].toString(), QString("cueImport"));
+        QCOMPARE(call["id"].toString(), id);
+        QCOMPARE(call["url"].toUrl().toLocalFile(), local);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+
+        // A chosen sheet belongs to its source, not the next selected track.
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        QTRY_VERIFY(path->property("text").toString().isEmpty());
+        QVERIFY(!importButton->isEnabled());
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+    }
+
+    void cueSheetBrowseCancelPreservesSelectionPathAndPlayback()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto local = directory.filePath("unchosen.cue");
+        QFile file(local);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        const QString id(64, QLatin1Char('e'));
+        ui_->endpoint.setLibrary({QVariantMap{{"id", id}, {"name", "Saved source"},
+                                             {"path", "/tmp/source.wav"}, {"available", true}}});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* path = ui_->item("libraryCuePath");
+        const QString original = "/tmp/previous.cue";
+        QVERIFY(path->setProperty("text", original));
+        QVERIFY(ui_->useNonNativeFileDialog("libraryCueFileDialog"));
+        auto* dialog = ui_->object("libraryCueFileDialog");
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        QSignalSpy rejected(dialog, SIGNAL(rejected()));
+        for (bool selectFile : {false, true}) {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryCueBrowse")));
+            QTRY_VERIFY(dialog->property("visible").toBool());
+            if (selectFile) {
+                QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+                auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+                QTRY_COMPARE(choice->property("file").toUrl(), QUrl::fromLocalFile(local));
+                QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+            } else {
+                QVERIFY(dialog->property("selectedFile").toUrl().isEmpty());
+            }
+            QVERIFY(QMetaObject::invokeMethod(dialog, "reject", Qt::DirectConnection));
+            QTRY_VERIFY(!dialog->property("visible").toBool());
+            ui_->window->requestActivate();
+            QTRY_VERIFY(ui_->window->isActive());
+            QCOMPARE(path->property("text").toString(), original);
+            QCOMPARE(ui_->object("libraryDrawer")->property("selectedId").toString(), id);
+            QCOMPARE(ui_->endpoint.decks(), decksBefore);
+            QVERIFY(ui_->endpoint.calls.isEmpty());
+        }
+        QCOMPARE(rejected.size(), 2);
+    }
+
+    void cueSheetBrowseRejectsStaleSourceIntent_data()
+    {
+        QTest::addColumn<QString>("invalidate");
+        for (const auto* reason : {"selection", "busy", "closed", "source-missing"})
+            QTest::newRow(reason) << QString::fromLatin1(reason);
+    }
+
+    void cueSheetBrowseRejectsStaleSourceIntent()
+    {
+        QFETCH(QString, invalidate);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto local = directory.filePath("late.cue");
+        QFile file(local);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        const QString id(64, QLatin1Char('e')), otherId(64, QLatin1Char('f'));
+        QVariantMap track{{"id", id}, {"name", "Old source"}, {"path", "/tmp/old.wav"}, {"available", true}};
+        const QVariantMap other{{"id", otherId}, {"name", "New source"}, {"path", "/tmp/new.wav"}, {"available", true}};
+        ui_->endpoint.setLibrary({track, other});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* drawer = ui_->object("libraryDrawer");
+        auto* path = ui_->item("libraryCuePath");
+        QVERIFY(path->setProperty("text", "/tmp/previous.cue"));
+        QVERIFY(ui_->useNonNativeFileDialog("libraryCueFileDialog"));
+        auto* dialog = ui_->object("libraryCueFileDialog");
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryCueBrowse")));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTRY_COMPARE(choice->property("file").toUrl(), QUrl::fromLocalFile(local));
+        QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+        if (invalidate == "selection") {
+            QVERIFY(QMetaObject::invokeMethod(drawer, "selectTrack", Qt::DirectConnection, Q_ARG(QVariant, QVariant(other))));
+        } else if (invalidate == "busy") {
+            ui_->endpoint.setBusy(true);
+        } else if (invalidate == "closed") {
+            QVERIFY(QMetaObject::invokeMethod(drawer, "close", Qt::DirectConnection));
+        } else {
+            track["available"] = false;
+            ui_->endpoint.setLibrary({track, other});
+        }
+        QSignalSpy accepted(dialog, SIGNAL(accepted()));
+        if (invalidate == "source-missing") {
+            // Framework acceptance is valid; the source-binding guard must reject it.
+            QVERIFY(QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection));
+            QCOMPARE(accepted.size(), 1);
+        } else {
+            QTRY_VERIFY(!dialog->property("visible").toBool());
+            QCOMPARE(dialog->property("targetSourceId").toString(), QString{});
+            if (invalidate == "busy") ui_->endpoint.setBusy(false);
+            if (invalidate == "closed") {
+                QTRY_VERIFY(!drawer->property("visible").toBool());
+                QVERIFY(ui_->openLibrary(1));
+            }
+            QVERIFY(QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection));
+            QCOMPARE(accepted.size(), 0);
+        }
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QCOMPARE(path->property("text").toString(), QString("/tmp/previous.cue"));
+        QCOMPARE(drawer->property("selectedId").toString(), invalidate == "selection" ? otherId : id);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
     void cueSheetImportUsesSelectedSourceAndLiteralPath_data()
@@ -3167,6 +3507,60 @@ private slots:
         QCOMPARE(routingError->property("textFormat").toInt(), int(Qt::PlainText));
         QCOMPARE(ui_->endpoint.calls.size(), 1); // Error snapshots never submit another routing command.
         QVERIFY(ui_->closeAudioSettings());
+    }
+
+    void recordingHeaderIndicatorIsCentered_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(1180, 760), QSize(1280, 800)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height())
+                                        .arg(dark ? "dark" : "light"))) << viewport << dark;
+    }
+
+    void recordingHeaderIndicatorIsCentered()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        auto* theme = ui_->item("themeToggle");
+        QTRY_VERIFY(ui_->center(theme).x() < viewport.width());
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
+        auto* button = ui_->item("audioSettingsOpen");
+        auto* label = ui_->item("audioSettingsRecordingLabel");
+        auto* dot = ui_->item("audioSettingsRecordingIndicator");
+        QVERIFY(button && label && dot);
+        QCOMPARE(button->property("text").toString(), QString("AUDIO / REC"));
+        QVERIFY(!dot->isVisible());
+        ui_->endpoint.setRecording("Recording", true);
+        QTRY_VERIFY(dot->isVisible());
+        // Row repositions a newly visible child during the next polish pass.
+        QTRY_VERIFY(dot->mapRectToScene(QRectF(0, 0, dot->width(), dot->height())).left()
+                    > label->mapRectToScene(QRectF(0, 0, label->width(), label->height())).right());
+        QTRY_VERIFY(std::abs(dot->mapRectToScene(QRectF(0, 0, dot->width(), dot->height())).center().y()
+                            - label->mapRectToScene(QRectF(0, 0, label->width(), label->height())).center().y()) <= .5);
+        QCOMPARE(dot->width(), dot->height());
+        QVERIFY(dot->width() > 0);
+        QCOMPARE(dot->property("radius").toDouble(), dot->width() / 2);
+        const auto dotRect = dot->mapRectToScene(QRectF(0, 0, dot->width(), dot->height()));
+        const auto labelRect = label->mapRectToScene(QRectF(0, 0, label->width(), label->height()));
+        const auto buttonRect = button->mapRectToScene(QRectF(0, 0, button->width(), button->height()));
+        QVERIFY(buttonRect.contains(dotRect));
+        QVERIFY(buttonRect.contains(labelRect));
+        QVERIFY(dotRect.left() > labelRect.right());
+        QVERIFY(std::abs(dotRect.center().y() - buttonRect.center().y()) <= .5);
+        auto* accessible = QAccessible::queryAccessibleInterface(button);
+        QVERIFY(accessible);
+        QVERIFY(accessible->text(QAccessible::Description).contains("recording is active"));
+        ui_->endpoint.setRecording("Finalizing", true);
+        QVERIFY(dot->isVisible());
+        ui_->endpoint.setRecording("Complete", false);
+        QTRY_VERIFY(!dot->isVisible());
+        QCOMPARE(button->property("text").toString(), QString("AUDIO / REC"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
     void recordingControlsUseLocalPathAndWaitForFinalization()
