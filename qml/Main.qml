@@ -11,6 +11,7 @@ ApplicationWindow {
     minimumWidth: 1180
     minimumHeight: 760
     visible: true
+    flags: Qt.Window | Qt.FramelessWindowHint
     title: "CONFLUX · Performance"
     color: Brand.ConfluxTheme.canvas
     font.family: Brand.ConfluxTheme.bodyFont
@@ -52,24 +53,46 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.preferredHeight: 46
             spacing: 16
-            Image {
-                source: Brand.ConfluxTheme.dark
+            Item {
+                objectName: "windowDragArea"
+                Layout.fillWidth: true
+                Layout.minimumWidth: 304
+                Layout.fillHeight: true
+                Row {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 16
+                    Image {
+                        source: Brand.ConfluxTheme.dark
                         ? "../brand/assets/logos/conflux-horizontal-dark.svg"
                         : "../brand/assets/logos/conflux-horizontal-light.svg"
-                fillMode: Image.PreserveAspectFit
-                Layout.preferredWidth: 164
-                Layout.preferredHeight: 38
-                Accessible.name: "CONFLUX"
+                        fillMode: Image.PreserveAspectFit
+                        width: 164
+                        height: 38
+                        Accessible.name: "CONFLUX"
+                    }
+                    Rectangle { width: 1; height: 24; y: 7; color: Brand.ConfluxTheme.divider }
+                    Label {
+                        y: 8
+                        text: "PERFORMANCE"
+                        color: Brand.ConfluxTheme.muted
+                        font.family: Brand.ConfluxTheme.displayFont
+                        font.pixelSize: 16
+                        font.letterSpacing: 2
+                    }
+                }
+                DragHandler {
+                    target: null
+                    acceptedButtons: Qt.LeftButton
+                    onActiveChanged: if (active) window.startSystemMove()
+                }
+                TapHandler {
+                    acceptedButtons: Qt.LeftButton
+                    onDoubleTapped: {
+                        if (window.visibility === Window.Maximized) window.showNormal()
+                        else window.showMaximized()
+                    }
+                }
             }
-            Rectangle { width: 1; height: 24; color: Brand.ConfluxTheme.divider }
-            Label {
-                text: "PERFORMANCE"
-                color: Brand.ConfluxTheme.muted
-                font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 16
-                font.letterSpacing: 2
-            }
-            Item { Layout.fillWidth: true }
             Label {
                 text: "MANUAL"
                 color: Brand.ConfluxTheme.text
@@ -124,6 +147,7 @@ ApplicationWindow {
                 }
                 Accessible.name: "Switch color theme (F6)"
             }
+            WindowActions { targetWindow: window }
         }
 
         RowLayout {
@@ -209,6 +233,33 @@ ApplicationWindow {
                 onClicked: controlStatus.open()
                 Accessible.name: "Show supported controls and file formats"
             }
+        }
+    }
+
+    // Let Wayland/the window manager own resizing and its pointer grab.
+    // The thin border sits outside the performance controls' 12px margin.
+    Repeater {
+        model: [Qt.LeftEdge, Qt.RightEdge, Qt.TopEdge, Qt.BottomEdge,
+                Qt.LeftEdge | Qt.TopEdge, Qt.RightEdge | Qt.TopEdge,
+                Qt.LeftEdge | Qt.BottomEdge, Qt.RightEdge | Qt.BottomEdge]
+        MouseArea {
+            required property int modelData
+            readonly property bool onLeftEdge: Boolean(modelData & Qt.LeftEdge)
+            readonly property bool onRightEdge: Boolean(modelData & Qt.RightEdge)
+            readonly property bool onTopEdge: Boolean(modelData & Qt.TopEdge)
+            readonly property bool onBottomEdge: Boolean(modelData & Qt.BottomEdge)
+            readonly property bool corner: (onLeftEdge || onRightEdge) && (onTopEdge || onBottomEdge)
+            objectName: "windowResize" + modelData
+            z: 100
+            enabled: window.visibility !== Window.Maximized && window.visibility !== Window.FullScreen
+            x: onRightEdge ? window.width - 5 : onLeftEdge ? 0 : 5
+            y: onBottomEdge ? window.height - 5 : onTopEdge ? 0 : 5
+            width: onLeftEdge || onRightEdge ? 5 : window.width - 10
+            height: onTopEdge || onBottomEdge ? 5 : window.height - 10
+            cursorShape: corner ? (onLeftEdge === onTopEdge ? Qt.SizeFDiagCursor : Qt.SizeBDiagCursor)
+                                : onLeftEdge || onRightEdge ? Qt.SizeHorCursor : Qt.SizeVerCursor
+            acceptedButtons: Qt.LeftButton
+            onPressed: window.startSystemResize(modelData)
         }
     }
 
@@ -920,7 +971,7 @@ ApplicationWindow {
             spacing: 16
             Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 24; color: Brand.ConfluxTheme.text }
             Label {
-                text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Jog moves the track position; it does not scratch or change playback speed.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks support a tempo range of -6% to +6%; move the TEMPO rail down to speed up. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET returns to normal playback; loops and tempo processing are mutually gated for now. Live-stem tempo remains unavailable.\n\nHot cues, sync, EQ and effects await their audio features. Their panel controls are inactive. Decks C/D are reserved."
+                text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Jog moves the track position; it does not scratch or change playback speed.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks use BPM-based tempo adjustment; move the BPM rail down to speed up. Arrows change 0.1 BPM; Shift and Page keys change 1 BPM. Click the deck LCD BPM value to override the original reference or return to automatic analysis. Automatic values are estimates and can be corrected. The speed range remains six percent around the reference. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET returns to normal playback; loops and tempo processing are mutually gated for now. Live-stem tempo remains unavailable.\n\nHot cues, sync, EQ and effects await their audio features. Their panel controls are inactive. Decks C/D are reserved."
                 wrapMode: Text.WordWrap
                 color: Brand.ConfluxTheme.text
                 Layout.fillWidth: true

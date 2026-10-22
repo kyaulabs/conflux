@@ -207,7 +207,7 @@ if(CONFLUX_BUILD_UI)
     find_package(Qt6 6.4 REQUIRED COMPONENTS Quick QuickControls2 Svg Concurrent)
     qt_standard_project_setup()
     add_library(conflux-library src/library/PreparedTrackStore.cpp src/library/TrackPresentation.cpp src/library/LibraryCatalog.cpp src/library/CueSheet.cpp
-        src/library/StemServiceJsonl.cpp src/library/StemEngineSupport.cpp src/library/LiveStemBridge.cpp)
+        src/library/StemServiceJsonl.cpp src/library/StemEngineSupport.cpp src/library/LiveStemBridge.cpp src/library/BpmAnalyzer.cpp)
     target_link_libraries(conflux-library PUBLIC conflux-audio Qt6::Core
         PRIVATE PkgConfig::SndFile PkgConfig::SampleRate PkgConfig::TagLib Qt6::Gui)
     target_compile_options(conflux-library PRIVATE -Wall -Wextra -Wpedantic)
@@ -216,13 +216,16 @@ if(CONFLUX_BUILD_UI)
         PRIVATE conflux-library Qt6::Concurrent)
     target_compile_options(conflux-ui PRIVATE -Wall -Wextra -Wpedantic)
     qt_add_executable(conflux src/main.cpp)
-    target_compile_definitions(conflux PRIVATE CONFLUX_VERSION="${PROJECT_VERSION}")
+    target_compile_definitions(conflux PRIVATE CONFLUX_VERSION="${PROJECT_VERSION}"
+        CONFLUX_BPM_WORKER_PATH="${CMAKE_INSTALL_FULL_DATADIR}/conflux/analyze_bpm.py")
+    configure_file(tools/timing/analyze_bpm.py analyze_bpm.py COPYONLY)
     target_link_libraries(conflux PRIVATE conflux-ui Qt6::Quick Qt6::QuickControls2 Qt6::Svg)
     target_compile_options(conflux PRIVATE -Wall -Wextra -Wpedantic)
     qt_add_resources(conflux runtime-assets PREFIX "/" FILES
         qml/Main.qml
         qml/DeckSurface.qml
         qml/DeckButton.qml
+        qml/WindowActions.qml
         qml/MixerSurface.qml
         qml/SurfaceKnob.qml
         qml/StereoMeter.qml
@@ -238,6 +241,13 @@ if(CONFLUX_BUILD_UI)
     )
     if(BUILD_TESTING)
         find_package(Qt6 6.4 REQUIRED COMPONENTS Test)
+        qt_add_executable(conflux-bpm-analyzer-test tests/bpm_analyzer_test.cpp)
+        target_link_libraries(conflux-bpm-analyzer-test PRIVATE conflux-library Qt6::Test Threads::Threads)
+        target_compile_options(conflux-bpm-analyzer-test PRIVATE -Wall -Wextra -Wpedantic)
+        add_test(NAME bpm-analyzer COMMAND conflux-bpm-analyzer-test)
+        add_test(NAME bpm-worker COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_analyze_bpm.py)
+        set_tests_properties(bpm-analyzer bpm-worker PROPERTIES TIMEOUT 30)
+        set_tests_properties(bpm-worker PROPERTIES ENVIRONMENT "PYTHONPYCACHEPREFIX=${CMAKE_BINARY_DIR}/pycache")
         add_executable(conflux-track-presentation-test tests/track_presentation_test.cpp)
         target_link_libraries(conflux-track-presentation-test PRIVATE conflux-library Qt6::Test Qt6::Gui PkgConfig::TagLib PkgConfig::SndFile)
         target_compile_options(conflux-track-presentation-test PRIVATE -Wall -Wextra -Wpedantic)
@@ -303,8 +313,10 @@ if(CONFLUX_BUILD_UI)
         target_compile_options(conflux-prepare-audio-check PRIVATE -Wall -Wextra -Wpedantic)
         set_tests_properties(deck-controller manual-ui PROPERTIES TIMEOUT 60
             ENVIRONMENT "QT_QPA_PLATFORM=offscreen;QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Basic")
+        set_tests_properties(manual-ui PROPERTIES TIMEOUT 120)
     endif()
     install(TARGETS conflux RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(FILES tools/timing/analyze_bpm.py DESTINATION ${CMAKE_INSTALL_DATADIR}/conflux)
     install(FILES packaging/com.kyaulabs.conflux.desktop
         DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     install(FILES brand/assets/app-icons/conflux-app-dark.svg

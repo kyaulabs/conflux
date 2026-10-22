@@ -227,6 +227,11 @@ QVariantList DeckController::decks() const
             {"sourceId", sourceIds_[deck]},
             {"title", presentations_[deck].title}, {"artist", presentations_[deck].artist},
             {"album", presentations_[deck].album}, {"artworkDataUrl", presentations_[deck].artworkDataUrl},
+            {"bpm", QVariantMap{
+                {"estimated", bpmEstimates_[deck].bpm.value_or(0.)},
+                {"reference", bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.))},
+                {"manual", bpmOverrides_[deck].has_value()},
+                {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
             {"replacing", replacing_[deck]},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
@@ -578,7 +583,8 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     pendingStems_ = stems;
     const auto engine = preparationOptions_.stemEngine;
     const auto service = preparationOptions_.stemServicePath;
-    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, service, limits,
+    const auto bpmEngine = preparationOptions_.bpmEngine;
+    loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits,
                                        stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache, limits);
@@ -603,6 +609,24 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations));
                     prepared->playback = std::move(track.playback);
                 }
+                QString analyzedSource;
+                if (bpmEngine) {
+                    // Timing always uses the original mix, never a drums leaf
+                    // or the downsampled overview. Admit playback first so an
+                    // optional analysis cache entry cannot exhaust its budget.
+                    try {
+                        auto original = store.prepare(path, stop);
+                        analyzedSource = original.sourceSha256;
+                        prepared->bpm = library::analyzeBpm(original.audio, *bpmEngine, stop);
+                    } catch (const library::BpmSourceError&) {
+                        throw;
+                    } catch (const std::exception&) {
+                        if (stop.stop_requested()) throw;
+                        prepared->bpm = {{}, "Failed", "Original-mix BPM analysis could not complete."};
+                    }
+                }
+                if (!analyzedSource.isEmpty() && analyzedSource != sourceId)
+                    prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
             } else {
                 auto track = store.prepare(path, stop);
                 sourceId = track.sourceSha256;
@@ -615,6 +639,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         track.artifactKey, track.audio.frames(), true, {}, levels};
                     return {nullptr, {}, std::move(entry), track.cacheHit};
                 }
+                if (bpmEngine) prepared->bpm = library::analyzeBpm(track.audio, *bpmEngine, stop);
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));
             }
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
@@ -740,8 +765,10 @@ void DeckController::loaded()
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(result.prepared->audio);
     names_[pendingDeck_] = pendingName_;
+    if (sourceIds_[pendingDeck_] != result.prepared->sourceId) bpmOverrides_[pendingDeck_].reset();
     sourceIds_[pendingDeck_] = result.prepared->sourceId;
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
+    bpmEstimates_[pendingDeck_] = std::move(result.prepared->bpm);
     waveforms_[pendingDeck_] = result.prepared->waveform;
     state_.sourceFrame[pendingDeck_] = 0;
     state_.sourcePosition[pendingDeck_] = 0;
@@ -878,8 +905,10 @@ void DeckController::settleReplacement(bool stopped)
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(pendingLoad_->audio);
     names_[pendingDeck_] = pendingName_;
+    if (sourceIds_[pendingDeck_] != pendingLoad_->sourceId) bpmOverrides_[pendingDeck_].reset();
     sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
+    bpmEstimates_[pendingDeck_] = std::move(pendingLoad_->bpm);
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     pendingLoad_.reset();
     replacing_[pendingDeck_] = false;
@@ -963,6 +992,8 @@ void DeckController::installed()
             names_[deck].clear();
             sourceIds_[deck].clear();
             presentations_[deck] = {};
+            bpmEstimates_[deck] = {};
+            bpmOverrides_[deck].reset();
             waveforms_[deck].clear();
             cueDown_[deck] = cueReleasePending_[deck] = false;
             state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;
@@ -1237,6 +1268,44 @@ void DeckController::setTempoPercent(int deck, double percent)
     command.deck = std::uint32_t(deck);
     command.tempoPercent = percent;
     submit(command);
+}
+
+void DeckController::setTempoBpm(int deck, double bpm)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || replacing_[deck]) {
+        fail("Load a track before changing BPM.");
+        return;
+    }
+    const auto reference = bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.));
+    const auto percent = library::tempoPercentForBpm(reference, bpm);
+    if (!percent) {
+        fail("BPM needs a valid original reference and a target within the tempo range.");
+        return;
+    }
+    setTempoPercent(deck, *percent);
+}
+
+void DeckController::setBpmOverride(int deck, double bpm)
+{
+    if (closing_ || deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || replacing_[deck] ||
+        !std::isfinite(bpm) || bpm < 20. || bpm > 400.) {
+        fail("Original BPM must be between 20 and 400 for a loaded track.");
+        return;
+    }
+    // A source reference is metadata. Changing it never changes playback speed
+    // or issues a render command; the acknowledged ratio remains authoritative.
+    bpmOverrides_[deck] = bpm;
+    emit stateChanged();
+}
+
+void DeckController::clearBpmOverride(int deck)
+{
+    if (closing_ || deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || replacing_[deck]) {
+        fail("Load a track before selecting automatic BPM.");
+        return;
+    }
+    bpmOverrides_[deck].reset();
+    emit stateChanged();
 }
 
 void DeckController::toggleMasterTempo(int deck)

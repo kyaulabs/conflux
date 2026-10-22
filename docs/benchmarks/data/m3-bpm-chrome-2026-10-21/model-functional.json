@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "scope": "Actual CPU product preparation/BPM functional check; no accuracy, performance, latency or musical qualification",
+  "passed": true,
+  "qualified": false,
+  "recipe": "beat-this-final0-linear-mel-v1",
+  "results": [
+    {
+      "bpm": 142.9,
+      "cache_hit": false,
+      "error": "",
+      "expected_source_sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "frames": 1123201,
+      "id": "club_xl_excerpt",
+      "source_sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "status": "Estimated",
+      "success": true,
+      "prepared_artifact_sha256": "6931cfc12a8c87348544fbdc458d9c77528504232949f58561412a2f1b6122e1"
+    },
+    {
+      "bpm": 150,
+      "cache_hit": false,
+      "error": "",
+      "expected_source_sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "frames": 1123201,
+      "id": "when_the_light_breaks_excerpt",
+      "source_sha256": "3448e91b9af700e250a73c752ce9ccff2d413add50ad46c928cb9728ea3ff1cf",
+      "status": "Estimated",
+      "success": true,
+      "prepared_artifact_sha256": "68bcc6d4bc8f6e678ae1abe710f8dccc285df3c8145ebb91f5a5352633a24be9"
+    },
+    {
+      "bpm": 150,
+      "cache_hit": false,
+      "error": "",
+      "expected_source_sha256": "5c55f8132a7f7a5c2ef1642f3eb8199ba21f2710da5bac41612b747dddb7a08c",
+      "frames": 10177028,
+      "id": "when_the_light_breaks_full",
+      "source_sha256": "5c55f8132a7f7a5c2ef1642f3eb8199ba21f2710da5bac41612b747dddb7a08c",
+      "status": "Estimated",
+      "success": true,
+      "prepared_artifact_sha256": "18f03c6d967b1d4681c62d4536a66ca2854538a77e4f98eb910606c0d9a7876a"
+    }
+  ],
+  "cancellation": {
+    "cleanup": "Product wrapper ownership/cleanup enforced; no independent PID/group probe by this check",
+    "exception": "BPM analysis cancelled",
+    "frames": 1123201,
+    "phase_at_stop": "Unknown",
+    "requested_after_ms": 250,
+    "source_sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+    "stop_requested": true,
+    "success": true
+  },
+  "audio_playback": false,
+  "GPU": false
+}

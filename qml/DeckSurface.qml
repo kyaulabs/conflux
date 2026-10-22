@@ -11,9 +11,15 @@ Item {
     required property int deckIndex
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
+    readonly property string sourceId: String(deck.sourceId || "")
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
     readonly property var tempoState: deck.tempo || ({})
+    readonly property var bpmState: deck.bpm || ({})
+    readonly property real referenceBpm: Number(bpmState.reference) || 0
+    readonly property bool hasReferenceBpm: Boolean(deck.loaded) && Number.isFinite(referenceBpm) && referenceBpm >= 20 && referenceBpm <= 400
+    readonly property real acknowledgedBpm: hasReferenceBpm ? referenceBpm * (1 + (Number(tempoState.percent) || 0) / 100) : 0
+    readonly property bool canEditBpm: Boolean(deck.loaded) && !deck.replacing
     readonly property bool hasLoop: Boolean(loop.inSet) || Boolean(loop.outSet) || Boolean(loop.cached)
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
                                     && !deck.cuePreview && !hasLoop
@@ -45,10 +51,8 @@ Item {
         const value = Math.max(0, Math.floor(Number(seconds) || 0))
         return Math.floor(value / 60) + ":" + String(value % 60).padStart(2, "0")
     }
-    function percentText(value) {
-        const percent = Number(value) || 0
-        return (percent > 0 ? "+" : "") + percent.toFixed(2) + "%"
-    }
+    onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
+    onSourceIdChanged: { if (bpmEditor) bpmEditor.close() }
     function refreshWaveform() {
         const next = deck.waveform || []
         let unchanged = next.length === cachedWaveform.length
@@ -62,10 +66,28 @@ Item {
         cachedWaveform = copy
         waveform.requestPaint()
     }
-    Component.onCompleted: refreshWaveform()
+    function refreshTempo() {
+        // Read one current controller snapshot rather than depending on the
+        // reevaluation order of the deck/reference/range property bindings.
+        const current = controller.decks[deckIndex] || ({})
+        const bpm = current.bpm || ({})
+        const state = current.tempo || ({})
+        const reference = Number(bpm.reference)
+        const known = Boolean(current.loaded) && Number.isFinite(reference) && reference >= 20 && reference <= 400
+        const percent = Number(state.percent)
+        const previousGuard = tempo.restoringAcknowledgement
+        tempo.restoringAcknowledgement = true
+        tempo.acknowledgedValue = known ? reference * (1 + (Number.isFinite(percent) ? percent : 0) / 100) : 0
+        tempo.from = known ? 1.06 * reference : 1
+        tempo.to = known ? .94 * reference : 0
+        if (!tempo.pressed)
+            tempo.value = tempo.acknowledgedValue
+        tempo.restoringAcknowledgement = previousGuard
+    }
+    Component.onCompleted: { refreshWaveform(); refreshTempo() }
     Connections {
         target: surface.controller
-        function onStateChanged() { surface.refreshWaveform() }
+        function onStateChanged() { surface.refreshWaveform(); surface.refreshTempo() }
     }
     Connections {
         target: Brand.ConfluxTheme
@@ -248,7 +270,7 @@ Item {
             objectName: "deck" + surface.deckIndex + "Album"
             x: titleLabel.x
             y: trackArtist.y + trackArtist.height + 1
-            width: titleLabel.width
+            width: titleLabel.width - (surface.compactDisplay ? 96 : 0)
             text: surface.deck.loaded ? (surface.deck.album || "Album unknown") : "—"
             textFormat: Text.PlainText
             elide: Text.ElideRight
@@ -268,18 +290,59 @@ Item {
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: surface.compactDisplay ? 26 : 36
         }
-        Column {
+        Button {
+            id: bpmReference
+            objectName: "deck" + surface.deckIndex + "BpmReference"
             anchors.right: parent.right
             anchors.rightMargin: 14
-            y: surface.compactDisplay ? 80 : 101
-            spacing: 1
-            Label { text: "REMAIN"; color: "#8EAAA7"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
-            Label {
-                objectName: "deck" + surface.deckIndex + "Remaining"
-                text: surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
-                color: surface.displayAccent
-                font.family: Brand.ConfluxTheme.monoFont
-                font.pixelSize: surface.compactDisplay ? 16 : 21
+            y: surface.compactDisplay ? 70 : 98
+            width: 96
+            height: 44
+            padding: 0
+            enabled: surface.canEditBpm
+            text: surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM · " + (surface.bpmState.manual ? "MANUAL" : "ESTIMATED")
+                  : "BPM UNKNOWN · SET REFERENCE"
+            Accessible.name: surface.deckName + " tempo, " + text + ", edit reference BPM"
+            Accessible.description: "Edit the track's original-speed BPM. This changes the reference number, not the audio or deck sync."
+            onClicked: bpmEditor.openForSource()
+            background: Rectangle { color: "transparent"; border.color: parent.activeFocus ? surface.displayAccent : "transparent"; radius: 2 }
+            contentItem: Item {
+                Label {
+                    objectName: "deck" + surface.deckIndex + "BpmCurrent"
+                    y: 0
+                    width: parent.width
+                    height: 20
+                    text: surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM" : "— BPM"
+                    textFormat: Text.PlainText
+                    color: surface.displayAccent
+                    font.family: Brand.ConfluxTheme.monoFont
+                    font.pixelSize: 16
+                    horizontalAlignment: Text.AlignRight
+                    verticalAlignment: Text.AlignVCenter
+                }
+                Label {
+                    y: 20
+                    width: parent.width
+                    height: 10
+                    text: surface.hasReferenceBpm ? (surface.bpmState.manual ? "MANUAL" : "ESTIMATED") : "SET REFERENCE"
+                    color: "#8EAAA7"
+                    font.family: Brand.ConfluxTheme.monoFont
+                    font.pixelSize: 8
+                    horizontalAlignment: Text.AlignRight
+                    verticalAlignment: Text.AlignVCenter
+                }
+                Label {
+                    objectName: "deck" + surface.deckIndex + "Remaining"
+                    y: 30
+                    width: parent.width
+                    height: 14
+                    text: surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
+                    color: surface.displayAccent
+                    font.family: Brand.ConfluxTheme.monoFont
+                    font.pixelSize: 9
+                    horizontalAlignment: Text.AlignRight
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
         }
         Label {
@@ -380,16 +443,7 @@ Item {
                 Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: 0; width: 9; height: 3; color: parent.color }
             }
         }
-        Label {
-            x: 14
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            text: !surface.cachedWaveform.length ? "NO OVERVIEW"
-                  : surface.deck.overviewStem === "drums" ? "OVERVIEW · DRUMS PEAK" : "OVERVIEW · SOURCE PEAK"
-            color: "#8EAAA7"
-            font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: 8
-        }
+
     }
 
     Column {
@@ -852,7 +906,7 @@ Item {
         y: surface.jogTop + 5
         width: 48
         height: Math.max(180, surface.height - y - 53)
-        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "TEMPO"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 10 }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BPM"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 10 }
         Slider {
             id: tempo
             objectName: "deck" + surface.deckIndex + "Tempo"
@@ -862,46 +916,57 @@ Item {
             height: parent.height - 112
             orientation: Qt.Vertical
             // A descending range gives the CDJ's downward-positive native drag.
-            from: 6
-            to: -6
+            from: 1
+            to: 0
             // Qt 6.4's accessibility bridge reads these range properties.
             readonly property real minimumValue: Math.min(from, to)
             readonly property real maximumValue: Math.max(from, to)
-            stepSize: .05
+            stepSize: .1
             live: true
             focusPolicy: Qt.StrongFocus
-            enabled: surface.canTempo
+            enabled: surface.canTempo && surface.hasReferenceBpm
             opacity: enabled ? 1 : .48
-            Accessible.name: surface.deckName + " tempo percent"
-            Accessible.description: "Tempo from minus 6 to plus 6 percent. Down increases speed; up decreases it. Arrows change 0.05 percent, Shift changes 0.5. Master Tempo keeps musical pitch; Reset restores original speed."
-            Accessible.onIncreaseAction: requestStep(.05)
-            Accessible.onDecreaseAction: requestStep(-.05)
+            Accessible.name: surface.deckName + " tempo BPM"
+            Accessible.description: "BPM within six percent of the reference. Down increases speed; up decreases it. Arrows change 0.1 BPM, Shift changes 1 BPM. Master Tempo keeps musical pitch; Reset restores reference BPM."
+            Accessible.onIncreaseAction: requestStep(.1)
+            Accessible.onDecreaseAction: requestStep(-.1)
             property bool restoringAcknowledgement: false
-            readonly property real acknowledgedValue: Number(surface.tempoState.percent) || 0
-            function requestPercent(percent) {
-                if (surface.canTempo && Number.isFinite(percent))
-                    surface.controller.setTempoPercent(surface.deckIndex, Math.max(-6, Math.min(6, percent)))
+            property real acknowledgedValue: 0
+            function sameBpm(a, b) {
+                return Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= 1e-9
+            }
+            function restoreAccepted() {
+                if (pressed)
+                    return
+                const previousGuard = restoringAcknowledgement
+                restoringAcknowledgement = true
+                value = acknowledgedValue
+                restoringAcknowledgement = previousGuard
+            }
+            function requestBpm(bpm) {
+                if (surface.canTempo && surface.hasReferenceBpm && Number.isFinite(bpm))
+                    surface.controller.setTempoBpm(surface.deckIndex, Math.max(minimumValue, Math.min(maximumValue, bpm)))
             }
             function requestStep(delta) {
-                requestPercent(Math.round(((Number(surface.tempoState.percent) || 0) + delta) * 20) / 20)
+                requestBpm(acknowledgedValue + delta)
             }
             Keys.priority: Keys.BeforeItem
             Keys.onPressed: event => {
                 if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
                     return
-                const step = (event.modifiers & Qt.ShiftModifier) ? .5 : .05
+                const step = (event.modifiers & Qt.ShiftModifier) ? 1 : .1
                 if (event.key === Qt.Key_Down || event.key === Qt.Key_Right)
                     requestStep(step)
                 else if (event.key === Qt.Key_Up || event.key === Qt.Key_Left)
                     requestStep(-step)
                 else if (event.key === Qt.Key_PageDown)
-                    requestStep(.5)
+                    requestStep(1)
                 else if (event.key === Qt.Key_PageUp)
-                    requestStep(-.5)
+                    requestStep(-1)
                 else if (event.key === Qt.Key_Home)
-                    requestPercent(-6)
+                    requestBpm(minimumValue)
                 else if (event.key === Qt.Key_End)
-                    requestPercent(6)
+                    requestBpm(maximumValue)
                 else
                     return
                 event.accepted = true
@@ -909,25 +974,21 @@ Item {
             onValueChanged: {
                 if (restoringAcknowledgement)
                     return
+                if (!Number.isFinite(value)) {
+                    restoreAccepted()
+                    return
+                }
                 if (pressed) {
-                    requestPercent(value)
-                } else if (value !== acknowledgedValue) {
-                    // Qt's accessibility numeric setter changes value without
-                    // emitting moved. Dispatch once, then restore accepted
-                    // state; the Binding is reattached after the guarded write.
+                    requestBpm(value)
+                } else if (!sameBpm(value, acknowledgedValue)) {
+                    const candidate = value
                     restoringAcknowledgement = true
-                    requestPercent(value)
+                    requestBpm(candidate)
                     value = acknowledgedValue
                     restoringAcknowledgement = false
                 }
             }
-            Binding {
-                target: tempo
-                property: "value"
-                value: tempo.acknowledgedValue
-                when: !tempo.pressed && !tempo.restoringAcknowledgement
-                restoreMode: Binding.RestoreNone
-            }
+            onPressedChanged: { if (!pressed) restoreAccepted() }
             background: Item {
                 x: 0
                 y: tempo.topPadding
@@ -962,11 +1023,11 @@ Item {
             objectName: "deck" + surface.deckIndex + "TempoValue"
             anchors.horizontalCenter: parent.horizontalCenter
             y: parent.height - 84
-            text: surface.percentText(surface.tempoState.percent)
+            text: surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) : "—"
             textFormat: Text.PlainText
             color: Brand.ConfluxTheme.text
             font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: 10
+            font.pixelSize: 9
         }
         Label {
             objectName: "deck" + surface.deckIndex + "TempoStatus"
@@ -1000,6 +1061,95 @@ Item {
         MouseArea { id: tempoHover; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
         ToolTip.visible: tempoHover.containsMouse
         ToolTip.delay: 450
-        ToolTip.text: "TEMPO ±6% · Down: faster · Up: slower · Arrows: 0.05% · Shift: 0.5% · Reset restores original playback."
+        ToolTip.text: surface.hasReferenceBpm ? "BPM ±6% · Down: faster · Up: slower · Arrows: 0.1 BPM · Shift: 1 BPM · Reset restores reference BPM."
+                                            : "Set the track's reference BPM in the display to use the BPM rail."
+    }
+
+    Popup {
+        id: bpmEditor
+        objectName: "deck" + surface.deckIndex + "BpmEditor"
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        width: 320
+        padding: 16
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        property string openedSourceId: ""
+        readonly property bool sameSource: openedSourceId === surface.sourceId
+        function openForSource() {
+            if (!surface.canEditBpm)
+                return
+            openedSourceId = surface.sourceId
+            open()
+        }
+        onOpened: {
+            bpmInput.text = surface.hasReferenceBpm ? surface.referenceBpm.toFixed(1) : ""
+            bpmInput.forceActiveFocus()
+            bpmInput.selectAll()
+        }
+        function applyReference() {
+            if (!surface.canEditBpm || !sameSource || !bpmInput.acceptableInput)
+                return
+            const bpm = Number(bpmInput.text)
+            if (!Number.isFinite(bpm) || bpm < 20 || bpm > 400)
+                return
+            surface.controller.setBpmOverride(surface.deckIndex, bpm)
+            close()
+        }
+        contentItem: Column {
+            spacing: 10
+            Label { text: surface.deckName + " reference BPM"; font.bold: true }
+            Label {
+                width: parent.width
+                text: "Original-speed BPM. Changing this number does not change the audio or sync decks."
+                wrapMode: Text.WordWrap
+            }
+            Label {
+                objectName: "deck" + surface.deckIndex + "BpmEstimate"
+                text: Number(surface.bpmState.estimated) > 0 ? "Estimated: " + Number(surface.bpmState.estimated).toFixed(1) + " BPM" : "Estimated: unavailable"
+            }
+            Label { text: "Manual reference BPM (20–400)" }
+            TextField {
+                id: bpmInput
+                objectName: "deck" + surface.deckIndex + "BpmInput"
+                width: parent.width
+                height: 44
+                selectByMouse: true
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                validator: DoubleValidator { bottom: 20; top: 400; decimals: 1; notation: DoubleValidator.StandardNotation; locale: "C" }
+                Accessible.name: surface.deckName + " manual reference BPM"
+                onAccepted: bpmEditor.applyReference()
+            }
+            Row {
+                spacing: 8
+                Button {
+                    objectName: "deck" + surface.deckIndex + "BpmApply"
+                    width: (bpmInput.width - 8) / 2
+                    height: 44
+                    text: "Apply"
+                    enabled: surface.canEditBpm && bpmEditor.sameSource && bpmInput.acceptableInput
+                    onClicked: bpmEditor.applyReference()
+                }
+                Button {
+                    objectName: "deck" + surface.deckIndex + "BpmAutomatic"
+                    width: (bpmInput.width - 8) / 2
+                    height: 44
+                    text: "Use automatic"
+                    enabled: surface.canEditBpm && bpmEditor.sameSource && Boolean(surface.bpmState.manual)
+                    onClicked: {
+                        if (!surface.canEditBpm || !bpmEditor.sameSource)
+                            return
+                        surface.controller.clearBpmOverride(surface.deckIndex)
+                        bpmEditor.close()
+                    }
+                }
+            }
+            Label {
+                width: parent.width
+                text: surface.hasReferenceBpm ? "Using " + (surface.bpmState.manual ? "manual" : "estimated") + " reference: " + surface.referenceBpm.toFixed(1) + " BPM" : "Reference BPM is unknown."
+                wrapMode: Text.WordWrap
+            }
+        }
     }
 }

@@ -99,7 +99,9 @@ Pre-fader deck meters include those transport transitions. The ramps do not
 implement a limiter or normalize the audio. The user accepted the current
 speaker test without reported clicks or playback issues.
 
-BPM, key and beatgrid remain unavailable. The overview uses at most 512
+Estimated BPM and manual reference overrides are available through the deck LCD;
+see [BPM controls](M3.md#bpm-controls-and-window-chrome). Key and beatgrid remain
+unavailable. The overview uses at most 512
 buckets of `max(abs(left), abs(right))` from decoded PCM, normalized to the
 source peak for display only. Its playhead shows the source position, using a nominal cursor during tempo processing.
 Analysis runs in the existing decode job, outside the GUI and audio callbacks.

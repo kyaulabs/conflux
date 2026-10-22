@@ -664,6 +664,69 @@ private slots:
         QVERIFY(controller.decks()[0].toMap()["stemBank"].toBool());
     }
 
+    void optionalBpmCannotConsumeTheOnlyStemCacheEntry()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("single-entry.wav");
+            QVERIFY(writeWave(source, 2, 48000, 4800));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            conflux::DeckController::PreparationOptions options;
+            options.limits.maxEntries = 1;
+            options.stemEngine = conflux::test::makeStemEngineFixture(engineRoot);
+            const auto marker = directory.filePath("bpm-started");
+            const auto worker = directory.filePath("bpm.py");
+            // Valid local assets: cache admission, rather than engine setup,
+            // must prevent this optional worker from starting.
+            conflux::test::writeFixtureBytes(worker, "from pathlib import Path\nPath(" +
+                QJsonDocument(QJsonArray{marker}).toJson(QJsonDocument::Compact).mid(1).chopped(1) +
+                ").touch()\nprint('unexpected BPM invocation')\n");
+            options.bpmEngine = conflux::library::BpmEngine{options.stemEngine->pythonExecutable,
+                engineRoot, options.stemEngine->modelPath, worker};
+            conflux::DeckController controller(options);
+            controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto deck = controller.decks()[0].toMap();
+            QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+            QVERIFY(deck["stemBank"].toBool());
+            QCOMPARE(deck["bpm"].toMap()["status"].toString(), QString("Failed"));
+            QCOMPARE(deck["bpm"].toMap()["estimated"].toDouble(), 0.);
+            QCOMPARE(deck["bpm"].toMap()["reference"].toDouble(), 0.);
+            QVERIFY(!QFileInfo::exists(marker));
+            QCOMPARE(deck["stemGains"].toList(), QVariantList({1.F, 1.F, 1.F, 1.F}));
+            QCOMPARE(deck["overviewStem"].toString(), QString("drums"));
+
+            const auto cacheRoot = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+            const auto entries = QDir(cacheRoot).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            QCOMPARE(entries.size(), 1);
+            // Reuse the strict bank reader to verify every role's geometry,
+            // digest and manifest; it cannot export or repair a missing bank.
+            const auto bank = conflux::library::PreparedTrackStore(cacheRoot, options.limits)
+                .findPreparedStemBank(source, *options.stemEngine);
+            QVERIFY(bank.has_value());
+            QCOMPARE(entries.front(), bank->artifactKey);
+            const auto frames = bank->stems.front().frames();
+            QVERIFY(frames >= 4799 && frames <= 4801);
+            for (const auto& stem : bank->stems) QCOMPARE(stem.frames(), frames);
+            QCOMPARE(controller.audioState().sourceFrames[0], frames);
+            QCOMPARE(controller.retainedPcmBytes(), frames * 8 * 4);
+            QCOMPARE(deck["durationSeconds"].toDouble(), frames / 48000.);
+            QVariantList waveform;
+            for (const auto peak : bank->stems.front().peaks()) waveform.append(peak);
+            QVERIFY(!waveform.isEmpty());
+            QCOMPARE(deck["waveform"].toList(), waveform);
+            const QDir entry(QDir(cacheRoot).filePath(entries.front()));
+            QCOMPARE(entry.entryList(QDir::Files), QStringList({"bass.f32", "drums.f32",
+                "manifest.json", "other.f32", "vocals.f32"}));
+            QVERIFY(!entry.exists("audio.f32"));
+            QCOMPARE(QDir(cacheRoot).entryList(QDir::Dirs | QDir::NoDotAndDotDot), entries);
+        });
+    }
+
     void failedAndQueuedCancelledBanksPreserveExistingOwners()
     {
         QTemporaryDir directory;
@@ -1419,6 +1482,106 @@ private slots:
         for (const auto command : selectionCommands) (controller.*command)(0);
         QCOMPARE(controller.submittedCommands(), submitted);
         QVERIFY(!controller.outputReady());
+    }
+
+    void bpmReferenceIsSourceBoundAndDoesNotChangePlayback()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("a.wav"), other = directory.filePath("b.wav");
+        QVERIFY(writeWave(source, 2, 48000, 4800) && writeWave(other, 2, 48000, 9600));
+        conflux::DeckController controller;
+        controller.setBpmOverride(0, 120);
+        QVERIFY(controller.error().contains("loaded"));
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto before = controller.decks();
+        const auto audio = controller.audioState();
+        const auto submitted = controller.submittedCommands();
+        auto bpm = controller.decks()[0].toMap()["bpm"].toMap();
+        QCOMPARE(bpm["reference"].toDouble(), 0.);
+        QCOMPARE(bpm["status"].toString(), QString("Unavailable"));
+        controller.setTempoBpm(0, 120);
+        QVERIFY(controller.error().contains("reference"));
+        QCOMPARE(controller.submittedCommands(), submitted);
+        for (double invalid : {19.9, 400.1, std::numeric_limits<double>::quiet_NaN(),
+                               std::numeric_limits<double>::infinity()}) {
+            controller.setBpmOverride(0, invalid);
+            QCOMPARE(controller.decks(), before);
+        }
+        controller.setBpmOverride(0, 120);
+        bpm = controller.decks()[0].toMap()["bpm"].toMap();
+        QCOMPARE(bpm["reference"].toDouble(), 120.);
+        QVERIFY(bpm["manual"].toBool());
+        QCOMPARE(bpm["estimated"].toDouble(), 0.);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        QCOMPARE(controller.audioState().tempo[0].percent, audio.tempo[0].percent);
+        QCOMPARE(controller.decks()[1], before[1]);
+        controller.setTempoBpm(0, 126);
+        QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
+        QCOMPARE(controller.submittedCommands(), submitted);
+        controller.setTempoBpm(0, 128);
+        QVERIFY(controller.error().contains("range"));
+        controller.clearBpmOverride(0);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 0.);
+        controller.setBpmOverride(0, 128);
+        controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing.wav")));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 128.);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 128.);
+        controller.loadDeck(0, QUrl::fromLocalFile(other));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 0.);
+        QVERIFY(!controller.decks()[0].toMap()["bpm"].toMap()["manual"].toBool());
+    }
+
+    void automaticBpmFailurePreservesPlayableAudioAndCancellation()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("source.wav"), script = directory.filePath("bpm.py");
+        const auto model = directory.filePath("model"), marker = directory.filePath("started");
+        QVERIFY(writeWave(source, 2, 48000, 4800));
+        QFile asset(model);
+        QVERIFY(asset.open(QIODevice::WriteOnly)); asset.write("fixture"); asset.close();
+        QFile worker(script);
+        QVERIFY(worker.open(QIODevice::WriteOnly));
+        worker.write("import argparse, hashlib, json, sys\np=argparse.ArgumentParser()\np.add_argument('--source-dir')\np.add_argument('--model')\np.add_argument('--frames',type=int)\na=p.parse_args()\nb=sys.stdin.buffer.read()\nprint(json.dumps(dict(schema=1,recipe='beat-this-final0-linear-mel-v1',frames=a.frames,pcm_sha256=hashlib.sha256(b).hexdigest(),bpm=120.0,beat_count=4)))\n");
+        worker.close();
+        conflux::DeckController::PreparationOptions options;
+        options.bpmEngine = conflux::library::BpmEngine{"/usr/bin/python3", directory.path(), model, script};
+        conflux::DeckController controller(options);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        auto deck = controller.decks()[0].toMap();
+        QVERIFY(deck["loaded"].toBool());
+        QCOMPARE(deck["bpm"].toMap()["estimated"].toDouble(), 120.);
+        QCOMPARE(deck["bpm"].toMap()["status"].toString(), QString("Estimated"));
+        controller.setBpmOverride(0, 128);
+        controller.clearBpmOverride(0);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 120.);
+        QVERIFY(worker.open(QIODevice::WriteOnly | QIODevice::Truncate)); worker.write("print('invalid output')\n"); worker.close();
+        controller.loadDeck(1, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[1].toMap()["loaded"].toBool());
+        QCOMPARE(controller.decks()[1].toMap()["bpm"].toMap()["status"].toString(), QString("Failed"));
+        const auto accepted = controller.decks();
+        QVERIFY(worker.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        worker.write("import time\nfrom pathlib import Path\nPath(" +
+                     QJsonDocument(QJsonArray{marker}).toJson(QJsonDocument::Compact).mid(1).chopped(1) +
+                     ").touch()\ntime.sleep(30)\n"); worker.close();
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(marker), 5000);
+        QVERIFY(controller.cancelPreparation());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        QCOMPARE(controller.decks(), accepted);
     }
 
     void invalidDeckAndUrl()
