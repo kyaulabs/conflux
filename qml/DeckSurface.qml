@@ -13,7 +13,14 @@ Item {
     readonly property var deck: controller.decks[deckIndex]
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
-    readonly property bool canLoop: canControl && Boolean(loop.supported) && !deck.sourceReadError && !deck.cuePreview
+    readonly property var tempoState: deck.tempo || ({})
+    readonly property bool hasLoop: Boolean(loop.inSet) || Boolean(loop.outSet) || Boolean(loop.cached)
+    readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
+                                    && !deck.cuePreview && !hasLoop
+    readonly property bool canResetTempo: canControl && Boolean(tempoState.supported)
+                                         && Boolean(tempoState.active) && !deck.cuePreview
+    readonly property bool canLoop: canControl && Boolean(loop.supported) && !deck.sourceReadError
+                                   && !deck.cuePreview && !tempoState.active
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
     readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
     readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
@@ -37,6 +44,10 @@ Item {
     function timeText(seconds) {
         const value = Math.max(0, Math.floor(Number(seconds) || 0))
         return Math.floor(value / 60) + ":" + String(value % 60).padStart(2, "0")
+    }
+    function percentText(value) {
+        const percent = Number(value) || 0
+        return (percent > 0 ? "+" : "") + percent.toFixed(2) + "%"
     }
     function refreshWaveform() {
         const next = deck.waveform || []
@@ -565,7 +576,8 @@ Item {
         y: surface.loopTop + 39
         width: surface.width - 2 * surface.edge - 75
         height: 15
-        text: surface.loop.errorCode ? "LOOP CACHE ERROR / RELOAD OR SET IN"
+        text: surface.tempoState.active ? "LOOP / RESET TEMPO FIRST"
+              : surface.loop.errorCode ? "LOOP CACHE ERROR / RELOAD OR SET IN"
               : !surface.loop.supported ? "MANUAL LOOP / PREPARED AUDIO"
               : !surface.loop.inSet ? "MANUAL LOOP / SET IN"
               : !surface.loop.ready ? "LOOP / PREPARING IN"
@@ -586,9 +598,15 @@ Item {
         width: 66
         height: 36
         text: "MASTER\nTEMPO"
+        buttonObjectName: "deck" + surface.deckIndex + "MasterTempo"
+        accessibleName: surface.deckName + " Master Tempo"
         fontPixelSize: 9
-        available: false
-        unavailableReason: "Pitch-independent tempo adjustment is not implemented."
+        indicatorColor: Brand.ConfluxTheme.warning
+        indicatorOn: Boolean(surface.tempoState.keyLock)
+        available: surface.canTempo
+        actionDescription: "Keep musical pitch when changing tempo. The indicator follows the accepted setting."
+        unavailableReason: "Master Tempo requires ready prepared audio without a cue preview, read error or stored loop."
+        onPressed: surface.controller.toggleMasterTempo(surface.deckIndex)
     }
 
     Item {
@@ -829,6 +847,7 @@ Item {
     }
 
     Item {
+        id: tempoRail
         x: surface.width - surface.edge - 48
         y: surface.jogTop + 5
         width: 48
@@ -836,16 +855,79 @@ Item {
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "TEMPO"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 10 }
         Slider {
             id: tempo
+            objectName: "deck" + surface.deckIndex + "Tempo"
             anchors.horizontalCenter: parent.horizontalCenter
             y: 25
             width: 44
-            height: parent.height - 48
+            height: parent.height - 112
             orientation: Qt.Vertical
-            from: -1
-            to: 1
-            value: 0
-            enabled: false
-            opacity: 0.48
+            // A descending range gives the CDJ's downward-positive native drag.
+            from: 6
+            to: -6
+            // Qt 6.4's accessibility bridge reads these range properties.
+            readonly property real minimumValue: Math.min(from, to)
+            readonly property real maximumValue: Math.max(from, to)
+            stepSize: .05
+            live: true
+            focusPolicy: Qt.StrongFocus
+            enabled: surface.canTempo
+            opacity: enabled ? 1 : .48
+            Accessible.name: surface.deckName + " tempo percent"
+            Accessible.description: "Tempo from minus 6 to plus 6 percent. Down increases speed; up decreases it. Arrows change 0.05 percent, Shift changes 0.5. Master Tempo keeps musical pitch; Reset restores original speed."
+            Accessible.onIncreaseAction: requestStep(.05)
+            Accessible.onDecreaseAction: requestStep(-.05)
+            property bool restoringAcknowledgement: false
+            readonly property real acknowledgedValue: Number(surface.tempoState.percent) || 0
+            function requestPercent(percent) {
+                if (surface.canTempo && Number.isFinite(percent))
+                    surface.controller.setTempoPercent(surface.deckIndex, Math.max(-6, Math.min(6, percent)))
+            }
+            function requestStep(delta) {
+                requestPercent(Math.round(((Number(surface.tempoState.percent) || 0) + delta) * 20) / 20)
+            }
+            Keys.priority: Keys.BeforeItem
+            Keys.onPressed: event => {
+                if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
+                    return
+                const step = (event.modifiers & Qt.ShiftModifier) ? .5 : .05
+                if (event.key === Qt.Key_Down || event.key === Qt.Key_Right)
+                    requestStep(step)
+                else if (event.key === Qt.Key_Up || event.key === Qt.Key_Left)
+                    requestStep(-step)
+                else if (event.key === Qt.Key_PageDown)
+                    requestStep(.5)
+                else if (event.key === Qt.Key_PageUp)
+                    requestStep(-.5)
+                else if (event.key === Qt.Key_Home)
+                    requestPercent(-6)
+                else if (event.key === Qt.Key_End)
+                    requestPercent(6)
+                else
+                    return
+                event.accepted = true
+            }
+            onValueChanged: {
+                if (restoringAcknowledgement)
+                    return
+                if (pressed) {
+                    requestPercent(value)
+                } else if (value !== acknowledgedValue) {
+                    // Qt's accessibility numeric setter changes value without
+                    // emitting moved. Dispatch once, then restore accepted
+                    // state; the Binding is reattached after the guarded write.
+                    restoringAcknowledgement = true
+                    requestPercent(value)
+                    value = acknowledgedValue
+                    restoringAcknowledgement = false
+                }
+            }
+            Binding {
+                target: tempo
+                property: "value"
+                value: tempo.acknowledgedValue
+                when: !tempo.pressed && !tempo.restoringAcknowledgement
+                restoreMode: Binding.RestoreNone
+            }
             background: Item {
                 x: 0
                 y: tempo.topPadding
@@ -871,14 +953,53 @@ Item {
                 height: 19
                 radius: 2
                 color: Brand.ConfluxTheme.raised
-                border.color: Brand.ConfluxTheme.controlBorder
+                border.width: tempo.activeFocus ? 2 : 1
+                border.color: tempo.activeFocus ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
                 Rectangle { anchors.horizontalCenter: parent.horizontalCenter; y: parent.height / 2; width: parent.width - 5; height: 1; color: Brand.ConfluxTheme.muted }
             }
         }
-        Label { anchors.horizontalCenter: parent.horizontalCenter; anchors.bottom: parent.bottom; text: "INACTIVE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 8 }
+        Label {
+            objectName: "deck" + surface.deckIndex + "TempoValue"
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: parent.height - 84
+            text: surface.percentText(surface.tempoState.percent)
+            textFormat: Text.PlainText
+            color: Brand.ConfluxTheme.text
+            font.family: Brand.ConfluxTheme.monoFont
+            font.pixelSize: 10
+        }
+        Label {
+            objectName: "deck" + surface.deckIndex + "TempoStatus"
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: parent.height - 68
+            text: surface.tempoState.errorCode ? (surface.tempoState.active ? "ERROR / RESET" : "TEMPO ERROR")
+                  : !surface.tempoState.supported ? "UNAVAILABLE"
+                  : surface.tempoState.pending ? "PENDING"
+                  : surface.tempoState.finished ? "FINISHED"
+                  : surface.tempoState.active ? "READY" : "ORIGINAL"
+            textFormat: Text.PlainText
+            color: surface.tempoState.errorCode ? Brand.ConfluxTheme.warning : Brand.ConfluxTheme.muted
+            font.family: Brand.ConfluxTheme.displayFont
+            font.pixelSize: 8
+            Accessible.name: surface.deckName + " tempo " + text
+        }
+        DeckButton {
+            x: 0
+            y: parent.height - 44
+            width: 48
+            height: 44
+            text: "RESET"
+            fontPixelSize: 8
+            buttonObjectName: "deck" + surface.deckIndex + "TempoReset"
+            accessibleName: surface.deckName + " reset tempo"
+            available: surface.canResetTempo
+            actionDescription: "Restore original speed and leave processed tempo mode, keeping the Master Tempo selection."
+            unavailableReason: "Reset becomes available when prepared tempo processing is active."
+            onPressed: surface.controller.resetTempo(surface.deckIndex)
+        }
         MouseArea { id: tempoHover; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
         ToolTip.visible: tempoHover.containsMouse
         ToolTip.delay: 450
-        ToolTip.text: "Tempo adjustment is not implemented in this milestone."
+        ToolTip.text: "TEMPO ±6% · Down: faster · Up: slower · Arrows: 0.05% · Shift: 0.5% · Reset restores original playback."
     }
 }

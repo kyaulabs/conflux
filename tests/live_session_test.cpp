@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <thread>
+#include <vector>
 
 namespace {
 using conflux::audio::LiveSession;
@@ -34,6 +35,65 @@ bool rejects(Function&& function, const char* message)
         return true;
     }
     return require(false, message);
+}
+
+bool preparedTempoSurvivesQuiescedReconstruction()
+{
+    constexpr std::uint64_t frames = 16384, initialFrame = 17;
+    std::vector<float> pcm(frames * 2);
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+        pcm[frame * 2] = float(int(frame % 67) - 33) / 64.F;
+        pcm[frame * 2 + 1] = float(int(frame % 43) - 21) / 32.F;
+    }
+    const auto closeFile = [](std::FILE* file) { if (file) std::fclose(file); };
+    const auto raw = std::unique_ptr<std::FILE, decltype(closeFile)>(std::tmpfile(), closeFile);
+    if (!raw || std::fwrite(pcm.data(), sizeof(float), pcm.size(), raw.get()) != pcm.size() ||
+        std::fflush(raw.get()) != 0)
+        throw std::runtime_error("Cannot prepare tempo session lifecycle PCM");
+    LiveSession::PlaybackSources sources{};
+    sources[0] = std::make_unique<conflux::audio::PreparedPlayback>(fileno(raw.get()), frames);
+    auto* const owner = sources[0].get();
+    const auto source = owner->sourceRef();
+    if (!source.tempoControl || !source.tempoState ||
+        !source.tempoControl(source.context, conflux::audio::AudioTempoCommand::Set, 6, true, initialFrame))
+        throw std::runtime_error("Cannot select prepared session tempo");
+    const auto selectedGeneration = source.tempoState(source.context).generation;
+    LiveSession::InitialState initial;
+    initial.sourceFrame[0] = initialFrame;
+    initial.cueFrame[0] = 7;
+    initial.playing[0] = true;
+    initial.deckGain[0] = .5F;
+    initial.cueSelected[0] = true;
+    initial.crossfader = .25F;
+    LiveSession first(std::move(sources), initial);
+    auto validUnconsumed = [&](const LiveSession::State& state) {
+        const auto tempo = state.tempo[0];
+        return !state.ready && state.outputFrame == 0 && state.callbacks == 0 &&
+            state.sourceFrame[0] == initialFrame && state.sourcePosition[0] == double(initialFrame) &&
+            state.sourceFrames[0] == frames && state.playing[0] && !state.sourceReadError[0] &&
+            state.cueFrame[0] == initial.cueFrame[0] && state.cueSelected[0] &&
+            state.deckGain[0] == .5F && state.crossfader == .25F &&
+            tempo.supported && tempo.active && tempo.pending && !tempo.finished && !tempo.errorCode &&
+            tempo.percent == 6 && tempo.keyLock && tempo.appliedPercent == 0 && !state.tempo[1].supported;
+    };
+    const auto primed = first.stoppedState();
+    bool passed = require(!sources[0] && validUnconsumed(primed) &&
+                          primed.tempo[0].generation > selectedGeneration,
+                          "session prime lost prepared tempo or consumed prefetched audio");
+    auto retained = first.stopAndTakePlaybacks();
+    const auto captured = first.stoppedState();
+    passed &= require(retained.active[0].get() == owner && !retained.replacement && validUnconsumed(captured) &&
+                      captured.tempo[0].generation == primed.tempo[0].generation,
+                      "quiesced extraction stopped its owner, changed tempo or advanced source/output position");
+    initial.sourceFrame = captured.sourceFrame;
+    LiveSession rebuilt(std::move(retained.active), initial);
+    const auto reprime = rebuilt.stoppedState();
+    passed &= require(validUnconsumed(reprime) && reprime.tempo[0].generation > captured.tempo[0].generation,
+                      "reconstructed session lost tempo mode, reused queued generation or consumed its readiness prefix");
+    auto finalOwners = rebuilt.stopAndTakePlaybacks();
+    passed &= require(finalOwners.active[0].get() == owner && validUnconsumed(rebuilt.stoppedState()) &&
+                      !finalOwners.active[0]->errorCode(), "reconstruction failed to retain its healthy whole owner");
+    return passed;
 }
 
 class PrivateRuntime {
@@ -144,6 +204,8 @@ int main()
         passed &= require(!bankRestored.stoppedState().sourceReadError[0] &&
                           bankRestored.stoppedState().crossfader == .875F,
                           "stopping a healthy bank changed its crossfader or invented a reader error");
+
+        passed &= preparedTempoSurvivesQuiescedReconstruction();
 
         const std::array<float, 4> a{.25F, -.5F, .75F, -.25F};
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};

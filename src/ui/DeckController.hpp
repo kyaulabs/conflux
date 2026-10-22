@@ -91,6 +91,9 @@ public:
     Q_INVOKABLE void loopIn(int deck);
     Q_INVOKABLE void loopOut(int deck);
     Q_INVOKABLE void loopToggle(int deck);
+    Q_INVOKABLE void setTempoPercent(int deck, double percent);
+    Q_INVOKABLE void toggleMasterTempo(int deck);
+    Q_INVOKABLE void resetTempo(int deck);
     Q_INVOKABLE void setCueGain(double gain);
     Q_INVOKABLE void setCueSelected(int deck, bool selected);
     Q_INVOKABLE void refreshAudioRouting();

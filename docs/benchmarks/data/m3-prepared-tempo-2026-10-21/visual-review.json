@@ -1,0 +1,21 @@
+{
+  "recorded_utc": "2026-10-22T02:32:17.563668+00:00",
+  "scope": "Actual product QML with generated fake artwork and acknowledged tempo state; no audio/DSP/PipeWire or human mixing evidence",
+  "root_visual_inspection": "Both themes reviewed: readable tempo values/status/reset, upright labels, A Master Tempo indicator on/B off, slider positions reflect negative above/positive below center, cover art and song information remain in each LCD. No overlap or clipping observed at1280x800.",
+  "images": [
+    {
+      "path": "tempo-1280x800-dark.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "61f8c8528056d41aa11df90c0f26ee98c96745bf447a8ab0bdc39192b8edeb74",
+      "bytes": 148996
+    },
+    {
+      "path": "tempo-1280x800-light.png",
+      "width": 1280,
+      "height": 800,
+      "sha256": "533837b3470631a4abf84b5665b222c487fafc2e34f415f2bb80584bb3a9c129",
+      "bytes": 152293
+    }
+  ]
+}

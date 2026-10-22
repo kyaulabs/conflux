@@ -233,6 +233,12 @@ QVariantList DeckController::decks() const
             {"overviewStem", clips_[deck] && clips_[deck]->live() ? "source" :
                              clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
             {"stemBank", state_.stemBank[deck]},
+            {"tempo", QVariantMap{
+                {"supported", state_.tempo[deck].supported}, {"percent", state_.tempo[deck].percent},
+                {"appliedPercent", state_.tempo[deck].appliedPercent}, {"keyLock", state_.tempo[deck].keyLock},
+                {"active", state_.tempo[deck].active}, {"pending", state_.tempo[deck].pending},
+                {"finished", state_.tempo[deck].finished}, {"errorCode", state_.tempo[deck].errorCode},
+                {"generation", QVariant::fromValue<qulonglong>(state_.tempo[deck].generation)}}},
             {"loop", QVariantMap{
                 {"supported", state_.loops[deck].supported}, {"inSet", state_.loops[deck].inSet},
                 {"ready", state_.loops[deck].ready}, {"outSet", state_.loops[deck].outSet},
@@ -253,7 +259,7 @@ QVariantList DeckController::decks() const
             {"cueHeld", state_.cueHeld[deck]}, {"cuePreview", state_.cuePreview[deck]},
             {"buffering", state_.buffering[deck]}, {"sourceReadError", state_.sourceReadError[deck]},
             {"starvedFrames", QVariant::fromValue<qulonglong>(state_.starvedFrames[deck])},
-            {"positionSeconds", state_.sourceFrame[deck] / double(audio::RenderCore::sampleRate)},
+            {"positionSeconds", state_.sourcePosition[deck] / double(audio::RenderCore::sampleRate)},
             {"durationSeconds", state_.sourceFrames[deck] / double(audio::RenderCore::sampleRate)},
             {"gain", state_.deckGain[deck]}});
     }
@@ -738,6 +744,7 @@ void DeckController::loaded()
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
     waveforms_[pendingDeck_] = result.prepared->waveform;
     state_.sourceFrame[pendingDeck_] = 0;
+    state_.sourcePosition[pendingDeck_] = 0;
     state_.cueFrame[pendingDeck_] = 0;
     state_.cueHeld[pendingDeck_] = state_.cuePreview[pendingDeck_] = false;
     state_.buffering[pendingDeck_] = state_.sourceReadError[pendingDeck_] = false;
@@ -746,6 +753,7 @@ void DeckController::loaded()
     state_.sourceFrames[pendingDeck_] = clips_[pendingDeck_]->frames();
     state_.stemBank[pendingDeck_] = clips_[pendingDeck_]->stemBank();
     state_.loops[pendingDeck_] = {};
+    state_.tempo[pendingDeck_] = {};
     state_.stemGain[pendingDeck_].fill(state_.stemBank[pendingDeck_] ? 1.0F : 0.0F);
     state_.sourceGeneration[pendingDeck_] = 0;
     state_.playing[pendingDeck_] = false;
@@ -778,15 +786,26 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     }
     pendingLoad_.reset();
     installCancellation_ = std::stop_source{};
-    installer_.setFuture(QtConcurrent::run([clips = clips_, initial, playbacks = std::move(playbacks),
+    installer_.setFuture(QtConcurrent::run([clips = clips_, initial, tempo = state_.tempo, playbacks = std::move(playbacks),
                                            stop = installCancellation_.get_token()]() mutable {
         auto result = std::make_shared<InstallResult>();
         try {
             // A prior constructor/prime exception may have consumed its owners
             // on this worker. Only finite leaves can be recreated. Live source
             // metadata requires the existing whole owner or an explicit reload.
-            for (std::size_t deck = 0; deck < clips.size(); ++deck)
-                if (clips[deck] && !playbacks[deck]) playbacks[deck] = clips[deck]->makePlayback();
+            for (std::size_t deck = 0; deck < clips.size(); ++deck) {
+                if (!clips[deck] || playbacks[deck]) continue;
+                playbacks[deck] = clips[deck]->makePlayback();
+                // A failed earlier installation may have consumed a finite
+                // owner. Preserve accepted logical settings on its replacement
+                // instead of silently reverting a nonzero tempo or key lock.
+                if (tempo[deck].percent != 0 || tempo[deck].keyLock) {
+                    const auto source = playbacks[deck]->sourceRef();
+                    if (!source.tempoControl || !source.tempoControl(source.context, audio::AudioTempoCommand::Set,
+                            tempo[deck].percent, tempo[deck].keyLock, initial.sourceFrame[deck]))
+                        throw std::runtime_error("Cannot restore prepared tempo after playback installation failure");
+                }
+            }
             result->session = std::make_unique<audio::LiveSession>(std::move(playbacks), initial, stop);
         } catch (const std::exception& error) {
             result->error = QString::fromUtf8(error.what());
@@ -947,12 +966,14 @@ void DeckController::installed()
             waveforms_[deck].clear();
             cueDown_[deck] = cueReleasePending_[deck] = false;
             state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;
+            state_.sourcePosition[deck] = 0;
             state_.sourceGeneration[deck] = state_.starvedFrames[deck] = 0;
             state_.playing[deck] = state_.cueSelected[deck] = false;
             state_.cueHeld[deck] = state_.cuePreview[deck] = false;
             state_.buffering[deck] = state_.sourceReadError[deck] = state_.sourceReadErrorObserved[deck] = false;
             state_.stemBank[deck] = false;
             state_.loops[deck] = {};
+            state_.tempo[deck] = {};
             state_.stemGain[deck].fill(0.F);
             state_.deckGain[deck] = 1.F;
             state_.meters.deck[deck] = {};
@@ -1201,6 +1222,44 @@ void DeckController::setCrossfader(double position)
     audio::RenderCore::Command command;
     command.type = audio::RenderCore::Command::Type::Crossfader;
     command.gain = float(position);
+    submit(command);
+}
+
+void DeckController::setTempoPercent(int deck, double percent)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live() ||
+        !std::isfinite(percent) || percent < -6.0 || percent > 6.0) {
+        fail("Tempo requires prepared audio and a value between -6 and +6 percent.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::TempoPercent;
+    command.deck = std::uint32_t(deck);
+    command.tempoPercent = percent;
+    submit(command);
+}
+
+void DeckController::toggleMasterTempo(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
+        fail("Master Tempo requires prepared audio.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::MasterTempo;
+    command.deck = std::uint32_t(deck);
+    submit(command);
+}
+
+void DeckController::resetTempo(int deck)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
+        fail("Tempo reset requires prepared audio.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::TempoReset;
+    command.deck = std::uint32_t(deck);
     submit(command);
 }
 

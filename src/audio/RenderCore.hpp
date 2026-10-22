@@ -31,7 +31,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -39,6 +39,7 @@ public:
         std::uint32_t id = 0;
         std::int64_t deltaFrames = 0;
         std::uint32_t stem = 0;
+        double tempoPercent = 0;
     };
 
     explicit RenderCore(bool tone = false);
@@ -77,6 +78,10 @@ public:
     bool loopOut(std::size_t deck) noexcept;
     bool loopToggle(std::size_t deck) noexcept;
     [[nodiscard]] AudioLoopState loopState(std::size_t deck) const noexcept;
+    bool setTempoPercent(std::size_t deck, double percent) noexcept;
+    bool toggleMasterTempo(std::size_t deck) noexcept;
+    bool resetTempo(std::size_t deck) noexcept;
+    [[nodiscard]] AudioTempoState tempoState(std::size_t deck) const noexcept;
     // Positional search, not scratch or speed control. Clamp from the owner's
     // current cursor; preserve play request/cue and cancel temporary preview.
     bool jog(std::size_t deck, std::int64_t deltaFrames) noexcept;
@@ -112,6 +117,8 @@ public:
     [[nodiscard]] std::uint64_t frameClock() const noexcept { return frameClock_; }
     [[nodiscard]] std::uint64_t sourceFrame(std::size_t deck = 0) const noexcept
     { return deck < deckCount ? decks_[deck].frame : 0; }
+    [[nodiscard]] double sourcePosition(std::size_t deck = 0) const noexcept
+    { return deck < deckCount ? decks_[deck].nominalPosition : 0; }
     [[nodiscard]] std::uint64_t sourceFrames(std::size_t deck = 0) const noexcept
     { return deck < deckCount ? decks_[deck].source.frames : 0; }
     [[nodiscard]] bool isPlaying(std::size_t deck = 0) const noexcept
@@ -151,6 +158,7 @@ private:
     struct Deck {
         AudioSource source{};
         std::uint64_t frame = 0;
+        double nominalPosition = 0;
         std::uint64_t cueFrame = 0;
         std::uint64_t starvedFrames = 0;
         float gain = 1.0F;
@@ -170,6 +178,7 @@ private:
     static void notifyActivity(const Deck& deck) noexcept;
     void refreshActivity() const noexcept;
     void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
+    bool changeTempo(std::size_t deck, AudioTempoCommand command, double percent, bool keyLock) noexcept;
     void transition(Deck& deck) noexcept;
     void mixDeck(std::size_t index, bool available, float left, float right,
                  double& masterLeft, double& masterRight, double& cueLeft, double& cueRight,

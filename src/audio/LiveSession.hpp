@@ -40,6 +40,7 @@ public:
     struct State {
         std::uint64_t outputFrame = 0;
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{}, sourceFrames{};
+        std::array<double, RenderCore::deckCount> sourcePosition{};
         std::array<std::uint64_t, RenderCore::deckCount> sourceGeneration{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
@@ -50,6 +51,7 @@ public:
         std::array<float, RenderCore::deckCount> deckGain{};
         std::array<bool, RenderCore::deckCount> stemBank{};
         std::array<AudioLoopState, RenderCore::deckCount> loops{};
+        std::array<AudioTempoState, RenderCore::deckCount> tempo{};
         std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{};
         float masterGain = 1.0F;
         float crossfader = 0.5F;

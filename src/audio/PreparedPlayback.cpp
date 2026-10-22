@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/PreparedPlayback.hpp"
 #include "audio/PreparedLoopCache.hpp"
+#include "audio/PreparedTempoSource.hpp"
 #include "audio/StemBankSource.hpp"
 #include "audio/LiveRecoveryPolicy.hpp"
 
 #include <algorithm>
 #include <cerrno>
+#include <cmath>
 #include <condition_variable>
 #include <mutex>
 #include <new>
@@ -26,6 +28,7 @@ static_assert(std::atomic<bool>::is_always_lock_free);
 static_assert(PreparedPlayback::liveReserveFrames == Recovery::reserveFrames);
 static_assert(PreparedPlayback::liveWait == Recovery::maximumWait);
 static_assert(PreparedPlayback::stemCount == StemBankSource::stemCount);
+static_assert(PreparedTempoSource::blockFrames == StemBankSource::blockFrames);
 void validateGeometry(int fd, std::uint64_t frames)
 {
     constexpr std::uint64_t frameBytes = 2 * sizeof(float);
@@ -216,6 +219,7 @@ PreparedPlayback::PreparedPlayback(int normalizedFd, std::uint64_t frames) : fra
     readers_[0] = std::make_unique<PcmReadAhead>(normalizedFd, frames);
     const std::array normalizedFds{normalizedFd};
     createLoopCache(normalizedFds);
+    createTempoSource(normalizedFds);
 }
 
 PreparedPlayback::PreparedPlayback(std::array<int, stemCount> normalizedFds, std::uint64_t frames)
@@ -229,6 +233,7 @@ PreparedPlayback::PreparedPlayback(std::array<int, stemCount> normalizedFds, std
     }
     bank_ = std::make_unique<StemBankSource>(sources);
     createLoopCache(normalizedFds);
+    createTempoSource(normalizedFds);
 }
 
 PreparedPlayback::~PreparedPlayback() { stop(); }
@@ -247,6 +252,23 @@ void PreparedPlayback::createLoopCache(std::span<const int> fds) noexcept
         loopSetupError_ = EINVAL;
     } catch (...) {
         loopSetupError_ = EIO;
+    }
+}
+
+void PreparedPlayback::createTempoSource(std::span<const int> fds) noexcept
+{
+    // The optional independent worker owns its duplicated FDs and raw slots;
+    // failure leaves the existing unity readers, bank and loops usable.
+    try {
+        tempoSource_ = std::make_unique<PreparedTempoSource>(fds, frames_);
+    } catch (const std::system_error& error) {
+        tempoSetupError_ = error.code().value() > 0 ? error.code().value() : EIO;
+    } catch (const std::bad_alloc&) {
+        tempoSetupError_ = ENOMEM;
+    } catch (const std::invalid_argument&) {
+        tempoSetupError_ = EINVAL;
+    } catch (...) {
+        tempoSetupError_ = EIO;
     }
 }
 
@@ -273,6 +295,13 @@ AudioSource PreparedPlayback::sourceRef() noexcept
         };
         source.loopState = [](const void* context) noexcept {
             return static_cast<const PreparedPlayback*>(context)->loopState();
+        };
+        source.tempoControl = [](void* context, AudioTempoCommand command, double percent,
+                                 bool keyLock, std::uint64_t frame) noexcept {
+            return static_cast<PreparedPlayback*>(context)->tempoControl(command, percent, keyLock, frame);
+        };
+        source.tempoState = [](const void* context) noexcept {
+            return static_cast<const PreparedPlayback*>(context)->tempoState();
         };
         return source;
     }
@@ -303,7 +332,7 @@ int PreparedPlayback::preparedRenderError() const noexcept
 AudioLoopState PreparedPlayback::loopState() const noexcept
 {
     auto state = loop_;
-    state.supported = !live_ && bool(loopCache_);
+    state.supported = !live_ && bool(loopCache_) && !tempoState().active;
     state.errorCode = loopSetupError_;
     if (loopCache_) {
         state.residentBytes = loopCache_->residentBytes();
@@ -315,6 +344,59 @@ AudioLoopState PreparedPlayback::loopState() const noexcept
     if (const int code = preparedRenderError()) state.errorCode = code;
     state.ready = state.ready && !state.errorCode;
     return state;
+}
+
+AudioTempoState PreparedPlayback::tempoState() const noexcept
+{
+    AudioTempoState state;
+    state.keyLock = tempoKeyLock_;
+    state.errorCode = tempoSetupError_;
+    if (tempoSource_) {
+        state = tempoSource_->status();
+        state.supported = !stopped_;
+        if (!state.active) state.keyLock = tempoKeyLock_;
+    }
+    return state;
+}
+
+bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, bool keyLock,
+                                    std::uint64_t frame) noexcept
+{
+    if (live_ || stopped_ || !tempoSource_ || frame > frames_ ||
+        !std::isfinite(percent) || percent < -6 || percent > 6)
+        return false;
+    const auto state = tempoSource_->status();
+    if (command == AudioTempoCommand::Reset) {
+        if (percent != 0) return false;
+        if (state.active) {
+            if (!tempoSource_->cancel()) return false;
+            // The legacy bank/readers may still be parked at a pre-tempo
+            // cursor. This is an asynchronous refill, never a stale resume.
+            seekLinear(frame);
+        }
+        return true; // Keep the selected Master Tempo setting at legacy zero.
+    }
+    if (command != AudioTempoCommand::Set) return false;
+    if (state.active) {
+        bool accepted = state.keyLock == keyLock
+            ? tempoSource_->requestSpeed(percent)
+            : tempoSource_->request(frame, percent, keyLock);
+        // A mode/session reset at zero creates a fresh exact-unity backend.
+        // Its first nonzero speed needs explicit setup, unlike an active
+        // SRC/R3 stream crossing zero, which requestSpeed already accepts.
+        if (!accepted && state.keyLock == keyLock && state.percent == 0 && percent != 0 && !state.errorCode)
+            accepted = tempoSource_->request(frame, percent, keyLock);
+        if (accepted) tempoKeyLock_ = keyLock;
+        return accepted;
+    }
+    if (loop_.inSet || loop_.outSet || loop_.cached || preparedRenderError()) return false;
+    if (percent == 0) {
+        tempoKeyLock_ = keyLock;
+        return true;
+    }
+    if (!tempoSource_->request(frame, percent, keyLock)) return false;
+    tempoKeyLock_ = keyLock;
+    return true;
 }
 
 void PreparedPlayback::seekLinear(std::uint64_t frame) noexcept
@@ -336,6 +418,10 @@ void PreparedPlayback::seekPrepared(std::uint64_t frame) noexcept
     if (frame > frames_) return;
     clearLoop();
     seekLinear(frame);
+    if (tempoSource_) {
+        const auto state = tempoSource_->status();
+        if (state.active) (void)tempoSource_->request(frame, state.percent, state.keyLock);
+    }
 }
 
 bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame) noexcept
@@ -349,6 +435,9 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
         if (wasCached) seekLinear(frame);
         return true;
     }
+    // Crossing zero inside SRC/R3 preserves queued/filter state and remains
+    // processed mode until an explicit reset restores the legacy source.
+    if (tempoState().active) return false;
     if (!loopCache_) return false;
     if (command == AudioLoopCommand::In) {
         if (frame == frames_ || preparedRenderError()) return false;
@@ -387,6 +476,7 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
 AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<float> output) noexcept
 {
     if (output.size() % StemBankSource::channels || frame > frames_) return {0, true};
+    if (tempoState().active) return readTempo(output);
     if (output.empty()) return {};
     if (loop_.cached) {
         if (frame < loop_.inFrame || frame > loop_.outFrame) return {0, true};
@@ -415,6 +505,58 @@ AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<fl
     }
     const auto source = bank_ ? bank_->sourceRef() : readers_[0]->sourceRef();
     return source.read(source.context, frame, output);
+}
+
+AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
+{
+    AudioReadResult result;
+    result.positionValid = true;
+    result.nominalPosition = tempoSource_->nominalPosition();
+    result.finished = tempoSource_->status().finished;
+    if (output.size() / StemBankSource::channels > PreparedTempoSource::blockFrames) {
+        result.failed = true;
+        return result;
+    }
+    if (output.empty()) return result;
+    if (preparedRenderError()) { result.failed = true; return result; }
+    // A DSP packet may be shorter than an output callback. Gather the actual
+    // queued contiguous prefix, with a fixed ring-sized bound, before declaring
+    // starvation. Mixing still uses the bank's one current gain-ramp state.
+    for (std::size_t slot = 0; slot < PreparedTempoSource::slotCount &&
+         result.frames < output.size() / StemBankSource::channels; ++slot) {
+        const auto view = tempoSource_->peek();
+        if (!view) break;
+        if (view.generation != tempoSource_->generation()) { result.failed = true; break; }
+        if (view.errorCode) {
+            (void)tempoSource_->consume(0);
+            result.failed = true;
+            break;
+        }
+        if (view.terminal) {
+            result.failed = !tempoSource_->consume(0);
+            break;
+        }
+        const auto count = std::min(output.size() / StemBankSource::channels - result.frames, view.frames);
+        auto clipped = output.subspan(result.frames * StemBankSource::channels, count * StemBankSource::channels);
+        if (view.leafCount != (bank_ ? stemCount : 1)) { result.failed = true; break; }
+        AudioReadResult part;
+        if (bank_) part = bank_->readCached(view.leaves, 0, clipped);
+        else {
+            if (view.leaves[0].size() != view.frames * StemBankSource::channels) {
+                result.failed = true;
+                break;
+            }
+            std::copy_n(view.leaves[0].data(), clipped.size(), clipped.data());
+            part.frames = count;
+        }
+        if (part.frames > count) { result.failed = true; break; }
+        if (!tempoSource_->consume(part.frames)) { result.failed = true; break; }
+        result.frames += part.frames;
+        if (part.failed || part.frames != count) { result.failed = true; break; }
+    }
+    result.nominalPosition = tempoSource_->nominalPosition();
+    result.finished = tempoSource_->status().finished;
+    return result;
 }
 
 AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float> output) noexcept
@@ -503,10 +645,7 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         setLiveActive(false);
         seekLive(frame);
         if (live_->code()) return false;
-    } else if (bank_) {
-        const auto source = bank_->sourceRef();
-        source.discontinuity(source.context, frame);
-    }
+    } else if (bank_ || tempoState().active) seekLinear(frame);
     const auto deadline = now + timeout;
     if (live_) {
         LiveStemBuffer::Request request;
@@ -543,6 +682,40 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         }
         primeError_.store(ETIMEDOUT, std::memory_order_relaxed);
         return false;
+    }
+    if (tempoSource_) {
+        const auto state = tempoSource_->status();
+        if (state.active) {
+            // Preserve the whole owner's selected mode across quiesced
+            // session installation, but invalidate its old queued generation.
+            if (!tempoSource_->request(frame, state.percent, state.keyLock)) {
+                const int code = tempoSource_->errorCode();
+                primeError_.store(code ? code : EIO, std::memory_order_relaxed);
+                return false;
+            }
+            for (;;) {
+                if (stop.stop_requested()) {
+                    primeError_.store(ECANCELED, std::memory_order_relaxed);
+                    return false;
+                }
+                if (const int code = tempoSource_->errorCode()) {
+                    primeError_.store(code, std::memory_order_relaxed);
+                    return false;
+                }
+                const auto view = tempoSource_->peek();
+                if (view.errorCode) {
+                    primeError_.store(view.errorCode, std::memory_order_relaxed);
+                    return false;
+                }
+                if (view && view.generation == tempoSource_->generation()) return true;
+                const auto current = Clock::now();
+                if (current >= deadline) {
+                    primeError_.store(ETIMEDOUT, std::memory_order_relaxed);
+                    return false;
+                }
+                std::this_thread::sleep_until(std::min(deadline, current + std::chrono::milliseconds(1)));
+            }
+        }
     }
     for (const auto& reader : readers_) {
         if (!reader) continue;
@@ -616,6 +789,8 @@ int PreparedPlayback::errorCode() const noexcept
     if (live_)
         if (const auto code = live_->code()) return code;
     if (const auto code = primeError_.load(std::memory_order_relaxed)) return code;
+    if (tempoSource_)
+        if (const auto code = tempoSource_->errorCode()) return code;
     for (const auto& reader : readers_)
         if (reader)
             if (const auto code = reader->errorCode()) return code;
@@ -630,6 +805,11 @@ std::string PreparedPlayback::error() const
             return "Live stem producer: " + std::generic_category().message(code);
     if (const auto code = primeError_.load(std::memory_order_relaxed))
         result = "Playback priming: " + std::generic_category().message(code);
+    if (tempoSource_)
+        if (const auto code = tempoSource_->errorCode()) {
+            if (!result.empty()) result += "; ";
+            result += "Prepared tempo: " + std::generic_category().message(code);
+        }
     for (std::size_t stem = 0; stem < readers_.size(); ++stem) {
         if (!readers_[stem] || !readers_[stem]->errorCode()) continue;
         if (!result.empty()) result += "; ";
@@ -656,6 +836,7 @@ void PreparedPlayback::stop() noexcept
         live_->thread.request_stop();
         if (live_->thread.joinable()) live_->thread.join();
     }
+    if (tempoSource_) tempoSource_->stop();
     if (loopCache_) {
         loop_ = {};
         loopCache_->stop();

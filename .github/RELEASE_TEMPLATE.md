@@ -27,7 +27,7 @@ On Arch Linux, install the build dependencies:
 
 ```sh
 sudo pacman -S --needed base-devel cmake ninja pkgconf pipewire libsndfile \
-  libsamplerate taglib qt6-base qt6-declarative qt6-svg
+  libsamplerate rubberband taglib qt6-base qt6-declarative qt6-svg
 ```
 
 Check the [tagged build instructions](https://github.com/{{REPOSITORY}}/blob/{{TAG}}/README.md#build-and-run)

@@ -10,6 +10,24 @@ namespace conflux::audio {
 struct AudioReadResult {
     std::size_t frames = 0;
     bool failed = false;
+    // Processed prepared sources report their fractional nominal transport
+    // cursor after this prefix. It is separate from output delivery and file
+    // read-ahead; Rubber Band does not supply an exact per-sample source map.
+    bool positionValid = false;
+    double nominalPosition = 0;
+    // True only after the consumer has reached the backend's final marker,
+    // including all returned tail frames. An unavailable suffix is not EOF.
+    bool finished = false;
+};
+
+enum class AudioTempoCommand { Set, Reset };
+
+struct AudioTempoState {
+    double percent = 0, appliedPercent = 0;
+    std::uint64_t generation = 0;
+    int errorCode = 0;
+    bool supported = false, active = false, pending = false;
+    bool finished = false, keyLock = false;
 };
 
 enum class AudioLoopCommand { In, Out, Toggle, Clear };
@@ -24,8 +42,10 @@ struct AudioLoopState {
 };
 
 // Borrowed, already validated stereo 48 kHz PCM. All storage and context must
-// outlive the renderer. A read supplies only a contiguous prefix at firstFrame;
-// an unavailable suffix is not EOF. Callbacks must not allocate, block or do I/O.
+// outlive the renderer. A normal read supplies a contiguous prefix at firstFrame;
+// an unavailable suffix is not EOF. During processed tempo, firstFrame is the
+// owner's floored nominal cursor, not a DSP output offset; returned position
+// metadata governs advancement. Callbacks must not allocate, block or do I/O.
 struct AudioSource {
     std::uint64_t frames = 0;
     const float* memory = nullptr;
@@ -45,6 +65,14 @@ struct AudioSource {
     // storage until a later render-boundary invalidation or quiesced teardown.
     bool (*loopControl)(void*, AudioLoopCommand, std::uint64_t frame) noexcept = nullptr;
     AudioLoopState (*loopState)(const void*) noexcept = nullptr;
+    // Optional prepared-tempo pair. Commands capture the render cursor and
+    // publish bounded worker requests; DSP setup and I/O stay off callback.
+    // Active includes pending/finished processing and DSP at zero percent.
+    // appliedPercent identifies the consumed packet's input configuration,
+    // not a guarantee of immediate audible effect or exact source mapping.
+    bool (*tempoControl)(void*, AudioTempoCommand, double percent, bool keyLock,
+                         std::uint64_t frame) noexcept = nullptr;
+    AudioTempoState (*tempoState)(const void*) noexcept = nullptr;
 
     [[nodiscard]] bool isMemory() const noexcept { return memory != nullptr; }
 

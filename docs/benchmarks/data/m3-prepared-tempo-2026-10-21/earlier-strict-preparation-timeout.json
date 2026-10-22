@@ -1,0 +1,12 @@
+{
+  "passed": false,
+  "execution_deadline_gate": true,
+  "harness_timeout_seconds": 90,
+  "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+  "preflight_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "error": "Private routing harness timed out",
+  "daemon_reaped": true
+}

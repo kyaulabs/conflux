@@ -28,11 +28,12 @@ direction are the next stages of development.
 - Independent master and headphone mixes, explicit PipeWire routing, channel
   and bus levels, stereo peak/RMS meters and overrange indicators.
 - Manual IN/OUT/RELOOP for prepared tracks and stem banks.
+- Prepared-track tempo at ±6%, with optional pitch-preserving Master Tempo.
 - Fixed A/B crossfader with independent headphone cue and short gain ramps.
 - Live post-master stereo WAV recording, plus a shared headless render core.
 - Light and dark performance views using the supplied CONFLUX artwork.
 
-Hot cues, tempo/sync, EQ and effects remain
+Hot cues, sync, EQ and effects remain
 inactive until their audio features are implemented. Jog searches the track
 position; scratch and pitch bend are planned.
 
@@ -61,7 +62,7 @@ prototype; release installation packages are not available yet.
 
 Use Linux with a running PipeWire session. The native window targets Wayland.
 Build requirements are a C++20 compiler, CMake 3.25+, Ninja, pkg-config,
-PipeWire 0.3.65+, libsndfile 1.2+, libsamplerate 0.2.2+, TagLib 1.13+ and
+PipeWire 0.3.65+, libsndfile 1.2+, libsamplerate 0.2.2+, Rubber Band 3.3+, TagLib 1.13+ and
 Qt 6.4+ with Quick, Quick Controls 2, SVG and Concurrent. Tests also use Qt Test and
 Python 3.11+ with NumPy. Contributors also need Node.js and pnpm 11.28.5 for
 the repository's commit tools.
@@ -70,7 +71,7 @@ On Arch Linux, install the development dependencies:
 
 ```sh
 sudo pacman -S --needed base-devel cmake ninja pkgconf pipewire libsndfile \
-  libsamplerate taglib qt6-base qt6-declarative qt6-svg python python-numpy pnpm
+  libsamplerate rubberband taglib qt6-base qt6-declarative qt6-svg python python-numpy pnpm
 ```
 
 Current Arch packages include the Wayland client plugin in `qt6-base`; see the
