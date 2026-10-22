@@ -47,6 +47,27 @@ QVariantMap meterMap(const audio::RenderCore::StereoMeter& meter)
             {"overrangeLeft", QVariant::fromValue<qulonglong>(meter.overrangeSamples[0])},
             {"overrangeRight", QVariant::fromValue<qulonglong>(meter.overrangeSamples[1])}};
 }
+
+QString preparationPhaseText(const QString& phase)
+{
+    if (phase == "decode-cache") return "Decoding / validating audio cache";
+    if (phase == "stems") return "Preparing requested stems";
+    if (phase == "bpm-prepare") return "Preparing original mix for BPM analysis";
+    if (phase == "bpm") return "Analyzing original-mix BPM";
+    if (phase == "prime") return "Priming playback";
+    if (phase == "install") return "Installing prepared track";
+    if (phase == "levels") return "Measuring audio levels";
+    if (phase == "cues") return "Reading cue sheet";
+    if (phase == "library") return "Saving library entry";
+    if (phase == "cancel") return "Cancelling preparation";
+    return {};
+}
+
+QVariantMap presentationMap(const library::TrackPresentation& presentation)
+{
+    return {{"title", presentation.title}, {"artist", presentation.artist},
+            {"album", presentation.album}, {"artworkDataUrl", presentation.artworkDataUrl}};
+}
 } // namespace
 
 DeckController::PreparedPcm::PreparedPcm(audio::PreparedAudio audio)
@@ -216,12 +237,17 @@ void DeckController::shutdown()
     busy_ = false;
     preparationStatus_ = "Idle";
     preparationCacheHit_ = false;
+    pendingPresentation_ = {};
+    pendingWaveform_.clear();
+    preparationPhase_.clear();
+    preparationCompletedStages_ = preparationTotalStages_ = 0;
 }
 
 QVariantList DeckController::decks() const
 {
     QVariantList result;
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
+        const bool loading = preparationActive() && !pendingImport_ && int(deck) == pendingDeck_;
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"sourceId", sourceIds_[deck]},
@@ -233,6 +259,17 @@ QVariantList DeckController::decks() const
                 {"manual", bpmOverrides_[deck].has_value()},
                 {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
             {"replacing", replacing_[deck]},
+            {"loading", loading},
+            {"pendingName", loading ? pendingName_ : QString{}},
+            {"pendingPath", loading ? pendingPath_ : QString{}},
+            {"pendingPresentation", presentationMap(loading ? pendingPresentation_ : library::TrackPresentation{})},
+            {"pendingWaveform", loading ? pendingWaveform_ : QVariantList{}},
+            {"loadPhase", loading ? preparationPhase_ : QString{}},
+            {"loadPhaseText", loading ? preparationPhaseText(preparationPhase_) : QString{}},
+            {"loadCompletedStages", loading ? preparationCompletedStages_ : 0},
+            {"loadTotalStages", loading ? preparationTotalStages_ : 0},
+            {"loadProgress", loading && preparationTotalStages_ ?
+                preparationCompletedStages_ / double(preparationTotalStages_) : 0.},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
             {"overviewStem", clips_[deck] && clips_[deck]->live() ? "source" :
@@ -368,12 +405,44 @@ std::uint64_t DeckController::retainedPcmBytes() const
 QVariantMap DeckController::preparation() const
 {
     const bool idle = preparationStatus_ == "Idle";
+    const bool active = preparationActive();
     return {{"status", preparationStatus_}, {"deck", idle || pendingImport_ ? -1 : pendingDeck_},
             {"name", idle ? QString{} : pendingName_},
+            {"active", active}, {"sourcePath", idle ? QString{} : pendingPath_},
+            {"phase", idle ? QString{} : preparationPhase_},
+            {"phaseText", idle ? QString{} : preparationPhaseText(preparationPhase_)},
+            // A fraction of completed stages, never an elapsed-time or byte estimate.
+            {"completedStages", preparationCompletedStages_}, {"totalStages", preparationTotalStages_},
+            {"progress", preparationTotalStages_ ? preparationCompletedStages_ / double(preparationTotalStages_) : 0.},
+            {"indeterminate", active},
             {"cancellable", !closing_ && (preparationStatus_ == "Preparing" || preparationStatus_ == "Reading cues")},
             {"cacheHit", preparationCacheHit_},
             {"stems", !idle && pendingStems_},
             {"retainedPcmBytes", QVariant::fromValue<qulonglong>(retainedPcmBytes())}};
+}
+
+bool DeckController::preparationActive() const
+{
+    return !closing_ && busy_ && (preparationStatus_ == "Preparing" || preparationStatus_ == "Reading cues" ||
+        preparationStatus_ == "Cancelling" || preparationStatus_ == "Installing" || preparationStatus_ == "Saving");
+}
+
+void DeckController::updatePreparation(std::uint64_t serial, QString phase, int completedStages,
+                                      std::optional<library::TrackPresentation> presentation, QVariantList waveform)
+{
+    // Worker notifications own metadata only. Cancelled/completed or superseded
+    // jobs cannot repaint a deck, including when their queued events arrive late.
+    if (closing_ || serial != preparationSerial_ || loadCancellation_.stop_requested() ||
+        preparationStatus_ != "Preparing" || completedStages < preparationCompletedStages_ ||
+        completedStages >= preparationTotalStages_)
+        return;
+    preparationPhase_ = std::move(phase);
+    preparationCompletedStages_ = completedStages;
+    if (presentation) {
+        pendingPresentation_ = std::move(*presentation);
+        pendingWaveform_ = std::move(waveform);
+    }
+    emit stateChanged();
 }
 
 QVariantList DeckController::libraryTracks() const { return libraryTracks_; }
@@ -410,6 +479,7 @@ void DeckController::catalogFinished()
     if (result.saving) {
         busy_ = false;
         preparationStatus_ = result.error.isEmpty() ? "Complete" : "Failed";
+        if (result.error.isEmpty()) preparationCompletedStages_ = preparationTotalStages_;
         error_ = result.error;
     }
     emit libraryChanged();
@@ -447,6 +517,13 @@ void DeckController::importCueSheet(const QString& sourceId, const QUrl& url)
     pendingImport_ = true;
     pendingStems_ = false;
     pendingName_ = QFileInfo(url.toLocalFile()).fileName();
+    pendingPath_ = url.toLocalFile();
+    pendingPresentation_ = {};
+    pendingWaveform_.clear();
+    ++preparationSerial_;
+    preparationPhase_ = "cues";
+    preparationCompletedStages_ = 0;
+    preparationTotalStages_ = 2;
     preparationCacheHit_ = false;
     preparationStatus_ = "Reading cues";
     busy_ = true;
@@ -520,6 +597,7 @@ bool DeckController::cancelPreparation()
 {
     if (closing_ || (preparationStatus_ != "Preparing" && preparationStatus_ != "Reading cues")) return false;
     preparationStatus_ = "Cancelling";
+    preparationPhase_ = "cancel";
     loadCancellation_.request_stop();
     emit stateChanged();
     return true;
@@ -567,6 +645,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     pendingDeck_ = deck;
     const auto path = url.toLocalFile();
     pendingName_ = QFileInfo(path).fileName();
+    pendingPath_ = path;
     const auto baseCache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     if (baseCache.isEmpty()) {
         preparationStatus_ = "Failed";
@@ -584,11 +663,31 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     const auto engine = preparationOptions_.stemEngine;
     const auto service = preparationOptions_.stemServicePath;
     const auto bpmEngine = preparationOptions_.bpmEngine;
+    pendingPresentation_ = {};
+    pendingWaveform_.clear();
+    const auto serial = ++preparationSerial_;
+    preparationPhase_ = stems ? "stems" : "decode-cache";
+    preparationCompletedStages_ = 0;
+    preparationTotalStages_ = importOnly ? 3 : 3 + int(bpmEngine.has_value());
+    const auto report = [this, serial](QString phase, int completedStages,
+        std::optional<library::TrackPresentation> presentation = {}, QVariantList waveform = {}) {
+        QMetaObject::invokeMethod(this, [this, serial, phase = std::move(phase), completedStages,
+            presentation = std::move(presentation), waveform = std::move(waveform)]() mutable {
+            updatePreparation(serial, std::move(phase), completedStages,
+                              std::move(presentation), std::move(waveform));
+        }, Qt::QueuedConnection);
+    };
     loader_.setFuture(QtConcurrent::run([path, cache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits,
-                                       stop = loadCancellation_.get_token()]() -> LoadResult {
+                                       report, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache, limits);
             auto prepared = std::make_shared<PreparedLoad>();
+            int completedStages = 0;
+            const auto preview = [&](const library::TrackPresentation& presentation, std::span<const float> peaks) {
+                prepared->waveform.reserve(qsizetype(peaks.size()));
+                for (const auto peak : peaks) prepared->waveform.append(peak);
+                report(stems ? "stems" : "decode-cache", ++completedStages, presentation, prepared->waveform);
+            };
             QString sourceId;
             if (stems) {
                 auto bank = service.isEmpty() ?
@@ -609,14 +708,17 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations));
                     prepared->playback = std::move(track.playback);
                 }
+                preview(prepared->presentation, prepared->audio->peaks());
                 QString analyzedSource;
                 if (bpmEngine) {
                     // Timing always uses the original mix, never a drums leaf
                     // or the downsampled overview. Admit playback first so an
                     // optional analysis cache entry cannot exhaust its budget.
                     try {
+                        report("bpm-prepare", completedStages);
                         auto original = store.prepare(path, stop);
                         analyzedSource = original.sourceSha256;
+                        report("bpm", completedStages);
                         prepared->bpm = library::analyzeBpm(original.audio, *bpmEngine, stop);
                     } catch (const library::BpmSourceError&) {
                         throw;
@@ -624,6 +726,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         if (stop.stop_requested()) throw;
                         prepared->bpm = {{}, "Failed", "Original-mix BPM analysis could not complete."};
                     }
+                    ++completedStages;
                 }
                 if (!analyzedSource.isEmpty() && analyzedSource != sourceId)
                     prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
@@ -632,27 +735,33 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 sourceId = track.sourceSha256;
                 prepared->cacheHit = track.cacheHit;
                 prepared->presentation = std::move(track.presentation);
+                preview(prepared->presentation, track.audio.peaks());
                 if (importOnly) {
+                    report("levels", completedStages);
                     const auto levels = audio::measurePreparedLevels(track.audio, stop);
                     if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
                     library::LibraryTrack entry{track.sourceSha256, path, QFileInfo(path).fileName(),
                         track.artifactKey, track.audio.frames(), true, {}, levels};
                     return {nullptr, {}, std::move(entry), track.cacheHit};
                 }
-                if (bpmEngine) prepared->bpm = library::analyzeBpm(track.audio, *bpmEngine, stop);
+                if (bpmEngine) {
+                    report("bpm", completedStages);
+                    prepared->bpm = library::analyzeBpm(track.audio, *bpmEngine, stop);
+                    ++completedStages;
+                }
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));
             }
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
             if (!expectedSource.isEmpty() && sourceId != expectedSource)
                 throw std::runtime_error("Source changed; import this file again before loading its library entry.");
             prepared->sourceId = sourceId;
-            prepared->waveform.reserve(qsizetype(prepared->audio->peaks().size()));
-            for (const auto peak : prepared->audio->peaks()) prepared->waveform.append(peak);
+            report("prime", completedStages);
             if (!prepared->playback) prepared->playback = prepared->audio->makePlayback();
             const auto primeWait = prepared->audio->live() ? audio::PreparedPlayback::liveWait : std::chrono::seconds(2);
             if (!prepared->playback->prime(0, primeWait, stop))
                 throw std::runtime_error("Cannot prime the prepared track: " + prepared->playback->error());
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
+            report("prime", ++completedStages);
             const auto hit = prepared->cacheHit;
             return {std::move(prepared), {}, {}, hit};
         } catch (const std::exception& error) {
@@ -722,6 +831,8 @@ void DeckController::loaded()
     }
     if (result.imported) {
         preparationStatus_ = "Saving";
+        preparationPhase_ = "library";
+        preparationCompletedStages_ = preparationTotalStages_ - 1;
         preparationCacheHit_ = result.cacheHit;
         // Own the write before a direct observer can shut down from Saving.
         // Cancellation has ended; shutdown joins this accepted atomic save.
@@ -746,6 +857,8 @@ void DeckController::loaded()
     }
     // This is the cancellation cutoff, before metadata or live handoff changes.
     preparationStatus_ = "Installing";
+    preparationPhase_ = "install";
+    preparationCompletedStages_ = preparationTotalStages_ - 1;
     preparationCacheHit_ = result.prepared->cacheHit;
     emit stateChanged();
     if (closing_) return;
@@ -968,7 +1081,10 @@ void DeckController::retired()
         !replacing_[0] && !replacing_[1]) {
         busy_ = false;
         if (preparationStatus_ == "Cancelling") preparationStatus_ = "Cancelled";
-        else if (preparationStatus_ == "Installing") preparationStatus_ = "Complete";
+        else if (preparationStatus_ == "Installing") {
+            preparationStatus_ = "Complete";
+            preparationCompletedStages_ = preparationTotalStages_;
+        }
     }
     if (!closing_) emit stateChanged();
 }
@@ -1038,6 +1154,7 @@ void DeckController::installed()
         fail(QString::fromUtf8(error.what()));
         return;
     }
+    if (installingPreparation && !busy_) preparationCompletedStages_ = preparationTotalStages_;
     error_.clear();
     emit stateChanged();
 }

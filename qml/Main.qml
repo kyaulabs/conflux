@@ -69,6 +69,30 @@ ApplicationWindow {
         onRejected: targetDeck = -1
     }
 
+    FileDialog {
+        id: cueFileDialog
+        objectName: "libraryCueFileDialog"
+        property string targetSourceId: ""
+        parentWindow: window
+        modality: Qt.WindowModal
+        title: "Choose CUE sheet for selected track"
+        fileMode: FileDialog.OpenFile
+        nameFilters: ["CUE sheets (*.cue *.CUE)", "All files (*)"]
+        onAccepted: {
+            const sourceId = targetSourceId
+            targetSourceId = ""
+            if (!library.opened || deckController.busy || !deckController.libraryReady
+                || sourceId.length === 0 || sourceId !== library.selectedId
+                || library.selectedTrack === null || !library.selectedTrack.available) return
+            const url = selectedFile.toString()
+            if (!url.startsWith("file:///") && !url.startsWith("file://localhost/")) return
+            cuePath.text = url
+            library.cuePathSourceId = sourceId
+            cuePath.forceActiveFocus()
+        }
+        onRejected: targetSourceId = ""
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 12
@@ -140,14 +164,45 @@ ApplicationWindow {
                 Accessible.name: "Open local file library (Control O)"
             }
             Button {
+                id: audioSettingsButton
                 objectName: "audioSettingsOpen"
-                text: deckController.recording.active ? "AUDIO / REC ●" : "AUDIO / REC"
+                text: "AUDIO / REC"
                 font.family: Brand.ConfluxTheme.displayFont
                 font.pixelSize: 15
                 Layout.minimumWidth: 116
                 Layout.minimumHeight: 44
                 onClicked: audioSettings.open()
                 Accessible.name: "Audio outputs and stereo recording"
+                Accessible.description: deckController.recording.active ? "Stereo master recording is active." : "Configure outputs or record the stereo master."
+                contentItem: Item {
+                    implicitWidth: recordingHeaderRow.implicitWidth
+                    implicitHeight: recordingHeaderRow.height
+                    Row {
+                        id: recordingHeaderRow
+                        anchors.centerIn: parent
+                        height: Math.max(recordingHeaderLabel.implicitHeight, recordingHeaderDot.height)
+                        spacing: 8
+                        Label {
+                            id: recordingHeaderLabel
+                            objectName: "audioSettingsRecordingLabel"
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: audioSettingsButton.text
+                            font: audioSettingsButton.font
+                            color: Brand.ConfluxTheme.text
+                        }
+                        Rectangle {
+                            id: recordingHeaderDot
+                            objectName: "audioSettingsRecordingIndicator"
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 8
+                            height: 8
+                            radius: width / 2
+                            visible: deckController.recording.active
+                            color: Brand.ConfluxTheme.primary
+                            Accessible.ignored: true
+                        }
+                    }
+                }
                 background: Rectangle {
                     radius: 3
                     color: parent.down ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.surface
@@ -292,7 +347,15 @@ ApplicationWindow {
         objectName: "libraryDrawer"
         property int selectedDeck: 0
         property string selectedId: ""
-        onSelectedIdChanged: cancelFileBrowse()
+        property string cuePathSourceId: ""
+        onSelectedIdChanged: {
+            cancelFileBrowse()
+            cancelCueBrowse()
+            if (cuePathSourceId.length > 0 && cuePathSourceId !== selectedId) {
+                cuePath.text = ""
+                cuePathSourceId = ""
+            }
+        }
         readonly property var selectedTrack: {
             const tracks = deckController.libraryTracks
             for (let index = 0; index < tracks.length; ++index)
@@ -314,6 +377,7 @@ ApplicationWindow {
         }
         function selectTrack(track) {
             cancelFileBrowse()
+            cancelCueBrowse()
             selectedId = track.id
             sourceA.text = track.path
             sourceB.text = track.path
@@ -323,9 +387,23 @@ ApplicationWindow {
             localFileDialog.close()
         }
         function browseFile(deck) {
-            if (!opened || deckController.busy || localFileDialog.visible || (deck !== 0 && deck !== 1)) return
+            if (!opened || deckController.busy || localFileDialog.visible || cueFileDialog.visible || (deck !== 0 && deck !== 1)) return
             localFileDialog.targetDeck = deck
             localFileDialog.open()
+        }
+        function cancelCueBrowse() {
+            cueFileDialog.targetSourceId = ""
+            cueFileDialog.close()
+        }
+        function canBrowseCues() {
+            return opened && deckController.libraryReady && !deckController.busy
+                   && selectedTrack !== null && selectedTrack.available
+                   && !localFileDialog.visible && !cueFileDialog.visible
+        }
+        function browseCues() {
+            if (!canBrowseCues()) return
+            cueFileDialog.targetSourceId = selectedId
+            cueFileDialog.open()
         }
         function canLoad(path) {
             if (deckController.busy) return false
@@ -336,6 +414,7 @@ ApplicationWindow {
         function canImportCues() {
             return deckController.libraryReady && !deckController.busy
                    && selectedTrack !== null && selectedTrack.available
+                   && (cuePathSourceId.length === 0 || cuePathSourceId === selectedId)
                    && cuePath.text.trim().length > 0
         }
         function canJumpCue(deck) {
@@ -371,11 +450,11 @@ ApplicationWindow {
         height: Math.min(window.height - 48, 650)
         modal: true
         padding: 24
-        onAboutToHide: cancelFileBrowse()
+        onAboutToHide: { cancelFileBrowse(); cancelCueBrowse() }
         Connections {
             target: deckController
             function onStateChanged() {
-                if (deckController.busy) library.cancelFileBrowse()
+                if (deckController.busy) { library.cancelFileBrowse(); library.cancelCueBrowse() }
             }
         }
         background: Rectangle {
@@ -445,7 +524,7 @@ ApplicationWindow {
                 Button {
                     objectName: "deck0FileBrowse"
                     text: "BROWSE…"
-                    enabled: library.opened && !deckController.busy && !localFileDialog.visible
+                    enabled: library.opened && !deckController.busy && !localFileDialog.visible && !cueFileDialog.visible
                     Layout.minimumWidth: 104
                     Layout.minimumHeight: 44
                     onClicked: library.browseFile(0)
@@ -498,7 +577,7 @@ ApplicationWindow {
                 Button {
                     objectName: "deck1FileBrowse"
                     text: "BROWSE…"
-                    enabled: library.opened && !deckController.busy && !localFileDialog.visible
+                    enabled: library.opened && !deckController.busy && !localFileDialog.visible && !cueFileDialog.visible
                     Layout.minimumWidth: 104
                     Layout.minimumHeight: 44
                     onClicked: library.browseFile(1)
@@ -629,9 +708,20 @@ ApplicationWindow {
                             selectByMouse: true
                             Layout.fillWidth: true
                             Layout.minimumHeight: 44
+                            onTextEdited: { library.cancelCueBrowse(); library.cuePathSourceId = "" }
                             onAccepted: if (importCues.enabled)
                                 deckController.importCueSheet(library.selectedId, window.localUrl(text))
                             Accessible.name: "Cue-sheet path for selected library track"
+                        }
+                        Button {
+                            objectName: "libraryCueBrowse"
+                            text: "BROWSE…"
+                            enabled: library.canBrowseCues()
+                            Layout.minimumWidth: 88
+                            Layout.minimumHeight: 44
+                            onClicked: library.browseCues()
+                            Accessible.name: "Browse for selected track CUE sheet"
+                            Accessible.description: "Choose a local CUE sheet without importing cues, loading or seeking a deck."
                         }
                         Button {
                             id: importCues
