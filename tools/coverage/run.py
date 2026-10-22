@@ -66,7 +66,7 @@ def main():
         "interpreter": sys.executable,
         "cpp_flags": FLAGS,
         "measured_sources": {"cpp": "src/** including main, probe and instrumented headers",
-                             "python": "tools/stems/**"},
+                             "python": "tools/stems/** and tools/timing/**"},
         "unmeasured_product_sources": {
             "qml": sorted(str(p.relative_to(ROOT)) for p in (ROOT / "qml").glob("*.qml")) +
                    ["brand/integration/qtquick/ConfluxTheme.qml"],
@@ -136,7 +136,7 @@ def main():
         config = BUILD / "python-coverage.ini"
         config.write_text(
             "[run]\nbranch = true\nparallel = true\n"
-            f"source_dirs = {ROOT / 'tools' / 'stems'}\n"
+            f"source_dirs =\n    {ROOT / 'tools' / 'stems'}\n    {ROOT / 'tools' / 'timing'}\n"
             f"data_file = {DATA / '.coverage'}\n"
             "[report]\ninclude_namespace_packages = true\nprecision = 2\nshow_missing = true\n",
             encoding="utf-8")

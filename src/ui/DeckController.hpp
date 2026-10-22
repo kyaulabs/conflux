@@ -7,6 +7,7 @@
 #include "audio/StereoRecorder.hpp"
 #include "library/LibraryCatalog.hpp"
 #include "library/PreparedTrackStore.hpp"
+#include "library/BpmAnalyzer.hpp"
 
 #include <QFutureWatcher>
 #include <QObject>
@@ -49,6 +50,7 @@ public:
         // Empty keeps complete offline preparation; explicit service mode first
         // looks for the same validated bank, then prepares a live owner on miss.
         QString stemServicePath;
+        std::optional<library::BpmEngine> bpmEngine;
     };
     explicit DeckController(QObject* parent = nullptr);
     explicit DeckController(PreparationOptions options, QObject* parent = nullptr);
@@ -92,6 +94,9 @@ public:
     Q_INVOKABLE void loopOut(int deck);
     Q_INVOKABLE void loopToggle(int deck);
     Q_INVOKABLE void setTempoPercent(int deck, double percent);
+    Q_INVOKABLE void setTempoBpm(int deck, double bpm);
+    Q_INVOKABLE void setBpmOverride(int deck, double bpm);
+    Q_INVOKABLE void clearBpmOverride(int deck);
     Q_INVOKABLE void toggleMasterTempo(int deck);
     Q_INVOKABLE void resetTempo(int deck);
     Q_INVOKABLE void setCueGain(double gain);
@@ -151,6 +156,7 @@ private:
         bool cacheHit = false;
         QString sourceId;
         library::TrackPresentation presentation;
+        library::BpmEstimate bpm;
     };
     struct LoadResult {
         std::shared_ptr<PreparedLoad> prepared;
@@ -224,6 +230,8 @@ private:
     std::array<QString, 2> names_{};
     std::array<QString, 2> sourceIds_{};
     std::array<library::TrackPresentation, 2> presentations_{};
+    std::array<library::BpmEstimate, 2> bpmEstimates_{};
+    std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     std::array<bool, 2> replacing_{};

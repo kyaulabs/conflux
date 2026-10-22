@@ -14,6 +14,7 @@
 #include <QQuickStyle>
 #include <QScreen>
 #include <QSaveFile>
+#include <QStandardPaths>
 #include <QTimeLine>
 #include <QTimer>
 #include "ui/DeckController.hpp"
@@ -51,6 +52,9 @@ int main(int argc, char** argv) {
     parser.addOption({"stem-service", "Optional persistent local stem service (all five stem paths required).", "path"});
     parser.addOption({"stem-backend", "Prepared stem backend: cpu or vulkan.", "backend", "vulkan"});
     parser.addOption({"stem-threads", "Prepared stem CPU thread limit (1..64).", "threads", "2"});
+    parser.addOption({"bpm-python", "Local CPU BPM Python executable (all three BPM paths required).", "path"});
+    parser.addOption({"bpm-source", "Pinned Beat This source directory.", "path"});
+    parser.addOption({"bpm-model", "Pinned local final0 checkpoint.", "path"});
     parser.process(app);
     if ((parser.isSet("screenshot") || parser.isSet("smoke-stop-file") ||
          parser.isSet("smoke-progress-file")) && !parser.isSet("smoke-test"))
@@ -61,6 +65,22 @@ int main(int argc, char** argv) {
         (parser.isSet("smoke-seconds") && !parser.isSet("smoke-test")))
         parser.showHelp(2);
     conflux::DeckController::PreparationOptions preparationOptions;
+    const std::array<const char*, 3> bpmPaths{"bpm-python", "bpm-source", "bpm-model"};
+    const auto suppliedBpmPaths = std::size_t(std::ranges::count_if(bpmPaths, [&](const auto* name) { return parser.isSet(name); }));
+    const auto localBpm = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/bpm-runtime";
+    QString bpmPython = localBpm + "/venv/bin/python", bpmSource = localBpm + "/source", bpmModel = localBpm + "/final0.ckpt";
+    if (suppliedBpmPaths) {
+        if (suppliedBpmPaths != bpmPaths.size() || parser.isSet("smoke-test")) parser.showHelp(2);
+        for (const auto* name : bpmPaths)
+            if (!QFileInfo(parser.value(name)).isAbsolute() || parser.value(name).contains(QChar(u'\0'))) parser.showHelp(2);
+        bpmPython = parser.value("bpm-python"); bpmSource = parser.value("bpm-source"); bpmModel = parser.value("bpm-model");
+    }
+    if (!parser.isSet("smoke-test") && (suppliedBpmPaths ||
+        (QFileInfo::exists(bpmPython) && QFileInfo::exists(bpmSource) && QFileInfo::exists(bpmModel)))) {
+        const auto adjacentWorker = QCoreApplication::applicationDirPath() + "/analyze_bpm.py";
+        const auto worker = QFileInfo::exists(adjacentWorker) ? adjacentWorker : QString(CONFLUX_BPM_WORKER_PATH);
+        preparationOptions.bpmEngine = conflux::library::BpmEngine{bpmPython, bpmSource, bpmModel, worker};
+    }
     const std::array<const char*, 5> stemPaths{
         "stem-python", "stem-exporter", "stem-worker", "stem-runtime", "stem-model"};
     const auto suppliedStemPaths = std::size_t(std::ranges::count_if(stemPaths, [&](const auto* name) { return parser.isSet(name); }));

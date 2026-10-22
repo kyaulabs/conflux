@@ -66,13 +66,18 @@ public:
                 {"keyLock", false}, {"active", false}, {"pending", false}, {"finished", false},
                 {"errorCode", 0}, {"generation", qulonglong(0)}};
     }
+    static QVariantMap bpmState(double reference = 0)
+    {
+        return {{"estimated", reference}, {"reference", reference}, {"manual", false},
+                {"status", reference > 0 ? "Estimated" : "Unavailable"}, {"error", ""}};
+    }
     UiEndpoint()
     {
         for (int deck = 0; deck < 2; ++deck)
             decks_.append(QVariantMap{{"loaded", false}, {"name", ""}, {"sourceId", ""}, {"playing", false}, {"replacing", false},
                                       {"gain", .5}, {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
-                                      {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()}, {"tempo", tempoState()},
+                                      {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()}, {"tempo", tempoState()}, {"bpm", bpmState()},
                                       {"waveform", QVariantList{}}});
         meters_ = {{"master", silentMeter()}, {"cue", silentMeter()}, {"blockFrames", 256}};
         QVariantList ports;
@@ -172,7 +177,7 @@ public:
                                    {"playing", false}, {"gain", .5},
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
-                                   {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)}, {"tempo", tempoState(true)},
+                                   {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)}, {"tempo", tempoState(true)}, {"bpm", bpmState(120)},
                                    {"waveform", QVariantList{.15, .5, .9, .3, .1}}};
         emit stateChanged();
     }
@@ -201,6 +206,8 @@ public:
     { snapshotDeck(deck, {{"loop", loop}}); }
     void snapshotTempo(int deck, const QVariantMap& tempo)
     { snapshotDeck(deck, {{"tempo", tempo}}); }
+    void snapshotBpm(int deck, const QVariantMap& bpm)
+    { snapshotDeck(deck, {{"bpm", bpm}}); }
     void snapshotSongInfo(int deck, const QString& title, const QString& artist,
                          const QString& album, const QString& artwork)
     {
@@ -312,6 +319,12 @@ public:
     // Like loop commands, tempo requests do not mutate acknowledged snapshots.
     Q_INVOKABLE void setTempoPercent(int deck, double percent)
     { calls.append(QVariantMap{{"action", "tempo"}, {"deck", deck}, {"value", percent}}); }
+    Q_INVOKABLE void setTempoBpm(int deck, double bpm)
+    { calls.append(QVariantMap{{"action", "tempoBpm"}, {"deck", deck}, {"value", bpm}}); }
+    Q_INVOKABLE void setBpmOverride(int deck, double bpm)
+    { calls.append(QVariantMap{{"action", "bpmOverride"}, {"deck", deck}, {"value", bpm}}); }
+    Q_INVOKABLE void clearBpmOverride(int deck)
+    { calls.append(QVariantMap{{"action", "bpmAutomatic"}, {"deck", deck}}); }
     Q_INVOKABLE void toggleMasterTempo(int deck)
     { calls.append(QVariantMap{{"action", "masterTempo"}, {"deck", deck}}); }
     Q_INVOKABLE void resetTempo(int deck)
@@ -509,6 +522,88 @@ private slots:
         ui_.reset();
         QCoreApplication::sendPostedEvents();
         QCoreApplication::processEvents();
+    }
+
+    void windowChromeFitsAndLeavesHeaderControlsReachable_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(1180, 760), QSize(1280, 800), QSize(1440, 900), QSize(1680, 1020)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height()).arg(dark ? "dark" : "light")))
+                    << viewport << dark;
+    }
+
+    void windowChromeFitsAndLeavesHeaderControlsReachable()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        QVERIFY(ui_->window->flags().testFlag(Qt::FramelessWindowHint));
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        QTRY_VERIFY(ui_->center(theme).x() < viewport.width());
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
+        verifyControlsFit({"windowDragArea", "libraryOpen", "audioSettingsOpen", "themeToggle",
+                           "windowMinimize", "windowMaximize", "windowClose"});
+        for (const auto& entry : {std::pair{"windowMinimize", "Minimize window"},
+                                  std::pair{"windowMaximize", "Maximize window"},
+                                  std::pair{"windowClose", "Close window"}}) {
+            auto* item = ui_->item(entry.first);
+            QVERIFY(item && item->width() >= 44 && item->height() >= 44);
+            auto* accessible = QAccessible::queryAccessibleInterface(item);
+            QVERIFY(accessible && accessible->role() == QAccessible::Button);
+            QCOMPARE(accessible->text(QAccessible::Name), QString::fromUtf8(entry.second));
+            QVERIFY(accessible->rect().contains(ui_->window->mapToGlobal(ui_->center(item))));
+        }
+        // Actual buttons remain hit-testable beside the drag region. System
+        // move/resize behavior belongs to the compositor, not offscreen Qt.
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryOpen")));
+        QTRY_VERIFY(ui_->object("libraryDrawer")->property("opened").toBool());
+        QVERIFY(ui_->closeLibrary());
+        QVERIFY(ui_->openAudioSettings());
+        QVERIFY(ui_->closeAudioSettings());
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("refreshRouting"));
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void windowChromeActionsChangeActualWindowState()
+    {
+        auto* minimize = ui_->item("windowMinimize");
+        auto* maximize = ui_->item("windowMaximize");
+        auto* close = ui_->item("windowClose");
+        QVERIFY(minimize && maximize && close);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(minimize));
+        QTRY_COMPARE(ui_->window->visibility(), QWindow::Minimized);
+        ui_->window->showNormal(); // Simulate restoring from the task switcher.
+        QTRY_COMPARE(ui_->window->visibility(), QWindow::Windowed);
+        QTRY_VERIFY(ui_->window->isExposed());
+        maximize->forceActiveFocus();
+        QTRY_VERIFY(maximize->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->window->visibility(), QWindow::Maximized);
+        auto* accessible = QAccessible::queryAccessibleInterface(maximize);
+        QVERIFY(accessible);
+        QTRY_COMPARE(accessible->text(QAccessible::Name), QString("Restore window"));
+        // The offscreen platform's virtual screen may be only 800px wide,
+        // below the supported 1180px minimum. Exercise the same real action
+        // by keyboard without claiming that unsupported maximized geometry.
+        maximize->forceActiveFocus();
+        QTRY_VERIFY(maximize->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->window->visibility(), QWindow::Windowed);
+        QTRY_COMPARE(accessible->text(QAccessible::Name), QString("Maximize window"));
+        QVERIFY(!QGuiApplication::quitOnLastWindowClosed()); // Test main keeps this close local to its fixture.
+        QSignalSpy visible(ui_->window, &QWindow::visibleChanged);
+        QTRY_VERIFY(ui_->center(close).x() < ui_->window->width());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(close));
+        QTRY_VERIFY(!ui_->window->isVisible());
+        QVERIFY(!visible.isEmpty());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void hiddenBenchmarkKeepsBindingsWithoutRendering()
@@ -1843,10 +1938,10 @@ private slots:
             auto* status = ui_->item((prefix + "TempoStatus").toUtf8().constData());
             QVERIFY(rail && lock && reset && value && status);
             auto tempo = UiEndpoint::tempoState(true);
-            tempo["percent"] = -2.25; tempo["appliedPercent"] = -3.0; tempo["active"] = true;
+            tempo["percent"] = -2.5; tempo["appliedPercent"] = -3.0; tempo["active"] = true;
             ui_->endpoint.snapshotTempo(deck, tempo);
-            QTRY_COMPARE(rail->property("value").toDouble(), -2.25);
-            QCOMPARE(value->property("text").toString(), QString("-2.25%"));
+            QTRY_COMPARE(rail->property("value").toDouble(), 117.0);
+            QCOMPARE(value->property("text").toString(), QString("117.0"));
             QVERIFY(!lock->parentItem()->property("indicatorOn").toBool());
             QVERIFY(reset->isEnabled());
             const auto before = ui_->endpoint.decks();
@@ -1855,10 +1950,10 @@ private slots:
             QTRY_VERIFY(rail->hasActiveFocus());
             QTest::keyClick(ui_->window, Qt::Key_Down);
             QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
-            verifyCueCall(count, "tempo", deck);
-            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() + 2.20) < 1e-9);
+            verifyCueCall(count, "tempoBpm", deck);
+            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() - 117.1) < 1e-9);
             QCOMPARE(ui_->endpoint.decks(), before);
-            QCOMPARE(rail->property("value").toDouble(), -2.25);
+            QCOMPARE(rail->property("value").toDouble(), 117.0);
 
             count = ui_->endpoint.calls.size();
             QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(lock));
@@ -1866,9 +1961,9 @@ private slots:
             verifyCueCall(count, "masterTempo", deck);
             QVERIFY(!lock->parentItem()->property("indicatorOn").toBool());
             QCOMPARE(ui_->endpoint.decks(), before);
-            tempo["percent"] = -2.20; tempo["keyLock"] = true; tempo["pending"] = true;
+            tempo["percent"] = -2.0; tempo["keyLock"] = true; tempo["pending"] = true;
             ui_->endpoint.snapshotTempo(deck, tempo);
-            QTRY_COMPARE(rail->property("value").toDouble(), -2.20);
+            QTRY_COMPARE(rail->property("value").toDouble(), 117.6);
             QVERIFY(lock->parentItem()->property("indicatorOn").toBool());
             QCOMPARE(status->property("text").toString(), QString("PENDING"));
             QVERIFY(rail->isEnabled() && lock->isEnabled()); // Pending input configuration accepts another request.
@@ -1876,9 +1971,9 @@ private slots:
             count = ui_->endpoint.calls.size();
             QTest::keyClick(ui_->window, Qt::Key_Up, Qt::ShiftModifier);
             QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
-            verifyCueCall(count, "tempo", deck);
-            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() + 2.70) < 1e-9);
-            QCOMPARE(rail->property("value").toDouble(), -2.20);
+            verifyCueCall(count, "tempoBpm", deck);
+            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() - 116.6) < 1e-9);
+            QCOMPARE(rail->property("value").toDouble(), 117.6);
 
             count = ui_->endpoint.calls.size();
             const auto beforeReset = ui_->endpoint.decks();
@@ -1890,14 +1985,15 @@ private slots:
             tempo = UiEndpoint::tempoState(true); tempo["keyLock"] = true;
             ui_->endpoint.snapshotTempo(deck, tempo);
             QTRY_VERIFY(!reset->isEnabled());
-            QCOMPARE(rail->property("value").toDouble(), 0.0);
-            QCOMPARE(value->property("text").toString(), QString("0.00%"));
+            QCOMPARE(rail->property("value").toDouble(), 120.0);
+            QCOMPARE(value->property("text").toString(), QString("120.0"));
             QVERIFY(lock->parentItem()->property("indicatorOn").toBool());
             QCOMPARE(status->property("text").toString(), QString("ORIGINAL"));
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["bpm"], beforeReset[deck].toMap()["bpm"]);
         }
         for (const auto& value : ui_->endpoint.calls) {
             const auto action = value.toMap()["action"].toString();
-            QVERIFY(action == "tempo" || action == "masterTempo" || action == "tempoReset");
+            QVERIFY(action == "tempoBpm" || action == "masterTempo" || action == "tempoReset");
         }
         QCOMPARE(ui_->endpoint.masterGain(), master);
         QCOMPARE(ui_->endpoint.cueGain(), cue);
@@ -1933,27 +2029,27 @@ private slots:
             QCOMPARE(ui_->endpoint.calls.size(), count);
             QTest::mouseMove(ui_->window, bottom);
             QTRY_VERIFY(ui_->endpoint.calls.size() > count);
-            verifyCueCall(ui_->endpoint.calls.size() - 1, "tempo", deck);
-            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 6.0);
+            verifyCueCall(ui_->endpoint.calls.size() - 1, "tempoBpm", deck);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 127.2);
             QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, bottom);
-            QTRY_COMPARE(rail->property("value").toDouble(), 1.0); // No command acknowledgement was delivered.
+            QTRY_COMPARE(rail->property("value").toDouble(), 121.2); // No command acknowledgement was delivered.
             const auto prior = ui_->endpoint.calls.size();
             QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, top);
             QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, top);
             QTRY_VERIFY(ui_->endpoint.calls.size() > prior);
-            verifyCueCall(ui_->endpoint.calls.size() - 1, "tempo", deck);
-            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), -6.0);
-            QTRY_COMPARE(rail->property("value").toDouble(), 1.0);
+            verifyCueCall(ui_->endpoint.calls.size() - 1, "tempoBpm", deck);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 112.8);
+            QTRY_COMPARE(rail->property("value").toDouble(), 121.2);
             rail->forceActiveFocus();
             QTest::keyClick(ui_->window, Qt::Key_Home);
-            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), -6.0);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 112.8);
             QTest::keyClick(ui_->window, Qt::Key_End);
-            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 6.0);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 127.2);
         }
         for (const auto& value : ui_->endpoint.calls) {
             const auto call = value.toMap();
-            QCOMPARE(call["action"].toString(), QString("tempo"));
-            QVERIFY(call["value"].toDouble() >= -6 && call["value"].toDouble() <= 6);
+            QCOMPARE(call["action"].toString(), QString("tempoBpm"));
+            QVERIFY(call["value"].toDouble() >= 112.8 - 1e-9 && call["value"].toDouble() <= 127.2 + 1e-9);
         }
     }
 
@@ -2026,50 +2122,232 @@ private slots:
             auto* label = ui_->item((prefix + "TempoValue").toUtf8().constData());
             QVERIFY(rail && label);
             auto tempo = UiEndpoint::tempoState(true);
-            tempo["active"] = true; tempo["percent"] = -1.25;
+            tempo["active"] = true; tempo["percent"] = -2.5;
             ui_->endpoint.snapshotTempo(deck, tempo);
-            QTRY_COMPARE(rail->property("value").toDouble(), -1.25);
+            QTRY_COMPARE(rail->property("value").toDouble(), 117.0);
             auto* accessible = QAccessible::queryAccessibleInterface(rail);
             QVERIFY(accessible && accessible->valueInterface());
             auto* numeric = accessible->valueInterface();
             const auto before = ui_->endpoint.calls.size();
             const auto accepted = ui_->endpoint.decks();
-            numeric->setCurrentValue(2.5); // Actual Qt path: setValue, no moved signal.
+            numeric->setCurrentValue(126.0); // Actual Qt path: setValue, no moved signal.
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
-            verifyCueCall(before, "tempo", deck);
-            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 2.5);
+            verifyCueCall(before, "tempoBpm", deck);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 126.0);
             QCOMPARE(ui_->endpoint.decks(), accepted);
-            QTRY_COMPARE(numeric->currentValue().toDouble(), -1.25);
-            QCOMPARE(label->property("text").toString(), QString("-1.25%"));
+            QTRY_COMPARE(numeric->currentValue().toDouble(), 117.0);
+            QCOMPARE(label->property("text").toString(), QString("117.0"));
             QCoreApplication::processEvents();
             QCOMPARE(ui_->endpoint.calls.size(), before + 1);
 
             // A later engine snapshot is the only source of the visible value.
-            tempo["percent"] = 2.5; tempo["pending"] = true;
+            tempo["percent"] = 5.0; tempo["pending"] = true;
             ui_->endpoint.snapshotTempo(deck, tempo);
-            QTRY_COMPARE(numeric->currentValue().toDouble(), 2.5);
-            QCOMPARE(label->property("text").toString(), QString("+2.50%"));
+            QTRY_COMPARE(numeric->currentValue().toDouble(), 126.0);
+            QCOMPARE(label->property("text").toString(), QString("126.0"));
             QCOMPARE(ui_->endpoint.calls.size(), before + 1);
-            numeric->setCurrentValue(-3.25);
+            numeric->setCurrentValue(123.0);
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
-            verifyCueCall(before + 1, "tempo", deck);
-            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), -3.25);
-            QTRY_COMPARE(numeric->currentValue().toDouble(), 2.5);
+            verifyCueCall(before + 1, "tempoBpm", deck);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 123.0);
+            QTRY_COMPARE(numeric->currentValue().toDouble(), 126.0);
 
             // Qt still writes a disabled item's value directly. The QML gate
             // must reject it and restore acknowledgement, without a command.
             ui_->endpoint.setReady(false);
             QTRY_VERIFY(!rail->isEnabled());
-            numeric->setCurrentValue(-4.0);
+            numeric->setCurrentValue(124.0);
             QCoreApplication::processEvents();
             QCOMPARE(ui_->endpoint.calls.size(), before + 2);
-            QCOMPARE(numeric->currentValue().toDouble(), 2.5);
+            QTRY_COMPARE(numeric->currentValue().toDouble(), 126.0);
             ui_->endpoint.setReady(true);
-            tempo["percent"] = -.75; tempo["pending"] = false;
+            tempo["percent"] = -1.0; tempo["pending"] = false;
             ui_->endpoint.snapshotTempo(deck, tempo);
-            QTRY_COMPARE(numeric->currentValue().toDouble(), -.75);
-            QCOMPARE(label->property("text").toString(), QString("-0.75%"));
+            QTRY_COMPARE(numeric->currentValue().toDouble(), 118.8);
+            QCOMPARE(label->property("text").toString(), QString("118.8"));
             QCOMPARE(ui_->endpoint.calls.size(), before + 2); // Binding survived restoration.
+        }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void bpmReferenceChangesAndUnknownStateDoNotSubmitTempo()
+    {
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* rail = ui_->item((prefix + "Tempo").toUtf8().constData());
+            auto* lock = ui_->item((prefix + "MasterTempo").toUtf8().constData());
+            auto* reset = ui_->item((prefix + "TempoReset").toUtf8().constData());
+            auto* value = ui_->item((prefix + "TempoValue").toUtf8().constData());
+            auto* reference = ui_->item((prefix + "BpmReference").toUtf8().constData());
+            QVERIFY(rail && lock && reset && value && reference);
+            auto tempo = UiEndpoint::tempoState(true);
+            tempo["active"] = true; tempo["percent"] = 5.0; tempo["keyLock"] = true;
+            ui_->endpoint.snapshotTempo(deck, tempo);
+            QTRY_COMPARE(rail->property("value").toDouble(), 126.0);
+            const auto before = ui_->endpoint.calls.size();
+            ui_->endpoint.snapshotBpm(deck, UiEndpoint::bpmState());
+            QTRY_VERIFY(!rail->isEnabled());
+            QTRY_COMPARE(value->property("text").toString(), QString("—"));
+            QVERIFY(reference->property("text").toString().contains("UNKNOWN"));
+            QVERIFY(lock->isEnabled() && reset->isEnabled()); // Only the BPM rail needs a reference.
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before);
+
+            auto manual = UiEndpoint::bpmState(128);
+            manual["estimated"] = 120.0; manual["manual"] = true;
+            ui_->endpoint.snapshotBpm(deck, manual);
+            QTRY_VERIFY(rail->isEnabled());
+            QTRY_COMPARE(rail->property("value").toDouble(), 134.4);
+            QCOMPARE(value->property("text").toString(), QString("134.4"));
+            QVERIFY(reference->property("text").toString().contains("MANUAL"));
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before); // Range clamps must not become commands.
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["tempo"].toMap(), tempo);
+            // A failed automatic estimate does not erase an accepted manual reference.
+            manual["estimated"] = 0.0; manual["status"] = "Failed"; manual["error"] = "No reliable estimate";
+            ui_->endpoint.snapshotBpm(deck, manual);
+            QTRY_VERIFY(rail->isEnabled());
+            QCOMPARE(ui_->endpoint.calls.size(), before);
+
+            ui_->endpoint.unloadState(deck);
+            QTRY_VERIFY(!reference->isEnabled() && !rail->isEnabled());
+            QTRY_COMPARE(value->property("text").toString(), QString("—"));
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.snapshotBpm(deck, UiEndpoint::bpmState());
+            QTRY_VERIFY(!rail->isEnabled()); // A new unknown track cannot inherit the old reference.
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before);
+        }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void bpmEditorUsesValidatedReferenceWithoutChangingAudio()
+    {
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* reference = ui_->item((prefix + "BpmReference").toUtf8().constData());
+            QVERIFY(reference && !reference->isEnabled());
+            ui_->endpoint.loadState(deck);
+            // Reference editing needs a loaded track, not an active output.
+            QVERIFY(reference->isEnabled());
+            auto* referenceA11y = QAccessible::queryAccessibleInterface(reference);
+            QVERIFY(referenceA11y && referenceA11y->role() == QAccessible::Button);
+            QVERIFY(referenceA11y->text(QAccessible::Description).contains("not the audio"));
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(reference));
+            auto* popup = ui_->object((prefix + "BpmEditor").toUtf8().constData());
+            QVERIFY(popup);
+            QTRY_VERIFY(popup->property("opened").toBool());
+            auto* input = ui_->item((prefix + "BpmInput").toUtf8().constData());
+            auto* apply = ui_->item((prefix + "BpmApply").toUtf8().constData());
+            auto* automatic = ui_->item((prefix + "BpmAutomatic").toUtf8().constData());
+            QVERIFY(input && apply && automatic);
+            auto* inputA11y = QAccessible::queryAccessibleInterface(input);
+            QVERIFY(inputA11y && inputA11y->text(QAccessible::Name).contains("manual reference BPM"));
+            QVERIFY(!automatic->isEnabled());
+            const auto before = ui_->endpoint.calls.size();
+            const auto accepted = ui_->endpoint.decks();
+            for (const auto* invalid : {"", "19.9", "400.1", "128.25", "nan", "inf"}) {
+                QVERIFY(input->setProperty("text", QString::fromUtf8(invalid)));
+                QTRY_VERIFY(!apply->isEnabled());
+                QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(apply));
+                QCOMPARE(ui_->endpoint.calls.size(), before);
+                QCOMPARE(ui_->endpoint.decks(), accepted);
+            }
+            input->forceActiveFocus();
+            QTest::keyClick(ui_->window, Qt::Key_A, Qt::ControlModifier);
+            for (const auto key : {Qt::Key_1, Qt::Key_2, Qt::Key_8, Qt::Key_Period, Qt::Key_0})
+                QTest::keyClick(ui_->window, key);
+            QTRY_VERIFY(apply->isEnabled());
+            if (deck == 0) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(apply));
+            else QTest::keyClick(ui_->window, Qt::Key_Return);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            verifyCueCall(before, "bpmOverride", deck);
+            QCOMPARE(ui_->endpoint.calls.last().toMap()["value"].toDouble(), 128.0);
+            QTRY_VERIFY(!popup->property("visible").toBool());
+            QCOMPARE(ui_->endpoint.decks(), accepted); // The editor has not fabricated acknowledgement.
+
+            auto manual = UiEndpoint::bpmState(128);
+            manual["estimated"] = 120.0; manual["manual"] = true;
+            ui_->endpoint.snapshotBpm(deck, manual);
+            QTRY_VERIFY(reference->property("text").toString().contains("128.0 BPM · MANUAL"));
+            auto loop = UiEndpoint::loopState(true); loop["inSet"] = true;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(reference));
+            QTRY_VERIFY(popup->property("opened").toBool()); // Editing reference is allowed during a loop.
+            QTRY_VERIFY(automatic->isEnabled());
+            const auto manualAccepted = ui_->endpoint.decks();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(automatic));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
+            verifyCueCall(before + 1, "bpmAutomatic", deck);
+            QTRY_VERIFY(!popup->property("visible").toBool());
+            QCOMPARE(ui_->endpoint.decks(), manualAccepted);
+            ui_->endpoint.snapshotBpm(deck, UiEndpoint::bpmState(120));
+            QTRY_VERIFY(reference->property("text").toString().contains("120.0 BPM · ESTIMATED"));
+            QCOMPARE(ui_->endpoint.calls.size(), before + 2);
+
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(reference));
+            QTRY_VERIFY(popup->property("opened").toBool());
+            ui_->endpoint.setReplacing(deck, true);
+            QTRY_VERIFY(!popup->property("visible").toBool());
+            QVERIFY(!reference->isEnabled());
+            QCOMPARE(ui_->endpoint.calls.size(), before + 2);
+            ui_->endpoint.setReplacing(deck, false);
+            ui_->endpoint.unloadState(deck);
+            QTRY_VERIFY(!reference->isEnabled());
+        }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void bpmEditorDoesNotTransferDraftAcrossAtomicSourceReplacement()
+    {
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            const auto oldId = QString("original-%1").arg(deck);
+            const auto newId = QString("replacement-%1").arg(deck);
+            ui_->endpoint.setSourceId(deck, oldId);
+            auto manual = UiEndpoint::bpmState(128);
+            manual["manual"] = true; manual["estimated"] = 120.0;
+            ui_->endpoint.snapshotBpm(deck, manual);
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* reference = ui_->item((prefix + "BpmReference").toUtf8().constData());
+            QVERIFY(reference);
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(reference));
+            auto* popup = ui_->object((prefix + "BpmEditor").toUtf8().constData());
+            QVERIFY(popup);
+            QTRY_VERIFY(popup->property("opened").toBool());
+            QCOMPARE(popup->property("openedSourceId").toString(), oldId);
+            auto* input = ui_->item((prefix + "BpmInput").toUtf8().constData());
+            auto* apply = ui_->item((prefix + "BpmApply").toUtf8().constData());
+            auto* automatic = ui_->item((prefix + "BpmAutomatic").toUtf8().constData());
+            QVERIFY(input && apply && automatic);
+            QVERIFY(input->setProperty("text", QString("132.0")));
+            QTRY_VERIFY(apply->isEnabled() && automatic->isEnabled());
+            const auto before = ui_->endpoint.calls.size();
+            const auto peer = ui_->endpoint.decks()[1 - deck];
+            // A no-session accepted load can replace the complete source in
+            // one snapshot without any intermediate unloaded/replacing state.
+            ui_->endpoint.snapshotDeck(deck, {{"sourceId", newId}, {"bpm", UiEndpoint::bpmState(100)}});
+            QVERIFY(ui_->endpoint.decks()[deck].toMap()["loaded"].toBool());
+            QVERIFY(!ui_->endpoint.decks()[deck].toMap()["replacing"].toBool());
+            QTRY_VERIFY(!popup->property("visible").toBool());
+            QVERIFY(!popup->property("sameSource").toBool());
+            // Exercise both action guards even if an old action was queued
+            // before the popup closed, independently of disabled hit testing.
+            QVERIFY(QMetaObject::invokeMethod(popup, "applyReference", Qt::DirectConnection));
+            QVERIFY(QMetaObject::invokeMethod(automatic, "clicked", Qt::DirectConnection));
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), before);
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["bpm"].toMap(), UiEndpoint::bpmState(100));
+            QCOMPARE(ui_->endpoint.decks()[1 - deck], peer);
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(reference));
+            QTRY_VERIFY(popup->property("opened").toBool());
+            QCOMPARE(popup->property("openedSourceId").toString(), newId);
+            QTRY_COMPARE(input->property("text").toString(), QString("100.0"));
+            QTest::keyClick(ui_->window, Qt::Key_Escape);
+            QTRY_VERIFY(!popup->property("visible").toBool());
+            QCOMPARE(ui_->endpoint.calls.size(), before);
         }
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
@@ -2093,27 +2371,29 @@ private slots:
             auto tempo = UiEndpoint::tempoState(true); tempo["active"] = true; tempo["percent"] = -1.25;
             ui_->endpoint.snapshotTempo(deck, tempo);
             const auto prefix = QString("deck%1").arg(deck);
-            for (const auto* suffix : {"Tempo", "MasterTempo", "TempoReset", "Jog", "Cue", "Play", "LoopIn", "LoopOut", "LoopToggle"})
+            for (const auto* suffix : {"Tempo", "MasterTempo", "TempoReset", "BpmReference", "Jog", "Cue", "Play", "LoopIn", "LoopOut", "LoopToggle"})
                 controls.append(prefix + QString::fromUtf8(suffix));
+            auto* bpmReference = ui_->item((prefix + "BpmReference").toUtf8().constData());
+            QVERIFY(bpmReference && bpmReference->width() >= 44 && bpmReference->height() >= 44);
             auto* rail = ui_->item((prefix + "Tempo").toUtf8().constData());
             QVERIFY(rail && rail->width() >= 44 && rail->height() >= 44);
             auto* accessible = QAccessible::queryAccessibleInterface(rail);
             QVERIFY(accessible);
             QCOMPARE(accessible->role(), QAccessible::Slider);
-            QCOMPARE(accessible->text(QAccessible::Name), deck == 0 ? QString("Deck A tempo percent") : QString("Deck B tempo percent"));
+            QCOMPARE(accessible->text(QAccessible::Name), deck == 0 ? QString("Deck A tempo BPM") : QString("Deck B tempo BPM"));
             QVERIFY(accessible->rect().contains(ui_->window->mapToGlobal(ui_->center(rail))));
             QVERIFY(accessible->text(QAccessible::Description).contains("Down increases speed"));
             QVERIFY(accessible->valueInterface());
-            QCOMPARE(accessible->valueInterface()->currentValue().toDouble(), -1.25);
-            QVERIFY(accessible->valueInterface()->minimumValue().toDouble() <= -6);
-            QVERIFY(accessible->valueInterface()->maximumValue().toDouble() >= 6);
+            QCOMPARE(accessible->valueInterface()->currentValue().toDouble(), 118.5);
+            QVERIFY(accessible->valueInterface()->minimumValue().toDouble() <= 112.8);
+            QVERIFY(accessible->valueInterface()->maximumValue().toDouble() >= 127.2);
             QVERIFY(accessible->actionInterface());
             auto before = ui_->endpoint.calls.size();
             accessible->actionInterface()->doAction(QAccessibleActionInterface::increaseAction());
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
-            verifyCueCall(before, "tempo", deck);
-            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() + 1.20) < 1e-9);
-            QCOMPARE(rail->property("value").toDouble(), -1.25);
+            verifyCueCall(before, "tempoBpm", deck);
+            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() - 118.6) < 1e-9);
+            QCOMPARE(rail->property("value").toDouble(), 118.5);
             auto* reset = ui_->item((prefix + "TempoReset").toUtf8().constData());
             auto* resetAccessible = QAccessible::queryAccessibleInterface(reset);
             QVERIFY(resetAccessible && resetAccessible->text(QAccessible::Name).contains("reset tempo"));
@@ -2122,11 +2402,22 @@ private slots:
             before = ui_->endpoint.calls.size();
             QTest::keyClick(ui_->window, Qt::Key_Down);
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
-            verifyCueCall(before, "tempo", deck);
+            verifyCueCall(before, "tempoBpm", deck);
             QTest::keyClick(ui_->window, Qt::Key_Tab);
             QTRY_VERIFY(!rail->hasActiveFocus());
         }
         verifyControlsFit(controls);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier,
+                              ui_->center(ui_->item((prefix + "BpmReference").toUtf8().constData())));
+            auto* popup = ui_->object((prefix + "BpmEditor").toUtf8().constData());
+            QVERIFY(popup);
+            QTRY_VERIFY(popup->property("opened").toBool());
+            verifyControlsFit({prefix + "BpmInput", prefix + "BpmApply", prefix + "BpmAutomatic"});
+            QTest::keyClick(ui_->window, Qt::Key_Escape);
+            QTRY_VERIFY(!popup->property("visible").toBool());
+        }
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
