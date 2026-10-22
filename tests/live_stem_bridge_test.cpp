@@ -374,12 +374,23 @@ struct FixtureSubreaper {
 class LiveStemBridgeTest : public QObject {
     Q_OBJECT
 private slots:
+    void diagnosticDrainRetainsDelayedTailAndSettlesAckBeforeClose_data()
+    {
+        QTest::addColumn<unsigned>("beforeDrainDelayMs");
+        QTest::newRow("pending-final-ack") << 0U;
+        QTest::newRow("pending-final-ack-after-slow-consumer") << 2200U;
+    }
     void diagnosticDrainRetainsDelayedTailAndSettlesAckBeforeClose()
     {
+        QFETCH(unsigned, beforeDrainDelayMs);
         checked([&] {
             QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
             constexpr auto frames = hop + 211;
-            writeSource(source, frames); const auto fixture = diagnosticDrainFixture(directory.path(), "tail");
+            writeSource(source, frames); auto fixture = diagnosticDrainFixture(directory.path(), "tail");
+            // This positive ordering test deliberately holds an ACK through
+            // consumer work. Keep its ordinary reply allowance separate from
+            // the diagnostic three-second close bound tested below.
+            fixture.engine.requestTimeout = 10;
             auto reference = references(directory.path(), frames);
             auto live = PreparedTrackStore(root, limits(true)).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
             const auto handle = live.observations; std::vector<Observation> rows;
@@ -402,6 +413,10 @@ private slots:
                 return core.sourceFrame(0) == live.outputFrames;
             }), "Finite diagnostic tail did not render exact reference PCM to EOF");
             require(await([&] { drainObservations(handle, rows); return QFileInfo::exists(fixture.marker(".ack-wait")); }), "Final raw lease ACK was not pending");
+            // An instrumented consumer may take longer than the fixture's
+            // usual two-second ACK allowance before it requests the drain.
+            std::this_thread::sleep_for(std::chrono::milliseconds(beforeDrainDelayMs));
+            require(!live.playback->errorCode(), "Held ACK exhausted its ordinary reply deadline before diagnostic drain");
             const auto& raw = uniqueObservation(rows, ObservationKind::RawComplete);
             const auto& converted = uniqueObservation(rows, ObservationKind::ConverterComplete);
             require(raw.workerGeneration == accepted.workerGeneration && converted.workerGeneration == accepted.workerGeneration &&
@@ -410,8 +425,10 @@ private slots:
             const auto deadline = Clock::now() + std::chrono::seconds(8);
             require(handle->requestDiagnosticDrain(accepted.providerEpoch, accepted.workerGeneration, deadline), "Diagnostic finish request was rejected");
             std::this_thread::sleep_for(std::chrono::milliseconds(350));
-            require(handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::Requested &&
-                count(fixture, "command", "close") == 0 && !live.playback->errorCode(), "Diagnostic close overtook the final ACK");
+            require(handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::Requested,
+                "Diagnostic drain failed while its final ACK was held");
+            require(count(fixture, "command", "close") == 0, "Diagnostic close overtook the final ACK");
+            require(!live.playback->errorCode(), "Held final ACK failed during diagnostic drain");
             touch(fixture.marker(".ack-release"));
             require(await([&] {
                 drainObservations(handle, rows);
