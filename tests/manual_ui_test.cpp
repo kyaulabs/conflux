@@ -3,6 +3,7 @@
 #include <QAccessible>
 #include <QFontDatabase>
 #include <QBuffer>
+#include <QFile>
 #include <QImage>
 #include <QMetaProperty>
 #include <QKeyEvent>
@@ -10,9 +11,11 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlError>
+#include <QQmlExpression>
 #include <QQuickItem>
 #include <QQuickStyle>
 #include <QQuickWindow>
+#include <QTemporaryDir>
 #include <QUrl>
 #include <QVariantList>
 #include <QWheelEvent>
@@ -458,6 +461,25 @@ struct UiFixture {
     { return window ? visualItem(window->contentItem(), QString::fromUtf8(name)) : nullptr; }
     QObject* object(const char* name) const
     { return window ? window->findChild<QObject*>(QString::fromUtf8(name)) : nullptr; }
+    bool useNonNativeFileDialog() const
+    {
+        auto* dialog = object("libraryFileDialog");
+        if (!dialog) return false;
+        QQmlExpression option(qmlContext(dialog), dialog, QStringLiteral("FileDialog.DontUseNativeDialog"));
+        const auto value = option.evaluate();
+        return !option.hasError() && value.isValid() && dialog->setProperty("options", value);
+    }
+    QQuickItem* fileDialogItem(const char* name) const
+    {
+        // Qt 6.4 uses an overlay; newer Qt can put the fallback in a popup window.
+        for (auto* candidate : QGuiApplication::allWindows()) {
+            auto* quickWindow = qobject_cast<QQuickWindow*>(candidate);
+            if (!quickWindow || !quickWindow->isVisible()) continue;
+            auto* found = visualItem(quickWindow->contentItem(), QString::fromUtf8(name));
+            if (found && found->isVisible()) return found;
+        }
+        return nullptr;
+    }
     QPoint center(QQuickItem* item) const
     { return item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint(); }
 
@@ -841,6 +863,261 @@ private slots:
         QCOMPARE(call["action"].toString(), QString("import"));
         QVERIFY(call["url"].toUrl().isLocalFile());
         QCOMPARE(call["url"].toUrl().toLocalFile(), local);
+    }
+
+    void libraryFileBrowseChoosesOnlyTargetPath_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<bool>("keyboard");
+        QTest::newRow("A-pointer") << 0 << false;
+        QTest::newRow("B-keyboard") << 1 << true;
+    }
+
+    void libraryFileBrowseChoosesOnlyTargetPath()
+    {
+        QFETCH(int, deck);
+        QFETCH(bool, keyboard);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto local = directory.filePath(QString::fromUtf8("Música 夜 #part%23%.wav"));
+        QFile file(local);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        const QString id(64, QLatin1Char('a'));
+        const QString saved = "/tmp/saved.wav";
+        ui_->endpoint.setLibrary({QVariantMap{{"id", id}, {"name", "Saved track"}, {"path", saved},
+                                             {"durationSeconds", 75.0}, {"available", true}}});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(deck));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* drawer = ui_->object("libraryDrawer");
+        QTRY_COMPARE(drawer->property("selectedId").toString(), id);
+        QVERIFY(ui_->useNonNativeFileDialog());
+        auto* dialog = ui_->object("libraryFileDialog");
+        auto* browse = ui_->item(QString("deck%1FileBrowse").arg(deck).toUtf8().constData());
+        QVERIFY(dialog && browse);
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        QSignalSpy accepted(dialog, SIGNAL(accepted()));
+        QVERIFY(accepted.isValid());
+        if (keyboard) {
+            browse->forceActiveFocus();
+            QTRY_VERIFY(browse->hasActiveFocus());
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(browse));
+        }
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QCOMPARE(dialog->property("targetDeck").toInt(), deck);
+        const auto selected = QUrl::fromLocalFile(local);
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTRY_COMPARE(choice->property("file").toUrl(), selected);
+        QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection));
+        QCOMPARE(accepted.size(), 1);
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        // The offscreen fallback owns another window; reactivate the test target.
+        ui_->window->requestActivate();
+        QTRY_VERIFY(ui_->window->isActive());
+        auto* path = ui_->item(QString("deck%1Path").arg(deck).toUtf8().constData());
+        const auto text = path->property("text").toString();
+        QVERIFY(text.startsWith("file://"));
+        QCOMPARE(QUrl(text).toLocalFile(), local);
+        QCOMPARE(ui_->item(QString("deck%1Path").arg(1 - deck).toUtf8().constData())->property("text").toString(), saved);
+        QCOMPARE(drawer->property("selectedId").toString(), QString{});
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        QVERIFY(ui_->endpoint.calls.isEmpty()); // Choosing a file does not load or import it.
+
+        auto* add = ui_->item(QString("deck%1Import").arg(deck).toUtf8().constData());
+        QCOMPARE(add->property("text").toString(), QString("ADD TO LIBRARY"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(add));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("import"));
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["url"].toUrl().toLocalFile(), local);
+        auto* load = ui_->item(QString("deck%1Load").arg(deck).toUtf8().constData());
+        load->forceActiveFocus();
+        QTRY_VERIFY(load->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        const auto call = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(call["action"].toString(), QString("load")); // Never the stale saved ID.
+        QCOMPARE(call["deck"].toInt(), deck);
+        QCOMPARE(call["url"].toUrl().toLocalFile(), local);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+    }
+
+    void libraryFileBrowseCancelPreservesSelectionAndPlayback()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const QString id(64, QLatin1Char('b'));
+        const QString saved = QString::fromUtf8("/tmp/Saved 夜 #%.wav");
+        ui_->endpoint.setLibrary({QVariantMap{{"id", id}, {"name", "Saved track"}, {"path", saved},
+                                             {"durationSeconds", 75.0}, {"available", true}}});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(1));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QVERIFY(ui_->useNonNativeFileDialog());
+        auto* dialog = ui_->object("libraryFileDialog");
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        QSignalSpy rejected(dialog, SIGNAL(rejected()));
+        QVERIFY(rejected.isValid());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck1FileBrowse")));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QVERIFY(dialog->property("selectedFile").toUrl().isEmpty());
+        QVERIFY(QMetaObject::invokeMethod(dialog, "reject", Qt::DirectConnection));
+        QCOMPARE(rejected.size(), 1);
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        for (const auto* name : {"deck0Path", "deck1Path"})
+            QCOMPARE(ui_->item(name)->property("text").toString(), saved);
+        QCOMPARE(ui_->object("libraryDrawer")->property("selectedId").toString(), id);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        // Cancelling after an actual file-list selection must preserve the same state.
+        const auto unchosen = directory.filePath("unchosen.wav");
+        QFile file(unchosen);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck1FileBrowse")));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTRY_COMPARE(choice->property("file").toUrl(), QUrl::fromLocalFile(unchosen));
+        QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "reject", Qt::DirectConnection));
+        QCOMPARE(rejected.size(), 2);
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        for (const auto* name : {"deck0Path", "deck1Path"})
+            QCOMPARE(ui_->item(name)->property("text").toString(), saved);
+        QCOMPARE(ui_->object("libraryDrawer")->property("selectedId").toString(), id);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck1Load")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto call = ui_->endpoint.calls.first().toMap();
+        QCOMPARE(call["action"].toString(), QString("libraryLoad"));
+        QCOMPARE(call["id"].toString(), id);
+        QCOMPARE(call["deck"].toInt(), 1);
+    }
+
+    void libraryFileBrowseRejectsStaleResults_data()
+    {
+        QTest::addColumn<QString>("invalidate");
+        QTest::newRow("busy") << QString("busy");
+        QTest::newRow("closed") << QString("closed");
+        QTest::newRow("new-saved-selection") << QString("selection");
+    }
+
+    void libraryFileBrowseRejectsStaleResults()
+    {
+        QFETCH(QString, invalidate);
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto chosen = directory.filePath("late.wav");
+        QFile file(chosen);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.close();
+        const QString oldId(64, QLatin1Char('c'));
+        const QString newId(64, QLatin1Char('d'));
+        const QVariantMap oldTrack{{"id", oldId}, {"name", "Old saved"}, {"path", "/tmp/old.wav"}, {"available", true}};
+        const QVariantMap newTrack{{"id", newId}, {"name", "New saved"}, {"path", "/tmp/new.wav"}, {"available", true}};
+        ui_->endpoint.setLibrary({oldTrack, newTrack});
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decksBefore = ui_->endpoint.decks();
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QVERIFY(ui_->useNonNativeFileDialog());
+        auto* dialog = ui_->object("libraryFileDialog");
+        auto* drawer = ui_->object("libraryDrawer");
+        QVERIFY(dialog->setProperty("currentFolder", QUrl::fromLocalFile(directory.path())));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0FileBrowse")));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QTRY_VERIFY(ui_->fileDialogItem("fileDialogDelegate0"));
+        auto* choice = ui_->fileDialogItem("fileDialogDelegate0");
+        QTRY_COMPARE(choice->property("file").toUrl(), QUrl::fromLocalFile(chosen));
+        QTest::mouseClick(choice->window(), Qt::LeftButton, Qt::NoModifier, ui_->center(choice));
+        if (invalidate == "busy") {
+            ui_->endpoint.setBusy(true);
+        } else if (invalidate == "closed") {
+            QVERIFY(QMetaObject::invokeMethod(drawer, "close", Qt::DirectConnection));
+        } else {
+            QVERIFY(QMetaObject::invokeMethod(drawer, "selectTrack", Qt::DirectConnection,
+                                              Q_ARG(QVariant, QVariant(newTrack))));
+        }
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QCOMPARE(dialog->property("targetDeck").toInt(), -1);
+        const auto expectedId = invalidate == "selection" ? newId : oldId;
+        const auto expectedPath = invalidate == "selection" ? QString("/tmp/new.wav") : QString("/tmp/old.wav");
+        if (invalidate == "busy") {
+            QVERIFY(!ui_->item("deck0FileBrowse")->isEnabled());
+            QVERIFY(!ui_->item("deck1FileBrowse")->isEnabled());
+            ui_->endpoint.setBusy(false); // Becoming idle must not revive an earlier selection.
+        }
+        if (invalidate == "closed") {
+            QTRY_VERIFY(!drawer->property("visible").toBool());
+            QVERIFY(ui_->openLibrary(1)); // Reopening likewise does not revive the old intent.
+        }
+        QSignalSpy accepted(dialog, SIGNAL(accepted()));
+        QVERIFY(QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection));
+        QCOMPARE(accepted.size(), 0); // A closed FileDialog cannot accept its earlier selection.
+        QVERIFY(!dialog->property("visible").toBool());
+        QCOMPARE(dialog->property("targetDeck").toInt(), -1);
+        QCOMPARE(drawer->property("selectedId").toString(), expectedId);
+        for (const auto* name : {"deck0Path", "deck1Path"})
+            QCOMPARE(ui_->item(name)->property("text").toString(), expectedPath);
+        QCOMPARE(ui_->endpoint.decks(), decksBefore);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
+    void libraryFileBrowseFitsAtLaptopSizes_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(1180, 760), QSize(1280, 800)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height()).arg(dark ? "dark" : "light")))
+                    << viewport << dark;
+    }
+
+    void libraryFileBrowseFitsAtLaptopSizes()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        auto* theme = ui_->item("themeToggle");
+        QTRY_VERIFY(ui_->center(theme).x() < viewport.width());
+        if (!dark)
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
+        QVERIFY(ui_->openLibrary(0));
+        verifyControlsFit({"deck0Path", "deck0FileBrowse", "deck0Import", "deck0Load",
+                           "deck1Path", "deck1FileBrowse", "deck1Import", "deck1Load", "libraryClose"});
+        for (int deck = 0; deck < 2; ++deck) {
+            auto* browse = ui_->item(QString("deck%1FileBrowse").arg(deck).toUtf8().constData());
+            QVERIFY(browse->width() >= 44 && browse->height() >= 44);
+            auto* accessible = QAccessible::queryAccessibleInterface(browse);
+            QVERIFY(accessible);
+            QCOMPARE(accessible->role(), QAccessible::Button);
+            QCOMPARE(accessible->text(QAccessible::Name), QString("Browse for Deck %1 audio file").arg(deck == 0 ? "A" : "B"));
+            QVERIFY(accessible->text(QAccessible::Description).contains("does not load"));
+            auto* add = ui_->item(QString("deck%1Import").arg(deck).toUtf8().constData());
+            QCOMPARE(add->property("text").toString(), QString("ADD TO LIBRARY"));
+            QVERIFY(add->implicitWidth() <= add->width() + .5);
+        }
+        QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
     void librarySelectionLoadsByIdAndEditingRestoresRawPath()
