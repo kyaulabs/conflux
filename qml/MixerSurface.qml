@@ -193,6 +193,8 @@ Rectangle {
                                 orientation: Qt.Vertical
                                 from: 0
                                 to: 1
+                                readonly property real minimumValue: Math.min(from, to)
+                                readonly property real maximumValue: Math.max(from, to)
                                 stepSize: 0.01
                                 enabled: strip.available
                                 focusPolicy: Qt.StrongFocus
@@ -430,6 +432,8 @@ Rectangle {
             Layout.preferredHeight: 54
             from: 0
             to: 1
+            readonly property real minimumValue: Math.min(from, to)
+            readonly property real maximumValue: Math.max(from, to)
             stepSize: 0.01
             live: true
             leftPadding: 21

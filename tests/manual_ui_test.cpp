@@ -3192,6 +3192,10 @@ private slots:
         auto* accessible = QAccessible::queryAccessibleInterface(control);
         QVERIFY(accessible && accessible->valueInterface());
         auto* numeric = accessible->valueInterface();
+        QVERIFY(numeric->minimumValue().isValid());
+        QVERIFY(numeric->maximumValue().isValid());
+        QCOMPARE(numeric->minimumValue().toDouble(), 0.0);
+        QCOMPARE(numeric->maximumValue().toDouble(), action == "seek" ? 10.0 : 1.0);
         const auto acceptedValue = numeric->currentValue().toDouble();
         const auto acceptedDecks = ui_->endpoint.decks();
         const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain(), crossfader = ui_->endpoint.crossfader();

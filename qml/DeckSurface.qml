@@ -441,6 +441,9 @@ Item {
             rightPadding: 4
             from: 0
             to: 0.001
+            // Qt 6.4's accessibility bridge reads these range properties.
+            readonly property real minimumValue: Math.min(from, to)
+            readonly property real maximumValue: Math.max(from, to)
             stepSize: 0.1
             enabled: surface.canControl
             visible: !surface.showingPreparation
@@ -658,6 +661,8 @@ Item {
                 bottomPadding: 0
                 from: 0
                 to: 1
+                readonly property real minimumValue: Math.min(from, to)
+                readonly property real maximumValue: Math.max(from, to)
                 stepSize: 0.01
                 enabled: surface.canControl
                 Accessible.name: surface.deckName + " " + modelData.toLowerCase() + " stem gain"

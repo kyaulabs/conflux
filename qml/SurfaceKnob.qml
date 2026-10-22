@@ -38,6 +38,8 @@ Item {
         height: width
         from: 0
         to: 1
+        readonly property real minimumValue: Math.min(from, to)
+        readonly property real maximumValue: Math.max(from, to)
         stepSize: 0.01
         enabled: root.activeControl
         focusPolicy: Qt.StrongFocus
