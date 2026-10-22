@@ -12,14 +12,16 @@ find_package(Threads REQUIRED)
 pkg_check_modules(PipeWire REQUIRED IMPORTED_TARGET libpipewire-0.3>=0.3.65)
 pkg_check_modules(SndFile REQUIRED IMPORTED_TARGET sndfile>=1.2)
 pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate>=0.2.2)
+pkg_check_modules(RubberBand REQUIRED IMPORTED_TARGET rubberband>=3.3)
 
 add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp
     src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/PreparedLoopCache.cpp src/audio/StemBankSource.cpp
+    src/audio/TempoProcessor.cpp src/audio/PreparedTempoSource.cpp
     src/audio/LiveStemBuffer.cpp src/audio/StemRateConverter.cpp src/audio/LiveRecoveryPolicy.cpp
     src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
     src/audio/AudioRouting.cpp)
 target_include_directories(conflux-audio PUBLIC src)
-target_link_libraries(conflux-audio PRIVATE PkgConfig::SndFile PkgConfig::SampleRate Threads::Threads)
+target_link_libraries(conflux-audio PRIVATE PkgConfig::SndFile PkgConfig::SampleRate PkgConfig::RubberBand Threads::Threads)
 target_compile_options(conflux-audio PRIVATE -Wall -Wextra -Wpedantic)
 
 add_library(conflux-audio-live src/audio/LiveSession.cpp)
@@ -103,6 +105,22 @@ if(BUILD_TESTING)
         -Wl,--wrap=pread -Wl,--wrap=pread64 -Wl,--wrap=__pread_chk -Wl,--wrap=__pread64_chk)
     add_test(NAME audio-loops COMMAND conflux-audio-loops-test)
     set_tests_properties(audio-loops PROPERTIES TIMEOUT 30)
+    add_executable(conflux-audio-tempo-processor-test tests/audio_tempo_processor_test.cpp)
+    target_link_libraries(conflux-audio-tempo-processor-test PRIVATE conflux-audio)
+    target_compile_options(conflux-audio-tempo-processor-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-tempo-processor COMMAND conflux-audio-tempo-processor-test)
+    add_executable(conflux-audio-tempo-transport-test tests/audio_tempo_transport_test.cpp)
+    target_link_libraries(conflux-audio-tempo-transport-test PRIVATE conflux-audio)
+    target_compile_options(conflux-audio-tempo-transport-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-tempo-transport COMMAND conflux-audio-tempo-transport-test)
+    add_executable(conflux-audio-prepared-tempo-test tests/audio_prepared_tempo_test.cpp)
+    target_link_libraries(conflux-audio-prepared-tempo-test PRIVATE conflux-audio Threads::Threads)
+    target_compile_options(conflux-audio-prepared-tempo-test PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_definitions(conflux-audio-prepared-tempo-test PRIVATE _LARGEFILE64_SOURCE)
+    target_link_options(conflux-audio-prepared-tempo-test PRIVATE
+        -Wl,--wrap=pread -Wl,--wrap=pread64 -Wl,--wrap=__pread_chk -Wl,--wrap=__pread64_chk)
+    add_test(NAME audio-prepared-tempo COMMAND conflux-audio-prepared-tempo-test)
+    set_tests_properties(audio-tempo-processor audio-prepared-tempo PROPERTIES TIMEOUT 60)
     add_executable(conflux-audio-preparation-test tests/audio_preparation_test.cpp)
     target_link_libraries(conflux-audio-preparation-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-preparation-test PRIVATE -Wall -Wextra -Wpedantic)

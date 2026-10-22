@@ -321,6 +321,16 @@ private slots:
                 QCOMPARE(controller.submittedCommands(), submitted);
                 QVERIFY(controller.liveStemObservations(0) == handle);
             }
+            controller.setTempoPercent(0, 3);
+            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            for (const auto command : {&conflux::DeckController::toggleMasterTempo,
+                                       &conflux::DeckController::resetTempo}) {
+                (controller.*command)(0);
+                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            }
+            QCOMPARE(controller.decks(), liveDecks);
+            QCOMPARE(controller.submittedCommands(), submitted);
+            QVERIFY(controller.liveStemObservations(0) == handle);
             QCOMPARE(handle->setup().outputFrames48000, controller.audioState().sourceFrames[0]);
             safety.capture();
             QVERIFY(!safety.children.empty() && !safety.gone());
@@ -1307,6 +1317,106 @@ private slots:
         QCOMPARE(controller.completedSessions(), sessions);
         controller.shutdown();
         for (const auto command : commands) (controller.*command)(0);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        QVERIFY(!controller.outputReady());
+    }
+
+    void tempoRejectsInvalidUnloadedAndUnreadyDecksWithoutSpeculation()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        conflux::DeckController controller;
+        const auto selectionCommands = {&conflux::DeckController::toggleMasterTempo,
+                                        &conflux::DeckController::resetTempo};
+        const auto empty = controller.decks();
+        for (const int deck : {-1, 0, 1, 2}) {
+            controller.setTempoPercent(deck, 1);
+            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            for (const auto command : selectionCommands) {
+                (controller.*command)(deck);
+                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            }
+            QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+            QCOMPARE(controller.decks(), empty);
+        }
+        const auto a = directory.filePath("tempo-a.wav"), b = directory.filePath("tempo-b.wav");
+        QVERIFY(writeWave(a, 2, 48000, 4800) && writeWave(b, 2, 48000, 9600));
+        for (int deck = 0; deck < 2; ++deck) {
+            controller.loadDeck(deck, QUrl::fromLocalFile(deck == 0 ? a : b));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QVERIFY(controller.decks()[deck].toMap()["loaded"].toBool());
+        }
+        QVERIFY(!controller.outputReady());
+        const auto decks = controller.decks();
+        const auto state = controller.audioState();
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto tempo = decks[deck].toMap()["tempo"].toMap();
+            QCOMPARE(tempo.size(), qsizetype(9));
+            for (const auto* key : {"supported", "percent", "appliedPercent", "keyLock", "active",
+                                    "pending", "finished", "errorCode", "generation"})
+                QVERIFY2(tempo.contains(key), key);
+            for (const auto* key : {"supported", "keyLock", "active", "pending", "finished"})
+                QCOMPARE(tempo[key].metaType().id(), int(QMetaType::Bool));
+            QCOMPARE(tempo["percent"].metaType().id(), int(QMetaType::Double));
+            QCOMPARE(tempo["appliedPercent"].metaType().id(), int(QMetaType::Double));
+            QCOMPARE(tempo["generation"].metaType().id(), int(QMetaType::ULongLong));
+            const auto& acknowledged = state.tempo[deck];
+            QCOMPARE(tempo["supported"].toBool(), acknowledged.supported);
+            QCOMPARE(tempo["percent"].toDouble(), acknowledged.percent);
+            QCOMPARE(tempo["appliedPercent"].toDouble(), acknowledged.appliedPercent);
+            QCOMPARE(tempo["keyLock"].toBool(), acknowledged.keyLock);
+            QCOMPARE(tempo["active"].toBool(), acknowledged.active);
+            QCOMPARE(tempo["pending"].toBool(), acknowledged.pending);
+            QCOMPARE(tempo["finished"].toBool(), acknowledged.finished);
+            QCOMPARE(tempo["errorCode"].toInt(), acknowledged.errorCode);
+            QCOMPARE(tempo["generation"].toULongLong(), qulonglong(acknowledged.generation));
+        }
+        const auto submitted = controller.submittedCommands(), sessions = controller.completedSessions();
+        const auto recording = controller.recording();
+        const auto master = controller.masterGain(), cue = controller.cueGain(), crossfader = controller.crossfader();
+        const auto unchanged = [&] {
+            QCOMPARE(controller.decks(), decks); // Includes peer, cursor, CUE, loop and acknowledged tempo fields.
+            QCOMPARE(controller.submittedCommands(), submitted);
+            QCOMPARE(controller.recording(), recording);
+            QCOMPARE(controller.masterGain(), master);
+            QCOMPARE(controller.cueGain(), cue);
+            QCOMPARE(controller.crossfader(), crossfader);
+            QCOMPARE(controller.completedSessions(), sessions);
+        };
+        for (int deck = 0; deck < 2; ++deck) {
+            for (const double percent : {-6., 0., 6.}) {
+                QSignalSpy changed(&controller, &conflux::DeckController::stateChanged);
+                controller.setTempoPercent(deck, percent);
+                QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
+                QVERIFY(!changed.isEmpty());
+                unchanged();
+            }
+            for (const auto command : selectionCommands) {
+                (controller.*command)(deck);
+                QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
+                unchanged();
+            }
+            const auto outputNotReady = controller.error();
+            for (const double percent : {std::nextafter(-6., -7.), std::nextafter(6., 7.),
+                                         std::numeric_limits<double>::infinity(),
+                                         -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN()}) {
+                controller.setTempoPercent(deck, percent);
+                QVERIFY(controller.error().contains("between -6 and +6"));
+                QVERIFY(controller.error() != outputNotReady); // Range validation must precede the submit readiness guard.
+                unchanged();
+            }
+        }
+        for (const int deck : {-1, 2}) {
+            controller.setTempoPercent(deck, 1);
+            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            for (const auto command : selectionCommands) (controller.*command)(deck);
+            unchanged();
+        }
+        controller.shutdown();
+        controller.setTempoPercent(0, 1);
+        for (const auto command : selectionCommands) (controller.*command)(0);
         QCOMPARE(controller.submittedCommands(), submitted);
         QVERIFY(!controller.outputReady());
     }

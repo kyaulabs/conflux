@@ -18,6 +18,9 @@ AudioSource validatedMemory(std::span<const float> pcm)
 }
 bool validSource(AudioSource source) noexcept
 {
+    if (bool(source.tempoControl) != bool(source.tempoState) ||
+        (source.tempoControl && (!source.frames || source.memory || !source.read || !source.context)))
+        return false;
     if (bool(source.loopControl) != bool(source.loopState) ||
         (source.loopControl && (!source.frames || source.memory || !source.read || !source.context)))
         return false;
@@ -110,7 +113,12 @@ void RenderCore::transition(Deck& deck) noexcept
 
 bool RenderCore::renderActive(const Deck& deck) noexcept
 {
-    return (deck.playing || deck.cuePreviewing) && deck.frame < deck.source.frames;
+    if (!deck.playing && !deck.cuePreviewing) return false;
+    if (deck.source.tempoState) {
+        const auto tempo = deck.source.tempoState(deck.source.context);
+        if (tempo.active) return !tempo.finished;
+    }
+    return deck.frame < deck.source.frames;
 }
 
 void RenderCore::notifyActivity(const Deck& deck) noexcept
@@ -127,9 +135,11 @@ void RenderCore::refreshActivity() const noexcept
 void RenderCore::moveCursor(Deck& deck, std::uint64_t frame) noexcept
 {
     deck.buffering = false;
-    if (deck.frame == frame)
+    const bool processed = deck.source.tempoState && deck.source.tempoState(deck.source.context).active;
+    if (deck.frame == frame && !processed)
         return;
     deck.frame = frame;
+    deck.nominalPosition = double(frame);
     transition(deck);
     if (deck.source.discontinuity)
         deck.source.discontinuity(deck.source.context, frame);
@@ -161,6 +171,7 @@ bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame) noex
     if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
         return false;
     decks_[deck].frame = frame;
+    decks_[deck].nominalPosition = double(frame);
     decks_[deck].buffering = false;
     return true;
 }
@@ -174,6 +185,7 @@ bool RenderCore::retrySource(std::size_t deck) noexcept
     if (state.source.loopControl)
         state.source.loopControl(state.source.context, AudioLoopCommand::Clear, state.frame);
     state.buffering = false;
+    state.nominalPosition = double(state.frame);
     transition(state);
     state.source.discontinuity(state.source.context, state.frame);
     return true;
@@ -184,6 +196,48 @@ AudioLoopState RenderCore::loopState(std::size_t deck) const noexcept
     if (deck >= deckCount || !decks_[deck].source.loopState) return {};
     const auto& source = decks_[deck].source;
     return source.loopState(source.context);
+}
+
+AudioTempoState RenderCore::tempoState(std::size_t deck) const noexcept
+{
+    if (deck >= deckCount || !decks_[deck].source.tempoState) return {};
+    const auto& source = decks_[deck].source;
+    return source.tempoState(source.context);
+}
+
+bool RenderCore::changeTempo(std::size_t deck, AudioTempoCommand command, double percent, bool keyLock) noexcept
+{
+    if (deck >= deckCount || !std::isfinite(percent) || percent < -6.0 || percent > 6.0)
+        return false;
+    auto& state = decks_[deck];
+    if (state.cuePreviewing || !state.source.tempoControl) return false;
+    const auto before = tempoState(deck);
+    if (!state.source.tempoControl(state.source.context, command, percent, keyLock, state.frame))
+        return false;
+    const auto after = tempoState(deck);
+    if (before.generation != after.generation || before.active != after.active) {
+        state.nominalPosition = double(state.frame);
+        state.buffering = false;
+        transition(state);
+    }
+    notifyActivity(state);
+    return true;
+}
+
+bool RenderCore::setTempoPercent(std::size_t deck, double percent) noexcept
+{
+    return changeTempo(deck, AudioTempoCommand::Set, percent, tempoState(deck).keyLock);
+}
+
+bool RenderCore::toggleMasterTempo(std::size_t deck) noexcept
+{
+    const auto tempo = tempoState(deck);
+    return changeTempo(deck, AudioTempoCommand::Set, tempo.percent, !tempo.keyLock);
+}
+
+bool RenderCore::resetTempo(std::size_t deck) noexcept
+{
+    return changeTempo(deck, AudioTempoCommand::Reset, 0, tempoState(deck).keyLock);
 }
 
 bool RenderCore::loopIn(std::size_t deck) noexcept
@@ -203,6 +257,7 @@ bool RenderCore::loopOut(std::size_t deck) noexcept
         return false;
     const bool wasActive = renderActive(state);
     state.frame = loopState(deck).inFrame;
+    state.nominalPosition = double(state.frame);
     state.buffering = false;
     if (wasActive != renderActive(state)) notifyActivity(state);
     return true;
@@ -218,6 +273,7 @@ bool RenderCore::loopToggle(std::size_t deck) noexcept
     if (const auto loop = loopState(deck); loop.active) {
         const bool wasActive = renderActive(state);
         state.frame = loop.inFrame;
+        state.nominalPosition = double(state.frame);
         state.playing = true;
         state.buffering = false;
         if (!wasActive) transition(state);
@@ -361,7 +417,9 @@ bool RenderCore::cuePress(std::size_t deck) noexcept
         state.playing = false;
     } else if (state.frame != state.cueFrame) {
         state.cueFrame = state.frame;
+        moveCursor(state, state.frame);
     } else {
+        moveCursor(state, state.frame);
         state.cuePreviewing = true;
     }
     if (active != (state.playing || state.cuePreviewing)) transition(state);
@@ -415,6 +473,9 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::LoopIn: return loopIn(command.deck);
     case Command::Type::LoopOut: return loopOut(command.deck);
     case Command::Type::LoopToggle: return loopToggle(command.deck);
+    case Command::Type::TempoPercent: return setTempoPercent(command.deck, command.tempoPercent);
+    case Command::Type::MasterTempo: return toggleMasterTempo(command.deck);
+    case Command::Type::TempoReset: return resetTempo(command.deck);
     }
     return false;
 }
@@ -556,8 +617,10 @@ bool RenderCore::renderInternal(std::span<float> interleaved, std::span<float> c
             }
             writeBuses(interleaved, cue, frame, left, right, cueLeft, cueRight);
         }
-        for (std::size_t index = 0; index < deckCount; ++index)
+        for (std::size_t index = 0; index < deckCount; ++index) {
             decks_[index].frame += available[index];
+            decks_[index].nominalPosition = double(decks_[index].frame);
+        }
         frameClock_ += frames;
         finishMeters();
         refreshActivity();
@@ -580,8 +643,8 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
     std::array<std::uint64_t, deckCount> needed{}, delivered{};
     std::array<bool, deckCount> stalled{};
     for (std::size_t index = 0; index < deckCount; ++index)
-        if (decks_[index].playing || decks_[index].cuePreviewing)
-            needed[index] = loopState(index).active ? frames :
+        if (renderActive(decks_[index]))
+            needed[index] = (tempoState(index).active || loopState(index).active) ? frames :
                 std::min<std::uint64_t>(frames, sourceFrames(index) - decks_[index].frame);
 
     for (std::size_t offset = 0; offset < frames;) {
@@ -596,6 +659,7 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
                 count = std::min<std::size_t>(count, loop.outFrame - deck.frame);
         }
         std::array<std::size_t, deckCount> available{};
+        std::array<AudioReadResult, deckCount> results{};
         std::array<const float*, deckCount> samples{};
         for (std::size_t index = 0; index < deckCount; ++index) {
             if (stalled[index] || delivered[index] == needed[index])
@@ -609,12 +673,20 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
             } else {
                 auto buffer = std::span(sourceScratch_[index]).first(requested * channels);
                 auto result = deck.source.read(deck.source.context, deck.frame, buffer);
-                if (result.frames > requested || std::ranges::any_of(
+                const bool processed = tempoState(index).active;
+                if ((processed && !result.positionValid) ||
+                    (result.positionValid && (!processed || !std::isfinite(result.nominalPosition) ||
+                        result.nominalPosition < deck.nominalPosition ||
+                        result.nominalPosition > double(deck.source.frames) ||
+                        (!result.frames && !result.finished && result.nominalPosition != deck.nominalPosition))) ||
+                    (result.finished && !processed) || result.frames > requested || std::ranges::any_of(
                         buffer.first(std::min(result.frames, requested) * channels),
                         [](float sample) { return !std::isfinite(sample); }))
                     result = {0, true};
                 samples[index] = buffer.data();
                 available[index] = result.frames;
+                results[index] = result;
+                if (result.finished) needed[index] = delivered[index] + result.frames;
                 deck.readFailed |= result.failed;
                 // Do not repeatedly query a missing suffix within one render
                 // call. The peer and output clock continue through its silence.
@@ -635,11 +707,19 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
             writeBuses(interleaved, cue, offset + frame, left, right, cueLeft, cueRight);
         }
         for (std::size_t index = 0; index < deckCount; ++index) {
-            decks_[index].frame += available[index];
+            auto& deck = decks_[index];
+            if (results[index].positionValid) {
+                deck.nominalPosition = results[index].nominalPosition;
+                deck.frame = static_cast<std::uint64_t>(deck.nominalPosition);
+            } else if (available[index]) {
+                deck.frame += available[index];
+                deck.nominalPosition = double(deck.frame);
+            }
             delivered[index] += available[index];
             const auto loop = loopState(index);
             if (loop.active && decks_[index].frame == loop.outFrame)
                 decks_[index].frame = loop.inFrame;
+            if (loop.active) decks_[index].nominalPosition = double(decks_[index].frame);
         }
         offset += count;
     }

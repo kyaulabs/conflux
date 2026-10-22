@@ -1,0 +1,13 @@
+{
+  "command": [
+    "build/coverage-venv/bin/python",
+    "tools/coverage/run.py",
+    "--jobs",
+    "2",
+    "--private-routing"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 767.164321460994,
+  "changed_inputs": [],
+  "scope": "Instrumented functionality and private virtual graph; not physical audio or latency qualification"
+}

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/tmp/conflux-release-tools/actionlint",
+    "-shellcheck",
+    "/usr/bin/shellcheck"
+  ],
+  "exit_code": 0,
+  "recorded_utc": "2026-10-22T02:46:07.121501+00:00",
+  "scope": "Existing workflow linter, all workflows; actual system ShellCheck retained. Default PATH wrapper reformats output and failed actionlint JSON parsing; product/workflow not changed to bypass checks."
+}

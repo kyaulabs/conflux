@@ -678,6 +678,7 @@ public:
         state.outputFrame = renderer_.frameClock();
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
             state.sourceFrame[deck] = renderer_.sourceFrame(deck);
+            state.sourcePosition[deck] = renderer_.sourcePosition(deck);
             state.sourceFrames[deck] = renderer_.sourceFrames(deck);
             state.sourceGeneration[deck] = sourceGeneration_[deck];
             state.cueFrame[deck] = renderer_.cueFrame(deck);
@@ -692,6 +693,7 @@ public:
             state.deckGain[deck] = renderer_.deckGain(deck);
             state.stemBank[deck] = renderer_.isStemBank(deck);
             state.loops[deck] = renderer_.loopState(deck);
+            state.tempo[deck] = renderer_.tempoState(deck);
             for (std::size_t stem = 0; stem < RenderCore::stemCount; ++stem)
                 state.stemGain[deck][stem] = renderer_.stemGain(deck, stem);
         }

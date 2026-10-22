@@ -25,7 +25,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build python3-numpy pipewire-bin libpipewire-0.3-dev libsndfile1-dev libsamplerate0-dev libtag1-dev qt6-base-dev qt6-declarative-dev libqt6svg6-dev qt6-wayland qml6-module-qtquick qml6-module-qtquick-window qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtqml qml6-module-qtqml-models qml6-module-qtqml-workerscript qml6-module-qtquick-templates
+          sudo apt-get install -y ninja-build python3-numpy pipewire-bin libpipewire-0.3-dev libsndfile1-dev libsamplerate0-dev librubberband-dev libtag1-dev qt6-base-dev qt6-declarative-dev libqt6svg6-dev qt6-wayland qml6-module-qtquick qml6-module-qtquick-window qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtqml qml6-module-qtqml-models qml6-module-qtqml-workerscript qml6-module-qtquick-templates
       - name: Configure
         run: cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPython3_EXECUTABLE=/usr/bin/python3
       - name: Build
@@ -49,7 +49,7 @@ jobs:
       - name: Install coverage build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build python3-numpy python3-venv pipewire-bin libpipewire-0.3-dev libsndfile1-dev libsamplerate0-dev libtag1-dev qt6-base-dev qt6-declarative-dev libqt6svg6-dev qt6-wayland qml6-module-qtquick qml6-module-qtquick-window qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtqml qml6-module-qtqml-models qml6-module-qtqml-workerscript qml6-module-qtquick-templates
+          sudo apt-get install -y ninja-build python3-numpy python3-venv pipewire-bin libpipewire-0.3-dev libsndfile1-dev libsamplerate0-dev librubberband-dev libtag1-dev qt6-base-dev qt6-declarative-dev libqt6svg6-dev qt6-wayland qml6-module-qtquick qml6-module-qtquick-window qml6-module-qtquick-controls qml6-module-qtquick-layouts qml6-module-qtqml qml6-module-qtqml-models qml6-module-qtqml-workerscript qml6-module-qtquick-templates
       - name: Install isolated coverage tools
         run: |
           python3 -m venv --system-site-packages build/coverage-venv

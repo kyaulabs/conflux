@@ -30,7 +30,7 @@ the C/D strips must say they are unavailable.
 
 | Hardware group and position | CONFLUX behavior in this redraw |
 | --- | --- |
-| Display and browse area, top | Show embedded cover art, title, artist and album in each deck LCD, with a filename fallback and a NO ART placeholder. Actual elapsed/remaining time and the source overview remain available. The Library drawer imports and lists local tracks; LOAD A/B prepares the selected track. Playlists and media-source selection remain unavailable. |
+| Display and browse area, top | Show embedded cover art, title, artist and album in each deck LCD, with a filename fallback and a NO ART placeholder. Elapsed/remaining source time and the source overview remain available; processed tempo uses a nominal source cursor, clamped at the track end while its actual tail drains. The Library drawer imports and lists local tracks; LOAD A/B prepares the selected track. Playlists and media-source selection remain unavailable. |
 | Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview and preserves the stored cue. Beat quantization and scratch semantics remain unavailable. |
 | PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
@@ -45,7 +45,7 @@ the C/D strips must say they are unavailable.
 | Hot Cues A–H and cue memory | Disabled: Hot Cues, persistent cue memory and memory navigation are not implemented. |
 | SEARCH/TRACK SEARCH and direction | Disabled: held fast search, track navigation, reverse and slip playback are not implemented. Use the explicit position rail for current seeking. |
 | 4/8 BEAT LOOP and BEAT JUMP | Disabled: quantized loops and beat navigation are not implemented. |
-| TEMPO rail/range/reset, MASTER TEMPO and KEY SYNC | Disabled: tempo/pitch processing and key matching are not implemented. Keep deck gain off the tempo rail. |
+| TEMPO rail/reset and MASTER TEMPO | Prepared stereo tracks and four-stem banks support ±6% speed. Move the rail down for positive tempo; MASTER TEMPO preserves pitch with Rubber Band R3. Changes and pending state follow engine acknowledgements. TEMPO RESET returns to the exact normal-read path, retaining the Master Tempo selection. Manual loops and processed tempo are mutually gated; live stems are unsupported. Range selection and KEY SYNC remain disabled. |
 | BEAT SYNC, MASTER, QUANTIZE and SLIP | Disabled: beat synchronization, quantization and slip transport are not implemented. |
 | Mixer EQ, filter and FX | Disabled: their processing is not implemented. |
 
@@ -101,13 +101,13 @@ speaker test without reported clicks or playback issues.
 
 BPM, key and beatgrid remain unavailable. The overview uses at most 512
 buckets of `max(abs(left), abs(right))` from decoded PCM, normalized to the
-source peak for display only. Its playhead shows the actual source position.
+source peak for display only. Its playhead shows the source position, using a nominal cursor during tempo processing.
 Analysis runs in the existing decode job, outside the GUI and audio callbacks.
 Keep preparation and output errors near the affected deck. Recording state
 comes from the writer lifecycle; do not invent analysis progress or AI ownership. Use approved
 CONFLUX assets and theme tokens, without reproducing the hardware's logo.
 
-Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION, JOG and
+Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION, JOG, TEMPO, MASTER TEMPO, TEMPO RESET and
 CHANNEL LEVEL for each deck, then mixer CUE, MASTER LEVEL, CUE LEVEL and
 CROSSFADER. Audio
 settings expose keyboard-operable port selectors and recording controls. Enter loads the path; focused
