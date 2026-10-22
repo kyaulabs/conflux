@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-22T10:27:04.810841+00:00",
+  "status": "passed",
+  "source_parent": "26a45a60c5feb34eae9f81ae4f7f2298a10461d2",
+  "scope": "Prepared-track scratch input regression tests and corrected player help; offscreen synthetic input with a recording endpoint, no audio session.",
+  "tested_sources": [
+    {
+      "path": "qml/Main.qml",
+      "bytes": 58593,
+      "sha256": "76b27e4ce6bac8c6eceab355d2933e87c05a22d6656dd3f4bed02df34960fa46"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 65757,
+      "sha256": "26f5971fe4a0a241b142b46a9bef94cc53edab77b6d067140cc7af921647b9ea"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 252465,
+      "sha256": "5e9175e5895012e88fc88c02bcbe7a510953c35ea5f448186031277513216f4d"
+    }
+  ],
+  "checks": {
+    "full_manual_ui": {
+      "passed": 176,
+      "failed": 0,
+      "skipped": 0
+    },
+    "focused_new_input_cases": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "Ten data rows plus setup/cleanup."
+    },
+    "software_smoke": {
+      "rendered": true
+    }
+  },
+  "behavior": [
+    "Both decks terminate held scratch before arrow, Shift-arrow or wheel search; exactly one correct relative search command follows End.",
+    "The retired pointer sends no later movement or duplicate End; a fresh press receives a new token; peer state stays unchanged.",
+    "Both decks accept cumulative forward/reverse touch movement and normal release or actual synthesized-touch mouse-grab loss, without optimistic transport acknowledgement.",
+    "The touch rows use public Qt6.4-compatible grab loss; they do not claim platform TouchCancel injection.",
+    "A local scope guard releases the held test pointer even if an assertion fails."
+  ],
+  "limits": [
+    "No scratch DSP or timing implementation changed.",
+    "No new physical playback, musical scratch listening, physical touch hardware or compositor qualification.",
+    "The underlying scratch feature remains in draft awaiting the user trial; M2/M3 and release gates remain open."
+  ],
+  "coverage": "Exact-head CI pending at source commit; QML/native stem adapter remain numerically unmeasured.",
+  "artifacts": [
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-input-regressions-01/build-01.log",
+        "bytes": 380,
+        "sha256": "3e29bec86ece2df4d833b5962a8c1e5fb419e5c403a8019a648e3dc9854d71b1"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-scratch-input-2026-10-22/build-01.log.gz",
+        "bytes": 227,
+        "sha256": "647d78d5b109fd0a9ebbd803730dddb17e9bbcb7b1b2bda11c7d617225395474"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-input-regressions-01/focused-test-01.log",
+        "bytes": 1078,
+        "sha256": "dff8336afc57ab6cb5b4ce738b14a954673340ca2813ebaa5e324505ba6d4fac"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-scratch-input-2026-10-22/focused-test-01.log.gz",
+        "bytes": 356,
+        "sha256": "1fd8e8972e47cdcb5e1aa0b24b78fb3196b596edd3cb8f594dae84a9a8001765"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-input-regressions-01/full-ui-test-01.log",
+        "bytes": 16618,
+        "sha256": "ec848825ebd7dc3c32b8bc41d2918ee418020ff26228df33253b3513adf9dd13"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-scratch-input-2026-10-22/full-ui-test-01.log.gz",
+        "bytes": 3135,
+        "sha256": "f9413460bb9d757703c8b5a9355b63930a2f1e1ec3d1c3fda6c28bc806c187d1"
+      }
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m3-parallel-2026-10-22/scratch-input-regressions-01/smoke-01.log",
+        "bytes": 668,
+        "sha256": "794634bb759d27911783a7c75ecc595427bbd32c74443c710bfbe606970a375d"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m3-scratch-input-2026-10-22/smoke-01.log.gz",
+        "bytes": 421,
+        "sha256": "c0f571e651945aecb7a7240bb9dde4af3bac0e021f6782940b747db3d0cc89f8"
+      }
+    }
+  ]
+}
