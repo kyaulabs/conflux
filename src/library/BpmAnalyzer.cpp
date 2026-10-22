@@ -6,7 +6,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -24,7 +23,8 @@
 namespace conflux::library {
 namespace {
 using Clock = std::chrono::steady_clock;
-constexpr qsizetype maximumOutput = 4096, maximumDiagnostics = 65536;
+constexpr qsizetype maximumHeader = 4096, maximumOutput = 4 * 1024 * 1024, maximumDiagnostics = 65536;
+constexpr std::uint64_t maximumEvents = 34953;
 
 QString asset(const QString& path, bool directory = false, bool executable = false)
 {
@@ -53,28 +53,74 @@ void collect(QProcess& process, QProcess::ProcessChannel channel, QByteArray& re
     const auto available = process.bytesAvailable();
     if (available > maximum - retained.size())
         throw std::length_error(channel == QProcess::StandardOutput ?
-            "BPM output exceeds 4096 bytes" : "BPM diagnostics exceed 64 KiB");
+            "BPM timing output exceeds 4 MiB" : "BPM diagnostics exceed 64 KiB");
     retained += process.read(maximum - retained.size() + 1);
     if (retained.size() > maximum)
         throw std::length_error("BPM worker channel exceeded its byte budget");
 }
 
-QJsonObject resultObject(QByteArray bytes)
+BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QByteArray& digest,
+                         Clock::time_point end, std::stop_token stop)
 {
-    const auto document = QJsonDocument::fromJson(bytes);
-    if (!document.isObject()) throw std::runtime_error("Malformed BPM result JSON");
-    // Reuse the existing strict duplicate-key/UTF-8/number parser. After a
-    // successful JSON parse physical CR/LF can only be whitespace outside
-    // strings; replacing that whitespace does not change any JSON value.
-    bytes.replace('\r', ' ');
-    bytes.replace('\n', ' ');
-    bytes += '\n';
+    // Keep actual JSONL boundaries. No implicit final LF, blank records or
+    // newline-flattening repair is permitted by schema 2.
+    const auto newline = bytes.indexOf('\n');
+    if (newline < 0 || newline + 1 > maximumHeader)
+        throw std::runtime_error("BPM timing header exceeds its line budget or lacks LF");
     detail::StemServiceJsonl parser;
-    auto parsed = parser.feed(bytes);
-    if (!parsed.object || parsed.consumed != bytes.size())
-        throw std::runtime_error("BPM result must contain exactly one JSON object");
+    qsizetype offset = 0;
+    const auto next = [&]() {
+        deadline(end, stop);
+        const auto parsed = parser.feed(QByteArrayView(bytes).sliced(offset));
+        offset += parsed.consumed;
+        if (!parsed.object) {
+            parser.finish(); // Rejects an unterminated body even if its JSON is valid.
+            throw std::runtime_error("BPM timing record is missing");
+        }
+        return *parsed.object;
+    };
+    const auto result = next();
+    if (result.size() != 6 || result.value("schema") != QJsonValue(2) ||
+        result.value("recipe") != QJsonValue(QString::fromLatin1(bpmAnalysisRecipe)) ||
+        !result.value("frames").isDouble() || result.value("frames").toDouble() != double(frames) ||
+        result.value("pcm_sha256").toString().toLatin1() != digest ||
+        !result.value("beat_count").isDouble())
+        throw std::runtime_error("BPM result identity or schema differs");
+    const auto count = result.value("beat_count").toDouble();
+    const auto maximumCount = std::min(maximumEvents, frames * 50U / 48000U + 1U);
+    if (!std::isfinite(count) || count < 0 || count > double(maximumCount) || std::floor(count) != count)
+        throw std::runtime_error("BPM result beat count is invalid");
+    BpmEstimate estimate;
+    const auto value = result.value("bpm");
+    if (value.isNull()) {
+        estimate.status = QStringLiteral("Unknown");
+    } else {
+        const double bpm = value.toDouble();
+        if (!value.isDouble() || !std::isfinite(bpm) || bpm < 20 || bpm > 400 || count < 2 ||
+            std::round(bpm * 10) / 10 != bpm)
+            throw std::runtime_error("BPM result estimate is invalid");
+        estimate.bpm = bpm;
+        estimate.status = QStringLiteral("Estimated");
+    }
+    estimate.analysisFrames = frames;
+    estimate.pcmSha256 = digest;
+    estimate.beats.reserve(std::size_t(count));
+    for (std::size_t index = 0; index < std::size_t(count); ++index) {
+        const auto event = next();
+        const auto frameValue = event.value("frame");
+        if (event.size() != 2 || !frameValue.isDouble() || !event.value("downbeat").isBool())
+            throw std::runtime_error("BPM timing record schema differs");
+        const double frame = frameValue.toDouble();
+        if (!std::isfinite(frame) || frame < 0 || frame >= double(frames) || std::floor(frame) != frame ||
+            (!estimate.beats.empty() && frame <= double(estimate.beats.back().frame)))
+            throw std::runtime_error("BPM timing frames must be distinct, increasing and inside the source");
+        estimate.beats.push_back({std::uint32_t(frame), event.value("downbeat").toBool()});
+    }
+    if (offset != bytes.size())
+        throw std::runtime_error("BPM timing stream has extra records or bytes");
     parser.finish();
-    return std::move(*parsed.object);
+    deadline(end, stop);
+    return estimate;
 }
 
 BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, std::stop_token stop)
@@ -154,24 +200,7 @@ BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, 
     deadline(end, stop);
     if (workerFailure) std::rethrow_exception(workerFailure);
     if (!normal) throw std::runtime_error("Local BPM analysis failed: " + diagnostics.right(2048).toStdString());
-    const auto result = resultObject(std::move(output));
-    if (result.size() != 6 || result.value("schema") != QJsonValue(1) ||
-        result.value("recipe") != QJsonValue(QString::fromLatin1(bpmAnalysisRecipe)) ||
-        !result.value("frames").isDouble() || result.value("frames").toDouble() != double(frames) ||
-        result.value("pcm_sha256").toString().toLatin1() != digest ||
-        !result.value("beat_count").isDouble())
-        throw std::runtime_error("BPM result identity or schema differs");
-    const auto count = result.value("beat_count").toDouble();
-    const auto maximumCount = std::min<std::uint64_t>(60000, frames * 50U / 48000U + 1U);
-    if (!std::isfinite(count) || count < 0 || count > double(maximumCount) || std::floor(count) != count)
-        throw std::runtime_error("BPM result beat count is invalid");
-    const auto value = result.value("bpm");
-    if (value.isNull()) return {{}, QStringLiteral("Unknown"), {}};
-    const double bpm = value.toDouble();
-    if (!value.isDouble() || !std::isfinite(bpm) || bpm < 20 || bpm > 400 || count < 2 ||
-        std::round(bpm * 10) / 10 != bpm)
-        throw std::runtime_error("BPM result estimate is invalid");
-    return {bpm, QStringLiteral("Estimated"), {}};
+    return timingResult(output, frames, digest, end, stop);
 }
 } // namespace
 
