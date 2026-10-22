@@ -14,7 +14,7 @@ pkg_check_modules(SndFile REQUIRED IMPORTED_TARGET sndfile>=1.2)
 pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate>=0.2.2)
 pkg_check_modules(RubberBand REQUIRED IMPORTED_TARGET rubberband>=3.3)
 
-add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp
+add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp src/audio/ChannelEq.cpp
     src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/PreparedLoopCache.cpp src/audio/StemBankSource.cpp
     src/audio/TempoProcessor.cpp src/audio/PreparedTempoSource.cpp src/audio/PreparedScratchSource.cpp
     src/audio/LiveStemBuffer.cpp src/audio/StemRateConverter.cpp src/audio/LiveRecoveryPolicy.cpp
@@ -39,6 +39,16 @@ if(BUILD_TESTING)
     target_link_libraries(conflux-audio-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-test PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME audio-render COMMAND conflux-audio-test)
+    add_executable(conflux-channel-eq-test tests/channel_eq_test.cpp)
+    target_link_libraries(conflux-channel-eq-test PRIVATE conflux-audio)
+    target_compile_options(conflux-channel-eq-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME channel-eq COMMAND conflux-channel-eq-test)
+    set_tests_properties(channel-eq PROPERTIES TIMEOUT 20)
+    add_executable(conflux-audio-eq-test tests/audio_eq_test.cpp)
+    target_link_libraries(conflux-audio-eq-test PRIVATE conflux-audio)
+    target_compile_options(conflux-audio-eq-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-eq COMMAND conflux-audio-eq-test)
+    set_tests_properties(audio-eq PROPERTIES TIMEOUT 20)
     add_executable(conflux-audio-cue-test tests/audio_cue_test.cpp)
     target_link_libraries(conflux-audio-cue-test PRIVATE conflux-audio)
     target_compile_options(conflux-audio-cue-test PRIVATE -Wall -Wextra -Wpedantic)

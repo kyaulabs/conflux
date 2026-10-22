@@ -34,6 +34,7 @@ the C/D strips must say they are unavailable.
 | Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview or active scratch and preserves the stored cue. Beat quantization remains unavailable. |
 | PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
+| HI/MID/LOW, mixer | A/B channel EQ cuts to -26 dB and boosts to +6 dB; the center is 0 dB. LOW is a 250 Hz shelf, MID a 1 kHz peak and HI a 4 kHz shelf. Changes ramp over 240 frames (5 ms). EQ follows the current source/stem mix and precedes transport fades, deck meters, pre-fader cue and channel/master gains. Recording includes EQ. Channel settings survive track replacement and output rebuild; filter history is cleared on replacement. C/D remain disabled. |
 | Loop IN/OUT/RELOOP | Prepared normal audio and stem banks call `loopIn`, `loopOut` and `loopToggle`. IN prepares up to 64 seconds; OUT captures the render cursor and repeats from IN once cache is ready. EXIT continues past OUT; RELOOP returns to IN. Minimum span is 256 frames; pause retains it, while seek/jog/transport CUE, retry, replacement and output rebuild clear it. Live stems and loop-point editing remain unavailable. |
 | Crossfader, bottom of mixer | Call `setCrossfader` in [0,1], with A at the left and B at the right. At center both sends stay at unity. Toward an endpoint the opposite deck fades linearly to zero; live changes ramp over 240 frames (5 ms). Channel levels, pre-fader cue, deck meters and source clocks remain independent. The master recording includes the crossfader. Assignment and curve selection remain unavailable. |
 | MASTER LEVEL, mixer | Call `setMasterGain` in [0,1]. The deck's hardware MASTER button selects a sync master and must remain disabled. |
@@ -47,7 +48,7 @@ the C/D strips must say they are unavailable.
 | 4/8 BEAT LOOP and BEAT JUMP | Disabled: quantized loops and beat navigation are not implemented. |
 | TEMPO rail/reset and MASTER TEMPO | Prepared stereo tracks and four-stem banks support ±6% speed. Move the rail down for positive tempo; MASTER TEMPO preserves pitch with Rubber Band R3. Changes and pending state follow engine acknowledgements. TEMPO RESET returns to the exact normal-read path, retaining the Master Tempo selection. Manual loops and processed tempo are mutually gated; live stems are unsupported. Range selection and KEY SYNC remain disabled. |
 | BEAT SYNC, MASTER, QUANTIZE and SLIP | Disabled: beat synchronization, quantization and slip transport are not implemented. |
-| Mixer EQ, filter and FX | Disabled: their processing is not implemented. |
+| Mixer TRIM, COLOR and FX | Disabled: input trim, channel filter and effects processing are not implemented. |
 
 The [operating instructions, pages 51–52](https://downloads.support.alphatheta.com/manuals/dj-players/CDJ-3000/CDJ-3000_DRI1586A_manual.pdf#page=51)
 describe paused cue setting, return-and-pause during playback, and preview while
@@ -99,6 +100,18 @@ Pre-fader deck meters include those transport transitions. The ramps do not
 implement a limiter or normalize the audio. The user accepted the current
 speaker test without reported clicks or playback issues.
 
+The three-band EQ uses standard [biquad equalizer formulas](https://www.w3.org/TR/audio-eq-cookbook/).
+Its response has not been matched to the photographed mixer. Shelf slope is 1;
+the mid-band Q is 1/sqrt(2). Neutral settings preserve the original PCM. Meter
+and recording headroom remains above +/-1; EQ does not add a limiter.
+
+The [EQ verification record](benchmarks/data/m3-channel-eq-2026-10-22/verification.json)
+contains the accepted combined native mixing trial, 53 passing test groups,
+213 UI checks and private recording/cue checks. Measured line coverage is
+88.58% for C++ and 86.47% for Python; QML and the native stem adapter remain
+unmeasured. These checks do not qualify laptop live-stem latency or the
+required sustained actual-player run.
+
 Estimated BPM and manual reference overrides are available through the deck LCD;
 see [BPM controls](M3.md#bpm-controls-and-window-chrome). Key and beatgrid remain
 unavailable. The overview uses at most 512
@@ -110,7 +123,7 @@ comes from the writer lifecycle; do not invent analysis progress or AI ownership
 CONFLUX assets and theme tokens, without reproducing the hardware's logo.
 
 Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION, JOG, TEMPO, MASTER TEMPO, TEMPO RESET and
-CHANNEL LEVEL for each deck, then mixer CUE, MASTER LEVEL, CUE LEVEL and
+CHANNEL LEVEL for each deck, then mixer HI/MID/LOW, CUE, MASTER LEVEL, CUE LEVEL and
 CROSSFADER. Audio
 settings expose keyboard-operable port selectors and recording controls. Enter loads the path; focused
 buttons accept Space/Enter; focused sliders accept arrow keys. Pointer and

@@ -315,6 +315,8 @@ QVariantList DeckController::decks() const
                 {"errorCode", state_.loops[deck].errorCode}}},
             {"stemGains", QVariantList{state_.stemGain[deck][0], state_.stemGain[deck][1],
                                        state_.stemGain[deck][2], state_.stemGain[deck][3]}},
+            {"eqGainDb", QVariantList{state_.eqGainDb[deck][0], state_.eqGainDb[deck][1],
+                                      state_.eqGainDb[deck][2]}},
             {"playing", state_.playing[deck]},
             {"cueSelected", state_.cueSelected[deck]},
             {"meter", meterMap(state_.meters.deck[deck])},
@@ -939,6 +941,7 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     initial.cueFrame = state_.cueFrame;
     initial.playing = state_.playing;
     initial.deckGain = state_.deckGain;
+    initial.eqGainDb = state_.eqGainDb;
     initial.masterGain = state_.masterGain;
     initial.crossfader = state_.crossfader;
     initial.cueSelected = state_.cueSelected;
@@ -1507,6 +1510,22 @@ void DeckController::setDeckGain(int deck, double gain)
     command.type = audio::RenderCore::Command::Type::DeckGain;
     command.deck = std::uint32_t(deck);
     command.gain = float(gain);
+    submit(command);
+}
+
+void DeckController::setEqGainDb(int deck, int band, double db)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] ||
+        band < 0 || band >= int(audio::RenderCore::eqBandCount) || !std::isfinite(db) ||
+        db < audio::ChannelEq::minGainDb || db > audio::ChannelEq::maxGainDb) {
+        fail("Channel EQ must be between -26 and +6 dB for a loaded deck.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::EqGain;
+    command.deck = std::uint32_t(deck);
+    command.band = std::uint32_t(band);
+    command.eqGainDb = float(db);
     submit(command);
 }
 

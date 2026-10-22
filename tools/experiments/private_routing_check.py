@@ -18,7 +18,7 @@ def main():
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path, help="new evidence directory; must not exist")
     parser.add_argument("--functional-only", action="store_true",
-                        help="skip only execution deadline assertions for instrumented functional checks")
+                        help="run instrumented functional checks with bounded cold setup and no execution deadline qualification")
     parser.add_argument("--live-failure-only", action="store_true",
                         help="run only the preparation binary's generated live stall/exit checks")
     args = parser.parse_args()
@@ -33,7 +33,7 @@ def main():
     result = {"passed": False, "execution_deadline_gate": not args.functional_only,
               "harness_timeout_seconds": 240 if args.functional_only else 90,
               "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"}
-    with tempfile.TemporaryDirectory(prefix="conflux-routing-private-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="conflux-routing-") as temporary:
         runtime = Path(temporary)
         runtime.chmod(0o700)
         remote = f"conflux-private-routing-{os.getpid()}"

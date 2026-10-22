@@ -106,14 +106,26 @@ void readyWhileHeld(RenderCore& core)
         std::this_thread::sleep_for(1ms);
     }
 }
-void warm(RenderCore& core, double target)
+void warm(RenderCore& core, double target, double stepBound = 1)
 {
+    require(std::isfinite(target) && std::isfinite(stepBound) && stepBound > 0 && stepBound <= PreparedScratchSource::maximumSpeed,
+            "Invalid fixture warm target or motion bound");
     const auto deadline = Clock::now() + 2s;
     for (std::size_t count = 0; core.sourcePosition() != target; ++count) {
         require(count < 2000 && Clock::now() < deadline, "Prepared scratch did not reach finite nearby target");
-        const auto before = core.sourcePosition(); render(core, 1);
-        require(!core.readFailed(0) && std::abs(core.sourcePosition() - before) <= 8,
-                "Actual playback rejected signed scratch metadata or jumped cursor");
+        const auto before = core.sourcePosition();
+        require(std::isfinite(before), "Prepared scratch warm started from a nonfinite cursor");
+        const auto remaining = std::abs(target - before);
+        // Simulate bounded callback blocks without reading held surplus after
+        // the target; this preserves the next full-envelope PCM assertion.
+        const auto batch = static_cast<std::size_t>(std::clamp(std::ceil(remaining / stepBound),
+            1., double(PreparedScratchSource::maxReadFrames)));
+        render(core, batch);
+        const auto after = core.sourcePosition();
+        const auto moved = (target > before ? 1 : -1) * (after - before);
+        require(!core.readFailed(0) && !core.isBuffering(0) && !core.scratchState(0).errorCode &&
+            std::isfinite(after) && moved > 0 && moved <= remaining && moved <= stepBound * double(batch),
+            "Prepared scratch warm stopped, lacked healthy PCM, reversed, overshot or exceeded its bounded source advance");
     }
 }
 // A normal refill may be unavailable: retain source position and let the peer
@@ -172,8 +184,20 @@ void normalPlatterBusAndRelease()
         require(core.moveScratch(0, 1, 1216, .01), "Cannot create active forward backlog"); render(core, 1);
         require(core.moveScratch(0, 1, 976, .01), "Cannot reverse an already active platter");
         const auto turn = core.sourcePosition();
+        const auto settleClock = core.frameClock(), settlePeer = core.sourceFrame(1);
+        const auto settling = render(core, 272);
+        for (const auto& bus : {settling.master, settling.cue})
+            require(std::ranges::all_of(bus, [](float sample) { return std::isfinite(sample); }),
+                    "Reversal settling block produced nonfinite output");
+        require(core.frameClock() == settleClock + 272 && core.sourceFrame(1) == settlePeer + 272 &&
+            core.sourcePosition() < turn && core.sourcePosition() >= turn - 240 && !core.isBuffering(0) &&
+            !core.readFailed(0) && !core.scratchState(0).errorCode && !owner->errorCode(),
+            "Reversal settling block lost clocks, passed its target or lacked healthy backward motion");
+        // Continue the same half-rate negative gesture before the per-sample
+        // oracle; instrumented assertions are not new physical motion input.
+        require(core.moveScratch(0, 1, 960, 32.0 / 48000), "Cannot continue settled reverse platter motion");
         std::size_t compared = 0;
-        for (std::size_t frame = 0; frame < 300; ++frame) {
+        for (std::size_t frame = 272; frame < 300; ++frame) {
             const auto before = core.sourcePosition();
             const auto peerFrame = core.sourceFrame(1);
             const auto output = render(core, 1); const auto after = core.sourcePosition();
@@ -231,7 +255,10 @@ void sharedStemGainsAndLinearContinuation()
         "Cannot configure bank integration buses");
     render(core, 3); require(core.sourceFrame() == 1003, "Linear stem prefix did not advance before scratch");
     require(core.setPlaying(0, false) && core.beginScratch(0, 10), "Cannot pause/enter bank scratch"); readyWhileHeld(core);
-    require(core.moveScratch(0, 10, 256, 256.0 / 48000), "Cannot warm bank platter"); warm(core, 1259);
+    // Refresh genuine cumulative unit motion after startup, then fully open
+    // the motion gate without reading a held surplus at the oracle cursor.
+    require(core.moveScratch(0, 10, 64, 64.0 / 48000), "Cannot start bank platter warm motion"); warm(core, 1067);
+    require(core.moveScratch(0, 10, 256, 192.0 / 48000), "Cannot continue bank platter warm motion"); warm(core, 1259);
     for (std::size_t leaf = 0; leaf < 4; ++leaf)
         require(core.setStemGain(0, leaf, float(targets[leaf])), "Scratch mode rejected render-side stem targets");
     require(core.moveScratch(0, 10, 736, .01), "Cannot continue bank unit motion");

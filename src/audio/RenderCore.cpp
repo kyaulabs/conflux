@@ -373,7 +373,10 @@ bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
         decks_[deck].source.loopControl(decks_[deck].source.context, AudioLoopCommand::Clear, decks_[deck].frame);
     if (decks_[deck].source.setRenderActive)
         decks_[deck].source.setRenderActive(decks_[deck].source.context, false);
+    auto eq = decks_[deck].eq;
+    eq.clearState();
     decks_[deck] = Deck{};
+    decks_[deck].eq = eq;
     decks_[deck].source = source;
     notifyActivity(decks_[deck]);
     return true;
@@ -403,6 +406,16 @@ bool RenderCore::setDeckGain(std::size_t deck, float gain) noexcept
     decks_[deck].gain = gain;
     decks_[deck].gainRamp.set(gain, rampFrames_);
     return true;
+}
+
+bool RenderCore::setEqGainDb(std::size_t deck, std::size_t band, float db) noexcept
+{
+    return deck < deckCount && decks_[deck].eq.setGain(band, db, rampFrames_);
+}
+
+float RenderCore::eqGainDb(std::size_t deck, std::size_t band) const noexcept
+{
+    return deck < deckCount ? decks_[deck].eq.gainDb(band) : 0.F;
 }
 
 bool RenderCore::isStemBank(std::size_t deck) const noexcept
@@ -524,6 +537,7 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::Pause: return setPlaying(command.deck, false);
     case Command::Type::Seek: return seek(command.deck, command.frame);
     case Command::Type::DeckGain: return setDeckGain(command.deck, command.gain);
+    case Command::Type::EqGain: return setEqGainDb(command.deck, command.band, command.eqGainDb);
     case Command::Type::MasterGain: return setMasterGain(command.gain);
     case Command::Type::Crossfader: return setCrossfader(command.gain);
     case Command::Type::CuePress: return cuePress(command.deck);
@@ -623,7 +637,10 @@ void RenderCore::mixDeck(std::size_t index, bool available, float rawLeft, float
         transition(deck);
         deck.available = available;
     }
-    std::array<float, channels> samples{available ? rawLeft : 0.F, available ? rawRight : 0.F};
+    const auto filtered = deck.eq.process(available ? rawLeft : 0.F, available ? rawRight : 0.F);
+    // The transport envelope follows EQ, so pauses/outages fade the last audible
+    // filtered sample once, without leaking filter tails after the fade ends.
+    std::array<float, channels> samples{available ? filtered[0] : 0.F, available ? filtered[1] : 0.F};
     if (deck.transition) {
         if (++deck.transitionPosition >= rampFrames_) {
             deck.transition = false; // Exact raw float, including signed zero.
