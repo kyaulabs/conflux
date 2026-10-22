@@ -28,6 +28,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <sys/file.h>
 #include <thread>
 #include <type_traits>
@@ -56,6 +57,11 @@ LiveStemObservations::Counters LiveStemObservations::counters() const noexcept
     return result;
 }
 const LiveStemObservations::Setup& LiveStemObservations::setup() const noexcept { return setup_; }
+std::string LiveStemObservations::failureDetail() const
+{
+    const std::lock_guard lock(failureMutex_);
+    return {failureDetail_.data(), failureDetailSize_};
+}
 bool LiveStemObservations::requestDiagnosticDrain(std::uint64_t epoch, std::uint64_t generation,
     std::chrono::steady_clock::time_point deadline) noexcept
 {
@@ -81,6 +87,26 @@ LiveStemObservations::DiagnosticDrainStatus LiveStemObservations::diagnosticDrai
 namespace conflux::library::detail {
 // Concrete single-Bridge writer, kept private beside its owning job.
 struct LiveStemObservationWriter {
+    static void fail(LiveStemObservations& observations, std::string_view cause, QByteArrayView diagnostics)
+    {
+        const std::lock_guard lock(observations.failureMutex_);
+        if (observations.failureDetailSize_ || cause.empty()) return;
+        auto append = [&](std::string_view text) {
+            const auto count = std::min(text.size(), observations.failureDetail_.size() - observations.failureDetailSize_);
+            std::copy_n(text.data(), count, observations.failureDetail_.data() + observations.failureDetailSize_);
+            observations.failureDetailSize_ += count;
+        };
+        append(cause.substr(0, 1024));
+        if (diagnostics.empty()) return;
+        append("\nService stderr: ");
+        auto available = observations.failureDetail_.size() - observations.failureDetailSize_;
+        if (std::size_t(diagnostics.size()) > available) {
+            append("[truncated; last bytes follow]\n");
+            available = observations.failureDetail_.size() - observations.failureDetailSize_;
+        }
+        const auto count = std::min(std::size_t(diagnostics.size()), available);
+        append({diagnostics.data() + diagnostics.size() - count, count});
+    }
     static std::uint64_t stamp(LiveStemObservations& observations) noexcept
     {
         const auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -294,12 +320,16 @@ public:
             return true;
         } catch (...) { return false; } // Preserve remaining paths/charge on any unproven cleanup.
     }
-    void notifySetup(const QString& error = {}) noexcept
+    void notifySetup(const QString& error = {}, QByteArrayView diagnostics = {}) noexcept
     {
+        if (!error.isEmpty()) {
+            const auto bytes = error.toUtf8();
+            LiveStemObservationWriter::fail(*observations, {bytes.constData(), std::size_t(bytes.size())}, diagnostics);
+        }
         { const std::lock_guard lock(mutex);
-          if (!error.isEmpty() && terminalError.isEmpty()) terminalError = error;
           if (setupDone) return;
-          setupDone = true; setupError = error; }
+          setupDone = true;
+          setupError = error.isEmpty() ? QString{} : QString::fromStdString(observations->failureDetail()); }
         condition.notify_all();
     }
     QString rootPath;
@@ -316,7 +346,7 @@ public:
     std::mutex mutex;
     std::condition_variable condition;
     bool setupDone = false, factoryActive = false;
-    QString setupError, terminalError;
+    QString setupError;
 };
 class Bridge {
 public:
@@ -407,12 +437,12 @@ public:
             }
         } catch (const std::exception& error) {
             failDiagnosticDrain();
+            retainFailure(QString::fromUtf8(error.what()).left(1024));
             port_.fail(EIO);
-            job_->notifySetup(QString::fromUtf8(error.what()).left(1024));
         } catch (...) {
             failDiagnosticDrain();
+            retainFailure(QStringLiteral("Cannot start the live stem service"));
             port_.fail(EIO);
-            job_->notifySetup(QStringLiteral("Cannot start the live stem service"));
         }
         observeDiscard();
         // Release every read lease before process/job deletion. Failed protocol
@@ -423,8 +453,14 @@ public:
         // flooding child's unread bytes outside the bounded retained buffers.
         process_.closeReadChannel(QProcess::StandardOutput);
         process_.closeReadChannel(QProcess::StandardError);
-        if (!owned_.finish()) port_.fail(EIO);
-        if (!job_->cleanup()) port_.fail(EIO);
+        if (!owned_.finish()) {
+            job_->notifySetup(QStringLiteral("Cannot finish the owned live stem process group"), diagnostics_);
+            port_.fail(EIO);
+        }
+        if (!job_->cleanup()) {
+            job_->notifySetup(QStringLiteral("Cannot clean the owned live stem job"), diagnostics_);
+            port_.fail(EIO);
+        }
         if (!ready_) job_->notifySetup(QStringLiteral("Live stem service stopped before ready"));
     }
 private:
@@ -442,6 +478,16 @@ private:
     using Observation = LiveStemObservations::Record;
     using Kind = LiveStemObservations::Kind;
     using DrainState = LiveStemObservations::DiagnosticDrainState;
+    void retainFailure(const QString& cause)
+    {
+        // Read only bytes already buffered by QProcess, within the existing
+        // diagnostic budget. Never wait or parse more protocol after failure.
+        process_.setReadChannel(QProcess::StandardError);
+        const auto available = job_->engine.maxDiagnosticBytes - std::uint64_t(diagnostics_.size());
+        const auto count = std::min<std::uint64_t>(std::uint64_t(process_.bytesAvailable()), available);
+        if (count) diagnostics_.append(process_.read(qint64(count)));
+        job_->notifySetup(cause, diagnostics_);
+    }
     void failDiagnosticDrain() noexcept
     {
         if (job_->observations->diagnosticDrainStatus().state != DrainState::NotRequested)
@@ -546,8 +592,8 @@ private:
         const auto errors = process_.bytesAvailable();
         if (errors) {
             const auto available = job_->engine.maxDiagnosticBytes - diagnostics_.size();
+            diagnostics_.append(process_.read(qint64(std::min<std::uint64_t>(std::uint64_t(errors), available))));
             if (std::uint64_t(errors) > available) throw std::length_error("Stem service diagnostics exceed byte budget");
-            diagnostics_.append(process_.read(errors));
         }
         process_.setReadChannel(QProcess::StandardOutput);
         const auto available = process_.bytesAvailable();
@@ -1068,9 +1114,9 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         [job, plan](std::stop_token ownedStop, audio::PreparedPlayback::LiveProducerPort& port) {
             try { Bridge(job, plan, ownedStop, port).run(); }
             catch (const std::exception& error) {
-                port.fail(EIO); job->notifySetup(QString::fromUtf8(error.what()).left(1024)); (void)job->cleanup();
+                job->notifySetup(QString::fromUtf8(error.what()).left(1024)); port.fail(EIO); (void)job->cleanup();
             } catch (...) {
-                port.fail(EIO); job->notifySetup(QStringLiteral("Cannot construct the live stem producer")); (void)job->cleanup();
+                job->notifySetup(QStringLiteral("Cannot construct the live stem producer")); port.fail(EIO); (void)job->cleanup();
             }
             LiveStemObservationWriter::finish(*job->observations);
         });
@@ -1096,8 +1142,8 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         verifyEngine(job->files, stop); verifyStemFile(job->service, stop);
         checkStop(stop);
         if (playback->errorCode()) {
-            const std::lock_guard lock(job->mutex);
-            throw std::runtime_error(job->terminalError.isEmpty() ? playback->error() : job->terminalError.toStdString());
+            const auto detail = observations->failureDetail();
+            throw std::runtime_error(detail.empty() ? playback->error() : detail);
         }
     } catch (...) { playback->stop(); throw; }
     setup.sourceToken = sourceToken; setup.inputFrames44100 = job->inputFrames; setup.outputFrames48000 = plan.outputFrames();

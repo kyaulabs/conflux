@@ -34,6 +34,15 @@ std::uint64_t nextLiveSourceToken()
     }
 }
 
+QString withLiveStemFailure(QString error, const std::shared_ptr<library::LiveStemObservations>& observations)
+{
+    if (observations) {
+        const auto detail = observations->failureDetail();
+        if (!detail.empty()) error += "; " + QString::fromStdString(detail);
+    }
+    return error;
+}
+
 bool nextScratchToken(std::uint64_t& result) noexcept
 {
     static std::atomic<std::uint64_t> last{0};
@@ -783,7 +792,9 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             if (!prepared->playback) prepared->playback = prepared->audio->makePlayback();
             const auto primeWait = prepared->audio->live() ? audio::PreparedPlayback::liveWait : std::chrono::seconds(2);
             if (!prepared->playback->prime(0, primeWait, stop))
-                throw std::runtime_error("Cannot prime the prepared track: " + prepared->playback->error());
+                throw std::runtime_error(withLiveStemFailure(
+                    QString::fromStdString("Cannot prime the prepared track: " + prepared->playback->error()),
+                    prepared->audio->observations).toStdString());
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
             report("prime", ++completedStages);
             const auto hit = prepared->cacheHit;
@@ -984,8 +995,11 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
             result->error = "Cannot install prepared audio";
         }
         if (!result->session)
-            for (std::size_t deck = 0; deck < clips.size(); ++deck)
+            for (std::size_t deck = 0; deck < clips.size(); ++deck) {
                 result->lostLiveOwners[deck] = clips[deck] && clips[deck]->live();
+                if (result->lostLiveOwners[deck])
+                    result->error = withLiveStemFailure(std::move(result->error), clips[deck]->observations);
+            }
         return result;
     }));
     // Establish installer ownership before allowing a completion notification.
@@ -1223,10 +1237,13 @@ void DeckController::poll()
     if (closing_ || !session_) return;
     const auto error = session_->error();
     if (!error.empty()) {
+        auto detail = QString::fromStdString(error);
+        for (const auto& clip : clips_)
+            if (clip && clip->live()) detail = withLiveStemFailure(std::move(detail), clip->observations);
         stopSession();
         recordingStopRequested_ = true;
         pollRecording();
-        fail(QString::fromStdString(error));
+        fail(detail);
         return;
     }
     ready_ = session_->ready();

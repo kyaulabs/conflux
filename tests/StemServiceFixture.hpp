@@ -237,6 +237,15 @@ try:
             runtime_seen = True
             runtime_event(1 if MODE == 'late-runtime-old' else generation)
         if not active: continue
+        if MODE == 'error-after-ready':
+            marker('.failure-wait').touch()
+            while not marker('.failure-release').exists() and not stop and time.monotonic() < deadline:
+                time.sleep(.005)
+            if stop: break
+            sys.stderr.buffer.write(b'fixture stderr prefix\n' + b'x' * 6000 + b'\nfixture stderr causal tail\n')
+            sys.stderr.buffer.flush()
+            emit({'event': 'error', 'generation': generation, 'code': 'RuntimeError',
+                  'message': 'fixture post-ready primary error', 'retained_job': False}); break
         if MODE.startswith('late-runtime-') and generation == 1: continue
         if not runtime_seen:
             if MODE == 'stderr-flood':
