@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T00:41:17.945577+00:00",
+  "scope": "Generated PCM, fake separator, offscreen UI and isolated virtual PipeWire devices; no physical, model, sustained, musical or 4095 ms latency qualification.",
+  "normal_CTest": {
+    "entries": 41,
+    "passed": true
+  },
+  "instrumented_CTest": {
+    "entries": 41,
+    "passed": true,
+    "source": "First coverage attempt; unchanged product implementation through focused follow-up."
+  },
+  "QML_results_passed": 79,
+  "controller_results_passed": 36,
+  "normal_private_preparation": {
+    "checks": 88,
+    "passed": true
+  },
+  "instrumented_private_preparation": {
+    "checks": 88,
+    "passed": true
+  },
+  "strict_private_routing": {
+    "checks": 142,
+    "passed": true,
+    "execution_deadline_gate": true
+  },
+  "instrumented_private_routing": {
+    "checks": 136,
+    "passed": true,
+    "execution_deadline_gate": false
+  },
+  "normal_live_failure": {
+    "checks": 31,
+    "passed": true
+  },
+  "crossfader_recording": {
+    "A_generation_after": 4,
+    "A_generation_before": 0,
+    "command_accepted": true,
+    "commands_before": 8,
+    "deck_scoped_command_rejected": true,
+    "master_gain": 0.5,
+    "position": 0.75,
+    "recording": {
+      "checked_prefix_or_tail_frames": 2304,
+      "expected_master_multiplier": 0.25,
+      "frames": 2304,
+      "maximum_prefix_or_tail_error": 0,
+      "prefix_frames": 2304,
+      "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them."
+    },
+    "submitted_while_A_replacing": true
+  },
+  "all_completed_private_checks_cleaned_up": true,
+  "first_coverage_attempt": {
+    "execution_passed": false,
+    "routing_completed_checks": 26,
+    "routing_failure": "Combined fixed30ms fresh delivery and no-wrong-sample assertion; original failed operand was not retained.",
+    "preparation_outer_timeout_seconds": 180,
+    "wrapper_functional_checker_seconds": 240,
+    "failed_runtime_owned_process_audit_empty": true,
+    "raw_reports": "benchmarks-local/m3-parallel-2026-10-21/crossfader-01/coverage-attempt-01"
+  },
+  "fixture_corrections": {
+    "strict_30ms_unchanged": true,
+    "functional_delivery_wait_seconds": 7,
+    "wrong_samples_published_before_release_received_counts": true,
+    "sample_tolerance_or_counter_resets_added": false,
+    "outer_coverage_wait_seconds": 270,
+    "production_limits_changed": false
+  },
+  "measurement_kind": "Incremental measurement after support-only fixture corrections; original failed full attempt retained separately.",
+  "independent_static_reviews": {
+    "product_engine_and_controller": "no findings",
+    "QML_and_documentation": "no findings",
+    "fixture_publication_order": "finding fixed and independently confirmed"
+  },
+  "source_pins_sha256": "331a37889e5f8b6386071037913af0f16a5019e4b0294e7d3654d89385fb5005",
+  "coverage_summary_sha256": "957d13d5b4bf043bad33fce97dbc2296c9e7e2566f55c7d8ee93a5680cdb0373",
+  "M2_open": true,
+  "Best_quality_unchanged": true,
+  "strict_service_target_ms": 4095,
+  "M3_complete": false,
+  "real_mix_accepted": false,
+  "release_published": false,
+  "fresh_full_CI_required_after_capture": true
+}

@@ -33,6 +33,7 @@ class DeckController final : public QObject {
     Q_PROPERTY(bool stemsAvailable READ stemsAvailable CONSTANT)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
+    Q_PROPERTY(double crossfader READ crossfader NOTIFY stateChanged)
     Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap meters READ meters NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
@@ -63,6 +64,7 @@ public:
     std::shared_ptr<library::LiveStemObservations> liveStemObservations(int deck) const;
     QString error() const { return error_; }
     double masterGain() const { return state_.masterGain; }
+    double crossfader() const { return state_.crossfader; }
     double cueGain() const { return state_.cueGain; }
     QVariantMap meters() const;
     QVariantMap audioRouting() const;
@@ -85,6 +87,7 @@ public:
     Q_INVOKABLE void setDeckGain(int deck, double gain);
     Q_INVOKABLE void setStemGain(int deck, int stem, double gain);
     Q_INVOKABLE void setMasterGain(double gain);
+    Q_INVOKABLE void setCrossfader(double position);
     Q_INVOKABLE void setCueGain(double gain);
     Q_INVOKABLE void setCueSelected(int deck, bool selected);
     Q_INVOKABLE void refreshAudioRouting();

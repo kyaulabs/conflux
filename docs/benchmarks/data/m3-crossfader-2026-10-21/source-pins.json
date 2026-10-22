@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "created_at_utc": "2026-10-22T00:15:29.050009+00:00",
+  "physical_test": false,
+  "source_files": [
+    {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 10281,
+      "sha256": "eb23f594bd935482a79bb56f85a66514e24c0d564ed18ed0ef0b4f679f5c55fb"
+    },
+    {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 23105,
+      "sha256": "40eea3bce020db63665945d74acaf585fd6f3e719ebf69f7ca306beb272c94e7"
+    },
+    {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 6853,
+      "sha256": "ae8f47943ee72c77a9094ee7b04898530f8f34fe6b7822fbeade86e00e7ce6f0"
+    },
+    {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 59755,
+      "sha256": "35a773d71a8ed563f33d21fe835b30fee7d00306d798d1292244c48659237708"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 13059,
+      "sha256": "ab4697c9e1ca1b3f8e510712a96913a69dae6add12b9c9357a053ce1a724127e"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 60096,
+      "sha256": "7de80553b1e395321be7e8ebf07ddcb054dbb2fc0fa553ac35d8bdccd882d838"
+    },
+    {
+      "path": "qml/MixerSurface.qml",
+      "bytes": 22850,
+      "sha256": "3bdbfb589767c1499b344bb7e9533de47a344d754802179bec887963e2a6ce12"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 47176,
+      "sha256": "02b2a79858ca58cb8aa38f9ba0a6066cfebd7c5a0e8a6e1cb2f27337ced052be"
+    },
+    {
+      "path": "tests/audio_ramps_test.cpp",
+      "bytes": 27052,
+      "sha256": "8de7a8e0c0e81266eca2018c6f572b500881b4aad35750de822d7eee719b58f2"
+    },
+    {
+      "path": "tests/audio_transport_test.cpp",
+      "bytes": 26224,
+      "sha256": "ef114390d47e295bb5aeebd466c55c32c5211955657025445bada5fdddbe5732"
+    },
+    {
+      "path": "tests/live_session_test.cpp",
+      "bytes": 17205,
+      "sha256": "772af09a6aed8c864ed622f74e3348a1172d7cc34d7b53502b1a162b024fdf77"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 85657,
+      "sha256": "ddb0a304c92d96f5d8a3ee0ac450c013a4f505ef8b0f56c944076e2ce2bac58b"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 114916,
+      "sha256": "0680da7eaa12cfdbc43f05122ab8aa8ac26ad34feea66c5a6ff8c74b6c182155"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 124886,
+      "sha256": "12d0b10b04f0ef74d320cd555d0fe0e18911776905283e119e881cf8c56186c1"
+    }
+  ],
+  "focused_tests_passed": 5,
+  "strict_TDD_claimed": false,
+  "scope": "Root builds/tests only; agents authored bounded renderer/session/controller/QML/integration regressions. M2 remains open. No source playback, model or GPU request.",
+  "base_commit": "89dc81a839cf3d145d1fae6c4622e65b17623ee5",
+  "support_followup_files": [
+    {
+      "path": "tools/experiments/manual_routing_check.cpp",
+      "bytes": 76475,
+      "sha256": "ae65c82cdd7f4ed14b179900eb64ca049077b78ae7c9743784877ae2f8d47257"
+    },
+    {
+      "path": "tools/coverage/run.py",
+      "bytes": 13081,
+      "sha256": "de1fb5e4a1c65de1990bc334b6e9447b45b8fc0ebccd8dedb703fb2af77a1c9e"
+    }
+  ]
+}

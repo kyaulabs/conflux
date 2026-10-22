@@ -34,6 +34,7 @@ the C/D strips must say they are unavailable.
 | Position rail within the display | Seek to an actual source time with `seekSeconds` over the source-peak overview. Seeking cancels preview and preserves the stored cue. Beat quantization and scratch semantics remain unavailable. |
 | PLAY/PAUSE, lower left | Toggle the loaded deck's requested playing state on press with `setPlaying`. Show PAUSED/PLAYING separately from CUE PREVIEW; source time clamps at EOF. |
 | Channel faders, mixer | A/B CHANNEL LEVEL controls call `setDeckGain` with a linear value in [0,1]. This is the existing deck gain, not a hardware trim/EQ model. C/D remain disabled. |
+| Crossfader, bottom of mixer | Call `setCrossfader` in [0,1], with A at the left and B at the right. At center both sends stay at unity. Toward an endpoint the opposite deck fades linearly to zero; live changes ramp over 240 frames (5 ms). Channel levels, pre-fader cue, deck meters and source clocks remain independent. The master recording includes the crossfader. Assignment and curve selection remain unavailable. |
 | MASTER LEVEL, mixer | Call `setMasterGain` in [0,1]. The deck's hardware MASTER button selects a sync master and must remain disabled. |
 | Mixer CUE and CUE LEVEL | Toggle A/B `setCueSelected` for the separate pre-fader headphone bus; `setCueGain` controls its independent level in [0,1]. Selection follows the deck's transport and does not start a paused deck. This is separate from the temporary transport CUE button. C/D remain disabled. |
 | Stereo meters beside channel faders and master/cue controls | Show actual pre-fader A/B and post-gain master/cue peak markers and RMS fills, from −60 to 0 dBFS. OVR reflects cumulative samples above ±1 in the current render session. Hover/accessibility text gives numeric values. Internal cue metering can be nonzero while CUE UNROUTED shows that no headphone audio is routed. |
@@ -45,7 +46,7 @@ the C/D strips must say they are unavailable.
 | Loop IN/OUT/RELOOP, 4/8 BEAT LOOP and BEAT JUMP | Disabled: loops, beat analysis and quantized beat navigation are not implemented. |
 | TEMPO rail/range/reset, MASTER TEMPO and KEY SYNC | Disabled: tempo/pitch processing and key matching are not implemented. Keep deck gain off the tempo rail. |
 | BEAT SYNC, MASTER, QUANTIZE and SLIP | Disabled: beat synchronization, quantization and slip transport are not implemented. |
-| Mixer EQ, filter, FX and crossfader | Disabled: their processing is not implemented. |
+| Mixer EQ, filter and FX | Disabled: their processing is not implemented. |
 
 The [operating instructions, pages 51–52](https://downloads.support.alphatheta.com/manuals/dj-players/CDJ-3000/CDJ-3000_DRI1586A_manual.pdf#page=51)
 describe paused cue setting, return-and-pause during playback, and preview while
@@ -106,7 +107,8 @@ comes from the writer lifecycle; do not invent analysis progress or AI ownership
 CONFLUX assets and theme tokens, without reproducing the hardware's logo.
 
 Retain keyboard focus order through path, LOAD, CUE, PLAY/PAUSE, POSITION, JOG and
-CHANNEL LEVEL for each deck, then mixer CUE, MASTER LEVEL and CUE LEVEL. Audio
+CHANNEL LEVEL for each deck, then mixer CUE, MASTER LEVEL, CUE LEVEL and
+CROSSFADER. Audio
 settings expose keyboard-operable port selectors and recording controls. Enter loads the path; focused
 buttons accept Space/Enter; focused sliders accept arrow keys. Pointer and
 touch use the same actions. Keep controls large enough to operate at the

@@ -77,11 +77,17 @@ int main()
         auto state = empty.stoppedState();
         passed &= require(!state.ready && state.outputFrame == 0 && state.sourceFrames == std::array<std::uint64_t, 2>{} &&
                           state.sourceGeneration == std::array<std::uint64_t, 2>{} &&
-                          state.playing == std::array<bool, 2>{} && state.masterGain == 1,
+                          state.playing == std::array<bool, 2>{} && state.masterGain == 1 && state.crossfader == .5F,
                           "empty session did not start in stopped silence");
         RenderCore::Command play{RenderCore::Command::Type::Play, 0, 0, 1, 99};
         passed &= require(!empty.submit(play) && !empty.pollState(state) && empty.error().empty(),
                           "stopped session accepted transport or invented a snapshot/error");
+        RenderCore::Command crossfader;
+        crossfader.type = RenderCore::Command::Type::Crossfader;
+        crossfader.gain = 1.F;
+        passed &= require(!empty.submit(crossfader) && empty.stoppedState().crossfader == .5F &&
+                          empty.stoppedState().applied == 0 && empty.stoppedState().rejected == 0,
+                          "stopped session accepted a crossfader command or changed its default target");
         const auto routes = empty.routingSnapshot();
         passed &= require(routes.playbackPorts.empty() && !routes.masterReady && !routes.cueReady &&
                           routes.cueStatus == conflux::audio::CueRouteStatus::Disabled &&
@@ -124,6 +130,7 @@ int main()
         bankInitial.cueFrame[0] = 1;
         bankInitial.cueSelected[0] = true;
         bankInitial.stemGain[0] = {.25F, 0.F, .75F, 1.F};
+        bankInitial.crossfader = .875F;
         LiveSession bankRestored(std::move(bankSources), bankInitial);
         const auto bankState = bankRestored.stoppedState();
         passed &= require(!bankSources[0] && bankState.sourceFrames[0] == 2 && bankState.sourceFrame[0] == 1 &&
@@ -131,11 +138,12 @@ int main()
                           "whole-bank session did not own/prime/restore the common source position");
         passed &= require(bankState.stemBank == std::array<bool, 2>{true, false} &&
                           bankState.stemGain[0] == bankInitial.stemGain[0] &&
-                          bankState.stemGain[1] == std::array<float, 4>{},
+                          bankState.stemGain[1] == std::array<float, 4>{} && bankState.crossfader == .875F,
                           "bank snapshot did not restore authoritative stem targets or invented normal stem controls");
         bankRestored.stop(); bankRestored.stop();
-        passed &= require(!bankRestored.stoppedState().sourceReadError[0],
-                          "stopping a healthy bank invented an aggregate reader error");
+        passed &= require(!bankRestored.stoppedState().sourceReadError[0] &&
+                          bankRestored.stoppedState().crossfader == .875F,
+                          "stopping a healthy bank changed its crossfader or invented a reader error");
 
         const std::array<float, 4> a{.25F, -.5F, .75F, -.25F};
         const std::array<float, 6> b{-.25F, .5F, -.75F, .25F, -.125F, .125F};
@@ -145,6 +153,7 @@ int main()
         initial.playing = {true, false};
         initial.deckGain = {.5F, .25F};
         initial.masterGain = .75F;
+        initial.crossfader = .125F;
         initial.cueSelected = {true, false};
         initial.cueGain = .625F;
         LiveSession restored(a, b, initial);
@@ -168,12 +177,24 @@ int main()
                           state.playing == initial.playing && state.deckGain == initial.deckGain &&
                           state.cueFrame == initial.cueFrame && !state.cueHeld[0] && !state.cueHeld[1] &&
                           !state.cuePreview[0] && !state.cuePreview[1] &&
-                          state.masterGain == initial.masterGain && state.cueGain == initial.cueGain &&
+                          state.masterGain == initial.masterGain && state.crossfader == initial.crossfader &&
+                          state.cueGain == initial.cueGain &&
                           state.cueSelected == initial.cueSelected && state.outputFrame == 0 && state.callbacks == 0,
                           "initial source positions/gains/playing state were not restored");
         restored.stop();
-        passed &= require(restored.stoppedState().sourceFrame == initial.sourceFrame && !restored.ready(),
-                          "stopped session changed restored source positions");
+        passed &= require(restored.stoppedState().sourceFrame == initial.sourceFrame &&
+                          restored.stoppedState().crossfader == initial.crossfader && !restored.ready(),
+                          "stopped session changed restored source positions or crossfader target");
+        // Rebuilding output from a captured stopped state must retain the
+        // global target without altering either deck's cue or gain settings.
+        auto resumedInitial = initial;
+        resumedInitial.crossfader = restored.stoppedState().crossfader;
+        LiveSession resumed(a, b, resumedInitial);
+        const auto resumedState = resumed.stoppedState();
+        passed &= require(resumedState.crossfader == .125F && resumedState.masterGain == initial.masterGain &&
+                          resumedState.deckGain == initial.deckGain && resumedState.cueGain == initial.cueGain &&
+                          resumedState.cueSelected == initial.cueSelected && resumedState.cueFrame == initial.cueFrame,
+                          "session reconstruction lost the crossfader or changed independent deck/cue targets");
         LiveSession bOnly({}, b);
         state = bOnly.stoppedState();
         passed &= require(state.sourceFrames == std::array<std::uint64_t, 2>{0, 3} &&
@@ -196,7 +217,7 @@ int main()
         invalid.playing[1] = true;
         passed &= rejects([&] { LiveSession rejected(a, {}, invalid); }, "unloaded initial deck was accepted playing");
         for (const auto gain : {-.1F, 1.1F, std::numeric_limits<float>::infinity(),
-                               std::numeric_limits<float>::quiet_NaN()}) {
+                               -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::quiet_NaN()}) {
             invalid = initial;
             invalid.deckGain[0] = gain;
             passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "invalid initial deck gain was accepted");
@@ -206,6 +227,19 @@ int main()
             invalid = initial;
             invalid.cueGain = gain;
             passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "invalid initial cue gain was accepted");
+            invalid = initial;
+            invalid.crossfader = gain;
+            passed &= rejects([&] { LiveSession rejected(a, b, invalid); }, "invalid initial crossfader was accepted");
+        }
+        for (const auto position : {0.F, .5F, 1.F}) {
+            auto endpointInitial = initial;
+            endpointInitial.crossfader = position;
+            LiveSession endpoint(a, b, endpointInitial);
+            const auto endpointState = endpoint.stoppedState();
+            passed &= require(endpointState.crossfader == position && endpointState.deckGain == initial.deckGain &&
+                              endpointState.masterGain == initial.masterGain && endpointState.cueGain == initial.cueGain &&
+                              endpointState.cueSelected == initial.cueSelected && endpointState.cueFrame == initial.cueFrame,
+                              "valid crossfader target was clamped or changed independent gain/cue state");
         }
         const std::array<float, 1> incomplete{0};
         passed &= rejects([&] { LiveSession rejected(incomplete); }, "incomplete PCM was accepted");
@@ -232,6 +266,8 @@ int main()
         unavailable.stop();
         state = unavailable.stoppedState();
         passed &= require(!unavailable.submit(play) && !state.ready && state.outputFrame == 0 &&
+                          !unavailable.submit(crossfader) && state.crossfader == initial.crossfader &&
+                          unavailable.stoppedState().crossfader == initial.crossfader &&
                           state.sourceFrame == initial.sourceFrame && state.applied == 0 && state.rejected == 0,
                           "failed/stopped output changed source state or accepted transport");
         passed &= require(unavailable.stoppedTimingSummary().counters.callbacks == 0,

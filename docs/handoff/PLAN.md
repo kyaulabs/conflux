@@ -500,6 +500,14 @@ commits, git-cliff/SemVer versioning, reviewed `release/X.Y.Z` merges into `main
 then a bot-created back-merge PR into `develop`. A development release does not
 close M2's live-stem latency gate or complete M6's full first-usable scope.
 
+On 21 October 2026, the user authorized M3 manual mixing controls in parallel
+with M2: crossfader, tempo/key-lock and loops. M2 remains open. Its Best-quality
+live-stem service target stays below 4.095 seconds at p99; the latest
+[instrumented player sample](../benchmarks/player-attention-profile-2026-10-21.md)
+reached 4.543 seconds and does not qualify normal latency. Complete and verify
+each control before enabling it. The first real mixing trial still requires
+the user's acceptance before preparing `0.1.0`.
+
 | Milestone | Work | Evidence required before moving on |
 | --- | --- | --- |
 | M0: feasibility and scaffold | Inspect instructions/status; choose an initial engine/reuse approach; create a minimal C++/Qt Wayland build and headless audio harness. Benchmark candidate separator/runtime pairs on the laptop with representative local files and a CPU reference. | Reproducible build/run instructions, dependency/model license notes, actual Wayland window, stable basic audio, complete separator timing/memory report and a reasoned runtime choice. State unsupported operators or failed live targets. |

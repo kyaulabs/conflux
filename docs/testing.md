@@ -33,6 +33,9 @@ buffer, command and cleanup assertions remain active; execution-deadline
 checks are skipped and reported as such. Normal private-routing checks retain
 their deadline gates. Functional runs allow a 240-second harness guard for
 instrumented preparation; the normal guard remains 90 seconds.
+The coverage runner allows a 270-second outer wait around that wrapper,
+covering the 240-second checker allowance plus private startup, graph inspection
+and owned cleanup. Its existing termination/reaping grace remains separate.
 
 The prepared-bank check starts its master recording before expensive imports
 and compares every steady frame, plus the settled tail after an explicit routing
@@ -44,7 +47,7 @@ both modes. These checks do not establish physical audio continuity.
 The routing handoff check also keeps nonzero receiver samples exact in both
 modes; only its downstream receiver-zero gate follows execution mode. It reports
 the raw operands and still checks every recorded master frame. The latest normal
-routing run passed all 130 checks with zero receiver faults or deadline misses.
+routing run passed all 142 checks with zero receiver faults or deadline misses.
 
 The runner resets counters and reports in `build/coverage`, builds the
 instrumented executables and runs the existing CTest suite and offscreen smoke
@@ -75,6 +78,12 @@ native stem adapter in `tools/runtime/htdemucs_segment.cpp` is built separately
 and also remains unmeasured. Python fake-child tests exercise the supervisor's
 protocol handling, not that native adapter's implementation. There is no
 whole-product coverage percentage until these gaps are resolved.
+
+The [M3 crossfader measurement](benchmarks/data/m3-crossfader-2026-10-21/coverage-summary.json)
+reports 87.24% C++ and 91.36% Python line coverage, with 53.98% and 82.28%
+branch coverage respectively. It retains 41 passing instrumented CTest entries
+and adds focused routing/preparation reruns after fixture corrections. The
+original failed capture stays separate; fresh CI validates the final commit.
 
 The [hidden-window benchmark verification](benchmarks/data/m2-player-logger-2026-10-20/hidden-window-verification.json)
 passed the window-policy/history test and all 60 QML tests, including hidden

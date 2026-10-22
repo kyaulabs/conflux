@@ -752,6 +752,7 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     initial.playing = state_.playing;
     initial.deckGain = state_.deckGain;
     initial.masterGain = state_.masterGain;
+    initial.crossfader = state_.crossfader;
     initial.cueSelected = state_.cueSelected;
     initial.cueGain = state_.cueGain;
     for (std::size_t deck = 0; deck < initial.stemGain.size(); ++deck)
@@ -1025,6 +1026,7 @@ bool DeckController::submit(audio::RenderCore::Command command)
         return false;
     }
     const bool global = command.type == audio::RenderCore::Command::Type::MasterGain ||
+                        command.type == audio::RenderCore::Command::Type::Crossfader ||
                         command.type == audio::RenderCore::Command::Type::CueGain;
     if (!global && command.deck < replacing_.size() && replacing_[command.deck]) {
         fail("Wait for this deck's prepared track to finish installing.");
@@ -1174,6 +1176,18 @@ void DeckController::setMasterGain(double gain)
     audio::RenderCore::Command command;
     command.type = audio::RenderCore::Command::Type::MasterGain;
     command.gain = float(gain);
+    submit(command);
+}
+
+void DeckController::setCrossfader(double position)
+{
+    if (!std::isfinite(position) || position < 0 || position > 1) {
+        fail("Crossfader position must be between zero and one.");
+        return;
+    }
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::Crossfader;
+    command.gain = float(position);
     submit(command);
 }
 

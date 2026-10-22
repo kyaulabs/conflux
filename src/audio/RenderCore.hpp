@@ -31,7 +31,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -84,6 +84,9 @@ public:
     [[nodiscard]] bool isStemBank(std::size_t deck = 0) const noexcept;
     [[nodiscard]] float stemGain(std::size_t deck, std::size_t stem) const noexcept;
     bool setMasterGain(float gain) noexcept;
+    // Fixed A-left/B-right crossfader. Center preserves both unity sends;
+    // channel gains, pre-fader cue and source clocks remain independent.
+    bool setCrossfader(float position) noexcept;
     // Headphone cue is independent of temporary transport CUE: selected active
     // decks sum before channel/master gains, then receive this global cue gain.
     bool setCueSelected(std::size_t deck, bool selected) noexcept;
@@ -121,6 +124,7 @@ public:
     [[nodiscard]] bool readFailed(std::size_t deck = 0) const noexcept
     { return deck < deckCount && decks_[deck].readFailed; }
     [[nodiscard]] float masterGain() const noexcept { return masterGain_; }
+    [[nodiscard]] float crossfader() const noexcept { return crossfader_; }
     [[nodiscard]] bool isCueSelected(std::size_t deck = 0) const noexcept
     { return deck < deckCount && decks_[deck].cueSelected; }
     [[nodiscard]] float cueGain() const noexcept { return cueGain_; }
@@ -178,8 +182,10 @@ private:
     std::uint64_t frameClock_ = 0;
     std::uint32_t phase_ = 0;
     float masterGain_ = 1.0F;
+    float crossfader_ = 0.5F;
     float cueGain_ = 1.0F;
     GainRamp masterRamp_{}, cueRamp_{};
+    std::array<GainRamp, deckCount> crossfaderRamps_{};
     std::uint32_t rampFrames_ = 0;
     bool audible_;
 };

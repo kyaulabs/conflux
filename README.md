@@ -27,10 +27,11 @@ direction are the next stages of development.
   the other deck and recording running.
 - Independent master and headphone mixes, explicit PipeWire routing, channel
   and bus levels, stereo peak/RMS meters and overrange indicators.
+- Fixed A/B crossfader with independent headphone cue and short gain ramps.
 - Live post-master stereo WAV recording, plus a shared headless render core.
 - Light and dark performance views using the supplied CONFLUX artwork.
 
-Hot cues, tempo/sync, loops, crossfader processing, EQ and effects remain
+Hot cues, tempo/sync, loops, EQ and effects remain
 inactive until their audio features are implemented. Jog searches the track
 position; scratch and pitch bend are planned.
 

@@ -139,6 +139,8 @@ public:
                 throw std::invalid_argument("Cannot restore gains on an already-rendered stem bank");
         if (!renderer_.setMasterGain(initial.masterGain) || !renderer_.setCueGain(initial.cueGain))
             throw std::invalid_argument("Invalid initial master or cue gain");
+        if (!renderer_.setCrossfader(initial.crossfader))
+            throw std::invalid_argument("Invalid initial crossfader position");
         for (std::size_t deck = 0; deck < RenderCore::deckCount; ++deck) {
             activePlaybacks_[deck] = playbacks_[deck].get();
             if (!std::isfinite(initial.deckGain[deck]) || initial.deckGain[deck] < 0 || initial.deckGain[deck] > 1)
@@ -665,6 +667,7 @@ public:
     {
         if (!ready()) return false;
         const bool global = command.type == RenderCore::Command::Type::MasterGain ||
+                            command.type == RenderCore::Command::Type::Crossfader ||
                             command.type == RenderCore::Command::Type::CueGain;
         if (!global && handoff_.busy() && command.deck == replacementDeck_) return false;
         return commands_.tryPush(command);
@@ -692,6 +695,7 @@ public:
                 state.stemGain[deck][stem] = renderer_.stemGain(deck, stem);
         }
         state.masterGain = renderer_.masterGain(); state.cueGain = renderer_.cueGain(); state.meters = meters_;
+        state.crossfader = renderer_.crossfader();
         state.applied = applied_; state.rejected = rejected_; state.lastCommandId = lastCommandId_;
         state.callbacks = callbacks_; state.invalidBuffers = invalidBuffers_; state.snapshotDrops = snapshotDrops_;
         const auto& timing = timing_.counters();

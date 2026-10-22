@@ -38,6 +38,7 @@ class UiEndpoint final : public QObject {
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
     Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
+    Q_PROPERTY(double crossfader READ crossfader NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap meters READ meters NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap audioRouting READ audioRouting NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap recording READ recording NOTIFY stateChanged)
@@ -88,6 +89,8 @@ public:
     QString error() const { return error_; }
     double masterGain() const { return master_; }
     double cueGain() const { return cue_; }
+    double crossfader() const { return crossfader_; }
+    void snapshotCrossfader(double value) { crossfader_ = value; emit stateChanged(); }
     QVariantMap meters() const { return meters_; }
     QVariantMap audioRouting() const { return routing_; }
     QVariantMap recording() const { return recording_; }
@@ -268,6 +271,11 @@ public:
         cue_ = gain;
         emit stateChanged();
     }
+    Q_INVOKABLE void setCrossfader(double position)
+    {
+        calls.append(QVariantMap{{"action", "crossfader"}, {"value", position}});
+        snapshotCrossfader(position);
+    }
     Q_INVOKABLE void setCueSelected(int deck, bool selected)
     {
         calls.append(QVariantMap{{"action", "cueSelected"}, {"deck", deck}, {"value", selected}});
@@ -336,6 +344,7 @@ private:
     QString libraryError_;
     double master_ = .5;
     double cue_ = .5;
+    double crossfader_ = .5;
 };
 
 // Repeater delegates live in the visual tree; their QObject ownership need
@@ -449,7 +458,7 @@ private slots:
         QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
         for (const auto* name : {"deck0Browse", "deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck0Jog",
                                  "deck1Browse", "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain", "deck1Jog",
-                                 "masterGain", "cueGain", "deck0CueSelect", "deck1CueSelect",
+                                 "masterGain", "cueGain", "crossfader", "deck0CueSelect", "deck1CueSelect",
                                  "deck0Meter", "deck1Meter", "masterMeter", "cueMeter", "audioSettingsOpen", "audioError"})
             QVERIFY2(ui_->item(name), name);
         QVERIFY(ui_->object("libraryDrawer"));
@@ -1532,6 +1541,132 @@ private slots:
         QCOMPARE(call.value("action").toString(), QString("master"));
         QCOMPARE(call.value("value").toDouble(), ui_->endpoint.masterGain());
         QVERIFY(ui_->endpoint.masterGain() > .5 && ui_->endpoint.masterGain() <= 1);
+    }
+
+    void crossfaderSnapshotsAndOutputGating()
+    {
+        auto* fader = ui_->item("crossfader");
+        QVERIFY(fader);
+        QCOMPARE(fader->property("value").toDouble(), .5);
+        QVERIFY(!fader->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(fader));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        // It is a global master-bus control, usable with one loaded deck and
+        // during another deck's preparation/replacement, like MASTER LEVEL.
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setReady(true);
+        QTRY_VERIFY(fader->isEnabled());
+        ui_->endpoint.setBusy(true);
+        ui_->endpoint.setReplacing(0, true);
+        QVERIFY(fader->isEnabled());
+        ui_->endpoint.snapshotCrossfader(.75);
+        QTRY_COMPARE(fader->property("value").toDouble(), .75);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.snapshotPosition(1, 4.0);
+        ui_->endpoint.setError("A source is preparing");
+        QCoreApplication::processEvents();
+        QCOMPARE(fader->property("value").toDouble(), .75);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        ui_->endpoint.setReady(false);
+        QTRY_VERIFY(!fader->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier,
+                          fader->mapToScene(QPointF(1, fader->height() / 2)).toPoint());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
+    void crossfaderRoutesKeyboardAndPointerWithoutOtherCommands()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decks = ui_->endpoint.decks();
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain();
+        auto* fader = ui_->item("crossfader");
+        QVERIFY(fader);
+        fader->forceActiveFocus();
+        QTRY_VERIFY(fader->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Left);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QVERIFY(std::abs(ui_->endpoint.crossfader() - .49) < 1e-6);
+        QTest::keyClick(ui_->window, Qt::Key_Right);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY(std::abs(ui_->endpoint.crossfader() - .5) < 1e-6);
+
+        const auto left = fader->mapToScene(QPointF(1, 34)).toPoint();
+        const auto right = fader->mapToScene(QPointF(fader->width() - 1, 34)).toPoint();
+        const auto middle = fader->mapToScene(QPointF(fader->width() / 2, 34)).toPoint();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, middle);
+        QTRY_VERIFY(fader->property("pressed").toBool());
+        const auto held = fader->property("value").toDouble();
+        const auto beforeSnapshot = ui_->endpoint.calls.size();
+        ui_->endpoint.snapshotCrossfader(.1);
+        QCoreApplication::processEvents();
+        QCOMPARE(fader->property("value").toDouble(), held);
+        QCOMPARE(ui_->endpoint.calls.size(), beforeSnapshot);
+        QTest::mouseMove(ui_->window, left);
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, left);
+        QTRY_COMPARE(ui_->endpoint.crossfader(), 0.0);
+        QTRY_COMPARE(fader->property("value").toDouble(), 0.0);
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, left);
+        QTest::mouseMove(ui_->window, right);
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, right);
+        QTRY_COMPARE(ui_->endpoint.crossfader(), 1.0);
+        QTRY_COMPARE(fader->property("value").toDouble(), 1.0);
+        for (const auto& entry : ui_->endpoint.calls) {
+            const auto call = entry.toMap();
+            QCOMPARE(call["action"].toString(), QString("crossfader"));
+            QVERIFY(call["value"].toDouble() >= 0 && call["value"].toDouble() <= 1);
+        }
+        QCOMPARE(ui_->endpoint.decks(), decks);
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(!fader->hasActiveFocus());
+        QVERIFY(ui_->window->activeFocusItem());
+    }
+
+    void crossfaderAccessibleAtLaptopSizes_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("dark");
+        for (const auto viewport : {QSize(1180, 760), QSize(1680, 1020)})
+            for (const bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("%1x%2-%3").arg(viewport.width()).arg(viewport.height()).arg(dark ? "dark" : "light")))
+                    << viewport << dark;
+    }
+
+    void crossfaderAccessibleAtLaptopSizes()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, dark);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        if (!dark)
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.snapshotCrossfader(.75);
+        auto* fader = ui_->item("crossfader");
+        QVERIFY(fader);
+        QTRY_COMPARE(fader->property("value").toDouble(), .75);
+        QVERIFY(fader->height() >= 44);
+        verifyControlsFit({"crossfader", "deck0Gain", "deck1Gain", "masterGain", "cueGain",
+                           "deck0CueSelect", "deck1CueSelect"});
+        auto* accessible = QAccessible::queryAccessibleInterface(fader);
+        QVERIFY(accessible);
+        QCOMPARE(accessible->role(), QAccessible::Slider);
+        QCOMPARE(accessible->text(QAccessible::Name), QString("Crossfader A to B"));
+        QVERIFY(accessible->text(QAccessible::Description).contains("both channel levels"));
+        QVERIFY(accessible->valueInterface());
+        QCOMPARE(accessible->valueInterface()->currentValue().toDouble(), .75);
+        fader->forceActiveFocus();
+        QTRY_VERIFY(fader->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Left);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("crossfader"));
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void dragSeekSubmitsOnceOnRelease()

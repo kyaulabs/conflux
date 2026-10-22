@@ -231,9 +231,11 @@ private:
                     }
                 }
             }
-            self.received_[channel].fetch_add(nonzero, std::memory_order_relaxed);
-            self.zerosAfterSignal_[channel].fetch_add(zeros, std::memory_order_relaxed);
+            // Publish the error latch before fresh delivery. An acquire of a
+            // new received count must also observe that block's wrong samples.
             self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
+            self.zerosAfterSignal_[channel].fetch_add(zeros, std::memory_order_relaxed);
+            self.received_[channel].fetch_add(nonzero, std::memory_order_release);
             if (nonzero) {
                 const auto now = std::uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count());
@@ -567,10 +569,81 @@ ScenarioResult runTopology(const std::filesystem::path& directory, bool twoDevic
         require(!status.cueReady && status.cueStatus == expected && rejectedCue.error().empty(),
                 label + ": " + mode + " cue stays disabled with valid independent master");
         const std::array receivedBefore{master.received(0), master.received(1)};
+        const auto wrongBefore = master.wrong();
+        const auto began = std::chrono::steady_clock::now();
+        std::array<std::uint64_t, 2> receivedAfter{};
+        std::uint64_t wrongAfter = 0;
+        LiveSession::State observedState{};
+        bool stateObserved = false, ready = false;
+        std::string observedError;
+        RoutingSnapshot observedRoute;
+        auto observe = [&] {
+            observedError = rejectedCue.error();
+            ready = rejectedCue.ready();
+            observedRoute = rejectedCue.routingSnapshot();
+            while (rejectedCue.pollState(observedState)) stateObserved = true;
+            receivedAfter = {master.received(0), master.received(1)};
+            // Fresh received counts acquire the preceding wrong-sample latch.
+            // These independent counters are not one coherent callback snapshot.
+            wrongAfter = master.wrong();
+        };
+        auto healthyRoute = [&] {
+            return ready && observedRoute.masterReady && !observedRoute.cueReady && observedRoute.cueStatus == expected;
+        };
+        auto freshSamples = [&] {
+            return receivedAfter[0] > receivedBefore[0] && receivedAfter[1] > receivedBefore[1];
+        };
+        auto save = [&](bool passed, const std::string& failure) {
+            const auto name = label + "-" + mode + "-cue-samples";
+            master.saveOperands(diagnosticDirectory / (name + "-receiver.json"));
+            std::ofstream output(diagnosticDirectory / (name + ".json"));
+            output << "{\"passed\":" << (passed ? "true" : "false") << ",\"mode\":" << json(mode)
+                   << ",\"failure\":" << json(failure)
+                   << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false")
+                   << ",\"elapsed_us\":" << std::chrono::duration_cast<std::chrono::microseconds>(
+                        std::chrono::steady_clock::now() - began).count()
+                   << ",\"received_before\":[" << receivedBefore[0] << ',' << receivedBefore[1]
+                   << "],\"received_after\":[" << receivedAfter[0] << ',' << receivedAfter[1]
+                   << "],\"received_delta\":[" << receivedAfter[0] - receivedBefore[0] << ',' << receivedAfter[1] - receivedBefore[1]
+                   << "],\"wrong_before\":" << wrongBefore << ",\"wrong_after\":" << wrongAfter
+                   << ",\"session_error\":" << json(observedError) << ",\"session_ready\":" << (ready ? "true" : "false")
+                   << ",\"state_observed\":" << (stateObserved ? "true" : "false")
+                   << ",\"state\":{\"callbacks\":" << observedState.callbacks << ",\"output_frame\":" << observedState.outputFrame
+                   << ",\"invalid_buffers\":" << observedState.invalidBuffers << ",\"deadline_misses\":" << observedState.deadlineMisses
+                   << "},\"routing\":{\"master_ready\":" << (observedRoute.masterReady ? "true" : "false")
+                   << ",\"cue_ready\":" << (observedRoute.cueReady ? "true" : "false")
+                   << ",\"cue_status\":" << unsigned(observedRoute.cueStatus)
+                   << ",\"expected_cue_status\":" << unsigned(expected)
+                   << ",\"master_error\":" << json(observedRoute.masterError)
+                   << ",\"cue_error\":" << json(observedRoute.cueError)
+                   << "},\"counter_scope\":\"independently sampled cumulative receiver counters; not an atomic callback snapshot\"}\n";
+        };
         master.validateSamples(true);
-        std::this_thread::sleep_for(30ms);
-        require(!master.wrong() && master.received(0) > receivedBefore[0] && master.received(1) > receivedBefore[1],
-                label + ": " + mode + " cue cannot contaminate fresh steady master samples");
+        try {
+            if (executionDeadlineGate) {
+                std::this_thread::sleep_for(30ms);
+            } else {
+                // Functional instrumentation must observe delivery, rather
+                // than treating a fixed wall sleep as a receiver callback.
+                wait([&] {
+                    observe();
+                    if (!observedError.empty()) throw std::runtime_error("Cue validation session error: " + observedError);
+                    if (wrongAfter) throw std::runtime_error("Cue validation contaminated the exact master samples");
+                    return healthyRoute() && freshSamples();
+                }, "Fresh private master samples did not arrive with cue safely disabled");
+            }
+            observe();
+            require(observedError.empty() && healthyRoute(), label + ": " + mode + " cue keeps the master route healthy");
+            require(!wrongAfter, label + ": " + mode + " cue cannot contaminate exact steady master samples");
+            require(freshSamples(), label + ": " + mode + " cue delivers fresh steady master samples on both channels");
+            save(true, {});
+        } catch (const std::exception& failure) {
+            master.validateSamples(false);
+            observe();
+            save(false, failure.what());
+            failureDiagnostic(rejectedCue, "rejected-cue-samples", failure.what());
+            throw;
+        }
         master.validateSamples(false);
         rejectedCue.stop();
     }

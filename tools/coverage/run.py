@@ -176,7 +176,10 @@ def main():
                             run(stage, [sys.executable, "-c", launcher,
                                 str(ROOT / "tools" / "experiments" / "private_routing_check.py"),
                                 str(BUILD / binary), str(evidence), "--functional-only"],
-                                env=test_env, timeout=180)
+                                # The wrapper gives functional checks 240s.
+                                # Leave room for private daemon startup, graph
+                                # inspection and reaping before this outer guard.
+                                env=test_env, timeout=270)
                         finally:
                             if evidence.exists():
                                 shutil.copytree(evidence, REPORTS / stage,
