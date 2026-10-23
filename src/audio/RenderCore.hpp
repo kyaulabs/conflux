@@ -100,6 +100,17 @@ public:
     // whose decay has completed may swap; no scan, allocation or ownership here.
     bool replaceSource(std::size_t deck, AudioSource source) noexcept;
     [[nodiscard]] bool isDeckSilentForReplacement(std::size_t deck) const noexcept;
+    // Render-boundary continuation of a separately validated, exact same-track
+    // four-stem bank, already primed at nextFrame. No discontinuity or reset of
+    // channel/EQ/CUE/transport/mix state. The caller retains both source owners
+    // through callback completion and transfers the bank's exact gain ramps.
+    // Active prepared DSP/loops require a separate state-transfer contract.
+    [[nodiscard]] bool canContinueSource(std::size_t deck, AudioSource source,
+        std::uint64_t nextFrame, std::uint64_t transportRevision) const noexcept;
+    bool continueSource(std::size_t deck, AudioSource source,
+        std::uint64_t nextFrame, std::uint64_t transportRevision) noexcept;
+    [[nodiscard]] std::uint64_t transportRevision(std::size_t deck) const noexcept
+    { return deck < deckCount ? decks_[deck].transportRevision : 0; }
     bool setPlaying(std::size_t deck, bool playing) noexcept;
     bool setDeckGain(std::size_t deck, float gain) noexcept;
     // Channel-owned Low/Mid/High EQ; retained across track replacement. It runs
@@ -176,6 +187,7 @@ private:
         double nominalPosition = 0;
         std::uint64_t cueFrame = 0;
         std::uint64_t scratchToken = 0;
+        std::uint64_t transportRevision = 0;
         std::uint64_t starvedFrames = 0;
         float gain = 1.0F;
         GainRamp gainRamp{};
@@ -191,6 +203,7 @@ private:
         bool readFailed = false;
         bool cueSelected = false;
     };
+    static void transportIntent(Deck& deck) noexcept;
     static bool renderActive(const Deck& deck) noexcept;
     static void notifyActivity(const Deck& deck) noexcept;
     void refreshActivity() const noexcept;

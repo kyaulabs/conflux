@@ -44,6 +44,10 @@ public:
     // exact static gains; configure before the first nonempty valid read, up to
     // one second. Ramps advance only for committed source frames, not starvation.
     bool configureRamps(std::uint32_t frames) noexcept;
+    // Same render owner, or both banks quiesced. Copy only the exact current
+    // gain trajectories and ramp duration into an unread, equally sized bank.
+    // Preserve this bank's providers, primed cursor, staging and source health.
+    bool copyMixStateFrom(const StemBankSource& source) noexcept;
     // Index order: 0 drums, 1 bass, 2 other, 3 vocals. Gain targets are finite
     // [0,1]; summation still preserves headroom above +/-1 with double arithmetic.
     bool setGain(std::size_t stem, float gain) noexcept;

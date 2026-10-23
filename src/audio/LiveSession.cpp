@@ -660,6 +660,30 @@ public:
         if (!candidate->configureStemRamps(240)) return false;
         if (!handoff_.request({deck, source, candidate.get(), generation})) return false;
         replacementDeck_ = deck;
+        replacementKind_ = SourceHandoff::Kind::Replacement;
+        lastRequestedGeneration_ = generation;
+        replacementPlayback_ = std::move(candidate);
+        return true;
+    }
+    bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
+                                   std::uint64_t expectedSourceGeneration,
+                                   std::uint64_t expectedTransportRevision, std::uint64_t frame,
+                                   std::uint64_t generation) noexcept
+    {
+        if (!ready() || !candidate || candidate->isLive() || candidate->errorCode() ||
+            replacementPlayback_ || handoff_.busy() || deck >= RenderCore::deckCount ||
+            generation <= lastRequestedGeneration_ || generation <= expectedSourceGeneration ||
+            frame >= candidate->frames() ||
+            expectedTransportRevision == std::numeric_limits<std::uint64_t>::max())
+            return false;
+        const auto source = candidate->sourceRef();
+        if (!source.setStemGain || !source.stemGain || !candidate->configureStemRamps(240) ||
+            !candidate->primedForContinuation(frame)) return false;
+        if (!handoff_.request({deck, source, candidate.get(), generation, SourceHandoff::Kind::Continuation,
+                              expectedSourceGeneration, expectedTransportRevision, frame}))
+            return false;
+        replacementDeck_ = deck;
+        replacementKind_ = SourceHandoff::Kind::Continuation;
         lastRequestedGeneration_ = generation;
         replacementPlayback_ = std::move(candidate);
         return true;
@@ -681,7 +705,8 @@ public:
         const bool global = command.type == RenderCore::Command::Type::MasterGain ||
                             command.type == RenderCore::Command::Type::Crossfader ||
                             command.type == RenderCore::Command::Type::CueGain;
-        if (!global && handoff_.busy() && command.deck == replacementDeck_) return false;
+        if (!global && handoff_.busy() && command.deck == replacementDeck_ &&
+            replacementKind_ == SourceHandoff::Kind::Replacement) return false;
         return commands_.tryPush(command);
     }
     State capture() const noexcept
@@ -693,6 +718,7 @@ public:
             state.sourcePosition[deck] = renderer_.sourcePosition(deck);
             state.sourceFrames[deck] = renderer_.sourceFrames(deck);
             state.sourceGeneration[deck] = sourceGeneration_[deck];
+            state.transportRevision[deck] = renderer_.transportRevision(deck);
             state.cueFrame[deck] = renderer_.cueFrame(deck);
             state.playing[deck] = renderer_.isPlaying(deck);
             state.cueHeld[deck] = renderer_.isCueHeld(deck);
@@ -812,23 +838,43 @@ public:
         } else if (self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
             if (replacementPending) {
-                if (self.stagedGeneration_ != replacement.generation) {
-                    if (self.renderer_.sourceFrames(replacement.deck)) {
-                        (void)self.renderer_.cueRelease(replacement.deck);
-                        (void)self.renderer_.setPlaying(replacement.deck, false);
-                    }
-                    self.stagedGeneration_ = replacement.generation;
-                }
-                if (self.renderer_.isDeckSilentForReplacement(replacement.deck)) {
-                    retiredState = {self.renderer_.sourceFrame(replacement.deck),
-                        self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
-                        (self.activePlaybacks_[replacement.deck] && self.activePlaybacks_[replacement.deck]->errorCode())};
-                    replacementInstalled = self.renderer_.replaceSource(replacement.deck, replacement.source);
+                if (replacement.kind == SourceHandoff::Kind::Continuation) {
+                    // Resolve once, after controls: stale intent/cursor is a rejection,
+                    // never an instruction to pause or seek the retained source.
                     replacementCompleted = true;
-                    if (replacementInstalled) {
-                        self.activePlaybacks_[replacement.deck] = replacement.playback;
-                        self.sourceGeneration_[replacement.deck] = replacement.generation;
+                    const auto* previous = self.activePlaybacks_[replacement.deck];
+                    if (previous && replacement.playback &&
+                        self.sourceGeneration_[replacement.deck] == replacement.expectedSourceGeneration &&
+                        self.renderer_.canContinueSource(replacement.deck, replacement.source,
+                            replacement.frame, replacement.expectedTransportRevision) &&
+                        !replacement.playback->errorCode() &&
+                        replacement.playback->primedForContinuation(replacement.frame) &&
+                        replacement.playback->copyStemMixStateFrom(*previous)) {
+                        retiredState = {self.renderer_.sourceFrame(replacement.deck),
+                            self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
+                            previous->errorCode()};
+                        replacementInstalled = self.renderer_.continueSource(replacement.deck, replacement.source,
+                            replacement.frame, replacement.expectedTransportRevision);
                     }
+                } else {
+                    if (self.stagedGeneration_ != replacement.generation) {
+                        if (self.renderer_.sourceFrames(replacement.deck)) {
+                            (void)self.renderer_.cueRelease(replacement.deck);
+                            (void)self.renderer_.setPlaying(replacement.deck, false);
+                        }
+                        self.stagedGeneration_ = replacement.generation;
+                    }
+                    if (self.renderer_.isDeckSilentForReplacement(replacement.deck)) {
+                        retiredState = {self.renderer_.sourceFrame(replacement.deck),
+                            self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
+                            (self.activePlaybacks_[replacement.deck] && self.activePlaybacks_[replacement.deck]->errorCode())};
+                        replacementInstalled = self.renderer_.replaceSource(replacement.deck, replacement.source);
+                        replacementCompleted = true;
+                    }
+                }
+                if (replacementInstalled) {
+                    self.activePlaybacks_[replacement.deck] = replacement.playback;
+                    self.sourceGeneration_[replacement.deck] = replacement.generation;
                 }
             }
             for (std::uint32_t offset = 0; offset < frames;) {
@@ -1041,6 +1087,7 @@ public:
     SourceHandoff handoff_;
     std::unique_ptr<PreparedPlayback> replacementPlayback_;
     std::size_t replacementDeck_ = 0;
+    SourceHandoff::Kind replacementKind_ = SourceHandoff::Kind::Replacement;
     std::uint64_t stagedGeneration_ = 0, lastRequestedGeneration_ = 0;
     RenderCore renderer_;
     RecorderTap tap_;
@@ -1089,6 +1136,10 @@ std::string LiveSession::error() { return impl_->currentError(); }
 bool LiveSession::submit(const RenderCore::Command& command)noexcept { return impl_->submit(command); }
 bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,std::uint64_t generation)noexcept
 { return impl_->requestSourceReplacement(deck,candidate,generation); }
+bool LiveSession::requestSourceContinuation(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,
+    std::uint64_t expectedSourceGeneration,std::uint64_t expectedTransportRevision,std::uint64_t frame,
+    std::uint64_t generation)noexcept
+{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,frame,generation); }
 bool LiveSession::sourceReplacementPending()const noexcept { return impl_->handoff_.busy(); }
 std::optional<LiveSession::SourceReplacementResult> LiveSession::takeSourceReplacementResult()noexcept
 { return impl_->takeSourceReplacementResult(); }

@@ -206,6 +206,142 @@ void preparedLiveStemRamps()
     require(!bank.configureStemRamps(4), "Stopped bank accepted live gain configuration");
 }
 
+void stemMixTransferPreservesRunningRampsAndPreparedCursor()
+{
+    Fixture fixture;
+    PreparedPlayback current(fixture.fds(), Fixture::frames), candidate(fixture.fds(), Fixture::frames);
+    constexpr std::uint64_t first = 101, prefixFrames = 3, next = first + prefixFrames;
+    require(current.prime(first, 1s) && candidate.prime(next, 1s), "Cannot prime mix-state transfer owners");
+    auto currentSource = current.sourceRef();
+    constexpr std::array initial{1.F, .5F, .25F, 0.F};
+    for (std::size_t stem = 0; stem < initial.size(); ++stem)
+        require(currentSource.setStemGain(currentSource.context, stem, initial[stem]), "Cannot set isolated source roles");
+    require(current.configureStemRamps(8) && candidate.configureStemRamps(2) &&
+            currentSource.setStemGain(currentSource.context, 0, 0.F), "Cannot start transfer mute ramp");
+    RenderCore reference(currentSource), actual(candidate.sourceRef());
+    require(reference.restorePrimedCursor(0, first) && actual.restorePrimedCursor(0, next),
+            "Cannot retain independently primed transfer cursors");
+    for (auto* core : {&reference, &actual})
+        require(core->setDeckGain(0, .5F) && core->setMasterGain(.75F) &&
+                core->setCueSelected(0, true) && core->setCueGain(.25F), "Cannot configure transfer buses");
+    std::array<float, prefixFrames * 2> prefix{}, prefixCue{};
+    require(reference.renderBuses(prefix, prefixCue) && reference.sourceFrame() == next,
+            "Cannot stop reference halfway through its mute ramp");
+    require(candidate.primedForContinuation(next) && !candidate.primedForContinuation(next + 1) &&
+            candidate.copyStemMixStateFrom(current) && candidate.primedForContinuation(next),
+            "Mix-state transfer rejected or consumed exact unused prepared readiness");
+    auto candidateSource = candidate.sourceRef();
+    require(candidateSource.stemGain(candidateSource.context, 3) == 0.F,
+            "Transfer restored an excluded vocal role");
+    constexpr std::size_t suffixFrames = 17;
+    std::array<float, suffixFrames * 2> wanted{}, wantedCue{}, output{}, cue{};
+    // Different render partitions must retain the source's ongoing trajectory.
+    require(reference.renderBuses(std::span(wanted).first(4), std::span(wantedCue).first(4)) &&
+            actual.renderBuses(std::span(output).first(2), std::span(cue).first(2)) &&
+            actual.renderBuses(std::span(output).subspan(2, 2), std::span(cue).subspan(2, 2)),
+            "Cannot render the first transferred samples");
+    require(same(std::span(output).first(4), std::span(wanted).first(4)) &&
+            same(std::span(cue).first(4), std::span(wantedCue).first(4)),
+            "First transferred output leaked excluded roles, reset the ramp or changed its prepared cursor");
+    // A new target also checks the transferred configured ramp duration.
+    require(currentSource.setStemGain(currentSource.context, 0, .25F) &&
+            candidateSource.setStemGain(candidateSource.context, 0, .25F), "Cannot retarget transferred ramps");
+    require(reference.renderBuses(std::span(wanted).subspan(4), std::span(wantedCue).subspan(4)) &&
+            actual.renderBuses(std::span(output).subspan(4), std::span(cue).subspan(4)) &&
+            same(output, wanted) && same(cue, wantedCue),
+            "Transferred ramp state or duration changed the uninterrupted reference on either bus");
+    require(!candidate.primedForContinuation(next) && !candidate.copyStemMixStateFrom(current),
+            "Already-read destination retained readiness or accepted a new mix trajectory");
+}
+
+void stemMixTransferRejectsIncompatibleOwnersWithoutMutation()
+{
+    Fixture fixture;
+    PreparedPlayback source(fixture.fds(), Fixture::frames), candidate(fixture.fds(), Fixture::frames);
+    auto sourceRef = source.sourceRef();
+    require(sourceRef.setStemGain(sourceRef.context, 3, 0.F), "Cannot isolate mix-state source");
+    auto normalFile = rawFile(fixture.sum);
+    PreparedPlayback normal(fileno(normalFile.get()), Fixture::frames);
+    std::vector<float> shorter((Fixture::frames - 1) * 2, .25F);
+    auto shortFile = rawFile(shorter);
+    const std::array shortFds{fileno(shortFile.get()), fileno(shortFile.get()), fileno(shortFile.get()), fileno(shortFile.get())};
+    PreparedPlayback different(shortFds, Fixture::frames - 1);
+    require(!normal.copyStemMixStateFrom(source) && !candidate.copyStemMixStateFrom(normal) &&
+            !different.copyStemMixStateFrom(source) && !candidate.copyStemMixStateFrom(candidate),
+            "Single-leaf, differing geometry or self-transfer accepted stem mix state");
+    source.stop();
+    require(!candidate.copyStemMixStateFrom(source), "Stopped source accepted mix-state transfer");
+    auto candidateRef = candidate.sourceRef();
+    for (std::size_t stem = 0; stem < 4; ++stem)
+        require(candidateRef.stemGain(candidateRef.context, stem) == 1.F,
+                "Rejected transfer mutated an unread destination's gains");
+    candidate.stop();
+    require(!candidate.copyStemMixStateFrom(different), "Stopped destination accepted mix state");
+}
+
+void stemMixTransferAllowsFailedLiveSourceWithoutCopyingFailure()
+{
+    Fixture fixture;
+    auto live = PreparedPlayback::makeLive(71, Fixture::frames,
+        [](std::stop_token, PreparedPlayback::LiveProducerPort& port) { port.fail(EIO); });
+    const auto deadline = std::chrono::steady_clock::now() + 1s;
+    while (!live->errorCode() && std::chrono::steady_clock::now() < deadline) std::this_thread::sleep_for(1ms);
+    require(live->errorCode() == EIO, "Live failure fixture did not retain its first error");
+    auto liveRef = live->sourceRef();
+    for (std::size_t stem = 0; stem < 4; ++stem)
+        require(liveRef.setStemGain(liveRef.context, stem, stem == 1 ? .5F : 0.F),
+                "Cannot retain required bass-only live mix state");
+    PreparedPlayback candidate(fixture.fds(), Fixture::frames);
+    constexpr std::uint64_t first = 27;
+    require(candidate.prime(first, 1s) && candidate.copyStemMixStateFrom(*live),
+            "Failed live source prevented a healthy prepared candidate from adopting isolated gains");
+    auto candidateRef = candidate.sourceRef();
+    std::array<float, 16> output{};
+    const auto result = candidateRef.read(candidateRef.context, first, output);
+    require(!result.failed && result.frames == output.size() / 2 && !candidate.errorCode() && live->errorCode() == EIO,
+            "Mix transfer copied source failure or cleared its original diagnostic");
+    for (std::size_t sample = 0; sample < output.size(); ++sample)
+        require(output[sample] == fixture.samples[1][first * 2 + sample] * .5F,
+                "Prepared fallback emitted an excluded role from its first frame");
+}
+
+void continuationPrimeAttestationTracksExactUnusedLinearReadiness()
+{
+    Fixture fixture;
+    PreparedPlayback candidate(fixture.fds(), Fixture::frames);
+    constexpr std::uint64_t first = 53;
+    require(!candidate.primedForContinuation(first) && candidate.prime(first, 1s) &&
+            candidate.primedForContinuation(first) && !candidate.primedForContinuation(first + 1),
+            "Unprimed or wrong-frame bank claimed continuation readiness");
+    require(!candidate.prime(first + 1, -1ms) && !candidate.primedForContinuation(first),
+            "Rejected fresh prime retained an older successful attestation");
+    require(candidate.prime(first, 1s), "Cannot re-prime attestation fixture");
+    auto source = candidate.sourceRef();
+    source.discontinuity(source.context, first);
+    require(!candidate.primedForContinuation(first), "Same-frame discontinuity retained prepared readiness");
+    require(candidate.prime(first, 1s), "Cannot prime before session reset");
+    candidate.resetBankForSession();
+    require(!candidate.primedForContinuation(first), "Bank reset retained a retired reader-generation attestation");
+    require(candidate.primeForSession(first, 1s) && candidate.primedForContinuation(first),
+            "Successful linear session prime did not attest its actual cursor");
+    require(!candidate.primeForSession(first, -1ms) && !candidate.primedForContinuation(first),
+            "Rejected session prime retained old readiness");
+    require(candidate.prime(Fixture::frames, 1s) && !candidate.primedForContinuation(Fixture::frames),
+            "EOF with no forward PCM claimed continuation readiness");
+    require(candidate.prime(first, 1s), "Cannot prime before a mode change");
+    source = candidate.sourceRef();
+    require(source.tempoControl(source.context, AudioTempoCommand::Set, 0, true, first) &&
+            !candidate.primedForContinuation(first), "Mode control retained unused continuation readiness");
+    require(candidate.prime(first, 1s) && candidate.primedForContinuation(first),
+            "Fresh linear prime did not replace invalidated readiness");
+    candidate.stop();
+    require(!candidate.primedForContinuation(first), "Stopped owner retained continuation readiness");
+    auto normalFile = rawFile(fixture.sum);
+    PreparedPlayback normal(fileno(normalFile.get()), Fixture::frames);
+    require(normal.prime(first, 1s) && !normal.primedForContinuation(first),
+            "A single-leaf original mix claimed stem-bank continuation readiness");
+}
+
 void wholeBankHandoffLifetime()
 {
     Fixture first, second;
@@ -253,6 +389,10 @@ int main()
         failureInAnyReaderAndConstructionCleanup();
         wholeBankHandoffLifetime();
         preparedLiveStemRamps();
+        stemMixTransferPreservesRunningRampsAndPreparedCursor();
+        stemMixTransferRejectsIncompatibleOwnersWithoutMutation();
+        stemMixTransferAllowsFailedLiveSourceWithoutCopyingFailure();
+        continuationPrimeAttestationTracksExactUnusedLinearReadiness();
         std::cout << "Prepared whole-bank files, alignment, health, budgets and lifetime checks completed\n";
         return 0;
     } catch (const std::exception& error) {

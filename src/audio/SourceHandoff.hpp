@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <limits>
 
 namespace conflux::audio {
 class PreparedPlayback;
@@ -14,11 +15,14 @@ class PreparedPlayback;
 // mailbox until completion is acquired, or callbacks have been quiesced.
 class SourceHandoff {
 public:
+    enum class Kind { Replacement, Continuation };
     struct Request {
         std::size_t deck = 0;
         AudioSource source{};
         PreparedPlayback* playback = nullptr;
         std::uint64_t generation = 0;
+        Kind kind = Kind::Replacement;
+        std::uint64_t expectedSourceGeneration = 0, expectedTransportRevision = 0, frame = 0;
     };
     struct RetiredState {
         std::uint64_t sourceFrame = 0, starvedFrames = 0;
@@ -29,6 +33,7 @@ public:
         std::uint64_t generation = 0, outputFrame = 0;
         RetiredState retired{};
         bool installed = false;
+        Kind kind = Kind::Replacement;
     };
 
     // Source validation and reader priming belong to the control owner. An
@@ -36,8 +41,13 @@ public:
     bool request(const Request& next) noexcept
     {
         const auto revision = requested_.load(std::memory_order_relaxed);
+        const bool continuation = next.kind == Kind::Continuation;
         if (revision != collected_ || next.deck >= RenderCore::deckCount ||
-            !next.source.frames || !next.generation)
+            !next.source.frames || !next.generation ||
+            (next.kind != Kind::Replacement && !continuation) ||
+            (continuation && (next.frame >= next.source.frames ||
+                next.generation <= next.expectedSourceGeneration ||
+                next.expectedTransportRevision == std::numeric_limits<std::uint64_t>::max())))
             return false;
         pending_ = next;
         requested_.store(revision + 1, std::memory_order_release);
@@ -45,7 +55,8 @@ public:
     }
 
     // Render owner: capture BEFORE draining commands at callback entry. The
-    // same request can remain visible while its old deck fades to silence.
+    // replacement can remain visible while its old deck fades to silence;
+    // continuation instead validates the retained state without pausing it.
     bool readPending(Request& result) noexcept
     {
         const auto revision = requested_.load(std::memory_order_acquire);
@@ -60,7 +71,7 @@ public:
     bool complete(bool installed, const RetiredState& retired, std::uint64_t outputFrame) noexcept
     {
         if (observed_ == completed_) return false;
-        completion_ = {pending_.deck, pending_.generation, outputFrame, retired, installed};
+        completion_ = {pending_.deck, pending_.generation, outputFrame, retired, installed, pending_.kind};
         completed_ = observed_;
         acknowledged_.store(completed_, std::memory_order_release);
         return true;

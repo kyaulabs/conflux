@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/SourceHandoff.hpp"
+#include "audio/StemBankSource.hpp"
 #include "audio/TransportQueue.hpp"
 
 #include <algorithm>
@@ -7,9 +8,11 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <thread>
+#include <vector>
 
 namespace {
 using namespace conflux::audio;
@@ -72,7 +75,8 @@ void orderingAndQuiesce()
     require(!handoff.request({0, request.source, nullptr, 8}), "Uncollected completion was overwritten");
     require(handoff.takeCompletion(result) && result.installed && result.deck == 1 && result.generation == 7 &&
             result.outputFrame == 256 && result.retired.sourceFrame == 23 && result.retired.starvedFrames == 11 &&
-            result.retired.readFailed && !handoff.busy(), "Retired source identity/diagnostics changed");
+            result.retired.readFailed && result.kind == SourceHandoff::Kind::Replacement && !handoff.busy(),
+        "Retired source identity/diagnostics changed");
     require(!handoff.takeCompletion(result), "Completion was delivered twice");
     require(handoff.request({0, request.source, nullptr, 8}), "Collected slot could not be reused");
     handoff.quiesce();
@@ -140,9 +144,177 @@ void concurrentOwnerLifetime()
     for (const auto& source : sources)
         require(!source.expiredAccesses.load(), "Render owner accessed storage after retirement");
 }
+void continuationIdentityAndQuiesce()
+{
+    SourceHandoff handoff;
+    std::array<float, 8> pcm{};
+    const SourceHandoff::Request continuation{0, AudioSource::fromMemory(pcm), nullptr, 9,
+        SourceHandoff::Kind::Continuation, 7, 42, 3};
+    auto invalid = continuation;
+    invalid.frame = 4;
+    require(!handoff.request(invalid), "Continuation accepted an unprimed EOF cursor");
+    invalid = continuation;
+    invalid.generation = 7;
+    require(!handoff.request(invalid), "Continuation did not advance source generation");
+    invalid = continuation;
+    invalid.expectedTransportRevision = std::numeric_limits<std::uint64_t>::max();
+    require(!handoff.request(invalid), "Continuation accepted a saturated transport revision");
+    invalid = continuation;
+    invalid.kind = static_cast<SourceHandoff::Kind>(99);
+    require(!handoff.request(invalid), "Unknown source handoff kind was published");
+    require(handoff.request(continuation), "Valid continuation could not be published");
+    SourceHandoff::Request observed;
+    require(handoff.readPending(observed) && observed.kind == SourceHandoff::Kind::Continuation &&
+            observed.expectedSourceGeneration == 7 && observed.expectedTransportRevision == 42 &&
+            observed.frame == 3 && observed.generation == 9,
+        "Continuation lost its source/transport/cursor identity");
+    require(!handoff.request(continuation), "Pending continuation was overwritten");
+    require(handoff.complete(false, {}, 256), "Rejected continuation lost callback completion");
+    SourceHandoff::Completion completion;
+    require(!handoff.request(continuation) && handoff.takeCompletion(completion) &&
+            !completion.installed && completion.kind == SourceHandoff::Kind::Continuation &&
+            completion.generation == 9 && completion.outputFrame == 256,
+        "Rejected continuation released its owner before completion acquire");
+    auto next = continuation;
+    next.generation = 10;
+    require(handoff.request(next) && handoff.readPending(observed),
+        "Collected continuation slot could not be reused");
+    handoff.quiesce();
+    require(handoff.takeCompletion(completion) && !completion.installed &&
+            completion.kind == SourceHandoff::Kind::Continuation && completion.generation == 10,
+        "Quiesce lost a continuation owner or falsely installed it");
+}
+
+void exactContinuationPreservesBothBusesAndRunningMix()
+{
+    std::array<std::vector<float>, 4> leaves;
+    std::array<AudioSource, 4> sources;
+    std::vector<float> peer(4096 * 2);
+    for (std::size_t stem = 0; stem < 4; ++stem) {
+        leaves[stem].resize(peer.size());
+        for (std::size_t sample = 0; sample < peer.size(); ++sample)
+            leaves[stem][sample] = float(int((sample * (stem + 3) + stem * 11) % 67) - 33) / 256.F;
+        sources[stem] = AudioSource::fromMemory(leaves[stem]);
+    }
+    for (std::size_t i = 0; i < peer.size(); ++i) peer[i] = float(int(i % 13) - 6) / 128.F;
+    StemBankSource old(sources), reference(sources);
+    for (auto* bank : {&old, &reference}) {
+        require(bank->setGain(2, 0) && bank->setGain(3, 0) && bank->configureRamps(240), "Initial stem restriction failed");
+    }
+    RenderCore changed(old.sourceRef(), AudioSource::fromMemory(peer));
+    RenderCore unchanged(reference.sourceRef(), AudioSource::fromMemory(peer));
+    for (auto* core : {&changed, &unchanged}) {
+        require(core->setCueFrame(0, 91) && core->setCueSelected(0, true) && core->configureRamps(240),
+            "Continuation transport setup failed");
+    }
+    std::array<float, 600> master{}, cue{}, expectedMaster{}, expectedCue{};
+    require(changed.renderBuses(master, cue) && unchanged.renderBuses(expectedMaster, expectedCue) &&
+        master == expectedMaster && cue == expectedCue, "Initial continuation reference differs");
+    for (auto* core : {&changed, &unchanged}) {
+        require(core->setStemGain(0, 0, 0) && core->setStemGain(0, 1, .375F) &&
+            core->setEqGainDb(0, 0, -12.F) && core->setEqGainDb(0, 2, 4.F) &&
+            core->setDeckGain(0, .4F) && core->setMasterGain(.6F) && core->setCueGain(.7F) &&
+            core->setCrossfader(.7F), "Continuation ramp setup failed");
+    }
+    require(changed.renderBuses(std::span(master).first(146), std::span(cue).first(146)) &&
+        unchanged.renderBuses(std::span(expectedMaster).first(146), std::span(expectedCue).first(146)),
+        "Partial-ramp reference render failed");
+    const auto next = changed.sourceFrame();
+    const auto revision = changed.transportRevision(0), clock = changed.frameClock();
+    StemBankSource candidate(sources, next);
+    require(changed.canContinueSource(0, candidate.sourceRef(), next, revision) &&
+        candidate.copyMixStateFrom(old) && changed.continueSource(0, candidate.sourceRef(), next, revision),
+        "Exact primed source continuation failed");
+    require(changed.sourceFrame() == next && changed.sourcePosition() == double(next) &&
+        changed.frameClock() == clock && changed.isPlaying() && changed.cueFrame() == 91 &&
+        changed.isCueSelected() && changed.deckGain() == .4F && changed.eqGainDb(0, 0) == -12.F &&
+        changed.stemGain(0, 2) == 0 && changed.stemGain(0, 3) == 0 &&
+        changed.transportRevision(0) > revision, "Continuation reset channel or transport state");
+    for (unsigned block = 0; block < 4; ++block) {
+        require(changed.renderBuses(master, cue) && unchanged.renderBuses(expectedMaster, expectedCue) &&
+            master == expectedMaster && cue == expectedCue,
+            "Continuation changed EQ history, gain-ramp PCM, stereo, cue or peer playback");
+    }
+    require(changed.sourceFrame() == unchanged.sourceFrame() && changed.sourceFrame(1) == unchanged.sourceFrame(1) &&
+        changed.frameClock() == unchanged.frameClock(), "Continuation changed source or output clocks");
+}
+
+void continuationRejectsStaleTransportAndGeometry()
+{
+    std::array<float, 2048> pcm{};
+    std::array<AudioSource, 4> sources;
+    sources.fill(AudioSource::fromMemory(pcm));
+    StemBankSource old(sources), candidate(sources, 31);
+    RenderCore core(old.sourceRef());
+    require(core.seek(0, 31), "Nonzero continuation setup failed");
+    const auto revision = core.transportRevision(0);
+    require(core.canContinueSource(0, candidate.sourceRef(), 31, revision), "Valid continuation rejected");
+    auto mismatch = candidate.sourceRef(); --mismatch.frames;
+    require(!core.continueSource(0, mismatch, 31, revision) &&
+        !core.continueSource(0, candidate.sourceRef(), 30, revision) &&
+        !core.continueSource(2, candidate.sourceRef(), 31, revision) &&
+        !core.continueSource(0, AudioSource::fromMemory(pcm), 31, revision) &&
+        !core.continueSource(0, old.sourceRef(), 31, revision) && core.sourceFrame() == 31 &&
+        core.transportRevision(0) == revision, "Invalid continuation mutated the deck");
+    require(core.seek(0, 47) && core.seek(0, 31) &&
+        !core.continueSource(0, candidate.sourceRef(), 31, revision), "Seek-away-and-back reused a stale ticket");
+    const auto current = core.transportRevision(0);
+    require(!core.seek(0, 1025) && core.transportRevision(0) == current &&
+        core.setStemGain(0, 0, .5F) && core.setEqGainDb(0, 1, -6.F) && core.transportRevision(0) == current &&
+        core.canContinueSource(0, candidate.sourceRef(), 31, current),
+        "Rejected transport or current human mix controls invalidated valid continuation");
+    require(core.setPlaying(0, false) && !core.continueSource(0, candidate.sourceRef(), 31, current),
+        "Human pause did not invalidate an already-prepared ticket");
+}
+
+void continuationKeepsFailureEvidenceAndRejectsPreparedModes()
+{
+    std::array<float, 512> pcm;
+    pcm.fill(.125F);
+    struct Failed {
+        static AudioReadResult read(void*, std::uint64_t, std::span<float>) noexcept { return {0, true}; }
+    };
+    AudioSource broken{256, nullptr, nullptr, Failed::read};
+    std::array<AudioSource, 4> failedSources; failedSources.fill(broken);
+    std::array<AudioSource, 4> sources; sources.fill(AudioSource::fromMemory(pcm));
+    StemBankSource old(failedSources), candidate(sources, 31);
+    RenderCore core(old.sourceRef(), AudioSource::fromMemory(pcm));
+    require(core.seek(0, 31) && core.setCueFrame(0, 17) && core.setCueSelected(0, true), "Failed-source setup failed");
+    std::array<float, 16> output{};
+    require(core.render(output) && core.readFailed() && core.starvedFrames() == 8 && core.sourceFrame() == 31,
+        "Missing live source did not retain exact cursor and failure");
+    const auto revision = core.transportRevision(0);
+    auto rejected = candidate.sourceRef();
+    rejected.tempoControl = [](void*, AudioTempoCommand, double, bool, std::uint64_t) noexcept { return false; };
+    rejected.tempoState = [](const void*) noexcept { AudioTempoState s; s.active = true; return s; };
+    require(!core.continueSource(0, rejected, 31, revision), "Active prepared tempo was silently reset");
+    rejected.tempoState = [](const void*) noexcept { AudioTempoState s; s.pending = true; return s; };
+    require(!core.continueSource(0, rejected, 31, revision), "Pending prepared tempo was silently reset");
+    rejected = candidate.sourceRef();
+    rejected.scratchControl = [](void*, AudioScratchCommand, std::int64_t, double, std::uint64_t) noexcept { return false; };
+    rejected.scratchState = [](const void*) noexcept { AudioScratchState s; s.active = true; return s; };
+    require(!core.continueSource(0, rejected, 31, revision), "Active scratch was silently reset");
+    rejected.scratchState = [](const void*) noexcept { AudioScratchState s; s.pending = true; return s; };
+    require(core.canContinueSource(0, rejected, 31, revision),
+        "Inactive optional scratch prefetch blocked exact linear continuation");
+    rejected = candidate.sourceRef();
+    rejected.loopControl = [](void*, AudioLoopCommand, std::uint64_t) noexcept { return false; };
+    rejected.loopState = [](const void*) noexcept { AudioLoopState s; s.inSet = true; return s; };
+    require(!core.continueSource(0, rejected, 31, revision), "Prepared loop bounds were silently reset");
+    require(core.transportRevision(0) == revision && core.readFailed() && core.starvedFrames() == 8 &&
+        core.sourceFrame() == 31 && core.sourceFrame(1) == 8 && core.frameClock() == 8,
+        "Rejected modes changed an old source, peer or diagnostic");
+    require(candidate.copyMixStateFrom(old) && core.continueSource(0, candidate.sourceRef(), 31, revision) &&
+        core.render(output) && core.sourceFrame() == 39 && core.sourceFrame(1) == 16 && core.frameClock() == 16 &&
+        core.readFailed() && core.starvedFrames() == 8 && !core.isBuffering() && core.cueFrame() == 17 &&
+        core.isCueSelected() && core.isPlaying(), "Recovery lost failure evidence or changed transport");
+}
+
 } // namespace
 int main()
 {
-    try { orderingAndQuiesce(); concurrentOwnerLifetime(); return 0; }
+    try { orderingAndQuiesce(); continuationIdentityAndQuiesce(); concurrentOwnerLifetime();
+        exactContinuationPreservesBothBusesAndRunningMix(); continuationRejectsStaleTransportAndGeometry();
+        continuationKeepsFailureEvidenceAndRejectsPreparedModes(); return 0; }
     catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

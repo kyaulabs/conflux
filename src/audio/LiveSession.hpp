@@ -42,7 +42,7 @@ public:
         std::uint64_t outputFrame = 0;
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{}, sourceFrames{};
         std::array<double, RenderCore::deckCount> sourcePosition{};
-        std::array<std::uint64_t, RenderCore::deckCount> sourceGeneration{};
+        std::array<std::uint64_t, RenderCore::deckCount> sourceGeneration{}, transportRevision{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<bool, RenderCore::deckCount> cueHeld{}, cuePreview{};
@@ -108,6 +108,16 @@ public:
     // request; stop/join its retired whole owner away from GUI/render threads.
     bool requestSourceReplacement(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                   std::uint64_t generation) noexcept;
+    // Same-deck prepared-bank continuation. The caller proves same-track PCM
+    // provenance and primes this exact frame off-thread before publication.
+    // After queued controls drain, the callback validates source generation,
+    // transport revision, exact cursor and supported modes before any swap.
+    // Rejection never pauses/uncues the old deck; candidate ownership follows
+    // the same completion/retirement contract as ordinary replacement.
+    bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
+                                   std::uint64_t expectedSourceGeneration,
+                                   std::uint64_t expectedTransportRevision, std::uint64_t frame,
+                                   std::uint64_t generation) noexcept;
     [[nodiscard]] bool sourceReplacementPending() const noexcept;
     std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept;
     struct StoppedPlaybacks {
