@@ -2440,6 +2440,9 @@ int main(int argc, char** argv)
                     {"output_frame", qint64(state.outputFrame)}, {"applied", qint64(state.applied)},
                     {"rejected", qint64(state.rejected)}, {"last_command_id", qint64(state.lastCommandId)},
                     {"callbacks", qint64(state.callbacks)}, {"invalid_buffers", qint64(state.invalidBuffers)},
+                    {"max_execution_ns", qint64(state.maxExecutionNs)}, {"deadline_misses", qint64(state.deadlineMisses)},
+                    {"graph_rate", int(state.graphRate)}, {"stream_frames_min", qint64(state.streamFramesMin)},
+                    {"stream_frames_max", qint64(state.streamFramesMax)},
                     {"snapshot_drops", qint64(state.snapshotDrops)}, {"ready", state.ready},
                     {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
                     {"source_total_frames", QJsonArray{qint64(state.sourceFrames[0]), qint64(state.sourceFrames[1])}},
@@ -2477,6 +2480,39 @@ int main(int argc, char** argv)
                     {"invalid_buffers_zero", !cueJumped.invalidBuffers}, {"rejected_zero", !cueJumped.rejected},
                     {"sink_wrong_zero_on_catch", !sinkWrong}, {"sink_zeros_zero_on_catch", !sinkZeros}}},
                 {"scope", "Failure-only coherent before/after controller audio snapshots. Sink counters are separate asynchronous observations; catch-time sink clauses do not claim the assertion's exact read instant or a root cause."}};
+            try {
+                // Preserve the failing sample evidence before intentional cleanup silence.
+                sink.validate(false);
+                controller.shutdown();
+                QJsonArray stoppedTiming;
+                for (const auto& timing : controller.completedTiming()) {
+                    const auto& counters = timing.counters;
+                    stoppedTiming.append(QJsonObject{
+                        {"callbacks", qint64(counters.callbacks)},
+                        {"max_execution_ns", qint64(counters.maxExecutionNs)},
+                        {"deadline_misses", qint64(counters.deadlineMisses)},
+                        {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
+                        {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
+                        {"graph_quantum_min", qint64(counters.graphQuantumMin)},
+                        {"graph_quantum_max", qint64(counters.graphQuantumMax)},
+                        {"driver_position_observed", counters.graphPositionObserved},
+                        {"capabilities", QJsonObject{
+                            {"cycle", timing.capabilities.cycle},
+                            {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
+                            {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
+                }
+                auto detail = observations["cue_jump_failure"].toObject();
+                detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
+                detail["stopped_timing"] = stoppedTiming;
+                detail["stopped_timing_scope"] = "Quiesced totals for all completed sessions after failure-only shutdown, including callbacks after the assertion. Execution timing does not measure scheduler lateness; unavailable driver flag masks do not establish zero events.";
+                observations["cue_jump_failure"] = detail;
+            } catch (const std::exception& diagnostic) {
+                try { observations["cue_jump_timing_diagnostic_error"] = QString::fromUtf8(diagnostic.what()); }
+                catch (...) {} // Preserve the original assertion if diagnostic serialization also fails.
+            } catch (...) {
+                try { observations["cue_jump_timing_diagnostic_error"] = "Unknown failure while collecting stopped timing"; }
+                catch (...) {}
+            }
             throw;
         }
         observations["cue_jump"] = QJsonObject{{"landed_frame", qint64(cueJumped.sourceFrame[1])},
