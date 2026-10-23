@@ -1584,6 +1584,7 @@ constexpr std::uint64_t MiB = 1024 * 1024;
 constexpr std::uint64_t totalBytesLimit = 512 * MiB;
 constexpr std::uint64_t fileBytesLimit = 64 * MiB;
 constexpr std::uint64_t holdFrames = 8192;
+constexpr std::uint32_t recordingRampFrames = 240;
 constexpr std::array<float, 4> bassOnly{0.F, 1.F, 0.F, 0.F};
 constexpr std::array<float, 2> aBass{.125F, -.0625F}, bBass{.0625F, -.03125F};
 constexpr std::array<float, 2> bothBass{.1875F, -.09375F};
@@ -1812,7 +1813,7 @@ void continuousPeer(const State& before, const State& after)
 std::array<float, 2> ramp(bool rising, std::uint32_t step)
 {
     std::array<float, 2> value{};
-    const double fraction = double(step) / 240;
+    const double fraction = double(step) / recordingRampFrames;
     for (std::size_t channel = 0; channel < 2; ++channel) {
         const auto a = static_cast<float>((rising ? fraction : 1 - fraction) * aBass[channel]);
         value[channel] = static_cast<float>(double(a) + bBass[channel]);
@@ -1890,15 +1891,21 @@ QJsonObject inspectCompleteRecording(const QString& path, std::uint64_t expected
             const auto deviation = error(got, wanted);
             if (deviation > 1e-6F) throw std::runtime_error("Every-frame bass/peer/240-frame ramp oracle failed");
             maxError = std::max(maxError, deviation); ++counts[phase];
-            if (phase == FadeOut && step == 240) phase = Peer;
-            if (phase == FadeIn && step == 240) phase = Recovered;
+            if (phase == FadeOut && step == recordingRampFrames) phase = Peer;
+            if (phase == FadeIn && step == recordingRampFrames) phase = Recovered;
         }
         first += count;
     }
-    if (counts[Both] < 1024 || counts[FadeOut] != 240 || counts[Peer] < holdFrames ||
-        (recovery ? (phase != Recovered || counts[FadeIn] != 240 || counts[Recovered] < 1024) :
+    if (counts[Both] < 1024 || counts[FadeOut] != recordingRampFrames || counts[Peer] < holdFrames ||
+        (recovery ? (phase != Recovered || counts[FadeIn] != recordingRampFrames || counts[Recovered] < 1024) :
                     (phase != Peer || counts[FadeIn] || counts[Recovered])))
-        throw std::runtime_error("Required recorded baseline/held/recovered phases incomplete");
+        throw std::runtime_error("Required recorded baseline/held/recovered phases incomplete: phase=" +
+            std::to_string(int(phase)) + ", recovery=" + std::to_string(recovery) +
+            ", baseline=" + std::to_string(counts[Both]) + " (min1024)" +
+            ", fade_out=" + std::to_string(counts[FadeOut]) + " (exact" + std::to_string(recordingRampFrames) + ")" +
+            ", peer_only=" + std::to_string(counts[Peer]) + " (min" + std::to_string(holdFrames) + ")" +
+            ", fade_in=" + std::to_string(counts[FadeIn]) + " (recovery exact" + std::to_string(recordingRampFrames) + "; otherwise0)" +
+            ", recovered=" + std::to_string(counts[Recovered]) + " (recovery min1024; otherwise0)");
     return {{"frames", qint64(expectedFrames)}, {"bytes", file.size()}, {"fact_frames", qint64(factFrames)},
         {"sha256", digest(path)}, {"all_samples_finite", true}, {"every_frame_checked", true},
         {"baseline_frames", qint64(counts[Both])}, {"fade_out_frames", qint64(counts[FadeOut])},
@@ -2555,9 +2562,11 @@ void continuationScenario(const QString& output, const QString& privateRoot,
                     controller.recording()["acceptedFrames"].toULongLong() >= recordingAtHold + holdFrames + 512;
             }, "Selected peer-only interval did not persist before automatic recovery");
             gate.unlock(); locked = false;
+            // Source advance includes the availability fade. Record that fade
+            // plus the oracle's 1024 fully recovered frames before detach.
             await(evidence, [&] { const auto s = controller.audioState(); return status() == "Active" &&
                 !continuation()["pending"].toBool() && s.sourceGeneration[0] != held.sourceGeneration[0] &&
-                !s.buffering[0] && s.sourceFrame[0] >= held.sourceFrame[0] + 1024; },
+                !s.buffering[0] && s.sourceFrame[0] >= held.sourceFrame[0] + recordingRampFrames + 1024; },
                 "Compatible prepared bank did not continue automatically at the captured source cursor");
             const auto recovered = controller.audioState(); const auto recoveredMap = controller.decks()[0].toMap();
             continuousPeer(before, recovered); continuousPeer(held, recovered);
