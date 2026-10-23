@@ -695,14 +695,14 @@ Item {
                     + " to " + Number(surface.residentHold.outSeconds || 0).toFixed(6) + " seconds."
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
-                width: parent.width
+                width: residentHoldDialog.availableWidth
                 Accessible.name: text
             }
             Label {
                 text: "Playback controls turn recovery off. Enable it again when you want this section to repeat. Resume from the held position when stems are ready, at the end of this loop."
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
-                width: parent.width
+                width: residentHoldDialog.availableWidth
             }
             Button {
                 objectName: "deck" + surface.deckIndex + "RecoveryArm"
