@@ -1,0 +1,618 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "publication_scope": "Saved metadata/source retention and arithmetic checks only; no helper import, test/build, native, model, GPU or audio execution during publication.",
+  "experiment_status": "failed",
+  "decision": "Reject candidate; retain original 64-by-64 route and Best runtime. No longer run to rescue this candidate.",
+  "qualified": false,
+  "timing_qualification": false,
+  "publication_integrity_passed": true,
+  "source_head": "0f934bb65826a14aee8fc275e8937a50dbd0727c",
+  "raw_data_location": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01",
+  "configuration": {
+    "backend": "vulkan",
+    "threads": 2,
+    "weight_storage": "native",
+    "sample_rate": 44100,
+    "segment_frames": 343980,
+    "stems": [
+      "drums",
+      "bass",
+      "other",
+      "vocals"
+    ],
+    "UI_load": false,
+    "audio_load": false
+  },
+  "runtime_and_model_metadata_only": {
+    "candidate": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/candidate-stem-runtime",
+      "bytes": 63163664,
+      "sha256": "7b97326b805bde89087aedfc525d86bbbdf163f7d9813bc1b26e5c6811de9f3f"
+    },
+    "historical_matrix_baseline": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/baseline-stem-runtime",
+      "bytes": 63159376,
+      "sha256": "087610a32874d461c2943c6e6670f1c029806df818d4177c3ab4d02aa3bcbbd1"
+    },
+    "PCM_reference_runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+    "model": {
+      "path": "/tmp/conflux-stem-m0/models/htdemucs-f16.gguf",
+      "bytes": 84059168,
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6"
+    },
+    "payloads_published": false
+  },
+  "PCM_equivalence": {
+    "planned_cases": 16,
+    "normalized_case_records_match_historical_reference": true,
+    "exact_completed": 12,
+    "full_16_case_gate_passed": false,
+    "activation_gate_passed": false,
+    "compared_fields": [
+      "request_id",
+      "case_id",
+      "input_sha256",
+      "output_sha256",
+      "output_shape",
+      "output_dtype",
+      "output_bytes"
+    ],
+    "completed": [
+      {
+        "request_id": 1,
+        "case_id": "club_xl:0",
+        "input_sha256": "58984335a90866f9fbac068b4a3b525d3ee8ec4648e2f27814d2ac6dc2718abe",
+        "output_sha256": "e897b9a8e42cd665f2ab4fa47cd9825b38d5f4b930cf349dbe032f37f1d16867",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 2,
+        "case_id": "club_xl:257985",
+        "input_sha256": "18182094f2b40017ba2b8445f8cbe4192ce2c45c04619edcaa3da3e4b82f3861",
+        "output_sha256": "e3dd10681d94efd2ebfbd3f98c34d74cbb25595559047c39156ba2388b73a856",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 3,
+        "case_id": "club_xl:515970",
+        "input_sha256": "688cd7af5ecd42efc3e20ba0e6e420a6acf824ce5c9f7d2d2980e1fd95ee983f",
+        "output_sha256": "31bd8ae4e8fcde10f385c51a669834345457e034826bd316cf1eb1f2b7d8d7ef",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 4,
+        "case_id": "club_xl:773955",
+        "input_sha256": "ca8a309d0f1d416dee39bc623fab28af72f4dce238ca4bc3df3dbbb1f8c24dd2",
+        "output_sha256": "e2530d27eeb18c965df2dc0b568e1eb4544e79e4fd2982ac4866a25644ed21c1",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 5,
+        "case_id": "when_the_light_breaks:0",
+        "input_sha256": "f2c5cee8bc0f083c4b4fe2dc5f3638e2a4d685645f2d591100d83441ffc5b5d2",
+        "output_sha256": "12349ff7a535e9a983cc798d05c9e26f90647e6e2211d84d6a3e215add7fd7d7",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 6,
+        "case_id": "when_the_light_breaks:257985",
+        "input_sha256": "01abba6f0ea2e8f1974b4ff8d66e194e9700d94fe81b83a937823535510305b7",
+        "output_sha256": "ab48ee56c158422ab26a0deed6aab08190fb31b1887e35001e47a0e8525751d6",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 7,
+        "case_id": "when_the_light_breaks:515970",
+        "input_sha256": "06367dd358594dff35f0b357d3eab886feb6d8fe1b3fd559f4621d025167a221",
+        "output_sha256": "689e307c98806b2528a52e34594d8ed3b8aed4e723d73e37bffde0332df3d176",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 8,
+        "case_id": "when_the_light_breaks:773955",
+        "input_sha256": "f806d0d3e0274b24cab7149558c6e0977cd26c18e14f953231a261280f393c6c",
+        "output_sha256": "d1191dbb21337ddc6766d54e49ba3fcc8c9e169226e40daaae1deb1b81fba8c9",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 9,
+        "case_id": "under_my_skin:0",
+        "input_sha256": "5caec3e4afb7a6ccb62b07a34e19c3d629c05d29c41cddb12e785f7e2bbc7063",
+        "output_sha256": "e02272b81c1a89fa6c2247b33ef9cb70d4e2a2aaff73a0f6db7cb073050fdadb",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 10,
+        "case_id": "under_my_skin:257985",
+        "input_sha256": "47011fdd067d70ab40c58e239701cfb3489eead10aa278f116b75f7be31be163",
+        "output_sha256": "f13528f8610023c62f929cd4cef84275280f712b076bdd5673d5735b19941e06",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 11,
+        "case_id": "under_my_skin:515970",
+        "input_sha256": "1db226a18abc45d2243b2ecfc69ed1cba64b6b47d43a3abd06cbd08536df0200",
+        "output_sha256": "9a730d5289ab8d7d27eb2ed6bfee54fc7008d4fb7d0f7bf0a71dccb0fce9d236",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      },
+      {
+        "request_id": 12,
+        "case_id": "under_my_skin:773955",
+        "input_sha256": "8a3a14360556fd7106b0723183c0a3cca91340bc110ea37c6e85094760c520ce",
+        "output_sha256": "5084574382da42af61a47c9e9676ddf8018ac25267914701334796964cde3e9e",
+        "output_shape": [
+          4,
+          343980,
+          2
+        ],
+        "output_dtype": "<f4",
+        "output_bytes": 11007360
+      }
+    ],
+    "incomplete": {
+      "request_id": 13,
+      "case_id": "stfu:0",
+      "completed": false
+    },
+    "unattempted_request_ids": [
+      14,
+      15,
+      16
+    ]
+  },
+  "tile": {
+    "graph_node": 2026,
+    "query": 1077,
+    "item": 105,
+    "M": 172032,
+    "N": 96,
+    "K": 432,
+    "input_types": [
+      "F16",
+      "F16"
+    ],
+    "output_type": "F32",
+    "precision": "default",
+    "lowering": "default",
+    "fusion": "none",
+    "pipeline": "matmul_f16_f16acc_l",
+    "denominators": [
+      128,
+      128,
+      1
+    ],
+    "workgroups": [
+      1344,
+      1,
+      1
+    ],
+    "split_k": 1,
+    "kpad": 448,
+    "complete_matrix_graphs": 12,
+    "complete_target_dispatches": 12,
+    "candidate_target_query_ms": [
+      725.895659,
+      728.391075,
+      726.635919,
+      729.281336,
+      717.953888,
+      721.892586,
+      2029.841512,
+      1778.908237,
+      1708.226572,
+      1476.656526,
+      1754.789071,
+      1620.220377
+    ],
+    "historical_corresponding_target_query_ms": [
+      47.499425,
+      46.745363,
+      46.643123,
+      46.740675,
+      47.097967,
+      47.022238,
+      47.051353,
+      47.312811,
+      47.302759,
+      48.448175,
+      47.133332,
+      46.669946
+    ],
+    "query_scope": "Instrumented query intervals, not individual dispatch duration or exclusive GPU time; historical runs are not paired/counterbalanced.",
+    "dedicated_shared_memory_guard_bytes": 17408,
+    "no_completed_request13_graph": true,
+    "no_recorded_in_run_clock_power_temperature_series": true
+  },
+  "termination_and_budget": {
+    "errors_verbatim": [
+      {
+        "type": "TimeoutError",
+        "message": "native stem request timed out; child terminated"
+      },
+      {
+        "phase": "tile_activation",
+        "message": "Sixteen exact tile activations required"
+      }
+    ],
+    "watchdog_errors_verbatim": [
+      "comparison total time budget exhausted"
+    ],
+    "profile_shared_seconds": 60,
+    "per_request_maximum_seconds": 30,
+    "request13_effective_remaining_seconds_at_most": 3.285615,
+    "remaining_bound_source": "saved-evidence-review-01.json, trace_findings; shared profile budget, not a fresh 30-second deadline",
+    "native_returncode": -9,
+    "interpretation": "Shared profile budget expired; generic request-timeout text does not establish a 30-second native stall. A returned cleanup method is not normal native exit.",
+    "original_human_readiness_utc": "2026-10-22T21:23:24+00:00",
+    "root_finished_utc": "2026-10-22T21:26:32.656966+00:00",
+    "elapsed_after_original_readiness_seconds": 188.656966,
+    "operator_window_seconds": 300,
+    "root_command_elapsed_seconds": 140.87087072106078,
+    "result_internal_elapsed_seconds": 140.30969169200398,
+    "within_original_window": true
+  },
+  "capture_verbatim": {
+    "stderr_received": 2019509,
+    "stderr_written": 2019509,
+    "stdout_received": 5091,
+    "stdout_written": 5091,
+    "stderr_eof": true,
+    "stdout_eof": true,
+    "overflow": false,
+    "read_errors": 0,
+    "write_errors": 0,
+    "first_error": "",
+    "complete": true
+  },
+  "cleanup_verbatim": {
+    "readiness_reaped": true,
+    "readiness_original_identity_absent": true,
+    "native_started": true,
+    "native_constructed": true,
+    "native_pid": 4111489,
+    "native_reaped": true,
+    "native_returncode": -9,
+    "normal_close_returned": true,
+    "native_resources_closed": true,
+    "temporary_directory_removed": true,
+    "native_original_identity_absent": true,
+    "native_owned_group_absent": true,
+    "watchdog_joined": true
+  },
+  "cleanup_complete": true,
+  "source_integrity": {
+    "pins_unchanged": true,
+    "pin_roles": 1231,
+    "unique_paths": 639,
+    "guard_identity_unchanged": true,
+    "candidate_sources": [
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/ggml-vulkan.cpp",
+        "canonical_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/ggml-vulkan.cpp",
+        "bytes": 923635,
+        "sha256": "2916433c16ac193b47d48cb2d13cce1351ac1fd84358f7be3c9701c29add5e9f"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/matrix_trace.hpp",
+        "canonical_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/matrix_trace.hpp",
+        "bytes": 14854,
+        "sha256": "95b5f78ac7d8775fb8cff317574068728d4c8780dcd4b4f744bbf8b1b794389a"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/ggml-vulkan.patch",
+        "canonical_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/ggml-vulkan.patch",
+        "bytes": 3967,
+        "sha256": "77442711a3f7b708c8113cfc18361cc4a4e73923bd1eaec76f6a043f748ac88d"
+      }
+    ],
+    "build_recipe_reference": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/build_recipe.json",
+      "canonical_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/build_recipe.json",
+      "bytes": 38520,
+      "sha256": "7f019030aad99c7c11e425f740e8c110a30ac21153bbc960437cb0244d8b37b2"
+    },
+    "build_executor_reference": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/build_candidate_01.py",
+      "canonical_path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/build_candidate_01.py",
+      "bytes": 7853,
+      "sha256": "d7910450f0c810b8d96327c99d86b506480fec551f265b6bef62b828592ea2ae"
+    },
+    "historical_transitive_header_equivalence_proven": false
+  },
+  "historical_baseline": {
+    "verification": "../m2-matrix-dispatch-2026-10-22/verification.json",
+    "PCM_result": {
+      "saved": "../m2-matrix-dispatch-2026-10-22/pcm-equivalence-01-result.json.gz",
+      "raw_pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/pcm-equivalence-01/result.json",
+        "bytes": 1313792,
+        "sha256": "02f6581bf861eaad2e4b40e546265723591fb8c08cde4b3ca4b5878201a85f81"
+      }
+    },
+    "matrix_stderr": {
+      "saved": "../m2-matrix-dispatch-2026-10-22/pcm-equivalence-01-native.stderr.gz",
+      "raw_pin": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/pcm-equivalence-01/native.stderr",
+        "bytes": 2692813,
+        "sha256": "1927d2c5e378e936cece8fac721ca27f398f5a9ac0988dd635c9254360c73b6d"
+      }
+    },
+    "plan": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-dispatch-metadata-01/matrix-player-plan-03.json",
+      "bytes": 124906,
+      "sha256": "e82d421e793c9787c403e330e517d3bf7919d38a198ab207d4914b261501cc19"
+    },
+    "source_head": "a97b4ee77808a512707d3e99e4645c9f15f42aed"
+  },
+  "retention_checks": [
+    "14 saved artifacts roundtrip to original bytes; each raw and saved size/SHA retained",
+    "Actual result/plan/readiness/root-execution identities joined",
+    "12 completed case input/output identity tuples equal retained historical baseline",
+    "16 normalized input case records equal historical baseline",
+    "12 complete matrix sequences and target source geometry joined; target decision/dispatch uses requested large pipeline",
+    "Target query ranges agree with independent saved-evidence receipt",
+    "Both stream hashes/lengths and recorded EOF/capture fields joined",
+    "Recorded before/after 1231 source/asset pin roles equal; source/patch/header also hash-checked as text",
+    "No payload rescan of audio, PCM, model or runtime binary"
+  ],
+  "limits": [
+    "Incomplete 16-case PCM and activation gates; no promotion.",
+    "No player, audio-output or UI workload.",
+    "No service p99, cancellation latency, audible continuity, normal native shutdown or 60-minute qualification.",
+    "Separate historical runs; no paired/causal thermal, power, frequency or tile-only performance attribution.",
+    "Source head anchors the planned source closure; private candidate build/source proof is retained separately, without claiming that the unused existing UI harness binary was built from that head.",
+    "All M2/M3/release gates remain open; Best quality and two-thread default unchanged."
+  ],
+  "compressed_artifact_bytes": 618717,
+  "artifacts": [
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/pcm-equivalence-candidate-01/result.json",
+        "bytes": 1565646,
+        "sha256": "d9b25710a7cf54e49a395b9bbc60b3fbcb811b7533d13514c4a6a183beeb5d01"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/candidate-pcm-result.json.gz",
+        "bytes": 283950,
+        "sha256": "d9ecad41216b271237b02d9fd96d6eb5b0823e01a51c4053129d640295b17904"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/pcm-equivalence-candidate-01/native.stderr",
+        "bytes": 2019509,
+        "sha256": "f229a46c5346cf57e30de7005fa2ef34905b3c07c07ddbab516a5b92c2900b84"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/native.stderr.gz",
+        "bytes": 175266,
+        "sha256": "c9fcf9176014f7a6a2c99df127b3dec79fb6a5d21f05fdb892061ba5476fd768"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/pcm-equivalence-candidate-01/native.stdout",
+        "bytes": 5091,
+        "sha256": "f8913551a134b7a4e9ea317ff267a92216427dd751947d038b52445ea25874fe"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/native.stdout.gz",
+        "bytes": 1332,
+        "sha256": "aca81f8fe1a2492bfda2cd699fc4916a7471d93142b73fb39fc7bc46918aac3a"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/pcm-equivalence-candidate-01/drm-traces/native-drm.jsonl",
+        "bytes": 46171,
+        "sha256": "a184300423eefd0addf51f045c91f6707ca25d236181a423f01439b479984069"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/native-drm.jsonl.gz",
+        "bytes": 2815,
+        "sha256": "ebbc0a8892ea81f8337a7ce64b8384462034f6fb2899f8db6e235628e944d437"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/candidate-pcm-plan-01.json",
+        "bytes": 234772,
+        "sha256": "3c0471a36cf0da0e557c2de8af959a264ac92dd20b7235326c5724fde54f9bd4"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/candidate-pcm-plan-01.json.gz",
+        "bytes": 68396,
+        "sha256": "01598163aabbb20e25089e325ca5a5eec38c15a895a21010ab0c9d00d6391b82"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/root-execution-pcm-01.json",
+        "bytes": 594,
+        "sha256": "2dd4eedce75baae7125e5205520dc1161abcc8d31b23f8051f587113677f9f8c"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/root-execution-pcm-01.json.gz",
+        "bytes": 395,
+        "sha256": "8e9c721ab4866930b13eec19c61757e0a18e9ab75684042af5490ecf29e5cb7d"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/human-readiness-pcm-01.json",
+        "bytes": 1143,
+        "sha256": "22ad5d9df02b37475897bad666adb159ee09b8a22ef5b3e1302f7ba5647d93b4"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/human-readiness-pcm-01.json.gz",
+        "bytes": 680,
+        "sha256": "a7ced2f3ab57b854688c7eb279e64f5d66f94ea42ae6d047c80268210f61984e"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/pcm-equivalence-candidate-01/admission/admission-pcm-ready.json",
+        "bytes": 9599,
+        "sha256": "70ad621140641a1a50c4514538f4241163327fbcb2328b3a360683737b89945f"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/admission-pcm-ready.json.gz",
+        "bytes": 1611,
+        "sha256": "2af501692e2b84f948f265510c2d33aa57e91ebf861901a59e8699e3841a4537"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/saved-evidence-review-01.json",
+        "bytes": 2380,
+        "sha256": "de21f3ce18e2f872ddb6284ef4278ca1c126b303a6da7fd389718d2a03f0eb88"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/saved-evidence-review-01.json.gz",
+        "bytes": 1127,
+        "sha256": "10f55ba4f038fc15fd0d5645ed2e7a27dc2cffd922d987e35d2d222b71c4adfe"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/build-receipt-01.json",
+        "bytes": 350996,
+        "sha256": "d32435601793c47fb07fda3aa154d91b2c50d72b97e767c0b420213351fbc5f0"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/build-receipt-01.json.gz",
+        "bytes": 71213,
+        "sha256": "9f3f0eae3d0a2fdede8567e1aabab00a960df0bb8799ba143c774b9d8982e690"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/source-review-02.json",
+        "bytes": 759,
+        "sha256": "a8d1b5a703cfcff94a6fd51e2c79cc55cfbc44e627c93ad00457b5e4ea1b452d"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/source-review-02.json.gz",
+        "bytes": 510,
+        "sha256": "354ed9077070ecfe17ffb73bca36e935240ed66da43ab1159cc1d5fa6ad60d85"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/ggml-vulkan.patch",
+        "bytes": 3967,
+        "sha256": "77442711a3f7b708c8113cfc18361cc4a4e73923bd1eaec76f6a043f748ac88d"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/ggml-vulkan.patch.gz",
+        "bytes": 1411,
+        "sha256": "0fb2642ee19b5ce721d77a914e03f45ffa29f21b9a77c2a9ae31e0765664f871"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/build_candidate_01.py",
+        "bytes": 7853,
+        "sha256": "d7910450f0c810b8d96327c99d86b506480fec551f265b6bef62b828592ea2ae"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/build_candidate_01.py.gz",
+        "bytes": 3020,
+        "sha256": "e75e6356b0759f62ff8ae881559af1d32886d7c4e340ed06ae14567cd5fd5b1f"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    },
+    {
+      "raw": {
+        "path": "benchmarks-local/m2-live-fallback-2026-10-20/packed-attention-views-01/matrix-shape-large-01/run_candidate_pcm_01.py",
+        "bytes": 21654,
+        "sha256": "533ae0fe84bd44967f16aa658723395f611cedb8db687b7bd71b9e34d039a6d4"
+      },
+      "saved": {
+        "path": "docs/benchmarks/data/m2-matrix-tile-2026-10-22/run_candidate_pcm_01.py.gz",
+        "bytes": 6991,
+        "sha256": "5e213301429a530ea8d889ac21fe7446c0015bb3b19b0d07d3ffbf00aaee05bb"
+      },
+      "transform": "gzip only; original bytes unchanged; mtime=0"
+    }
+  ]
+}

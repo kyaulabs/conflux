@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-22T20:18:51.964461+00:00",
+  "type": "human_native_acceptance",
+  "question_item_id": "[\"request_user_input_async\",\"call_2c801d0a987549e6b4b652eca2ee7b37\",0]",
+  "question": "The updated CONFLUX client has closed. Did you finish the combined scratching/BPM/Master Tempo/EQ/recording check, or do you need it reopened? If you finished, please give your overall verdict and name any track/action that failed.",
+  "answer": "Finished—the sound and controls are acceptable",
+  "accepted": true,
+  "binary": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/user-trial/conflux",
+    "bytes": 19638976,
+    "sha256": "c6c9ef0bc58675b5d8e5d2e4cdc197761ff0a21a320903ea25096656e0957e70"
+  },
+  "integration_manifest": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/benchmarks-local/m3-parallel-2026-10-22/combined-ui-04/integration-manifest-01.json",
+    "bytes": 74418,
+    "sha256": "b2d0dda8c07267b30f0a40cce6379c7bfc1eb9524da1d2c5799c9a94855689ea"
+  },
+  "prior_trial_request": "Two-track mixing; scratch both directions with BPM changed and Master Tempo on/off; HI/MID/LOW EQ; record/replay; loading progress, recording dot and deck focus colors",
+  "native_client_closed": true,
+  "native_process_exit_code": "not retained; process absence observed, startup log empty",
+  "scope": "Overall human sound/control acceptance for exact C4 combined snapshot only; prior separate CUE import acceptance retained",
+  "does_not_establish": [
+    "M2 live-stem p99 <4095ms",
+    "60-minute normal actual-player qualification",
+    "whole-product coverage",
+    "beat/downbeat/phrase/key accuracy gates",
+    "release or milestone completion"
+  ]
+}
