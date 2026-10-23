@@ -16,6 +16,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLockFile>
+#include <QProcess>
+#include <QProcessEnvironment>
 #include <QSaveFile>
 #include <QStandardPaths>
 #include <QTemporaryDir>
@@ -2843,6 +2845,159 @@ int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCa
 }
 
 } // namespace liveFailure
+
+int uiControlsFixture(int argc, char** argv, const QString& binary, const QString& expectedSha, bool functionalOnly)
+{
+    const auto began = Clock::now(), deadline = began + std::chrono::seconds(75);
+    QCoreApplication app(argc, argv);
+    QJsonObject report{{"passed", false}, {"qualified", false}, {"functional_only", true}, {"owner_seconds", 75},
+        {"scope", "Private Dummy actual Qt accessible command/ACK path; fake producer telemetry drops seven by design. No host/model/GPU/service-latency, pointer/touch or physical cue qualification."}};
+    QString failure, childOutput;
+    bool captureComplete = true, childStarted = false;
+    std::array<qint64, 2> captureBytes{};
+    std::array<std::unique_ptr<QFile>, 2> logs;
+    std::unique_ptr<QTemporaryDir> fixtures;
+    std::unique_ptr<ServiceTrace> services;
+    std::unique_ptr<Sink> sink;
+    QProcess child;
+    const auto fail = [&](const QString& message) { if (failure.isEmpty()) failure = message; };
+    const auto drain = [&] {
+        for (std::size_t index = 0; index < 2; ++index) {
+            child.setReadChannel(index ? QProcess::StandardError : QProcess::StandardOutput);
+            while (child.bytesAvailable()) {
+                const auto data = child.read(65536);
+                if (data.isEmpty()) break;
+                if (captureBytes[index] + data.size() > 256 * 1024) {
+                    captureComplete = false; fail("Owned soak child capture exceeded256KiB per stream");
+                } else if (!logs[index] || logs[index]->write(data) != data.size()) {
+                    captureComplete = false; fail("Cannot retain owned soak child output");
+                }
+                captureBytes[index] += data.size();
+            }
+        }
+    };
+    const auto observe = [&] {
+        drain();
+        if (services) services->capture();
+    };
+    const auto pumpUntil = [&](Clock::time_point until) {
+        while (child.state() != QProcess::NotRunning && Clock::now() < until) {
+            (void)child.waitForFinished(10);
+            try { observe(); } catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); }
+        }
+    };
+    // Every wait is clamped to the original owner deadline; reserve two seconds
+    // for the existing pidfd fixture fallback after this direct child is reaped.
+    const auto cleanup = [&] {
+        if (child.state() != QProcess::NotRunning) {
+            QFile stop(childOutput + "/stop");
+            if (!stop.open(QIODevice::WriteOnly) || stop.write("stop\n") != 5) fail("Cannot request graceful owned soak cancellation");
+            stop.close();
+            pumpUntil(std::min(Clock::now() + std::chrono::seconds(1), deadline - std::chrono::seconds(5)));
+            if (child.state() != QProcess::NotRunning) {
+                child.terminate();
+                pumpUntil(std::min(Clock::now() + std::chrono::seconds(1), deadline - std::chrono::seconds(4)));
+            }
+            if (child.state() != QProcess::NotRunning) {
+                child.kill();
+                pumpUntil(std::min(Clock::now() + std::chrono::seconds(2), deadline - std::chrono::seconds(2)));
+            }
+        }
+        try { observe(); } catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); }
+        for (auto& log : logs) if (log && (!log->flush() || log->error() != QFileDevice::NoError)) {
+            captureComplete = false; fail("Owned soak child log finalization failed");
+        }
+        if (child.state() != QProcess::NotRunning) fail("Owned soak child did not reap within original owner deadline");
+    };
+    try {
+        if (!functionalOnly) throw std::runtime_error("UI controls fixture requires --functional-only");
+        validatePrivate(std::filesystem::path(argv[1]), std::filesystem::path(argv[2]));
+        const rlimit noCore{0, 0}, fileLimit{liveFailure::fileBytesLimit, liveFailure::fileBytesLimit};
+        if (::setrlimit(RLIMIT_CORE, &noCore) != 0 || ::setrlimit(RLIMIT_FSIZE, &fileLimit) != 0 || ::prctl(PR_SET_DUMPABLE, 0) != 0)
+            throw std::runtime_error("Owned UI fixture core/file limits failed");
+        const QFileInfo executable(binary);
+        if (!executable.isAbsolute() || !executable.isFile() || !executable.isExecutable() || executable.isSymLink() ||
+            expectedSha.size() != 64 || liveFailure::digest(binary) != expectedSha)
+            throw std::runtime_error("Explicit regular executable soak binary/hash differs");
+        report["binary"] = binary; report["binary_sha256"] = expectedSha;
+        liveFailure::ownerDeadline = deadline; liveFailure::stopOwner = 0;
+        std::signal(SIGINT, liveFailure::requestStop); std::signal(SIGTERM, liveFailure::requestStop);
+        app.setOrganizationName("CONFLUX"); app.setApplicationName("ui-controls-private-check");
+        fixtures = std::make_unique<QTemporaryDir>(QString::fromLocal8Bit(argv[1]) + "/ui-controls-XXXXXX");
+        if (!fixtures->isValid()) throw std::runtime_error("Cannot create owned UI controls fixtures");
+        const auto source = fixtures->filePath("generated-a.wav"), peer = fixtures->filePath("generated-b.wav");
+        writeFixture(source, 2048, -1024, 3 * 44100, 44100);
+        writeFixture(peer, 1024, -512, 30 * 48000);
+        const auto fixture = conflux::test::makeStemServiceFixture(fixtures->path());
+        services = std::make_unique<ServiceTrace>(fixture);
+        pw_init(nullptr, nullptr);
+        sink = std::make_unique<Sink>("conflux-short-live-test-sink"); // Routing endpoint only; never arm the unrelated fixed-PCM oracle.
+        childOutput = QString::fromLocal8Bit(argv[2]) + "/ui-controls";
+        liveFailure::directory(childOutput); liveFailure::directory(childOutput + "/cache");
+        for (std::size_t index = 0; index < 2; ++index) {
+            logs[index] = std::make_unique<QFile>(childOutput + (index ? "/child.stderr.log" : "/child.stdout.log"));
+            if (!logs[index]->open(QIODevice::WriteOnly | QIODevice::NewOnly)) throw std::runtime_error("Cannot create bounded child logs");
+        }
+        auto environment = QProcessEnvironment::systemEnvironment();
+        environment.insert("QT_QPA_PLATFORM", "offscreen"); environment.insert("QT_QUICK_BACKEND", "software");
+        environment.insert("QT_QUICK_CONTROLS_STYLE", "Basic"); environment.insert("XDG_CACHE_HOME", childOutput + "/cache");
+        environment.remove("CONFLUX_ALLOW_HOST_SOAK");
+        child.setProcessEnvironment(environment); child.setProgram(binary);
+        const QStringList arguments{"--live-stems-controls", source, peer, childOutput, "10", childOutput + "/stop",
+            fixture.engine.pythonExecutable, fixture.engine.exporterPath, fixture.engine.workerPath, fixture.service,
+            fixture.engine.runtimePath, fixture.engine.modelPath};
+        child.setArguments(arguments); child.setProcessChannelMode(QProcess::SeparateChannels);
+        report["arguments"] = QJsonArray::fromStringList(arguments);
+        if (liveFailure::stopOwner || Clock::now() >= deadline - std::chrono::seconds(7))
+            throw std::runtime_error("Private owner stopped before child dispatch");
+        child.start(QIODevice::ReadOnly);
+        if (!child.waitForStarted(1000)) throw std::runtime_error("Owned soak child failed to start");
+        childStarted = true; report["child_pid"] = qint64(child.processId());
+        while (child.state() != QProcess::NotRunning) {
+            observe();
+            if (!failure.isEmpty() || liveFailure::stopOwner || Clock::now() >= deadline - std::chrono::seconds(7))
+                throw std::runtime_error("Private owner cancelled or original child budget expired");
+            (void)child.waitForFinished(10);
+        }
+    } catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); }
+    cleanup();
+    report["child_started"] = childStarted; report["child_reaped"] = child.state() == QProcess::NotRunning;
+    report["capture_complete"] = captureComplete; report["capture_bytes"] = QJsonArray{captureBytes[0], captureBytes[1]};
+    report["child_exit"] = childStarted && child.state() == QProcess::NotRunning ? QJsonValue(child.exitCode()) : QJsonValue();
+    try {
+        if (childStarted && (child.exitStatus() != QProcess::NormalExit || child.exitCode() != 0)) fail("Owned soak child failed");
+        bool allGone = true;
+        if (services) {
+            services->capture(); report["services"] = services->identities();
+            for (std::size_t index = 0; index < services->size(); ++index) allGone = allGone && services->gone(index);
+        }
+        report["service_cleanup_proven"] = allGone;
+        if (!allGone) fail("Owned fake producer/job remains after child shutdown");
+        if (allGone && child.state() == QProcess::NotRunning && !childOutput.isEmpty()) {
+            const auto cache = childOutput + "/cache";
+            report["cache_removed"] = !QFileInfo::exists(cache) || QDir(cache).removeRecursively();
+            if (!report["cache_removed"].toBool()) fail("Owned private child cache did not remove after quiescence");
+        }
+        if (failure.isEmpty()) {
+            QFile file(childOutput + "/native-result.json");
+            if (!file.open(QIODevice::ReadOnly) || file.size() > 1024 * 1024) throw std::runtime_error("Bounded controls result missing");
+            const auto document = QJsonDocument::fromJson(file.readAll()); const auto native = document.object();
+            if (!document.isObject() || !native["passed"].toBool() || native["mode"].toString() != "live-stems-controls" ||
+                !native["functional_only"].toBool() || native["host_audio"].toBool() || native["qualified"].toBool() ||
+                !native["manual_controls_complete"].toBool() || native["manual_controls"].toArray().size() != 16 ||
+                !native["shutdown_completed"].toBool() || native["cancelled"].toBool())
+                throw std::runtime_error("Functional actual-UI sequence/health/cleanup did not pass");
+            if (!services || services->size() != 1 || liveFailure::digest(binary) != expectedSha)
+                throw std::runtime_error("Producer count or launched binary pin changed");
+            report["native_result"] = childOutput + "/native-result.json";
+        }
+    } catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); }
+    if (liveFailure::stopOwner || Clock::now() >= deadline) fail("Private owner interrupted or original75s deadline expired");
+    report["passed"] = failure.isEmpty() && childStarted && captureComplete;
+    report["error"] = failure; report["elapsed_seconds"] = std::chrono::duration<double>(Clock::now() - began).count();
+    std::cout << QJsonDocument(report).toJson(QJsonDocument::Compact).constData() << '\n';
+    return report["passed"].toBool() ? 0 : 1;
+}
 } // namespace
 
 int main(int argc, char** argv)
@@ -2857,12 +3012,20 @@ int main(int argc, char** argv)
     };
     try {
         bool functionalOnly = false, liveFailureOnly = false;
+        QString uiControlsBinary, uiControlsSha;
+        bool uiControlsRequested = false;
         std::optional<liveFailure::ContinuationCase> continuationCase;
-        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold,resident-takeover,resident-cancel}]";
+        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold,resident-takeover,resident-cancel} | --ui-controls-soak ABSOLUTE_BINARY SHA256]";
         if (argc < 3) throw std::runtime_error(usage);
         for (int argument = 3; argument < argc; ++argument) {
             const std::string_view option(argv[argument]);
             if (option == "--functional-only") functionalOnly = true;
+            else if (option == "--ui-controls-soak") {
+                if (uiControlsRequested || argument + 2 >= argc) throw std::runtime_error(usage);
+                uiControlsRequested = true;
+                uiControlsBinary = QString::fromLocal8Bit(argv[++argument]);
+                uiControlsSha = QString::fromLocal8Bit(argv[++argument]);
+            }
             else if (option == "--live-failure-only") liveFailureOnly = true;
             else if (option == "--continuation-case") {
                 if (continuationCase || ++argument == argc) throw std::runtime_error(usage);
@@ -2879,6 +3042,10 @@ int main(int argc, char** argv)
             } else throw std::runtime_error(usage);
         }
         if (liveFailureOnly && continuationCase) throw std::runtime_error(usage);
+        if (uiControlsRequested) {
+            if (liveFailureOnly || continuationCase) throw std::runtime_error(usage);
+            return uiControlsFixture(argc, argv, uiControlsBinary, uiControlsSha, functionalOnly);
+        }
         if (liveFailureOnly || continuationCase) return liveFailure::run(argc, argv, functionalOnly, continuationCase);
         // Gcov cold-cache throughput is outside functional load-latency qualification.
         // Only initial A readiness and cold B import setup receive this allowance.

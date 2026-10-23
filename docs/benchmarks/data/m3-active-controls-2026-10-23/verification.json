@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "qualified": false,
+  "scope": "Generated private Dummy actual Main.qml accessible-control command/ACK behavior and owned-child lifecycle only. No physical/model/GPU, service-latency, pointer/touch or physical headphone-route qualification.",
+  "source_base": "e6b005f7ad43b93da112382d663b615c0efac492",
+  "source_files": [
+    {
+      "path": "tools/experiments/manual_playback_soak.cpp",
+      "bytes": 81194,
+      "sha256": "c5ecc91d7feb82a0aff305bdad4b6c0f24394ebb101426e8d2df29055b13edf5"
+    },
+    {
+      "path": "tools/experiments/run_manual_playback_soak.py",
+      "bytes": 79269,
+      "sha256": "69da8e00829b07d45b84aba6e73d9722499a0947aeb8ed5f9790536ff1925833"
+    },
+    {
+      "path": "tools/experiments/private_routing_check.py",
+      "bytes": 12445,
+      "sha256": "83487dc71c5eb893c3b99515969d7c1fbd822d3b5b37962e7149b5286e09133d"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 266933,
+      "sha256": "6e17a4f3a9ba0bea8153a3c72e99a0b5c4f2b2c7a82eb221c9bb5912ff66ca49"
+    },
+    {
+      "path": "tests/manual_playback_hour_test.py",
+      "bytes": 47604,
+      "sha256": "a7c755c5b760e5bb257c4f25875a9c40603d6498b8a133d2eab1335057d38572"
+    }
+  ],
+  "checks": {
+    "python_regressions": 26,
+    "private_actual_ui": {
+      "passed": true,
+      "actions": 16,
+      "controls": [
+        "deck gain",
+        "crossfader",
+        "HI EQ",
+        "headphone cue selection"
+      ],
+      "acknowledgement_checks": [
+        "exact command ID and audio session",
+        "source generation and transport revision",
+        "source/output clock geometry",
+        "recorder continuity",
+        "displayed acknowledgement"
+      ],
+      "steady_starved_frames": 0,
+      "shutdown_completed": true,
+      "helper_elapsed_seconds": 12.471264177,
+      "fake_telemetry_drops": 7,
+      "service_latency_qualified": false
+    },
+    "lifecycle": {
+      "passed": true,
+      "elapsed_seconds": 3.060147162002977,
+      "cases": [
+        {
+          "name": "exit42",
+          "expected_failure_observed": true,
+          "error": "Owned soak child failed",
+          "capture_complete": true,
+          "all_observed_lifetimes_exited": true,
+          "all_observed_groups_absent": true,
+          "daemon_reaped": true
+        },
+        {
+          "name": "flood",
+          "expected_failure_observed": true,
+          "error": "Owned soak child capture exceeded256KiB per stream",
+          "capture_complete": false,
+          "all_observed_lifetimes_exited": true,
+          "all_observed_groups_absent": true,
+          "daemon_reaped": true
+        },
+        {
+          "name": "cancel",
+          "expected_failure_observed": true,
+          "error": "Private owner cancelled or original child budget expired",
+          "capture_complete": true,
+          "all_observed_lifetimes_exited": true,
+          "all_observed_groups_absent": true,
+          "daemon_reaped": true
+        }
+      ]
+    }
+  },
+  "evidence": [
+    {
+      "name": "private-native-result",
+      "sha256": "7197a4175ddfe7a0e3a9fceb05aa3f5a8ece503762cfe3516b75a4131a86e67d"
+    },
+    {
+      "name": "private-owner-result",
+      "sha256": "329c5af8296594ede43f576f79284f793a83543d7a6a8b05b4a852d731657ad9"
+    },
+    {
+      "name": "lifecycle-result",
+      "sha256": "9e516642f87142b5dc683528b397c925253ba7fca842e9c9da9bd581a9b61440"
+    },
+    {
+      "name": "python-log",
+      "sha256": "2c07b09464b9263a2a922bb4f966a1b4b4357bad2b11c3d245036f9ea95bcabc"
+    }
+  ],
+  "host_contract": {
+    "mode": "--live-stems --active-controls",
+    "seconds_min": 120,
+    "seconds_max": 180,
+    "background_allowed": false,
+    "hour_allowed": false,
+    "service_p99_strictly_below_ms": 4095,
+    "mix_actions_remain_in_steady_starvation_gate": true,
+    "target_changed": false
+  },
+  "remaining": [
+    "Current supported-runtime laptop visible control-contention test",
+    "Actual current-player sustained M2 qualification",
+    "Physical touch and assistive-technology use"
+  ]
+}

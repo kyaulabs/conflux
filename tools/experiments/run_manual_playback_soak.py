@@ -305,6 +305,96 @@ def validate_hour_result(native, observations, background=False):
             "scope": "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour"}
 
 
+def validate_active_controls(native, observations=None, *, functional=False):
+    """Validate the fixed actual-Qt sequence; private evidence never qualifies service timing."""
+    def check(value, message):
+        if not value:
+            raise RuntimeError("Active controls: " + message)
+    check(native.get("mode") == "live-stems-controls" and native.get("passed") is True and
+          native.get("cancelled") is False and native.get("shutdown_completed") is True and
+          native.get("functional_only") is functional and native.get("host_audio") is (not functional) and
+          native.get("ui_mode") == "visible" and native.get("window_policy") == "visible", "incomplete/wrong mode")
+    seconds = native.get("requested_seconds")
+    check(type(seconds) is int and (1 <= seconds <= 10 if functional else 120 <= seconds <= 180), "duration admission")
+    check(native.get("manual_controls_complete") is True and len(native.get("manual_controls", [])) == 16,
+          "missing/incomplete control sequence")
+    check(native["measurement_intervals_closed"] and native["last_recovery_complete"] and
+          seconds * 1000 <= native["measured_wall_ms"] <= seconds * 1000 + 2000, "open measurement/recovery")
+    baseline = native["manual_controls_baseline"]
+    fields = ("deck_gains", "eq_db", "crossfader", "cue_selected", "master_gain", "cue_gain", "stem_gains")
+    expected = {key: baseline[key] for key in fields}
+    check(expected["deck_gains"] == [.25, 1] and expected["crossfader"] == .5 and
+          expected["eq_db"] == [[0, 0, 0], [0, 0, 0]] and expected["master_gain"] == .25 and
+          expected["stem_gains"] == [[1] * 4, [0] * 4] and
+          all(type(x) is bool for x in expected["cue_selected"]), "baseline differs")
+    previous_ack = 0
+    begin, end = native["measurement_begin_output_frame"], native["measurement_end_output_frame"]
+    for index, row in enumerate(native["manual_controls"]):
+        deck, step = divmod(index, 8)
+        control, restore = divmod(step, 2)
+        name = (f"deck{deck}Gain", "crossfader", f"deck{deck}EqHI", f"deck{deck}CueSelect")[control]
+        due = ((7000 if deck else 500) + step * 100 if functional else
+               (70000 if deck else 10000) + step * 2000)
+        before, ack = row["before"], row["ack"]
+        check(row["index"] == index and row["deck"] == deck and row["step"] == step and row["object"] == name and
+              row["acknowledged"] is True and row["due_ms"] == due and row["issued_elapsed_ms"] >= due and
+              previous_ack <= row["issued_ns"] < row["ack_poll_ns"] < row["issued_ns"] + 5000000000,
+              "action order/due time/acknowledgement")
+        check(all(before[key] == expected[key] for key in fields), "unexpected pre-action mix")
+        expected = json.loads(json.dumps(expected))
+        ui_value = None
+        if control == 0:
+            ui_value = baseline["deck_gains"][deck] if restore else baseline["deck_gains"][deck] / 2
+            expected["deck_gains"][deck] = ui_value
+        elif control == 1:
+            ui_value = baseline["crossfader"] if restore else (.75 if deck else .25)
+            expected["crossfader"] = ui_value
+        elif control == 2:
+            ui_value = .5 if restore else .375
+            expected["eq_db"][deck][2] = 0 if restore else -6.5
+        else:
+            ui_value = baseline["cue_selected"][deck] if restore else not baseline["cue_selected"][deck]
+            expected["cue_selected"][deck] = ui_value
+        check(all(row["expected"][key] == ack[key] == expected[key] for key in fields), "wrong target/restoration")
+        check((type(row["ui_value"]) is bool and row["ui_value"] == ui_value) if control == 3 else
+              (type(row["ui_value"]) in (int, float) and math.isfinite(row["ui_value"]) and
+               abs(row["ui_value"] - ui_value) < 1e-6), "UI did not display acknowledged value")
+        check(row["session_before"] == row["session_after"] and row["presented_after"] > row["presented_before"] and
+              ack["last_command_id"] == row["expected_command"] == before["last_command_id"] + 1 and
+              ack["applied"] == before["applied"] + 1 and
+              begin <= before["output_frame"] <= ack["output_frame"] <= end, "session/command/frame acknowledgement")
+        for key in ("source_lengths", "source_generations", "transport_revisions", "cue_frames", "cue_held", "cue_preview"):
+            check(before[key] == ack[key], "nontransport action changed " + key)
+        advance = ack["output_frame"] - before["output_frame"]
+        check(before["playing"] == ack["playing"] == [True, True] and before["starved"] == ack["starved"] and
+              all(ack["source_frames"][d] == min(before["source_frames"][d] + advance, before["source_lengths"][d])
+                  for d in range(2)), "source clock/starvation/transport changed during mix action")
+        check(not any(ack["read_failure"]) and not ack["invalid_buffers"] and not ack["rejected"], "action health fault")
+        previous_ack = row["ack_poll_ns"]
+    check(all(expected[key] == baseline[key] for key in fields), "final mix differs from baseline")
+    check(native["steady_starved_frames"] == 0 and native["starved_frames_outside_measured_intervals"] == 0 and
+          all(native[key] == 0 for key in ("invalid_buffers", "rejected_commands", "source_read_failures")), "audio health fault")
+    check(all(row["kind"] in ("steady", "incomplete_generation_seek", "replay_recovery") and
+              (row["kind"] != "steady" or row["starved_frames"] == 0) for row in native["intervals"]),
+          "mix controls exempted steady starvation")
+    check(not native["scene_errors"] and native["frames_presented"] > 0 and
+          0 < native["maximum_gui_heartbeat_gap_ns"] < 2000000000 and
+          0 < native["maximum_frame_presentation_gap_ns"] < 2000000000, "UI not responsive")
+    if not functional:
+        check(native["execution_deadline_misses"] == 0 and observations is not None, "host timing evidence missing")
+        hops, phases = observations["service_hops"], observations["chunk_phases"]["fields"]
+        check(observations["service_metrics_complete"] and hops["complete"] and
+              hops["count"] == observations["kind_counts"]["ChunkValidated"] > 0 and
+              hops["nearest_rank_p99_ms"] < 4095 and set(phases) == set(LIVE_PHASE_NAMES) and
+              all(x["present_for_all_chunks"] and x["count"] == hops["count"] for x in phases.values()),
+              "strict service p99/loss/thirteen-phase gate failed")
+        check(bool(native["timing"]) and all(x["driver_position_observed"] and not x["driver_position_discontinuities"] and
+              not x["driver_recovery_flags"] and x["graph_quantum_min"] == x["graph_quantum_max"] == 256
+              for x in native["timing"]), "driver continuity/quantum fault")
+    return {"actions": 16, "functional_only": functional, "qualified": False,
+            "scope": "Actual Qt accessible command path; no pointer/touch or hardware cue proof"}
+
+
 def live_qualified(result, hour, background=False):
     """Keep background diagnostics outside visible audio/UI hour qualification."""
     gates, native = result.get("hour_gates"), result.get("native", {})
@@ -486,6 +576,7 @@ def run_live(args):
     import selectors
     hour = args.live_stems_hour
     background = args.background
+    active_controls = getattr(args, "active_controls", False)
     binary = args.binary.resolve(strict=True)
     source, peer = args.track_a.resolve(strict=True), args.track_b.resolve(strict=True)
     assets = {name: getattr(args, name).absolute() for name in ("python", "exporter", "worker", "service", "runtime", "model")}
@@ -497,6 +588,9 @@ def run_live(args):
     result = {"schema": 2, "passed": False, "qualified": False, "mode": "live-stems-hour" if hour else "live-stems", "requested_seconds": args.seconds,
               "ui_mode": "background" if background else "visible", "visible_ui_required": not background,
               "started_at_utc": datetime.now(timezone.utc).isoformat(), "scope": "Explicit short native actual-model controller playback; no endurance, fallback or physical latency qualification"}
+    if active_controls:
+        result["mode"] = "live-stems-controls"
+        result["scope"] = "Short visible actual-player accessible UI command path under load; no pointer/touch, physical assistive technology or sustained qualification"
     if hour:
         result["scope"] = "Sustained actual-player qualification only for the recorded two-deck, one-separator fixed mix; other M2 requirements remain open"
         result["qualified_scope"] = "Exact pinned source/model/runtime, Vulkan two threads, Best conversion, 48kHz/256 stereo, A stems/B finite peer, fixed gains, visible Main.qml, float WAV; no hardware cue, EQ/effects, four-deck, fallback, musical-quality or physical latency qualification"
@@ -705,6 +799,8 @@ def run_live(args):
         for number in (signal.SIGINT, signal.SIGTERM):
             previous[number] = signal.signal(number, lambda signum, _frame: request_stop(f"runner signal {signum}"))
         native_mode = "--live-stems-hour" if hour else "--live-stems"
+        if active_controls:
+            native_mode = "--live-stems-controls"
         if background:
             native_mode += "-background"
         command = [str(binary), native_mode, str(source), str(peer), str(output), str(args.seconds), str(stop),
@@ -774,6 +870,8 @@ def run_live(args):
             raise RuntimeError("Background result must exclude visible UI qualification")
         result["ui_coverage"] = native.get("ui_coverage")
         result["observations"] = summarize_live_observations(output / "observations.jsonl", native)
+        if active_controls:
+            result["active_controls"] = validate_active_controls(native, result["observations"])
         setup = native["setup"]
         if any(setup[key] != result["pins_before"][name]["sha256"] for key, name in (
                 ("source_sha256", "track_a"), ("model_sha256", "model"), ("runtime_sha256", "runtime"), ("service_sha256", "service"))):
@@ -897,11 +995,14 @@ def main():
     modes.add_argument("--live-stems", action="store_true", help="short actual-model live controller diagnostic")
     modes.add_argument("--live-stems-hour", action="store_true", help="exactly one hour of sustained actual-model controller playback")
     parser.add_argument("--background", action="store_true", help="live audio/stem diagnostics without visible UI qualification")
+    parser.add_argument("--active-controls", action="store_true", help="short visible live mode with 16 actual accessible UI actions")
     for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
     parser.add_argument("--guard-unit", type=Path, default=Path.home() / ".config/systemd/user/thermal-guard.service")
     args = parser.parse_args()
+    if args.active_controls and (not args.live_stems or args.live_stems_hour or args.background):
+        parser.error("--active-controls requires short visible --live-stems")
     if args.background and not (args.live_stems or args.live_stems_hour):
         parser.error("--background requires --live-stems or --live-stems-hour")
     if args.seconds is None:

@@ -5,6 +5,7 @@
 #include "WindowEventHistory.hpp"
 #include "PlaybackUiPolicy.hpp"
 #include <sndfile.h>
+#include <QAccessible>
 #include <QDateTime>
 #include <QElapsedTimer>
 #include <QFile>
@@ -18,6 +19,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QQuickItem>
 #include <QQuickWindow>
 #include <QSaveFile>
 #include <QTest>
@@ -107,12 +109,50 @@ QJsonArray timing(const conflux::DeckController& controller)
     return result;
 }
 
+QQuickItem* visualItem(QQuickItem* root, const QString& name)
+{
+    if (root->objectName() == name) return root;
+    for (auto* child : root->childItems())
+        if (auto* found = visualItem(child, name)) return found;
+    return nullptr;
+}
+
+bool sameMix(const State& actual, const State& expected)
+{
+    return actual.deckGain == expected.deckGain && actual.eqGainDb == expected.eqGainDb &&
+        actual.crossfader == expected.crossfader && actual.cueSelected == expected.cueSelected &&
+        actual.masterGain == expected.masterGain && actual.cueGain == expected.cueGain &&
+        actual.stemGain == expected.stemGain;
+}
+
+QJsonObject controlSnapshot(const State& s)
+{
+    const auto frames = [](const auto& values) {
+        return QJsonArray{qint64(values[0]), qint64(values[1])};
+    };
+    return {{"output_frame", qint64(s.outputFrame)}, {"source_frames", frames(s.sourceFrame)},
+        {"source_lengths", frames(s.sourceFrames)}, {"source_generations", frames(s.sourceGeneration)},
+        {"transport_revisions", frames(s.transportRevision)}, {"cue_frames", frames(s.cueFrame)},
+        {"cue_held", QJsonArray{s.cueHeld[0], s.cueHeld[1]}}, {"cue_preview", QJsonArray{s.cuePreview[0], s.cuePreview[1]}},
+        {"playing", QJsonArray{s.playing[0], s.playing[1]}}, {"deck_gains", QJsonArray{s.deckGain[0], s.deckGain[1]}},
+        {"eq_db", QJsonArray{QJsonArray{s.eqGainDb[0][0], s.eqGainDb[0][1], s.eqGainDb[0][2]},
+            QJsonArray{s.eqGainDb[1][0], s.eqGainDb[1][1], s.eqGainDb[1][2]}}},
+        {"crossfader", s.crossfader}, {"cue_selected", QJsonArray{s.cueSelected[0], s.cueSelected[1]}},
+        {"master_gain", s.masterGain}, {"cue_gain", s.cueGain},
+        {"stem_gains", QJsonArray{QJsonArray{s.stemGain[0][0], s.stemGain[0][1], s.stemGain[0][2], s.stemGain[0][3]},
+            QJsonArray{s.stemGain[1][0], s.stemGain[1][1], s.stemGain[1][2], s.stemGain[1][3]}}},
+        {"applied", qint64(s.applied)}, {"last_command_id", qint64(s.lastCommandId)},
+        {"callbacks", qint64(s.callbacks)}, {"invalid_buffers", qint64(s.invalidBuffers)}, {"rejected", qint64(s.rejected)},
+        {"starved", frames(s.starvedFrames)}, {"read_failure", QJsonArray{s.sourceReadErrorObserved[0], s.sourceReadErrorObserved[1]}}};
+}
+
 // Benchmark-only actual controller/service path. The private variant is never
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
+    const bool activeControls = mode == "--live-stems-controls";
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
     const bool oneThread = mode == "--live-stems-hidden-one-thread";
     const bool hidden = oneThread || mode == "--live-stems-hidden";
@@ -228,6 +268,19 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     if (background) result["scope"] = hour
         ? "Sustained actual controller/service background audio/stem diagnostic; no visible-UI or full-player qualification"
         : "Short actual controller/service background audio/stem diagnostic; no visible-UI, sustained p99 or full-player qualification";
+    if (activeControls) {
+        result["mode"] = "live-stems-controls";
+        result["scope"] = "Short actual-player accessible UI controls under load; no pointer/touch, physical assistive-technology, hardware-cue or sustained qualification";
+    }
+    QJsonArray manualControls;
+    State mixBaseline{}, expectedMix{}, pendingMixBefore{}, pendingControlBefore{};
+    QPointer<QQuickItem> pendingItem;
+    int nextControl = 0;
+    bool controlPending = false;
+    std::uint64_t controlCommand = 0, controlSession = 0, controlPresented = 0;
+    qint64 controlIssued = 0;
+    double expectedUi = 0;
+    bool expectedChecked = false;
     bool cancelled = false, seekIssued = false, recovering = false, replayPending = false;
     bool peerRecovering = false;
     qint64 peerIssuedNs = 0;
@@ -393,6 +446,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         command([&] { controller.setDeckGain(0, .25); }); command([&] { controller.setPlaying(0, true); });
         const auto route = controller.audioRouting();
         require(!route["cueReady"].toBool() && route["cueLeft"].toString().isEmpty() && route["cueRight"].toString().isEmpty(), "Hardware cue must remain disabled");
+        mixBaseline = expectedMix = controller.audioState();
+        require(!activeControls || (mixBaseline.crossfader == .5F &&
+            mixBaseline.eqGainDb == std::array<std::array<float, 3>, 2>{}), "Controls check requires the original neutral EQ and centered crossfader");
+        if (activeControls) result["manual_controls_baseline"] = controlSnapshot(mixBaseline);
         measure.start(); phase = "steady"; boundary = last = controller.audioState();
         measurementBeginOutputFrame = boundary.outputFrame;
         measurementBeginPeerFrame = boundary.sourceFrame[1];
@@ -416,9 +473,34 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             require(windowHealthy, hidden ? "Controlled hidden window became visible, exposed or missing" : "Live window hidden or not presenting");
             require(controller.liveStemObservations(0) == observations, "Live playback unexpectedly changed owner/observations");
             require(state.graphRate == 48000 && state.streamFramesMin && state.streamFramesMax >= state.streamFramesMin &&
-                state.masterGain == .25F && state.deckGain[0] == .25F && state.deckGain[1] == 1.F && state.stemBank[0] && !state.stemBank[1] &&
+                state.masterGain == .25F && (activeControls ? (sameMix(state, expectedMix) ||
+                    (controlPending && sameMix(state, pendingMixBefore))) : state.deckGain[0] == .25F && state.deckGain[1] == 1.F) && state.stemBank[0] && !state.stemBank[1] &&
                 state.stemGain[0] == std::array<float, 4>{1.F, 1.F, 1.F, 1.F} && state.playing[0] && state.playing[1],
                 "Negotiated audio/gain/transport configuration changed");
+            require(!activeControls || (!state.cueReady && controller.audioRouting()["cueLeft"].toString().isEmpty() &&
+                controller.audioRouting()["cueRight"].toString().isEmpty()), "Headphone selection unexpectedly changed hardware cue routing");
+            if (controlPending) {
+                require(pendingItem && controller.submittedCommands() == controlCommand && controller.completedSessions() == controlSession &&
+                    state.sourceGeneration == pendingControlBefore.sourceGeneration && state.transportRevision == pendingControlBefore.transportRevision &&
+                    state.cueFrame == pendingControlBefore.cueFrame && state.cueHeld == pendingControlBefore.cueHeld &&
+                    state.cuePreview == pendingControlBefore.cuePreview && state.sourceFrames == pendingControlBefore.sourceFrames &&
+                    state.outputFrame >= pendingControlBefore.outputFrame, "Nontransport UI control changed source/transport ownership");
+                const auto advance = state.outputFrame - pendingControlBefore.outputFrame;
+                for (std::size_t deck = 0; deck < 2; ++deck)
+                    require(state.sourceFrame[deck] == std::min(pendingControlBefore.sourceFrame[deck] + advance, state.sourceFrames[deck]),
+                        "Nontransport UI control lost the exact source/output clock");
+                const bool button = nextControl % 8 >= 6;
+                const bool uiAck = button ? pendingItem->property("checked").toBool() == expectedChecked :
+                    std::abs(pendingItem->property("value").toDouble() - expectedUi) < 1e-6;
+                if (state.lastCommandId == controlCommand && controller.completedApplied() + state.applied >= controlCommand &&
+                    sameMix(state, expectedMix) && uiAck && presented > controlPresented) {
+                    auto row = manualControls.last().toObject(); row["acknowledged"] = true;
+                    row["ack_poll_ns"] = nowNs(); row["ack"] = controlSnapshot(state);
+                    row["ui_value"] = button ? QJsonValue(expectedChecked) : QJsonValue(pendingItem->property("value").toDouble());
+                    row["presented_after"] = qint64(presented); row["session_after"] = qint64(controller.completedSessions());
+                    manualControls[manualControls.size() - 1] = row; ++nextControl; controlPending = false;
+                } else require(nowNs() - controlIssued < 5000000000LL, "Accessible UI control acknowledgement timed out");
+            }
             require(state.outputFrame >= last.outputFrame && (peerRecovering || (state.sourceFrame[1] >= last.sourceFrame[1] &&
                 state.sourceFrame[1] - last.sourceFrame[1] == state.outputFrame - last.outputFrame)), "Finite peer lost source/output alignment");
             if (!firstAdvanceNs && !seekIssued && state.sourceFrame[0] && !state.buffering[0]) firstAdvanceNs = nowNs();
@@ -448,13 +530,53 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             }
             const bool eof = state.sourceFrame[0] == state.sourceFrames[0];
             if (eof && !eofAtOutput && !replayPending) { ++eofCount; eofAtOutput = state.outputFrame; }
-            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 5000)) {
+            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && !controlPending && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 5000)) {
                 beginRecovery(0, "replay_recovery"); ++replayCount; replayPending = true; eofAtOutput = 0;
             } else if (replayPending && !eof) replayPending = false;
-            if (!seekIssued && firstAdvanceNs && !recovering && !eof && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 15000) && acceptedGeneration && acceptedGeneration != completedGeneration) {
+            if (!seekIssued && firstAdvanceNs && !recovering && !controlPending && !eof && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 15000) && acceptedGeneration && acceptedGeneration != completedGeneration) {
                 auto target = std::min<std::uint64_t>(280800, state.sourceFrames[0] / 2);
                 if (target == state.sourceFrame[0]) target = 0;
                 beginRecovery(double(target) / 48000, "incomplete_generation_seek"); seekIssued = true;
+            }
+            // Mix changes remain in the original steady interval: they never exempt starvation.
+            if (activeControls && nextControl < 16 && !controlPending && !recovering && !replayPending &&
+                !state.buffering[0] && !state.buffering[1] && !eof) {
+                const int deck = nextControl / 8, step = nextControl % 8, control = step / 2;
+                const bool restore = step % 2;
+                const qint64 due = functional ? (deck ? 7000 : 500) + step * 100 : (deck ? 70000 : 10000) + step * 2000;
+                if (measure.elapsed() >= due) {
+                    const auto name = control == 0 ? QString("deck%1Gain").arg(deck) : control == 1 ? QString("crossfader") :
+                        control == 2 ? QString("deck%1EqHI").arg(deck) : QString("deck%1CueSelect").arg(deck);
+                    pendingItem = visualItem(window->contentItem(), name);
+                    require(pendingItem && pendingItem->isEnabled() && pendingItem->isVisible(), "Scheduled accessible UI control is unavailable");
+                    auto* accessible = QAccessible::queryAccessibleInterface(pendingItem);
+                    require(accessible, "Scheduled UI control has no accessible interface");
+                    pendingControlBefore = controller.audioState(); pendingMixBefore = expectedMix;
+                    controlSession = controller.completedSessions(); controlCommand = controller.submittedCommands() + 1;
+                    controlPresented = presented; controlIssued = nowNs();
+                    if (control == 0) { expectedUi = restore ? mixBaseline.deckGain[deck] : mixBaseline.deckGain[deck] / 2.; expectedMix.deckGain[deck] = float(expectedUi); }
+                    else if (control == 1) { expectedUi = restore ? mixBaseline.crossfader : deck ? .75 : .25; expectedMix.crossfader = float(expectedUi); }
+                    else if (control == 2) { expectedUi = restore ? .5 : .375; expectedMix.eqGainDb[deck][2] = restore ? 0.F : -6.5F; }
+                    else { expectedChecked = restore ? mixBaseline.cueSelected[deck] : !mixBaseline.cueSelected[deck]; expectedMix.cueSelected[deck] = expectedChecked; }
+                    require(manualControls.size() < 16, "Manual controls evidence capacity exceeded");
+                    manualControls.append(QJsonObject{{"index", nextControl}, {"deck", deck}, {"step", step}, {"object", name},
+                        {"due_ms", due}, {"issued_elapsed_ms", measure.elapsed()}, {"issued_ns", controlIssued},
+                        {"expected_command", qint64(controlCommand)}, {"session_before", qint64(controlSession)},
+                        {"presented_before", qint64(presented)}, {"before", controlSnapshot(pendingControlBefore)},
+                        {"expected", controlSnapshot(expectedMix)}, {"acknowledged", false}});
+                    controlPending = true;
+                    if (control == 3) {
+                        auto* action = accessible->actionInterface();
+                        require(action && action->actionNames().contains(QAccessibleActionInterface::pressAction()), "Headphone CUE has no accessible press action");
+                        action->doAction(QAccessibleActionInterface::pressAction());
+                    } else {
+                        auto* numeric = accessible->valueInterface();
+                        require(numeric && numeric->minimumValue().toDouble() == 0 && numeric->maximumValue().toDouble() == 1,
+                            "Scheduled numeric control has unexpected accessible range");
+                        numeric->setCurrentValue(expectedUi);
+                    }
+                    require(controller.submittedCommands() == controlCommand, "Accessible UI action did not submit exactly one command");
+                }
             }
             if (measure.elapsed() >= nextSample) {
                 require(!hour || samples.size() < 362, "Hour snapshot capacity exhausted");
@@ -472,6 +594,8 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         measuredWallMs = measure.elapsed();
         closeMeasurement(false);
         drain();
+        require(!activeControls || (nextControl == 16 && !controlPending && sameMix(controller.audioState(), mixBaseline)),
+            "Accessible controls sequence or baseline restoration incomplete");
         require(firstAdvanceNs && eofCount && replayCount && !recovering && !replayPending && !peerRecovering, "Playback/EOF/replay or last scheduled recovery incomplete");
         // The fixed measured/WAV interval ends here. Finish only this finite
         // generation; no tail replay/seek and no time-based hop filtering.
@@ -655,6 +779,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     result["measurement_end_output_frame"] = qint64(measurementEndOutputFrame);
     result["measurement_intervals_closed"] = measurementIntervalsClosed;
     result["samples"] = samples; result["controls"] = controls; result["intervals"] = intervals; result["scene_errors"] = sceneErrors;
+    if (activeControls) {
+        result["manual_controls"] = manualControls; result["manual_controls_complete"] = nextControl == 16 && !controlPending;
+        result["manual_controls_scope"] = "Actual Qt accessible value/press actions; ACK polling upper bounds. Mix controls remain steady starvation-gated; no pointer/touch or physical cue claim.";
+    }
     if (hour) result["peer_controls"] = peerControls;
     result["frames_presented"] = qint64(presented); result["maximum_frame_presentation_gap_ns"] = maxFrameGapNs;
     result["maximum_gui_heartbeat_gap_ns"] = maxHeartbeatNs; result["timing"] = timing(controller);
@@ -672,7 +800,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
 int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
-    if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
+    if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-controls" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden-one-thread"))
         return livePlayback(app, argc, argv);
