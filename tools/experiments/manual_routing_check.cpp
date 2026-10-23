@@ -20,6 +20,7 @@
 #include <future>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -878,7 +879,9 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
 // Generated in-process producer only: no model, service child or hardware.
 struct LiveOwnerProducer {
     std::atomic<unsigned> started{0}, exited{0};
+    std::atomic<bool> induceFailure{false};
 };
+constexpr std::array<float, 2> liveOwnerValue{.1875F, -.375F};
 std::unique_ptr<PreparedPlayback> liveOwnerFixture(std::uint64_t identity, std::uint64_t frames,
                                                  const std::shared_ptr<LiveOwnerProducer>& receipt)
 {
@@ -889,11 +892,17 @@ std::unique_ptr<PreparedPlayback> liveOwnerFixture(std::uint64_t identity, std::
             std::array<std::array<float, Buffer::blockFrames * 2>, 4> pcm{};
             for (auto& role : pcm)
                 for (std::size_t frame = 0; frame < Buffer::blockFrames; ++frame) {
-                    role[frame * 2] = .1875F * .25F;
-                    role[frame * 2 + 1] = -.375F * .25F;
+                    role[frame * 2] = liveOwnerValue[0] * .25F;
+                    role[frame * 2 + 1] = liveOwnerValue[1] * .25F;
                 }
             std::uint64_t epoch = 0, cursor = 0;
             while (!stop.stop_requested()) {
+                if (receipt->induceFailure.load(std::memory_order_acquire)) {
+                    port.fail(EIO);
+                    // Remain owned/alive after failure until explicit retirement.
+                    while (!stop.stop_requested()) std::this_thread::sleep_for(1ms);
+                    break;
+                }
                 Buffer::Request request;
                 if (!port.tryRequest(request)) { std::this_thread::yield(); continue; }
                 if (epoch != request.epoch) { epoch = request.epoch; cursor = request.firstFrame; }
@@ -913,6 +922,260 @@ std::unique_ptr<PreparedPlayback> liveOwnerFixture(std::uint64_t identity, std::
             }
             ++receipt->exited;
         });
+}
+
+// Actual callback/state/owner integration. A is master-muted by the crossfader;
+// every master/recorded sample remains the independent audible peer oracle.
+// Audible target/CUE and in-flight DSP-ramp equality are covered by core tests,
+// not inferred from this private graph's state/lifecycle evidence.
+void runSourceContinuation(const std::filesystem::path& directory)
+{
+    using Kind = conflux::audio::SourceHandoff::Kind;
+    constexpr std::uint64_t frames = 48000 * 30;
+    constexpr std::uint64_t peerStart = 512;
+    constexpr std::array<float, 4> targets{0.F, .25F, .5F, .75F};
+    auto producer = std::make_shared<LiveOwnerProducer>();
+    Sink master("conflux-routing-check-source-continuation-master", 2);
+    const RoutingConfig routing{pair(discover(2), master.name(), 0), {}};
+    LiveSession::PlaybackSources owners{};
+    owners[0] = liveOwnerFixture(701, frames, producer);
+    // B gain=.5 and master=.5 restore the existing exact masterValue oracle.
+    owners[1] = primedSyntheticSource(frames, masterValue[0] * 4.F, masterValue[1] * 4.F);
+    auto* const oldIdentity = owners[0].get();
+    auto* const peerIdentity = owners[1].get();
+    const auto recordingPath = directory / "source-continuation.wav";
+    auto recorder = std::make_unique<StereoRecorder>(recordingPath);
+    LiveSession::InitialState initial;
+    initial.sourceFrame = {128, peerStart};
+    initial.cueFrame = {96, 384};
+    initial.playing = {true, true};
+    initial.deckGain = {.375F, .5F};
+    initial.stemGain[0] = targets;
+    initial.eqGainDb[0] = {-12.F, 3.F, -6.F};
+    initial.masterGain = .5F;
+    initial.crossfader = 1.F;
+    initial.cueSelected = {true, false};
+    initial.cueGain = .25F;
+    LiveSession session(std::move(owners), initial);
+    auto expectedDeckGain = initial.deckGain;
+    LiveSession::State state{};
+    std::uint64_t failedFrame = 0, takeoverAck = 0, retainedStarved = 0;
+    std::uint64_t recordedBefore = 0, recorded = 0, written = 0;
+    bool staleGenerationRejected = false, staleRevisionRejected = false, pendingControlAccepted = false;
+    bool takeoverObserved = false, retiredAfterAck = false, pendingReturned = false, pendingInstalled = false;
+    auto save = [&](bool passed, std::string_view error = {}) {
+        master.saveOperands(diagnosticDirectory / "source-continuation-receiver.json");
+        std::ofstream output(diagnosticDirectory / "source-continuation.json");
+        output << "{\"passed\":" << (passed ? "true" : "false") << ",\"error\":" << json(error)
+               << ",\"scope\":\"Actual LiveSession callback takeover from generated failed live stems to the same generated finite four-bank PCM at exact F. Target A is master-muted; state, ownership, peer and master-record continuity only. Audible target/CUE and DSP-ramp equality belong to complementary core tests. No model, physical audio or qualification.\""
+               << ",\"failed_source_frame\":" << failedFrame << ",\"callback_end_takeover_output_frame\":" << takeoverAck
+               << ",\"stale_source_generation_rejected\":" << (staleGenerationRejected ? "true" : "false")
+               << ",\"seek_away_back_revision_rejected\":" << (staleRevisionRejected ? "true" : "false")
+               << ",\"pending_target_gain_accepted_and_applied\":" << (pendingControlAccepted ? "true" : "false")
+               << ",\"finite_candidate_progress_observed\":" << (takeoverObserved ? "true" : "false")
+               << ",\"old_owner_retired_after_ack\":" << (retiredAfterAck ? "true" : "false")
+               << ",\"pending_stop_ownership_returned\":" << (pendingReturned ? "true" : "false")
+               << ",\"pending_stop_installed\":" << (pendingReturned ? (pendingInstalled ? "true" : "false") : "null")
+               << ",\"retained_starved_frames\":" << retainedStarved
+               << ",\"output_frames\":" << state.outputFrame << ",\"callbacks\":" << state.callbacks
+               << ",\"source_frames\":[" << state.sourceFrame[0] << ',' << state.sourceFrame[1] << ']'
+               << ",\"source_generations\":[" << state.sourceGeneration[0] << ',' << state.sourceGeneration[1] << ']'
+               << ",\"transport_revisions\":[" << state.transportRevision[0] << ',' << state.transportRevision[1] << ']'
+               << ",\"last_command_id\":" << state.lastCommandId
+               << ",\"recorded_before_takeover\":" << recordedBefore << ",\"recorded_frames\":" << recorded
+               << ",\"written_frames\":" << written << ",\"execution_deadline_misses\":" << state.deadlineMisses
+               << ",\"producer_starts\":" << producer->started.load() << ",\"producer_exits\":" << producer->exited.load()
+               << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false") << "}\n";
+    };
+    try {
+        std::string error;
+        require(session.start(error, routing), "source-continuation: isolated callback session connects");
+        (void)awaitSteadySamples(session);
+        master.validateSamples(true);
+        require(session.requestRecorder(recorder.get()), "source-continuation: one recorder attaches before induced failure");
+        auto observe = [&] {
+            const auto error = session.error();
+            if (!error.empty()) throw std::runtime_error(error);
+            for (std::size_t count = 0; count < 32 && session.pollState(state); ++count) {}
+            if (master.wrong()) throw std::runtime_error("Continuation changed the exact audible peer samples");
+        };
+        auto controlsMatch = [&] {
+            return state.deckGain == expectedDeckGain && state.eqGainDb == initial.eqGainDb &&
+                state.cueFrame == initial.cueFrame && state.cueSelected == initial.cueSelected &&
+                state.masterGain == initial.masterGain && state.crossfader == initial.crossfader &&
+                state.cueGain == initial.cueGain && state.stemGain[0] == targets &&
+                state.cueHeld == std::array<bool, 2>{} && state.cuePreview == std::array<bool, 2>{} &&
+                state.sourceFrame[1] == peerStart + state.outputFrame && state.playing[1];
+        };
+        wait([&] {
+            observe();
+            return !session.recorderChangePending() && session.recorderAttached() &&
+                recorder->acceptedFrames() >= 2048 && master.received(0) >= 2048 && master.received(1) >= 2048;
+        }, "Continuation recorder/peer did not enter steady playback");
+        require(controlsMatch() && state.sourceGeneration[0] == 0 && state.playing[0] &&
+                !state.sourceReadError[0] && !state.sourceReadErrorObserved[0],
+            "source-continuation: distinct nondefault deck/EQ/CUE/stem controls precede failure");
+        producer->induceFailure.store(true, std::memory_order_release);
+        wait([&] {
+            observe();
+            return state.sourceReadError[0] && state.sourceReadErrorObserved[0] && state.buffering[0] &&
+                state.sourceFrame[0] > 128 && state.sourceFrame[0] + 1 < frames;
+        }, "Generated live failure did not freeze a nonzero affected cursor");
+        failedFrame = state.sourceFrame[0];
+        const auto failedAt = state.outputFrame;
+        wait([&] { observe(); return state.outputFrame >= failedAt + 512; },
+            "Peer/output did not continue after generated source failure");
+        require(state.sourceFrame[0] == failedFrame && controlsMatch() && state.playing[0] &&
+                !state.sourceReadError[1] && !state.sourceReadErrorObserved[1] && !state.starvedFrames[1] &&
+                producer->started == 1 && !producer->exited,
+            "source-continuation: failed A freezes exactly while peer/controls/old owner remain live");
+        auto candidate = primedSyntheticSource(frames, liveOwnerValue[0], liveOwnerValue[1], true);
+        constexpr auto primeBudget = 2s;
+        require(candidate->prime(failedFrame, primeBudget) && candidate->primedForContinuation(failedFrame),
+            "source-continuation: same generated finite bank primes exact F off callback");
+        auto* const candidateIdentity = candidate.get();
+        const auto unchangedCandidate = [&] {
+            if (!candidate || candidate.get() != candidateIdentity ||
+                !candidate->primedForContinuation(failedFrame) || candidate->errorCode()) return false;
+            const auto source = candidate->sourceRef();
+            for (std::size_t role = 0; role < 4; ++role)
+                if (!source.stemGain || source.stemGain(source.context, role) != 1.F) return false;
+            return true;
+        };
+        const auto revisionBeforeSeeks = state.transportRevision[0];
+        require(session.requestSourceContinuation(0, candidate, 1, revisionBeforeSeeks, failedFrame, 2) && !candidate,
+            "source-continuation: stale-source ticket reaches callback without stealing old owner");
+        std::optional<LiveSession::SourceReplacementResult> completion;
+        wait([&] { observe(); completion = session.takeSourceReplacementResult(); return bool(completion); },
+            "Stale-source continuation completion timed out");
+        require(!completion->completion.installed && completion->completion.kind == Kind::Continuation &&
+                completion->completion.generation == 2 && completion->retiredPlayback.get() == candidateIdentity,
+            "source-continuation: callback rejects stale source generation and returns exact candidate");
+        candidate = std::move(completion->retiredPlayback); completion.reset();
+        staleGenerationRejected = true;
+        require(unchangedCandidate() && state.sourceGeneration[0] == 0 && state.sourceFrame[0] == failedFrame &&
+                controlsMatch() && !producer->exited,
+            "source-continuation: stale-source rejection leaves candidate prime/mix and old deck untouched");
+        std::uint32_t commandId = 3000;
+        require(session.submit({RenderCore::Command::Type::Seek, 0, failedFrame + 1, 1.F, ++commandId}) &&
+                session.submit({RenderCore::Command::Type::Seek, 0, failedFrame, 1.F, ++commandId}),
+            "source-continuation: human seek away/back enters FIFO before source publication");
+        require(session.requestSourceContinuation(0, candidate, 0, revisionBeforeSeeks, failedFrame, 3) && !candidate,
+            "source-continuation: old-revision same-F candidate reaches callback after queued controls");
+        wait([&] { observe(); completion = session.takeSourceReplacementResult(); return bool(completion); },
+            "Seek-away/back continuation completion timed out");
+        require(!completion->completion.installed && completion->completion.kind == Kind::Continuation &&
+                completion->completion.generation == 3 && completion->retiredPlayback.get() == candidateIdentity,
+            "source-continuation: callback rejects stale revision even after source cursor returns to F");
+        candidate = std::move(completion->retiredPlayback); completion.reset();
+        wait([&] { observe(); return state.lastCommandId == commandId && state.sourceFrame[0] == failedFrame; },
+            "Queued seek-away/back did not settle at the original failed cursor");
+        staleRevisionRejected = true;
+        require(unchangedCandidate() && state.transportRevision[0] >= revisionBeforeSeeks + 2 &&
+                state.sourceGeneration[0] == 0 && controlsMatch() && !producer->exited,
+            "source-continuation: stale-revision rejection preserves candidate prime and latest human controls");
+        const auto takeoverRevision = state.transportRevision[0];
+        const auto beforeOutput = state.outputFrame;
+        recordedBefore = recorder->acceptedFrames();
+        require(session.requestSourceContinuation(0, candidate, 0, takeoverRevision, failedFrame, 4) && !candidate,
+            "source-continuation: fresh exact-F ticket transfers only the finite candidate owner");
+        require(session.sourceReplacementPending() &&
+                session.submit({RenderCore::Command::Type::DeckGain, 0, 0, .625F, ++commandId}),
+            "source-continuation: target human gain remains accepted while continuation completion is uncollected");
+        expectedDeckGain[0] = .625F;
+        wait([&] {
+            observe();
+            return state.sourceGeneration[0] == 4 && state.sourceFrame[0] > failedFrame &&
+                state.lastCommandId == commandId && state.deckGain == expectedDeckGain;
+        }, "Finite bank and queued human gain did not progress before completion collection");
+        pendingControlAccepted = true;
+        require(session.sourceReplacementPending() && !producer->exited && session.recorderAttached() &&
+                !session.recorderChangePending() && controlsMatch() && state.playing[0],
+            "source-continuation: candidate renders while old owner and uncollected callback-end completion stay retained");
+        wait([&] { observe(); completion = session.takeSourceReplacementResult(); return bool(completion); },
+            "Successful continuation completion timed out");
+        require(completion->completion.installed && completion->completion.kind == Kind::Continuation &&
+                completion->completion.generation == 4 && completion->completion.deck == 0 &&
+                completion->completion.outputFrame > beforeOutput && completion->completion.retired.sourceFrame == failedFrame &&
+                completion->completion.retired.readFailed && completion->completion.retired.starvedFrames &&
+                completion->retiredPlayback.get() == oldIdentity && !producer->exited,
+            "source-continuation: callback-end acquire returns exact failed owner and original diagnostics at F");
+        takeoverAck = completion->completion.outputFrame;
+        retainedStarved = completion->completion.retired.starvedFrames;
+        const auto progressed = state;
+        wait([&] { observe(); return state.outputFrame >= progressed.outputFrame + 1024; },
+            "Finite continuation did not progress after callback acknowledgement");
+        require(state.sourceFrame[0] - progressed.sourceFrame[0] == state.outputFrame - progressed.outputFrame &&
+                state.sourceFrame[0] > failedFrame && state.transportRevision[0] == takeoverRevision + 1 &&
+                state.sourceGeneration[0] == 4 && !state.sourceReadError[0] && state.sourceReadErrorObserved[0] &&
+                state.starvedFrames[0] == retainedStarved && !state.buffering[0] && controlsMatch() &&
+                recorder->acceptedFrames() > recordedBefore && !recorder->failed() && !recorder->overflowCount(),
+            "source-continuation: actual finite reads advance exact source/output deltas without resetting controls or historical faults");
+        takeoverObserved = true;
+        auto retirement = std::async(std::launch::async,
+            [retired = std::move(completion->retiredPlayback)]() mutable { retired.reset(); });
+        completion.reset(); retirement.get();
+        require(producer->exited == 1, "source-continuation: failed live producer joins only after acquired retirement");
+        retiredAfterAck = true;
+        require(session.submit({RenderCore::Command::Type::Pause, 0, 0, 1.F, ++commandId}),
+            "source-continuation: installed finite source still accepts human transport");
+        wait([&] { observe(); return state.lastCommandId == commandId && !state.playing[0]; },
+            "Finite source pause did not reach its stable cleanup cursor");
+        const auto pendingFrame = state.sourceFrame[0];
+        auto pending = primedSyntheticSource(frames, liveOwnerValue[0], liveOwnerValue[1], true);
+        require(pending->prime(pendingFrame, primeBudget) && pending->primedForContinuation(pendingFrame),
+            "source-continuation: cleanup candidate primes its exact paused cursor");
+        auto* const pendingIdentity = pending.get();
+        require(session.requestSourceContinuation(0, pending, 4, state.transportRevision[0], pendingFrame, 5) && !pending,
+            "source-continuation: pending cleanup ticket retains a second exact finite owner");
+        master.validateSamples(false); // Expected graph stop is outside receiver delivery gates.
+        auto stopped = session.stopAndTakePlaybacks();
+        state = session.stoppedState();
+        require(stopped.replacement && stopped.replacement->completion.kind == Kind::Continuation &&
+                stopped.replacement->completion.generation == 5 && stopped.replacement->completion.deck == 0,
+            "source-continuation: quiescence returns the pending continuation completion exactly once");
+        pendingInstalled = stopped.replacement->completion.installed;
+        require(stopped.active[0].get() == (pendingInstalled ? pendingIdentity : candidateIdentity) &&
+                stopped.replacement->retiredPlayback.get() == (pendingInstalled ? candidateIdentity : pendingIdentity) &&
+                stopped.active[1].get() == peerIdentity && state.sourceGeneration[0] == (pendingInstalled ? 5U : 4U),
+            "source-continuation: either stop race partitions all active/candidate owners without loss or early destruction");
+        if (!pendingInstalled)
+            require(stopped.replacement->retiredPlayback->primedForContinuation(pendingFrame),
+                "source-continuation: uninstalled stop-race candidate returns with its unused exact prime");
+        pendingReturned = true;
+        recorded = recorder->acceptedFrames();
+        require(!session.sourceReplacementPending() && !session.recorderAttached() && !session.recorderChangePending() &&
+                state.sourceFrame[0] == pendingFrame && !state.playing[0] && controlsMatch() &&
+                state.starvedFrames[0] == retainedStarved && state.sourceReadErrorObserved[0] && !state.sourceReadError[0] &&
+                !state.sourceReadError[1] && !state.sourceReadErrorObserved[1] && !state.starvedFrames[1] &&
+                !state.invalidBuffers && !state.rejected,
+            "source-continuation: stopped callback state preserves both positions, controls, diagnostics and detached recorder");
+        auto cleanup = std::async(std::launch::async, [stopped = std::move(stopped)]() mutable {
+            stopped.active = {}; stopped.replacement.reset();
+        });
+        cleanup.get();
+        session.stop();
+        std::this_thread::sleep_for(40ms);
+        LiveSession::State unexpected;
+        require(!session.pollState(unexpected) && recorder->acceptedFrames() == recorded &&
+                session.stoppedState().callbacks == state.callbacks,
+            "source-continuation: quiesced ownership cleanup produces no later callback snapshots or recorder writes");
+        recorder->stop(); written = recorder->writtenFrames();
+        require(recorded && written == recorded && !recorder->failed() && !recorder->overflowCount(),
+            "source-continuation: continuously attached master recording drains with no overflow or lost frame");
+        verifyRecording(recordingPath, recorded);
+        require(!master.wrong() && (!executionDeadlineGate ||
+                (!master.zerosAfterSignal(0) && !master.zerosAfterSignal(1))),
+            "source-continuation: peer receiver remains exact; zero delivery gate follows existing execution mode");
+        if (executionDeadlineGate) require(!state.deadlineMisses, "source-continuation: no callback execution deadline misses");
+        save(true);
+    } catch (const std::exception& error) {
+        save(false, error.what());
+        failureDiagnostic(session, "source-continuation", error.what());
+        saveFailedRecordingOperands(session, *recorder, recordingPath,
+            diagnosticDirectory / "source-continuation-failed-recording.json");
+        throw;
+    }
 }
 
 void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstalled)
@@ -1180,6 +1443,7 @@ int main(int argc, char** argv)
         results.push_back(runTopology(output, false, a, b));
         results.push_back(runTopology(output, true, a, b));
         const auto handoff = runSourceHandoff(output, a);
+        runSourceContinuation(output);
         runLiveOwnerDetach(output, true);
         runLiveOwnerDetach(output, false);
         std::cout << "{\"passed\":true,\"scope\":\"Private virtual PipeWire graph only; no physical routing, latency or sustained qualification\""
@@ -1205,6 +1469,7 @@ int main(int argc, char** argv)
         }
         std::cout << "],\"source_handoff\":";
         writeHandoff(std::cout, handoff, true);
+        std::cout << ",\"source_continuation\":{\"passed\":true,\"evidence\":\"source-continuation.json\"}";
         std::cout << ",\"checks\":[";
         for (std::size_t i = 0; i < checks.size(); ++i) { if (i) std::cout << ','; std::cout << json(checks[i]); }
         std::cout << "]}\n";

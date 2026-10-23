@@ -114,6 +114,14 @@ void RenderCore::transition(Deck& deck) noexcept
     deck.transitionPosition = 0;
 }
 
+void RenderCore::transportIntent(Deck& deck) noexcept
+{
+    // Saturation makes further continuation ineligible rather than reusing an
+    // identity. Ordinary human transport remains available.
+    if (deck.transportRevision != std::numeric_limits<std::uint64_t>::max())
+        ++deck.transportRevision;
+}
+
 bool RenderCore::renderActive(const Deck& deck) noexcept
 {
     if (deck.source.scratchState && deck.source.scratchState(deck.source.context).active) return true;
@@ -160,6 +168,7 @@ bool RenderCore::seek(std::size_t deck, std::uint64_t frame) noexcept
     if (deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
         return false;
     auto& state = decks_[deck];
+    transportIntent(state);
     const bool active = state.playing || state.cuePreviewing;
     const bool wasRenderActive = renderActive(state);
     if (state.source.loopControl)
@@ -175,6 +184,7 @@ bool RenderCore::restorePrimedCursor(std::size_t deck, std::uint64_t frame) noex
 {
     if (frameClock_ || deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
         return false;
+    transportIntent(decks_[deck]);
     decks_[deck].frame = frame;
     decks_[deck].nominalPosition = double(frame);
     decks_[deck].buffering = false;
@@ -187,6 +197,7 @@ bool RenderCore::retrySource(std::size_t deck) noexcept
     auto& state = decks_[deck];
     if (!state.source.frames || state.source.isMemory() || !state.source.read || !state.source.discontinuity)
         return false;
+    transportIntent(state);
     if (state.source.loopControl)
         state.source.loopControl(state.source.context, AudioLoopCommand::Clear, state.frame);
     state.buffering = false;
@@ -231,6 +242,7 @@ bool RenderCore::beginScratch(std::size_t deck, std::uint64_t token) noexcept
         return false;
     if (!state.source.scratchControl(state.source.context, AudioScratchCommand::Begin, 0, 0, state.frame))
         return false;
+    transportIntent(state);
     state.scratchToken = token;
     state.nominalPosition = double(state.frame);
     state.buffering = false;
@@ -247,8 +259,10 @@ bool RenderCore::moveScratch(std::size_t deck, std::uint64_t token, std::int64_t
         !scratchState(deck).active)
         return false;
     auto& state = decks_[deck];
-    return state.source.scratchControl(state.source.context, AudioScratchCommand::Move,
-                                       cumulativeFrames, intervalSeconds, state.frame);
+    if (!state.source.scratchControl(state.source.context, AudioScratchCommand::Move,
+        cumulativeFrames, intervalSeconds, state.frame)) return false;
+    transportIntent(state);
+    return true;
 }
 
 bool RenderCore::endScratch(std::size_t deck, std::uint64_t token) noexcept
@@ -256,10 +270,11 @@ bool RenderCore::endScratch(std::size_t deck, std::uint64_t token) noexcept
     if (deck >= deckCount || !token || token != decks_[deck].scratchToken) return false;
     auto& state = decks_[deck];
     const auto scratch = scratchState(deck);
-    if (!scratch.active) return true;
+    if (!scratch.active) { transportIntent(state); return true; }
     if (!std::isfinite(scratch.position) || scratch.position < 0 || scratch.position > double(state.source.frames) ||
         !state.source.scratchControl(state.source.context, AudioScratchCommand::End, 0, 0, state.frame))
         return false;
+    transportIntent(state);
     state.frame = static_cast<std::uint64_t>(scratch.position);
     // A processed restart accepts integer source frames, as an explicit seek
     // does. Match its new generation before even a zero-frame pending read.
@@ -279,6 +294,7 @@ bool RenderCore::changeTempo(std::size_t deck, AudioTempoCommand command, double
     const auto before = tempoState(deck);
     if (!state.source.tempoControl(state.source.context, command, percent, keyLock, state.frame))
         return false;
+    transportIntent(state);
     const auto after = tempoState(deck);
     if (before.generation != after.generation || before.active != after.active) {
         state.nominalPosition = double(state.frame);
@@ -309,8 +325,10 @@ bool RenderCore::loopIn(std::size_t deck) noexcept
 {
     if (deck >= deckCount) return false;
     auto& state = decks_[deck];
-    return !state.cuePreviewing && !scratchState(deck).active && state.source.loopControl &&
-        state.source.loopControl(state.source.context, AudioLoopCommand::In, state.frame);
+    if (state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
+        !state.source.loopControl(state.source.context, AudioLoopCommand::In, state.frame)) return false;
+    transportIntent(state);
+    return true;
 }
 
 bool RenderCore::loopOut(std::size_t deck) noexcept
@@ -320,6 +338,7 @@ bool RenderCore::loopOut(std::size_t deck) noexcept
     if (!state.playing || state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
         !state.source.loopControl(state.source.context, AudioLoopCommand::Out, state.frame))
         return false;
+    transportIntent(state);
     const bool wasActive = renderActive(state);
     state.frame = loopState(deck).inFrame;
     state.nominalPosition = double(state.frame);
@@ -335,6 +354,7 @@ bool RenderCore::loopToggle(std::size_t deck) noexcept
     if (state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
         !state.source.loopControl(state.source.context, AudioLoopCommand::Toggle, state.frame))
         return false;
+    transportIntent(state);
     if (const auto loop = loopState(deck); loop.active) {
         const bool wasActive = renderActive(state);
         state.frame = loop.inFrame;
@@ -375,12 +395,52 @@ bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
         decks_[deck].source.loopControl(decks_[deck].source.context, AudioLoopCommand::Clear, decks_[deck].frame);
     if (decks_[deck].source.setRenderActive)
         decks_[deck].source.setRenderActive(decks_[deck].source.context, false);
+    transportIntent(decks_[deck]);
+    const auto revision = decks_[deck].transportRevision;
     auto eq = decks_[deck].eq;
     eq.clearState();
     decks_[deck] = Deck{};
+    decks_[deck].transportRevision = revision;
     decks_[deck].eq = eq;
     decks_[deck].source = source;
     notifyActivity(decks_[deck]);
+    return true;
+}
+
+bool RenderCore::canContinueSource(std::size_t deck, AudioSource source,
+    std::uint64_t nextFrame, std::uint64_t revision) const noexcept
+{
+    if (deck >= deckCount || !validSource(source)) return false;
+    const auto& state = decks_[deck];
+    if (!isStemBank(deck) || !source.setStemGain || !source.stemGain ||
+        source.frames != state.source.frames || nextFrame >= source.frames ||
+        state.frame != nextFrame || state.nominalPosition != double(nextFrame) ||
+        state.transportRevision != revision || revision == std::numeric_limits<std::uint64_t>::max() ||
+        (source.context == state.source.context && source.read == state.source.read))
+        return false;
+    const auto linear = [](const AudioSource& candidate) noexcept {
+        const auto tempo = candidate.tempoState ? candidate.tempoState(candidate.context) : AudioTempoState{};
+        const auto scratch = candidate.scratchState ? candidate.scratchState(candidate.context) : AudioScratchState{};
+        const auto loop = candidate.loopState ? candidate.loopState(candidate.context) : AudioLoopState{};
+        // Inactive scratch prefetch may be pending independently of linear
+        // playback. Begin marks a gesture active even while its window waits.
+        return !tempo.active && !tempo.pending && !tempo.keyLock && tempo.percent == 0 && tempo.appliedPercent == 0 &&
+            !scratch.active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached;
+    };
+    return linear(state.source) && linear(source);
+}
+
+bool RenderCore::continueSource(std::size_t deck, AudioSource source,
+    std::uint64_t nextFrame, std::uint64_t revision) noexcept
+{
+    if (!canContinueSource(deck, source, nextFrame, revision)) return false;
+    auto& state = decks_[deck];
+    if (state.source.setRenderActive)
+        state.source.setRenderActive(state.source.context, false);
+    state.source = source;
+    state.buffering = false;
+    transportIntent(state);
+    notifyActivity(state);
     return true;
 }
 
@@ -390,6 +450,7 @@ bool RenderCore::setPlaying(std::size_t deck, bool playing) noexcept
         return false;
     auto& state = decks_[deck];
     if (scratchState(deck).active && !endScratch(deck, state.scratchToken)) return false;
+    transportIntent(state);
     const bool active = state.playing || state.cuePreviewing;
     const bool wasRenderActive = renderActive(state);
     state.playing = playing;
@@ -483,6 +544,7 @@ bool RenderCore::cuePress(std::size_t deck) noexcept
     if (deck >= deckCount || !decks_[deck].source.frames)
         return false;
     auto& state = decks_[deck];
+    transportIntent(state);
     if (state.cueHeld)
         return true;
     state.cueHeld = true;
@@ -511,6 +573,7 @@ bool RenderCore::cueRelease(std::size_t deck) noexcept
     if (deck >= deckCount || !decks_[deck].source.frames)
         return false;
     auto& state = decks_[deck];
+    transportIntent(state);
     if (!state.cueHeld)
         return true;
     const bool wasRenderActive = renderActive(state);
@@ -528,6 +591,7 @@ bool RenderCore::setCueFrame(std::size_t deck, std::uint64_t frame) noexcept
 {
     if (deck >= deckCount || !decks_[deck].source.frames || frame > sourceFrames(deck))
         return false;
+    transportIntent(decks_[deck]);
     decks_[deck].cueFrame = frame;
     return true;
 }

@@ -75,6 +75,14 @@ bool StemBankSource::configureRamps(std::uint32_t frames) noexcept
     return true;
 }
 
+bool StemBankSource::copyMixStateFrom(const StemBankSource& source) noexcept
+{
+    if (started_ || frames_ != source.frames_) return false;
+    gains_ = source.gains_;
+    rampFrames_ = source.rampFrames_;
+    return true;
+}
+
 bool StemBankSource::setGain(std::size_t stem, float gain) noexcept
 {
     if (stem >= stemCount || !std::isfinite(gain) || gain < 0.F || gain > maxGain) return false;

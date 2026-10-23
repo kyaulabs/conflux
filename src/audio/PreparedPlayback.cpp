@@ -394,6 +394,7 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
     if (live_ || stopped_ || !tempoSource_ || (scratchSource_ && scratchSource_->active()) || frame > frames_ ||
         !std::isfinite(percent) || percent < -6 || percent > 6)
         return false;
+    unusedContinuationPrime_ = false;
     const auto state = tempoSource_->status();
     if (command == AudioTempoCommand::Reset) {
         if (percent != 0) return false;
@@ -430,6 +431,7 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
 
 void PreparedPlayback::seekLinear(std::uint64_t frame) noexcept
 {
+    unusedContinuationPrime_ = false;
     const auto source = bank_ ? bank_->sourceRef() : readers_[0]->sourceRef();
     source.discontinuity(source.context, frame);
 }
@@ -455,6 +457,7 @@ bool PreparedPlayback::scratchControl(AudioScratchCommand command, std::int64_t 
                                       double intervalSeconds, std::uint64_t frame) noexcept
 {
     if (live_ || stopped_ || !scratchSource_ || frame > frames_) return false;
+    unusedContinuationPrime_ = false;
     if (command == AudioScratchCommand::Begin) {
         if (loop_.inSet || loop_.outSet || loop_.cached || preparedRenderError()) return false;
         return scratchSource_->begin(frame);
@@ -491,6 +494,7 @@ void PreparedPlayback::clearLoop() noexcept
 void PreparedPlayback::seekPrepared(std::uint64_t frame) noexcept
 {
     if (frame > frames_) return;
+    unusedContinuationPrime_ = false;
     if (scratchSource_) {
         scratchSource_->end();
         (void)scratchSource_->relocate(frame);
@@ -507,6 +511,7 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
 {
     if (live_ || stopped_ || frame > frames_) return false;
     if (scratchSource_ && scratchSource_->active()) return false;
+    unusedContinuationPrime_ = false;
     if (command == AudioLoopCommand::Clear) {
         const bool wasCached = loop_.cached;
         clearLoop();
@@ -556,6 +561,7 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
 AudioReadResult PreparedPlayback::readPrepared(std::uint64_t frame, std::span<float> output) noexcept
 {
     if (output.size() % StemBankSource::channels || frame > frames_) return {0, true};
+    if (!output.empty()) unusedContinuationPrime_ = false;
     if (scratchSource_ && scratchSource_->active()) return readScratch(output);
     // Optional inactive prefetch follows the nominal source cursor during
     // ordinary or processed playback. Failure remains scratch-only.
@@ -732,6 +738,7 @@ void PreparedPlayback::resetBankForSession() { resetBankForSessionAt(0); }
 
 void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
 {
+    unusedContinuationPrime_ = false;
     if (stopped_) throw std::logic_error("Cannot reuse a stopped playback owner");
     if (scratchSource_) scratchSource_->end();
     if (!live_) clearLoop();
@@ -750,6 +757,7 @@ void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
 
 bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
 {
+    unusedContinuationPrime_ = false;
     if (!live_) clearLoop();
     // An explicit attempt supersedes every older success, even when argument
     // validation or an already-cancelled token prevents a new request.
@@ -863,11 +871,14 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         }
     }
     if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
+    continuationPrimeFrame_ = frame;
+    unusedContinuationPrime_ = bool(bank_);
     return true;
 }
 
 bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
 {
+    unusedContinuationPrime_ = false;
     if (!live_) clearLoop();
     // Validate the effective timeout before considering an already-ready bank.
     // Preserve ordinary prime's live cap and transient-error retry behavior.
@@ -916,6 +927,19 @@ bool PreparedPlayback::configureStemRamps(std::uint32_t frames) noexcept
     return !bank_ || bank_->configureRamps(frames);
 }
 
+bool PreparedPlayback::copyStemMixStateFrom(const PreparedPlayback& source) noexcept
+{
+    if (this == &source || live_ || stopped_ || source.stopped_ || !bank_ || !source.bank_ ||
+        frames_ != source.frames_ || errorCode()) return false;
+    return bank_->copyMixStateFrom(*source.bank_);
+}
+
+bool PreparedPlayback::primedForContinuation(std::uint64_t frame) const noexcept
+{
+    return !live_ && !stopped_ && bank_ && unusedContinuationPrime_ && frame < frames_ &&
+        continuationPrimeFrame_ == frame && !errorCode();
+}
+
 int PreparedPlayback::errorCode() const noexcept
 {
     if (live_)
@@ -953,6 +977,7 @@ std::string PreparedPlayback::error() const
 
 void PreparedPlayback::stop() noexcept
 {
+    unusedContinuationPrime_ = false;
     unusedLivePrime_ = false;
     if (stopped_) return;
     stopped_ = true;

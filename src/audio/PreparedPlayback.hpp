@@ -76,6 +76,14 @@ public:
     // a bank uses these frames for future gain changes. Never call from the GUI
     // once this owner has entered the render-boundary handoff.
     bool configureStemRamps(std::uint32_t frames) noexcept;
+    // Same render owner, or both owners quiesced. An unread, healthy finite
+    // bank adopts only the current bank's gain trajectories, even if that
+    // source has failed. Cursor/provenance/mode eligibility belongs to caller.
+    bool copyStemMixStateFrom(const PreparedPlayback& source) noexcept;
+    // Same owner thread as prime/read, after worker publication or quiescence.
+    // True only after an unused successful finite linear bank prime at frame;
+    // attests the existing read-ahead prefix, not the live reserve or all PCM.
+    [[nodiscard]] bool primedForContinuation(std::uint64_t frame) const noexcept;
     // Atomic reader/control health only; safe to sample from the render owner.
     // RenderCore separately publishes failures reported by the bank's RT read.
     [[nodiscard]] int errorCode() const noexcept;
@@ -121,6 +129,9 @@ private:
     std::uint64_t frames_;
     std::atomic<int> primeError_{0};
     bool stopped_ = false;
+    // Sole render/control owner across quiescence and candidate publication.
+    std::uint64_t continuationPrimeFrame_ = 0;
+    bool unusedContinuationPrime_ = false;
     // Render/control owner only across quiescence; producer never touches it.
     std::uint64_t livePrimeFrame_ = 0, livePrimeEpoch_ = 0;
     bool unusedLivePrime_ = false;
