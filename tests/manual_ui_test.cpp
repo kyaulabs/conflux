@@ -820,6 +820,117 @@ private slots:
         QVERIFY(!ui_->item("masterGain")->isEnabled());
     }
 
+    void keyboardTraversalReachesEnabledControlsWithoutCommands_data()
+    {
+        QTest::addColumn<int>("fontPixels");
+        QTest::newRow("minimum-15px") << 15;
+        QTest::newRow("minimum-19px") << 19;
+    }
+
+    void keyboardTraversalReachesEnabledControlsWithoutCommands()
+    {
+        QFETCH(int, fontPixels);
+        const auto originalFont = QGuiApplication::font();
+        const auto restoreFont = qScopeGuard([this, originalFont] {
+            ui_.reset();
+            QGuiApplication::setFont(originalFont);
+        });
+        ui_.reset();
+        auto platformFont = originalFont;
+        platformFont.setPixelSize(fontPixels);
+        QGuiApplication::setFont(platformFont);
+        ui_ = std::make_unique<UiFixture>();
+        ui_->load();
+        QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
+        QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        ui_->window->contentItem()->polish(); ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+
+        QStringList candidates{"libraryOpen", "audioSettingsOpen", "themeToggle",
+                               "masterGain", "cueGain", "crossfader"};
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            for (const auto* suffix : {"Browse", "BpmReference", "Cue", "Play", "Seek", "Jog",
+                                      "Tempo", "MasterTempo", "TempoReset", "LoopIn", "LoopOut",
+                                      "LoopToggle", "Gain", "CueSelect", "EqHI", "EqMID", "EqLOW"})
+                candidates.append(prefix + QString::fromLatin1(suffix));
+        }
+        for (const auto& name : candidates)
+            QVERIFY2(ui_->item(name.toUtf8().constData()), qPrintable(name));
+        const auto ownsFocus = [](QQuickItem* control, QQuickItem* focus) {
+            for (auto* item = focus; item; item = item->parentItem())
+                if (item == control) return true;
+            return false;
+        };
+        QString failure;
+        const auto walk = [&](QQuickItem* start, bool backwards) {
+            // Item order is deliberately unspecified. Require a bounded cycle,
+            // reachable enabled controls, and no hidden/disabled focus trap.
+            QList<QQuickItem*> visited;
+            QStringList reached;
+            for (int step = 0; step < 128; ++step) {
+                auto* current = ui_->window->activeFocusItem();
+                if (!current || !current->isVisible() || !current->isEnabled()) {
+                    failure = "Keyboard focus left visible enabled content";
+                    return false;
+                }
+                if (visited.contains(current)) {
+                    if (current != start) {
+                        failure = "Keyboard traversal repeated before returning to its start";
+                        return false;
+                    }
+                    for (const auto& name : candidates) {
+                        auto* control = ui_->item(name.toUtf8().constData());
+                        if (control && control->isVisible() && control->isEnabled() && !reached.contains(name)) {
+                            failure = "Keyboard traversal missed " + name;
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                visited.append(current);
+                for (const auto& name : candidates) {
+                    auto* control = ui_->item(name.toUtf8().constData());
+                    if (control && ownsFocus(control, current)) reached.append(name);
+                }
+                QTest::keyClick(ui_->window, backwards ? Qt::Key_Backtab : Qt::Key_Tab);
+                if (!QTest::qWaitFor([&] { return ui_->window->activeFocusItem() != current; }, 500)) {
+                    failure = "Tab/Backtab did not advance from " + current->objectName();
+                    return false;
+                }
+            }
+            failure = "Keyboard traversal exceeded its128-step bound";
+            return false;
+        };
+        for (int phase = 0; phase < 3; ++phase) {
+            if (phase == 1) {
+                auto tempo = UiEndpoint::tempoState(true);
+                tempo["active"] = true; tempo["percent"] = 1.0;
+                ui_->endpoint.snapshotTempo(0, tempo); ui_->endpoint.snapshotTempo(1, tempo);
+                QTRY_VERIFY(ui_->item("deck0TempoReset")->isEnabled());
+                QTRY_VERIFY(ui_->item("deck1TempoReset")->isEnabled());
+            } else if (phase == 2) {
+                ui_->endpoint.setReplacing(0, true);
+                for (const auto* name : {"deck0Play", "deck0Cue", "deck0Seek", "deck0Jog", "deck0Tempo", "deck0Gain"})
+                    QTRY_VERIFY(!ui_->item(name)->isEnabled());
+                QVERIFY(ui_->item("deck1Play")->isEnabled());
+                QVERIFY(ui_->item("crossfader")->isEnabled());
+            }
+            auto* start = ui_->item(phase == 2 ? "deck1Play" : "deck0Play");
+            start->forceActiveFocus();
+            QTRY_VERIFY(start->hasActiveFocus());
+            QVERIFY2(walk(start, false), qPrintable(failure));
+            QVERIFY2(walk(start, true), qPrintable(failure));
+            QVERIFY(ui_->endpoint.calls.isEmpty());
+        }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void keyboardPlayPauseRoutesBothDecks()
     {
         ui_->endpoint.loadState(0);
@@ -846,6 +957,96 @@ private slots:
             QVERIFY(!call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Play"));
         }
+    }
+
+    void keyboardShortcutsAndModalFocusReturnWithoutAudioCommands()
+    {
+        ui_->endpoint.loadState(0); ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        const auto decks = ui_->endpoint.decks();
+        const auto ownsFocus = [this](QQuickItem* control) {
+            for (auto* item = ui_->window->activeFocusItem(); item; item = item->parentItem())
+                if (item == control) return true;
+            return false;
+        };
+        const auto content = [](QObject* popup) {
+            return popup->property("contentItem").value<QQuickItem*>();
+        };
+        auto* library = ui_->object("libraryDrawer");
+        auto* libraryOpen = ui_->item("libraryOpen");
+        QVERIFY(library && libraryOpen);
+        libraryOpen->forceActiveFocus();
+        QTRY_VERIFY(libraryOpen->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_O, Qt::ControlModifier);
+        QTRY_VERIFY(library->property("opened").toBool());
+        QTRY_VERIFY(ownsFocus(ui_->item("deck0Path")));
+        QVERIFY(content(library));
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(ownsFocus(content(library)));
+        QTest::keyClick(ui_->window, Qt::Key_Backtab);
+        QTRY_VERIFY(ownsFocus(content(library)));
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!library->property("visible").toBool());
+        QTRY_VERIFY(libraryOpen->hasActiveFocus());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        auto* reference = ui_->item("deck0BpmReference");
+        auto* editor = ui_->object("deck0BpmEditor");
+        QVERIFY(reference && editor);
+        reference->forceActiveFocus();
+        QTRY_VERIFY(reference->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(editor->property("opened").toBool());
+        QTRY_VERIFY(ownsFocus(ui_->item("deck0BpmInput")));
+        QVERIFY(content(editor));
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(ownsFocus(content(editor)));
+        QTest::keyClick(ui_->window, Qt::Key_Backtab);
+        QTRY_VERIFY(ownsFocus(content(editor)));
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!editor->property("visible").toBool());
+        QTRY_VERIFY(reference->hasActiveFocus());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        const auto focusDescription = [this] {
+            QStringList chain;
+            for (auto* item = ui_->window->activeFocusItem(); item; item = item->parentItem())
+                chain.append(item->objectName() + " (" + QString::fromLatin1(item->metaObject()->className()) + ")");
+            return chain.join(" <- ");
+        };
+        auto* audio = ui_->object("audioSettingsDrawer");
+        auto* audioOpen = ui_->item("audioSettingsOpen");
+        QVERIFY(audio && audioOpen);
+        audioOpen->forceActiveFocus();
+        QTRY_VERIFY(audioOpen->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(audio->property("opened").toBool());
+        QVERIFY(content(audio));
+        // Native Popup may initially focus its container rather than a child.
+        QTRY_VERIFY2(audio->property("activeFocus").toBool(),
+                     qPrintable(QStringLiteral("Audio drawer focus remains at ") + focusDescription()));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("refreshRouting"));
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(ownsFocus(content(audio)));
+        QTest::keyClick(ui_->window, Qt::Key_Backtab);
+        QTRY_VERIFY2(audio->property("activeFocus").toBool(), qPrintable(focusDescription()));
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(ownsFocus(content(audio)));
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!audio->property("visible").toBool());
+        QTRY_VERIFY(audioOpen->hasActiveFocus());
+
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        const auto originalText = theme->property("text").toString();
+        QTest::keyClick(ui_->window, Qt::Key_F6);
+        QTRY_VERIFY(theme->property("text").toString() != originalText);
+        QTest::keyClick(ui_->window, Qt::Key_F6);
+        QTRY_COMPARE(theme->property("text").toString(), originalText);
+        QCOMPARE(ui_->endpoint.calls.size(), 1); // Only opening Audio requested discovery.
+        QCOMPARE(ui_->endpoint.decks(), decks);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void libraryPreparationCancellation_data()
@@ -2241,12 +2442,66 @@ private slots:
         }
     }
 
+    void jogAccessibleActionsRouteBothDirectionsAndRespectAvailability_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::newRow("deckA") << 0;
+        QTest::newRow("deckB") << 1;
+    }
+
+    void jogAccessibleActionsRouteBothDirectionsAndRespectAvailability()
+    {
+        QFETCH(int, deck);
+        ui_->endpoint.loadState(0, 5); ui_->endpoint.loadState(1, 5);
+        ui_->endpoint.setReady(true);
+        auto* jog = ui_->item(QString("deck%1Jog").arg(deck).toUtf8().constData());
+        QVERIFY(jog && jog->isEnabled());
+        auto* accessible = QAccessible::queryAccessibleInterface(jog);
+        QVERIFY(accessible && accessible->actionInterface());
+        QCOMPARE(accessible->role(), QAccessible::Dial);
+        QVERIFY(accessible->text(QAccessible::Name).contains(deck == 0 ? "Deck A" : "Deck B"));
+        QVERIFY(accessible->text(QAccessible::Description).contains("ten milliseconds"));
+        auto* actions = accessible->actionInterface();
+        QVERIFY(actions->actionNames().contains(QAccessibleActionInterface::increaseAction()));
+        QVERIFY(actions->actionNames().contains(QAccessibleActionInterface::decreaseAction()));
+        const auto peer = ui_->endpoint.decks()[1 - deck];
+        const auto master = ui_->endpoint.masterGain(), cue = ui_->endpoint.cueGain(), crossfader = ui_->endpoint.crossfader();
+        actions->doAction(QAccessibleActionInterface::increaseAction());
+        actions->doAction(QAccessibleActionInterface::decreaseAction());
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        for (int index = 0; index < 2; ++index) {
+            verifyCueCall(index, "jog", deck);
+            QCOMPARE(ui_->endpoint.calls[index].toMap()["frames"].toLongLong(), index == 0 ? qint64(480) : qint64(-480));
+        }
+        for (const auto* gate : {"replacing", "unloaded", "output-unready"}) {
+            if (QString::fromLatin1(gate) == "replacing") ui_->endpoint.setReplacing(deck, true);
+            else if (QString::fromLatin1(gate) == "unloaded") ui_->endpoint.unloadState(deck);
+            else ui_->endpoint.setReady(false);
+            QTRY_VERIFY(!jog->isEnabled());
+            actions->doAction(QAccessibleActionInterface::increaseAction());
+            actions->doAction(QAccessibleActionInterface::decreaseAction());
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), 2);
+            ui_->endpoint.loadState(deck, 5); ui_->endpoint.setReady(true);
+            QTRY_VERIFY(jog->isEnabled());
+        }
+        actions->doAction(QAccessibleActionInterface::increaseAction());
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "jog", deck);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["frames"].toLongLong(), qint64(480));
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peer);
+        QCOMPARE(ui_->endpoint.masterGain(), master);
+        QCOMPARE(ui_->endpoint.cueGain(), cue);
+        QCOMPARE(ui_->endpoint.crossfader(), crossfader);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void heldVinylSearchEndsBeforeJog_data()
     {
         QTest::addColumn<int>("deck");
         QTest::addColumn<QString>("search");
         for (int deck = 0; deck < 2; ++deck)
-            for (const auto* search : {"arrow", "shift-arrow", "wheel"})
+            for (const auto* search : {"arrow", "shift-arrow", "wheel", "accessible"})
                 QTest::newRow(qPrintable(QString("deck%1-%2").arg(deck).arg(search)))
                     << deck << QString::fromLatin1(search);
     }
@@ -2274,7 +2529,11 @@ private slots:
         QVERIFY(!token.isEmpty());
         QTRY_VERIFY(jog->hasActiveFocus());
         qint64 expected = 480;
-        if (search == "wheel") {
+        if (search == "accessible") {
+            auto* accessible = QAccessible::queryAccessibleInterface(jog);
+            QVERIFY(accessible && accessible->actionInterface());
+            accessible->actionInterface()->doAction(QAccessibleActionInterface::increaseAction());
+        } else if (search == "wheel") {
             QWheelEvent wheel(QPointF(point), QPointF(ui_->window->mapToGlobal(point)),
                               {}, {0, 120}, Qt::LeftButton, Qt::NoModifier, Qt::NoScrollPhase, false);
             QGuiApplication::sendEvent(ui_->window, &wheel);

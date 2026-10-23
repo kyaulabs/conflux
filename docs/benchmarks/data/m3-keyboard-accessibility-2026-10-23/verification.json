@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "recorded_date": "2026-10-23",
+  "status": "passed_test_only",
+  "base_commit": "24d424f89fe802a8a876d378a946b95f26b964d4",
+  "source_state": "Tested working tree based on base_commit plus tests/manual_ui_test.cpp changes; these new tests are not claimed to exist in base_commit. Root verified no product QML diff. Relevant source/test bytes are pinned below, not a full dependency closure.",
+  "scope": "Offscreen synthetic keyboard and direct Qt accessibility-action tests with a recording endpoint. No real audio session, model or physical input hardware.",
+  "tested_sources": [
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 317357,
+      "sha256": "9713db2efd7ed24df135b9398fa1648251246301a983062ba1f4b791df4ac856"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 68210,
+      "sha256": "eafe980744b3ac596c59639d3a7d5da04ad6e17b2da3275671ec414fd35fd8f8"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 76891,
+      "sha256": "61d738546c2944e83e87c41abafdf6263f885d841936546202eb5a5e812d3d4a"
+    },
+    {
+      "path": "qml/DeckButton.qml",
+      "bytes": 8082,
+      "sha256": "d80b143e357a36225460cf74bec6aeacad8c396396c32d2fa109e5243a749dcc"
+    }
+  ],
+  "environment": {
+    "Qt": "6.12.0",
+    "QT_QPA_PLATFORM": "offscreen",
+    "QT_QUICK_BACKEND": "software",
+    "QT_QUICK_CONTROLS_STYLE": "Basic"
+  },
+  "checks": {
+    "full_manual_ui": {
+      "qt_passed": 229,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 129393,
+      "ctest_entries_passed": 1,
+      "ctest_elapsed_seconds_reported": 129.44,
+      "log": {
+        "path": "root-full-ui-01.log",
+        "bytes": 22035,
+        "sha256": "178259ed22d775f71c1e2e863ff3c15c322364ab7d8f32fb4dc6a425a2d19a83"
+      },
+      "ctest_xml": {
+        "path": "root-full-ui-01.xml",
+        "bytes": 1459,
+        "sha256": "0d6b6154c585f1139855e73396aeff8ae05c43226fcced39319ef99e995543b9"
+      },
+      "count_scope": "Qt result rows include setup/cleanup; this is one CTest entry, not 229 CTest entries."
+    },
+    "focused_keyboard_accessibility": {
+      "qt_passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 3222,
+      "scope": "13 behavior/data results plus init/cleanup; overlaps the full suite and includes unchanged arrow/wheel held-scratch cases. Do not sum these as unique results.",
+      "log": {
+        "path": "root-focused-tests-03.log",
+        "bytes": 1380,
+        "sha256": "8a8fb7ffe92542eb7a3b183456751e51419cf2bfd4e7289956ad751a44d54882"
+      }
+    },
+    "corrected_modal_oracle_original_QML": {
+      "qt_passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 2182,
+      "scope": "One modal keyboard behavior plus init/cleanup, with original Main.qml.",
+      "log": {
+        "path": "root-original-popup-public-01.log",
+        "bytes": 469,
+        "sha256": "377a499be35951a47281843822651d3f67eed5559f51932a77df15484cb7dcca"
+      }
+    }
+  },
+  "behavior": [
+    "At 1180x760 with 15px and 19px application fonts, Tab/Backtab reaches enabled controls in normal, active-tempo and deck-A-replacing states without audio endpoint commands. Reachability is bounded to 128 advances per phase/direction and does not prescribe complete control order.",
+    "Ctrl+O opens Library; BPM and Audio open through the keyboard. Escape restores each invoking control. Audio native Popup.activeFocus may be its container; actual Tab reaches content, Backtab remains in the popup and the next Tab reaches content again.",
+    "F6 toggles the theme twice. Modal checks permit exactly the existing one refreshRouting call and require unchanged complete fake endpoint deck maps.",
+    "Both jog controls expose native Dial accessibility with forward/reverse actions and existing 480-frame search increments. Replacement, unloaded and unavailable-output gates reject actions.",
+    "Both decks end a held scratch once before accessible positional search, matching the existing arrow/wheel path. Retired pointer input cannot move or end it again; a fresh press has a fresh token."
+  ],
+  "oracle_correction": {
+    "initial_test_sha256": "d62019247ce6139e8781c14a7df613c6eb452f948f457e111b2c9a53d3caff95",
+    "rejected_assertion": "Initial Audio focus had to be a descendant of contentItem. That overconstrained the native Popup focus container.",
+    "initial_results": [
+      {
+        "qt_passed": 14,
+        "failed": 1,
+        "qt_elapsed_ms": 18880,
+        "product_QML": "original",
+        "log": {
+          "path": "root-focused-tests-01.log",
+          "bytes": 1528,
+          "sha256": "a3c91512d05a451a4b2dcfbb95d849934b7c698cba094e2be07f5d29d3c69be6"
+        },
+        "Main_QML_sha256": "eafe980744b3ac596c59639d3a7d5da04ad6e17b2da3275671ec414fd35fd8f8"
+      },
+      {
+        "qt_passed": 14,
+        "failed": 1,
+        "qt_elapsed_ms": 18991,
+        "product_QML": "temporary focus:true experiment",
+        "log": {
+          "path": "root-focused-tests-02.log",
+          "bytes": 1528,
+          "sha256": "40c57c23a415f647dc174b6cbd9f2073803f930319bcfe6e2bcdc146b646ba63"
+        },
+        "Main_QML_sha256": "0cec3602d44145ab6b36d3b551f97a27afa2c2804006f9d46bfe66ffef974d71"
+      }
+    ],
+    "resolution": "The public Popup focus and actual key-traversal oracle passes original product QML. The temporary focus:true line was removed; no product defect or product fix is claimed. Original failure logs remain retained.",
+    "correction_receipt": {
+      "path": "root-oracle-correction-01.json",
+      "bytes": 396,
+      "sha256": "8bab9f03d972355f1b90cfb4b129bb72ef8baec9249e99d947e93a25ffcd6ef1"
+    }
+  },
+  "warnings": {
+    "full_log_QWARN_rows": 8,
+    "scope": "Six existing CUE cancellation binding-loop messages and two older layout mouse-bound messages remain recorded. They were not suppressed or fixed by this test-only slice; focused and corrected modal logs contain no QWARN rows."
+  },
+  "limits": [
+    "Direct accessibility-action calls do not establish actual screen-reader or other assistive-technology operation.",
+    "No physical touchscreen, compositor focus/portal acceptance or musical mixing trial was performed.",
+    "No current engine/UI contention, callback performance, physical audio continuity or sustained live-stem latency was measured.",
+    "This local Qt 6.12 run does not establish supported Qt 6.4 runtime acceptance; CI is separate.",
+    "M2, M3 and release acceptance remain open. No qualification is claimed."
+  ]
+}
