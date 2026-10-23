@@ -2083,9 +2083,12 @@ void scenario(const QString& output, const QString& privateRoot, bool exitScenar
     }
 }
 
-void residentScenario(const QString& output, const QString& privateRoot, QJsonArray& results)
+void residentScenario(const QString& output, const QString& privateRoot, QJsonArray& results,
+                      std::string_view continuationMode = {})
 {
-    const auto name = QStringLiteral("resident-hold");
+    const bool takeover = continuationMode == "takeover", cancelLookup = continuationMode == "cancel";
+    const bool preparedContinuation = takeover || cancelLookup;
+    const auto name = QStringLiteral("resident-") + (takeover ? "takeover" : cancelLookup ? "cancel" : "hold");
     const auto local = QDir(output).filePath(name), cacheHome = QDir(privateRoot).filePath(name);
     directory(local); directory(cacheHome);
     Evidence evidence{name, output, privateRoot};
@@ -2103,7 +2106,10 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
     options.stemEngine = fixture.engine; options.stemServicePath = fixture.service; options.limits = tightLimits();
     conflux::DeckController controller(options);
     evidence.controller = &controller;
-    Sink sink("conflux-resident-hold-" + std::to_string(::getpid()));
+    Sink sink("conflux-resident-" + name.toStdString() + "-" + std::to_string(::getpid()));
+    const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+    QLockFile gate(QDir(cache).filePath(".lock"));
+    bool locked = false;
     try {
         QString left, right;
         privateLivePair(controller, sink, left, right, insist);
@@ -2146,6 +2152,18 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
             "Independent finite bass peer did not install", std::chrono::seconds(15));
         insist(controller.error().isEmpty() && !controller.decks()[1].toMap()["liveStems"].toBool(),
             "Peer uses its existing finite owner and no second live service");
+        // Explicit test setup AFTER the genuine initial live miss. The product
+        // continuation is cache-only and must never generate this bank itself.
+        if (preparedContinuation) {
+            seedBank(a, cache, fixture.engine, evidence);
+            insist(gate.tryLock(0), "Existing cache lock delays only the automatic resident lookup");
+            locked = true;
+        }
+        const auto exporterCalls = fixture.engine.exporterPath.chopped(3) + ".calls";
+        const auto seededCalls = preparedContinuation ? digest(exporterCalls) : QString{};
+        const auto originalMetadata = controller.decks()[0].toMap();
+        const auto retainedBefore = controller.retainedPcmBytes();
+        const auto beforePreparation = controller.preparation();
         for (int role = 0; role < 4; ++role) controller.setStemGain(0, role, role == 1 ? 1. : 0.);
         await(evidence, [&] { return controller.audioState().stemGain[0] == bassOnly; }, "Bass selection was not acknowledged");
         const auto beforePlay = controller.audioState(); const auto sessions = controller.completedSessions();
@@ -2180,6 +2198,116 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
             looping.residentHold[0].audibleFrame <= 51120 && controller.completedSessions() == sessions,
             "Shortage repeats only the approved resident range while F is parked, peer/output continue and no A frame is starved");
         evidence.actions["held"] = snapshot(held); evidence.actions["looping"] = QJsonObject::fromVariantMap(hold());
+        const auto continuation = [&] { return controller.decks()[0].toMap()["continuation"].toMap(); };
+        if (preparedContinuation) {
+            await(evidence, [&] { return continuation()["status"] == "Checking" &&
+                continuation()["pending"].toBool(); }, "Active unbuffered resident range did not start a cache-only lookup");
+            const auto checking = controller.audioState(); const auto attempt = continuation();
+            insist(checking.residentHold[0].active && !checking.buffering[0] && !checking.starvedFrames[0] &&
+                attempt["attempts"].toULongLong() == 1 && attempt["sourceFrame"].toULongLong() == held.sourceFrame[0] &&
+                attempt["sourceGeneration"].toULongLong() == held.sourceGeneration[0] &&
+                attempt["residentHoldRangeId"].toString() == initial["rangeId"].toString() && !controller.busy() &&
+                controller.preparation() == beforePreparation,
+                "One exact range-bound attempt starts while approved audio plays, without buffering or a normal load");
+            evidence.actions["continuation_capture"] = QJsonObject::fromVariantMap(attempt);
+            if (cancelLookup) {
+                insist(cancel(hold()), "An accepted exact resident Cancel revokes the in-flight lookup immediately");
+                insist(continuation()["status"] == "Cancelled", "Accepted Cancel wins before its callback snapshot");
+                controller.setPlaying(0, false);
+                controller.seekSeconds(0, (held.sourceFrame[0]+2048)/48000.);
+                controller.seekSeconds(0, held.sourceFrame[0]/48000.);
+            }
+            gate.unlock(); locked = false;
+            await(evidence, [&] { const auto state = controller.audioState();
+                return !continuation()["pending"].toBool() && (cancelLookup ?
+                    (continuation()["status"] == "Cancelled" && !state.playing[0] &&
+                     state.sourceFrame[0] == held.sourceFrame[0] && state.transportRevision[0] > held.transportRevision[0]) :
+                    (continuation()["status"] == "Active" && state.sourceGeneration[0] != held.sourceGeneration[0] &&
+                     !state.buffering[0] && state.sourceFrame[0] >= held.sourceFrame[0]+1024));
+            }, "Resident continuation did not settle the exact hit or manual cancellation");
+            const auto settled = controller.audioState(); continuousPeer(looping, settled);
+            insist(continuation()["attempts"].toULongLong() == 1 && controller.completedSessions() == sessions &&
+                controller.liveStemObservations(0) == handle && handle->setup().sourceToken == token &&
+                (cancelLookup || !settled.starvedFrames[0]) && !settled.starvedFrames[1] && !settled.sourceReadErrorObserved[0] &&
+                !settled.sourceReadError[0] && controller.recording()["active"].toBool() &&
+                !controller.recording()["overflowFrames"].toULongLong(),
+                "Settling retains the exact episode, observations, peer, recorder and source health");
+            if (takeover) {
+                const auto mapped = controller.decks()[0].toMap();
+                insist(!mapped["liveStems"].toBool() && !mapped["residentHold"].toMap()["configured"].toBool() &&
+                    settled.sourceGeneration[0] == continuation()["generation"].toULongLong() &&
+                    settled.transportRevision[0] == held.transportRevision[0]+1 && settled.sourceFrames[0] == held.sourceFrames[0] &&
+                    settled.sourcePosition[0] == double(settled.sourceFrame[0]) && settled.stemGain == looping.stemGain &&
+                    settled.deckGain == looping.deckGain && settled.eqGainDb == looping.eqGainDb &&
+                    settled.cueFrame == looping.cueFrame && settled.cueSelected == looping.cueSelected &&
+                    settled.masterGain == looping.masterGain && settled.crossfader == looping.crossfader &&
+                    settled.sourceFrame[0]-held.sourceFrame[0] <= settled.outputFrame-looping.outputFrame,
+                    "Automatic range-bound OUT takeover preserves finite F direction, exact geometry, controls and source metadata");
+                for (const auto* key : {"name", "sourceId", "title", "artist", "album", "artworkDataUrl", "bpm", "waveform", "overviewStem"})
+                    if (mapped[key] != originalMetadata[key]) throw std::runtime_error("Resident continuation changed original metadata");
+                const auto expectedRetained = retainedBefore-initial["residentBytes"].toULongLong()+settled.sourceFrames[0]*32;
+                await(evidence, [&] { return services.gone(0) && bound.groupGone() &&
+                    controller.retainedPcmBytes() == expectedRetained; }, "Acquired old live/range ownership did not retire off-thread");
+                controller.stopRecording();
+                await(evidence, [&] { return !controller.recording()["active"].toBool(); }, "Resident continuation recording did not drain");
+                const auto recording = controller.recording(); const auto frames = recording["writtenFrames"].toULongLong();
+                insist(recording["status"] == "Complete" && recording["acceptedFrames"] == recording["writtenFrames"] &&
+                    !recording["overflowFrames"].toULongLong(), "Resident takeover retains every accepted recorded frame");
+                current(); report["wav"] = inspectStemRecording(wav, frames, frames, 1.F, false, bothBass); current();
+                insist(report["wav"].toObject()["checked_prefix_or_tail_frames"].toVariant().toULongLong() == frames,
+                    "Every stereo sample through live, held and finite OUT takeover matches the selected-bass oracle");
+            } else {
+                insist(settled.sourceGeneration[0] == held.sourceGeneration[0] &&
+                    controller.decks()[0].toMap()["liveStems"].toBool() && !settled.residentHold[0].armed &&
+                    !settled.residentHold[0].active && services.alive(0) &&
+                    settled.starvedFrames[0] >= checking.starvedFrames[0] &&
+                    settled.starvedFrames[0]-checking.starvedFrames[0] <= settled.outputFrame-checking.outputFrame,
+                    "Cancel and seek-away/back never install a stale candidate; any intentional A buffering is output-bounded");
+                // Cancel may reach a callback before Pause. That intentional
+                // control interval is not continuous-A or zero-starvation proof.
+                report["manual_cancel_starved_frames"] = qint64(settled.starvedFrames[0]-checking.starvedFrames[0]);
+                report["manual_cancel_interval_output_frames"] = qint64(settled.outputFrame-checking.outputFrame);
+                report["affected_deck_audio_scope"] = "Accepted Cancel/Pause/seeks may deliberately buffer A; peer and recorder remain strict.";
+            }
+            services.capture(); const auto all = [&](const char* key, const char* value) {
+                return std::ranges::count_if(services.rows(), [&](const auto& row) { return row[key].toString() == value; });
+            };
+            insist(digest(exporterCalls) == seededCalls && services.size() == 1 && all("fixture", "started") == 1 &&
+                all("command", "load") == 1 && all("fixture", "runtime") == 1,
+                "Resident continuation adds no export, second live service, load or runtime");
+            report["settled"] = snapshot(settled); report["continuation_final"] = QJsonObject::fromVariantMap(continuation());
+            controller.shutdown(); evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX; evidence.drain();
+            const auto counters = handle->counters(); const auto stoppedAudio = controller.audioState();
+            const auto finalRecording = controller.recording();
+            insist(services.gone(0) && bound.groupGone() && counters.producerFinished && !counters.droppedRecords &&
+                !counters.invalidClockReads && counters.attemptedRecords == evidence.ordinal &&
+                !controller.busy() && !controller.outputReady() && controller.completedSessions() == sessions+1 &&
+                !stoppedAudio.starvedFrames[1] && controller.completedStarvedFrames() == stoppedAudio.starvedFrames[0] &&
+                (cancelLookup ? stoppedAudio.starvedFrames[0] == settled.starvedFrames[0] : !stoppedAudio.starvedFrames[0]) &&
+                controller.completedReadFailures() == 0 && controller.completedRejected() == 0 && controller.completedInvalidBuffers() == 0 &&
+                finalRecording["status"] == "Complete" && finalRecording["acceptedFrames"] == finalRecording["writtenFrames"] &&
+                !finalRecording["overflowFrames"].toULongLong(),
+                "Both outcomes retire exact owned jobs, drain every recorded frame and count observed health exactly once");
+            report["passed"] = true; evidence.write(true); evidence.controller = nullptr;
+            insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome), "Only retired resident continuation cache is removed");
+            results.append(report); return;
+        }
+        // A genuine miss is checked once while buffering stays false; verify
+        // unchanged native range/cursor/owner and real recorded/output progress,
+        // not just an unavailable label that could hide a silent failed source.
+        await(evidence, [&] { return continuation()["status"] == "Unavailable" &&
+            !continuation()["pending"].toBool(); }, "Missing resident bank did not settle one cache-only attempt");
+        const auto missed = controller.audioState(); const auto missedRecording = controller.recording()["acceptedFrames"].toULongLong();
+        await(evidence, [&] { return controller.audioState().outputFrame >= missed.outputFrame+holdFrames &&
+            controller.recording()["acceptedFrames"].toULongLong() >= missedRecording+holdFrames; },
+            "Unchanged resident miss did not retain audible/recorded progress");
+        const auto afterMiss = controller.audioState(); continuousPeer(missed, afterMiss);
+        insist(continuation()["attempts"].toULongLong() == 1 && !continuation()["detail"].toString().isEmpty() &&
+            continuation()["residentHoldRangeId"].toString() == initial["rangeId"].toString() &&
+            afterMiss.residentHold[0].active && afterMiss.residentHold[0].armed && !afterMiss.buffering[0] &&
+            afterMiss.sourceFrame[0] == held.sourceFrame[0] && afterMiss.sourceGeneration[0] == held.sourceGeneration[0] &&
+            !afterMiss.starvedFrames[0] && !afterMiss.sourceReadError[0] && services.alive(0),
+            "A missing bank never rearms from buffering=false or replaces the approved resident audio");
         const auto currentTicket = hold(); const auto commandsBeforeStale = controller.submittedCommands();
         for (const auto* key : {"outputSession", "rangeId", "sourceGeneration", "transportRevision"}) {
             auto stale = currentTicket; stale[key] = "18446744073709551616";
@@ -2282,6 +2410,7 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
         insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome), "Only retired owned resident cache/library is removed");
         results.append(report);
     } catch (const std::exception& error) {
+        if (locked) gate.unlock();
         controller.shutdown(); evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX;
         try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
         evidence.controller = nullptr; report["passed"] = false; report["error"] = error.what();
@@ -2289,7 +2418,7 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
     }
 }
 
-enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground, ResidentHold };
+enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground, ResidentHold, ResidentTakeover, ResidentCancel };
 void continuationScenario(const QString& output, const QString& privateRoot,
                           ContinuationCase kind, QJsonArray& results)
 {
@@ -2674,8 +2803,11 @@ int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCa
         directory(privateRoot);
         pw_init(nullptr, nullptr);
         if (continuationOnly) {
-            if (*continuationCase == ContinuationCase::ResidentHold)
-                residentScenario(QString::fromStdString(output.string()), privateRoot, results);
+            if (*continuationCase == ContinuationCase::ResidentHold || *continuationCase == ContinuationCase::ResidentTakeover ||
+                *continuationCase == ContinuationCase::ResidentCancel)
+                residentScenario(QString::fromStdString(output.string()), privateRoot, results,
+                    *continuationCase == ContinuationCase::ResidentTakeover ? "takeover" :
+                    *continuationCase == ContinuationCase::ResidentCancel ? "cancel" : "");
             else continuationScenario(QString::fromStdString(output.string()), privateRoot, *continuationCase, results);
         } else {
             scenario(QString::fromStdString(output.string()), privateRoot, false, results);
@@ -2717,7 +2849,7 @@ int main(int argc, char** argv)
     try {
         bool functionalOnly = false, liveFailureOnly = false;
         std::optional<liveFailure::ContinuationCase> continuationCase;
-        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold}]";
+        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold,resident-takeover,resident-cancel}]";
         if (argc < 3) throw std::runtime_error(usage);
         for (int argument = 3; argument < argc; ++argument) {
             const std::string_view option(argv[argument]);
@@ -2732,6 +2864,8 @@ int main(int argc, char** argv)
                 else if (value == "stop") continuationCase = liveFailure::ContinuationCase::Stop;
                 else if (value == "foreground") continuationCase = liveFailure::ContinuationCase::Foreground;
                 else if (value == "resident-hold") continuationCase = liveFailure::ContinuationCase::ResidentHold;
+                else if (value == "resident-takeover") continuationCase = liveFailure::ContinuationCase::ResidentTakeover;
+                else if (value == "resident-cancel") continuationCase = liveFailure::ContinuationCase::ResidentCancel;
                 else throw std::runtime_error(usage);
             } else throw std::runtime_error(usage);
         }

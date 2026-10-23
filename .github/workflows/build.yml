@@ -50,6 +50,14 @@ jobs:
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-foreground-check --continuation-case foreground
       - name: Test resident recovery authorization
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-hold-check --continuation-case resident-hold
+      - name: Test resident range callback interior
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-callback-interior-check --resident-takeover-case interior
+      - name: Test resident range callback alignment
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-callback-boundary-check --resident-takeover-case boundary
+      - name: Test resident prepared continuation
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-takeover-check --continuation-case resident-takeover
+      - name: Test resident continuation cancellation
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-cancel-check --continuation-case resident-cancel
 
   coverage:
     runs-on: ubuntu-24.04

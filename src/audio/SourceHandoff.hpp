@@ -23,6 +23,9 @@ public:
         std::uint64_t generation = 0;
         Kind kind = Kind::Replacement;
         std::uint64_t expectedSourceGeneration = 0, expectedTransportRevision = 0, frame = 0;
+        // Nonzero continues at this active resident range's audible OUT, with
+        // the linear frame parked. Zero retains ordinary immediate continuation.
+        std::uint64_t residentHoldRangeId = 0;
     };
     struct RetiredState {
         std::uint64_t sourceFrame = 0, starvedFrames = 0;
@@ -45,6 +48,7 @@ public:
         if (revision != collected_ || next.deck >= RenderCore::deckCount ||
             !next.source.frames || !next.generation ||
             (next.kind != Kind::Replacement && !continuation) ||
+            (!continuation && next.residentHoldRangeId) ||
             (continuation && (next.frame >= next.source.frames ||
                 next.generation <= next.expectedSourceGeneration ||
                 next.expectedTransportRevision == std::numeric_limits<std::uint64_t>::max())))
@@ -56,7 +60,8 @@ public:
 
     // Render owner: capture BEFORE draining commands at callback entry. The
     // replacement can remain visible while its old deck fades to silence;
-    // continuation instead validates the retained state without pausing it.
+    // continuation instead validates the retained state without pausing it,
+    // and a range-bound request can wait across callbacks for its audible OUT.
     bool readPending(Request& result) noexcept
     {
         const auto revision = requested_.load(std::memory_order_acquire);

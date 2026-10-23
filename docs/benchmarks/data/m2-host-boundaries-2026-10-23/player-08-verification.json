@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "run": "player-diagnostic-08",
+  "status": "short_player_diagnostic_passed_after_separate_offline_schema_reassessment",
+  "qualified": false,
+  "timing_qualification": false,
+  "visible_ui_qualification": false,
+  "source": {
+    "commit": "141deca7a7269b1aee95f273777178cb1e989e41",
+    "scope": "Frozen signed141deca player; product C++/QML matches the earlier79a321 freeze. Later resident-hold integration and current develop are excluded.",
+    "current_develop_qualified": false
+  },
+  "assets": {
+    "binary": {
+      "sha256": "c7acb415a13357c9bd7e37254fa36d4a0b94f0a63c8786d55b839b3bc399d86e",
+      "bytes": 20954744
+    },
+    "runtime": {
+      "sha256": "a3210155e4d8e2996db709dae30061f08c7ef8676dad0ebe2ff51a329c5e637f",
+      "bytes": 62987120
+    },
+    "model": {
+      "sha256": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "bytes": 84059168
+    },
+    "track_a": {
+      "sha256": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "bytes": 4127804
+    },
+    "track_b": {
+      "sha256": "872d8a954ee7af61e520c81d7a0469cbfe65a5ef18b7a532accd02389cbec9d9",
+      "bytes": 138240044
+    }
+  },
+  "configuration": {
+    "quality": "Best",
+    "backend": "vulkan",
+    "runtime_threads": 2,
+    "source_input_frames_44100": 1031940,
+    "source_output_frames_48000": 1123201,
+    "native_window_frames_44100": 343980,
+    "channels": 2,
+    "ui_policy": "background",
+    "requested_quick_backend_environment": ""
+  },
+  "measurement": {
+    "requested_seconds": 120,
+    "wall_ms": 120013,
+    "output_frames": 5758976,
+    "output_seconds": 119.97866666666667,
+    "closed_contiguous_intervals": 11,
+    "steady_intervals": 6,
+    "control_intervals": 5,
+    "diagnostic_tail_ms": 8068,
+    "tail_outside_measured_interval_and_finalized_WAV": true
+  },
+  "service": {
+    "published_hops": 21,
+    "nearest_rank_p99_ms": 3012.7005870017456,
+    "maximum_ms": 3012.7005870017456,
+    "strict_target_ms": 4095,
+    "at_or_above_target": 0,
+    "short_sample_target_met": true,
+    "native_completed_requests": 22,
+    "completed_unpublished_request": 2,
+    "request2_scope": "Began in generation1 and returned after worker generation2; stale result was not published. No full in-flight native/GPU cancellation claim.",
+    "all_original13_phase_fields_retained": true,
+    "phase_scope": "Original nested service/native durations; they are not13 disjoint phases or additive CPU/GPU attribution."
+  },
+  "controls": {
+    "control_starved_frames": 782080,
+    "control_starved_audio_seconds": 16.293333333333333,
+    "seek_recovery_cursor_poll_upper_ms": 5847.482625,
+    "replay_recovery_cursor_poll_upper_ms": [
+      2705.161774,
+      2643.162721,
+      2700.754706,
+      2650.437104
+    ],
+    "incomplete_generation_seek_exercised": true,
+    "scope": "Accepted generation had no observed RawComplete at seek issue. Five deliberate DeckA buffering/re-prime intervals; cursor observations are polling upper bounds. No uninterrupted DeckA or native hard-cancel claim."
+  },
+  "audio_and_callbacks": {
+    "steady_starved_frames": 0,
+    "outside_interval_starved_frames": 0,
+    "peer_starved_frames": 0,
+    "source_read_failures": 0,
+    "invalid_buffers": 0,
+    "rejected_commands": 0,
+    "callback_deadline_misses": 0,
+    "callbacks_including_startup_and_tail": 25263,
+    "quantum_frames": [
+      256,
+      256
+    ],
+    "graph_rate": 48000,
+    "callback_maximum_execution_ns": 502214,
+    "driver_position_discontinuities": 0,
+    "driver_recovery_flags": 0,
+    "recording_stereo_frames_48000": 6071552,
+    "recording_accepted_equals_written": true,
+    "recording_overflow_frames": 0,
+    "recording_status": "Complete",
+    "scope": "Harness counters and recorded-file geometry/level/drain checks. Driver metadata is not physical xrun evidence. No every-frame reference PCM comparison or listening acceptance was performed."
+  },
+  "window_observations": {
+    "checks": 11856,
+    "unexposed_checks": 0,
+    "hidden_checks": 0,
+    "frames_presented": 8003,
+    "frame_gap_max_ms": 49.788883,
+    "GUI_heartbeat_gap_max_ms": 100.939044,
+    "event_history_attempted": 81,
+    "event_history_retained": 64,
+    "event_history_evicted": 17,
+    "scope": "Qt measured-loop/frameSwapped observations under background policy; visible-UI and physical scanout qualification remain false."
+  },
+  "original_and_corrected_assessments": {
+    "native_player_exit": 0,
+    "public_workload_passed": true,
+    "original_trace_driver_status": "failed",
+    "original_trace_driver_error": "Native shutdown/context differs",
+    "original_failure_and_raw_inputs_preserved": true,
+    "correction": "Validate the schema1 wire envelope, then compare the unchanged shutdown payload without that outer schema key.",
+    "offline_regression_tests": 37,
+    "offline_regression_returncode": 0,
+    "old_reader_wire_regression_failed_as_expected": true,
+    "separate_guarded_offline_reassessment_complete": true,
+    "all_original_post_capture_checks": {
+      "status": "complete",
+      "diagnostic_complete": true,
+      "cleanup_complete": true,
+      "pins_unchanged": true
+    },
+    "new_physical_execution_for_reassessment": false,
+    "readiness_or_deadline_renewed": false
+  },
+  "clocks_and_cleanup": {
+    "inner_wrapper_max_seconds": 300,
+    "outer_command_max_seconds": 360,
+    "outer_TERM_at_seconds": 345,
+    "outer_KILL_at_seconds": 357,
+    "operator_max_seconds": 480,
+    "outer_elapsed_seconds": 210.19047158199828,
+    "operator_age_at_finish_seconds": 285.39409421000164,
+    "native_idle_quit_exit": 0,
+    "native_idle_quit_complete": true,
+    "owned_groups_absent": true,
+    "launcher_reaped": true,
+    "capture_complete": true,
+    "external_signals": [],
+    "cleanup_proven": true,
+    "owned_cache_removed": true,
+    "source_and_asset_pins_unchanged": true,
+    "readiness_consumed": true,
+    "automatic_retry": false
+  },
+  "host_context": {
+    "same_guard_identity_preserved": true,
+    "guard_script_sha256": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0",
+    "guard_unit_sha256": "e5c6c89f2b186b976379b2ee4ffb0d3e044e1cf9b1fca3a0cf60cc600c9b2d8f",
+    "sampled_profile_epp": "balanced / balance_performance",
+    "temperature_samples": 67,
+    "maximum_sampled_sensor_millidegrees_C": 91000,
+    "quiet_before_command_seconds": 67.03919904699433,
+    "scope": "Quiet time did not replace observed cooldown. Temperature samples and one successful short run do not establish quiet-time, power-profile, GPU or performance causality."
+  },
+  "remaining_gates": {
+    "M2_complete": false,
+    "M3_complete": false,
+    "first_0_1_0_release_ready": false,
+    "limits": [
+      "21 published hops are a short instrumented sample, not a sustained service-p99 qualification.",
+      "Frozen141deca results do not qualify current develop or later resident-hold integration.",
+      "No full in-flight GPU cancellation, physical xrun, every-frame expected PCM, listening or causal quiet-time claim."
+    ]
+  },
+  "evidence": {
+    "scope": "Portable summary only. Raw files remain in local build/m2-host-boundaries-01; original failures and data were not rewritten.",
+    "sha256": {
+      "player-diagnostic-08/plan.json": "4e235364776cd6b0d4bdf914bd8876227c8fc7805bed8ac41b3d94b23101a933",
+      "player-diagnostic-08/root-outcome-01.json": "0b2bd06bb12d37a74887f2ec38a892b2fadbf517791fafa6444f84d7caf04281",
+      "player-diagnostic-08/diagnostic-assessment.json": "4222e0e80f56741c8a9f4341e57f256150df3769b0ed1b25fa0baccd80ca0f3b",
+      "player-diagnostic-08/output-01/observations.jsonl": "f89ecba7dd836fdcfa2360a1d7caae30efcf162534c3067640677cd58771ff3c",
+      "player-diagnostic-08/host-capture-01/native-profiler.capture.json": "43b502c266e0e683f8dd9486d08da1ddd28f1b4288fce9c8dda1c1a50ff93eee",
+      "player-trace-schema-fix-01/root-offline-01.json": "1eb07d9c9996090249f39ed51249325ac1543948c1af0a7e2311eff547169a40",
+      "player-trace-schema-fix-01/root-reassessment-08-01.json": "91b13a8cc3b042d72f5c0140a10b1bf0b9b86863fa9f4aaa9f0a5086e4917206",
+      "player-trace-schema-fix-01/independent-final-review-01.json": "232d8f5508190877290da082119fceb59d1a64f0ad6ffcb85933f3e6db3dee62"
+    }
+  }
+}

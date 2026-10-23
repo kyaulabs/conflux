@@ -210,7 +210,7 @@ private:
     };
     struct ContinuationEpisode {
         const PreparedPcm* clip = nullptr;
-        std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, attempts = 0;
+        std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, attempts = 0, residentHoldRangeId = 0;
         QElapsedTimer stalled;
         bool attempted = false;
         QString status = "Idle", detail;
@@ -219,7 +219,7 @@ private:
         std::size_t deck = 0;
         std::shared_ptr<const PreparedPcm> original;
         const audio::LiveSession* session = nullptr;
-        std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0;
+        std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, residentHoldRangeId = 0;
         std::chrono::steady_clock::time_point deadline;
         std::shared_ptr<PreparedLoad> prepared;
         std::unique_ptr<audio::PreparedPlayback> retired;
@@ -270,6 +270,7 @@ private:
     bool residentTicket(int deck, const QString& sourceId, const QString& outputSession,
                         const QString& rangeId, const QString& generation, const QString& revision) const;
     bool queueResidentArm(std::size_t deck);
+    std::uint64_t continuationResidentRangeId(std::size_t deck) const;
     bool continuationEligible(std::size_t deck) const;
     bool continuationCurrent() const;
     void considerContinuation();

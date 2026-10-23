@@ -22,8 +22,10 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--live-failure-only", action="store_true",
                        help="run only the preparation binary's generated live stall/exit checks")
-    modes.add_argument("--continuation-case", choices=("takeover", "miss", "cancel", "stop", "foreground", "resident-hold"),
+    modes.add_argument("--continuation-case", choices=("takeover", "miss", "cancel", "stop", "foreground", "resident-hold", "resident-takeover", "resident-cancel"),
                        help="run one bounded generated same-deck continuation case")
+    modes.add_argument("--resident-takeover-case", choices=("interior", "boundary"),
+                       help="run one generated direct-session resident OUT takeover case")
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)
     output = args.output.absolute()
@@ -155,6 +157,8 @@ context.modules = [
                         command.append("--live-failure-only")
                     if args.continuation_case:
                         command.extend(("--continuation-case", args.continuation_case))
+                    if args.resident_takeover_case:
+                        command.extend(("--resident-takeover-case", args.resident_takeover_case))
                     checker = subprocess.Popen(
                         command, env=environment,
                         stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)

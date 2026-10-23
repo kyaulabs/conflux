@@ -111,8 +111,15 @@ public:
     // Active prepared DSP/loops require a separate state-transfer contract.
     [[nodiscard]] bool canContinueSource(std::size_t deck, AudioSource source,
         std::uint64_t nextFrame, std::uint64_t transportRevision) const noexcept;
+    enum class ContinuationStatus { Invalid, WaitingForHoldOut, Ready };
+    // A nonzero range binds an active approved hold. Only its audible OUT is a
+    // swap boundary; nextFrame remains the parked original linear cursor.
+    [[nodiscard]] ContinuationStatus continuationStatus(std::size_t deck, AudioSource source,
+        std::uint64_t nextFrame, std::uint64_t transportRevision,
+        std::uint64_t residentHoldRangeId = 0) const noexcept;
     bool continueSource(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision) noexcept;
+        std::uint64_t nextFrame, std::uint64_t transportRevision,
+        std::uint64_t residentHoldRangeId = 0) noexcept;
     [[nodiscard]] std::uint64_t transportRevision(std::size_t deck) const noexcept
     { return deck < deckCount ? decks_[deck].transportRevision : 0; }
     bool setPlaying(std::size_t deck, bool playing) noexcept;

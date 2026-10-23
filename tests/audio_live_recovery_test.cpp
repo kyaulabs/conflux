@@ -14,6 +14,7 @@
 #include <cerrno>
 #include <chrono>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -549,6 +550,126 @@ struct ResidentFixture {
     }
 };
 
+// The finite bank uses the same source-frame/role markers as the live producer.
+// Temporary raw leaves exercise the real unused-prime and stem-ramp transfer;
+// no original-mix substitute or constant signal can hide a wrong resume frame.
+struct ResidentPreparedBank {
+    struct Close { void operator()(std::FILE* file) const noexcept { if (file) std::fclose(file); } };
+    std::array<std::unique_ptr<std::FILE, Close>, 4> files;
+    ResidentPreparedBank() {
+        std::array<float, 1024 * 2> block{};
+        for (std::size_t stem = 0; stem < files.size(); ++stem) {
+            files[stem].reset(std::tmpfile());
+            require(bool(files[stem]), "Cannot create resident continuation leaf");
+            for (std::uint64_t first = 0; first < total;) {
+                const auto count = std::size_t(std::min<std::uint64_t>(1024, total-first));
+                for (std::size_t frame = 0; frame < count; ++frame)
+                    for (std::size_t channel = 0; channel < 2; ++channel)
+                        block[frame*2+channel] = holdSample(stem, first+frame, channel);
+                require(std::fwrite(block.data(), sizeof(float), count*2, files[stem].get()) == count*2,
+                    "Cannot write resident continuation leaf");
+                first += count;
+            }
+            require(std::fflush(files[stem].get()) == 0, "Cannot flush resident continuation leaf");
+        }
+    }
+    std::array<int, 4> fds() const {
+        return {fileno(files[0].get()), fileno(files[1].get()), fileno(files[2].get()), fileno(files[3].get())};
+    }
+};
+
+void residentPreparedTakeoverAtExactOutPreservesMarkerRampsAndFailure()
+{
+    using Status = RenderCore::ContinuationStatus;
+    ResidentPreparedBank leaves;
+    for (const bool producerFails : {false, true}) {
+        // Destruction order keeps the candidate alive through the core's final
+        // borrowed use, just as the callback mailbox retains both owners.
+        auto candidate = std::make_unique<PreparedPlayback>(leaves.fds(), total);
+        ResidentFixture f;
+        require(f.core->setCueFrame(0, 113), "Cannot retain a nonzero resident CUE marker");
+        f.enterAtF();
+        const auto epoch = f.state->epoch.load();
+        const auto revision = f.core->transportRevision(0);
+        const auto clock = f.core->frameClock();
+        require(candidate->prime(reserve, 2s) && candidate->primedForContinuation(reserve),
+            "Finite resident continuation did not prime exact parked F");
+        const auto source = candidate->sourceRef();
+        if (producerFails) {
+            f.state->failure = EIO; f.state->enabled = true;
+            await([&] { return f.owner->errorCode() == EIO; }, "Held producer failure did not settle");
+        }
+        require(!f.core->readFailed(), "Resident PCM unexpectedly fabricated a failed render read");
+        require(!f.core->canContinueSource(0, source, reserve, revision) &&
+            !f.core->continueSource(0, source, reserve, revision) &&
+            f.core->continuationStatus(0, source, reserve, revision, 771) == Status::WaitingForHoldOut,
+            "Ordinary continuation cut an active hold or boundary mode lost its waiting state");
+        f.render(61); // Neither approved OUT nor the remaining1987frames align to1024.
+        require(!f.core->continueSource(0, source, reserve, revision, 771) &&
+            candidate->primedForContinuation(reserve) && f.core->sourceFrame() == reserve,
+            "Early boundary request consumed candidate PCM or moved parked F");
+        f.render(1970);
+        require(f.core->residentHoldState().audibleFrame == reserve-17 &&
+            f.core->setStemGain(0, 0, .375F), "Cannot retarget mute immediately before OUT");
+        f.oracle.gains[0].set(.375);
+        f.render(17); // Last old-source prefix; ramp is now17/240, not its earlier value.
+        require(f.core->residentHoldState().audibleFrame == reserve &&
+            f.core->sourceFrame() == reserve && f.core->transportRevision(0) == revision &&
+            f.core->continuationStatus(0, source, reserve, revision, 771) == Status::Ready &&
+            candidate->primedForContinuation(reserve), "Exact OUT was skipped, wrapped or consumed finite readiness");
+        require(candidate->copyStemMixStateFrom(*f.owner) &&
+            f.core->continueSource(0, source, reserve, revision, 771), "Exact OUT failed its current ramp-state takeover");
+        f.oracle.exitReady = true;
+        require(f.core->sourceFrame() == reserve && f.core->transportRevision(0) == revision+1 &&
+            f.core->cueFrame(0) == 113 && f.core->isCueSelected(0) && f.core->isPlaying(0) &&
+            !f.owner->sourceRef().residentHoldState(f.owner.get()).active &&
+            !f.core->residentHoldState().supported && f.core->readFailed() == producerFails &&
+            f.owner->errorCode() == (producerFails ? EIO : 0) && !candidate->errorCode(),
+            "Commit reset F, retained an old hold borrow, copied failure or lost cumulative producer health");
+        f.render(33);
+        require(f.core->setStemGain(0, 0, .25F), "Cannot retarget transferred stem trajectory");
+        f.oracle.gains[0].set(.25);
+        f.render(974); // Core scalar/bus proof; actual LiveSession span splitting needs its owned callback test.
+        require(!candidate->primedForContinuation(reserve) && f.core->sourceFrame() == reserve+1007 &&
+            f.core->sourceFrame(1) == clock+2048+1007 && f.core->frameClock() == clock+2048+1007 &&
+            f.core->stemGain(0, 3) == 0.F && f.core->readFailed() == producerFails &&
+            f.state->epoch == epoch && !f.core->starvedFrames(),
+            "Takeover changed a master/CUE marker, peer clock, role exclusion, failure or live epoch");
+    }
+}
+
+void residentPreparedTakeoverRejectsNewerManualIntent()
+{
+    using Status = RenderCore::ContinuationStatus;
+    ResidentPreparedBank leaves;
+    auto candidate = std::make_unique<PreparedPlayback>(leaves.fds(), total);
+    ResidentFixture f; f.enterAtF();
+    require(candidate->prime(reserve, 2s), "Cannot prime stale resident candidate");
+    const auto source = candidate->sourceRef();
+    const auto revision = f.core->transportRevision(0);
+    require(f.core->continuationStatus(0, source, reserve, revision, 772) == Status::Invalid &&
+        f.core->continuationStatus(0, source, reserve+1, revision, 771) == Status::Invalid &&
+        f.core->continuationStatus(0, source, reserve, revision-1, 771) == Status::Invalid &&
+        f.core->continuationStatus(0, source, reserve, UINT64_MAX, 771) == Status::Invalid &&
+        candidate->primedForContinuation(reserve) && f.core->residentHoldState().active,
+        "Rejected range/frame/revision mutated a retained owner or candidate");
+    require(f.core->setDeckGain(0, .375F) && f.core->continuationStatus(0, source, reserve, revision, 771) ==
+        Status::WaitingForHoldOut, "Human mix gain incorrectly revoked the source-bound boundary");
+    f.command(AudioResidentHoldCommand::Exit);
+    require(f.core->continuationStatus(0, source, reserve, revision, 771) == Status::Invalid &&
+        f.core->continuationStatus(0, source, reserve, f.core->transportRevision(0), 771) == Status::Invalid,
+        "Explicit resume intent was overwritten by an automatic prepared takeover");
+    f.command(AudioResidentHoldCommand::Cancel);
+    f.command(AudioResidentHoldCommand::Arm); f.command(AudioResidentHoldCommand::Enter);
+    const auto rearmed = f.core->transportRevision(0);
+    require(f.core->continuationStatus(0, source, reserve, rearmed, 771) == Status::WaitingForHoldOut &&
+        f.core->seek(0, reserve+1) && f.core->seek(0, reserve) &&
+        f.core->continuationStatus(0, source, reserve, rearmed, 771) == Status::Invalid &&
+        !f.core->continueSource(0, source, reserve, rearmed, 771) &&
+        !f.core->residentHoldState().active && candidate->primedForContinuation(reserve),
+        "Seek-away/back reused an old range continuation or consumed rejected candidate readiness");
+}
+
 void residentLoopPcmRampsReserveExitAndRecording()
 {
     ResidentFixture f; f.enterAtF();
@@ -788,6 +909,8 @@ int main()
         actualRenderActivityEdges();
         realOwnerReserveRecoveryAndPeer();
         residentRangeValidationAndEpochCapture();
+        residentPreparedTakeoverAtExactOutPreservesMarkerRampsAndFailure();
+        residentPreparedTakeoverRejectsNewerManualIntent();
         residentLoopPcmRampsReserveExitAndRecording();
         residentTerminalFailureKeepsEverySubblockAudible();
         residentNearEofFailureDoesNotTruncateCallbackOrLoopHealthyEnd();

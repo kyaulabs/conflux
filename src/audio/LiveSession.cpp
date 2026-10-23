@@ -676,7 +676,7 @@ public:
     bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                    std::uint64_t expectedSourceGeneration,
                                    std::uint64_t expectedTransportRevision, std::uint64_t frame,
-                                   std::uint64_t generation) noexcept
+                                   std::uint64_t generation, std::uint64_t residentHoldRangeId) noexcept
     {
         if (!ready() || !candidate || candidate->isLive() || candidate->errorCode() ||
             replacementPlayback_ || handoff_.busy() || deck >= RenderCore::deckCount ||
@@ -688,7 +688,7 @@ public:
         if (!source.setStemGain || !source.stemGain || !candidate->configureStemRamps(240) ||
             !candidate->primedForContinuation(frame)) return false;
         if (!handoff_.request({deck, source, candidate.get(), generation, SourceHandoff::Kind::Continuation,
-                              expectedSourceGeneration, expectedTransportRevision, frame}))
+                              expectedSourceGeneration, expectedTransportRevision, frame, residentHoldRangeId}))
             return false;
         replacementDeck_ = deck;
         replacementKind_ = SourceHandoff::Kind::Continuation;
@@ -846,26 +846,36 @@ public:
             ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
         } else if (self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
-            if (replacementPending) {
-                if (replacement.kind == SourceHandoff::Kind::Continuation) {
-                    // Resolve once, after controls: stale intent/cursor is a rejection,
-                    // never an instruction to pause or seek the retained source.
-                    replacementCompleted = true;
-                    const auto* previous = self.activePlaybacks_[replacement.deck];
-                    if (previous && replacement.playback &&
-                        self.sourceGeneration_[replacement.deck] == replacement.expectedSourceGeneration &&
-                        self.renderer_.canContinueSource(replacement.deck, replacement.source,
-                            replacement.frame, replacement.expectedTransportRevision) &&
-                        !replacement.playback->errorCode() &&
-                        replacement.playback->primedForContinuation(replacement.frame) &&
-                        replacement.playback->copyStemMixStateFrom(*previous)) {
-                        retiredState = {self.renderer_.sourceFrame(replacement.deck),
-                            self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
-                            previous->errorCode()};
-                        replacementInstalled = self.renderer_.continueSource(replacement.deck, replacement.source,
-                            replacement.frame, replacement.expectedTransportRevision);
+            const auto tryContinuation = [&]() noexcept {
+                if (!replacementPending || replacementCompleted || replacement.kind != SourceHandoff::Kind::Continuation)
+                    return;
+                // Commands drained first. A waiting range is revalidated before
+                // every prefix; no control can make a stale request cut a loop.
+                const auto* previous = self.activePlaybacks_[replacement.deck];
+                const auto status = previous && replacement.playback &&
+                    self.sourceGeneration_[replacement.deck] == replacement.expectedSourceGeneration &&
+                    !replacement.playback->errorCode() && replacement.playback->primedForContinuation(replacement.frame) ?
+                    self.renderer_.continuationStatus(replacement.deck, replacement.source, replacement.frame,
+                        replacement.expectedTransportRevision, replacement.residentHoldRangeId) :
+                    RenderCore::ContinuationStatus::Invalid;
+                if (status == RenderCore::ContinuationStatus::WaitingForHoldOut) return;
+                replacementCompleted = true;
+                if (status == RenderCore::ContinuationStatus::Ready &&
+                    replacement.playback->copyStemMixStateFrom(*previous)) {
+                    retiredState = {self.renderer_.sourceFrame(replacement.deck),
+                        self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
+                        previous->errorCode()};
+                    replacementInstalled = self.renderer_.continueSource(replacement.deck, replacement.source,
+                        replacement.frame, replacement.expectedTransportRevision, replacement.residentHoldRangeId);
+                    if (replacementInstalled) {
+                        self.activePlaybacks_[replacement.deck] = replacement.playback;
+                        self.sourceGeneration_[replacement.deck] = replacement.generation;
                     }
-                } else {
+                }
+            };
+            if (replacementPending) {
+                if (replacement.kind == SourceHandoff::Kind::Continuation) tryContinuation();
+                else {
                     if (self.stagedGeneration_ != replacement.generation) {
                         if (self.renderer_.sourceFrames(replacement.deck)) {
                             (void)self.renderer_.cueRelease(replacement.deck);
@@ -880,18 +890,37 @@ public:
                         replacementInstalled = self.renderer_.replaceSource(replacement.deck, replacement.source);
                         replacementCompleted = true;
                     }
-                }
-                if (replacementInstalled) {
-                    self.activePlaybacks_[replacement.deck] = replacement.playback;
-                    self.sourceGeneration_[replacement.deck] = replacement.generation;
+                    if (replacementInstalled) {
+                        self.activePlaybacks_[replacement.deck] = replacement.playback;
+                        self.sourceGeneration_[replacement.deck] = replacement.generation;
+                    }
                 }
             }
             for (std::uint32_t offset = 0; offset < frames;) {
-                const auto count = std::min<std::uint32_t>(scratchFrames, frames - offset);
+                tryContinuation();
+                auto count = std::min<std::uint32_t>(scratchFrames, frames - offset);
+                const bool heldPrefix = replacementPending && !replacementCompleted && replacement.residentHoldRangeId;
+                const auto beforeHold = heldPrefix ? self.renderer_.residentHoldState(replacement.deck) : AudioResidentHoldState{};
+                if (heldPrefix) {
+                    if (beforeHold.audibleFrame >= beforeHold.outFrame) {
+                        replacementCompleted = true;
+                        continue;
+                    }
+                    count = std::uint32_t(std::min<std::uint64_t>(count, beforeHold.outFrame-beforeHold.audibleFrame));
+                }
                 auto master = std::span(self.masterScratch_).first(count * 2U);
                 auto cuePcm = std::span(self.cueScratch_).first(count * 2U);
                 if (!self.renderer_.renderBuses(master, cuePcm)) {
                     ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); break;
+                }
+                if (heldPrefix) {
+                    const auto afterHold = self.renderer_.residentHoldState(replacement.deck);
+                    // A malformed/failed resident prefix cannot leave a borrowed
+                    // candidate waiting forever. No wrap was allowed in this span.
+                    if (!afterHold.active || afterHold.rangeId != beforeHold.rangeId ||
+                        afterHold.linearFrame != replacement.frame ||
+                        afterHold.audibleFrame != beforeHold.audibleFrame+count)
+                        replacementCompleted = true;
                 }
                 self.accumulateMeters(self.renderer_.meters());
                 self.tap_.push(master);
@@ -907,6 +936,7 @@ public:
                 rendered += count; offset += count;
             }
             self.finishMeters();
+            if (rendered == frames) tryContinuation(); // OUT may be the last frame of this callback.
             self.streamFramesMin_ = std::min<std::uint64_t>(self.streamFramesMin_, rendered);
             self.streamFramesMax_ = std::max<std::uint64_t>(self.streamFramesMax_, rendered);
         }
@@ -1149,8 +1179,8 @@ bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<Prep
 { return impl_->requestSourceReplacement(deck,candidate,generation); }
 bool LiveSession::requestSourceContinuation(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,
     std::uint64_t expectedSourceGeneration,std::uint64_t expectedTransportRevision,std::uint64_t frame,
-    std::uint64_t generation)noexcept
-{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,frame,generation); }
+    std::uint64_t generation,std::uint64_t residentHoldRangeId)noexcept
+{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,frame,generation,residentHoldRangeId); }
 bool LiveSession::sourceReplacementPending()const noexcept { return impl_->handoff_.busy(); }
 std::optional<LiveSession::SourceReplacementResult> LiveSession::takeSourceReplacementResult()noexcept
 { return impl_->takeSourceReplacementResult(); }

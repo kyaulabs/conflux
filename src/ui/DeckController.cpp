@@ -360,6 +360,7 @@ QVariantList DeckController::decks() const
                 {"attempts", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].attempts)},
                 {"sourceFrame", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].frame)},
                 {"sourceGeneration", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].sourceGeneration)},
+                {"residentHoldRangeId", QString::number(continuationEpisodes_[deck].residentHoldRangeId)},
                 {"generation", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].generation)}}},
             {"scratch", QVariantMap{
                 {"position", state_.scratch[deck].position},
@@ -1101,6 +1102,7 @@ bool DeckController::cancelResidentHold(int deck, const QString& sourceId,
     const auto expected = pending.phase == ResidentAuthorization::Phase::ArmPending ? pending.revision :
         state_.transportRevision[deck];
     if (!hold.armed && !hold.active && pending.phase != ResidentAuthorization::Phase::ArmPending) {
+        cancelContinuation(std::size_t(deck), "You turned recovery off.");
         revokeResidentAuthorization(std::size_t(deck), "You turned recovery off.");
         emit stateChanged(); return true;
     }
@@ -1108,6 +1110,7 @@ bool DeckController::cancelResidentHold(int deck, const QString& sourceId,
     command.deck = std::uint32_t(deck); command.sourceGeneration = state_.sourceGeneration[deck];
     command.transportRevision = expected; command.residentHoldToken = clips_[deck]->residentHold->id;
     if (!submit(command)) return false; // Preserve current authorization on queue failure.
+    cancelContinuation(std::size_t(deck), "You turned recovery off.");
     revokeResidentAuthorization(std::size_t(deck), "Recovery off requested.");
     return true;
 }
@@ -1121,7 +1124,8 @@ bool DeckController::exitResidentHold(int deck, const QString& sourceId,
     command.deck = std::uint32_t(deck); command.sourceGeneration = state_.sourceGeneration[deck];
     command.transportRevision = state_.transportRevision[deck]; command.residentHoldToken = clips_[deck]->residentHold->id;
     if (!submit(command)) return false;
-    residentAuthorizations_[deck].detail = "Resume requested for the end of this loop, when stems are ready.";
+    cancelContinuation(std::size_t(deck), "You requested live stems at the end of the recovery loop.");
+    revokeResidentAuthorization(std::size_t(deck), "Resume requested for the end of this loop, when stems are ready.");
     return true;
 }
 
@@ -1156,11 +1160,36 @@ void DeckController::pollResidentAuthorization()
     }
 }
 
+std::uint64_t DeckController::continuationResidentRangeId(std::size_t deck) const
+{
+    if (deck >= clips_.size() || !clips_[deck] || !clips_[deck]->live() || !clips_[deck]->residentHold)
+        return 0;
+    const auto& range = *clips_[deck]->residentHold;
+    const auto& hold = state_.residentHold[deck];
+    // Reuse the loaded source's exact approved range and native Arm state.
+    // Accepted manual controls revoke the existing GUI authorization before
+    // their callback snapshot arrives; never launch another check in that gap.
+    if (residentAuthorizations_[deck].phase != ResidentAuthorization::Phase::Armed ||
+        !hold.supported || !hold.ready || !hold.armed || !hold.active || hold.exitPending ||
+        !range.id || hold.rangeId != range.id || hold.inFrame != range.inFrame || hold.outFrame != range.outFrame ||
+        hold.provenance != range.provenance || hold.linearFrame != state_.sourceFrame[deck] ||
+        range.inFrame >= range.outFrame || range.outFrame > clips_[deck]->frames() ||
+        hold.audibleFrame < range.inFrame || hold.audibleFrame > range.outFrame)
+        return 0;
+    const auto frames = range.outFrame-range.inFrame;
+    if (frames < audio::AudioResidentHoldRange::minimumFrames || frames > audio::AudioResidentHoldRange::maximumFrames ||
+        hold.residentBytes != frames*audio::AudioResidentHoldRange::bytesPerFrame)
+        return 0;
+    return range.id;
+}
+
 bool DeckController::continuationEligible(std::size_t deck) const
 {
     if (closing_ || !ready_ || !session_ || !session_->ready() || deck >= clips_.size() ||
         !clips_[deck] || !clips_[deck]->live() || !preparationOptions_.stemEngine ||
-        (!state_.playing[deck] && !state_.cuePreview[deck]) || !state_.buffering[deck] ||
+        (!state_.playing[deck] && !state_.cuePreview[deck]) ||
+        (!state_.buffering[deck] && !continuationResidentRangeId(deck)) ||
+        (state_.residentHold[deck].active && !continuationResidentRangeId(deck)) ||
         state_.sourceFrames[deck] != clips_[deck]->frames() || state_.sourceFrame[deck] >= clips_[deck]->frames() ||
         state_.sourcePosition[deck] != double(state_.sourceFrame[deck]) ||
         state_.transportRevision[deck] == std::numeric_limits<std::uint64_t>::max()) return false;
@@ -1178,7 +1207,7 @@ bool DeckController::continuationCurrent() const
     return session_.get() == attempt.session && clips_[deck] == attempt.original && continuationEligible(deck) &&
         sourceIds_[deck] == attempt.original->liveSourceSha256 &&
         state_.sourceGeneration[deck] == attempt.sourceGeneration && state_.transportRevision[deck] == attempt.revision &&
-        state_.sourceFrame[deck] == attempt.frame;
+        state_.sourceFrame[deck] == attempt.frame && continuationResidentRangeId(deck) == attempt.residentHoldRangeId;
 }
 
 void DeckController::cancelContinuation(std::size_t deck, const QString& reason)
@@ -1201,11 +1230,13 @@ void DeckController::considerContinuation()
         if (continuation_ && continuation_->deck == deck) continue;
         auto& episode = continuationEpisodes_[deck];
         if (!clips_[deck] || !clips_[deck]->live()) continue;
+        const auto rangeId = continuationResidentRangeId(deck);
         if (!continuationEligible(deck)) {
             // Healthy progress or a deliberate non-rendering state ends this
             // stall. An unchanged failed/buffering source does not rearm a miss.
-            if (!state_.buffering[deck] || state_.sourceFrame[deck] != episode.frame ||
-                state_.transportRevision[deck] != episode.revision) {
+            if ((!state_.buffering[deck] && !state_.residentHold[deck].active) ||
+                state_.sourceFrame[deck] != episode.frame || state_.transportRevision[deck] != episode.revision ||
+                rangeId != episode.residentHoldRangeId) {
                 episode.attempted = false; episode.stalled.invalidate();
                 if (!state_.buffering[deck] && (state_.playing[deck] || state_.cuePreview[deck]) &&
                     state_.sourceFrame[deck] > episode.frame) {
@@ -1215,15 +1246,17 @@ void DeckController::considerContinuation()
             continue;
         }
         if (episode.clip != clips_[deck].get() || episode.sourceGeneration != state_.sourceGeneration[deck] ||
-            episode.revision != state_.transportRevision[deck] || episode.frame != state_.sourceFrame[deck]) {
+            episode.revision != state_.transportRevision[deck] || episode.frame != state_.sourceFrame[deck] ||
+            episode.residentHoldRangeId != rangeId) {
             const auto attempts = episode.clip == clips_[deck].get() ? episode.attempts : 0;
             episode = {};
             episode.clip = clips_[deck].get(); episode.sourceGeneration = state_.sourceGeneration[deck];
             episode.revision = state_.transportRevision[deck]; episode.frame = state_.sourceFrame[deck];
+            episode.residentHoldRangeId = rangeId;
             episode.attempts = attempts; episode.stalled.start();
         }
         if (!episode.stalled.isValid()) episode.stalled.start();
-        if (episode.attempted || (!state_.sourceReadError[deck] &&
+        if (episode.attempted || (!rangeId && !state_.sourceReadError[deck] &&
             (!episode.stalled.isValid() || episode.stalled.elapsed() < 4095))) continue;
         if (busy_ || loaderPurpose_ != LoaderPurpose::None || continuation_ || installationPending_ || pendingLoad_ ||
             replacing_[0] || replacing_[1] || retirementPending_ || deferredRetirement_.count ||
@@ -1255,6 +1288,7 @@ void DeckController::considerContinuation()
         attempt.deck = deck; attempt.original = original; attempt.session = session_.get();
         attempt.sourceGeneration = state_.sourceGeneration[deck]; attempt.revision = state_.transportRevision[deck];
         attempt.frame = state_.sourceFrame[deck]; attempt.generation = ++nextSourceGeneration_;
+        attempt.residentHoldRangeId = rangeId;
         attempt.deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
         episode.generation = attempt.generation;
         const auto frame = attempt.frame;
@@ -1349,7 +1383,7 @@ void DeckController::continuationLoaded(const LoadResult& result)
     // Control publication and the callback both require the unused exact prime.
     // No seek/reset/stop or gain retarget is applied to this candidate here.
     attempt.published = session_->requestSourceContinuation(attempt.deck, attempt.prepared->playback,
-        attempt.sourceGeneration, attempt.revision, attempt.frame, attempt.generation);
+        attempt.sourceGeneration, attempt.revision, attempt.frame, attempt.generation, attempt.residentHoldRangeId);
     if (!attempt.published) {
         episode.status = "Unavailable"; episode.detail = "The exact prepared continuation could not be published.";
         auto playback = std::move(attempt.prepared->playback);

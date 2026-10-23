@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "status": "local_generated_functional_checks_passed",
+  "recorded_utc": "2026-10-23T22:02:20.281189+00:00",
+  "source_state": {
+    "base_commit": "c6bb90d390c3dfde7705ecad3cf2085d92e3d19e",
+    "feature_commit": null,
+    "description": "Uncommitted reviewed feature on this base. Hashes below identify tested feature bytes; the base commit alone does not contain or identify the tested feature."
+  },
+  "source_pins": [
+    {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 14300,
+      "sha256": "5557c8a5dab769bdee53ad990729b8f7f29827b35de3a2fec0ff6f4d0e03ab3c"
+    },
+    {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 43524,
+      "sha256": "843f9e2b602480b34b7c9471d8f3c003df02b0ba366b83e085a9710bab8280d5"
+    },
+    {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 8659,
+      "sha256": "665417f94fd8d9ba6ea46ec78bde0ad66a61aa8b49414698ab79a42992c9194d"
+    },
+    {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 68040,
+      "sha256": "732a19d88b1077c76984466a8e4b00556898a69665972877f4bb70b64598200c"
+    },
+    {
+      "path": "src/audio/SourceHandoff.hpp",
+      "bytes": 4571,
+      "sha256": "771e4bacc42a416ec4785e73022473baa5e7ba7b2ce86b3d1672a964601f2cb1"
+    },
+    {
+      "path": "tests/audio_live_recovery_test.cpp",
+      "bytes": 51773,
+      "sha256": "c2a845d821886ae0d8b0cd3b1306a126d048514a526904dd26a30087aa76be5d"
+    },
+    {
+      "path": "tests/audio_source_handoff_test.cpp",
+      "bytes": 23966,
+      "sha256": "0c9589e769bcc72ebbde98d66fd9e14f79ac4adedd892cd133e6fcc11dbf9e6a"
+    },
+    {
+      "path": "tools/experiments/manual_routing_check.cpp",
+      "bytes": 116268,
+      "sha256": "835adab9a7792c75dbcd7c68403f55cacaf21c0191affed179983f34d72fe576"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 19919,
+      "sha256": "db92550ce969d56a2b3f6efa71290a69aad411ca60ee5fd903477f659c95066c"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 129076,
+      "sha256": "8521b865275326be7acf7ecde1fbb91081ca98bb4ac28bb28489d00b4b9590ee"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 255347,
+      "sha256": "23308b10f8afd83a629bd386b604bdf1a9e74486dcf1e3f11653d773d9e60022"
+    },
+    {
+      "path": "tools/experiments/private_routing_check.py",
+      "bytes": 10975,
+      "sha256": "b6beed45c02848fbdcfe6a303069857bd7638e93a49cea4124910cc9d3b58946"
+    },
+    {
+      "path": ".github/workflows/build.yml",
+      "bytes": 7042,
+      "sha256": "d0f8afc08d99dfe9f5fa88f68b3f250d195a11394b3ffb6360932df9974d43f9"
+    },
+    {
+      "path": "tools/coverage/run.py",
+      "bytes": 14498,
+      "sha256": "76c5d096e2ab2f83a8c85ed9b765162da1d07f29dba5100de3ea76898b71d5fa"
+    },
+    {
+      "path": "tests/live_session_test.cpp",
+      "bytes": 25786,
+      "sha256": "05e02ba91dbf8fe77d7b5aed33a6a77a6bd162399481f5261875aed2f5fd622e"
+    },
+    {
+      "path": "tests/audio_live_owner_test.cpp",
+      "bytes": 28303,
+      "sha256": "56b4eadb4bceaf445dc99c05ec26fb1fbcd44ad23abbef038c16850fcd954bd0"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 138155,
+      "sha256": "70cb0a26833afc3643337e41fd6599d55f1c330a392d28208c1e215e454cda56"
+    },
+    {
+      "path": "tests/live_owner_retirement_test.cpp",
+      "bytes": 9372,
+      "sha256": "5b0dd351112818bb386c1377923a621a100f3877c1082a85d9df2a453f3b78af"
+    }
+  ],
+  "behavior": {
+    "lookup": "One cache-only attempt per unchanged active supported/ready/armed approved range; capture and revalidate source, generation, transport revision, parked frame and range ID. Miss/exception leaves resident stems playing.",
+    "handoff": "Prepared four-stem continuation waits for exact OUT, copies current ramps after the old prefix and starts finite PCM at parked F. Both owners remain alive through matching callback-END ACK; retired owner is joined off-thread.",
+    "manual_priority": "Accepted transport/Cancel/Exit revokes pending automatic work immediately, including old pre-ACK active snapshots. Native Exit still waits for unchanged reserve and OUT.",
+    "unchanged": "Ordinary buffering4095ms policy,10s cache admission,<=2s finite prime, stem-only restrictions and original error/cumulative health accounting."
+  },
+  "checks": {
+    "prerequisite_suite": {
+      "exit_code": 0,
+      "cases": [
+        {
+          "name": "audio-source-handoff",
+          "time": "0.010427",
+          "status": "run"
+        },
+        {
+          "name": "live-session",
+          "time": "0.562281",
+          "status": "run"
+        },
+        {
+          "name": "audio-live-recovery",
+          "time": "1.23489",
+          "status": "run"
+        },
+        {
+          "name": "audio-live-owner",
+          "time": "0.204693",
+          "status": "run"
+        },
+        {
+          "name": "deck-controller",
+          "time": "12.7904",
+          "status": "run"
+        }
+      ],
+      "source_scope": "Audio core files remained unchanged through callback/controller stages. This earlier deck-controller run predates activation; the later affected run is listed separately, not counted as another unique test."
+    },
+    "actual_live_session_callbacks": {
+      "interior": {
+        "passed": true,
+        "parked_F": 262161,
+        "callback_end_ack_output_frame": 264448,
+        "actual_swap_output_frame": 264209,
+        "first_prepared_suffix_frames": 239,
+        "observed_install_phase": "callback_interior",
+        "stale_tickets_rejected": 3,
+        "old_owner_retired_after_ack": true,
+        "producer_starts": 1,
+        "producer_exits": 1,
+        "starved_frames": 0,
+        "snapshot_drops": 0,
+        "recorded_frames": 264448,
+        "written_frames": 264448,
+        "historical_read_failure": true,
+        "result_sha256": "2f1b9a54a003247220f53ee07779ab28d1b82a319d321a014d347e4d79ec65c3",
+        "target_master_muted": true,
+        "exact_audible_peer_recording": true,
+        "private_cleanup_proven": true
+      },
+      "boundary": {
+        "passed": true,
+        "parked_F": 262144,
+        "callback_end_ack_output_frame": 264192,
+        "actual_swap_output_frame": 264192,
+        "first_prepared_suffix_frames": 0,
+        "observed_install_phase": "callback_end",
+        "stale_tickets_rejected": 3,
+        "old_owner_retired_after_ack": true,
+        "producer_starts": 1,
+        "producer_exits": 1,
+        "starved_frames": 0,
+        "snapshot_drops": 0,
+        "recorded_frames": 264448,
+        "written_frames": 264448,
+        "historical_read_failure": false,
+        "result_sha256": "484002cb7cf231a035110678d670053bbada6c0236e8deeabfad117d5f3dc6e2",
+        "target_master_muted": true,
+        "exact_audible_peer_recording": true,
+        "private_cleanup_proven": true
+      }
+    },
+    "controller_expected_RED": {
+      "status": "expected_missing_behavior_RED",
+      "failure": "Active unbuffered resident range did not start a cache-only lookup",
+      "result_sha256": "a7c69ae4fcd252bb996c08291dfcff854589d10236fd3939986eeeaf3143b192",
+      "private_cleanup_proven": true
+    },
+    "controller_GREEN": {
+      "resident-takeover": {
+        "passed": true,
+        "seconds": 20.927587349,
+        "result_sha256": "fa417b8b01c4edecaea1ba7c64fd51ed1acbb6fdad5a67288179b510e081db24",
+        "wrapper_exit": 0,
+        "execution_deadline_gate": false,
+        "private_graph_empty_except_dummy": true,
+        "daemon_reaped": true,
+        "attempts": 1,
+        "status": "Active",
+        "parked_frame": 278528,
+        "settled_source_frame": 281600,
+        "source_generation_before": 0,
+        "source_generation_after": 2,
+        "target_starved_frames": 0,
+        "peer_starved_frames": 0,
+        "wav": {
+          "frames": 290304,
+          "checked_frames": 290304,
+          "maximum_sample_error": 0,
+          "omitted_frames": 0
+        }
+      },
+      "resident-hold": {
+        "passed": true,
+        "seconds": 10.920403648,
+        "result_sha256": "c0426313931702eacbc79d2d3a4c6aea5c47bd695452b414f8243fa3b0686f48",
+        "wrapper_exit": 0,
+        "execution_deadline_gate": false,
+        "private_graph_empty_except_dummy": true,
+        "daemon_reaped": true,
+        "attempts": 1,
+        "lookup_outcome": "Unavailable once while active hold remains audible with buffering=false",
+        "wav": {
+          "frames": 328704,
+          "checked_frames": 328704,
+          "maximum_sample_error": 0,
+          "omitted_frames": 0
+        },
+        "includes_same_owner_exit_and_manual_ticket_checks": true,
+        "continuous_recording_segment": {
+          "frames": 328704,
+          "target_starved_frames_observed": 0,
+          "peer_starved_frames_observed": 0,
+          "ends_before_deliberate_post_recording_transport": true
+        },
+        "post_recording_deliberate_transport": {
+          "actions": "Stale-arm seek/replay checks after the complete WAV is finalized.",
+          "observed_affected_deck_starved_frames": 30976,
+          "equivalent_seconds_at_48000Hz": 0.6453333333333333,
+          "peer_starved_frames": 0,
+          "first_saved_nonzero_starvation_output_frame": 358144,
+          "maximum_saved_starvation_output_frame": 386816,
+          "recording_status_at_first_nonzero": "Complete",
+          "recording_frames_at_first_nonzero": 328704,
+          "scope": "Outside the continuous recording segment; no uninterrupted or zero-buffering manual-transport claim."
+        }
+      },
+      "resident-cancel": {
+        "passed": true,
+        "seconds": 16.924061641,
+        "result_sha256": "3095c3d6602251150c8812b0e34d7bdb43faef1d12151bde844bf78d3cccdcec",
+        "wrapper_exit": 0,
+        "execution_deadline_gate": false,
+        "private_graph_empty_except_dummy": true,
+        "daemon_reaped": true,
+        "attempts": 1,
+        "status": "Cancelled",
+        "parked_frame": 278528,
+        "settled_frame": 278528,
+        "source_generation_before": 0,
+        "source_generation_after": 0,
+        "target_playing_after": false,
+        "peer_starved_frames": 0,
+        "manual_cancel_interval_output_frames": 2304,
+        "observed_manual_cancel_starved_frames": 0,
+        "scope": "Accepted Cancel/Pause/seeks may deliberately buffer A; this result does not establish uninterrupted target audio. Peer clocks, source health, complete recorder drain and exact cumulative accounting remain strict."
+      }
+    },
+    "affected_ctest": {
+      "exit_code": 0,
+      "cases": [
+        {
+          "name": "live-owner-retirement",
+          "classname": "live-owner-retirement",
+          "time": "0.371176",
+          "status": "run"
+        },
+        {
+          "name": "deck-controller",
+          "classname": "deck-controller",
+          "time": "12.6082",
+          "status": "run"
+        }
+      ]
+    },
+    "controller_binary": {
+      "bytes": 25261192,
+      "sha256": "0253a9866c3e7ac790290072147cd427606cbc233e2a3f920e4300a7e0e85c1a"
+    }
+  },
+  "private_evidence_pins": [
+    {
+      "artifact": "root-offline-01.json",
+      "bytes": 2064,
+      "sha256": "96fb17a30b460c81ff88fabe493dbd3196e5100cf58c89a062f64c82c29cbf08"
+    },
+    {
+      "artifact": "root-tests-01.log",
+      "bytes": 663,
+      "sha256": "5e778167aebc0901659e1c5429ae9ad6834e3760715c5462cb2989f82b1da2d4"
+    },
+    {
+      "artifact": "root-tests-01.xml",
+      "bytes": 2257,
+      "sha256": "f2637c2c9d4d688e13f9819358c6f183618e9b0981108b3fb40cdaff0cf81159"
+    },
+    {
+      "artifact": "root-private-callback-results-03.json",
+      "bytes": 4598,
+      "sha256": "b4ab64567be160b9c5c061d17ee1813150cf88e6c0c6f3859ab5c77e347a65b6"
+    },
+    {
+      "artifact": "root-red-result-01.json",
+      "bytes": 432,
+      "sha256": "c098ba6c0756b40e03f85ae62d05bad3bfe8dc58e50494f9c112b8ce73081703"
+    },
+    {
+      "artifact": "root-verified-controller-01.json",
+      "bytes": 9418,
+      "sha256": "6034adaa4612e42d6c80b67137a30b323d3a695fb9f08ad333eef73961d33be9"
+    },
+    {
+      "artifact": "root-affected-ctest-01.log",
+      "bytes": 362,
+      "sha256": "8da69e4e4786659f67e035b6ca95500682404df2b6f3c253eede22cb507c316e"
+    },
+    {
+      "artifact": "root-affected-ctest-01.xml",
+      "bytes": 1705,
+      "sha256": "2c6d72944a770865911da592947b974489aca74bd5a3038364afdca45b5bc5cc"
+    },
+    {
+      "artifact": "resident-hold-evidence.json",
+      "bytes": 325841,
+      "sha256": "7328697c3525476d8560563b50e70d51dc682c7ef1cfa19e575bfa5ed38c55c7"
+    }
+  ],
+  "CI": "Normal CI and functional coverage enumerate direct callback interior/boundary and controller hit/miss/cancel cases. Remote workflow results for this feature remain pending.",
+  "quality": "Best",
+  "strict_target_ms": 4095,
+  "qualified": false,
+  "timing_qualification": false,
+  "limits": [
+    "Generated private virtual audio, no current-laptop, actual-model, physical-output, musical, sustained or latency qualification.",
+    "Direct callback target A is master-muted; exact target/CUE/ramp samples are complementary scalar core evidence.",
+    "Aligned callback observed END with suffix0; no claim that both aligned phases were observed.",
+    "Manual cancellation allows intentional target buffering; observed0 starvation does not promise uninterrupted cancellation audio.",
+    "Filesystem observations are quiescent-only, not peak measurements.",
+    "Existing Qt qendian/QByteArray warning in the unchanged experiment WAV reader is retained; no product warning was added.",
+    "The resident-hold scenario accumulated 30,976 affected-deck starved frames (0.645333 seconds at 48 kHz), with zero peer starvation, during deliberate seeks/replay after its complete 328,704-frame WAV. That later stage is outside the continuous recording oracle."
+  ]
+}
