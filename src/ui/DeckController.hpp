@@ -17,6 +17,7 @@
 #include <QVariantList>
 #include <QVariantMap>
 #include <array>
+#include <chrono>
 #include <memory>
 #include <optional>
 #include <stop_token>
@@ -140,7 +141,8 @@ private:
         explicit PreparedPcm(audio::PreparedAudio audio);
         explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
         PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
-                    std::shared_ptr<library::LiveStemObservations> observations);
+                    std::shared_ptr<library::LiveStemObservations> observations,
+                    QString sourcePath, QString artifactKey);
         bool live() const noexcept { return liveFrames != 0; }
         std::uint64_t frames() const noexcept { return live() ? liveFrames : audioLeaves.front().frames(); }
         std::uint64_t bytes() const noexcept;
@@ -153,6 +155,7 @@ private:
         std::vector<float> livePeaks;
         QString liveSourceSha256;
         std::shared_ptr<library::LiveStemObservations> observations;
+        QString sourcePath, artifactKey;
     };
     struct PreparedLoad {
         std::shared_ptr<const PreparedPcm> audio;
@@ -169,6 +172,34 @@ private:
         std::optional<library::LibraryTrack> imported;
         bool cacheHit = false;
         bool cueImport = false;
+    };
+    enum class LoaderPurpose { None, Preparation, Continuation };
+    struct ForegroundPreparation {
+        enum class Kind { Track, CueImport };
+        Kind kind = Kind::Track;
+        int deck = 0;
+        QUrl url;
+        bool importOnly = false, stems = false;
+        QString expectedSource;
+        std::optional<library::LibraryTrack> cueTrack;
+    };
+    struct ContinuationEpisode {
+        const PreparedPcm* clip = nullptr;
+        std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, attempts = 0;
+        QElapsedTimer stalled;
+        bool attempted = false;
+        QString status = "Idle", detail;
+    };
+    struct ContinuationAttempt {
+        std::size_t deck = 0;
+        std::shared_ptr<const PreparedPcm> original;
+        const audio::LiveSession* session = nullptr;
+        std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0;
+        std::chrono::steady_clock::time_point deadline;
+        std::shared_ptr<PreparedLoad> prepared;
+        std::unique_ptr<audio::PreparedPlayback> retired;
+        std::optional<audio::LiveSession::State> snapshot;
+        bool revoked = false, published = false, acknowledged = false;
     };
     struct CatalogResult {
         std::vector<library::LibraryTrack> tracks;
@@ -204,6 +235,15 @@ private:
     void collectReplacement();
     void acceptReplacement(std::optional<audio::LiveSession::SourceReplacementResult> result);
     void settleReplacement(bool stopped = false);
+    bool deferForegroundPreparation(ForegroundPreparation request);
+    void drainForegroundPreparation();
+    void startCueImport(library::LibraryTrack selected, const QUrl& url);
+    bool continuationEligible(std::size_t deck) const;
+    bool continuationCurrent() const;
+    void considerContinuation();
+    void continuationLoaded(const LoadResult& result);
+    void cancelContinuation(std::size_t deck, const QString& reason);
+    void settleContinuation(bool stopped = false);
     void retirePlayback(std::unique_ptr<audio::PreparedPlayback> playback,
                       std::shared_ptr<const PreparedPcm> clip = {});
     struct RetirementGroup {
@@ -247,6 +287,11 @@ private:
     RetirementBatch deferredRetirement_{};
     bool retirementPending_ = false;
     std::stop_source loadCancellation_, installCancellation_;
+    LoaderPurpose loaderPurpose_ = LoaderPurpose::None;
+    std::optional<ForegroundPreparation> foregroundPreparation_;
+    bool foregroundWaiting_ = false;
+    std::array<ContinuationEpisode, 2> continuationEpisodes_{};
+    std::optional<ContinuationAttempt> continuation_;
     // Exact quiesced owners, empty while the session/installer owns them.
     audio::LiveSession::PlaybackSources stoppedPlaybacks_{};
     std::array<QString, 2> names_{};

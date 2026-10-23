@@ -116,6 +116,7 @@ public:
     void setOverviewStem(int deck, const QString& stem) {
         auto state = decks_[deck].toMap();
         state["overviewStem"] = stem;
+        state["liveStems"] = stem == "source";
         state["stemBank"] = !stem.isEmpty();
         state["stemGains"] = stem.isEmpty() ? QVariantList{0., 0., 0., 0.} : QVariantList{1., 1., 1., 1.};
         decks_[deck] = state;
@@ -2483,12 +2484,12 @@ private slots:
         QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
         jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
         auto baseline = ui_->endpoint.decks()[0].toMap();
-        baseline["overviewStem"] = ""; // Reset the prior live-only field for each independent gate.
+        baseline["liveStems"] = false; // Storage mode is independent of waveform provenance.
         const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
         for (const auto* reason : {"unsupported", "live", "cue", "cue-held", "loop-in", "loop-cached", "read-error"}) {
             auto fields = baseline;
             if (QString(reason) == "unsupported") fields["scratch"] = UiEndpoint::scratchState(false);
-            else if (QString(reason) == "live") fields["overviewStem"] = "source";
+            else if (QString(reason) == "live") fields["liveStems"] = true;
             else if (QString(reason) == "cue") fields["cuePreview"] = true;
             else if (QString(reason) == "cue-held") {
                 // Holding CUE may set a cue point without temporary preview.
@@ -4600,6 +4601,54 @@ private slots:
         ui_->endpoint.setOverviewStem(0, {});
         QTRY_COMPARE(bank->property("text").toString(), QString("LOCAL FILE"));
         QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
+    void savedContinuationKeepsSourceWaveformAndRestoresVinylControl()
+    {
+        ui_->endpoint.loadState(0, 5); ui_->endpoint.setReady(true);
+        ui_->endpoint.setOverviewStem(0, "source");
+        auto* kind = ui_->item("deck0WaveformKind");
+        auto* title = ui_->item("deck0Title");
+        auto* jog = ui_->item("deck0Jog");
+        QVERIFY(kind && title && jog);
+        const auto titleBefore = title->property("text");
+        const auto waveformBefore = ui_->endpoint.decks()[0].toMap()["waveform"];
+        ui_->endpoint.snapshotDeck(0, {{"continuation", QVariantMap{
+            {"status", "Checking"}, {"text", "Checking saved stems"}, {"detail", ""}}}});
+        QTRY_COMPARE(kind->property("text").toString(), QString("CHECKING SAVED STEMS · SOURCE WAVEFORM"));
+        QVERIFY(!ui_->endpoint.busy());
+        QCOMPARE(title->property("text"), titleBefore);
+        ui_->endpoint.snapshotDeck(0, {{"liveStems", false}, {"sourceGeneration", qulonglong(2)},
+            {"continuation", QVariantMap{{"status", "Active"}, {"text", "Using saved stems"}, {"detail", ""}}}});
+        QTRY_COMPARE(kind->property("text").toString(), QString("USING SAVED STEMS · SOURCE WAVEFORM"));
+        QCOMPARE(ui_->endpoint.decks()[0].toMap()["waveform"], waveformBefore);
+        QCOMPARE(title->property("text"), titleBefore);
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
+        const auto point = jog->mapToScene(QPointF(jog->width() * .85, jog->height() / 2)).toPoint();
+        ui_->endpoint.calls.clear();
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "scratchBegin", 0);
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        verifyCueCall(1, "scratchEnd", 0);
+        // Cache/source errors can contain markup-like filenames: show literal detail.
+        const QString detail = "No bank for <b>track</b>.";
+        ui_->endpoint.snapshotDeck(0, {{"liveStems", true}, {"continuation", QVariantMap{
+            {"status", "Unavailable"}, {"text", "Saved stem continuation unavailable"}, {"detail", detail}}}});
+        QTRY_VERIFY(kind->property("text").toString().startsWith("SAVED STEM CONTINUATION UNAVAILABLE"));
+        QTest::mouseMove(ui_->window, ui_->center(kind));
+        QTRY_VERIFY(ui_->item("deck0ContinuationTooltipText"));
+        auto* tooltip = ui_->item("deck0ContinuationTooltipText");
+        QTRY_VERIFY(tooltip->isVisible());
+        QTRY_COMPARE(tooltip->property("text").toString(), detail);
+        QCOMPARE(tooltip->property("textFormat").toInt(), int(Qt::PlainText));
+        auto* accessible = QAccessible::queryAccessibleInterface(kind);
+        QVERIFY(accessible);
+        QCOMPARE(accessible->text(QAccessible::Description), detail);
+        QCOMPARE(accessible->text(QAccessible::Name), QString("Deck A: ") + kind->property("text").toString());
+        QVERIFY(ui_->warnings.isEmpty());
     }
 
     void loadButtonRoutesLocalUrl()

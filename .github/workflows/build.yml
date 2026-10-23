@@ -38,6 +38,16 @@ jobs:
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/preparation-check --functional-only
       - name: Test live failure with prepared peer and recording
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/live-failure-check --live-failure-only
+      - name: Test prepared continuation takeover
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-takeover-check --continuation-case takeover
+      - name: Test prepared continuation miss
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-miss-check --continuation-case miss
+      - name: Test prepared continuation cancel
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-cancel-check --continuation-case cancel
+      - name: Test prepared continuation stop
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-stop-check --continuation-case stop
+      - name: Test prepared continuation foreground priority
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-foreground-check --continuation-case foreground
 
   coverage:
     runs-on: ubuntu-24.04

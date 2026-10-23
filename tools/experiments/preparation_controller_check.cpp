@@ -1658,7 +1658,7 @@ struct Evidence {
     QJsonArray snapshots, records;
     QJsonObject actions;
     std::uint64_t ordinal = 0, lastOutput = UINT64_MAX, maximumBytes = 0;
-    bool saved = false;
+    bool saved = false, inspectResources = true;
     Evidence(QString nameValue, QString outputValue, QString cacheValue)
         : name(std::move(nameValue)), output(std::move(outputValue)), cache(std::move(cacheValue)) {}
     void drain()
@@ -1685,7 +1685,7 @@ struct Evidence {
                 snapshots.append(row); lastOutput = s.outputFrame;
                 // Staging/retirement directories may be atomically removed while busy.
                 // Hard store admission and per-file limits still apply during those workers.
-                if (!controller->busy()) {
+                if (inspectResources && !controller->busy()) {
                     maximumBytes = std::max(maximumBytes, treeBytes(output) + treeBytes(cache));
                     if (maximumBytes > totalBytesLimit) throw std::runtime_error("Combined output/cache byte ceiling exceeded");
                 }
@@ -2081,8 +2081,374 @@ void scenario(const QString& output, const QString& privateRoot, bool exitScenar
     }
 }
 
-int run(int argc, char** argv, bool functionalOnly)
+enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground };
+void continuationScenario(const QString& output, const QString& privateRoot,
+                          ContinuationCase kind, QJsonArray& results)
 {
+    const auto name = QStringLiteral("continuation-") + (kind == ContinuationCase::Takeover ? "takeover" :
+        kind == ContinuationCase::Miss ? "miss" : kind == ContinuationCase::Cancel ? "cancel" :
+        kind == ContinuationCase::Stop ? "stop" : "foreground");
+    const auto local = QDir(output).filePath(name), cacheHome = QDir(privateRoot).filePath(name);
+    directory(local); directory(cacheHome);
+    Evidence evidence{name, output, privateRoot};
+    // A continuation lookup intentionally leaves busy() false. Avoid walking
+    // directories concurrently with its atomic staging/retirement operations.
+    // The same bounded scan runs after shutdown; file/cache admission limits
+    // remain enforced throughout. These observations do not measure peak use.
+    evidence.inspectResources = false;
+    evidence.actions["filesystem_observations"] = "quiescent-only; not a peak measurement";
+    QJsonObject report{{"scenario", name}, {"qualified", false},
+        {"filesystem_observations", "quiescent-only"}};
+    const auto a = QDir(local).filePath("live-a.wav"), b = QDir(local).filePath("prepared-b.wav");
+    writeFixture(a, 8192, -4096, 12 * 44100, 44100);
+    writeFixture(b, 4096, -2048, 12 * 48000, 48000);
+    const auto fixture = conflux::test::makeStemServiceFixture(local, "gate-after-first");
+    ServiceTrace services(fixture); // Retained exact-process safety outlives the controller.
+    insist(qputenv("XDG_CACHE_HOME", QFile::encodeName(cacheHome)) &&
+        qputenv("XDG_DATA_HOME", QFile::encodeName(QDir(cacheHome).filePath("data"))),
+        "Continuation cache/library remain inside the isolated private owner");
+    const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+    try { seedBank(b, cache, fixture.engine, evidence); }
+    catch (const std::exception& error) {
+        try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
+        throw;
+    }
+    conflux::DeckController::PreparationOptions options;
+    options.stemEngine = fixture.engine; options.stemServicePath = fixture.service; options.limits = tightLimits();
+    conflux::DeckController controller(options);
+    evidence.controller = &controller;
+    Sink sink("conflux-continuation-" + name.toStdString() + "-" + std::to_string(::getpid()));
+    QLockFile gate(QDir(cache).filePath(".lock"));
+    bool locked = false, stopped = false;
+    try {
+        QString left, right;
+        privateLivePair(controller, sink, left, right, insist);
+        controller.loadStemDeck(1, QUrl::fromLocalFile(b));
+        await(evidence, [&] { return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrames[1]; },
+            "Prepared continuation peer did not install", std::chrono::seconds(15));
+        insist(controller.error().isEmpty() && controller.preparation()["cacheHit"].toBool() &&
+            !controller.liveStemObservations(1), "Peer starts as a genuine compatible complete stem bank");
+        const auto exporterCalls = fixture.engine.exporterPath.chopped(3) + ".calls";
+        const auto peerCalls = digest(exporterCalls);
+        controller.loadStemDeck(0, QUrl::fromLocalFile(a));
+        await(evidence, [&] {
+            if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+            return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrames[0];
+        }, "Genuine cache-miss continuation source did not install", std::chrono::seconds(20));
+        evidence.live = controller.liveStemObservations(0); services.capture();
+        insist(evidence.live && controller.decks()[0].toMap()["liveStems"].toBool() &&
+            !controller.preparation()["cacheHit"].toBool() && digest(exporterCalls) == peerCalls &&
+            services.size() == 1 && services.alive(0) && services.count(0, "command", "load") == 1 &&
+            services.count(0, "fixture", "runtime") == 1,
+            "A genuine miss installs one live owner before any matching A bank exists, without exporting A");
+        BoundService bound(services.identities()[0].toObject());
+        const auto handle = evidence.live; const auto token = handle->setup().sourceToken;
+        for (int deck = 0; deck < 2; ++deck)
+            for (int role = 0; role < 4; ++role) controller.setStemGain(deck, role, role == 1 ? 1.0 : 0.0);
+        controller.setBpmOverride(0, 142.);
+        controller.setPlaying(0, true);
+        await(evidence, [&] { const auto s = controller.audioState(); return s.sourceFrame[0] >= 8192 &&
+            s.stemGain[0] == bassOnly && s.stemGain[1] == bassOnly && !s.buffering[0]; },
+            "Selected live bass did not settle before storing a nonzero cue");
+        controller.setPlaying(0, false);
+        await(evidence, [&] { return !controller.audioState().playing[0]; }, "Live pause did not settle before cache seeding");
+        insist(controller.cuePress(0), "Paused live source accepts a nonzero cue before continuation");
+        await(evidence, [&] { const auto s = controller.audioState(); return s.cueHeld[0] && s.cueFrame[0] >= 8192; },
+            "Nonzero cue was not acknowledged before continuation");
+        controller.cueRelease(0); controller.setCueSelected(0, true);
+        await(evidence, [&] { const auto s = controller.audioState(); return !s.cueHeld[0] && s.cueSelected[0]; },
+            "Cue release/selection did not settle before continuation");
+        // This is explicit fixture setup after live installation, never a
+        // product fallback export or a parallel second separator.
+        if (kind != ContinuationCase::Miss && kind != ContinuationCase::Foreground)
+            seedBank(a, cache, fixture.engine, evidence);
+        const auto callsBeforeFailure = digest(exporterCalls);
+        const auto metadata = controller.decks()[0].toMap();
+        const auto preparation = controller.preparation();
+        const auto sessions = controller.completedSessions();
+        const auto priorStarved = controller.completedStarvedFrames(), priorFailures = controller.completedReadFailures();
+        const auto retainedBefore = controller.retainedPcmBytes();
+        std::uint64_t retiredStarved = 0, retiredFailures = 0;
+        controller.setPlaying(0, true); controller.setPlaying(1, true);
+        await(evidence, [&] { const auto s = controller.audioState(); return s.playing[0] && s.playing[1] &&
+            s.sourceFrame[1] >= holdFrames && !s.buffering[0] && !s.buffering[1]; },
+            "Both selected-bass sources did not settle before the induced failure");
+        const auto before = controller.audioState();
+        insist(before.deckGain == std::array<float, 2>{1.F, 1.F} && before.masterGain == 1.F &&
+            !before.sourceReadError[0] && !before.sourceReadErrorObserved[0],
+            "Continuation recording starts with healthy unity-gain selected bass, not the full original mix");
+        const auto wav = QDir(local).filePath("master.wav");
+        if (kind == ContinuationCase::Takeover || kind == ContinuationCase::Foreground) {
+            controller.startRecording(QUrl::fromLocalFile(wav));
+            await(evidence, [&] { return controller.recording()["status"].toString() == "Recording" &&
+                controller.recording()["acceptedFrames"].toULongLong() >= holdFrames; },
+                "Continuation master recorder did not attach before failure");
+        }
+        if (kind != ContinuationCase::Miss) {
+            insist(gate.tryLock(0), "Owned prepared-cache lock gates only the automatic lookup after setup");
+            locked = true;
+        }
+        insist(services.alive(0) && services.count(0, "fixture", "complete") == 0,
+            "Induced failure targets the exact incomplete active fixture service");
+        bound.terminateUnexpectedly();
+        evidence.actions["induced_exit"] = "SIGKILL through retained exact-process pidfd; no descendant fixture";
+        const auto continuation = [&] { return controller.decks()[0].toMap()["continuation"].toMap(); };
+        const auto status = [&] { return continuation()["status"].toString(); };
+        await(evidence, [&] { const auto s = controller.audioState(); return s.sourceReadError[0] &&
+            s.sourceReadErrorObserved[0] && s.buffering[0] &&
+            status() == (kind == ContinuationCase::Miss ? "Unavailable" : "Checking"); },
+            "Terminal live failure did not expose the expected automatic cache-only continuation status");
+        const auto held = controller.audioState();
+        const auto captured = continuation();
+        evidence.actions["before"] = snapshot(before); evidence.actions["held"] = snapshot(held);
+        evidence.actions["continuation_capture"] = QJsonObject::fromVariantMap(captured);
+        insist(captured["attempts"].toULongLong() == 1 &&
+            captured["sourceFrame"].toULongLong() == held.sourceFrame[0] &&
+            captured["sourceGeneration"].toULongLong() == held.sourceGeneration[0] &&
+            held.sourcePosition[0] == double(held.sourceFrame[0]) && !controller.busy() &&
+            !controller.decks()[0].toMap()["replacing"].toBool() &&
+            controller.preparation()["status"] == preparation["status"] &&
+            controller.preparation()["cacheHit"] == preparation["cacheHit"],
+            "Automatic lookup captures the exact linear cursor/generation without becoming a normal load");
+        if (kind == ContinuationCase::Takeover) {
+            const auto recordingAtHold = controller.recording()["acceptedFrames"].toULongLong();
+            await(evidence, [&] { const auto s = controller.audioState();
+                if (s.sourceFrame[0] != held.sourceFrame[0]) throw std::runtime_error("Locked continuation advanced the failed source cursor");
+                return s.starvedFrames[0] >= held.starvedFrames[0] + holdFrames + 512 &&
+                    controller.recording()["acceptedFrames"].toULongLong() >= recordingAtHold + holdFrames + 512;
+            }, "Selected peer-only interval did not persist before automatic recovery");
+            gate.unlock(); locked = false;
+            await(evidence, [&] { const auto s = controller.audioState(); return status() == "Active" &&
+                !continuation()["pending"].toBool() && s.sourceGeneration[0] != held.sourceGeneration[0] &&
+                !s.buffering[0] && s.sourceFrame[0] >= held.sourceFrame[0] + 1024; },
+                "Compatible prepared bank did not continue automatically at the captured source cursor");
+            const auto recovered = controller.audioState(); const auto recoveredMap = controller.decks()[0].toMap();
+            continuousPeer(before, recovered); continuousPeer(held, recovered);
+            insist(recovered.sourceGeneration[0] == continuation()["generation"].toULongLong() &&
+                recovered.sourceFrames[0] == held.sourceFrames[0] &&
+                recovered.sourceFrame[0] <= held.sourceFrame[0] + recovered.outputFrame - held.outputFrame &&
+                recovered.sourcePosition[0] == double(recovered.sourceFrame[0]) &&
+                recovered.transportRevision[0] == held.transportRevision[0] + 1 && recovered.playing[0] &&
+                recovered.stemBank[0] && recovered.stemGain == before.stemGain &&
+                recovered.deckGain == before.deckGain && recovered.masterGain == before.masterGain &&
+                recovered.eqGainDb == before.eqGainDb && recovered.crossfader == before.crossfader &&
+                recovered.cueFrame == before.cueFrame && recovered.cueSelected == before.cueSelected &&
+                !recovered.sourceReadError[0] && recovered.sourceReadErrorObserved[0] &&
+                recovered.starvedFrames[0] >= held.starvedFrames[0] && !recoveredMap["liveStems"].toBool() &&
+                controller.retainedPcmBytes() == retainedBefore + held.sourceFrames[0] * 8 * 4 &&
+                controller.completedSessions() == sessions,
+                "Automatic finite owner preserves cursor direction, exact geometry, controls and cumulative health without session restart");
+            for (const auto* key : {"name", "sourceId", "title", "artist", "album", "artworkDataUrl", "bpm", "waveform", "overviewStem"})
+                if (recoveredMap[key] != metadata[key]) throw std::runtime_error("Continuation reset original source metadata or waveform");
+            insist(controller.liveStemObservations(0) == handle && handle->setup().sourceToken == token &&
+                recoveredMap["bpm"].toMap()["manual"].toBool() && recoveredMap["bpm"].toMap()["reference"].toDouble() == 142. &&
+                controller.recording()["active"].toBool() && controller.recording()["path"].toString() == wav,
+                "Original observation identity, manual BPM, source metadata and the same recorder survive takeover");
+            evidence.actions["recovered"] = snapshot(recovered);
+            controller.stopRecording();
+            await(evidence, [&] { return !controller.recording()["active"].toBool(); }, "Continuation recording did not finalize");
+            const auto recording = controller.recording();
+            insist(recording["status"].toString() == "Complete" && recording["acceptedFrames"] == recording["writtenFrames"] &&
+                recording["overflowFrames"].toULongLong() == 0,
+                "Automatic takeover retains every accepted recorded frame without writer overflow");
+            current(); report["wav"] = inspectCompleteRecording(wav, recording["writtenFrames"].toULongLong(), true); current();
+            // Test commands against the new finite owner only after the exact
+            // recording oracle is complete, so controls do not contaminate it.
+            controller.setPlaying(0, false);
+            await(evidence, [&] { return !controller.audioState().playing[0]; }, "Continued finite owner did not accept Pause");
+            controller.seekSeconds(0, 1.);
+            await(evidence, [&] { return controller.audioState().sourceFrame[0] == 48000; }, "Continued finite owner did not accept seek");
+            insist(controller.cuePress(0), "Continued finite owner accepts storing a new cue");
+            await(evidence, [&] { return controller.audioState().cueFrame[0] == 48000 && controller.audioState().cueHeld[0]; },
+                "Continued finite owner did not store the exact new cue");
+            controller.cueRelease(0); controller.setStemGain(0, 1, .5);
+            await(evidence, [&] { const auto s = controller.audioState(); return !s.cueHeld[0] && s.stemGain[0][1] == .5F; },
+                "Continued finite owner did not accept release and manual stem gain");
+        } else if (kind == ContinuationCase::Miss) {
+            await(evidence, [&] { return controller.audioState().outputFrame >= held.outputFrame + holdFrames; },
+                "Prepared peer did not continue while the matching bank was unavailable");
+            const auto unavailable = controller.audioState(); continuousPeer(before, unavailable);
+            insist(status() == "Unavailable" && !continuation()["detail"].toString().isEmpty() &&
+                continuation()["attempts"].toULongLong() == 1 && !continuation()["pending"].toBool() &&
+                unavailable.sourceGeneration[0] == held.sourceGeneration[0] &&
+                unavailable.sourceFrame[0] == held.sourceFrame[0] && unavailable.buffering[0] &&
+                controller.decks()[0].toMap()["liveStems"].toBool() && controller.liveStemObservations(0) == handle,
+                "Genuine bank miss stays unavailable once per unchanged episode without original-mix substitution");
+        } else if (kind == ContinuationCase::Cancel) {
+            controller.setPlaying(0, false);
+            controller.seekSeconds(0, (held.sourceFrame[0] + 2048) / 48000.);
+            controller.seekSeconds(0, held.sourceFrame[0] / 48000.);
+            gate.unlock(); locked = false;
+            await(evidence, [&] { const auto s = controller.audioState(); return status() == "Cancelled" &&
+                !continuation()["pending"].toBool() && !s.playing[0] && s.sourceFrame[0] == held.sourceFrame[0] &&
+                s.transportRevision[0] > held.transportRevision[0]; },
+                "Pause and seek-away/back did not cancel and retire the stale automatic candidate");
+            const auto cancelled = controller.audioState(); continuousPeer(before, cancelled);
+            insist(cancelled.sourceGeneration[0] == held.sourceGeneration[0] &&
+                controller.liveStemObservations(0) == handle && controller.decks()[0].toMap()["liveStems"].toBool() &&
+                continuation()["attempts"].toULongLong() == 1 && controller.completedSessions() == sessions,
+                "An equal numeric seek destination cannot revive a stale captured transport intent or install a new owner");
+        } else if (kind == ContinuationCase::Foreground) {
+            const auto failedFrame = held.sourceFrame[0];
+            // Structural validation must precede cancellation/reservation. This
+            // URL is never opened and needs no network access.
+            controller.loadStemDeck(0, QUrl(QStringLiteral("https://invalid.invalid/track.wav")));
+            insist(!controller.error().isEmpty() && !controller.busy() && status() == "Checking" &&
+                continuation()["pending"].toBool() && continuation()["attempts"].toULongLong() == 1 &&
+                controller.audioState().sourceGeneration[0] == held.sourceGeneration[0],
+                "An invalid foreground URL does not cancel or reserve the in-flight continuation");
+            controller.loadStemDeck(0, QUrl::fromLocalFile(b));
+            const auto firstPending = controller.decks()[0].toMap();
+            insist(controller.busy() && controller.error().isEmpty() &&
+                controller.preparation()["status"].toString() == "Preparing" &&
+                controller.preparation()["phase"].toString() == "continuation-cleanup" &&
+                controller.preparation()["deck"].toInt() == 0 && firstPending["loading"].toBool() &&
+                firstPending["pendingPath"].toString() == b &&
+                firstPending["pendingName"].toString() == QFileInfo(b).fileName() &&
+                status() == "Cancelled" && continuation()["pending"].toBool(),
+                "A single valid foreground load is accepted immediately while background cleanup owns the loader");
+            insist(controller.cancelPreparation(), "The reserved foreground load accepts cancellation while waiting");
+            // Keep the cache lock held: cancellation must consume the checking
+            // worker's empty result and settle even without an owner to retire.
+            await(evidence, [&] { return !controller.busy() &&
+                controller.preparation()["status"].toString() == "Cancelled" &&
+                status() == "Cancelled" && !continuation()["pending"].toBool(); },
+                "Cancelled queued foreground load did not settle through the empty-result cleanup path");
+            const auto cancelled = controller.audioState();
+            continuousPeer(before, cancelled);
+            insist(controller.error().isEmpty() && cancelled.sourceGeneration[0] == held.sourceGeneration[0] &&
+                cancelled.sourceFrame[0] == failedFrame && controller.liveStemObservations(0) == handle &&
+                controller.decks()[0].toMap()["sourceId"] == metadata["sourceId"] &&
+                controller.decks()[0].toMap()["liveStems"].toBool() &&
+                controller.completedStarvedFrames() == priorStarved && controller.completedReadFailures() == priorFailures,
+                "Cancelling the queued load preserves the original failed owner without installing or retiring it");
+            evidence.actions["cancelled_foreground"] = snapshot(cancelled);
+            controller.setPlaying(0, false);
+            await(evidence, [&] { return !controller.audioState().playing[0]; },
+                "Deliberate Pause did not end the first cancelled continuation episode");
+            controller.setPlaying(0, true);
+            await(evidence, [&] { return status() == "Checking" && continuation()["pending"].toBool() &&
+                continuation()["attempts"].toULongLong() == 2 && controller.audioState().playing[0]; },
+                "A fresh accepted transport intent did not rearm a second checking episode");
+            const auto secondHeld = controller.audioState();
+            insist(secondHeld.sourceGeneration[0] == held.sourceGeneration[0] &&
+                secondHeld.sourceFrame[0] == failedFrame && secondHeld.transportRevision[0] > held.transportRevision[0],
+                "Rearming changes transport intent without rewinding or manufacturing a new live owner");
+            const auto recordingAtHold = controller.recording()["acceptedFrames"].toULongLong();
+            await(evidence, [&] { const auto s = controller.audioState(); return
+                s.outputFrame >= secondHeld.outputFrame + holdFrames + 512 &&
+                controller.recording()["acceptedFrames"].toULongLong() >= recordingAtHold + holdFrames + 512; },
+                "Foreground regression did not retain a complete peer-only recorded interval");
+            controller.loadStemDeck(0, QUrl::fromLocalFile(b)); // Exactly one call; no retry after cleanup.
+            insist(controller.busy() && controller.error().isEmpty() &&
+                controller.preparation()["status"].toString() == "Preparing" &&
+                controller.preparation()["phase"].toString() == "continuation-cleanup" &&
+                controller.decks()[0].toMap()["pendingPath"].toString() == b &&
+                status() == "Cancelled" && continuation()["pending"].toBool(),
+                "The second foreground request is reserved once with normal pending metadata and no retry error");
+            gate.unlock(); locked = false;
+            await(evidence, [&] { const auto s = controller.audioState();
+                if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+                return !controller.busy() && s.sourceGeneration[0] != held.sourceGeneration[0] &&
+                    !controller.liveStemObservations(0) && services.gone(0);
+            }, "Accepted foreground request was lost instead of loading its prepared B bank", std::chrono::seconds(15));
+            const auto replaced = controller.audioState(); const auto replacedMap = controller.decks()[0].toMap();
+            continuousPeer(before, replaced); continuousPeer(secondHeld, replaced);
+            insist(controller.outputReady() && controller.error().isEmpty() &&
+                controller.preparation()["status"].toString() == "Complete" && controller.preparation()["cacheHit"].toBool() &&
+                replaced.stemBank[0] && !replaced.playing[0] && replaced.sourceFrame[0] == 0 &&
+                !replaced.sourceReadError[0] && !replaced.sourceReadErrorObserved[0] &&
+                !replaced.buffering[0] && replaced.starvedFrames[0] == 0 &&
+                replacedMap["sourceId"].toString() == digest(b) &&
+                replacedMap["name"].toString() == QFileInfo(b).fileName() &&
+                !replacedMap["liveStems"].toBool() && replacedMap["overviewStem"].toString() == "drums" &&
+                !replacedMap["bpm"].toMap()["manual"].toBool() && !replaced.cueFrame[0] &&
+                controller.completedSessions() == sessions && bound.groupGone(),
+                "Accepted foreground load completes once as an ordinary paused B-bank replacement with correct new metadata");
+            // Ordinary replacement intentionally retires A's historical totals;
+            // unlike continuation, they now belong to completed accounting.
+            insist(controller.completedStarvedFrames() >= priorStarved + secondHeld.starvedFrames[0] &&
+                controller.completedStarvedFrames() <= priorStarved + secondHeld.starvedFrames[0] +
+                    replaced.outputFrame - secondHeld.outputFrame &&
+                controller.completedReadFailures() == priorFailures + 1,
+                "Normal foreground replacement retains the failed generation's bounded historical starvation and one causal failure");
+            retiredStarved = controller.completedStarvedFrames() - priorStarved;
+            retiredFailures = 1;
+            evidence.actions["retired_starved_frames"] = qint64(retiredStarved);
+            evidence.actions["retired_read_failures"] = qint64(retiredFailures);
+            evidence.actions["foreground_replacement"] = snapshot(replaced);
+            insist(controller.recording()["active"].toBool() && controller.recording()["path"].toString() == wav,
+                "Foreground cancellation and replacement preserve the same master recorder");
+            await(evidence, [&] { return controller.audioState().outputFrame >= replaced.outputFrame + holdFrames; },
+                "Prepared peer did not continue after the ordinary foreground replacement");
+            continuousPeer(replaced, controller.audioState());
+            controller.stopRecording();
+            await(evidence, [&] { return !controller.recording()["active"].toBool(); }, "Foreground recording did not finalize");
+            const auto recording = controller.recording();
+            insist(recording["status"].toString() == "Complete" && recording["acceptedFrames"] == recording["writtenFrames"] &&
+                recording["overflowFrames"].toULongLong() == 0,
+                "Foreground priority preserves every accepted recorded frame without writer overflow");
+            current(); report["wav"] = inspectCompleteRecording(wav, recording["writtenFrames"].toULongLong(), false); current();
+        } else {
+            controller.loadStemDeck(0, QUrl::fromLocalFile(b));
+            insist(controller.busy() && controller.error().isEmpty() &&
+                controller.preparation()["phase"].toString() == "continuation-cleanup" &&
+                status() == "Cancelled" && continuation()["pending"].toBool(),
+                "Stop case first reserves a foreground request behind the checking worker");
+            // Release before teardown: the worker may finish, but no GUI result
+            // delivery occurs between unlock and shutdown. Cleanup itself must
+            // remain able to acquire this same cache lock.
+            gate.unlock(); locked = false;
+            controller.shutdown(); stopped = true;
+            insist(controller.audioState().sourceGeneration[0] == held.sourceGeneration[0] &&
+                !continuation()["pending"].toBool(),
+                "Shutdown consumes or retires an in-flight result without publishing its candidate");
+        }
+        services.capture();
+        const auto traceRows = services.rows();
+        const auto allTraceCount = [&](const char* key, const char* value) {
+            return std::ranges::count_if(traceRows, [&](const auto& row) { return row[key].toString() == value; });
+        };
+        // Count every retained trace row, including an unexpected service that
+        // already exited before capture could bind a pidfd for it.
+        insist(digest(exporterCalls) == callsBeforeFailure && services.size() == 1 &&
+            allTraceCount("fixture", "started") == 1 && allTraceCount("command", "load") == 1 &&
+            allTraceCount("fixture", "runtime") == 1 && allTraceCount("fixture", "complete") == 0,
+            "Automatic continuation adds no export, second live load, runtime or hidden full-track completion");
+        if (!stopped) controller.shutdown();
+        evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX; evidence.drain();
+        const auto final = controller.audioState(); const auto counters = handle->counters();
+        insist(services.gone(0) && bound.groupGone() && counters.producerFinished && !counters.droppedRecords &&
+            !counters.invalidClockReads && counters.attemptedRecords == evidence.ordinal &&
+            !controller.busy() && !controller.outputReady(),
+            "Every continuation outcome retires the exact service/group/job and drains all local observations before safety cleanup");
+        insist(controller.completedSessions() == sessions + 1 &&
+            controller.completedStarvedFrames() == priorStarved + retiredStarved + final.starvedFrames[0] + final.starvedFrames[1] &&
+            controller.completedReadFailures() == priorFailures + retiredFailures +
+                std::uint64_t(final.sourceReadErrorObserved[0] || final.sourceReadError[0]) +
+                std::uint64_t(final.sourceReadErrorObserved[1] || final.sourceReadError[1]),
+            "Continuation accounting counts the stopped session and cumulative failure/starvation exactly once");
+        report["source_sha256"] = digest(a); report["peer_sha256"] = digest(b);
+        report["children"] = services.identities(); report["final_audio"] = snapshot(final);
+        report["continuation_final"] = QJsonObject::fromVariantMap(continuation()); report["passed"] = true;
+        evidence.write(true); evidence.controller = nullptr;
+        insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome),
+            "Only the fully retired continuation scenario cache is removed");
+        results.append(report);
+    } catch (const std::exception& error) {
+        if (locked) gate.unlock(); // Never obstruct product cleanup with the fixture's gate.
+        controller.shutdown();
+        evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX;
+        try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
+        evidence.controller = nullptr;
+        report["passed"] = false; report["error"] = error.what(); report["children"] = services.identities();
+        results.append(report); throw;
+    }
+}
+
+int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCase> continuationCase = {})
+{
+    const bool continuationOnly = continuationCase.has_value();
     QJsonArray results;
     QString error;
     bool passed = false;
@@ -2096,11 +2462,15 @@ int run(int argc, char** argv, bool functionalOnly)
         std::signal(SIGINT, requestStop); std::signal(SIGTERM, requestStop);
         QCoreApplication app(argc, argv);
         app.setOrganizationName("CONFLUX"); app.setApplicationName("preparation-controller-check");
-        const auto privateRoot = QString::fromStdString((runtime / "live-stall-owner").string());
+        const auto privateRoot = QString::fromStdString((runtime / (continuationOnly ? "continuation-owner" : "live-stall-owner")).string());
         directory(privateRoot);
         pw_init(nullptr, nullptr);
-        scenario(QString::fromStdString(output.string()), privateRoot, false, results);
-        scenario(QString::fromStdString(output.string()), privateRoot, true, results);
+        if (continuationOnly) {
+            continuationScenario(QString::fromStdString(output.string()), privateRoot, *continuationCase, results);
+        } else {
+            scenario(QString::fromStdString(output.string()), privateRoot, false, results);
+            scenario(QString::fromStdString(output.string()), privateRoot, true, results);
+        }
         insist(QDir(privateRoot).removeRecursively() && !QFileInfo::exists(privateRoot),
             "All retired scenario cache/library trees are gone before private-daemon graph inspection");
         current(); passed = true;
@@ -2111,7 +2481,9 @@ int run(int argc, char** argv, bool functionalOnly)
           {"per_file_hard_bytes", qint64(fileBytesLimit)}, {"prepared_cache_admission_bytes", qint64(256 * MiB)},
           {"prepared_leaf_bytes", qint64(16 * MiB)}, {"source_bytes", qint64(8 * MiB)},
           {"combined_observed_bytes", qint64(totalBytesLimit)}, {"files_per_tree", 256}, {"directories_per_tree", 128}}},
-        {"scope", "Generated virtual controller/recorder support check only. Explicit replacement remains paused. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification."}};
+        {"scope", continuationOnly ?
+            "Generated virtual same-deck prepared-bank continuation only. Filesystem observations are quiescent-only, not peak measurements; enforced file/cache admission bounds remain active. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification." :
+            "Generated virtual controller/recorder support check only. Explicit replacement remains paused. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification."}};
     const auto bytes = QJsonDocument(final).toJson(QJsonDocument::Indented);
     if (bytes.size() > 8 * qint64(MiB)) return 1;
     std::cout << bytes.constData();
@@ -2133,15 +2505,26 @@ int main(int argc, char** argv)
     };
     try {
         bool functionalOnly = false, liveFailureOnly = false;
-        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only]";
+        std::optional<liveFailure::ContinuationCase> continuationCase;
+        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground}]";
         if (argc < 3) throw std::runtime_error(usage);
         for (int argument = 3; argument < argc; ++argument) {
             const std::string_view option(argv[argument]);
             if (option == "--functional-only") functionalOnly = true;
             else if (option == "--live-failure-only") liveFailureOnly = true;
-            else throw std::runtime_error(usage);
+            else if (option == "--continuation-case") {
+                if (continuationCase || ++argument == argc) throw std::runtime_error(usage);
+                const std::string_view value(argv[argument]);
+                if (value == "takeover") continuationCase = liveFailure::ContinuationCase::Takeover;
+                else if (value == "miss") continuationCase = liveFailure::ContinuationCase::Miss;
+                else if (value == "cancel") continuationCase = liveFailure::ContinuationCase::Cancel;
+                else if (value == "stop") continuationCase = liveFailure::ContinuationCase::Stop;
+                else if (value == "foreground") continuationCase = liveFailure::ContinuationCase::Foreground;
+                else throw std::runtime_error(usage);
+            } else throw std::runtime_error(usage);
         }
-        if (liveFailureOnly) return liveFailure::run(argc, argv, functionalOnly);
+        if (liveFailureOnly && continuationCase) throw std::runtime_error(usage);
+        if (liveFailureOnly || continuationCase) return liveFailure::run(argc, argv, functionalOnly, continuationCase);
         // Gcov cold-cache throughput is outside functional load-latency qualification.
         // Only initial A readiness and cold B import setup receive this allowance.
         const auto setupTimeout = std::chrono::seconds(functionalOnly ? 30 : 8);
@@ -2405,10 +2788,74 @@ int main(int argc, char** argv)
                 cancelled.sourceFrame[0] > before.sourceFrame[0] &&
                 cancelled.sourceFrame[0] - before.sourceFrame[0] == cancelled.outputFrame - before.outputFrame,
                 "Cancelling queued B preserves unloaded B and the same advancing A/output clock");
-        require(!cancelled.invalidBuffers && !cancelled.rejected &&
-                !cancelled.sourceReadErrorObserved[0] && !cancelled.sourceReadError[0] && !cancelled.starvedFrames[0] &&
-                !cancelled.sourceReadErrorObserved[1] && !cancelled.sourceReadError[1] && !cancelled.starvedFrames[1] &&
-                !sink.wrong() && !sink.zeros(), "Cancellation preserves exact A samples without invalid buffers or source failures");
+        try {
+            require(!cancelled.invalidBuffers && !cancelled.rejected &&
+                    !cancelled.sourceReadErrorObserved[0] && !cancelled.sourceReadError[0] && !cancelled.starvedFrames[0] &&
+                    !cancelled.sourceReadErrorObserved[1] && !cancelled.sourceReadError[1] && !cancelled.starvedFrames[1] &&
+                    !sink.wrong() && !sink.zeros(), "Cancellation preserves exact A samples without invalid buffers or source failures");
+        } catch (const std::exception& failure) {
+            const auto sinkWrong = sink.wrong(), sinkZeros = sink.zeros();
+            const std::array<std::uint64_t, 2> sinkReceived{sink.received(0), sink.received(1)};
+            // Disarm before intentional shutdown, including serialization-failure unwind.
+            sink.validate(false);
+            try {
+                const auto audio = [](const auto& state) {
+                    auto value = liveFailure::snapshot(state);
+                    value["max_execution_ns"] = qint64(state.maxExecutionNs);
+                    value["deadline_misses"] = qint64(state.deadlineMisses);
+                    value["graph_rate"] = int(state.graphRate);
+                    value["stream_frames_min"] = qint64(state.streamFramesMin);
+                    value["stream_frames_max"] = qint64(state.streamFramesMax);
+                    return value;
+                };
+                QJsonObject detail{
+                    {"assertion_error", failure.what()}, {"controller_error", controller.error()},
+                    {"busy", controller.busy()}, {"output_ready", controller.outputReady()},
+                    {"completed_sessions_before", qint64(sessions)},
+                    {"completed_sessions_on_catch", qint64(controller.completedSessions())},
+                    {"before_preparation", audio(before)}, {"after_cancellation", audio(cancelled)},
+                    {"sink_received_on_catch", QJsonArray{qint64(sinkReceived[0]), qint64(sinkReceived[1])}},
+                    {"sink_wrong_on_catch", qint64(sinkWrong)}, {"sink_zeros_on_catch", qint64(sinkZeros)},
+                    {"clauses", QJsonObject{
+                        {"invalid_buffers_zero", !cancelled.invalidBuffers}, {"rejected_zero", !cancelled.rejected},
+                        {"A_source_read_error_observed_zero", !cancelled.sourceReadErrorObserved[0]},
+                        {"A_source_read_error_zero", !cancelled.sourceReadError[0]},
+                        {"A_starved_frames_zero", !cancelled.starvedFrames[0]},
+                        {"B_source_read_error_observed_zero", !cancelled.sourceReadErrorObserved[1]},
+                        {"B_source_read_error_zero", !cancelled.sourceReadError[1]},
+                        {"B_starved_frames_zero", !cancelled.starvedFrames[1]},
+                        {"sink_wrong_zero_on_catch", !sinkWrong}, {"sink_zeros_zero_on_catch", !sinkZeros}}},
+                    {"scope", "Failure-only coherent stored before/after controller snapshots. Catch-time sink atomics are separate asynchronous reads, not the assertion's exact read instant. Received counts are per channel; wrong/zero sample counts sum both channels. No root-cause inference."}};
+                observations["cancelled_preparation_failure"] = detail;
+                controller.shutdown();
+                QJsonArray stoppedTiming;
+                for (const auto& timing : controller.completedTiming()) {
+                    const auto& counters = timing.counters;
+                    stoppedTiming.append(QJsonObject{
+                        {"callbacks", qint64(counters.callbacks)}, {"max_execution_ns", qint64(counters.maxExecutionNs)},
+                        {"deadline_misses", qint64(counters.deadlineMisses)},
+                        {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
+                        {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
+                        {"graph_quantum_min", qint64(counters.graphQuantumMin)},
+                        {"graph_quantum_max", qint64(counters.graphQuantumMax)},
+                        {"driver_position_observed", counters.graphPositionObserved},
+                        {"capabilities", QJsonObject{{"cycle", timing.capabilities.cycle},
+                            {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
+                            {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
+                }
+                detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
+                detail["stopped_timing"] = stoppedTiming;
+                detail["stopped_timing_scope"] = "Quiesced totals include callbacks after the assertion. Execution timing does not measure scheduler lateness; unavailable driver flag masks do not establish zero events.";
+                observations["cancelled_preparation_failure"] = detail;
+            } catch (const std::exception& diagnostic) {
+                try { observations["cancelled_preparation_diagnostic_error"] = QString::fromUtf8(diagnostic.what()); }
+                catch (...) {} // Diagnostic failures must not replace the original assertion.
+            } catch (...) {
+                try { observations["cancelled_preparation_diagnostic_error"] = "Unknown diagnostic failure"; }
+                catch (...) {}
+            }
+            throw;
+        }
         observations["cancelled_at_output_frame"] = qint64(cancelled.outputFrame);
         controller.loadLibraryTrack(1, libraryId);
         wait([&] { return !controller.busy() && controller.decks()[1].toMap()["loaded"].toBool() && controller.outputReady(); },

@@ -157,8 +157,15 @@ def main():
                                     "QT_QUICK_CONTROLS_STYLE": "Basic"}
             run("smoke", [str(BUILD / "conflux"), "--smoke-test"], env=smoke_env, timeout=30)
             if args.private_routing:
-                for stage, binary in [("private-routing", "conflux-manual-routing-check"),
-                                      ("private-preparation", "conflux-preparation-controller-check")]:
+                for stage, binary, options in [
+                    ("private-routing", "conflux-manual-routing-check", []),
+                    ("private-preparation", "conflux-preparation-controller-check", []),
+                    ("private-continuation-takeover", "conflux-preparation-controller-check", ["--continuation-case", "takeover"]),
+                    ("private-continuation-miss", "conflux-preparation-controller-check", ["--continuation-case", "miss"]),
+                    ("private-continuation-cancel", "conflux-preparation-controller-check", ["--continuation-case", "cancel"]),
+                    ("private-continuation-stop", "conflux-preparation-controller-check", ["--continuation-case", "stop"]),
+                    ("private-continuation-foreground", "conflux-preparation-controller-check", ["--continuation-case", "foreground"]),
+                ]:
                     with tempfile.TemporaryDirectory(prefix=f"conflux-coverage-{stage}-") as temporary:
                         evidence = Path(temporary) / "evidence"
                         try:
@@ -175,7 +182,7 @@ def main():
                                 "runpy.run_path(sys.argv[0], run_name='__main__')\n")
                             run(stage, [sys.executable, "-c", launcher,
                                 str(ROOT / "tools" / "experiments" / "private_routing_check.py"),
-                                str(BUILD / binary), str(evidence), "--functional-only"],
+                                str(BUILD / binary), str(evidence), "--functional-only", *options],
                                 # The wrapper gives functional checks 240s.
                                 # Leave room for private daemon startup, graph
                                 # inspection and reaping before this outer guard.

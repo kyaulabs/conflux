@@ -12,8 +12,10 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <condition_variable>
 #include <filesystem>
 #include <limits>
+#include <mutex>
 #include <utility>
 #include <stdexcept>
 #include <thread>
@@ -82,6 +84,17 @@ QString preparationPhaseText(const QString& phase)
     if (phase == "cues") return "Reading cue sheet";
     if (phase == "library") return "Saving library entry";
     if (phase == "cancel") return "Cancelling preparation";
+    if (phase == "continuation-cleanup") return "Waiting for the saved-stem check to finish";
+    return {};
+}
+
+QString continuationStatusText(const QString& status)
+{
+    if (status == "Checking") return "Checking saved stems";
+    if (status == "Installing") return "Continuing with saved stems";
+    if (status == "Active") return "Using saved stems";
+    if (status == "Unavailable") return "Saved stem continuation unavailable";
+    if (status == "Cancelled") return "Saved stem check cancelled";
     return {};
 }
 
@@ -111,9 +124,9 @@ DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> ste
 }
 
 DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
-    std::shared_ptr<library::LiveStemObservations> observations)
+    std::shared_ptr<library::LiveStemObservations> observations, QString sourcePath, QString artifactKey)
     : liveFrames(frames), livePeaks(std::move(sourcePeaks)), liveSourceSha256(std::move(sourceSha256)),
-      observations(std::move(observations))
+      observations(std::move(observations)), sourcePath(std::move(sourcePath)), artifactKey(std::move(artifactKey))
 {
     if (!liveFrames || livePeaks.empty() || liveSourceSha256.isEmpty() ||
         std::ranges::any_of(livePeaks, [](float peak) { return !std::isfinite(peak) || peak < 0.F || peak > 1.F; }))
@@ -175,6 +188,8 @@ void DeckController::shutdown()
     if (closing_)
         return;
     closing_ = true;
+    foregroundPreparation_.reset();
+    foregroundWaiting_ = false;
     pollTimer_.stop();
     disconnect(&loader_, nullptr, this, nullptr);
     disconnect(&catalogJob_, nullptr, this, nullptr);
@@ -228,6 +243,13 @@ void DeckController::shutdown()
     if (pendingLoad_)
         retirePlayback(std::move(pendingLoad_->playback), std::move(pendingLoad_->audio));
     pendingLoad_.reset();
+    if (continuation_) {
+        if (continuation_->prepared)
+            retirePlayback(std::move(continuation_->prepared->playback), std::move(continuation_->prepared->audio));
+        retirePlayback(std::move(continuation_->retired));
+        continuation_.reset();
+    }
+    loaderPurpose_ = LoaderPurpose::None;
     retirePlayback(std::move(pendingRetired_));
     for (std::size_t deck = 0; deck < stoppedPlaybacks_.size(); ++deck)
         if (stoppedPlaybacks_[deck])
@@ -281,6 +303,14 @@ QVariantList DeckController::decks() const
                 {"manual", bpmOverrides_[deck].has_value()},
                 {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
             {"replacing", replacing_[deck]},
+            {"continuation", QVariantMap{
+                {"status", continuationEpisodes_[deck].status}, {"detail", continuationEpisodes_[deck].detail},
+                {"text", continuationStatusText(continuationEpisodes_[deck].status)},
+                {"pending", continuation_ && continuation_->deck == deck},
+                {"attempts", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].attempts)},
+                {"sourceFrame", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].frame)},
+                {"sourceGeneration", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].sourceGeneration)},
+                {"generation", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].generation)}}},
             {"scratch", QVariantMap{
                 {"position", state_.scratch[deck].position},
                 {"generation", QVariant::fromValue<qulonglong>(state_.scratch[deck].generation)},
@@ -302,9 +332,10 @@ QVariantList DeckController::decks() const
                 preparationCompletedStages_ / double(preparationTotalStages_) : 0.},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
-            {"overviewStem", clips_[deck] && clips_[deck]->live() ? "source" :
+            {"overviewStem", clips_[deck] && clips_[deck]->observations ? "source" :
                              clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
             {"stemBank", state_.stemBank[deck]},
+            {"liveStems", clips_[deck] && clips_[deck]->live()},
             {"tempo", QVariantMap{
                 {"supported", state_.tempo[deck].supported}, {"percent", state_.tempo[deck].percent},
                 {"appliedPercent", state_.tempo[deck].appliedPercent}, {"keyLock", state_.tempo[deck].keyLock},
@@ -383,14 +414,14 @@ void DeckController::fail(const QString& error)
 
 std::shared_ptr<library::LiveStemObservations> DeckController::liveStemObservations(int deck) const
 {
-    if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)] || !clips_[std::size_t(deck)]->live())
+    if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)])
         return {};
     return clips_[std::size_t(deck)]->observations;
 }
 
 std::uint64_t DeckController::retainedPcmBytes() const
 {
-    // Bound raw references before dedup: clips2 + pending1 + ready loader1 +
+    // Bound raw references before dedup: clips2 + pending normal/continuation1 + ready loader1 +
     // active retirement3 + deferred retirement3. Distinct physical owners are
     // fewer; repeated references must not be allowed to overrun this storage.
     std::array<std::pair<const PreparedPcm*, std::uint64_t>, 10> owners{};
@@ -412,6 +443,9 @@ std::uint64_t DeckController::retainedPcmBytes() const
         if (clip && !append(clip.get(), clip->bytes())) return std::numeric_limits<std::uint64_t>::max();
     if (pendingLoad_ && pendingLoad_->audio &&
         !append(pendingLoad_->audio.get(), pendingLoad_->audio->bytes()))
+        return std::numeric_limits<std::uint64_t>::max();
+    if (continuation_ && continuation_->prepared && continuation_->prepared->audio &&
+        !append(continuation_->prepared->audio.get(), continuation_->prepared->audio->bytes()))
         return std::numeric_limits<std::uint64_t>::max();
     if (loader_.future().resultCount() > 0) {
         const auto result = loader_.result();
@@ -545,6 +579,15 @@ void DeckController::importCueSheet(const QString& sourceId, const QUrl& url)
         fail("Enter an absolute local CUE-sheet path.");
         return;
     }
+    ForegroundPreparation request;
+    request.kind = ForegroundPreparation::Kind::CueImport;
+    request.url = url; request.cueTrack = *found;
+    if (deferForegroundPreparation(std::move(request))) return;
+    startCueImport(*found, url);
+}
+
+void DeckController::startCueImport(library::LibraryTrack selected, const QUrl& url)
+{
     pendingDeck_ = 0;
     pendingImport_ = true;
     pendingStems_ = false;
@@ -561,7 +604,8 @@ void DeckController::importCueSheet(const QString& sourceId, const QUrl& url)
     busy_ = true;
     error_.clear();
     loadCancellation_ = std::stop_source{};
-    loader_.setFuture(QtConcurrent::run([path = url.toLocalFile(), selected = *found,
+    loaderPurpose_ = LoaderPurpose::Preparation;
+    loader_.setFuture(QtConcurrent::run([path = url.toLocalFile(), selected = std::move(selected),
                                        stop = loadCancellation_.get_token()]() mutable -> LoadResult {
         try {
             auto result = library::readCueSheet(path, selected, stop);
@@ -630,7 +674,9 @@ bool DeckController::cancelPreparation()
     if (closing_ || (preparationStatus_ != "Preparing" && preparationStatus_ != "Reading cues")) return false;
     preparationStatus_ = "Cancelling";
     preparationPhase_ = "cancel";
+    foregroundPreparation_.reset();
     loadCancellation_.request_stop();
+    drainForegroundPreparation();
     emit stateChanged();
     return true;
 }
@@ -665,6 +711,10 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
         fail("Prepared stems require a configured local stem engine. Normal loading is available.");
         return;
     }
+    ForegroundPreparation request;
+    request.deck = deck; request.url = url; request.importOnly = importOnly;
+    request.expectedSource = expectedSource; request.stems = stems;
+    if (deferForegroundPreparation(std::move(request))) return;
     auto limits = preparationOptions_.limits;
     const auto retained = retainedPcmBytes();
     // Reserve all retained PCM, including still-linked owners. This intentionally
@@ -710,6 +760,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                               std::move(presentation), std::move(waveform));
         }, Qt::QueuedConnection);
     };
+    loaderPurpose_ = LoaderPurpose::Preparation;
     loader_.setFuture(QtConcurrent::run([path, cache, bpmCache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits,
                                        report, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
@@ -730,7 +781,9 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     sourceId = bank->sourceSha256;
                     prepared->cacheHit = bank->cacheHit;
                     prepared->presentation = std::move(bank->presentation);
-                    prepared->audio = std::make_shared<const PreparedPcm>(std::move(bank->stems));
+                    auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems));
+                    pcm->sourcePath = path; pcm->artifactKey = bank->artifactKey;
+                    prepared->audio = std::move(pcm);
                 } else {
                     // Only a genuine lookup miss reaches the service. A valid
                     // bank never inspects this otherwise unused sixth asset.
@@ -738,7 +791,8 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     sourceId = track.sourceSha256;
                     prepared->presentation = std::move(track.presentation);
                     prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
-                        std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations));
+                        std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations),
+                        path, track.artifactKey);
                     prepared->playback = std::move(track.playback);
                 }
                 preview(prepared->presentation, prepared->audio->peaks());
@@ -810,15 +864,295 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     emit stateChanged();
 }
 
+bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
+{
+    if (loaderPurpose_ != LoaderPurpose::Continuation && !continuation_ &&
+        !retirementPending_ && !deferredRetirement_.count) return false;
+    if (foregroundWaiting_ || foregroundPreparation_) throw std::logic_error("Foreground preparation slot already reserved");
+    // Inputs were structurally validated by the public entry point. Reserve the
+    // one accepted user request BEFORE cancellation or a direct GUI observer.
+    // Keep the old job's token/future until its finished slot consumes it.
+    pendingDeck_ = request.deck;
+    pendingImport_ = request.kind == ForegroundPreparation::Kind::CueImport || request.importOnly;
+    pendingStems_ = request.stems;
+    pendingPath_ = request.url.toLocalFile(); pendingName_ = QFileInfo(pendingPath_).fileName();
+    pendingPresentation_ = {}; pendingWaveform_.clear();
+    ++preparationSerial_;
+    preparationStatus_ = request.kind == ForegroundPreparation::Kind::CueImport ? "Reading cues" : "Preparing";
+    preparationPhase_ = "continuation-cleanup";
+    preparationCompletedStages_ = 0;
+    preparationTotalStages_ = request.kind == ForegroundPreparation::Kind::CueImport ? 2 :
+        request.importOnly ? 3 : 3 + int(preparationOptions_.bpmEngine.has_value());
+    preparationCacheHit_ = false;
+    foregroundPreparation_ = std::move(request);
+    foregroundWaiting_ = true; busy_ = true; error_.clear();
+    if (continuation_) cancelContinuation(continuation_->deck, "A new preparation was accepted.");
+    emit stateChanged();
+    return true;
+}
+
+void DeckController::drainForegroundPreparation()
+{
+    if (closing_ || !foregroundWaiting_ || loaderPurpose_ != LoaderPurpose::None || continuation_ ||
+        retirementPending_ || deferredRetirement_.count || installationPending_ || pendingLoad_ ||
+        replacing_[0] || replacing_[1]) return;
+    foregroundWaiting_ = false;
+    if (!foregroundPreparation_) {
+        // A cancelled lookup/miss may return no owner, so no retirement watcher
+        // will finish. The loader-consumption path must settle this reservation.
+        busy_ = false; preparationStatus_ = "Cancelled"; preparationPhase_ = "cancel";
+        emit stateChanged();
+        return;
+    }
+    auto request = std::move(*foregroundPreparation_);
+    foregroundPreparation_.reset();
+    // No signal or event pumping between releasing this private reservation and
+    // normal launch. Observers see either the accepted request still busy or its
+    // actual terminal error; never a false idle window that drops the request.
+    busy_ = false; preparationStatus_ = "Failed"; preparationPhase_.clear();
+    if (request.kind == ForegroundPreparation::Kind::CueImport) {
+        if (!request.cueTrack) throw std::logic_error("Queued CUE import lost its selected track");
+        startCueImport(std::move(*request.cueTrack), request.url);
+    } else beginPreparation(request.deck, request.url, request.importOnly, request.expectedSource, request.stems);
+}
+
+bool DeckController::continuationEligible(std::size_t deck) const
+{
+    if (closing_ || !ready_ || !session_ || !session_->ready() || deck >= clips_.size() ||
+        !clips_[deck] || !clips_[deck]->live() || !preparationOptions_.stemEngine ||
+        (!state_.playing[deck] && !state_.cuePreview[deck]) || !state_.buffering[deck] ||
+        state_.sourceFrames[deck] != clips_[deck]->frames() || state_.sourceFrame[deck] >= clips_[deck]->frames() ||
+        state_.sourcePosition[deck] != double(state_.sourceFrame[deck]) ||
+        state_.transportRevision[deck] == std::numeric_limits<std::uint64_t>::max()) return false;
+    const auto& tempo = state_.tempo[deck];
+    const auto& loop = state_.loops[deck];
+    return !tempo.active && !tempo.pending && !tempo.keyLock && tempo.percent == 0 && tempo.appliedPercent == 0 &&
+        !state_.scratch[deck].active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached;
+}
+
+bool DeckController::continuationCurrent() const
+{
+    if (!continuation_ || continuation_->revoked) return false;
+    const auto& attempt = *continuation_;
+    const auto deck = attempt.deck;
+    return session_.get() == attempt.session && clips_[deck] == attempt.original && continuationEligible(deck) &&
+        sourceIds_[deck] == attempt.original->liveSourceSha256 &&
+        state_.sourceGeneration[deck] == attempt.sourceGeneration && state_.transportRevision[deck] == attempt.revision &&
+        state_.sourceFrame[deck] == attempt.frame;
+}
+
+void DeckController::cancelContinuation(std::size_t deck, const QString& reason)
+{
+    if (!continuation_ || continuation_->deck != deck) return;
+    continuation_->revoked = true;
+    if (loaderPurpose_ == LoaderPurpose::Continuation) loadCancellation_.request_stop();
+    auto& episode = continuationEpisodes_[deck];
+    episode.status = "Cancelled"; episode.detail = reason.left(1024);
+    // A published owner belongs to the callback mailbox until acquired, even
+    // after a newer human intent. A checking worker retains its own cancellation
+    // token/result until loaded() consumes it; neither may be overwritten here.
+}
+
+void DeckController::considerContinuation()
+{
+    if (continuation_ && !continuation_->published && !continuationCurrent())
+        cancelContinuation(continuation_->deck, "The live source or transport changed during the check.");
+    for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
+        if (continuation_ && continuation_->deck == deck) continue;
+        auto& episode = continuationEpisodes_[deck];
+        if (!clips_[deck] || !clips_[deck]->live()) continue;
+        if (!continuationEligible(deck)) {
+            // Healthy progress or a deliberate non-rendering state ends this
+            // stall. An unchanged failed/buffering source does not rearm a miss.
+            if (!state_.buffering[deck] || state_.sourceFrame[deck] != episode.frame ||
+                state_.transportRevision[deck] != episode.revision) {
+                episode.attempted = false; episode.stalled.invalidate();
+                if (!state_.buffering[deck] && (state_.playing[deck] || state_.cuePreview[deck]) &&
+                    state_.sourceFrame[deck] > episode.frame) {
+                    episode.status = "Idle"; episode.detail.clear();
+                }
+            }
+            continue;
+        }
+        if (episode.clip != clips_[deck].get() || episode.sourceGeneration != state_.sourceGeneration[deck] ||
+            episode.revision != state_.transportRevision[deck] || episode.frame != state_.sourceFrame[deck]) {
+            const auto attempts = episode.clip == clips_[deck].get() ? episode.attempts : 0;
+            episode = {};
+            episode.clip = clips_[deck].get(); episode.sourceGeneration = state_.sourceGeneration[deck];
+            episode.revision = state_.transportRevision[deck]; episode.frame = state_.sourceFrame[deck];
+            episode.attempts = attempts; episode.stalled.start();
+        }
+        if (!episode.stalled.isValid()) episode.stalled.start();
+        if (episode.attempted || (!state_.sourceReadError[deck] &&
+            (!episode.stalled.isValid() || episode.stalled.elapsed() < 4095))) continue;
+        if (busy_ || loaderPurpose_ != LoaderPurpose::None || continuation_ || installationPending_ || pendingLoad_ ||
+            replacing_[0] || replacing_[1] || retirementPending_ || deferredRetirement_.count ||
+            session_->sourceReplacementPending()) continue;
+        episode.attempted = true;
+        if (episode.attempts != std::numeric_limits<std::uint64_t>::max()) ++episode.attempts;
+        episode.status = "Unavailable";
+        const auto& original = clips_[deck];
+        const auto digest = [](const QString& value) {
+            return value.size() == 64 && std::all_of(value.cbegin(), value.cend(), [](QChar c) {
+                return (c >= QChar(u'0') && c <= QChar(u'9')) || (c >= QChar(u'a') && c <= QChar(u'f'));
+            });
+        };
+        const auto baseCache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+        auto limits = preparationOptions_.limits;
+        const auto retained = retainedPcmBytes();
+        if (baseCache.isEmpty() || original->sourcePath.isEmpty() || !digest(original->artifactKey) ||
+            !digest(original->liveSourceSha256) || sourceIds_[deck] != original->liveSourceSha256) {
+            episode.detail = "The loaded source has no exact prepared-bank identity."; continue;
+        }
+        if (retained >= limits.maxCacheBytes) {
+            episode.detail = "Retained playback leaves no prepared continuation byte budget."; continue;
+        }
+        if (nextSourceGeneration_ == std::numeric_limits<std::uint64_t>::max()) {
+            episode.detail = "Prepared continuation source identity exhausted."; continue;
+        }
+        limits.maxCacheBytes -= retained;
+        ContinuationAttempt attempt;
+        attempt.deck = deck; attempt.original = original; attempt.session = session_.get();
+        attempt.sourceGeneration = state_.sourceGeneration[deck]; attempt.revision = state_.transportRevision[deck];
+        attempt.frame = state_.sourceFrame[deck]; attempt.generation = ++nextSourceGeneration_;
+        attempt.deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        episode.generation = attempt.generation;
+        const auto frame = attempt.frame;
+        const auto deadline = attempt.deadline;
+        continuation_ = std::move(attempt);
+        episode.status = "Checking"; episode.detail.clear();
+        loadCancellation_ = std::stop_source{};
+        loaderPurpose_ = LoaderPurpose::Continuation;
+        loader_.setFuture(QtConcurrent::run([original, frame, deadline, limits,
+            cache = baseCache + "/prepared/v1", engine = *preparationOptions_.stemEngine,
+            parentStop = loadCancellation_.get_token()]() -> LoadResult {
+            try {
+                // One absolute admission cutoff includes queue delay, lookup,
+                // construction and priming. Existing cooperative process cleanup
+                // may finish after cancellation; no late result is publishable.
+                std::stop_source admission;
+                std::stop_callback cancelled(parentStop, [&] { admission.request_stop(); });
+                std::mutex mutex;
+                std::condition_variable_any condition;
+                std::jthread expiry([&](std::stop_token stop) {
+                    std::unique_lock lock(mutex);
+                    (void)condition.wait_until(lock, stop, deadline, [] { return false; });
+                    if (!stop.stop_requested()) admission.request_stop();
+                });
+                const auto check = [&] {
+                    if (admission.stop_requested() || std::chrono::steady_clock::now() >= deadline)
+                        throw std::runtime_error("Prepared continuation admission cancelled or timed out.");
+                };
+                check();
+                // Cache-only discovery validates existing files. Its bounded
+                // --describe is not an export or a second separator instance.
+                auto bank = library::PreparedTrackStore(cache, limits).findPreparedStemBank(
+                    original->sourcePath, engine, admission.get_token());
+                check();
+                if (!bank) return {{}, "No complete compatible prepared stem bank is available.", {}, false};
+                if (bank->sourceSha256 != original->liveSourceSha256 || bank->artifactKey != original->artifactKey ||
+                    std::any_of(bank->stems.begin(), bank->stems.end(), [&](const auto& leaf) {
+                        return leaf.frames() != original->frames();
+                    }) || frame >= original->frames())
+                    throw std::runtime_error("Prepared bank identity or exact source geometry differs from the live source.");
+                auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems));
+                pcm->sourcePath = original->sourcePath; pcm->artifactKey = original->artifactKey;
+                pcm->liveSourceSha256 = original->liveSourceSha256; pcm->observations = original->observations;
+                auto prepared = std::make_shared<PreparedLoad>();
+                prepared->audio = std::move(pcm); prepared->sourceId = bank->sourceSha256; prepared->cacheHit = true;
+                prepared->playback = prepared->audio->makePlayback();
+                check();
+                const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    deadline - std::chrono::steady_clock::now());
+                if (remaining.count() <= 0 || !prepared->playback->prime(frame,
+                    std::min(std::chrono::milliseconds(2000), remaining), admission.get_token()) ||
+                    !prepared->playback->primedForContinuation(frame))
+                    throw std::runtime_error("Prepared continuation could not prime its exact source cursor.");
+                check();
+                return {std::move(prepared), {}, {}, true};
+            } catch (const std::exception& error) {
+                return {{}, QString::fromUtf8(error.what()).left(1024), {}, false};
+            } catch (...) { return {{}, "Prepared continuation discovery failed.", {}, false}; }
+        }));
+        return;
+    }
+}
+
+void DeckController::continuationLoaded(const LoadResult& result)
+{
+    if (!continuation_) throw std::logic_error("Continuation worker lost its request identity");
+    auto& attempt = *continuation_;
+    auto& episode = continuationEpisodes_[attempt.deck];
+    const bool current = !loadCancellation_.stop_requested() && continuationCurrent() &&
+        std::chrono::steady_clock::now() < attempt.deadline;
+    const bool compatible = result.prepared && result.prepared->audio && result.prepared->playback &&
+        !result.prepared->audio->live() && result.prepared->audio->stemBank() &&
+        result.prepared->audio->frames() == attempt.original->frames() &&
+        result.prepared->playback->frames() == attempt.original->frames() &&
+        result.prepared->sourceId == attempt.original->liveSourceSha256 &&
+        result.prepared->audio->artifactKey == attempt.original->artifactKey &&
+        result.prepared->audio->observations == attempt.original->observations;
+    if (!current || !compatible) {
+        const bool cancelled = attempt.revoked || loadCancellation_.stop_requested();
+        episode.status = cancelled ? "Cancelled" : "Unavailable";
+        if (!cancelled) episode.detail = current ? (result.prepared ?
+            QStringLiteral("The prepared continuation identity or geometry changed.") : result.error) :
+            QStringLiteral("The source changed or admission expired before publication.");
+        auto playback = result.prepared ? std::move(result.prepared->playback) : nullptr;
+        auto clip = result.prepared ? std::move(result.prepared->audio) : nullptr;
+        continuation_.reset();
+        if (playback || clip) retirePlayback(std::move(playback), std::move(clip));
+        emit stateChanged();
+        return;
+    }
+    attempt.prepared = result.prepared;
+    // Control publication and the callback both require the unused exact prime.
+    // No seek/reset/stop or gain retarget is applied to this candidate here.
+    attempt.published = session_->requestSourceContinuation(attempt.deck, attempt.prepared->playback,
+        attempt.sourceGeneration, attempt.revision, attempt.frame, attempt.generation);
+    if (!attempt.published) {
+        episode.status = "Unavailable"; episode.detail = "The exact prepared continuation could not be published.";
+        auto playback = std::move(attempt.prepared->playback);
+        auto clip = std::move(attempt.prepared->audio);
+        continuation_.reset();
+        retirePlayback(std::move(playback), std::move(clip));
+    } else episode.status = "Installing";
+    emit stateChanged();
+}
+
+void DeckController::settleContinuation(bool stopped)
+{
+    if (!continuation_) return;
+    auto& attempt = *continuation_;
+    if (!attempt.published) {
+        if (stopped) cancelContinuation(attempt.deck, "The audio session stopped during the check.");
+        return;
+    }
+    if (!attempt.acknowledged || state_.sourceGeneration[attempt.deck] != attempt.generation) return;
+    const auto deck = attempt.deck;
+    auto oldClip = std::move(clips_[deck]);
+    clips_[deck] = std::move(attempt.prepared->audio);
+    auto retired = std::move(attempt.retired);
+    auto& episode = continuationEpisodes_[deck];
+    episode.status = "Active"; episode.detail.clear();
+    // Same Deck, same metadata and cumulative health. Only finite storage and
+    // the callback's acknowledged source generation changed. In particular do
+    // not add retired health again or reset CUE/gains/EQ/BPM/waveform/recording.
+    continuation_.reset();
+    retirePlayback(std::move(retired), std::move(oldClip));
+}
+
 void DeckController::stopSession()
 {
     // Retirement can complete synchronously. Observers must see teardown only
     // after the stopped session's accounting and ownership are consistent.
     const QSignalBlocker notifications(this);
+    if (continuation_) cancelContinuation(continuation_->deck, "The audio session stopped during the check.");
     if (session_) {
         auto stopped = session_->stopAndTakePlaybacks();
         state_ = session_->stoppedState();
         acceptReplacement(std::move(stopped.replacement));
+        settleContinuation(true);
         settleReplacement(true);
         // Replacement metadata has now committed against the exact stopped
         // generation. Park precisely those corresponding active whole owners.
@@ -847,6 +1181,12 @@ void DeckController::stopSession()
     // session's queue, even when that session restores the same source/frame.
     scratchGestures_.fill({});
     scratchEnds_.fill({});
+    for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
+        if (clips_[deck] && clips_[deck]->live()) {
+            continuationEpisodes_[deck].attempted = false;
+            continuationEpisodes_[deck].stalled.invalidate();
+        }
+    }
 }
 
 void DeckController::loaded()
@@ -854,6 +1194,12 @@ void DeckController::loaded()
     if (closing_)
         return;
     const auto result = loader_.result();
+    const auto purpose = std::exchange(loaderPurpose_, LoaderPurpose::None);
+    if (purpose == LoaderPurpose::Continuation) {
+        continuationLoaded(result);
+        drainForegroundPreparation();
+        return;
+    }
     if (loadCancellation_.stop_requested()) {
         error_.clear();
         preparationCacheHit_ = false;
@@ -917,6 +1263,7 @@ void DeckController::loaded()
     // No callback can refer to the old owner after stopSession returns.
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(result.prepared->audio);
+    continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
     if (sourceIds_[pendingDeck_] != result.prepared->sourceId) bpmOverrides_[pendingDeck_].reset();
     sourceIds_[pendingDeck_] = result.prepared->sourceId;
@@ -1026,6 +1373,23 @@ void DeckController::collectReplacement()
 void DeckController::acceptReplacement(std::optional<audio::LiveSession::SourceReplacementResult> result)
 {
     if (!result) return;
+    if (result->completion.kind == audio::SourceHandoff::Kind::Continuation) {
+        if (!continuation_ || result->completion.deck != continuation_->deck ||
+            result->completion.generation != continuation_->generation)
+            throw std::logic_error("Continuation completion lost its request identity");
+        if (result->completion.installed) {
+            continuation_->retired = std::move(result->retiredPlayback);
+            continuation_->acknowledged = true;
+        } else {
+            auto& episode = continuationEpisodes_[continuation_->deck];
+            episode.status = continuation_->revoked ? "Cancelled" : "Unavailable";
+            if (!continuation_->revoked) episode.detail = "The source or transport no longer matched the prepared continuation.";
+            auto clip = std::move(continuation_->prepared->audio);
+            continuation_.reset();
+            retirePlayback(std::move(result->retiredPlayback), std::move(clip));
+        }
+        return; // Same-deck cumulative faults remain in RenderCore, counted once.
+    }
     if (result->completion.installed) {
         completedStarvedFrames_ += result->completion.retired.starvedFrames;
         completedReadFailures_ += result->completion.retired.readFailed ? 1 : 0;
@@ -1062,6 +1426,7 @@ void DeckController::settleReplacement(bool stopped)
     if (!replacementAcknowledged_ || state_.sourceGeneration[pendingDeck_] != pendingGeneration_) return;
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(pendingLoad_->audio);
+    continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
     if (sourceIds_[pendingDeck_] != pendingLoad_->sourceId) bpmOverrides_[pendingDeck_].reset();
     sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
@@ -1125,7 +1490,7 @@ void DeckController::retired()
         }
     }
     if (!retirementPending_ && !deferredRetirement_.count && !installationPending_ && !pendingLoad_ &&
-        !replacing_[0] && !replacing_[1]) {
+        !replacing_[0] && !replacing_[1] && !foregroundWaiting_) {
         busy_ = false;
         if (preparationStatus_ == "Cancelling") preparationStatus_ = "Cancelled";
         else if (preparationStatus_ == "Installing") {
@@ -1133,6 +1498,7 @@ void DeckController::retired()
             preparationCompletedStages_ = preparationTotalStages_;
         }
     }
+    drainForegroundPreparation();
     if (!closing_) emit stateChanged();
 }
 
@@ -1152,6 +1518,7 @@ void DeckController::installed()
         for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
             if (!result->lostLiveOwners[deck]) continue;
             clips_[deck].reset();
+            continuationEpisodes_[deck] = {};
             names_[deck].clear();
             sourceIds_[deck].clear();
             presentations_[deck] = {};
@@ -1225,11 +1592,17 @@ void DeckController::poll()
     // The queue is bounded; GUI delay can drop intermediate snapshots. Drain at
     // most its capacity, keeping the newest complete published state.
     for (std::size_t index = 0; index < 32 && session_->pollState(snapshot); ++index) {
-        if (replacing_[pendingDeck_] && snapshot.sourceGeneration[pendingDeck_] == pendingGeneration_)
+        if (continuation_ && continuation_->published &&
+            snapshot.sourceGeneration[continuation_->deck] == continuation_->generation)
+            continuation_->snapshot = snapshot;
+        else if (replacing_[pendingDeck_] && snapshot.sourceGeneration[pendingDeck_] == pendingGeneration_)
             replacementSnapshot_ = snapshot;
         else state_ = snapshot;
     }
     collectReplacement();
+    if (closing_ || !session_) return;
+    if (continuation_ && continuation_->acknowledged && continuation_->snapshot) state_ = *continuation_->snapshot;
+    settleContinuation();
     if (closing_ || !session_) return;
     if (replacementAcknowledged_ && replacementSnapshot_) state_ = *replacementSnapshot_;
     settleReplacement();
@@ -1250,6 +1623,7 @@ void DeckController::poll()
     publishReplacement();
     routingSnapshot_ = session_->routingSnapshot();
     pollRecording();
+    considerContinuation();
     emit stateChanged();
 }
 
@@ -1305,6 +1679,9 @@ bool DeckController::submit(audio::RenderCore::Command command)
     // The queued native transport command cancels scratch itself. Do not add a
     // redundant End+seek; source/token guards reject a later old-pointer Move.
     if (transportEndsScratch) scratchGestures_[command.deck].reset();
+    const bool transportIntent = transportEndsScratch || modeChange || command.type == Type::CueRelease ||
+        command.type == Type::ScratchBegin || command.type == Type::ScratchMove || command.type == Type::ScratchEnd;
+    if (transportIntent) cancelContinuation(command.deck, "A newer human transport command was accepted.");
     ++submitted_;
     error_.clear();
     return true;
@@ -1354,6 +1731,7 @@ bool DeckController::flushScratchEnds()
         command.scratchToken = identity.nativeToken;
         command.sourceGeneration = identity.sourceGeneration;
         if (!session_->submit(command)) return false;
+        cancelContinuation(deck, "A newer scratch release was accepted.");
         scratchEnds_[deck].reset();
         ++submitted_;
     }
@@ -1436,6 +1814,7 @@ bool DeckController::flushCueReleases()
         command.deck = std::uint32_t(deck);
         if (!session_ || !session_->submit(command))
             return false;
+        cancelContinuation(deck, "A newer CUE release was accepted.");
         cueReleasePending_[deck] = false;
         ++submitted_;
     }
