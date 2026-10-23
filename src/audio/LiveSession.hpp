@@ -28,6 +28,9 @@ public:
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
+        // Explicit caller authorization installed after transport restoration
+        // and before callbacks. Zero leaves recovery unarmed.
+        std::array<std::uint64_t, RenderCore::deckCount> residentHoldRangeId{};
         std::array<float, RenderCore::deckCount> deckGain{1.0F, 1.0F};
         std::array<std::array<float, RenderCore::eqBandCount>, RenderCore::deckCount> eqGainDb{};
         float masterGain = 1.0F;
@@ -55,6 +58,7 @@ public:
         std::array<AudioLoopState, RenderCore::deckCount> loops{};
         std::array<AudioTempoState, RenderCore::deckCount> tempo{};
         std::array<AudioScratchState, RenderCore::deckCount> scratch{};
+        std::array<AudioResidentHoldState, RenderCore::deckCount> residentHold{};
         std::array<std::array<float, RenderCore::stemCount>, RenderCore::deckCount> stemGain{};
         float masterGain = 1.0F;
         float crossfader = 0.5F;

@@ -3,13 +3,19 @@
 #include "audio/LiveRecoveryPolicy.hpp"
 #include "audio/PreparedPlayback.hpp"
 #include "audio/RenderCore.hpp"
+#include "audio/ResidentStemHold.hpp"
+#include "audio/RecorderTap.hpp"
+#include "audio/StemBankSource.hpp"
 
+#include <sndfile.h>
 #include <algorithm>
 #include <array>
 #include <atomic>
 #include <cerrno>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -25,6 +31,9 @@ using conflux::audio::AudioSource;
 using conflux::audio::LiveStemBuffer;
 using conflux::audio::PreparedPlayback;
 using conflux::audio::RenderCore;
+using conflux::audio::AudioResidentHoldCommand;
+using conflux::audio::AudioResidentHoldRange;
+using conflux::audio::ResidentStemHold;
 using Policy = conflux::audio::detail::LiveRecoveryPolicy;
 using Kind = Policy::Decision::Kind;
 constexpr auto reserve = Policy::reserveFrames;
@@ -182,14 +191,21 @@ float mixed(std::uint64_t frame, std::size_t channel)
     for (std::size_t stem = 0; stem < 4; ++stem) value += sample(stem, frame, channel);
     return float(value);
 }
+// Full-frame, role- and channel-asymmetric dyadic markers. Short periodic
+// signals cannot distinguish a genuine parked-F exit from a stale loop turn.
+float holdSample(std::size_t stem, std::uint64_t frame, std::size_t channel)
+{
+    return channel ? -float((stem + 1) * 524288 + 2 * frame + 1) / 33554432.F
+                   : float((stem + 1) * 1048576 + frame) / 33554432.F;
+}
 struct Control {
     std::atomic<std::uint64_t> allowance{reserve}, epoch{0}, target{0}, end{0}, turns{0};
     std::atomic<bool> enabled{true}, idle{false};
     std::atomic<int> failure{0};
 };
-PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> state)
+PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> state, bool markers = false)
 {
-    return [state](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
+    return [state, markers](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
         std::array<std::array<float, LiveStemBuffer::blockFrames * 2>, 4> pcm{};
         std::uint64_t epoch = 0, cursor = 0, origin = 0, cachedEpoch = 0, cachedCursor = 0;
         std::size_t cachedCount = 0;
@@ -220,7 +236,8 @@ PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> state)
                 for (std::size_t stem = 0; stem < 4; ++stem)
                     for (std::size_t frame = 0; frame < count; ++frame)
                         for (std::size_t channel = 0; channel < 2; ++channel)
-                            pcm[stem][frame * 2 + channel] = sample(stem, cursor + frame, channel);
+                            pcm[stem][frame * 2 + channel] = markers ? holdSample(stem, cursor + frame, channel)
+                                                                  : sample(stem, cursor + frame, channel);
                 cachedEpoch = epoch; cachedCursor = cursor; cachedCount = count;
             }
             LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == total, {}};
@@ -327,6 +344,441 @@ void realOwnerReserveRecoveryAndPeer()
     require(core.seek(0, total) && render(4) == 0 && owner->errorCode() == EIO,
             "Known EOF cleared terminal producer health");
 }
+
+AudioResidentHoldRange approvedHold(std::uint64_t first = reserve - 2048)
+{
+    AudioResidentHoldRange range;
+    range.id = 771; range.inFrame = first; range.outFrame = first + 2048;
+    range.admittedBytes = 2048 * 32;
+    range.provenance = AudioResidentHoldRange::Provenance::DjRange;
+    return range;
+}
+
+void residentRangeValidationAndEpochCapture()
+{
+    const auto valid = approvedHold(0);
+    auto rejects = [&](AudioResidentHoldRange range, bool budget = false) {
+        std::atomic<unsigned> started{0};
+        bool rejected = false;
+        try {
+            auto owner = PreparedPlayback::makeLive(901, total,
+                [&](std::stop_token, PreparedPlayback::LiveProducerPort&) { ++started; }, range);
+        } catch (const std::length_error&) { rejected = budget; }
+          catch (const std::invalid_argument&) { rejected = !budget; }
+        require(rejected && !started.load(), "Invalid resident range started its producer or bypassed admission");
+    };
+    auto bad = valid; bad.id = 0; rejects(bad);
+    bad = valid; bad.provenance = AudioResidentHoldRange::Provenance::None; rejects(bad);
+    bad = valid; bad.provenance = static_cast<AudioResidentHoldRange::Provenance>(99); rejects(bad);
+    bad = valid; bad.outFrame = bad.inFrame; rejects(bad);
+    bad = valid; bad.outFrame = 2047; rejects(bad);
+    bad = valid; bad.outFrame = 384001; rejects(bad);
+    bad = valid; bad.inFrame = total - 2047; bad.outFrame = total + 1; rejects(bad);
+    bad = valid; bad.inFrame = UINT64_MAX - 2047; bad.outFrame = UINT64_MAX; rejects(bad);
+    bad = valid; --bad.admittedBytes; rejects(bad, true);
+    ResidentStemHold exact(901, total, valid);
+    require(exact.bytes() == 65536 && !exact.ready(), "Exact resident charge or initial readiness differs");
+    // The finite live tail has its own authoritative geometry, not the source
+    // file's one-frame-shorter original conversion geometry.
+    auto tail = approvedHold(1123201 - 2048);
+    ResidentStemHold exactTail(901, 1123201, tail);
+    bool shortened = false;
+    try { ResidentStemHold wrong(901, 1123200, tail); }
+    catch (const std::invalid_argument&) { shortened = true; }
+    require(shortened, "Original-file geometry incorrectly admitted a live tail range");
+
+    std::array<std::array<float, 2048>, 4> pcm{};
+    auto packet = [&](std::uint64_t epoch, std::uint64_t first) {
+        for (std::size_t stem = 0; stem < 4; ++stem)
+            for (std::size_t frame = 0; frame < 1024; ++frame)
+                for (std::size_t channel = 0; channel < 2; ++channel)
+                    pcm[stem][frame * 2 + channel] = holdSample(stem, first + frame, channel);
+        LiveStemBuffer::Packet value{901, epoch, first, 1024, false, {}};
+        for (std::size_t stem = 0; stem < 4; ++stem) value.stems[stem] = pcm[stem];
+        return value;
+    };
+    auto value = packet(1, 0); value.sourceId = 902; exact.captureAccepted(value);
+    require(!exact.ready(), "Foreign source populated resident material");
+    value = packet(1, 0); value.stems[2] = value.stems[2].first(2046); exact.captureAccepted(value);
+    value = packet(1, 0); pcm[1][17] = std::numeric_limits<float>::quiet_NaN(); exact.captureAccepted(value);
+    exact.captureAccepted(packet(1, 1024));
+    require(!exact.ready(), "Malformed/gapped packet made an incomplete hold ready");
+    exact.captureAccepted(packet(1, 0));
+    exact.captureAccepted(packet(2, 1024));
+    require(!exact.ready(), "Mixed-epoch halves became a resident range");
+    exact.captureAccepted(packet(2, 0)); exact.captureAccepted(packet(2, 1024));
+    require(exact.ready(), "Exact coherent accepted range did not become ready");
+    const auto leaves = exact.leaves();
+    for (std::size_t stem = 0; stem < 4; ++stem)
+        for (std::size_t frame = 0; frame < 2048; ++frame)
+            for (std::size_t channel = 0; channel < 2; ++channel)
+                require(leaves[stem][frame * 2 + channel] == holdSample(stem, frame, channel),
+                        "Resident capture changed a role/channel/source frame");
+    value = packet(3, 0); pcm[0].fill(99.F); exact.captureAccepted(value);
+    require(exact.leaves()[0][0] == holdSample(0, 0, 0) && exact.bytes() == 65536,
+            "A ready immutable range was overwritten or charged twice");
+}
+
+// Independent per-output scalar reference. It knows the approved source-frame
+// sequence and existing envelope formula, never reads the implementation's
+// audible cursor or gain-ramp internals to decide its expected samples.
+struct HoldOracle {
+    struct Gain {
+        double current = 0, start = 0, target = 0;
+        unsigned position = 0;
+        void set(double value) { if (value != target) { start = current; target = value; position = 0; } }
+        double next() {
+            if (current == target || ++position >= 240) return current = target;
+            const double fraction = double(position) / 240;
+            return current = (1 - fraction) * start + fraction * target;
+        }
+    };
+    struct Envelope {
+        std::array<float, 2> last{}, start{};
+        unsigned position = 0;
+        bool active = true;
+        void boundary() { start = last; position = 0; active = true; }
+        std::array<float, 2> apply(std::array<float, 2> value) {
+            if (active) {
+                if (++position >= 240) active = false;
+                else for (std::size_t channel = 0; channel < 2; ++channel) {
+                    const double fraction = double(position) / 240;
+                    value[channel] = float((1 - fraction) * start[channel] + fraction * value[channel]);
+                }
+            }
+            return last = value;
+        }
+    };
+    std::array<Gain, 4> gains{{{1, 1, 1}, {.5, .5, .5}, {.25, .25, .25}, {0, 0, 0}}};
+    Envelope a, b;
+    std::uint64_t linear = 0, audible = reserve - 2048, output = 0;
+    bool holding = false, enterBoundary = false, exitReady = false, available = true;
+    void enter() { holding = enterBoundary = true; audible = reserve - 2048; }
+    std::array<float, 4> next() {
+        if (enterBoundary) { a.boundary(); enterBoundary = false; }
+        if (holding && audible == reserve) {
+            a.boundary();
+            if (exitReady) holding = false;
+            else audible = reserve - 2048;
+        }
+        const bool supplied = holding || linear < total;
+        if (available != supplied) { a.boundary(); available = supplied; }
+        const auto frame = holding ? audible++ : linear;
+        if (!holding && supplied) ++linear;
+        std::array<double, 2> sum{};
+        for (std::size_t stem = 0; supplied && stem < 4; ++stem) {
+            const auto gain = gains[stem].next();
+            for (std::size_t channel = 0; channel < 2; ++channel)
+                sum[channel] += double(holdSample(stem, frame, channel)) * gain;
+        }
+        const auto av = a.apply({float(sum[0]), float(sum[1])});
+        const auto bv = b.apply({float(output + 1) / 16777216.F, -float(output + 3) / 33554432.F});
+        ++output;
+        return {float((double(av[0]) * .5 + double(bv[0]) * .25) * .75),
+                float((double(av[1]) * .5 + double(bv[1]) * .25) * .75),
+                av[0] * .25F, av[1] * .25F};
+    }
+};
+
+struct ResidentFixture {
+    std::shared_ptr<Control> state = std::make_shared<Control>();
+    std::unique_ptr<PreparedPlayback> owner;
+    std::vector<float> peer = std::vector<float>(1000000 * 2);
+    std::unique_ptr<RenderCore> core;
+    HoldOracle oracle;
+    std::array<float, 4097 * 2> master{}, cue{};
+    ResidentFixture() {
+        owner = PreparedPlayback::makeLive(901, total, producer(state, true), approvedHold());
+        require(owner->prime(0, 10s), "Resident fixture did not prime its exact live reserve");
+        auto source = owner->sourceRef();
+        constexpr std::array gains{1.F, .5F, .25F, 0.F};
+        for (std::size_t stem = 0; stem < 4; ++stem)
+            require(source.setStemGain(source.context, stem, gains[stem]), "Cannot set initial resident stem restrictions");
+        require(owner->configureStemRamps(240), "Cannot configure resident bank ramps");
+        for (std::size_t frame = 0; frame < peer.size() / 2; ++frame) {
+            peer[frame * 2] = float(frame + 1) / 16777216.F;
+            peer[frame * 2 + 1] = -float(frame + 3) / 33554432.F;
+        }
+        core = std::make_unique<RenderCore>(source, AudioSource::fromMemory(peer));
+        require(core->setDeckGain(0, .5F) && core->setDeckGain(1, .25F) && core->setMasterGain(.75F) &&
+            core->setCueSelected(0, true) && core->setCueGain(.25F) && core->configureRamps(240),
+            "Cannot configure resident reference buses");
+        const auto hold = core->residentHoldState();
+        require(hold.supported && hold.ready && !hold.armed && !hold.active && hold.rangeId == 771 &&
+            hold.inFrame == reserve - 2048 && hold.outFrame == reserve && hold.residentBytes == 65536 &&
+            owner->residentHoldBytes() == 65536, "Resident Accepted capture or source-bound charge differs");
+    }
+    void render(std::size_t frames) {
+        require(frames && frames <= master.size() / 2, "Resident test requested an invalid block");
+        require(core->renderBuses(std::span(master).first(frames * 2), std::span(cue).first(frames * 2)),
+                "Resident render rejected valid buses");
+        for (std::size_t frame = 0; frame < frames; ++frame) {
+            const auto expected = oracle.next();
+            require(master[frame * 2] == expected[0] && master[frame * 2 + 1] == expected[1] &&
+                cue[frame * 2] == expected[2] && cue[frame * 2 + 1] == expected[3],
+                "Resident PCM changed source frame, role gain, envelope, stereo, CUE or peer");
+        }
+        require(core->sourceFrame() == oracle.linear && core->sourcePosition() == double(oracle.linear) &&
+            core->sourceFrame(1) == oracle.output && core->frameClock() == oracle.output &&
+            !core->isBuffering() && !core->starvedFrames(), "Resident audio advanced F or starved/rewound a peer/clock");
+    }
+    void advance(std::uint64_t frames) {
+        constexpr std::array<std::size_t, 4> sizes{1, 73, 1024, 17};
+        for (std::size_t n = 0; frames; ++n) {
+            const auto count = std::size_t(std::min<std::uint64_t>(frames, sizes[n % sizes.size()]));
+            render(count); frames -= count;
+        }
+    }
+    void park() {
+        state->enabled = false;
+        await([&] { return state->idle.load(); }, "Resident producer did not park off callback");
+    }
+    void command(AudioResidentHoldCommand command) {
+        const auto revision = core->transportRevision(0);
+        require(core->residentHoldControl(0, command, 771, revision) && core->transportRevision(0) == revision + 1,
+                "Resident command lost its exact transport revision");
+    }
+    void enterAtF() {
+        advance(reserve - 73);
+        require(core->setStemGain(0, 0, 0.F), "Cannot start halfway resident mute ramp");
+        oracle.gains[0].set(0);
+        advance(73); park();
+        command(AudioResidentHoldCommand::Arm); command(AudioResidentHoldCommand::Enter); oracle.enter();
+        require(core->residentHoldState().active && core->residentHoldState().linearFrame == reserve,
+                "Resident entry did not park the exact live cursor");
+    }
+};
+
+void residentLoopPcmRampsReserveExitAndRecording()
+{
+    ResidentFixture f; f.enterAtF();
+    const auto epoch = f.state->epoch.load();
+    const auto revision = f.core->transportRevision(0);
+    auto pattern = (std::filesystem::temp_directory_path() / "conflux-resident-hold-XXXXXX").string();
+    const auto* created = mkdtemp(pattern.data());
+    require(created, "Cannot create resident recording fixture");
+    const std::filesystem::path directory(created), path = directory / "hold.wav";
+    struct Remove { std::filesystem::path path; ~Remove() { std::error_code code; std::filesystem::remove_all(path, code); } } remove{directory};
+    conflux::audio::RecorderTap tap;
+    conflux::audio::StereoRecorder writer(path);
+    std::vector<float> expected;
+    expected.reserve(32768);
+    require(tap.request(&writer), "Cannot attach resident recording");
+    auto recorded = [&](std::size_t frames) {
+        f.render(frames);
+        const auto pcm = std::span(f.master).first(frames * 2);
+        tap.beginBlock(); const auto pushed = tap.push(pcm); tap.endBlock();
+        require(pushed, "Resident recorder rejected generated master PCM");
+        expected.insert(expected.end(), pcm.begin(), pcm.end());
+    };
+    recorded(61);
+    require(f.core->setStemGain(0, 0, .375F), "Cannot retarget the in-flight resident mute");
+    f.oracle.gains[0].set(.375);
+    require(!f.core->residentHoldControl(0, AudioResidentHoldCommand::Cancel, 771, revision - 1) &&
+        f.core->residentHoldState().active, "Stale cancellation changed a current resident hold");
+    for (const auto count : {1024U, 17U, 1U, 73U, 4097U, 1024U}) recorded(count);
+    require(f.core->transportRevision(0) == revision && f.state->epoch == epoch && f.state->end == reserve &&
+        f.core->stemGain(0, 3) == 0.F && f.core->residentHoldState().residentBytes == 65536,
+        "Resident wraps changed a generation/revision, exclusion or bounded charge");
+    f.command(AudioResidentHoldCommand::Exit);
+    recorded(2048);
+    require(f.core->residentHoldState().exitPending && f.core->residentHoldState().active,
+            "An empty reserve exited an approved hold");
+    f.state->allowance = reserve * 2 - 1; f.state->enabled = true;
+    await([&] { return f.state->end == reserve * 2 - 1; }, "Resident sub-reserve was not published");
+    recorded(2048);
+    require(f.core->residentHoldState().active && f.core->sourceFrame() == reserve,
+            "A one-frame-short live reserve bypassed resident exit readiness");
+    f.state->allowance = reserve * 2;
+    await([&] { return f.state->end == reserve * 2; }, "Resident exit reserve was not published");
+    const auto turns = f.state->turns.load();
+    await([&] { return f.state->turns > turns + 2; }, "Resident reserve grant was not serviced");
+    f.oracle.exitReady = true;
+    const auto remaining = reserve - f.oracle.audible;
+    for (std::uint64_t left = remaining + 97; left;) {
+        const auto count = std::size_t(std::min<std::uint64_t>(left, 1024));
+        recorded(count); left -= count;
+    }
+    require(!f.core->residentHoldState().active && f.core->sourceFrame() == reserve + 97 &&
+        f.state->epoch == epoch && f.owner->errorCode() == 0 && f.core->stemGain(0, 3) == 0.F,
+        "Resident exit restarted inference, skipped F or revived an excluded stem");
+    require(tap.request(nullptr), "Cannot detach resident recorder");
+    tap.beginBlock(); tap.endBlock(); writer.stop();
+    require(!tap.attached() && !tap.changePending() && !writer.running() && !writer.failed() &&
+        writer.acceptedFrames() == expected.size() / 2 && writer.writtenFrames() == expected.size() / 2 &&
+        writer.overflowCount() == 0, "Resident recording lost accepted frames or ownership acknowledgement");
+    SF_INFO info{};
+    std::unique_ptr<SNDFILE, int(*)(SNDFILE*)> input(sf_open(path.c_str(), SFM_READ, &info), sf_close);
+    require(input && info.frames == sf_count_t(expected.size() / 2) && info.channels == 2 && info.samplerate == 48000,
+            "Resident WAV geometry differs from its complete generated master");
+    std::vector<float> actual(expected.size());
+    require(sf_readf_float(input.get(), actual.data(), info.frames) == info.frames && actual == expected &&
+        sf_error(input.get()) == SF_ERR_NO_ERROR, "Resident WAV changed an entry/wrap/exit or peer sample");
+}
+
+void residentTerminalFailureKeepsEverySubblockAudible()
+{
+    ResidentFixture f; f.enterAtF();
+    const auto epoch = f.state->epoch.load();
+    f.state->failure = EIO; f.state->enabled = true;
+    await([&] { return f.owner->errorCode() == EIO; }, "Resident producer EIO did not latch");
+    f.render(4097); // More than four internal1024-frame reads in ONE callback.
+    f.command(AudioResidentHoldCommand::Exit);
+    f.render(4097);
+    require(f.owner->errorCode() == EIO && f.core->residentHoldState().errorCode == EIO &&
+        f.core->residentHoldState().active && f.core->residentHoldState().exitPending &&
+        f.core->sourceFrame() == reserve && f.state->epoch == epoch && f.core->stemGain(0, 3) == 0.F,
+        "Resident data hid terminal health, auto-exited or rewound/restarted a failed provider");
+    require(f.core->retrySource(0) && !f.core->residentHoldState().armed &&
+        !f.core->residentHoldState().active && f.owner->errorCode() == EIO,
+        "Human retry retained the old loop or cleared permanent producer health");
+}
+
+void residentNearEofFailureDoesNotTruncateCallbackOrLoopHealthyEnd()
+{
+    for (const bool fail : {false, true}) {
+        ResidentFixture f;
+        constexpr auto first = total - 64;
+        require(f.owner->prime(first, 10s) && f.core->restorePrimedCursor(0, first),
+                "Cannot prime the exact finite tail for resident EOF checks");
+        f.oracle.linear = first;
+        f.command(AudioResidentHoldCommand::Arm);
+        if (fail) {
+            f.state->failure = EIO;
+            await([&] { return f.owner->errorCode() == EIO; }, "Near-EOF producer failure did not latch");
+            f.oracle.enter(); // Expected automatic entry on the first failed read.
+        }
+        const auto revision = f.core->transportRevision(0);
+        f.render(4097);
+        require(f.core->transportRevision(0) == revision &&
+            f.core->residentHoldState().active == fail &&
+            f.core->sourceFrame() == (fail ? first : total) &&
+            f.owner->errorCode() == (fail ? EIO : 0),
+            "Near-EOF hold truncated a callback, advanced F, or repeated healthy EOF");
+    }
+}
+
+void residentPendingCaptureAndManualIntent()
+{
+    auto state = std::make_shared<Control>(); state->enabled = false; state->allowance = 1024;
+    auto owner = PreparedPlayback::makeLive(901, total, producer(state, true), approvedHold(0));
+    std::array<float, 1024> peer{}; peer.fill(.125F);
+    RenderCore core(owner->sourceRef(), AudioSource::fromMemory(peer));
+    const auto range = approvedHold(0);
+    auto command = [&](AudioResidentHoldCommand value) {
+        return core.residentHoldControl(0, value, range.id, core.transportRevision(0));
+    };
+    require(command(AudioResidentHoldCommand::Arm) && core.residentHoldState().armed &&
+        !core.residentHoldState().ready && !command(AudioResidentHoldCommand::Enter),
+        "Pending arm required ready PCM or entered before Accepted capture");
+    std::array<float, 32> output{};
+    require(core.render(output) && core.sourceFrame() == 0 && !core.residentHoldState().active &&
+        std::ranges::all_of(output, [](float value) { return value == .125F; }),
+        "An incomplete resident range leaked PCM or advanced the live source");
+    state->enabled = true;
+    await([&] { return state->end == 1024; }, "Pending hold half did not publish");
+    require(!core.residentHoldState().ready && core.render(output) && core.sourceFrame() == 0 &&
+        !core.residentHoldState().active, "One accepted half became an audible hold");
+    state->allowance = 2048;
+    await([&] { return state->end == 2048; }, "Pending exact hold did not publish");
+    const auto revision = core.transportRevision(0);
+    require(core.render(output) && core.residentHoldState().ready && core.residentHoldState().active &&
+        core.sourceFrame() == 0 && core.transportRevision(0) == revision,
+        "Complete explicitly armed range did not recover the same exact cursor");
+    for (std::size_t frame = 0; frame < 16; ++frame)
+        for (std::size_t channel = 0; channel < 2; ++channel) {
+            double expected = .125;
+            double stems = 0;
+            for (std::size_t stem = 0; stem < 4; ++stem) stems += holdSample(stem, frame, channel);
+            require(output[frame * 2 + channel] == float(double(float(stems)) + expected),
+                    "Pending-capture recovery changed a complete raw stem marker");
+        }
+    require(!core.residentHoldControl(0, AudioResidentHoldCommand::Cancel, range.id, revision - 1) &&
+        core.residentHoldState().active, "Stale transport intent cancelled a current hold");
+    require(!core.residentHoldControl(0, AudioResidentHoldCommand::Cancel, 0, revision) &&
+        !core.residentHoldControl(0, AudioResidentHoldCommand::Cancel, range.id + 1, revision) &&
+        !core.residentHoldControl(0, AudioResidentHoldCommand::Cancel, range.id, UINT64_MAX) &&
+        core.residentHoldState().active && core.transportRevision(0) == revision,
+        "Wrong-range or saturated-revision cancellation mutated a current hold");
+    require(core.setStemGain(0, 3, 0.F) && core.setEqGainDb(0, 1, -6.F) && core.setCueSelected(0, true) &&
+        core.residentHoldState().active, "Current human mix controls cancelled an approved hold");
+    require(core.setPlaying(0, false) && !core.residentHoldState().armed && !core.residentHoldState().active &&
+        core.sourceFrame() == 0, "Human pause rewound F or failed to cancel the resident arm");
+    require(command(AudioResidentHoldCommand::Arm) && !command(AudioResidentHoldCommand::Enter) &&
+        core.setPlaying(0, true) && !core.residentHoldState().armed,
+        "Paused entry or later Play silently retained an old arm");
+    require(command(AudioResidentHoldCommand::Arm), "Cannot explicitly rearm retained resident PCM");
+    const auto ticket = core.transportRevision(0);
+    require(core.seek(0, 13) && core.seek(0, 0) && !core.residentHoldState().armed &&
+        !core.residentHoldControl(0, AudioResidentHoldCommand::Enter, range.id, ticket),
+        "Seek-away-and-back reused a stale resident ticket");
+    require(command(AudioResidentHoldCommand::Arm) && core.cuePress(0) &&
+        !core.residentHoldState().armed && !core.residentHoldState().active && core.cueRelease(0),
+        "Human CUE retained or resurrected a resident arm");
+    require(core.seek(0, total) && !command(AudioResidentHoldCommand::Arm) &&
+        !command(AudioResidentHoldCommand::Enter) && core.sourceFrame() == total,
+        "Authoritative EOF started an automatic resident loop");
+    const auto oldRevision = core.transportRevision(0);
+    require(core.replaceSource(0, AudioSource::fromMemory(peer)) && !core.residentHoldState().supported &&
+        !core.residentHoldControl(0, AudioResidentHoldCommand::Enter, range.id, oldRevision),
+        "Source replacement reused the previous owner's resident authorization");
+}
+
+void residentMetadataAndStagedFailuresRejectSafely()
+{
+    // A plausible optional hook is not authority to move the parked cursor by
+    // a fractional frame or by more than this result actually supplied.
+    struct Fault {
+        double nominal = 0;
+        static conflux::audio::AudioReadResult read(void* context, std::uint64_t, std::span<float> output) noexcept {
+            std::fill(output.begin(), output.end(), 99.F);
+            conflux::audio::AudioReadResult result;
+            result.frames = output.size() / 2; result.positionValid = result.residentHold = true;
+            result.nominalPosition = static_cast<Fault*>(context)->nominal;
+            return result;
+        }
+        AudioSource source() {
+            AudioSource result{64, nullptr, this, read};
+            result.setStemGain = [](void*, std::size_t, float) noexcept { return true; };
+            result.stemGain = [](const void*, std::size_t) noexcept { return 1.F; };
+            result.residentHoldControl = [](void*, AudioResidentHoldCommand, std::uint64_t, std::uint64_t) noexcept { return false; };
+            result.residentHoldState = [](const void*) noexcept {
+                conflux::audio::AudioResidentHoldState state;
+                state.supported = state.ready = state.armed = state.active = true;
+                return state;
+            };
+            return result;
+        }
+    };
+    std::array<float, 64> peer; peer.fill(.25F);
+    for (const double nominal : {.5, 9.0}) {
+        Fault fault{nominal};
+        RenderCore core(fault.source(), AudioSource::fromMemory(peer));
+        std::array<float, 16> output{};
+        require(core.render(output) && core.readFailed() && core.sourceFrame() == 0 &&
+            core.starvedFrames() == 8 && core.sourceFrame(1) == 8 && core.frameClock() == 8 &&
+            std::ranges::all_of(output, [](float value) { return value == .25F; }),
+            "Malformed resident position escaped validation or leaked PCM/changed the peer");
+    }
+    struct Broken {
+        static conflux::audio::AudioReadResult read(void*, std::uint64_t, std::span<float>) noexcept { return {0, true}; }
+    };
+    std::array<AudioSource, 4> broken;
+    broken.fill(AudioSource{8, nullptr, nullptr, Broken::read});
+    conflux::audio::StemBankSource bank(broken);
+    const auto source = bank.sourceRef();
+    std::array<float, 16> output; output.fill(77.F);
+    require(source.read(source.context, 0, output).failed && bank.hasReadFailure(),
+            "Staged-failure control did not fail its linear bank");
+    std::array<std::array<float, 16>, 4> pcm{};
+    std::array<std::span<const float>, 4> leaves{};
+    for (std::size_t stem = 0; stem < 4; ++stem) {
+        pcm[stem].fill(.125F); leaves[stem] = pcm[stem];
+    }
+    require(bank.readCached(leaves, 0, output).failed && bank.hasReadFailure() &&
+        std::ranges::all_of(output, [](float value) { return value == 77.F; }),
+        "Resident mixing cleared or bypassed malformed staged-provider health");
+}
 } // namespace
 
 int main()
@@ -335,6 +787,12 @@ int main()
         deterministicPolicyAndCommit();
         actualRenderActivityEdges();
         realOwnerReserveRecoveryAndPeer();
+        residentRangeValidationAndEpochCapture();
+        residentLoopPcmRampsReserveExitAndRecording();
+        residentTerminalFailureKeepsEverySubblockAudible();
+        residentNearEofFailureDoesNotTruncateCallbackOrLoopHealthyEnd();
+        residentPendingCaptureAndManualIntent();
+        residentMetadataAndStagedFailuresRejectSafely();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;
