@@ -20,6 +20,8 @@ Item {
     readonly property var loop: deck.loop || ({})
     readonly property var tempoState: deck.tempo || ({})
     readonly property var scratchState: deck.scratch || ({})
+    readonly property bool liveStems: Boolean(deck.liveStems)
+    readonly property var continuationState: deck.continuation || ({})
     readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property real referenceBpm: Number(bpmState.reference) || 0
@@ -28,12 +30,12 @@ Item {
     readonly property bool canEditBpm: Boolean(deck.loaded) && !deck.replacing && !showingPreparation
     readonly property bool hasLoop: Boolean(loop.inSet) || Boolean(loop.outSet) || Boolean(loop.cached)
     readonly property bool canScratch: canControl && Boolean(scratchState.supported)
-                                       && deck.overviewStem !== "source" && !deck.cueHeld && !deck.cuePreview
+                                       && !liveStems && !deck.cueHeld && !deck.cuePreview
                                        && !deck.sourceReadError && !scratchState.errorCode
                                        && !hasLoop && !loop.active
     readonly property string scratchUnavailableReason: !deck.loaded ? "Load a prepared track first."
         : !canControl ? "Wait for audio output or track installation."
-        : deck.overviewStem === "source" ? "Live stems do not support vinyl scratch."
+        : liveStems ? "Live stems do not support vinyl scratch."
         : deck.cueHeld || deck.cuePreview ? "Release CUE before scratching."
         : hasLoop || loop.active ? "Clear the stored manual loop first."
         : deck.sourceReadError || scratchState.errorCode ? "The prepared scratch source has a read error."
@@ -201,10 +203,28 @@ Item {
             x: 14
             y: 12
             objectName: "deck" + surface.deckIndex + "WaveformKind"
+            Accessible.name: surface.deckName + ": " + text
+            Accessible.description: String(surface.continuationState.detail || "")
+            HoverHandler { id: continuationHover }
+            ToolTip {
+                id: continuationTooltip
+                visible: continuationHover.hovered && String(surface.continuationState.detail || "").length > 0
+                text: String(surface.continuationState.detail || "")
+                contentItem: Text {
+                    objectName: "deck" + surface.deckIndex + "ContinuationTooltipText"
+                    text: continuationTooltip.text
+                    textFormat: Text.PlainText
+                    font: continuationTooltip.font
+                    color: continuationTooltip.palette.toolTipText
+                    wrapMode: Text.Wrap
+                    width: Math.min(implicitWidth, 420)
+                }
+            }
             text: surface.showingPreparation ? "PREPARING · " + (surface.deck.loadPhaseText || "Reading audio")
                   : !surface.deck.loaded ? "NO TRACK LOADED"
+                  : surface.continuationState.text ? String(surface.continuationState.text).toUpperCase() + " · SOURCE WAVEFORM"
                   : surface.deck.overviewStem === "drums" ? "PREPARED STEMS · DRUMS WAVEFORM"
-                  : surface.deck.overviewStem === "source" ? "LIVE STEMS · SOURCE WAVEFORM" : "LOCAL FILE"
+                  : surface.deck.overviewStem === "source" ? (surface.liveStems ? "LIVE STEMS" : "SAVED STEMS") + " · SOURCE WAVEFORM" : "LOCAL FILE"
             color: surface.displayAccent
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: 10
