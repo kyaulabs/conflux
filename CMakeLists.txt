@@ -17,7 +17,7 @@ pkg_check_modules(RubberBand REQUIRED IMPORTED_TARGET rubberband>=3.3)
 add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp src/audio/ChannelEq.cpp
     src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/PreparedLoopCache.cpp src/audio/StemBankSource.cpp
     src/audio/TempoProcessor.cpp src/audio/PreparedTempoSource.cpp src/audio/PreparedScratchSource.cpp
-    src/audio/LiveStemBuffer.cpp src/audio/StemRateConverter.cpp src/audio/LiveRecoveryPolicy.cpp
+    src/audio/LiveStemBuffer.cpp src/audio/StemRateConverter.cpp src/audio/LiveRecoveryPolicy.cpp src/audio/ResidentStemHold.cpp
     src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
     src/audio/AudioRouting.cpp)
 target_include_directories(conflux-audio PUBLIC src)

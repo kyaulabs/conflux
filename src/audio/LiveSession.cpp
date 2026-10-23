@@ -160,7 +160,8 @@ public:
                 }
             }
             if (!renderer_.sourceFrames(deck)) {
-                if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck] || initial.cueSelected[deck])
+                if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck] || initial.cueSelected[deck] ||
+                    initial.residentHoldRangeId[deck])
                     throw std::invalid_argument("Unloaded deck cannot have transport or cue selection");
                 continue;
             }
@@ -170,6 +171,9 @@ public:
                 !renderer_.setPlaying(deck, initial.playing[deck]) ||
                 !renderer_.setCueSelected(deck, initial.cueSelected[deck]))
                 throw std::invalid_argument("Invalid initial deck state");
+            if (initial.residentHoldRangeId[deck] && !renderer_.residentHoldControl(deck,
+                AudioResidentHoldCommand::Arm,initial.residentHoldRangeId[deck],renderer_.transportRevision(deck)))
+                throw std::invalid_argument("Invalid initial resident stem hold authorization");
         }
         if (!renderer_.configureRamps(240))
             throw std::invalid_argument("Cannot configure live transport ramps");
@@ -640,11 +644,15 @@ public:
             const bool scratch = command.type == RenderCore::Command::Type::ScratchBegin ||
                 command.type == RenderCore::Command::Type::ScratchMove ||
                 command.type == RenderCore::Command::Type::ScratchEnd;
+            const bool hold = command.type == RenderCore::Command::Type::ResidentHoldArm ||
+                command.type == RenderCore::Command::Type::ResidentHoldEnter ||
+                command.type == RenderCore::Command::Type::ResidentHoldExit ||
+                command.type == RenderCore::Command::Type::ResidentHoldCancel;
             const bool validDeck = command.deck < sourceGeneration_.size();
-            const bool stale = scratch && validDeck && command.sourceGeneration != sourceGeneration_[command.deck];
+            const bool stale = (scratch || hold) && validDeck && command.sourceGeneration != sourceGeneration_[command.deck];
             // A paired release of an already retired source is a safe no-op;
             // it must never stop a new source's gesture. Stale new motion fails.
-            const bool applied = scratch && !validDeck ? false : stale ?
+            const bool applied = (scratch || hold) && !validDeck ? false : stale ?
                 command.type == RenderCore::Command::Type::ScratchEnd && command.scratchToken != 0 : renderer_.apply(command);
             applied ? ++applied_ : ++rejected_;
             lastCommandId_ = command.id;
@@ -728,6 +736,7 @@ public:
             state.starvedFrames[deck] = renderer_.starvedFrames(deck);
             state.sourceReadErrorObserved[deck] = renderer_.readFailed(deck);
             state.scratch[deck] = renderer_.scratchState(deck);
+            state.residentHold[deck] = renderer_.residentHoldState(deck);
             state.sourceReadError[deck] = activePlaybacks_[deck]
                 ? bool(activePlaybacks_[deck]->errorCode()) ||
                     (state.scratch[deck].active && state.scratch[deck].errorCode != 0)
@@ -1055,6 +1064,8 @@ public:
         auto disarm = [](const auto& playback) noexcept {
             if (!playback) return;
             const auto source = playback->sourceRef();
+            if (source.residentHoldControl)
+                (void)source.residentHoldControl(source.context, AudioResidentHoldCommand::Cancel, 0, 0);
             if (source.setRenderActive) source.setRenderActive(source.context, false);
         };
         for (const auto& playback : playbacks_) disarm(playback);

@@ -33,7 +33,7 @@ public:
     };
 
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd, EqGain };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd, EqGain, ResidentHoldArm, ResidentHoldEnter, ResidentHoldExit, ResidentHoldCancel };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -46,6 +46,7 @@ public:
         double tempoPercent = 0;
         std::uint64_t scratchToken = 0, sourceGeneration = 0;
         double scratchIntervalSeconds = 0;
+        std::uint64_t residentHoldToken = 0, transportRevision = 0;
     };
 
     explicit RenderCore(bool tone = false);
@@ -96,6 +97,9 @@ public:
                      double intervalSeconds) noexcept;
     bool endScratch(std::size_t deck, std::uint64_t token) noexcept;
     [[nodiscard]] AudioScratchState scratchState(std::size_t deck) const noexcept;
+    [[nodiscard]] AudioResidentHoldState residentHoldState(std::size_t deck = 0) const noexcept;
+    bool residentHoldControl(std::size_t deck, AudioResidentHoldCommand, std::uint64_t rangeId,
+                             std::uint64_t expectedRevision) noexcept;
     // Caller validates finite PCM and retains its owner. Only an inactive deck
     // whose decay has completed may swap; no scan, allocation or ownership here.
     bool replaceSource(std::size_t deck, AudioSource source) noexcept;
@@ -203,7 +207,7 @@ private:
         bool readFailed = false;
         bool cueSelected = false;
     };
-    static void transportIntent(Deck& deck) noexcept;
+    static void transportIntent(Deck& deck, bool cancelHold = true) noexcept;
     static bool renderActive(const Deck& deck) noexcept;
     static void notifyActivity(const Deck& deck) noexcept;
     void refreshActivity() const noexcept;

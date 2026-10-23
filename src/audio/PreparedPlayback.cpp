@@ -5,6 +5,7 @@
 #include "audio/PreparedTempoSource.hpp"
 #include "audio/StemBankSource.hpp"
 #include "audio/LiveRecoveryPolicy.hpp"
+#include "audio/ResidentStemHold.hpp"
 
 #include <algorithm>
 #include <cerrno>
@@ -46,8 +47,10 @@ void validateGeometry(int fd, std::uint64_t frames)
 
 class PreparedPlayback::LiveState {
 public:
-    LiveState(std::uint64_t identity, std::uint64_t frames, LiveProducer callback)
-        : buffer(identity, frames), producer(std::move(callback)), policy(frames) {}
+    LiveState(std::uint64_t identity, std::uint64_t frames, LiveProducer callback,
+              std::optional<AudioResidentHoldRange> range)
+        : buffer(identity, frames), producer(std::move(callback)), policy(frames),
+          hold(range ? std::make_unique<ResidentStemHold>(identity,frames,*range) : nullptr) {}
     [[nodiscard]] int code() const noexcept
     {
         if (const auto error = health.load(std::memory_order_relaxed)) return error;
@@ -125,6 +128,10 @@ public:
     LiveStemBuffer buffer;
     LiveProducer producer;
     Recovery policy; // Sole producer; never touched by rendering or priming.
+    std::unique_ptr<ResidentStemHold> hold;
+    // Sole render owner; producer only touches hold's capture/release-ready.
+    std::uint64_t holdOffset = 0;
+    bool holdArmed = false, holdActive = false, holdExit = false, holdTransition = false;
     std::atomic<int> health{0};
     std::atomic<bool> stopping{false};
     std::atomic<std::uint64_t> attempt{1}, grant{0};
@@ -156,6 +163,7 @@ LiveStemBuffer::PublishResult PreparedPlayback::LiveProducerPort::tryPublish(
         return LiveStemBuffer::PublishResult::Invalid;
     const auto result = state_->buffer.tryPublish(packet);
     if (result == LiveStemBuffer::PublishResult::Accepted) {
+        if (state_->hold) state_->hold->captureAccepted(packet);
         {
             const std::lock_guard lock(state_->mutex);
             state_->publishedEpoch = packet.epoch;
@@ -198,11 +206,12 @@ PreparedPlayback::PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_
 }
 
 std::unique_ptr<PreparedPlayback> PreparedPlayback::makeLive(
-    std::uint64_t sourceId, std::uint64_t exactFrames, LiveProducer producer)
+    std::uint64_t sourceId, std::uint64_t exactFrames, LiveProducer producer,
+    std::optional<AudioResidentHoldRange> residentHold)
 {
     if (!producer) throw std::invalid_argument("Live playback requires an owned producer callable");
     auto owner = std::unique_ptr<PreparedPlayback>(new PreparedPlayback(
-        std::make_unique<LiveState>(sourceId, exactFrames, std::move(producer)), exactFrames));
+        std::make_unique<LiveState>(sourceId, exactFrames, std::move(producer), residentHold), exactFrames));
     auto* state = owner->live_.get();
     state->thread = std::jthread([state](std::stop_token stop) {
         LiveProducerPort port(*state);
@@ -333,7 +342,7 @@ AudioSource PreparedPlayback::sourceRef() noexcept
         };
         return source;
     }
-    return {frames_, nullptr, this,
+    AudioSource source{frames_, nullptr, this,
         [](void* context, std::uint64_t frame, std::span<float> output) noexcept {
             return static_cast<PreparedPlayback*>(context)->readLive(frame, output);
         },
@@ -349,6 +358,16 @@ AudioSource PreparedPlayback::sourceRef() noexcept
         [](void* context, bool active) noexcept {
             static_cast<PreparedPlayback*>(context)->setLiveActive(active);
         }};
+    if (live_->hold) {
+        source.residentHoldControl = [](void* context, AudioResidentHoldCommand command,
+                                       std::uint64_t rangeId, std::uint64_t frame) noexcept {
+            return static_cast<PreparedPlayback*>(context)->residentHoldControl(command,rangeId,frame);
+        };
+        source.residentHoldState = [](const void* context) noexcept {
+            return static_cast<const PreparedPlayback*>(context)->residentHoldState();
+        };
+    }
+    return source;
 }
 
 int PreparedPlayback::preparedRenderError() const noexcept
@@ -690,7 +709,112 @@ AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
     return result;
 }
 
+std::uint64_t PreparedPlayback::residentHoldBytes() const noexcept
+{ return live_ && live_->hold ? live_->hold->bytes() : 0; }
+
+AudioResidentHoldState PreparedPlayback::residentHoldState() const noexcept
+{
+    if (!live_ || !live_->hold) return {};
+    const auto& range = live_->hold->range();
+    return {range.id,range.inFrame,range.outFrame,live_->demand.cursor,
+        range.inFrame+live_->holdOffset,live_->hold->bytes(),range.provenance,
+        live_->code() ? live_->code() : bank_->hasReadFailure() ? EIO : 0,
+        true,live_->hold->ready(),live_->holdArmed,live_->holdActive,live_->holdExit};
+}
+bool PreparedPlayback::residentHoldControl(AudioResidentHoldCommand command, std::uint64_t rangeId,
+                                          std::uint64_t frame) noexcept
+{
+    if (!live_ || !live_->hold || stopped_ || live_->stopping.load(std::memory_order_relaxed)) return false;
+    if (command == AudioResidentHoldCommand::Cancel) {
+        // Zero is reserved for engine transport invalidation. The public
+        // RenderCore command requires this owner's nonzero configured rangeId.
+        if (rangeId && rangeId != live_->hold->range().id) return false;
+        live_->holdArmed = live_->holdActive = live_->holdExit = live_->holdTransition = false;
+        return true; // No seek, source reset, health clear or automatic restart.
+    }
+    if (rangeId != live_->hold->range().id || frame != live_->demand.cursor || frame >= frames_) return false;
+    if (command == AudioResidentHoldCommand::Arm) {
+        if (live_->holdActive) return false;
+        live_->holdArmed = true; live_->holdExit = false; live_->holdOffset = 0; return true;
+    }
+    if (command == AudioResidentHoldCommand::Exit) {
+        if (!live_->holdActive) return false;
+        live_->holdExit = true; return true;
+    }
+    if (command != AudioResidentHoldCommand::Enter || !live_->holdArmed || live_->holdActive ||
+        !live_->hold->ready() || bank_->hasReadFailure()) return false;
+    // Park the existing linear providers/epoch at F. A healthy producer keeps
+    // filling the SAME reserve request; permanent failure remains terminal.
+    if (!live_->code() && !live_->demand.waitSerial) {
+        if (!live_->closeGate()) return false;
+        live_->publishDemand();
+    }
+    live_->holdActive = live_->holdTransition = true; live_->holdOffset = 0; return true;
+}
+AudioReadResult PreparedPlayback::readResidentHold(std::span<float> output) noexcept
+{
+    // Independent producer failure does not corrupt resident audio. A malformed
+    // staged/provider read is different: retain that fault and fail closed.
+    if (!live_->hold->ready() || bank_->hasReadFailure()) return {0,true};
+    AudioReadResult result; result.positionValid = result.residentHold = true;
+    result.nominalPosition = double(live_->demand.cursor);
+    const auto length = live_->hold->range().outFrame-live_->hold->range().inFrame;
+    const auto leaves = live_->hold->leaves();
+    if (live_->holdTransition) { result.transitionFrame = 0; live_->holdTransition = false; }
+    const auto wanted = output.size()/2;
+    while (result.frames < wanted) {
+        if (live_->holdOffset == length) {
+            const bool reserve = !live_->code() && !bank_->hasReadFailure() && live_->demand.waitSerial &&
+                live_->grant.load(std::memory_order_acquire) == live_->demand.waitSerial;
+            if (live_->holdExit && reserve && live_->openGate()) {
+                const auto offset = result.frames;
+                const auto linear = readLinearLive(live_->demand.cursor,output.subspan(offset*2));
+                // Commit exit only after linear audio actually commits. A
+                // producer failure may race the grant/open test; zero returned
+                // frames cannot discard valid resident audio. Staging failure
+                // remains fail-closed and never gets this independent bypass.
+                if (linear.frames || bank_->hasReadFailure()) {
+                    live_->holdActive = live_->holdArmed = live_->holdExit = false;
+                    result.frames += linear.frames; result.failed = linear.failed;
+                    result.nominalPosition = double(live_->demand.cursor);
+                    result.finished = live_->demand.cursor == frames_;
+                    if (linear.frames) result.transitionFrame = std::uint32_t(offset);
+                    return result;
+                }
+            }
+            live_->holdOffset = 0;
+            result.transitionFrame = std::uint32_t(result.frames);
+        }
+        const auto count = std::min<std::uint64_t>(wanted-result.frames,length-live_->holdOffset);
+        auto part = bank_->readCached(leaves,live_->holdOffset,
+            output.subspan(result.frames*2,count*2));
+        live_->holdOffset += part.frames; result.frames += part.frames;
+        if (part.failed || part.frames != count) { result.failed = true; break; }
+    }
+    // Range>=2048 and read<=1024 guarantee at most one wrap per source read.
+    return result;
+}
 AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float> output) noexcept
+{
+    if (output.size()%2 || output.size()/2 > StemBankSource::blockFrames || frame > frames_ ||
+        frame != live_->demand.cursor || stopped_ || live_->stopping.load(std::memory_order_relaxed))
+        return {0,true};
+    if (output.empty() || frame == frames_) return {};
+    if (live_->holdActive) return readResidentHold(output);
+    auto result = readLinearLive(frame,output);
+    const auto wanted = std::min<std::uint64_t>(output.size()/2,frames_-frame);
+    if (result.frames == wanted || !live_->holdArmed || !live_->hold || !live_->hold->ready() ||
+        !residentHoldControl(AudioResidentHoldCommand::Enter,live_->hold->range().id,live_->demand.cursor))
+        return result;
+    const auto offset = result.frames;
+    const auto held = readResidentHold(output.subspan(offset*2));
+    result.frames += held.frames; result.failed = held.failed;
+    result.positionValid = result.residentHold = true;
+    result.nominalPosition = double(live_->demand.cursor);
+    result.transitionFrame = std::uint32_t(offset);
+    return result;
+}
+AudioReadResult PreparedPlayback::readLinearLive(std::uint64_t frame, std::span<float> output) noexcept
 {
     if (output.size() % StemBankSource::channels ||
         output.size() / StemBankSource::channels > StemBankSource::blockFrames ||
@@ -717,6 +841,7 @@ AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float>
 
 void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
 {
+    (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,frame);
     if (frame > frames_ || live_->stopping.load(std::memory_order_relaxed) || !live_->closeGate()) return;
     unusedLivePrime_ = false;
     // Token invalidation precedes the bounded bank/provider work, so an old
@@ -980,6 +1105,7 @@ void PreparedPlayback::stop() noexcept
     unusedContinuationPrime_ = false;
     unusedLivePrime_ = false;
     if (stopped_) return;
+    (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,0);
     stopped_ = true;
     if (live_) {
         setLiveActive(false); // Render already quiesced; never clears health.

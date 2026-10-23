@@ -4,6 +4,7 @@
 #include "audio/AudioSource.hpp"
 #include "audio/PcmReadAhead.hpp"
 #include "audio/LiveStemBuffer.hpp"
+#include <optional>
 
 #include <array>
 #include <atomic>
@@ -52,7 +53,10 @@ public:
     // this borrowed port beyond its invocation. Stop/join before bank storage
     // is destroyed. Callable/setup construction completes before thread start.
     static std::unique_ptr<PreparedPlayback> makeLive(
-        std::uint64_t sourceId, std::uint64_t exactFrames, LiveProducer producer);
+        std::uint64_t sourceId, std::uint64_t exactFrames, LiveProducer producer,
+        std::optional<AudioResidentHoldRange> residentHold = {});
+    // Exact extra raw payload charged by the optional construction-time range.
+    [[nodiscard]] std::uint64_t residentHoldBytes() const noexcept;
     [[nodiscard]] bool isLive() const noexcept { return bool(live_); }
     ~PreparedPlayback();
     PreparedPlayback(const PreparedPlayback&) = delete;
@@ -111,6 +115,10 @@ private:
     [[nodiscard]] AudioScratchState scratchState() const noexcept;
     [[nodiscard]] int preparedRenderError() const noexcept;
     AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
+    AudioReadResult readLinearLive(std::uint64_t frame, std::span<float> output) noexcept;
+    AudioReadResult readResidentHold(std::span<float> output) noexcept;
+    bool residentHoldControl(AudioResidentHoldCommand, std::uint64_t rangeId, std::uint64_t frame) noexcept;
+    [[nodiscard]] AudioResidentHoldState residentHoldState() const noexcept;
     void seekLive(std::uint64_t frame) noexcept;
     void setLiveActive(bool active) noexcept;
     void resetBankForSessionAt(std::uint64_t frame);

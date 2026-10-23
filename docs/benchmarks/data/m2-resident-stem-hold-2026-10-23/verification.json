@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "scope": "Generated recovery-engine verification; no real-model, physical audio, musical or latency qualification. GUI range selection and controller policy remain pending.",
+  "base_commit": "dfbcb8fd1c78f2190580e5da40c224ed3016f46a",
+  "source_files": [
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 27484,
+      "sha256": "e2fb454fe62f5f8ae4e2f5ef9064f0add49a7eb2622bcc762e27a402d43c19a4"
+    },
+    {
+      "path": "src/audio/AudioSource.hpp",
+      "bytes": 7072,
+      "sha256": "0cb5e7abae49eddf60695f2a120d823b6445ad89cdbb7f3076c8b723c2956b84"
+    },
+    {
+      "path": "src/audio/LiveSession.hpp",
+      "bytes": 8452,
+      "sha256": "e1294bb787504b3225c87fe1400410a89209be3c046377219e327dd067363168"
+    },
+    {
+      "path": "src/audio/LiveSession.cpp",
+      "bytes": 65871,
+      "sha256": "8493c204433db1a4a19ca5f39fb023feae4da98f74b8e0de9392013e760d2e40"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.hpp",
+      "bytes": 8005,
+      "sha256": "32becf3f96c3f1ab4f1c51a13653e42368aafee50fc9468847aad443da36769b"
+    },
+    {
+      "path": "src/audio/PreparedPlayback.cpp",
+      "bytes": 51827,
+      "sha256": "16bfa05042e2ce4b2494ce00946711b9f698706f6d157bf9315d8d395e584771"
+    },
+    {
+      "path": "src/audio/RenderCore.hpp",
+      "bytes": 13802,
+      "sha256": "4a6105fe6473d8936cac41813254335e188df466f35f8281413c5572b122e531"
+    },
+    {
+      "path": "src/audio/RenderCore.cpp",
+      "bytes": 41715,
+      "sha256": "c87f386d53c0fa7db8a16a5b051f0053e3d7bd01a1d30ca68ad040dd7e09c8d5"
+    },
+    {
+      "path": "src/audio/ResidentStemHold.hpp",
+      "bytes": 1568,
+      "sha256": "93890590322121c7aeebe439c440a79e0414db59635ea6a8e51dfdfd94fe9820"
+    },
+    {
+      "path": "src/audio/ResidentStemHold.cpp",
+      "bytes": 2677,
+      "sha256": "b6197aac1a51d1c90ec1d2881b095a8eae6dd0c75e905137522f33aadbb27d90"
+    },
+    {
+      "path": "tests/audio_live_recovery_test.cpp",
+      "bytes": 43608,
+      "sha256": "a8c15f38a449c00c39359c737d122dff17f51e36db73ee8fef4b5aba4b2bfaf7"
+    },
+    {
+      "path": "tests/audio_live_owner_test.cpp",
+      "bytes": 28303,
+      "sha256": "56b4eadb4bceaf445dc99c05ec26fb1fbcd44ad23abbef038c16850fcd954bd0"
+    }
+  ],
+  "build": {
+    "type": "RelWithDebInfo",
+    "compiler": "GNU 16.2.1",
+    "maximum_parallel_compiler_jobs": 2,
+    "ui_enabled": true,
+    "exit_code": 0
+  },
+  "tests": {
+    "selected": 15,
+    "failed": 0,
+    "skipped": 0,
+    "wall_seconds": 14.42,
+    "cases": [
+      {
+        "name": "audio-eq",
+        "seconds": 0.0180619,
+        "passed": true
+      },
+      {
+        "name": "audio-cue",
+        "seconds": 0.00947448,
+        "passed": true
+      },
+      {
+        "name": "audio-buses",
+        "seconds": 0.00950975,
+        "passed": true
+      },
+      {
+        "name": "audio-ramps",
+        "seconds": 0.00896377,
+        "passed": true
+      },
+      {
+        "name": "audio-source-handoff",
+        "seconds": 0.00888095,
+        "passed": true
+      },
+      {
+        "name": "audio-source",
+        "seconds": 0.0149107,
+        "passed": true
+      },
+      {
+        "name": "audio-stem-bank",
+        "seconds": 0.00903161,
+        "passed": true
+      },
+      {
+        "name": "audio-prepared-playback",
+        "seconds": 0.972551,
+        "passed": true
+      },
+      {
+        "name": "audio-prepared-scratch",
+        "seconds": 0.826846,
+        "passed": true
+      },
+      {
+        "name": "audio-prepared-tempo",
+        "seconds": 0.721612,
+        "passed": true
+      },
+      {
+        "name": "audio-recorder-tap",
+        "seconds": 0.0783743,
+        "passed": true
+      },
+      {
+        "name": "audio-transport",
+        "seconds": 0.0145095,
+        "passed": true
+      },
+      {
+        "name": "audio-live-recovery",
+        "seconds": 0.387238,
+        "passed": true
+      },
+      {
+        "name": "audio-live-owner",
+        "seconds": 0.189308,
+        "passed": true
+      },
+      {
+        "name": "deck-controller",
+        "seconds": 11.136,
+        "passed": true
+      }
+    ],
+    "log_sha256": "2ccdd4ec8e7597422c20c709623e56ad71f4b75d83f23862b961ce330334a6b4",
+    "junit_sha256": "869d885b2448caa9d5252940163bb62bda6ef4fc478c6960291ea104a3b3fa0c"
+  },
+  "smoke": {
+    "exit_code": 0,
+    "animation_driver": "number_animation",
+    "capture_ok": true,
+    "desktop_id": "com.kyaulabs.conflux",
+    "device_pixel_ratio": 1,
+    "exposed": true,
+    "frame_observation": {
+      "first_frame_monotonic_ns": 26133847783567,
+      "frames_per_60_seconds": [
+        131
+      ],
+      "last_frame_monotonic_ns": 26135933964460,
+      "maximum_notification_gap_ms": 21.662267,
+      "scope": "GUI-thread frameSwapped notifications; not physical presentation latency",
+      "started_monotonic_ns": 26133843436367,
+      "stopped_monotonic_ns": 26135944099383
+    },
+    "frames_swapped": 131,
+    "graphics_api": 1,
+    "height": 400,
+    "indicator_x": 238.16778784387097,
+    "platform": "offscreen",
+    "qt": "6.12.0",
+    "reduced_motion": false,
+    "rendered": true,
+    "repaint_interval_ms": null,
+    "width": 640
+  },
+  "new_behavior_checks": [
+    "Exact Accepted-packet capture, source/epoch/geometry/provenance and byte admission",
+    "Dyadic source-frame/role/channel markers across entry, exact loop period, reserve-gated OUT exit",
+    "One stem-ramp advance per audible output frame with an excluded role and in-flight retarget",
+    "All master/CUE/peer/clock samples and every finalized WAV frame",
+    "Pending capture, stale revisions, wrong ranges and manual transport invalidation",
+    "4097-frame terminal producer failure callbacks, including first entry 64 frames before EOF",
+    "Healthy finite EOF and malformed metadata/staged reads remain fail-closed",
+    "Initial session authorization after transport restore; stopped snapshots, source lifetime and ramps"
+  ],
+  "review": {
+    "verdict": "Independent source/oracle GO followed by parent-owned passing final checks",
+    "sha256": "de2457293704a83c3957ec0fc74c5c00f14dc7e066520f5a9dd1f7a70fbb05d9",
+    "resolved_findings": [
+      "Near-EOF first-entry callback must extend actual resident delivery without repeating healthy EOF",
+      "Quiescence cancels every retained owner including pending replacements"
+    ]
+  },
+  "unchanged": {
+    "stem_quality": "Best",
+    "strict_service_p99_target_ms": 4095,
+    "live_reserve_frames": 262144,
+    "maximum_live_active_wait_seconds": 60
+  },
+  "unverified": [
+    "GUI range selection and automatic controller authorization/accounting",
+    "Prepared-bank takeover during active recovery hold",
+    "Actual queued hold commands on a running PipeWire session",
+    "Musical suitability/listening, downstream hardware audio and laptop performance/sustained qualification"
+  ],
+  "m2_complete": false,
+  "release_gate_complete": false
+}

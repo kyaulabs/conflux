@@ -240,21 +240,41 @@ void producerFailureIsAtomicAndTerminal()
 void nonzeroInitializationRetainsThePrimedEpoch()
 {
     constexpr std::uint64_t target = 7319;
+    conflux::audio::AudioResidentHoldRange range;
+    range.id = 812; range.inFrame = target; range.outFrame = target + 2048;
+    range.admittedBytes = 65536;
+    range.provenance = conflux::audio::AudioResidentHoldRange::Provenance::DjRange;
     auto state = std::make_shared<Control>();
     state->countedTarget = target;
     LiveSession::PlaybackSources owners{};
-    owners[0] = PreparedPlayback::makeLive(201, totalFrames, producer(state));
+    owners[0] = PreparedPlayback::makeLive(201, totalFrames, producer(state), range);
     LiveSession::InitialState initial;
     initial.sourceFrame[0] = target;
     initial.cueFrame[0] = target - 5;
+    initial.playing[0] = true;
+    initial.residentHoldRangeId[0] = range.id;
     initial.stemGain[0] = {.5F, .25F, 1.F, 0.F};
     LiveSession session(std::move(owners), initial);
-    require(session.stoppedState().sourceFrame[0] == target && session.stoppedState().stemBank[0],
-            "Session lost a primed nonzero live cursor or bank capability");
+    const auto before = session.stoppedState();
+    const auto armed = before.residentHold[0];
+    require(before.sourceFrame[0] == target && before.sourcePosition[0] == double(target) && before.stemBank[0] &&
+        before.playing[0] && before.cueFrame[0] == target - 5 && before.stemGain[0] == initial.stemGain[0] &&
+        !before.ready && before.callbacks == 0 && before.outputFrame == 0 &&
+        armed.supported && armed.ready && armed.armed && !armed.active && !armed.exitPending && !armed.errorCode &&
+        armed.rangeId == range.id && armed.inFrame == target && armed.outFrame == target + 2048 &&
+        armed.linearFrame == target && armed.audibleFrame == target && armed.residentBytes == 65536,
+        "Session lost initial hold authorization, consumed PCM, or armed before restoring human transport");
     const auto primedEpoch = state->epoch.load();
     auto taken = session.stopAndTakePlaybacks();
+    const auto stopped = session.stoppedState();
     require(taken.active[0] && !taken.active[1] && !taken.replacement && state->exits == 0,
             "Ownership-return operation lost or stopped an inactive live owner");
+    require(stopped.sourceFrame[0] == target && stopped.sourcePosition[0] == double(target) &&
+        stopped.outputFrame == 0 && stopped.callbacks == 0 && stopped.playing[0] &&
+        stopped.residentHold[0].ready && !stopped.residentHold[0].armed && !stopped.residentHold[0].active &&
+        !stopped.residentHold[0].exitPending && stopped.residentHold[0].linearFrame == target &&
+        stopped.residentHold[0].residentBytes == 65536 && state->starts == 1,
+        "Stopped snapshot retained authorization, advanced F, or restarted the live producer");
     const auto source = taken.active[0]->sourceRef();
     std::array<float, 128> actual{};
     const auto read = source.read(source.context, target, actual);
@@ -267,6 +287,19 @@ void nonzeroInitializationRetainsThePrimedEpoch()
                                     double(sample(2, target + frame, channel));
             require(actual[frame * 2 + channel] == float(expected), "Restored live stem targets or PCM origin changed");
         }
+    require(source.setStemGain(source.context, 0, 0.F), "Cannot test configured live stem ramp after extraction");
+    std::array<float, 8> ramp{};
+    const auto rampRead = source.read(source.context, target + 64, ramp);
+    require(rampRead.frames == 4 && !rampRead.failed, "Extracted owner lost its ready linear prefix");
+    for (std::size_t frame = 0; frame < 4; ++frame)
+        for (std::size_t channel = 0; channel < 2; ++channel) {
+            const double fraction = double(frame + 1) / 240;
+            const double expected = double(sample(0, target + 64 + frame, channel)) * ((1 - fraction) * .5) +
+                                    double(sample(1, target + 64 + frame, channel)) * .25 +
+                                    double(sample(2, target + 64 + frame, channel));
+            require(ramp[frame * 2 + channel] == float(expected),
+                    "Initial authorization bypassed the configured240-frame stem ramp or restored an excluded role");
+        }
     auto again = session.stopAndTakePlaybacks();
     require(!again.active[0] && !again.active[1] && !again.replacement,
             "Repeated ownership return duplicated a whole live owner");
@@ -276,6 +309,37 @@ void nonzeroInitializationRetainsThePrimedEpoch()
     require(state->exits == 0, "Detached session stop touched its former producer");
     taken.active[0]->stop();
     require(state->exits == 1, "Returned whole owner did not retain producer lifetime until retirement");
+}
+
+void initialResidentAuthorizationRejectsIncompatibleOwners()
+{
+    conflux::audio::AudioResidentHoldRange range;
+    range.id = 813; range.inFrame = 0; range.outFrame = 2048; range.admittedBytes = 65536;
+    range.provenance = conflux::audio::AudioResidentHoldRange::Provenance::DjRange;
+    LiveSession::InitialState initial;
+    initial.residentHoldRangeId[0] = range.id;
+    for (const bool configured : {false, true}) {
+        auto state = std::make_shared<Control>();
+        LiveSession::PlaybackSources owners{};
+        owners[0] = configured ? PreparedPlayback::makeLive(202, totalFrames, producer(state), range)
+                               : PreparedPlayback::makeLive(202, totalFrames, producer(state));
+        auto invalid = initial;
+        if (configured) ++invalid.residentHoldRangeId[0];
+        bool rejected = false;
+        try { LiveSession wrong(std::move(owners), invalid); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected && state->starts == 1 && state->exits == 1,
+                "Wrong/unconfigured resident authorization was accepted or leaked/restarted its live owner");
+    }
+    std::array<float, 128> normal{};
+    for (const bool unloaded : {false, true}) {
+        bool rejected = false;
+        try {
+            LiveSession wrong(unloaded ? std::span<const float>{} : std::span<const float>(normal),
+                              unloaded ? std::span<const float>(normal) : std::span<const float>{}, initial);
+        } catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected, "Normal or unloaded deck accepted resident stem authorization");
+    }
 }
 
 void sameCursorRetryUsesTheRealRenderCommand()
@@ -433,6 +497,7 @@ int main()
         reserveCancellationAndExactTail();
         producerFailureIsAtomicAndTerminal();
         nonzeroInitializationRetainsThePrimedEpoch();
+        initialResidentAuthorizationRejectsIncompatibleOwners();
         sameCursorRetryUsesTheRealRenderCommand();
         renderedOwnerRebuildPreservesCursorTargetsAndProducer();
         wholeOwnerRemainsThroughCallbackEnd();
