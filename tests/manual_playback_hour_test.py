@@ -6,6 +6,7 @@ import copy
 import ast
 from datetime import datetime, timedelta, timezone
 import errno
+import hashlib
 import io
 import inspect
 import os
@@ -23,6 +24,119 @@ from tools.experiments import run_manual_playback_soak as soak
 
 
 class HourPlaybackTest(unittest.TestCase):
+    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False):
+        # Run the actual launch/watchdog/cleanup path with generated files and a
+        # fake child. No host commands, audio, native process or real wait runs.
+        clock = [0.0]; launched = []; polls = []; ready_calls = []
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "source"
+            wrapper = root / "tools/experiments/run_manual_playback_soak.py"
+            ui = ("qml/Main.qml", "qml/DeckSurface.qml", "qml/MixerSurface.qml", "qml/DeckButton.qml",
+                  "qml/SurfaceKnob.qml", "qml/StereoMeter.qml", "brand/integration/qtquick/ConfluxTheme.qml",
+                  "brand/integration/qtquick/qmldir", "brand/assets/logos/conflux-horizontal-dark.svg",
+                  "brand/assets/logos/conflux-horizontal-light.svg", "brand/assets/fonts/Barlow-Regular.ttf",
+                  "brand/assets/fonts/BarlowCondensed-SemiBold.ttf", "brand/assets/fonts/JetBrainsMono-Regular.ttf")
+            names = ("binary", "track_a", "track_b", "python", "exporter", "worker", "service", "runtime", "model",
+                     "guard_script", "guard_unit", "readiness_decision")
+            assets = {name: root / name for name in names}
+            for path in [wrapper, *assets.values(), *(root / name for name in ui)]:
+                path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"generated fixture")
+            args = SimpleNamespace(**assets, output=root / "run", seconds=120, live_stems_hour=False, background=True)
+            proc = root / "proc"; task = proc / "101/task/101"; task.mkdir(parents=True)
+            fields = ["S", "1", "101", "101"] + ["0"] * 15 + ["1001"]
+            (proc / "101/stat").write_text("101 (fixture) " + " ".join(fields))
+            (proc / "101/cmdline").write_bytes(b"fixture\0"); (task / "children").write_text("")
+            ages = iter(child_ages); exhausted = [False]
+            timing = SimpleNamespace(monotonic=lambda: clock[0], monotonic_ns=lambda: int(clock[0] * 1e9))
+            class Pipe(io.BytesIO):
+                def fileno(self): return 90
+            class Child:
+                pid = 101
+                returncode = None
+                def __init__(self, command, **options):
+                    self.stdout = Pipe(); self.stderr = Pipe(); launched.append(clock[0])
+                    self.command = command
+                    if progress:
+                        (args.output / "progress.json").write_text(json.dumps({"monotonic_ns": 17, "phase": "steady"}))
+                def poll(self):
+                    polls.append(clock[0] - launched[0])
+                    if self.returncode is None and (exhausted[0] or (args.output / "stop").exists()):
+                        self.returncode = 1
+                        (proc / "101/stat").unlink()
+                        (args.output / "observations.jsonl").write_text("")
+                        (args.output / "native-result.json").write_text(json.dumps({
+                            "functional_only": False, "host_audio": True, "source_root": str(root),
+                            "ui_mode": "background", "ui_coverage": {"visible_ui_qualification_eligible": False},
+                            "mode": "live-stems", "setup": {}, "passed": False, "shutdown_completed": True}))
+                    return self.returncode
+                def wait(self, timeout): return self.poll()
+            class Selector:
+                def register(self, *values): pass
+                def get_map(self): return {}
+                def select(self, timeout):
+                    try: clock[0] = launched[0] + next(ages)
+                    except StopIteration: exhausted[0] = True
+                    return []
+                def close(self): pass
+            def readiness(*values):
+                ready_calls.append(clock[0])
+                if len(ready_calls) == 2: clock[0] += readiness_seconds
+                return {"pin": {"sha256": "offline-only"}}
+            def read_command(command, **options):
+                if command[0] == "systemctl": return "ActiveState=active\nMainPID=42\nInvocationID=" + "a" * 32
+                self.assertEqual(command, ["pw-dump", "-N"]); return "[]"
+            with (
+                patch.object(soak, "__file__", str(wrapper)),
+                patch.object(soak, "Path", side_effect=lambda value: proc if value == "/proc" else Path(value)),
+                patch.object(soak, "time", timing), patch.object(soak, "live_readiness", side_effect=readiness),
+                patch.object(soak, "FLASH_RUNTIME_SHA256", hashlib.sha256(b"generated fixture").hexdigest()),
+                patch.object(soak, "FLASH_MODEL_SHA256", hashlib.sha256(b"generated fixture").hexdigest()),
+                patch.object(soak, "read_command", side_effect=read_command),
+                patch.object(soak, "process_identity", return_value={"pid": 42, "start_ticks": 1,
+                    "command": [str(assets["guard_script"])]}),
+                patch.object(soak, "power_state", return_value={"ac_online": True, "lid_open": True}),
+                patch.object(soak, "sensor_paths", return_value={}),
+                patch.object(soak, "observation", return_value={"temperatures_millidegrees_C": {"fixture": 35000}}),
+                patch.object(soak.shutil, "disk_usage", return_value=SimpleNamespace(free=10**12)),
+                patch.object(soak.subprocess, "Popen", side_effect=Child) as popen,
+                patch("selectors.DefaultSelector", Selector), patch.object(soak.os, "set_blocking"),
+                patch.object(soak.os, "getpgrp", return_value=999),
+                patch.object(soak.os, "killpg", side_effect=ProcessLookupError),
+                patch.object(soak.signal, "signal"), contextlib.redirect_stdout(io.StringIO()),
+            ):
+                code = soak.run_live(args)
+            result = json.loads((args.output / "result.json").read_text())
+            stop = (args.output / "stop").read_text().strip() if (args.output / "stop").exists() else None
+            self.assertEqual(popen.call_count, 1); self.assertEqual(len(ready_calls), 2)
+            self.assertTrue(popen.call_args.kwargs["start_new_session"])
+            self.assertFalse(result["passed"]); self.assertFalse(result["qualified"])
+            return code, result, stop, launched[0], polls
+
+    def test_delayed_readiness_does_not_age_new_native_startup(self):
+        code, result, stop, launched, polls = self.live_watchdog_run(61, [.1, 30.0])
+        self.assertEqual(launched, 61); self.assertIsNone(stop); self.assertIsNone(result["stop_reason"])
+        self.assertEqual(code, 1); self.assertIn(30.0, polls)
+        self.assertEqual(result["wall_budget_seconds"], 300)
+        self.assertGreaterEqual(result["elapsed_seconds"], 91); self.assertTrue(result["within_wall_budget"])
+
+    def test_native_missing_progress_stops_only_after_its_own_thirty_seconds(self):
+        code, result, stop, launched, polls = self.live_watchdog_run(61, [.1, 30.0, 30.001])
+        self.assertEqual(stop, "Native startup progress missing"); self.assertEqual(result["stop_reason"], stop)
+        self.assertEqual(code, 2); self.assertIn(30.0, polls)
+        self.assertGreater(polls[-1], 30); self.assertLess(polls[-1], 30.01)
+        self.assertEqual(launched, 61)
+
+    def test_original_wall_deadline_still_stops_a_young_native_child(self):
+        code, result, stop, launched, _ = self.live_watchdog_run(259, [.1])
+        self.assertEqual(launched, 259); self.assertEqual(stop, "Fixed live-run wall budget reached")
+        self.assertEqual(code, 2); self.assertEqual(result["wall_budget_seconds"], 300)
+        self.assertGreaterEqual(result["elapsed_seconds"], 259.1); self.assertTrue(result["within_wall_budget"])
+
+    def test_steady_progress_ten_second_watchdog_is_unchanged(self):
+        code, result, stop, _, _ = self.live_watchdog_run(61, [.1, 10.1, 10.101], progress=True)
+        self.assertEqual(stop, "Native live progress unchanged for ten seconds")
+        self.assertEqual(code, 2); self.assertEqual(result["stop_reason"], stop)
+
     def ownership_observer(self):
         # Exercise the actual nested helpers without starting the runner or a
         # process. Only /proc paths are redirected to this bounded fixture.

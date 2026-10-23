@@ -712,6 +712,7 @@ def run_live(args):
         result["command"] = command
         for name in ("stdout", "stderr"):
             captures[name] = ((output / f"native.{name}.log").open("wb"), 0, hashlib.sha256())
+        native_started = time.monotonic()
         child = subprocess.Popen(command, env=environment, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE, start_new_session=True)
         result["owned_direct_group"] = child.pid
@@ -724,7 +725,7 @@ def run_live(args):
         with (output / "host-observations.jsonl").open("w") as host_log:
             while child.poll() is None or selector.get_map():
                 drain_capture()
-                now = time.monotonic(); elapsed = now - began
+                now = time.monotonic()
                 remember_owned()
                 if stop.exists() and requested_stop is None:
                     request_stop("user stop file")
@@ -746,7 +747,7 @@ def run_live(args):
                         progress_stamp = pulse["monotonic_ns"]; progress_seen_at = now
                     if pulse["phase"] in ("steady", "replay_recovery", "incomplete_generation_seek") and now - progress_seen_at > 10:
                         request_stop("Native live progress unchanged for ten seconds")
-                elif elapsed > 30:
+                elif now - native_started > 30:
                     request_stop("Native startup progress missing")
                 if now >= next_graph and progress.exists():
                     objects = json.loads(read_command(["pw-dump", "-N"], timeout=max(.1, min(8, deadline - time.monotonic() - 2))))
