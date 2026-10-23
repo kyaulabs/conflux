@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "ui/DeckController.hpp"
+#include "ui/LocalTiming.hpp"
 #include "library/LiveStemObservations.hpp"
 #include "StemExportFixture.hpp"
 #include "StemServiceFixture.hpp"
@@ -1777,6 +1778,116 @@ private slots:
         for (const auto command : selectionCommands) (controller.*command)(0);
         QCOMPARE(controller.submittedCommands(), submitted);
         QVERIFY(!controller.outputReady());
+    }
+
+    void localTimingProjectionUsesSourceIntervalsAndRecoveryCursor()
+    {
+        using conflux::ui::localTimingForDisplay;
+        conflux::library::BpmEstimate estimate;
+        estimate.analysisFrames = 144000; estimate.pcmSha256 = QByteArray(64, 'a');
+        estimate.status = "Unknown"; // A null whole-track summary can still have local timing.
+        estimate.beats = {{4800, true}, {28800, false}, {52800, true}, {70800, false},
+                          {86800, false}, {101200, true}, {113200, false}};
+        struct Row { double position; qulonglong first, end; double bpm; };
+        for (const auto row : {Row{52800.75,52800,70800,160}, Row{52799.75,28800,52800,120},
+                              Row{70800,70800,86800,180}, Row{4800,4800,28800,120},
+                              Row{113199.75,101200,113200,240}}) {
+            const auto local = localTimingForDisplay(estimate, row.position);
+            QCOMPARE(local["status"].toString(), QString("Estimated"));
+            QCOMPARE(local["confidence"].toString(), QString("Unknown"));
+            QCOMPARE(local["firstFrame"].toULongLong(), row.first);
+            QCOMPARE(local["endFrame"].toULongLong(), row.end);
+            QCOMPARE(local["sourceFrame"].toULongLong(), qulonglong(std::floor(row.position)));
+            QCOMPARE(local["bpm"].toDouble(), row.bpm);
+        }
+        for (const auto position : {-1., 0., 4799.99, 113200., 144000.,
+                                    std::numeric_limits<double>::quiet_NaN(),
+                                    std::numeric_limits<double>::infinity()})
+            QCOMPARE(localTimingForDisplay(estimate, position)["status"].toString(), QString("Unknown"));
+        const conflux::audio::AudioResidentHoldRange range{7,52800,101200,
+            (101200-52800)*conflux::audio::AudioResidentHoldRange::bytesPerFrame,
+            conflux::audio::AudioResidentHoldRange::Provenance::DjRange};
+        conflux::audio::AudioResidentHoldState hold{range.id,range.inFrame,range.outFrame,128000,70800,
+            range.admittedBytes,range.provenance,EIO,true,true,true,true,false};
+        const auto resident = localTimingForDisplay(estimate, 128000, hold, range);
+        QCOMPARE(resident["status"].toString(), QString("Estimated"));
+        QCOMPARE(resident["sourceFrame"].toULongLong(), qulonglong(70800));
+        QCOMPARE(resident["bpm"].toDouble(), 180.);
+        QVERIFY(resident["resident"].toBool()); // Producer health does not erase independent timing.
+        hold.linearFrame = estimate.analysisFrames;
+        QCOMPARE(localTimingForDisplay(estimate, double(estimate.analysisFrames), hold, range)["bpm"].toDouble(), 180.);
+        hold.linearFrame = 128000;
+        QCOMPARE(localTimingForDisplay(estimate, 128000.5, hold, range)["status"].toString(), QString("Unknown"));
+        hold.audibleFrame = range.outFrame;
+        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        hold.audibleFrame = range.inFrame;
+        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["bpm"].toDouble(), 160.);
+        ++hold.rangeId;
+        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        --hold.rangeId; ++hold.linearFrame;
+        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        --hold.linearFrame; hold.active = false;
+        QCOMPARE(localTimingForDisplay(estimate, 52800.5, hold, range)["bpm"].toDouble(), 160.);
+        auto failed = estimate; failed.status = "Failed";
+        QCOMPARE(localTimingForDisplay(failed, 52800)["status"].toString(), QString("Unknown"));
+        auto malformed = estimate; malformed.beats.back().frame = malformed.beats.front().frame;
+        QCOMPARE(localTimingForDisplay(malformed, 52800)["status"].toString(), QString("Unknown"));
+        QCOMPARE(estimate.status, QString("Unknown")); QVERIFY(!estimate.bpm);
+    }
+
+    void localTimingIsSourceBoundAndIndependentOfReference()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("local.wav"), other = directory.filePath("other.wav");
+        QVERIFY(writeWave(source, 2, 48000, 192000) && writeWave(other, 2, 48000, 96000));
+        const auto script = directory.filePath("bpm.py"), model = directory.filePath("model");
+        QFile asset(model); QVERIFY(asset.open(QIODevice::WriteOnly)); asset.write("fixture"); asset.close();
+        QFile worker(script); QVERIFY(worker.open(QIODevice::WriteOnly));
+        worker.write("import argparse, hashlib, json, sys\np=argparse.ArgumentParser()\np.add_argument('--source-dir')\np.add_argument('--model')\np.add_argument('--frames',type=int)\na=p.parse_args()\nb=sys.stdin.buffer.read()\n");
+        worker.write("events=(0,24000,48000,72000,88000,104000,128000) if a.frames==192000 else (4800,28800,46800)\n");
+        worker.write("print(json.dumps(dict(schema=2,recipe='beat-this-final0-linear-mel-v1',frames=a.frames,pcm_sha256=hashlib.sha256(b).hexdigest(),bpm=120.0,beat_count=len(events))))\nfor f in events: print(json.dumps(dict(frame=f,downbeat=(f==events[0]))))\n");
+        worker.close();
+        conflux::DeckController::PreparationOptions options;
+        options.bpmEngine = conflux::library::BpmEngine{"/usr/bin/python3", directory.path(), model, script};
+        conflux::DeckController controller(options);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+        const auto local = controller.decks()[0].toMap()["localTiming"].toMap();
+        QCOMPARE(local["status"].toString(), QString("Estimated"));
+        QCOMPARE(local["confidence"].toString(), QString("Unknown"));
+        QCOMPARE(local["bpm"].toDouble(), 120.);
+        QCOMPARE(local["firstFrame"].toULongLong(), qulonglong(0));
+        QCOMPARE(local["endFrame"].toULongLong(), qulonglong(24000));
+        QCOMPARE(local["sourceFrame"].toULongLong(), qulonglong(0));
+        const auto submitted = controller.submittedCommands();
+        controller.setBpmOverride(0, 128);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 128.);
+        QCOMPARE(controller.decks()[0].toMap()["localTiming"].toMap(), local);
+        QCOMPARE(controller.submittedCommands(), submitted);
+        controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing.wav")));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[0].toMap()["localTiming"].toMap(), local);
+        controller.loadDeck(0, QUrl::fromLocalFile(other));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto changed = controller.decks()[0].toMap();
+        QCOMPARE(changed["bpm"].toMap()["estimated"].toDouble(), 120.);
+        QCOMPARE(changed["localTiming"].toMap()["status"].toString(), QString("Unknown"));
+        QVERIFY(changed["localTiming"].toMap()["positionKnown"].toBool());
+        // A playable track with failed analysis cannot inherit the old map.
+        QVERIFY(worker.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        worker.write("print('invalid output')\n"); worker.close();
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto failed = controller.decks()[0].toMap();
+        QVERIFY(failed["loaded"].toBool());
+        QCOMPARE(failed["bpm"].toMap()["status"].toString(), QString("Failed"));
+        QCOMPARE(failed["localTiming"].toMap()["status"].toString(), QString("Unknown"));
+        QVERIFY(!failed["localTiming"].toMap()["positionKnown"].toBool());
+        QCOMPARE(controller.submittedCommands(), submitted);
     }
 
     void bpmReferenceIsSourceBoundAndDoesNotChangePlayback()

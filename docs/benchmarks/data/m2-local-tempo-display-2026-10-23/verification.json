@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "recorded_date": "2026-10-23",
+  "status": "passed_scoped_generated_checks_unqualified",
+  "base_commit": "20c732323ad81796f49d462ff215cd945edc9b39",
+  "source_state": "Root-tested working tree based on base_commit plus the five local-tempo product/test changes below. These new bytes are not claimed to exist in base_commit. Relevant source/API/worker pins are recorded, not a full build-dependency closure.",
+  "feature": "Read-only original-source interbeat tempo in each deck LCD, separate from editable reference BPM and processed playback speed. No detector/model/recipe/cache/catalog schema/dependency change.",
+  "tested_sources": [
+    {
+      "path": "src/ui/LocalTiming.hpp",
+      "bytes": 2764,
+      "sha256": "c346b678c42ed3b2ac2a925d82cd6992946f1ba3d5a916ddf11ec61d3b1ee91a"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 129463,
+      "sha256": "1bfd34f90fb78a7ad97f87605916cd0946b009b4334cd4125fa35d3e05a89c9d"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 78414,
+      "sha256": "c21ce6ca41fb424d88ef0f058ab326aa452de28b68354bec4775424631408394"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 146183,
+      "sha256": "220c4ee95d44dc7b150510abc9ad8a075ec78080d93256eac8161e402eec32c4"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 320879,
+      "sha256": "79d97e111b52b9ca7f0f399c61af0053078db9f7f57b675db546e704c9dbc590"
+    },
+    {
+      "path": "src/library/BpmAnalyzer.hpp",
+      "bytes": 4096,
+      "sha256": "0f5e0fb50b2d3959b1e68d60cb0f2bcb4e7157cf12085c0a5b09a01398ab5bd2"
+    },
+    {
+      "path": "src/library/BpmAnalyzer.cpp",
+      "bytes": 30253,
+      "sha256": "570052294d13fbaab38fb5dae436585501c4df94b12a86ec7710d6dd6fc005f6"
+    },
+    {
+      "path": "tools/timing/analyze_bpm.py",
+      "bytes": 14448,
+      "sha256": "e76b8ab903aebc76a592ac262b1dd3c7602cdea0606610e866cca31156d753b5"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 68210,
+      "sha256": "eafe980744b3ac596c59639d3a7d5da04ad6e17b2da3275671ec414fd35fd8f8"
+    }
+  ],
+  "checks": {
+    "deck_controller": {
+      "qt_passed": 52,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 14362,
+      "ctest_seconds": 14.4156
+    },
+    "manual_ui": {
+      "qt_passed": 230,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 90228,
+      "ctest_seconds": 90.3711
+    },
+    "bpm_analyzer": {
+      "qt_passed": 113,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 12006,
+      "ctest_seconds": 12.0222
+    },
+    "focused_controller": {
+      "qt_passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 1007,
+      "scope": "Two local-timing behavior cases plus init/cleanup; overlaps the full controller suite."
+    },
+    "focused_ui": {
+      "qt_passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "qt_elapsed_ms": 3211,
+      "scope": "Local-timing behavior and minimum/normal font rows plus init/cleanup; overlaps the full UI suite."
+    },
+    "count_scope": "Three distinct affected CTest entries passed across two retained commands. Qt totals include init/cleanup; focused results overlap and are not additional unique coverage."
+  },
+  "initial_setup_issue": {
+    "root_reported_command_exit": 8,
+    "ctest_entries_passed": 2,
+    "analyzer_status": "NotRun: test executable had not been built",
+    "XML_tests": 3,
+    "XML_failures": 0,
+    "XML_skipped": 1,
+    "resolution": "Root built the existing missing analyzer target and ran only bpm-analyzer afterward. The already passing full controller/UI suites were not repeated. Original affected log/XML remain unchanged; no analyzer assertion or product failure is implied."
+  },
+  "regression_evidence": {
+    "original_controller": {
+      "qt_passed": 2,
+      "failed": 1,
+      "qt_elapsed_ms": 651,
+      "failure": "Missing localTiming.status; expected Estimated."
+    },
+    "original_ui": {
+      "qt_passed": 2,
+      "failed": 1,
+      "qt_elapsed_ms": 656,
+      "failure": "Local-tempo label absent."
+    },
+    "meaning": "Real generated WAV plus a stdin-hashing schema2 fake worker exercises preparation acceptance, manual override independence, failed load retaining old data, new source before-first-beat Unknown and failed analysis clearing old timing. Direct projection cases cover fractional/shared boundaries, null summary, malformed maps and resident audible cursor/OUT/range mismatch. This is not learned-model accuracy evidence."
+  },
+  "behavior": [
+    "Latest acknowledged original 48k nominal sourcePosition selects the containing half-open interbeat interval after flooring nonnegative fractional position. No extrapolation before first beat or at/after last beat; invalid/unavailable/failed timing yields Unknown.",
+    "A null whole-track BPM summary can still supply valid local intervals. Manual reference, current tempo ratio and key-lock do not rewrite the accepted source timing or submit commands from this display.",
+    "Active resident playback requires the installed owner\u2019s matching ready range and exact parked linear position; the label uses audibleFrame. Producer EIO does not erase independent timing. At OUT it remains Unknown until a later snapshot resolves wrap or finite takeover.",
+    "The separate PlainText LOCAL SOURCE EST. N.N BPM row describes original-speed tempo and unknown confidence. Both decks\u2019 fake acknowledged snapshots leave reference/tempo and command count unchanged; preparation/unloaded/unknown states are explicit.",
+    "Existing 15px/19px layout checks include maximum 400 BPM local text, label containment and no overview-seek overlap. No arbitrary font size, physical presentation or assistive-technology acceptance is inferred."
+  ],
+  "warnings": {
+    "controller_QWARN_rows": 0,
+    "UI_QWARN_rows": 8,
+    "analyzer_QWARN_rows": 0,
+    "UI_scope": "Six existing CUE cancellation deck/canControl binding-loop messages and two older out-of-window mouse-event messages. All eight QWARN lines match the retained prior 229-result UI log exactly and in order; no warning was suppressed or fixed here.",
+    "prior_UI_log": {
+      "path": "build/m3-remaining-audit-01/root-full-ui-01.log",
+      "bytes": 22035,
+      "sha256": "178259ed22d775f71c1e2e863ff3c15c322364ab7d8f32fb4dc6a425a2d19a83"
+    }
+  },
+  "accuracy_context": {
+    "retained_ARTBeaT_numeric_pass": 9,
+    "retained_ARTBeaT_cases": 24,
+    "retained_result_remains_failed": true,
+    "scope": "That exposed challenge used native 44100 input then direct soxr 22050. Current production first prepares 48000 through libsamplerate best, then uses the same model/linear-mel/postprocessing recipe. An actual current production 24-case comparison remains pending; this display/test work makes no accuracy-improvement claim.",
+    "source_audit": {
+      "path": "build/m2-analysis-qualification-01/production-preprocessing-audit-01.json",
+      "bytes": 11591,
+      "sha256": "7a804a5647de9356092e9ece591faae4636a88222e593b3f60ae05c93aef7b3b"
+    },
+    "retained_scores": {
+      "path": "benchmarks-local/m2-beat-evaluation-2026-10-20/artbeat-challenge-15/scores-15.json",
+      "bytes": 169820,
+      "sha256": "10712887a48d1f487b716730dae73c4b9dea05b2cb626169147860d0298662a2"
+    },
+    "retained_recipe": {
+      "path": "benchmarks-local/m2-beat-evaluation-2026-10-20/artbeat-challenge-15/evaluation-recipe-15.json",
+      "bytes": 30025,
+      "sha256": "e840959b16e14f3bdc87df910e8b905a4e03e06f4bd8c5092318594f19c91069"
+    }
+  },
+  "limits": [
+    "Source position is the acknowledged engine nominal coordinate, not a sample-exact post-DSP acoustic map. Resident selection is source/helper tested; no new real callback-to-label or physical audio trial was performed.",
+    "The bounded full-vector GUI lookup remains unmeasured under current engine/UI contention. No native service latency, callback performance or sustained qualification was measured.",
+    "Beat/downbeat accuracy, phrase/key/cue analysis and confidence remain unqualified or unfinished; no synchronization or planner trust is enabled.",
+    "Physical touch, assistive-technology operation and compositor behavior are not qualified. Local Qt 6.12 checks do not establish actual Qt 6.4 runtime acceptance; CI is separate.",
+    "M2, M3 and release acceptance remain open."
+  ],
+  "retained_artifacts": [
+    {
+      "path": "root-implementation-applied-01.json",
+      "bytes": 1064,
+      "sha256": "eedbc21329a0a65bf4e2433a9b1fac09eef84e4a109e13fcce30b6b0ddd92399"
+    },
+    {
+      "path": "root-red-controller-01.log",
+      "bytes": 729,
+      "sha256": "c5566c857f834ef106774f8c1ccb4757043ad041f0c9db14094c8c639e0b4fdd"
+    },
+    {
+      "path": "root-red-ui-01.log",
+      "bytes": 600,
+      "sha256": "5abfb7d09dad2669f4b1c72cf39d083176d582ba9c4bc55ecb9fba5cf7b4666a"
+    },
+    {
+      "path": "root-green-build-01.log",
+      "bytes": 618,
+      "sha256": "57200bd6de0ea0f1012b5ef1b5b6e6e5bb187be9f99a888c9d4d997d0b4c5169"
+    },
+    {
+      "path": "root-green-controller-01.log",
+      "bytes": 581,
+      "sha256": "2dd25976b8c23acbbaec0c382b4d69a99b52365b23d71854880e4a73542382eb"
+    },
+    {
+      "path": "root-green-ui-01.log",
+      "bytes": 625,
+      "sha256": "f436ffa3944c368da398cff8f9e9879b0c803a6270fb434ce076ab8adc17bc61"
+    },
+    {
+      "path": "root-affected-ctest-01.log",
+      "bytes": 31138,
+      "sha256": "622ec6ca2e1a740ea134145060935f1955e9cf9dd4c2fd764a8d146377f652e2"
+    },
+    {
+      "path": "root-affected-ctest-01.xml",
+      "bytes": 3042,
+      "sha256": "86df2f54d1c49ad3e7f6813a12818835e51e707467e29e0fbb290ffff10dca01"
+    },
+    {
+      "path": "root-analyzer-build-01.log",
+      "bytes": 341,
+      "sha256": "f37a6e9d41fa1f879257bb890e33bfc422a1e44dba68ad4b94a106e0d380697b"
+    },
+    {
+      "path": "root-analyzer-ctest-01.log",
+      "bytes": 9784,
+      "sha256": "c06603c9651e77e82814c8ec9069ed9ad2a5b81df75be88d0d2fc2d2baa57e3a"
+    },
+    {
+      "path": "root-analyzer-ctest-01.xml",
+      "bytes": 1464,
+      "sha256": "54df92c679439d675e48c05f079fad1365ecce4f425e2de81a88eba5b48b7eab"
+    }
+  ],
+  "qualified": false,
+  "retained_evidence_directory": "build/m2-analysis-qualification-01/local-timing-draft-01",
+  "UI_environment": {
+    "Qt": "6.12.0",
+    "QT_QPA_PLATFORM": "offscreen",
+    "QT_QUICK_BACKEND": "software",
+    "QT_QUICK_CONTROLS_STYLE": "Basic"
+  }
+}
