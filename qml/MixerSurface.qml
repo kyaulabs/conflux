@@ -56,7 +56,7 @@ Rectangle {
                 text: "CONFLUX / MIXER"
                 color: Brand.ConfluxTheme.text
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 19
+                font.pixelSize: Brand.ConfluxTheme.textPixels(19)
                 font.weight: Font.DemiBold
                 font.letterSpacing: 1
             }
@@ -65,7 +65,7 @@ Rectangle {
                 text: "4 CHANNEL"
                 color: root.etched
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 11
+                font.pixelSize: Brand.ConfluxTheme.textPixels(11)
             }
         }
 
@@ -109,7 +109,7 @@ Rectangle {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: "CH " + strip.modelData.channel + " / " + strip.modelData.name
                                 font.family: Brand.ConfluxTheme.displayFont
-                                font.pixelSize: 14
+                                font.pixelSize: Brand.ConfluxTheme.textPixels(14)
                                 font.weight: Font.DemiBold
                                 color: strip.deckColor
                             }
@@ -117,7 +117,7 @@ Rectangle {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: strip.audioDeck < 0 ? "RESERVED" : "DECK " + strip.modelData.name
                                 font.family: Brand.ConfluxTheme.displayFont
-                                font.pixelSize: 9
+                                font.pixelSize: Brand.ConfluxTheme.textPixels(9)
                                 color: root.etched
                             }
                         }
@@ -181,7 +181,7 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                                 color: headphoneCue.checked ? Brand.ConfluxTheme.primaryText : root.etched
                                 font.family: Brand.ConfluxTheme.displayFont
-                                font.pixelSize: 12
+                                font.pixelSize: Brand.ConfluxTheme.textPixels(12)
                                 font.weight: Font.DemiBold
                             }
                             background: Rectangle {
@@ -202,7 +202,7 @@ Rectangle {
                             horizontalAlignment: Text.AlignHCenter
                             color: Brand.ConfluxTheme.text
                             font.family: Brand.ConfluxTheme.displayFont
-                            font.pixelSize: 11
+                            font.pixelSize: Brand.ConfluxTheme.textPixels(11)
                             font.weight: Font.DemiBold
                         }
 
@@ -363,7 +363,7 @@ Rectangle {
                             horizontalAlignment: Text.AlignHCenter
                             color: strip.audioDeck < 0 ? root.etched : strip.deckColor
                             font.family: Brand.ConfluxTheme.displayFont
-                            font.pixelSize: strip.audioDeck < 0 ? 9 : 14
+                            font.pixelSize: Brand.ConfluxTheme.textPixels(strip.audioDeck < 0 ? 9 : 14)
                         }
                     }
                 }
@@ -391,14 +391,14 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     color: Brand.ConfluxTheme.text
                     font.family: Brand.ConfluxTheme.monoFont
-                    font.pixelSize: 13
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(13)
                 }
                 Text {
                     Layout.fillWidth: true
                     text: "MASTER"
                     horizontalAlignment: Text.AlignHCenter
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 11
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(11)
                     color: root.etched
                 }
                 StereoMeter {
@@ -437,7 +437,7 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WordWrap
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 11
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(11)
                     color: root.controller.audioRouting.cueReady ? Brand.ConfluxTheme.success : root.etched
                 }
                 Item { Layout.fillHeight: true }
@@ -446,7 +446,7 @@ Rectangle {
                     text: "BEAT FX\nINACTIVE"
                     horizontalAlignment: Text.AlignHCenter
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 11
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(11)
                     color: root.etched
                 }
             }
@@ -536,7 +536,7 @@ Rectangle {
                     text: "A  /  CROSSFADER  /  B"
                     color: crossfader.enabled ? Brand.ConfluxTheme.text : root.etched
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 10
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(10)
                 }
                 Rectangle {
                     x: crossfader.leftPadding
@@ -578,7 +578,7 @@ Rectangle {
             horizontalAlignment: Text.AlignHCenter
             color: root.etched
             font.family: Brand.ConfluxTheme.displayFont
-            font.pixelSize: 10
+            font.pixelSize: Brand.ConfluxTheme.textPixels(10)
             lineHeight: 1.1
         }
     }

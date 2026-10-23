@@ -141,7 +141,7 @@ Item {
         text: root.caption
         color: Brand.ConfluxTheme.muted
         font.family: Brand.ConfluxTheme.displayFont
-        font.pixelSize: 11
+        font.pixelSize: Brand.ConfluxTheme.textPixels(11)
         font.weight: Font.DemiBold
         horizontalAlignment: Text.AlignHCenter
     }

@@ -17,7 +17,7 @@ Row {
             height: 44
             text: index === 0 ? "−" : index === 1
                   ? (controls.targetWindow.visibility === Window.Maximized ? "❐" : "□") : "×"
-            font.pixelSize: index === 2 ? 27 : 23
+            font.pixelSize: Brand.ConfluxTheme.textPixels(index === 2 ? 27 : 23)
             Accessible.name: index === 1 && controls.targetWindow.visibility === Window.Maximized
                              ? "Restore window" : modelData + " window"
             ToolTip.visible: hovered || activeFocus

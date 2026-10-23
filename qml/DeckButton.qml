@@ -181,7 +181,7 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: control.fontPixelSize
+                font.pixelSize: Brand.ConfluxTheme.textPixels(control.fontPixelSize)
                 font.bold: true
                 font.letterSpacing: control.round ? 0 : 0.6
                 color: control.round && control.indicatorOn ? control.indicatorColor : Brand.ConfluxTheme.text
