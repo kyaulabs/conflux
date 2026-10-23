@@ -47,7 +47,7 @@ Item {
         horizontalAlignment: Text.AlignHCenter
         color: Brand.ConfluxTheme.accent
         font.family: Brand.ConfluxTheme.monoFont
-        font.pixelSize: Math.min(9, Math.max(6, root.width / 3))
+        font.pixelSize: Brand.ConfluxTheme.textPixels(Math.min(9, Math.max(6, root.width / 3)))
         font.bold: true
         Accessible.name: root.caption + (root.overrange ? " overrange" : " within range")
     }
@@ -98,7 +98,7 @@ Item {
         text: "L R"
         horizontalAlignment: Text.AlignHCenter
         font.family: Brand.ConfluxTheme.monoFont
-        font.pixelSize: 8
+        font.pixelSize: Brand.ConfluxTheme.textPixels(8)
         color: Brand.ConfluxTheme.muted
     }
 }

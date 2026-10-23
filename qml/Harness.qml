@@ -64,7 +64,7 @@ ApplicationWindow {
         Label {
             text: "M0 · Runtime probe"
             color: Brand.ConfluxTheme.text
-            font.pixelSize: 24
+            font.pixelSize: Brand.ConfluxTheme.textPixels(24)
         }
         Label {
             text: "Qt " + qtVersion + " · " + platformName

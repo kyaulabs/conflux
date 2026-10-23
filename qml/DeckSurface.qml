@@ -54,11 +54,13 @@ Item {
     readonly property string artworkSource: (showingPreparation || deck.loaded) && typeof presentation.artworkDataUrl === "string"
                                              && presentation.artworkDataUrl.startsWith("data:image/png;base64,")
                                              ? presentation.artworkDataUrl : ""
-    readonly property bool compactDisplay: display.height < 232
+    // Keep the design breakpoint independent of font-driven LCD growth.
+    readonly property bool compactDisplay: designScreenHeight < 232
     readonly property real edge: width >= 560 ? 22 : 16
     readonly property real sideWidth: width >= 560 ? 76 : 66
-    readonly property real screenHeight: Math.max(174, Math.min(height * 0.28,
+    readonly property real designScreenHeight: Math.max(174, Math.min(height * 0.28,
         (width - 2 * edge - sideWidth - 14) * 0.60))
+    readonly property real screenHeight: Math.max(designScreenHeight, waveform.y + waveform.height + 24)
     readonly property real hotCueTop: 40 + screenHeight + 20
     readonly property real loopTop: hotCueTop + 52
     readonly property real jogTop: loopTop + 60
@@ -163,12 +165,12 @@ Item {
         x: surface.edge
         y: 13
         width: surface.width - 2 * surface.edge - 20
-        height: 20
+        height: Math.max(20, implicitHeight)
         text: surface.deckName.toUpperCase() + " / MANUAL"
         elide: Text.ElideRight
         Accessible.name: surface.deckName + " control ownership: Manual"
         font.family: Brand.ConfluxTheme.displayFont
-        font.pixelSize: 14
+        font.pixelSize: Brand.ConfluxTheme.textPixels(14)
         font.letterSpacing: 1.2
         color: Brand.ConfluxTheme.text
     }
@@ -200,6 +202,7 @@ Item {
             border.color: "#19272B"
         }
         Label {
+            id: waveformKind
             x: 14
             y: 12
             objectName: "deck" + surface.deckIndex + "WaveformKind"
@@ -227,7 +230,7 @@ Item {
                   : surface.deck.overviewStem === "source" ? (surface.liveStems ? "LIVE STEMS" : "SAVED STEMS") + " · SOURCE WAVEFORM" : "LOCAL FILE"
             color: surface.displayAccent
             font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: 10
+            font.pixelSize: Brand.ConfluxTheme.textPixels(10)
             font.letterSpacing: 0.5
             width: parent.width - 28
             elide: Text.ElideRight
@@ -237,7 +240,7 @@ Item {
             id: artworkFrame
             objectName: "deck" + surface.deckIndex + "ArtworkFrame"
             x: 14
-            y: surface.compactDisplay ? 28 : 30
+            y: Math.max(surface.compactDisplay ? 28 : 30, waveformKind.y + waveformKind.height + 4)
             width: surface.compactDisplay ? 48 : 64
             height: width
             radius: 3
@@ -288,7 +291,7 @@ Item {
                     textFormat: Text.PlainText
                     color: "#8EAAA7"
                     font.family: Brand.ConfluxTheme.monoFont
-                    font.pixelSize: 7
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(7)
                 }
             }
         }
@@ -304,7 +307,7 @@ Item {
             maximumLineCount: 1
             color: surface.showingPreparation ? "#98AAA7" : "#EFF8F6"
             font.family: Brand.ConfluxTheme.displayFont
-            font.pixelSize: surface.compactDisplay ? 18 : 26
+            font.pixelSize: Brand.ConfluxTheme.textPixels(surface.compactDisplay ? 18 : 26)
             Accessible.name: surface.deckName + " title: " + text
         }
         Label {
@@ -320,14 +323,15 @@ Item {
             maximumLineCount: 1
             color: "#B5CDC9"
             font.family: Brand.ConfluxTheme.bodyFont
-            font.pixelSize: surface.compactDisplay ? 11 : 14
+            font.pixelSize: Brand.ConfluxTheme.textPixels(surface.compactDisplay ? 11 : 14)
             Accessible.name: surface.deckName + " artist: " + text
         }
         Label {
+            id: trackAlbum
             objectName: "deck" + surface.deckIndex + "Album"
             x: titleLabel.x
             y: trackArtist.y + trackArtist.height + 1
-            width: titleLabel.width - (surface.compactDisplay ? 96 : 0)
+            width: titleLabel.width
             text: surface.showingPreparation ? (surface.presentation.album || "")
                   : surface.deck.loaded ? (surface.deck.album || "Album unknown") : "—"
             textFormat: Text.PlainText
@@ -335,27 +339,30 @@ Item {
             maximumLineCount: 1
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.bodyFont
-            font.pixelSize: surface.compactDisplay ? 10 : 12
+            font.pixelSize: Brand.ConfluxTheme.textPixels(surface.compactDisplay ? 10 : 12)
             Accessible.name: surface.deckName + " album: " + text
         }
         Label {
+            id: elapsedLabel
             objectName: "deck" + surface.deckIndex + "Elapsed"
             x: 14
-            y: surface.compactDisplay ? 80 : 100
-            width: parent.width * 0.55 - 14
+            y: Math.max(surface.compactDisplay ? 80 : 100,
+                        artworkFrame.y + artworkFrame.height + 6, trackAlbum.y + trackAlbum.height + 6)
+            width: Math.max(0, bpmReference.x - x - 8)
             text: surface.showingPreparation ? "—:—" : surface.deck.loaded ? surface.timeText(seek.pressed ? seek.value : surface.deck.positionSeconds) : "—:—"
             color: "#F2F8F4"
             font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: surface.compactDisplay ? 26 : 36
+            font.pixelSize: Brand.ConfluxTheme.textPixels(surface.compactDisplay ? 26 : 36)
         }
         Button {
             id: bpmReference
             objectName: "deck" + surface.deckIndex + "BpmReference"
             anchors.right: parent.right
             anchors.rightMargin: 14
-            y: surface.compactDisplay ? 70 : 98
-            width: 96
-            height: 44
+            y: elapsedLabel.y
+            width: Math.max(96, Math.max(bpmCurrent.implicitWidth, bpmStatus.implicitWidth, remainingLabel.implicitWidth)
+                            + leftPadding + rightPadding)
+            height: Math.max(44, bpmRows.implicitHeight + topPadding + bottomPadding)
             padding: 0
             enabled: surface.canEditBpm
             text: surface.showingPreparation ? "Preparing track; BPM not yet available"
@@ -365,48 +372,54 @@ Item {
             Accessible.description: "Edit the track's original-speed BPM. This changes the reference number, not the audio or deck sync."
             onClicked: bpmEditor.openForSource()
             background: Rectangle { color: "transparent"; border.color: parent.activeFocus ? surface.displayAccent : "transparent"; radius: 2 }
-            contentItem: Item {
+            contentItem: Column {
+                id: bpmRows
+                spacing: 0
                 Label {
+                    id: bpmCurrent
                     objectName: "deck" + surface.deckIndex + "BpmCurrent"
-                    y: 0
                     width: parent.width
-                    height: 20
+                    height: Math.max(20, implicitHeight)
                     text: surface.showingPreparation ? "… BPM" : surface.hasReferenceBpm ? surface.acknowledgedBpm.toFixed(1) + " BPM" : "— BPM"
                     textFormat: Text.PlainText
                     color: surface.displayAccent
                     font.family: Brand.ConfluxTheme.monoFont
-                    font.pixelSize: 16
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(16)
                     horizontalAlignment: Text.AlignRight
                     verticalAlignment: Text.AlignVCenter
                 }
                 Label {
-                    y: 20
+                    id: bpmStatus
+                    objectName: "deck" + surface.deckIndex + "BpmStatus"
                     width: parent.width
-                    height: 10
+                    height: Math.max(10, implicitHeight)
                     text: surface.showingPreparation ? "PREPARING" : surface.hasReferenceBpm ? (surface.bpmState.manual ? "MANUAL" : "ESTIMATED") : "SET REFERENCE"
                     color: "#8EAAA7"
                     font.family: Brand.ConfluxTheme.monoFont
-                    font.pixelSize: 8
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(8)
                     horizontalAlignment: Text.AlignRight
                     verticalAlignment: Text.AlignVCenter
                 }
                 Label {
+                    id: remainingLabel
                     objectName: "deck" + surface.deckIndex + "Remaining"
-                    y: 30
                     width: parent.width
-                    height: 14
+                    height: Math.max(14, implicitHeight)
                     text: !surface.showingPreparation && surface.deck.loaded ? "−" + surface.timeText(Math.max(0, surface.deck.durationSeconds - surface.deck.positionSeconds)) : "—:—"
                     color: surface.displayAccent
                     font.family: Brand.ConfluxTheme.monoFont
-                    font.pixelSize: 9
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(9)
                     horizontalAlignment: Text.AlignRight
                     verticalAlignment: Text.AlignVCenter
                 }
             }
         }
         Label {
+            id: trackStatus
+            objectName: "deck" + surface.deckIndex + "TransportStatus"
             x: 14
-            y: 148
+            y: Math.max(148, Math.max(elapsedLabel.y + elapsedLabel.height,
+                                     bpmReference.y + bpmReference.height) + 6)
             visible: !surface.compactDisplay
             text: surface.showingPreparation ? (surface.deck.loaded ? "CURRENT AUDIO: " + surface.deck.name : "WAITING FOR PREPARED AUDIO")
                   : surface.deck.loaded ? surface.transportStatus + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
@@ -415,15 +428,17 @@ Item {
             elide: Text.ElideRight
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: 9
+            font.pixelSize: Brand.ConfluxTheme.textPixels(9)
         }
         Canvas {
             id: waveform
             objectName: "deck" + surface.deckIndex + "Waveform"
             x: 14
-            y: parent.height - height - 24
+            y: Math.max(surface.designScreenHeight - height - 24,
+                        (trackStatus.visible ? trackStatus.y + trackStatus.height
+                         : Math.max(elapsedLabel.y + elapsedLabel.height, bpmReference.y + bpmReference.height)) + 8)
             width: parent.width - 28
-            height: surface.compactDisplay ? 31 : 47 + Math.max(0, display.height - 250)
+            height: surface.compactDisplay ? 31 : 47 + Math.max(0, surface.designScreenHeight - 250)
             onWidthChanged: requestPaint()
             onHeightChanged: requestPaint()
             onPaint: {
@@ -601,7 +616,7 @@ Item {
                 elide: Text.ElideRight
                 color: "#B5CDC9"
                 font.family: Brand.ConfluxTheme.monoFont
-                font.pixelSize: 8
+                font.pixelSize: Brand.ConfluxTheme.textPixels(8)
             }
             BusyIndicator {
                 anchors.right: parent.right
@@ -632,7 +647,7 @@ Item {
             accessibleName: "Browse " + surface.deckName
             onClicked: surface.browseRequested(surface.deckIndex)
         }
-        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BROWSE"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 11; color: Brand.ConfluxTheme.text }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BROWSE"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(11); color: Brand.ConfluxTheme.text }
         DeckButton {
             focusColor: surface.deckColor
             width: parent.width
@@ -656,7 +671,7 @@ Item {
         y: surface.hotCueTop - 16
         text: surface.deck.stemBank ? "STEM LEVELS" : "HOT CUE"
         font.family: Brand.ConfluxTheme.displayFont
-        font.pixelSize: 10
+        font.pixelSize: Brand.ConfluxTheme.textPixels(10)
         font.letterSpacing: 1
         color: Brand.ConfluxTheme.muted
     }
@@ -726,7 +741,7 @@ Item {
                         y: 1
                         text: stemLevel.modelData + " " + Math.round(stemLevel.value * 100) + "%"
                         font.family: Brand.ConfluxTheme.monoFont
-                        font.pixelSize: 9
+                        font.pixelSize: Brand.ConfluxTheme.textPixels(9)
                         color: stemLevel.enabled ? Brand.ConfluxTheme.text : Brand.ConfluxTheme.muted
                     }
                     Rectangle {
@@ -840,7 +855,7 @@ Item {
               : "IN " + surface.timeText(surface.loop.inSeconds) + " / OUT READY"
         color: surface.loop.active ? Brand.ConfluxTheme.warning : Brand.ConfluxTheme.muted
         font.family: Brand.ConfluxTheme.monoFont
-        font.pixelSize: 9
+        font.pixelSize: Brand.ConfluxTheme.textPixels(9)
         elide: Text.ElideRight
         Accessible.name: surface.deckName + " " + text
     }
@@ -973,9 +988,9 @@ Item {
             Column {
                 anchors.centerIn: parent
                 spacing: 4
-                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deckName.toUpperCase(); color: surface.displayAccent; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 12 }
-                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deck.loaded ? surface.timeText(surface.deck.positionSeconds) : "—:—"; color: "#EFF8F6"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: jog.width >= 330 ? 23 : 17 }
-                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.transportStatus; color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: 8 }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deckName.toUpperCase(); color: surface.displayAccent; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(12) }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.deck.loaded ? surface.timeText(surface.deck.positionSeconds) : "—:—"; color: "#EFF8F6"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: Brand.ConfluxTheme.textPixels(jog.width >= 330 ? 23 : 17) }
+                Label { anchors.horizontalCenter: parent.horizontalCenter; text: surface.transportStatus; color: "#9DB1B0"; font.family: Brand.ConfluxTheme.monoFont; font.pixelSize: Brand.ConfluxTheme.textPixels(8) }
             }
         }
         MouseArea {
@@ -1175,7 +1190,7 @@ Item {
             unavailableReason: "Load a track and wait for audio output to use playback."
             onPressed: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
         }
-        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 9 }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(9) }
     }
 
     Item {
@@ -1184,7 +1199,7 @@ Item {
         y: surface.jogTop + 5
         width: 48
         height: Math.max(180, surface.height - y - 53)
-        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BPM"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 10 }
+        Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BPM"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(10) }
         Slider {
             id: tempo
             objectName: "deck" + surface.deckIndex + "Tempo"
@@ -1305,7 +1320,7 @@ Item {
             textFormat: Text.PlainText
             color: Brand.ConfluxTheme.text
             font.family: Brand.ConfluxTheme.monoFont
-            font.pixelSize: 9
+            font.pixelSize: Brand.ConfluxTheme.textPixels(9)
         }
         Label {
             objectName: "deck" + surface.deckIndex + "TempoStatus"
@@ -1320,7 +1335,7 @@ Item {
             textFormat: Text.PlainText
             color: surface.tempoState.errorCode ? Brand.ConfluxTheme.warning : Brand.ConfluxTheme.muted
             font.family: Brand.ConfluxTheme.displayFont
-            font.pixelSize: 8
+            font.pixelSize: Brand.ConfluxTheme.textPixels(8)
             Accessible.name: surface.deckName + " tempo " + text
         }
         DeckButton {

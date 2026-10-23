@@ -22,6 +22,16 @@ QtObject {
     readonly property string bodyFont: "Barlow"
     readonly property string displayFont: "Barlow Condensed"
     readonly property string monoFont: "JetBrains Mono"
+    // Respect the application's startup font size independently of display DPR.
+    // Keep the existing 15px design minimum and all branded font families.
+    readonly property FontMetrics startupFontMetrics: FontMetrics { font: Qt.application.font }
+    readonly property FontMetrics designFontMetrics: FontMetrics {
+        font: Qt.application.font
+        Component.onCompleted: font.pixelSize = 15
+    }
+    readonly property real textScale: designFontMetrics.height > 0
+        ? Math.max(1, startupFontMetrics.height / designFontMetrics.height) : 1
+    function textPixels(pixels) { return Math.round(pixels * textScale) }
     readonly property int unit: 4
     readonly property int controlRadius: 6
     readonly property int panelRadius: 12

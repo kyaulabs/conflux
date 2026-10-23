@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-23T05:14:33.201982+00:00",
+  "base_commit": "46356b0d5506cfdceb04e26f7b48e245d150c6eb",
+  "scope": "Startup application-font scaling and LCD layout; offscreen generated endpoint only",
+  "tested_sources": {
+    "brand/integration/qtquick/ConfluxTheme.qml": {
+      "bytes": 2209,
+      "sha256": "ac88dee4f25cff6cbe8cf96b0ce110890f4fb6393849fcb41de1712db5d0ac78"
+    },
+    "qml/DeckButton.qml": {
+      "bytes": 8082,
+      "sha256": "d80b143e357a36225460cf74bec6aeacad8c396396c32d2fa109e5243a749dcc"
+    },
+    "qml/DeckSurface.qml": {
+      "bytes": 71801,
+      "sha256": "e7eea7aa365b182f76db8c23b081316a1727bf1e86410aff883288984f88831d"
+    },
+    "qml/Harness.qml": {
+      "bytes": 4288,
+      "sha256": "d1b1c9ffdedb68faff86c964b9d58c7584dc599b661733f1c9537458234455e9"
+    },
+    "qml/Main.qml": {
+      "bytes": 60286,
+      "sha256": "d95a9891f9ab94375c2940e756f0de9776ba220a0830ed1cdae850d6fe3f2fab"
+    },
+    "qml/MixerSurface.qml": {
+      "bytes": 32106,
+      "sha256": "fa3db3775eb31442ecddebda9b089f1f2cdb37b0dff87b00ee5c18dcda4b323b"
+    },
+    "qml/StereoMeter.qml": {
+      "bytes": 4324,
+      "sha256": "4682b5f604cf932e248584668e1f2bb3502dc484253b98048784c3a16b9fc9d8"
+    },
+    "qml/SurfaceKnob.qml": {
+      "bytes": 5865,
+      "sha256": "2bee5dc7a7f167ed9e7afab4c1dad0e40d0ada2560e7190fd32d97a83a01bf4b"
+    },
+    "qml/WindowActions.qml": {
+      "bytes": 1770,
+      "sha256": "a61a38b4f3449fa96613e48f836affabfe6f93b4c0c25455a4cbadb31242e62d"
+    },
+    "tests/manual_ui_test.cpp": {
+      "bytes": 291409,
+      "sha256": "1bf7832612379ae96de525d05e8fa6bfb0d0990c125999a03f3fadf561a2c2fb"
+    }
+  },
+  "build": {
+    "exit": 0,
+    "seconds": 34.024423345003015,
+    "jobs": 1,
+    "global_compiler_budget": "1UI+1native=2"
+  },
+  "full_ui": {
+    "passed": 220,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 127.19,
+    "ctest_result": {
+      "exit": 0,
+      "seconds": 127.25543163399925
+    },
+    "qtest_log": {
+      "bytes": 19756,
+      "sha256": "331a0913e1864a0a71c6b368767c93728dcd30eb7528ee5989c65e6ca5475151"
+    }
+  },
+  "focused": {
+    "startup_font_pixels": [
+      15,
+      19
+    ],
+    "viewports": [
+      [
+        1180,
+        760
+      ],
+      [
+        1680,
+        1020
+      ]
+    ],
+    "result": {
+      "exit": 0,
+      "seconds": 3.3759129170030064
+    },
+    "assertions": [
+      "Branded font family retained and actual text grows",
+      "LCD text clipping and overlap, waveform and viewport containment",
+      "Transport hit area preserved and circular platter minimum220 retained",
+      "Accessible names and screen rectangles",
+      "No font/layout-triggered input; one keyboard seek leaves peer unchanged"
+    ]
+  },
+  "renders": {
+    "text-19px-1180x760.png": {
+      "bytes": 148092,
+      "sha256": "454ecd582865c779c1649ea9a101ca5bf1df2cc06aae748db2fb566520b02e6c"
+    },
+    "text-19px-1680x1020.png": {
+      "bytes": 197964,
+      "sha256": "cf5219833a13b884717abe9767f1051e184458c9945b8ef4d132a34f9e439306"
+    }
+  },
+  "review": {
+    "verdict": "GO",
+    "record": {
+      "bytes": 4860,
+      "sha256": "c3d4a4f687ce496285ae47159e56f6828b0d749a6cfbd65c3cdbb78ebc71f63d"
+    },
+    "scope": "Source and enlarged renders; full suite subsequently passed"
+  },
+  "failed_attempts": [
+    "Focused01: fixed20px ownership label clipped; intrinsic height fixed.",
+    "Focused02: elapsed overlapped album and remaining time clipped; intrinsic LCD flow fixed.",
+    "Focused03: BPM content clipped by native Button padding; outer dimensions now include padding."
+  ],
+  "physical_touch": {
+    "recorded_at_utc": "2026-10-23T04:49:44.929183+00:00",
+    "question": "Does your laptop have a touchscreen available for a short CONFLUX usability check? M3 has synthetic touch tests, but physical touch remains unverified.",
+    "answer": "No touchscreen available",
+    "question_item_id": "[\"request_user_input_async\",\"call_f07440bd47544605bb58c581eb06abe7\",0]",
+    "physical_touch": "unavailable on current laptop; not tested",
+    "synthetic_touch": "Retain generated input evidence separately; no physical qualification claim.",
+    "scope": "Hardware availability information only; no scope waiver or milestone completion."
+  },
+  "limitations": [
+    "Application startup font only; live preference changes require restart",
+    "Representative loaded state at two viewports and19px font; arbitrary larger sizes and every transient popup remain unqualified",
+    "QML source coverage is unmeasured",
+    "No actual model/GPU/audio, laptop contention or sustained-performance qualification",
+    "M2 remains open at unchanged Best-quality live-stem service p99 below4095ms; no release eligibility"
+  ]
+}

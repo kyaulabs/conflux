@@ -4,6 +4,7 @@
 #include <QFontDatabase>
 #include <QBuffer>
 #include <QFile>
+#include <QDir>
 #include <QImage>
 #include <QMetaProperty>
 #include <QKeyEvent>
@@ -4829,6 +4830,197 @@ private slots:
         verifyControlsFit(outerControls);
         QCOMPARE(ui_->endpoint.decks(), acceptedBeforeReturn);
         QCOMPARE(ui_->endpoint.calls.size(), callsBeforeReturn);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void platformTextSizeGrowsWithoutScalingDeckGeometry_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::newRow("minimum") << QSize(1180, 760);
+        QTest::newRow("normal") << QSize(1680, 1020);
+    }
+
+    void platformTextSizeGrowsWithoutScalingDeckGeometry()
+    {
+        QFETCH(QSize, viewport);
+        const auto originalFont = QGuiApplication::font();
+        const auto restoreFont = qScopeGuard([this, originalFont] {
+            ui_.reset();
+            QGuiApplication::setFont(originalFont);
+        });
+        // Qt.application.font is constant for an engine. Recreate the fixture
+        // after changing the application font, including the engine from init().
+        ui_.reset();
+        auto platformFont = originalFont;
+        platformFont.setPixelSize(15);
+        QGuiApplication::setFont(platformFont);
+        ui_ = std::make_unique<UiFixture>();
+        ui_->load();
+        QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
+        QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.snapshotSongInfo(deck, "Title", "Artist", "Album", {});
+        }
+        ui_->endpoint.setReady(true);
+        {
+            QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+            ui_->window->contentItem()->polish();
+            ui_->window->update();
+            QTRY_VERIFY(polished.count() > 0);
+        }
+        const auto cueText = [this](int deck) -> QQuickItem* {
+            auto* cue = ui_->item(QString("deck%1Cue").arg(deck).toUtf8().constData());
+            if (!cue) return nullptr;
+            auto* content = cue->property("contentItem").value<QQuickItem*>();
+            if (!content) return nullptr;
+            for (auto* child : content->childItems())
+                if (child->property("text").toString() == "CUE" && child->property("font").isValid())
+                    return child;
+            return nullptr;
+        };
+        std::array<std::array<int, 3>, 2> baselinePixels{};
+        std::array<std::array<QString, 3>, 2> baselineFamilies{};
+        std::array<std::array<QSizeF, 3>, 2> baselineGeometry{};
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            const std::array<QQuickItem*, 3> text{
+                ui_->item((prefix + "Ownership").toUtf8().constData()),
+                ui_->item((prefix + "Title").toUtf8().constData()), cueText(deck)};
+            for (std::size_t index = 0; index < text.size(); ++index) {
+                QVERIFY(text[index]);
+                const auto font = text[index]->property("font").value<QFont>();
+                QVERIFY(font.pixelSize() > 0);
+                baselinePixels[deck][index] = font.pixelSize();
+                baselineFamilies[deck][index] = font.family();
+            }
+            std::size_t index = 0;
+            for (const auto* suffix : {"Display", "Jog", "Cue"}) {
+                auto* item = ui_->item((prefix + suffix).toUtf8().constData());
+                QVERIFY(item);
+                baselineGeometry[deck][index++] = item->size();
+            }
+        }
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+
+        ui_.reset();
+        platformFont.setPixelSize(19);
+        QGuiApplication::setFont(platformFont);
+        ui_ = std::make_unique<UiFixture>();
+        ui_->load();
+        QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
+        QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.snapshotSongInfo(deck, "Title", "Artist", "Album", {});
+        }
+        ui_->endpoint.setReady(true);
+        {
+            QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+            ui_->window->contentItem()->polish();
+            ui_->window->update();
+            QTRY_VERIFY(polished.count() > 0);
+        }
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            const std::array<QQuickItem*, 3> text{
+                ui_->item((prefix + "Ownership").toUtf8().constData()),
+                ui_->item((prefix + "Title").toUtf8().constData()), cueText(deck)};
+            for (std::size_t index = 0; index < text.size(); ++index) {
+                QVERIFY(text[index]);
+                QTRY_VERIFY2(text[index]->property("font").value<QFont>().pixelSize() > baselinePixels[deck][index],
+                             qPrintable(prefix + " text did not grow with the independently enlarged platform font"));
+                QCOMPARE(text[index]->property("font").value<QFont>().family(), baselineFamilies[deck][index]);
+                QTRY_VERIFY2(text[index]->implicitHeight() <= text[index]->height() + .5,
+                             qPrintable(prefix + " enlarged text is clipped vertically"));
+                QTRY_VERIFY2(text[index]->implicitWidth() <= text[index]->width() + .5,
+                             qPrintable(prefix + " short enlarged label is clipped horizontally"));
+            }
+            auto* display = ui_->item((prefix + "Display").toUtf8().constData());
+            auto* jog = ui_->item((prefix + "Jog").toUtf8().constData());
+            auto* cue = ui_->item((prefix + "Cue").toUtf8().constData());
+            QVERIFY(display && jog && cue);
+            // Text growth may add LCD rows and consume vertical platter room;
+            // it must not magnify the deck width or the transport hit area.
+            QCOMPARE(display->width(), baselineGeometry[deck][0].width());
+            QVERIFY(display->height() >= baselineGeometry[deck][0].height());
+            QCOMPARE(cue->size(), baselineGeometry[deck][2]);
+            QVERIFY(jog->width() >= 220 && jog->width() <= baselineGeometry[deck][1].width());
+            QCOMPARE(jog->height(), jog->width());
+            auto* ownership = text[0];
+            auto* accessible = QAccessible::queryAccessibleInterface(ownership);
+            QVERIFY(accessible);
+            QCOMPARE(accessible->text(QAccessible::Name),
+                     deck == 0 ? QString("Deck A control ownership: Manual") : QString("Deck B control ownership: Manual"));
+            QVERIFY(accessible->rect().contains(ui_->window->mapToGlobal(ui_->center(ownership))));
+            QStringList lcd;
+            for (const auto* suffix : {"WaveformKind", "ArtworkFrame", "Title", "Artist", "Album", "Elapsed",
+                                       "BpmCurrent", "BpmStatus", "Remaining"})
+                lcd.append(prefix + suffix);
+            auto* status = ui_->item((prefix + "TransportStatus").toUtf8().constData());
+            QVERIFY(status);
+            if (status->isVisible()) lcd.append(prefix + "TransportStatus");
+            verifyControlsFit(lcd);
+            const auto displayRect = display->mapRectToScene(QRectF(QPointF(0, 0), display->size()));
+            auto* overview = ui_->item((prefix + "Seek").toUtf8().constData());
+            QVERIFY(overview);
+            const auto seekRect = overview->mapRectToScene(QRectF(QPointF(0, 0), overview->size()));
+            QVERIFY(displayRect.adjusted(-.5, -.5, .5, .5).contains(seekRect));
+            for (const auto& name : lcd) {
+                auto* item = ui_->item(name.toUtf8().constData());
+                QVERIFY(item);
+                QTRY_VERIFY2(displayRect.adjusted(-.5, -.5, .5, .5).contains(
+                    item->mapRectToScene(QRectF(QPointF(0, 0), item->size()))), qPrintable(name));
+                if (item->property("textFormat").isValid())
+                    QTRY_VERIFY2(item->implicitHeight() <= item->height() + .5, qPrintable(name + " text is clipped"));
+                QVERIFY2(item->mapRectToScene(QRectF(QPointF(0, 0), item->size())).bottom() <= seekRect.top() + .5,
+                         qPrintable(name + " overlaps the overview seek area"));
+            }
+            auto* reference = ui_->item((prefix + "BpmReference").toUtf8().constData());
+            QVERIFY(reference);
+            const auto bpmRect = reference->mapRectToScene(QRectF(QPointF(0, 0), reference->size()));
+            QVERIFY(displayRect.adjusted(-.5, -.5, .5, .5).contains(bpmRect));
+            for (const auto* suffix : {"BpmCurrent", "BpmStatus", "Remaining"}) {
+                auto* label = ui_->item((prefix + suffix).toUtf8().constData());
+                QVERIFY(label);
+                QVERIFY2(label->implicitWidth() <= label->width() + .5, suffix);
+                QVERIFY2(label->implicitHeight() <= label->height() + .5, suffix);
+                QVERIFY(bpmRect.adjusted(-.5, -.5, .5, .5).contains(
+                    label->mapRectToScene(QRectF(QPointF(0, 0), label->size()))));
+            }
+        }
+        verifyControlsFit({"deck0Cue", "deck0Play", "deck0Seek", "deck0Gain", "deck0Ownership", "deck0Jog",
+                           "deck1Cue", "deck1Play", "deck1Seek", "deck1Gain", "deck1Ownership", "deck1Jog",
+                           "masterGain", "cueGain", "crossfader", "audioSettingsOpen", "themeToggle"});
+        QVERIFY(ui_->endpoint.calls.isEmpty()); // Font/layout updates are never input requests.
+        const auto captureDirectory = qEnvironmentVariable("CONFLUX_UI_CAPTURE_DIR");
+        if (!captureDirectory.isEmpty()) {
+            QVERIFY(QDir().mkpath(captureDirectory));
+            const auto image = ui_->window->grabWindow();
+            QVERIFY(!image.isNull());
+            QVERIFY(image.save(QDir(captureDirectory).filePath(
+                QString("text-19px-%1x%2.png").arg(viewport.width()).arg(viewport.height()))));
+        }
+        const auto peer = ui_->endpoint.decks()[1];
+        auto* seek = ui_->item("deck0Seek");
+        QVERIFY(seek);
+        auto* accessible = QAccessible::queryAccessibleInterface(seek);
+        QVERIFY(accessible && accessible->valueInterface());
+        QVERIFY(accessible->text(QAccessible::Name).contains("Deck A"));
+        QVERIFY(accessible->rect().contains(ui_->window->mapToGlobal(ui_->center(seek))));
+        seek->forceActiveFocus();
+        QTRY_VERIFY(seek->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Right);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "seek", 0);
+        QCOMPARE(ui_->endpoint.decks()[1], peer);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 

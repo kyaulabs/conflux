@@ -16,7 +16,7 @@ ApplicationWindow {
     title: "CONFLUX · Performance"
     color: Brand.ConfluxTheme.canvas
     font.family: Brand.ConfluxTheme.bodyFont
-    font.pixelSize: 15
+    font.pixelSize: Brand.ConfluxTheme.textPixels(15)
     palette.windowText: Brand.ConfluxTheme.text
     palette.window: Brand.ConfluxTheme.canvas
     palette.text: Brand.ConfluxTheme.text
@@ -127,7 +127,7 @@ ApplicationWindow {
                         text: "PERFORMANCE"
                         color: Brand.ConfluxTheme.muted
                         font.family: Brand.ConfluxTheme.displayFont
-                        font.pixelSize: 16
+                        font.pixelSize: Brand.ConfluxTheme.textPixels(16)
                         font.letterSpacing: 2
                     }
                 }
@@ -148,14 +148,14 @@ ApplicationWindow {
                 text: "MANUAL"
                 color: Brand.ConfluxTheme.text
                 font.family: Brand.ConfluxTheme.monoFont
-                font.pixelSize: 12
+                font.pixelSize: Brand.ConfluxTheme.textPixels(12)
                 Accessible.name: "Manual control on both decks"
             }
             Button {
                 text: "LIBRARY"
                 objectName: "libraryOpen"
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 15
+                font.pixelSize: Brand.ConfluxTheme.textPixels(15)
                 Layout.minimumWidth: 104
                 Layout.minimumHeight: 44
                 onClicked: window.browse(0)
@@ -171,7 +171,7 @@ ApplicationWindow {
                 objectName: "audioSettingsOpen"
                 text: "AUDIO / REC"
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 15
+                font.pixelSize: Brand.ConfluxTheme.textPixels(15)
                 Layout.minimumWidth: 116
                 Layout.minimumHeight: 44
                 onClicked: audioSettings.open()
@@ -218,7 +218,7 @@ ApplicationWindow {
                 objectName: "themeToggle"
                 text: Brand.ConfluxTheme.dark ? "LIGHT" : "DARK"
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 15
+                font.pixelSize: Brand.ConfluxTheme.textPixels(15)
                 Layout.minimumWidth: 80
                 Layout.minimumHeight: 44
                 onClicked: Brand.ConfluxTheme.dark = !Brand.ConfluxTheme.dark
@@ -276,7 +276,7 @@ ApplicationWindow {
                                              : "Updating audio…")
                       : (deckController.outputReady ? "AUDIO READY" : "OPEN LIBRARY TO LOAD A TRACK")
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 13
+                font.pixelSize: Brand.ConfluxTheme.textPixels(13)
                 color: Brand.ConfluxTheme.muted
             }
             Label {
@@ -310,7 +310,7 @@ ApplicationWindow {
                 text: "CONTROL STATUS"
                 flat: true
                 font.family: Brand.ConfluxTheme.displayFont
-                font.pixelSize: 13
+                font.pixelSize: Brand.ConfluxTheme.textPixels(13)
                 Layout.minimumHeight: 44
                 onClicked: controlStatus.open()
                 Accessible.name: "Show supported controls and file formats"
@@ -475,7 +475,7 @@ ApplicationWindow {
                     text: "LOCAL LIBRARY"
                     color: Brand.ConfluxTheme.text
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 24
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(24)
                 }
                 Item { Layout.fillWidth: true }
                 CheckBox {
@@ -511,7 +511,7 @@ ApplicationWindow {
                     text: "DECK A"
                     color: Brand.ConfluxTheme.deckA
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 18
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(18)
                     Layout.minimumWidth: 64
                 }
                 TextField {
@@ -564,7 +564,7 @@ ApplicationWindow {
                     text: "DECK B"
                     color: Brand.ConfluxTheme.deckB
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 18
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(18)
                     Layout.minimumWidth: 64
                 }
                 TextField {
@@ -905,7 +905,7 @@ ApplicationWindow {
                     text: "AUDIO / RECORDING"
                     color: Brand.ConfluxTheme.text
                     font.family: Brand.ConfluxTheme.displayFont
-                    font.pixelSize: 24
+                    font.pixelSize: Brand.ConfluxTheme.textPixels(24)
                 }
                 Item { Layout.fillWidth: true }
                 Button {
@@ -928,7 +928,7 @@ ApplicationWindow {
                     Label {
                         text: "OUTPUTS"
                         font.family: Brand.ConfluxTheme.displayFont
-                        font.pixelSize: 18
+                        font.pixelSize: Brand.ConfluxTheme.textPixels(18)
                         color: Brand.ConfluxTheme.text
                     }
                     Label {
@@ -1044,7 +1044,7 @@ ApplicationWindow {
                     Label {
                         text: "STEREO RECORDING"
                         font.family: Brand.ConfluxTheme.displayFont
-                        font.pixelSize: 18
+                        font.pixelSize: Brand.ConfluxTheme.textPixels(18)
                         color: Brand.ConfluxTheme.text
                     }
                     Label {
@@ -1136,7 +1136,7 @@ ApplicationWindow {
             id: statusContents
             anchors.fill: parent
             spacing: 16
-            Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: 24; color: Brand.ConfluxTheme.text }
+            Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(24); color: Brand.ConfluxTheme.text }
             Label {
                 text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, three-band channel EQ, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Hold and drag the platter to scratch prepared audio in either direction; release to restore its previous play or pause request and selected BPM and Master Tempo at the consumed position. Clear stored loops before scratching. Live stems do not support vinyl scratch. Arrow keys and the wheel remain positional search.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks use BPM-based tempo adjustment; move the BPM rail down to speed up. Arrows change 0.1 BPM; Shift and Page keys change 1 BPM. Click the deck LCD BPM value to override the original reference or return to automatic analysis. Automatic values are estimates and can be corrected. The speed range remains six percent around the reference. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET returns to normal playback; loops and tempo processing are mutually gated for now. Live-stem tempo remains unavailable.\n\nHot cues, sync and effects await their audio features. Their panel controls are inactive. Decks C/D are reserved."
                 wrapMode: Text.WordWrap
