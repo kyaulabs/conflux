@@ -196,10 +196,12 @@ private:
 };
 
 QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames, std::uint64_t expectedFrames,
-                                 float expectedGain = 1.F, bool excludeRebuildMiddle = false)
+                                 float expectedGain = 1.F, bool excludeRebuildMiddle = false,
+                                 const std::array<float, 2>& expectedSamples = expected)
 {
-    if (!std::isfinite(expectedGain) || expectedGain < 0.F || expectedGain > 1.F)
-        throw std::runtime_error("Invalid generated master recording oracle gain");
+    if (!std::isfinite(expectedGain) || expectedGain < 0.F || expectedGain > 1.F ||
+        std::ranges::any_of(expectedSamples, [](float sample) { return !std::isfinite(sample); }))
+        throw std::runtime_error("Invalid generated master recording oracle gain/samples");
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly) || file.size() < 44 || file.size() > 128 * 1024 * 1024)
         throw std::runtime_error("Cannot read bounded generated stem recording");
@@ -250,7 +252,7 @@ QJsonObject inspectStemRecording(const QString& path, std::uint64_t prefixFrames
             for (std::size_t channel = 0; channel < 2; ++channel) {
                 const auto bits = qFromLittleEndian<quint32>(block.data() + index * 8 + channel * 4);
                 const auto value = std::bit_cast<float>(std::uint32_t(bits));
-                const auto target = expected[channel] * expectedGain;
+                const auto target = expectedSamples[channel] * expectedGain;
                 const bool steady = frame < prefixFrames || frame + 1024 >= frames;
                 if (!std::isfinite(value) || ((!excludeRebuildMiddle || steady) &&
                         std::abs(value) > std::abs(target) + 1e-6F))
@@ -2081,7 +2083,213 @@ void scenario(const QString& output, const QString& privateRoot, bool exitScenar
     }
 }
 
-enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground };
+void residentScenario(const QString& output, const QString& privateRoot, QJsonArray& results)
+{
+    const auto name = QStringLiteral("resident-hold");
+    const auto local = QDir(output).filePath(name), cacheHome = QDir(privateRoot).filePath(name);
+    directory(local); directory(cacheHome);
+    Evidence evidence{name, output, privateRoot};
+    evidence.inspectResources = false; // Same quiescent-only accounting as continuation cases.
+    QJsonObject report{{"scenario", name}, {"qualified", false}, {"filesystem_observations", "quiescent-only"}};
+    const auto a = QDir(local).filePath("live-a.wav"), b = QDir(local).filePath("normal-b.wav");
+    writeFixture(a, 8192, -4096, 12 * 44100, 44100);
+    writeFixture(b, 2048, -1024, 30 * 48000, 48000); // Exact bBass, no extra exporter/prepared-bank seed.
+    const auto fixture = conflux::test::makeStemServiceFixture(local, "gate-after-first");
+    ServiceTrace services(fixture);
+    insist(qputenv("XDG_CACHE_HOME", QFile::encodeName(cacheHome)) &&
+        qputenv("XDG_DATA_HOME", QFile::encodeName(QDir(cacheHome).filePath("data"))),
+        "Resident range cache/library stay under the private owner");
+    conflux::DeckController::PreparationOptions options;
+    options.stemEngine = fixture.engine; options.stemServicePath = fixture.service; options.limits = tightLimits();
+    conflux::DeckController controller(options);
+    evidence.controller = &controller;
+    Sink sink("conflux-resident-hold-" + std::to_string(::getpid()));
+    try {
+        QString left, right;
+        privateLivePair(controller, sink, left, right, insist);
+        controller.importTrack(QUrl::fromLocalFile(a));
+        await(evidence, [&] { return !controller.busy(); }, "Resident source import did not finish", std::chrono::seconds(15));
+        insist(controller.error().isEmpty() && controller.libraryTracks().size() == 1,
+            "Recovery range uses the real catalog source, not a fabricated source ID");
+        const auto id = controller.libraryTracks().front().toMap()["id"].toString();
+        controller.loadLibraryStemTrackWithRecoveryRange(0, id, 1.001, 1.065);
+        await(evidence, [&] {
+            if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+            return !controller.busy() && controller.outputReady() && controller.audioState().sourceFrames[0];
+        }, "Opted-in genuine live source did not install", std::chrono::seconds(20));
+        evidence.live = controller.liveStemObservations(0); services.capture();
+        const auto handle = evidence.live;
+        insist(handle && !controller.preparation()["cacheHit"].toBool() && services.size() == 1 && services.alive(0),
+            "Explicit range is attached to one real live cache-miss owner");
+        BoundService bound(services.identities()[0].toObject());
+        const auto token = handle->setup().sourceToken;
+        const auto hold = [&] { return controller.decks()[0].toMap()["residentHold"].toMap(); };
+        const auto arm = [&](const QVariantMap& t) {
+            return controller.authorizeResidentHold(0, id, t["outputSession"].toString(), t["rangeId"].toString(),
+                t["sourceGeneration"].toString(), t["transportRevision"].toString());
+        };
+        const auto cancel = [&](const QVariantMap& t) {
+            return controller.cancelResidentHold(0, id, t["outputSession"].toString(), t["rangeId"].toString(),
+                t["sourceGeneration"].toString(), t["transportRevision"].toString());
+        };
+        const auto exit = [&](const QVariantMap& t) {
+            return controller.exitResidentHold(0, id, t["outputSession"].toString(), t["rangeId"].toString(),
+                t["sourceGeneration"].toString(), t["transportRevision"].toString());
+        };
+        const auto initial = hold();
+        insist(initial["configured"].toBool() && initial["ready"].toBool() && !initial["armed"].toBool() &&
+            initial["status"] == "NextPlay" && initial["inFrame"].toString() == "48048" &&
+            initial["outFrame"].toString() == "51120" && initial["residentBytes"].toULongLong() == 98304,
+            "Routine millisecond input resolves once to an exact3072-frame captured unarmed range");
+        controller.loadDeck(1, QUrl::fromLocalFile(b));
+        await(evidence, [&] { return !controller.busy() && controller.audioState().sourceFrames[1]; },
+            "Independent finite bass peer did not install", std::chrono::seconds(15));
+        insist(controller.error().isEmpty() && !controller.decks()[1].toMap()["liveStems"].toBool(),
+            "Peer uses its existing finite owner and no second live service");
+        for (int role = 0; role < 4; ++role) controller.setStemGain(0, role, role == 1 ? 1. : 0.);
+        await(evidence, [&] { return controller.audioState().stemGain[0] == bassOnly; }, "Bass selection was not acknowledged");
+        const auto beforePlay = controller.audioState(); const auto sessions = controller.completedSessions();
+        controller.setPlaying(0, true); const auto playId = controller.submittedCommands();
+        insist(hold()["status"] == "Pending", "First accepted Play waits for a real callback acknowledgement");
+        controller.setPlaying(1, true);
+        await(evidence, [&] { const auto s = controller.audioState(); return s.residentHold[0].armed &&
+            s.sourceFrame[0] >= 8192 && s.sourceFrame[1] >= 8192; }, "First Play did not arm the approved range on the actual callback");
+        const auto armed = controller.audioState();
+        insist(armed.transportRevision[0] == beforePlay.transportRevision[0] + 2 && armed.lastCommandId > playId &&
+            armed.sourceGeneration[0] == beforePlay.sourceGeneration[0] && armed.residentHold[0].rangeId == initial["rangeId"].toULongLong() &&
+            !armed.residentHold[0].active && !armed.buffering[0] && !armed.sourceReadError[0] && !armed.starvedFrames[0],
+            "Exactly one accepted Play then guarded Arm is observed with unchanged source identity and healthy linear audio");
+        evidence.actions["first_play_armed"] = QJsonObject::fromVariantMap(hold());
+        const auto wav = QDir(local).filePath("master.wav");
+        controller.startRecording(QUrl::fromLocalFile(wav));
+        await(evidence, [&] { return controller.recording()["status"] == "Recording" &&
+            controller.recording()["acceptedFrames"].toULongLong() >= holdFrames; }, "Resident master recorder did not attach");
+        const auto beforeHold = controller.audioState();
+        await(evidence, [&] { return controller.audioState().residentHold[0].active; },
+            "The armed range did not enter naturally at the owned service shortage", std::chrono::seconds(12));
+        const auto held = controller.audioState(); const auto recordedAtHold = controller.recording()["acceptedFrames"].toULongLong();
+        await(evidence, [&] { const auto s = controller.audioState();
+            if (s.sourceFrame[0] != held.sourceFrame[0]) throw std::runtime_error("Resident loop advanced the parked linear F");
+            return s.outputFrame >= held.outputFrame + holdFrames &&
+                controller.recording()["acceptedFrames"].toULongLong() >= recordedAtHold + holdFrames;
+        }, "Resident loop/peer/recorder did not span multiple actual callbacks");
+        const auto looping = controller.audioState(); continuousPeer(beforeHold, looping); continuousPeer(held, looping);
+        insist(looping.residentHold[0].active && !looping.buffering[0] && !looping.sourceReadError[0] && !looping.starvedFrames[0] &&
+            looping.sourcePosition[0] == double(held.sourceFrame[0]) && looping.residentHold[0].audibleFrame >= 48048 &&
+            // The reported next cursor may equal OUT between reads, before wrapping.
+            looping.residentHold[0].audibleFrame <= 51120 && controller.completedSessions() == sessions,
+            "Shortage repeats only the approved resident range while F is parked, peer/output continue and no A frame is starved");
+        evidence.actions["held"] = snapshot(held); evidence.actions["looping"] = QJsonObject::fromVariantMap(hold());
+        const auto currentTicket = hold(); const auto commandsBeforeStale = controller.submittedCommands();
+        for (const auto* key : {"outputSession", "rangeId", "sourceGeneration", "transportRevision"}) {
+            auto stale = currentTicket; stale[key] = "18446744073709551616";
+            insist(!cancel(stale) && !exit(stale), "Malformed/stale exact tickets cannot enqueue Cancel or Exit on a live hold");
+        }
+        insist(!controller.cancelResidentHold(0, QString(64, QLatin1Char('0')), currentTicket["outputSession"].toString(),
+            currentTicket["rangeId"].toString(), currentTicket["sourceGeneration"].toString(), currentTicket["transportRevision"].toString()) &&
+            controller.submittedCommands() == commandsBeforeStale, "Wrong SHA and stale hold tickets leave the native queue untouched");
+        insist(exit(currentTicket), "Fresh exact ticket accepts same-owner resume-at-OUT intent");
+        await(evidence, [&] { return controller.audioState().residentHold[0].exitPending; }, "Exit was not acknowledged while the service is held");
+        QFile release(fixture.marker(".release"));
+        insist(release.open(QIODevice::WriteOnly | QIODevice::NewOnly) && release.write("release\n") == 8 && release.flush(),
+            "Only the existing owned service release marker permits recovery"); release.close();
+        await(evidence, [&] { const auto s = controller.audioState();
+            if (s.sourceFrame[0] < held.sourceFrame[0]) throw std::runtime_error("Exit rewound the parked linear F");
+            return !s.residentHold[0].active && !s.residentHold[0].armed && s.sourceFrame[0] >= held.sourceFrame[0] + 1024; },
+            "Approved hold did not resume from F after the unchanged live reserve", std::chrono::seconds(10));
+        const auto resumed = controller.audioState(); continuousPeer(looping, resumed);
+        insist(resumed.sourceGeneration[0] == held.sourceGeneration[0] &&
+            resumed.sourcePosition[0] == double(resumed.sourceFrame[0]) &&
+            resumed.sourceFrame[0] - held.sourceFrame[0] <= resumed.outputFrame - looping.outputFrame &&
+            !resumed.sourceReadError[0] && !resumed.starvedFrames[0] &&
+            hold()["status"] == "Cancelled" && controller.liveStemObservations(0) == handle && handle->setup().sourceToken == token &&
+            services.size() == 1 && services.count(0, "command", "load") == 1 && services.count(0, "command", "seek") == 0,
+            "Exit completes on the original source without staleArmed UI, replacement, extra load, seek or session");
+        evidence.actions["resumed"] = snapshot(resumed);
+        controller.stopRecording();
+        await(evidence, [&] { return !controller.recording()["active"].toBool(); }, "Resident recording did not finalize");
+        const auto recorded = controller.recording(); const auto frames = recorded["writtenFrames"].toULongLong();
+        insist(recorded["status"] == "Complete" && recorded["acceptedFrames"] == recorded["writtenFrames"] &&
+            !recorded["overflowFrames"].toULongLong(), "Every accepted resident master frame is finalized without overflow");
+        current(); report["wav"] = inspectStemRecording(wav, frames, frames, 1.F, false, bothBass); current();
+        insist(report["wav"].toObject()["checked_prefix_or_tail_frames"].toVariant().toULongLong() == frames,
+            "Every recorded stereo frame across linear, held wraps and Exit matches the unchanged constantboth-bass oracle");
+        auto wavProof = report["wav"].toObject();
+        wavProof["scope"] = "Every recorded stereo frame checked against constant selected-bass A plus finite B at the existing1e-6 tolerance; no omitted frames.";
+        wavProof["expected_left"] = bothBass[0]; wavProof["expected_right"] = bothBass[1];
+        wavProof["unclassified_or_omitted_frames"] = 0; report["wav"] = wavProof;
+        // Subsequent deliberate transport is outside that complete continuous WAV.
+        controller.setPlaying(0, false);
+        await(evidence, [&] { return !controller.audioState().playing[0]; }, "Pause before stale-arm test was not acknowledged");
+        insist(arm(hold()), "A fresh paused ticket explicitly approves the next Play");
+        const auto staleBeforeReplay = hold();
+        controller.setPlaying(0, true);
+        controller.seekSeconds(0, .25); controller.seekSeconds(0, 0.); controller.setPlaying(0, true);
+        insist(hold()["status"] == "Cancelled", "Accepted seek/replay immediately revokes the old automatic arming action");
+        await(evidence, [&] { const auto s = controller.audioState(); return s.playing[0] && !s.buffering[0] &&
+            s.sourceFrame[0] >= 4096 && !s.residentHold[0].armed && !s.residentHold[0].active; },
+            "Real callbacks did not settle replay without reusing the cancelled Arm");
+        const auto beforeStaleArm = controller.submittedCommands();
+        insist(!arm(staleBeforeReplay) && controller.submittedCommands() == beforeStaleArm,
+            "Old revision cannot explicitly arm after seek-away/back replay");
+        insist(arm(hold()), "Fresh playing ticket queues explicit rearm");
+        await(evidence, [&] { return controller.audioState().residentHold[0].armed; }, "Explicit rearm was not acknowledged");
+        const auto beforeCancel = hold(); insist(cancel(beforeCancel), "Fresh exact ticket queues resident cancellation");
+        await(evidence, [&] { return !controller.audioState().residentHold[0].armed && !controller.audioState().residentHold[0].active; },
+            "Explicit Cancel did not revoke the actual callback's authorization");
+        controller.setPlaying(0, false); controller.setPlaying(1, false);
+        await(evidence, [&] { const auto s = controller.audioState(); return !s.playing[0] && !s.playing[1]; },
+            "Both exact owners did not pause before deterministic routing reconstruction");
+        const auto oldSession = hold()["outputSession"].toString();
+        const auto beforeRebuild = controller.audioState();
+        controller.configureAudioRouting(left, right, {}, {});
+        await(evidence, [&] {
+            if (!controller.busy() && !controller.error().isEmpty()) throw std::runtime_error(controller.error().toStdString());
+            return !controller.busy() && controller.outputReady();
+        }, "Same-owner output reconstruction did not finish", std::chrono::seconds(15));
+        const auto rebuilt = controller.audioState(); const auto rebuiltTicket = hold();
+        insist(rebuilt.sourceFrame == beforeRebuild.sourceFrame && rebuilt.stemGain == beforeRebuild.stemGain &&
+            !rebuilt.playing[0] && !rebuilt.playing[1] && rebuiltTicket["rangeId"] == initial["rangeId"] &&
+            rebuiltTicket["outputSession"].toString() != oldSession && controller.completedSessions() == sessions + 1 &&
+            controller.liveStemObservations(0) == handle && !rebuilt.residentHold[0].armed,
+            "Output rebuild retains exact paused owners/range and revokes authorization with a new session ticket");
+        auto staleSession = rebuiltTicket; staleSession["outputSession"] = oldSession;
+        const auto beforeOldSession = controller.submittedCommands();
+        insist(!arm(staleSession) && !cancel(staleSession) && !exit(staleSession) &&
+            controller.submittedCommands() == beforeOldSession,
+            "Old output-session ticket rejects even with current SHA/range/generation/revision");
+        insist(arm(rebuiltTicket) && hold()["status"] == "NextPlay" && cancel(hold()),
+            "Fresh rebuilt-session ticket can approve then cancel a purely unqueued nextPlay");
+        services.capture();
+        const auto rows = services.rows();
+        const auto all = [&](const char* key, const char* value) { return std::ranges::count_if(rows,
+            [&](const auto& row) { return row[key].toString() == value; }); };
+        insist(services.size() == 1 && all("fixture", "started") == 1 && all("command", "load") == 1 &&
+            all("fixture", "runtime") == 1 && !QFileInfo::exists(fixture.engine.exporterPath.chopped(3) + ".calls") &&
+            controller.liveStemObservations(0) == handle && handle->setup().sourceToken == token,
+            "All transport/rebuild actions retain one service/runtime/load with no hidden exporter or original-mix substitute");
+        report["source_sha256"] = digest(a); report["peer_sha256"] = digest(b);
+        report["children"] = services.identities(); report["rebuild"] = snapshot(rebuilt);
+        report["same_owner_range"] = QJsonObject::fromVariantMap(rebuiltTicket);
+        controller.shutdown(); evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX; evidence.drain();
+        const auto counters = handle->counters();
+        insist(services.gone(0) && bound.groupGone() && counters.producerFinished && !counters.droppedRecords &&
+            !counters.invalidClockReads && counters.attemptedRecords == evidence.ordinal &&
+            !controller.busy() && !controller.outputReady() && controller.completedRejected() == 0 &&
+            controller.completedInvalidBuffers() == 0,
+            "Shutdown proves exact service/group/job cleanup, complete observations and zero native rejected/invalid commands");
+        report["passed"] = true; evidence.write(true); evidence.controller = nullptr;
+        insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome), "Only retired owned resident cache/library is removed");
+        results.append(report);
+    } catch (const std::exception& error) {
+        controller.shutdown(); evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX;
+        try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
+        evidence.controller = nullptr; report["passed"] = false; report["error"] = error.what();
+        report["children"] = services.identities(); results.append(report); throw;
+    }
+}
+
+enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground, ResidentHold };
 void continuationScenario(const QString& output, const QString& privateRoot,
                           ContinuationCase kind, QJsonArray& results)
 {
@@ -2466,7 +2674,9 @@ int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCa
         directory(privateRoot);
         pw_init(nullptr, nullptr);
         if (continuationOnly) {
-            continuationScenario(QString::fromStdString(output.string()), privateRoot, *continuationCase, results);
+            if (*continuationCase == ContinuationCase::ResidentHold)
+                residentScenario(QString::fromStdString(output.string()), privateRoot, results);
+            else continuationScenario(QString::fromStdString(output.string()), privateRoot, *continuationCase, results);
         } else {
             scenario(QString::fromStdString(output.string()), privateRoot, false, results);
             scenario(QString::fromStdString(output.string()), privateRoot, true, results);
@@ -2481,7 +2691,8 @@ int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCa
           {"per_file_hard_bytes", qint64(fileBytesLimit)}, {"prepared_cache_admission_bytes", qint64(256 * MiB)},
           {"prepared_leaf_bytes", qint64(16 * MiB)}, {"source_bytes", qint64(8 * MiB)},
           {"combined_observed_bytes", qint64(totalBytesLimit)}, {"files_per_tree", 256}, {"directories_per_tree", 128}}},
-        {"scope", continuationOnly ?
+        {"scope", continuationCase == ContinuationCase::ResidentHold ?
+            "Generated virtual controller/callback resident hold and exact complete master PCM; no queue-full injection, physical/model/GPU, musical, sustained or latency qualification." : continuationOnly ?
             "Generated virtual same-deck prepared-bank continuation only. Filesystem observations are quiescent-only, not peak measurements; enforced file/cache admission bounds remain active. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification." :
             "Generated virtual controller/recorder support check only. Explicit replacement remains paused. No physical/model/GPU, sustained, musical, hard-cancel or4095ms latency qualification."}};
     const auto bytes = QJsonDocument(final).toJson(QJsonDocument::Indented);
@@ -2506,7 +2717,7 @@ int main(int argc, char** argv)
     try {
         bool functionalOnly = false, liveFailureOnly = false;
         std::optional<liveFailure::ContinuationCase> continuationCase;
-        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground}]";
+        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold}]";
         if (argc < 3) throw std::runtime_error(usage);
         for (int argument = 3; argument < argc; ++argument) {
             const std::string_view option(argv[argument]);
@@ -2520,6 +2731,7 @@ int main(int argc, char** argv)
                 else if (value == "cancel") continuationCase = liveFailure::ContinuationCase::Cancel;
                 else if (value == "stop") continuationCase = liveFailure::ContinuationCase::Stop;
                 else if (value == "foreground") continuationCase = liveFailure::ContinuationCase::Foreground;
+                else if (value == "resident-hold") continuationCase = liveFailure::ContinuationCase::ResidentHold;
                 else throw std::runtime_error(usage);
             } else throw std::runtime_error(usage);
         }

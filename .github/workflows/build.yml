@@ -48,6 +48,8 @@ jobs:
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-stop-check --continuation-case stop
       - name: Test prepared continuation foreground priority
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/continuation-foreground-check --continuation-case foreground
+      - name: Test resident recovery authorization
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-hold-check --continuation-case resident-hold
 
   coverage:
     runs-on: ubuntu-24.04

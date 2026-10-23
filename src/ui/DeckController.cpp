@@ -124,20 +124,35 @@ DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> ste
 }
 
 DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
-    std::shared_ptr<library::LiveStemObservations> observations, QString sourcePath, QString artifactKey)
+    std::shared_ptr<library::LiveStemObservations> observations, QString sourcePath, QString artifactKey,
+    std::optional<audio::AudioResidentHoldRange> residentHold)
     : liveFrames(frames), livePeaks(std::move(sourcePeaks)), liveSourceSha256(std::move(sourceSha256)),
-      observations(std::move(observations)), sourcePath(std::move(sourcePath)), artifactKey(std::move(artifactKey))
+      observations(std::move(observations)), sourcePath(std::move(sourcePath)), artifactKey(std::move(artifactKey)),
+      residentHold(std::move(residentHold))
 {
     if (!liveFrames || livePeaks.empty() || liveSourceSha256.isEmpty() ||
         std::ranges::any_of(livePeaks, [](float peak) { return !std::isfinite(peak) || peak < 0.F || peak > 1.F; }))
         throw std::invalid_argument("Invalid live stem source metadata");
+    if (this->residentHold) {
+        const auto& range = *this->residentHold;
+        if (!range.id || range.provenance != audio::AudioResidentHoldRange::Provenance::DjRange ||
+            range.inFrame >= range.outFrame || range.outFrame > liveFrames ||
+            range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
+            range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames ||
+            range.admittedBytes < (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame)
+            throw std::invalid_argument("Invalid retained live recovery range metadata");
+    }
 }
 
 std::uint64_t DeckController::PreparedPcm::bytes() const noexcept
 {
     // Live input/slots/spool are already charged once by the persistent store
     // reservation, including while this metadata is pending or retiring.
-    return live() ? 0 : frames() * 8 * audioLeaves.size();
+    // A terminal producer can clean its disk job while this resident payload
+    // still belongs to a pending/active/retiring playback. Keep that owner
+    // charged here too; active reservation + metadata conservatively overcount.
+    return live() ? (residentHold ? (residentHold->outFrame - residentHold->inFrame) *
+        audio::AudioResidentHoldRange::bytesPerFrame : 0) : frames() * 8 * audioLeaves.size();
 }
 
 std::unique_ptr<audio::PreparedPlayback> DeckController::PreparedPcm::makePlayback() const
@@ -303,6 +318,41 @@ QVariantList DeckController::decks() const
                 {"manual", bpmOverrides_[deck].has_value()},
                 {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
             {"replacing", replacing_[deck]},
+            {"residentHold", [&]() -> QVariantMap {
+                const auto& authorization = residentAuthorizations_[deck];
+                const bool configured = clips_[deck] && clips_[deck]->live() && clips_[deck]->residentHold.has_value();
+                // Metadata can commit before installation; never label a new
+                // selection with the stopped previous owner's ready/active bits.
+                const auto hold = configured && state_.residentHold[deck].rangeId == clips_[deck]->residentHold->id ?
+                    state_.residentHold[deck] : audio::AudioResidentHoldState{};
+                QString status, text;
+                if (!configured) { status = "Unavailable"; text = "No recovery section selected"; }
+                else if (hold.active) { status = hold.exitPending ? "ExitPending" : "Active";
+                    text = hold.exitPending ? "Recovery loop: waiting for stems" : "Recovery loop playing"; }
+                else if (hold.armed) { status = hold.ready ? "Armed" : "Capturing";
+                    text = hold.ready ? "Recovery ready" : "Recovery on; waiting for this section"; }
+                else if (authorization.phase == ResidentAuthorization::Phase::NextPlay) {
+                    status = "NextPlay"; text = "Recovery on next Play"; }
+                else if (authorization.phase == ResidentAuthorization::Phase::PlayPending ||
+                         authorization.phase == ResidentAuthorization::Phase::ArmPending) {
+                    status = "Pending"; text = "Enabling recovery"; }
+                else { status = "Cancelled"; text = "Recovery off"; }
+                return {{"configured", configured}, {"status", status}, {"text", text},
+                    {"detail", authorization.detail}, {"ready", hold.ready}, {"armed", hold.armed},
+                    {"active", hold.active}, {"exitPending", hold.exitPending}, {"errorCode", hold.errorCode},
+                    // Unconfigured decks have no recovery action ticket. An
+                    // unrelated output rebuild must not change their metadata.
+                    {"outputSession", configured ? QString::number(completedSessions_) : QString{}},
+                    {"sourceGeneration", configured ? QString::number(state_.sourceGeneration[deck]) : QString{}},
+                    {"transportRevision", configured ? QString::number(state_.transportRevision[deck]) : QString{}},
+                    {"rangeId", configured ? QString::number(clips_[deck]->residentHold->id) : QString{}},
+                    {"inFrame", configured ? QString::number(clips_[deck]->residentHold->inFrame) : QString{}},
+                    {"outFrame", configured ? QString::number(clips_[deck]->residentHold->outFrame) : QString{}},
+                    {"inSeconds", configured ? clips_[deck]->residentHold->inFrame / 48000.0 : 0.},
+                    {"outSeconds", configured ? clips_[deck]->residentHold->outFrame / 48000.0 : 0.},
+                    {"linearFrame", QString::number(hold.linearFrame)}, {"audibleFrame", QString::number(hold.audibleFrame)},
+                    {"residentBytes", QVariant::fromValue<qulonglong>(hold.residentBytes)}};
+            }()},
             {"continuation", QVariantMap{
                 {"status", continuationEpisodes_[deck].status}, {"detail", continuationEpisodes_[deck].detail},
                 {"text", continuationStatusText(continuationEpisodes_[deck].status)},
@@ -535,7 +585,8 @@ void DeckController::catalogFinished()
                     {"frame", QVariant::fromValue<qulonglong>(cue.frame)},
                     {"seconds", cue.frame / double(audio::RenderCore::sampleRate)}});
             libraryTracks_.append(QVariantMap{{"id", track.sourceSha256}, {"name", track.name},
-                {"path", track.sourcePath}, {"durationSeconds", track.frames / 48000.0},
+                {"path", track.sourcePath}, {"frames", QVariant::fromValue<qulonglong>(track.frames)},
+                {"durationSeconds", track.frames / 48000.0},
                 {"available", track.available}, {"cues", cues}, {"levels", levels}});
         }
         libraryReady_ = true;
@@ -652,6 +703,39 @@ void DeckController::loadLibraryTrack(int deck, const QString& sourceId)
 void DeckController::loadLibraryStemTrack(int deck, const QString& sourceId)
 { loadLibrary(deck, sourceId, true); }
 
+void DeckController::loadLibraryStemTrackWithRecoveryRange(int deck, const QString& sourceId,
+                                                            double inSeconds, double outSeconds)
+{
+    if (closing_) return;
+    if (!libraryReady_) { fail("The local library is not available."); return; }
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceId;
+    });
+    if (found == libraryEntries_.end() || !found->available || !preparationOptions_.stemEngine ||
+        preparationOptions_.stemServicePath.isEmpty()) {
+        fail("Choose an available library source with live stem preparation configured."); return;
+    }
+    if (!std::isfinite(inSeconds) || !std::isfinite(outSeconds) || inSeconds < 0 ||
+        outSeconds <= inSeconds || outSeconds > found->frames / 48000.0) {
+        fail("Recovery bounds must lie inside the selected source."); return;
+    }
+    library::LiveStemResidentHold request;
+    request.sourceSha256 = found->sourceSha256;
+    auto& range = request.range;
+    range.inFrame = std::uint64_t(std::llround(inSeconds * 48000.0));
+    range.outFrame = std::uint64_t(std::llround(outSeconds * 48000.0));
+    if (range.inFrame >= range.outFrame || range.outFrame > found->frames ||
+        range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
+        range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames) {
+        fail("Choose a recovery section between 0.042667 and 8 seconds."); return;
+    }
+    range.admittedBytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+    range.provenance = audio::AudioResidentHoldRange::Provenance::DjRange;
+    try { range.id = nextLiveSourceToken(); }
+    catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); return; }
+    beginPreparation(deck, QUrl::fromLocalFile(found->sourcePath), false, found->sourceSha256, true, request);
+}
+
 void DeckController::loadLibrary(int deck, const QString& sourceId, bool stems)
 {
     if (closing_) return;
@@ -690,7 +774,8 @@ void DeckController::loadStemDeck(int deck, const QUrl& url)
 { beginPreparation(deck, url, false, {}, true); }
 
 void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly,
-                                      const QString& expectedSource, bool stems)
+                                      const QString& expectedSource, bool stems,
+                                      std::optional<library::LiveStemResidentHold> residentHold)
 {
     if (closing_)
         return;
@@ -711,7 +796,26 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
         fail("Prepared stems require a configured local stem engine. Normal loading is available.");
         return;
     }
+    if (residentHold) {
+        const auto& range = residentHold->range;
+        // Reject malformed optional intent before it can reserve the shared
+        // foreground worker or cancel an otherwise valid automatic probe.
+        if (importOnly || !stems || expectedSource.isEmpty() || residentHold->sourceSha256 != expectedSource ||
+            !range.id || range.provenance != audio::AudioResidentHoldRange::Provenance::DjRange ||
+            range.inFrame >= range.outFrame ||
+            range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
+            range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames) {
+            fail("A recovery range must belong to this selected library stem source and have valid bounds.");
+            return;
+        }
+        const auto bytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+        if (bytes > preparationOptions_.limits.maxPreparedBytes || range.admittedBytes < bytes) {
+            fail("The selected recovery range exceeds the admitted PCM byte budget.");
+            return;
+        }
+    }
     ForegroundPreparation request;
+    request.residentHold = residentHold;
     request.deck = deck; request.url = url; request.importOnly = importOnly;
     request.expectedSource = expectedSource; request.stems = stems;
     if (deferForegroundPreparation(std::move(request))) return;
@@ -761,7 +865,8 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
         }, Qt::QueuedConnection);
     };
     loaderPurpose_ = LoaderPurpose::Preparation;
-    loader_.setFuture(QtConcurrent::run([path, cache, bpmCache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits,
+    if (!importOnly) revokeResidentAuthorization(std::size_t(deck), "A new track preparation was accepted.");
+    loader_.setFuture(QtConcurrent::run([path, cache, bpmCache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits, residentHold,
                                        report, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache, limits);
@@ -787,12 +892,12 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 } else {
                     // Only a genuine lookup miss reaches the service. A valid
                     // bank never inspects this otherwise unused sixth asset.
-                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop);
+                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop, residentHold);
                     sourceId = track.sourceSha256;
                     prepared->presentation = std::move(track.presentation);
                     prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
                         std::move(track.sourceOverview), track.sourceSha256, std::move(track.observations),
-                        path, track.artifactKey);
+                        path, track.artifactKey, track.residentHold);
                     prepared->playback = std::move(track.playback);
                 }
                 preview(prepared->presentation, prepared->audio->peaks());
@@ -884,6 +989,8 @@ bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
     preparationTotalStages_ = request.kind == ForegroundPreparation::Kind::CueImport ? 2 :
         request.importOnly ? 3 : 3 + int(preparationOptions_.bpmEngine.has_value());
     preparationCacheHit_ = false;
+    if (request.kind == ForegroundPreparation::Kind::Track && !request.importOnly)
+        revokeResidentAuthorization(std::size_t(request.deck), "A new track preparation was accepted.");
     foregroundPreparation_ = std::move(request);
     foregroundWaiting_ = true; busy_ = true; error_.clear();
     if (continuation_) cancelContinuation(continuation_->deck, "A new preparation was accepted.");
@@ -913,7 +1020,140 @@ void DeckController::drainForegroundPreparation()
     if (request.kind == ForegroundPreparation::Kind::CueImport) {
         if (!request.cueTrack) throw std::logic_error("Queued CUE import lost its selected track");
         startCueImport(std::move(*request.cueTrack), request.url);
-    } else beginPreparation(request.deck, request.url, request.importOnly, request.expectedSource, request.stems);
+    } else beginPreparation(request.deck, request.url, request.importOnly, request.expectedSource,
+        request.stems, std::move(request.residentHold));
+}
+
+void DeckController::resetResidentAuthorization(std::size_t deck)
+{
+    auto& authorization = residentAuthorizations_[deck]; authorization = {};
+    if (clips_[deck] && clips_[deck]->live() && clips_[deck]->residentHold) {
+        authorization.clip = clips_[deck].get(); authorization.phase = ResidentAuthorization::Phase::NextPlay;
+        authorization.detail = "Approved for the next Play. Playback controls turn recovery off.";
+    }
+}
+
+void DeckController::revokeResidentAuthorization(std::size_t deck, const QString& reason)
+{
+    if (deck >= residentAuthorizations_.size() || !clips_[deck] || !clips_[deck]->residentHold) return;
+    auto& authorization = residentAuthorizations_[deck]; authorization.phase = ResidentAuthorization::Phase::Cancelled;
+    authorization.detail = reason.left(1024);
+}
+
+bool DeckController::residentTicket(int deck, const QString& sourceId, const QString& outputSession,
+                                    const QString& rangeId, const QString& generation, const QString& revision) const
+{
+    return !closing_ && ready_ && session_ && deck >= 0 && deck < int(clips_.size()) &&
+        clips_[deck] && clips_[deck]->live() && clips_[deck]->residentHold && !replacing_[deck] &&
+        completedSessions_ != std::numeric_limits<std::uint64_t>::max() &&
+        outputSession == QString::number(completedSessions_) && rangeId == QString::number(clips_[deck]->residentHold->id) &&
+        sourceId == sourceIds_[deck] && generation == QString::number(state_.sourceGeneration[deck]) &&
+        revision == QString::number(state_.transportRevision[deck]) &&
+        state_.transportRevision[deck] < std::numeric_limits<std::uint64_t>::max() - 1 &&
+        state_.residentHold[deck].supported && state_.residentHold[deck].rangeId == clips_[deck]->residentHold->id;
+}
+
+bool DeckController::queueResidentArm(std::size_t deck)
+{
+    if (!session_ || !ready_ || !clips_[deck] || !clips_[deck]->residentHold ||
+        submitted_ >= UINT32_MAX || completedSessions_ == std::numeric_limits<std::uint64_t>::max() ||
+        state_.transportRevision[deck] >= std::numeric_limits<std::uint64_t>::max() - 1) return false;
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::ResidentHoldArm;
+    command.deck = std::uint32_t(deck); command.sourceGeneration = state_.sourceGeneration[deck];
+    command.transportRevision = state_.transportRevision[deck]; command.residentHoldToken = clips_[deck]->residentHold->id;
+    if (!submit(command)) return false;
+    cancelContinuation(deck, "The approved recovery section was enabled.");
+    auto& authorization = residentAuthorizations_[deck];
+    authorization.clip = clips_[deck].get(); authorization.session = session_.get();
+    authorization.outputSession = completedSessions_;
+    authorization.generation = state_.sourceGeneration[deck]; authorization.revision = state_.transportRevision[deck] + 1;
+    authorization.commandId = submitted_; authorization.phase = ResidentAuthorization::Phase::ArmPending;
+    authorization.detail = "Enabling the approved recovery section.";
+    return true;
+}
+
+bool DeckController::authorizeResidentHold(int deck, const QString& sourceId,
+                                           const QString& outputSession, const QString& rangeId,
+                                           const QString& generation, const QString& revision)
+{
+    if (!residentTicket(deck,sourceId,outputSession,rangeId,generation,revision) || state_.residentHold[deck].active ||
+        submitted_ >= std::uint64_t(UINT32_MAX) - 1) return false;
+    auto& authorization = residentAuthorizations_[deck];
+    if (authorization.phase == ResidentAuthorization::Phase::PlayPending ||
+        authorization.phase == ResidentAuthorization::Phase::ArmPending) return false;
+    if (state_.playing[deck] || state_.cuePreview[deck]) return queueResidentArm(std::size_t(deck));
+    authorization.clip = clips_[deck].get(); authorization.phase = ResidentAuthorization::Phase::NextPlay;
+    authorization.detail = "Enabled for the next Play. Playback controls turn recovery off.";
+    cancelContinuation(std::size_t(deck), "Recovery was enabled for the next Play.");
+    emit stateChanged(); return true;
+}
+
+bool DeckController::cancelResidentHold(int deck, const QString& sourceId,
+                                        const QString& outputSession, const QString& rangeId,
+                                        const QString& generation, const QString& revision)
+{
+    if (!residentTicket(deck,sourceId,outputSession,rangeId,generation,revision)) return false;
+    const auto pending = residentAuthorizations_[deck];
+    const auto hold = state_.residentHold[deck];
+    // A queued Arm is FIFO-before this Cancel. Use its exact expected result
+    // revision, never an unguarded cancellation of a later source or transport.
+    const auto expected = pending.phase == ResidentAuthorization::Phase::ArmPending ? pending.revision :
+        state_.transportRevision[deck];
+    if (!hold.armed && !hold.active && pending.phase != ResidentAuthorization::Phase::ArmPending) {
+        revokeResidentAuthorization(std::size_t(deck), "You turned recovery off.");
+        emit stateChanged(); return true;
+    }
+    audio::RenderCore::Command command; command.type = audio::RenderCore::Command::Type::ResidentHoldCancel;
+    command.deck = std::uint32_t(deck); command.sourceGeneration = state_.sourceGeneration[deck];
+    command.transportRevision = expected; command.residentHoldToken = clips_[deck]->residentHold->id;
+    if (!submit(command)) return false; // Preserve current authorization on queue failure.
+    revokeResidentAuthorization(std::size_t(deck), "Recovery off requested.");
+    return true;
+}
+
+bool DeckController::exitResidentHold(int deck, const QString& sourceId,
+                                      const QString& outputSession, const QString& rangeId,
+                                      const QString& generation, const QString& revision)
+{
+    if (!residentTicket(deck,sourceId,outputSession,rangeId,generation,revision) || !state_.residentHold[deck].active) return false;
+    audio::RenderCore::Command command; command.type = audio::RenderCore::Command::Type::ResidentHoldExit;
+    command.deck = std::uint32_t(deck); command.sourceGeneration = state_.sourceGeneration[deck];
+    command.transportRevision = state_.transportRevision[deck]; command.residentHoldToken = clips_[deck]->residentHold->id;
+    if (!submit(command)) return false;
+    residentAuthorizations_[deck].detail = "Resume requested for the end of this loop, when stems are ready.";
+    return true;
+}
+
+void DeckController::pollResidentAuthorization()
+{
+    for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
+        auto& authorization = residentAuthorizations_[deck];
+        using Phase = ResidentAuthorization::Phase;
+        const auto& hold = state_.residentHold[deck];
+        if (authorization.phase == Phase::Armed && !hold.armed && !hold.active) {
+            authorization.phase = Phase::Cancelled;
+            authorization.detail = "Live stems resumed. Recovery is off.";
+        } else if (authorization.phase == Phase::Cancelled && !hold.armed && !hold.active &&
+                   authorization.detail == "Recovery off requested.") {
+            authorization.detail = "You turned recovery off.";
+        }
+        if (authorization.phase != Phase::PlayPending && authorization.phase != Phase::ArmPending) continue;
+        if (authorization.clip != clips_[deck].get() || authorization.session != session_.get() ||
+            authorization.outputSession != completedSessions_ || authorization.generation != state_.sourceGeneration[deck]) {
+            revokeResidentAuthorization(deck, "The track or audio output changed. Enable recovery again when ready."); continue;
+        }
+        if (state_.lastCommandId < authorization.commandId) continue;
+        if (state_.transportRevision[deck] != authorization.revision ||
+            (!state_.playing[deck] && !state_.cuePreview[deck])) {
+            revokeResidentAuthorization(deck, "Playback changed before recovery was enabled. Enable it again when ready."); continue;
+        }
+        if (authorization.phase == Phase::PlayPending) {
+            if (!queueResidentArm(deck)) revokeResidentAuthorization(deck, "Recovery could not be enabled. Try again from the current position.");
+        } else if (state_.residentHold[deck].armed) {
+            authorization.phase = Phase::Armed; authorization.detail = "Only your approved section will repeat if stems become unavailable.";
+        } else revokeResidentAuthorization(deck, "Recovery could not be enabled. Try again from the current position.");
+    }
 }
 
 bool DeckController::continuationEligible(std::size_t deck) const
@@ -1132,6 +1372,7 @@ void DeckController::settleContinuation(bool stopped)
     const auto deck = attempt.deck;
     auto oldClip = std::move(clips_[deck]);
     clips_[deck] = std::move(attempt.prepared->audio);
+    resetResidentAuthorization(deck);
     auto retired = std::move(attempt.retired);
     auto& episode = continuationEpisodes_[deck];
     episode.status = "Active"; episode.detail.clear();
@@ -1144,6 +1385,9 @@ void DeckController::settleContinuation(bool stopped)
 
 void DeckController::stopSession()
 {
+    if (session_)
+        for (std::size_t deck = 0; deck < clips_.size(); ++deck)
+            revokeResidentAuthorization(deck, "Audio output stopped. Enable recovery again when ready.");
     // Retirement can complete synchronously. Observers must see teardown only
     // after the stopped session's accounting and ownership are consistent.
     const QSignalBlocker notifications(this);
@@ -1161,7 +1405,7 @@ void DeckController::stopSession()
             stoppedPlaybacks_[deck] = std::move(stopped.active[deck]);
         }
         completedTiming_.push_back(session_->stoppedTimingSummary());
-        ++completedSessions_;
+        if (completedSessions_ != std::numeric_limits<std::uint64_t>::max()) ++completedSessions_;
         completedApplied_ += state_.applied;
         completedRejected_ += state_.rejected;
         completedInvalidBuffers_ += state_.invalidBuffers;
@@ -1263,6 +1507,7 @@ void DeckController::loaded()
     // No callback can refer to the old owner after stopSession returns.
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(result.prepared->audio);
+    resetResidentAuthorization(std::size_t(pendingDeck_));
     continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
     if (sourceIds_[pendingDeck_] != result.prepared->sourceId) bpmOverrides_[pendingDeck_].reset();
@@ -1426,6 +1671,7 @@ void DeckController::settleReplacement(bool stopped)
     if (!replacementAcknowledged_ || state_.sourceGeneration[pendingDeck_] != pendingGeneration_) return;
     auto oldClip = std::move(clips_[pendingDeck_]);
     clips_[pendingDeck_] = std::move(pendingLoad_->audio);
+    resetResidentAuthorization(std::size_t(pendingDeck_));
     continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
     if (sourceIds_[pendingDeck_] != pendingLoad_->sourceId) bpmOverrides_[pendingDeck_].reset();
@@ -1518,6 +1764,7 @@ void DeckController::installed()
         for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
             if (!result->lostLiveOwners[deck]) continue;
             clips_[deck].reset();
+            resetResidentAuthorization(deck);
             continuationEpisodes_[deck] = {};
             names_[deck].clear();
             sourceIds_[deck].clear();
@@ -1550,6 +1797,9 @@ void DeckController::installed()
         discovery_.reset();
         session_ = std::move(result->session);
         state_ = session_->stoppedState();
+        for (std::size_t deck = 0; deck < clips_.size(); ++deck)
+            if (residentAuthorizations_[deck].phase != ResidentAuthorization::Phase::NextPlay)
+                revokeResidentAuthorization(deck, "Audio output changed. Enable recovery again when ready.");
         std::string error;
         if (recorder_ && !recordingStopRequested_)
             session_->requestRecorder(recorder_.get());
@@ -1623,6 +1873,7 @@ void DeckController::poll()
     publishReplacement();
     routingSnapshot_ = session_->routingSnapshot();
     pollRecording();
+    pollResidentAuthorization();
     considerContinuation();
     emit stateChanged();
 }
@@ -1671,6 +1922,9 @@ bool DeckController::submit(audio::RenderCore::Command command)
         fail("Cue release is waiting for the audio control queue.");
         return false;
     }
+    // IDs are unique until saturation. Manual controls remain available after
+    // that; no new automatic acknowledgment chain may use a saturated ID.
+    command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
     if (!session_->submit(command)) {
         failedTransport();
         fail("Audio control queue is full. Try the control again.");
@@ -1681,8 +1935,11 @@ bool DeckController::submit(audio::RenderCore::Command command)
     if (transportEndsScratch) scratchGestures_[command.deck].reset();
     const bool transportIntent = transportEndsScratch || modeChange || command.type == Type::CueRelease ||
         command.type == Type::ScratchBegin || command.type == Type::ScratchMove || command.type == Type::ScratchEnd;
-    if (transportIntent) cancelContinuation(command.deck, "A newer human transport command was accepted.");
-    ++submitted_;
+    if (transportIntent) {
+        revokeResidentAuthorization(command.deck, "Playback controls turned recovery off.");
+        cancelContinuation(command.deck, "A newer human transport command was accepted.");
+    }
+    if (submitted_ != std::numeric_limits<std::uint64_t>::max()) ++submitted_;
     error_.clear();
     return true;
 }
@@ -1730,10 +1987,12 @@ bool DeckController::flushScratchEnds()
         command.deck = std::uint32_t(deck);
         command.scratchToken = identity.nativeToken;
         command.sourceGeneration = identity.sourceGeneration;
+        command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
         if (!session_->submit(command)) return false;
+        revokeResidentAuthorization(deck, "Vinyl controls turned recovery off.");
         cancelContinuation(deck, "A newer scratch release was accepted.");
         scratchEnds_[deck].reset();
-        ++submitted_;
+        if (submitted_ != std::numeric_limits<std::uint64_t>::max()) ++submitted_;
     }
     if (error_ == "Scratch release is waiting for the audio control queue.") error_.clear();
     return true;
@@ -1812,11 +2071,13 @@ bool DeckController::flushCueReleases()
         audio::RenderCore::Command command;
         command.type = audio::RenderCore::Command::Type::CueRelease;
         command.deck = std::uint32_t(deck);
-        if (!session_ || !session_->submit(command))
-            return false;
+        if (!session_) return false;
+        command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
+        if (!session_->submit(command)) return false;
+        revokeResidentAuthorization(deck, "CUE turned recovery off.");
         cancelContinuation(deck, "A newer CUE release was accepted.");
         cueReleasePending_[deck] = false;
-        ++submitted_;
+        if (submitted_ != std::numeric_limits<std::uint64_t>::max()) ++submitted_;
     }
     if (error_ == "Cue release is waiting for the audio control queue.")
         error_.clear();
@@ -1863,7 +2124,18 @@ void DeckController::setPlaying(int deck, bool playing)
     audio::RenderCore::Command command;
     command.type = playing ? audio::RenderCore::Command::Type::Play : audio::RenderCore::Command::Type::Pause;
     command.deck = std::uint32_t(deck);
-    submit(command);
+    const auto authorized = playing && residentAuthorizations_[deck].clip == clips_[deck].get() &&
+        residentAuthorizations_[deck].phase == ResidentAuthorization::Phase::NextPlay;
+    const auto generation = state_.sourceGeneration[deck], revision = state_.transportRevision[deck];
+    if (submit(command) && authorized && submitted_ < UINT32_MAX &&
+        completedSessions_ != std::numeric_limits<std::uint64_t>::max() && revision < std::numeric_limits<std::uint64_t>::max() - 1) {
+        auto& authorization = residentAuthorizations_[deck];
+        authorization.clip = clips_[deck].get(); authorization.session = session_.get();
+        authorization.outputSession = completedSessions_;
+        authorization.generation = generation; authorization.revision = revision + 1;
+        authorization.commandId = submitted_; authorization.phase = ResidentAuthorization::Phase::PlayPending;
+        authorization.detail = "Enabling recovery for this Play.";
+    }
 }
 
 void DeckController::seekSeconds(int deck, double seconds)

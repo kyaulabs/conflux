@@ -22,7 +22,7 @@ def main():
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--live-failure-only", action="store_true",
                        help="run only the preparation binary's generated live stall/exit checks")
-    modes.add_argument("--continuation-case", choices=("takeover", "miss", "cancel", "stop", "foreground"),
+    modes.add_argument("--continuation-case", choices=("takeover", "miss", "cancel", "stop", "foreground", "resident-hold"),
                        help="run one bounded generated same-deck continuation case")
     args = parser.parse_args()
     binary = args.binary.resolve(strict=True)

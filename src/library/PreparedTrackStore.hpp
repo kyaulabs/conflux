@@ -44,6 +44,13 @@ struct PreparedStemTrack {
     TrackPresentation presentation{};
 };
 
+// A caller-approved source-relative range, never inferred from a CUE marker.
+// Its source SHA is verified before constructing any live source or producer.
+struct LiveStemResidentHold {
+    QString sourceSha256;
+    audio::AudioResidentHoldRange range;
+};
+
 struct PreparedLiveStemTrack {
     std::unique_ptr<audio::PreparedPlayback> playback;
     QString sourceSha256, inputSha256, modelSha256;
@@ -55,6 +62,8 @@ struct PreparedLiveStemTrack {
     // Expected compatible prepared-bank identity from this live setup's pins;
     // a key does not mean a complete bank is present in the cache.
     QString artifactKey;
+    // Configured capture only; readiness/arming/active state belongs to audio.
+    std::optional<audio::AudioResidentHoldRange> residentHold;
 };
 
 // Worker-owned persistent PCM preparation. No method belongs on the GUI or
@@ -90,7 +99,8 @@ public:
     // Never primes here, creates a complete stem file, or borrows the caller's
     // stop token after return. A distinct nonzero token identifies this owner.
     PreparedLiveStemTrack prepareLiveStem(const QString& sourcePath, const StemEngine& engine,
-        const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop = {});
+        const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop = {},
+        std::optional<LiveStemResidentHold> residentHold = {});
 
 private:
     QString cacheRoot_;

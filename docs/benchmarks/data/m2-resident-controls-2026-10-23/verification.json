@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "status": "local_functional_checks_passed",
+  "recorded_utc": "2026-10-23T18:27:35.372694+00:00",
+  "source_pins": [
+    {
+      "path": ".github/workflows/build.yml",
+      "bytes": 6127,
+      "sha256": "9c3e2be64bd771befdf9cdd5cd6699d70cf048cf48f6511286248c0e797e4e72"
+    },
+    {
+      "path": "qml/DeckSurface.qml",
+      "bytes": 76849,
+      "sha256": "de0ef458012ed3fcab9994c5a2a336e8d54d547152aa365cec2f42b2d4a8d2bd"
+    },
+    {
+      "path": "qml/Main.qml",
+      "bytes": 68210,
+      "sha256": "eafe980744b3ac596c59639d3a7d5da04ad6e17b2da3275671ec414fd35fd8f8"
+    },
+    {
+      "path": "src/library/LiveStemBridge.cpp",
+      "bytes": 72919,
+      "sha256": "c7200f4cc2879f3f094a476a59014274f98525a8c12c2a60ea8517e0fb389e2f"
+    },
+    {
+      "path": "src/library/PreparedTrackStore.hpp",
+      "bytes": 4604,
+      "sha256": "2aab16e320106e38ebfe1c75d653d0061ec4aff93e8fd04aa2ea7fa9227b78ab"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 126737,
+      "sha256": "ee3cd92a9f995a5f729074020ac44a132d78e49e22f2f8105cde72d7c8a68a98"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 19798,
+      "sha256": "2487aa973e693601e1419afbaedf0814cc622d22dc940e6522f5efed698ea6f5"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 138155,
+      "sha256": "70cb0a26833afc3643337e41fd6599d55f1c330a392d28208c1e215e454cda56"
+    },
+    {
+      "path": "tests/live_stem_bridge_test.cpp",
+      "bytes": 111873,
+      "sha256": "fc56c65b1108f04c72ee97b8cf0293ca59481b056332ca15a19690b769e8938c"
+    },
+    {
+      "path": "tests/manual_ui_test.cpp",
+      "bytes": 303706,
+      "sha256": "8698f7dbfd4c86355c97c998c7b35713421e43916d8b41cf8716c73e2805e90d"
+    },
+    {
+      "path": "tools/coverage/run.py",
+      "bytes": 13960,
+      "sha256": "1c9c7a4602d7e6702f5451b857583ff15c102536982456eaeb347ae564dd36dc"
+    },
+    {
+      "path": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 242667,
+      "sha256": "edd69a61a7f7054017b1940b31ade0e4a96b9be2029acb92c0ce2f73699b729e"
+    },
+    {
+      "path": "tools/experiments/private_routing_check.py",
+      "bytes": 10609,
+      "sha256": "154e99e7804d5ec8622fbd9648b1720b2cc7c58163086cf9df12a3e3f839dc8f"
+    }
+  ],
+  "checks": {
+    "bridge_suite": {
+      "passed": true,
+      "seconds": 98.81
+    },
+    "controller_suite": {
+      "passed": true,
+      "seconds": 13.94,
+      "initial_failure_and_fix": "Unconfigured deck ticket fields changed on unrelated output reconstruction; now no recovery ticket is exposed for unconfigured decks. Original preservation tests unchanged."
+    },
+    "ui_suite": {
+      "passed": true,
+      "seconds": 136.85,
+      "initial_failure_and_fix": "Recovery button enabled bindings could return undefined for absent optional map; Boolean bindings now preserve disabled state without warnings. Assertions unchanged."
+    },
+    "private_callback_recovery": {
+      "passed": true,
+      "seconds": 19.086200421,
+      "pcm": {
+        "checked_prefix_or_tail_frames": 388608,
+        "expected_left": 0.1875,
+        "expected_master_multiplier": 1,
+        "expected_right": -0.09375,
+        "frames": 388608,
+        "maximum_prefix_or_tail_error": 0,
+        "prefix_frames": 388608,
+        "scope": "Every recorded stereo frame checked against constant selected-bass A plus finite B at the existing1e-6 tolerance; no omitted frames.",
+        "transient_middle_frames_excluded": 0,
+        "unclassified_or_omitted_frames": 0
+      },
+      "daemon_reaped": true,
+      "graph_cleanup": {
+        "remaining_nodes_or_links": [],
+        "only_dummy_driver_remains": true
+      }
+    },
+    "actionlint": {
+      "passed": true,
+      "shellcheck": "/usr/bin/shellcheck"
+    },
+    "python_runner_ast": {
+      "passed": true
+    },
+    "offscreen_smoke": {
+      "passed": true,
+      "frames_swapped": 127,
+      "capture_ok": true,
+      "scope": "Software offscreen GUI notifications; no physical presentation measurement"
+    }
+  },
+  "qualified": false,
+  "strict_target_ms": 4095,
+  "quality": "Best",
+  "limits": [
+    "No real-model/laptop/audio/hardware/latency or sustained qualification",
+    "Queue-full paths source-reviewed; no deterministic controller overflow injection",
+    "Physical touch unavailable and unverified",
+    "Active-hold prepared-bank takeover remains outside this slice",
+    "Remote CI for this controls change and real-model qualification remain pending at this local verification record"
+  ],
+  "base_commit": "6f389ec0dd0962e0e981a2239f5d7e05ce3ddd97"
+}
