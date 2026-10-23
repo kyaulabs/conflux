@@ -44,6 +44,7 @@ class UiEndpoint final : public QObject {
     Q_PROPERTY(bool busy READ busy NOTIFY stateChanged)
     Q_PROPERTY(bool outputReady READ outputReady NOTIFY stateChanged)
     Q_PROPERTY(bool stemsAvailable READ stemsAvailable NOTIFY stateChanged)
+    Q_PROPERTY(bool residentHoldAvailable READ residentHoldAvailable NOTIFY stateChanged)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
     Q_PROPERTY(double cueGain READ cueGain NOTIFY stateChanged)
@@ -114,6 +115,8 @@ public:
     bool outputReady() const { return ready_; }
     bool stemsAvailable() const { return stemsAvailable_; }
     void setStemsAvailable(bool value) { stemsAvailable_ = value; emit stateChanged(); }
+    bool residentHoldAvailable() const { return residentHoldAvailable_; }
+    void setResidentHoldAvailable(bool value) { residentHoldAvailable_ = value; emit stateChanged(); }
     void setOverviewStem(int deck, const QString& stem) {
         auto state = decks_[deck].toMap();
         state["overviewStem"] = stem;
@@ -253,6 +256,22 @@ public:
     { calls.append(QVariantMap{{"action", "stemLoad"}, {"deck", deck}, {"url", url}}); }
     Q_INVOKABLE void loadLibraryStemTrack(int deck, const QString& id)
     { calls.append(QVariantMap{{"action", "libraryStemLoad"}, {"deck", deck}, {"id", id}}); }
+    Q_INVOKABLE void loadLibraryStemTrackWithRecoveryRange(int deck, const QString& id,
+                                                         double inSeconds, double outSeconds)
+    { calls.append(QVariantMap{{"action", "libraryStemRangeLoad"}, {"deck", deck}, {"id", id},
+                               {"inSeconds", inSeconds}, {"outSeconds", outSeconds}}); }
+    Q_INVOKABLE bool authorizeResidentHold(int deck, const QString& id,
+                                          const QString& outputSession, const QString& rangeId,
+                                          const QString& generation, const QString& revision)
+    { return residentCall("residentArm", deck, id, outputSession, rangeId, generation, revision); }
+    Q_INVOKABLE bool cancelResidentHold(int deck, const QString& id,
+                                       const QString& outputSession, const QString& rangeId,
+                                       const QString& generation, const QString& revision)
+    { return residentCall("residentCancel", deck, id, outputSession, rangeId, generation, revision); }
+    Q_INVOKABLE bool exitResidentHold(int deck, const QString& id,
+                                     const QString& outputSession, const QString& rangeId,
+                                     const QString& generation, const QString& revision)
+    { return residentCall("residentExit", deck, id, outputSession, rangeId, generation, revision); }
     Q_INVOKABLE void importTrack(const QUrl& url)
     { calls.append(QVariantMap{{"action", "import"}, {"url", url}}); }
     Q_INVOKABLE void importCueSheet(const QString& sourceId, const QUrl& url)
@@ -463,10 +482,20 @@ signals:
     void stateChanged();
     void libraryChanged();
 private:
+    bool residentCall(const QString& action, int deck, const QString& id,
+                      const QString& outputSession, const QString& rangeId,
+                      const QString& generation, const QString& revision)
+    {
+        calls.append(QVariantMap{{"action", action}, {"deck", deck}, {"id", id},
+                                 {"outputSession", outputSession}, {"rangeId", rangeId},
+                                 {"generation", generation}, {"revision", revision}});
+        return true;
+    }
     QVariantList decks_;
     QVariantList library_;
     QVariantMap meters_, routing_, recording_, preparation_;
     bool busy_ = false, ready_ = false, stemsAvailable_ = false;
+    bool residentHoldAvailable_ = false;
     bool libraryReady_ = true;
     bool acceptCue_ = true, acceptJog_ = true;
     bool acknowledgeNumeric_ = true;
@@ -4515,6 +4544,157 @@ private slots:
         QCOMPARE(savedCall["deck"].toInt(), 1);
         QCOMPARE(savedCall["id"].toString(), id);
         QVERIFY(ui_->closeLibrary());
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
+    void recoveryRangeRequiresFreshConsentAndStaysBoundToSelectedSource()
+    {
+        QVERIFY(ui_->openLibrary(0));
+        auto* range = ui_->item("libraryRecoveryRange");
+        QVERIFY(range && !range->isVisible());
+        ui_->endpoint.setStemsAvailable(true);
+        ui_->endpoint.setResidentHoldAvailable(true);
+        const QString id(64, QLatin1Char('b')), other(64, QLatin1Char('c'));
+        ui_->endpoint.setLibrary({
+            QVariantMap{{"id", id}, {"name", "Approved source"}, {"path", "/tmp/one.wav"},
+                        {"frames", 48000 * 60}, {"durationSeconds", 60.0}, {"available", true}},
+            QVariantMap{{"id", other}, {"name", "Different source"}, {"path", "/tmp/two.wav"},
+                        {"frames", 48000 * 60}, {"durationSeconds", 60.0}, {"available", true}}});
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* stems = ui_->item("libraryPreparedStems");
+        QVERIFY(stems); QTRY_VERIFY(stems->isVisible() && stems->isEnabled());
+        stems->forceActiveFocus();
+        QTRY_VERIFY(stems->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(stems->property("checked").toBool());
+        QTRY_VERIFY(range->isVisible() && range->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(range));
+        auto* dialog = ui_->object("libraryRecoveryRangeDialog");
+        auto* start = ui_->item("libraryRecoveryStart");
+        auto* end = ui_->item("libraryRecoveryEnd");
+        auto* consent = ui_->item("libraryRecoveryConsent");
+        auto* approve = ui_->item("libraryRecoveryApprove");
+        QVERIFY(dialog && start && end && consent && approve);
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QVERIFY(start->property("text").toString().isEmpty() && end->property("text").toString().isEmpty());
+        QVERIFY(!consent->property("checked").toBool() && !approve->isEnabled());
+        start->setProperty("text", "1.25"); end->setProperty("text", "2.75");
+        QTRY_VERIFY(consent->isEnabled());
+        QVERIFY(!approve->isEnabled());
+        auto* accessible = QAccessible::queryAccessibleInterface(consent);
+        QVERIFY(accessible && !accessible->text(QAccessible::Name).isEmpty());
+        consent->forceActiveFocus(); QTRY_VERIFY(consent->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(approve->isEnabled());
+        approve->forceActiveFocus(); QTRY_VERIFY(approve->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Load")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto approved = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(approved["action"].toString(), QString("libraryStemRangeLoad"));
+        QCOMPARE(approved["id"].toString(), id); QCOMPARE(approved["deck"].toInt(), 0);
+        QCOMPARE(approved["inSeconds"].toDouble(), 1.25); QCOMPARE(approved["outSeconds"].toDouble(), 2.75);
+
+        // Opening the editor cannot reuse the checkbox. An actual text edit
+        // also revokes the previously approved load intent immediately.
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(range));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QVERIFY(!consent->property("checked").toBool());
+        end->forceActiveFocus(); QTRY_VERIFY(end->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_A, Qt::ControlModifier);
+        QTest::keyClick(ui_->window, Qt::Key_Backspace); end->setProperty("text", "2.8");
+        QTRY_VERIFY(!consent->property("checked").toBool() && !approve->isEnabled());
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0Load")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("libraryStemLoad"));
+
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(range));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        QVERIFY(start->property("text").toString().isEmpty() && end->property("text").toString().isEmpty());
+        start->setProperty("text", "1.25"); end->setProperty("text", "2.75");
+        QTRY_VERIFY(consent->isEnabled());
+        consent->forceActiveFocus(); QTRY_VERIFY(consent->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(approve->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(approve));
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck1Load")));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        const auto changed = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(changed["action"].toString(), QString("libraryStemLoad"));
+        QCOMPARE(changed["id"].toString(), other); QCOMPARE(changed["deck"].toInt(), 1);
+        QVERIFY(ui_->closeLibrary());
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
+    void recoveryControlsRouteExactTicketsAndCloseOnSourceChange()
+    {
+        const QString id(64, QLatin1Char('b'));
+        const QString outputSession("9007199254740997"), rangeId("18446744073709551613");
+        const QString generation("9007199254740993"), revision("18446744073709551614");
+        ui_->endpoint.loadState(0); ui_->endpoint.setReady(true);
+        QVariantMap hold{{"configured", true}, {"ready", true}, {"armed", false}, {"active", false},
+                         {"exitPending", false}, {"status", "Cancelled"}, {"text", "Recovery off"},
+                         {"detail", "Only the approved section may repeat."}, {"inSeconds", 1.25},
+                         {"outSeconds", 2.75}, {"outputSession", outputSession}, {"rangeId", rangeId},
+                         {"sourceGeneration", generation},
+                         {"transportRevision", revision}, {"errorCode", 0}};
+        ui_->endpoint.snapshotDeck(0, {{"sourceId", id}, {"liveStems", true}, {"residentHold", hold}});
+        auto* open = ui_->item("deck0Recovery");
+        QVERIFY(open); QTRY_VERIFY(open->isEnabled());
+        open->forceActiveFocus(); QTRY_VERIFY(open->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        auto* dialog = ui_->object("deck0RecoveryDialog");
+        QVERIFY(dialog); QTRY_VERIFY(dialog->property("visible").toBool());
+        auto* arm = ui_->item("deck0RecoveryArm");
+        auto* cancel = ui_->item("deck0RecoveryCancel");
+        auto* exit = ui_->item("deck0RecoveryExit");
+        QVERIFY(arm && cancel && exit); QVERIFY(arm->isEnabled() && cancel->isEnabled() && !exit->isEnabled());
+        arm->forceActiveFocus(); QTRY_VERIFY(arm->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        hold["active"] = true; hold["armed"] = true; hold["status"] = "Active";
+        ui_->endpoint.snapshotDeck(0, {{"residentHold", hold}});
+        QTRY_VERIFY(!arm->isEnabled() && exit->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(exit));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cancel));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        const QStringList actions{"residentArm", "residentExit", "residentCancel"};
+        for (qsizetype index = 0; index < ui_->endpoint.calls.size(); ++index) {
+            const auto call = ui_->endpoint.calls[index].toMap();
+            QCOMPARE(call["action"].toString(), actions[index]);
+            QCOMPARE(call["deck"].toInt(), 0); QCOMPARE(call["id"].toString(), id);
+            QCOMPARE(call["outputSession"].toString(), outputSession); QCOMPARE(call["rangeId"].toString(), rangeId);
+            QCOMPARE(call["generation"].toString(), generation); QCOMPARE(call["revision"].toString(), revision);
+        }
+        // Values outside JavaScript's exact integer range must remain strings;
+        // output restart or a new range on the same SHA also invalidates an
+        // already open action panel, even when generation/revision are reused.
+        hold["outputSession"] = "9007199254740998";
+        ui_->endpoint.snapshotDeck(0, {{"residentHold", hold}});
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(open));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        hold["rangeId"] = "18446744073709551614";
+        ui_->endpoint.snapshotDeck(0, {{"residentHold", hold}});
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(open));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        hold["sourceGeneration"] = "9007199254740994";
+        ui_->endpoint.snapshotDeck(0, {{"residentHold", hold}});
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(open));
+        QTRY_VERIFY(dialog->property("visible").toBool());
+        ui_->endpoint.setSourceId(0, QString(64, QLatin1Char('c')));
+        QTRY_VERIFY(!dialog->property("visible").toBool());
+        QCOMPARE(ui_->endpoint.calls.size(), 3);
         QVERIFY(ui_->warnings.isEmpty());
     }
 

@@ -374,6 +374,69 @@ struct FixtureSubreaper {
 class LiveStemBridgeTest : public QObject {
     Q_OBJECT
 private slots:
+    void residentRangeBindsSourceAndExactCountBeforeLaunchingAndRetainsPayload()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            const auto source = directory.filePath("resident-source.wav"), root = directory.filePath("cache");
+            constexpr std::uint64_t inputFrames = 8192, bytes = 2048 * 32;
+            writeSource(source, inputFrames);
+            const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            const auto bounded = limits(true);
+            const auto exactFrames = conflux::audio::StemRateConverter::countFrames(inputFrames,
+                bounded.maxPreparedBytes / 8).outputFrames();
+            conflux::library::LiveStemResidentHold request;
+            request.sourceSha256 = QString::fromLatin1(digestFile(source));
+            request.range.id = nextToken(); request.range.inFrame = exactFrames - 2048;
+            request.range.outFrame = exactFrames; request.range.admittedBytes = bytes;
+            request.range.provenance = conflux::audio::AudioResidentHoldRange::Provenance::DjRange;
+            auto foreign = request;
+            foreign.sourceSha256[0] = foreign.sourceSha256[0] == QLatin1Char('0') ? QLatin1Char('1') : QLatin1Char('0');
+            require(rejects<std::runtime_error>([&] {
+                (void)PreparedTrackStore(root, bounded).prepareLiveStem(source, fixture.engine,
+                    fixture.service, nextToken(), {}, foreign);
+            }, "source changed"), "Foreign source SHA admitted a recovery range");
+            auto outside = request; ++outside.range.inFrame; ++outside.range.outFrame;
+            require(rejects<std::invalid_argument>([&] {
+                (void)PreparedTrackStore(root, bounded).prepareLiveStem(source, fixture.engine,
+                    fixture.service, nextToken(), {}, outside);
+            }, "exact live output"), "Range used approximate/original EOF instead of counted live output");
+            auto shortBudget = request; --shortBudget.range.admittedBytes;
+            require(rejects<std::length_error>([&] {
+                (void)PreparedTrackStore(root, bounded).prepareLiveStem(source, fixture.engine,
+                    fixture.service, nextToken(), {}, shortBudget);
+            }, "PCM bytes"), "One-byte-short recovery admission still allocated an owner");
+            require(trace(fixture).empty() && rootNames(root).isEmpty(),
+                    "Rejected recovery intent started a service or retained a live job");
+            auto normal = PreparedTrackStore(root, bounded).prepareLiveStem(source, fixture.engine,
+                fixture.service, nextToken());
+            const auto ordinaryCharge = normal.reservedDiskBytes;
+            require(!normal.residentHold && normal.playback->residentHoldBytes() == 0,
+                    "Ordinary live load silently enabled resident payload");
+            stop(normal); assertGone(fixture.marker(".started"));
+            const auto loadsBefore = count(fixture, "command", "load");
+            auto opted = PreparedTrackStore(root, bounded).prepareLiveStem(source, fixture.engine,
+                fixture.service, nextToken(), {}, request);
+            require(opted.sourceSha256 == request.sourceSha256 && opted.outputFrames == exactFrames &&
+                opted.residentHold && opted.residentHold->id == request.range.id &&
+                opted.residentHold->outFrame == exactFrames && opted.playback->residentHoldBytes() == bytes &&
+                opted.reservedDiskBytes == ordinaryCharge + bytes && count(fixture, "command", "load") == loadsBefore,
+                "Approved source/range/extra reservation differs or factory inferred early");
+            require(opted.playback->prime(0, std::chrono::seconds(10)), "Approved live range did not prime");
+            auto sourceRef = opted.playback->sourceRef();
+            const auto state = sourceRef.residentHoldState(sourceRef.context);
+            require(state.ready && !state.armed && state.residentBytes == bytes &&
+                state.inFrame == request.range.inFrame && state.outFrame == exactFrames,
+                "Accepted raw packets did not capture the exact unarmed tail range");
+            opted.playback->stop();
+            require(opted.playback->residentHoldBytes() == bytes,
+                    "Stopped but retained owner dropped its real resident payload charge");
+            opted.playback.reset(); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty() && count(fixture, "command", "load") == loadsBefore + 1,
+                    "Resident owner cleanup leaked a job or started an extra live load");
+        });
+    }
+
     void diagnosticDrainRetainsDelayedTailAndSettlesAckBeforeClose_data()
     {
         QTest::addColumn<unsigned>("beforeDrainDelayMs");

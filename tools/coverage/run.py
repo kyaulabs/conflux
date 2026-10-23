@@ -165,6 +165,7 @@ def main():
                     ("private-continuation-cancel", "conflux-preparation-controller-check", ["--continuation-case", "cancel"]),
                     ("private-continuation-stop", "conflux-preparation-controller-check", ["--continuation-case", "stop"]),
                     ("private-continuation-foreground", "conflux-preparation-controller-check", ["--continuation-case", "foreground"]),
+                    ("private-resident-hold", "conflux-preparation-controller-check", ["--continuation-case", "resident-hold"]),
                 ]:
                     with tempfile.TemporaryDirectory(prefix=f"conflux-coverage-{stage}-") as temporary:
                         evidence = Path(temporary) / "evidence"

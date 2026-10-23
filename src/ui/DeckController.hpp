@@ -34,6 +34,7 @@ class DeckController final : public QObject {
     Q_PROPERTY(bool busy READ busy NOTIFY stateChanged)
     Q_PROPERTY(bool outputReady READ outputReady NOTIFY stateChanged)
     Q_PROPERTY(bool stemsAvailable READ stemsAvailable CONSTANT)
+    Q_PROPERTY(bool residentHoldAvailable READ residentHoldAvailable CONSTANT)
     Q_PROPERTY(QString error READ error NOTIFY stateChanged)
     Q_PROPERTY(double masterGain READ masterGain NOTIFY stateChanged)
     Q_PROPERTY(double crossfader READ crossfader NOTIFY stateChanged)
@@ -62,6 +63,7 @@ public:
     bool outputReady() const { return ready_; }
     // Configuration presence only; dependency/identity checks run on preparation.
     bool stemsAvailable() const { return preparationOptions_.stemEngine.has_value(); }
+    bool residentHoldAvailable() const { return stemsAvailable() && !preparationOptions_.stemServicePath.isEmpty(); }
     // Distinct PCM owners, including a worker retirement not yet completed.
     std::uint64_t retainedPcmBytes() const;
     // GUI/control owner only; the harness is the sole observation consumer.
@@ -84,6 +86,18 @@ public:
     Q_INVOKABLE bool jumpToImportedCue(int deck, const QString& sourceId, int cueIndex);
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& sourceId);
     Q_INVOKABLE void loadLibraryStemTrack(int deck, const QString& sourceId);
+    Q_INVOKABLE void loadLibraryStemTrackWithRecoveryRange(int deck, const QString& sourceId,
+                                                          double inSeconds, double outSeconds);
+    // Tickets are decimal strings so QML never rounds uint64 identities.
+    Q_INVOKABLE bool authorizeResidentHold(int deck, const QString& sourceId,
+                                          const QString& outputSession, const QString& rangeId,
+                                          const QString& generation, const QString& revision);
+    Q_INVOKABLE bool cancelResidentHold(int deck, const QString& sourceId,
+                                       const QString& outputSession, const QString& rangeId,
+                                       const QString& generation, const QString& revision);
+    Q_INVOKABLE bool exitResidentHold(int deck, const QString& sourceId,
+                                     const QString& outputSession, const QString& rangeId,
+                                     const QString& generation, const QString& revision);
     Q_INVOKABLE bool cancelPreparation();
     Q_INVOKABLE void setPlaying(int deck, bool playing);
     Q_INVOKABLE void seekSeconds(int deck, double seconds);
@@ -142,7 +156,8 @@ private:
         explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
         PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
                     std::shared_ptr<library::LiveStemObservations> observations,
-                    QString sourcePath, QString artifactKey);
+                    QString sourcePath, QString artifactKey,
+                    std::optional<audio::AudioResidentHoldRange> residentHold = {});
         bool live() const noexcept { return liveFrames != 0; }
         std::uint64_t frames() const noexcept { return live() ? liveFrames : audioLeaves.front().frames(); }
         std::uint64_t bytes() const noexcept;
@@ -156,6 +171,7 @@ private:
         QString liveSourceSha256;
         std::shared_ptr<library::LiveStemObservations> observations;
         QString sourcePath, artifactKey;
+        std::optional<audio::AudioResidentHoldRange> residentHold;
     };
     struct PreparedLoad {
         std::shared_ptr<const PreparedPcm> audio;
@@ -182,6 +198,15 @@ private:
         bool importOnly = false, stems = false;
         QString expectedSource;
         std::optional<library::LibraryTrack> cueTrack;
+        std::optional<library::LiveStemResidentHold> residentHold;
+    };
+    struct ResidentAuthorization {
+        enum class Phase { None, NextPlay, PlayPending, ArmPending, Armed, Cancelled };
+        const PreparedPcm* clip = nullptr;
+        const audio::LiveSession* session = nullptr;
+        std::uint64_t outputSession = 0, generation = 0, revision = 0, commandId = 0;
+        Phase phase = Phase::None;
+        QString detail;
     };
     struct ContinuationEpisode {
         const PreparedPcm* clip = nullptr;
@@ -222,7 +247,8 @@ private:
     void loaded();
     void catalogFinished();
     void beginPreparation(int deck, const QUrl& url, bool importOnly,
-                          const QString& expectedSource = {}, bool stems = false);
+                          const QString& expectedSource = {}, bool stems = false,
+                          std::optional<library::LiveStemResidentHold> residentHold = {});
     bool preparationActive() const;
     void updatePreparation(std::uint64_t serial, QString phase, int completedStages,
                            std::optional<library::TrackPresentation> presentation = {},
@@ -238,6 +264,12 @@ private:
     bool deferForegroundPreparation(ForegroundPreparation request);
     void drainForegroundPreparation();
     void startCueImport(library::LibraryTrack selected, const QUrl& url);
+    void resetResidentAuthorization(std::size_t deck);
+    void revokeResidentAuthorization(std::size_t deck, const QString& reason);
+    void pollResidentAuthorization();
+    bool residentTicket(int deck, const QString& sourceId, const QString& outputSession,
+                        const QString& rangeId, const QString& generation, const QString& revision) const;
+    bool queueResidentArm(std::size_t deck);
     bool continuationEligible(std::size_t deck) const;
     bool continuationCurrent() const;
     void considerContinuation();
@@ -290,6 +322,7 @@ private:
     LoaderPurpose loaderPurpose_ = LoaderPurpose::None;
     std::optional<ForegroundPreparation> foregroundPreparation_;
     bool foregroundWaiting_ = false;
+    std::array<ResidentAuthorization, 2> residentAuthorizations_{};
     std::array<ContinuationEpisode, 2> continuationEpisodes_{};
     std::optional<ContinuationAttempt> continuation_;
     // Exact quiesced owners, empty while the session/installer owns them.

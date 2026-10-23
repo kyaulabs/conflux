@@ -351,7 +351,17 @@ ApplicationWindow {
         property int selectedDeck: 0
         property string selectedId: ""
         property string cuePathSourceId: ""
+        property string recoverySourceId: ""
+        property bool recoveryApproved: false
+        property real recoveryInSeconds: 0
+        property real recoveryOutSeconds: 0
+        function clearRecoveryApproval() {
+            recoveryApproved = false
+            recoverySourceId = ""
+        }
         onSelectedIdChanged: {
+            clearRecoveryApproval()
+            recoveryRangeDialog.close()
             cancelFileBrowse()
             cancelCueBrowse()
             if (cuePathSourceId.length > 0 && cuePathSourceId !== selectedId) {
@@ -442,12 +452,129 @@ ApplicationWindow {
         function load(deck) {
             const stems = deckController.stemsAvailable && stemPreparation.checked
             if (selectedId.length > 0) {
-                if (stems) deckController.loadLibraryStemTrack(deck, selectedId)
+                if (stems && recoveryApproved && recoverySourceId === selectedId)
+                    deckController.loadLibraryStemTrackWithRecoveryRange(deck, selectedId, recoveryInSeconds, recoveryOutSeconds)
+                else if (stems) deckController.loadLibraryStemTrack(deck, selectedId)
                 else deckController.loadLibraryTrack(deck, selectedId)
             } else {
                 const url = window.localUrl(deck === 0 ? sourceA.text : sourceB.text)
                 if (stems) deckController.loadStemDeck(deck, url)
                 else deckController.loadDeck(deck, url)
+            }
+        }
+        Dialog {
+            id: recoveryRangeDialog
+            objectName: "libraryRecoveryRangeDialog"
+            parent: Overlay.overlay
+            anchors.centerIn: parent
+            modal: true
+            width: Math.min(580, parent.width - 48)
+            title: "Approve stem recovery range"
+            property string editingSourceId: ""
+            readonly property real startSeconds: recoveryStart.text.trim().length ? Number(recoveryStart.text) : NaN
+            readonly property real endSeconds: recoveryEnd.text.trim().length ? Number(recoveryEnd.text) : NaN
+            readonly property real firstFrame: Math.round(startSeconds * 48000)
+            readonly property real endFrame: Math.round(endSeconds * 48000)
+            readonly property bool validRange: editingSourceId === library.selectedId && library.selectedTrack !== null
+                && Number.isFinite(startSeconds) && Number.isFinite(endSeconds) && startSeconds >= 0
+                && endSeconds > startSeconds && endSeconds <= Number(library.selectedTrack.frames) / 48000
+                && firstFrame < endFrame && endFrame <= Number(library.selectedTrack.frames)
+                && endFrame - firstFrame >= 2048 && endFrame - firstFrame <= 384000
+            onAboutToShow: {
+                editingSourceId = library.selectedId
+                recoveryStart.text = library.recoveryApproved ? String(library.recoveryInSeconds) : ""
+                recoveryEnd.text = library.recoveryApproved ? String(library.recoveryOutSeconds) : ""
+                recoveryConsent.checked = false
+            }
+            function edited() { recoveryConsent.checked = false; library.clearRecoveryApproval() }
+            contentItem: ColumnLayout {
+                spacing: 12
+                Label {
+                    text: library.selectedTrack === null ? "No source selected" : library.selectedTrack.name
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: "Choose a section you approve for repetition if live stems become unavailable."
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+                RowLayout {
+                    Layout.fillWidth: true
+                    TextField {
+                        id: recoveryStart
+                        objectName: "libraryRecoveryStart"
+                        placeholderText: "Start seconds"
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: 0; decimals: 6; locale: "C" }
+                        Layout.fillWidth: true
+                        Layout.minimumHeight: 44
+                        onTextEdited: recoveryRangeDialog.edited()
+                        Accessible.name: "Recovery section start in track seconds"
+                    }
+                    TextField {
+                        id: recoveryEnd
+                        objectName: "libraryRecoveryEnd"
+                        placeholderText: "End seconds"
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        validator: DoubleValidator { bottom: 0; decimals: 6; locale: "C" }
+                        Layout.fillWidth: true
+                        Layout.minimumHeight: 44
+                        onTextEdited: recoveryRangeDialog.edited()
+                        Accessible.name: "Recovery section end in track seconds"
+                    }
+                }
+                Label {
+                    objectName: "libraryRecoveryResolvedRange"
+                    text: recoveryRangeDialog.validRange
+                        ? "Start " + (recoveryRangeDialog.firstFrame / 48000).toFixed(6) + " s · End "
+                          + (recoveryRangeDialog.endFrame / 48000).toFixed(6) + " s · Duration "
+                          + ((recoveryRangeDialog.endFrame - recoveryRangeDialog.firstFrame) / 48000).toFixed(6) + " s"
+                        : "Enter start and end times within this track, up to 8 seconds apart."
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Accessible.name: text
+                }
+                CheckBox {
+                    id: recoveryConsent
+                    objectName: "libraryRecoveryConsent"
+                    text: "Approve this source range for repetition"
+                    checked: false
+                    enabled: recoveryRangeDialog.validRange
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: 44
+                    Accessible.name: "Approve this exact track section for recovery repetition"
+                }
+            }
+            footer: DialogButtonBox {
+                Button {
+                    objectName: "libraryRecoveryApprove"
+                    text: "USE RANGE"
+                    enabled: recoveryRangeDialog.validRange && recoveryConsent.checked
+                    DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+                    Accessible.name: "Use the approved recovery range on the next stem load"
+                }
+                Button {
+                    objectName: "libraryRecoveryRemove"
+                    text: "REMOVE RANGE"
+                    DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
+                    onClicked: { library.clearRecoveryApproval(); recoveryRangeDialog.close() }
+                    Accessible.name: "Remove recovery range approval"
+                }
+                Button {
+                    text: "CANCEL"
+                    DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+                }
+            }
+            onAccepted: {
+                if (!validRange || !recoveryConsent.checked) return
+                library.recoverySourceId = editingSourceId
+                library.recoveryInSeconds = startSeconds
+                library.recoveryOutSeconds = endSeconds
+                library.recoveryApproved = true
             }
         }
         edge: Qt.BottomEdge
@@ -485,9 +612,24 @@ ApplicationWindow {
                     visible: deckController.stemsAvailable
                     enabled: deckController.stemsAvailable && !deckController.busy
                     checked: false
+                    onCheckedChanged: if (!checked) library.clearRecoveryApproval()
                     Layout.minimumHeight: 44
                     Accessible.name: "Load prepared stems"
                     Accessible.description: "Prepare four local stems when loading a deck. Add to Library still saves the original track."
+                }
+                Button {
+                    objectName: "libraryRecoveryRange"
+                    text: library.recoveryApproved ? "RECOVERY RANGE SET" : "RECOVERY RANGE…"
+                    visible: deckController.residentHoldAvailable
+                    enabled: stemPreparation.checked && !deckController.busy
+                             && library.selectedTrack !== null && library.selectedTrack.available
+                    Layout.minimumHeight: 44
+                    onClicked: recoveryRangeDialog.open()
+                    Accessible.name: "Choose and approve a stem recovery range"
+                    Accessible.description: library.recoveryApproved
+                        ? "Approved track section " + library.recoveryInSeconds + " to " + library.recoveryOutSeconds
+                          + " seconds. Used only when loading this selected library source as live stems."
+                        : "Choose start and end times, then approve repetition. No section is selected by default."
                 }
                 Button {
                     objectName: "libraryClose"

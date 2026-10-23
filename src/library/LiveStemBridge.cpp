@@ -1012,7 +1012,8 @@ std::uint64_t liveReservationBytes(int directory, const PreparedTrackStore::Limi
 
 namespace conflux::library {
 PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourcePath,
-    const StemEngine& engine, const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop)
+    const StemEngine& engine, const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop,
+    std::optional<LiveStemResidentHold> residentHold)
 {
     using namespace detail;
     auto observations = std::shared_ptr<LiveStemObservations>(new LiveStemObservations);
@@ -1020,6 +1021,20 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     setup.factoryEntryNs = LiveStemObservationWriter::stamp(*observations);
     checkStop(stop);
     if (!sourceToken) throw std::invalid_argument("Live stem source token must be nonzero");
+    const auto residentBytes = [&]() -> std::uint64_t {
+        if (!residentHold) return 0;
+        const auto& range = residentHold->range;
+        if (!hexDigest(residentHold->sourceSha256.toLatin1()) || !range.id ||
+            range.provenance != audio::AudioResidentHoldRange::Provenance::DjRange ||
+            range.inFrame >= range.outFrame ||
+            range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
+            range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames)
+            throw std::invalid_argument("Invalid explicitly selected live stem recovery range");
+        const auto bytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+        if (bytes > limits_.maxPreparedBytes || range.admittedBytes < bytes)
+            throw std::length_error("Live stem recovery range exceeds admitted PCM bytes");
+        return bytes;
+    }();
     Descriptor original(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
     if (original.get() < 0) ioError("Cannot open audio source");
     const auto originalBefore = statusOf(original.get());
@@ -1028,6 +1043,8 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         throw std::length_error("Audio source byte budget exceeded");
     const auto originalDigest = scan(original.get(), std::uint64_t(originalBefore.st_size), stop).sha256;
     if (!unchanged(originalBefore, statusOf(original.get()))) throw std::runtime_error("Audio source changed during hashing");
+    if (residentHold && residentHold->sourceSha256 != QString::fromLatin1(originalDigest))
+        throw std::runtime_error("Recovery range source changed before live preparation");
     auto presentation = readTrackPresentation(original.get(), sourcePath, stop);
     auto files = pinEngine(engine, stop);
     auto service = pinStemFile(servicePath, true, stop);
@@ -1042,7 +1059,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     // copies during capture and the larger possible future fixed service job.
     const auto serviceOverhead = slotBytes * 2 + spoolBytes + engine.maxDiagnosticBytes;
     const auto initialCharge = std::max(std::uint64_t(limits_.maxPreparedBytes) * 2,
-        std::uint64_t(limits_.maxPreparedBytes) + serviceOverhead) + metadataBytes;
+        std::uint64_t(limits_.maxPreparedBytes) + serviceOverhead) + metadataBytes + residentBytes;
     {
         QLockFile lock(QDir(rootPath).filePath(".lock")); lockRoot(lock, stop);
         const auto usage = cacheUsage(job->root->get(), limits_, stop);
@@ -1097,12 +1114,15 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         catch (const std::length_error&) { throw std::length_error("Live stem output byte budget exceeded"); }
     }();
     setup.countCompleteNs = LiveStemObservationWriter::stamp(*observations);
+    if (residentHold && residentHold->range.outFrame > plan.outputFrames())
+        throw std::invalid_argument("Recovery range is outside exact live output geometry");
     job->serviceBytes = job->inputFrames * 8 + serviceOverhead;
     {
         QLockFile lock(QDir(rootPath).filePath(".lock")); lockRoot(lock, stop);
         // Same record atomically shrinks; no uncharged interval or second
         // admission can spend this operation's decoder headroom prematurely.
-        job->publishRecord(job->serviceBytes + metadataBytes, stop);
+        // Resident raw PCM is C++ owned; do not change Python service geometry.
+        job->publishRecord(job->serviceBytes + metadataBytes + residentBytes, stop);
     }
     verifySource(original.get(), originalBefore, originalDigest, stop);
     verifySource(job->input->get(), inputBefore, job->inputDigest, stop);
@@ -1122,7 +1142,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
                 job->notifySetup(QStringLiteral("Cannot construct the live stem producer")); port.fail(EIO); (void)job->cleanup();
             }
             LiveStemObservationWriter::finish(*job->observations);
-        });
+        }, residentHold ? std::optional<audio::AudioResidentHoldRange>(residentHold->range) : std::nullopt);
     QString artifactKey;
     try {
         {
@@ -1147,6 +1167,8 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         verifySource(job->input->get(), inputBefore, job->inputDigest, stop);
         verifyEngine(job->files, stop); verifyStemFile(job->service, stop);
         checkStop(stop);
+        if (playback->residentHoldBytes() != residentBytes)
+            throw std::runtime_error("Live resident PCM charge differs from its whole owner");
         if (playback->errorCode()) {
             const auto detail = observations->failureDetail();
             throw std::runtime_error(detail.empty() ? playback->error() : detail);
@@ -1164,6 +1186,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     observations->setup_ = setup; // Factory publication only; producer never reads this storage.
     return {std::move(playback), QString::fromLatin1(originalDigest), QString::fromLatin1(job->inputDigest),
         job->files[4].identity.value("sha256").toString(), job->inputFrames, plan.outputFrames(), job->charge,
-        std::move(overview), std::move(observations), std::move(presentation), std::move(artifactKey)};
+        std::move(overview), std::move(observations), std::move(presentation), std::move(artifactKey),
+        residentHold ? std::optional<audio::AudioResidentHoldRange>(residentHold->range) : std::nullopt};
 }
 } // namespace conflux::library

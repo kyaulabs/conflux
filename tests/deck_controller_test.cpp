@@ -286,6 +286,134 @@ void verifyNoPlayback(const conflux::DeckController& controller)
 class DeckControllerTest final : public QObject {
     Q_OBJECT
 private slots:
+    void recoveryRangePayloadRemainsChargedThroughQueuedCancellationAndRetirement()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("approved-live.wav"), peer = directory.filePath("kept-peer.wav");
+            QVERIFY(writeWave(source, 2, 48000, 8192) && writeWave(peer, 2, 48000, 480));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            ControllerServiceSafety safety{fixture};
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 10000);
+            controller.importTrack(QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+            const auto id = controller.libraryTracks().front().toMap()["id"].toString();
+            controller.loadDeck(0, QUrl::fromLocalFile(peer));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto before = controller.decks();
+            const auto retained = controller.retainedPcmBytes();
+            QCOMPARE(retained, std::uint64_t(480 * 8));
+            controller.loadLibraryStemTrackWithRecoveryRange(1, id, 2048. / 48000, 4096. / 48000);
+            QVERIFY(QThreadPool::globalInstance()->waitForDone(10000));
+            QVERIFY(controller.busy());
+            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            safety.capture(); QVERIFY(!safety.children.empty() && !safety.gone());
+            ControllerRetirementBarrier barrier;
+            QVERIFY(controller.cancelPreparation());
+            QTRY_VERIFY_WITH_TIMEOUT(barrier.entered(), 10000);
+            QCoreApplication::sendPostedEvents();
+            QVERIFY(controller.busy());
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
+            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.decks()[0], before[0]);
+            barrier.release();
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.retainedPcmBytes(), retained);
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone() && safety.jobsGone(), 10000);
+            controller.loadLibraryStemTrackWithRecoveryRange(1, id, 2048. / 48000, 4096. / 48000);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto deck = controller.decks()[1].toMap();
+            const auto hold = deck["residentHold"].toMap();
+            QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+            QVERIFY(hold["configured"].toBool() && hold["ready"].toBool() && !hold["armed"].toBool());
+            QCOMPARE(hold["residentBytes"].toULongLong(), qulonglong(65536));
+            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            // This fixture deliberately has no output server. It must not fake
+            // a fresh callback ticket, positive Arm or playback qualification.
+            QVERIFY(!controller.outputReady());
+            const auto submitted = controller.submittedCommands();
+            QVERIFY(!controller.authorizeResidentHold(1, id, hold["outputSession"].toString(),
+                                                     hold["rangeId"].toString(), hold["sourceGeneration"].toString(),
+                                                     hold["transportRevision"].toString()));
+            QVERIFY(!controller.cancelResidentHold(1, id, hold["outputSession"].toString(),
+                                                  hold["rangeId"].toString(), "18446744073709551616", "0"));
+            QVERIFY(!controller.exitResidentHold(1, QString(64, QLatin1Char('0')), "0", "0", "0", "0"));
+            QCOMPARE(controller.submittedCommands(), submitted);
+            safety.capture();
+            controller.loadDeck(1, QUrl::fromLocalFile(peer));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QTRY_VERIFY_WITH_TIMEOUT(safety.gone() && safety.jobsGone(), 10000);
+            QCOMPARE(controller.retainedPcmBytes(), retained * 2);
+            QVERIFY(!controller.liveStemObservations(1));
+            QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(2));
+            controller.shutdown();
+        });
+    }
+
+    void malformedRecoveryIntentCannotCancelExistingPreparationOrTrustChangedSource()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("catalog-source.wav"), loading = directory.filePath("loading.wav");
+            QVERIFY(writeWave(source, 2, 48000, 8192) && writeWave(loading, 2, 48000, 480));
+            const auto engineRoot = directory.filePath("engine");
+            QVERIFY(QDir().mkpath(engineRoot));
+            const auto fixture = conflux::test::makeStemServiceFixture(engineRoot);
+            ControllerServiceSafety safety{fixture};
+            conflux::DeckController::PreparationOptions options;
+            options.stemEngine = fixture.engine; options.stemServicePath = fixture.service;
+            conflux::DeckController controller(options);
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 10000);
+            controller.importTrack(QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto id = controller.libraryTracks().front().toMap()["id"].toString();
+            const auto cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+            QLockFile lock(cache + "/.lock"); QVERIFY(lock.tryLock(0));
+            controller.loadDeck(0, QUrl::fromLocalFile(loading));
+            QVERIFY(controller.busy());
+            const auto pending = controller.preparation();
+            for (const auto bounds : {std::pair{std::numeric_limits<double>::quiet_NaN(), .1},
+                                      std::pair{0., std::numeric_limits<double>::infinity()},
+                                      std::pair{-.1, .1}, std::pair{.1, .1}, std::pair{0., .001},
+                                      std::pair{0., 1.}}) {
+                controller.loadLibraryStemTrackWithRecoveryRange(1, id, bounds.first, bounds.second);
+                QVERIFY(controller.busy()); QCOMPARE(controller.preparation(), pending);
+            }
+            controller.loadLibraryStemTrackWithRecoveryRange(1, QString(64, QLatin1Char('0')), 0., .1);
+            QVERIFY(controller.busy()); QCOMPARE(controller.preparation(), pending);
+            lock.unlock();
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY2(controller.decks()[0].toMap()["loaded"].toBool(), qPrintable(controller.error()));
+            QVERIFY(!controller.decks()[1].toMap()["loaded"].toBool());
+            QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(0));
+            const auto previous = controller.decks();
+            // Same path/shape, different source digest. A catalog selection is
+            // not authority to reuse the old range on replacement content.
+            QFile changed(source); QVERIFY(changed.open(QIODevice::ReadWrite));
+            QVERIFY(changed.seek(44)); const auto old = changed.read(1); QCOMPARE(old.size(), qsizetype(1));
+            QVERIFY(changed.seek(44)); QCOMPARE(changed.write(QByteArray(1, char(old[0] ^ 1))), qint64(1)); changed.close();
+            controller.loadLibraryStemTrackWithRecoveryRange(1, id, 2048. / 48000, 4096. / 48000);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.error().contains("changed", Qt::CaseInsensitive));
+            QCOMPARE(controller.decks(), previous);
+            QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(0));
+        });
+    }
+
     void scratchPublicRejectionPreservesEmptyDecks()
     {
         conflux::DeckController controller;

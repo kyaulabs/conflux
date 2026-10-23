@@ -22,6 +22,12 @@ Item {
     readonly property var scratchState: deck.scratch || ({})
     readonly property bool liveStems: Boolean(deck.liveStems)
     readonly property var continuationState: deck.continuation || ({})
+    readonly property var residentHold: deck.residentHold || ({})
+    readonly property string residentIdentity: String(residentHold.outputSession || "0") + ":"
+        + String(residentHold.rangeId || "0") + ":" + String(residentHold.sourceGeneration || "0")
+    onResidentIdentityChanged: if (residentHoldDialog) residentHoldDialog.close()
+    readonly property string recoveryDetail: String(residentHold.detail || "")
+        + (residentHold.errorCode ? " Live stems reported an error." : "")
     readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property real referenceBpm: Number(bpmState.reference) || 0
@@ -77,7 +83,7 @@ Item {
         return Math.floor(value / 60) + ":" + String(value % 60).padStart(2, "0")
     }
     onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
-    onSourceIdChanged: { if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch() }
+    onSourceIdChanged: { if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch(); if (residentHoldDialog) residentHoldDialog.close() }
     onScratchSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
     onCanScratchChanged: { if (!canScratch && jogInput) jogInput.finishScratch() }
     onLoadProgressChanged: { if (waveform) waveform.requestPaint() }
@@ -207,12 +213,12 @@ Item {
             y: 12
             objectName: "deck" + surface.deckIndex + "WaveformKind"
             Accessible.name: surface.deckName + ": " + text
-            Accessible.description: String(surface.continuationState.detail || "")
+            Accessible.description: surface.residentHold.configured ? surface.recoveryDetail : String(surface.continuationState.detail || "")
             HoverHandler { id: continuationHover }
             ToolTip {
                 id: continuationTooltip
-                visible: continuationHover.hovered && String(surface.continuationState.detail || "").length > 0
-                text: String(surface.continuationState.detail || "")
+                visible: continuationHover.hovered && text.length > 0
+                text: surface.residentHold.configured ? surface.recoveryDetail : String(surface.continuationState.detail || "")
                 contentItem: Text {
                     objectName: "deck" + surface.deckIndex + "ContinuationTooltipText"
                     text: continuationTooltip.text
@@ -225,6 +231,7 @@ Item {
             }
             text: surface.showingPreparation ? "PREPARING · " + (surface.deck.loadPhaseText || "Reading audio")
                   : !surface.deck.loaded ? "NO TRACK LOADED"
+                  : surface.residentHold.configured ? String(surface.residentHold.text || "Recovery range selected").toUpperCase()
                   : surface.continuationState.text ? String(surface.continuationState.text).toUpperCase() + " · SOURCE WAVEFORM"
                   : surface.deck.overviewStem === "drums" ? "PREPARED STEMS · DRUMS WAVEFORM"
                   : surface.deck.overviewStem === "source" ? (surface.liveStems ? "LIVE STEMS" : "SAVED STEMS") + " · SOURCE WAVEFORM" : "LOCAL FILE"
@@ -660,10 +667,77 @@ Item {
             focusColor: surface.deckColor
             width: parent.width
             height: 34
-            text: "SOURCE"
-            available: false
-            unavailableReason: "Source switching is not implemented. Use Browse for a local file."
+            text: surface.residentHold.configured ? "HOLD" : "SOURCE"
+            buttonObjectName: "deck" + surface.deckIndex + "Recovery"
+            accessibleName: "Stem recovery controls for " + surface.deckName
+            available: Boolean(surface.residentHold.configured) && surface.canControl
+            unavailableReason: "Select and approve a recovery range when loading library live stems."
+            actionDescription: String(surface.residentHold.text || "No recovery range configured")
+            onClicked: residentHoldDialog.open()
         }
+    }
+
+    Dialog {
+        id: residentHoldDialog
+        objectName: "deck" + surface.deckIndex + "RecoveryDialog"
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        modal: true
+        width: Math.min(560, parent.width - 48)
+        title: surface.deckName + " stem recovery"
+        onVisibleChanged: if (visible && !surface.residentHold.configured) close()
+        contentItem: Column {
+            spacing: 12
+            Label {
+                objectName: "deck" + surface.deckIndex + "RecoveryStatus"
+                text: String(surface.residentHold.text || "No recovery range configured") + "\n" + surface.recoveryDetail
+                    + "\nApproved range: " + Number(surface.residentHold.inSeconds || 0).toFixed(6)
+                    + " to " + Number(surface.residentHold.outSeconds || 0).toFixed(6) + " seconds."
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                width: residentHoldDialog.availableWidth
+                Accessible.name: text
+            }
+            Label {
+                text: "Playback controls turn recovery off. Enable it again when you want this section to repeat. Resume from the held position when stems are ready, at the end of this loop."
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                width: residentHoldDialog.availableWidth
+            }
+            Button {
+                objectName: "deck" + surface.deckIndex + "RecoveryArm"
+                text: surface.deck.playing ? "ENABLE RECOVERY" : "ENABLE FOR NEXT PLAY"
+                enabled: surface.canControl && Boolean(surface.residentHold.configured) && !surface.residentHold.active
+                         && surface.residentHold.status !== "Pending"
+                onClicked: surface.controller.authorizeResidentHold(surface.deckIndex, surface.sourceId,
+                    String(surface.residentHold.outputSession), String(surface.residentHold.rangeId),
+                    String(surface.residentHold.sourceGeneration), String(surface.residentHold.transportRevision))
+                Accessible.name: text + " for " + surface.deckName
+            }
+            Button {
+                objectName: "deck" + surface.deckIndex + "RecoveryExit"
+                text: "RESUME WHEN STEMS ARE READY"
+                enabled: surface.canControl && Boolean(surface.residentHold.active) && !surface.residentHold.exitPending
+                         && !surface.residentHold.errorCode
+                onClicked: surface.controller.exitResidentHold(surface.deckIndex, surface.sourceId,
+                    String(surface.residentHold.outputSession), String(surface.residentHold.rangeId),
+                    String(surface.residentHold.sourceGeneration), String(surface.residentHold.transportRevision))
+                Accessible.name: "Return " + surface.deckName + " from the held position when stems are ready, at the end of this loop"
+                Accessible.description: surface.residentHold.errorCode
+                    ? "Live stems reported an error. Use playback controls to turn recovery off."
+                    : "Resume from the held position when stems are ready, at the end of this loop."
+            }
+            Button {
+                objectName: "deck" + surface.deckIndex + "RecoveryCancel"
+                text: "TURN RECOVERY OFF"
+                enabled: surface.canControl && Boolean(surface.residentHold.configured)
+                onClicked: surface.controller.cancelResidentHold(surface.deckIndex, surface.sourceId,
+                    String(surface.residentHold.outputSession), String(surface.residentHold.rangeId),
+                    String(surface.residentHold.sourceGeneration), String(surface.residentHold.transportRevision))
+                Accessible.name: "Turn stem recovery off for " + surface.deckName
+            }
+        }
+        standardButtons: Dialog.Close
     }
 
     Label {
