@@ -1419,15 +1419,67 @@ private slots:
             QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
             writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
             auto offline = PreparedTrackStore(root, limits()).prepareStemBank(source, fixture.engine);
+            const auto prefix = fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3);
+            const auto calls = readBytes(prefix + ".calls");
+            require(QFile::remove(prefix + ".prefix"), "Cannot clear offline description marker");
             auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            require(live.artifactKey == offline.artifactKey && live.artifactKey.size() == 64 &&
+                    live.sourceSha256 == offline.sourceSha256,
+                    "Live setup did not capture the existing prepared-bank identity");
+            require(!QFileInfo::exists(prefix + ".prefix") && readBytes(prefix + ".calls") == calls &&
+                    count(fixture, "command", "load") == 0 && count(fixture, "fixture", "runtime") == 0,
+                    "Capturing live identity started another description/export/inference request");
             stop(live);
             const auto alternative = directory.filePath("alternative-service.py");
             conflux::test::writeFixtureBytes(alternative, readBytes(fixture.service) + "\n# distinct service bytes\n");
             auto other = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, alternative, nextToken());
+            require(other.artifactKey == live.artifactKey && other.artifactKey == offline.artifactKey &&
+                    other.observations->setup().serviceSha256 != live.observations->setup().serviceSha256,
+                    "Service-only identity changed the compatible prepared-bank key");
+            require(!QFileInfo::exists(prefix + ".prefix") && readBytes(prefix + ".calls") == calls,
+                    "Service-only key capture launched a redundant exporter process");
             stop(other);
             auto reused = PreparedTrackStore(root, limits()).prepareStemBank(source, fixture.engine);
             require(reused.cacheHit && reused.artifactKey == offline.artifactKey,
                     "Separate service identity changed the existing five-asset offline cache identity");
+        });
+    }
+
+    void capturedPreparedIdentityRejectsChangedPipeline_data()
+    {
+        QTest::addColumn<QByteArray>("changed");
+        QTest::newRow("runtime-bytes") << QByteArray("runtime");
+        QTest::newRow("model-bytes") << QByteArray("model");
+        QTest::newRow("backend") << QByteArray("backend");
+        QTest::newRow("threads") << QByteArray("threads");
+    }
+    void capturedPreparedIdentityRejectsChangedPipeline()
+    {
+        QFETCH(QByteArray, changed);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            PreparedTrackStore store(root, limits());
+            auto originalBank = store.prepareStemBank(source, fixture.engine);
+            auto live = store.prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            const auto capturedKey = live.artifactKey;
+            require(capturedKey == originalBank.artifactKey, "Initial live and prepared identities differ");
+            stop(live); assertGone(fixture.marker(".started"));
+            if (changed == "runtime") conflux::test::writeFixtureBytes(fixture.engine.runtimePath, "changed runtime fixture\n");
+            else if (changed == "model") conflux::test::writeFixtureBytes(fixture.engine.modelPath, "changed model fixture\n");
+            else if (changed == "backend") fixture.engine.backend = "cpu";
+            else ++fixture.engine.threads;
+            const auto callsPath = fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls";
+            const auto calls = readBytes(callsPath);
+            require(!store.findPreparedStemBank(source, fixture.engine) && readBytes(callsPath) == calls,
+                    "Changed pipeline reused the old bank or started an exporter during discovery");
+            auto changedBank = store.prepareStemBank(source, fixture.engine);
+            require(live.artifactKey == capturedKey && changedBank.artifactKey != capturedKey &&
+                    changedBank.sourceSha256 == live.sourceSha256,
+                    "Captured live identity followed changed paths/configuration or accepted another pipeline");
+            auto reused = store.findPreparedStemBank(source, fixture.engine);
+            require(reused && reused->artifactKey == changedBank.artifactKey && reused->artifactKey != capturedKey,
+                    "New pipeline lookup did not remain distinct from the active captured identity");
         });
     }
 

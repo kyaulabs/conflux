@@ -49,6 +49,11 @@ void verifyStemFile(const EngineFile&, std::stop_token);
 EngineFiles pinEngine(const StemEngine&, std::stop_token);
 void verifyEngine(const EngineFiles&, std::stop_token);
 void validateDescription(const QJsonObject&, const EngineFiles&);
+// Existing cache identity, from already pinned operands and a validated
+// exporter description. No file/process work or alternate identity recipe.
+QJsonObject pipelineIdentity();
+QJsonObject stemPipeline(const StemEngine&, const EngineFiles&, const QJsonObject& describe);
+QByteArray preparedArtifactKey(const QByteArray& sourceSha256, const QJsonObject& pipeline);
 void validateRuntimeReady(const QJsonObject&, const StemEngine&);
 // Private shared lifecycle only. Each caller retains its own bounded protocol
 // or one-shot output loop. The service/native inherit this one owned session.

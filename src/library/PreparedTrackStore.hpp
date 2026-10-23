@@ -52,6 +52,9 @@ struct PreparedLiveStemTrack {
     std::vector<float> sourceOverview;
     std::shared_ptr<LiveStemObservations> observations;
     TrackPresentation presentation{};
+    // Expected compatible prepared-bank identity from this live setup's pins;
+    // a key does not mean a complete bank is present in the cache.
+    QString artifactKey;
 };
 
 // Worker-owned persistent PCM preparation. No method belongs on the GUI or

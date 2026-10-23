@@ -50,15 +50,6 @@ bool stemLeaf(std::string_view name)
 static_assert(sizeof(float) == 4 && std::numeric_limits<float>::is_iec559);
 
 
-QJsonObject pipelineIdentity()
-{
-    return {{"version", 1}, {"decoder", QString::fromLatin1(sf_version_string())},
-        {"converter", QString::fromLatin1(src_get_version())}, {"resampler", "SRC_SINC_BEST_QUALITY"},
-        {"sample_rate", 48000}, {"channels", 2},
-        {"sample_format", std::endian::native == std::endian::little ? "f32le" : "f32be"},
-        {"overview_bins", 512}, {"overview_normalization", "track_peak_v1"}};
-}
-
 std::vector<std::string> directoryNames(int descriptor, std::size_t limit, std::stop_token stop)
 {
     const int opened = openat(descriptor, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
@@ -419,17 +410,6 @@ QJsonObject describeEngine(const StemEngine& engine, const EngineFiles& files, s
     return object;
 }
 
-QJsonObject stemPipeline(const StemEngine& engine, const EngineFiles& files, const QJsonObject& describe)
-{
-    return {{"version", 1}, {"kind", "stem_bank"}, {"python", files[0].identity}, {"helper", files[1].identity},
-        {"worker", files[2].identity}, {"runtime", files[3].identity}, {"model", files[4].identity},
-        {"backend", engine.backend}, {"threads", engine.threads}, {"describe", describe},
-        {"input_conversion", QJsonObject{{"decoder", QString::fromLatin1(sf_version_string())},
-            {"converter", QString::fromLatin1(src_get_version())}, {"resampler", "SRC_SINC_BEST_QUALITY"},
-            {"sample_rate", 44100}, {"channels", 2}, {"sample_format", "f32le"}}},
-        {"output_conversion", pipelineIdentity()}};
-}
-
 void validateExport(const QJsonObject& object, const StemEngine& engine, const EngineFiles& files,
                     const QJsonObject& describe, const QByteArray& inputDigest, std::uint64_t frames,
                     const QJsonObject* requestedLimits = nullptr)
@@ -649,8 +629,7 @@ std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
     const auto files = pinEngine(engine, stop);
     const auto describe = describeEngine(engine, files, stop);
     const auto pipeline = stemPipeline(engine, files, describe);
-    const auto key = QCryptographicHash::hash(sourceId + '\n' + QJsonDocument(pipeline).toJson(QJsonDocument::Compact),
-        QCryptographicHash::Sha256).toHex();
+    const auto key = preparedArtifactKey(sourceId, pipeline);
     const auto verifyUsed = [&] {
         verifySource(source.get(), sourceBefore, sourceId, stop);
         verifyEngine(files, stop);
@@ -705,8 +684,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
     const auto files = pinEngine(engine, stop);
     const auto describe = describeEngine(engine, files, stop);
     const auto pipeline = stemPipeline(engine, files, describe);
-    const auto key = QCryptographicHash::hash(sourceId + '\n' + QJsonDocument(pipeline).toJson(QJsonDocument::Compact),
-        QCryptographicHash::Sha256).toHex();
+    const auto key = preparedArtifactKey(sourceId, pipeline);
     if (!QDir().mkpath(cacheRoot_)) throw std::runtime_error("Cannot create prepared cache root");
     Descriptor root(open(QFile::encodeName(cacheRoot_).constData(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC));
     if (root.get() < 0) ioError("Cannot open prepared cache root");
