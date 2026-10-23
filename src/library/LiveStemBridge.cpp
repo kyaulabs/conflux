@@ -347,6 +347,8 @@ public:
     std::condition_variable condition;
     bool setupDone = false, factoryActive = false;
     QString setupError;
+    // Producer writes before the setupDone mutex publication, then immutable.
+    QJsonObject preparedDescription;
 };
 class Bridge {
 public:
@@ -625,6 +627,7 @@ private:
             integer(value.value("reservation_bytes")) == job_->serviceBytes, "Stem service launch geometry or identity differs");
         serviceDirectory_ = std::make_unique<Descriptor>(openat(job_->directory->get(), "service", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW));
         if (serviceDirectory_->get() < 0) ioError("Cannot open live service directory");
+        job_->preparedDescription = std::move(description);
         ready_ = true; observe(observation(Kind::ServiceReady)); job_->notifySetup();
     }
     void accepted(const QJsonObject& value)
@@ -1120,6 +1123,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
             }
             LiveStemObservationWriter::finish(*job->observations);
         });
+    QString artifactKey;
     try {
         {
             // Registration is destroyed before the final commit checks. Its
@@ -1134,6 +1138,8 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
             checkStop(stop);
             if (!job->setupDone) throw std::runtime_error("Live stem service ready timed out");
             if (!job->setupError.isEmpty()) throw std::runtime_error(job->setupError.toStdString());
+            artifactKey = QString::fromLatin1(preparedArtifactKey(originalDigest,
+                stemPipeline(job->engine, job->files, job->preparedDescription)));
         }
         verifySource(original.get(), originalBefore, originalDigest, stop);
         // Producer owns the retained input after ready; its FD remains stable
@@ -1158,6 +1164,6 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     observations->setup_ = setup; // Factory publication only; producer never reads this storage.
     return {std::move(playback), QString::fromLatin1(originalDigest), QString::fromLatin1(job->inputDigest),
         job->files[4].identity.value("sha256").toString(), job->inputFrames, plan.outputFrames(), job->charge,
-        std::move(overview), std::move(observations), std::move(presentation)};
+        std::move(overview), std::move(observations), std::move(presentation), std::move(artifactKey)};
 }
 } // namespace conflux::library

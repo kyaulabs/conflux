@@ -191,6 +191,32 @@ void verifyStemFile(const EngineFile& file, std::stop_token stop)
 void verifyEngine(const EngineFiles& files, std::stop_token stop)
 { for (const auto& file : files) verifyStemFile(file, stop); }
 
+QJsonObject pipelineIdentity()
+{
+    return {{"version", 1}, {"decoder", QString::fromLatin1(sf_version_string())},
+        {"converter", QString::fromLatin1(src_get_version())}, {"resampler", "SRC_SINC_BEST_QUALITY"},
+        {"sample_rate", 48000}, {"channels", 2},
+        {"sample_format", std::endian::native == std::endian::little ? "f32le" : "f32be"},
+        {"overview_bins", 512}, {"overview_normalization", "track_peak_v1"}};
+}
+
+QJsonObject stemPipeline(const StemEngine& engine, const EngineFiles& files, const QJsonObject& describe)
+{
+    return {{"version", 1}, {"kind", "stem_bank"}, {"python", files[0].identity}, {"helper", files[1].identity},
+        {"worker", files[2].identity}, {"runtime", files[3].identity}, {"model", files[4].identity},
+        {"backend", engine.backend}, {"threads", engine.threads}, {"describe", describe},
+        {"input_conversion", QJsonObject{{"decoder", QString::fromLatin1(sf_version_string())},
+            {"converter", QString::fromLatin1(src_get_version())}, {"resampler", "SRC_SINC_BEST_QUALITY"},
+            {"sample_rate", 44100}, {"channels", 2}, {"sample_format", "f32le"}}},
+        {"output_conversion", pipelineIdentity()}};
+}
+
+QByteArray preparedArtifactKey(const QByteArray& sourceSha256, const QJsonObject& pipeline)
+{
+    return QCryptographicHash::hash(sourceSha256 + '\n' + QJsonDocument(pipeline).toJson(QJsonDocument::Compact),
+        QCryptographicHash::Sha256).toHex();
+}
+
 OwnedStemProcess::OwnedStemProcess(bool& groupsGone) : groupsGone_(groupsGone)
 {
     process_.setChildProcessModifier([] { if (setsid() < 0) _exit(127); });
