@@ -435,15 +435,21 @@ bool RenderCore::replaceSource(std::size_t deck, AudioSource source) noexcept
 bool RenderCore::canContinueSource(std::size_t deck, AudioSource source,
     std::uint64_t nextFrame, std::uint64_t revision) const noexcept
 {
-    if (deck >= deckCount || !validSource(source)) return false;
+    return continuationStatus(deck, source, nextFrame, revision) == ContinuationStatus::Ready;
+}
+
+RenderCore::ContinuationStatus RenderCore::continuationStatus(std::size_t deck, AudioSource source,
+    std::uint64_t nextFrame, std::uint64_t revision, std::uint64_t rangeId) const noexcept
+{
+    if (deck >= deckCount || !validSource(source)) return ContinuationStatus::Invalid;
     const auto& state = decks_[deck];
     if (!isStemBank(deck) || !source.setStemGain || !source.stemGain ||
         source.frames != state.source.frames || nextFrame >= source.frames ||
         state.frame != nextFrame || state.nominalPosition != double(nextFrame) ||
         state.transportRevision != revision || revision == std::numeric_limits<std::uint64_t>::max() ||
         (source.context == state.source.context && source.read == state.source.read))
-        return false;
-    const auto linear = [](const AudioSource& candidate) noexcept {
+        return ContinuationStatus::Invalid;
+    const auto linear = [](const AudioSource& candidate, bool allowHold) noexcept {
         const auto tempo = candidate.tempoState ? candidate.tempoState(candidate.context) : AudioTempoState{};
         const auto scratch = candidate.scratchState ? candidate.scratchState(candidate.context) : AudioScratchState{};
         const auto loop = candidate.loopState ? candidate.loopState(candidate.context) : AudioLoopState{};
@@ -451,20 +457,38 @@ bool RenderCore::canContinueSource(std::size_t deck, AudioSource source,
         // playback. Begin marks a gesture active even while its window waits.
         const auto hold = candidate.residentHoldState ? candidate.residentHoldState(candidate.context) : AudioResidentHoldState{};
         return !tempo.active && !tempo.pending && !tempo.keyLock && tempo.percent == 0 && tempo.appliedPercent == 0 &&
-            !scratch.active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached && !hold.armed && !hold.active;
+            !scratch.active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached &&
+            (allowHold || (!hold.armed && !hold.active));
     };
-    return linear(state.source) && linear(source);
+    if (!linear(state.source, rangeId != 0) || !linear(source, false)) return ContinuationStatus::Invalid;
+    if (!rangeId) return ContinuationStatus::Ready;
+    const auto hold = residentHoldState(deck);
+    if (!renderActive(state) || !hold.supported || !hold.ready || !hold.armed || !hold.active || hold.exitPending ||
+        hold.rangeId != rangeId || hold.linearFrame != nextFrame || hold.inFrame >= hold.outFrame ||
+        hold.outFrame > state.source.frames || hold.outFrame-hold.inFrame < AudioResidentHoldRange::minimumFrames ||
+        hold.outFrame-hold.inFrame > AudioResidentHoldRange::maximumFrames ||
+        hold.residentBytes != (hold.outFrame-hold.inFrame)*AudioResidentHoldRange::bytesPerFrame ||
+        hold.audibleFrame < hold.inFrame || hold.audibleFrame > hold.outFrame)
+        return ContinuationStatus::Invalid;
+    return hold.audibleFrame == hold.outFrame ? ContinuationStatus::Ready : ContinuationStatus::WaitingForHoldOut;
 }
 
 bool RenderCore::continueSource(std::size_t deck, AudioSource source,
-    std::uint64_t nextFrame, std::uint64_t revision) noexcept
+    std::uint64_t nextFrame, std::uint64_t revision, std::uint64_t rangeId) noexcept
 {
-    if (!canContinueSource(deck, source, nextFrame, revision)) return false;
+    if (continuationStatus(deck, source, nextFrame, revision, rangeId) != ContinuationStatus::Ready) return false;
     auto& state = decks_[deck];
+    if (rangeId) {
+        // Resident PCM can remain healthy after its producer failed, without a
+        // failed render read. Retain that cumulative fault after owner retirement.
+        state.readFailed |= residentHoldState(deck).errorCode != 0;
+        (void)state.source.residentHoldControl(state.source.context, AudioResidentHoldCommand::Cancel, 0, nextFrame);
+    }
     if (state.source.setRenderActive)
         state.source.setRenderActive(state.source.context, false);
     state.source = source;
     state.buffering = false;
+    if (rangeId) transition(state); // Same envelope as the existing hold-to-live OUT.
     transportIntent(state);
     notifyActivity(state);
     return true;

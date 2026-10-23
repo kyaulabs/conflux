@@ -117,11 +117,13 @@ public:
     // After queued controls drain, the callback validates source generation,
     // transport revision, exact cursor and supported modes before any swap.
     // Rejection never pauses/uncues the old deck; candidate ownership follows
-    // the same completion/retirement contract as ordinary replacement.
+    // the same completion/retirement contract as ordinary replacement. A nonzero
+    // resident range waits for its exact audible OUT while frame remains parked;
+    // queued manual controls invalidate the request before any later swap.
     bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                    std::uint64_t expectedSourceGeneration,
                                    std::uint64_t expectedTransportRevision, std::uint64_t frame,
-                                   std::uint64_t generation) noexcept;
+                                   std::uint64_t generation, std::uint64_t residentHoldRangeId = 0) noexcept;
     [[nodiscard]] bool sourceReplacementPending() const noexcept;
     std::optional<SourceReplacementResult> takeSourceReplacementResult() noexcept;
     struct StoppedPlaybacks {

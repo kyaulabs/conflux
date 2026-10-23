@@ -166,7 +166,7 @@ void continuationIdentityAndQuiesce()
     SourceHandoff::Request observed;
     require(handoff.readPending(observed) && observed.kind == SourceHandoff::Kind::Continuation &&
             observed.expectedSourceGeneration == 7 && observed.expectedTransportRevision == 42 &&
-            observed.frame == 3 && observed.generation == 9,
+            observed.frame == 3 && observed.generation == 9 && observed.residentHoldRangeId == 0,
         "Continuation lost its source/transport/cursor identity");
     require(!handoff.request(continuation), "Pending continuation was overwritten");
     require(handoff.complete(false, {}, 256), "Rejected continuation lost callback completion");
@@ -183,6 +183,82 @@ void continuationIdentityAndQuiesce()
     require(handoff.takeCompletion(completion) && !completion.installed &&
             completion.kind == SourceHandoff::Kind::Continuation && completion.generation == 10,
         "Quiesce lost a continuation owner or falsely installed it");
+}
+
+// The actual OUT predicate and PCM split belong to the renderer/session tests.
+// This exercises the existing mailbox's owner lifetime while that predicate waits.
+void residentContinuationWaitingOwnersAndQuiesce()
+{
+    for (const bool install : {false, true}) {
+        Source retainedSource, candidateSource;
+        retainedSource.value = .125F;
+        candidateSource.value = -.25F;
+        auto retained = std::make_unique<Owner>(retainedSource);
+        auto candidate = std::make_unique<Owner>(candidateSource);
+        SourceHandoff handoff;
+        constexpr std::uint64_t frame = 3, rangeId = 771;
+        const SourceHandoff::Request request{0, candidateSource.descriptor(), nullptr, 9,
+            SourceHandoff::Kind::Continuation, 7, 42, frame, rangeId};
+        auto invalid = request;
+        invalid.kind = SourceHandoff::Kind::Replacement;
+        require(!handoff.request(invalid), "Ordinary replacement accepted resident-boundary metadata");
+        invalid = request; invalid.frame = request.source.frames;
+        require(!handoff.request(invalid), "Resident continuation accepted finite EOF");
+        invalid = request; invalid.generation = request.expectedSourceGeneration;
+        require(!handoff.request(invalid), "Resident continuation reused source generation");
+        invalid = request; invalid.expectedTransportRevision = std::numeric_limits<std::uint64_t>::max();
+        require(!handoff.request(invalid), "Resident continuation accepted exhausted transport identity");
+        require(handoff.request(request), "Cannot publish a resident-boundary continuation");
+        SourceHandoff::Request observed;
+        SourceHandoff::Completion completion;
+        std::array<float, 8> pcm{};
+        auto oldRef = retainedSource.descriptor();
+        for (unsigned block = 0; block < 3; ++block) {
+            require(handoff.readPending(observed) && observed.kind == SourceHandoff::Kind::Continuation &&
+                observed.residentHoldRangeId == rangeId && observed.frame == frame &&
+                observed.expectedSourceGeneration == 7 && observed.expectedTransportRevision == 42 &&
+                observed.source.context == &candidateSource && handoff.busy(),
+                "Waiting continuation changed its source, range or transport ticket");
+            require(oldRef.read(oldRef.context, frame, pcm).frames == pcm.size() / 2 &&
+                std::ranges::all_of(pcm, [&](float value) { return value == retainedSource.value; }) &&
+                !handoff.takeCompletion(completion) && retainedSource.alive && candidateSource.alive &&
+                candidateSource.accesses == 0,
+                "Waiting for OUT consumed or released an uncommitted owner");
+            require(!handoff.request(request), "Waiting resident continuation was overwritten");
+        }
+        if (install) {
+            // Simulate the first new-source use at the selected render boundary.
+            require(observed.source.read(observed.source.context, frame, pcm).frames == pcm.size() / 2 &&
+                std::ranges::all_of(pcm, [&](float value) { return value == candidateSource.value; }) &&
+                handoff.complete(true, {frame, 11, true}, 256),
+                "Resident continuation did not acknowledge its final callback use");
+        } else {
+            handoff.quiesce(); // Callback has stopped before a safe OUT was committed.
+        }
+        require(retainedSource.alive && candidateSource.alive && !handoff.request(request),
+            "Uncollected resident completion released or overwrote an owner");
+        require(handoff.takeCompletion(completion) && completion.installed == install &&
+            completion.kind == SourceHandoff::Kind::Continuation && completion.generation == 9 &&
+            completion.outputFrame == (install ? 256 : 0) && !handoff.busy() &&
+            (!install || (completion.retired.sourceFrame == frame && completion.retired.starvedFrames == 11 &&
+                          completion.retired.readFailed)),
+            "Resident completion lost its kind, ownership result or prior diagnostic");
+        if (install) {
+            auto retired = std::move(retained);
+            retained = std::move(candidate);
+            retired.reset();
+            require(!retainedSource.alive && candidateSource.alive,
+                "Installed resident continuation retired the new owner");
+        } else {
+            candidate.reset();
+            require(retainedSource.alive && !candidateSource.alive && candidateSource.accesses == 0,
+                "Quiesced resident continuation stopped the retained owner");
+        }
+        const auto active = install ? candidateSource.descriptor() : retainedSource.descriptor();
+        require(active.read(active.context, frame, pcm).frames == pcm.size() / 2 &&
+            retainedSource.expiredAccesses == 0 && candidateSource.expiredAccesses == 0,
+            "Resident completion left a released source borrowed by the render owner");
+    }
 }
 
 void exactContinuationPreservesBothBusesAndRunningMix()
@@ -313,7 +389,8 @@ void continuationKeepsFailureEvidenceAndRejectsPreparedModes()
 } // namespace
 int main()
 {
-    try { orderingAndQuiesce(); continuationIdentityAndQuiesce(); concurrentOwnerLifetime();
+    try { orderingAndQuiesce(); continuationIdentityAndQuiesce(); residentContinuationWaitingOwnersAndQuiesce();
+        concurrentOwnerLifetime();
         exactContinuationPreservesBothBusesAndRunningMix(); continuationRejectsStaleTransportAndGeometry();
         continuationKeepsFailureEvidenceAndRejectsPreparedModes(); return 0; }
     catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }

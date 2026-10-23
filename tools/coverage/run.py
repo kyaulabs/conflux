@@ -166,6 +166,10 @@ def main():
                     ("private-continuation-stop", "conflux-preparation-controller-check", ["--continuation-case", "stop"]),
                     ("private-continuation-foreground", "conflux-preparation-controller-check", ["--continuation-case", "foreground"]),
                     ("private-resident-hold", "conflux-preparation-controller-check", ["--continuation-case", "resident-hold"]),
+                    ("private-resident-callback-interior", "conflux-manual-routing-check", ["--resident-takeover-case", "interior"]),
+                    ("private-resident-callback-boundary", "conflux-manual-routing-check", ["--resident-takeover-case", "boundary"]),
+                    ("private-resident-takeover", "conflux-preparation-controller-check", ["--continuation-case", "resident-takeover"]),
+                    ("private-resident-cancel", "conflux-preparation-controller-check", ["--continuation-case", "resident-cancel"]),
                 ]:
                     with tempfile.TemporaryDirectory(prefix=f"conflux-coverage-{stage}-") as temporary:
                         evidence = Path(temporary) / "evidence"
