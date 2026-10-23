@@ -30,6 +30,10 @@ Item {
         + (residentHold.errorCode ? " Live stems reported an error." : "")
     readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
+    readonly property var localTiming: deck.localTiming || ({})
+    readonly property real localBpm: Number(localTiming.bpm) || 0
+    readonly property bool hasLocalTiming: Boolean(deck.loaded) && !showingPreparation
+        && localTiming.status === "Estimated" && Number.isFinite(localBpm) && localBpm >= 20 && localBpm <= 400
     readonly property real referenceBpm: Number(bpmState.reference) || 0
     readonly property bool hasReferenceBpm: Boolean(deck.loaded) && Number.isFinite(referenceBpm) && referenceBpm >= 20 && referenceBpm <= 400
     readonly property real acknowledgedBpm: hasReferenceBpm ? referenceBpm * (1 + (Number(tempoState.percent) || 0) / 100) : 0
@@ -422,11 +426,33 @@ Item {
             }
         }
         Label {
+            id: localTempo
+            objectName: "deck" + surface.deckIndex + "LocalTempo"
+            x: 14
+            y: Math.max(elapsedLabel.y + elapsedLabel.height, bpmReference.y + bpmReference.height) + 2
+            width: parent.width - 28
+            height: Math.max(12, implicitHeight)
+            text: surface.showingPreparation ? "LOCAL PREPARING"
+                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN"
+            textFormat: Text.PlainText
+            color: "#8EAAA7"
+            font.family: Brand.ConfluxTheme.monoFont
+            font.pixelSize: Brand.ConfluxTheme.textPixels(8)
+            horizontalAlignment: Text.AlignRight
+            verticalAlignment: Text.AlignVCenter
+            Accessible.name: surface.deckName + ", " + text
+            Accessible.description: surface.hasLocalTiming
+                ? "Original-speed interbeat estimate from "
+                    + (Number(surface.localTiming.firstFrame) / 48000).toFixed(3) + " to "
+                    + (Number(surface.localTiming.endFrame) / 48000).toFixed(3)
+                    + " source seconds. Confidence is unknown. Reference BPM and playback are unchanged."
+                : "Local tempo is unknown. Reference BPM and playback are unchanged."
+        }
+        Label {
             id: trackStatus
             objectName: "deck" + surface.deckIndex + "TransportStatus"
             x: 14
-            y: Math.max(148, Math.max(elapsedLabel.y + elapsedLabel.height,
-                                     bpmReference.y + bpmReference.height) + 6)
+            y: Math.max(148, localTempo.y + localTempo.height + 6)
             visible: !surface.compactDisplay
             text: surface.showingPreparation ? (surface.deck.loaded ? "CURRENT AUDIO: " + surface.deck.name : "WAITING FOR PREPARED AUDIO")
                   : surface.deck.loaded ? surface.transportStatus + "  ·  STEREO 48 kHz" : "LOAD TO PREPARE AUDIO"
@@ -443,7 +469,7 @@ Item {
             x: 14
             y: Math.max(surface.designScreenHeight - height - 24,
                         (trackStatus.visible ? trackStatus.y + trackStatus.height
-                         : Math.max(elapsedLabel.y + elapsedLabel.height, bpmReference.y + bpmReference.height)) + 8)
+                         : localTempo.y + localTempo.height) + 8)
             width: parent.width - 28
             height: surface.compactDisplay ? 31 : 47 + Math.max(0, surface.designScreenHeight - 250)
             onWidthChanged: requestPaint()

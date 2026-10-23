@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "DeckController.hpp"
+#include "LocalTiming.hpp"
 #include "library/PreparedTrackStore.hpp"
 #include "library/CueSheet.hpp"
 
@@ -317,6 +318,11 @@ QVariantList DeckController::decks() const
                 {"reference", bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.))},
                 {"manual", bpmOverrides_[deck].has_value()},
                 {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
+            {"localTiming", ui::localTimingForDisplay(
+                bpmEstimates_[deck], clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.,
+                state_.residentHold[deck],
+                clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
+                    std::optional<audio::AudioResidentHoldRange>{})},
             {"replacing", replacing_[deck]},
             {"residentHold", [&]() -> QVariantMap {
                 const auto& authorization = residentAuthorizations_[deck];

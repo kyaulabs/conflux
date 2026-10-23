@@ -3931,6 +3931,48 @@ private slots:
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
+    void localTimingDisplayDoesNotSubmitTempoOrChangeReference()
+    {
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            auto manual = UiEndpoint::bpmState(128);
+            manual["manual"] = true;
+            auto tempo = UiEndpoint::tempoState(true);
+            tempo["active"] = true; tempo["percent"] = 6.; tempo["keyLock"] = true;
+            ui_->endpoint.snapshotBpm(deck, manual);
+            ui_->endpoint.snapshotTempo(deck, tempo);
+            auto local = QVariantMap{{"status", "Estimated"}, {"confidence", "Unknown"}, {"bpm", 160.},
+                {"positionKnown", true}, {"sourceFrame", qulonglong(48000)},
+                {"firstFrame", qulonglong(48000)}, {"endFrame", qulonglong(66000)}};
+            ui_->endpoint.snapshotDeck(deck, {{"localTiming", local}});
+            auto* label = ui_->item(QString("deck%1LocalTempo").arg(deck).toUtf8().constData());
+            auto* rail = ui_->item(QString("deck%1Tempo").arg(deck).toUtf8().constData());
+            QVERIFY(label && rail);
+            QTRY_COMPARE(label->property("text").toString(), QString("LOCAL SOURCE EST. 160.0 BPM"));
+            QTRY_VERIFY(std::abs(rail->property("value").toDouble() - 135.68) < 1e-8);
+            const auto before = ui_->endpoint.calls.size();
+            local["bpm"] = 180.;
+            ui_->endpoint.snapshotDeck(deck, {{"localTiming", local}, {"playing", true}});
+            QTRY_COMPARE(label->property("text").toString(), QString("LOCAL SOURCE EST. 180.0 BPM"));
+            ui_->endpoint.snapshotDeck(deck, {{"scratch", QVariantMap{{"active", true}}}, {"playing", false}});
+            QTRY_COMPARE(label->property("text").toString(), QString("LOCAL SOURCE EST. 180.0 BPM"));
+            local["status"] = "Unknown"; local["bpm"] = 0.;
+            ui_->endpoint.snapshotDeck(deck, {{"localTiming", local}});
+            QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+            // Replacement preparation and unloading never display retained old analysis.
+            local["status"] = "Estimated"; local["bpm"] = 160.;
+            ui_->endpoint.snapshotDeck(deck, {{"loading", true}, {"localTiming", local}});
+            QTRY_COMPARE(label->property("text").toString(), QString("LOCAL PREPARING"));
+            ui_->endpoint.snapshotDeck(deck, {{"loading", false}, {"loaded", false}});
+            QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["bpm"].toMap(), manual);
+            QCOMPARE(ui_->endpoint.decks()[deck].toMap()["tempo"].toMap(), tempo);
+            QCOMPARE(ui_->endpoint.calls.size(), before);
+        }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void bpmReferenceChangesAndUnknownStateDoNotSubmitTempo()
     {
         ui_->endpoint.setReady(true);
@@ -5302,6 +5344,8 @@ private slots:
         for (int deck = 0; deck < 2; ++deck) {
             ui_->endpoint.loadState(deck);
             ui_->endpoint.snapshotSongInfo(deck, "Title", "Artist", "Album", {});
+            ui_->endpoint.snapshotDeck(deck, {{"localTiming", QVariantMap{{"status", "Estimated"},
+                {"bpm", 400.}, {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(7200)}}}});
         }
         ui_->endpoint.setReady(true);
         {
@@ -5357,6 +5401,8 @@ private slots:
         for (int deck = 0; deck < 2; ++deck) {
             ui_->endpoint.loadState(deck);
             ui_->endpoint.snapshotSongInfo(deck, "Title", "Artist", "Album", {});
+            ui_->endpoint.snapshotDeck(deck, {{"localTiming", QVariantMap{{"status", "Estimated"},
+                {"bpm", 400.}, {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(7200)}}}});
         }
         ui_->endpoint.setReady(true);
         {
@@ -5399,7 +5445,7 @@ private slots:
             QVERIFY(accessible->rect().contains(ui_->window->mapToGlobal(ui_->center(ownership))));
             QStringList lcd;
             for (const auto* suffix : {"WaveformKind", "ArtworkFrame", "Title", "Artist", "Album", "Elapsed",
-                                       "BpmCurrent", "BpmStatus", "Remaining"})
+                                       "BpmCurrent", "BpmStatus", "LocalTempo", "Remaining"})
                 lcd.append(prefix + suffix);
             auto* status = ui_->item((prefix + "TransportStatus").toUtf8().constData());
             QVERIFY(status);
@@ -5420,6 +5466,10 @@ private slots:
                 QVERIFY2(item->mapRectToScene(QRectF(QPointF(0, 0), item->size())).bottom() <= seekRect.top() + .5,
                          qPrintable(name + " overlaps the overview seek area"));
             }
+            auto* local = ui_->item((prefix + "LocalTempo").toUtf8().constData());
+            QVERIFY(local);
+            QCOMPARE(local->property("text").toString(), QString("LOCAL SOURCE EST. 400.0 BPM"));
+            QVERIFY(local->implicitWidth() <= local->width() + .5);
             auto* reference = ui_->item((prefix + "BpmReference").toUtf8().constData());
             QVERIFY(reference);
             const auto bpmRect = reference->mapRectToScene(QRectF(QPointF(0, 0), reference->size()));
