@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Run the manual routing binary on an isolated, hardware-free PipeWire daemon."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -11,6 +12,17 @@ import stat
 import subprocess
 import tempfile
 import time
+
+
+def ui_controls_binary(path, digest, functional_only):
+    if not functional_only or not path.is_absolute() or path.is_symlink() or not path.is_file() or not os.access(path, os.X_OK):
+        raise ValueError("UI controls need --functional-only and an explicit regular executable soak path")
+    if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest) or not 0 < path.stat().st_size <= 64 * 1024**2:
+        raise ValueError("Explicit bounded soak binary SHA256 required")
+    with path.open("rb") as stream:
+        if hashlib.file_digest(stream, "sha256").hexdigest() != digest:
+            raise ValueError("Soak executable pin differs")
+    return path.resolve(strict=True)
 
 
 def main():
@@ -26,7 +38,16 @@ def main():
                        help="run one bounded generated same-deck continuation case")
     modes.add_argument("--resident-takeover-case", choices=("interior", "boundary"),
                        help="run one generated direct-session resident OUT takeover case")
+    modes.add_argument("--ui-controls-soak", type=Path, help="preparation helper runs this exact soak's actual Qt sequence on the private daemon")
+    parser.add_argument("--soak-sha256", default="", help="required exact executable SHA256 with --ui-controls-soak")
     args = parser.parse_args()
+    if args.ui_controls_soak:
+        try:
+            args.ui_controls_soak = ui_controls_binary(args.ui_controls_soak, args.soak_sha256, args.functional_only)
+        except (OSError, ValueError) as error:
+            parser.error(str(error))
+    elif args.soak_sha256:
+        parser.error("--soak-sha256 requires --ui-controls-soak")
     binary = args.binary.resolve(strict=True)
     output = args.output.absolute()
     output.mkdir(mode=0o700, parents=False, exist_ok=False)
@@ -159,6 +180,8 @@ context.modules = [
                         command.extend(("--continuation-case", args.continuation_case))
                     if args.resident_takeover_case:
                         command.extend(("--resident-takeover-case", args.resident_takeover_case))
+                    if args.ui_controls_soak:
+                        command.extend(("--ui-controls-soak", str(args.ui_controls_soak), args.soak_sha256))
                     checker = subprocess.Popen(
                         command, env=environment,
                         stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)

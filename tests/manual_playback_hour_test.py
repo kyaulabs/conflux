@@ -21,9 +21,139 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.experiments import run_manual_playback_soak as soak
+from tools.experiments import private_routing_check as routing
 
 
 class HourPlaybackTest(unittest.TestCase):
+    def controls_fixture(self, functional=False):
+        # Independent fixed target table. B starts selected so restoring false
+        # unconditionally is a real regression, rather than a passing no-op.
+        baseline = {"deck_gains": [.25, 1.], "eq_db": [[0., 0., 0.], [0., 0., 0.]],
+                    "crossfader": .5, "cue_selected": [False, True], "master_gain": .25,
+                    "cue_gain": 1., "stem_gains": [[1.] * 4, [0.] * 4]}
+        snapshot = baseline | {"output_frame": 1000, "source_frames": [0, 10000],
+            "source_lengths": [1123201, 14400000], "source_generations": [1, 2], "transport_revisions": [1, 1],
+            "cue_frames": [0, 0], "cue_held": [False, False], "cue_preview": [False, False],
+            "playing": [True, True], "applied": 10, "last_command_id": 10, "callbacks": 1,
+            "invalid_buffers": 0, "rejected": 0, "starved": [0, 0], "read_failure": [False, False]}
+        native = {"mode": "live-stems-controls", "passed": True, "cancelled": False, "shutdown_completed": True,
+            "functional_only": functional, "host_audio": not functional, "requested_seconds": 10 if functional else 120,
+            "ui_mode": "visible", "window_policy": "visible", "manual_controls_complete": True,
+            "manual_controls_baseline": copy.deepcopy(snapshot), "manual_controls": [],
+            "measurement_intervals_closed": True, "last_recovery_complete": True,
+            "measured_wall_ms": 10000 if functional else 120000, "measurement_begin_output_frame": 1000,
+            "measurement_end_output_frame": 481000 if functional else 5761000, "steady_starved_frames": 0,
+            "starved_frames_outside_measured_intervals": 0, "invalid_buffers": 0, "rejected_commands": 0,
+            "source_read_failures": 0, "execution_deadline_misses": 0, "scene_errors": [], "frames_presented": 100,
+            "maximum_gui_heartbeat_gap_ns": 20000000, "maximum_frame_presentation_gap_ns": 20000000,
+            "intervals": [{"kind": "steady", "starved_frames": 0}],
+            "timing": [{"driver_position_observed": True, "driver_position_discontinuities": 0,
+                        "driver_recovery_flags": 0, "graph_quantum_min": 256, "graph_quantum_max": 256}]}
+        for deck in range(2):
+            targets = (("gain", .125 if deck == 0 else .5), ("gain", baseline["deck_gains"][deck]),
+                       ("cross", .25 if deck == 0 else .75), ("cross", .5), ("eq", -6.5), ("eq", 0.),
+                       ("cue", not baseline["cue_selected"][deck]), ("cue", baseline["cue_selected"][deck]))
+            for step, (action, target) in enumerate(targets):
+                index = deck * 8 + step
+                due = ((7000 if deck else 500) + step * 100 if functional else
+                       (70000 if deck else 10000) + step * 2000)
+                before = copy.deepcopy(snapshot)
+                before["output_frame"] = 1000 + due * 48
+                before["source_frames"] = [(due % 23000) * 48, 10000 + due * 48]
+                ack = copy.deepcopy(before)
+                if action == "gain": ack["deck_gains"][deck] = target
+                elif action == "cross": ack["crossfader"] = target
+                elif action == "eq": ack["eq_db"][deck][2] = target
+                else: ack["cue_selected"][deck] = target
+                ack["output_frame"] += 256; ack["source_frames"] = [x + 256 for x in before["source_frames"]]
+                ack["applied"] += 1; ack["last_command_id"] += 1; ack["callbacks"] += 1
+                name = {"gain": f"deck{deck}Gain", "cross": "crossfader", "eq": f"deck{deck}EqHI", "cue": f"deck{deck}CueSelect"}[action]
+                issued = 1000000000 + due * 1000000
+                native["manual_controls"].append({"index": index, "deck": deck, "step": step, "object": name,
+                    "due_ms": due, "issued_elapsed_ms": due, "issued_ns": issued, "ack_poll_ns": issued + 20000000,
+                    "acknowledged": True, "before": before, "ack": ack, "expected": copy.deepcopy(ack),
+                    "expected_command": ack["last_command_id"], "session_before": 0, "session_after": 0,
+                    "presented_before": index, "presented_after": index + 1,
+                    "ui_value": (.375 if target == -6.5 else .5) if action == "eq" else target})
+                snapshot = ack
+        observations = {"service_metrics_complete": True, "service_hops": {"complete": True, "count": 21,
+                        "nearest_rank_p99_ms": 3012.7}, "kind_counts": {"ChunkValidated": 21},
+                        "chunk_phases": {"fields": {key: {"present_for_all_chunks": True, "count": 21}
+                                                     for key in soak.LIVE_PHASE_NAMES}}}
+        return native, observations
+
+    def test_actual_controls_admission_is_short_visible_only(self):
+        _, args = self.cli("--live-stems", "--active-controls")
+        self.assertTrue(args.active_controls)
+        self.assertEqual(args.seconds, 120)
+        for extra in (("--live-stems", "--active-controls", "--background"),
+                      ("--live-stems-hour", "--active-controls"), ("--active-controls",)):
+            with self.subTest(extra=extra), self.assertRaises(SystemExit): self.cli(*extra)
+
+    def test_actual_controls_targets_restore_both_decks_and_selected_cue(self):
+        native, observations = self.controls_fixture()
+        self.assertEqual(soak.validate_active_controls(native, observations)["actions"], 16)
+        self.assertTrue(native["manual_controls"][-1]["ack"]["cue_selected"][1])
+        native, _ = self.controls_fixture(functional=True)
+        result = soak.validate_active_controls(native, functional=True)
+        self.assertTrue(result["functional_only"])
+        self.assertFalse(result["qualified"])
+        with self.assertRaises(RuntimeError): soak.validate_active_controls(native, observations)
+
+    def test_actual_controls_reject_wrong_order_target_clock_ownership_and_missing_ack(self):
+        native, observations = self.controls_fixture()
+        mutations = (
+            lambda x: x["manual_controls"].pop(),
+            lambda x: x["manual_controls"][0].update(index=1),
+            lambda x: x["manual_controls"][1].update(object="deck1Gain"),
+            lambda x: x["manual_controls"][0].update(acknowledged=False),
+            lambda x: x["manual_controls"][0]["ack"].update(last_command_id=999),
+            lambda x: x["manual_controls"][0]["ack"].update(applied=13),
+            lambda x: x["manual_controls"][0]["ack"]["deck_gains"].__setitem__(0, .5),
+            lambda x: x["manual_controls"][-1]["ack"]["cue_selected"].__setitem__(1, False),
+            lambda x: x["manual_controls"][0]["ack"]["transport_revisions"].__setitem__(0, 9),
+            lambda x: x["manual_controls"][0]["ack"]["source_generations"].__setitem__(1, 9),
+            lambda x: x["manual_controls"][0]["ack"]["source_frames"].__setitem__(1, 7),
+            lambda x: x["manual_controls"][0].update(session_after=1),
+            lambda x: x["manual_controls"][0].update(presented_after=0),
+            lambda x: x["manual_controls"][0].update(ack_poll_ns=x["manual_controls"][0]["issued_ns"] + 5000000000),
+            lambda x: x["manual_controls_baseline"]["stem_gains"][1].__setitem__(0, 1.),
+            lambda x: x.update(manual_controls_complete=False),
+            lambda x: x.update(cancelled=True), lambda x: x.update(shutdown_completed=False),
+            lambda x: x.update(steady_starved_frames=256),
+            lambda x: x["intervals"][0].update(kind="manual_controls", starved_frames=256),
+            lambda x: x.update(execution_deadline_misses=1),
+        )
+        for index, mutate in enumerate(mutations):
+            invalid = copy.deepcopy(native); mutate(invalid)
+            with self.subTest(index=index), self.assertRaises(RuntimeError): soak.validate_active_controls(invalid, observations)
+
+    def test_actual_controls_keep_strict_host_service_loss_phase_and_driver_gates(self):
+        native, observations = self.controls_fixture()
+        mutations = (lambda x: x["service_hops"].update(nearest_rank_p99_ms=4095),
+                     lambda x: x.update(service_metrics_complete=False),
+                     lambda x: x["chunk_phases"]["fields"][soak.LIVE_PHASE_NAMES[0]].update(count=20))
+        for mutate in mutations:
+            invalid = copy.deepcopy(observations); mutate(invalid)
+            with self.assertRaises(RuntimeError): soak.validate_active_controls(native, invalid)
+        native["timing"][0]["driver_recovery_flags"] = 1
+        with self.assertRaises(RuntimeError): soak.validate_active_controls(native, observations)
+
+    def test_private_soak_pin_fails_before_daemon_or_child_dispatch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "soak"; path.write_bytes(b"bounded executable fixture\n"); path.chmod(0o700)
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertEqual(routing.ui_controls_binary(path, digest, True), path)
+            for pin, functional in (("0" * 64, True), (digest, False), ("invalid", True)):
+                with self.subTest(pin=pin, functional=functional), self.assertRaises(ValueError):
+                    routing.ui_controls_binary(path, pin, functional)
+            arguments = ["private", "/unused-preparation-check", str(Path(directory) / "out"),
+                         "--functional-only", "--ui-controls-soak", str(path), "--soak-sha256", "0" * 64]
+            with patch.object(sys, "argv", arguments), patch.object(routing.subprocess, "Popen") as spawn, \
+                    contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                routing.main()
+            spawn.assert_not_called()
+
     def live_watchdog_run(self, readiness_seconds, child_ages, progress=False):
         # Run the actual launch/watchdog/cleanup path with generated files and a
         # fake child. No host commands, audio, native process or real wait runs.
