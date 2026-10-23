@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-23T05:41:14.255091+00:00",
+  "base_commit": "073d6b329c95a74a34aec540e5cf08590bedf14d",
+  "scope": "Private functional preparation oracle only; production callback/controller unchanged",
+  "tested_source": {
+    "path": "tools/experiments/preparation_controller_check.cpp",
+    "bytes": 223845,
+    "sha256": "d5625877a0cf67c2793e1247cd89062e16b5cf3a70f41b7dfeb8de172865c1a6"
+  },
+  "failed_ci": {
+    "url": "https://github.com/kyaulabs/conflux/actions/runs/39904998797/job/120254812932",
+    "source_head": "66771fc4644f7400bc57ca604eab0e5e417fb8f8",
+    "artifact_id": 12480966494,
+    "error": "Retry reuses persisted B preparation while A remains exact and B installs paused on the same clock",
+    "wrong_samples": 1534,
+    "zero_samples": 1533,
+    "phase_receipt": {
+      "bytes": 2951,
+      "sha256": "8e474b8495af48316b33dba316459b1f44b07b8ff50dd792524def7a308ff317"
+    },
+    "cause": "Exact emitting layer unproven. A nearby private-daemon client-too-slow warning does not prove causality; sink clauses definitely failed. Other final health clauses were not individually retained.",
+    "same_head_other_coverage_run": "39905004844 passed; original failure retained, no unchanged rerun used as a fix"
+  },
+  "build": {
+    "exit": 0,
+    "seconds": 23.34163733499736,
+    "jobs": 2
+  },
+  "private_execution": {
+    "exit": 0,
+    "seconds": 197.18308784200053,
+    "scope": "Generated owned virtual PipeWire graph; no hardware/model/GPU or latency qualification"
+  },
+  "private_result": {
+    "passed": true,
+    "checks": 147,
+    "cleanup": {
+      "remaining_nodes_or_links": [],
+      "only_dummy_driver_remains": true
+    },
+    "daemon_reaped": true,
+    "recording": {
+      "acceptedFrames": 239104,
+      "active": false,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/functional-preparation-pcm-01/private-functional-01/recordings/generated-preparation-controller.wav",
+      "status": "Complete",
+      "writtenFrames": 239104
+    },
+    "pcm": {
+      "checked_prefix_or_tail_frames": 239104,
+      "expected_master_multiplier": 1,
+      "frames": 239104,
+      "maximum_prefix_or_tail_error": 0,
+      "prefix_frames": 239104,
+      "required_maximum_error": 0,
+      "scope": "Every finalized stereo frame checked exactly; no excluded frames. Downstream virtual-sink delivery is separate from rendered PCM correctness.",
+      "transient_middle_frames_excluded": 0
+    },
+    "virtual_sink_sample_gate": false,
+    "wrong_samples": 0,
+    "zero_samples": 0
+  },
+  "recorded_wav": {
+    "bytes": 1912920,
+    "sha256": "c5e26c4115c42e050d723c3f489531e06487d24a93f1e4ca3cfdc3cdfb33b016"
+  },
+  "independent_pcm_check": {
+    "method": "Stdlib RIFF float32 header parse and exact data-byte comparison with struct.pack(<ff,.125,-.0625) repeated for every frame",
+    "frames": 239104,
+    "sample_tolerance": 0,
+    "passed": true
+  },
+  "source_review": {
+    "verdict": "GO",
+    "receipt": {
+      "bytes": 3332,
+      "sha256": "6183d1afb8b8db1cfbe45edbbdbe299dceb27d13878f006a16f48c70dc1b0d78"
+    }
+  },
+  "preserved_gates": [
+    "All source/generation/frame/session/health/ownership/reentrancy predicates",
+    "Every original downstream sink gate outside functional-only mode",
+    "Complete/inactive writer, accepted=written>=1024 and overflow0",
+    "All finalized stereo frames checked with zero sample error; no excluded range"
+  ],
+  "limits": [
+    "Recorded PCM correctness does not qualify wall-clock delivery or prove the original zero-sample cause",
+    "This local coverage build used functional-only mode; strict normal mode remains required in native CI",
+    "No actual model/GPU/hardware, M2 latency, sustained playback or release qualification"
+  ]
+}

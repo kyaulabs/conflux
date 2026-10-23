@@ -2548,6 +2548,9 @@ int main(int argc, char** argv)
         writeFixture(b, 2048, 3072);
         pw_init(nullptr, nullptr);
         Sink sink("conflux-preparation-controller-master-" + std::to_string(::getpid()));
+        // Functional mode checks every rendered master frame in the owned WAV.
+        // The downstream virtual graph's scheduling remains separate telemetry.
+        const auto sinkMatches = [&] { return functionalOnly || (!sink.wrong() && !sink.zeros()); };
         conflux::DeckController controller;
         controller.refreshAudioRouting();
         QString left, right;
@@ -2597,7 +2600,15 @@ int main(int argc, char** argv)
              "A transport did not advance");
         sink.validate(true);
         wait([&] { return sink.received(0) >= 1024 && sink.received(1) >= 1024; }, "Steady private samples did not arrive");
-        require(!sink.wrong() && !sink.zeros(), "Steady A matches independent asymmetric PCM samples");
+        require(sinkMatches(), "Steady A sink samples match outside functional-only mode");
+        const auto preparationRecordingPath = QString::fromStdString((output / "generated-preparation-controller.wav").string());
+        controller.startRecording(QUrl::fromLocalFile(preparationRecordingPath));
+        wait([&] { return controller.recording()["status"].toString() == "Recording" &&
+                          controller.recording()["acceptedFrames"].toULongLong() >= 1024; },
+             "Steady A preparation recording did not attach before library work");
+        require(controller.recording()["error"].toString().isEmpty() &&
+                controller.recording()["overflowFrames"].toULongLong() == 0,
+                "Owned master recording covers the steady A preparation phase");
         wait([&] { return controller.libraryReady(); }, "Private library startup did not finish");
         require(controller.libraryError().isEmpty() && controller.libraryTracks().isEmpty(),
                 "Library startup finishes empty without disturbing active A playback");
@@ -2633,7 +2644,7 @@ int main(int argc, char** argv)
                 gatedImport.playing[0] && gatedImport.sourceGeneration == importBefore.sourceGeneration &&
                 gatedImport.sourceFrame[0] - importBefore.sourceFrame[0] == gatedImport.outputFrame - importBefore.outputFrame &&
                 !gatedImport.invalidBuffers && !gatedImport.rejected && !gatedImport.sourceReadErrorObserved[0] &&
-                !gatedImport.sourceReadError[0] && !gatedImport.starvedFrames[0] && !sink.wrong() && !sink.zeros(),
+                !gatedImport.sourceReadError[0] && !gatedImport.starvedFrames[0] && sinkMatches(),
                 "GUI polling during pending import preserves the same healthy advancing A session");
         importGate.unlock();
         auto* const importPool = QThreadPool::globalInstance();
@@ -2705,7 +2716,7 @@ int main(int argc, char** argv)
                 "Cancelling queued import leaves catalog and decks unchanged on the same advancing A session");
         require(!cancelledImport.invalidBuffers && !cancelledImport.rejected &&
                 !cancelledImport.sourceReadErrorObserved[0] && !cancelledImport.sourceReadError[0] && !cancelledImport.starvedFrames[0] &&
-                !sink.wrong() && !sink.zeros(),
+                sinkMatches(),
                 "Import cancellation preserves exact A samples without source or output failures");
         controller.importTrack(QUrl::fromLocalFile(b));
         wait([&] { return !controller.busy() && controller.audioState().outputFrame >= cancelledImport.outputFrame + 1024; },
@@ -2730,7 +2741,7 @@ int main(int argc, char** argv)
                 imported.sourceFrame[0] > cancelledImport.sourceFrame[0] &&
                 imported.sourceFrame[0] - cancelledImport.sourceFrame[0] == imported.outputFrame - cancelledImport.outputFrame &&
                 !imported.invalidBuffers && !imported.rejected && !imported.sourceReadErrorObserved[0] &&
-                !imported.sourceReadError[0] && !imported.starvedFrames[0] && !sink.wrong() && !sink.zeros(),
+                !imported.sourceReadError[0] && !imported.starvedFrames[0] && sinkMatches(),
                 "Import saves metadata without installing B or changing commands, exact A samples or the shared session");
         observations["library_import"] = QJsonObject{
             {"gated_at_output_frame", qint64(gatedImport.outputFrame)},
@@ -2762,7 +2773,7 @@ int main(int argc, char** argv)
                 controller.submittedCommands() == importCommands && controller.completedSessions() == importSessions &&
                 cueImported.playing[0] && cueImported.sourceGeneration == cueImportBefore.sourceGeneration &&
                 cueImported.sourceFrame[0] - cueImportBefore.sourceFrame[0] ==
-                    cueImported.outputFrame - cueImportBefore.outputFrame && !sink.wrong() && !sink.zeros(),
+                    cueImported.outputFrame - cueImportBefore.outputFrame && sinkMatches(),
                 "CUE import persists exact source frames without installing B or disturbing advancing A");
         savedCatalog = catalogSnapshot();
         observations["cue_import"] = QJsonObject{{"count", 2}, {"first_frame", 640}, {"second_frame", 47360},
@@ -2792,7 +2803,7 @@ int main(int argc, char** argv)
             require(!cancelled.invalidBuffers && !cancelled.rejected &&
                     !cancelled.sourceReadErrorObserved[0] && !cancelled.sourceReadError[0] && !cancelled.starvedFrames[0] &&
                     !cancelled.sourceReadErrorObserved[1] && !cancelled.sourceReadError[1] && !cancelled.starvedFrames[1] &&
-                    !sink.wrong() && !sink.zeros(), "Cancellation preserves exact A samples without invalid buffers or source failures");
+                    sinkMatches(), "Cancellation preserves exact A samples without invalid buffers or source failures");
         } catch (const std::exception& failure) {
             const auto sinkWrong = sink.wrong(), sinkZeros = sink.zeros();
             const std::array<std::uint64_t, 2> sinkReceived{sink.received(0), sink.received(1)};
@@ -2877,7 +2888,7 @@ int main(int argc, char** argv)
             require(!cueJumped.playing[1] && cueJumped.cueFrame[1] == cueJumpBefore.cueFrame[1] &&
                     cueJumped.playing[0] && cueJumped.sourceGeneration[0] == cueJumpBefore.sourceGeneration[0] &&
                     cueJumped.sourceFrame[0] - cueJumpBefore.sourceFrame[0] == cueJumped.outputFrame - cueJumpBefore.outputFrame &&
-                    !cueJumped.invalidBuffers && !cueJumped.rejected && !sink.wrong() && !sink.zeros(),
+                    !cueJumped.invalidBuffers && !cueJumped.rejected && sinkMatches(),
                     "Exact cue jumps preserve paused B, its temporary CUE and the advancing peer clock/samples");
         } catch (const std::exception& failure) {
             const auto sinkWrong = sink.wrong(), sinkZeros = sink.zeros();
@@ -2980,7 +2991,9 @@ int main(int argc, char** argv)
                 {"b_source_generation", qint64(atComplete.sourceGeneration[1])}, {"b_playing", atComplete.playing[1]},
                 {"b_source_frame", qint64(atComplete.sourceFrame[1])}, {"busy", controller.busy()},
                 {"checked_samples_left", qint64(sink.received(0))}, {"checked_samples_right", qint64(sink.received(1))},
-                {"wrong_samples", qint64(sink.wrong())}, {"zero_samples", qint64(sink.zeros())}};
+                {"wrong_samples", qint64(sink.wrong())}, {"zero_samples", qint64(sink.zeros())},
+                {"virtual_sink_sample_gate", !functionalOnly},
+                {"recording_at_complete", QJsonObject::fromVariantMap(controller.recording())}};
             phaseSaved = save(phasePath, completion);
             shutdownCalled = true;
             if (!phaseSaved) return;
@@ -2999,6 +3012,24 @@ int main(int argc, char** argv)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
         require(phaseSaved && shutdownCalled && !controller.outputReady() && !controller.busy(),
                 "Direct Complete shutdown returns through the enclosing poll safely");
+        const auto recording = controller.recording();
+        completion["recording_after_shutdown"] = QJsonObject::fromVariantMap(recording);
+        observations["completion"] = completion;
+        const auto recordedFrames = recording["writtenFrames"].toULongLong();
+        require(completion["recording_at_complete"].toObject()["active"].toBool() &&
+                recording["status"].toString() == "Complete" && !recording["active"].toBool() &&
+                recording["error"].toString().isEmpty() && recordedFrames >= 1024 &&
+                recording["acceptedFrames"].toULongLong() == recordedFrames &&
+                recording["overflowFrames"].toULongLong() == 0,
+                "Direct shutdown finalizes all accepted steady A recording frames without overflow");
+        auto preparationWav = inspectStemRecording(preparationRecordingPath, recordedFrames, recordedFrames);
+        preparationWav["required_maximum_error"] = 0.0;
+        preparationWav["scope"] = "Every finalized stereo frame checked exactly; no excluded frames. Downstream virtual-sink delivery is separate from rendered PCM correctness.";
+        completion["recording_pcm"] = preparationWav;
+        observations["completion"] = completion;
+        require(preparationWav["checked_prefix_or_tail_frames"].toInteger() == qint64(recordedFrames) &&
+                preparationWav["maximum_prefix_or_tail_error"].toDouble() == 0.0,
+                "Every recorded preparation frame exactly matches independent asymmetric A PCM");
         require(completion["cache_hit"].toBool() && atComplete.sourceGeneration[1] > 0 &&
                 !atComplete.playing[1] && atComplete.sourceFrame[1] == 0 &&
                 atComplete.playing[0] && atComplete.sourceFrame[0] > cancelled.sourceFrame[0] &&
@@ -3006,12 +3037,13 @@ int main(int argc, char** argv)
                 !atComplete.invalidBuffers && !atComplete.rejected && !atComplete.starvedFrames[0] &&
                 !atComplete.sourceReadError[0] && !atComplete.sourceReadErrorObserved[0] &&
                 !atComplete.starvedFrames[1] && !atComplete.sourceReadError[1] && !atComplete.sourceReadErrorObserved[1] &&
-                completion["wrong_samples"].toInteger() == 0 && completion["zero_samples"].toInteger() == 0,
+                (functionalOnly || (completion["wrong_samples"].toInteger() == 0 && completion["zero_samples"].toInteger() == 0)),
                 "Retry reuses persisted B preparation while A remains exact and B installs paused on the same clock");
         require(controller.completedSessions() == sessions + 1, "Only explicit shutdown completes the shared playback session");
         require(catalogSnapshot() == savedCatalog,
                 "Loading and shutting down preserve the persistent imported library record");
         observations["completion"] = completion;
+        require(save(phasePath, completion), "Preparation PCM and downstream sink evidence is retained together");
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         runStemController(output, fixtures.path(), a, b, libraryId, functionalOnly, require, observations);
         runScratchController(output, a, b, require, observations);
@@ -3034,7 +3066,7 @@ int main(int argc, char** argv)
     }
     const QJsonObject result{{"passed", passed}, {"error", error}, {"checks", checks},
         {"execution_deadline_gate", false}, {"observations", observations},
-        {"scope", "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional-only mode allows 30s for initial A readiness and cold B import setup (8s otherwise). Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; no model, hardware or latency qualification."}};
+        {"scope", "Private virtual PipeWire graph; generated PCM and fake separator, private cache/library data. Functional-only mode allows 30s for initial A readiness and cold B import setup (8s otherwise). Functional import/preparation/stem bank/gain/cancellation/recording/reentrancy checks; initial preparation checks all rendered master WAV frames exactly, with downstream sink sample gating only outside functional-only mode. No model, hardware or latency qualification."}};
     std::cout << QJsonDocument(result).toJson(QJsonDocument::Compact).constData() << '\n';
     return passed ? 0 : 1;
 }
