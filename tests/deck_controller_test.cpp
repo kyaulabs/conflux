@@ -30,6 +30,7 @@
 #include <chrono>
 #include <csignal>
 #include <future>
+#include <fcntl.h>
 #include <poll.h>
 #include <stdexcept>
 #include <thread>
@@ -75,6 +76,85 @@ bool writeCue(const QString& path, const QString& source, const QByteArray& indi
     const auto data = "FILE \"" + QFileInfo(source).fileName().toUtf8() + "\" WAVE\n" + indices;
     return file.open(QIODevice::WriteOnly) && file.write(data) == data.size() && file.flush();
 }
+
+// Generated stdlib-only parent/worker contract. No key model or NumPy here.
+struct HarmonyFixture {
+    QTemporaryDir directory;
+    std::unique_ptr<conflux::audio::PreparedAudio> pcm;
+    conflux::library::HarmonyEngine engine;
+    QFile writable;
+    QString marker, release;
+    explicit HarmonyFixture(const QByteArray& mode = "good", std::uint64_t frames = 384013)
+    {
+        if (!directory.isValid()) throw std::runtime_error("Harmony fixture directory failed");
+        const auto raw = directory.filePath("input.f32");
+        std::vector<float> samples(frames * 2, .125F);
+        conflux::test::writeFixtureBytes(raw, QByteArray(reinterpret_cast<const char*>(samples.data()), qsizetype(samples.size() * sizeof(float))));
+        writable.setFileName(raw);
+        if (!writable.open(QIODevice::ReadWrite)) throw std::runtime_error("Harmony writable fixture FD failed");
+        const int fd = ::open(QFile::encodeName(raw).constData(), O_RDONLY | O_CLOEXEC);
+        if (fd < 0) throw std::runtime_error("Harmony fixture FD failed");
+        try { pcm = std::make_unique<conflux::audio::PreparedAudio>(conflux::audio::reopenPreparedAudio(fd, frames, std::vector<float>(512, .125F))); }
+        catch (...) { close(fd); throw; }
+        close(fd);
+        engine = {QStandardPaths::findExecutable("python3"), directory.filePath("worker.py"), 3};
+        marker = directory.filePath("started"); release = directory.filePath("release");
+        setMode(mode);
+    }
+    void setMode(const QByteArray& mode)
+    {
+        const auto quote = [](const QString& value) { return QJsonDocument(QJsonArray{value}).toJson(QJsonDocument::Compact).mid(1).chopped(1); };
+        QByteArray script = "MODE='" + mode + "'\nMARKER=" + quote(marker) + "\nRELEASE=" + quote(release) + "\n";
+        script += R"PY(import argparse, hashlib, json, os, pathlib, signal, sys, time
+p=argparse.ArgumentParser();p.add_argument('--frames',type=int,required=True);a=p.parse_args()
+b=sys.stdin.buffer.read();assert len(b)==a.frames*8
+if MODE in ('sleep','await-invalid'):
+    if MODE=='sleep':signal.signal(signal.SIGTERM,signal.SIG_IGN)
+    temporary=pathlib.Path(MARKER+'.tmp');temporary.write_text(str(os.getpid()));temporary.replace(MARKER)
+    if MODE=='sleep':
+        time.sleep(30)
+    while not pathlib.Path(RELEASE).exists():time.sleep(.005)
+if MODE=='flood':sys.stdout.write('x'*200000);sys.stdout.flush();raise SystemExit(0)
+if MODE in ('invalid','await-invalid'):print('invalid');raise SystemExit(0)
+count=(a.frames+191999)//192000
+head=dict(schema=1,recipe='local-chroma-krumhansl-v1',frames=a.frames,sample_rate=48000,channels=2,
+          pcm_sha256=hashlib.sha256(b).hexdigest(),window_frames=192000,window_count=count)
+if MODE=='hash':head['pcm_sha256']='0'*64
+if MODE=='bool-schema':head['schema']=True
+if MODE=='frames':head['frames']+=1
+raw=json.dumps(head)
+if MODE=='duplicate':raw='{"schema":0,'+raw[1:]
+print(raw)
+for i in range(count):
+    first=i*192000;end=min(first+192000,a.frames)
+    row=dict(first_frame=first,end_frame=end,status='Unknown',reason='short',chroma=[0.]*12,candidates=[],confidence='Unknown')
+    if end-first>=32768:
+        tonic=(0 if a.frames==192000 else 2) if MODE=='controller' else (0 if i==0 else 2)
+        row.update(status='Estimated',reason='profile-match',chroma=[.25,0,.2,0,.15,0,0,.2,0,.2,0,0],
+            candidates=[dict(tonic=tonic,mode='Major',correlation=.85),dict(tonic=(tonic+9)%12,mode='Minor',correlation=.5)])
+    if end-first>=32768:
+        if MODE in ('sparse-estimated','sparse-ambiguous','sparse-competing'):
+            row['chroma']=[1.]+[0.]*11
+        if MODE in ('flat-estimated','flat-unknown','flat-ambiguous'):
+            row['chroma']=[1/12]*12
+        if MODE in ('sparse-ambiguous','wrong-context','flat-ambiguous'):
+            row.update(status='Ambiguous',reason='insufficient-key-context')
+        if MODE in ('sparse-competing','matched-competing','competing-good'):
+            row.update(status='Ambiguous',reason='competing-keys')
+        if MODE in ('flat-unknown','wrong-non-tonal'):
+            row.update(status='Unknown',reason='non-tonal',candidates=[])
+        if MODE=='competing-good':row['candidates'][0]['correlation']=.55
+        if MODE=='weak-estimated':row['candidates'][0]['correlation']=.55
+    if MODE=='overlap':row['first_frame']=1
+    if MODE=='confidence':row['confidence']='High'
+    if MODE=='nan' and row['candidates']:row['candidates'][0]['correlation']=float('nan')
+    print(json.dumps(row))
+if MODE!='missing-end':print(json.dumps(dict(schema=1,complete=True,window_count=count)))
+if MODE=='extra':print('{}')
+)PY";
+        conflux::test::writeFixtureBytes(engine.workerPath, script);
+    }
+};
 
 struct RestoreEnvironment {
     std::array<const char*, 5> names{"XDG_RUNTIME_DIR", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE", "XDG_DATA_HOME", "XDG_CACHE_HOME"};
@@ -1888,6 +1968,164 @@ private slots:
         QCOMPARE(failed["localTiming"].toMap()["status"].toString(), QString("Unknown"));
         QVERIFY(!failed["localTiming"].toMap()["positionKnown"].toBool());
         QCOMPARE(controller.submittedCommands(), submitted);
+    }
+
+    void harmonyNativeIdentityIntervalsAndUnknownTail()
+    {
+        HarmonyFixture fixture;
+        QVERIFY(lseek(fixture.pcm->descriptor(), 7, SEEK_SET) == 7);
+        const auto estimate = conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine);
+        QCOMPARE(estimate.status, QString("Estimated")); QCOMPARE(estimate.windows.size(), std::size_t(3));
+        QCOMPARE(estimate.analysisFrames, std::uint64_t(384013)); QCOMPARE(estimate.pcmSha256.size(), 64);
+        QCOMPARE(lseek(fixture.pcm->descriptor(), 0, SEEK_CUR), off_t(7));
+        const auto* first = conflux::library::localHarmonyAt(estimate, 191999);
+        const auto* second = conflux::library::localHarmonyAt(estimate, 192000);
+        QVERIFY(first && second); QCOMPARE(first->candidates.front().tonic, 0); QCOMPARE(second->candidates.front().tonic, 2);
+        const auto* tail = conflux::library::localHarmonyAt(estimate, 384000);
+        QVERIFY(tail); QCOMPARE(tail->status, QString("Unknown")); QCOMPARE(tail->endFrame, std::uint64_t(384013));
+        QVERIFY(!conflux::library::localHarmonyAt(estimate, 384013));
+        auto corrupt = estimate; corrupt.windows[1].firstFrame++;
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        corrupt = estimate; corrupt.pcmSha256 = "bad";
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        for (const auto* mode : {"hash", "bool-schema", "frames", "duplicate", "overlap", "confidence", "nan", "missing-end", "extra", "flood"}) {
+            fixture.setMode(mode);
+            const auto failed = conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine);
+            QCOMPARE(failed.status, QString("Failed")); QVERIFY(failed.windows.empty());
+            QVERIFY(!conflux::library::localHarmonyAt(failed, 0));
+        }
+        // Status/reason must follow observable frozen chroma admission,
+        // including when callers pass an in-memory map directly to the query.
+        for (const auto* mode : {"sparse-estimated", "flat-estimated", "sparse-competing", "wrong-context",
+                                 "flat-ambiguous", "matched-competing", "wrong-non-tonal", "weak-estimated"}) {
+            fixture.setMode(mode);
+            const auto failed = conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine);
+            QCOMPARE(failed.status, QString("Failed")); QVERIFY(failed.windows.empty());
+        }
+        for (const auto* mode : {"sparse-ambiguous", "flat-unknown", "competing-good"}) {
+            fixture.setMode(mode);
+            const auto accepted = conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine);
+            QCOMPARE(accepted.status, QString("Estimated"));
+            const auto* selected = conflux::library::localHarmonyAt(accepted, 0); QVERIFY(selected);
+            QCOMPARE(selected->status, QString(QByteArray(mode) == "flat-unknown" ? "Unknown" : "Ambiguous"));
+        }
+        corrupt = estimate; corrupt.windows[1].chroma = {1.,0,0,0,0,0,0,0,0,0,0,0};
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        corrupt = estimate; corrupt.windows[1].chroma.fill(1. / 12);
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        corrupt = estimate; corrupt.windows[1].status = "Ambiguous"; corrupt.windows[1].reason = "insufficient-key-context";
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        corrupt.windows[1].reason = "competing-keys";
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        corrupt = estimate; corrupt.windows[1].status = "Unknown"; corrupt.windows[1].reason = "non-tonal";
+        corrupt.windows[1].candidates.clear();
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        corrupt = estimate; corrupt.windows[1].candidates[0].correlation = .55;
+        QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        fixture.engine.maxSeconds = 0;
+        QCOMPARE(conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine).status, QString("Failed"));
+        fixture.engine.maxSeconds = 3; fixture.engine.workerPath = fixture.directory.filePath("missing.py");
+        QCOMPARE(conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine).status, QString("Failed"));
+    }
+
+    void harmonySourceCorruptionAndCancellationRemainFatal()
+    {
+        {
+            HarmonyFixture fixture("await-invalid"); std::stop_source cancellation;
+            auto future = std::async(std::launch::async, [&] {
+                return conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine, cancellation.get_token());
+            });
+            QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(fixture.marker), 2000);
+            const float replacement = .75F;
+            const bool changed = pwrite(fixture.writable.handle(), &replacement, sizeof(replacement), 0) == sizeof(replacement);
+            conflux::test::writeFixtureBytes(fixture.release, "release");
+            if (!changed) cancellation.request_stop();
+            QVERIFY(changed);
+            QVERIFY_EXCEPTION_THROWN(future.get(), conflux::library::HarmonySourceError);
+        }
+        {
+            HarmonyFixture fixture("sleep"); std::stop_source cancellation;
+            auto future = std::async(std::launch::async, [&] {
+                try { (void)conflux::library::analyzeHarmony(*fixture.pcm, fixture.engine, cancellation.get_token()); }
+                catch (const std::runtime_error& error) { return std::string(error.what()).find("cancel") != std::string::npos; }
+                return false;
+            });
+            QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(fixture.marker), 2000);
+            const auto pid = liveFixtureBytes(fixture.marker).toLongLong(); QVERIFY(pid > 1);
+            const int descriptor = int(syscall(SYS_pidfd_open, pid_t(pid), 0));
+            cancellation.request_stop(); QVERIFY(future.get());
+            if (descriptor >= 0) {
+                pollfd value{descriptor, POLLIN, 0}; QCOMPARE(::poll(&value, 1, 0), 1); close(descriptor);
+            } else { errno = 0; QVERIFY(::kill(pid_t(pid), 0) == -1 && errno == ESRCH); }
+        }
+        HarmonyFixture nonfinite;
+        const auto nan = std::numeric_limits<float>::quiet_NaN();
+        QCOMPARE(pwrite(nonfinite.writable.handle(), &nan, sizeof(nan), 0), ssize_t(sizeof(nan)));
+        QVERIFY_EXCEPTION_THROWN(conflux::library::analyzeHarmony(*nonfinite.pcm, nonfinite.engine), conflux::library::HarmonySourceError);
+    }
+
+    void optionalHarmonyIsAcceptedWithSourceAndNeverChangesManualBpm()
+    {
+        QTemporaryDir directory, runtime; QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore; isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("source.wav"), other = directory.filePath("other.wav");
+        QVERIFY(writeWave(source, 2, 48000, 192000) && writeWave(other, 2, 48000, 96000));
+        HarmonyFixture fixture("controller");
+        conflux::DeckController::PreparationOptions options; options.harmonyEngine = fixture.engine;
+        conflux::DeckController controller(options); controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        auto harmony = controller.decks()[0].toMap()["harmony"].toMap();
+        QCOMPARE(harmony["status"].toString(), QString("Estimated")); QCOMPARE(harmony["confidence"].toString(), QString("Unknown"));
+        QCOMPARE(harmony["candidates"].toList()[0].toMap()["tonic"].toInt(), 0);
+        controller.setBpmOverride(0, 128);
+        QCOMPARE(controller.decks()[0].toMap()["harmony"].toMap(), harmony);
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 128.);
+        controller.loadDeck(0, QUrl::fromLocalFile(directory.filePath("missing.wav")));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.decks()[0].toMap()["harmony"].toMap(), harmony);
+        controller.loadDeck(0, QUrl::fromLocalFile(other)); QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        harmony = controller.decks()[0].toMap()["harmony"].toMap();
+        QCOMPARE(harmony["status"].toString(), QString("Estimated"));
+        QCOMPARE(harmony["candidates"].toList().size(), qsizetype(2));
+        QCOMPARE(harmony["candidates"].toList()[0].toMap()["tonic"].toInt(), 2);
+        const auto accepted = controller.decks()[0].toMap()["sourceId"];
+        fixture.setMode("sleep"); controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(fixture.marker), 3000); QVERIFY(controller.cancelPreparation());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelled"));
+        QCOMPARE(controller.decks()[0].toMap()["sourceId"], accepted);
+        QCOMPARE(controller.decks()[0].toMap()["harmony"].toMap(), harmony);
+        fixture.setMode("invalid"); controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+        QCOMPARE(controller.decks()[0].toMap()["harmony"].toMap()["analysisStatus"].toString(), QString("Failed"));
+        QCOMPARE(controller.decks()[0].toMap()["harmony"].toMap()["status"].toString(), QString("Unknown"));
+        QVERIFY(controller.decks()[0].toMap()["harmony"].toMap()["candidates"].toList().isEmpty());
+    }
+
+    void optionalHarmonyCannotConsumeTheOnlyStemCacheEntry()
+    {
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime; QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore; isolateLiveController(directory.path(), runtime.path());
+            const auto source = directory.filePath("single-entry.wav"), engineRoot = directory.filePath("engine");
+            QVERIFY(writeWave(source, 2, 48000, 4800)); QVERIFY(QDir().mkpath(engineRoot));
+            conflux::DeckController::PreparationOptions options; options.limits.maxEntries = 1;
+            options.stemEngine = conflux::test::makeStemEngineFixture(engineRoot);
+            const auto marker = directory.filePath("harmony-started"), worker = directory.filePath("harmony.py");
+            conflux::test::writeFixtureBytes(worker, "from pathlib import Path\nPath(" +
+                QJsonDocument(QJsonArray{marker}).toJson(QJsonDocument::Compact).mid(1).chopped(1) +
+                ").touch()\nprint('unexpected harmony invocation')\n");
+            options.harmonyEngine = conflux::library::HarmonyEngine{options.stemEngine->pythonExecutable, worker};
+            conflux::DeckController controller(options); controller.loadStemDeck(0, QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            const auto deck = controller.decks()[0].toMap();
+            QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error())); QVERIFY(deck["stemBank"].toBool());
+            QCOMPARE(deck["harmony"].toMap()["analysisStatus"].toString(), QString("Failed"));
+            QCOMPARE(deck["harmony"].toMap()["status"].toString(), QString("Unknown"));
+            QVERIFY(!QFileInfo::exists(marker));
+            QCOMPARE(deck["stemGains"].toList(), QVariantList({1.F, 1.F, 1.F, 1.F}));
+        });
     }
 
     void bpmReferenceIsSourceBoundAndDoesNotChangePlayback()
