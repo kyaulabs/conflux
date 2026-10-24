@@ -1,0 +1,762 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "strict_service_target_ms": 4095,
+  "comparison": "Sequential descriptive runs; populations, setup budgets, replay counts and thermal histories differ.",
+  "recomputed_from_retained_raw_observations": {
+    "default": {
+      "completed_hops": 17,
+      "nearest_rank_p99_ms": 7941.389541010722,
+      "at_or_above_4095": 10,
+      "steady_starved_frames": 104704,
+      "control_starved_frames": 1356032,
+      "control_starved_seconds_at_48000": 28.250666666666667,
+      "measured_wall_ms": 120004,
+      "native_passed": false,
+      "public_passed": false,
+      "all_16_controls_acknowledged": true,
+      "cleanup_proven": true,
+      "all_13_phase_fields_present": true
+    },
+    "software": {
+      "completed_hops": 22,
+      "nearest_rank_p99_ms": 6472.509102008189,
+      "at_or_above_4095": 7,
+      "steady_starved_frames": 0,
+      "control_starved_frames": 1117952,
+      "control_starved_seconds_at_48000": 23.290666666666667,
+      "measured_wall_ms": 120028,
+      "native_passed": true,
+      "public_passed": false,
+      "all_16_controls_acknowledged": true,
+      "cleanup_proven": true,
+      "all_13_phase_fields_present": true
+    }
+  },
+  "shared_inputs": {
+    "head": "ae75c1f8f0054ee5f008858039a9f815be5e192c",
+    "source_pin_count": 93,
+    "all_assets_helpers_source_list_build_attestation_equal": true,
+    "selected_SHA256": {
+      "binary": "762cfcbc0ea0d5f9d3a6d240d52ec9bdeb5e8d438bf4bc39ca75bcd5ad5d8c37",
+      "runtime": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+      "model": "f8c54ba35df95aafea7881eac214b58ec18a73cbcb6ff5a90f4b762631a286b6",
+      "track_a": "1b959a945c5169b3bbfcfb8b1c1c7a3b8ca5aa885bfda36a56d967d74d700023",
+      "track_b": "872d8a954ee7af61e520c81d7a0469cbfe65a5ef18b7a532accd02389cbec9d9",
+      "guard_script": "0d693e7bc8e01d215089586f8dc78983398bcf028394b3d355f8762dba62bcb0"
+    },
+    "review_scope": "Saved closure equality and retained root/private postrun proofs; no repeat large-asset/all-source hashing."
+  },
+  "population_columns": [
+    "case",
+    "validated_before_first_cursor_poll",
+    "during_closed_measurement",
+    "after_measurement",
+    "intervals",
+    "wall_output_difference_s"
+  ],
+  "populations": [
+    [
+      "default",
+      1,
+      16,
+      0,
+      9,
+      0.036000000000001364
+    ],
+    [
+      "software",
+      2,
+      19,
+      1,
+      11,
+      0.006666666666674814
+    ]
+  ],
+  "audio_UI_columns": [
+    "case",
+    "16_ACKs",
+    "issue_to_ACK_poll_min_max_ms",
+    "max_due_to_issue_ms",
+    "callbacks",
+    "callback_max_execution_ns",
+    "WAV_frames_accepted=written",
+    "WAV_overflow",
+    "tail_ms",
+    "tail_hops_begin_end",
+    "healthy_visible/checks",
+    "max_framegap_ms",
+    "max_heartbeatgap_ms"
+  ],
+  "audio_UI_rows": [
+    [
+      "default",
+      16,
+      [
+        28.304954,
+        69.80903
+      ],
+      3652,
+      23881,
+      2047420,
+      6076160,
+      0,
+      625,
+      [
+        17,
+        17
+      ],
+      [
+        7576,
+        7576
+      ],
+      114.539574,
+      84.707386
+    ],
+    [
+      "software",
+      16,
+      [
+        32.102376,
+        61.192744
+      ],
+      1998,
+      27630,
+      637231,
+      6344704,
+      0,
+      15008,
+      [
+        21,
+        22
+      ],
+      [
+        8977,
+        8977
+      ],
+      171.936258,
+      176.053368
+    ]
+  ],
+  "controls_columns": [
+    "kind",
+    "old_generation",
+    "issue_to_accept_observation_upper_ms",
+    "issue_to_recovered_cursor_upper_ms",
+    "A_starved_frames",
+    "output_begin",
+    "output_end"
+  ],
+  "controls": {
+    "default": [
+      [
+        "incomplete_generation_seek",
+        1,
+        9.583615,
+        5770.667773,
+        276224,
+        323584,
+        601088
+      ],
+      [
+        "replay_recovery",
+        2,
+        13.412414,
+        4249.87975,
+        201472,
+        1446144,
+        1650176
+      ],
+      [
+        "replay_recovery",
+        3,
+        7.335143,
+        10018.611254,
+        478208,
+        2775808,
+        3255552
+      ],
+      [
+        "replay_recovery",
+        4,
+        6.765857,
+        8422.089066,
+        400128,
+        4486656,
+        4889600
+      ]
+    ],
+    "software": [
+      [
+        "incomplete_generation_seek",
+        1,
+        36.933339,
+        7547.293181,
+        360960,
+        590080,
+        952832
+      ],
+      [
+        "replay_recovery",
+        2,
+        7.523759,
+        3652.063935,
+        172544,
+        1797376,
+        1972736
+      ],
+      [
+        "replay_recovery",
+        3,
+        8.853526,
+        4458.098714,
+        210176,
+        3098624,
+        3311872
+      ],
+      [
+        "replay_recovery",
+        4,
+        38.33634,
+        3895.417134,
+        185088,
+        4435456,
+        4622336
+      ],
+      [
+        "replay_recovery",
+        5,
+        7.52826,
+        4005.134838,
+        189184,
+        5748480,
+        5940224
+      ]
+    ]
+  },
+  "supersession": {
+    "default": {
+      "one_stale_discard_frames": 2116,
+      "discard_after_seek_issue_ms": 5.40042,
+      "old_generation_has_raw_or_converter_complete": false,
+      "missing_validated_IDs": [
+        2
+      ],
+      "full_native_inflight_cancellation_proven": false
+    },
+    "software": {
+      "one_stale_discard_frames": 4096,
+      "discard_after_seek_issue_ms": 26.916205,
+      "old_generation_has_raw_or_converter_complete": false,
+      "missing_validated_IDs": [
+        3
+      ],
+      "full_native_inflight_cancellation_proven": false
+    }
+  },
+  "telemetry": {
+    "default": {
+      "contiguous_service_records": 1143,
+      "service_dropped": 0,
+      "all13_finite_nonnegative": true,
+      "service_closed_loss": 0,
+      "aux_window_event_retained_attempted_dropped": [
+        64,
+        77,
+        13
+      ]
+    },
+    "software": {
+      "contiguous_service_records": 1429,
+      "service_dropped": 0,
+      "all13_finite_nonnegative": true,
+      "service_closed_loss": 0,
+      "aux_window_event_retained_attempted_dropped": [
+        64,
+        83,
+        19
+      ]
+    }
+  },
+  "host": {
+    "default": {
+      "samples": 64,
+      "first_last_UTC": [
+        "2026-10-24T05:15:34.872083+00:00",
+        "2026-10-24T05:17:44.553925+00:00"
+      ],
+      "sample_gap_median_max_seconds": [
+        2.056896419,
+        2.219806451
+      ],
+      "profile_EPP_transitions_UTC": [
+        [
+          "2026-10-24T05:15:34.872083+00:00",
+          "balanced",
+          "balance_performance"
+        ],
+        [
+          "2026-10-24T05:15:51.359582+00:00",
+          "low-power",
+          "power"
+        ]
+      ],
+      "profile_EPP_counts": [
+        [
+          "balanced",
+          "balance_performance",
+          8
+        ],
+        [
+          "low-power",
+          "power",
+          56
+        ]
+      ],
+      "within_measurement_sampled_profiles": {
+        "('balanced', 'balance_performance')": 3,
+        "('low-power', 'power')": 55
+      },
+      "all_AC_lid_good": true,
+      "read_error_rows": 0,
+      "package_samples_above55_70_85_90_95C": [
+        10,
+        4,
+        1,
+        1,
+        1
+      ]
+    },
+    "software": {
+      "samples": 73,
+      "first_last_UTC": [
+        "2026-10-24T05:47:50.614367+00:00",
+        "2026-10-24T05:50:18.747464+00:00"
+      ],
+      "sample_gap_median_max_seconds": [
+        2.055066342,
+        2.161703891
+      ],
+      "profile_EPP_transitions_UTC": [
+        [
+          "2026-10-24T05:47:50.614367+00:00",
+          "balanced",
+          "balance_performance"
+        ],
+        [
+          "2026-10-24T05:47:54.699238+00:00",
+          "low-power",
+          "power"
+        ],
+        [
+          "2026-10-24T05:50:14.606598+00:00",
+          "balanced",
+          "balance_performance"
+        ]
+      ],
+      "profile_EPP_counts": [
+        [
+          "balanced",
+          "balance_performance",
+          5
+        ],
+        [
+          "low-power",
+          "power",
+          68
+        ]
+      ],
+      "within_measurement_sampled_profiles": {
+        "('low-power', 'power')": 59
+      },
+      "all_AC_lid_good": true,
+      "read_error_rows": 0,
+      "package_samples_above55_70_85_90_95C": [
+        17,
+        2,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "sensor_max_columns": [
+    "case",
+    "sensor",
+    "sampled_max_C",
+    "first_max_UTC"
+  ],
+  "sensor_maxima": [
+    [
+      "default",
+      "/sys/class/thermal/thermal_zone0/temp",
+      71.0,
+      "2026-10-24T05:15:45.191317+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/thermal/thermal_zone5/temp",
+      71.05,
+      "2026-10-24T05:15:45.191317+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/thermal/thermal_zone7/temp",
+      96.0,
+      "2026-10-24T05:15:49.264821+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/hwmon/hwmon6/temp1_input",
+      81.0,
+      "2026-10-24T05:15:49.264821+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/hwmon/hwmon6/temp2_input",
+      73.0,
+      "2026-10-24T05:15:38.965814+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/hwmon/hwmon6/temp3_input",
+      76.0,
+      "2026-10-24T05:15:49.264821+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/hwmon/hwmon6/temp4_input",
+      75.0,
+      "2026-10-24T05:15:41.028180+00:00"
+    ],
+    [
+      "default",
+      "/sys/class/hwmon/hwmon6/temp5_input",
+      92.0,
+      "2026-10-24T05:15:49.264821+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/thermal/thermal_zone0/temp",
+      63.0,
+      "2026-10-24T05:48:15.233925+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/thermal/thermal_zone5/temp",
+      63.05,
+      "2026-10-24T05:48:15.233925+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/thermal/thermal_zone7/temp",
+      72.0,
+      "2026-10-24T05:49:27.499634+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/hwmon/hwmon6/temp1_input",
+      77.0,
+      "2026-10-24T05:47:54.699238+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/hwmon/hwmon6/temp2_input",
+      52.0,
+      "2026-10-24T05:48:13.138203+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/hwmon/hwmon6/temp3_input",
+      87.0,
+      "2026-10-24T05:47:54.699238+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/hwmon/hwmon6/temp4_input",
+      53.0,
+      "2026-10-24T05:48:13.138203+00:00"
+    ],
+    [
+      "software",
+      "/sys/class/hwmon/hwmon6/temp5_input",
+      58.0,
+      "2026-10-24T05:47:54.699238+00:00"
+    ]
+  ],
+  "limits": [
+    "Startup/tail service populations differ; software21 completed before close plus1 in unrecorded tail, default17 before close. Software4 versus default3 replays and different time/setup budgets prevent a matched renderer inference.",
+    "No steady starvation is not uninterrupted audio: software23.290667s intentional-control starvation, default28.250667s. Both final generations recover and reach EOF; WAVs exclude later diagnostic-tail audio. No full expected-output PCM/physical-listening comparison.",
+    "One stale discard proves supersession, not native/GPU inference cancellation. No final in-flight cancellation is demonstrated.",
+    "Service telemetry has0 drops; bounded auxiliary window history overwrote13/19 rows. ACKs are actual-issue-to-observation bounds; no pointer/touch/assistive-tech/physical-scanout latency proof.",
+    "Software selected core87C versus package72C; default package96C/core92C are sampled peaks, not excursion duration. Profiles change during both runs; no journal/clock/power evidence establishes heat or renderer causality.",
+    "Nested native graph-compute duration is wall including waits, not isolated GPU kernel time; phase durations are not additive."
+  ],
+  "retained": [
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/plan.json",
+      "artifact": "default--plan.json.gz",
+      "uncompressed": {
+        "bytes": 58498,
+        "sha256": "d2bd7d541bc1957e67cf4820c8b81f14fad717227bb71eb8a166d8529dfdbcf4"
+      },
+      "compressed": {
+        "bytes": 8407,
+        "sha256": "9a92fe8ac9dc4b2283cc5572fbb30cf234df2ceadccb9a688932a4828f0ae6c5"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/admission-01.json",
+      "artifact": "default--admission-01.json.gz",
+      "uncompressed": {
+        "bytes": 33575,
+        "sha256": "4549fc16d046d7e09b3cd07732ac4c15f93be547010a5fd708589f435a7e08f2"
+      },
+      "compressed": {
+        "bytes": 3134,
+        "sha256": "0ba23bbf646b84e75a1675b1ffe286f811886d8c953a8b40067f737d0971c7b2"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/diagnostic-assessment.json",
+      "artifact": "default--diagnostic-assessment.json.gz",
+      "uncompressed": {
+        "bytes": 39595,
+        "sha256": "998c44c5fbdd57ac51304b5f27533fcd72c1179d6d46d546edca8b46344c8949"
+      },
+      "compressed": {
+        "bytes": 4464,
+        "sha256": "208ac7c9c5cd3bf47c91bc83094bf1085d9c4edc14313fac13ba677290cba864"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/output-01/result.json",
+      "artifact": "default--output-01--result.json.gz",
+      "uncompressed": {
+        "bytes": 274273,
+        "sha256": "fe053a9dafee64765daf919263204fa33fe66b4cceeb1c7642c8df3cf75a29ae"
+      },
+      "compressed": {
+        "bytes": 26340,
+        "sha256": "55fe0c25302a2034e3ed34837e15d79cc69c9e48cdc4d0f9d92a8eeb50bfc08f"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/output-01/native-result.json",
+      "artifact": "default--output-01--native-result.json.gz",
+      "uncompressed": {
+        "bytes": 267301,
+        "sha256": "c48515e7998d700c47660f3ab7da99d184b4913978f1dd1f560213ed6c1df82f"
+      },
+      "compressed": {
+        "bytes": 16274,
+        "sha256": "7e96e0a3e1e1b8639816d3a2df983204f73ff9977d507013fb52f1682ec897d3"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/output-01/observations.jsonl",
+      "artifact": "default--output-01--observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 636346,
+        "sha256": "e3d41619a2b4e7ca7e9959673a12ea5d7029258b56be2fda26f9e91080c187a9"
+      },
+      "compressed": {
+        "bytes": 46622,
+        "sha256": "f419922f4ed6067d9a53e7518011d9f170bc75736fc389b711d2541bdbbdf911"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/default/output-01/host-observations.jsonl",
+      "artifact": "default--output-01--host-observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 62888,
+        "sha256": "322c2430e5aab500ea97fa1dbccd6da0f9ad702e87bbc78c4d32054aa8116033"
+      },
+      "compressed": {
+        "bytes": 2446,
+        "sha256": "fd7fd737945d5ec5b46435f4c1bb6d16c982d6a5d5c667d120b789ed08a0c015"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/plan.json",
+      "artifact": "software--plan.json.gz",
+      "uncompressed": {
+        "bytes": 58803,
+        "sha256": "e2a5e3f0d619e025b215695eed634864c49736760dbedd4acaa6af8959881435"
+      },
+      "compressed": {
+        "bytes": 8482,
+        "sha256": "d1c98ab642e95963507f65d96eb21bce6f89145d4e93e4df0daf3cfe3f7d42e9"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/admission-01.json",
+      "artifact": "software--admission-01.json.gz",
+      "uncompressed": {
+        "bytes": 38585,
+        "sha256": "7fbd45ff5d18d8dcfbf34d36db17ed372e45b715c34933c4df43d97938687a1d"
+      },
+      "compressed": {
+        "bytes": 3304,
+        "sha256": "112333b359871caa668ee151a0b779cfc35576d7328d6e753f04ef44562ddc98"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/diagnostic-assessment.json",
+      "artifact": "software--diagnostic-assessment.json.gz",
+      "uncompressed": {
+        "bytes": 44928,
+        "sha256": "980adc4e3f3976277fdf4ab4b15a2a3c886cbed4ee0dd6b2882ff0360fd9b7df"
+      },
+      "compressed": {
+        "bytes": 4639,
+        "sha256": "2842657b0a105ad2da400b429774fb1c9aa64d65ad1e336979d345cddba51161"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/output-01/result.json",
+      "artifact": "software--output-01--result.json.gz",
+      "uncompressed": {
+        "bytes": 277952,
+        "sha256": "0fbd3b9bd0687216d8c90f81d212637d8572699400aeb7125d8ca930fa557e48"
+      },
+      "compressed": {
+        "bytes": 26867,
+        "sha256": "9fe212e9af33ccc25183462255b43f0bb45ae9c22d9e1a7e7648c926016d8c37"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/output-01/native-result.json",
+      "artifact": "software--output-01--native-result.json.gz",
+      "uncompressed": {
+        "bytes": 268658,
+        "sha256": "9ade567e8aed271bbec4550f0567769b99e50c4d6e6398ce80a6efaead2ba959"
+      },
+      "compressed": {
+        "bytes": 16181,
+        "sha256": "a72aea9edbb921ef43cf5f002036eecc2dc980c1eecf27b1bfe7d1ee093470ec"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/output-01/observations.jsonl",
+      "artifact": "software--output-01--observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 808509,
+        "sha256": "c1b946e5d31ba43723aba4cd776f13a181bcc52827ff5e0534138cbbe00117e2"
+      },
+      "compressed": {
+        "bytes": 62150,
+        "sha256": "6eff7563a2f9fd96e10975a1a930ede388946e55cbe2726d7845f07b35468090"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/output-01/host-observations.jsonl",
+      "artifact": "software--output-01--host-observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 71751,
+        "sha256": "e04da860bd2bcb769f3e56bc3e95d0f437de1a27225962c89883bf6c2747c116"
+      },
+      "compressed": {
+        "bytes": 2841,
+        "sha256": "088e2a8cd7e2ed32d5471b75bd91a53d86d0bddad85bd77f8507c15ed76f9627"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/independent-result-summary-01.json",
+      "artifact": "independent-summary.json.gz",
+      "uncompressed": {
+        "bytes": 16184,
+        "sha256": "845d381e4ed977d6c873956a7673d033d34583f4ec3423a994739d07a3d0f008"
+      },
+      "compressed": {
+        "bytes": 5148,
+        "sha256": "f8b22bd78603a5ca0d518a01c84524e0ef472f68ffe27ca7c9440387211934a6"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/independent-result-comparison-01.json",
+      "artifact": "independent-comparison.json.gz",
+      "uncompressed": {
+        "bytes": 35832,
+        "sha256": "a6a620c4236383e1ea51fcc00046cff334fe40f8c7e4b456350e20ffa028a478"
+      },
+      "compressed": {
+        "bytes": 8729,
+        "sha256": "d1c22094f7426f23b7a089fd3058d9013a08799042faebcfc632919bd58a7f2f"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-recovery-budget-01/root-host-cleanup-01.json",
+      "artifact": "software-host-cleanup.json.gz",
+      "uncompressed": {
+        "bytes": 190,
+        "sha256": "13b5673a8c1702fc51683deb56e7393da1a50b8957ca3acb202d640e78911595"
+      },
+      "compressed": {
+        "bytes": 147,
+        "sha256": "b7d538ddd01eebe9046c17401185018e08212f71ba32ab8d95b54f405551ec9b"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/root-final-host-cleanup-01.json",
+      "artifact": "default-host-cleanup.json.gz",
+      "uncompressed": {
+        "bytes": 422,
+        "sha256": "cee6a2d37f021f7f6c8df19a59a4173124b0b7aa9358b7d680b2784b9d72ed6d"
+      },
+      "compressed": {
+        "bytes": 277,
+        "sha256": "e6b1fa8abbbc94e77a37cd391815a0a7cbb8c4dadf017bdef7e93b509598b647"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-corrected-entry-01/diagnostic-assessment.json",
+      "artifact": "software-admission-only-failure.json.gz",
+      "uncompressed": {
+        "bytes": 62882,
+        "sha256": "9e93ca2f2aa75025493e5cc3f93b2ffea8c1186af466a89b00b70607eca339d7"
+      },
+      "compressed": {
+        "bytes": 4630,
+        "sha256": "a66db0624b18892da5d2b04447120cfd5b8048193a32e8c737e9975a17b8cefe"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/software-native-policy-corrected-entry-01/root-host-cleanup-01.json",
+      "artifact": "software-admission-only-cleanup.json.gz",
+      "uncompressed": {
+        "bytes": 178,
+        "sha256": "86e528fa1c03da24322aa61f0636ad80ac318fa388e7ca3f113cf6267d93a691"
+      },
+      "compressed": {
+        "bytes": 151,
+        "sha256": "47540f7c17e85e3ffb63ebb01930bcc711152db700204d037c7da37d5a1eb14c"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/software/adapter.stderr.log",
+      "artifact": "software-missing-environment--adapter.stderr.log.gz",
+      "uncompressed": {
+        "bytes": 1611,
+        "sha256": "83431dd593347a1fece4d08cae109a55845bdb93381adf7722513679e275443d"
+      },
+      "compressed": {
+        "bytes": 476,
+        "sha256": "21b9ccd04d757efa5a947a974595eacdc7330b8ac47b24d1c3e4f5c2f30edff4"
+      }
+    },
+    {
+      "source": "build/m3-control-contention-draft-01/renderer-pair-native-policy-01/cases/software/dispatch-01.json",
+      "artifact": "software-missing-environment--dispatch.json.gz",
+      "uncompressed": {
+        "bytes": 3626,
+        "sha256": "58c25d9994a9ec6ee61514b4114b8992aca457fb71be58e7d2cf868d5c54ad35"
+      },
+      "compressed": {
+        "bytes": 1207,
+        "sha256": "baeee8db7189ec2ca4c1814bcd5e813e26120baf6b18bcf81855d313d6866411"
+      }
+    }
+  ],
+  "media_policy": "No source audio, stems, model or WAV recording copied into Git; original WAV-header-derived totals remain in retained native results and independent summary."
+}
