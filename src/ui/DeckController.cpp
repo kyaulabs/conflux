@@ -448,6 +448,7 @@ QVariantList DeckController::decks() const
             {"playing", state_.playing[deck]},
             {"cueSelected", state_.cueSelected[deck]},
             {"meter", meterMap(state_.meters.deck[deck])},
+            {"savedCue", savedDeckCue(deck)},
             {"cueSeconds", state_.cueFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"cueHeld", state_.cueHeld[deck]}, {"cuePreview", state_.cuePreview[deck]},
             {"buffering", state_.buffering[deck]}, {"sourceReadError", state_.sourceReadError[deck]},
@@ -625,7 +626,9 @@ void DeckController::catalogFinished()
             libraryTracks_.append(QVariantMap{{"id", track.sourceSha256}, {"name", track.name},
                 {"path", track.sourcePath}, {"frames", QVariant::fromValue<qulonglong>(track.frames)},
                 {"durationSeconds", track.frames / 48000.0},
-                {"available", track.available}, {"cues", cues}, {"levels", levels}});
+                {"available", track.available}, {"cues", cues}, {"levels", levels},
+                {"savedCueFrame", track.savedCueFrame ? QString::number(*track.savedCueFrame) : QString{}},
+                {"savedCueSeconds", track.savedCueFrame.value_or(0) / 48000.0}});
         }
         libraryReady_ = true;
     }
@@ -732,6 +735,86 @@ bool DeckController::jumpToImportedCue(int deck, const QString& sourceId, int cu
     command.type = audio::RenderCore::Command::Type::Seek;
     command.deck = std::uint32_t(deck);
     command.frame = found->cues[std::size_t(cueIndex)].frame;
+    return submit(command);
+}
+
+QString DeckController::deckCueUnavailable(int deck, bool saving) const
+{
+    if (closing_) return "The application is closing.";
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) return "Load this deck before using saved CUE.";
+    if (!libraryReady_) return "Wait for the library to finish opening.";
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceIds_[deck];
+    });
+    if (found == libraryEntries_.end()) return "Add this source to the library before saving or recalling a cue.";
+    if (!found->available || found->frames != clips_[deck]->frames())
+        return "The library source does not match this deck's source length.";
+    if (busy_ || installationPending_ || replacing_[deck] || continuation_ || retirementPending_ || deferredRetirement_.count)
+        return "Wait for preparation or source replacement to finish.";
+    if (!session_ || !ready_ || !state_.ready || !state_.callbacks)
+        return "Audio output must acknowledge this deck before using saved CUE.";
+    if (state_.sourceFrames[deck] != found->frames || state_.graphRate != audio::RenderCore::sampleRate ||
+        !std::isfinite(state_.sourcePosition[deck]) || state_.sourcePosition[deck] < 0 ||
+        state_.sourcePosition[deck] > double(found->frames))
+        return "This deck does not have a supported source clock.";
+    if (submitted_ >= UINT32_MAX || (submitted_ > sessionCommandBase_ && state_.lastCommandId < submitted_) ||
+        cueReleasePending_[deck] || scratchEnds_[deck])
+        return "Wait for the audio controls to acknowledge the current CUE.";
+    if (saving) {
+        if (state_.cueFrame[deck] >= found->frames || state_.sourceFrame[deck] >= found->frames)
+            return "CUE must be inside the source, before its end.";
+    } else if (!found->savedCueFrame || *found->savedCueFrame >= found->frames)
+        return "No saved cue for this source.";
+    return {};
+}
+
+QVariantMap DeckController::savedDeckCue(std::size_t deck) const
+{
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return clips_[deck] && track.sourceSha256 == sourceIds_[deck] && track.frames == clips_[deck]->frames();
+    });
+    const auto frame = found == libraryEntries_.end() ? std::optional<std::uint64_t>{} : found->savedCueFrame;
+    const auto saveReason = deckCueUnavailable(int(deck), true), recallReason = deckCueUnavailable(int(deck), false);
+    return {{"saveAvailable", saveReason.isEmpty()}, {"recallAvailable", recallReason.isEmpty()},
+        {"saveReason", saveReason}, {"recallReason", recallReason}, {"saved", frame.has_value()},
+        {"frame", frame ? QString::number(*frame) : QString{}}, {"seconds", frame.value_or(0) / 48000.0}};
+}
+
+bool DeckController::saveDeckCue(int deck)
+{
+    const auto reason = deckCueUnavailable(deck, true);
+    if (!reason.isEmpty()) { fail(reason); return false; }
+    const auto sourceId = sourceIds_[deck];
+    const auto frames = state_.sourceFrames[deck], frame = state_.cueFrame[deck];
+    // Acknowledged native source metadata is captured before the worker starts.
+    // Saving never submits transport or changes any audible deck setting.
+    busy_ = true;
+    error_.clear(); libraryError_.clear();
+    pendingImport_ = true; pendingStems_ = false; pendingDeck_ = deck;
+    pendingName_ = names_[deck]; pendingPath_.clear();
+    pendingPresentation_ = {}; pendingWaveform_.clear();
+    preparationStatus_ = "Saving"; preparationPhase_ = "library";
+    preparationCompletedStages_ = 0; preparationTotalStages_ = 1;
+    preparationCacheHit_ = false;
+    catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_, sourceId, frames, frame]() -> CatalogResult {
+        try { return {library::LibraryCatalog(path).updateSavedCue(sourceId, frames, frame), {}, true}; }
+        catch (const std::exception& error) { return {{}, QString::fromUtf8(error.what()), true}; }
+        catch (...) { return {{}, "Cannot save the deck CUE.", true}; }
+    }));
+    emit stateChanged();
+    return true;
+}
+
+bool DeckController::recallDeckCue(int deck)
+{
+    const auto reason = deckCueUnavailable(deck, false);
+    if (!reason.isEmpty()) { fail(reason); return false; }
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceIds_[deck];
+    });
+    audio::RenderCore::Command command;
+    command.type = audio::RenderCore::Command::Type::Seek;
+    command.deck = std::uint32_t(deck); command.frame = *found->savedCueFrame;
     return submit(command);
 }
 
@@ -1886,6 +1969,7 @@ void DeckController::installed()
     try {
         discovery_.reset();
         session_ = std::move(result->session);
+        sessionCommandBase_ = submitted_;
         state_ = session_->stoppedState();
         for (std::size_t deck = 0; deck < clips_.size(); ++deck)
             if (residentAuthorizations_[deck].phase != ResidentAuthorization::Phase::NextPlay)

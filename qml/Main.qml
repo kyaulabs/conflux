@@ -752,6 +752,55 @@ ApplicationWindow {
                     Accessible.name: "Load Deck B"
                 }
             }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 16
+                Repeater {
+                    model: 2
+                    delegate: ColumnLayout {
+                        required property int index
+                        readonly property string deckName: index === 0 ? "A" : "B"
+                        readonly property color deckColor: index === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
+                        readonly property var saved: deckController.decks[index].savedCue || ({})
+                        Layout.fillWidth: true
+                        spacing: 4
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            Button {
+                                objectName: "deck" + index + "SaveCue"
+                                text: "Save CUE " + deckName
+                                enabled: Boolean(saved.saveAvailable)
+                                palette.buttonText: deckColor
+                                Layout.minimumHeight: 44
+                                onClicked: deckController.saveDeckCue(index)
+                                Accessible.name: "Save Deck " + deckName + " CUE to library"
+                                Accessible.description: enabled ? "Save the deck's acknowledged CUE without changing playback." : saved.saveReason || "Load a library source first."
+                            }
+                            Button {
+                                objectName: "deck" + index + "RecallCue"
+                                text: "Recall " + deckName
+                                enabled: Boolean(saved.recallAvailable)
+                                palette.buttonText: deckColor
+                                Layout.minimumHeight: 44
+                                onClicked: deckController.recallDeckCue(index)
+                                Accessible.name: "Recall Deck " + deckName + " saved CUE"
+                                Accessible.description: enabled ? "Seek this deck to its saved library CUE." : saved.recallReason || "No saved cue for this source."
+                            }
+                        }
+                        Label {
+                            objectName: "deck" + index + "SavedCueStatus"
+                            text: saved.saved ? "Deck " + deckName + " saved CUE · " + library.cueTime(saved.seconds)
+                                  : saved.saveReason || "Deck " + deckName + ": no saved CUE."
+                            textFormat: Text.PlainText
+                            color: deckColor
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                            Accessible.name: text
+                        }
+                    }
+                }
+            }
             Label {
                 objectName: "libraryStatus"
                 text: deckController.libraryError.length > 0 ? deckController.libraryError

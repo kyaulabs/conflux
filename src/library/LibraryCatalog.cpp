@@ -90,6 +90,8 @@ void validateTrack(const LibraryTrack& track)
         throw std::invalid_argument("Invalid library track identity, path, name or frame count");
     validateCues(track.cues, track.frames);
     validateLevels(track.levels, track.frames);
+    if (track.savedCueFrame && *track.savedCueFrame >= track.frames)
+        throw std::invalid_argument("Invalid saved library cue frame");
 }
 
 struct stat statusOf(int descriptor)
@@ -122,11 +124,12 @@ QByteArray encode(const std::vector<LibraryTrack>& tracks)
             cues.append(QJsonObject{{"track", cue.trackNumber}, {"label", cue.label}, {"frame", double(cue.frame)}});
         const auto levels = track.levels ? QJsonValue(QJsonObject{{"recipe", levelsRecipe},
             {"rms", track.levels->rms}, {"sample_peak", track.levels->samplePeak}}) : QJsonValue(QJsonValue::Null);
+        const auto savedCue = track.savedCueFrame ? QJsonValue(double(*track.savedCueFrame)) : QJsonValue(QJsonValue::Null);
         rows.append(QJsonObject{{"source_sha256", track.sourceSha256}, {"source_path", track.sourcePath},
             {"name", track.name}, {"artifact_key", track.artifactKey}, {"frames", double(track.frames)},
-            {"cues", cues}, {"levels", levels}});
+            {"cues", cues}, {"levels", levels}, {"saved_cue_frame", savedCue}});
     }
-    const auto bytes = QJsonDocument(QJsonObject{{"version", 3}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
+    const auto bytes = QJsonDocument(QJsonObject{{"version", 4}, {"tracks", rows}}).toJson(QJsonDocument::Compact);
     if (std::size_t(bytes.size()) > LibraryCatalog::maxBytes)
         throw std::length_error("Library catalog byte budget exceeded");
     return bytes;
@@ -200,7 +203,8 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     const auto document = QJsonDocument::fromJson(bytes);
     if (!document.isObject()) throw std::runtime_error("Malformed library catalog document");
     const auto root = document.object();
-    const bool withLevels = root.value("version") == QJsonValue(3);
+    const bool withSavedCue = root.value("version") == QJsonValue(4);
+    const bool withLevels = withSavedCue || root.value("version") == QJsonValue(3);
     const bool withCues = withLevels || root.value("version") == QJsonValue(2);
     if (root.size() != 2 || (!withCues && root.value("version") != QJsonValue(1)) || !root.value("tracks").isArray())
         throw std::runtime_error("Malformed or unsupported library catalog version");
@@ -212,7 +216,7 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
     for (const auto row : rows) {
         if (!row.isObject()) throw std::runtime_error("Malformed library catalog track");
         const auto object = row.toObject();
-        if (object.size() != (withLevels ? 7 : withCues ? 6 : 5) || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
+        if (object.size() != (withSavedCue ? 8 : withLevels ? 7 : withCues ? 6 : 5) || !object.value("source_sha256").isString() || !object.value("source_path").isString() ||
             !object.value("name").isString() || !object.value("artifact_key").isString() || !object.value("frames").isDouble())
             throw std::runtime_error("Malformed library catalog track fields");
         const auto frames = object.value("frames").toDouble();
@@ -243,6 +247,13 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
                 throw std::runtime_error("Malformed library catalog level fields");
             track.levels = audio::SignalLevels{levels.value("rms").toDouble(), levels.value("sample_peak").toDouble()};
         }
+        if (withSavedCue && !object.value("saved_cue_frame").isNull()) {
+            const auto cue = object.value("saved_cue_frame");
+            const auto frame = cue.toDouble(-1);
+            if (!cue.isDouble() || !std::isfinite(frame) || frame < 0 || frame >= frames || std::floor(frame) != frame)
+                throw std::runtime_error("Malformed library catalog saved cue frame");
+            track.savedCueFrame = std::uint64_t(frame);
+        }
         try { validateTrack(track); }
         catch (const std::invalid_argument& error) {
             throw std::runtime_error(std::string("Malformed library catalog track: ") + error.what());
@@ -260,7 +271,8 @@ std::vector<LibraryTrack> LibraryCatalog::read() const
 std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
 {
     auto replacement = track;
-    replacement.cues.clear(); // Only updateCues installs points for a verified source.
+    replacement.cues.clear(); // Only dedicated updates install source-bound cues.
+    replacement.savedCueFrame.reset();
     validateTrack(replacement);
     const auto lock = lockCatalog(filePath_);
     const auto existing = read();
@@ -273,6 +285,9 @@ std::vector<LibraryTrack> LibraryCatalog::upsert(const LibraryTrack& track)
             if (value.sourceSha256 == track.sourceSha256) {
                 replacement.cues = value.cues;
                 validateCues(replacement.cues, replacement.frames);
+                if (value.savedCueFrame && value.frames != replacement.frames)
+                    throw std::runtime_error("Saved cue source frame count changed; the saved source clock cannot be reused");
+                replacement.savedCueFrame = value.savedCueFrame;
                 // Legacy callers cannot erase a known measurement of this
                 // exact prepared recipe/geometry; new preparations recompute.
                 if (!replacement.levels && value.artifactKey == replacement.artifactKey && value.frames == replacement.frames)
@@ -302,6 +317,22 @@ std::vector<LibraryTrack> LibraryCatalog::updateCues(const QString& sourceId, st
     if (found == tracks.end() || found->frames != expectedFrames)
         throw std::runtime_error("Cue source changed; select its current library entry again");
     found->cues = cues;
+    save(filePath_, tracks);
+    refreshAvailability(tracks);
+    return tracks;
+}
+
+std::vector<LibraryTrack> LibraryCatalog::updateSavedCue(const QString& sourceId, std::uint64_t expectedFrames,
+                                                        std::uint64_t frame)
+{
+    if (!digest(sourceId) || !expectedFrames || expectedFrames > maximumFrames || frame >= expectedFrames)
+        throw std::invalid_argument("Invalid saved cue source identity, frame count or frame");
+    const auto lock = lockCatalog(filePath_);
+    auto tracks = read();
+    const auto found = std::ranges::find_if(tracks, [&](const auto& track) { return track.sourceSha256 == sourceId; });
+    if (found == tracks.end() || found->frames != expectedFrames)
+        throw std::runtime_error("Saved cue source changed; select its current library entry again");
+    found->savedCueFrame = frame;
     save(filePath_, tracks);
     refreshAvailability(tracks);
     return tracks;

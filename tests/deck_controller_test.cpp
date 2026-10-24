@@ -1223,11 +1223,21 @@ private slots:
         QVERIFY(std::abs(updatedLevels["rms"].toDouble() - 0.5740249333995456) < 1e-12);
         QCOMPARE(updatedLevels["samplePeak"].toDouble(), 0.994598388671875);
         const auto updatedId = reopened.libraryTracks().front().toMap()["id"].toString();
+        // Reimport removed the old SHA from the library, while loaded B keeps
+        // that accepted PCM. Only its saved-CUE availability explanation changes.
+        auto afterReimport = previous;
+        auto expectedB = afterReimport[1].toMap();
+        auto savedCue = expectedB["savedCue"].toMap();
+        const QString addSource = "Add this source to the library before saving or recalling a cue.";
+        savedCue["saveReason"] = addSource;
+        savedCue["recallReason"] = addSource;
+        expectedB["savedCue"] = savedCue;
+        afterReimport[1] = expectedB;
         QVERIFY(QFile::remove(path));
         reopened.loadLibraryTrack(0, updatedId);
         QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
         QVERIFY(!reopened.error().isEmpty());
-        QCOMPARE(reopened.decks(), previous);
+        QCOMPARE(reopened.decks(), afterReimport);
         QCOMPARE(reopened.submittedCommands(), commands);
     }
 
@@ -1254,6 +1264,7 @@ private slots:
         catalog.close();
         auto legacy = saved["tracks"].toArray().first().toObject();
         legacy.remove("levels");
+        legacy.remove("saved_cue_frame");
         saved["version"] = 2;
         saved["tracks"] = QJsonArray{legacy};
         const auto bytes = QJsonDocument(saved).toJson(QJsonDocument::Compact);
@@ -1282,6 +1293,99 @@ private slots:
         QCOMPARE(refreshed["levels"].toMap()["samplePeak"].toDouble(), 0.496551513671875);
         QCOMPARE(reopened.decks(), decks);
         QCOMPARE(reopened.submittedCommands(), commands);
+    }
+
+    void savedDeckCueRejectsUnsavedSourcesAndUnacknowledgedOutput()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("deck-cue.wav");
+        QVERIFY(writeWave(source, 2, 48000, 1920));
+        conflux::DeckController controller;
+        QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto before = controller.audioState();
+        const auto commands = controller.submittedCommands();
+        auto cue = controller.decks()[0].toMap()["savedCue"].toMap();
+        QVERIFY(!cue["saveAvailable"].toBool() && !cue["recallAvailable"].toBool());
+        QVERIFY(cue["saveReason"].toString().contains("Add this source to the library"));
+        QVERIFY(!controller.saveDeckCue(0));
+        QVERIFY(!controller.recallDeckCue(0));
+        QVERIFY(!controller.saveDeckCue(-1));
+        QVERIFY(!controller.recallDeckCue(2));
+        QCOMPARE(controller.submittedCommands(), commands);
+        controller.importTrack(QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        cue = controller.decks()[0].toMap()["savedCue"].toMap();
+        QVERIFY(!cue["saved"].toBool());
+        QVERIFY(cue["frame"].toString().isEmpty());
+        QVERIFY(!cue["saveAvailable"].toBool() && !cue["recallAvailable"].toBool());
+        QVERIFY(cue["saveReason"].toString().contains("acknowledge"));
+        const auto catalog = controller.libraryTracks();
+        // This fixture deliberately has no audio server. It cannot manufacture
+        // a positive native CUE acknowledgment; the owned integration does that.
+        QVERIFY(!controller.saveDeckCue(0));
+        QVERIFY(!controller.recallDeckCue(0));
+        QCOMPARE(controller.libraryTracks(), catalog);
+        QCOMPARE(controller.submittedCommands(), commands);
+        QCOMPARE(controller.audioState().sourceFrame, before.sourceFrame);
+        QCOMPARE(controller.audioState().cueFrame, before.cueFrame);
+        QCOMPARE(controller.audioState().playing, before.playing);
+        QCOMPARE(controller.audioState().deckGain, before.deckGain);
+        QCOMPARE(controller.audioState().tempo[0].percent, before.tempo[0].percent);
+    }
+
+    void savedDeckCueReloadDoesNotSeekOrAcceptAReplacementSource()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("saved-cue.wav"), other = directory.filePath("other-cue.wav");
+        QVERIFY(writeWave(source, 2, 48000, 1920));
+        QVERIFY(writeWave(other, 2, 48000, 3840));
+        QString id;
+        {
+            conflux::DeckController controller;
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+            controller.importTrack(QUrl::fromLocalFile(source));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            id = controller.libraryTracks().front().toMap()["id"].toString();
+        }
+        const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/library.json";
+        auto saved = QtConcurrent::run([path, id] { return conflux::library::LibraryCatalog(path).updateSavedCue(id, 1920, 640); });
+        saved.waitForFinished();
+        const auto seeded = saved.result();
+        QVERIFY(!seeded.empty() && seeded.front().savedCueFrame.has_value());
+        QCOMPARE(*seeded.front().savedCueFrame, std::uint64_t(640));
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        QCOMPARE(reopened.libraryTracks().front().toMap()["savedCueFrame"].toString(), QString("640"));
+        reopened.loadLibraryTrack(0, id);
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        const auto cue = reopened.decks()[0].toMap()["savedCue"].toMap();
+        QVERIFY(cue["saved"].toBool());
+        QCOMPARE(cue["frame"].toString(), QString("640"));
+        QCOMPARE(cue["seconds"].toDouble(), 640 / 48000.0);
+        QCOMPARE(reopened.audioState().sourceFrame[0], std::uint64_t(0));
+        QCOMPARE(reopened.audioState().cueFrame[0], std::uint64_t(0));
+        QCOMPARE(reopened.submittedCommands(), std::uint64_t(0)); // No automatic restore.
+        const auto catalog = reopened.libraryTracks();
+        reopened.loadDeck(0, QUrl::fromLocalFile(other));
+        QVERIFY(reopened.busy());
+        QVERIFY(!reopened.saveDeckCue(0));
+        QVERIFY(!reopened.recallDeckCue(0));
+        QVERIFY(reopened.busy()); // A rejected action cannot cancel replacement.
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(reopened.decks()[0].toMap()["sourceId"].toString() != id);
+        QVERIFY(!reopened.decks()[0].toMap()["savedCue"].toMap()["saved"].toBool());
+        QVERIFY(!reopened.saveDeckCue(0));
+        QVERIFY(!reopened.recallDeckCue(0));
+        QCOMPARE(reopened.libraryTracks(), catalog);
+        QCOMPARE(reopened.submittedCommands(), std::uint64_t(0));
     }
 
     void cueImportPersistsWithoutChangingLoadedDecks()

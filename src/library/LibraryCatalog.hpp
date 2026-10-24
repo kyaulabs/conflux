@@ -27,10 +27,11 @@ struct LibraryTrack {
     bool available = false;
     std::vector<CuePoint> cues{};
     std::optional<audio::SignalLevels> levels{};
+    std::optional<std::uint64_t> savedCueFrame{};
 };
 
 // Worker-only metadata persistence; this never hashes, decodes or prepares audio.
-// Version 3 adds prepared-source RMS/sample peak; older rows read as unknown.
+// Version 4 adds one manually saved source-frame CUE; older rows read as unknown.
 // Availability is refreshed from regular source-file existence, never saved.
 class LibraryCatalog {
 public:
@@ -39,11 +40,13 @@ public:
 
     explicit LibraryCatalog(QString absoluteFilePath);
     std::vector<LibraryTrack> read() const;
-    // Audio reimports retain existing points for the same content; callers
-    // install a new verified point set only through updateCues.
+    // Audio reimports retain existing cues for the same content. Only the
+    // dedicated updates install imported points or a manually saved CUE.
     std::vector<LibraryTrack> upsert(const LibraryTrack& track);
     std::vector<LibraryTrack> updateCues(const QString& sourceId, std::uint64_t expectedFrames,
                                        const std::vector<CuePoint>& cues);
+    std::vector<LibraryTrack> updateSavedCue(const QString& sourceId, std::uint64_t expectedFrames,
+                                           std::uint64_t frame);
 
 private:
     QString filePath_;
