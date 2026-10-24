@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "status": "retained24_DBN_comparison_complete_unqualified",
+  "denominator": 24,
+  "numeric_passed": 10,
+  "numeric_passed_percent": 41.666666666666664,
+  "pass_ids": [
+    1,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    10,
+    11,
+    16
+  ],
+  "new_pass_ids": [
+    16
+  ],
+  "regressed_pass_ids": [],
+  "baseline_numeric_passed": 9,
+  "prediction_failures": 0,
+  "failed_items": [
+    {
+      "id": 5,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 6,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 12,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 13,
+      "failed_numeric_gates": [
+        "F1"
+      ]
+    },
+    {
+      "id": 14,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 15,
+      "failed_numeric_gates": [
+        "F1"
+      ]
+    },
+    {
+      "id": 17,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 18,
+      "failed_numeric_gates": [
+        "F1"
+      ]
+    },
+    {
+      "id": 19,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 20,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 22,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 23,
+      "failed_numeric_gates": [
+        "F1",
+        "median_timing",
+        "p95_timing",
+        "adjacent_BPM"
+      ]
+    },
+    {
+      "id": 24,
+      "failed_numeric_gates": [
+        "F1"
+      ]
+    },
+    {
+      "id": 25,
+      "failed_numeric_gates": [
+        "F1",
+        "adjacent_BPM"
+      ]
+    }
+  ],
+  "owner_elapsed_seconds": 2.5267206599964993,
+  "cleanup_proven": true,
+  "client_reaped": true,
+  "pins": [
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/plan.json",
+      "bytes": 27025,
+      "sha256": "450fabe60eda135a8075aaf7f50510468f399071d2fba73bb1b5f050dd639169"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/compare_dbn.py",
+      "bytes": 15778,
+      "sha256": "e42725a19a09a06aa0d66e7fec2339c9324cb13eb6432ee32d39c571aac5b504"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/test_compare_dbn.py",
+      "bytes": 8580,
+      "sha256": "395015a5dc6952a15fc450dfc812bd47a7eaa6ea9466842e85ad0c566314f1db"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/root-dbn-owned-01.py",
+      "bytes": 14555,
+      "sha256": "0a5cb4310b8d7d56d9e41664e0edf28473c105c06be4d49aabfac4c6d3b33296"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/output-01/predictions.json",
+      "bytes": 15091,
+      "sha256": "c018e6d7b1c59516dba27d0a380356a31577aeb0f3fb6af4f97424dcc601f7d4"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/output-01/scores.json",
+      "bytes": 113583,
+      "sha256": "6a64872ff06c25832bc2193385b31fdee47a613b86173660827ae35c7fc2839b"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/root-dbn-compare-owner-01.json",
+      "bytes": 3268,
+      "sha256": "03ffe2c3268c3dd379e8eaacb33049983dc3ee4a8cfa946a903c3ba281e63517"
+    },
+    {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-analysis-qualification-01/dbn-retained-comparison-draft-01/root-dbn-tests-owner-01.json",
+      "bytes": 3146,
+      "sha256": "8a85794dd99dcf6d3814457a29d9f4040f7b94e90f6293d3ff34229898e43a6e"
+    }
+  ],
+  "new_model_inference": false,
+  "new_waveform_reads": false,
+  "application_runtime_changed": false,
+  "qualified": false,
+  "M2_complete": false,
+  "scope": "One fixed official DBN postprocessor on already exposed historical44.1kHz activations; complete24 denominator. In-sample diagnosis, not current48k accuracy, downbeat, latency, audio or release qualification.",
+  "generated_regressions_passed": 5,
+  "source_rate_hz": 44100,
+  "production48000_numeric_passed": 9,
+  "production48000_outer_failure_preserved": "Live owned RSS missing",
+  "downbeat_truth": "Unavailable",
+  "automatic_use": false
+}
