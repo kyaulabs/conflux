@@ -84,6 +84,15 @@ public:
         return {{"estimated", reference}, {"reference", reference}, {"manual", false},
                 {"status", reference > 0 ? "Estimated" : "Unavailable"}, {"error", ""}};
     }
+    static QVariantMap savedCueState(bool catalogued = false, bool saved = false,
+                                     const QString& frame = {}, double seconds = 0)
+    {
+        const QString add = "Add this source to the library before saving or recalling a cue.";
+        return {{"saveAvailable", catalogued}, {"recallAvailable", catalogued && saved},
+                {"saveReason", catalogued ? QString{} : add},
+                {"recallReason", !catalogued ? add : saved ? QString{} : QString("No saved cue for this source.")},
+                {"saved", saved}, {"frame", frame}, {"seconds", seconds}};
+    }
     UiEndpoint()
     {
         for (int deck = 0; deck < 2; ++deck)
@@ -92,7 +101,7 @@ public:
                                       {"positionSeconds", 0.0}, {"durationSeconds", 0.0},
                                       {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                       {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState()}, {"tempo", tempoState()}, {"bpm", bpmState()},
-                                      {"scratch", scratchState()}, {"sourceGeneration", qulonglong(0)},
+                                      {"scratch", scratchState()}, {"savedCue", savedCueState()}, {"sourceGeneration", qulonglong(0)},
                                       {"waveform", QVariantList{}}, {"loading", false}, {"pendingName", ""}, {"pendingPath", ""},
                                       {"pendingPresentation", QVariantMap{}}, {"pendingWaveform", QVariantList{}},
                                       {"loadPhase", ""}, {"loadPhaseText", ""}, {"loadCompletedStages", 0},
@@ -205,7 +214,7 @@ public:
                                    {"positionSeconds", position}, {"durationSeconds", 10.0},
                                    {"cueSeconds", 0.0}, {"cueHeld", false}, {"cuePreview", false},
                                    {"cueSelected", false}, {"meter", silentMeter()}, {"loop", loopState(true)}, {"tempo", tempoState(true)}, {"bpm", bpmState(120)},
-                                   {"scratch", scratchState(true)}, {"sourceGeneration", qulonglong(1)},
+                                   {"scratch", scratchState(true)}, {"savedCue", savedCueState()}, {"sourceGeneration", qulonglong(1)},
                                    {"waveform", QVariantList{.15, .5, .9, .3, .1}}, {"loading", false},
                                    {"pendingName", ""}, {"pendingPath", ""}, {"pendingPresentation", QVariantMap{}},
                                    {"pendingWaveform", QVariantList{}}, {"loadPhase", ""}, {"loadPhaseText", ""},
@@ -281,6 +290,11 @@ public:
         calls.append(QVariantMap{{"action", "cueJump"}, {"deck", deck}, {"id", sourceId}, {"index", cueIndex}});
         return true;
     }
+    // Routing only: tests deliver saved metadata snapshots independently.
+    Q_INVOKABLE bool saveDeckCue(int deck)
+    { calls.append(QVariantMap{{"action", "saveDeckCue"}, {"deck", deck}}); return true; }
+    Q_INVOKABLE bool recallDeckCue(int deck)
+    { calls.append(QVariantMap{{"action", "recallDeckCue"}, {"deck", deck}}); return true; }
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& id)
     { calls.append(QVariantMap{{"action", "libraryLoad"}, {"deck", deck}, {"id", id}}); }
     Q_INVOKABLE bool cancelPreparation()
@@ -2118,6 +2132,119 @@ private slots:
         QTRY_VERIFY(ui_->item("libraryCue1JumpA") && !ui_->item("libraryCue1JumpA")->isEnabled());
         QVERIFY(!ui_->item("libraryCue1JumpB")->isEnabled());
         QCOMPARE(ui_->endpoint.calls.size(), 2); // Changing selection never loads or seeks.
+    }
+
+    void savedDeckCueRoutesIndependentlyOfLibrarySelection()
+    {
+        const QString idA(64, QLatin1Char('a')), idB(64, QLatin1Char('b'));
+        const QString unrelated(64, QLatin1Char('c'));
+        const QVariantMap other{{"id", unrelated}, {"name", "Unrelated source"},
+                                {"path", "/tmp/unrelated.wav"}, {"durationSeconds", 120.0}, {"available", true}};
+        ui_->endpoint.setLibrary({other});
+        ui_->endpoint.loadState(0, 62.04);
+        ui_->endpoint.loadState(1, 17.125);
+        for (int deck = 0; deck < 2; ++deck) {
+            auto tempo = UiEndpoint::tempoState(true);
+            tempo["percent"] = deck == 0 ? 7.5 : -3.0;
+            tempo["appliedPercent"] = tempo["percent"];
+            tempo["keyLock"] = true;
+            ui_->endpoint.snapshotDeck(deck, {{"durationSeconds", 120.0}, {"playing", true},
+                {"gain", deck == 0 ? .375 : .625}, {"eqGainDb", QVariantList{1., -2., 3.}},
+                {"cueSelected", deck == 1}, {"tempo", tempo}});
+        }
+        ui_->endpoint.snapshotMasterGain(.625);
+        ui_->endpoint.snapshotCueGain(.375);
+        ui_->endpoint.snapshotCrossfader(.25);
+        ui_->endpoint.setReady(true);
+        QVERIFY(ui_->openLibrary(0));
+        auto* drawer = ui_->object("libraryDrawer");
+        QVERIFY(drawer);
+        QCOMPARE(drawer->property("selectedId").toString(), QString{});
+        auto* saveA = ui_->item("deck0SaveCue");
+        auto* recallA = ui_->item("deck0RecallCue");
+        auto* saveB = ui_->item("deck1SaveCue");
+        auto* recallB = ui_->item("deck1RecallCue");
+        auto* statusA = ui_->item("deck0SavedCueStatus");
+        auto* statusB = ui_->item("deck1SavedCueStatus");
+        for (auto* control : {saveA, recallA, saveB, recallB, statusA, statusB}) {
+            QVERIFY(control);
+            QTRY_VERIFY(control->isVisible() && control->width() > 0 && control->height() > 0);
+        }
+        QCOMPARE(saveA->property("text").toString(), QString("Save CUE A"));
+        QCOMPARE(saveB->property("text").toString(), QString("Save CUE B"));
+        QCOMPARE(recallA->property("text").toString(), QString("Recall A"));
+        QCOMPARE(recallB->property("text").toString(), QString("Recall B"));
+        for (auto* control : {saveA, recallA, saveB, recallB}) {
+            QVERIFY(!control->isEnabled());
+            auto* accessible = QAccessible::queryAccessibleInterface(control);
+            QVERIFY(accessible);
+            QVERIFY(accessible->text(QAccessible::Description).contains("Add this source to the library"));
+        }
+        for (auto* status : {statusA, statusB}) {
+            QCOMPARE(status->property("textFormat").toInt(), int(Qt::PlainText));
+            QVERIFY(!status->property("text").toString().contains("0:00.000"));
+        }
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(saveA));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(recallB));
+        QVERIFY(ui_->endpoint.calls.isEmpty()); // Raw loaded paths have no catalog cue.
+
+        ui_->endpoint.setLibrary({other,
+            QVariantMap{{"id", idA}, {"name", "Deck A source"}, {"path", "/tmp/a.wav"},
+                        {"durationSeconds", 120.0}, {"available", true}},
+            QVariantMap{{"id", idB}, {"name", "Deck B source"}, {"path", "/tmp/b.wav"},
+                        {"durationSeconds", 120.0}, {"available", true}}});
+        ui_->endpoint.setSourceId(0, idA);
+        ui_->endpoint.setSourceId(1, idB);
+        ui_->endpoint.snapshotDeck(0, {{"savedCue", UiEndpoint::savedCueState(true)}});
+        ui_->endpoint.snapshotDeck(1, {{"savedCue", UiEndpoint::savedCueState(true, true, "168000", 3.5)}});
+        QTRY_VERIFY(saveA->isEnabled() && saveB->isEnabled() && recallB->isEnabled());
+        QVERIFY(!recallA->isEnabled());
+        QCOMPARE(drawer->property("selectedId").toString(), QString{});
+        QTRY_VERIFY(statusB->property("text").toString().contains("0:03.500"));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_COMPARE(drawer->property("selectedId").toString(), unrelated);
+        QVERIFY(saveA->isEnabled() && saveB->isEnabled() && recallB->isEnabled());
+        QVERIFY(!recallA->isEnabled());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        const auto before = ui_->endpoint.decks();
+
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(saveA));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        ui_->endpoint.snapshotDeck(0, {{"savedCue", UiEndpoint::savedCueState(true, true, "2977920", 62.04)}});
+        QTRY_VERIFY(statusA->property("text").toString().contains("1:02.040"));
+        QVERIFY(statusB->property("text").toString().contains("0:03.500"));
+        QTRY_VERIFY(recallA->isEnabled());
+        saveB->forceActiveFocus();
+        QTRY_VERIFY(saveB->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        ui_->endpoint.snapshotDeck(1, {{"savedCue", UiEndpoint::savedCueState(true, true, "822000", 17.125)}});
+        QTRY_VERIFY(statusB->property("text").toString().contains("0:17.125"));
+        QVERIFY(statusA->property("text").toString().contains("1:02.040"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(recallB));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        recallA->forceActiveFocus();
+        QTRY_VERIFY(recallA->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        const std::array<QString, 4> actions{"saveDeckCue", "saveDeckCue", "recallDeckCue", "recallDeckCue"};
+        const std::array<int, 4> decks{0, 1, 1, 0};
+        for (int index = 0; index < 4; ++index) {
+            const auto call = ui_->endpoint.calls[index].toMap();
+            QCOMPARE(call["action"].toString(), actions[index]);
+            QCOMPARE(call["deck"].toInt(), decks[index]);
+        }
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto expected = before[deck].toMap(), actual = ui_->endpoint.decks()[deck].toMap();
+            for (const auto* field : {"gain", "eqGainDb", "tempo", "playing", "positionSeconds", "cueSeconds",
+                                      "cueSelected", "sourceId", "sourceGeneration"})
+                QCOMPARE(actual.value(field), expected.value(field));
+        }
+        QCOMPARE(ui_->endpoint.masterGain(), .625);
+        QCOMPARE(ui_->endpoint.cueGain(), .375);
+        QCOMPARE(ui_->endpoint.crossfader(), .25);
+        QCOMPARE(drawer->property("selectedId").toString(), unrelated);
     }
 
     void cueImportAndJumpRespectBusyMissingAndLibraryReadiness()

@@ -3497,6 +3497,84 @@ int main(int argc, char** argv)
         }
         observations["cue_jump"] = QJsonObject{{"landed_frame", qint64(cueJumped.sourceFrame[1])},
             {"b_paused", !cueJumped.playing[1]}, {"temporary_cue_unchanged", true}, {"peer_clock_unchanged", true}};
+        // The imported-cue oracle above is complete. Persist the paused B's
+        // native CUE while A and the existing exact sink check keep advancing.
+        const auto importedMarkers = controller.libraryTracks()[0].toMap()["cues"].toList();
+        require(controller.cuePress(1), "B CUE press was not accepted for saving");
+        const auto cuePressCommands = controller.submittedCommands();
+        require(!controller.saveDeckCue(1) && controller.submittedCommands() == cuePressCommands &&
+                controller.error().contains("acknowledge"),
+                "Unacknowledged CUE cannot be saved or issue another command");
+        wait([&] { const auto state = controller.audioState();
+            return state.cueHeld[1] && state.cueFrame[1] == 47360 && state.lastCommandId >= cuePressCommands;
+        }, "B native CUE did not acknowledge frame47360");
+        controller.cueRelease(1);
+        wait([&] { const auto state = controller.audioState();
+            return !state.cueHeld[1] && state.lastCommandId >= controller.submittedCommands();
+        }, "B CUE release did not acknowledge before saving");
+        const auto beforeCueSave = controller.audioState();
+        const auto cueSaveCommands = controller.submittedCommands();
+        require(controller.saveDeckCue(1) && controller.submittedCommands() == cueSaveCommands,
+                "Saving native CUE must not submit an audio command");
+        wait([&] { return !controller.busy() && controller.audioState().outputFrame > beforeCueSave.outputFrame; },
+             "B saved CUE did not finish its atomic catalog write while output advanced");
+        const auto afterCueSave = controller.audioState();
+        const auto savedCue = controller.decks()[1].toMap()["savedCue"].toMap();
+        require(controller.libraryError().isEmpty() && savedCue["frame"].toString() == "47360" &&
+                savedCue["saved"].toBool() && controller.submittedCommands() == cueSaveCommands &&
+                afterCueSave.playing[0] && !afterCueSave.playing[1] && afterCueSave.sourceFrame[1] == 47360 &&
+                afterCueSave.cueFrame[1] == 47360 && afterCueSave.outputFrame > beforeCueSave.outputFrame &&
+                afterCueSave.sourceFrame[0] - beforeCueSave.sourceFrame[0] == afterCueSave.outputFrame - beforeCueSave.outputFrame &&
+                afterCueSave.deckGain == beforeCueSave.deckGain && afterCueSave.eqGainDb == beforeCueSave.eqGainDb &&
+                afterCueSave.stemGain == beforeCueSave.stemGain && afterCueSave.cueSelected == beforeCueSave.cueSelected &&
+                afterCueSave.masterGain == beforeCueSave.masterGain && afterCueSave.cueGain == beforeCueSave.cueGain &&
+                afterCueSave.crossfader == beforeCueSave.crossfader &&
+                afterCueSave.tempo[1].percent == beforeCueSave.tempo[1].percent &&
+                afterCueSave.tempo[1].keyLock == beforeCueSave.tempo[1].keyLock &&
+                controller.libraryTracks()[0].toMap()["cues"].toList() == importedMarkers && sinkMatches(),
+                "Saving CUE preserves imported markers, both decks' controls and the advancing peer/samples");
+        {
+            conflux::DeckController reopened;
+            wait([&] { return reopened.libraryReady(); }, "Saved CUE catalog did not reopen");
+            require(reopened.libraryTracks().size() == 1 &&
+                    reopened.libraryTracks()[0].toMap()["id"].toString() == libraryId &&
+                    reopened.libraryTracks()[0].toMap()["savedCueFrame"].toString() == "47360" &&
+                    reopened.libraryTracks()[0].toMap()["cues"].toList() == importedMarkers &&
+                    reopened.submittedCommands() == 0,
+                    "Saved CUE persists across controller recreation without an automatic seek or marker replacement");
+        }
+        savedCatalog = catalogSnapshot(); // The explicit Save is the last authorized metadata change.
+        controller.seekSeconds(1, 640 / 48000.0);
+        require(!controller.saveDeckCue(1) && controller.error().contains("acknowledge"),
+                "Queued seek must invalidate the current CUE snapshot until acknowledgment");
+        wait([&] { const auto state = controller.audioState();
+            return state.sourceFrame[1] == 640 && state.lastCommandId >= controller.submittedCommands();
+        }, "B did not acknowledge the pre-recall seek");
+        require(controller.recallDeckCue(1), "Saved B CUE recall was rejected");
+        wait([&] { const auto state = controller.audioState();
+            return state.sourceFrame[1] == 47360 && state.lastCommandId >= controller.submittedCommands();
+        }, "Saved B CUE recall did not land at exact frame47360");
+        const auto cueRecalled = controller.audioState();
+        require(!cueRecalled.playing[1] && cueRecalled.cueFrame[1] == 47360 &&
+                cueRecalled.playing[0] && !cueRecalled.invalidBuffers && !cueRecalled.rejected && sinkMatches(),
+                "Saved CUE recall preserves paused B, native CUE and the exact advancing peer/samples");
+        controller.seekSeconds(1, cueRecalled.sourceFrames[1] / 48000.0);
+        wait([&] { const auto state = controller.audioState();
+            return state.sourceFrame[1] == state.sourceFrames[1] && state.lastCommandId >= controller.submittedCommands();
+        }, "B did not acknowledge its source endpoint");
+        const auto endpointCommands = controller.submittedCommands();
+        require(!controller.saveDeckCue(1) && controller.error().contains("before its end") &&
+                controller.submittedCommands() == endpointCommands,
+                "Saving at EOF rejects without issuing a transport command");
+        require(controller.recallDeckCue(1), "Saved CUE must remain recallable from EOF");
+        wait([&] { const auto state = controller.audioState();
+            return state.sourceFrame[1] == 47360 && state.lastCommandId >= controller.submittedCommands();
+        }, "Saved CUE did not recall from EOF at exact frame47360");
+        require(sinkMatches(), "Saved CUE endpoint checks changed peer samples");
+        observations["saved_deck_cue"] = QJsonObject{{"frame", "47360"}, {"saved_without_audio_command", true},
+            {"persisted_after_reopen", true}, {"recalled_exact_frame", true}, {"imported_cues_preserved", true},
+            {"peer_clock_preserved", true}, {"virtual_sink_sample_gate", !functionalOnly},
+            {"virtual_sink_samples_preserved", functionalOnly ? QJsonValue(QJsonValue::Null) : QJsonValue(true)}};
         const auto phasePath = QString::fromStdString((output.parent_path() / "controller-preparation-phase.json").string());
         bool shutdownCalled = false, shutdownReturned = false, phaseSaved = true;
         conflux::audio::LiveSession::State atComplete{};

@@ -86,6 +86,8 @@ public:
     Q_INVOKABLE void importTrack(const QUrl& url);
     Q_INVOKABLE void importCueSheet(const QString& sourceId, const QUrl& url);
     Q_INVOKABLE bool jumpToImportedCue(int deck, const QString& sourceId, int cueIndex);
+    Q_INVOKABLE bool saveDeckCue(int deck);
+    Q_INVOKABLE bool recallDeckCue(int deck);
     Q_INVOKABLE void loadLibraryTrack(int deck, const QString& sourceId);
     Q_INVOKABLE void loadLibraryStemTrack(int deck, const QString& sourceId);
     Q_INVOKABLE void loadLibraryStemTrackWithRecoveryRange(int deck, const QString& sourceId,
@@ -249,6 +251,8 @@ private:
     };
     void loaded();
     void catalogFinished();
+    QString deckCueUnavailable(int deck, bool saving) const;
+    QVariantMap savedDeckCue(std::size_t deck) const;
     void beginPreparation(int deck, const QUrl& url, bool importOnly,
                           const QString& expectedSource = {}, bool stems = false,
                           std::optional<library::LiveStemResidentHold> residentHold = {});
@@ -388,6 +392,8 @@ private:
     bool installationPending_ = false;
     bool closing_ = false;
     std::uint64_t submitted_ = 0;
+    // Command IDs are cumulative; a rebuilt native session starts at zero.
+    std::uint64_t sessionCommandBase_ = 0;
     std::uint64_t completedSessions_ = 0;
     std::uint64_t completedApplied_ = 0;
     std::uint64_t completedRejected_ = 0;
