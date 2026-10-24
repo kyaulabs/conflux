@@ -1193,6 +1193,9 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
     constexpr std::uint64_t frames = 48000 * 30, reserve = 262144, rangeId = 771, peerStart = 512;
     constexpr std::uint64_t generation = 5;
     const bool interior = label == "interior";
+    const bool entry = label == "entry";
+    const std::string_view expectedInstallPhase = interior ? "callback_interior" :
+        entry ? "callback_entry" : "callback_entry_or_end";
     const auto cutoff = reserve + (interior ? 17U : 0U);
     const std::string prefix = "resident-takeover-" + std::string(label);
     Range range{rangeId, 4096, 6144, 2048 * Range::bytesPerFrame, Range::Provenance::DjRange};
@@ -1238,6 +1241,7 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
                << ",\"fixed_quantum\":256,\"parked_F\":" << cutoff << ",\"hold_entry_output_frame\":" << cutoff
                << ",\"approved_range_frames\":2048,\"callback_end_ack_output_frame\":" << ackOutput
                << ",\"actual_swap_output_frame\":" << swapOutput << ",\"first_prepared_suffix_frames\":" << suffixFrames
+               << ",\"expected_install_phase\":" << json(expectedInstallPhase)
                << ",\"observed_install_phase\":" << json(observedInstallPhase)
                << ",\"forced_entry_and_end_population\":false"
                << ",\"prepublication_output_frame\":" << beforeOutput << ",\"prepublication_audible_frame\":" << beforeAudible
@@ -1318,6 +1322,15 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
             require(unchangedCandidate(), prefix + ": rejected owner returns with exact unused prime and unchanged mix");
             ++staleRejected;
         }
+        if (entry) {
+            // Observe one exact OUT snapshot, then publish once. This does not
+            // lock callback timing; a different actual phase must fail below.
+            wait([&] { observe(); return state.residentHold[0].active &&
+                state.residentHold[0].rangeId == rangeId && state.sourceGeneration[0] == 0 &&
+                state.sourceFrame[0] == cutoff && state.transportRevision[0] == revision &&
+                state.residentHold[0].audibleFrame == range.outFrame; },
+                "Exact aligned OUT snapshot did not arrive before the single entry publication");
+        }
         beforeOutput = state.outputFrame; beforeAudible = state.residentHold[0].audibleFrame;
         require(beforeOutput >= cutoff && beforeOutput % 256 == 0 &&
             beforeAudible >= range.inFrame && beforeAudible <= range.outFrame,
@@ -1355,9 +1368,11 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
         require(ackOutput >= cutoff+suffixFrames && ackOutput%256 == 0 && ackOutput > beforeOutput,
             prefix + ": completion clock bounds subtraction and matches a later fixed-quantum END");
         swapOutput = ackOutput-suffixFrames;
-        // Aligned OUT may be observed for the first time at callback ENTRY,
-        // or reached by the old prefix at callback END. Publication is host
-        // timed; accept and label either exact phase, never retry to force one.
+        observedInstallPhase = suffixFrames == 0 ? "callback_end" :
+            suffixFrames == 256 ? "callback_entry" : "callback_interior";
+        // Aligned OUT may be observed first at callback ENTRY or reached by
+        // the old prefix at callback END. Boundary accepts either exact phase;
+        // entry requires the measured full suffix below. Never retry publication.
         require((swapOutput-cutoff)%2048 == 0 &&
             swapOutput%256 == (interior ? 17U : 0U) &&
             (interior ? suffixFrames == 239U : (suffixFrames == 0 || suffixFrames == 256)) &&
@@ -1365,7 +1380,8 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
             firstInstalled->stemGain[0] == targets && !firstInstalled->residentHold[0].supported &&
             firstInstalled->sourceReadErrorObserved[0] == interior && !firstInstalled->sourceReadError[0],
             prefix + ": exact OUT/F/ACK clocks prove the observed interior or aligned takeover phase");
-        observedInstallPhase = interior ? "callback_interior" : (suffixFrames ? "callback_entry" : "callback_end");
+        if (entry) require(suffixFrames == 256 && observedInstallPhase == "callback_entry",
+            prefix + ": single publication must install at callback ENTRY with a full 256-frame finite suffix");
         const auto progressed = state;
         wait([&] { observe(); return state.outputFrame >= progressed.outputFrame+1024 && state.sourceFrame[0] > cutoff; },
             "Finite resident takeover did not consume its exact F window");
@@ -1663,11 +1679,11 @@ int main(int argc, char** argv)
         std::string residentCase;
         if (index < argc && std::string_view(argv[index]) == "--resident-takeover-case" && index+2 == argc) {
             residentCase = argv[index+1]; index += 2;
-            if (residentCase != "interior" && residentCase != "boundary")
-                throw std::runtime_error("Resident takeover case must be interior or boundary");
+            if (residentCase != "interior" && residentCase != "boundary" && residentCase != "entry")
+                throw std::runtime_error("Resident takeover case must be interior, boundary or entry");
         }
         if (argc < 3 || index != argc)
-            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only] [--resident-takeover-case interior|boundary]");
+            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only] [--resident-takeover-case interior|boundary|entry]");
         validatePrivateEnvironment(argv[1]);
         const std::filesystem::path output(argv[2]);
         diagnosticDirectory = output.parent_path();
