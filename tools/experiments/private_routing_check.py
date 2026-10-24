@@ -36,7 +36,7 @@ def main():
                        help="run only the preparation binary's generated live stall/exit checks")
     modes.add_argument("--continuation-case", choices=("takeover", "miss", "cancel", "stop", "foreground", "resident-hold", "resident-takeover", "resident-cancel"),
                        help="run one bounded generated same-deck continuation case")
-    modes.add_argument("--resident-takeover-case", choices=("interior", "boundary"),
+    modes.add_argument("--resident-takeover-case", choices=("interior", "boundary", "entry"),
                        help="run one generated direct-session resident OUT takeover case")
     modes.add_argument("--ui-controls-soak", type=Path, help="preparation helper runs this exact soak's actual Qt sequence on the private daemon")
     parser.add_argument("--soak-sha256", default="", help="required exact executable SHA256 with --ui-controls-soak")

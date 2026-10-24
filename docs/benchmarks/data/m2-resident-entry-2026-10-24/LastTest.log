@@ -1,0 +1,49 @@
+Start testing: Oct 24 00:09 PDT
+----------------------------------------------------------
+7/41 Testing: audio-source-handoff
+7/41 Test: audio-source-handoff
+Command: "/home/kyau/projects/kyaulabs/conflux/build/resident-entry-01/conflux-audio-source-handoff-test"
+Directory: /home/kyau/projects/kyaulabs/conflux/build/resident-entry-01
+"audio-source-handoff" start time: Oct 24 00:09 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"audio-source-handoff" end time: Oct 24 00:09 PDT
+"audio-source-handoff" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/41 Testing: live-session
+31/41 Test: live-session
+Command: "/home/kyau/projects/kyaulabs/conflux/build/resident-entry-01/conflux-live-session-test"
+Directory: /home/kyau/projects/kyaulabs/conflux/build/resident-entry-01
+"live-session" start time: Oct 24 00:09 PDT
+Output:
+----------------------------------------------------------
+Live session initialization, validation and private-server failure checks completed
+<end of output>
+Test time =   0.51 sec
+----------------------------------------------------------
+Test Passed.
+"live-session" end time: Oct 24 00:09 PDT
+"live-session" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/41 Testing: audio-live-recovery
+32/41 Test: audio-live-recovery
+Command: "/home/kyau/projects/kyaulabs/conflux/build/resident-entry-01/conflux-audio-live-recovery-test"
+Directory: /home/kyau/projects/kyaulabs/conflux/build/resident-entry-01
+"audio-live-recovery" start time: Oct 24 00:09 PDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.20 sec
+----------------------------------------------------------
+Test Passed.
+"audio-live-recovery" end time: Oct 24 00:09 PDT
+"audio-live-recovery" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Oct 24 00:09 PDT

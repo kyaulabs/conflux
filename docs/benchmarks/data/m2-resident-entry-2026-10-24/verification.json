@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "status": "single_generated_private_entry_observation_passed",
+  "recorded_date": "2026-10-24",
+  "source_state": {
+    "base_commit": "e7c6436d0801cf881602e10a1c822672882b2ea9",
+    "feature_commit": null,
+    "scope": "Reviewed uncommitted checker changes on this base. The base alone does not identify the tested checker; source hashes below identify its bytes."
+  },
+  "source_pins": [
+    {
+      "path": "tools/experiments/manual_routing_check.cpp",
+      "bytes": 117427,
+      "sha256": "3fe8049ea0ad8331c2f69407628ed39448032a7f9fc048caa59731159b9d9c45"
+    },
+    {
+      "path": "tools/experiments/private_routing_check.py",
+      "bytes": 12454,
+      "sha256": "180ff59607d5daef9368f4fcb8ea4b8c8f26e4e1d040ee1608d21130c438cbd8"
+    }
+  ],
+  "binary": {
+    "name": "conflux-manual-routing-check",
+    "bytes": 8061624,
+    "sha256": "c86d92957372632c75892b9fd5ac92ab06db493900ff69e519a54c91ee79b54b"
+  },
+  "build": {
+    "type": "RelWithDebInfo",
+    "ui_enabled": false,
+    "source_scope": "Current release-tree-guard source in a separate fresh resident-entry-01 build."
+  },
+  "execution": {
+    "case": "entry",
+    "invocations": 1,
+    "retries": 0,
+    "valid_continuation_publications": 1,
+    "stale_ticket_probes": 3,
+    "passed_checks": 37,
+    "functional_only": true,
+    "execution_deadline_gate": false,
+    "harness_timeout_seconds": 240,
+    "invocation_scope": "One invocation reported for this retained case; the fixed checker observes OUT, publishes once and rejects a different actual phase."
+  },
+  "observed": {
+    "fixed_quantum": 256,
+    "parked_F": 262144,
+    "prepublication_output_frame": 264192,
+    "prepublication_audible_frame": 6144,
+    "approved_range_frames": 2048,
+    "actual_swap_output_frame": 264192,
+    "callback_end_ack_output_frame": 264448,
+    "first_prepared_suffix_frames": 256,
+    "expected_install_phase": "callback_entry",
+    "observed_install_phase": "callback_entry",
+    "source_generation_before": 0,
+    "source_generation_after": 5,
+    "transport_revision_before": 5,
+    "transport_revision_after": 6,
+    "starved_frames": 0,
+    "snapshot_drops": 0,
+    "recorded_frames": 264704,
+    "written_frames": 264704,
+    "wrong_nonzero_receiver_samples": 0,
+    "every_recorded_stereo_frame_checked": true
+  },
+  "passed_invariants": [
+    "Three stale source/revision/range tickets were rejected without consuming the exact finite prime or replacing the active hold.",
+    "The current stem target command 6001 (0.375 on stem 0) precedes the valid continuation; revision advances once, and finite/peer clocks, EQ, CUE, gains and cumulative health remain intact.",
+    "Matching callback-END acknowledgement returns the original whole owner; it stays alive through acquire and joins off-thread afterward. One producer start and one exit are retained.",
+    "Quiescence returns the exact finite and peer owners, detaches the recorder, and all 264704 accepted frames drain without failure or overflow."
+  ],
+  "cleanup": {
+    "remaining_nodes_or_links": [],
+    "only_dummy_driver_remains": true,
+    "daemon_reaped": true
+  },
+  "ctest": {
+    "passed": 3,
+    "failed": 0,
+    "cases": [
+      "audio-source-handoff",
+      "live-session",
+      "audio-live-recovery"
+    ],
+    "log": "LastTest.log",
+    "scope": "CPU/generated core, mailbox and session checks; no separator model or GPU execution."
+  },
+  "complementary_prior_evidence": {
+    "path": "../m2-resident-controls-2026-10-23/prepared-takeover.json",
+    "bytes": 13794,
+    "sha256": "42c5181d3163ce52ad501de0436b3ffcf78bd2d7c1f5c878b46d6b2a4fe84524",
+    "interior_prepared_suffix_frames": 239,
+    "aligned_end_prepared_suffix_frames": 0,
+    "scope": "Earlier retained interior and END observations complement this ENTRY observation; they are separate runs, not forced phase populations. Core tests supply audible target/CUE/envelope/ramp proof."
+  },
+  "limits": [
+    "Generated PCM on an isolated private PipeWire daemon. Target A is master-muted; the complete master recording and receiver oracle prove the audible peer, while target takeover is evidenced by source/callback/ownership state.",
+    "One ENTRY observation, no forced ENTRY/END population, repeated timing guarantee or execution-deadline qualification.",
+    "No physical device, model, GPU, musical suitability, sustained, laptop, UI contention or latency qualification. Best quality and strict service p99 < 4095 ms remain unchanged; M2 and M3 stay open.",
+    "Durable evidence contains JSON/log receipts only; generated WAV and build binaries remain private."
+  ],
+  "evidence": [
+    {
+      "path": "result.json",
+      "bytes": 4228,
+      "sha256": "caaed690daf52145b7416e50919fb92fba0921a15636a9217f792cafc7825f4c"
+    },
+    {
+      "path": "resident-takeover-entry.json",
+      "bytes": 1240,
+      "sha256": "bbb8e2ce19a823a52ef4f424f9e4581dec945360fe62b1eeebe36d5c4567f116"
+    },
+    {
+      "path": "resident-takeover-entry-receiver.json",
+      "bytes": 181,
+      "sha256": "f56cb9cb964297d4dab62fba24bedd2f38f9d0751e6efd4c26b79f7bf776bf82"
+    },
+    {
+      "path": "LastTest.log",
+      "bytes": 2048,
+      "sha256": "778a76d63a2eaef420c9063a3515b11985e48328b7804b54e9a9d0f08774f8f3"
+    }
+  ]
+}

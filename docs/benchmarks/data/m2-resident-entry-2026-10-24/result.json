@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "execution_deadline_gate": false,
+  "harness_timeout_seconds": 240,
+  "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification",
+  "preflight_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "check_exit": 0,
+  "check": {
+    "passed": true,
+    "qualified": false,
+    "scope": "One generated private direct-session resident OUT takeover; no physical/model/audio qualification",
+    "resident_takeover_case": "entry",
+    "execution_deadline_gate": false,
+    "checks": [
+      "Explicit private runtime environment validated",
+      "Private runtime is owned and mode 0700",
+      "Explicit private daemon socket exists and is owned by this user",
+      "Fresh absolute recording output directory validated",
+      "resident-takeover-entry: finite same-fixture bank primes exact known F before callbacks",
+      "Inactive private discovery session connects",
+      "resident-takeover-entry: isolated direct callback session connects",
+      "resident-takeover-entry: recorder attaches after existing startup warmup",
+      "resident-takeover-entry: approved hold parks known F with exact quantum and no discarded/starved frames",
+      "resident-takeover-entry: stale source/revision/range ticket reaches the real callback",
+      "resident-takeover-entry: callback rejects stale identity without replacing the current hold",
+      "resident-takeover-entry: rejected owner returns with exact unused prime and unchanged mix",
+      "resident-takeover-entry: stale source/revision/range ticket reaches the real callback",
+      "resident-takeover-entry: callback rejects stale identity without replacing the current hold",
+      "resident-takeover-entry: rejected owner returns with exact unused prime and unchanged mix",
+      "resident-takeover-entry: stale source/revision/range ticket reaches the real callback",
+      "resident-takeover-entry: callback rejects stale identity without replacing the current hold",
+      "resident-takeover-entry: rejected owner returns with exact unused prime and unchanged mix",
+      "resident-takeover-entry: saved callback END and resident cursor admit bounded exact phase arithmetic",
+      "resident-takeover-entry: saved audible phase matches parked F and exact output clock before publication",
+      "resident-takeover-entry: current stem target enters FIFO before range publication",
+      "resident-takeover-entry: fresh exact range transfers one primed finite owner to the existing mailbox",
+      "resident-takeover-entry: old owner stays alive through the uncollected installed callback END",
+      "resident-takeover-entry: matching callback END acquire returns exactly the retained original owner and fault",
+      "resident-takeover-entry: installed callback contains at most its one finite suffix",
+      "resident-takeover-entry: completion clock bounds subtraction and matches a later fixed-quantum END",
+      "resident-takeover-entry: exact OUT/F/ACK clocks prove the observed interior or aligned takeover phase",
+      "resident-takeover-entry: single publication must install at callback ENTRY with a full 256-frame finite suffix",
+      "resident-takeover-entry: exact finite/peer clocks, manual target, EQ/CUE and cumulative health remain intact",
+      "resident-takeover-entry: acknowledged old owner has no resident borrow and retains its original error",
+      "resident-takeover-entry: original producer joins only after acquired off-thread retirement",
+      "resident-takeover-entry: quiescence returns both exact active owners and detaches the recorder",
+      "resident-takeover-entry: complete peer master recording drains without omitted frames",
+      "Post-master recording reopens after acknowledged detach",
+      "Recording geometry and drained frame count match accepted master PCM",
+      "Every recorded sample equals the independent post-master expectation, excluding cue",
+      "resident-takeover-entry: original exact peer receiver oracle remains strict"
+    ]
+  },
+  "cleanup_dump": {
+    "exit": 0,
+    "timed_out": false
+  },
+  "cleanup": {
+    "remaining_nodes_or_links": [],
+    "only_dummy_driver_remains": true
+  },
+  "daemon_reaped": true
+}
