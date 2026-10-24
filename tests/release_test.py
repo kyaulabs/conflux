@@ -289,6 +289,25 @@ class ReleaseGitCliffTests(unittest.TestCase):
             for _ in range(2):
                 self.assertEqual(release.resolve(7)["sha"], merge)
 
+    def test_resolve_rejects_source_change_only_in_merge_result(self):
+        source = self.path / "source.cpp"
+        source.write_text("accepted source\n"); self.commit("feat: synthetic accepted source")
+        release.prepare("0.1.0", "docs/mixing.md")
+        self.commit("chore(release): prepare synthetic release")
+        head = self.g("rev-parse", "HEAD")
+        self.g("switch", "main")
+        self.g("merge", "--no-ff", "--no-commit", "release/0.1.0")
+        source.write_text("merge-only source change\n")
+        self.commit("chore(release): merge synthetic release")
+        merge = self.g("rev-parse", "HEAD")
+        self.assertEqual(self.g("diff", "--name-only", head, merge), "source.cpp")
+        pr = pull_request(); pr["head"]["sha"] = head; pr["merge_commit_sha"] = merge
+        def api(path, **_):
+            return pr if path == "pulls/7" else {"sha": merge, "commit": {"verification": {"verified": True}}}
+        with mock.patch.object(release, "api", side_effect=api):
+            with self.assertRaisesRegex(ValueError, "Merged release tree differs"):
+                release.resolve(7)
+
     def test_real_cliff_feature_patch_breaking_and_nonincrement_types(self):
         self.g("tag", "v0.1.0")
         cases = [(kind + ": fixture", None) for kind in ("docs", "ci", "test", "style", "chore", "refactor")]
