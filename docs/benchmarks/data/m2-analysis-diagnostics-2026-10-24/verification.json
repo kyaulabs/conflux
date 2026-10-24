@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "status": "saved_aggregate_diagnostics_only_all_release_gates_open",
+  "documentation_base_commit": "fb55b3c906598955cbebf5f33894abb18dc515d1",
+  "documentation_base_scope": "Documentation source view only; these historical diagnostics do not qualify that commit.",
+  "publication_scope": "Aggregate summaries and provenance only. No new test, native, model, audio, GPU or host workload ran for this publication. Private audio, chroma, label tables and model payloads are excluded.",
+  "harmony": {
+    "baseline_source_head": "ae75c1f8f0054ee5f008858039a9f815be5e192c",
+    "source_cases": 2,
+    "target_windows": 59,
+    "source_rate_hz": 48000,
+    "primary_reference_known_seconds": 230.46,
+    "denominator_scope": "Primary pooled known-reference duration across both sources and all 59 target windows. Unknown, Ambiguous and Failed output states are retained; conditional accuracy uses Estimated output only.",
+    "baseline": {
+      "known_frame_units": "11062080.00",
+      "correct_frame_units": "1321920.00",
+      "exact_top_one_full_denominator_percent": 11.95001302,
+      "estimated_coverage_percent": 37.54230669,
+      "conditional_accuracy_percent": 31.83079057,
+      "state_frame_units": {
+        "Estimated": "4152960.00",
+        "Unknown": "960000.00",
+        "Ambiguous": "5949120.00",
+        "Failed": "0"
+      }
+    },
+    "fixed_context16": {
+      "context_seconds": 16,
+      "known_frame_units": "11062080.00",
+      "correct_frame_units": "1748160.00",
+      "exact_top_one_full_denominator_percent": 15.80317626,
+      "estimated_coverage_percent": 30.4521392,
+      "conditional_accuracy_percent": 51.89512682,
+      "state_frame_units": {
+        "Estimated": "3368640.00",
+        "Unknown": "4224000.00",
+        "Ambiguous": "3469440.00",
+        "Failed": "0"
+      },
+      "baseline_reproduced_in_all_three_reference_results": true,
+      "predictions_persisted_before_reference_reads": true,
+      "scope": "Retained chroma/JSON and unchanged annotations only; no waveform/native/model/audio/GPU execution or new dependencies."
+    },
+    "change_crossing_full_denominator": {
+      "known_frame_units": "2688000.00",
+      "baseline_correct_frame_units": "401280.00",
+      "context16_correct_frame_units": "107520.00",
+      "baseline_percent": 14.92857143,
+      "context16_percent": 4.0
+    },
+    "limits": [
+      "In-sample annotated local-key diagnostic; inadequate accuracy and estimated coverage. Application harmony engine remains unconfigured.",
+      "No confidence calibration, independent/general-genre validation, harmonic compatibility, downbeat, phrase or cue qualification.",
+      "No duration sweep or reference/threshold tuning; original source maps and scores are unchanged. Conditional accuracy is not overall accuracy.",
+      "Baseline CPU-only operational/native-map checks passed; no audio, GPU or performance qualification follows."
+    ]
+  },
+  "beat": {
+    "production_decoder_passed": 9,
+    "production_case_denominator": 24,
+    "production_failed_outer_rss_observer_receipt_preserved": true,
+    "historical_oracle_scope": "Historical 44.1 kHz retained candidates, all 24 cases complete, no model or media rerun. Annotation-assisted optimistic F1 ceilings measure candidate support, not decoder accuracy or improved production output.",
+    "candidate_pools": {
+      "positive_beats": {
+        "cases_with_oracle_f1_at_least_0_90": 10,
+        "case_denominator": 24,
+        "references": 844,
+        "uncovered_references": 250,
+        "candidates": 763
+      },
+      "all_beat_maxima": {
+        "cases_with_oracle_f1_at_least_0_90": 21,
+        "case_denominator": 24,
+        "references": 844,
+        "uncovered_references": 79,
+        "candidates": 1645
+      },
+      "beat_plus_downbeat_maxima": {
+        "cases_with_oracle_f1_at_least_0_90": 22,
+        "case_denominator": 24,
+        "references": 844,
+        "uncovered_references": 47,
+        "candidates": 2425
+      }
+    },
+    "fixed_union_still_unsupported": [
+      {
+        "id": 15,
+        "maximum_f1": 0.7878787878787878,
+        "matched_references": 26,
+        "references": 40
+      },
+      {
+        "id": 23,
+        "maximum_f1": 0.5,
+        "matched_references": 11,
+        "references": 33
+      }
+    ],
+    "parameters_labels_and_acceptance_thresholds_unchanged": true,
+    "ranking_remains_unresolved": true,
+    "candidate_pool_diagnostic_enabled_in_application": false
+  },
+  "renderer_comparison": {
+    "status": "default_cooldown_admission_failed_software_unrun",
+    "default_owner_elapsed_seconds": 210.01319559100375,
+    "default_failed_gate": "Original bounded 60-second <=55 C normal cooldown",
+    "default_cooldown_completed": false,
+    "public_wrapper_or_native_launched": false,
+    "timed_audio_or_inference_started": false,
+    "software_launched": false,
+    "retry_or_readiness_renewal": false,
+    "latency_result": null,
+    "cleanup": {
+      "outer_host_launcher_reaped": true,
+      "actual_host_recheck_known_live": [],
+      "actual_host_recheck_owned_group_absent": true,
+      "actual_host_recheck_identity_errors": [],
+      "post_run_frozen_inputs_unchanged": true,
+      "original_strict_inner_cleanup_flag": false,
+      "scope": "Original outer host receipt and later actual-host namespace recheck prove absence; the earlier sandbox proc lookup was not independent host proof. The failed-before-public-wrapper inner flag was not rewritten."
+    },
+    "guard_recovery": {
+      "recovery_samples": 60,
+      "poll_seconds": 2,
+      "interpretation": "The existing guard intentionally holds power-saver for approximately120 seconds of cool samples after a warning. A warning50 seconds into cooldown left too little original admission time for a fresh60-second balanced cooldown; the guard was not stuck.",
+      "causality_limit": "No process CPU trace was retained for the92C warning; which process caused that transient is not established. No policy/settings/service/source were changed.",
+      "observed_warning_celsius": 92
+    },
+    "existing_generated_launcher_checks": {
+      "passed": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "Generated pure fixtures only; actual host capture, power, guard, profile, sensor and workload operations were mocked. These checks add no physical qualification.",
+      "initial_red_preserved": true
+    },
+    "qualification_scope": "No latency, seek/cancellation, audio, recording or UI qualification from this attempt."
+  },
+  "unchanged_gates": {
+    "quality": "Best",
+    "strict_service_p99_ms_less_than": 4095,
+    "m2_complete": false,
+    "m3_complete": false,
+    "release_0_1_0_ready": false,
+    "prior_visible_controls_failure": "The existing 7,492.174 ms p99/max, 6/18 late hops, 132,352 steady-starved frames, incomplete final replay and failed outer capture receipt remain unchanged in the linked published record and M2 text."
+  },
+  "provenance_scope": "SHA-256 values bind the exact summary bytes read for this aggregate publication; private_source values are non-clickable repository-relative provenance identifiers, not published inputs or independent validation.",
+  "provenance": [
+    {
+      "role": "harmony_baseline",
+      "private_source": "build/m2-analysis-qualification-01/swd-harmony-assessment-draft-01/root-assessment-summary-01.json",
+      "bytes": 5163,
+      "sha256": "1f19daecce7a65fb47d0a2c56e42734789a7c2b626d3211cc0c20ccd4adf1b24"
+    },
+    {
+      "role": "harmony_context16",
+      "private_source": "build/m2-analysis-qualification-01/harmony-context16-draft-01/root-assessment-summary-01.json",
+      "bytes": 10506,
+      "sha256": "568c81e38cee5c385dc2ffc2ddd5024f135672be652c68d32e9752f3e55da463"
+    },
+    {
+      "role": "beat_candidate_support",
+      "private_source": "build/m2-analysis-qualification-01/beat-candidate-support-draft-01/root-assessment-summary-01.json",
+      "bytes": 3733,
+      "sha256": "91b54efb3616e0439502b34518594286b66a5fc19336eee26e44df6206722529"
+    },
+    {
+      "role": "renderer_prelaunch",
+      "private_source": "build/m3-control-contention-draft-01/renderer-pair-admission-settle-01/root-prelaunch-summary-01.json",
+      "bytes": 2046,
+      "sha256": "f22c3cface081707ce8073b9a21776fb64891bfc0320c081db9f85afc0095f4b"
+    },
+    {
+      "role": "guard_recovery",
+      "private_source": "build/m3-control-contention-draft-01/renderer-pair-admission-settle-01/root-guard-recovery-explanation-01.json",
+      "bytes": 1968,
+      "sha256": "367548c4a4b5b29591c613bb6091fcca6d23f1a3b9d7b9808ff9ab1f0975c8b5"
+    },
+    {
+      "role": "actual_host_cleanup_recheck",
+      "private_source": "build/m3-control-contention-draft-01/renderer-pair-admission-settle-01/root-host-cleanup-recheck-01.json",
+      "bytes": 335,
+      "sha256": "487a1684146f5410bac52cc24088b62f5ef9ce7a62ae1e3ba87e3bdc326a013d"
+    },
+    {
+      "role": "generated_launcher_checks",
+      "private_source": "build/m3-control-contention-draft-01/renderer-pair-admission-settle-01/test-result-01.json",
+      "bytes": 4114,
+      "sha256": "f0800c3a6c6109cf54c4f5571a3dcfe87e29d2f5b09b403732a3b60b27dbac77"
+    },
+    {
+      "role": "existing_production_beat_and_failed_visible_controls_record",
+      "published_source": "docs/benchmarks/data/m2-analysis-progress-2026-10-23/verification.json",
+      "bytes": 5377,
+      "sha256": "81acfc0ea3d437eb4ee828cbbeace14bea7fe289d8a8a5ca5443ea3180032c22"
+    }
+  ]
+}
