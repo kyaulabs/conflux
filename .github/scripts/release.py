@@ -184,9 +184,8 @@ def resolve(number, *, token="GITHUB_TOKEN"):
     require(commit.get("sha") == sha and commit["commit"]["verification"].get("verified") is True,
             "Release merge is not verified")
     previous, provenance = validate_tree(head, target, existing_sha=sha)
-    for path in ("CMakeLists.txt", "CHANGELOG.md", ".github/release.json", provenance["mixing_evidence"]):
-        require(git("rev-parse", f"{sha}:{path}") == git("rev-parse", f"{head}:{path}"),
-                "Merged release provenance/version/changelog/evidence differs")
+    require(git("rev-parse", f"{sha}^{{tree}}") == git("rev-parse", f"{head}^{{tree}}"),
+            "Merged release tree differs from prepared release head")
     return {"version": target, "sha": sha, "head_sha": head, "pr": int(number),
             "previous": previous, "provenance": provenance}
 
