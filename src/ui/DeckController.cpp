@@ -323,6 +323,37 @@ QVariantList DeckController::decks() const
                 state_.residentHold[deck],
                 clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
                     std::optional<audio::AudioResidentHoldRange>{})},
+            {"harmony", [&]() -> QVariantMap {
+                const auto& estimate = harmonyEstimates_[deck];
+                QVariantMap value{{"status", "Unknown"}, {"analysisStatus", estimate.status},
+                    {"error", estimate.error}, {"confidence", "Unknown"}, {"sourceFrame", qulonglong(0)},
+                    {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(0)}, {"candidates", QVariantList{}},
+                    {"clock", "Original source48k"}};
+                if (!clips_[deck] || replacing_[deck]) return value;
+                const auto position = state_.sourcePosition[deck];
+                if (!std::isfinite(position) || position < 0 || position > double(audio::PreparedAudio::defaultMaxPreparedBytes / 8U)) return value;
+                auto frame = std::uint64_t(position);
+                const auto& hold = state_.residentHold[deck];
+                if (hold.active) {
+                    const auto range = clips_[deck]->live() ? clips_[deck]->residentHold : std::optional<audio::AudioResidentHoldRange>{};
+                    if (!range || !range->id || !hold.supported || !hold.ready || hold.rangeId != range->id ||
+                        hold.provenance != range->provenance || hold.inFrame != range->inFrame || hold.outFrame != range->outFrame ||
+                        position != double(hold.linearFrame) || hold.audibleFrame < hold.inFrame || hold.audibleFrame >= hold.outFrame)
+                        return value;
+                    frame = hold.audibleFrame;
+                }
+                if (const auto* window = library::localHarmonyAt(estimate, frame)) {
+                    value["status"] = window->status; value["reason"] = window->reason;
+                    value["sourceFrame"] = QVariant::fromValue<qulonglong>(frame);
+                    value["firstFrame"] = QVariant::fromValue<qulonglong>(window->firstFrame);
+                    value["endFrame"] = QVariant::fromValue<qulonglong>(window->endFrame);
+                    QVariantList candidates;
+                    for (const auto& candidate : window->candidates)
+                        candidates.append(QVariantMap{{"tonic", candidate.tonic}, {"mode", candidate.mode}, {"correlation", candidate.correlation}});
+                    value["candidates"] = candidates;
+                }
+                return value;
+            }()},
             {"replacing", replacing_[deck]},
             {"residentHold", [&]() -> QVariantMap {
                 const auto& authorization = residentAuthorizations_[deck];
@@ -857,12 +888,13 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     const auto engine = preparationOptions_.stemEngine;
     const auto service = preparationOptions_.stemServicePath;
     const auto bpmEngine = preparationOptions_.bpmEngine;
+    const auto harmonyEngine = preparationOptions_.harmonyEngine;
     pendingPresentation_ = {};
     pendingWaveform_.clear();
     const auto serial = ++preparationSerial_;
     preparationPhase_ = stems ? "stems" : "decode-cache";
     preparationCompletedStages_ = 0;
-    preparationTotalStages_ = importOnly ? 3 : 3 + int(bpmEngine.has_value());
+    preparationTotalStages_ = importOnly ? 3 : 3 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
     const auto report = [this, serial](QString phase, int completedStages,
         std::optional<library::TrackPresentation> presentation = {}, QVariantList waveform = {}) {
         QMetaObject::invokeMethod(this, [this, serial, phase = std::move(phase), completedStages,
@@ -873,7 +905,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     };
     loaderPurpose_ = LoaderPurpose::Preparation;
     if (!importOnly) revokeResidentAuthorization(std::size_t(deck), "A new track preparation was accepted.");
-    loader_.setFuture(QtConcurrent::run([path, cache, bpmCache, importOnly, expectedSource, stems, engine, service, bpmEngine, limits, residentHold,
+    loader_.setFuture(QtConcurrent::run([path, cache, bpmCache, importOnly, expectedSource, stems, engine, service, bpmEngine, harmonyEngine, limits, residentHold,
                                        report, stop = loadCancellation_.get_token()]() -> LoadResult {
         try {
             library::PreparedTrackStore store(cache, limits);
@@ -909,26 +941,36 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 }
                 preview(prepared->presentation, prepared->audio->peaks());
                 QString analyzedSource;
-                if (bpmEngine) {
-                    // Timing always uses the original mix, never a drums leaf
-                    // or the downsampled overview. Admit playback first so an
-                    // optional analysis cache entry cannot exhaust its budget.
+                if (bpmEngine || harmonyEngine) {
+                    // Both maps use the same exact original mix, never a stem
+                    // leaf/overview. Admit playback before optional analysis.
                     try {
-                        report("bpm-prepare", completedStages);
+                        report(bpmEngine ? "bpm-prepare" : "harmony-prepare", completedStages);
                         auto original = store.prepare(path, stop);
                         analyzedSource = original.sourceSha256;
-                        report("bpm", completedStages);
-                        prepared->bpm = library::analyzeBpmCached(original.audio, *bpmEngine, bpmCache, stop);
-                    } catch (const library::BpmSourceError&) {
-                        throw;
+                        if (bpmEngine) {
+                            report("bpm", completedStages);
+                            prepared->bpm = library::analyzeBpmCached(original.audio, *bpmEngine, bpmCache, stop);
+                            ++completedStages;
+                        }
+                        if (harmonyEngine) {
+                            report("harmony", completedStages);
+                            prepared->harmony = library::analyzeHarmony(original.audio, *harmonyEngine, stop);
+                            ++completedStages;
+                        }
+                    } catch (const library::BpmSourceError&) { throw;
+                    } catch (const library::HarmonySourceError&) { throw;
                     } catch (const std::exception&) {
                         if (stop.stop_requested()) throw;
-                        prepared->bpm = {{}, "Failed", "Original-mix BPM analysis could not complete."};
+                        if (bpmEngine) prepared->bpm = {{}, "Failed", "Original-mix BPM analysis could not complete."};
+                        if (harmonyEngine) prepared->harmony = {"Failed", "Original-mix harmony analysis could not complete.", 0, {}, {}};
+                        completedStages = 1 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
                     }
-                    ++completedStages;
                 }
-                if (!analyzedSource.isEmpty() && analyzedSource != sourceId)
+                if (!analyzedSource.isEmpty() && analyzedSource != sourceId) {
+                    if (harmonyEngine) throw library::HarmonySourceError("Original source changed during harmony analysis");
                     prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
+                }
             } else {
                 auto track = store.prepare(path, stop);
                 sourceId = track.sourceSha256;
@@ -946,6 +988,11 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 if (bpmEngine) {
                     report("bpm", completedStages);
                     prepared->bpm = library::analyzeBpmCached(track.audio, *bpmEngine, bpmCache, stop);
+                    ++completedStages;
+                }
+                if (harmonyEngine) {
+                    report("harmony", completedStages);
+                    prepared->harmony = library::analyzeHarmony(track.audio, *harmonyEngine, stop);
                     ++completedStages;
                 }
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));
@@ -994,7 +1041,7 @@ bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
     preparationPhase_ = "continuation-cleanup";
     preparationCompletedStages_ = 0;
     preparationTotalStages_ = request.kind == ForegroundPreparation::Kind::CueImport ? 2 :
-        request.importOnly ? 3 : 3 + int(preparationOptions_.bpmEngine.has_value());
+        request.importOnly ? 3 : 3 + int(preparationOptions_.bpmEngine.has_value()) + int(preparationOptions_.harmonyEngine.has_value());
     preparationCacheHit_ = false;
     if (request.kind == ForegroundPreparation::Kind::Track && !request.importOnly)
         revokeResidentAuthorization(std::size_t(request.deck), "A new track preparation was accepted.");
@@ -1554,6 +1601,7 @@ void DeckController::loaded()
     sourceIds_[pendingDeck_] = result.prepared->sourceId;
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
     bpmEstimates_[pendingDeck_] = std::move(result.prepared->bpm);
+    harmonyEstimates_[pendingDeck_] = std::move(result.prepared->harmony);
     waveforms_[pendingDeck_] = result.prepared->waveform;
     state_.sourceFrame[pendingDeck_] = 0;
     state_.sourcePosition[pendingDeck_] = 0;
@@ -1720,6 +1768,7 @@ void DeckController::settleReplacement(bool stopped)
     scratchEnds_[pendingDeck_].reset();
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
     bpmEstimates_[pendingDeck_] = std::move(pendingLoad_->bpm);
+    harmonyEstimates_[pendingDeck_] = std::move(pendingLoad_->harmony);
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     pendingLoad_.reset();
     replacing_[pendingDeck_] = false;
@@ -1810,6 +1859,7 @@ void DeckController::installed()
             sourceIds_[deck].clear();
             presentations_[deck] = {};
             bpmEstimates_[deck] = {};
+            harmonyEstimates_[deck] = {};
             bpmOverrides_[deck].reset();
             waveforms_[deck].clear();
             cueDown_[deck] = cueReleasePending_[deck] = false;

@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "parent_source_head": "cb47f372870ffc9e2dfce98201825849874ad5cd",
+  "feature": "Optional original-source local harmony analysis; default application engine remains unconfigured.",
+  "source_files": [
+    {
+      "path": "src/library/HarmonyAnalyzer.hpp",
+      "bytes": 1863,
+      "sha256": "06b1cac282e2cb0c5bef3fbedbf7bd4ebe0b6158d15d5af560de61a045a6bd5d"
+    },
+    {
+      "path": "src/library/HarmonyAnalyzer.cpp",
+      "bytes": 13780,
+      "sha256": "6588288f1b07f3dd73aec1cdb3b1a9634d9bc516aa0eb23d9991e93b73febb0a"
+    },
+    {
+      "path": "tools/timing/analyze_harmony.py",
+      "bytes": 5533,
+      "sha256": "8e18158cb9218a7bd6092ee8c33c781079b889ed8348fc8010d6d6c1c29b051d"
+    },
+    {
+      "path": "src/ui/DeckController.hpp",
+      "bytes": 20126,
+      "sha256": "f2ce7ccf6b5559733e506190b3203344d3813a2a46f4f44dc9fdd7ff2d617f38"
+    },
+    {
+      "path": "src/ui/DeckController.cpp",
+      "bytes": 133232,
+      "sha256": "fad0fc9e3648220c82770497ca04331a8d71e451af37737cb261be2503efa626"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "bytes": 27882,
+      "sha256": "d96f8efbc7e8882360f3b75ce28e62ad7ea5defb9e5670dba69eb776bc23b625"
+    },
+    {
+      "path": "tests/harmony_worker_test.py",
+      "bytes": 5740,
+      "sha256": "7b4635b2bcfb6108359c886e802442629a79ae9a9881171d2f6e5fe7813f1936"
+    },
+    {
+      "path": "tests/deck_controller_test.cpp",
+      "bytes": 162230,
+      "sha256": "dde273dbc93710508cac193cceabc70d7274c8050b96745879216214f0738cb5"
+    }
+  ],
+  "recipe": {
+    "name": "local-chroma-krumhansl-v1",
+    "source_rate": 48000,
+    "channels": 2,
+    "window_frames": 192000,
+    "fft_frames": 32768,
+    "hop_frames": 16384,
+    "tail": "Below32768 frames explicitly Unknown; longer partial tails retain exact analyzed support.",
+    "confidence": "Unknown in every window",
+    "dependency": "Existing NumPy; no new learned model or package",
+    "analysis_deadline": "Cooperative original1..30s deadline; existing bounded owned-process cleanup may follow.",
+    "limits": [
+      "No calibrated confidence or real annotated key accuracy",
+      "No downbeat, phrase, cue or harmonic compatibility qualification",
+      "Original-source key, not pitch-shifted audible key"
+    ]
+  },
+  "verification": {
+    "controller": {
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "ctest_seconds": 20.07,
+      "log": {
+        "bytes": 5381,
+        "sha256": "1711a058ed4520b0b26b9564dffce7898d6599cc90a1b7b50cd4ce24f51a03e6"
+      }
+    },
+    "python": {
+      "methods": 8,
+      "cmake_test_passed": true,
+      "log": {
+        "bytes": 255,
+        "sha256": "25d5aa427b82454b6834e009cd66f9f5abf804145ae5801e9f2d72dc51153c39"
+      },
+      "separate_existing_timing_environment_log": {
+        "bytes": 1340,
+        "sha256": "b1ae5a02a65c7938092d194d8063e16b4180e0d570f2d026cc5d550a18c46a5f"
+      }
+    },
+    "red_regressions": {
+      "native": "Old validator accepts forged sparse Estimated evidence; expected Failed regression reproduced.",
+      "controller": "Inactive controller lacks the accepted-source harmony map; expected missing-map regression reproduced.",
+      "receipt": {
+        "bytes": 281,
+        "sha256": "77d580cb35f781f3126dcd8b1802ec2890671c2940026831dfe2b1e75c69c830"
+      }
+    },
+    "source_review": {
+      "bytes": 4031,
+      "sha256": "16dab8d5f69e97bfdb34102dc9490826d0363753594e8dab90e23891c882e45e"
+    },
+    "covered_behavior": [
+      "Major/minor score-defined cadences and transposition",
+      "Local key changes and exact source partitions",
+      "Relative-mode ambiguity, silence, DC, noise and single pitches",
+      "Stereo channel sign/gain invariance and short tails",
+      "Malformed identities, chroma/status contradictions and bounded wire output",
+      "Source corruption, cancellation, source replacement and optional worker/cache failure",
+      "Manual reference BPM remains independent"
+    ]
+  },
+  "unchanged_m2_gates": {
+    "beat_accuracy": "The separately completed production-preprocessing comparison remains9/24; its failed outer RSS observer receipt is preserved. No beat detector change or accuracy qualification follows.",
+    "latest_normal_player": {
+      "source_head": "cb47f372870ffc9e2dfce98201825849874ad5cd",
+      "mode": "visible16controls, normal Best Vulkan2threads",
+      "measured_ms": 120003,
+      "service_p99_ms": 7492.174284008797,
+      "strict_target_ms": 4095,
+      "hops": 18,
+      "at_or_above_target": 6,
+      "steady_starved_frames": 132352,
+      "final_replay_complete": false,
+      "manual_controls_acknowledged": 16,
+      "recording_accepted_and_written": 6070784,
+      "recording_overflow": 0,
+      "known_owned_resources_retired": true,
+      "outer_passed": false,
+      "outer_failure": "Duplicate public result exceeded unchanged256KiB stdout capture; inner receipt missing. Raw saved native/wrapper results retain actual latency/audio failure.",
+      "summary": {
+        "bytes": 4796,
+        "sha256": "98d28140fb0a0c4c542f636b0dcda8a09005d6718f246c7777678c553993b113"
+      },
+      "independent_saved_data_review": {
+        "bytes": 9872,
+        "sha256": "fd6450e8c3eb842a32f165d9e454c05b682832be493c8f5c6d54f0e863cd84c0"
+      }
+    },
+    "m2_complete": false,
+    "m3_complete": false,
+    "release_0_1_0_ready": false
+  }
+}

@@ -8,6 +8,7 @@
 #include "library/LibraryCatalog.hpp"
 #include "library/PreparedTrackStore.hpp"
 #include "library/BpmAnalyzer.hpp"
+#include "library/HarmonyAnalyzer.hpp"
 
 #include <QFutureWatcher>
 #include <QElapsedTimer>
@@ -54,6 +55,7 @@ public:
         // looks for the same validated bank, then prepares a live owner on miss.
         QString stemServicePath;
         std::optional<library::BpmEngine> bpmEngine;
+        std::optional<library::HarmonyEngine> harmonyEngine;
     };
     explicit DeckController(QObject* parent = nullptr);
     explicit DeckController(PreparationOptions options, QObject* parent = nullptr);
@@ -181,6 +183,7 @@ private:
         QString sourceId;
         library::TrackPresentation presentation;
         library::BpmEstimate bpm;
+        library::HarmonyEstimate harmony;
     };
     struct LoadResult {
         std::shared_ptr<PreparedLoad> prepared;
@@ -332,6 +335,7 @@ private:
     std::array<QString, 2> sourceIds_{};
     std::array<library::TrackPresentation, 2> presentations_{};
     std::array<library::BpmEstimate, 2> bpmEstimates_{};
+    std::array<library::HarmonyEstimate, 2> harmonyEstimates_{};
     std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
