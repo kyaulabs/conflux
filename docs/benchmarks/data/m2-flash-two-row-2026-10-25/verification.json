@@ -1,0 +1,1249 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "strict_service_target_ms": 4095,
+  "player_source_commit": "119a579e4ca717a1d59d7a7a6f9752534d68dcaf",
+  "player_binary_sha256": "3e8c252fd8534dddc458e63f6d99dc373ce05b9d8de40b451b321ac6a756a7dc",
+  "reporting_checkout_at_preparation": "74c8bb49ed391fa4cc9a9f252b4c94e9e5a6e8fb",
+  "baseline_runtime_sha256": "c63b1299877d0f7f6df9d8ca688f0bd88be1406a5da1be71233bc01231b4a6c6",
+  "candidate_runtime_sha256": "76e1bdbddc3b9b08d564ac7e9d0987c0cd92c6aef195f0c853d6837443b15afa",
+  "normal_runtime_unchanged": true,
+  "candidate_promoted": false,
+  "all16_candidate_outputs_exactly_equal_normal_reference": true,
+  "silent_native_only_ms": {
+    "median": 1593.0245585,
+    "p99_and_maximum": 1717.472115
+  },
+  "pair": {
+    "baseline": {
+      "WAV": {
+        "bytes": 48502872,
+        "sha256": "2f0db51cbdedb73eeb7b3a419cc8338a8a2e5d44214e427e1d02935dca540d2f",
+        "frames": 6062848,
+        "samples": 12125696,
+        "all_samples_finite": true,
+        "nonzero_samples": 12092152,
+        "peaks": [
+          0.054429758340120316,
+          0.05340041220188141
+        ],
+        "sample_rate": 48000,
+        "channels": 2,
+        "matches_native_counts_and_peaks": true,
+        "recording_overflow_frames": 0
+      },
+      "control_recovery_upper_seconds": [
+        {
+          "kind": "incomplete_generation_seek",
+          "seconds": 8.840235754
+        },
+        {
+          "kind": "replay_recovery",
+          "seconds": 4.159020361
+        },
+        {
+          "kind": "replay_recovery",
+          "seconds": 7.923484126
+        },
+        {
+          "kind": "replay_recovery",
+          "seconds": 9.913897848
+        }
+      ],
+      "manual_actions_acknowledged": 16,
+      "manual_actions": 16,
+      "steady_starved_frames": 0,
+      "seek_replay_starved_frames": 1467904,
+      "seek_replay_starved_seconds": 30.581333333333333,
+      "peer_starved_frames": 0,
+      "thermal_summary": {
+        "samples": 63,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 97000,
+        "85000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_epp_observations": [
+          {
+            "at_utc": "2026-10-25T23:12:05.931127+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "balanced",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+            }
+          },
+          {
+            "at_utc": "2026-10-25T23:12:16.193747+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "low-power",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+            }
+          }
+        ]
+      },
+      "native_passed": true,
+      "native_error": "",
+      "service": {
+        "count": 17,
+        "maximum_ms": 7262.559911003336,
+        "nearest_rank_p99_ms": 7262.559911003336,
+        "strict_target_ms": 4095,
+        "at_or_above_target": 9,
+        "complete": true
+      },
+      "service_median_ms": 6070.804085000418,
+      "callback_execution_deadline_misses": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "source_read_failures": 0,
+      "UI": {
+        "any_gap": false,
+        "capture_end": "Before controller shutdown and window close",
+        "checks": 7163,
+        "hidden_checks": 0,
+        "hidden_policy_violated": false,
+        "maximum_frame_age_ns": 106324860,
+        "missing_frame_checks": 0,
+        "missing_window_checks": 0,
+        "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+        "stale_frame_checks": 0,
+        "unexposed_checks": 0,
+        "visible_healthy_checks": 7163,
+        "visible_ui_qualification_eligible": true,
+        "window_policy": "visible"
+      },
+      "driver_timing": [
+        {
+          "at_least_100ms": 0,
+          "callbacks": 23832,
+          "driver_cycle_available": true,
+          "driver_discontinuity_flag_mask": 16,
+          "driver_position_discontinuities": 0,
+          "driver_position_observed": true,
+          "driver_recovery_flag_mask": 2,
+          "driver_recovery_flags": 0,
+          "execution_deadline_misses": 0,
+          "execution_p999_upper_us": 311,
+          "execution_p99_upper_us": 277,
+          "graph_quantum_max": 256,
+          "graph_quantum_min": 256,
+          "maximum_execution_ns": 2516909
+        }
+      ],
+      "worst_chunk": {
+        "epoch": 6,
+        "generation": 5,
+        "request_id": 16,
+        "lease_sequence": 15,
+        "input_first": 257985,
+        "input_frames": 257985,
+        "hop_service_ms": 7262.559911003336,
+        "source_read_ms": 5.9444939834065735,
+        "request_ms": 7175.153332995251,
+        "overlap_ms": 78.87881001806818,
+        "native_elapsed_ms": 7111.107022,
+        "native_inference_wall_ms": 7085.34714,
+        "native_inference_cpu_ms": 291.2609999999995,
+        "native_frontend_ms": 43.546217,
+        "native_graph_ms": 6925.953557,
+        "native_graph_upload_ms": 6.465253,
+        "native_graph_compute_ms": 6898.689271,
+        "native_graph_readback_ms": 20.747324,
+        "native_postprocess_ms": 115.845402,
+        "native_graph_rebuild_ms": 0
+      },
+      "original_wrapper_passed": false,
+      "original_wrapper_error": "Active controls: strict service p99/loss/thirteen-phase gate failed",
+      "measured_wall_ms": 120007,
+      "read_only_cap_samples": 70,
+      "MMIO_long_limit_minimum_maximum_W": [
+        7.5,
+        15.0
+      ],
+      "all13_service_fields_complete": true,
+      "final_service_closed_without_loss": true,
+      "cleanup_complete": true,
+      "qualification": false
+    },
+    "candidate": {
+      "WAV": {
+        "bytes": 48523352,
+        "sha256": "618bded959a2a00b1a3ece78e13bced82749099a6657dd4d414c977c6cfe50df",
+        "frames": 6065408,
+        "samples": 12130816,
+        "all_samples_finite": true,
+        "nonzero_samples": 12096565,
+        "peaks": [
+          0.05362553521990776,
+          0.05340145528316498
+        ],
+        "sample_rate": 48000,
+        "channels": 2,
+        "matches_native_counts_and_peaks": true,
+        "recording_overflow_frames": 0
+      },
+      "control_recovery_upper_seconds": [
+        {
+          "kind": "incomplete_generation_seek",
+          "seconds": 6.091381619
+        },
+        {
+          "kind": "replay_recovery",
+          "seconds": 2.694538981
+        },
+        {
+          "kind": "replay_recovery",
+          "seconds": 5.433333192
+        },
+        {
+          "kind": "replay_recovery",
+          "seconds": 8.320071757
+        }
+      ],
+      "manual_actions_acknowledged": 16,
+      "manual_actions": 16,
+      "steady_starved_frames": 258816,
+      "seek_replay_starved_frames": 1071360,
+      "seek_replay_starved_seconds": 22.32,
+      "peer_starved_frames": 0,
+      "thermal_summary": {
+        "samples": 63,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 99000,
+        "85000": {
+          "samples_at_or_above": 3,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_epp_observations": [
+          {
+            "at_utc": "2026-10-25T23:17:04.233539+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "balanced",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+            }
+          },
+          {
+            "at_utc": "2026-10-25T23:17:43.196569+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "low-power",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+            }
+          }
+        ]
+      },
+      "native_passed": false,
+      "native_error": "Steady playback starved; control intervals retained separately",
+      "service": {
+        "count": 17,
+        "maximum_ms": 7508.17124301102,
+        "nearest_rank_p99_ms": 7508.17124301102,
+        "strict_target_ms": 4095,
+        "at_or_above_target": 7,
+        "complete": true
+      },
+      "service_median_ms": 2460.792138008401,
+      "callback_execution_deadline_misses": 0,
+      "invalid_buffers": 0,
+      "rejected_commands": 0,
+      "source_read_failures": 0,
+      "UI": {
+        "any_gap": false,
+        "capture_end": "Before controller shutdown and window close",
+        "checks": 8271,
+        "hidden_checks": 0,
+        "hidden_policy_violated": false,
+        "maximum_frame_age_ns": 140163506,
+        "missing_frame_checks": 0,
+        "missing_window_checks": 0,
+        "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+        "stale_frame_checks": 0,
+        "unexposed_checks": 0,
+        "visible_healthy_checks": 8271,
+        "visible_ui_qualification_eligible": true,
+        "window_policy": "visible"
+      },
+      "driver_timing": [
+        {
+          "at_least_100ms": 0,
+          "callbacks": 23844,
+          "driver_cycle_available": true,
+          "driver_discontinuity_flag_mask": 16,
+          "driver_position_discontinuities": 0,
+          "driver_position_observed": true,
+          "driver_recovery_flag_mask": 2,
+          "driver_recovery_flags": 0,
+          "execution_deadline_misses": 0,
+          "execution_p999_upper_us": 303,
+          "execution_p99_upper_us": 266,
+          "graph_quantum_max": 256,
+          "graph_quantum_min": 256,
+          "maximum_execution_ns": 804493
+        }
+      ],
+      "worst_chunk": {
+        "epoch": 6,
+        "generation": 5,
+        "request_id": 16,
+        "lease_sequence": 15,
+        "input_first": 257985,
+        "input_frames": 257985,
+        "hop_service_ms": 7508.17124301102,
+        "source_read_ms": 6.799605995183811,
+        "request_ms": 7382.849991990952,
+        "overlap_ms": 115.69511599373072,
+        "native_elapsed_ms": 7342.363765,
+        "native_inference_wall_ms": 7302.286162,
+        "native_inference_cpu_ms": 254.42699999999968,
+        "native_frontend_ms": 65.825317,
+        "native_graph_ms": 7154.959735,
+        "native_graph_upload_ms": 9.28942,
+        "native_graph_compute_ms": 7126.222956,
+        "native_graph_readback_ms": 19.407946,
+        "native_postprocess_ms": 81.499002,
+        "native_graph_rebuild_ms": 0
+      },
+      "original_wrapper_passed": false,
+      "original_wrapper_error": "Active controls: incomplete/wrong mode",
+      "measured_wall_ms": 120011,
+      "read_only_cap_samples": 70,
+      "MMIO_long_limit_minimum_maximum_W": [
+        7.5,
+        15.0
+      ],
+      "all13_service_fields_complete": true,
+      "final_service_closed_without_loss": true,
+      "cleanup_complete": true,
+      "qualification": false
+    }
+  },
+  "root_cleanup_correction": {
+    "schema": 1,
+    "cause": "After unit exit, current ControlGroup property can be empty. An earlier root check incorrectly resolved this empty string to /sys/fs/cgroup and falsely asserted that the owned cgroup remained. No host/root cgroup was signalled or altered.",
+    "evidence": {
+      "baseline": {
+        "current_ControlGroup_at_exited_unit": "",
+        "original_owned_ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/conflux-m2-flashrows2-recovery-pair-20261025-01-baseline.service",
+        "original_scope_removed": true
+      },
+      "candidate": {
+        "current_ControlGroup_at_exited_unit": "",
+        "original_owned_ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/conflux-m2-flashrows2-recovery-pair-20261025-01-candidate.service",
+        "original_scope_removed": true
+      }
+    },
+    "correction": "Use the nonempty original dispatch ControlGroup, require exact unit suffix and user-slice prefix, and prove that recorded scope absent. Both corrected root closures passed; original failed checks and receipts remain."
+  },
+  "scope": "Fixed-order four-row then two-row, two-minute visible-player diagnostic. Both fail strict service target; candidate also has steady starvation. Best quality, 15 W ceiling, thermal guard and normal runtime unchanged. Original failed receipts preserved. No sustained, native GPU preemption, physical output-latency or fresh listening qualification.",
+  "files": [
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/build-steps.json",
+      "original_bytes": 3568,
+      "original_sha256": "f3eb0d127a52c535af1c5b93c254d4cc5a98a27ed062099fffb5f2ed8e67c459",
+      "archive": "build-steps.json.gz",
+      "archive_bytes": 874,
+      "archive_sha256": "89e751331e2537fd35142fcfc229ff2bfe4a19f861e753be387e2751ddc7a18c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/build_runtime.py",
+      "original_bytes": 8140,
+      "original_sha256": "91a040055c5608d4abd5f7b772cf2dff35243d3838300a44f9a78e6d9bbd29ec",
+      "archive": "build_runtime.py.gz",
+      "archive_bytes": 2857,
+      "archive_sha256": "0814bb8804da72d58691b6a9e0aed6acd1b5509413aec562f0c7689903b57dc0"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/check_selector.py",
+      "original_bytes": 7431,
+      "original_sha256": "4b8d1f6386f193d2d9dbb970911fe8f657615daaa87a0e5ae8b34c464b17aa18",
+      "archive": "check_selector.py.gz",
+      "archive_bytes": 2699,
+      "archive_sha256": "0828c084479ca44d6a1598992b5227171d3b79c4ca549ca65c84afe6075b9943"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/compiler-observed-01.json",
+      "original_bytes": 388,
+      "original_sha256": "c3e804ae4219b0fc7d6e6aba133dc0f94e8de9e96aed0d6bd5e4d0454e0c1002",
+      "archive": "compiler-observed-01.json.gz",
+      "archive_bytes": 169,
+      "archive_sha256": "4cf639c5f5728daa73613a97312b2fe5d66d5fe84128c4781ae10a120a4ab630"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/flash-rows-only.patch",
+      "original_bytes": 979,
+      "original_sha256": "a98e6638b803f1e4cfba0767aa1c994b6682f7b97c6212ac70f54a2b38939868",
+      "archive": "flash-rows-only.patch.gz",
+      "archive_bytes": 440,
+      "archive_sha256": "c2b6afd63a555e65ace640a192db2656eb02c068c94bb7206f04eb9fe8fb289d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/ggml-vulkan.cpp",
+      "original_bytes": 921389,
+      "original_sha256": "8d19a3913d43ea24ea88f8261524dd447a6bea88523d163689c4d480fb116b85",
+      "archive": "ggml-vulkan.cpp.gz",
+      "archive_bytes": 138412,
+      "archive_sha256": "8b9184a33fffaa2721c245ad488abdcf40753244ce8c80ff34a167ed7dfd28fb"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/adapter-diff-01.patch",
+      "original_bytes": 5686,
+      "original_sha256": "4f8722c866567df1abb6225ade7d5e6038334cf3d775d92cda4c74c5f0ec8839",
+      "archive": "pcm16-01--adapter-diff-01.patch.gz",
+      "archive_bytes": 2098,
+      "archive_sha256": "016a86e9c9ac057fe28f8d617b77e791d158e1df4e77342f401815d05a30faad"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/diagnostic-assessment.json",
+      "original_bytes": 325633,
+      "original_sha256": "cc9715c15fc6910726a171ad52b2894e82e4189a1508bc4f4d4da8a9489d8e4d",
+      "archive": "pcm16-01--diagnostic-assessment.json.gz",
+      "archive_bytes": 25849,
+      "archive_sha256": "b402c52c0ba1181c2d4d05471c977e3589eb3df64c0866a94bb38541182320b1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/dispatch-01.json",
+      "original_bytes": 9916,
+      "original_sha256": "b899942045588ee08953a80149c7deace1c74a4e39ae27d0048f0ede011d755f",
+      "archive": "pcm16-01--dispatch-01.json.gz",
+      "archive_bytes": 1748,
+      "archive_sha256": "647b6d762791b271f164ff48a167646accad891d13dcaf3ffbcab4b0c6108b66"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/execution-plan-01.json",
+      "original_bytes": 17595,
+      "original_sha256": "f689031fda69e0b66c1f66e5dbd4ec11e7a226eac7d7c2b40dfde840eac476e5",
+      "archive": "pcm16-01--execution-plan-01.json.gz",
+      "archive_bytes": 5556,
+      "archive_sha256": "46621df809d5f6d7591054ec73285b6455f477e93e6acc9eefac2b3c119c0ec7"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/host_capture.py",
+      "original_bytes": 9885,
+      "original_sha256": "7b78ed82c3df83729bcf07404a50139d0880e04e5e7d90261a54aa6d4ee5a080",
+      "archive": "pcm16-01--host_capture.py.gz",
+      "archive_bytes": 2843,
+      "archive_sha256": "8794a97cad1444cec3984af0080a8cd2ed4e4f0804074431576233f39df53a1e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/launch-plan-01.json",
+      "original_bytes": 2082,
+      "original_sha256": "f32f24a880798441c7748a81b070ed64ec66b39d0e26d05306aedc00ff7f9037",
+      "archive": "pcm16-01--launch-plan-01.json.gz",
+      "archive_bytes": 938,
+      "archive_sha256": "708b9c41b5d821be2e87bb407cef3ef696c77070e75a55e54080868a7bfdbd3e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/offline-checks-01.log",
+      "original_bytes": 4167,
+      "original_sha256": "a2541c90e0ff24ffd6b5cf35aa09d70e500c7b08f7b5c3a70fec271f4f3bbd99",
+      "archive": "pcm16-01--offline-checks-01.log.gz",
+      "archive_bytes": 964,
+      "archive_sha256": "31107fea56ad77d98e3d167970b1d419e0a2c2aea30ee8a185d4e87b03790c8c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/output-01/native.stderr",
+      "original_bytes": 22145,
+      "original_sha256": "03acc11af33567c004c2793df8047c1280f9ee9d0243de435aba81162e68e33e",
+      "archive": "pcm16-01--output-01--native.stderr.gz",
+      "archive_bytes": 2771,
+      "archive_sha256": "33c3134133346d49b8e3f064badb5d0c887ce051cae5f150d49b902638e2f65d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/output-01/native.stdout",
+      "original_bytes": 6601,
+      "original_sha256": "f7cc3fb45b4b38f610d1e44c9ff880fb06b8f99b94c2ecbf900f85daf0d88983",
+      "archive": "pcm16-01--output-01--native.stdout.gz",
+      "archive_bytes": 1522,
+      "archive_sha256": "4a3d3363f71efec101a9cfba1c16f5752130ea814227ac9184cbb65fe90b5d5c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/output-01/result.json",
+      "original_bytes": 325633,
+      "original_sha256": "cc9715c15fc6910726a171ad52b2894e82e4189a1508bc4f4d4da8a9489d8e4d",
+      "archive": "pcm16-01--output-01--result.json.gz",
+      "archive_bytes": 25849,
+      "archive_sha256": "b402c52c0ba1181c2d4d05471c977e3589eb3df64c0866a94bb38541182320b1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/readiness.json",
+      "original_bytes": 1115,
+      "original_sha256": "bda49f2c99dee0b16a15a2b4c66becd55a7013580d1d183405377fcebaa4c1cb",
+      "archive": "pcm16-01--readiness.json.gz",
+      "archive_bytes": 683,
+      "archive_sha256": "f07c53454c5bd2d5e41768fa7248f047a424d266028a85affa6af2e349129a3d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/root-file-verification-01.log",
+      "original_bytes": 82,
+      "original_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive": "pcm16-01--root-file-verification-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/root-finished-01.json",
+      "original_bytes": 4235,
+      "original_sha256": "3801f7dfda6233321d01c0707d906ffc52bea4d6eee2420d6578ffb400af8517",
+      "archive": "pcm16-01--root-finished-01.json.gz",
+      "archive_bytes": 1278,
+      "archive_sha256": "960adec2d843a4acee90897e62e7fc61ba703de4d410cef0e76055b9afc3e7f1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/root-offline-checks-01.json",
+      "original_bytes": 1625,
+      "original_sha256": "c8e3555e11974b05545d076a859f6baec47d593c35a8de9038161fc6759a55b7",
+      "archive": "pcm16-01--root-offline-checks-01.json.gz",
+      "archive_bytes": 766,
+      "archive_sha256": "be125a8a73536c5cde63e4eea205ad009feb3e4cedd12ad0c979c67957a3725b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/root-packet-review-01.json",
+      "original_bytes": 2181,
+      "original_sha256": "38f54f4d2576fc5af0006ba9c048efe3c775bb6419b0f79e6db980cafc5a7722",
+      "archive": "pcm16-01--root-packet-review-01.json.gz",
+      "archive_bytes": 1022,
+      "archive_sha256": "3d86957cb4506777e510070fa66d68a5351c2bf236499e6bc88a358fdc81fb71"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/root-unit-dispatch-01.json",
+      "original_bytes": 1786,
+      "original_sha256": "2ce039325a334537272aa2f6114ecbccc6005df12046e7299a5d58b9151fa90e",
+      "archive": "pcm16-01--root-unit-dispatch-01.json.gz",
+      "archive_bytes": 744,
+      "archive_sha256": "9698e8fd9ab51cadab434c80099bede72b478ef6777cc134ac35b14f37dda21e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/run_host_pcm.py",
+      "original_bytes": 38849,
+      "original_sha256": "be9a907c7f4de89102285df8b2b1c37f8f4043667eef63ffd066be43c68e8aa4",
+      "archive": "pcm16-01--run_host_pcm.py.gz",
+      "archive_bytes": 11870,
+      "archive_sha256": "a320523de0ee8ff2b919a37fee695e9c0c124a9522334d62ab1f5c6a43878f52"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/run_owned.py",
+      "original_bytes": 21005,
+      "original_sha256": "31fffb1c15f8f15f3addb22537e64453a1fb9e98fb1bbb8c5a58a2222ebb6143",
+      "archive": "pcm16-01--run_owned.py.gz",
+      "archive_bytes": 6142,
+      "archive_sha256": "18684ded1a0cb8b7ebfc5374212e19e42f3943b0677d9e855d083699d7faf4bd"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/test_activation_caps.py",
+      "original_bytes": 5156,
+      "original_sha256": "fb1f2cd03e3e3d393430125cd4c2a02c1162be1fbf839493924d184726a27362",
+      "archive": "pcm16-01--test_activation_caps.py.gz",
+      "archive_bytes": 1681,
+      "archive_sha256": "25f69efe75dfbe53f84b44f131f967cc57351bbb84393337370cd8116c69eec3"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/pcm16-01/test_host_pcm.py",
+      "original_bytes": 28230,
+      "original_sha256": "dad4638591b80d66c8eeac764d46af6f68df538ee1d97c4feb67ba7957215a7c",
+      "archive": "pcm16-01--test_host_pcm.py.gz",
+      "archive_bytes": 8163,
+      "archive_sha256": "e6928dd2f5f2717f44573357a8f8cac21edb36dae7866b28b4fa617a6bedf66d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/baseline-checks-01.log",
+      "original_bytes": 9820,
+      "original_sha256": "4387a33a5b21986d1aaf6a0252cdcbbdabb1e420a9d77878df372d095fbf99dc",
+      "archive": "player-pair-01--baseline-checks-01.log.gz",
+      "archive_bytes": 2249,
+      "archive_sha256": "6ad0385688f9a279b84e9a0ed0af9cdc7590ba006db28a60d3c750150bce854d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/baseline-checks-02.log",
+      "original_bytes": 8564,
+      "original_sha256": "edea541ab7eefa5a57c2ecf4cd03ee2d65b11a122365fcaee46c2daf5f07cd28",
+      "archive": "player-pair-01--baseline-checks-02.log.gz",
+      "archive_bytes": 1781,
+      "archive_sha256": "a7d6a6f6c945ae0934cb8990217d18a214e5f478ac63254c06171694444ddbb9"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/baseline-file-verification-01.log",
+      "original_bytes": 82,
+      "original_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive": "player-pair-01--baseline-file-verification-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/candidate-checks-02.log",
+      "original_bytes": 8564,
+      "original_sha256": "b26ce9659399e7c02549cc9607327a51bb63d702a31d55ec221437a49fbd7fe8",
+      "archive": "player-pair-01--candidate-checks-02.log.gz",
+      "archive_bytes": 1781,
+      "archive_sha256": "2ba6710a777d08ede30d88488a82e862be206b898ce05414358ffaa668bd1f01"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/candidate-file-verification-01.log",
+      "original_bytes": 82,
+      "original_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive": "player-pair-01--candidate-file-verification-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/admission-01.json",
+      "original_bytes": 31977,
+      "original_sha256": "6876aee63345ef0ee4a26e14e6f31f8c3b92693d67bbfbeaa1a2e978108d3597",
+      "archive": "player-pair-01--cases--baseline--admission-01.json.gz",
+      "archive_bytes": 2654,
+      "archive_sha256": "a0626a2e5ce1e57f5cc02e6c9610ea2518aec81231e5c9a1f02e2e3c3fae7deb"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/diagnostic-assessment.json",
+      "original_bytes": 38927,
+      "original_sha256": "adea1636992932314525fda0923b628bf5ed6ab9f0bc66f2fdf01e8f96f8ef7a",
+      "archive": "player-pair-01--cases--baseline--diagnostic-assessment.json.gz",
+      "archive_bytes": 3824,
+      "archive_sha256": "26cd3edc740fcd269a271724e21872959bfb28779dfe26b3e185225836fede7a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/dispatch-01.json",
+      "original_bytes": 8834,
+      "original_sha256": "4bd09f4bd36e24a83212f4048b0eb84d725256ecbd239d3d5f336b7b84655d6b",
+      "archive": "player-pair-01--cases--baseline--dispatch-01.json.gz",
+      "archive_bytes": 1841,
+      "archive_sha256": "0b33f43dac2453778d94399432546ab77da0e60df6144b6dec89819ab882bc38"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/launch-command-01.txt",
+      "original_bytes": 160,
+      "original_sha256": "4f6cbbc206da1ec5d7c39154efb5ed0ade4ca3d7d68004c09eec0008541c9809",
+      "archive": "player-pair-01--cases--baseline--launch-command-01.txt.gz",
+      "archive_bytes": 143,
+      "archive_sha256": "0fcfaba1841eae77e7a05e74161693e01c9d770ca05d4b0010824a05e3a5271c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/launch-command-before-correction-01.txt",
+      "original_bytes": 770,
+      "original_sha256": "e1a2f39d2c6e14f5e97546a74aae6c7709c7fa0b551cb54d9f0f4840c25c230a",
+      "archive": "player-pair-01--cases--baseline--launch-command-before-correction-01.txt.gz",
+      "archive_bytes": 339,
+      "archive_sha256": "a3d2b517f4f5442ffa47db6aead8d9157371efd2a306ed72da80444934693066"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/plan.json",
+      "original_bytes": 66684,
+      "original_sha256": "5a01dd8cea9dd2c1273bf767441093a91b06aa85f205b616e77f38e65e64f40a",
+      "archive": "player-pair-01--cases--baseline--plan.json.gz",
+      "archive_bytes": 11529,
+      "archive_sha256": "4490fceddd6a000dce76b73b68a3934342f5d09faebc2f247944bd08e483fa4b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/readiness.json",
+      "original_bytes": 1457,
+      "original_sha256": "165b1ec4f32fd7dd7f47ebf27b0835d91829c4285215d3feed2b3c532caeb5c5",
+      "archive": "player-pair-01--cases--baseline--readiness.json.gz",
+      "archive_bytes": 881,
+      "archive_sha256": "53d377415f5bea4b76ee8e60061c443d9d8230e2681ee3be3ea5b79f4f285c4b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/root-unit-dispatch-01.json",
+      "original_bytes": 2081,
+      "original_sha256": "663bbb96260462782c46693b3d7a96e114b1637738849d44427f15e0929601de",
+      "archive": "player-pair-01--cases--baseline--root-unit-dispatch-01.json.gz",
+      "archive_bytes": 812,
+      "archive_sha256": "85c679dc94e42686cbb73e133b9eee6020804be1df64f783f80d044ea5c38513"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/unit.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-01--cases--baseline--unit.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/baseline/unit.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-01--cases--baseline--unit.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/cases/candidate/plan.json",
+      "original_bytes": 66664,
+      "original_sha256": "285f7aef2cf67f9f84d75491ff4929433771cbc9ff73d64051db34c96814866e",
+      "archive": "player-pair-01--cases--candidate--plan.json.gz",
+      "archive_bytes": 11497,
+      "archive_sha256": "97408971b34c6085ef670cfb253a4ade65396345c5c25f24b822e42198f39634"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/pair-plan-01.json",
+      "original_bytes": 5374,
+      "original_sha256": "98659ec3bb6f3e99db397e4ab78402ac38dcea0a8dae9b051fd778366cd566d3",
+      "archive": "player-pair-01--pair-plan-01.json.gz",
+      "archive_bytes": 1864,
+      "archive_sha256": "6a9b1a562d882291a549d8978955c84d0f495d01f634dbbbd962b407a60af029"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/root-offline-checks-01.json",
+      "original_bytes": 1512,
+      "original_sha256": "42691c7d4de932543b1c01cb8de778b31dde657adaad7937af391b84954978d0",
+      "archive": "player-pair-01--root-offline-checks-01.json.gz",
+      "archive_bytes": 789,
+      "archive_sha256": "4ed90c2dcad658d38bae4c8cb3f5b1c21665fc18395fa5825a28514980ce9e45"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/root-packet-review-01.json",
+      "original_bytes": 2665,
+      "original_sha256": "6747582ea71655cb6bb238da86e9f2b8076e0faa7d27f772f373582e0c772768",
+      "archive": "player-pair-01--root-packet-review-01.json.gz",
+      "archive_bytes": 1131,
+      "archive_sha256": "7e3e8e0379083e220bcea988c768207be693a40788798c23b10e29bb25e1be44"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/root-pair-aborted-01.json",
+      "original_bytes": 4347,
+      "original_sha256": "814ec5094190f18e44646ee2628ee3b57293dc748349019ea81f9fc70e4f0c76",
+      "archive": "player-pair-01--root-pair-aborted-01.json.gz",
+      "archive_bytes": 1339,
+      "archive_sha256": "e017876d7d5aec2b2af4148f2789279f36a48c2baf5557a0650faf1e256c5098"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/root-preparation-correction-01.json",
+      "original_bytes": 515,
+      "original_sha256": "9223fc52fd715acbea374abe35e720e2a065aef7a40ee9ad6470019dfc6ca76e",
+      "archive": "player-pair-01--root-preparation-correction-01.json.gz",
+      "archive_bytes": 313,
+      "archive_sha256": "715e25f3f2b8c3bc71e8cdf0a5669aa763ccaffcfa1a0fcf3b1812f3ac071b05"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-01/root-shared-readiness-01.json",
+      "original_bytes": 1272,
+      "original_sha256": "fa41a0536b881fb87822ad4f1d4af30322dce07b0eccd55f93b48c4b626cdab3",
+      "archive": "player-pair-01--root-shared-readiness-01.json.gz",
+      "archive_bytes": 779,
+      "archive_sha256": "7cb403792e46e60ee2d9e949f3ffa7a75fe6aea8ef2f7c858d16167e9e435572"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/baseline-checks-green-01.log",
+      "original_bytes": 11279,
+      "original_sha256": "9d774ad1cbd7dbf28268e319a2296f29e416e75a34940fb90792e99ed60c7e39",
+      "archive": "player-pair-recovery-01--baseline-checks-green-01.log.gz",
+      "archive_bytes": 2235,
+      "archive_sha256": "e9a3d238e6ea6c65218c48e0d01a6687802d7b539001f4f0d33a64e6c05aa32e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/baseline-checks-green-02.log",
+      "original_bytes": 8740,
+      "original_sha256": "ad982c92aba159e80021a6c1f69bacb5e2b2baaa81db485d6accf92f841f303a",
+      "archive": "player-pair-recovery-01--baseline-checks-green-02.log.gz",
+      "archive_bytes": 1802,
+      "archive_sha256": "98f11019c80b94e5b0b1b17bdf91ac3029241764820b388faf8c45b222e06ea2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/baseline-file-verification-01.log",
+      "original_bytes": 82,
+      "original_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive": "player-pair-recovery-01--baseline-file-verification-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/candidate-checks-green-02.log",
+      "original_bytes": 8740,
+      "original_sha256": "5833daae9e6b99e3b50c949e544a8130e20f103d5294ddb604914a6c70ffcfcb",
+      "archive": "player-pair-recovery-01--candidate-checks-green-02.log.gz",
+      "archive_bytes": 1802,
+      "archive_sha256": "d02c6b2b35749cba8ef9bc3b0117728a3906bd982dd6bae35a9296f9c3023141"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/candidate-file-verification-01.log",
+      "original_bytes": 82,
+      "original_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive": "player-pair-recovery-01--candidate-file-verification-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/admission-01.json",
+      "original_bytes": 36024,
+      "original_sha256": "bee461730e31db03bf891ac894fad225e4bcd42f9e45e1ed661ba13e537ff8fa",
+      "archive": "player-pair-recovery-01--cases--baseline--admission-01.json.gz",
+      "archive_bytes": 3164,
+      "archive_sha256": "ba967fe0d1c7a3136fac71270ca1f529f471f4e8e32c19cd6a1303a059fa1280"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/diagnostic-assessment.json",
+      "original_bytes": 121432,
+      "original_sha256": "c5df77161f483540e8c98b206c99d8a15075177f7caa1b4a05faadad531fa9d8",
+      "archive": "player-pair-recovery-01--cases--baseline--diagnostic-assessment.json.gz",
+      "archive_bytes": 6079,
+      "archive_sha256": "995e571f111ada4e6f9a78ba357607eeaeba4b78421c3611da675fb5f43a0c16"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/dispatch-01.json",
+      "original_bytes": 21272,
+      "original_sha256": "d7fa4504f3e3de56b1fb1a5a551cf4749105feeb0714e8f1ae9f20842daecdf7",
+      "archive": "player-pair-recovery-01--cases--baseline--dispatch-01.json.gz",
+      "archive_bytes": 2647,
+      "archive_sha256": "e98b2f138eaad292d127082a0ce51f0066a267a2f2c7cc60f74e53efad0d7eed"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/launch-command-01.txt",
+      "original_bytes": 169,
+      "original_sha256": "152d7feee77186a234777111356625dc8719e4af688a9acee989848ed813aeb9",
+      "archive": "player-pair-recovery-01--cases--baseline--launch-command-01.txt.gz",
+      "archive_bytes": 149,
+      "archive_sha256": "7b1dbfc0990f9806e9f4c4b32e5887c0568875834bb952bbe0530c4b42d93d88"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/host-observations.jsonl",
+      "original_bytes": 123298,
+      "original_sha256": "2de0c41339751319e6910acf4010b7f879a3d431f578a920e6b449ec51b93642",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--host-observations.jsonl.gz",
+      "archive_bytes": 2971,
+      "archive_sha256": "d792622b266257799fce9eca2bc1f7c54032c6bd337debe49d15885d2be3a7d6"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/native-result.json",
+      "original_bytes": 267411,
+      "original_sha256": "bf018d30cca08ab5268d5a7c84d519195a235e3a7f9d6f514d3335207999b8d9",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--native-result.json.gz",
+      "archive_bytes": 16214,
+      "archive_sha256": "da2c5c29f2f7323d242b9ef80b9bdb5ef0d959a2b40ed4c99ba45e3f268fd6ad"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/native.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--native.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/native.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--native.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/observations.jsonl",
+      "original_bytes": 641259,
+      "original_sha256": "2f673ff6e46691b691773be3d9bddb9888c913b8948cc15751cafdf2fbb838aa",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--observations.jsonl.gz",
+      "archive_bytes": 46715,
+      "archive_sha256": "6baed1a3609c6a93f9472b32ff4b5107ee2af5141c51358ab2a0d14ef1ba1748"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/owned-pipewire-cleanup.json",
+      "original_bytes": 30,
+      "original_sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--owned-pipewire-cleanup.json.gz",
+      "archive_bytes": 50,
+      "archive_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/output-01/result.json",
+      "original_bytes": 292260,
+      "original_sha256": "8109517fc95e8ba1c8c519693dd6418312d8ba41fc9ae45a0699a7df5789be57",
+      "archive": "player-pair-recovery-01--cases--baseline--output-01--result.json.gz",
+      "archive_bytes": 29851,
+      "archive_sha256": "449c5ab5e4d3330253bb819c6fbe87fc727ea4d53a0efe7da42b1fa1c4a8fec1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/plan.json",
+      "original_bytes": 67121,
+      "original_sha256": "ac870157fe6ba37389566b15ab485da44579769a3ee2fee6cbc18aeb7900d1fd",
+      "archive": "player-pair-recovery-01--cases--baseline--plan.json.gz",
+      "archive_bytes": 11813,
+      "archive_sha256": "b5945434ee96b6c00eee4922e3a78620aea8726dcee776e556cd242b5c416836"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/readiness.json",
+      "original_bytes": 1552,
+      "original_sha256": "998524ead1abd93caad4396020793b8df9834704a94d17c2a9a46db79b786d80",
+      "archive": "player-pair-recovery-01--cases--baseline--readiness.json.gz",
+      "archive_bytes": 915,
+      "archive_sha256": "fbe409c904846034e1cd84119d0daa596145cf5780370137eafee648c16c0ad4"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/root-finished-01.json",
+      "original_bytes": 2880,
+      "original_sha256": "5a2babbcdd7a698bb7ba2834af9ba2a072b80c32352786a39f66114352829268",
+      "archive": "player-pair-recovery-01--cases--baseline--root-finished-01.json.gz",
+      "archive_bytes": 986,
+      "archive_sha256": "4e71d403f5cb950ddd87d4a96ea4680f6ecf15030774b93ce185db935c8e0f09"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/root-unit-dispatch-01.json",
+      "original_bytes": 2125,
+      "original_sha256": "d1899c745818563598a081d0ba303cc545eb1890e2cc51933dc0140a6fd9387c",
+      "archive": "player-pair-recovery-01--cases--baseline--root-unit-dispatch-01.json.gz",
+      "archive_bytes": 826,
+      "archive_sha256": "1a1e86d0f9d974e9e9234af13cd023911b2861419aa39d548cbeb2125f8e0f8b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/run_host_player-initial120.py",
+      "original_bytes": 56938,
+      "original_sha256": "a273a45620484b03171d5329b1281a700cf9918cd776773c44e04a386a1a3d7e",
+      "archive": "player-pair-recovery-01--cases--baseline--run_host_player-initial120.py.gz",
+      "archive_bytes": 16120,
+      "archive_sha256": "250ab77a6c1fb1651b09d2ae198c232b2a8609b91b62be14398a564d13327768"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/run_host_player.py",
+      "original_bytes": 56938,
+      "original_sha256": "024836076d6dfd237b2744e1f8cf0e46afed29ccc2e13cbde150fa090a729266",
+      "archive": "player-pair-recovery-01--cases--baseline--run_host_player.py.gz",
+      "archive_bytes": 16123,
+      "archive_sha256": "26cc266fef28f6b98c214b342a02fd14955787ae39e6f3a105dedd36a8eb9b1d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/run_player_owned.py",
+      "original_bytes": 23496,
+      "original_sha256": "3929098489db913fb2f5a4892230e24d542f5eb02696f8d0c7fad2edf220273d",
+      "archive": "player-pair-recovery-01--cases--baseline--run_player_owned.py.gz",
+      "archive_bytes": 6914,
+      "archive_sha256": "b8ecf3b1863b1f7baa0e3317b71f08a17ed67ffb7393110b5d2250ef345e2ad1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/test_host_player.py",
+      "original_bytes": 78849,
+      "original_sha256": "21a51d7cc416206ce8bcbfe783f288b18731ada89c4d41108aca301829d53057",
+      "archive": "player-pair-recovery-01--cases--baseline--test_host_player.py.gz",
+      "archive_bytes": 17931,
+      "archive_sha256": "2ff6a0eadd0ea2f5d914b67fb8e04995b8787a66f353e72286f8f7d7ec54db22"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/unit.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--baseline--unit.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/baseline/unit.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--baseline--unit.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/admission-01.json",
+      "original_bytes": 36019,
+      "original_sha256": "1a6447b0b1d558ebb8fc5cdaa1ab54bc2b69a6e3fbca12093dc8a9d2dc0031c7",
+      "archive": "player-pair-recovery-01--cases--candidate--admission-01.json.gz",
+      "archive_bytes": 3151,
+      "archive_sha256": "fee41a3551c16e94e74cf97a9be5262da2d2773b36a6693c08b5f3bb27c28ecf"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/diagnostic-assessment.json",
+      "original_bytes": 121439,
+      "original_sha256": "b54d1205c6f402750eba8c76a514aad4059e424a5f5f58f4399080f88d1e504c",
+      "archive": "player-pair-recovery-01--cases--candidate--diagnostic-assessment.json.gz",
+      "archive_bytes": 6053,
+      "archive_sha256": "67084c1658707f829210a245c4fa476198ecb5803cc544cc2fcde74a807fd862"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/dispatch-01.json",
+      "original_bytes": 21587,
+      "original_sha256": "e90e277670a357ddf41807601729345d3dcc4cee576490372354d09ba32140ac",
+      "archive": "player-pair-recovery-01--cases--candidate--dispatch-01.json.gz",
+      "archive_bytes": 2818,
+      "archive_sha256": "e9a67c9754d54223c9c5899adeeef03fa9842b8e612be71439315d91cc4946cb"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/launch-command-01.txt",
+      "original_bytes": 170,
+      "original_sha256": "89d23ae547793b28b00d7154ee1cc7e31823e8861df51259b27f2bf4ddc86334",
+      "archive": "player-pair-recovery-01--cases--candidate--launch-command-01.txt.gz",
+      "archive_bytes": 149,
+      "archive_sha256": "d098f483238a126335233fa29bddf940c0c03327b8cca68586df0ce77945c191"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/host-observations.jsonl",
+      "original_bytes": 123494,
+      "original_sha256": "cf9a5010b425a278dc8b726e8d5b6b2201d27a59d351cd96149fbe756dd6ef31",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--host-observations.jsonl.gz",
+      "archive_bytes": 3129,
+      "archive_sha256": "1cd967d50871fbae58d8700a78138f646a235257fd54ca697332cfd133b2b93f"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/native-result.json",
+      "original_bytes": 267417,
+      "original_sha256": "952c489c9b14901588a15478214f1f189e56a896f1176cfa71412db7a4dfdfd2",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--native-result.json.gz",
+      "archive_bytes": 16230,
+      "archive_sha256": "4cb5d7969c2ed9fda05aa51befb994d707bc26a489329bbdb0918536cebe4aff"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/native.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--native.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/native.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--native.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/observations.jsonl",
+      "original_bytes": 642085,
+      "original_sha256": "4bd678ab9fbde7fb757a81192d69b5b9ef1b66a716688ff3833062e2a30957b0",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--observations.jsonl.gz",
+      "archive_bytes": 46851,
+      "archive_sha256": "18f9db021db3eae0cb72f906df708c72f16345205d1ee1470088ca6e159d3e3a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/owned-pipewire-cleanup.json",
+      "original_bytes": 30,
+      "original_sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--owned-pipewire-cleanup.json.gz",
+      "archive_bytes": 50,
+      "archive_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/output-01/result.json",
+      "original_bytes": 291013,
+      "original_sha256": "64865a1862e167866cf0c8e4442a2971f636808d743ba66f295bcdf14650263c",
+      "archive": "player-pair-recovery-01--cases--candidate--output-01--result.json.gz",
+      "archive_bytes": 29721,
+      "archive_sha256": "ba42a1fd13438e9f1f9a98adc940874f150c0935470da83e51a62290493e2595"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/plan.json",
+      "original_bytes": 67101,
+      "original_sha256": "b5158a7a08b24f6593c35596c73092f25a3648e105e1956b672852b84a177aa8",
+      "archive": "player-pair-recovery-01--cases--candidate--plan.json.gz",
+      "archive_bytes": 11777,
+      "archive_sha256": "d17a4967f4aa249a6e320da3c584cbc4b7081269eac747804983a6c949764236"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/readiness.json",
+      "original_bytes": 1553,
+      "original_sha256": "9045263507d1c37f9c5e6a891cfb86c5d96adcea40f51275b1a979e9af88e998",
+      "archive": "player-pair-recovery-01--cases--candidate--readiness.json.gz",
+      "archive_bytes": 918,
+      "archive_sha256": "19b4dd72496046e654ef97a240a642516efbd3542f2e43752bb7015ac1957c93"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/root-finished-01.json",
+      "original_bytes": 2882,
+      "original_sha256": "0f6602ec5428a9e5dbcbba9b70efb1430acbc8f5c5cbad096523314d9db4f244",
+      "archive": "player-pair-recovery-01--cases--candidate--root-finished-01.json.gz",
+      "archive_bytes": 985,
+      "archive_sha256": "76dd2b89bbd1a9a262268e87c46a7dd4c2c384ca14c82636c7e2f44bfe17d916"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/root-unit-dispatch-01.json",
+      "original_bytes": 2194,
+      "original_sha256": "f6d65059cac79dec98b3fa5f3379ea1a59554bcf865eadb47622e25dfb0fb514",
+      "archive": "player-pair-recovery-01--cases--candidate--root-unit-dispatch-01.json.gz",
+      "archive_bytes": 834,
+      "archive_sha256": "3582eda20c0753fd200caa24a8dfaaed12718da825e53074cc63c06da6ce5cb7"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/run_host_player-initial120.py",
+      "original_bytes": 56926,
+      "original_sha256": "0be23328bea55faa45cce89ee2b12158e11bb70aadf1896778aebcdf4d4763c8",
+      "archive": "player-pair-recovery-01--cases--candidate--run_host_player-initial120.py.gz",
+      "archive_bytes": 16106,
+      "archive_sha256": "13b1614bc58bbf4632a5b0aab590e7372e3260b6fa479122156c0c4a6514b652"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/run_host_player.py",
+      "original_bytes": 56926,
+      "original_sha256": "c6e9e57963e6467486f2b484a8465ecac5dd8f1a1003df352059056b91119a2b",
+      "archive": "player-pair-recovery-01--cases--candidate--run_host_player.py.gz",
+      "archive_bytes": 16108,
+      "archive_sha256": "469d1da8d44d770e373a77efe154f0d3a9d70e66c79f8923356d9765ded4f45b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/run_player_owned.py",
+      "original_bytes": 23496,
+      "original_sha256": "e47b6e8fda435baa00f3d44ae07d26a7c6524ed5baafb61191cf225936e73b36",
+      "archive": "player-pair-recovery-01--cases--candidate--run_player_owned.py.gz",
+      "archive_bytes": 6917,
+      "archive_sha256": "898421ae68d2355634377444f3eb9b85c0471d57eb10c41d315ba949f4562f94"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/test_host_player.py",
+      "original_bytes": 78849,
+      "original_sha256": "21a51d7cc416206ce8bcbfe783f288b18731ada89c4d41108aca301829d53057",
+      "archive": "player-pair-recovery-01--cases--candidate--test_host_player.py.gz",
+      "archive_bytes": 17931,
+      "archive_sha256": "2ff6a0eadd0ea2f5d914b67fb8e04995b8787a66f353e72286f8f7d7ec54db22"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/unit.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--candidate--unit.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/cases/candidate/unit.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "player-pair-recovery-01--cases--candidate--unit.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/pair-plan-01.json",
+      "original_bytes": 5914,
+      "original_sha256": "a04ab33bd48999fdfb64422c3c4355665b33b77bf2e9cec8c22c5e139bc963eb",
+      "archive": "player-pair-recovery-01--pair-plan-01.json.gz",
+      "archive_bytes": 2028,
+      "archive_sha256": "c02017239368ef98e852573a9b887c6611fdf4e94267e43f2b1316716cd144db"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/recovery-regression-red-01.log",
+      "original_bytes": 12734,
+      "original_sha256": "92570e64166ae193309150623744a912ff4280f7cabb7f83b7a9382dc7d39635",
+      "archive": "player-pair-recovery-01--recovery-regression-red-01.log.gz",
+      "archive_bytes": 2209,
+      "archive_sha256": "f18e422b0c923eb12f09d57f42ea15cb795f1bcedb29f4c5876f836990229950"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-audio-results-01.json",
+      "original_bytes": 9945,
+      "original_sha256": "4c74d76f5dafc1f944bc6742680e5135e6346cc6d4f670d5e6ff8463b4470416",
+      "archive": "player-pair-recovery-01--root-audio-results-01.json.gz",
+      "archive_bytes": 2262,
+      "archive_sha256": "d2cb8014e8d6c1956aa6981ae8e045f0457d2287b830ba12f76fa1c7b1f723f3"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-cgroup-check-correction-01.json",
+      "original_bytes": 1073,
+      "original_sha256": "a7b2e7048d606c4154fc8eb095baa11c5b46a5a5222459fb3ce436196961f3d7",
+      "archive": "player-pair-recovery-01--root-cgroup-check-correction-01.json.gz",
+      "archive_bytes": 482,
+      "archive_sha256": "313f87bcd073853dbff6c595a43e86ecde5ff86cdae1395efccf45ef3f562207"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-guard-journal-01.json",
+      "original_bytes": 1997,
+      "original_sha256": "0ec2fd43b40d9523dffc04fa08515bfd4fe94483122ba2c0e62cb0fb64fd997f",
+      "archive": "player-pair-recovery-01--root-guard-journal-01.json.gz",
+      "archive_bytes": 513,
+      "archive_sha256": "e0b7e0f8e77e7468447281a58033ca6ccb20cb0225efe2eed2e08be2fb5ba16f"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-offline-checks-01.json",
+      "original_bytes": 1343,
+      "original_sha256": "96ba2e7f1c5c1b480add2805537ec01f93014546896f0f17b9ab4efb6029c711",
+      "archive": "player-pair-recovery-01--root-offline-checks-01.json.gz",
+      "archive_bytes": 698,
+      "archive_sha256": "0f892f2fa80664defa3f2c97833db3ac001d27c442aee24ed747eea4703dbc07"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-packet-review-01.json",
+      "original_bytes": 2861,
+      "original_sha256": "7131327de867edd56fa72ed16d00c898229d5f2c4972bac24c6673dd003d952d",
+      "archive": "player-pair-recovery-01--root-packet-review-01.json.gz",
+      "archive_bytes": 1170,
+      "archive_sha256": "9d66217691f51d23759b906649a14530547ef44bca443e3bfe9d37020600ba44"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-pair-finished-01.json",
+      "original_bytes": 7143,
+      "original_sha256": "99ac5de3389e23e815bb6252cb954191bbfe1a4ce4f96390220a518e20aa9889",
+      "archive": "player-pair-recovery-01--root-pair-finished-01.json.gz",
+      "archive_bytes": 1384,
+      "archive_sha256": "05cb3082be443c0a0c442bc3925f384fae1d453c0603daec715c594cb83197ca"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-player-reuse-attestation-01.json",
+      "original_bytes": 23246,
+      "original_sha256": "3956858aa9ae7459259ca4cd5c63accff391268e42100083be700ed794bd409b",
+      "archive": "player-pair-recovery-01--root-player-reuse-attestation-01.json.gz",
+      "archive_bytes": 5852,
+      "archive_sha256": "e62a55a1f6626350ed51af0c00723b6e85e32f09cb2dc03f63fc75424fa9e7dc"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-recovery-fix-01.json",
+      "original_bytes": 2438,
+      "original_sha256": "b41250b8899111a1a51f26ac3444b66382c75c9399b152c45718f9aea39fb242",
+      "archive": "player-pair-recovery-01--root-recovery-fix-01.json.gz",
+      "archive_bytes": 964,
+      "archive_sha256": "f94090be216e852e84f7cc362f659973637e515fcaa42f8f55463de56da9265d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/player-pair-recovery-01/root-shared-readiness-01.json",
+      "original_bytes": 1358,
+      "original_sha256": "915d83d6fd44255317419ddae6793fe0a923b2bf2e329865b8cecdc4346408ae",
+      "archive": "player-pair-recovery-01--root-shared-readiness-01.json.gz",
+      "archive_bytes": 811,
+      "archive_sha256": "891f28f15c264af9805dc84a1a2185d0bb03b728b9bbbff72c9bde110857a9f0"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/runtime-build-receipt-01.json",
+      "original_bytes": 8903,
+      "original_sha256": "c3609f3a8aecfefa51a23bbfab85ab69e5586626479275ba08346537eece0849",
+      "archive": "runtime-build-receipt-01.json.gz",
+      "archive_bytes": 2547,
+      "archive_sha256": "ba042a26636a2d8f552061f7b1c738f1c186ae08bcc22829607f5c6c485376a5"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/selector-red-result-01.json",
+      "original_bytes": 1326,
+      "original_sha256": "b48ddbc8eb28b5928e9caa6d1612cefc0e42a7f346b2a85665a4af112689ed9e",
+      "archive": "selector-red-result-01.json.gz",
+      "archive_bytes": 579,
+      "archive_sha256": "2f01d556a67ed0f8c5f3cdf42fff8b31eec3da88dc7a367f3795fbd52dd10538"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/selector-red.cpp",
+      "original_bytes": 19207,
+      "original_sha256": "1df31e7b06cce84881d58d3eea3313dec2558e41be84b7c2a04b647c0302e7bd",
+      "archive": "selector-red.cpp.gz",
+      "archive_bytes": 3578,
+      "archive_sha256": "104dde2113cfff17a4520e6b2f37d2622a2ccd28e784cb3625a4b01f9417e300"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/selector-result-01.json",
+      "original_bytes": 1344,
+      "original_sha256": "d3e18bda1199fcd055dd150d2b3d6ffa3008275cdf9796a67314e5ad35cfa491",
+      "archive": "selector-result-01.json.gz",
+      "archive_bytes": 594,
+      "archive_sha256": "c5c88c83f537d792cb7a5ecde426422bb5622531370262ff76aec0af5a2fce99"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/selector.cpp",
+      "original_bytes": 19415,
+      "original_sha256": "c398a4f6073c22b940158222094bc379275e4a0b8dee92dd469f8d22479bb026",
+      "archive": "selector.cpp.gz",
+      "archive_bytes": 3627,
+      "archive_sha256": "aa1840aff48e5e8b7cab45857f4fb6658ed14e9357fc2e398475ed16b9606cae"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-rows2-01/source-review-01.json",
+      "original_bytes": 1665,
+      "original_sha256": "0da0b3c6737a727976c0026674c082c23390aca2918a8f3807add085ba57ee40",
+      "archive": "source-review-01.json.gz",
+      "archive_bytes": 885,
+      "archive_sha256": "e6f64bbea5e800a98975e8ea151980474915fad3166757055e42d2a0609560cb"
+    }
+  ],
+  "total_raw_bytes": 5772923,
+  "total_archive_bytes": 689347,
+  "gzip_roundtrip_and_original_hashes_verified": true,
+  "no_audio_models_executables_PCM_or_driver_cache_published": true
+}
