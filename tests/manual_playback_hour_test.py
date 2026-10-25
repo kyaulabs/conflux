@@ -17,7 +17,7 @@ import tempfile
 import textwrap
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.experiments import run_manual_playback_soak as soak
@@ -154,7 +154,7 @@ class HourPlaybackTest(unittest.TestCase):
                 routing.main()
             spawn.assert_not_called()
 
-    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False):
+    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None):
         # Run the actual launch/watchdog/cleanup path with generated files and a
         # fake child. No host commands, audio, native process or real wait runs.
         clock = [0.0]; launched = []; polls = []; ready_calls = []
@@ -171,7 +171,8 @@ class HourPlaybackTest(unittest.TestCase):
             assets = {name: root / name for name in names}
             for path in [wrapper, *assets.values(), *(root / name for name in ui)]:
                 path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"generated fixture")
-            args = SimpleNamespace(**assets, output=root / "run", seconds=120, live_stems_hour=False, background=True)
+            args = SimpleNamespace(**assets, output=root / "run", seconds=120, live_stems_hour=False,
+                background=completed_controls is None, active_controls=completed_controls is not None)
             proc = root / "proc"; task = proc / "101/task/101"; task.mkdir(parents=True)
             fields = ["S", "1", "101", "101"] + ["0"] * 15 + ["1001"]
             (proc / "101/stat").write_text("101 (fixture) " + " ".join(fields))
@@ -191,13 +192,19 @@ class HourPlaybackTest(unittest.TestCase):
                 def poll(self):
                     polls.append(clock[0] - launched[0])
                     if self.returncode is None and (exhausted[0] or (args.output / "stop").exists()):
-                        self.returncode = 1
+                        self.returncode = 0 if completed_controls is not None else 1
                         (proc / "101/stat").unlink()
                         (args.output / "observations.jsonl").write_text("")
-                        (args.output / "native-result.json").write_text(json.dumps({
+                        native = {
                             "functional_only": False, "host_audio": True, "source_root": str(root),
                             "ui_mode": "background", "ui_coverage": {"visible_ui_qualification_eligible": False},
-                            "mode": "live-stems", "setup": {}, "passed": False, "shutdown_completed": True}))
+                            "mode": "live-stems", "setup": {}, "passed": False, "shutdown_completed": True}
+                        if completed_controls is not None:
+                            native = copy.deepcopy(completed_controls[0])
+                            digest = hashlib.sha256(b"generated fixture").hexdigest()
+                            native.update(source_root=str(root), setup={key: digest for key in
+                                ("source_sha256", "model_sha256", "runtime_sha256", "service_sha256")})
+                        (args.output / "native-result.json").write_text(json.dumps(native))
                     return self.returncode
                 def wait(self, timeout): return self.poll()
             class Selector:
@@ -215,7 +222,10 @@ class HourPlaybackTest(unittest.TestCase):
             def read_command(command, **options):
                 if command[0] == "systemctl": return "ActiveState=active\nMainPID=42\nInvocationID=" + "a" * 32
                 self.assertEqual(command, ["pw-dump", "-N"]); return "[]"
-            with (
+            summarize = soak.summarize_live_observations
+            thermal_summary = soak.thermal_summary
+            popen = Mock(side_effect=Child)
+            overrides = (
                 patch.object(soak, "__file__", str(wrapper)),
                 patch.object(soak, "Path", side_effect=lambda value: proc if value == "/proc" else Path(value)),
                 patch.object(soak, "time", timing), patch.object(soak, "live_readiness", side_effect=readiness),
@@ -227,13 +237,20 @@ class HourPlaybackTest(unittest.TestCase):
                 patch.object(soak, "power_state", return_value={"ac_online": True, "lid_open": True}),
                 patch.object(soak, "sensor_paths", return_value={}),
                 patch.object(soak, "observation", return_value={"temperatures_millidegrees_C": {"fixture": 35000}}),
+                patch.object(soak, "summarize_live_observations", side_effect=lambda *values:
+                    copy.deepcopy(completed_controls[1]) if completed_controls is not None else summarize(*values)),
+                patch.object(soak, "thermal_summary", side_effect=lambda *values:
+                    {"generated_fixture": True} if completed_controls is not None else thermal_summary(*values)),
                 patch.object(soak.shutil, "disk_usage", return_value=SimpleNamespace(free=10**12)),
-                patch.object(soak.subprocess, "Popen", side_effect=Child) as popen,
+                patch.object(soak.subprocess, "Popen", popen),
                 patch("selectors.DefaultSelector", Selector), patch.object(soak.os, "set_blocking"),
                 patch.object(soak.os, "getpgrp", return_value=999),
                 patch.object(soak.os, "killpg", side_effect=ProcessLookupError),
                 patch.object(soak.signal, "signal"), contextlib.redirect_stdout(io.StringIO()),
-            ):
+            )
+            with contextlib.ExitStack() as stack:
+                for override in overrides:
+                    stack.enter_context(override)
                 code = soak.run_live(args)
             result = json.loads((args.output / "result.json").read_text())
             stop = (args.output / "stop").read_text().strip() if (args.output / "stop").exists() else None
@@ -241,6 +258,24 @@ class HourPlaybackTest(unittest.TestCase):
             self.assertTrue(popen.call_args.kwargs["start_new_session"])
             self.assertFalse(result["passed"]); self.assertFalse(result["qualified"])
             return code, result, stop, launched[0], polls
+
+    def test_failed_service_target_retains_final_input_guard_and_power_evidence(self):
+        native, observations = self.controls_fixture()
+        observations["service_hops"]["nearest_rank_p99_ms"] = 4095
+        code, result, stop, _, _ = self.live_watchdog_run(0, [.1],
+            completed_controls=(native, observations))
+        self.assertEqual(code, 1)
+        self.assertIsNone(stop)
+        self.assertEqual(result["native_exit"], 0)
+        self.assertEqual(result["error"], "Active controls: strict service p99/loss/thirteen-phase gate failed")
+        self.assertFalse(result["passed"])
+        self.assertFalse(result["qualified"])
+        self.assertEqual(result["pins_after"], result["pins_before"])
+        self.assertTrue(result["pins_unchanged"])
+        self.assertEqual(result["guard_after"], result["guard_before"])
+        self.assertEqual(result["power_after"], result["power_before"])
+        self.assertIn("host_after", result)
+        self.assertIn("thermal_summary", result)
 
     def test_delayed_readiness_does_not_age_new_native_startup(self):
         code, result, stop, launched, polls = self.live_watchdog_run(61, [.1, 30.0])

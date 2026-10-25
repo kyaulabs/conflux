@@ -870,8 +870,6 @@ def run_live(args):
             raise RuntimeError("Background result must exclude visible UI qualification")
         result["ui_coverage"] = native.get("ui_coverage")
         result["observations"] = summarize_live_observations(output / "observations.jsonl", native)
-        if active_controls:
-            result["active_controls"] = validate_active_controls(native, result["observations"])
         setup = native["setup"]
         if any(setup[key] != result["pins_before"][name]["sha256"] for key, name in (
                 ("source_sha256", "track_a"), ("model_sha256", "model"), ("runtime_sha256", "runtime"), ("service_sha256", "service"))):
@@ -880,6 +878,8 @@ def run_live(args):
         result["pins_unchanged"] = result["pins_before"] == result["pins_after"]
         result["host_after"] = observation(sensors); result["thermal_summary"] = thermal_summary(output / "host-observations.jsonl")
         result["power_after"] = power_state(); result["guard_after"] = live_guard()
+        if active_controls:
+            result["active_controls"] = validate_active_controls(native, result["observations"])
         if hour:
             result["hour_gates"] = validate_hour_result(native, result["observations"], background)
         result["passed"] = bool(child.poll() == 0 and native["passed"] and not requested_stop and complete_capture and result["pins_unchanged"]
