@@ -1,0 +1,1444 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "strict_service_target_ms": 4095,
+  "scope": "Completed25 October2026 UTC balanced-start diagnostic, interrupted earlier attempts, stopped performance preflight and an explicitly authorized profile-only cap observation. Publication starts no workload or profile change.",
+  "player_source_commit": "3629036363c3a3d2c861293e7806e7466524e34f",
+  "current_player_binary_sha256": "cf7dff2ee250eb06404de9c405b5a42d298c750429c6a8c8d3ffd79a2ef885d3",
+  "normal_runtime_sha256": "6f4dca329ee158ad4c1abe963cd9d0940d63ba8a309afdc8b4cd1b7259edbc53",
+  "balanced_diagnostic": {
+    "measured_wall_ms": 120016,
+    "hops": 17,
+    "median_ms": 6521.567888994468,
+    "p99_ms": 7361.999711021781,
+    "maximum_ms": 7361.999711021781,
+    "at_or_above_target": 11,
+    "service_target_met": false,
+    "native_controls_complete": true,
+    "control_actions": 16,
+    "control_acknowledgements": 16,
+    "steady_starved_frames": 0,
+    "control_starved_frames": 1291776,
+    "control_starved_seconds": 26.912,
+    "peer_starved_frames": 0,
+    "callback_execution_deadline_misses": 0,
+    "invalid_buffers": 0,
+    "rejected_commands": 0,
+    "source_read_failures": 0,
+    "controls": [
+      {
+        "kind": "incomplete_generation_seek",
+        "issue_to_recovered_cursor_ms": 6848.343754,
+        "previous_generation": 1
+      },
+      {
+        "kind": "replay_recovery",
+        "issue_to_recovered_cursor_ms": 4949.81752,
+        "previous_generation": 2
+      },
+      {
+        "kind": "replay_recovery",
+        "issue_to_recovered_cursor_ms": 8154.402541,
+        "previous_generation": 3
+      },
+      {
+        "kind": "replay_recovery",
+        "issue_to_recovered_cursor_ms": 7288.855254,
+        "previous_generation": 4
+      }
+    ],
+    "incomplete_generation_seek_submitted": true,
+    "cancellation_scope": "Accepted generation without observed RawComplete; native inference-start is not observed",
+    "executing_gpu_preemption_proven": false,
+    "ui_coverage": {
+      "any_gap": false,
+      "capture_end": "Before controller shutdown and window close",
+      "checks": 7443,
+      "hidden_checks": 0,
+      "hidden_policy_violated": false,
+      "maximum_frame_age_ns": 144137478,
+      "missing_frame_checks": 0,
+      "missing_window_checks": 0,
+      "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+      "stale_frame_checks": 0,
+      "unexposed_checks": 0,
+      "visible_healthy_checks": 7443,
+      "visible_ui_qualification_eligible": true,
+      "window_policy": "visible"
+    },
+    "callback_timing": [
+      {
+        "at_least_100ms": 0,
+        "callbacks": 25785,
+        "driver_cycle_available": true,
+        "driver_discontinuity_flag_mask": 16,
+        "driver_position_discontinuities": 0,
+        "driver_position_observed": true,
+        "driver_recovery_flag_mask": 2,
+        "driver_recovery_flags": 0,
+        "execution_deadline_misses": 0,
+        "execution_p999_upper_us": 286,
+        "execution_p99_upper_us": 250,
+        "graph_quantum_max": 256,
+        "graph_quantum_min": 256,
+        "maximum_execution_ns": 865297
+      }
+    ],
+    "host_context": {
+      "samples": 69,
+      "profiles": {
+        "balanced": 2,
+        "low-power": 67
+      },
+      "package_max_C": 75.0,
+      "all_sensor_max_C": 87.0,
+      "thermal_excursion_duration_not_qualified": true
+    },
+    "recording": {
+      "file": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/master.wav",
+      "bytes": 52500568,
+      "sha256": "040d378130f1fa953dedb6e2865e60ffd02b8ad751bef6fd7abac233cb0ce9bf",
+      "frames": 6562560,
+      "duration_seconds": 136.72,
+      "sample_rate": 48000,
+      "channels": 2,
+      "format": "float32 WAV",
+      "samples_checked": 13125120,
+      "nonfinite_samples": 0,
+      "nonzero_samples": 13081841,
+      "peak": [
+        0.05362660810351372,
+        0.05340002477169037
+      ],
+      "rms": [
+        0.016067186332315325,
+        0.015793008324363426
+      ],
+      "status": "Complete",
+      "overflow_frames": 0,
+      "accepted_frames": 6562560,
+      "written_frames": 6562560,
+      "scope": "Complete recorded PCM verified; no new human listening or acoustic latency claim."
+    },
+    "full_raw_evidence_completion": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-balanced-independent-completion-01.json",
+    "original_wrapper_and_driver_verdicts_preserved": true
+  },
+  "performance_attempt": {
+    "native_launched": false,
+    "inference_started": false,
+    "latency_results_available": false,
+    "audio_results_available": false,
+    "failure": "Performance selection increased or changed power caps; player must not start",
+    "exact_changed_cap_fields_not_retained": true,
+    "profile_restoration": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/profile-restored.json"
+  },
+  "profile_only_cap_observation": {
+    "schema": 1,
+    "at_utc": "2026-10-25T20:49:57.763345+00:00",
+    "passed": true,
+    "probe_complete": true,
+    "original_operator_deadline_monotonic": 234249.251582007,
+    "finished_monotonic": 234214.163392914,
+    "unit_before_close": {
+      "LoadState": "loaded",
+      "SubState": "exited",
+      "InvocationID": "4df1b8eab900432eb79e547b17fc8e87",
+      "MainPID": "0",
+      "Result": "success",
+      "ControlGroup": ""
+    },
+    "unit_after_close": {
+      "LoadState": "not-found",
+      "MainPID": "0",
+      "ControlGroup": ""
+    },
+    "unit_and_cgroup_absent": true,
+    "native_started": false,
+    "selection_to_probe_completion_seconds": 0.1524229149799794,
+    "changed_fields": [
+      {
+        "path": "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_power_limit_uw",
+        "before": 15000000,
+        "after": 64000000,
+        "original_ceiling": 15000000
+      }
+    ],
+    "changed_constraint_name": "long_term",
+    "profile_restored": "balanced",
+    "original_caps_restored": true,
+    "current_caps_within_original_ceiling": true,
+    "current_power_limits": {
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/enabled": 1,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_power_limit_uw": 15000000,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_time_window_us": 27983872,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_1_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_1_time_window_us": 2440,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/enabled": 1,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_time_window_us": 27983872,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_time_window_us": 2440
+    },
+    "power_draw_measured": false,
+    "source_pins": [
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/plan.json",
+        "bytes": 5153,
+        "sha256": "ed554253f9cb6cdf1a048d638ee99c35bc6323a2469a7ad1e81ef61528471e93"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/readiness.json",
+        "bytes": 1208,
+        "sha256": "b981a639e133997207e02c681559f8d685f01097098a6cff73b59acdc49af6ef"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/probe-result.json",
+        "bytes": 5297,
+        "sha256": "22f4a678b21308d6fbb5d178d631ce67a035c87c04d8612a0be0273979e84594"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/profile-intent.json",
+        "bytes": 4482,
+        "sha256": "c84c8034a1399b120683eca3206e1054ee0300a9b58b15b6b4be9539c55bcd26"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/profile-power-limits-after-selection.json",
+        "bytes": 3654,
+        "sha256": "32a4b99bd253994fdb5f1264e5732d6481efdaf05bbfa65d59dfee3a3ef13279"
+      },
+      {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/profile-restored.json",
+        "bytes": 3511,
+        "sha256": "b29726b3b30efc4de04cc06ecbfd7d27105ec286202479651dcd6087a9153164"
+      }
+    ],
+    "conclusion": "Performance briefly changes the MMIO long-term configured limit15W to64W. This is a configured allowance, not measured draw. The prior profile and original15W limit were restored before inference/audio; no workload ran."
+  },
+  "final_pair_cleanup": {
+    "schema": 1,
+    "at_utc": "2026-10-25T20:37:37.608777+00:00",
+    "passed": true,
+    "units": {
+      "balanced": {
+        "LoadState": "not-found",
+        "MainPID": "0",
+        "ControlGroup": ""
+      },
+      "performance": {
+        "LoadState": "not-found",
+        "MainPID": "0",
+        "ControlGroup": ""
+      }
+    },
+    "all_recorded_owned_processes_absent": true,
+    "own_idle_inhibitions_remaining": 0,
+    "profile_restoration_completed": true,
+    "current_profile": "balanced",
+    "current_guard_identity": {
+      "ActiveState": "active",
+      "SubState": "running",
+      "InvocationID": "70897370eb6e477f8ab0911410cb5c60",
+      "MainPID": "128417"
+    },
+    "guard_active_unchanged": true,
+    "current_power_limits": {
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/enabled": 1,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_power_limit_uw": 15000000,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_time_window_us": 27983872,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_1_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_1_time_window_us": 2440,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/enabled": 1,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_time_window_us": 27983872,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_time_window_us": 2440
+    },
+    "within_original_power_cap_ceiling": true,
+    "performance_player_never_started": true,
+    "exact_changed_cap_fields_unknown": true,
+    "ppd_journal_query": "2026-10-25 13:30:26..13:30:31 PDT returned no entries; installed power-profiles-daemon0.30-1.",
+    "new_attempt_or_profile_selection_performed": false
+  },
+  "original_failed_receipts_preserved": true,
+  "artifact_count": 98,
+  "artifacts": [
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/plan.json",
+      "artifact": "partial-balanced--plan.json.gz",
+      "uncompressed": {
+        "bytes": 58977,
+        "sha256": "9f9e9cbf4183fa4b7e36694375289f3a733e5c5b68cc15f0f279e4dc9b58c329"
+      },
+      "compressed": {
+        "bytes": 8705,
+        "sha256": "9e15421f5df568c1d3a29249873b3faf64dc54fd50de08b880e2484dc1a45f75"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/readiness.json",
+      "artifact": "partial-balanced--readiness.json.gz",
+      "uncompressed": {
+        "bytes": 1304,
+        "sha256": "ee2a505b896fbe2c0f89d5eb2ac86644bfd6f7bf2c17f11abb2bc7557103017f"
+      },
+      "compressed": {
+        "bytes": 766,
+        "sha256": "18647030ea5b1b015af3b2a4bc0c15335438ef8762252328c988ebd67735d4c2"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/unit-dispatch-01.json",
+      "artifact": "partial-balanced--unit-dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 3443,
+        "sha256": "1d30396c356fa09cc213f608338f4b6bea309c74439e78b514d861c67fa3a73a"
+      },
+      "compressed": {
+        "bytes": 1005,
+        "sha256": "09bec682249c5ac88a51c7fbb46c47a231890cc3b455c8105f424045f1a37a2d"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/dispatch-01.json",
+      "artifact": "partial-balanced--dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 20271,
+        "sha256": "a2a42b701b4a1fc8fba721dc3699708c7da59ccbb85ff9797cb99cc7b21d0859"
+      },
+      "compressed": {
+        "bytes": 2327,
+        "sha256": "8b753210961cc78a5991386235dbabd8d919c007a75b5fd6d56e87d89574e9f3"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/admission-01.json",
+      "artifact": "partial-balanced--admission-01.json.gz",
+      "uncompressed": {
+        "bytes": 56079,
+        "sha256": "98cc94207d12933dea93b4203185abda9f5db507acba4d8c4e7a6706b24d0714"
+      },
+      "compressed": {
+        "bytes": 3882,
+        "sha256": "b4b6332b885d459f12e108ffdb865f715e2cabcbd8eefb32e36a01b14dc72efa"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/diagnostic-assessment.json",
+      "artifact": "partial-balanced--diagnostic-assessment.json.gz",
+      "uncompressed": {
+        "bytes": 63147,
+        "sha256": "5573d682b0b3b69ad84c3e8c622566c858ce68dc19fc5fa3006aab395e798f69"
+      },
+      "compressed": {
+        "bytes": 5153,
+        "sha256": "73b68f2bafb620136b42733996768397985ecf7490204e918b9de5232f70ddd8"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/unit-finished-01.json",
+      "artifact": "partial-balanced--unit-finished-01.json.gz",
+      "uncompressed": {
+        "bytes": 2667,
+        "sha256": "93b02862599bbae193cf6efec2c5b5a54821d37b084550b8deecb2a79c7c927b"
+      },
+      "compressed": {
+        "bytes": 744,
+        "sha256": "81682dd352eb2040f3eedc78fc084a8b8b70c381cdbe8571cdd782e330db0d1a"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/run_host_player.py",
+      "artifact": "partial-balanced--run_host_player.py.gz",
+      "uncompressed": {
+        "bytes": 53742,
+        "sha256": "3116f351a693d54e88f46df7c1d62d6ec3eae81459eb0f4de0e2cd8309834501"
+      },
+      "compressed": {
+        "bytes": 15175,
+        "sha256": "1c5c82f4e2a7204f64ccc75d1d6942fb82eef35444ed14fb9b7dd242e2c4f390"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/run_player_owned.py",
+      "artifact": "partial-balanced--run_player_owned.py.gz",
+      "uncompressed": {
+        "bytes": 20973,
+        "sha256": "b99404bdf8d060d2a72ba7114878bae1174906e5635942d7c4ff83da0168ac98"
+      },
+      "compressed": {
+        "bytes": 6140,
+        "sha256": "e541c8d1b0dc5b95e1b719ba1a45c333bc4539c23f16ecf708bf3230275e3455"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/result.json",
+      "artifact": "partial-balanced--output-01--result.json.gz",
+      "uncompressed": {
+        "bytes": 262630,
+        "sha256": "80dd5f481b5cecd0474c1e8b13d236d69f6cc1f8db4a18aed7f13b23f4802e3f"
+      },
+      "compressed": {
+        "bytes": 24823,
+        "sha256": "8419cee19c7a0fb82dbcc1d44a755e43d334cf43045ee2db97a200d5acc2e3b3"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/native-result.json",
+      "artifact": "partial-balanced--output-01--native-result.json.gz",
+      "uncompressed": {
+        "bytes": 256732,
+        "sha256": "6ab7a2fbcb83c4dc6e7d6b84a5ad012f3605ac43dc4614e269a5ed93ec337fbb"
+      },
+      "compressed": {
+        "bytes": 15004,
+        "sha256": "a1f11912eb25a20532a1971a52e0b06e1b2898fed40a47b09583c09d58f440eb"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/observations.jsonl",
+      "artifact": "partial-balanced--output-01--observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 601130,
+        "sha256": "4c12d5da31782abfeeee8b0b92cb96ba4898f667fced1ed34afb2346caf72b04"
+      },
+      "compressed": {
+        "bytes": 43930,
+        "sha256": "b47f55206c94f3762d764b145441723d18ed5a33d9300eb2d0f7a81c8e1d2f0a"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/host-observations.jsonl",
+      "artifact": "partial-balanced--output-01--host-observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 54231,
+        "sha256": "f2834b11f9f185b141f8a31f452fb7456fc05fdb7bead5adf71956ec6b484871"
+      },
+      "compressed": {
+        "bytes": 2327,
+        "sha256": "c5ba1729eb4560bb5dfab422fe2e5e6a3ae43c37ab36c38ae35f05a96b01da88"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/native.stdout.log",
+      "artifact": "partial-balanced--output-01--native.stdout.log.gz",
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/native.stderr.log",
+      "artifact": "partial-balanced--output-01--native.stderr.log.gz",
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/cases/balanced/output-01/owned-pipewire-cleanup.json",
+      "artifact": "partial-balanced--output-01--owned-pipewire-cleanup.json.gz",
+      "uncompressed": {
+        "bytes": 30,
+        "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+      },
+      "compressed": {
+        "bytes": 50,
+        "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/root-result-verification-01.json",
+      "artifact": "partial-root--root-result-verification-01.json.gz",
+      "uncompressed": {
+        "bytes": 6656,
+        "sha256": "154d16e2fb5d966f9f544a1827a399e5986f540939a28bac8436884560590b40"
+      },
+      "compressed": {
+        "bytes": 2349,
+        "sha256": "1668ac1c9444eae9f1284d17d4ebdd707f3a626f43cc21a05de85dbaf4c22b81"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/root-post-host-cleanup-01.json",
+      "artifact": "partial-root--root-post-host-cleanup-01.json.gz",
+      "uncompressed": {
+        "bytes": 1809,
+        "sha256": "fffbc87a1f9a5a7261fbfe8f2ac3f8b0bc68488cc293b7cfdbab57d686ad7352"
+      },
+      "compressed": {
+        "bytes": 553,
+        "sha256": "88dd0365148756217669cacf545905623bb7cfa715b5a9e517853fd0eb4676a5"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/root-display-journal-01.json",
+      "artifact": "partial-root--root-display-journal-01.json.gz",
+      "uncompressed": {
+        "bytes": 525,
+        "sha256": "307584db115817c3cd92b6812b5f3fc274480e49c972b319a28333cc22379cbe"
+      },
+      "compressed": {
+        "bytes": 315,
+        "sha256": "3186e535e078c60f06c5b6c6fa5739910c53c10d2ac7b3eb68bd0843a06a78ac"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/root-power-limits-01.json",
+      "artifact": "partial-root--root-power-limits-01.json.gz",
+      "uncompressed": {
+        "bytes": 1199,
+        "sha256": "aa415442586f5dca9a9dd54e83ed7344a9fb45f3a815e3faeeb066be928caaad"
+      },
+      "compressed": {
+        "bytes": 317,
+        "sha256": "aea321ce68ea18b49236d5c595e3b85fe77670a51470382bdc16387d36250514"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/root-power-limits-read-only-change-01.json",
+      "artifact": "partial-root--root-power-limits-read-only-change-01.json.gz",
+      "uncompressed": {
+        "bytes": 1311,
+        "sha256": "07cb8d6cbf43d9d9baa8a0642c807852407e92b23b3048551d84cbc5f27748a4"
+      },
+      "compressed": {
+        "bytes": 308,
+        "sha256": "54a8789c02740bbddaecd126cc8180807484df3a6c7f7dced7314a56aabadb4d"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/plan.json",
+      "artifact": "setup-budget-stop--plan.json.gz",
+      "uncompressed": {
+        "bytes": 59670,
+        "sha256": "7e8d094382559a93960f579aa56238054e4cfd132574e112a931f51c2d92f82c"
+      },
+      "compressed": {
+        "bytes": 8851,
+        "sha256": "be889a888db23708b14f9230ad41028b6aeeec9fcfa80c5d0550fd4c68c12ff7"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/readiness.json",
+      "artifact": "setup-budget-stop--readiness.json.gz",
+      "uncompressed": {
+        "bytes": 1416,
+        "sha256": "cb727f6a247d0e97bccbf52419b82a9859d273e5068255e02acae3250a3d0c0e"
+      },
+      "compressed": {
+        "bytes": 844,
+        "sha256": "a4b6801e23279dbcf692846f4bce320d2f3725a0f0148e909bbb3e00a31a59cd"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/unit-dispatch-01.json",
+      "artifact": "setup-budget-stop--unit-dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 3566,
+        "sha256": "03038e14aa93cf708abdaad0933b69c4eacdf060ecc2965f7b70b241ef31742f"
+      },
+      "compressed": {
+        "bytes": 1021,
+        "sha256": "d0d2e2ba0480c3adf6ae007f96dc483551292b9ecb42a32cd90b4168ffba4b17"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/dispatch-01.json",
+      "artifact": "setup-budget-stop--dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 11391,
+        "sha256": "f32b1377f587f572321ba95a8e1a7de67ae3b032cf073105f3c7360e3d5b7f38"
+      },
+      "compressed": {
+        "bytes": 2119,
+        "sha256": "b65eec2e7a03d36d2e18f082646a71836ac0eae5f7dc283c955687b9982dba93"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/admission-01.json",
+      "artifact": "setup-budget-stop--admission-01.json.gz",
+      "uncompressed": {
+        "bytes": 72180,
+        "sha256": "ea4a1fefa83759d788188d8b95d91f6ac5cea37609e943d991b8875d10c7d912"
+      },
+      "compressed": {
+        "bytes": 4313,
+        "sha256": "a2ab77de60e82fc136d96092a150f36d97fad13afae6f85c8c3f8d729fc999df"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/diagnostic-assessment.json",
+      "artifact": "setup-budget-stop--diagnostic-assessment.json.gz",
+      "uncompressed": {
+        "bytes": 79383,
+        "sha256": "ad0de4f34fa5228c22b5abb718ba2124e98a08ade0fa1ff27a111b842c04dfc2"
+      },
+      "compressed": {
+        "bytes": 5329,
+        "sha256": "5a394d46535d88cc321187b15ed5ef99123699de77fd6a5a2289f3a1fcd2b75f"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/unit-finished-01.json",
+      "artifact": "setup-budget-stop--unit-finished-01.json.gz",
+      "uncompressed": {
+        "bytes": 2543,
+        "sha256": "117c0d4dd525368f0c295f2a683905a999ae6142651ef2e9085e8ab6575400d3"
+      },
+      "compressed": {
+        "bytes": 769,
+        "sha256": "3b27c982151cdafcf2de443cd4550ca9749e9aada1c43e198763be737d7a3174"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/run_host_player.py",
+      "artifact": "setup-budget-stop--run_host_player.py.gz",
+      "uncompressed": {
+        "bytes": 53752,
+        "sha256": "1e9c5d741e058fe75d450df25de9cbf44cb53d814b34c6aad8f54fc8f886e5d1"
+      },
+      "compressed": {
+        "bytes": 15182,
+        "sha256": "432c39bb32366a4aa53f5661a1e5f66c0b6433fdfb26db56dcc30627143a0f06"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/cases/balanced/run_player_owned.py",
+      "artifact": "setup-budget-stop--run_player_owned.py.gz",
+      "uncompressed": {
+        "bytes": 23496,
+        "sha256": "86c7aa61166bad7ac906e03e0aa5dba4424dc3d07c4a87c3133d173712a8d670"
+      },
+      "compressed": {
+        "bytes": 6913,
+        "sha256": "1b2c9f0bd44233463f1aae60df7569180261f76e2a45e209bbe3f25eb631a387"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/root-result-verification-01.json",
+      "artifact": "setup-budget-root--root-result-verification-01.json.gz",
+      "uncompressed": {
+        "bytes": 4986,
+        "sha256": "5a10abdc6a5bf98c8f44fe0344849eba172a55100e4d3edac88e6fe03e0099c1"
+      },
+      "compressed": {
+        "bytes": 1621,
+        "sha256": "0146fda74065ca55f4d987edad43ddb02137abefe857ce726c2793490cf81a84"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/plan.json",
+      "artifact": "balanced--plan.json.gz",
+      "uncompressed": {
+        "bytes": 60045,
+        "sha256": "43179ef3c3725475f023826b1bd127de0b9235e64f9547fca50f7920c062f139"
+      },
+      "compressed": {
+        "bytes": 8929,
+        "sha256": "d1f05d04d5a1352b11fe8dd623a468b74cb8a1e7775067aa909a128be5a4f283"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/readiness.json",
+      "artifact": "balanced--readiness.json.gz",
+      "uncompressed": {
+        "bytes": 1290,
+        "sha256": "fdacad0a578355e1b0665b7df5f7bdaca645f1afbb5382c7f5f9ea85e36ef6bb"
+      },
+      "compressed": {
+        "bytes": 773,
+        "sha256": "e87b91ab937e44f42e14ed24b296520bbb18a87f53e47a827a21d4b58d9475a7"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/unit-dispatch-01.json",
+      "artifact": "balanced--unit-dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 3594,
+        "sha256": "6236f54302ce6fab022206bab7e59f2a92ed5076fd322d62b2fb1e2b6abddd76"
+      },
+      "compressed": {
+        "bytes": 1030,
+        "sha256": "9ca474b90dc66190b54bff909e2cbcbd3cdf85feba2d1d08d8161a1099fc54bf"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/dispatch-01.json",
+      "artifact": "balanced--dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 23034,
+        "sha256": "2fe49e19302878d0938208d5c1371ca377dbb0b98be925a164d215c5c6d80507"
+      },
+      "compressed": {
+        "bytes": 2862,
+        "sha256": "5bb8c11d22e063940656aa1ff6e7355ca68f47f30917a792a547e3f551589532"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/admission-01.json",
+      "artifact": "balanced--admission-01.json.gz",
+      "uncompressed": {
+        "bytes": 36192,
+        "sha256": "9ec5b806145d6ec34848b85c8dff7dddcc25325ca37feb7893cdbc00eacc2cdb"
+      },
+      "compressed": {
+        "bytes": 3203,
+        "sha256": "e045dff6ef0f7391bae3cb88b9ad6b81a2be5fa409296d3bfb1f608d0ce5c6bd"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/diagnostic-assessment.json",
+      "artifact": "balanced--diagnostic-assessment.json.gz",
+      "uncompressed": {
+        "bytes": 42614,
+        "sha256": "dc3c64752a0005a239c373efae7c416bb91f1607f716484a5d6f870740be5fac"
+      },
+      "compressed": {
+        "bytes": 4588,
+        "sha256": "2c7617db7dbc69d677bee233ec1cc52c1fb5e7148e93720c9ace51c7d957238e"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/unit-finished-01.json",
+      "artifact": "balanced--unit-finished-01.json.gz",
+      "uncompressed": {
+        "bytes": 2670,
+        "sha256": "424b6c1ec0f82cfcb82639de5f45324c4464bb5fcd282f493c7ae2c408d99132"
+      },
+      "compressed": {
+        "bytes": 803,
+        "sha256": "9d67d7865702fd60761c5c634d784e325c59949f861d6ac855c8448ea01cdfc5"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/run_host_player.py",
+      "artifact": "balanced--run_host_player.py.gz",
+      "uncompressed": {
+        "bytes": 53759,
+        "sha256": "5ebb2e426ce023a04dd01c19745af82f98dd0b2bdb0a4132523c398d7f8750b0"
+      },
+      "compressed": {
+        "bytes": 15185,
+        "sha256": "4a818e5f9b452b76e70891d40112b9274cd95070c5ee16134d1605f82776459f"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/run_player_owned.py",
+      "artifact": "balanced--run_player_owned.py.gz",
+      "uncompressed": {
+        "bytes": 23496,
+        "sha256": "83bf8cbe9f10618cf5a6a20028ca4a73198b5daa5540c4f9a1d25f83264d7463"
+      },
+      "compressed": {
+        "bytes": 6915,
+        "sha256": "c2992698a3952f25c43ef8c02b8415522602782a5437814a3093f453a8610a11"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/result.json",
+      "artifact": "balanced--output-01--result.json.gz",
+      "uncompressed": {
+        "bytes": 274343,
+        "sha256": "d11afd27c2ccfac1bca38030e3292f9be873e31eee06490619b97609a29c8abe"
+      },
+      "compressed": {
+        "bytes": 26220,
+        "sha256": "5aaaeb8577178069d2f504b33ec872981b6a1093f4d8cf64b11488396c1efeb6"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/native-result.json",
+      "artifact": "balanced--output-01--native-result.json.gz",
+      "uncompressed": {
+        "bytes": 267402,
+        "sha256": "29f529863bd530ab0d748d250adb29a1a49ec8174ecd4c13ac47b25636d4ba14"
+      },
+      "compressed": {
+        "bytes": 16177,
+        "sha256": "2706c78256e81f16d3376fe472667022d2227bba6b59e6170f5d1463399f05de"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/observations.jsonl",
+      "artifact": "balanced--output-01--observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 639912,
+        "sha256": "6ad0e2b44dba182e1c68522f59e89859f3099c105bdabeee93c7cc325e7ed1cf"
+      },
+      "compressed": {
+        "bytes": 46027,
+        "sha256": "ad47e34a46aa98a1b4631389d3d64806cd219d24682e6fa13d7e0c731bb2d094"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/host-observations.jsonl",
+      "artifact": "balanced--output-01--host-observations.jsonl.gz",
+      "uncompressed": {
+        "bytes": 67784,
+        "sha256": "0b1242d98a7dc1ea2c12ada85b62e7491b47092624d7c65f800d205457f2c33e"
+      },
+      "compressed": {
+        "bytes": 2525,
+        "sha256": "ba2fc5d94c46c461fa4e77ab8220e6ec23c617993155a39ef7e5bfdeedb46136"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/native.stdout.log",
+      "artifact": "balanced--output-01--native.stdout.log.gz",
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/native.stderr.log",
+      "artifact": "balanced--output-01--native.stderr.log.gz",
+      "uncompressed": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "compressed": {
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/balanced/output-01/owned-pipewire-cleanup.json",
+      "artifact": "balanced--output-01--owned-pipewire-cleanup.json.gz",
+      "uncompressed": {
+        "bytes": 30,
+        "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa"
+      },
+      "compressed": {
+        "bytes": 50,
+        "sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/plan.json",
+      "artifact": "performance-stop--plan.json.gz",
+      "uncompressed": {
+        "bytes": 60060,
+        "sha256": "6badb5492552127d9fc3da9c3a01b5040c36118bdc6dfcc0e4ffe5f0e1ae0329"
+      },
+      "compressed": {
+        "bytes": 8932,
+        "sha256": "46989b743ede00f9615281fbb90e9052928582a0fe34521fc10a955486e29d81"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/readiness.json",
+      "artifact": "performance-stop--readiness.json.gz",
+      "uncompressed": {
+        "bytes": 1290,
+        "sha256": "79fa48b73291b738c28f4bc7309a64ce30be2a95adb22a1d6a859043a5d5b712"
+      },
+      "compressed": {
+        "bytes": 772,
+        "sha256": "9b461ac3ccd406238fd22e195ce471fde630aa502fa509e175b6b9b2a99934ef"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/unit-dispatch-01.json",
+      "artifact": "performance-stop--unit-dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 4878,
+        "sha256": "7127cd9b4c6d91ebeb21c9c75466bc661d27ca7c45210affbbd1cabdbaa94ca3"
+      },
+      "compressed": {
+        "bytes": 1383,
+        "sha256": "6ebcf936c8720dab0bd50ad580d3acb797fb55991b97090fdfc0466e0bf8f032"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/dispatch-01.json",
+      "artifact": "performance-stop--dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 8530,
+        "sha256": "73af5e8bc2a2089f08159ebf21609d1b47b022f2edee69d0acc5e2620c2cdd5e"
+      },
+      "compressed": {
+        "bytes": 2014,
+        "sha256": "627fab5374c77dca4822e5f39d4c63077c466248a01990bf07a2cdec2f68ce76"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/admission-01.json",
+      "artifact": "performance-stop--admission-01.json.gz",
+      "uncompressed": {
+        "bytes": 24587,
+        "sha256": "8ba6b36115ffc58fe261ab7f2f750fd22ee0014404dcaca1ba12db1d6712d409"
+      },
+      "compressed": {
+        "bytes": 2505,
+        "sha256": "d80584315cb00107b22b887abbb9a2b6a77926c36b07c00abc15a919fcff89f3"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/diagnostic-assessment.json",
+      "artifact": "performance-stop--diagnostic-assessment.json.gz",
+      "uncompressed": {
+        "bytes": 32667,
+        "sha256": "d33188587478d2ee08b565b7e282236b0be3e7cf5e76c8c2b09f39bdb75e25cb"
+      },
+      "compressed": {
+        "bytes": 3809,
+        "sha256": "0987c1a55dafd44e1b6b3d29f10e794600a7edc05c7dadcea6df88f81ef714d1"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/unit-finished-01.json",
+      "artifact": "performance-stop--unit-finished-01.json.gz",
+      "uncompressed": {
+        "bytes": 2555,
+        "sha256": "302df0f32b0d01e6ba67b849c814bee0663090071c80e434acd5813cd3aa40ae"
+      },
+      "compressed": {
+        "bytes": 779,
+        "sha256": "0a2ea2e91a9a42d814adebb6be65c77b84f865b3cb9c00cde58bc13db8187b9b"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/run_host_player.py",
+      "artifact": "performance-stop--run_host_player.py.gz",
+      "uncompressed": {
+        "bytes": 53759,
+        "sha256": "5ebb2e426ce023a04dd01c19745af82f98dd0b2bdb0a4132523c398d7f8750b0"
+      },
+      "compressed": {
+        "bytes": 15185,
+        "sha256": "4a818e5f9b452b76e70891d40112b9274cd95070c5ee16134d1605f82776459f"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/run_player_owned.py",
+      "artifact": "performance-stop--run_player_owned.py.gz",
+      "uncompressed": {
+        "bytes": 23496,
+        "sha256": "83bf8cbe9f10618cf5a6a20028ca4a73198b5daa5540c4f9a1d25f83264d7463"
+      },
+      "compressed": {
+        "bytes": 6915,
+        "sha256": "c2992698a3952f25c43ef8c02b8415522602782a5437814a3093f453a8610a11"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/profile-intent.json",
+      "artifact": "performance-stop--profile-intent.json.gz",
+      "uncompressed": {
+        "bytes": 4756,
+        "sha256": "57b251968fe3800c8dca1a0759c57a3558d9211cd3cff1c8b8fa5023cc01b5a6"
+      },
+      "compressed": {
+        "bytes": 1297,
+        "sha256": "5864fffde64ef959df3b99f6b460cc6982b2a0dd957b8b6d920705fdcff18598"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/cases/performance/profile-restored.json",
+      "artifact": "performance-stop--profile-restored.json.gz",
+      "uncompressed": {
+        "bytes": 3518,
+        "sha256": "48c8002bbe004c6dfa00c3f65978683352d7aa5a01cb2fde3da3cb3a785dd479"
+      },
+      "compressed": {
+        "bytes": 980,
+        "sha256": "6c0463f580b18672e80eaec2a87127f060ea89ca3ff7498e6f5835abc9689c35"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-results-01.json",
+      "artifact": "paired-root--root-results-01.json.gz",
+      "uncompressed": {
+        "bytes": 4979,
+        "sha256": "471d503e8d661199c65d350432e1ecaa5f5254f26af872add26d25425a55cff5"
+      },
+      "compressed": {
+        "bytes": 1885,
+        "sha256": "5ed49fc21cade5e45b16aff7913b7317e12ee0d3b46a87cd9bdebb62cf42361b"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-results-02.json",
+      "artifact": "paired-root--root-results-02.json.gz",
+      "uncompressed": {
+        "bytes": 5574,
+        "sha256": "94681eede18fab8589f06952fe0f2fb1dc06c81a2aafed3a423831b3cdde60d3"
+      },
+      "compressed": {
+        "bytes": 2049,
+        "sha256": "4168e4813a7ed4ad93c6ee38b6ef284ec8475cdbae8bfe29616198208b3af274"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-balanced-independent-completion-01.json",
+      "artifact": "paired-root--root-balanced-independent-completion-01.json.gz",
+      "uncompressed": {
+        "bytes": 7332,
+        "sha256": "f2264b76455a375181421d7bf9c9d783195133a06b79bdd0be115ae3a7da85ab"
+      },
+      "compressed": {
+        "bytes": 2376,
+        "sha256": "9c7e58187ad43d9ff81655b6ca50cfc3d36c38bf01e712d02535fb18a57e3c6d"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-final-host-cleanup-01.json",
+      "artifact": "paired-root--root-final-host-cleanup-01.json.gz",
+      "uncompressed": {
+        "bytes": 1995,
+        "sha256": "cb5363ebbfdb5a5ef1971adfda027963395d103057453110bbaf4bf72ace5ff4"
+      },
+      "compressed": {
+        "bytes": 651,
+        "sha256": "34f9fb5247fd7e0f37edb6ae9f0bc4d37e71972970c5ba60c8b3e7c4318801f9"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-balanced-guard-journal-01.jsonl",
+      "artifact": "paired-root--root-balanced-guard-journal-01.jsonl.gz",
+      "uncompressed": {
+        "bytes": 1036,
+        "sha256": "820bcad9fe0c606069b663188febe987121c9a45148ab5d0397759a39354f973"
+      },
+      "compressed": {
+        "bytes": 476,
+        "sha256": "2c69999198996657ff6ca70095d7550e6b90ed62588e3224e406c296bd83efc2"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-packet-verification-01.json",
+      "artifact": "paired-root--root-packet-verification-01.json.gz",
+      "uncompressed": {
+        "bytes": 2985,
+        "sha256": "215092e04b7cf5bf4f70d5d4e90551b21c420b9fcc1d4e3a9b20833df04761f7"
+      },
+      "compressed": {
+        "bytes": 947,
+        "sha256": "98a40b8b45d6a10a2d941beda01758ac5905e3ea5274a916acb7b664c2903fc2"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-source-review-01.json",
+      "artifact": "paired-root--root-source-review-01.json.gz",
+      "uncompressed": {
+        "bytes": 7589,
+        "sha256": "e62562725ece2f8bbe19fa421b65b9393c4ec394f8a616b633c409ef7dde06f9"
+      },
+      "compressed": {
+        "bytes": 2016,
+        "sha256": "d1cfa8387e97cd346e58c392e119ae323dd091cca980a79d86b592a89b2b03d0"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-readiness-recorded-01.json",
+      "artifact": "paired-root--root-readiness-recorded-01.json.gz",
+      "uncompressed": {
+        "bytes": 837,
+        "sha256": "95adf2e34ce685f667ff1247efe9dd6d351cbfe3feca6cf3b21a0b57f71a829b"
+      },
+      "compressed": {
+        "bytes": 449,
+        "sha256": "9b6c9bb20af799e31bbf103e80a435cd9e911bfedf744f9bb513730a1d85a0f8"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/root-human-first-observed-01.json",
+      "artifact": "paired-root--root-human-first-observed-01.json.gz",
+      "uncompressed": {
+        "bytes": 1417,
+        "sha256": "9bbef68520a534418913f11c8683ed88a17f0c804bc117c4556e57b029b9460f"
+      },
+      "compressed": {
+        "bytes": 513,
+        "sha256": "80ac04f97a842436bf40c174d03cf4cf0f9323cc22aee352b8d704f4646c1af1"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/profile_policy.py",
+      "artifact": "paired-root--profile_policy.py.gz",
+      "uncompressed": {
+        "bytes": 13094,
+        "sha256": "bb2a4be87db9001b9cbe3b41a3bc192c89b30edf81f2c867b9f899094c3226e6"
+      },
+      "compressed": {
+        "bytes": 4384,
+        "sha256": "ccc199bb7d0b9cc92af9c954677a9ba1c51ee05b125c2443f808fad2deddd740"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/launch_arm.py",
+      "artifact": "paired-root--launch_arm.py.gz",
+      "uncompressed": {
+        "bytes": 12165,
+        "sha256": "061ae6a51341eb17642211c3cc4c2f35200c7cf721b1b793233fb44dbf840ca4"
+      },
+      "compressed": {
+        "bytes": 4140,
+        "sha256": "d58e13cc70c8b18d1b4345f9b7cdc923008e96c131e91485dfdebff2937ca70b"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/test_budget_regression.py",
+      "artifact": "paired-root--test_budget_regression.py.gz",
+      "uncompressed": {
+        "bytes": 1393,
+        "sha256": "482f7f131cec733a2829a600d4b491117c8b2e6e9d4fdc0aff19c9f4f3c505d2"
+      },
+      "compressed": {
+        "bytes": 714,
+        "sha256": "1dfa206b8d3dfab9fd411f7388d9a32cee4045a7e1a0945a5f7c9c2908f9d36d"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/test_profile_policy.py",
+      "artifact": "paired-root--test_profile_policy.py.gz",
+      "uncompressed": {
+        "bytes": 11664,
+        "sha256": "94de15ef5974c6710c34034ba212086dbc43a3ec801bbcfbccd68eb4d7bd0a6b"
+      },
+      "compressed": {
+        "bytes": 2899,
+        "sha256": "12870fa9e1e9e8b604357d501c9504d4932037165e936f6e0480de29f6ec2d3d"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/host-unit-idle-budget-tests-03.json",
+      "artifact": "paired-root--host-unit-idle-budget-tests-03.json.gz",
+      "uncompressed": {
+        "bytes": 120,
+        "sha256": "ba8d6ca32a7b734afd7fd783890fb38ee56c3638275bf06ab037f160b3d02504"
+      },
+      "compressed": {
+        "bytes": 103,
+        "sha256": "fcb181f5f4008035b3e0d093ab3d58dc8bee37b989429376cdd12634556e6e31"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/policy-tests-01.json",
+      "artifact": "paired-root--policy-tests-01.json.gz",
+      "uncompressed": {
+        "bytes": 120,
+        "sha256": "91683063aa553c4a7688fd0cf93b7a6060e18f77c48dcceb7b6181dc4b406363"
+      },
+      "compressed": {
+        "bytes": 103,
+        "sha256": "5d3fab51c0754185232a72b79975ee926b8a0194dd7c2092e1d0d99e4777c550"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-budget-pair-01/budget-regression-red-02.log",
+      "artifact": "paired-root--budget-regression-red-02.log.gz",
+      "uncompressed": {
+        "bytes": 1199,
+        "sha256": "4a2bf29c044e8997ecaf4ccc66333e5674aeb954936438aacd27dd3a7e3bccf7"
+      },
+      "compressed": {
+        "bytes": 407,
+        "sha256": "1d806edd76005a53dbaa5768e698f69e26f05fe23161654f3d873e5663e82403"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/inhibit-probe-02/root-verification-01.json",
+      "artifact": "idle-proof--inhibit-probe-02--root-verification-01.json.gz",
+      "uncompressed": {
+        "bytes": 1950,
+        "sha256": "a79bad8bd93003f1d713482a315a47081030cb7340ac9971ceb6ea06246d077c"
+      },
+      "compressed": {
+        "bytes": 761,
+        "sha256": "b3681edcf3d177410e4b827e112de355d57123a1925e522dfa5908b547bd1b59"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/display-inhibited-pair-01/root-packet-verification-01.json",
+      "artifact": "idle-proof--root-packet-verification-01.json.gz",
+      "uncompressed": {
+        "bytes": 4147,
+        "sha256": "7151828ae473e3dd7a14bfea723af53a246d8e004bb861a9551a8ec4e2a99d2c"
+      },
+      "compressed": {
+        "bytes": 1570,
+        "sha256": "e16300a176c7378cca6c41e34f3904bf3717846567a9e627f0a1eacb7172bef8"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/plan.json",
+      "artifact": "cap-observation--plan.json.gz",
+      "uncompressed": {
+        "bytes": 5153,
+        "sha256": "ed554253f9cb6cdf1a048d638ee99c35bc6323a2469a7ad1e81ef61528471e93"
+      },
+      "compressed": {
+        "bytes": 1599,
+        "sha256": "35144fc2a21cbea2af2023a2fb25f60b6135b599c039d19c969a9b8ab34f29bc"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/readiness.json",
+      "artifact": "cap-observation--readiness.json.gz",
+      "uncompressed": {
+        "bytes": 1208,
+        "sha256": "b981a639e133997207e02c681559f8d685f01097098a6cff73b59acdc49af6ef"
+      },
+      "compressed": {
+        "bytes": 728,
+        "sha256": "cfc95f524ab70e1b26898ccc7c3b24a7f213e7a74064a42ad47af6cbfe3325b7"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/probe-dispatch.json",
+      "artifact": "cap-observation--probe-dispatch.json.gz",
+      "uncompressed": {
+        "bytes": 867,
+        "sha256": "f8d64187933388a8852fe8039e8c690cd0e47f487532e327f8aacc7657aa0d9c"
+      },
+      "compressed": {
+        "bytes": 439,
+        "sha256": "19dbd55aa2a9d479340c70cf0767bfb65ad083feefc0ef08696bca7a4f20453f"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/probe-result.json",
+      "artifact": "cap-observation--probe-result.json.gz",
+      "uncompressed": {
+        "bytes": 5297,
+        "sha256": "22f4a678b21308d6fbb5d178d631ce67a035c87c04d8612a0be0273979e84594"
+      },
+      "compressed": {
+        "bytes": 1451,
+        "sha256": "0ff642fa4c647a89c4573361f26af4b690d1d8d707e1aabbcf0bc83a0d96b2c5"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/profile-intent.json",
+      "artifact": "cap-observation--profile-intent.json.gz",
+      "uncompressed": {
+        "bytes": 4482,
+        "sha256": "c84c8034a1399b120683eca3206e1054ee0300a9b58b15b6b4be9539c55bcd26"
+      },
+      "compressed": {
+        "bytes": 1219,
+        "sha256": "b7b62a02f604f1ba929cd06df6efe4d7ba12fd2183234556992ca5b50a95cd50"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/profile-power-limits-after-selection.json",
+      "artifact": "cap-observation--profile-power-limits-after-selection.json.gz",
+      "uncompressed": {
+        "bytes": 3654,
+        "sha256": "32a4b99bd253994fdb5f1264e5732d6481efdaf05bbfa65d59dfee3a3ef13279"
+      },
+      "compressed": {
+        "bytes": 510,
+        "sha256": "df2b52a851bd92aef264152a597eb240b73b69ee6ddf293ab30cc8bf94e60f17"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/cases/performance/profile-restored.json",
+      "artifact": "cap-observation--profile-restored.json.gz",
+      "uncompressed": {
+        "bytes": 3511,
+        "sha256": "b29726b3b30efc4de04cc06ecbfd7d27105ec286202479651dcd6087a9153164"
+      },
+      "compressed": {
+        "bytes": 977,
+        "sha256": "df7c9ae8a3b5872118a0a15c3c17a332bba224aa17f87bc771ec9b5097d8e333"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/root-finished-01.json",
+      "artifact": "cap-root--root-finished-01.json.gz",
+      "uncompressed": {
+        "bytes": 3998,
+        "sha256": "f854d14f69096b3da699886ed685ea29c6c5914b2cff73cd14c53ce44c648ff0"
+      },
+      "compressed": {
+        "bytes": 1238,
+        "sha256": "af06e6a12178edffbd160f86818ebccb84117269a787cbd19f872d6f12d4127d"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/unit-dispatch-01.json",
+      "artifact": "cap-root--unit-dispatch-01.json.gz",
+      "uncompressed": {
+        "bytes": 2038,
+        "sha256": "acc7f2f766e5571105fa386e91ec0b24fa8d862b5f1feadeef027b08bc6affb1"
+      },
+      "compressed": {
+        "bytes": 831,
+        "sha256": "66e62dbb06f483c484afd4eff3d327398e35945fdd9be5c5bd3c53528e6fa2f6"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/root-packet-verification-01.json",
+      "artifact": "cap-root--root-packet-verification-01.json.gz",
+      "uncompressed": {
+        "bytes": 2863,
+        "sha256": "2a69eb309b9617942653c2cd733605c4501204bb79a18b8fddb669d4dab61016"
+      },
+      "compressed": {
+        "bytes": 1070,
+        "sha256": "0704a66b4bf9effe37d95e05930ed2d76100cd34823719f9774e87bb1bec9029"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/root-packet-verification-02.json",
+      "artifact": "cap-root--root-packet-verification-02.json.gz",
+      "uncompressed": {
+        "bytes": 3480,
+        "sha256": "53e13f49c11bd47e430be283a533a24459dd0c8572d6d04354a982dd704b07ad"
+      },
+      "compressed": {
+        "bytes": 1322,
+        "sha256": "7343746ba1449024f5054bc839b4a63b6a0b93fb6cb9766e6dc10b2cc4fb4579"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/profile_policy.py",
+      "artifact": "cap-root--profile_policy.py.gz",
+      "uncompressed": {
+        "bytes": 13476,
+        "sha256": "1b36c18c5be1133a00ad3240ad8ec303339a6f2c767676d5ffda93200b5bdc1c"
+      },
+      "compressed": {
+        "bytes": 4415,
+        "sha256": "338d296e4668b22197f76159faaf875f648521ab2b3dfa1608061542db3d02bc"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/run_probe.py",
+      "artifact": "cap-root--run_probe.py.gz",
+      "uncompressed": {
+        "bytes": 6869,
+        "sha256": "a079b948f28a6791e07d8b6b0bc18ea24c9e5f4d02b057c8c9cc5fc1bdc51d13"
+      },
+      "compressed": {
+        "bytes": 2481,
+        "sha256": "cd62a33e09872d8aae24ea3cf8cd227189f3f34b0973344072d34849d5f33a58"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/test_profile_policy.py",
+      "artifact": "cap-root--test_profile_policy.py.gz",
+      "uncompressed": {
+        "bytes": 12220,
+        "sha256": "049faa199e82e6ff8db1f576527d4f810441e7b5f63fef5ae2dbedd8a943aea7"
+      },
+      "compressed": {
+        "bytes": 2978,
+        "sha256": "b3a2b12d56cada493ed67441fc03731758e9619781e19eab993ba481fba4cdad"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/test_run_probe.py",
+      "artifact": "cap-root--test_run_probe.py.gz",
+      "uncompressed": {
+        "bytes": 3248,
+        "sha256": "e11e99e3c2393528db1fc4400509c6ea53e4021f13610f168a38f5d67a5417d6"
+      },
+      "compressed": {
+        "bytes": 1271,
+        "sha256": "f8d79ea29e22bceaae869c69eea543c58305b30036ee47ae74721e5bfc9cd6fe"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/launch-command-01.txt",
+      "artifact": "cap-root--launch-command-01.txt.gz",
+      "uncompressed": {
+        "bytes": 659,
+        "sha256": "e95d11669ef50714da72d70a004d1f16b62463276a80df9703b7fec8848d4c68"
+      },
+      "compressed": {
+        "bytes": 326,
+        "sha256": "7b4bb687828b6d0fa94cd2f2458ef4e416baa054bae5d6665d185e68689f6638"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/profile-policy-changes.patch",
+      "artifact": "cap-root--profile-policy-changes.patch.gz",
+      "uncompressed": {
+        "bytes": 2327,
+        "sha256": "2cb7d895fdae5d9cbea45148135ec6b3215948ec41fef356816bd54c52358cb5"
+      },
+      "compressed": {
+        "bytes": 1004,
+        "sha256": "8eefcf170d7ea820d17f58c28be9fa5b5277d07252bd16810575833103f3cc63"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/offline-checks-01.json",
+      "artifact": "cap-root--offline-checks-01.json.gz",
+      "uncompressed": {
+        "bytes": 120,
+        "sha256": "c4b95d03195aa1fda252e4c0898d7f549c7be4e6b70e0e4fb73fb27543610c94"
+      },
+      "compressed": {
+        "bytes": 101,
+        "sha256": "8c62c5df1e0aff46dcceb4710015d8c77a0808d9117c769b6be0d7031b9d849b"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/offline-checks-02.json",
+      "artifact": "cap-root--offline-checks-02.json.gz",
+      "uncompressed": {
+        "bytes": 120,
+        "sha256": "c4b95d03195aa1fda252e4c0898d7f549c7be4e6b70e0e4fb73fb27543610c94"
+      },
+      "compressed": {
+        "bytes": 101,
+        "sha256": "8c62c5df1e0aff46dcceb4710015d8c77a0808d9117c769b6be0d7031b9d849b"
+      }
+    },
+    {
+      "source": "build/m2-guarded-profile-pair-2026-10-25/power-cap-observation-01/policy-regression-red-01.log",
+      "artifact": "cap-root--policy-regression-red-01.log.gz",
+      "uncompressed": {
+        "bytes": 3719,
+        "sha256": "9702e5d5ff061db87dd57220ac23dada01ff428cf7b59dd5a978da8216509be4"
+      },
+      "compressed": {
+        "bytes": 976,
+        "sha256": "a97f305da5c76283be184581dcbb14b23f61f4ab3829dbabe19b9659bae56b37"
+      }
+    },
+    {
+      "source": "build/m2-current-player-2026-10-25/root-build-receipt-01.json",
+      "artifact": "player-build--root-build-receipt-01.json.gz",
+      "uncompressed": {
+        "bytes": 25540,
+        "sha256": "d2e6c88b90a612cbfb199566013076866f461395ac2d995ed9522475c6cd7927"
+      },
+      "compressed": {
+        "bytes": 6343,
+        "sha256": "964a7e7191f2b9565670a1209a9d1803f1ee5dc69f76450444200b6bb8812004"
+      }
+    },
+    {
+      "source": "build/m2-current-player-2026-10-25/root-source-build-attestation-01.json",
+      "artifact": "player-build--root-source-build-attestation-01.json.gz",
+      "uncompressed": {
+        "bytes": 21511,
+        "sha256": "1645abb6cc876a8dfba79821324fc78d805cfab5e27c5e9fadb7b0ce2fd8c6db"
+      },
+      "compressed": {
+        "bytes": 5819,
+        "sha256": "2c01138edd42e4663bf81551925b51c80a9561f8ff2dfb556ca754aab4af40b2"
+      }
+    }
+  ],
+  "media_policy": "Only UTF-8 metadata, logs and source. No audio, PCM, model, executable or driver cache is published. Recording hash/sample audit is retained while WAV remains private.",
+  "review_scope": "Root source/data verification; no independent review or sustained/physical/listening qualification is claimed."
+}
