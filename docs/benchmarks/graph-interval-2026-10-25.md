@@ -104,3 +104,79 @@ change the failed result. A fresh, unarmed reporting-only copy now treats
 missing final fields as an explicit failed evidence gate. Its regression first
 reproduced the KeyError, then all 54 generated checks passed. No new player run
 or latency qualification followed that reporting fix.
+
+
+A later Conv1d bias-broadcast candidate removed a materialized repeat before the
+existing Vulkan ADD for F32 channel bias. Other backends, weights, precision,
+convolution math and all other helpers stayed unchanged. The private runtime
+replaced one archive member and retained the other 186 byte-for-byte. This
+candidate remains experimental and is not promoted into the normal runtime.
+Its [separate verification record](data/m2-conv-bias-2026-10-25/verification.json)
+retains 53 compressed metadata, patch, source and trace files, including both
+failed receipts and the later parse-only verification.
+
+The actual-module CPU check matched 525,456 output bytes exactly across the
+original and candidate libraries, with 64 graph cases and 32 rejected malformed
+bias shapes per library. The silent laptop check then matched all 16 complete
+Best-quality reference outputs exactly. Its graph had 2,823 nodes rather than
+2,871, with the same ten full-F32 Flash signatures. Native-only p99 was
+1,645.792 ms, with no audio, UI or cancellation exercise. That result proves
+these output comparisons and graph reduction, not a paired speedup or the
+loaded service target. The quiet run's runtime point samples were balanced;
+the highest selected temperature observation was 87°C.
+
+The subsequent visible-player run used the same frozen optimized player,
+Best conversion, Vulkan and two runtime CPU threads. It completed its requested
+120-second measured interval but failed latency and steady audio availability.
+
+| Bias-broadcast player result | Observed value |
+|---|---:|
+| Measured wall interval | 120.003 s |
+| Published hops / completed native requests | 17 / 18 |
+| Service median / nearest-rank p99 and maximum | 3,108.496 / 7,677.237 ms |
+| Hops at or above 4,095 ms | 8 of 17 |
+| Steady starvation at 48 kHz | 94,720 frames / 1.973 s |
+| Seek/replay recovery starvation | 1,285,888 frames / 26.789 s |
+| Peer-deck starvation | 0 |
+| Control acknowledgements / healthy visible observations | 16 of 16 / 8,039 of 8,039 |
+| Recording frames accepted = written | 6,064,384 |
+| Recording overflow / callback execution deadline misses | 0 / 0 |
+
+All 18 requests had valid coarse GPU intervals and matching producer/written
+input identities. Across the eight misses, the inclusive GPU interval occupied
+99.914–99.983% of graph wall time. The worst service hop's graph compute took
+7,313.715 ms, including a 7,312.416 ms GPU interval. The earlier baseline and
+this run had different thermal histories and were not counterbalanced. Their
+p99 or starvation difference cannot establish a causal improvement.
+
+The incomplete-generation seek recovered within its 8.310-second observed
+issue-to-cursor bound. Three replays recovered in 4.465, 7.371 and 6.909 seconds.
+Request 2 completed without publication, and one obsolete packet was discarded.
+This remains supersession evidence, not executing-GPU preemption. Native QUIT
+completed normally without a kill. Invalid buffers, source-read failures and
+rejected commands remained zero. The WAV completed without overflow; none of
+these observations remove the measured starvation or qualify physical audio.
+
+The unchanged guard engaged power-saver on an 85°C warning at 18:00:49 UTC and
+reported recovery at 18:02:58 UTC. Runtime observations included five balanced
+and 59 low-power samples, with a sampled package maximum of 78°C. These point
+samples differ in time from the guard event and do not establish the duration
+of high temperatures. No power profile, limit or guard rule was changed, and
+this was not a current-build performance-profile comparison.
+
+Two support failures also remain in the original evidence. The outer tool
+session ended with exit 143 and left no completed owner receipt; its cause is
+unknown. The inner workload continued and shut down within the original time
+limit. Separate actual-host checks found all eight retained process lifetimes
+and seven groups absent, with the same guard invocation and unchanged files.
+That check does not restore the missing outer completion proof.
+
+The trace consumer also retained the earlier experiment's run identifier. New
+generated regressions reproduced rejection of this run and acceptance of a
+foreign earlier run. A one-line change in a separate unarmed copy binds the
+consumer to its caller's exact identifier. All four regression methods then
+passed, including completed/aborted captures, foreign-run rejection and retained
+input/GPU validation. Re-parsing the saved capture with that fix verified the
+18-request population; it started no workload and changed no original receipt.
+The candidate therefore adds exact-output and diagnostic evidence while M2,
+M3 and `0.1.0` remain open under the same Best-quality and latency requirements.
