@@ -1,0 +1,859 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "strict_service_target_ms": 4095,
+  "scope": "One fixed-order, two-minute run per arm. Both original failures remain; no causal speedup, sustained, musical or physical-output-latency qualification.",
+  "order": [
+    "baseline",
+    "candidate"
+  ],
+  "UI_profiler_enabled": false,
+  "runtime_promoted": false,
+  "milestone_or_release_gate_changed": false,
+  "arms": {
+    "baseline": {
+      "hop_count": 17,
+      "median_ms": 3613.49517601775,
+      "nearest_rank_p99_ms": 7306.474092998542,
+      "at_or_above_4095_ms": 8,
+      "steady_starved_seconds": 4.314666666666667,
+      "control_starved_seconds": 24.410666666666668,
+      "peer_starved_frames": 0,
+      "control_recoveries": [
+        {
+          "kind": "incomplete_generation_seek",
+          "previous_generation": 1,
+          "issued_ns": 262714519434269,
+          "recovered_cursor_observed_ns": 262720319142660,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 5.799708391
+        },
+        {
+          "kind": "replay_recovery",
+          "previous_generation": 2,
+          "issued_ns": 262737944537594,
+          "recovered_cursor_observed_ns": 262742434081703,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 4.489544109
+        },
+        {
+          "kind": "replay_recovery",
+          "previous_generation": 3,
+          "issued_ns": 262765874839864,
+          "recovered_cursor_observed_ns": 262773272685055,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 7.397845191
+        },
+        {
+          "kind": "replay_recovery",
+          "previous_generation": 4,
+          "issued_ns": 262798918656362,
+          "recovered_cursor_observed_ns": 262805881506241,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 6.962849879
+        }
+      ],
+      "manual_acknowledgements": 16,
+      "UI": {
+        "any_gap": false,
+        "capture_end": "Before controller shutdown and window close",
+        "checks": 7386,
+        "hidden_checks": 0,
+        "hidden_policy_violated": false,
+        "maximum_frame_age_ns": 141577190,
+        "missing_frame_checks": 0,
+        "missing_window_checks": 0,
+        "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+        "stale_frame_checks": 0,
+        "unexposed_checks": 0,
+        "visible_healthy_checks": 7386,
+        "visible_ui_qualification_eligible": true,
+        "window_policy": "visible"
+      },
+      "WAV": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/master.wav",
+        "bytes": 48513112,
+        "sha256": "f2333e8bc19cd3f4e563a22507c35b5ccafac4b648293241c18045193e3519ca",
+        "frames": 6064128,
+        "samples": 12128256,
+        "sample_rate": 48000,
+        "channels": 2,
+        "all_samples_finite": true,
+        "nonzero_samples": 12093802,
+        "peaks": [
+          0.05362619087100029,
+          0.053402528166770935
+        ],
+        "matches_native_counts_and_peaks": true,
+        "recording_overflow_frames": 0
+      },
+      "main_thread": [
+        {
+          "process_pid": 959231,
+          "tid": 959231,
+          "process_start_ticks": 28222614,
+          "thread_start_ticks": 28222614,
+          "comm": "conflux-manual-",
+          "main_thread": true,
+          "first_ticks": 11,
+          "first_ns": 262706298122309,
+          "ticks_per_second": 100,
+          "samples": 63,
+          "last_ticks": 7041,
+          "last_ns": 262833978143923,
+          "observed_span_cpu_seconds": 70.3,
+          "observed_span_wall_seconds": 127.680021614
+        }
+      ],
+      "guard_messages": [
+        "2026-10-25T21:43:43-07:00 recovered: temperature 37.0C; balanced profile restored=1",
+        "2026-10-25T21:45:04-07:00 warning: CPU/ACPI temperature 94.0C; power-saver engaged (was balanced)"
+      ],
+      "thermal_summary": {
+        "samples": 63,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 94000,
+        "85000": {
+          "samples_at_or_above": 3,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 0,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_epp_observations": [
+          {
+            "at_utc": "2026-10-26T04:44:49.887567+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "balanced",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+            }
+          },
+          {
+            "at_utc": "2026-10-26T04:45:06.474942+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "low-power",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+            }
+          }
+        ]
+      }
+    },
+    "candidate": {
+      "hop_count": 17,
+      "median_ms": 6070.027616980951,
+      "nearest_rank_p99_ms": 8490.611001034267,
+      "at_or_above_4095_ms": 11,
+      "steady_starved_seconds": 9.893333333333333,
+      "control_starved_seconds": 26.986666666666668,
+      "peer_starved_frames": 0,
+      "control_recoveries": [
+        {
+          "kind": "incomplete_generation_seek",
+          "previous_generation": 1,
+          "issued_ns": 263060521772273,
+          "recovered_cursor_observed_ns": 263067478620808,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 6.956848535
+        },
+        {
+          "kind": "replay_recovery",
+          "previous_generation": 2,
+          "issued_ns": 263085066505356,
+          "recovered_cursor_observed_ns": 263089280401556,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 4.2138962
+        },
+        {
+          "kind": "replay_recovery",
+          "previous_generation": 3,
+          "issued_ns": 263115636191790,
+          "recovered_cursor_observed_ns": 263123933608822,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 8.297417032
+        },
+        {
+          "kind": "replay_recovery",
+          "previous_generation": 4,
+          "issued_ns": 263150017198980,
+          "recovered_cursor_observed_ns": 263157730764323,
+          "recovered": true,
+          "poll_observed_recovery_upper_seconds": 7.713565343
+        }
+      ],
+      "manual_acknowledgements": 16,
+      "UI": {
+        "any_gap": false,
+        "capture_end": "Before controller shutdown and window close",
+        "checks": 9437,
+        "hidden_checks": 0,
+        "hidden_policy_violated": false,
+        "maximum_frame_age_ns": 110130742,
+        "missing_frame_checks": 0,
+        "missing_window_checks": 0,
+        "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+        "stale_frame_checks": 0,
+        "unexposed_checks": 0,
+        "visible_healthy_checks": 9437,
+        "visible_ui_qualification_eligible": true,
+        "window_policy": "visible"
+      },
+      "WAV": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/master.wav",
+        "bytes": 50161752,
+        "sha256": "44ac448baa0b0349ca0501d6730d1179cfd4e9c2c449d03cbc117ca89fc7048f",
+        "frames": 6270208,
+        "samples": 12540416,
+        "sample_rate": 48000,
+        "channels": 2,
+        "all_samples_finite": true,
+        "nonzero_samples": 12497805,
+        "peaks": [
+          0.05362633988261223,
+          0.05340166389942169
+        ],
+        "matches_native_counts_and_peaks": true,
+        "recording_overflow_frames": 0
+      },
+      "main_thread": [
+        {
+          "process_pid": 960634,
+          "tid": 960634,
+          "process_start_ticks": 28256781,
+          "thread_start_ticks": 28256781,
+          "comm": "conflux-manual-",
+          "main_thread": true,
+          "first_ticks": 10,
+          "first_ns": 263047977332943,
+          "ticks_per_second": 100,
+          "samples": 68,
+          "last_ticks": 5950,
+          "last_ns": 263185277387720,
+          "observed_span_cpu_seconds": 59.4,
+          "observed_span_wall_seconds": 137.300054777
+        }
+      ],
+      "guard_messages": [
+        "2026-10-25T21:49:29-07:00 recovered: temperature 39.0C; balanced profile restored=1",
+        "2026-10-25T21:50:36-07:00 warning: CPU/ACPI temperature 91.0C; power-saver engaged (was balanced)"
+      ],
+      "thermal_summary": {
+        "samples": 68,
+        "sample_interval_seconds": 2,
+        "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+        "maximum_observed_millidegrees_C": 91000,
+        "85000": {
+          "samples_at_or_above": 1,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "95000": {
+          "samples_at_or_above": 0,
+          "longest_consecutive_sample_span_seconds": 0.0
+        },
+        "profile_epp_observations": [
+          {
+            "at_utc": "2026-10-26T04:50:31.563255+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "balanced",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+            }
+          },
+          {
+            "at_utc": "2026-10-26T04:50:37.741868+00:00",
+            "values": {
+              "/sys/firmware/acpi/platform_profile": "low-power",
+              "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "root_cleanup": {
+    "schema": 1,
+    "status": "both_runs_completed_failed_gates",
+    "qualified": false,
+    "both_runs_dispatched": true,
+    "automatic_retries": false,
+    "cleanup_complete": true,
+    "all_owned_scopes_removed": true,
+    "own_idle_inhibitions_remaining": 0,
+    "same_original_operator_window": true,
+    "original_readiness_utc": "2026-10-26T04:42:42.003636+00:00",
+    "original_readiness_monotonic": 262578.403669388,
+    "operator_deadline_monotonic": 263778.403669388,
+    "finished_monotonic": 263226.121754182,
+    "elapsed_from_original_readiness_seconds": 647.7180849680444,
+    "within_original_1200_seconds": true,
+    "guard_identity_and_caps_preserved": true,
+    "milestone_or_release_gate_changed": false,
+    "per_arm_assessments": {
+      "baseline": {
+        "functional_passed": false,
+        "service_target_met": false,
+        "passed": false,
+        "qualified": false,
+        "timing_qualification": false,
+        "visible_ui_qualification": false,
+        "errors": [
+          "Wrapper functional completion differs"
+        ],
+        "hop_count": 17,
+        "nearest_rank_p99_ms": 7306.474092998542,
+        "at_or_above_target": 8,
+        "strict_target_ms": 4095
+      },
+      "candidate": {
+        "functional_passed": false,
+        "service_target_met": false,
+        "passed": false,
+        "qualified": false,
+        "timing_qualification": false,
+        "visible_ui_qualification": false,
+        "errors": [
+          "Wrapper functional completion differs"
+        ],
+        "hop_count": 17,
+        "nearest_rank_p99_ms": 8490.611001034267,
+        "at_or_above_target": 11,
+        "strict_target_ms": 4095
+      }
+    },
+    "further_laptop_tests_authorized": false
+  },
+  "files": [
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-build-01/baseline/ui-source/qml/StereoMeter.qml",
+      "raw_file": "baseline-StereoMeter.qml",
+      "raw_bytes": 4324,
+      "raw_sha256": "4682b5f604cf932e248584668e1f2bb3502dc484253b98048784c3a16b9fc9d8",
+      "archive_file": "baseline-StereoMeter.qml.gz",
+      "archive_bytes": 1248,
+      "archive_sha256": "c6f0613edc381eb9de5e921ffdc88781e4e90dd3a6538ee3f17a0da42457dc8e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/admission-01.json",
+      "raw_file": "baseline-admission-01.json",
+      "raw_bytes": 48519,
+      "raw_sha256": "6b8a9df6cf2f65388f0354cf055b2745dbaefa09868b1366c11f39c4e4309007",
+      "archive_file": "baseline-admission-01.json.gz",
+      "archive_bytes": 3660,
+      "archive_sha256": "d77a15ebdbab00ec543f6d8e03872840a8c6e37f1c609c440baa77bdc2df1849"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/diagnostic-assessment.json",
+      "raw_file": "baseline-diagnostic-assessment.json",
+      "raw_bytes": 134699,
+      "raw_sha256": "82c8b882c0aeb0616b0b7550d944a52ecdafdc76b0df16953b4d722a56b0f88e",
+      "archive_file": "baseline-diagnostic-assessment.json.gz",
+      "archive_bytes": 6631,
+      "archive_sha256": "b5ee7f91bc9fd022c37f7de66fbd07162234dac40bb4260f4eab1bf562199656"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/dispatch-01.json",
+      "raw_file": "baseline-dispatch-01.json",
+      "raw_bytes": 27505,
+      "raw_sha256": "94181660dd13decbfbd96b218724ef23163451824a8eed993132d86a658d0d3d",
+      "archive_file": "baseline-dispatch-01.json.gz",
+      "archive_bytes": 2867,
+      "archive_sha256": "591e42f2b5a3d73de2456be15deb032d4b13c206291f85382c36984253e42c92"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/offline-checks-final-01.log",
+      "raw_file": "baseline-offline-checks-final-01.log",
+      "raw_bytes": 170,
+      "raw_sha256": "cb9e4954c2c2e555afda790873ce880d74006cd3a589fa1a2edc4667de944dbe",
+      "archive_file": "baseline-offline-checks-final-01.log.gz",
+      "archive_bytes": 56,
+      "archive_sha256": "43c5f322889e6f0bd01a4c546d765aed07272996377eeceb5cc88b6f43fd8bc9"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/host-observations.jsonl",
+      "raw_file": "baseline-output-host-observations.jsonl",
+      "raw_bytes": 5600300,
+      "raw_sha256": "c7fd6d3407fbb0b6ad857471c963a1b487d06b47841adf96020d1d8111b91739",
+      "archive_file": "baseline-output-host-observations.jsonl.gz",
+      "archive_bytes": 685918,
+      "archive_sha256": "96dcb6e8faec26f32182f5a7b17e6abd11cb0ff5c3d8fdcddf213f757552fbf2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/native.stderr.log",
+      "raw_file": "baseline-output-native.stderr.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "baseline-output-native.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/native.stdout.log",
+      "raw_file": "baseline-output-native.stdout.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "baseline-output-native.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/observations.jsonl",
+      "raw_file": "baseline-output-observations.jsonl",
+      "raw_bytes": 640748,
+      "raw_sha256": "4faebd3d5fa9aaa1e2aab75b7bac8c92c9ecba012b9594d25fe927d5e4a1e9f3",
+      "archive_file": "baseline-output-observations.jsonl.gz",
+      "archive_bytes": 46564,
+      "archive_sha256": "ce72bc2abdb6073a65156d1565fd402ec08dc39c18411e4cbefcb067e7a54a00"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/progress.json",
+      "raw_file": "baseline-output-progress.json",
+      "raw_bytes": 590,
+      "raw_sha256": "4be978cb755ec7cb5b660478c44d77a884eeb3caf0502a31a27d27145e115b57",
+      "archive_file": "baseline-output-progress.json.gz",
+      "archive_bytes": 348,
+      "archive_sha256": "f4adb176f1f3286ecc076d086aa1efc3a5b641427d11f43a2d15b3af24bdfbfb"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/output-01/result.json",
+      "raw_file": "baseline-output-result.json",
+      "raw_bytes": 534799,
+      "raw_sha256": "ba8e8ded28f069e0e678d11b765d140d1291739eb06c3e65cfbd589ebb2e142b",
+      "archive_file": "baseline-output-result.json.gz",
+      "archive_bytes": 51036,
+      "archive_sha256": "a49d8aa62bf3b1dbbdafe67c93cbab6545f19dc35cb10b1c9ecac2b2670e9330"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/plan.json",
+      "raw_file": "baseline-plan.json",
+      "raw_bytes": 69804,
+      "raw_sha256": "8e43f0ab03af68136ade24707954c270046b6f0c1d23e4b77fe3eed82de327ad",
+      "archive_file": "baseline-plan.json.gz",
+      "archive_bytes": 14328,
+      "archive_sha256": "46308df5b1de9ff5b6ecd3fa32219126f2a3fc931a9d275717057513a58e7a00"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/readiness.json",
+      "raw_file": "baseline-readiness.json",
+      "raw_bytes": 1597,
+      "raw_sha256": "e74f905c67238fc55b58fa4044808d1b36c4e25468d3602ea4c34d1d0dd4827a",
+      "archive_file": "baseline-readiness.json.gz",
+      "archive_bytes": 942,
+      "archive_sha256": "e5ab34795bb4eb9b54cb07f26e12175528f80a7f37ceac85f08bf2df677acf9e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-audio-results-01.json",
+      "raw_file": "baseline-root-audio-results-01.json",
+      "raw_bytes": 6426,
+      "raw_sha256": "760fc6384495ceca38221c77c93722d7c6e6349855e1c605544b7160d7ba7d52",
+      "archive_file": "baseline-root-audio-results-01.json.gz",
+      "archive_bytes": 2293,
+      "archive_sha256": "502f57956e0089a7fdeb92436704111a0e7480755e19dfdc04f5aac8fbc7618d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-file-preflight-final-01.json",
+      "raw_file": "baseline-root-file-preflight-final-01.json",
+      "raw_bytes": 329,
+      "raw_sha256": "8b0f0d452e2bb05f9d45ed057e89550a3c0e15ad25ebc90b715129a5a38e2a8e",
+      "archive_file": "baseline-root-file-preflight-final-01.json.gz",
+      "archive_bytes": 250,
+      "archive_sha256": "3ca5d612149ff95f1fb2facb2e490a1beb762e82375197e9de26d3ec036ef9a3"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-file-preflight-final-01.log",
+      "raw_file": "baseline-root-file-preflight-final-01.log",
+      "raw_bytes": 82,
+      "raw_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive_file": "baseline-root-file-preflight-final-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-finished-01.json",
+      "raw_file": "baseline-root-finished-01.json",
+      "raw_bytes": 3287,
+      "raw_sha256": "57b9e98afc30af4766c549caeb72397b96597242a1d0f11cbf9fe911a71cb9b5",
+      "archive_file": "baseline-root-finished-01.json.gz",
+      "archive_bytes": 1188,
+      "archive_sha256": "7bf866cbfc20307b7dacba5613de9775b2b22f8dc8eec3fb38cb39cdebc10837"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-guard-journal-01.json",
+      "raw_file": "baseline-root-guard-journal-01.json",
+      "raw_bytes": 3367,
+      "raw_sha256": "5a7302028ffe7d4851fec50b9b0f8c0be92112b7d4a68e4813a0fb2bec1cdcaa",
+      "archive_file": "baseline-root-guard-journal-01.json.gz",
+      "archive_bytes": 1113,
+      "archive_sha256": "f76ff2249295d201aaa80d46fa307203c65a6dd268bb99fc76be37c50ef9fa56"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-offline-checks-01.json",
+      "raw_file": "baseline-root-offline-checks-01.json",
+      "raw_bytes": 415,
+      "raw_sha256": "1e10462404baef051c04bdbfc51622b3f528943ca3eaef34ac616b8cbbaa418d",
+      "archive_file": "baseline-root-offline-checks-01.json.gz",
+      "archive_bytes": 300,
+      "archive_sha256": "55f5cf227c9ff6b41239dac747d17d57a7ff3d4a97015ec7717cfe6a0326b075"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-thread-cpu-analysis-01.json",
+      "raw_file": "baseline-root-thread-cpu-analysis-01.json",
+      "raw_bytes": 13951,
+      "raw_sha256": "aacbf7032f70718adc53f8a95f48aa5f0d1fb81481e8ccef9706e99c409f2a59",
+      "archive_file": "baseline-root-thread-cpu-analysis-01.json.gz",
+      "archive_bytes": 1629,
+      "archive_sha256": "d21a1484b08982f8de7c9454557aef451b65129582983694b4bc2847b583ac39"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/root-unit-dispatch-01.json",
+      "raw_file": "baseline-root-unit-dispatch-01.json",
+      "raw_bytes": 2610,
+      "raw_sha256": "3ce7e2a1b0d183aff33af5ac7700ddcaccfd4c8dee5addcb976235a4302bb71d",
+      "archive_file": "baseline-root-unit-dispatch-01.json.gz",
+      "archive_bytes": 944,
+      "archive_sha256": "98be87bc287a5793b14e3137799b6b08fd876a65f0cccab8268491c7d94802f7"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/run_host_player.py",
+      "raw_file": "baseline-run_host_player.py",
+      "raw_bytes": 68008,
+      "raw_sha256": "77c89220525277d769cdc38a0d8a16805af81955201f79f37db187bd08ce9bb2",
+      "archive_file": "baseline-run_host_player.py.gz",
+      "archive_bytes": 19194,
+      "archive_sha256": "181d674abb39908cd00add98d7201ed11ef3d61025ab20f86143c67f7daafec0"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/baseline/run_player_owned.py",
+      "raw_file": "baseline-run_player_owned.py",
+      "raw_bytes": 23495,
+      "raw_sha256": "e2f1abab55e7ef94212767ba50446ee345a503f3dbe76b5e4ce2e2313dbd2b7a",
+      "archive_file": "baseline-run_player_owned.py.gz",
+      "archive_bytes": 6914,
+      "archive_sha256": "0523d080e6ddffc11fdb827ac47127905edabb9440b8f18a9515b2026966f244"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-build-01/candidate/ui-source/qml/StereoMeter.qml",
+      "raw_file": "candidate-StereoMeter.qml",
+      "raw_bytes": 4329,
+      "raw_sha256": "cb37a92886292c76e54c24bea7e1cf4002ca334d006955a8a246a044cafe897d",
+      "archive_file": "candidate-StereoMeter.qml.gz",
+      "archive_bytes": 1248,
+      "archive_sha256": "e34a73fb4d4b6790f5e2811436ad43dce7b7768c7b802b56be6fa213f75635b0"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/admission-01.json",
+      "raw_file": "candidate-admission-01.json",
+      "raw_bytes": 51023,
+      "raw_sha256": "6dafb53e2537d4ed3dfaae3582f6305382cf54656304b9590e47f9d78fec8b14",
+      "archive_file": "candidate-admission-01.json.gz",
+      "archive_bytes": 3726,
+      "archive_sha256": "c1d42a6a98f4d3e4c0f26b1e96bf4f9954ff9381d4468ef87dda226ad6335d21"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/diagnostic-assessment.json",
+      "raw_file": "candidate-diagnostic-assessment.json",
+      "raw_bytes": 142995,
+      "raw_sha256": "9095dce172a20655357bf5aac23d24268e81efd106d83de92291ac957fe44ed6",
+      "archive_file": "candidate-diagnostic-assessment.json.gz",
+      "archive_bytes": 6785,
+      "archive_sha256": "f97951e0abe1f787767b2d7e243460c8f0aca5d8959e20f302d2e0cd1921eb51"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/dispatch-01.json",
+      "raw_file": "candidate-dispatch-01.json",
+      "raw_bytes": 23054,
+      "raw_sha256": "e2ff102b59dcd0394bb83cd75782c65cb56532665294b5a1eaf30754c0ef7b5b",
+      "archive_file": "candidate-dispatch-01.json.gz",
+      "archive_bytes": 2380,
+      "archive_sha256": "4861fa771592c325aefa1699e9a794f6d052d45491a4242851df7690d0016707"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/offline-checks-final-01.log",
+      "raw_file": "candidate-offline-checks-final-01.log",
+      "raw_bytes": 170,
+      "raw_sha256": "bceb05bc4c9bde8180ad9eccadca616df7b40d5fa9b9fa6bd0f292b40f3958c9",
+      "archive_file": "candidate-offline-checks-final-01.log.gz",
+      "archive_bytes": 56,
+      "archive_sha256": "813c73d245679b1f985e7bbbb3e8948fbdaec425a8901daf802a95104b31b4c1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/host-observations.jsonl",
+      "raw_file": "candidate-output-host-observations.jsonl",
+      "raw_bytes": 6097523,
+      "raw_sha256": "d307aea8c9d3deb054afea52663abbe397e505b4fb5ddd867c1cef3df4f60b99",
+      "archive_file": "candidate-output-host-observations.jsonl.gz",
+      "archive_bytes": 744320,
+      "archive_sha256": "34212511bd556ef7358e2136cb3f47e3e8ac5b08aefdca92cad93222306df512"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/native.stderr.log",
+      "raw_file": "candidate-output-native.stderr.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "candidate-output-native.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/native.stdout.log",
+      "raw_file": "candidate-output-native.stdout.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "candidate-output-native.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/observations.jsonl",
+      "raw_file": "candidate-output-observations.jsonl",
+      "raw_bytes": 639837,
+      "raw_sha256": "5bdd0e538c4b8d2a6f86814e5fb28e8b0f679a31b7824403e189469bea46010b",
+      "archive_file": "candidate-output-observations.jsonl.gz",
+      "archive_bytes": 46039,
+      "archive_sha256": "42aa474787d4533222e301063d1f8ba3ec63a8253dc06935ba235eb790387501"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/progress.json",
+      "raw_file": "candidate-output-progress.json",
+      "raw_bytes": 591,
+      "raw_sha256": "173355b82cebc7173ee39a3bd354dd5268756b780b7b2bf56df812775df236e8",
+      "archive_file": "candidate-output-progress.json.gz",
+      "archive_bytes": 347,
+      "archive_sha256": "f2eab44a09ed0fbd493710933209f81aeaf394c2607baa84e488d6d36f6b9f98"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/output-01/result.json",
+      "raw_file": "candidate-output-result.json",
+      "raw_bytes": 538447,
+      "raw_sha256": "dc4598f0eca959c4c673e58e4570a9d508c28479ae17333d5fa1f18467c30056",
+      "archive_file": "candidate-output-result.json.gz",
+      "archive_bytes": 51155,
+      "archive_sha256": "1ac06a629367a79f620aaa91595864dc615dbc26158f454028d630ccb4fed3bd"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/plan.json",
+      "raw_file": "candidate-plan.json",
+      "raw_bytes": 69818,
+      "raw_sha256": "69b9e4fad1ba47317d4efc5979c87114b1449d46a0315049436bef980e6bf2f9",
+      "archive_file": "candidate-plan.json.gz",
+      "archive_bytes": 14345,
+      "archive_sha256": "0d33daf918188a0f2073c39a74a4c494bc2096d37616dcc150395b2cc3d3a58e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/readiness.json",
+      "raw_file": "candidate-readiness.json",
+      "raw_bytes": 1598,
+      "raw_sha256": "9a611d775b78777259a866711e3ab79d79488a74ac761a8a126608cb9927eeaf",
+      "archive_file": "candidate-readiness.json.gz",
+      "archive_bytes": 946,
+      "archive_sha256": "314e32c92b4f938d4f973f59701678aabfa3954be397fa2301a9c2fdd6f51b44"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-audio-results-01.json",
+      "raw_file": "candidate-root-audio-results-01.json",
+      "raw_bytes": 6430,
+      "raw_sha256": "f42d03193013f9d4bb78633c4bee0a8f2a7f0458d2c2a8702a88ed5cb6a1e004",
+      "archive_file": "candidate-root-audio-results-01.json.gz",
+      "archive_bytes": 2303,
+      "archive_sha256": "3702a1ae3efacdf3f3a3e49baf87e02eae790dd221f50433124e2426881f657f"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-file-preflight-final-01.json",
+      "raw_file": "candidate-root-file-preflight-final-01.json",
+      "raw_bytes": 328,
+      "raw_sha256": "e993230e0b5040b520038fd1ade64e063f9e2f9d67141ccd065966abfc37e58b",
+      "archive_file": "candidate-root-file-preflight-final-01.json.gz",
+      "archive_bytes": 249,
+      "archive_sha256": "ef3a616b56d8b1e12c10197225da7a4e3fb98878901e26a1c23bc198d462f8d6"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-file-preflight-final-01.log",
+      "raw_file": "candidate-root-file-preflight-final-01.log",
+      "raw_bytes": 82,
+      "raw_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive_file": "candidate-root-file-preflight-final-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-finished-01.json",
+      "raw_file": "candidate-root-finished-01.json",
+      "raw_bytes": 3066,
+      "raw_sha256": "c5a500a19e026b61fe61122b94fe178f366ba5850e923cf0fe6e50b96d2dc125",
+      "archive_file": "candidate-root-finished-01.json.gz",
+      "archive_bytes": 1072,
+      "archive_sha256": "f1528ace1d3c32830bc537ebde83d58b2ebf96c9eccdc9eaff8c07afc725182a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-guard-journal-01.json",
+      "raw_file": "candidate-root-guard-journal-01.json",
+      "raw_bytes": 3368,
+      "raw_sha256": "d5785b13b9b6160adbc668e8b793c72400692e63fb34498bb8b3b7a8744fbe7b",
+      "archive_file": "candidate-root-guard-journal-01.json.gz",
+      "archive_bytes": 1120,
+      "archive_sha256": "e95f34e2f8d83b3c263cba8327e81418e3b542e1ed3602f3d5aa52733688a5ad"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-offline-checks-01.json",
+      "raw_file": "candidate-root-offline-checks-01.json",
+      "raw_bytes": 416,
+      "raw_sha256": "0f2c96806a953f4d4f307da5372f3d0d6d013306a2ac12e257dbd774817700ff",
+      "archive_file": "candidate-root-offline-checks-01.json.gz",
+      "archive_bytes": 300,
+      "archive_sha256": "730ba311f16b5c80fe57c74adc2003525dfab041a672a857fbdcd2f5f88a1d49"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-thread-cpu-analysis-01.json",
+      "raw_file": "candidate-root-thread-cpu-analysis-01.json",
+      "raw_bytes": 14862,
+      "raw_sha256": "84fc897702418a4e923c6e2f1d78fbbd0b204135acfc48075f9d1cd0113efb34",
+      "archive_file": "candidate-root-thread-cpu-analysis-01.json.gz",
+      "archive_bytes": 1741,
+      "archive_sha256": "6c1ac93030dcb4e19213120400498b6c2a3023c0b7c51bd9fd9502a134283068"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/root-unit-dispatch-01.json",
+      "raw_file": "candidate-root-unit-dispatch-01.json",
+      "raw_bytes": 2865,
+      "raw_sha256": "c4cc441f5d357caf1830915fe52e8fd941584f193a9c8010667a5df6d7e1f596",
+      "archive_file": "candidate-root-unit-dispatch-01.json.gz",
+      "archive_bytes": 1038,
+      "archive_sha256": "f2fae92e6edd0bfe926f556398e64f5abbdac984945207d2c9de7e75d74acaa5"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/run_host_player.py",
+      "raw_file": "candidate-run_host_player.py",
+      "raw_bytes": 68012,
+      "raw_sha256": "609453b5647009958b204e90ade2a009100edcf0db330caf636b2fb59414a3f9",
+      "archive_file": "candidate-run_host_player.py.gz",
+      "archive_bytes": 19207,
+      "archive_sha256": "c33575d1d0f78b31fba47783df4b34f4c6030a3a136fd859998f45554962b052"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/cases/candidate/run_player_owned.py",
+      "raw_file": "candidate-run_player_owned.py",
+      "raw_bytes": 23495,
+      "raw_sha256": "df417daa68e51fba4efb0749af8386c9f49fd9bd6fae7356e1d6d11316f0767f",
+      "archive_file": "candidate-run_player_owned.py.gz",
+      "archive_bytes": 6915,
+      "archive_sha256": "9ba0c04658fd62929ca45ec63af43c069737e103843cab2ca00e4b12b6348284"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/pair-plan-01.json",
+      "raw_file": "pair-pair-plan-01.json",
+      "raw_bytes": 7067,
+      "raw_sha256": "74c565b08725cace1ec918ae1cf75c2948c076e02f8051a1cb8f737c6ba2f101",
+      "archive_file": "pair-pair-plan-01.json.gz",
+      "archive_bytes": 2089,
+      "archive_sha256": "df0eb12a69b935f59315e9b3f41a0caab5e103f11bb95f3e5f3f49cc1aa4d16c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/root-comparison-results-01.json",
+      "raw_file": "pair-root-comparison-results-01.json",
+      "raw_bytes": 18072,
+      "raw_sha256": "2e09e7a948664954498523d9cdd5e0303fc54ebe04da25b36ba8d892142f1f62",
+      "archive_file": "pair-root-comparison-results-01.json.gz",
+      "archive_bytes": 3401,
+      "archive_sha256": "fb39e7a2382b3d913f3350247a1a7a8a4500b8a0808a32dc0a71b029b097d34c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/root-finished-01.json",
+      "raw_file": "pair-root-finished-01.json",
+      "raw_bytes": 1633,
+      "raw_sha256": "dd6bcc610d8fcffa023f86c26e62e7cbcc426cd6011756e293dbdc8eeb630eca",
+      "archive_file": "pair-root-finished-01.json.gz",
+      "archive_bytes": 619,
+      "archive_sha256": "00df60cd4cd561ee6650af97dfd66bcd8b67e34f5cbbecf40c60958b931cc16a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/root-launch-clearance-01.json",
+      "raw_file": "pair-root-launch-clearance-01.json",
+      "raw_bytes": 1703,
+      "raw_sha256": "db051aa49d0a99cb8c891609248ad7f9d2b518ded608b0a6ab4cbc109d186191",
+      "archive_file": "pair-root-launch-clearance-01.json.gz",
+      "archive_bytes": 803,
+      "archive_sha256": "6f368a6b6cd465b482cc9646c9e15a1817d1545c31c73c4b066d098f3821cfc9"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/root-packet-review-01.json",
+      "raw_file": "pair-root-packet-review-01.json",
+      "raw_bytes": 1960,
+      "raw_sha256": "98f038e729742fd972e2ac7e7f2080c65938bd9d7333c20d94b1a5de1fec026a",
+      "archive_file": "pair-root-packet-review-01.json.gz",
+      "archive_bytes": 959,
+      "archive_sha256": "cff815f93bad2fe13eada595dc83018a6ab9f9932b7f8072b8daf8a7b69214e1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-01/root-shared-readiness-01.json",
+      "raw_file": "pair-root-shared-readiness-01.json",
+      "raw_bytes": 1440,
+      "raw_sha256": "d2370556ee6827ede918cc0ae710abc8bbcb20cdca00c4efd94a65eba3f6fb2e",
+      "archive_file": "pair-root-shared-readiness-01.json.gz",
+      "archive_bytes": 855,
+      "archive_sha256": "ca1d812e826cdc51095280d7684ea19d809c686afd66619d451ec7fdc1c569ce"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/analyze_ui_comparison.py",
+      "raw_file": "private-analyze_ui_comparison.py",
+      "raw_bytes": 10899,
+      "raw_sha256": "43489ad923a12f8fd3800da7b82a07fbb08d6ba1a65fa78dcdad9d5167c027ed",
+      "archive_file": "private-analyze_ui_comparison.py.gz",
+      "archive_bytes": 3686,
+      "archive_sha256": "0aefc0fd19d034ca0e80b71ff4f5991b5d3634a9542748a4432db479dc1a6c62"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/archive_ui_comparison.py",
+      "raw_file": "private-archive_ui_comparison.py",
+      "raw_bytes": 5832,
+      "raw_sha256": "7d25324cbaebb86aa0a8abba44538153018c9383bab68c203dffe2806efbff19",
+      "archive_file": "private-archive_ui_comparison.py.gz",
+      "archive_bytes": 2292,
+      "archive_sha256": "e91299b0afcd04941fb23e3674a463f6ae567bfffa3786138a7e7627192f9e70"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/build_ui_comparison.py",
+      "raw_file": "private-build_ui_comparison.py",
+      "raw_bytes": 6606,
+      "raw_sha256": "140aaf0a5090204ce9ffdbda89a143f58103dbef99e9448983495480f360fb7e",
+      "archive_file": "private-build_ui_comparison.py.gz",
+      "archive_bytes": 2528,
+      "archive_sha256": "95573ad0126fd0052ef8006e10e32db4f1bc5bb62f183a9c823b000cc1d42616"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/prepare_ui_comparison.py",
+      "raw_file": "private-prepare_ui_comparison.py",
+      "raw_bytes": 9795,
+      "raw_sha256": "8014f51ee15a81f0bd678e893380e13d6b18c66377c6a02ad83ec76c901ba169",
+      "archive_file": "private-prepare_ui_comparison.py.gz",
+      "archive_bytes": 3454,
+      "archive_sha256": "4ff9b05c50c1719a9a786f24349a8376080e5b82b097e963602c2be1556f4314"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/ui-comparison-build-01/root-build-01.json",
+      "raw_file": "private-root-build-01.json",
+      "raw_bytes": 26258,
+      "raw_sha256": "cf639a1be502cc63968ca5eeb38c432565629b58312396fd42ae1f6b03862a95",
+      "archive_file": "private-root-build-01.json.gz",
+      "archive_bytes": 4515,
+      "archive_sha256": "8be77e24e2800c9cd1d5849d019b98d26f5934f9959dec288fdb3de3f4d66d2e"
+    }
+  ],
+  "total_raw_bytes": 14968599,
+  "total_archive_bytes": 1778174,
+  "gzip_roundtrip_and_original_hashes_verified": true,
+  "no_audio_models_executables_PCM_or_driver_cache_published": true,
+  "raw_secret_scan": {
+    "command": [
+      "/bin/gitleaks",
+      "dir",
+      "--no-banner",
+      "--redact",
+      "--max-target-megabytes",
+      "32",
+      "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/comparison-archive-raw-01"
+    ],
+    "exit_code": 0,
+    "scanned_bytes": 14968599,
+    "log_sha256": "d4d0d821434f3f32752efe4b5040101fc62442edcc19ce719808a5c6495bd3a0"
+  },
+  "created_at_utc": "2026-10-26T04:58:25.965744+00:00"
+}

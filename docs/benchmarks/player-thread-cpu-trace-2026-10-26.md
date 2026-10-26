@@ -102,7 +102,8 @@ objects were destroyed, then passed with the same test binary after this QML
 change. It also checks independent peak/RMS display, overrange clamping and
 return to silence. The complete existing offscreen UI suite passed in 154.30
 seconds. Layout, accessibility, audio, model quality and thermal protection are
-unchanged. The effect on laptop service latency remains unmeasured. The separate
+unchanged. The subsequent [meter comparison](meter-stability-2026-10-26.md)
+missed the service target with both implementations. The separate
 [QML verification record](data/m2-player-qml-profile-2026-10-26/verification.json)
 retains the failed run, profiler trace and regression evidence.
 
