@@ -1,0 +1,481 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "production_code_changed": false,
+  "mode": "m2-player-decks-getter-cpu-120-01",
+  "strict_service_target_ms": 4095,
+  "diagnostic_ordinary_assessment": {
+    "functional_passed": true,
+    "service_target_met": true,
+    "passed": true,
+    "qualified": false,
+    "timing_qualification": false,
+    "visible_ui_qualification": false,
+    "errors": [],
+    "hop_count": 21,
+    "nearest_rank_p99_ms": 3878.167071961798,
+    "at_or_above_target": 0,
+    "strict_target_ms": 4095
+  },
+  "getter": {
+    "calling_tid": 1031735,
+    "calls": 119083,
+    "clock_errors": 0,
+    "cpu_ns": 11395713736,
+    "maximum_cpu_ns": 2081807,
+    "maximum_wall_ns": 23832593,
+    "schema": 1,
+    "scope": "Instrumented decks() body on this calling thread; inclusive wall and thread CPU, including timer overhead. Does not include QVariant-to-JavaScript conversion or identify other GUI work.",
+    "wall_ns": 11884864095
+  },
+  "complete_service_population": true,
+  "automated_cleanup_within_original600s": true,
+  "later_root_verification_within_original600s": false,
+  "power_ceiling_W": 15,
+  "guard_unchanged": true,
+  "milestone_or_release_gate_changed": false,
+  "scope": "One instrumented two-minute diagnostic. No causal speedup, uninstrumented, sustained, musical or physical-output-latency qualification.",
+  "files": [
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/archive_getter.py",
+      "raw_file": "archive_getter.py",
+      "raw_bytes": 5236,
+      "raw_sha256": "a851a5cf6915bae2c371f094415f0d8d1eef451edfbdc2f5ab04e146ecb2dc03",
+      "archive_file": "archive_getter.py.gz",
+      "archive_bytes": 2120,
+      "archive_sha256": "0473f3b9243d8643139d81c4825e52ffe9f81bec2f25bffa2f5187972d03c65c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/DeckController-profile.cpp",
+      "raw_file": "build-DeckController-profile.cpp",
+      "raw_bytes": 139972,
+      "raw_sha256": "cb693cbec55483603d719d2c8fbf08c09a0fab5b717a48847dd7360acd9ede59",
+      "archive_file": "build-DeckController-profile.cpp.gz",
+      "archive_bytes": 28598,
+      "archive_sha256": "4ef0d1cdb6cf08694a7e302b42057df954bd9bb988060efb8c46a3a1b4132fbb"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/DeckController-profile.cpp.patch",
+      "raw_file": "build-DeckController-profile.cpp.patch",
+      "raw_bytes": 2332,
+      "raw_sha256": "75df36fbdab418024f6866e3282bd08bbc046179602db6df2a26e2ed154bc669",
+      "archive_file": "build-DeckController-profile.cpp.patch.gz",
+      "archive_bytes": 974,
+      "archive_sha256": "602bfa4e1f46cacc7ab7afbaa379e3ed42e720779dde4813848d3be7e333448a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/build_getter_profile.py",
+      "raw_file": "build-build_getter_profile.py",
+      "raw_bytes": 11438,
+      "raw_sha256": "81f0ae3559a51e8a52e6f63c62da7e7c868e241550f3e0398ce3cf3a56f495ac",
+      "archive_file": "build-build_getter_profile.py.gz",
+      "archive_bytes": 3830,
+      "archive_sha256": "e577641979537c981f66d654a79c8654e63f65e5b7c711c551928f8a0f98a222"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/getter-smoke.cpp",
+      "raw_file": "build-getter-smoke.cpp",
+      "raw_bytes": 1565,
+      "raw_sha256": "a5ab6da3e54fa0336a6ffd5e2e9bf9a69430a6c31b47398e498ddaf4d12abd73",
+      "archive_file": "build-getter-smoke.cpp.gz",
+      "archive_bytes": 760,
+      "archive_sha256": "63254a9883512df7c03c80e518fd80588b89f088f355b84dc96857ab4a0e3926"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/manual-soak-profile.cpp",
+      "raw_file": "build-manual-soak-profile.cpp",
+      "raw_bytes": 81343,
+      "raw_sha256": "239a2dfce763388c3d8219b40e53b0e7bb361f66d18cbfaff5373b3b06747a37",
+      "archive_file": "build-manual-soak-profile.cpp.gz",
+      "archive_bytes": 19861,
+      "archive_sha256": "8c94e5ef8710005ce70e5150fb2df54899fac7c7ae11e0f4d544f4e28dd4f298"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/manual-soak-profile.cpp.patch",
+      "raw_file": "build-manual-soak-profile.cpp.patch",
+      "raw_bytes": 926,
+      "raw_sha256": "686f354c1c91c26232697a30d7f431bd03553369961b508e2f5cbbda9e87e62e",
+      "archive_file": "build-manual-soak-profile.cpp.patch.gz",
+      "archive_bytes": 547,
+      "archive_sha256": "ff37cd3cd95d9d4bd7741dfa864ba50b0002defbf9aa69e698e865aca977558d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/prepare_player_probe.py",
+      "raw_file": "build-prepare_player_probe.py",
+      "raw_bytes": 10417,
+      "raw_sha256": "7b1eb9450a2de28ae8368d131eb6dd057c661a6716c6359ba6a8925bf5a3da8f",
+      "archive_file": "build-prepare_player_probe.py.gz",
+      "archive_bytes": 3523,
+      "archive_sha256": "188580f909bdac9a9b9aa4b9ebf9e8eda4b2edb471e1208338e2f6c3804c774a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/resume_build_02.py",
+      "raw_file": "build-resume_build_02.py",
+      "raw_bytes": 3942,
+      "raw_sha256": "354a138ad7239d13e596417b1bb3ee856bb57d64cbcc594b4d3a3ee2e39babbc",
+      "archive_file": "build-resume_build_02.py.gz",
+      "archive_bytes": 1363,
+      "archive_sha256": "ce9f16198ab2df7004303ede7069a0f910e49ce36883234fc80ecaf7d80936f3"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/root-build-01.json",
+      "raw_file": "build-root-build-01.json",
+      "raw_bytes": 14187,
+      "raw_sha256": "11a3993c57041236d11497ad03f200fb96c683ca87560e707e71c00c0d38ac20",
+      "archive_file": "build-root-build-01.json.gz",
+      "archive_bytes": 3287,
+      "archive_sha256": "62440da27e5b68e710635215490644dd65ace63217e111838d0ba09d3157b912"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/root-build-02.json",
+      "raw_file": "build-root-build-02.json",
+      "raw_bytes": 19131,
+      "raw_sha256": "c37dd970df3f8eea9187459203c22fc22ef497a1f983ff35a77ea3dfcfd31f48",
+      "archive_file": "build-root-build-02.json.gz",
+      "archive_bytes": 3780,
+      "archive_sha256": "f33286fb2dbc4471c01d222f774c9a1fee3ec3061a94d9413d6fd888013d7a19"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/root-smoke-01.json",
+      "raw_file": "build-root-smoke-01.json",
+      "raw_bytes": 1572,
+      "raw_sha256": "029134cf7303658fd862be07255e32f084d3cf238c29c289ed412471b1e71b53",
+      "archive_file": "build-root-smoke-01.json.gz",
+      "archive_bytes": 820,
+      "archive_sha256": "0d4b0f93361b3a3bbff793cfe2fac00469eff9480db4f71820cb7a336b91bf71"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/host-observations.jsonl",
+      "raw_file": "output-host-observations.jsonl",
+      "raw_bytes": 6395303,
+      "raw_sha256": "3be73914fe02964899380acde2aa5aa43dabfd5b6daa5a212393cf3301dae652",
+      "archive_file": "output-host-observations.jsonl.gz",
+      "archive_bytes": 756836,
+      "archive_sha256": "c4cc2797d701070280ee8022b3a3a45e85c254c3667fad8995fcc1539312a1a5"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/native-result.json",
+      "raw_file": "output-native-result.json",
+      "raw_bytes": 269087,
+      "raw_sha256": "bb5307e16be6423897be1c2a52f1aa4c17a8bae02750c4e41cbd8a165df02402",
+      "archive_file": "output-native-result.json.gz",
+      "archive_bytes": 16439,
+      "archive_sha256": "9c46cf963f5f5bc27f002318d890f9aaa4d977d336dd6ce65868700799039e7c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/native.stderr.log",
+      "raw_file": "output-native.stderr.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "output-native.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/native.stdout.log",
+      "raw_file": "output-native.stdout.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "output-native.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/observations.jsonl",
+      "raw_file": "output-observations.jsonl",
+      "raw_bytes": 807650,
+      "raw_sha256": "aa6c6ae253e5f7a2e74c215f5311285c1e9ef983d3d8ab69d3ccf371bc44de7e",
+      "archive_file": "output-observations.jsonl.gz",
+      "archive_bytes": 61068,
+      "archive_sha256": "ec1ad19adfca9e835b02e4d2dd5dd2f65d03ca5c856c004e6069d5f2ec73a774"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/owned-pipewire-cleanup.json",
+      "raw_file": "output-owned-pipewire-cleanup.json",
+      "raw_bytes": 30,
+      "raw_sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "archive_file": "output-owned-pipewire-cleanup.json.gz",
+      "archive_bytes": 50,
+      "archive_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/progress.json",
+      "raw_file": "output-progress.json",
+      "raw_bytes": 574,
+      "raw_sha256": "ebfa8b1b07e9e957b2d17742dee9212d4cf800fe2ed743f354f42c1476adb6a4",
+      "archive_file": "output-progress.json.gz",
+      "archive_bytes": 337,
+      "archive_sha256": "03474c7b093dd0dbd530929920a6cbb6fb2263ef0f317bede6c43d09857af66d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/output-01/result.json",
+      "raw_file": "output-result.json",
+      "raw_bytes": 553426,
+      "raw_sha256": "41c50ff0df688352e9d6a4c434e0873d90d7bdd66bdbd08848730dc6b0555637",
+      "archive_file": "output-result.json.gz",
+      "archive_bytes": 52017,
+      "archive_sha256": "f5d2faa0a477c77bffba855dc223062323b6d70631d1d55cd717156a89321b03"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/admission-01.json",
+      "raw_file": "player-admission-01.json",
+      "raw_bytes": 78569,
+      "raw_sha256": "e6f9ec26320ebf586f38cd528793b4eaf2e7894709269e5ef363b4167977ea20",
+      "archive_file": "player-admission-01.json.gz",
+      "archive_bytes": 4866,
+      "archive_sha256": "c04684b252fc4bf6be89e79b76bb449367c1bce1fa456daded645dd1bdc4da9a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/diagnostic-assessment.json",
+      "raw_file": "player-diagnostic-assessment.json",
+      "raw_bytes": 173998,
+      "raw_sha256": "3d1970240b5a992a41d77ab01ba1dbc65ddd4c3aeff634a7967625db05ab750e",
+      "archive_file": "player-diagnostic-assessment.json.gz",
+      "archive_bytes": 7823,
+      "archive_sha256": "2801ad476718a2dcb784d445d1f071e27c4ba7ad2646c4e0c1c32829a1f6d3a2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/dispatch-01.json",
+      "raw_file": "player-dispatch-01.json",
+      "raw_bytes": 20894,
+      "raw_sha256": "fcc2ea82439d3bf10cfb13b1a3ae61757f1aa989f6f7600b71e6fd9b8eb5432d",
+      "archive_file": "player-dispatch-01.json.gz",
+      "archive_bytes": 2696,
+      "archive_sha256": "7268d8693132b06066e6c0fba6e41885b1556e1f74ebb3e3042a59168ffec2f7"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/file-preflight-01.log",
+      "raw_file": "player-file-preflight-01.log",
+      "raw_bytes": 82,
+      "raw_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive_file": "player-file-preflight-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/launch-command-01.txt",
+      "raw_file": "player-launch-command-01.txt",
+      "raw_bytes": 149,
+      "raw_sha256": "566cbe44db9bf17897e3500786dcf3ef66285b3d7fb53b3bb55a735ce83f62f6",
+      "archive_file": "player-launch-command-01.txt.gz",
+      "archive_bytes": 136,
+      "archive_sha256": "34cd4dd9c35ce043dc2e220ba051739eaf1158096013cddb0aea87a430727f7a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/offline-checks-final-01.log",
+      "raw_file": "player-offline-checks-final-01.log",
+      "raw_bytes": 174,
+      "raw_sha256": "202d6dfc4e4b2e93b278c64f4da514f74c5dcefad0de646a0f12df3495553adc",
+      "archive_file": "player-offline-checks-final-01.log.gz",
+      "archive_bytes": 56,
+      "archive_sha256": "19c07acbd78dc930096572d07498c2092660b8e0396273965a125c79a73f91be"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/plan.json",
+      "raw_file": "player-plan.json",
+      "raw_bytes": 71972,
+      "raw_sha256": "29c8c4f9baf6799368743c715cb9751ccd5e728e721002fed31cc21c7ea563aa",
+      "archive_file": "player-plan.json.gz",
+      "archive_bytes": 15017,
+      "archive_sha256": "9aef8999b1edba6c33fa845e8e542d209b807e9816962273ed6c27356d078454"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/readiness.json",
+      "raw_file": "player-readiness.json",
+      "raw_bytes": 1435,
+      "raw_sha256": "e94fecfc969e866b41bd670c969377629fd8d97afad246f30736efb123e693b1",
+      "archive_file": "player-readiness.json.gz",
+      "archive_bytes": 851,
+      "archive_sha256": "cdbdb997b06fa9332e1d32036d9968f8c192768cfa4bd7db49e3310c9c5bece4"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-audio-getter-results-01.json",
+      "raw_file": "player-root-audio-getter-results-01.json",
+      "raw_bytes": 6533,
+      "raw_sha256": "f040da6ca231d65be9ec4642605b276f53674fe35467b1f5c857386a1f949665",
+      "archive_file": "player-root-audio-getter-results-01.json.gz",
+      "archive_bytes": 2438,
+      "archive_sha256": "925d241a9d740ec1140f705a3dc806796d71e909d2e1203e4ece9771fcf7e9dd"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-dry-entry-01.json",
+      "raw_file": "player-root-dry-entry-01.json",
+      "raw_bytes": 934,
+      "raw_sha256": "eb90f5b6824a26e8208e4aa48f762c37bc8fe6426c66a55eb8d56c4c631145c2",
+      "archive_file": "player-root-dry-entry-01.json.gz",
+      "archive_bytes": 341,
+      "archive_sha256": "2927e0daa574e1b859452c112a80feaca020e69aa77800d3980aa9c4a3ce37f6"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-file-preflight-01.json",
+      "raw_file": "player-root-file-preflight-01.json",
+      "raw_bytes": 420,
+      "raw_sha256": "00297d846c719187a70c2321b76e7b85e9a46c234eca9a89782f8b3509853b70",
+      "archive_file": "player-root-file-preflight-01.json.gz",
+      "archive_bytes": 302,
+      "archive_sha256": "79e90ef819068cc98331903bdb097ad3901e5af5c0b0d65810d327b0f045a062"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-finished-01.json",
+      "raw_file": "player-root-finished-01.json",
+      "raw_bytes": 2699,
+      "raw_sha256": "b387cf1fcb590758d0a5f859b5fe467301166c191f7991790d730587a26b45e3",
+      "archive_file": "player-root-finished-01.json.gz",
+      "archive_bytes": 1067,
+      "archive_sha256": "2ae92b61f3a1ad4a11291754380c19e71420aeed0c24ea25cead326f1f002ace"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-guard-journal-01.json",
+      "raw_file": "player-root-guard-journal-01.json",
+      "raw_bytes": 483,
+      "raw_sha256": "fdec9f183e0a41567c44a1f570346c608b475996eb80c8d09972fe58767dc528",
+      "archive_file": "player-root-guard-journal-01.json.gz",
+      "archive_bytes": 327,
+      "archive_sha256": "22f88513fbdabc3a8d957c5374b0e0c633e0228813fc19bd674daa7e28d7392f"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-launch-clearance-01.json",
+      "raw_file": "player-root-launch-clearance-01.json",
+      "raw_bytes": 1812,
+      "raw_sha256": "b390cca9b9540b12b1382906202ff6aa5848f81dfa041cee61028adcddf76eaa",
+      "archive_file": "player-root-launch-clearance-01.json.gz",
+      "archive_bytes": 800,
+      "archive_sha256": "38be1b1c26e6df0839bf9523713a3e3d358123b649d4137d86f64649621d2b69"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-launch-plan-01.json",
+      "raw_file": "player-root-launch-plan-01.json",
+      "raw_bytes": 2337,
+      "raw_sha256": "e3b533ea065baf2fc2e3f1c11f6959fd5358d8b19751d0bd574a576d3b39df53",
+      "archive_file": "player-root-launch-plan-01.json.gz",
+      "archive_bytes": 1040,
+      "archive_sha256": "ec649c4cf8eafd1220602214039181633b419c9ea2399c7327f999db7e41e3a6"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-offline-checks-01.json",
+      "raw_file": "player-root-offline-checks-01.json",
+      "raw_bytes": 530,
+      "raw_sha256": "40f69281ed41ac157c2eb1c9f6b4cc677149cf5d05b0c26e3a646b76160880ae",
+      "archive_file": "player-root-offline-checks-01.json.gz",
+      "archive_bytes": 368,
+      "archive_sha256": "8a43fc7e714c92b538ef20759f51a49a2f778e71b54d6641f8b173e90b28d381"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-packet-review-01.json",
+      "raw_file": "player-root-packet-review-01.json",
+      "raw_bytes": 2319,
+      "raw_sha256": "cc0930c027f9b612073e6421e3e7821fc290187623fa8652224e70dcda642bad",
+      "archive_file": "player-root-packet-review-01.json.gz",
+      "archive_bytes": 905,
+      "archive_sha256": "519eb1f7fb12548a91552f3b35d6060c4e4a198c084b30898fb28fc14efb911a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-thread-cpu-analysis-01.json",
+      "raw_file": "player-root-thread-cpu-analysis-01.json",
+      "raw_bytes": 13327,
+      "raw_sha256": "5c5590ad64eb02cdb3e2252dd5b3d72f2605594f307b1cdd4f6fc8a31be987de",
+      "archive_file": "player-root-thread-cpu-analysis-01.json.gz",
+      "archive_bytes": 1496,
+      "archive_sha256": "02e7c4c64df0d29b623287dfcac4595060953bf13a34bff19a0ca5d9620f8555"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/root-unit-dispatch-01.json",
+      "raw_file": "player-root-unit-dispatch-01.json",
+      "raw_bytes": 3017,
+      "raw_sha256": "f94cb8bb7ef791fc53a43e7327cab29ea9a2465ad92e59dc52992fb0658a9e01",
+      "archive_file": "player-root-unit-dispatch-01.json.gz",
+      "archive_bytes": 1175,
+      "archive_sha256": "8b616943ec03a9e341e92576649b6f24d7029743a3b4be273e47a6acfe1591d3"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/run_host_player.py",
+      "raw_file": "player-run_host_player.py",
+      "raw_bytes": 72722,
+      "raw_sha256": "0227313d30de05faf870fd221a3e563f5bc3ec8ebd07f9e567194e99d32a9a72",
+      "archive_file": "player-run_host_player.py.gz",
+      "archive_bytes": 20177,
+      "archive_sha256": "6228ecac9b4ee197f670b16e27b320c3a97aab9aa53934710ff25037c27eb420"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/run_player_owned.py",
+      "raw_file": "player-run_player_owned.py",
+      "raw_bytes": 23495,
+      "raw_sha256": "d0d3f0e593fbf4589053a4a2555d899d8c0615e8a8dae9930f30dadb0563f7b7",
+      "archive_file": "player-run_player_owned.py.gz",
+      "archive_bytes": 6915,
+      "archive_sha256": "ee8cc13e29dc95130d9fe93d2a37c40e8920a98fd3df20c4535b4da5926fc9a7"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/test_getter_profile.py",
+      "raw_file": "player-test_getter_profile.py",
+      "raw_bytes": 2678,
+      "raw_sha256": "30348bc0c386405ee7a7e1e145daba031ad07f830189bde3259df43f202985e9",
+      "archive_file": "player-test_getter_profile.py.gz",
+      "archive_bytes": 1073,
+      "archive_sha256": "52a0c5f8945063b1f4971f7c3b93a65045d1e0b59d6da1df83c2aa83d0e239d6"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/test_host_player.py",
+      "raw_file": "player-test_host_player.py",
+      "raw_bytes": 79287,
+      "raw_sha256": "a4340c1ff16f345990108dab66c67ded85b1cfde936e75c9ef3ec31636a34f20",
+      "archive_file": "player-test_host_player.py.gz",
+      "archive_bytes": 18062,
+      "archive_sha256": "96b4360961ccfa027d2fcd528885d73715f5b92c26f36fb312614e1ef5fe175f"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/test_process_cpu.py",
+      "raw_file": "player-test_process_cpu.py",
+      "raw_bytes": 4910,
+      "raw_sha256": "c6ecd2f275df962930ebdc30ed80d892bf182c895183f466b530c4d59af02b77",
+      "archive_file": "player-test_process_cpu.py.gz",
+      "archive_bytes": 1553,
+      "archive_sha256": "fd43303e620fd4d1510ee83f0e1715fea51537bd3b6cab0fbf01b5feb3a149fc"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/test_thread_cpu.py",
+      "raw_file": "player-test_thread_cpu.py",
+      "raw_bytes": 4902,
+      "raw_sha256": "9d2224fd9861f44b5009e469c7024b2c4415c632128c45afac3e25cfb918d5dd",
+      "archive_file": "player-test_thread_cpu.py.gz",
+      "archive_bytes": 1280,
+      "archive_sha256": "9f305c93c759f2650164c3457e02f2c051bd98c3b5f8a71962d49fe96d2e255e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/player-01/test_ui_provenance.py",
+      "raw_file": "player-test_ui_provenance.py",
+      "raw_bytes": 4002,
+      "raw_sha256": "62b66931c3ee4b1386420f8890a19dbafc6ec339064af006e32c9e910f1a1b9b",
+      "archive_file": "player-test_ui_provenance.py.gz",
+      "archive_bytes": 1382,
+      "archive_sha256": "5a91f85689812292334e740d8c3c6b9ccf02cc6a0f43bb77e0b2db41d22142fd"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/analyze_ui_comparison.py",
+      "raw_file": "shared-audio-thread-analysis.py",
+      "raw_bytes": 10899,
+      "raw_sha256": "43489ad923a12f8fd3800da7b82a07fbb08d6ba1a65fa78dcdad9d5167c027ed",
+      "archive_file": "shared-audio-thread-analysis.py.gz",
+      "archive_bytes": 3686,
+      "archive_sha256": "0aefc0fd19d034ca0e80b71ff4f5991b5d3634a9542748a4432db479dc1a6c62"
+    }
+  ],
+  "total_raw_bytes": 8902710,
+  "total_archive_bytes": 1052171,
+  "gzip_roundtrip_and_original_hashes_verified": true,
+  "no_audio_models_executables_PCM_or_cache_published": true,
+  "raw_secret_scan": {
+    "command": [
+      "/bin/gitleaks",
+      "dir",
+      "--no-banner",
+      "--redact",
+      "--max-target-megabytes",
+      "32",
+      "/home/kyau/projects/kyaulabs/conflux/build/m2-decks-getter-profile-01/archive-raw-01"
+    ],
+    "exit": 0,
+    "scanned_bytes": 8902710,
+    "log_sha256": "333428be92fc1f76fda0968b07cd1d5f13f10878e5b9abc85c430cc6cc4f18ac"
+  }
+}
