@@ -18,6 +18,7 @@
 #include <QQuickWindow>
 #include <QScopeGuard>
 #include <QPointingDevice>
+#include <QPointer>
 #include <QStyleHints>
 #include <QTemporaryDir>
 #include <QUrl>
@@ -4762,9 +4763,40 @@ private slots:
         QVERIFY(!cueMeter->property("overrange").toBool());
         QTRY_COMPARE(deckMeter->property("peakLeft").toDouble(), .5);
         QVERIFY(deckMeter->property("overrange").toBool());
+
+        // Live level updates must update the existing channels rather than
+        // destroying/recreating their scene objects at each audio snapshot.
+        QObject* channels = nullptr;
+        for (auto* child : masterMeter->findChildren<QObject*>())
+            if (child->inherits("QQuickRepeater")) { channels = child; break; }
+        QVERIFY(channels);
+        QQuickItem* left = nullptr;
+        QQuickItem* right = nullptr;
+        QVERIFY(QMetaObject::invokeMethod(channels, "itemAt", Q_RETURN_ARG(QQuickItem*, left), Q_ARG(int, 0)));
+        QVERIFY(QMetaObject::invokeMethod(channels, "itemAt", Q_RETURN_ARG(QQuickItem*, right), Q_ARG(int, 1)));
+        QVERIFY(left && right);
+        const QPointer<QQuickItem> originalLeft(left), originalRight(right);
+        QVERIFY(left->childItems().size() >= 3 && right->childItems().size() >= 3);
+        QTRY_COMPARE(left->childItems()[0]->height(), left->height()); // Overrange peak clamps at the top.
+        QVERIFY(right->childItems()[0]->height() > 0 && right->childItems()[0]->height() < right->height());
+        QVERIFY(left->childItems()[1]->height() > right->childItems()[1]->height()); // Independent RMS levels.
+
         ui_->endpoint.setMeters(UiEndpoint::silentMeter(), UiEndpoint::silentMeter(), UiEndpoint::silentMeter());
         QTRY_COMPARE(masterMeter->property("peakLeft").toDouble(), 0.0);
         QVERIFY(!masterMeter->property("overrange").toBool());
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+        QVERIFY2(originalLeft && originalRight, "A level snapshot recreated the meter channels");
+        QQuickItem* updatedLeft = nullptr;
+        QQuickItem* updatedRight = nullptr;
+        QVERIFY(QMetaObject::invokeMethod(channels, "itemAt", Q_RETURN_ARG(QQuickItem*, updatedLeft), Q_ARG(int, 0)));
+        QVERIFY(QMetaObject::invokeMethod(channels, "itemAt", Q_RETURN_ARG(QQuickItem*, updatedRight), Q_ARG(int, 1)));
+        QCOMPARE(updatedLeft, originalLeft.data());
+        QCOMPARE(updatedRight, originalRight.data());
+        QTRY_COMPARE(updatedLeft->childItems()[0]->height(), 0.0);
+        QTRY_COMPARE(updatedRight->childItems()[0]->height(), 0.0);
+        QCOMPARE(updatedLeft->childItems()[1]->height(), 0.0);
+        QCOMPARE(updatedRight->childItems()[1]->height(), 0.0);
+        QVERIFY(!updatedLeft->childItems()[2]->isVisible() && !updatedRight->childItems()[2]->isVisible());
         QCOMPARE(ui_->endpoint.calls.size(), 0);
     }
 

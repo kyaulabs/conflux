@@ -1,0 +1,1038 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "timing_qualification": false,
+  "complete_two_minute_workload": false,
+  "strict_service_target_ms": 4095,
+  "normal_runtime_unchanged": true,
+  "runtime_promoted": false,
+  "scope": "Instrumented, aborted player trial plus first30s QML wall ranges and meter object-lifetime/visual regression. No uninstrumented latency, complete-control, sustained or milestone qualification.",
+  "audio_results": {
+    "schema": 1,
+    "qualified": false,
+    "complete_two_minute_workload": false,
+    "scope": "Aborted instrumented run; observed chunk timings and WAV integrity only. No uninstrumented, complete-workload, sustained or physical-output latency qualification.",
+    "native_error": "Live window hidden or not presenting",
+    "measured_wall_ms": 17172,
+    "observed_hops": 5,
+    "observed_median_ms": 2345.5397030047607,
+    "observed_maximum_ms": 6864.848836004967,
+    "observed_hops_at_or_above_4095_ms": 1,
+    "strict_service_target_ms": 4095,
+    "steady_starved_frames": 0,
+    "control_starved_frames": 334080,
+    "control_starved_seconds": 6.96,
+    "peer_starved_frames": 0,
+    "controls_submitted": 3,
+    "controls_acknowledged": 2,
+    "control_recoveries": [
+      {
+        "incomplete_when_last_drained": true,
+        "issued_ns": 256762726990259,
+        "kind": "incomplete_generation_seek",
+        "output_begin": 681216,
+        "output_end": 1017088,
+        "previous_generation": 1,
+        "recovered_cursor_observed_ns": 256769727315406,
+        "target_frame": 280800
+      }
+    ],
+    "UI": {
+      "any_gap": true,
+      "capture_end": "Before controller shutdown and window close",
+      "checks": 892,
+      "hidden_checks": 0,
+      "hidden_policy_violated": false,
+      "maximum_frame_age_ns": 3154756706,
+      "missing_frame_checks": 0,
+      "missing_window_checks": 0,
+      "scope": "Measured-loop snapshots only; frame ages follow observed frameSwapped callbacks, not physical scanout",
+      "stale_frame_checks": 1,
+      "unexposed_checks": 0,
+      "visible_healthy_checks": 891,
+      "visible_ui_qualification_eligible": true,
+      "window_policy": "visible"
+    },
+    "window_failure": {
+      "active": true,
+      "application_state": 4,
+      "clock_ns": 33123300886,
+      "exists": true,
+      "exposed": true,
+      "failed_predicates": {
+        "frame_age_at_least_2s": true,
+        "missing_window": false,
+        "not_exposed": false,
+        "not_visible": false
+      },
+      "frame_age_ns": 3154756706,
+      "frames_presented": 1505,
+      "heartbeat_age_ns": 0,
+      "last_frame_ns": 29968544180,
+      "last_heartbeat_ns": 33123300886,
+      "monotonic_ns": 256779867441367,
+      "phase": "steady",
+      "visibility": 2,
+      "visible": true,
+      "window_object_identity": "e0ce1ec0f0",
+      "window_state": 0
+    },
+    "profiler_flush_monotonic_ns": 256776704694511,
+    "approximate_last_frame_after_flush_ms": 7.99015,
+    "flush_temporal_association_is_not_causal_proof": true,
+    "callback_execution_deadline_misses": 0,
+    "invalid_buffers": 0,
+    "rejected_commands": 0,
+    "source_read_failures": 0,
+    "driver_timing": [
+      {
+        "at_least_100ms": 0,
+        "callbacks": 5879,
+        "driver_cycle_available": true,
+        "driver_discontinuity_flag_mask": 16,
+        "driver_position_discontinuities": 0,
+        "driver_position_observed": true,
+        "driver_recovery_flag_mask": 2,
+        "driver_recovery_flags": 0,
+        "execution_deadline_misses": 0,
+        "execution_p999_upper_us": 372,
+        "execution_p99_upper_us": 331,
+        "graph_quantum_max": 256,
+        "graph_quantum_min": 256,
+        "maximum_execution_ns": 685003
+      }
+    ],
+    "WAV": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/master.wav",
+      "bytes": 11980888,
+      "sha256": "615e1b11b1f0391365d9e0f886cbbb9ea3418ac8816fa2aa3b9e2b528e978400",
+      "frames": 1497600,
+      "samples": 2995200,
+      "all_samples_finite": true,
+      "nonzero_samples": 2976739,
+      "peaks": [
+        0.05342688784003258,
+        0.0525534562766552
+      ],
+      "sample_rate": 48000,
+      "channels": 2,
+      "matches_native_counts_and_peaks": true,
+      "recording_overflow_frames": 0
+    },
+    "thermal_summary": {
+      "samples": 17,
+      "sample_interval_seconds": 2,
+      "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+      "maximum_observed_millidegrees_C": 87000,
+      "85000": {
+        "samples_at_or_above": 1,
+        "longest_consecutive_sample_span_seconds": 0.0
+      },
+      "95000": {
+        "samples_at_or_above": 0,
+        "longest_consecutive_sample_span_seconds": 0.0
+      },
+      "profile_epp_observations": [
+        {
+          "at_utc": "2026-10-26T03:05:29.347932+00:00",
+          "values": {
+            "/sys/firmware/acpi/platform_profile": "balanced",
+            "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+          }
+        },
+        {
+          "at_utc": "2026-10-26T03:05:35.612248+00:00",
+          "values": {
+            "/sys/firmware/acpi/platform_profile": "low-power",
+            "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "power"
+          }
+        }
+      ]
+    }
+  },
+  "root_cleanup": {
+    "schema": 1,
+    "recorded_at_utc": "2026-10-26T03:09:12.008170+00:00",
+    "diagnostic_complete": false,
+    "cleanup_complete": true,
+    "qualified": false,
+    "runtime_promotion": false,
+    "milestone_or_release_gate_changed": false,
+    "native_error": "Live window hidden or not presenting",
+    "stop_reason": null,
+    "unit_before": {
+      "LoadState": "loaded",
+      "ActiveState": "active",
+      "SubState": "exited",
+      "InvocationID": "2db839d249e1430dad16ad1893bac212",
+      "MainPID": "0",
+      "ControlGroup": ""
+    },
+    "unit_after": {
+      "LoadState": "not-found",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "InvocationID": "",
+      "MainPID": "0",
+      "ControlGroup": ""
+    },
+    "original_owned_cgroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/conflux-m2-player-qml-trace-20261026-01.service",
+    "unit_cgroup_removed": true,
+    "all_owned_lifetimes_absent": true,
+    "verified_owned_identity_records": 27,
+    "all_owned_groups_absent": true,
+    "groups": [
+      939183,
+      939222,
+      939587,
+      939592,
+      939646,
+      939668,
+      939791
+    ],
+    "own_idle_inhibitions_remaining": 0,
+    "guard_identity_and_files_unchanged": true,
+    "current_power_caps": {
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/enabled": 1,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_power_limit_uw": 15000000,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_0_time_window_us": 27983872,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_1_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl-mmio/intel-rapl-mmio:0/constraint_1_time_window_us": 2440,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/enabled": 1,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_time_window_us": 27983872,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_power_limit_uw": 64000000,
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_1_time_window_us": 2440
+    },
+    "caps_within_retained_ceilings": true,
+    "post_run_frozen_inputs_unchanged": true,
+    "plan_sha256": "8939a367ef7087bfaf80528a1125dfc445d7ccac673172777d54e29e9d12af4a",
+    "original_readiness_utc": "2026-10-26T03:03:40.515933+00:00",
+    "original_readiness_monotonic": 256636.915968086,
+    "operator_deadline_monotonic": 257236.915968086,
+    "finished_monotonic": 256968.408222856,
+    "elapsed_from_original_readiness_seconds": 331.49223892000737,
+    "within_original_operator_window": true,
+    "original_human_window_not_renewed": true,
+    "root_cgroup_verification_uses_original_nonempty_dispatch_scope": true,
+    "profiler_connected": true,
+    "profiler_cleanup_complete": true,
+    "profiler_trace": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/qml-profile-01/qml.qtd",
+      "bytes": 67570006,
+      "sha256": "3ec23d7234bd9291b93479ce65be41db0bccceb4546ec4acb9868131dd240fe9"
+    }
+  },
+  "meter_regression_red": {
+    "schema": 1,
+    "expected_failure": true,
+    "exit": 1,
+    "elapsed_seconds": 0.31461632301216014,
+    "argv": [
+      "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/build-01/conflux-manual-ui-test",
+      "actualMetersFollowSnapshotsAndShowOverrange"
+    ],
+    "original_meter_sha256": "4682b5f604cf932e248584668e1f2bb3502dc484253b98048784c3a16b9fc9d8",
+    "test_source_sha256": "da04cfd973833ed1b33770030bf64e66b6cbdc45f67d45c555537a05822e7f97",
+    "log_sha256": "f8b61eb25851ce8008ef627479e677686b377d2964986443c86127fba8cc2682",
+    "no_audio_model_or_visible_window": true
+  },
+  "meter_regression_green": {
+    "schema": 1,
+    "exit": 0,
+    "elapsed_seconds": 0.31446116999723017,
+    "argv": [
+      "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/build-01/conflux-manual-ui-test",
+      "actualMetersFollowSnapshotsAndShowOverrange"
+    ],
+    "meter_sha256": "cb37a92886292c76e54c24bea7e1cf4002ca334d006955a8a246a044cafe897d",
+    "test_source_sha256": "da04cfd973833ed1b33770030bf64e66b6cbdc45f67d45c555537a05822e7f97",
+    "log_sha256": "ca4bb0f5649ca149d511c69f9addb904fe30021f0548d82e6a1aa072cb1706db",
+    "same_test_binary_as_red": true,
+    "no_audio_model_or_visible_window": true
+  },
+  "manual_UI_suite": {
+    "schema": 1,
+    "argv": [
+      "ctest",
+      "--test-dir",
+      "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/build-01",
+      "-R",
+      "^manual-ui$",
+      "--output-on-failure"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 154.3874269160151,
+    "scope": "Existing actual-QML UI suite, offscreen/software backend; no audio/model/native player or physical laptop qualification"
+  },
+  "files": [
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/manual-ui-suite-01.log",
+      "raw_file": "meter-manual-ui-suite-01.log",
+      "raw_bytes": 246,
+      "raw_sha256": "2d150e12f0e4ee2149983e94c6c1feb2f390735b568959835bbf578b6c9896f2",
+      "archive_file": "meter-manual-ui-suite-01.log.gz",
+      "archive_bytes": 182,
+      "archive_sha256": "80a169b06448753e123812efebdca8bfdf2c657c03b71359bf3d9bc36a84e0ed"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/meter-regression-green-01.log",
+      "raw_file": "meter-meter-regression-green-01.log",
+      "raw_bytes": 455,
+      "raw_sha256": "ca4bb0f5649ca149d511c69f9addb904fe30021f0548d82e6a1aa072cb1706db",
+      "archive_file": "meter-meter-regression-green-01.log.gz",
+      "archive_bytes": 287,
+      "archive_sha256": "2f99cd6687873e3cb183a357b9d4fd531e80610aa02a4a7ebea73a371dbfa058"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/meter-regression-red-01.log",
+      "raw_file": "meter-meter-regression-red-01.log",
+      "raw_bytes": 665,
+      "raw_sha256": "f8b61eb25851ce8008ef627479e677686b377d2964986443c86127fba8cc2682",
+      "archive_file": "meter-meter-regression-red-01.log.gz",
+      "archive_bytes": 435,
+      "archive_sha256": "cd4b750ccccded0342df54f8febf6bfda37e1ac5b2664530c01ef80818238b23"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/root-manual-ui-suite-01.json",
+      "raw_file": "meter-root-manual-ui-suite-01.json",
+      "raw_bytes": 388,
+      "raw_sha256": "07d384f3483f4fdc4f139cb18e95fc86ea03c7263c736863602cfd678c086a91",
+      "archive_file": "meter-root-manual-ui-suite-01.json.gz",
+      "archive_bytes": 287,
+      "archive_sha256": "83dd3ada034171543316ad675d3921e824b80f2e02bcb9808e40728435972fac"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/root-regression-green-01.json",
+      "raw_file": "meter-root-regression-green-01.json",
+      "raw_bytes": 584,
+      "raw_sha256": "7c523612d720faff4e7a5b4ef20abd406877fd0533eaa2215b7b3cc2985babe9",
+      "archive_file": "meter-root-regression-green-01.json.gz",
+      "archive_bytes": 404,
+      "archive_sha256": "08aac9cffb8b18c24259fdb77473e2bb8bcbbcd4920def7ef8a2893fe092842a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-meter-stability-01/root-regression-red-01.json",
+      "raw_file": "meter-root-regression-red-01.json",
+      "raw_bytes": 586,
+      "raw_sha256": "2f9d5759276338d12e5745524c82c3a63728eb11713ad85c99ae4e223a96314b",
+      "archive_file": "meter-root-regression-red-01.json.gz",
+      "archive_bytes": 408,
+      "archive_sha256": "b5189bec9e492e45d45ef67ed42a7b18e17e6a5b9210c51432632ba2f458be15"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/analyze_qml_audio.py",
+      "raw_file": "private-analyze_qml_audio.py",
+      "raw_bytes": 4636,
+      "raw_sha256": "a3ed2afdb5364a331d10c7e7f1071859d19ee4402b747ec03e0d58f60aeb7bd5",
+      "archive_file": "private-analyze_qml_audio.py.gz",
+      "archive_bytes": 1861,
+      "archive_sha256": "8fa12182b0bc84ca4f4e07df2e86795b23c2cfb8ac4349964b395fe092468fb5"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/analyze_qml_trace.py",
+      "raw_file": "private-analyze_qml_trace.py",
+      "raw_bytes": 4797,
+      "raw_sha256": "29dcbf836fbc85b1072e0644294d478d294cb2389c58aad280a169361da6cd9d",
+      "archive_file": "private-analyze_qml_trace.py.gz",
+      "archive_bytes": 1871,
+      "archive_sha256": "e99bfa029c7f8a6dd699ff71a5635bfbadd732a9ab688ed2388885942b289b71"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/build_profiled_native.py",
+      "raw_file": "private-build_profiled_native.py",
+      "raw_bytes": 6966,
+      "raw_sha256": "dcfe40940c208a22dca2c089acf99e4c765e529e711972a10966aadc1fd4e3f4",
+      "archive_file": "private-build_profiled_native.py.gz",
+      "archive_bytes": 2623,
+      "archive_sha256": "1a53ac599ee73bd164637b180b464ebb97e503c4e021a3b607ace4ab6c8d9070"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/private-native-01.patch",
+      "raw_file": "private-private-native-01.patch",
+      "raw_bytes": 1451,
+      "raw_sha256": "8da26a43265a1ad7e34e95ee9cfabbd90d8a344a1170da040c478264164f5200",
+      "archive_file": "private-private-native-01.patch.gz",
+      "archive_bytes": 594,
+      "archive_sha256": "8b6bf67e9ad3e2dcd0017a7132874d19415f10dfd991f36ff6b4053bfbac6825"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/private_manual_playback_soak.cpp",
+      "raw_file": "private-private_manual_playback_soak.cpp",
+      "raw_bytes": 81669,
+      "raw_sha256": "ac546dae694b0cf41a52fbfcfbf175008f9f2bf82f893a824b438b319a81e25e",
+      "archive_file": "private-private_manual_playback_soak.cpp.gz",
+      "archive_bytes": 19966,
+      "archive_sha256": "f6c36391f3bc96a469f4c4f84a279bcefd6a206f1f786e4f80953fc4bfd956c4"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/qml_capture.py",
+      "raw_file": "private-qml_capture.py",
+      "raw_bytes": 11146,
+      "raw_sha256": "214ddc70499e42da7eac003cddb1af5214daf1104c25b348abf1de36acada08f",
+      "archive_file": "private-qml_capture.py.gz",
+      "archive_bytes": 3614,
+      "archive_sha256": "e34b9d35a377b19560cd0cfd13124c01b487cd131a70370c829e0f9210f65aa0"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/root-private-build-01.json",
+      "raw_file": "private-root-private-build-01.json",
+      "raw_bytes": 13385,
+      "raw_sha256": "891123019992b5ca0cd17b6181ba8dec1d3391a0cb81625dea25c0d648ba0840",
+      "archive_file": "private-root-private-build-01.json.gz",
+      "archive_bytes": 3103,
+      "archive_sha256": "bde9d21807212216fa554a11a3bb7c2e0e4ed13b96170d0086731da8539be276"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/adapter.stderr.log",
+      "raw_file": "profile-adapter.stderr.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "profile-adapter.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/adapter.stdout.log",
+      "raw_file": "profile-adapter.stdout.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "profile-adapter.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/admission-01.json",
+      "raw_file": "profile-admission-01.json",
+      "raw_bytes": 43572,
+      "raw_sha256": "71a6be9d5c4c188f09631a806aa615c8f3f981f191ff1b05ccd2a50a2bb6ddee",
+      "archive_file": "profile-admission-01.json.gz",
+      "archive_bytes": 3498,
+      "archive_sha256": "954e39b068afdad420937127d46194c3fb4f614ccf9a50dd65b36de9ad832644"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/diagnostic-assessment.json",
+      "raw_file": "profile-diagnostic-assessment.json",
+      "raw_bytes": 79467,
+      "raw_sha256": "a645207c0f7745345653282ed35a6f4b60d612122513c47207ea29834786664f",
+      "archive_file": "profile-diagnostic-assessment.json.gz",
+      "archive_bytes": 6079,
+      "archive_sha256": "603a2447f51452dcee23cbf1238ce04ad4df9c3ad179d419129fc65aa40693be"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/dispatch-01.json",
+      "raw_file": "profile-dispatch-01.json",
+      "raw_bytes": 16297,
+      "raw_sha256": "1643c420a5ef7faa94779a3f6c10148731bebc848f64b789f28cea3cbfe6b2ae",
+      "archive_file": "profile-dispatch-01.json.gz",
+      "archive_bytes": 2345,
+      "archive_sha256": "a2622be3865ce5b782315487888c99c0f4fef27c2d7b8da2c51736d342ce5cd1"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/launch-command-01.txt",
+      "raw_file": "profile-launch-command-01.txt",
+      "raw_bytes": 156,
+      "raw_sha256": "4842234faee3db4051158a33bd6ec77f794305058c59a75098a97c9a7bef0e65",
+      "archive_file": "profile-launch-command-01.txt.gz",
+      "archive_bytes": 138,
+      "archive_sha256": "02942decf511c08ce6ebd17431df0f3c06a43eb91d64a07c487327a8c223bcbe"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/launcher-profile-01.patch",
+      "raw_file": "profile-launcher-profile-01.patch",
+      "raw_bytes": 8129,
+      "raw_sha256": "47b46235a32cf5690bf2a911b5b7d694116c65a44b34022a25a9afba783e6be0",
+      "archive_file": "profile-launcher-profile-01.patch.gz",
+      "archive_bytes": 3109,
+      "archive_sha256": "9205916e2fe5a55a5a25afa82c48faafd05ddd164a744487ac07f2fa02c98c3d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/offline-checks-01.log",
+      "raw_file": "profile-offline-checks-01.log",
+      "raw_bytes": 12385,
+      "raw_sha256": "c9fc1f0c894afb336c21fec98c745e63e89741bd156ad22399a93cd7c013ed85",
+      "archive_file": "profile-offline-checks-01.log.gz",
+      "archive_bytes": 2495,
+      "archive_sha256": "ca2e17876aa08fd4a1765abc0af7ed4b35108c9abc66b400791427d75046cc0c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/offline-checks-02.log",
+      "raw_file": "profile-offline-checks-02.log",
+      "raw_bytes": 12534,
+      "raw_sha256": "ec6e30075451d9fdbc3d7d2c4711ca4769b0141a46fc8dcfb749c4db9c6fea5e",
+      "archive_file": "profile-offline-checks-02.log.gz",
+      "archive_bytes": 2524,
+      "archive_sha256": "3b9c96ee826014d3231deb6d9744b9009e199fbde82d65cf68893c86d563cc9a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/offline-checks-03.log",
+      "raw_file": "profile-offline-checks-03.log",
+      "raw_bytes": 12880,
+      "raw_sha256": "cfe9d62affd2857a372431489a060f705297982ddceff443188dbce988c9697b",
+      "archive_file": "profile-offline-checks-03.log.gz",
+      "archive_bytes": 2597,
+      "archive_sha256": "09a8770b44ae44da7f744d0eddcb0489514db1fe2ced8b2c2e08af65b2aa77cb"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/host-observations.jsonl",
+      "raw_file": "profile-output-host-observations.jsonl",
+      "raw_bytes": 1557111,
+      "raw_sha256": "9e40f291a898b978659b1dd366dcde634194e206429d08435aa7acc2bd2a4dac",
+      "archive_file": "profile-output-host-observations.jsonl.gz",
+      "archive_bytes": 188906,
+      "archive_sha256": "f06211ac548b90ea8051f25132cc4b07fe9625660dc33ba71a9675fad2221e35"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/native-result.json",
+      "raw_file": "profile-output-native-result.json",
+      "raw_bytes": 63442,
+      "raw_sha256": "b8d9556756f9d37c37df9b5c0cced706455b28cfd018a5c1bf0937c8fe1d47f9",
+      "archive_file": "profile-output-native-result.json.gz",
+      "archive_bytes": 6275,
+      "archive_sha256": "197c3930722414168547b24fc13d24bdf87062149c552ca828edea70dfeacac8"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/native.stderr.log",
+      "raw_file": "profile-output-native.stderr.log",
+      "raw_bytes": 63,
+      "raw_sha256": "483b2ec89b5b3b6f00d577c3b12c3fa4606c83645b63b0fe0984c14a48627f35",
+      "archive_file": "profile-output-native.stderr.log.gz",
+      "archive_bytes": 81,
+      "archive_sha256": "947171d72c691031b8ffa2ed7d47bacd84336b0c828052d8cf5a22159c6f3c7a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/native.stdout.log",
+      "raw_file": "profile-output-native.stdout.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "profile-output-native.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/observations.jsonl",
+      "raw_file": "profile-output-observations.jsonl",
+      "raw_bytes": 155466,
+      "raw_sha256": "5066921a24206501365ba88607ddae495840aadfbd4f3bd7bf18db71d4a44b6d",
+      "archive_file": "profile-output-observations.jsonl.gz",
+      "archive_bytes": 12237,
+      "archive_sha256": "56a7a58c5e1ed7d31fed0d3dc31e3a16ac9f9ee6336c1f18e35cefc0fddb9b1e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/owned-pipewire-cleanup.json",
+      "raw_file": "profile-output-owned-pipewire-cleanup.json",
+      "raw_bytes": 30,
+      "raw_sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "archive_file": "profile-output-owned-pipewire-cleanup.json.gz",
+      "archive_bytes": 50,
+      "archive_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/progress.json",
+      "raw_file": "profile-output-progress.json",
+      "raw_bytes": 573,
+      "raw_sha256": "e45df5aa0335d05b9b1671354c5088dcbdd5ae7a3ac8ee7bc40f0f1b7c084886",
+      "archive_file": "profile-output-progress.json.gz",
+      "archive_bytes": 331,
+      "archive_sha256": "5eafa116843f8bf14e8975e885a4b455ff27d896c7ea9c49aed0f299bbb9e803"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/output-01/result.json",
+      "raw_file": "profile-output-result.json",
+      "raw_bytes": 363858,
+      "raw_sha256": "1a6886afbacce515ddf3849466db6737f05e220269aa0338d0759026afd5d2dd",
+      "archive_file": "profile-output-result.json.gz",
+      "archive_bytes": 39191,
+      "archive_sha256": "4bc16e9a44cf7fafde9c9c0349b8cc6b232cb3070ee510b78232355dcd7b41a4"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/plan.json",
+      "raw_file": "profile-plan.json",
+      "raw_bytes": 72392,
+      "raw_sha256": "8939a367ef7087bfaf80528a1125dfc445d7ccac673172777d54e29e9d12af4a",
+      "archive_file": "profile-plan.json.gz",
+      "archive_bytes": 14446,
+      "archive_sha256": "9a6bc4560d02564f87cbf351371a939bf1cc146dbf5a7c1869c31adaa26f943b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/qml-profile-receipt.json",
+      "raw_file": "profile-qml-profile-receipt.json",
+      "raw_bytes": 2229,
+      "raw_sha256": "da8d74d05b6239b3a634e9e9d7e314c667c6cbb877e7a638dfcc556d8f60de2d",
+      "archive_file": "profile-qml-profile-receipt.json.gz",
+      "archive_bytes": 823,
+      "archive_sha256": "f71cb746de7183206938dd6ce13499f42437949b527509530cd322b3ed7a94ae"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/readiness.json",
+      "raw_file": "profile-readiness.json",
+      "raw_bytes": 1311,
+      "raw_sha256": "371266bc3ec90d114cf8a02fbfc2a5701c51f7f251987af45365b629889e9837",
+      "archive_file": "profile-readiness.json.gz",
+      "archive_bytes": 777,
+      "archive_sha256": "8afed1f9564c6ebcf25281000f1f4cc4d77f79ce97bd20ddd4a930d214217108"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-audio-results-01.json",
+      "raw_file": "profile-root-audio-results-01.json",
+      "raw_bytes": 4657,
+      "raw_sha256": "e5ee781039ce1175c25ecbbffb5e79b9f4b381b290982897e523681b6ff8ed60",
+      "archive_file": "profile-root-audio-results-01.json.gz",
+      "archive_bytes": 1866,
+      "archive_sha256": "9722be5a55a2f17e9272f383681b1373c05cc1d1f88086816e086435fda37a3a"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-file-verification-01.json",
+      "raw_file": "profile-root-file-verification-01.json",
+      "raw_bytes": 656,
+      "raw_sha256": "c27e957dbca465d39bb9ceef84daef7006f04b07c4a86b8b49bc216a9351223e",
+      "archive_file": "profile-root-file-verification-01.json.gz",
+      "archive_bytes": 345,
+      "archive_sha256": "f2f0e930c38419593fd1bb309d85842aee4c8f17741c2db4d90c62039fc178af"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-file-verification-01.log",
+      "raw_file": "profile-root-file-verification-01.log",
+      "raw_bytes": 82,
+      "raw_sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1",
+      "archive_file": "profile-root-file-verification-01.log.gz",
+      "archive_bytes": 89,
+      "archive_sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-finished-01.json",
+      "raw_file": "profile-root-finished-01.json",
+      "raw_bytes": 3097,
+      "raw_sha256": "444aade357cb3d396daa17bdc67ca454bdc2d4cc3122efa099740e0ee5eff847",
+      "archive_file": "profile-root-finished-01.json.gz",
+      "archive_bytes": 1118,
+      "archive_sha256": "777e8c8d61b0619b61de6b92d93f094ccb5e6fd0b18aee78cbc219ebb4824b7c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-launch-plan-01.json",
+      "raw_file": "profile-root-launch-plan-01.json",
+      "raw_bytes": 2686,
+      "raw_sha256": "9e48436e6965149d547e97f7ecb1e302faf1553edee3b3142636e1973730dfab",
+      "archive_file": "profile-root-launch-plan-01.json.gz",
+      "archive_bytes": 1137,
+      "archive_sha256": "8ceab9bb7ff578bc72a1a9132efe32d1c2d3bf242c2b32dd8ae820941073c6ac"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-offline-checks-01.json",
+      "raw_file": "profile-root-offline-checks-01.json",
+      "raw_bytes": 420,
+      "raw_sha256": "921fbcf027370b617a8db5da1ef6dd334286c9cde31a011c154cbd38cde386a5",
+      "archive_file": "profile-root-offline-checks-01.json.gz",
+      "archive_bytes": 297,
+      "archive_sha256": "8c5a4f0549b05d9de2dcf55504c4689b733b0ca5eacc68dcc74fac40ba7790dc"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-packet-review-01.json",
+      "raw_file": "profile-root-packet-review-01.json",
+      "raw_bytes": 3074,
+      "raw_sha256": "0b956ba61d5f47413b403ba5c0cbe8e24bbccf74c3d9c09bad48453711a959e4",
+      "archive_file": "profile-root-packet-review-01.json.gz",
+      "archive_bytes": 1267,
+      "archive_sha256": "0e62d0e193eec694fc1ac1e111ea5a951aa2f57bef70f167929b9f955cbcb264"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-qml-analysis-01.json",
+      "raw_file": "profile-root-qml-analysis-01.json",
+      "raw_bytes": 1191502,
+      "raw_sha256": "49dfd8b0606974e17f55846bc40fd39bf63923ba712b7ffed30a352ccfc17db1",
+      "archive_file": "profile-root-qml-analysis-01.json.gz",
+      "archive_bytes": 80166,
+      "archive_sha256": "699f2bedf0f61790d74de487a13cbf64f1a20cfd5068c2e1f58dde935724cfcd"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/root-unit-dispatch-01.json",
+      "raw_file": "profile-root-unit-dispatch-01.json",
+      "raw_bytes": 2174,
+      "raw_sha256": "4574683e5d19f82b616f6950159f23cb18f77b46d2aacb54edcdb2ce1d9e89cd",
+      "archive_file": "profile-root-unit-dispatch-01.json.gz",
+      "archive_bytes": 815,
+      "archive_sha256": "8fd38ff64d7df2f7160b26f8e9083969af8839e19f6e2d303155fbc799808ff7"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/run_host_player.py",
+      "raw_file": "profile-run_host_player.py",
+      "raw_bytes": 66274,
+      "raw_sha256": "fab23f73086c4d5512a202ad892cafd9b461336023fb078b46b3a9a784a7b0ac",
+      "archive_file": "profile-run_host_player.py.gz",
+      "archive_bytes": 18700,
+      "archive_sha256": "c4b941dcf60284edce6ad8f9440b4276f0793b3ef3a732835a6ce8bd7716926f"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/run_player_owned.py",
+      "raw_file": "profile-run_player_owned.py",
+      "raw_bytes": 23495,
+      "raw_sha256": "ba3e3f0c383e80ff06d312edc7fffbd7cc5b1cf3ffbe8afdde8dff92503215d8",
+      "archive_file": "profile-run_player_owned.py.gz",
+      "archive_bytes": 6915,
+      "archive_sha256": "e7dc78f02cbffdbbbdda230eb1be71f08763b2886420831d79ba468cdc462847"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/test_host_player.py",
+      "raw_file": "profile-test_host_player.py",
+      "raw_bytes": 79876,
+      "raw_sha256": "22c099b82900488531bbbcf1d511d5e4655b6e029c7726973a4bd9ab0b5becd1",
+      "archive_file": "profile-test_host_player.py.gz",
+      "archive_bytes": 18244,
+      "archive_sha256": "ae11de89da40df9e20cfacf244798ce65268247e50d6b20ce9969dd2bb7a568d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/test_process_cpu.py",
+      "raw_file": "profile-test_process_cpu.py",
+      "raw_bytes": 4910,
+      "raw_sha256": "c6ecd2f275df962930ebdc30ed80d892bf182c895183f466b530c4d59af02b77",
+      "archive_file": "profile-test_process_cpu.py.gz",
+      "archive_bytes": 1553,
+      "archive_sha256": "fd43303e620fd4d1510ee83f0e1715fea51537bd3b6cab0fbf01b5feb3a149fc"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/test_qml_capture.py",
+      "raw_file": "profile-test_qml_capture.py",
+      "raw_bytes": 9952,
+      "raw_sha256": "69768c56b2c4213076d3a28e09eb3effad03b18ff779fd1fd471152bfa65ebc6",
+      "archive_file": "profile-test_qml_capture.py.gz",
+      "archive_bytes": 2665,
+      "archive_sha256": "1c3d1a66a6b1e40c03afd3c669d3cdbc159eeb6dda401caba262c5bb82b27881"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/test_thread_cpu.py",
+      "raw_file": "profile-test_thread_cpu.py",
+      "raw_bytes": 4902,
+      "raw_sha256": "9d2224fd9861f44b5009e469c7024b2c4415c632128c45afac3e25cfb918d5dd",
+      "archive_file": "profile-test_thread_cpu.py.gz",
+      "archive_bytes": 1280,
+      "archive_sha256": "9f305c93c759f2650164c3457e02f2c051bd98c3b5f8a71962d49fe96d2e255e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/unit.stderr.log",
+      "raw_file": "profile-unit.stderr.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "profile-unit.stderr.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/unit.stdout.log",
+      "raw_file": "profile-unit.stdout.log",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "profile-unit.stdout.log.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/qml-profile-01/client.stderr",
+      "raw_file": "qml-client.stderr",
+      "raw_bytes": 294,
+      "raw_sha256": "fc81cc5ad045147cd2b3e03c515c24186ee85fb6b8032ba39dd59ce008d3c336",
+      "archive_file": "qml-client.stderr.gz",
+      "archive_bytes": 226,
+      "archive_sha256": "32e65b3b4b0c1993f16e4b06aedbe907fec7ea67f355cfdb40fe02af4a8b26a8"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/qml-profile-01/client.stdout",
+      "raw_file": "qml-client.stdout",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_file": "qml-client.stdout.gz",
+      "archive_bytes": 20,
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/qml-profile-01/qml.qtd",
+      "raw_file": "qml-qml.qtd",
+      "raw_bytes": 67570006,
+      "raw_sha256": "3ec23d7234bd9291b93479ce65be41db0bccceb4546ec4acb9868131dd240fe9",
+      "archive_file": "qml-qml.qtd.gz",
+      "archive_bytes": 8997224,
+      "archive_sha256": "03432a199b120b66ce067fc9c96e490f57e2abe6404d7f1698951b7361f0be4c"
+    },
+    {
+      "original_path": "git:119a579e4ca717a1d59d7a7a6f9752534d68dcaf:qml/StereoMeter.qml",
+      "raw_file": "original-StereoMeter.qml",
+      "raw_bytes": 4324,
+      "raw_sha256": "4682b5f604cf932e248584668e1f2bb3502dc484253b98048784c3a16b9fc9d8",
+      "archive_file": "original-StereoMeter.qml.gz",
+      "archive_bytes": 1248,
+      "archive_sha256": "c6f0613edc381eb9de5e921ffdc88781e4e90dd3a6538ee3f17a0da42457dc8e"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/StereoMeter.qml",
+      "raw_file": "candidate-StereoMeter.qml",
+      "raw_bytes": 4329,
+      "raw_sha256": "cb37a92886292c76e54c24bea7e1cf4002ca334d006955a8a246a044cafe897d",
+      "archive_file": "candidate-StereoMeter.qml.gz",
+      "archive_bytes": 1248,
+      "archive_sha256": "e34a73fb4d4b6790f5e2811436ad43dce7b7768c7b802b56be6fa213f75635b0"
+    }
+  ],
+  "total_raw_bytes": 71505579,
+  "total_archive_bytes": 9458060,
+  "gzip_roundtrip_and_original_hashes_verified": true,
+  "no_audio_models_executables_PCM_or_driver_cache_published": true,
+  "raw_secret_scan": {
+    "argv": [
+      "/bin/gitleaks",
+      "dir",
+      "--no-banner",
+      "--redact",
+      "--max-target-megabytes",
+      "128",
+      "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/qml-archive-raw-01"
+    ],
+    "exit_code": 0,
+    "scanned_bytes": 71505579,
+    "log_sha256": "a52579ab181d251386108edfe63fd8f3f0544b00afd35ab6a99dd057f2512378"
+  },
+  "created_at_utc": "2026-10-26T03:30:50.638031+00:00",
+  "QML_analysis_summary": {
+    "schema": 1,
+    "qualified": false,
+    "scope": "Closed first30s QML trace only. Inclusive wall ranges may nest and include C++ calls; no native CPU or causal heat attribution.",
+    "trace_pin": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-player-function-profile-01/player-qml-01/qml-profile-01/qml.qtd",
+      "bytes": 67570006,
+      "sha256": "3ec23d7234bd9291b93479ce65be41db0bccceb4546ec4acb9868131dd240fe9"
+    },
+    "trace_start_ns": 1012714719,
+    "trace_end_ns": 31074975031,
+    "trace_span_seconds": 30.062260312,
+    "capture_flush_after_client_start_seconds": 30.963831967994338,
+    "event_count": 886118,
+    "definitions": 3145,
+    "ranges_ordered_by_start": true,
+    "range_boundary_errors": [],
+    "nested_inclusive_durations_are_not_additive": true,
+    "types": {
+      "Compiling": {
+        "count": 41,
+        "inclusive_wall_ns": 207218183
+      },
+      "Creating": {
+        "count": 84510,
+        "inclusive_wall_ns": 1237254393
+      },
+      "Binding": {
+        "count": 280593,
+        "inclusive_wall_ns": 17442137572
+      },
+      "Javascript": {
+        "count": 500818,
+        "inclusive_wall_ns": 11134895695
+      },
+      "HandlingSignal": {
+        "count": 15496,
+        "inclusive_wall_ns": 3878216503
+      },
+      "SceneGraph": {
+        "count": 4526,
+        "inclusive_wall_ns": 0
+      },
+      "Event": {
+        "count": 134,
+        "inclusive_wall_ns": 0
+      }
+    },
+    "root_cleanup_preceded_analysis": true,
+    "analysis_elapsed_seconds": 3.3662160790117923,
+    "analyzer_sha256": "29dcbf836fbc85b1072e0644294d478d294cb2389c58aad280a169361da6cd9d",
+    "largest16_events_by_inclusive_wall": [
+      {
+        "index": 1874,
+        "displayname": "StereoMeter.qml:60",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/StereoMeter.qml",
+        "line": "60",
+        "column": "13",
+        "bindingType": "-1",
+        "count": 4976,
+        "inclusive_wall_ns": 2665890068,
+        "maximum_wall_ns": 5902518
+      },
+      {
+        "index": 2930,
+        "displayname": "MixerSurface.qml:89",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/MixerSurface.qml",
+        "line": "89",
+        "column": "21",
+        "bindingType": "-1",
+        "count": 1160,
+        "inclusive_wall_ns": 2280516626,
+        "maximum_wall_ns": 10953209
+      },
+      {
+        "index": 1130,
+        "displayname": "DeckSurface.qml:14",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "14",
+        "column": "5",
+        "bindingType": "-1",
+        "count": 1158,
+        "inclusive_wall_ns": 1773349854,
+        "maximum_wall_ns": 10242031
+      },
+      {
+        "index": 3094,
+        "displayname": "DeckSurface.qml:833",
+        "type": "HandlingSignal",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "833",
+        "column": "21",
+        "count": 4624,
+        "inclusive_wall_ns": 1737572860,
+        "maximum_wall_ns": 3045314
+      },
+      {
+        "index": 3095,
+        "displayname": "DeckSurface.qml:833",
+        "type": "Javascript",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "833",
+        "column": "21",
+        "details": "onStateChanged",
+        "count": 4624,
+        "inclusive_wall_ns": 1726939341,
+        "maximum_wall_ns": 3041245
+      },
+      {
+        "index": 2611,
+        "displayname": "DeckSurface.qml:807",
+        "type": "Javascript",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "807",
+        "column": "17",
+        "details": "refreshAccepted",
+        "count": 4632,
+        "inclusive_wall_ns": 1714274618,
+        "maximum_wall_ns": 3036885
+      },
+      {
+        "index": 2866,
+        "displayname": "MixerSurface.qml:353",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/MixerSurface.qml",
+        "line": "353",
+        "column": "33",
+        "bindingType": "-1",
+        "count": 1160,
+        "inclusive_wall_ns": 1688235159,
+        "maximum_wall_ns": 7899370
+      },
+      {
+        "index": 3096,
+        "displayname": "DeckSurface.qml:130",
+        "type": "HandlingSignal",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "130",
+        "column": "9",
+        "count": 1156,
+        "inclusive_wall_ns": 1528870066,
+        "maximum_wall_ns": 4424644
+      },
+      {
+        "index": 3097,
+        "displayname": "DeckSurface.qml:130",
+        "type": "Javascript",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "130",
+        "column": "9",
+        "details": "onStateChanged",
+        "count": 1156,
+        "inclusive_wall_ns": 1525783685,
+        "maximum_wall_ns": 4420930
+      },
+      {
+        "index": 1944,
+        "displayname": "MixerSurface.qml:409",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/MixerSurface.qml",
+        "line": "409",
+        "column": "21",
+        "bindingType": "-1",
+        "count": 579,
+        "inclusive_wall_ns": 1345151616,
+        "maximum_wall_ns": 13813138
+      },
+      {
+        "index": 1848,
+        "displayname": "StereoMeter.qml:11",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/StereoMeter.qml",
+        "line": "11",
+        "column": "5",
+        "bindingType": "-1",
+        "count": 2318,
+        "inclusive_wall_ns": 997423718,
+        "maximum_wall_ns": 5438038
+      },
+      {
+        "index": 2339,
+        "displayname": "Main.qml:764",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/Main.qml",
+        "line": "764",
+        "column": "25",
+        "bindingType": "-1",
+        "count": 1158,
+        "inclusive_wall_ns": 790023246,
+        "maximum_wall_ns": 4926460
+      },
+      {
+        "index": 1852,
+        "displayname": "StereoMeter.qml:12",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/StereoMeter.qml",
+        "line": "12",
+        "column": "5",
+        "bindingType": "-1",
+        "count": 2318,
+        "inclusive_wall_ns": 697589357,
+        "maximum_wall_ns": 5985027
+      },
+      {
+        "index": 1854,
+        "displayname": "StereoMeter.qml:13",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/StereoMeter.qml",
+        "line": "13",
+        "column": "5",
+        "bindingType": "-1",
+        "count": 2318,
+        "inclusive_wall_ns": 654250295,
+        "maximum_wall_ns": 6858253
+      },
+      {
+        "index": 1856,
+        "displayname": "StereoMeter.qml:14",
+        "type": "Binding",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/StereoMeter.qml",
+        "line": "14",
+        "column": "5",
+        "bindingType": "-1",
+        "count": 2318,
+        "inclusive_wall_ns": 640219370,
+        "maximum_wall_ns": 8247516
+      },
+      {
+        "index": 3077,
+        "displayname": "DeckSurface.qml:95",
+        "type": "Javascript",
+        "filename": "file:///home/kyau/projects/kyaulabs/conflux/build/m2-profile-reporting-worktree/qml/DeckSurface.qml",
+        "line": "95",
+        "column": "5",
+        "details": "refreshWaveform",
+        "count": 1158,
+        "inclusive_wall_ns": 625601622,
+        "maximum_wall_ns": 2867801
+      }
+    ]
+  },
+  "full_QML_analysis_archive": "profile-root-qml-analysis-01.json.gz"
+}
