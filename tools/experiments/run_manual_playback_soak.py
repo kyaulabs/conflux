@@ -194,6 +194,10 @@ def live_evidence_limits(hour):
     return (65536, 64 * 1024**2) if hour else (16384, 32 * 1024**2)
 
 
+def live_process_history_limits(hour):
+    return (4096 if hour else 64), 8 * 1024**2
+
+
 def live_required_free_bytes(seconds, hour):
     return 2 * 1024**3 + (seconds + 120) * 384000 + 40 * 1024**2 + (64 * 1024**2 if hour else 0)
 
@@ -597,11 +601,15 @@ def run_live(args):
     if background:
         result["scope"] = "Background actual-player audio/stem diagnostics with observed UI coverage; no visible UI or full audio/UI qualification"
         result.pop("qualified_scope", None)
+    history_limit, command_byte_limit = live_process_history_limits(hour)
+    result["process_history_limits"] = {"identities": history_limit, "command_bytes": command_byte_limit,
+                                        "live_processes": 64, "argv_snapshots_per_identity": 8}
     child = None; root_identity = None; owned = {}; observed_groups = set(); known_graph = set(); requested_stop = None; stop_at = None
     previous = {}; began = time.monotonic(); deadline = began + args.seconds + 180
     selector = selectors.DefaultSelector(); captures = {}; complete_capture = True
     ownership_complete = True
-    command_history = {}; ownership_failures = []; ownership_failure_count = 0; ownership_failure_overflow = False
+    command_history = {}; command_history_bytes = 0
+    ownership_failures = []; ownership_failure_count = 0; ownership_failure_overflow = False
     def live_pin(path, maximum=1024 * 1024 * 1024):
         canonical = path.resolve(strict=True)
         descriptor = os.open(canonical, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC | os.O_NOFOLLOW)
@@ -663,11 +671,12 @@ def run_live(args):
         ownership_failures.append({"reason": reason, "pid": pid, "observed_monotonic_ns": time.monotonic_ns(),
             "parent_proof": context(parent_proof), "observed_identity": context(observed)})
     def remember_command(identity, parent_proof):
+        nonlocal command_history_bytes
         key = tuple(identity[name] for name in ("pid", "start_ticks", "group", "session"))
         if key not in command_history:
-            if len(command_history) >= 64:
+            if len(command_history) >= history_limit:
                 record_ownership_loss("command_history_identity_bound", identity["pid"], parent_proof, identity)
-                raise RuntimeError("Owned command identity history exceeds fixed64 bound")
+                raise RuntimeError("Owned command identity history exceeds fixed history bound")
             command_history[key] = []
         history = command_history[key]
         if any(value["command"] == identity["command"] for value in history):
@@ -677,7 +686,12 @@ def run_live(args):
             raise RuntimeError("Owned command history exceeds fixed8 argv bound")
         snapshot = {**identity, "command": list(identity["command"]), "parent_identity": None if parent_proof is None
             else {name: parent_proof[name] for name in ("pid", "start_ticks", "group", "session", "ppid")}}
+        size = len(json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+        if command_history_bytes + size > command_byte_limit:
+            record_ownership_loss("command_history_byte_bound", identity["pid"], parent_proof, identity)
+            raise RuntimeError("Owned command history exceeds fixed byte bound")
         history.append(snapshot)
+        command_history_bytes += size
     def proven_command_snapshots():
         return [value for history in command_history.values() for value in history]
     def remember_owned():
@@ -701,8 +715,6 @@ def run_live(args):
                 elif not same_identity(process_record(parent_proof["pid"]), parent_proof):
                     record_ownership_loss("parent_identity_changed_before_walk", pid, parent_proof, identity); continue
                 key = (pid, identity["start_ticks"])
-                if key not in owned and len(owned) >= 64:
-                    raise RuntimeError("Owned identity history exceeds fixed64 bound")
                 tasks = list((Path("/proc") / str(pid) / "task").iterdir())
                 if len(tasks) > 256:
                     raise RuntimeError("Owned process exceeds fixed256 thread bound")
@@ -719,10 +731,18 @@ def run_live(args):
                     record_ownership_loss("identity_changed_during_walk", pid, parent_proof, identity); continue
                 if parent_proof is not None and not same_identity(process_record(parent_proof["pid"]), parent_proof):
                     record_ownership_loss("parent_identity_changed_during_walk", pid, parent_proof, identity); continue
-                remember_command(identity, parent_proof)
+                new_identity = key not in owned
+                live_count = len(live_owned()) if new_identity else 0
+                # Keep the just-proven identity available for cleanup even when
+                # a history/byte limit fails; no new unproven owner is adopted.
                 owned[key] = identity; observed_groups.add(identity["group"])
-                if len(observed_groups) > 64:
-                    raise RuntimeError("Owned group history exceeds fixed64 bound")
+                if len(owned) > history_limit or len(observed_groups) > history_limit:
+                    record_ownership_loss("owned_history_bound", pid, parent_proof, identity)
+                    raise RuntimeError("Owned identity/group history exceeds fixed history bound")
+                if new_identity and live_count >= 64:
+                    record_ownership_loss("owned_live_bound", pid, parent_proof, identity)
+                    raise RuntimeError("Owned live population exceeds fixed64 bound")
+                remember_command(identity, parent_proof)
                 pending.extend((value, identity) for value in children)
             except (FileNotFoundError, ProcessLookupError):
                 if parent_proof is not None:

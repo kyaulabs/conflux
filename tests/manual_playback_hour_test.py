@@ -12,6 +12,7 @@ import inspect
 import os
 import json
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import textwrap
@@ -154,7 +155,7 @@ class HourPlaybackTest(unittest.TestCase):
                 routing.main()
             spawn.assert_not_called()
 
-    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None):
+    def live_watchdog_run(self, readiness_seconds, child_ages, progress=False, completed_controls=None, hour=False):
         # Run the actual launch/watchdog/cleanup path with generated files and a
         # fake child. No host commands, audio, native process or real wait runs.
         clock = [0.0]; launched = []; polls = []; ready_calls = []
@@ -171,7 +172,7 @@ class HourPlaybackTest(unittest.TestCase):
             assets = {name: root / name for name in names}
             for path in [wrapper, *assets.values(), *(root / name for name in ui)]:
                 path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"generated fixture")
-            args = SimpleNamespace(**assets, output=root / "run", seconds=120, live_stems_hour=False,
+            args = SimpleNamespace(**assets, output=root / "run", seconds=3600 if hour else 120, live_stems_hour=hour,
                 background=completed_controls is None, active_controls=completed_controls is not None)
             proc = root / "proc"; task = proc / "101/task/101"; task.mkdir(parents=True)
             fields = ["S", "1", "101", "101"] + ["0"] * 15 + ["1001"]
@@ -302,7 +303,7 @@ class HourPlaybackTest(unittest.TestCase):
         self.assertEqual(stop, "Native live progress unchanged for ten seconds")
         self.assertEqual(code, 2); self.assertEqual(result["stop_reason"], stop)
 
-    def ownership_observer(self):
+    def ownership_observer(self, *, hour=False, history_limit=None, command_byte_limit=8 * 1024**2):
         # Exercise the actual nested helpers without starting the runner or a
         # process. Only /proc paths are redirected to this bounded fixture.
         directory = tempfile.TemporaryDirectory()
@@ -323,18 +324,99 @@ class HourPlaybackTest(unittest.TestCase):
                    if isinstance(node, ast.FunctionDef) and node.name in names]
         self.assertEqual(len(helpers), len(names))
         state = ("owned = {}; observed_groups = set(); command_history = {}; ownership_failures = []\n"
+                 f"history_limit = {history_limit if history_limit is not None else 4096 if hour else 64}\n"
+                 f"command_byte_limit = {command_byte_limit}; command_history_bytes = 0\n"
                  "ownership_complete = True; ownership_failure_count = 0; ownership_failure_overflow = False\n")
         expose = ("\nreturn remember_owned, live_owned, signal_owned, lambda: {"
                   "'owned': dict(owned), 'ownership_complete': ownership_complete, "
+                  "'command_history_bytes': command_history_bytes, "
                   "'ownership_failures': list(ownership_failures), 'ownership_failure_count': ownership_failure_count, "
                   "'ownership_failure_overflow': ownership_failure_overflow}\n")
-        namespace = {"os": os, "time": soak.time}
+        namespace = {"os": os, "time": soak.time, "json": json}
         exec("def observer(child, root_identity, Path):\n" + textwrap.indent(
             state + "\n".join(textwrap.dedent(helper) for helper in helpers) + expose, "    "), namespace)
         identity = {"pid": 101, "start_ticks": 1001, "group": 101, "session": 101, "ppid": 1}
         observer = namespace["observer"](SimpleNamespace(pid=101, poll=lambda: 0), identity,
                                           lambda value: proc if value == "/proc" else Path(value))
         return proc, observer
+
+    def write_fixture_child(self, proc, pid):
+        task = proc / str(pid) / "task" / str(pid)
+        task.mkdir(parents=True)
+        fields = ["S", "101", str(pid), str(pid)] + ["0"] * 15 + [str(10000 + pid)]
+        (proc / str(pid) / "stat").write_text(f"{pid} (fixture) " + " ".join(fields))
+        (proc / str(pid) / "cmdline").write_bytes(b"converter\0")
+        (task / "children").write_text("")
+
+    def test_hour_retains_many_exited_children_with_only_two_live(self):
+        proc, (remember, live, _, snapshot) = self.ownership_observer(hour=True)
+        previous = 202
+        for pid in range(202, 292):
+            if pid != 202:
+                shutil.rmtree(proc / str(previous))
+                self.write_fixture_child(proc, pid)
+            (proc / "101/task/101/children").write_text(str(pid))
+            remember()
+            self.assertEqual(set(live()), {101, pid})
+            previous = pid
+        result = snapshot()
+        self.assertEqual(len(result["owned"]), 91)
+        self.assertTrue(result["ownership_complete"])
+        self.assertEqual(result["ownership_failures"], [])
+
+    def test_actual_runner_selects_bounded_hour_and_unchanged_short_history(self):
+        for hour in (False, True):
+            with self.subTest(hour=hour):
+                _, result, _, _, _ = self.live_watchdog_run(0, [.1], hour=hour)
+                self.assertEqual(result["process_history_limits"], {
+                    "identities": 4096 if hour else 64, "command_bytes": 8 * 1024**2,
+                    "live_processes": 64, "argv_snapshots_per_identity": 8})
+                self.assertFalse(result["qualified"])  # Deliberately incomplete native fixture.
+
+    def test_history_limit_failure_keeps_last_proven_child_for_cleanup(self):
+        proc, (remember, _, signal_owned, snapshot) = self.ownership_observer(history_limit=1)
+        with self.assertRaisesRegex(RuntimeError, "fixed history bound"):
+            remember()
+        result = snapshot()
+        self.assertEqual(set(result["owned"]), {(101, 1001), (202, 2002)})
+        self.assertFalse(result["ownership_complete"])
+        self.assertEqual(result["ownership_failures"][-1]["reason"], "owned_history_bound")
+        with patch.object(os, "killpg") as kill:
+            signal_owned(soak.signal.SIGTERM)
+        self.assertEqual({row.args[0] for row in kill.call_args_list}, {101, 202})
+
+    def test_command_history_byte_limit_keeps_proven_owner_and_rejects_result(self):
+        _, (remember, _, _, snapshot) = self.ownership_observer(command_byte_limit=1)
+        with self.assertRaisesRegex(RuntimeError, "fixed byte bound"):
+            remember()
+        result = snapshot()
+        self.assertEqual(set(result["owned"]), {(101, 1001)})
+        self.assertFalse(result["ownership_complete"])
+        self.assertEqual(result["ownership_failures"][-1]["reason"], "command_history_byte_bound")
+
+    def test_repeated_identical_commands_do_not_exhaust_history_bytes(self):
+        _, (remember, _, _, snapshot) = self.ownership_observer(command_byte_limit=1024)
+        remember()
+        initial = snapshot()["command_history_bytes"]
+        for _ in range(100):
+            remember()
+        self.assertEqual(snapshot()["command_history_bytes"], initial)
+        self.assertTrue(snapshot()["ownership_complete"])
+
+    def test_hour_history_does_not_relax_limit_on_retained_live_processes(self):
+        proc, (remember, live, _, snapshot) = self.ownership_observer(hour=True)
+        remember()
+        for pid in range(203, 265):
+            self.write_fixture_child(proc, pid)
+            (proc / "101/task/101/children").write_text(str(pid))
+            remember()
+        self.assertEqual(len(live()), 64)
+        self.write_fixture_child(proc, 265)
+        (proc / "101/task/101/children").write_text("265")
+        with self.assertRaisesRegex(RuntimeError, "live population exceeds fixed64"):
+            remember()
+        self.assertFalse(snapshot()["ownership_complete"])
+        self.assertEqual(snapshot()["ownership_failures"][-1]["reason"], "owned_live_bound")
 
     def test_owned_process_disappearance_preserves_missing_file_evidence(self):
         for parent_read in (False, True):
