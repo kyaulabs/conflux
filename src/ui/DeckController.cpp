@@ -1173,6 +1173,7 @@ void DeckController::drainForegroundPreparation()
 
 void DeckController::resetResidentAuthorization(std::size_t deck)
 {
+    deckSnapshot_.reset();
     auto& authorization = residentAuthorizations_[deck]; authorization = {};
     if (clips_[deck] && clips_[deck]->live() && clips_[deck]->residentHold) {
         authorization.clip = clips_[deck].get(); authorization.phase = ResidentAuthorization::Phase::NextPlay;
@@ -1183,6 +1184,7 @@ void DeckController::resetResidentAuthorization(std::size_t deck)
 void DeckController::revokeResidentAuthorization(std::size_t deck, const QString& reason)
 {
     if (deck >= residentAuthorizations_.size() || !clips_[deck] || !clips_[deck]->residentHold) return;
+    deckSnapshot_.reset();
     auto& authorization = residentAuthorizations_[deck]; authorization.phase = ResidentAuthorization::Phase::Cancelled;
     authorization.detail = reason.left(1024);
 }
@@ -1217,6 +1219,7 @@ bool DeckController::queueResidentArm(std::size_t deck)
     authorization.generation = state_.sourceGeneration[deck]; authorization.revision = state_.transportRevision[deck] + 1;
     authorization.commandId = submitted_; authorization.phase = ResidentAuthorization::Phase::ArmPending;
     authorization.detail = "Enabling the approved recovery section.";
+    deckSnapshot_.reset();
     return true;
 }
 
@@ -1359,6 +1362,7 @@ bool DeckController::continuationCurrent() const
 void DeckController::cancelContinuation(std::size_t deck, const QString& reason)
 {
     if (!continuation_ || continuation_->deck != deck) return;
+    deckSnapshot_.reset();
     continuation_->revoked = true;
     if (loaderPurpose_ == LoaderPurpose::Continuation) loadCancellation_.request_stop();
     auto& episode = continuationEpisodes_[deck];
@@ -2115,6 +2119,8 @@ bool DeckController::submit(audio::RenderCore::Command command)
         fail("Audio control queue is full. Try the control again.");
         return false;
     }
+    // Saved-CUE availability also depends on unacknowledged command IDs.
+    deckSnapshot_.reset();
     // The queued native transport command cancels scratch itself. Do not add a
     // redundant End+seek; source/token guards reject a later old-pointer Move.
     if (transportEndsScratch) scratchGestures_[command.deck].reset();
@@ -2174,6 +2180,7 @@ bool DeckController::flushScratchEnds()
         command.sourceGeneration = identity.sourceGeneration;
         command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
         if (!session_->submit(command)) return false;
+        deckSnapshot_.reset();
         revokeResidentAuthorization(deck, "Vinyl controls turned recovery off.");
         cancelContinuation(deck, "A newer scratch release was accepted.");
         scratchEnds_[deck].reset();
@@ -2259,6 +2266,7 @@ bool DeckController::flushCueReleases()
         if (!session_) return false;
         command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
         if (!session_->submit(command)) return false;
+        deckSnapshot_.reset();
         revokeResidentAuthorization(deck, "CUE turned recovery off.");
         cancelContinuation(deck, "A newer CUE release was accepted.");
         cueReleasePending_[deck] = false;

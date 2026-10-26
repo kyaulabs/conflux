@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-26T23:49:14.350656+00:00",
+  "status": "functional_regressions_reproduced_and_corrected",
+  "parent_signed_source": "fdf02e84d6d3fd95b127802e61c0efb7c823a1e2",
+  "corrected_source_files": [
+    {
+      "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/src/ui/DeckController.cpp",
+      "bytes": 138751,
+      "sha256": "a346945e0767976263d2b568a48079708ea2593e4e6d8eefe894f8a135913521"
+    },
+    {
+      "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/src/ui/DeckController.hpp",
+      "bytes": 20536,
+      "sha256": "14f4b1a8876856214135fa435fea9d420f997f2844d39f980adc3bd4cda633d1"
+    },
+    {
+      "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/tools/experiments/preparation_controller_check.cpp",
+      "bytes": 275244,
+      "sha256": "043d6b7ad2c297dd8a9550a6d21b668b6387d6ed6fa748a579e30b0901a066f2"
+    }
+  ],
+  "original_CI_failures": [
+    "Accepted seek/replay immediately revokes the old automatic arming action",
+    "Accepted Cancel wins before its callback snapshot"
+  ],
+  "saved_CUE_red_reproduced": true,
+  "final_virtual_checks": {
+    "saved-cue": {
+      "passed": true,
+      "daemon_reaped": true,
+      "error": "",
+      "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+    },
+    "resident-hold": {
+      "passed": true,
+      "daemon_reaped": true,
+      "error": "",
+      "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+    },
+    "resident-takeover": {
+      "passed": true,
+      "daemon_reaped": true,
+      "error": "",
+      "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+    },
+    "resident-cancel": {
+      "passed": true,
+      "daemon_reaped": true,
+      "error": "",
+      "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+    },
+    "cancel": {
+      "passed": true,
+      "daemon_reaped": true,
+      "error": "",
+      "scope": "Private virtual daemon; no ALSA, session manager, D-Bus, host discovery, hardware output or latency qualification"
+    }
+  },
+  "controller_and_offscreen_UI_suites_passed": true,
+  "archives": [
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/publication-01/root-CI-regression-01.json",
+        "bytes": 1244,
+        "sha256": "cbb409678f0ba1e23761c8f8da2b9195cdd45952d872a0803bf6e407600384f5"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-CI-failure.json.gz",
+        "bytes": 708,
+        "sha256": "70abeed219742fd4c9ba232e89252444b5fbec99f1987acf617ef637f5ba5e55"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/publication-01/CI-coverage-private-resident-hold.log",
+        "bytes": 4249,
+        "sha256": "51f75713f96fc28bcc3d20552c4ee90089883c7a19a11356e767a9697a091af6"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-CI-resident-hold.log.gz",
+        "bytes": 1753,
+        "sha256": "e30e8266a4ae457b7fcdfa9bc86671c859a5798d4d0891fc2ab91661aba4760d"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/publication-01/CI-coverage-private-resident-cancel.log",
+        "bytes": 2992,
+        "sha256": "732ec13c1e60b8206682c1a810c0c9d7aa1460f2d2fb8eb09bec2fd2f7af3886"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-CI-resident-cancel.log.gz",
+        "bytes": 1369,
+        "sha256": "85502a2f7be89e1b19956ead4acd5ecdab8269c5b4f091787854aaebf813f0a9"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/saved-cue-red-01/result.json",
+        "bytes": 4851,
+        "sha256": "8171c3d55987eeb204da8a321cd3600022fb1799341aa98a03699d8dc540ab11"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/saved-cue-before.json.gz",
+        "bytes": 1837,
+        "sha256": "390939a836f315d29c3bd5be3b7cdfff048a9cc68f2b3bdf1e9e8c50030fb62d"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-final-controller-ui-checks-01.log",
+        "bytes": 354,
+        "sha256": "0b613e04a97abfa1b1c09645fe4582e715b4bf2616c245b555e9087a0f30c8ef"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-controller-ui.log.gz",
+        "bytes": 218,
+        "sha256": "7703a415185f6cd8da8ad5889115ac75f7351bde43adf3f0873f7131a9e67bd5"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-final-saved-cue-01/result.json",
+        "bytes": 55058,
+        "sha256": "b0dff659375c722e45efc44148d7a177e0ad3c1c37dc3a1e119e9fa88618b64f"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-after-saved-cue.json.gz",
+        "bytes": 8469,
+        "sha256": "408b580a83a6fa035867c446ebede7b15a4249bbfb6b5f4bea666c616a2c964b"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-final-resident-hold-01/result.json",
+        "bytes": 6612,
+        "sha256": "ef4660e0a4ca3fc6615e6519f2f812e333b8a44225198fd7c21d407813d30ce1"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-after-resident-hold.json.gz",
+        "bytes": 2570,
+        "sha256": "cf19da7a8e7fcd73d115395663c9764daa6db17b9cbfb97e96d05e83b25fcedc"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-final-resident-takeover-01/result.json",
+        "bytes": 4679,
+        "sha256": "32363e71f7a36b55de43865386b311e1b32b63ee93b44801539c961c0339207e"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-after-resident-takeover.json.gz",
+        "bytes": 1896,
+        "sha256": "1b58ce7c70d8ed4e41546dcf4608efbe0329c6383b906e1108af0e5db41ec2fa"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-final-resident-cancel-01/result.json",
+        "bytes": 4501,
+        "sha256": "e5071aa8c8f591fff1f78c6a9e747a542562791cbf5f52441da7c34236afda30"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-after-resident-cancel.json.gz",
+        "bytes": 1851,
+        "sha256": "b9418bdc6a5e3ff2b5f210e4f9a6b7dc07e94dd80b0b4fad2252e4facf32473b"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-final-cancel-01/result.json",
+        "bytes": 4465,
+        "sha256": "8ad14a0e9b45dc9228a005b542f67e15100349040411968dcaa7a88527c5cd02"
+      },
+      "archive": {
+        "path": "/home/kyau/.codex/worktrees/deck-state-cache/conflux/docs/benchmarks/data/m2-deck-snapshot-cache-2026-10-26/recovery-after-cancel.json.gz",
+        "bytes": 1893,
+        "sha256": "4cfedfbf3b528cbafac0ed4bb4db2188cc12633b2b91eb010e7f242a174e509d"
+      },
+      "round_trip_verified": true
+    }
+  ],
+  "secret_scan": {
+    "exit_code": 0,
+    "log": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/recovery-gitleaks-01.log",
+      "bytes": 76,
+      "sha256": "f3069f4b016dfe46546c6c1cb68b4f03254a16c9d86c267a2acb14be81bd2bd1"
+    },
+    "decompressed_temporary_files_removed": true
+  },
+  "new_tests_scope": "Public saved-CUE availability immediately after accepted transport, retained prior values; no implementation or percentage-only test",
+  "audio_model_GPU_or_laptop_latency_qualification": false,
+  "strict_service_target_ms": 4095,
+  "native_hardware_test_started": false
+}

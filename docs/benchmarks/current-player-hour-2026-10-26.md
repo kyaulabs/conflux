@@ -97,7 +97,7 @@ The next candidate reuses the deck-state map between GUI state publications.
 Invalidation precedes existing notifications, including when Qt signals are
 blocked; library publication and quiet shutdown preserve fresh reads. The
 controller and offscreen UI suites passed. A separate offline empty-deck probe
-made 15,000 reads per arm in three batches. GUI-thread CPU time was 687.977 ms
+of the initial cache made 15,000 reads per arm in three batches. GUI-thread CPU time was 687.977 ms
 for the original getter and 83.617 ms for the cache, with identical serialized
 snapshot values. Both helpers used ordinary O2 optimization. The
 [cache verification record](data/m2-deck-snapshot-cache-2026-10-26/verification.json)
@@ -106,3 +106,15 @@ original Qt integer-overload compile failure. This narrow check starts no
 audio, window, media or model. It does not measure QML conversion, loaded decks,
 thermal behavior or stem latency; a controlled actual-player comparison is
 still required.
+
+CI also exposed synchronous recovery changes between notifications: accepted
+seek/replay and Cancel could leave a reused map stale. Recovery metadata and
+all accepted command paths now invalidate the snapshot, including saved-CUE
+availability before callback acknowledgment. A new public-behavior saved-CUE
+regression reproduced the stale read before correction. The corrected
+controller/UI suites and five isolated virtual-audio cases passed, including
+resident authorization, takeover and both cancellation paths. The
+[recovery verification record](data/m2-deck-snapshot-cache-2026-10-26/recovery-verification.json)
+retains the original failures, red/green evidence and cleanup. These checks
+use generated PCM without hardware output, a model or GPU; loaded-player
+latency and the hour gate remain pending.
