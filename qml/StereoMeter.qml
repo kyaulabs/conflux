@@ -57,11 +57,12 @@ Item {
         anchors.bottomMargin: 11
         spacing: 3
         Repeater {
-            model: [ {peak: root.peakLeft, rms: root.rmsLeft},
-                     {peak: root.peakRight, rms: root.rmsRight} ]
+            model: 2
             Rectangle {
                 id: lane
-                required property var modelData
+                required property int index
+                readonly property real peak: index === 0 ? root.peakLeft : root.peakRight
+                readonly property real rms: index === 0 ? root.rmsLeft : root.rmsRight
                 width: (root.width - 3) / 2
                 height: parent.height
                 radius: 1
@@ -71,23 +72,23 @@ Item {
                 Rectangle {
                     anchors.bottom: parent.bottom
                     width: parent.width
-                    height: parent.height * root.proportion(lane.modelData.peak)
-                    color: lane.modelData.peak >= 1 ? Brand.ConfluxTheme.accent : Brand.ConfluxTheme.success
+                    height: parent.height * root.proportion(lane.peak)
+                    color: lane.peak >= 1 ? Brand.ConfluxTheme.accent : Brand.ConfluxTheme.success
                     opacity: root.active ? 0.3 : 0.12
                 }
                 Rectangle {
                     anchors.bottom: parent.bottom
                     width: parent.width
-                    height: parent.height * root.proportion(lane.modelData.rms)
+                    height: parent.height * root.proportion(lane.rms)
                     color: Brand.ConfluxTheme.success
                     opacity: root.active ? 0.9 : 0.2
                 }
                 Rectangle {
                     width: parent.width
                     height: 2
-                    y: Math.max(0, parent.height * (1 - root.proportion(lane.modelData.peak)) - 1)
-                    visible: root.active && lane.modelData.peak > 0
-                    color: lane.modelData.peak >= 1 ? Brand.ConfluxTheme.accent : Brand.ConfluxTheme.text
+                    y: Math.max(0, parent.height * (1 - root.proportion(lane.peak)) - 1)
+                    visible: root.active && lane.peak > 0
+                    color: lane.peak >= 1 ? Brand.ConfluxTheme.accent : Brand.ConfluxTheme.text
                 }
             }
         }
