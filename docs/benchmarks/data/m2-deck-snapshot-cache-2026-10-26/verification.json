@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "qualified": false,
+  "scope": "Offline empty-deck repeated reads only; no QML, playback, thermal, loaded-deck or service-latency qualification.",
+  "passed": true,
+  "same_deck_snapshot": true,
+  "candidate_to_baseline_thread_CPU_ratio": 0.12154097733290309,
+  "controller_and_UI_suites_passed": true,
+  "laptop_latency_qualified": false,
+  "files": [
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/getter_probe.cpp",
+      "raw_file": "getter_probe.cpp",
+      "raw_bytes": 2341,
+      "raw_sha256": "b962090a2c3d110ba557578ea8e7db135ec786f32ea2916f48eba1b222106571",
+      "archive_file": "getter_probe.cpp.gz",
+      "archive_bytes": 1065,
+      "archive_sha256": "0c4ddae7209a9e233f6e3afacc450d78a55de8e770e39bed2b8f2d423c28989d"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/getter_probe-before-qint64-fix.cpp",
+      "raw_file": "getter_probe-before-qint64-fix.cpp",
+      "raw_bytes": 2333,
+      "raw_sha256": "1ce0d338502054b58535fd4bf426cf699f5743b25a755bff42864710a0d87427",
+      "archive_file": "getter_probe-before-qint64-fix.cpp.gz",
+      "archive_bytes": 1063,
+      "archive_sha256": "69a89aba3d145685d20cc45b95af2d1d33fa659195bc647a8cedf8103baa2771"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/run_getter_probe.py",
+      "raw_file": "run_getter_probe.py",
+      "raw_bytes": 3147,
+      "raw_sha256": "372e59c2d7b06cd60fde8ce6c71c7f964b159854d331923d0e3c3ab2325386a2",
+      "archive_file": "run_getter_probe.py.gz",
+      "archive_bytes": 1401,
+      "archive_sha256": "c7ddc0308cec8a13ba183fe171db7e7e67b8301d1af220dc4cd709c74ab72ac9"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/getter-probe-compile-failure-01.json",
+      "raw_file": "getter-probe-compile-failure-01.json",
+      "raw_bytes": 4222,
+      "raw_sha256": "536365b9845905684cec6b81eca830e001164ea28bae60ee3345b47e007c6794",
+      "archive_file": "getter-probe-compile-failure-01.json.gz",
+      "archive_bytes": 1168,
+      "archive_sha256": "5dd1fc98e2c80194466a6c9166f73d1602dd737f73764e13f28528255f168c3c"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/getter-probe-results-01.json",
+      "raw_file": "getter-probe-results-01.json",
+      "raw_bytes": 8961,
+      "raw_sha256": "bf20b68126317f33c2c29c31528c9d711d6b7e26e12ba8447be486f8e01deb7f",
+      "archive_file": "getter-probe-results-01.json.gz",
+      "archive_bytes": 1933,
+      "archive_sha256": "37933dbce5a6753fad740876e47c4f4785385eece0a2ed3c14c2996a0d4ba90b"
+    },
+    {
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/controller-ui-checks-01.log",
+      "raw_file": "controller-ui-checks-01.log",
+      "raw_bytes": 354,
+      "raw_sha256": "7dd526798d55f4ea132820fc80c4ba326f281a9a98b1aadc34ce7e69d27ec020",
+      "archive_file": "controller-ui-checks-01.log.gz",
+      "archive_bytes": 217,
+      "archive_sha256": "1ffb718d44a82032ae20c3a14204d8ad70785a585b6ba7d3c25e6c28094d5dc3"
+    }
+  ]
+}

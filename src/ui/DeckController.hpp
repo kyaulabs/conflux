@@ -317,6 +317,7 @@ private:
     void queueScratchEnd(std::size_t deck);
     bool flushScratchEnds();
     void stopSession();
+    void notifyStateChanged();
     void fail(const QString& error);
     std::array<std::shared_ptr<const PreparedPcm>, 2> clips_{};
     PreparationOptions preparationOptions_;
@@ -358,6 +359,7 @@ private:
     audio::RoutingConfig routingConfig_;
     audio::RoutingSnapshot routingSnapshot_;
     audio::LiveSession::State state_{};
+    mutable std::optional<QVariantList> deckSnapshot_;
     std::uint64_t completedStarvedFrames_ = 0, completedReadFailures_ = 0;
     std::vector<audio::CallbackTiming::Summary> completedTiming_;
     QFutureWatcher<LoadResult> loader_;

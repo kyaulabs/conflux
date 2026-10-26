@@ -19,6 +19,7 @@
 #include <QLockFile>
 #include <QPointer>
 #include <QSignalSpy>
+#include <QSignalBlocker>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QThread>
@@ -1683,6 +1684,51 @@ private slots:
         controller.shutdown();
         controller.shutdown();
         verifyNoPlayback(controller);
+    }
+
+    void notifiedDeckSnapshotsExposeLoadingBpmAndShutdownWithoutMutatingPriorValues()
+    {
+        QTemporaryDir directory;
+        QTemporaryDir runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto source = directory.filePath("snapshot.wav");
+        QVERIFY(writeWave(source, 2, 48000, 480));
+        conflux::DeckController controller;
+        const auto initial = controller.decks();
+        QCOMPARE(initial.size(), 2);
+        QVERIFY(!initial[0].toMap()["loaded"].toBool());
+        QVariantList notified;
+        QObject::connect(&controller, &conflux::DeckController::stateChanged, &controller,
+            [&] { notified = controller.decks(); });
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QVERIFY(notified[0].toMap()["loading"].toBool());
+        QVERIFY(!notified[0].toMap()["pendingName"].toString().isEmpty());
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(notified[0].toMap()["loaded"].toBool());
+        QVERIFY(!notified[0].toMap()["loading"].toBool());
+        QVERIFY(!initial[0].toMap()["loaded"].toBool());
+        const auto loaded = controller.decks();
+        controller.setBpmOverride(0, 123.5);
+        QCOMPARE(notified[0].toMap()["bpm"].toMap()["reference"].toDouble(), 123.5);
+        QVERIFY(notified[0].toMap()["bpm"].toMap()["manual"].toBool());
+        QVERIFY(!loaded[0].toMap()["bpm"].toMap()["manual"].toBool());
+        {
+            const QSignalBlocker blocked(&controller);
+            controller.setBpmOverride(0, 130.);
+            QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 130.);
+            QCOMPARE(notified[0].toMap()["bpm"].toMap()["reference"].toDouble(), 123.5);
+        }
+        QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 130.);
+        controller.clearBpmOverride(0);
+        QVERIFY(!notified[0].toMap()["bpm"].toMap()["manual"].toBool());
+        controller.shutdown();
+        const auto stopped = controller.decks()[0].toMap();
+        QVERIFY(!controller.outputReady());
+        QVERIFY(!stopped["playing"].toBool());
+        QVERIFY(stopped["loaded"].toBool()); // Shutdown preserves the loaded metadata.
+        QVERIFY(loaded[0].toMap()["loaded"].toBool());
     }
 
     void crossfaderRequiresReadyOutputAndPreservesLoadedDecks()
