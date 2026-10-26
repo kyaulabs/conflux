@@ -3,6 +3,7 @@
 #include "../tools/experiments/PlaybackUiPolicy.hpp"
 #include <QCoreApplication>
 #include <QJsonDocument>
+#include <QTimer>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -142,6 +143,66 @@ void destroyedTargetRemainsSafe()
             "Destroyed target history was not safely retained");
 }
 
+void failureFollowupRetainsOriginalFailureAndLateExposure()
+{
+    using Policy = conflux::experiments::PlaybackUiPolicy;
+    for (const bool recover : {false, true}) {
+        Target primary;
+        qint64 frames = 10;
+        Policy policy;
+        const Policy::State failed{true, true, false, true, 10000000};
+        require(!policy.healthy(false, failed), "Fresh frame waived an unexposed window");
+        policy.observe(failed);
+        const QJsonObject originalFailure{{"visible", true}, {"exposed", false}, {"frames_presented", frames}};
+        History history([&] {
+            return QJsonObject{{"visible", true}, {"exposed", primary.exposed}, {"frames_presented", frames}};
+        }, {});
+        history.observe(&primary);
+        QJsonObject result{{"passed", false}, {"error", "Live window hidden or not presenting"},
+                           {"window_failure", originalFailure}};
+        bool callbackDelivered = false;
+        QTimer::singleShot(0, &primary, [&] {
+            callbackDelivered = true;
+            if (recover) {
+                QEvent lateExpose(QEvent::Expose);
+                QCoreApplication::sendEvent(&primary, &lateExpose);
+                ++frames;
+            }
+        });
+        history.freeze(result);
+        const auto followup = result["window_failure_followup"].toObject();
+        require(!followup.isEmpty() && callbackDelivered, "Failure followup did not observe queued window events");
+        require(followup["requested_ms"].toInt() == 250 && followup["elapsed_ms"].toInteger() >= 0 &&
+                followup["outside_measured_interval"].toBool(), "Failure observation bound or interval scope changed");
+        require(!followup["before"].toObject()["exposed"].toBool() &&
+                followup["after"].toObject()["exposed"].toBool() == recover &&
+                followup["after"].toObject()["frames_presented"].toInteger() == (recover ? 11 : 10),
+                "Persistent and recovered exposure became indistinguishable");
+        require(!result["passed"].toBool() && result["error"].toString() == "Live window hidden or not presenting" &&
+                result["window_failure"].toObject() == originalFailure && policy.report()["any_gap"].toBool() &&
+                policy.report()["unexposed_checks"].toInteger() == 1,
+                "Late exposure erased the original failure or qualified a measured gap");
+        const auto frozen = QJsonDocument(result).toJson(QJsonDocument::Compact);
+        history.freeze(result);
+        require(QJsonDocument(result).toJson(QJsonDocument::Compact) == frozen,
+                "Repeated freeze reran or overwrote failure followup");
+    }
+}
+
+void unrelatedFailureDoesNotPumpEvents()
+{
+    Target primary;
+    bool callbackDelivered = false;
+    History history([] { return QJsonObject{}; }, {});
+    history.observe(&primary);
+    QTimer::singleShot(0, &primary, [&] { callbackDelivered = true; });
+    QJsonObject result{{"passed", false}, {"error", "source read failed"}};
+    history.freeze(result);
+    require(!result.contains("window_failure") && !result.contains("window_failure_followup") && !callbackDelivered &&
+            !result["passed"].toBool() && result["error"].toString() == "source read failed",
+            "An unrelated failure gained a field, changed its outcome or pumped events");
+}
+
 void backgroundPolicyKeepsWindowAndStartupBoundaries()
 {
     using Policy = conflux::experiments::PlaybackUiPolicy;
@@ -241,6 +302,8 @@ int main(int argc, char** argv)
         overflowRetainsLatestInOrder();
         resultSurvivesEarlyFailureAndCleanup();
         destroyedTargetRemainsSafe();
+        failureFollowupRetainsOriginalFailureAndLateExposure();
+        unrelatedFailureDoesNotPumpEvents();
         backgroundPolicyKeepsWindowAndStartupBoundaries();
         measuredUiCoverageRetainsGapsWithoutQualifyingBackground();
         hiddenPolicyRejectsExposureChanges();

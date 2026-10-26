@@ -2,10 +2,13 @@
 #pragma once
 
 #include <QEvent>
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
 #include <QPointer>
+#include <QTimer>
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -44,6 +47,23 @@ public:
     void freeze(QJsonObject& result)
     {
         if (!frozen_) {
+            const auto failure = result.value("window_failure");
+            if (failure.isObject() && !failure.toObject().isEmpty()) {
+                // Measurement has already failed. Observe a late compositor callback
+                // before cleanup without changing the original failure or UI policy.
+                QElapsedTimer elapsed;
+                elapsed.start();
+                record("snapshot:failure_followup_begin");
+                const auto before = rows_[(next_ + capacity - 1) % capacity];
+                QEventLoop loop;
+                QTimer::singleShot(250, &loop, &QEventLoop::quit);
+                loop.exec(QEventLoop::ExcludeUserInputEvents);
+                record("snapshot:failure_followup_end");
+                const auto after = rows_[(next_ + capacity - 1) % capacity];
+                result["window_failure_followup"] = QJsonObject{{"requested_ms", 250}, {"elapsed_ms", elapsed.elapsed()},
+                    {"outside_measured_interval", true}, {"before", before}, {"after", after},
+                    {"scope", "Post-failure event-loop observation; original failure and measured interval unchanged. Whole-command deadline still applies."}};
+            }
             record("snapshot:before_cleanup");
             frozen_ = true;
             if (window_) window_->removeEventFilter(this);
