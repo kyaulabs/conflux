@@ -23,10 +23,10 @@ void checkStop(std::stop_token stop)
     if (stop.stop_requested()) throw std::runtime_error("Stem frame count cancelled");
 }
 
-State makeState(int channelCount)
+State makeState(int channelCount, int filter)
 {
     int error = 0;
-    State result(src_new(SRC_SINC_BEST_QUALITY, channelCount, &error));
+    State result(src_new(filter, channelCount, &error));
     if (!result || error)
         throw std::runtime_error(std::string("Cannot create stem sample-rate converter: ") + src_strerror(error));
     return result;
@@ -79,7 +79,10 @@ StemRateConverter::FramePlan StemRateConverter::countFrames(std::uint64_t inputF
     if (!inputFrames || inputFrames > maximumFrames || !maximumOutputFrames || maximumOutputFrames > maximumFrames)
         throw std::invalid_argument("Stem count geometry is empty or unaddressable");
     checkStop(stop);
-    auto state = makeState(2);
+    // Only the geometry of these discarded zeros is retained. The sinc modes
+    // share stereo phase/EOF handling; a shorter filter avoids computing Best
+    // samples which no caller consumes. Real stem conversion stays Best below.
+    auto state = makeState(2, SRC_SINC_FASTEST);
     std::array<float, samplesPerBlock> zeros{}, output{};
     auto remaining = inputFrames;
     std::uint64_t total = 0;
@@ -114,7 +117,7 @@ public:
         if (inputStart_ > plan.inputFrames() || generatedFrame_ > target)
             throw std::invalid_argument("Stem seek anchor exceeds input geometry");
         discard_ = target - generatedFrame_;
-        state_ = makeState(packedChannels);
+        state_ = makeState(packedChannels, SRC_SINC_BEST_QUALITY);
     }
 
     Step process(std::array<std::span<const float>, stems> input,

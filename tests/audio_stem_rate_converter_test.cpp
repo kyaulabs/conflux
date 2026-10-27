@@ -176,7 +176,9 @@ DriveResult drive(Converter& converter, const Bank& source, std::size_t target48
 
 void exactCountBudgetAndCancellation()
 {
-    for (const auto n : {1U, 2U, 146U, 147U, 148U, 4095U, 4096U, 4097U}) {
+    // Include the exact four-hop live source: a rounded ratio would lose its
+    // extra EOF frame, while changing the counting channel shape also differs.
+    for (const auto n : std::array<std::size_t, 9>{1, 2, 146, 147, 148, 4095, 4096, 4097, 4 * hop}) {
         const auto reference = preparedReference(fixture(n, 0));
         const auto actual = reference.size() / 2;
         const auto plan = Converter::countFrames(n, actual);

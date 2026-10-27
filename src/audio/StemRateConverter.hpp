@@ -28,8 +28,9 @@ public:
         FramePlan(std::uint64_t input, std::uint64_t output) noexcept : input_(input), output_(output) {}
         std::uint64_t input_, output_;
     };
-    // Bounded4096 scratch, one stereo zero state, best-quality constant ratio,
-    // positive input then deferred zero-input EOF; count actual generated data.
+    // Bounded4096 scratch, one stereo zero state, constant sinc ratio, positive
+    // input then deferred zero-input EOF; count actual generated data. Counting
+    // samples are discarded; actual stem PCM always uses the Best filter.
     // Check stop before allocation and between each bounded library call.
     // Zero/unaddressable input OR output-cap geometry ->invalid_argument;
     // actual output over cap

@@ -1,0 +1,11 @@
+{
+  "repository": "libsndfile/libsamplerate",
+  "ref": "0.2.2",
+  "path": "src/src_sinc.c",
+  "git_blob": "51e2997d39238e8d8b07f0b8deac56c9fff82855",
+  "sha256": "8e59137d758dae5027410af7f81010e7a9c33892070091866510f0f8b638237e",
+  "bytes": 41430,
+  "url": "https://github.com/libsndfile/libsamplerate/blob/0.2.2/src/src_sinc.c",
+  "commit": "c96f5e3de9c4488f4e6c97f59f5245f22fda22f7",
+  "permalink": "https://github.com/libsndfile/libsamplerate/blob/c96f5e3de9c4488f4e6c97f59f5245f22fda22f7/src/src_sinc.c"
+}

@@ -1,0 +1,9 @@
+Test project /home/kyau/projects/kyaulabs/conflux/build/dev
+    Start 14: audio-stem-rate-converter
+1/2 Test #14: audio-stem-rate-converter ........   Passed   31.40 sec
+    Start 52: live-stem-bridge
+2/2 Test #52: live-stem-bridge .................   Passed   89.05 sec
+
+100% tests passed out of 2
+
+Total Test time (real) = 120.46 sec
