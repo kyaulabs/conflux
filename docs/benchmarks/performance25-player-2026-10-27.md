@@ -56,8 +56,12 @@ The user authorized the current-boot Performance ceiling. Its root-owned
 transient limiter only lowers Performance PL1 values above 25 W, preserves lower
 limits, and leaves the existing thermal guard active. A separate profile-only
 check observed five consecutive 25 W readings and restored Balanced afterward.
-During player cleanup, lower guard settings were preserved. The limiter remains
-installed for this boot; reboot removes it.
+During player cleanup, lower guard settings were preserved. On 27 October,
+the user requested removal while testing moved to Apollo. The transient service
+and its `/run` payload were removed; Balanced read back at 15 W, and the original
+thermal guard remained active with unchanged script and unit hashes. The unarmed
+follow-up packet was retired. No later laptop test is authorized by the earlier
+25 W readiness records.
 
 Two earlier attempts stopped before any native player, inference or audio.
 Packet 03 rejected an observer/host pair of 74°C/63°C before public setup.

@@ -466,26 +466,27 @@ instead of copying old Arch package names blindly. No application build,
 audio-latency measurement or stem-throughput benchmark has been performed.
 
 Apollo is a **separate development/test machine**, never a required processing
-server for the laptop. Its verified secondary GPU is an NVIDIA GeForce GTX
-1660 SUPER with 6144 MiB VRAM; driver snapshot `610.57.04`.
+server for the laptop. The 27 October 2026 check verified an NVIDIA GeForce GTX
+1660 SUPER with 6144 MiB VRAM, driver `615.78.08`, eight virtual CPUs and about
+16 GiB RAM. The [Apollo diagnostic record](../benchmarks/apollo-vulkan-2026-10-27.md)
+contains the environment, Best-quality results and remaining qualification limits.
 
-Use the exact verified connection:
+The user repaired DNS. Use the verified hostname, port `4222`, account `kyau`
+and existing host-key identity, with forwarding disabled:
 
 ```sh
-ssh -p 4222 \
-  -o StrictHostKeyChecking=yes \
-  -o HostName=10.4.20.101 \
-  -o 'HostKeyAlias=[apollo.kyaulabs]:4222' \
-  kyau@apollo.kyaulabs
+ssh -p 4222 -o StrictHostKeyChecking=yes \
+  -o ForwardAgent=no -o ClearAllForwardings=yes kyau@apollo.kyaulabs
 ```
 
-Use `10.4.20.101` through the explicit override, port `4222`, account `kyau`,
-and the existing `[apollo.kyaulabs]:4222` host-key identity. Keep strict checking.
 The account has passwordless sudo; use `sudo -n` when administrative work is
-needed. Do not log in directly as root. Earlier read-only verification returned
-`kyau`, `apollo.kyaulabs`, sudo UID `0`, and the GPU details above. No remote
-changes were made during planning. An SSH client sandbox failure requires the
-normal tool approval path, not weakening host-key checking.
+needed. Do not log in directly as root or weaken host-key checking. Docker and
+containerd testing use their own current-boot services and storage under
+`/srv/conflux-tests`; Docker commands must select
+`unix:///srv/conflux-tests/daemon/docker.sock` explicitly. Leave every Kairos or
+Hexforged path, container, label and service, and the default Docker store,
+unchanged. GPU access works inside the isolated containers through NVIDIA CDI;
+the user-authorized native fallback has not been needed.
 
 ## Implementation sequence and exit criteria
 

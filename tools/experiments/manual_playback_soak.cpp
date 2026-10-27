@@ -151,9 +151,10 @@ QJsonObject controlSnapshot(const State& s)
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--private-live-stems-controls|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
-    const bool activeControls = mode == "--live-stems-controls";
+    const bool privateControls = mode == "--private-live-stems-controls";
+    const bool activeControls = privateControls || mode == "--live-stems-controls";
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
     const bool oneThread = mode == "--live-stems-hidden-one-thread";
     const bool hidden = oneThread || mode == "--live-stems-hidden";
@@ -162,9 +163,13 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     using UiPolicy = conflux::experiments::PlaybackUiPolicy;
     UiPolicy uiPolicy(hidden ? UiPolicy::Mode::Hidden : background ? UiPolicy::Mode::Background : UiPolicy::Mode::Visible);
     const bool functional = qEnvironmentVariable("CONFLUX_PRIVATE_ROUTING_CHECK") == "1";
+    // Private model diagnostics use the host control schedule but cannot enter
+    // host qualification or extend the existing generated-fixture modes.
+    if (privateControls && !functional) return 2;
+    const bool shortFunctional = functional && !privateControls;
     bool valid = false;
     const int seconds = QString::fromLocal8Bit(argv[5]).toInt(&valid);
-    if (!valid || (hour ? seconds != 3600 : functional ? seconds < 1 || seconds > 10 : seconds < 120 || seconds > 180) ||
+    if (!valid || (hour ? seconds != 3600 : privateControls ? seconds != 120 : shortFunctional ? seconds < 1 || seconds > 10 : seconds < 120 || seconds > 180) ||
         (!functional && qEnvironmentVariable("CONFLUX_ALLOW_HOST_SOAK") != "1")) return 2;
     const auto platform = QGuiApplication::platformName();
     if (functional ? (platform != "offscreen" && platform != "minimal") : (platform == "offscreen" || platform == "minimal")) return 2;
@@ -273,6 +278,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         result["mode"] = "live-stems-controls";
         result["scope"] = "Short actual-player accessible UI controls under load; no pointer/touch, physical assistive-technology, hardware-cue or sustained qualification";
     }
+    if (privateControls) {
+        result["mode"] = "private-live-stems-controls";
+        result["scope"] = "Two-minute actual-model/UI controls diagnostic on private virtual audio; no host, physical audio, sustained or laptop qualification";
+    }
     QJsonArray manualControls;
     State mixBaseline{}, expectedMix{}, pendingMixBefore{}, pendingControlBefore{};
     QPointer<QQuickItem> pendingItem;
@@ -379,7 +388,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         phase = "validating"; pulse();
         const auto peer = inspectAudio(QString::fromLocal8Bit(argv[3]), 48000ULL * 600);
         require(hour ? peer["frames"].toInteger() == 48000LL * 480 :
-            peer["frames"].toInteger() >= 48000LL * (seconds + (functional ? 2 : 120)), "Finite peer has wrong duration for playback mode");
+            peer["frames"].toInteger() >= 48000LL * (seconds + (shortFunctional ? 2 : 120)), "Finite peer has wrong duration for playback mode");
         result["peer"] = peer;
         if (hidden) engine.setInitialProperties({{"visible", false}});
         engine.load(QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/qml/Main.qml")));
@@ -529,10 +538,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             }
             const bool eof = state.sourceFrame[0] == state.sourceFrames[0];
             if (eof && !eofAtOutput && !replayPending) { ++eofCount; eofAtOutput = state.outputFrame; }
-            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && !controlPending && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 5000)) {
+            if (eofAtOutput && state.outputFrame >= eofAtOutput + 1024 && !recovering && !controlPending && measure.elapsed() < seconds * 1000LL - (shortFunctional ? 200 : 5000)) {
                 beginRecovery(0, "replay_recovery"); ++replayCount; replayPending = true; eofAtOutput = 0;
             } else if (replayPending && !eof) replayPending = false;
-            if (!seekIssued && firstAdvanceNs && !recovering && !controlPending && !eof && measure.elapsed() < seconds * 1000LL - (functional ? 200 : 15000) && acceptedGeneration && acceptedGeneration != completedGeneration) {
+            if (!seekIssued && firstAdvanceNs && !recovering && !controlPending && !eof && measure.elapsed() < seconds * 1000LL - (shortFunctional ? 200 : 15000) && acceptedGeneration && acceptedGeneration != completedGeneration) {
                 auto target = std::min<std::uint64_t>(280800, state.sourceFrames[0] / 2);
                 if (target == state.sourceFrame[0]) target = 0;
                 beginRecovery(double(target) / 48000, "incomplete_generation_seek"); seekIssued = true;
@@ -542,7 +551,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 !state.buffering[0] && !state.buffering[1] && !eof) {
                 const int deck = nextControl / 8, step = nextControl % 8, control = step / 2;
                 const bool restore = step % 2;
-                const qint64 due = functional ? (deck ? 7000 : 500) + step * 100 : (deck ? 70000 : 10000) + step * 2000;
+                const qint64 due = shortFunctional ? (deck ? 7000 : 500) + step * 100 : (deck ? 70000 : 10000) + step * 2000;
                 if (measure.elapsed() >= due) {
                     const auto name = control == 0 ? QString("deck%1Gain").arg(deck) : control == 1 ? QString("crossfader") :
                         control == 2 ? QString("deck%1EqHI").arg(deck) : QString("deck%1CueSelect").arg(deck);
@@ -816,7 +825,8 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
 int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
-    if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-controls" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
+    if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-controls" ||
+        QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden-one-thread"))
         return livePlayback(app, argc, argv);
