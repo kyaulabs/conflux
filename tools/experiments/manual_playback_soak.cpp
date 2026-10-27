@@ -286,7 +286,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     bool peerRecovering = false;
     qint64 peerIssuedNs = 0;
     std::uint64_t peerAppliedTarget = 0;
-    QString failure;
+    QString failure, measurementCompletionFailure;
     State boundary{}, last{};
     State tailBegin{}, tailEnd{};
     QJsonObject diagnosticTail;
@@ -595,7 +595,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         drain();
         require(!activeControls || (nextControl == 16 && !controlPending && sameMix(controller.audioState(), mixBaseline)),
             "Accessible controls sequence or baseline restoration incomplete");
-        require(firstAdvanceNs && eofCount && replayCount && !recovering && !replayPending && !peerRecovering, "Playback/EOF/replay or last scheduled recovery incomplete");
+        // Retain a failed boundary without cancelling its pending generation.
+        // The original finite drain can still capture its slow final hops.
+        if (!(firstAdvanceNs && eofCount && replayCount && !recovering && !replayPending && !peerRecovering))
+            measurementCompletionFailure = "Playback/EOF/replay or last scheduled recovery incomplete";
         // The fixed measured/WAV interval ends here. Finish only this finite
         // generation; no tail replay/seek and no time-based hop filtering.
         tailStarted = true; tailBegin = tailEnd = controller.audioState();
@@ -742,6 +745,11 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 "Finite diagnostic tail final health/close failed");
         }
     } catch (const std::exception& error) { if (failure.isEmpty()) failure = QString::fromUtf8(error.what()); }
+    if (!measurementCompletionFailure.isEmpty()) {
+        result["measurement_completion_error"] = measurementCompletionFailure;
+        failure = (measurementCompletionFailure + (failure.isEmpty() ? QString{} : "\n" + failure))
+            .left(qsizetype(Observations::failureDetailCapacity));
+    }
     if (tailStarted) {
         if (!failure.isEmpty()) { diagnosticTail["status"] = "Failed"; diagnosticTail["error"] = failure; }
         result["diagnostic_tail"] = diagnosticTail;
