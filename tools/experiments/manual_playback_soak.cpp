@@ -4,6 +4,7 @@
 #include "library/LiveStemObservations.hpp"
 #include "WindowEventHistory.hpp"
 #include "PlaybackUiPolicy.hpp"
+#include "PlaybackControlClock.hpp"
 #include <sndfile.h>
 #include <QAccessible>
 #include <QDateTime>
@@ -485,10 +486,8 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                     state.cueFrame == pendingControlBefore.cueFrame && state.cueHeld == pendingControlBefore.cueHeld &&
                     state.cuePreview == pendingControlBefore.cuePreview && state.sourceFrames == pendingControlBefore.sourceFrames &&
                     state.outputFrame >= pendingControlBefore.outputFrame, "Nontransport UI control changed source/transport ownership");
-                const auto advance = state.outputFrame - pendingControlBefore.outputFrame;
-                for (std::size_t deck = 0; deck < 2; ++deck)
-                    require(state.sourceFrame[deck] == std::min(pendingControlBefore.sourceFrame[deck] + advance, state.sourceFrames[deck]),
-                        "Nontransport UI control lost the exact source/output clock");
+                require(conflux::experiments::playbackControlClockMatches(pendingControlBefore, state),
+                    "Nontransport UI control lost the exact source/output clock");
                 const bool button = nextControl % 8 >= 6;
                 const bool uiAck = button ? pendingItem->property("checked").toBool() == expectedChecked :
                     std::abs(pendingItem->property("value").toDouble() - expectedUi) < 1e-6;
