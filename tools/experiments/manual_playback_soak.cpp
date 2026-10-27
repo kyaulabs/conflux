@@ -638,8 +638,13 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
                 tailEnd.sourceFrame[1] >= tailBegin.sourceFrame[1] &&
                 tailEnd.sourceFrame[1] - tailBegin.sourceFrame[1] == tailEnd.outputFrame - tailBegin.outputFrame,
                 "Finite diagnostic tail lost source/output continuity");
-            require(tailEnd.starvedFrames == tailBegin.starvedFrames && tailEnd.deadlineMisses == tailBegin.deadlineMisses,
-                "Finite diagnostic tail starved or missed a callback deadline");
+            // Keep the failed audio interval, but finish the bounded finite
+            // generation so a slow final hop is not censored by starvation.
+            if (tailEnd.starvedFrames != tailBegin.starvedFrames || tailEnd.deadlineMisses != tailBegin.deadlineMisses) {
+                diagnosticTail["audio_health_failed"] = true;
+                if (!diagnosticTail.contains("first_audio_health_failure_ns"))
+                    diagnosticTail["first_audio_health_failure_ns"] = nowNs();
+            }
             const UiPolicy::State uiState{bool(window), window && window->isVisible(), window && window->isExposed(),
                 lastFrameNs != 0, now - lastFrameNs};
             uiPolicy.observe(uiState);
@@ -714,11 +719,6 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             diagnosticTail["validated_hops_end"] = qint64(validatedHops);
             require(diagnosticTail["recording_written_frames_begin"].toInteger(-1) ==
                 diagnosticTail["recording_written_frames_end"].toInteger(-2), "Recording changed during finite diagnostic drain");
-            require(diagnosticTail["starved_a"].toInteger(-1) == 0 && diagnosticTail["starved_b"].toInteger(-1) == 0 &&
-                diagnosticTail["callback_deadline_misses"].toInteger(-1) == 0 && !diagnosticTail["source_read_error"].toBool() &&
-                !diagnosticTail["invalid_buffers"].toInteger() && diagnosticTail["output_progress_observed"].toBool() &&
-                observations->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::ReadyForStop,
-                "Finite diagnostic tail final health/close failed");
         }
         require(!failure.isEmpty() || QFileInfo::exists(recordingPath), "Completed live run has no recording");
         result["recording"] = QJsonObject::fromVariantMap(recording);
@@ -732,6 +732,15 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         }
         require(controller.completedApplied() == controller.submittedCommands() && !controller.completedRejected() &&
             !controller.completedInvalidBuffers() && !controller.completedReadFailures(), "Live final application counters failed");
+        // Inspect and retain the finalized WAV before rejecting tail health.
+        // The same zero-starvation/deadline gate still determines success.
+        if (tailStarted) {
+            require(diagnosticTail["starved_a"].toInteger(-1) == 0 && diagnosticTail["starved_b"].toInteger(-1) == 0 &&
+                diagnosticTail["callback_deadline_misses"].toInteger(-1) == 0 && !diagnosticTail["source_read_error"].toBool() &&
+                !diagnosticTail["invalid_buffers"].toInteger() && diagnosticTail["output_progress_observed"].toBool() &&
+                observations->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::ReadyForStop,
+                "Finite diagnostic tail final health/close failed");
+        }
     } catch (const std::exception& error) { if (failure.isEmpty()) failure = QString::fromUtf8(error.what()); }
     if (tailStarted) {
         if (!failure.isEmpty()) { diagnosticTail["status"] = "Failed"; diagnosticTail["error"] = failure; }
