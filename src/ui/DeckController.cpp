@@ -305,6 +305,7 @@ void DeckController::shutdown()
 
 QVariantList DeckController::decks() const
 {
+    if (deckSnapshot_ && !closing_) return *deckSnapshot_;
     QVariantList result;
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         const bool loading = preparationActive() && !pendingImport_ && int(deck) == pendingDeck_;
@@ -457,7 +458,8 @@ QVariantList DeckController::decks() const
             {"durationSeconds", state_.sourceFrames[deck] / double(audio::RenderCore::sampleRate)},
             {"gain", state_.deckGain[deck]}});
     }
-    return result;
+    deckSnapshot_ = std::move(result);
+    return *deckSnapshot_;
 }
 
 QVariantMap DeckController::meters() const
@@ -495,10 +497,17 @@ QVariantMap DeckController::recording() const
         {"overflowFrames", QVariant::fromValue<qulonglong>(recorder_ ? recorder_->overflowFrames() : lastRecording_.overflowFrames)}};
 }
 
+void DeckController::notifyStateChanged()
+{
+    // Invalidate even when a caller temporarily blocks Qt notifications.
+    deckSnapshot_.reset();
+    emit stateChanged();
+}
+
 void DeckController::fail(const QString& error)
 {
     error_ = error;
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 std::shared_ptr<library::LiveStemObservations> DeckController::liveStemObservations(int deck) const
@@ -597,7 +606,7 @@ void DeckController::updatePreparation(std::uint64_t serial, QString phase, int 
         pendingPresentation_ = std::move(*presentation);
         pendingWaveform_ = std::move(waveform);
     }
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 QVariantList DeckController::libraryTracks() const { return libraryTracks_; }
@@ -640,8 +649,9 @@ void DeckController::catalogFinished()
         if (result.error.isEmpty()) preparationCompletedStages_ = preparationTotalStages_;
         error_ = result.error;
     }
+    deckSnapshot_.reset();
     emit libraryChanged();
-    if (!closing_) emit stateChanged();
+    if (!closing_) notifyStateChanged();
 }
 
 void DeckController::importTrack(const QUrl& url)
@@ -712,7 +722,7 @@ void DeckController::startCueImport(library::LibraryTrack selected, const QUrl& 
         }
     }));
     // Publish cancellation only after the worker owns its token and future.
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 bool DeckController::jumpToImportedCue(int deck, const QString& sourceId, int cueIndex)
@@ -801,7 +811,7 @@ bool DeckController::saveDeckCue(int deck)
         catch (const std::exception& error) { return {{}, QString::fromUtf8(error.what()), true}; }
         catch (...) { return {{}, "Cannot save the deck CUE.", true}; }
     }));
-    emit stateChanged();
+    notifyStateChanged();
     return true;
 }
 
@@ -882,7 +892,7 @@ bool DeckController::cancelPreparation()
     foregroundPreparation_.reset();
     loadCancellation_.request_stop();
     drainForegroundPreparation();
-    emit stateChanged();
+    notifyStateChanged();
     return true;
 }
 
@@ -1103,7 +1113,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     }));
     // A direct observer may cancel or shut down from stateChanged. Publish
     // cancellability only after this job owns its new token and future.
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
@@ -1131,7 +1141,7 @@ bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
     foregroundPreparation_ = std::move(request);
     foregroundWaiting_ = true; busy_ = true; error_.clear();
     if (continuation_) cancelContinuation(continuation_->deck, "A new preparation was accepted.");
-    emit stateChanged();
+    notifyStateChanged();
     return true;
 }
 
@@ -1145,7 +1155,7 @@ void DeckController::drainForegroundPreparation()
         // A cancelled lookup/miss may return no owner, so no retirement watcher
         // will finish. The loader-consumption path must settle this reservation.
         busy_ = false; preparationStatus_ = "Cancelled"; preparationPhase_ = "cancel";
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     auto request = std::move(*foregroundPreparation_);
@@ -1163,6 +1173,7 @@ void DeckController::drainForegroundPreparation()
 
 void DeckController::resetResidentAuthorization(std::size_t deck)
 {
+    deckSnapshot_.reset();
     auto& authorization = residentAuthorizations_[deck]; authorization = {};
     if (clips_[deck] && clips_[deck]->live() && clips_[deck]->residentHold) {
         authorization.clip = clips_[deck].get(); authorization.phase = ResidentAuthorization::Phase::NextPlay;
@@ -1173,6 +1184,7 @@ void DeckController::resetResidentAuthorization(std::size_t deck)
 void DeckController::revokeResidentAuthorization(std::size_t deck, const QString& reason)
 {
     if (deck >= residentAuthorizations_.size() || !clips_[deck] || !clips_[deck]->residentHold) return;
+    deckSnapshot_.reset();
     auto& authorization = residentAuthorizations_[deck]; authorization.phase = ResidentAuthorization::Phase::Cancelled;
     authorization.detail = reason.left(1024);
 }
@@ -1207,6 +1219,7 @@ bool DeckController::queueResidentArm(std::size_t deck)
     authorization.generation = state_.sourceGeneration[deck]; authorization.revision = state_.transportRevision[deck] + 1;
     authorization.commandId = submitted_; authorization.phase = ResidentAuthorization::Phase::ArmPending;
     authorization.detail = "Enabling the approved recovery section.";
+    deckSnapshot_.reset();
     return true;
 }
 
@@ -1223,7 +1236,7 @@ bool DeckController::authorizeResidentHold(int deck, const QString& sourceId,
     authorization.clip = clips_[deck].get(); authorization.phase = ResidentAuthorization::Phase::NextPlay;
     authorization.detail = "Enabled for the next Play. Playback controls turn recovery off.";
     cancelContinuation(std::size_t(deck), "Recovery was enabled for the next Play.");
-    emit stateChanged(); return true;
+    notifyStateChanged(); return true;
 }
 
 bool DeckController::cancelResidentHold(int deck, const QString& sourceId,
@@ -1240,7 +1253,7 @@ bool DeckController::cancelResidentHold(int deck, const QString& sourceId,
     if (!hold.armed && !hold.active && pending.phase != ResidentAuthorization::Phase::ArmPending) {
         cancelContinuation(std::size_t(deck), "You turned recovery off.");
         revokeResidentAuthorization(std::size_t(deck), "You turned recovery off.");
-        emit stateChanged(); return true;
+        notifyStateChanged(); return true;
     }
     audio::RenderCore::Command command; command.type = audio::RenderCore::Command::Type::ResidentHoldCancel;
     command.deck = std::uint32_t(deck); command.sourceGeneration = state_.sourceGeneration[deck];
@@ -1349,6 +1362,7 @@ bool DeckController::continuationCurrent() const
 void DeckController::cancelContinuation(std::size_t deck, const QString& reason)
 {
     if (!continuation_ || continuation_->deck != deck) return;
+    deckSnapshot_.reset();
     continuation_->revoked = true;
     if (loaderPurpose_ == LoaderPurpose::Continuation) loadCancellation_.request_stop();
     auto& episode = continuationEpisodes_[deck];
@@ -1512,7 +1526,7 @@ void DeckController::continuationLoaded(const LoadResult& result)
         auto clip = result.prepared ? std::move(result.prepared->audio) : nullptr;
         continuation_.reset();
         if (playback || clip) retirePlayback(std::move(playback), std::move(clip));
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     attempt.prepared = result.prepared;
@@ -1527,7 +1541,7 @@ void DeckController::continuationLoaded(const LoadResult& result)
         continuation_.reset();
         retirePlayback(std::move(playback), std::move(clip));
     } else episode.status = "Installing";
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::settleContinuation(bool stopped)
@@ -1601,6 +1615,7 @@ void DeckController::stopSession()
             continuationEpisodes_[deck].stalled.invalidate();
         }
     }
+    deckSnapshot_.reset();
 }
 
 void DeckController::loaded()
@@ -1645,7 +1660,7 @@ void DeckController::loaded()
                 return {{}, QString::fromUtf8(error.what()), true};
             }
         }));
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     if (!result.prepared) {
@@ -1659,7 +1674,7 @@ void DeckController::loaded()
     preparationPhase_ = "install";
     preparationCompletedStages_ = preparationTotalStages_ - 1;
     preparationCacheHit_ = result.prepared->cacheHit;
-    emit stateChanged();
+    notifyStateChanged();
     if (closing_) return;
     pendingLoad_ = result.prepared;
     if (session_) {
@@ -1670,7 +1685,7 @@ void DeckController::loaded()
         // retried while only this deck's ordinary controls are blocked.
         cueRelease(pendingDeck_);
         publishReplacement();
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     stopSession();
@@ -1768,7 +1783,7 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     // Establish installer ownership before allowing a completion notification.
     if (retiredPlayback || retiredClip)
         retirePlayback(std::move(retiredPlayback), std::move(retiredClip));
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::publishReplacement()
@@ -1917,7 +1932,7 @@ void DeckController::retired()
         }
     }
     drainForegroundPreparation();
-    if (!closing_) emit stateChanged();
+    if (!closing_) notifyStateChanged();
 }
 
 void DeckController::installed()
@@ -1995,7 +2010,7 @@ void DeckController::installed()
     }
     if (installingPreparation && !busy_) preparationCompletedStages_ = preparationTotalStages_;
     error_.clear();
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::poll()
@@ -2005,7 +2020,7 @@ void DeckController::poll()
             routingSnapshot_ = discovery_->routingSnapshot();
             const auto error = discovery_->error();
             if (!error.empty()) routingSnapshot_.masterError = error;
-            emit stateChanged();
+            notifyStateChanged();
         }
         pollRecording();
         return;
@@ -2049,7 +2064,7 @@ void DeckController::poll()
     pollRecording();
     pollResidentAuthorization();
     considerContinuation();
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 bool DeckController::submit(audio::RenderCore::Command command)
@@ -2104,6 +2119,8 @@ bool DeckController::submit(audio::RenderCore::Command command)
         fail("Audio control queue is full. Try the control again.");
         return false;
     }
+    // Saved-CUE availability also depends on unacknowledged command IDs.
+    deckSnapshot_.reset();
     // The queued native transport command cancels scratch itself. Do not add a
     // redundant End+seek; source/token guards reject a later old-pointer Move.
     if (transportEndsScratch) scratchGestures_[command.deck].reset();
@@ -2163,6 +2180,7 @@ bool DeckController::flushScratchEnds()
         command.sourceGeneration = identity.sourceGeneration;
         command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
         if (!session_->submit(command)) return false;
+        deckSnapshot_.reset();
         revokeResidentAuthorization(deck, "Vinyl controls turned recovery off.");
         cancelContinuation(deck, "A newer scratch release was accepted.");
         scratchEnds_[deck].reset();
@@ -2248,6 +2266,7 @@ bool DeckController::flushCueReleases()
         if (!session_) return false;
         command.id = std::uint32_t(std::min(submitted_, std::uint64_t(UINT32_MAX) - 1) + 1);
         if (!session_->submit(command)) return false;
+        deckSnapshot_.reset();
         revokeResidentAuthorization(deck, "CUE turned recovery off.");
         cancelContinuation(deck, "A newer CUE release was accepted.");
         cueReleasePending_[deck] = false;
@@ -2450,7 +2469,7 @@ void DeckController::setBpmOverride(int deck, double bpm)
     // A source reference is metadata. Changing it never changes playback speed
     // or issues a render command; the acknowledged ratio remains authoritative.
     bpmOverrides_[deck] = bpm;
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::clearBpmOverride(int deck)
@@ -2460,7 +2479,7 @@ void DeckController::clearBpmOverride(int deck)
         return;
     }
     bpmOverrides_[deck].reset();
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::toggleMasterTempo(int deck)
@@ -2569,7 +2588,7 @@ void DeckController::refreshAudioRouting()
             discovery_.reset();
         }
     }
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::configureAudioRouting(const QString& masterLeft, const QString& masterRight,
@@ -2609,7 +2628,7 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
     routingConfig_ = std::move(config);
     if (!clips_[0] && !clips_[1]) {
         error_.clear();
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     busy_ = true;
@@ -2623,18 +2642,18 @@ void DeckController::startRecording(const QUrl& url)
     if (closing_) return;
     if (!ready_ || !session_) {
         recordingError_ = "Audio output must be ready before recording.";
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     if (recorder_ || recordingStartPending_ || recordingFinalizationPending_) {
         recordingError_ = "Wait for the current recording to finish.";
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     if (!url.isLocalFile() || (!url.host().isEmpty() && url.host() != "localhost") ||
         !QFileInfo(url.toLocalFile()).isAbsolute()) {
         recordingError_ = "Enter a new absolute local WAV path.";
-        emit stateChanged();
+        notifyStateChanged();
         return;
     }
     recordingPath_ = url.toLocalFile();
@@ -2652,7 +2671,7 @@ void DeckController::startRecording(const QUrl& url)
             return {{}, QString::fromUtf8(error.what())};
         } catch (...) { return {{}, "Cannot create a recording."}; }
     }));
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::recordingStarted()
@@ -2668,7 +2687,7 @@ void DeckController::recordingStarted()
         if (!session_ || !ready_) recordingStopRequested_ = true;
         pollRecording();
     }
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::stopRecording()
@@ -2678,7 +2697,7 @@ void DeckController::stopRecording()
     recordingStopRequested_ = true;
     recordingStatus_ = "Stopping";
     pollRecording();
-    emit stateChanged();
+    notifyStateChanged();
 }
 
 void DeckController::pollRecording()
@@ -2724,6 +2743,6 @@ void DeckController::recordingFinished()
     lastRecording_ = recordingFinalizer_.result();
     recordingError_ = lastRecording_.error;
     recordingStatus_ = recordingError_.isEmpty() ? "Complete" : "Failed";
-    emit stateChanged();
+    notifyStateChanged();
 }
 } // namespace conflux

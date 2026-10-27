@@ -3544,7 +3544,16 @@ int main(int argc, char** argv)
                     "Saved CUE persists across controller recreation without an automatic seek or marker replacement");
         }
         savedCatalog = catalogSnapshot(); // The explicit Save is the last authorized metadata change.
+        const auto beforeQueuedCue = controller.decks()[1].toMap()["savedCue"].toMap();
+        require(beforeQueuedCue["saveAvailable"].toBool() && beforeQueuedCue["recallAvailable"].toBool(),
+                "Acknowledged saved CUE is available before the next transport command");
         controller.seekSeconds(1, 640 / 48000.0);
+        const auto queuedCue = controller.decks()[1].toMap()["savedCue"].toMap();
+        require(!queuedCue["saveAvailable"].toBool() && !queuedCue["recallAvailable"].toBool() &&
+                queuedCue["saveReason"].toString().contains("acknowledge") &&
+                queuedCue["recallReason"].toString().contains("acknowledge") &&
+                beforeQueuedCue["saveAvailable"].toBool() && beforeQueuedCue["recallAvailable"].toBool(),
+                "Queued transport immediately disables fresh saved-CUE actions without changing the retained snapshot");
         require(!controller.saveDeckCue(1) && controller.error().contains("acknowledge"),
                 "Queued seek must invalidate the current CUE snapshot until acknowledgment");
         wait([&] { const auto state = controller.audioState();
