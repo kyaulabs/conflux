@@ -51,6 +51,7 @@ struct DecodeInput {
     sf_count_t remaining;
     int channels;
     std::stop_token stop;
+    bool estimatedFrames = false;
     bool readFault = false, nonfinite = false;
     std::array<float, 4096 * RenderCore::channels> buffer{};
 
@@ -62,11 +63,15 @@ struct DecodeInput {
             return 0;
         const auto wanted = std::min<sf_count_t>(self.remaining, 4096);
         const auto count = sf_readf_float(self.file, self.buffer.data(), wanted);
-        if (count != wanted || sf_error(self.file) != SF_ERR_NO_ERROR) {
+        if (count < 0 || count > wanted || sf_error(self.file) != SF_ERR_NO_ERROR ||
+            (!self.estimatedFrames && count != wanted)) {
             self.readFault = true;
             return 0;
         }
-        self.remaining -= count;
+        if (self.estimatedFrames && count < wanted)
+            self.remaining = 0;
+        else
+            self.remaining -= count;
         self.nonfinite = std::any_of(self.buffer.begin(), self.buffer.begin() + count * self.channels,
                                     [](float sample) { return !std::isfinite(sample); });
         return self.nonfinite ? 0 : static_cast<long>(count);
@@ -112,15 +117,20 @@ std::uint64_t convertFile(int sourceDescriptor, std::size_t maximumBytes,
         throw std::invalid_argument("Audio file must be mono or stereo at 8000 to 192000 Hz");
     if (info.frames <= 0)
         throw std::runtime_error("Audio file contains no frames");
+    // MPEG length may be guessed from file size rather than an indexed frame
+    // count. Decode to clean EOF and enforce the actual output budget below.
+    const bool estimatedFrames = !rawMetadata && (info.format & SF_FORMAT_TYPEMASK) == SF_FORMAT_MPEG;
     const auto maximum = static_cast<std::uint64_t>(maximumBytes / frameBytes);
     const auto frames = static_cast<std::uint64_t>(info.frames);
     const auto rate = static_cast<std::uint64_t>(info.samplerate);
     const auto seconds = frames / rate;
     const auto outputRate = static_cast<std::uint64_t>(targetRate);
     const auto fractional = ((frames % rate) * outputRate + rate - 1) / rate;
-    if (seconds > maximum / outputRate || fractional > maximum - seconds * outputRate)
+    if (!estimatedFrames &&
+        (seconds > maximum / outputRate || fractional > maximum - seconds * outputRate))
         throw std::length_error("Audio file exceeds the prepared PCM byte budget");
-    DecodeInput input{file.get(), info.frames, info.channels, stop};
+    DecodeInput input{file.get(), estimatedFrames ? std::numeric_limits<sf_count_t>::max() : info.frames,
+                      info.channels, stop, estimatedFrames};
     std::uint64_t produced = 0;
     auto emit = [&](float* data, std::size_t count) {
         checkStop(stop);
