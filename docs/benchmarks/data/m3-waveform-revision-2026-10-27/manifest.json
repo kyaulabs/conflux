@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "scope": "Functional regression and build evidence only; no laptop performance measurement",
+  "records": [
+    {
+      "file": "ui-red-01.log.gz",
+      "bytes": 767,
+      "sha256": "299fe2a4ee94d9aa8c95f4abb622554ffd3cd13c4cb5e43c0bd4730f58b16028",
+      "gzip_bytes": 464,
+      "gzip_sha256": "48354c141985eb66a86fe57bec4f491b02b9c76b743a1747f10ef0f77be567b4",
+      "private_source": "build/m2-waveform-refresh-01/ui-red-01.log"
+    },
+    {
+      "file": "ui-green-01.log.gz",
+      "bytes": 472,
+      "sha256": "deca68ae5e5879c1489c4a01ce347b2fc36b64bb38f799f26d0769fc33261007",
+      "gzip_bytes": 300,
+      "gzip_sha256": "d56dff197f28ea0c43653811141e1aa22ccc1bbf597f76fc8bc12e1689885966",
+      "private_source": "build/m2-waveform-refresh-01/ui-green-01.log"
+    },
+    {
+      "file": "ui-full-01.log.gz",
+      "bytes": 20100,
+      "sha256": "d393771cbb3c8b99ebff8b349aaa6e96bf1d8f19eef108d6ccdd4517b11608bc",
+      "gzip_bytes": 3297,
+      "gzip_sha256": "b81aafa694e6de3e6207daaf7577a96cc5d63546a341fd513d47661e92c97c38",
+      "private_source": "build/m2-waveform-refresh-01/ui-full-01.log"
+    },
+    {
+      "file": "controller-focused-01.log.gz",
+      "bytes": 516,
+      "sha256": "c957f31b49bf1039b910f63124d1bd90c346b5b228d36369940d6c80a702bb28",
+      "gzip_bytes": 313,
+      "gzip_sha256": "a4a846e08c98b4acbc8dc2c8a1aa05dc0adb777787761285df2db51bf9b08e5f",
+      "private_source": "build/m2-waveform-refresh-01/controller-focused-01.log"
+    },
+    {
+      "file": "controller-full-01.log.gz",
+      "bytes": 4904,
+      "sha256": "26523e209467439b321597cd8967c349f2f59e64846843db5f8a25ecf120f090",
+      "gzip_bytes": 1536,
+      "gzip_sha256": "3ffa9f47117914d5eb50150856f7f7d484be9a07edd6eb822aa3b9e6462291d3",
+      "private_source": "build/m2-waveform-refresh-01/controller-full-01.log"
+    },
+    {
+      "file": "configure-01.log.gz",
+      "bytes": 1327,
+      "sha256": "f698b1ad941cd038a4b6b7df5a62835fd79d317fe8aeeb7adee62e3f881f3d6f",
+      "gzip_bytes": 606,
+      "gzip_sha256": "7a5a358a333bd8b735fe5185b2b8f37f2681db663b839e8096a4f8fdc8a3c9c2",
+      "private_source": "build/m2-waveform-refresh-01/configure-01.log"
+    },
+    {
+      "file": "build-ui-red-01.log.gz",
+      "bytes": 603,
+      "sha256": "0aab284bf4e51ae6d51d88fbffb1bbf62318baa5d44849c2fbf1f8a58502ca6b",
+      "gzip_bytes": 240,
+      "gzip_sha256": "2232cafee4abd4209e80620661fe9154cf1a9942dc4a6fabca0613d08af9fdbd",
+      "private_source": "build/m2-waveform-refresh-01/build-ui-red-01.log"
+    },
+    {
+      "file": "build-controller-01.log.gz",
+      "bytes": 3880,
+      "sha256": "23a3a779573febc7154265ca6986954ce81b444a9906450db6fbceeefbca8921",
+      "gzip_bytes": 687,
+      "gzip_sha256": "e05cf4e783c48e3ce2a9d2477bc1fb6281544c027e14c67277916d71bd171c05",
+      "private_source": "build/m2-waveform-refresh-01/build-controller-01.log"
+    },
+    {
+      "file": "verification-01.json.gz",
+      "bytes": 2364,
+      "sha256": "450a4d2ce375d9fa408e12fa1152b5fdc516065facad4b6b644491231f947e81",
+      "gzip_bytes": 1102,
+      "gzip_sha256": "702bba90d6723f81ddaf7a4d181058cdd4151ec67820feacc4ce83bd27774706",
+      "private_source": "build/m2-waveform-refresh-01/verification-01.json"
+    },
+    {
+      "file": "archive_evidence.py.gz",
+      "bytes": 2005,
+      "sha256": "3c344364ff221a5987d42f0a302006ac27de2552e7e0be69e9e85f2632cadeae",
+      "gzip_bytes": 898,
+      "gzip_sha256": "de97c5bbff40f598a160844e3aba7fe8181d9046e07b47f5e13c505340f84a38",
+      "private_source": "build/m2-waveform-refresh-01/archive_evidence.py"
+    }
+  ],
+  "compressed_bytes": 9443,
+  "omitted": [
+    "Compiled executables and libraries",
+    "Media",
+    "Models",
+    "Installed dependencies"
+  ],
+  "laptop_latency_qualified": false,
+  "M2_complete": false,
+  "M3_complete": false,
+  "source_snapshots": "Product and fixture sources are committed with this evidence; per-file hashes are in verification-01.json.gz."
+}

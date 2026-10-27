@@ -343,6 +343,7 @@ private:
     std::array<library::HarmonyEstimate, 2> harmonyEstimates_{};
     std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
+    std::array<std::uint64_t, 2> waveformRevisions_{};
     std::array<bool, 2> cueDown_{}, cueReleasePending_{};
     // GUI ownership only, not optimistic render state. One pending release per
     // deck blocks a new gesture until queued or the old source is retired.

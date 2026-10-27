@@ -78,6 +78,7 @@ Item {
     readonly property real jogDiameter: Math.max(220, Math.min(
         width - 2 * (edge + 56 + 8), height - jogTop - 30))
     property var cachedWaveform: []
+    property var cachedWaveformIdentity: null
     signal browseRequested(int deck)
     implicitWidth: 470
     implicitHeight: 670
@@ -94,16 +95,31 @@ Item {
     onShowingPreparationChanged: { if (waveform) waveform.requestPaint() }
     function refreshWaveform() {
         const current = controller.decks[deckIndex] || ({})
+        // Accepted overviews are immutable until the controller replaces them.
+        // Pending previews remain mutable and must invalidate the accepted key.
+        const revision = current.waveformRevision
+        const canCache = Boolean(current.loaded) && !current.loading
+            && typeof revision === "string" && revision.length > 0
+        const previous = cachedWaveformIdentity
+        if (canCache && previous && previous.controller === controller
+                && previous.deck === deckIndex && previous.revision === revision)
+            return
+        const identity = canCache ? ({controller: controller, deck: deckIndex, revision: revision}) : null
+        if (!canCache)
+            cachedWaveformIdentity = null
         const next = (current.loading ? current.pendingWaveform : current.waveform) || []
         let unchanged = next.length === cachedWaveform.length
         for (let index = 0; unchanged && index < next.length; ++index)
             unchanged = Number(next[index]) === Number(cachedWaveform[index])
-        if (unchanged)
+        if (unchanged) {
+            cachedWaveformIdentity = identity
             return
+        }
         const copy = []
         for (let index = 0; index < next.length; ++index)
             copy.push(Number(next[index]))
         cachedWaveform = copy
+        cachedWaveformIdentity = identity
         waveform.requestPaint()
     }
     function refreshTempo() {
