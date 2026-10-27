@@ -1,0 +1,734 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-27T01:06:32.344751+00:00",
+  "status": "both_native_measurements_complete_both_latency_failures_candidate_ownership_failed",
+  "qualified": false,
+  "strict_service_target_ms": 4095,
+  "order": [
+    "baseline",
+    "candidate"
+  ],
+  "shared_operator_seconds": 1200,
+  "measured_ms_per_arm": 120006,
+  "original_results_preserved": true,
+  "candidate_automated_ownership_failure_preserved": true,
+  "both_physical_scopes_closed": true,
+  "Best_quality": true,
+  "power_ceiling_W": 15,
+  "thermal_guard_unchanged": true,
+  "no_profile_selected": true,
+  "no_laptop_tests_authorized_after_pair": true,
+  "archive_count": 51,
+  "archives": [
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/root-comparison-results-01.json",
+        "bytes": 18777,
+        "sha256": "eb8cc8dfaf0fea8e87e539c5db4396f173d01fd9ac6f4c6bba3d3bbd3cbeedc1"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/comparison.json.gz",
+        "bytes": 3573,
+        "sha256": "3c9efb351c00c3edc8fca7ee24455c22bc17e490a9ad5c88b2a216746448ad3b"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/pair-readiness-received-01.json",
+        "bytes": 451,
+        "sha256": "710a61d5c180557d949e2d77f29583e5da09133a1cd6c57fc1427f94f13b5e15"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/pair-readiness.json.gz",
+        "bytes": 297,
+        "sha256": "8813462a11a5f61a156bd28f6e489dbdefda7d635ed1d618c11041aa79564ec7"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-02/root-pair-ended-01.json",
+        "bytes": 1251,
+        "sha256": "6b5f67b3836f7d7602f57a636b5eb931d6b4469f6cf435975624086c9a7050ce"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/prior-admission-failure.json.gz",
+        "bytes": 701,
+        "sha256": "55d0ccee55f9746b5c4cc3ffe7c691c4a8261e761cf9a940a80d9ca3e8c971a4"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-02/cases/baseline/root-finished-01.json",
+        "bytes": 2207,
+        "sha256": "d4e8ea87ed11796e69faa86f3d5ffdc7268d95bd89f438f7b5add45ec4df7602"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/prior-admission-closure.json.gz",
+        "bytes": 1049,
+        "sha256": "1d6aeadbed5d5624899bca65975d87515c5b8b9a56e54464811b58f67d6ab26b"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/admission-recovery-red-01.log",
+        "bytes": 2116,
+        "sha256": "3804c9f8eed09714e65794399efdeb1c5769a96d8e617f4e3d0d4b70f84b40cc"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/admission-red.log.gz",
+        "bytes": 519,
+        "sha256": "6d508382b679a7d2a25056cbf097d7b182e9b216618508adaedb1eb17a711529"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/entry-offline-checks-01.log",
+        "bytes": 102,
+        "sha256": "66d6e314674f6e6ea71cf48674237688347597b068c9457453dcd6ce6dfe124b"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/pair-entry-checks.log.gz",
+        "bytes": 55,
+        "sha256": "a5b178ec0b431a7b23079e12373de7b2794465b5f7567cd92bd5ac98acee26cb"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/launch_case.py",
+        "bytes": 8570,
+        "sha256": "cbbc4636c48b06340e0017846c6ae52bcdef1c3060e597a555f0f68f83f5691f"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/pair-entry.py.gz",
+        "bytes": 2793,
+        "sha256": "ab33ac9362c5a2162a21c896e06a9dd5f87b17c6632285613312d3b93cdb9960"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/analyze_comparison03.py",
+        "bytes": 12067,
+        "sha256": "c7d9753fdfceb006920749fcc21d49842d809c7658b9bea347ea026b640e2d49"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/analysis.py.gz",
+        "bytes": 3859,
+        "sha256": "07ac63a2fafe73014448439ad7e5568342968bbb4c3579c450bff600cfa94674"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/close_failed_candidate.py",
+        "bytes": 6872,
+        "sha256": "04c8018d5340b979c1f2919fc1c7f64169f39ad56335e4364e1b71aa69f6439b"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-independent-closure.py.gz",
+        "bytes": 2480,
+        "sha256": "8c9dd6623bf8731b2be8a0997779c74e422cae2a5c196b998022c11031e224bb"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-unit-dispatch-01.json",
+        "bytes": 3556,
+        "sha256": "92053dc6b9f3845d015ae27fbeb1872b406e5135e7619a7d50b292101ded6df9"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-unit-dispatch-01.json.gz",
+        "bytes": 1314,
+        "sha256": "91004de44359b2e7de415c2c0239f99dff2dd9cf7ccb97021a3a0f92e423fbc3"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/dispatch-01.json",
+        "bytes": 29540,
+        "sha256": "2e8f492cc36ae627f271513ed863e42c00683d13557fc19bffd4a465f6c92c39"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-dispatch-01.json.gz",
+        "bytes": 3060,
+        "sha256": "3c49731c85518c26548681bf87e73c70d530bbd6bf186538f3a3c07785143637"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/admission-01.json",
+        "bytes": 58527,
+        "sha256": "f0746aae8bbd2ee5323e5281bd76478319b2f80cf351efb9924ca73d99911eac"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-admission-01.json.gz",
+        "bytes": 3996,
+        "sha256": "f47e1184fe902066055ccf5f6bf8a55b96cf9d395cc84eefabca81df225ef8e8"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/diagnostic-assessment.json",
+        "bytes": 148694,
+        "sha256": "c149c72bcdc987f00634bba95a917e1afd8917a78455f268fed18fd44dd73253"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-diagnostic-assessment.json.gz",
+        "bytes": 7074,
+        "sha256": "151c0a788d7dc1e64a8ff05db718ca2ad3b5ad53f3ce202cc6da3635e027f3e2"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-finished-01.json",
+        "bytes": 2358,
+        "sha256": "429ac21f3c39cb35a481283fb388a9848e409e857075028b7e483e899cf0ff33"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-finished-01.json.gz",
+        "bytes": 1061,
+        "sha256": "0c15f45a1f179a5adc395fd774533ee16bd0a709f7139ba5d41b84f23b6e4fa7"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/plan.json",
+        "bytes": 70501,
+        "sha256": "8e0660f31b87c405a9efe0369a064e15f4e38a915117cedad032c9b2571d1541"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-plan.json.gz",
+        "bytes": 12590,
+        "sha256": "9886c913318d0ef0d026f2e66425af6277b396250aac9647fe2ffd001dffc7df"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-audio-results-01.json",
+        "bytes": 6744,
+        "sha256": "90c47061d3d8e7e0c789a8b3ec6df25b105880b25d85ba665179ebe24d115b38"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-audio-results-01.json.gz",
+        "bytes": 2409,
+        "sha256": "9aa37ac2bf49833457668f2038f3e1620f36bdbfb26d76751c39f7dbc7b37404"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-thread-cpu-analysis-01.json",
+        "bytes": 14386,
+        "sha256": "8f4816938661dec4d24d7aed4f3302618973e897cf96013d236262501bdfe2e8"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-thread-cpu-analysis-01.json.gz",
+        "bytes": 1686,
+        "sha256": "77375eb6f309c92efe2eb42fc9c51894134acf7c4c6f41d1d46c15b3f2c4c309"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-guard-journal-01.json",
+        "bytes": 1075,
+        "sha256": "e28cbba574bddccfdea9e5df622e552ed6d3c6a5e309be503711e8ed797e0898"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-guard-journal-01.json.gz",
+        "bytes": 615,
+        "sha256": "a6c51e26dd74d1674614c0a2bc9d6d64d18d99772b686afd5ed8a5c3533013f4"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-offline-checks-01.json",
+        "bytes": 1220,
+        "sha256": "29f7d07451e14e574021c464f625860863542fee1b6e9c354137c7db6273e160"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-offline-checks-01.json.gz",
+        "bytes": 517,
+        "sha256": "06116239e7022b8c22d7c128a31e594595af5e76ae0386a37d63b8df97c678ab"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-packet-review-01.json",
+        "bytes": 4625,
+        "sha256": "a3b965fa2165e6f91e83d576af0eb6363d2a9313c88b4d7d5f8f8aaa3754a53c"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-packet-review-01.json.gz",
+        "bytes": 1869,
+        "sha256": "abcf9a1d508b89e94db3204d67fbb14d52d795e55e05510ff3f147aedd0afe1b"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-adapter-diff-01.txt",
+        "bytes": 1327,
+        "sha256": "c646fc48f40b105812e5b5a351ae7ba6303cad3c828a2141a72b76e1747e15e6"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-root-adapter-diff-01.txt.gz",
+        "bytes": 676,
+        "sha256": "2abb96e18c629e62224d3eb49dc359e9ece7fb39577b58ec1891c32a918e5e29"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/offline-checks-01.log",
+        "bytes": 178,
+        "sha256": "7de4762ea3c013e881cc149b577048a9ae797aca6fadb65009f9dfb4b51431ca"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-offline-checks-01.log.gz",
+        "bytes": 56,
+        "sha256": "e9594f6b8429d25cd102a5c190594253f2898a130cffb68748e8b70f8698dec1"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/owner-history-checks-01.log",
+        "bytes": 106,
+        "sha256": "986b337bbe2c19151a60584dcdb14a8f1bf36ebb5379a1aecfc86f746ceac83e"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-owner-history-checks-01.log.gz",
+        "bytes": 54,
+        "sha256": "7b9e8afc7ba2c29b89a85a9765fac74d7b92235ddc124da87c3b1252d2034cba"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/file-preflight-01.log",
+        "bytes": 82,
+        "sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-file-preflight-01.log.gz",
+        "bytes": 89,
+        "sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/test_admission_recovery.py",
+        "bytes": 2878,
+        "sha256": "44e842fe8f8a473d0ab9394f4c770d6e3416c212224496fcdbb43341d15bf025"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-test_admission_recovery.py.gz",
+        "bytes": 996,
+        "sha256": "bd1f71e23d5b125e7cbec432b5e09d3caa51154377477a0f71c42f8d8e1bd4da"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/run_host_player.py",
+        "bytes": 68111,
+        "sha256": "01d7766e58f8a5247c95eaf47d5c142cc4be43b3d7adbfb31eaef5427388e6d3"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-run_host_player.py.gz",
+        "bytes": 19138,
+        "sha256": "0f479f7b62060f301e7174634cd40a46329aeb7b3e85730cf835b6e1e2afb868"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/run_player_owned.py",
+        "bytes": 23580,
+        "sha256": "e71a542d0566e7a490841749972a5c2b30aa36e39dc687f56484352e394ac18f"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-run_player_owned.py.gz",
+        "bytes": 6925,
+        "sha256": "5059df5a27e12a03ba8c01b26d3051a0d9b46630c0b69b91ae7bf003901b5603"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/output-01/result.json",
+        "bytes": 542040,
+        "sha256": "fee86385d548b107dd3ba1eeaa7299e2ae32a9932d8e4bfeb81d3ea88acbe7d2"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-public-result.json.gz",
+        "bytes": 51374,
+        "sha256": "3cf74356e3a9848117e370f27e5b3504eeac44f279db4372047819b2406b3cbc"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/output-01/observations.jsonl",
+        "bytes": 639946,
+        "sha256": "fcf3c7b3d618ae4c787d7003c78750d255f9ff8f0a81c515085c40a78ea2b323"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-public-observations.jsonl.gz",
+        "bytes": 46002,
+        "sha256": "a97048ae7483118e0f26e9a0c2c771b7ce346c84fbeca15db04233957df91a07"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-thermal-native-thread-projection-01.jsonl",
+        "bytes": 482994,
+        "sha256": "fa3a8421f6d86534ab6e45d9daec7e6431257d43891f5310ca2ed753ec3ccec9"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/baseline-thermal-native-thread-projection.jsonl.gz",
+        "bytes": 30219,
+        "sha256": "31a3721e9ceb3777e0a4d53c41eb41f9992fd002df67ee6945a97a9a5e44adab"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-unit-dispatch-01.json",
+        "bytes": 3564,
+        "sha256": "4a711f619b18375518e8cab858b9b564cf3a19c9eec31b711ac38c403b54df3d"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-unit-dispatch-01.json.gz",
+        "bytes": 1329,
+        "sha256": "5c2146559340d4e49a080b328b32e838e8d9b81e6e765a86c67155c69c1c4350"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/dispatch-01.json",
+        "bytes": 25089,
+        "sha256": "844a089a691b2a1fd786e018e8096b264bb316f6ad5319a067eab0cda0a55212"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-dispatch-01.json.gz",
+        "bytes": 2546,
+        "sha256": "e636dec372e1db2a34678955b6ded02a62f6c67399276f6c26247da41ff290be"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/admission-01.json",
+        "bytes": 36099,
+        "sha256": "312b391601a23774a5ed54aa46f1c7ef30cbada6e5e3fb9fe4c1559ee934dd68"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-admission-01.json.gz",
+        "bytes": 3227,
+        "sha256": "84f47b728f0cd854c75b23a55b3aa7c1e95379f2a8c67dc246ff754dd7681a41"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/diagnostic-assessment.json",
+        "bytes": 126282,
+        "sha256": "dfe5a4c9a2266e397538a2484e05e5758018b59a2c6715328b8e14c6e8254920"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-diagnostic-assessment.json.gz",
+        "bytes": 6299,
+        "sha256": "72244675cf9aab015562c6c4278a6676fe5e881f23506efcb718f033df946490"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-finished-01.json",
+        "bytes": 3036,
+        "sha256": "70160d090bba5c6bc050cb66c34c6d8831396aa7e722f5910f5750c6ee4c5b8e"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-finished-01.json.gz",
+        "bytes": 1272,
+        "sha256": "399ed2e24c33cc28d02261b1decff97a79ce4ff179a975e3f52a3d62e6cbb187"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/plan.json",
+        "bytes": 64784,
+        "sha256": "fa2a6afe7882ecb13c7aef890f39ec46a9b78a68afdb3e4ed141967d869cd61b"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-plan.json.gz",
+        "bytes": 10700,
+        "sha256": "18375b79e763d2f51ee37e511af8b419387da46737fc906c576ba49e6384848c"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-audio-results-01.json",
+        "bytes": 7108,
+        "sha256": "3b144d236ae61d4d59ecadf9c377c02c0cc40499176b0098536ea8bf413fe093"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-audio-results-01.json.gz",
+        "bytes": 2540,
+        "sha256": "4d6496d3137ed6d98213c20055777170eeffa28e773748720a2d3946cf200bce"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-thread-cpu-analysis-01.json",
+        "bytes": 13461,
+        "sha256": "be8f4713159ea8274e75e09b4475678831f43ab69a0f37f09ed4822dde4e372d"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-thread-cpu-analysis-01.json.gz",
+        "bytes": 1579,
+        "sha256": "55d85fb6885fb924806435788ff82dae05716048dc07ea0c242f874857705e0a"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-guard-journal-01.json",
+        "bytes": 1075,
+        "sha256": "4cf91eefc82eddbe48880feee9beb327b0ba3483775875a9b5228e10dd8235c1"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-guard-journal-01.json.gz",
+        "bytes": 612,
+        "sha256": "5f9a5ebed664d448422c95c6657f40c8a8055f09635e0f3adaeb44e468d136aa"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-offline-checks-01.json",
+        "bytes": 1225,
+        "sha256": "be31d04292bda0cdcd78e469fb84493d1552e8d29586d8355e8d5f196503b39b"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-offline-checks-01.json.gz",
+        "bytes": 520,
+        "sha256": "2434d0dbc53381e65328b93d3c164f3237e57eaf39f6184c31ad622faad75af1"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-packet-review-01.json",
+        "bytes": 4644,
+        "sha256": "ab4369191335fed80fa73a26cf93f3c106693a45e8a1f3d4c6cf7de1853c130d"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-packet-review-01.json.gz",
+        "bytes": 1862,
+        "sha256": "e23f1fc3f2de82e6ecdd60b96f0688e60cb572a1c60d938c93d214c431f62abe"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-adapter-diff-01.txt",
+        "bytes": 1327,
+        "sha256": "c646fc48f40b105812e5b5a351ae7ba6303cad3c828a2141a72b76e1747e15e6"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-root-adapter-diff-01.txt.gz",
+        "bytes": 676,
+        "sha256": "2abb96e18c629e62224d3eb49dc359e9ece7fb39577b58ec1891c32a918e5e29"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/offline-checks-01.log",
+        "bytes": 178,
+        "sha256": "ab0959e34423548fd466506bc36f4c785e0cb9c8494c7b369b55ca34d3efcc9f"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-offline-checks-01.log.gz",
+        "bytes": 56,
+        "sha256": "759859a4e82b771b30774a2f2b0465ed6e8bcec1eaeffc81c5dbbb7c7a8d4b61"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/owner-history-checks-01.log",
+        "bytes": 106,
+        "sha256": "a68a1eaac0727b99355330a354a5c236bcb72073f27e9a92b5320e08ac1300f9"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-owner-history-checks-01.log.gz",
+        "bytes": 54,
+        "sha256": "f2256725419d604c750ffd2f3c4de49c3e617b542d90ae1f4fc9e7f117c65e22"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/file-preflight-01.log",
+        "bytes": 82,
+        "sha256": "7aa81acdab3039d4b72fbd6585294b30ee2cae571e6f6065a5bf26ec7697d5d1"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-file-preflight-01.log.gz",
+        "bytes": 89,
+        "sha256": "4ccc03450650049618110b39f8f736c2a0b73339d6878e83c8979bc519ebbdc2"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/test_admission_recovery.py",
+        "bytes": 2878,
+        "sha256": "44e842fe8f8a473d0ab9394f4c770d6e3416c212224496fcdbb43341d15bf025"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-test_admission_recovery.py.gz",
+        "bytes": 996,
+        "sha256": "bd1f71e23d5b125e7cbec432b5e09d3caa51154377477a0f71c42f8d8e1bd4da"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/run_host_player.py",
+        "bytes": 68100,
+        "sha256": "a1495425987c41f17536db2067b8c3153daa1ef6d2178c3f0aa0a421c635b6eb"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-run_host_player.py.gz",
+        "bytes": 19140,
+        "sha256": "1be54b332b87354a09dcbfb9528d40f02d5e871f646dbb193211dfe1ef1911a7"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/run_player_owned.py",
+        "bytes": 23580,
+        "sha256": "92ace4e2ebba50d02b1eeac82d2dc88adaf3565ffbde3744b561206ccfa21ac2"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-run_player_owned.py.gz",
+        "bytes": 6924,
+        "sha256": "08d8b79e3cb624d9f86e7212877ba0d44c7c01b9004d537bd7ef5aba81701020"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/output-01/result.json",
+        "bytes": 541648,
+        "sha256": "a9d8c7ec72d1038b80ae00470ae646ba1658f957f50c777ba5a7ea40fa2a8e5d"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-public-result.json.gz",
+        "bytes": 51365,
+        "sha256": "b9367f2224dd5c509c259592a90e901cc5374bad11da4cc0685ec17ed7759d35"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/output-01/observations.jsonl",
+        "bytes": 640522,
+        "sha256": "278d512a1f67b51e4b2683469cdc705a8df0de73a42b9263b2a8bce8ad781c16"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-public-observations.jsonl.gz",
+        "bytes": 46311,
+        "sha256": "41c53000fc1b923e394ecb382902104348e157f4ae1e33fe695923ead979bc0e"
+      },
+      "round_trip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-thermal-native-thread-projection-01.jsonl",
+        "bytes": 491172,
+        "sha256": "03822004f782bb3dc9cef030c0f2bb3244555ac740a990892538b592e9ea3794"
+      },
+      "archive": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/docs/benchmarks/data/m2-deck-cache-player-2026-10-26/candidate-thermal-native-thread-projection.jsonl.gz",
+        "bytes": 30881,
+        "sha256": "9e8a1cd0fbc20efee5832107be370639e8dcc9debfa8eacc98cd3089d2771dc4"
+      },
+      "round_trip_verified": true
+    }
+  ],
+  "private_process_traces": [
+    {
+      "arm": "baseline",
+      "private_full_process_trace": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/output-01/host-observations.jsonl",
+        "bytes": 6033728,
+        "sha256": "059ae69a6d99689ffc8e9de6c496f83e0a634ea96dda75eb60b58143614e9239"
+      },
+      "published_projection": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/baseline/root-thermal-native-thread-projection-01.jsonl",
+        "bytes": 482994,
+        "sha256": "fa3a8421f6d86534ab6e45d9daec7e6431257d43891f5310ca2ed753ec3ccec9"
+      },
+      "omitted_field": "process_cpu_read_only.processes",
+      "all_thermal_and_native_thread_rows_retained": true
+    },
+    {
+      "arm": "candidate",
+      "private_full_process_trace": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/output-01/host-observations.jsonl",
+        "bytes": 6113286,
+        "sha256": "2f35758dbe8b49422dde2588dc4b0e6a2ffc35e50243b06a88a8a4f56f19aa9b"
+      },
+      "published_projection": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/cases/candidate/root-thermal-native-thread-projection-01.jsonl",
+        "bytes": 491172,
+        "sha256": "03822004f782bb3dc9cef030c0f2bb3244555ac740a990892538b592e9ea3794"
+      },
+      "omitted_field": "process_cpu_read_only.processes",
+      "all_thermal_and_native_thread_rows_retained": true
+    }
+  ],
+  "secret_scan": {
+    "exit_code": 0,
+    "log": {
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/archive-gitleaks-01.log",
+      "bytes": 79,
+      "sha256": "b6fb9ba6c0e9ada429da97eddee1c65c6edab0a4cdd17f3741af189f6d5853f2"
+    },
+    "decompressed_temporary_files_removed": true
+  },
+  "archive_script": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-deck-state-cache-01/comparison-03/archive_results.py",
+    "bytes": 5811,
+    "sha256": "c644fc3927dae6901e05f40442841c08e1c48175c2b6e6ae8b6c2e70ebf6fe40"
+  },
+  "exclusions": "Audio, models, executables, caches and unrelated process inventories remain private. Finite finalized WAV counts/peaks/hashes are retained in the result records."
+}
