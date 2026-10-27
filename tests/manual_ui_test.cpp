@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include <QInputMethodEvent>
 #include <QQmlApplicationEngine>
+#include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlError>
 #include <QQmlExpression>
@@ -1255,6 +1256,18 @@ private slots:
         QVERIFY(reference->isEnabled());
         QCOMPARE(ui_->endpoint.decks(), accepted);
         QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
+    void acceptedWaveformRevisionSkipsPayloadAndPreservesInvalidation()
+    {
+        QQmlComponent component(&ui_->engine,
+            QUrl::fromLocalFile(QStringLiteral(CONFLUX_SOURCE_DIR "/tests/waveform_cache_fixture.qml")));
+        std::unique_ptr<QObject> fixture(component.create());
+        QVERIFY2(fixture, qPrintable(component.errorString()));
+        QQmlExpression check(qmlContext(fixture.get()), fixture.get(), QStringLiteral("run()"));
+        const auto passed = check.evaluate();
+        QVERIFY2(!check.hasError(), qPrintable(check.error().toString()));
+        QVERIFY(passed.toBool());
     }
 
     void deckFocusUsesItsOwnColorWithoutSubmittingCommands()

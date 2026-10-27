@@ -1699,6 +1699,8 @@ private slots:
         const auto initial = controller.decks();
         QCOMPARE(initial.size(), 2);
         QVERIFY(!initial[0].toMap()["loaded"].toBool());
+        const auto emptyWaveformRevision = initial[0].toMap()["waveformRevision"].toString();
+        QVERIFY(!emptyWaveformRevision.isEmpty());
         QVariantList notified;
         QObject::connect(&controller, &conflux::DeckController::stateChanged, &controller,
             [&] { notified = controller.decks(); });
@@ -1710,6 +1712,8 @@ private slots:
         QVERIFY(!notified[0].toMap()["loading"].toBool());
         QVERIFY(!initial[0].toMap()["loaded"].toBool());
         const auto loaded = controller.decks();
+        const auto waveformRevision = loaded[0].toMap()["waveformRevision"].toString();
+        QVERIFY(!waveformRevision.isEmpty() && waveformRevision != emptyWaveformRevision);
         controller.setBpmOverride(0, 123.5);
         QCOMPARE(notified[0].toMap()["bpm"].toMap()["reference"].toDouble(), 123.5);
         QVERIFY(notified[0].toMap()["bpm"].toMap()["manual"].toBool());
@@ -1723,11 +1727,23 @@ private slots:
         QCOMPARE(controller.decks()[0].toMap()["bpm"].toMap()["reference"].toDouble(), 130.);
         controller.clearBpmOverride(0);
         QVERIFY(!notified[0].toMap()["bpm"].toMap()["manual"].toBool());
+        QCOMPARE(controller.decks()[0].toMap()["waveformRevision"].toString(), waveformRevision);
+        // Reloading the same source may choose a different overview (for
+        // example, a prepared stem bank); a source digest is not a revision.
+        controller.loadDeck(0, QUrl::fromLocalFile(source));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto reloaded = controller.decks();
+        QVERIFY(reloaded[0].toMap()["loaded"].toBool());
+        QCOMPARE(reloaded[0].toMap()["sourceId"], loaded[0].toMap()["sourceId"]);
+        QVERIFY(reloaded[0].toMap()["waveformRevision"].toString() != waveformRevision);
+        QCOMPARE(reloaded[1].toMap()["waveformRevision"], initial[1].toMap()["waveformRevision"]);
+        QCOMPARE(loaded[0].toMap()["waveformRevision"].toString(), waveformRevision);
         controller.shutdown();
         const auto stopped = controller.decks()[0].toMap();
         QVERIFY(!controller.outputReady());
         QVERIFY(!stopped["playing"].toBool());
         QVERIFY(stopped["loaded"].toBool()); // Shutdown preserves the loaded metadata.
+        QCOMPARE(stopped["waveformRevision"], reloaded[0].toMap()["waveformRevision"]);
         QVERIFY(loaded[0].toMap()["loaded"].toBool());
     }
 

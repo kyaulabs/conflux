@@ -421,6 +421,7 @@ QVariantList DeckController::decks() const
                 preparationCompletedStages_ / double(preparationTotalStages_) : 0.},
             {"sourceGeneration", QVariant::fromValue<qulonglong>(state_.sourceGeneration[deck])},
             {"waveform", waveforms_[deck]},
+            {"waveformRevision", QString::number(waveformRevisions_[deck])},
             {"overviewStem", clips_[deck] && clips_[deck]->observations ? "source" :
                              clips_[deck] && clips_[deck]->stemBank() ? "drums" : ""},
             {"stemBank", state_.stemBank[deck]},
@@ -1701,6 +1702,7 @@ void DeckController::loaded()
     bpmEstimates_[pendingDeck_] = std::move(result.prepared->bpm);
     harmonyEstimates_[pendingDeck_] = std::move(result.prepared->harmony);
     waveforms_[pendingDeck_] = result.prepared->waveform;
+    ++waveformRevisions_[pendingDeck_];
     state_.sourceFrame[pendingDeck_] = 0;
     state_.sourcePosition[pendingDeck_] = 0;
     state_.cueFrame[pendingDeck_] = 0;
@@ -1868,6 +1870,7 @@ void DeckController::settleReplacement(bool stopped)
     bpmEstimates_[pendingDeck_] = std::move(pendingLoad_->bpm);
     harmonyEstimates_[pendingDeck_] = std::move(pendingLoad_->harmony);
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
+    ++waveformRevisions_[pendingDeck_];
     pendingLoad_.reset();
     replacing_[pendingDeck_] = false;
     cueDown_[pendingDeck_] = cueReleasePending_[pendingDeck_] = false;
@@ -1960,6 +1963,7 @@ void DeckController::installed()
             harmonyEstimates_[deck] = {};
             bpmOverrides_[deck].reset();
             waveforms_[deck].clear();
+            ++waveformRevisions_[deck];
             cueDown_[deck] = cueReleasePending_[deck] = false;
             state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;
             state_.sourcePosition[deck] = 0;
