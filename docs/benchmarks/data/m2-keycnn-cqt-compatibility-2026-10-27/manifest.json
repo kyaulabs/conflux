@@ -1,0 +1,336 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-27T10:44:57.170574+00:00",
+  "records": [
+    {
+      "file": "assessment-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/assessment-01.json",
+      "bytes": 25457,
+      "sha256": "3a90cc395a904c5cc16695e640678dcf8528e97c82ddf709515a801c9ad02430",
+      "gzip_bytes": 2304,
+      "gzip_sha256": "ff98680bca0668c54d0c3c82963af45af6a8711dfc4a5e20e84b94cc605347d1",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "compare_features.py.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/compare_features.py",
+      "bytes": 7633,
+      "sha256": "51380c217167a1d3e08f04f9e2a37a5e5e27e3fcc0c5d9a404d81ee2fa4187f9",
+      "gzip_bytes": 2641,
+      "gzip_sha256": "65a2246736df02c2569b4e9b60efef1f65f69f974683b4de5395a411b6e6cb45",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "compare_resampler.py.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/compare_resampler.py",
+      "bytes": 5003,
+      "sha256": "31088e74c46036ed8f9ad6f3ab24d1567b1fd0c4c3687d9195239c1a09911478",
+      "gzip_bytes": 1850,
+      "gzip_sha256": "2a05cd809dae811cfe1f29f5c0565aa939f9cdccc38d0a3ad49bb1d0e9ffa647",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "comparison-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/comparison-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "comparison-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/comparison-stdout-01.log",
+      "bytes": 807,
+      "sha256": "771db7914e62e5e3a886fbdf4266aa7f1de8b3a41363a19881143c98be33a901",
+      "gzip_bytes": 273,
+      "gzip_sha256": "e552b4b633ad04bcfdfd44df651c137add8f786367ecfe35a45dd71c600a3a40",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "feature_worker.py.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/feature_worker.py",
+      "bytes": 5003,
+      "sha256": "a1b2d078e3fbf783823db630efeefb1ff5aee79d38db9c73985979979d8733d9",
+      "gzip_bytes": 2005,
+      "gzip_sha256": "9b09f303f0007bb009b250dcf3b285fa03a486f1decafec0d5f421a63c1ef4cf",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "generated-pipeline-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/generated-pipeline-01.json",
+      "bytes": 48967,
+      "sha256": "c2fecf99942f9d230197bf376c3a463650d5e7fc70fc445764e0ea6956487d0a",
+      "gzip_bytes": 8760,
+      "gzip_sha256": "72fda1705b8be79205170004ee593dc0d4231ce1467c520aaca049e92bcf40ad",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f32-features-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f32-features-01.json",
+      "bytes": 2705,
+      "sha256": "5577ed7c3e685eb518a3d1c959d4eeed8df1512d398ae2b7961680b76fb25613",
+      "gzip_bytes": 973,
+      "gzip_sha256": "d9b35279f8e71147083df1f36e2d94673a9f5da1bbc775d6cd2e17c54712cb59",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f32-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f32-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f32-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f32-stdout-01.log",
+      "bytes": 180,
+      "sha256": "268de7094a0ba822b1c06a552ca8e59c2738ce66af17c3d21b47510ad8b00f97",
+      "gzip_bytes": 160,
+      "gzip_sha256": "8a26a1aea6c3fe7ecbc3695cb346a5cfe2a872ba9cb715d75fddd00eadedb1a3",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f32_legacy_resampy-features-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f32_legacy_resampy-features-01.json",
+      "bytes": 2515,
+      "sha256": "d675b66e42f30c18c8d8cbff3098e3d438520a873e3fb1ada751ce9f296251fa",
+      "gzip_bytes": 908,
+      "gzip_sha256": "a537b4463760662e253a20e0f577b61084e86be35f7e74801750d6736c28a19c",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f64-features-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f64-features-01.json",
+      "bytes": 2706,
+      "sha256": "8db217fbb563cdfacb870db65224c0f6134a057b56f0bee9915400b9b5cba9f3",
+      "gzip_bytes": 976,
+      "gzip_sha256": "4efbaf01ac2b849f12173004e22748433780a1865cfcfd1175c6a7dbad208b5b",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f64-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f64-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_matched_q_f64-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_matched_q_f64-stdout-01.log",
+      "bytes": 181,
+      "sha256": "24eafc160a19b3415727168545ac9cf3866ea3d56794643c488b3cbcbb64635d",
+      "gzip_bytes": 160,
+      "gzip_sha256": "a54f769a3fb5fafcc47e3cf3d567ea8a4912e90eb372480f3d18f3f6df7ca48e",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_reflect_fast_f64-features-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_reflect_fast_f64-features-01.json",
+      "bytes": 2693,
+      "sha256": "874e5ad60ad113cf62393be60d62d69d75f24e3f04f48e233a41b46d15acb142",
+      "gzip_bytes": 962,
+      "gzip_sha256": "cd00a28aaa0099a250bfe09b9913e90d7ef27a10e66792b9834fc7dd40d9e629",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_reflect_fast_f64-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_reflect_fast_f64-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "modern_reflect_fast_f64-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/modern_reflect_fast_f64-stdout-01.log",
+      "bytes": 168,
+      "sha256": "ffa480b7556f7951f99e7caa39507f81b3a75f7949c09211ff83046d64ede6c1",
+      "gzip_bytes": 149,
+      "gzip_sha256": "8b5d13a0c8ae0b2be7c184cdd156c1861bfab8f5ca50ec764500993130846bfe",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "plan-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/plan-01.json",
+      "bytes": 7682,
+      "sha256": "828008e23067d110468fdec46790be20c4ef78de2f7e2c8467f55091e40e6a93",
+      "gzip_bytes": 2133,
+      "gzip_sha256": "dde1fc2776efddee565e4e41719fcf31949cae5102895824034e8ff8c16dfeb2",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "posterior-plan-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/posterior-plan-01.json",
+      "bytes": 5401,
+      "sha256": "94dfe5499c836b5226ff176863bf3e435af5df94fbb91d343777b344561c1464",
+      "gzip_bytes": 1444,
+      "gzip_sha256": "6c045df87dae68df456788cfe748e686cc9205958559bc6c81fa0df8e06ae000",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "posterior-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/posterior-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "posterior-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/posterior-stdout-01.log",
+      "bytes": 637,
+      "sha256": "a269481554d49de0526146f8dc06cf28b25c15b0135f5e9cae15e5e1224f49df",
+      "gzip_bytes": 265,
+      "gzip_sha256": "3a4b2844baf7b3e101db375ae65654d1b971f58c6cb74f6b465c52f99c1c294d",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-assessment-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-assessment-01.json",
+      "bytes": 21849,
+      "sha256": "0fcf528893bae817af2011a0706abf8fb900408445273fb2845077305491d8fe",
+      "gzip_bytes": 4347,
+      "gzip_sha256": "d4f354c9dab05d8feb9fc1a9910666755411cb7cd36bdf23cb14f1b18542cc4e",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-comparison-plan-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-comparison-plan-01.json",
+      "bytes": 4239,
+      "sha256": "ceaf0846e2712d9d6bd40dbdd003e9c6bcb6ef3a8f028c5ca5c9547df0189ea4",
+      "gzip_bytes": 1102,
+      "gzip_sha256": "808209f3f7211eebbbdc97f891d7cfc576f3297763ec4cbd13796b912ad7405a",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-comparison-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-comparison-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-comparison-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-comparison-stdout-01.log",
+      "bytes": 418,
+      "sha256": "c86c5b9205d64e584bd0f87f8064b80bd2084be9d401ea11788ee3bb27159ee5",
+      "gzip_bytes": 281,
+      "gzip_sha256": "45f71522aa72adeb279c4d50780eceeff5dc7e148be2c44c871d4641f9b5b655",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-plan-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-plan-01.json",
+      "bytes": 2926,
+      "sha256": "b3b1c1c8624deccc4e06d39b5b89521e9b499041f4f089212da14c5821eb4de3",
+      "gzip_bytes": 955,
+      "gzip_sha256": "fd7b746d180e5add5e222632c49316d44b3cb9c48b96c9c7a372d481b739846c",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-stderr-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler-stdout-01.log.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler-stdout-01.log",
+      "bytes": 106,
+      "sha256": "7918689a1f36fecbccd8ae00463a0b78474c5b06c171b05f36b9d2a2e74f6a3a",
+      "gzip_bytes": 114,
+      "gzip_sha256": "6770a3d6ecf72de6797926047ad1bd72195780cbd7d646a2eded5835a23f8a65",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "resampler_worker.py.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/resampler_worker.py",
+      "bytes": 3595,
+      "sha256": "ec42cbce7ff30cf5ac01bdb42f1599982f8c5724ae556a05d0ffaf9d9427288f",
+      "gzip_bytes": 1556,
+      "gzip_sha256": "831374f0775e593a5b8a1b8121f10a694619c97c57ab2a9f09e3a8818fa46bc8",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "verification-01.json.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/verification-01.json",
+      "bytes": 1612,
+      "sha256": "e61e260f0c5b0f8c5a56e9686d0f02ad9a87d35d21723024d6c0d60c7a8a79bc",
+      "gzip_bytes": 822,
+      "gzip_sha256": "51b1b9662408d46cab45187f662c2dc16ac244a7ff5001c1928df3188f2cb12b",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    },
+    {
+      "file": "publication--archive_evidence.py.gz",
+      "private_source": "build/m2-keyfinder-assessment-01/key-cnn-source-audit-01/model-data-audit-01/feature-compatibility-02/publication-01/archive_evidence.py",
+      "bytes": 3264,
+      "sha256": "4984462df4f8000e39f2ab60ba50850599d9ea197803455405f4d12292428626",
+      "gzip_bytes": 1456,
+      "gzip_sha256": "6fdd68533377b7d4acc30ae01a8c9de2429f07793fb72a76219902213c7b5b85",
+      "UTF8": true,
+      "source_bytes_unmodified": true
+    }
+  ],
+  "scope": "Generated-only feature and numeric-posterior diagnostic; no production integration",
+  "compressed_file_count": 31,
+  "compressed_bytes": 36736,
+  "prior_evidence_manifest": "../m2-keycnn-diagnostic-2026-10-27/manifest.json",
+  "prior_evidence": "The retained prior manifest includes the generated fixtures, comparison helpers, dependency lock, source-package provenance, legacy reference results and numeric model prototype.",
+  "omitted": [
+    "Generated NPZ arrays; their complete file hashes remain in the receipts and plans",
+    "Installed runtimes, libraries and caches",
+    "Model checkpoint and raw weights",
+    "Unmodified upstream source packages; prior download hashes remain available"
+  ],
+  "no_audio_recordings_or_reference_labels_used": true,
+  "model_provenance": "The same audited key-CNN checkpoint and hashed data-only tensors as the prior diagnostic; no checkpoint or tensor distribution.",
+  "original_training_dependencies_reproduced": false,
+  "original_framework_compatibility_qualified": false,
+  "held_out_musical_accuracy_qualified": false,
+  "confidence_calibrated": false,
+  "M2_complete": false,
+  "M3_complete": false,
+  "release_authorized": false
+}
