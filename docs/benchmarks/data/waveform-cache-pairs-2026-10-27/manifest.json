@@ -1,0 +1,640 @@
+{
+  "schema": 1,
+  "at_utc": "2026-10-27T18:38:16.787612+00:00",
+  "payloads": [
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/build-pair-receipt-01.json",
+      "raw_bytes": 5260,
+      "raw_sha256": "c49e58b542a5d89c99cff3b7746f85e77855760ecdfcf6bc5993df091050003c",
+      "archive": "000-pair-01--build-pair-receipt-01.json.gz",
+      "archive_bytes": 1347,
+      "archive_sha256": "c251308983924ea66e6131d4d016159cb45c757c059d86f756bcdd7666006261"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/pair-readiness-received-01.json",
+      "raw_bytes": 446,
+      "raw_sha256": "e2f67c00954a5337a3cc82ffb045b9737b7129aed7b654ddf81d1a09aed5e12c",
+      "archive": "001-pair-01--pair-readiness-received-01.json.gz",
+      "archive_bytes": 298,
+      "archive_sha256": "81868bb2420149e84d40cbbd1b685695556e718859bf789c9fd692976e01eeb4"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/pair-closed-01.json",
+      "raw_bytes": 5689,
+      "raw_sha256": "8789e413d748fa92812a86346d4515badf16056a103d9ae16d6b5a1856445043",
+      "archive": "002-pair-01--pair-closed-01.json.gz",
+      "archive_bytes": 2119,
+      "archive_sha256": "61d4d8e3f66c4ea067599d51e5a48f79c3016f20b14d33521c950de6a830944e"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/source-readiness-01.json",
+      "raw_bytes": 2029,
+      "raw_sha256": "beecace148f6df434ab03f0f432d885799ba4bb50558231d03d6396910089f65",
+      "archive": "003-pair-01--source-readiness-01.json.gz",
+      "archive_bytes": 858,
+      "archive_sha256": "ec73656750495497400f80f8a9bf32af813174600472c2de915a39e58217ae15"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/freeze-verification-01.json",
+      "raw_bytes": 799,
+      "raw_sha256": "6cfb64da863c912aaa14e3c3ae54c86775dd1e3fa9790d807b23509295557ee2",
+      "archive": "004-pair-01--freeze-verification-01.json.gz",
+      "archive_bytes": 475,
+      "archive_sha256": "dc9a15f6437950cf823565d4ddbe8ea6e0dbe7a2ca198b7639abc2153eac0754"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/actual-desktop-entry-check-01.json",
+      "raw_bytes": 7103,
+      "raw_sha256": "9ba156737e84dd6f852321c5abf900cf3d29d777cb09f34b0bf107e18efd96cd",
+      "archive": "005-pair-01--actual-desktop-entry-check-01.json.gz",
+      "archive_bytes": 1185,
+      "archive_sha256": "b7cb2b4e9d882d303b1ea6137b6ce507f0b5ad2d187db7bd57ecd876ea1c86f0"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/pair_clock.py",
+      "raw_bytes": 1995,
+      "raw_sha256": "b12dabf22c15fd2a8459e21056dd78dc288cf6eeb5fcc858ec5cb93b66b7f203",
+      "archive": "006-pair-01--pair_clock.py.gz",
+      "archive_bytes": 795,
+      "archive_sha256": "0b53d0b6c72368a98130920296bb96896a7810ae670c371392280ae22f037032"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/test_pair_clock.py",
+      "raw_bytes": 4525,
+      "raw_sha256": "d5a6e0e8c0c17d60766d7b109d2cdb8d9eb5114f3d99aaea9c2933b486031d82",
+      "archive": "007-pair-01--test_pair_clock.py.gz",
+      "archive_bytes": 1403,
+      "archive_sha256": "5afd2bcdad9184fcb02435f4a589caeafac2e2bb2f1e10fcae4ac0f2dab6870a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/launch_case.py",
+      "raw_bytes": 6899,
+      "raw_sha256": "1e11178b5a889f63be93f9bfd612513c139be2c7575f31f5df297b7f028fc465",
+      "archive": "008-pair-01--launch_case.py.gz",
+      "archive_bytes": 2670,
+      "archive_sha256": "5fa027171a4913062825ce05335f972292e9f681b43f049c858410af9eab39f4"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/plan.json",
+      "raw_bytes": 80807,
+      "raw_sha256": "2eccf3dfc2eb56d4088cc55bdabf0c4e40b051a2a1547e4ec3195cebbf9461d1",
+      "archive": "009-pair-01--baseline--plan.json.gz",
+      "archive_bytes": 15009,
+      "archive_sha256": "886228cddf3ca99eebb870f2abf27a0d02431b9c04cb672b1d50155d142684fc"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/readiness.json",
+      "raw_bytes": 1276,
+      "raw_sha256": "df52b883ae1c8dc21db8827ebd4fd70050a8fdc3314521b9e39a7dd6e48ddeb0",
+      "archive": "010-pair-01--baseline--readiness.json.gz",
+      "archive_bytes": 759,
+      "archive_sha256": "268455cb1c5759b87f8e8a7e6fcbd0cc1c507d47aae4969d8638dc73670c1cd3"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/root-launch-plan-01.json",
+      "raw_bytes": 2056,
+      "raw_sha256": "f65cff6428f4dafd2e403a9dccfd4370f27d9c73892f83f4d9988623ca948f8c",
+      "archive": "011-pair-01--baseline--root-launch-plan-01.json.gz",
+      "archive_bytes": 809,
+      "archive_sha256": "deb3134b5b69f2433fd0ebe2f84b2864686b73d520223965beb09d658a80ae98"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/root-launch-clearance-01.json",
+      "raw_bytes": 3828,
+      "raw_sha256": "23d5c0af7bde944dfac56cc4e6abe7ce2f262068db1381bb398db13a13102696",
+      "archive": "012-pair-01--baseline--root-launch-clearance-01.json.gz",
+      "archive_bytes": 1162,
+      "archive_sha256": "b13a10594b2564b2adc41a0da16908fd50ebedd3ebdeda91934c451538a252ca"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/driver-cache-initial-01.json",
+      "raw_bytes": 18396,
+      "raw_sha256": "2bfcc13bd42a31989c14019842c82fe6330e83caa11d98ae450b7d17bfbcb108",
+      "archive": "013-pair-01--baseline--driver-cache-initial-01.json.gz",
+      "archive_bytes": 6980,
+      "archive_sha256": "dcfeadae62d6743c3115f6ab1a68f850d586a2d30dbfc4a92d55d58f59e4de1f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/candidate/plan.json",
+      "raw_bytes": 81120,
+      "raw_sha256": "cf31d57b4c76c65ae56bacd0c5bdd7833b746062417a77b7d430fa2e76b7494b",
+      "archive": "014-pair-01--candidate--plan.json.gz",
+      "archive_bytes": 15063,
+      "archive_sha256": "2f9b7f11db59bf5456ec8f3f9eef2cd88fc9d73bad6a7ef2aa69595cd7f1ae3d"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/candidate/readiness.json",
+      "raw_bytes": 1277,
+      "raw_sha256": "934dba6a3a29b4bddca5958316c93c057a3252379e00876cad58633b922b36c0",
+      "archive": "015-pair-01--candidate--readiness.json.gz",
+      "archive_bytes": 760,
+      "archive_sha256": "9a2a4657d887db4cdff80290e09193c7f3ba1eabcc976c2e8a844f711c96257f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/candidate/root-launch-plan-01.json",
+      "raw_bytes": 2064,
+      "raw_sha256": "89400950c8a16c86d61a2d5ff841bad4a1c118eab773aaff680460289670a2a0",
+      "archive": "016-pair-01--candidate--root-launch-plan-01.json.gz",
+      "archive_bytes": 808,
+      "archive_sha256": "e94415d27867b3c607481aa82ac5a299474c0de18e49653838607b809c7231fa"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/candidate/root-launch-clearance-01.json",
+      "raw_bytes": 3836,
+      "raw_sha256": "9fcc5a9785c715d0db86fe92d2fa8ac5844a78c8cb0a1cb76859ab0420e4ffbc",
+      "archive": "017-pair-01--candidate--root-launch-clearance-01.json.gz",
+      "archive_bytes": 1163,
+      "archive_sha256": "06d77be713724914f3087e7dfb126a1f5f77d21e671710627f1856eeaf826f6e"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/candidate/driver-cache-initial-01.json",
+      "raw_bytes": 18396,
+      "raw_sha256": "2bfcc13bd42a31989c14019842c82fe6330e83caa11d98ae450b7d17bfbcb108",
+      "archive": "018-pair-01--candidate--driver-cache-initial-01.json.gz",
+      "archive_bytes": 6980,
+      "archive_sha256": "dcfeadae62d6743c3115f6ab1a68f850d586a2d30dbfc4a92d55d58f59e4de1f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/run_host_player.py",
+      "raw_bytes": 75445,
+      "raw_sha256": "e03e9b96c56539c98a832a56e8df862e7b7c87bd126001f137f2c667a16ad679",
+      "archive": "019-pair-01--baseline--run_host_player.py.gz",
+      "archive_bytes": 21169,
+      "archive_sha256": "67ea747cb81a38cf95fcbffa851457b851d7396f866a5546da585a6d245c1e18"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/run_player_owned.py",
+      "raw_bytes": 23580,
+      "raw_sha256": "ae567a08bd708b6af4f677cf8a9f3dde7941c515fe4aa38fd270bbd12fbb9644",
+      "archive": "020-pair-01--baseline--run_player_owned.py.gz",
+      "archive_bytes": 6927,
+      "archive_sha256": "d895e34d341622e56cb55dd086f3ea9b48902edf824f481cd88c263c31e1e7a5"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/close_case.py",
+      "raw_bytes": 7149,
+      "raw_sha256": "b46e8577973d50f5d924588c82e5f56222f652a91cfa0a95f5613d4d3488e2c7",
+      "archive": "021-pair-01--baseline--close_case.py.gz",
+      "archive_bytes": 2493,
+      "archive_sha256": "80a3ad24370ea4ee5e638e17e08b0931ea3ad5784a2b03e9a1660cd77a2c4485"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/root-unit-dispatch-01.json",
+      "raw_bytes": 3126,
+      "raw_sha256": "898d1010350bdb798a9bf22550d2b047cf420cce6f1151b9717f573a5bb8c881",
+      "archive": "022-pair-01--baseline--root-unit-dispatch-01.json.gz",
+      "archive_bytes": 1044,
+      "archive_sha256": "5e307bad59f1f358d32453e4dcd2fa702eeeb1e2cd61a10074377c095f92ddb9"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/root-finished-01.json",
+      "raw_bytes": 2905,
+      "raw_sha256": "7ef0607c38fa4832d52fdd485c3de35916e7d8ede3e48b9264ed1718d28f221b",
+      "archive": "023-pair-01--baseline--root-finished-01.json.gz",
+      "archive_bytes": 1239,
+      "archive_sha256": "ae037af71b188b00c203b0ceb35345db96e005b52bf28b98b58ebdf44ede434c"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/dispatch-01.json",
+      "raw_bytes": 33640,
+      "raw_sha256": "517422fb0c8ef96a950797127ab636991edc03e8540a086eadbf3c82e45345ed",
+      "archive": "024-pair-01--baseline--dispatch-01.json.gz",
+      "archive_bytes": 3168,
+      "archive_sha256": "df87a57b339ca482258cf6680817817da0c668536291654b17a427145c9cb992"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/admission-01.json",
+      "raw_bytes": 48526,
+      "raw_sha256": "e0dfb6f8897f7ebd2d69d1da508f51671558eab48ab981f233666c3eb0ab4cad",
+      "archive": "025-pair-01--baseline--admission-01.json.gz",
+      "archive_bytes": 3772,
+      "archive_sha256": "bb4b6881aa47809a9ae3abee55a8fc9a22098da68bef498a718f73b528f01f67"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/diagnostic-assessment.json",
+      "raw_bytes": 153288,
+      "raw_sha256": "5af795305209ae96bc58365fe8c3e42a0712097bd7943fcfcabbeed2296bc0fe",
+      "archive": "026-pair-01--baseline--diagnostic-assessment.json.gz",
+      "archive_bytes": 7242,
+      "archive_sha256": "cca41cb6490c641ab836aebbb14d483fa97dae05fd39b5e80111a9b6718a364c"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/output-01/native-result.json",
+      "raw_bytes": 266950,
+      "raw_sha256": "d7fe31834def1bea225be6f418b248ec023836c5801e2192101b3f5a263014ee",
+      "archive": "027-pair-01--baseline--output-01--native-result.json.gz",
+      "archive_bytes": 15912,
+      "archive_sha256": "5fdd7d62946cf19bd23a2ce970a7f4f1f4327503151ee56d7eafd77c1c90a10f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/output-01/result.json",
+      "raw_bytes": 557556,
+      "raw_sha256": "6e89f7abf1e0269a7283f2643e8f826e793cc3b6d796b7369d9e377fcdf32fcb",
+      "archive": "028-pair-01--baseline--output-01--result.json.gz",
+      "archive_bytes": 52287,
+      "archive_sha256": "f5d4504a84b650427aecf023a5811ba89b46e224380c20e1090de34bf9b10b7f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/output-01/observations.jsonl",
+      "raw_bytes": 480848,
+      "raw_sha256": "940176cd0f6d7107a9f250e61c4cbab919ad17101b3ef796d6f2f39b62eae8a4",
+      "archive": "029-pair-01--baseline--output-01--observations.jsonl.gz",
+      "archive_bytes": 35449,
+      "archive_sha256": "d73486c688ac5ed5557d02178cd3e5a02e450c4847938005fab3a7bd45eaf8b3"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/output-01/host-observations.jsonl",
+      "raw_bytes": 9159004,
+      "raw_sha256": "43040b30351d52c3d231e8d6e13cec72d8554695c9ee94cafe2dcac2af2be041",
+      "archive": "030-pair-01--baseline--output-01--host-observations.jsonl.gz",
+      "archive_bytes": 1076671,
+      "archive_sha256": "334f2dc5d47502f18994458291fa3e0843704006b209974218920c7c94271863"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/output-01/owned-pipewire-cleanup.json",
+      "raw_bytes": 30,
+      "raw_sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "archive": "031-pair-01--baseline--output-01--owned-pipewire-cleanup.json.gz",
+      "archive_bytes": 50,
+      "archive_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/cases/baseline/output-01/progress.json",
+      "raw_bytes": 585,
+      "raw_sha256": "1e1716db4faf4db3a78a22c3e3ccd5ba8fd4d771a2db6f7302ce3c1e7cc78731",
+      "archive": "032-pair-01--baseline--output-01--progress.json.gz",
+      "archive_bytes": 346,
+      "archive_sha256": "a8e9902a6133a09dc6ea712d9274431a3925386c13ff1047a2dcd343073bd0f7"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/baseline/source-manifest-01.json",
+      "raw_bytes": 155297,
+      "raw_sha256": "ea335209f55bcaa7112de1a55d218f62c08658b34d6e36814bb7ccb889f7eb5d",
+      "archive": "033-pair-01--baseline-source-manifest.json.gz",
+      "archive_bytes": 33688,
+      "archive_sha256": "84e9339c7072b2661279506873e80f5cbd5e4fce8102747bedc3f9509a15234a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-01/candidate/source-manifest-01.json",
+      "raw_bytes": 156079,
+      "raw_sha256": "90d0350f8380f865cb5959fa05b603f5ff75c3a7ff3b4e6ad2f12c7abc9440e7",
+      "archive": "034-pair-01--candidate-source-manifest.json.gz",
+      "archive_bytes": 33778,
+      "archive_sha256": "d7a1b68cda462073985f11add42e5ddd748d26aeaf29a164afc1a37df939e44c"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/build-pair-receipt-01.json",
+      "raw_bytes": 5260,
+      "raw_sha256": "c49e58b542a5d89c99cff3b7746f85e77855760ecdfcf6bc5993df091050003c",
+      "archive": "035-pair-02--build-pair-receipt-01.json.gz",
+      "archive_bytes": 1347,
+      "archive_sha256": "c251308983924ea66e6131d4d016159cb45c757c059d86f756bcdd7666006261"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/pair-readiness-received-01.json",
+      "raw_bytes": 456,
+      "raw_sha256": "4ddad3cf26da5141f45c69d7d1e835c10e4f872e09b5637e26158bd53a5cd54e",
+      "archive": "036-pair-02--pair-readiness-received-01.json.gz",
+      "archive_bytes": 305,
+      "archive_sha256": "d03e711bb76975420dd700344c74e7c593977ddcef84d93ebe57fbcb439d6943"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/pair-closed-01.json",
+      "raw_bytes": 6609,
+      "raw_sha256": "c6f0079f49756c1c2c90b6157b3aa1088f07779501c5d1a9447824053674e385",
+      "archive": "037-pair-02--pair-closed-01.json.gz",
+      "archive_bytes": 2351,
+      "archive_sha256": "1dba9e4bac868556c2493bf92c1b86767fcc35c8671f93c9c6db6d985b9060d7"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/source-readiness-01.json",
+      "raw_bytes": 2848,
+      "raw_sha256": "382d209034192f12ddc37b32b33552ab2ff375dc7196e277d93e739bfb36bad1",
+      "archive": "038-pair-02--source-readiness-01.json.gz",
+      "archive_bytes": 1037,
+      "archive_sha256": "e318bb91730f1eebe447a4eac31a855124966ef6a13a44e84b9bce687c22c052"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/freeze-verification-01.json",
+      "raw_bytes": 799,
+      "raw_sha256": "58541451088860a3480da46ab4aa0df7c59d10d8c77f73233b1511fec15da953",
+      "archive": "039-pair-02--freeze-verification-01.json.gz",
+      "archive_bytes": 476,
+      "archive_sha256": "db7bfb78f422d764f5490c1f3a8687cfc60e061125b79dc67995fa853b70f0ab"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/actual-desktop-entry-check-01.json",
+      "raw_bytes": 7103,
+      "raw_sha256": "ac5dc143366e6570ffcbd8d83f67b50a7ef7f3a053f93b6d30f51bfcb3ce7dcd",
+      "archive": "040-pair-02--actual-desktop-entry-check-01.json.gz",
+      "archive_bytes": 1186,
+      "archive_sha256": "c6b2aafd5bcab6c22c6ac8477837e043934962afd1f2d5e24c9d90ce30deda76"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/pair_clock.py",
+      "raw_bytes": 2357,
+      "raw_sha256": "ba23f05d3be46b041c00f93249d636a4a5e19b0dceac3062e8d45808958f5235",
+      "archive": "041-pair-02--pair_clock.py.gz",
+      "archive_bytes": 911,
+      "archive_sha256": "907fec6e8e7cfbf035435f052a84d2b23865b8f0d4b8914d3eeeef7117d43244"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/test_pair_clock.py",
+      "raw_bytes": 5697,
+      "raw_sha256": "12c2fefa89042d87347a0b175f00b4935611768711f8937dcb862a12682b1260",
+      "archive": "042-pair-02--test_pair_clock.py.gz",
+      "archive_bytes": 1572,
+      "archive_sha256": "e96c9d312398f89de3ef8da0853799a757f1dd993b73222a668c36b92d9b6442"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/launch_case.py",
+      "raw_bytes": 6899,
+      "raw_sha256": "1e11178b5a889f63be93f9bfd612513c139be2c7575f31f5df297b7f028fc465",
+      "archive": "043-pair-02--launch_case.py.gz",
+      "archive_bytes": 2670,
+      "archive_sha256": "5fa027171a4913062825ce05335f972292e9f681b43f049c858410af9eab39f4"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/clock-regression-01.json",
+      "raw_bytes": 511,
+      "raw_sha256": "8500617e33b38d24f553a8a216600d7f72f1dce9e4cdfba6fdc9b3b27db7ace5",
+      "archive": "044-pair-02--clock-regression-01.json.gz",
+      "archive_bytes": 279,
+      "archive_sha256": "9c2375a68cf83d1090c44e4dfbd3fe8dc2c6759b8965f5c12394209b469fd85f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/plan.json",
+      "raw_bytes": 80807,
+      "raw_sha256": "b9c3dac91af9e2675bd208b69df7958ba94e581dd03b566a9f36f3c777362386",
+      "archive": "045-pair-02--baseline--plan.json.gz",
+      "archive_bytes": 15010,
+      "archive_sha256": "eb39ad2dd6a80e46fff80666c614956c487f5fe3654e52eac52fa9b35ec25565"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/readiness.json",
+      "raw_bytes": 1397,
+      "raw_sha256": "50749e4ae295b2ec17c827b0aae1968e5aa30bd2955e332e3eaabbaf4c9811e9",
+      "archive": "046-pair-02--baseline--readiness.json.gz",
+      "archive_bytes": 823,
+      "archive_sha256": "d76ca9876760dee062b8cd1cd04f31c652c819276634414aa53a709343a0d48a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/root-launch-plan-01.json",
+      "raw_bytes": 2056,
+      "raw_sha256": "d2a1e055512df1865d1cbfd8c20644eae71160c01c235d0a593e984c5222493a",
+      "archive": "047-pair-02--baseline--root-launch-plan-01.json.gz",
+      "archive_bytes": 812,
+      "archive_sha256": "da1fef5ddb33a395b23e55df15ffd65f46cea9eb1e0623499cbc3768cab02bbc"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/root-launch-clearance-01.json",
+      "raw_bytes": 3828,
+      "raw_sha256": "ec00118b61b7c1d07618ad2053c11da00d4ae2bdb6dc6d8633699dfc50390a08",
+      "archive": "048-pair-02--baseline--root-launch-clearance-01.json.gz",
+      "archive_bytes": 1161,
+      "archive_sha256": "5e9d1d4daf29b2e75533faf881e911b82061335b1288d45186381b6b4021deb1"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/driver-cache-initial-01.json",
+      "raw_bytes": 18396,
+      "raw_sha256": "2bfcc13bd42a31989c14019842c82fe6330e83caa11d98ae450b7d17bfbcb108",
+      "archive": "049-pair-02--baseline--driver-cache-initial-01.json.gz",
+      "archive_bytes": 6980,
+      "archive_sha256": "dcfeadae62d6743c3115f6ab1a68f850d586a2d30dbfc4a92d55d58f59e4de1f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/candidate/plan.json",
+      "raw_bytes": 81120,
+      "raw_sha256": "38a572216d95ecf281d1c85051f28361ce00f184b7f864f52695aea89dc7e72a",
+      "archive": "050-pair-02--candidate--plan.json.gz",
+      "archive_bytes": 15073,
+      "archive_sha256": "72f92692f8d9a6eb0d64ac5d7d879b471ea579b132f0466e443a53f843765c51"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/candidate/readiness.json",
+      "raw_bytes": 1398,
+      "raw_sha256": "b43403217299faade389bcafbfea9039f665d42e3c23d8fb24c3874471e07dcb",
+      "archive": "051-pair-02--candidate--readiness.json.gz",
+      "archive_bytes": 825,
+      "archive_sha256": "832b884aff96f65c68526894b6e135fb040b0d6243b21eade50f8725f24cd204"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/candidate/root-launch-plan-01.json",
+      "raw_bytes": 2064,
+      "raw_sha256": "30e80c4a47b23ce7ec375cea70c6a950e09d30156c490b6d4e7c1c55c2052bab",
+      "archive": "052-pair-02--candidate--root-launch-plan-01.json.gz",
+      "archive_bytes": 808,
+      "archive_sha256": "395b0c1c53128d44fb9fcf2077b8f7fc7831bf5ae5bf7ddd649f287ebd767b01"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/candidate/root-launch-clearance-01.json",
+      "raw_bytes": 3836,
+      "raw_sha256": "813275288d50635c03360c70ab7d48228b4c8a6360acd4cb2bef700b4fab3a16",
+      "archive": "053-pair-02--candidate--root-launch-clearance-01.json.gz",
+      "archive_bytes": 1158,
+      "archive_sha256": "97d09c7c9a804caca14d5cc49be7e94e581970b1417d09d1d68da605565c21cb"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/candidate/driver-cache-initial-01.json",
+      "raw_bytes": 18396,
+      "raw_sha256": "2bfcc13bd42a31989c14019842c82fe6330e83caa11d98ae450b7d17bfbcb108",
+      "archive": "054-pair-02--candidate--driver-cache-initial-01.json.gz",
+      "archive_bytes": 6980,
+      "archive_sha256": "dcfeadae62d6743c3115f6ab1a68f850d586a2d30dbfc4a92d55d58f59e4de1f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/run_host_player.py",
+      "raw_bytes": 75445,
+      "raw_sha256": "e5d9ef1ab8d290752f86625d21110b2c4fee53522e819b281311db6f38538553",
+      "archive": "055-pair-02--baseline--run_host_player.py.gz",
+      "archive_bytes": 21170,
+      "archive_sha256": "3ed09e80d3da9f4272fdccd29ea99e6ae1c9c84a6b5ce8880b20402dd77a4194"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/run_player_owned.py",
+      "raw_bytes": 23580,
+      "raw_sha256": "bc81a7ff13bbe8509e9991da986e2abf3e88ec645a0f424ccf16b0cd75e496df",
+      "archive": "056-pair-02--baseline--run_player_owned.py.gz",
+      "archive_bytes": 6924,
+      "archive_sha256": "205168b6065eb6d933d872cac56053d32487e9202809ed3f52437f062dc0edce"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/close_case.py",
+      "raw_bytes": 7149,
+      "raw_sha256": "b46e8577973d50f5d924588c82e5f56222f652a91cfa0a95f5613d4d3488e2c7",
+      "archive": "057-pair-02--baseline--close_case.py.gz",
+      "archive_bytes": 2493,
+      "archive_sha256": "80a3ad24370ea4ee5e638e17e08b0931ea3ad5784a2b03e9a1660cd77a2c4485"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/root-unit-dispatch-01.json",
+      "raw_bytes": 3126,
+      "raw_sha256": "c5e3c97a6ddac38973a7249711be6f108a49b555bed282204d2da26766527e36",
+      "archive": "058-pair-02--baseline--root-unit-dispatch-01.json.gz",
+      "archive_bytes": 1043,
+      "archive_sha256": "1da15caf39af7c1f339aaaa6328f17ee0b473dde4b057dd354a4d3df106dc0ad"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/root-finished-01.json",
+      "raw_bytes": 2982,
+      "raw_sha256": "57c8d69c69ef239e0b6d7109d7f5ebf720e3f1f2c6bc7bb0383be60b52a376e3",
+      "archive": "059-pair-02--baseline--root-finished-01.json.gz",
+      "archive_bytes": 1263,
+      "archive_sha256": "0caf56011305a92b4243d4695478540dc57fa042fa5c050aea9d6fc234a68a82"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/dispatch-01.json",
+      "raw_bytes": 26632,
+      "raw_sha256": "f9e27aa4f288f814f0971a2b4e5ef599f4368dcd7da64b0ab62177a1be895d32",
+      "archive": "060-pair-02--baseline--dispatch-01.json.gz",
+      "archive_bytes": 2888,
+      "archive_sha256": "5d993268810516c876b0cd8793043a0059c105d1e1b9a1d3bf30b30f4d7cef39"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/admission-01.json",
+      "raw_bytes": 33664,
+      "raw_sha256": "dd7b320afea84bb38a90244e0ffa041441bc97740d1ac94ebdb15f13bec8bff6",
+      "archive": "061-pair-02--baseline--admission-01.json.gz",
+      "archive_bytes": 3124,
+      "archive_sha256": "1aa2a830fbf3b72768856bd4d150d94689f2a23a010f7e9b9f2a37947e03c28a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/diagnostic-assessment.json",
+      "raw_bytes": 125156,
+      "raw_sha256": "e113ff097a40039e346a0276a97b596d03bf695714054f50e15187b032ab230f",
+      "archive": "062-pair-02--baseline--diagnostic-assessment.json.gz",
+      "archive_bytes": 6399,
+      "archive_sha256": "ae7477eca250393bdd0c1cf996dd659f8bdf16972a7575fb574d25ee9735b518"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/output-01/native-result.json",
+      "raw_bytes": 267149,
+      "raw_sha256": "3d28350ae32a082c2043cc278fb8c2c2ecb6542bd3adfe4523503728db1e2993",
+      "archive": "063-pair-02--baseline--output-01--native-result.json.gz",
+      "archive_bytes": 15899,
+      "archive_sha256": "c4bff1ff97b17fb7c68b7f68121a04a4e157f8794e1ccf7fed9683aabb1a1ca2"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/output-01/result.json",
+      "raw_bytes": 564196,
+      "raw_sha256": "fe6b8398020657d654da60a9b019a69ecf3c241bcca98d474a192d4b6f1d77c0",
+      "archive": "064-pair-02--baseline--output-01--result.json.gz",
+      "archive_bytes": 53565,
+      "archive_sha256": "e83926e5235991ae2e86a81ed5c30e8e999426cede51e472fc8dffc827d41e25"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/output-01/observations.jsonl",
+      "raw_bytes": 563474,
+      "raw_sha256": "ba768facd866bdc76119c1a2169f446cdc83b89a676df4d51233af542102f9ce",
+      "archive": "065-pair-02--baseline--output-01--observations.jsonl.gz",
+      "archive_bytes": 41613,
+      "archive_sha256": "aa2ff5d815f93f2127d7a9fdeee2cab3a052ac00d6fb4419dfc3289f3d52d980"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/output-01/host-observations.jsonl",
+      "raw_bytes": 8106729,
+      "raw_sha256": "2f89d9f4aa9ab321e61592990a62cccec96f8ec1bc2e92f71d9694a1cde2138b",
+      "archive": "066-pair-02--baseline--output-01--host-observations.jsonl.gz",
+      "archive_bytes": 939719,
+      "archive_sha256": "0f8f3b1ffb077e9f09f6159fa54e2fafdad26d606e348cf0363165fb5b4020da"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/output-01/owned-pipewire-cleanup.json",
+      "raw_bytes": 30,
+      "raw_sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "archive": "067-pair-02--baseline--output-01--owned-pipewire-cleanup.json.gz",
+      "archive_bytes": 50,
+      "archive_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/output-01/progress.json",
+      "raw_bytes": 580,
+      "raw_sha256": "06aabc0b4f7c6caee8d55205fab5060e10a2a43768bc44b41e2e18e5134b07a6",
+      "archive": "068-pair-02--baseline--output-01--progress.json.gz",
+      "archive_bytes": 346,
+      "archive_sha256": "9a588b97d44b7fdff4ba019200162a7b4b7c1f4602e0c75082e98525c76802f4"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/baseline/source-manifest-01.json",
+      "raw_bytes": 155297,
+      "raw_sha256": "ea335209f55bcaa7112de1a55d218f62c08658b34d6e36814bb7ccb889f7eb5d",
+      "archive": "069-pair-02--baseline-source-manifest.json.gz",
+      "archive_bytes": 33688,
+      "archive_sha256": "84e9339c7072b2661279506873e80f5cbd5e4fce8102747bedc3f9509a15234a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/candidate/source-manifest-01.json",
+      "raw_bytes": 156079,
+      "raw_sha256": "90d0350f8380f865cb5959fa05b603f5ff75c3a7ff3b4e6ad2f12c7abc9440e7",
+      "archive": "070-pair-02--candidate-source-manifest.json.gz",
+      "archive_bytes": 33778,
+      "archive_sha256": "d7a1b68cda462073985f11add42e5ddd748d26aeaf29a164afc1a37df939e44c"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-waveform-player-comparison-02/cases/baseline/independent-recorded-audio-01.json",
+      "raw_bytes": 677,
+      "raw_sha256": "4e78052d2f6bf69c8084d4a1e18872ee94cf4a523709a0df63c8bdecca7ea6ac",
+      "archive": "071-pair-02--independent-recorded-audio-01.json.gz",
+      "archive_bytes": 467,
+      "archive_sha256": "ce242b3295225746f1484704c55bdc814f8cf125f72adaf83436291c980911cb"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/build-receipt-01.json",
+      "raw_bytes": 1195,
+      "raw_sha256": "e89cf20fe1881429c4659d34933639ec516f8ee1ad1e8cf292b6347508074e7d",
+      "archive": "072-capture-fix-build-receipt.json.gz",
+      "archive_bytes": 486,
+      "archive_sha256": "4bc3f8a8e1cdc4dbc458465dfd1a1cae1a882edd6e53bb72fe34a05f744abe66"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/bridge-checks-01.json",
+      "raw_bytes": 384,
+      "raw_sha256": "17899ce6822f1d06569539a69784881b376e8ba46832aeedd1013414383fb661",
+      "archive": "073-capture-fix-bridge-checks.json.gz",
+      "archive_bytes": 256,
+      "archive_sha256": "66bbfeaffb44c5abd5c2fc4d6be0ae34679511bfcf7597298a71c172ec1f3f3a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/native/Testing/Temporary/LastTest.log",
+      "raw_bytes": 17814,
+      "raw_sha256": "6bf6c5b560271484361ed83f50a5ca089d785dda1d7a25b15a81d1157b3dbfe9",
+      "archive": "074-capture-fix-bridge-tests.log.gz",
+      "archive_bytes": 2379,
+      "archive_sha256": "5bf37bff562f047b973b08bf57ba40d118d378f8387102d6d4ce49c345846d6f"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/runner-checks-01.json",
+      "raw_bytes": 147,
+      "raw_sha256": "b012f9ca9849f572d8abd9092bbda6844dc80e8493b101dbc7d2f0e2eb4fa525",
+      "archive": "075-capture-fix-runner-checks.json.gz",
+      "archive_bytes": 120,
+      "archive_sha256": "b432a3855c0fa6b48a660e059f3faa5a3ebbc5ae16d78db0edc5f2a0e45f810a"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/runner-tests-01.log",
+      "raw_bytes": 98,
+      "raw_sha256": "a9a069cd534278582ffc3d85e721e819a205ef3b3e401f92f47f3b098a67b4e0",
+      "archive": "076-capture-fix-runner-tests.log.gz",
+      "archive_bytes": 52,
+      "archive_sha256": "9e6a98fec1556b325c7239bcbc8c089a624557722d9f6fefc95e38f8ddaaf618"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/plaintext-secret-scan-02.json",
+      "raw_bytes": 3,
+      "raw_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "archive": "077-original-evidence-gitleaks.json.gz",
+      "archive_bytes": 23,
+      "archive_sha256": "abc129be8d26e8d4afe9ce45f9d5a73c8ed9aa62810ca24ee789fe4581dc4a80"
+    },
+    {
+      "source": "/home/kyau/projects/kyaulabs/conflux/build/m2-tail-capture-fix-01/plaintext-secret-scan-02.log",
+      "raw_bytes": 83,
+      "raw_sha256": "064f9902f2acc1cd359e5fc24151abcb63c4236f99f713822c7e1e906cdbb2b4",
+      "archive": "078-original-evidence-gitleaks.log.gz",
+      "archive_bytes": 93,
+      "archive_sha256": "17232e4367f021f9b07a3452fb62011539cbacb1970fb3afd6066a5ace32ea8a"
+    }
+  ],
+  "source_media_PCM_models_and_binaries_excluded": true,
+  "original_attempts_unchanged": true
+}
