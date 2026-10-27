@@ -105,6 +105,20 @@
       "sha256": "1bc00273dc656c80893e852ed50137cfa8d506dc3279a5731736a6505ea40a09",
       "uncompressed_bytes": 25300,
       "uncompressed_sha256": "2a198ea1801122241cdabee785936895df746252bab35182a99e4763ac61abc3"
+    },
+    {
+      "file": "original-CI-live-failure.json.gz",
+      "bytes": 2084,
+      "sha256": "d246855e34cbd8919f13623ef01d32bad6cf3405e3565f6449aaaef409b37002",
+      "uncompressed_bytes": 5609,
+      "uncompressed_sha256": "3a4f02cd491ee73aa22bf128c0c45667e06fba6ae093c8721614f6af1fde46d7"
+    },
+    {
+      "file": "failure-context-regression.json.gz",
+      "bytes": 1606,
+      "sha256": "9d8010e2df1bdb53e45b1e4ca2eab7abff6d1eaf6b8a14b87d6fa4742a6d695c",
+      "uncompressed_bytes": 4580,
+      "uncompressed_sha256": "6b9c584c658ffa35b976040e803835b3e3478153b5ca94a09abc299eac9634cb"
     }
   ],
   "source_head": "82cf1a8603d40c04aef9a46630c4ca3e2988d88a",
@@ -116,5 +130,8 @@
   "thermal_guard_unchanged": true,
   "qualification": false,
   "all_client_resources_independently_closed": true,
-  "further_client_tests_authorized": false
+  "further_client_tests_authorized": false,
+  "original_virtual_CI_continuity_failure_preserved": true,
+  "original_CI_cause_confirmed": false,
+  "failure_context_regression_passed": true
 }
