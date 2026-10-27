@@ -196,6 +196,27 @@ QString entryPath(const QString& root, const PreparedTrack& track, const QString
     return QDir(root).filePath(track.artifactKey + "/" + file);
 }
 
+// Recreate the persisted v1 identity independently of the current revision.
+QString rekeyAsPipelineV1(const QString& root, const QString& key, const QString& sourceId, bool stems)
+{
+    const auto manifest = QDir(root).filePath(key + "/manifest.json");
+    auto object = QJsonDocument::fromJson(readBytes(manifest)).object();
+    auto pipeline = object.value("pipeline").toObject();
+    if (stems) {
+        auto output = pipeline.value("output_conversion").toObject();
+        output.insert("version", 1);
+        pipeline.insert("output_conversion", output);
+    } else pipeline.insert("version", 1);
+    const auto legacyKey = QString::fromLatin1(QCryptographicHash::hash(sourceId.toLatin1() + '\n' +
+        QJsonDocument(pipeline).toJson(QJsonDocument::Compact), QCryptographicHash::Sha256).toHex());
+    object.insert("pipeline", pipeline);
+    object.insert("artifact_key", legacyKey);
+    writeBytes(manifest, QJsonDocument(object).toJson(QJsonDocument::Compact));
+    if (legacyKey != key && !QDir(root).rename(key, legacyKey))
+        throw std::runtime_error("Cannot install legacy pipeline fixture");
+    return legacyKey;
+}
+
 QStringList entries(const QString& root)
 {
     return QDir(root).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -279,6 +300,59 @@ private:
 class PreparedTrackStoreTest : public QObject {
     Q_OBJECT
 private slots:
+    void legacyNormalPipelineRebuildsAndRetainsExistingOwner()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            auto seeded = PreparedTrackStore(root).prepare(source);
+            const auto pcm = readBytes(entryPath(root, seeded, "audio.f32"));
+            std::vector<float> expected(std::size_t(seeded.audio.frames() * 2));
+            QCOMPARE(pcm.size(), qsizetype(expected.size() * sizeof(float)));
+            std::copy(pcm.begin(), pcm.end(), reinterpret_cast<char*>(expected.data()));
+            const auto legacyKey = rekeyAsPipelineV1(root, seeded.artifactKey, seeded.sourceSha256, false);
+            const auto legacyPath = QDir(root).filePath(legacyKey + "/audio.f32");
+            auto rebuilt = PreparedTrackStore(root).prepare(source);
+            QVERIFY2(!rebuilt.cacheHit, "Previous preparation pipeline was reused");
+            QVERIFY(rebuilt.artifactKey != legacyKey);
+            QVERIFY(identicalPcm(seeded.audio, expected));
+            QVERIFY(identicalPcm(rebuilt.audio, expected));
+            QCOMPARE(readBytes(legacyPath), pcm);
+            auto reused = PreparedTrackStore(root).prepare(source);
+            QVERIFY(reused.cacheHit);
+            QCOMPARE(reused.artifactKey, rebuilt.artifactKey);
+        });
+    }
+
+    void legacyStemPipelineIsAbsentUntilRegenerated()
+    {
+        checked([&] {
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            auto seeded = PreparedTrackStore(root).prepareStemBank(source, engine);
+            const auto legacyKey = rekeyAsPipelineV1(root, seeded.artifactKey, seeded.sourceSha256, true);
+            const auto manifestPath = QDir(root).filePath(legacyKey + "/manifest.json");
+            const auto legacyManifest = readBytes(manifestPath);
+            QVERIFY2(!PreparedTrackStore(root).findPreparedStemBank(source, engine).has_value(),
+                     "Previous preparation pipeline was discovered as a compatible bank");
+            QCOMPARE(readBytes(manifestPath), legacyManifest);
+            auto rebuilt = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(!rebuilt.cacheHit);
+            QVERIFY(rebuilt.artifactKey != legacyKey);
+            QVERIFY(bankSamplesMatch(seeded));
+            QVERIFY(bankSamplesMatch(rebuilt));
+            auto found = PreparedTrackStore(root).findPreparedStemBank(source, engine);
+            QVERIFY(found.has_value() && found->cacheHit);
+            QCOMPARE(found->artifactKey, rebuilt.artifactKey);
+            QCOMPARE(readBytes(manifestPath), legacyManifest);
+        });
+    }
+
     void stemLookupMissDoesNotPrepareOrCreateRoot()
     {
         checked([&] {

@@ -193,7 +193,8 @@ void verifyEngine(const EngineFiles& files, std::stop_token stop)
 
 QJsonObject pipelineIdentity()
 {
-    return {{"version", 1}, {"decoder", QString::fromLatin1(sf_version_string())},
+    // Invalidate artifacts from before the MPEG clean-EOF decode contract.
+    return {{"version", 2}, {"decoder", QString::fromLatin1(sf_version_string())},
         {"converter", QString::fromLatin1(src_get_version())}, {"resampler", "SRC_SINC_BEST_QUALITY"},
         {"sample_rate", 48000}, {"channels", 2},
         {"sample_format", std::endian::native == std::endian::little ? "f32le" : "f32be"},
