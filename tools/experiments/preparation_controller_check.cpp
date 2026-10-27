@@ -2083,6 +2083,8 @@ void scenario(const QString& output, const QString& privateRoot, bool exitScenar
             "Only the fully retired owned scenario cache is removed before the next scenario");
         results.append(report);
     } catch (const std::exception& error) {
+        report["failure_context"] = QJsonObject{{"audio", snapshot(controller.audioState())},
+            {"recording", QJsonObject::fromVariantMap(controller.recording())}, {"actions", evidence.actions}};
         controller.shutdown();
         try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
         evidence.controller = nullptr;
