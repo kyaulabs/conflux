@@ -1,0 +1,1212 @@
+{
+  "schema": 1,
+  "scope": "Best-quality player failures under the fixed store authorization; no release or timing qualification",
+  "strict_service_target_ms": 4095,
+  "power_ceiling_W": 15,
+  "quality": "Best",
+  "files": [
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-client-affinity-01/cases/baseline/admission-01.json",
+        "bytes": 78556,
+        "sha256": "a4d58195bd5b894ffb74d50678e63bc2062c187dc5679d74f58470e8e536b0cd"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/affinity-control-preflight-admission-01.json.gz",
+        "bytes": 4487,
+        "sha256": "1437629c97841c1d8d73efcc7fea75665718e9c3862bccfc6c0651b689c1152a"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-client-affinity-01/cases/baseline/diagnostic-assessment.json",
+        "bytes": 88606,
+        "sha256": "1913b1060c0eceac18e4d9fa1f1a7e3c76b8c1bfbbac8e29857f944e7e256dc8"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/affinity-control-preflight-diagnostic-assessment.json.gz",
+        "bytes": 5915,
+        "sha256": "3bfc7c0febe858f09fb4e47e8d923fd1548171e59495cff12ab6e77d3efacd7e"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-client-affinity-01/cases/baseline/root-finished-01.json",
+        "bytes": 2227,
+        "sha256": "6607e092e4373778692249e0dbecea14a48be91baf2cfa0fed879a14a57ef64e"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/affinity-control-preflight-root-finished-01.json.gz",
+        "bytes": 1048,
+        "sha256": "79ec102502dd56fa0e787b2d9a6cde6bba6317e8c16b63ae284a37d308a15241"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-client-affinity-01/cases/baseline/root-unit-dispatch-01.json",
+        "bytes": 4837,
+        "sha256": "cad1b4da7bc120b5d642bf007712548627f830504cc473421e1a1cbf68caaba3"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/affinity-control-preflight-root-unit-dispatch-01.json.gz",
+        "bytes": 1629,
+        "sha256": "64dab990dc7fd90d6d83b6e4cd6ab40828e0df89321f4beb1db8f7ad755d6d0f"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/launch_case.py",
+        "bytes": 9491,
+        "sha256": "f954f4fc6f198e16122f0477c0b3385a6941f40d485db2dae53104eef8ac9642"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/cache-pair-launch_case.py.gz",
+        "bytes": 3284,
+        "sha256": "47317ab3f91588bcfc8fa802aca6070b7e6062eae2ec3bc36d8d975f504a26e2"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/prepare.py",
+        "bytes": 8273,
+        "sha256": "bdb576d862de2c70af06221b08b9287b3823b649e391581d98678d4889b08525"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/cache-pair-prepare.py.gz",
+        "bytes": 2978,
+        "sha256": "91e31e0b1e0ea4329b2ebcd8dc172f799a4069931ff43d13468eb38b2dd9eeda"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/root-build-receipt-01.json",
+        "bytes": 1048,
+        "sha256": "05818bd0616319f9ea19c0154ade599dd3cf42dc061ff3dfa6e1d6ab3b1a559c"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/cache-pair-root-build-receipt-01.json.gz",
+        "bytes": 500,
+        "sha256": "37f82f089915d43869bb0096f74ca1063072700a3c385a48d25566b41ca0b434"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/root-source-build-attestation-01.json",
+        "bytes": 19801,
+        "sha256": "85a3a65d63b9521b0a198b436553cbc5f5edb36e09a4949d963e67f2e1ad6d6d"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/cache-pair-root-source-build-attestation-01.json.gz",
+        "bytes": 5689,
+        "sha256": "75b587078fdf782d09f5219a854d84955d3ec12cbc751093d5e446336a4d3812"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/window-natural-guard-checks-01.log",
+        "bytes": 97,
+        "sha256": "4839da4139c41be5fd22636ea86c119bb920abca0beb1d7a8bfa76a9801533fe"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/cache-pair-window-natural-guard-checks-01.log.gz",
+        "bytes": 51,
+        "sha256": "d5d9e7d7a0e38cdd5a43a113211bfbf7dcc91eeec6c75889fdfaa030d75bd5ff"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/cache-after-01.json",
+        "bytes": 17853,
+        "sha256": "1932a635d4a2d29fec06d96e91af943df28ff426ec40f9374d6a8655466f02ca"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-cache-after-01.json.gz",
+        "bytes": 7081,
+        "sha256": "7faf692328d95fb7babba8c0af4fc0117bca51bf4ff9f75dd5049c36c6c302c0"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/cache-before-01.json",
+        "bytes": 246,
+        "sha256": "64b3b2b7a84e922b96aa4c8fdc0d8168dc603a8a84a358deb1a6218f9f131c8b"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-cache-before-01.json.gz",
+        "bytes": 201,
+        "sha256": "cf91f767a16b3802c753ff4e2a3891db4a944cf74837c3cbb61e99da48017986"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/close_case.py",
+        "bytes": 7181,
+        "sha256": "65fd664b0322968d9eff2204b243f14161c28390310c34be4c33df221c5d656f"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-close_case.py.gz",
+        "bytes": 2521,
+        "sha256": "b60b45175bb5a4356464684e8c96e32a4b527d17500caed6860985ce6b748f44"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/diagnostic-assessment.json",
+        "bytes": 164797,
+        "sha256": "9cc5dd2e25293a20dc7a687fe4022ae441631ec01ab3f73c42c26a4e48f7656d"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-diagnostic-assessment.json.gz",
+        "bytes": 7703,
+        "sha256": "56250963891729675c3951909f72e0a8ff38d8c9a1344fc136056e5490ea2ba4"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/output-01/native-result.json",
+        "bytes": 266645,
+        "sha256": "e1287576e6b041972d150a9372edee6dd44a1fb6e0769f3a60a78989278ca0ec"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-output-01-native-result.json.gz",
+        "bytes": 15896,
+        "sha256": "c23e7a59bc8ebb40a3377a0dcc232824b68eae153781dfed5c151df842978274"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/output-01/native.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-output-01-native.stdout.log.gz",
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/output-01/observations.jsonl",
+        "bytes": 482928,
+        "sha256": "884008dfcd0c81788d5260261770887e0592c02567ece65416f8f8ac7fec289a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-output-01-observations.jsonl.gz",
+        "bytes": 36084,
+        "sha256": "a3178fe01ff91c1d65a7c8b4941fc0f5dc6fd82f7132a07548828810971d731a"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/output-01/progress.json",
+        "bytes": 578,
+        "sha256": "a576de6ecc6c37e461deef551cda186eb3e567e876af73178409db5ecad32615"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-output-01-progress.json.gz",
+        "bytes": 343,
+        "sha256": "35a53a3cfe3d43ba58b4e291c9e3786864c2727ccfabe1424b92c6ca60d59a68"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/output-01/result.json",
+        "bytes": 544011,
+        "sha256": "a97dbf4fc01533ef5a9a2fce7fc7ad6d12f1e796f9862ee2edc6faee5e997f02"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-output-01-result.json.gz",
+        "bytes": 51853,
+        "sha256": "c2dcec319ea719b891debcd08e1d452184f3cc3b8740711d605cc1c0918664ff"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/plan.json",
+        "bytes": 61632,
+        "sha256": "a61a9a77b621c793ac13e8a51a7e490592f22325b17efbcbe4929d8c83bac6fe"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-plan.json.gz",
+        "bytes": 10731,
+        "sha256": "73ccf4944a5f379e9d35ac7b67eb24583499a1a11e648e9f7948754f22167b1e"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/readiness.json",
+        "bytes": 2735,
+        "sha256": "f70bc896fdcd8e493c540bef6f2ad0cd9d7c492717b50066b01276d36dbdd4ff"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-readiness.json.gz",
+        "bytes": 1142,
+        "sha256": "5e0e2423d770d09c2559e1a6159c17d7d651abcd0c7db09d3e59f33c940f0f6a"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/root-finished-01.json",
+        "bytes": 3169,
+        "sha256": "dc1f4492c1250b60d6a725ac1b657fad44bdbcd69a492d90eb56e3fd3f8bd0de"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-root-finished-01.json.gz",
+        "bytes": 1305,
+        "sha256": "7057f2190409cc82831808b3e8210aecd1417b0d54c810bc96c0cbed686ab987"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/root-packet-review-01.json",
+        "bytes": 1357,
+        "sha256": "4aeb5fc9b47fab23d36a31a54bd9f32f280bcf0197ce51f35eec3fa2bf01241b"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-root-packet-review-01.json.gz",
+        "bytes": 738,
+        "sha256": "bbcc66ffe6f20ed5fcb7dbd76e49ead6c1c13fdcbe7d3172372dbcca137ef5c7"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/root-unit-dispatch-01.json",
+        "bytes": 4659,
+        "sha256": "c24e164a7827cdd18f1c72820246a547a7beb21787193280768ea1078d5fce23"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-root-unit-dispatch-01.json.gz",
+        "bytes": 1587,
+        "sha256": "8bff72a40c04da58aeac6fd86e74aa5f71433f45462e65dcf98b379b9fbbbd71"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/run_host_player.py",
+        "bytes": 71625,
+        "sha256": "5f0cfa6eea0196caa485388abbee3f88b537d0662a5e4a0a327ecbab22a1df37"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-run_host_player.py.gz",
+        "bytes": 20159,
+        "sha256": "c8a25ea194a395a1cf0d7e044ccb677275ee6aa96162514bda443eec47084382"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/baseline/run_player_owned.py",
+        "bytes": 23580,
+        "sha256": "a0c72a08fc42f710656f85bf8d8eedafefd55d00820ecd7cc271de1b2870a02a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-run_player_owned.py.gz",
+        "bytes": 6922,
+        "sha256": "80a8c0fdee6aa50cca1c0b643855918949b22b824b8c8ad39ccb4c7194ea1ab4"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/empty-thermal-projection-01.jsonl",
+        "bytes": 119910,
+        "sha256": "6c85753419d6b89823295afa9303a865923e7f78163ad3835d35215474c836e4"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/empty-thermal-projection-01.jsonl.gz",
+        "bytes": 3149,
+        "sha256": "2f55813f36c6b46a29b3046cdd1a3af81d4d9c795fcc9882729693775b7eabb5"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-01/cases/baseline/admission-01.json",
+        "bytes": 79058,
+        "sha256": "db6c7debba9c18288e0e8dafe2a46df49f24e454e56264e28d4bbec46742a9a3"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/initial-preflight-admission-01.json.gz",
+        "bytes": 4419,
+        "sha256": "dce69130e37eab64eea76fb5ee145fd149f04919da555d69c55ff59be13e48b7"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-01/cases/baseline/diagnostic-assessment.json",
+        "bytes": 88970,
+        "sha256": "0bf5949078972664ae87756989298fd503571be29f0b77763d504bec0b2a94ce"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/initial-preflight-diagnostic-assessment.json.gz",
+        "bytes": 5785,
+        "sha256": "474337ac37516e638e94a1dc0bcfc214150d6a379be9fb34be12c67c61f4899b"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-01/cases/baseline/root-finished-01.json",
+        "bytes": 2230,
+        "sha256": "d8087af23f9d8b127d29d790bfb94d3280c711d87dbf3be6de3563609cc1b7e2"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/initial-preflight-root-finished-01.json.gz",
+        "bytes": 1052,
+        "sha256": "5245045dcf88707b2fc48214894197eba299143d47b02b264c8068c0d06009f7"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-01/cases/baseline/root-unit-dispatch-01.json",
+        "bytes": 4659,
+        "sha256": "249748af3ccd9a16e4b84ea4fa220d676d17a1d39835ed7b839b9f5cb81aff1d"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/initial-preflight-root-unit-dispatch-01.json.gz",
+        "bytes": 1588,
+        "sha256": "d7c50523029ae1035f2c241be805dfefa2b73bd13899ebc2b206f8f0d952832f"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/cache-after-01.json",
+        "bytes": 17853,
+        "sha256": "df0c2dabc27354d57ca18271d5b932587d877f44069bbc2e8c728299a530ae4a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-cache-after-01.json.gz",
+        "bytes": 7090,
+        "sha256": "8633cf96bded846b979cead00ff95d2dcf62f1a4926f65524bfd6d43ff04516b"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/cache-before-01.json",
+        "bytes": 246,
+        "sha256": "a0ffff9303d4f63bc655c894b9a29fe61902c17b2ee83dbcf0a4afe7556f582a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-cache-before-01.json.gz",
+        "bytes": 202,
+        "sha256": "d7cd7f3f526d5431ffe566abef10dccd5038bdb5b43654f3d9c222f5c5cb2c00"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/close_case.py",
+        "bytes": 7181,
+        "sha256": "65fd664b0322968d9eff2204b243f14161c28390310c34be4c33df221c5d656f"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-close_case.py.gz",
+        "bytes": 2521,
+        "sha256": "b60b45175bb5a4356464684e8c96e32a4b527d17500caed6860985ce6b748f44"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/diagnostic-assessment.json",
+        "bytes": 138643,
+        "sha256": "031d13bf00a6b21017c3c9a3d88280316ccdfd98fcd3f6b17a06ff5e6192b7d0"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-diagnostic-assessment.json.gz",
+        "bytes": 7249,
+        "sha256": "508833fce5700c7acd8936e5d59b5d39174abf525f157eaf94dfab1bca01e43c"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/output-01/native-result.json",
+        "bytes": 204976,
+        "sha256": "ba2959537f725c7bf7041bb446806c483004587ecc8bb9e155f78eab5ff56e31"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-output-01-native-result.json.gz",
+        "bytes": 12544,
+        "sha256": "0338b458e0ba0ae66409f474a597dd90c9ad5f802da70dc93d2d692f91e2b8d9"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/output-01/native.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-output-01-native.stdout.log.gz",
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/output-01/observations.jsonl",
+        "bytes": 281642,
+        "sha256": "0275895a9975f0dfb5a17fb74e490941a61da1d28ac10b73bc9e74bd332ce020"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-output-01-observations.jsonl.gz",
+        "bytes": 20529,
+        "sha256": "5d9acbc465af8593bad8165671bcbedf85b9a79177b1dacea60d1e525b1073e4"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/output-01/progress.json",
+        "bytes": 573,
+        "sha256": "3813e39208212dc60cbfbe3bddd075e45aacc3ef64226b13d8f246dd037ffd1c"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-output-01-progress.json.gz",
+        "bytes": 336,
+        "sha256": "25f88ec0c8d1a81615fa80fa7bab9e45b17ab6e2df546309a3ca05e4867830cd"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/output-01/result.json",
+        "bytes": 475245,
+        "sha256": "d9d6de41869aaf520d2dfd41204cf6029908867835afc0e33b0ccdaeece4d6de"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-output-01-result.json.gz",
+        "bytes": 47025,
+        "sha256": "36a9d616fef7571fcc64a47a17cc8ab3b0b1466f5c8dd5a4a66db54312733a61"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/plan.json",
+        "bytes": 65647,
+        "sha256": "a436a14ad876d91818211aea3e6e97b63ed2f5d53d4166d2e382c312cca300ad"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-plan.json.gz",
+        "bytes": 11218,
+        "sha256": "6570af8897ec0d5afd7e350347319ca80b1020176495124193a79a577ccefff8"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/readiness.json",
+        "bytes": 2733,
+        "sha256": "37c7001807b729d274a92c186b19efc2be40475995f246014dcf4d5ff7a9238b"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-readiness.json.gz",
+        "bytes": 1141,
+        "sha256": "50516732a524ee46dca77109e2728883b277590d10a55dbeb758570ecc3e621c"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/root-finished-01.json",
+        "bytes": 3156,
+        "sha256": "8a34b9c75d169383bc7dec5011032f9c21e9eee9379d00ff1851d7e9f3a70e5a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-root-finished-01.json.gz",
+        "bytes": 1282,
+        "sha256": "26be10d77e20fd9dc1eb1f618ec4abb99b031863d4aff17215ea960d5717c5d3"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/root-packet-review-01.json",
+        "bytes": 1102,
+        "sha256": "8853f77760c98d6fe41efab2a34cdccbf59518c69251f4bc3210be672e3ad7b4"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-root-packet-review-01.json.gz",
+        "bytes": 615,
+        "sha256": "1730bd48145899fba89a485ac33dcdae3fe6bc6e1955cfac7d245872dda03f72"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/root-unit-dispatch-01.json",
+        "bytes": 4657,
+        "sha256": "142db09c98ca9ef101973d83f1826be6868d3937002d97d725a6bf997d6efcff"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-root-unit-dispatch-01.json.gz",
+        "bytes": 1586,
+        "sha256": "d33d815d446184f157f335f346c1b5efdc204ce5ec0fb029e828b046f760b611"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/run_host_player.py",
+        "bytes": 71686,
+        "sha256": "00eda55780555005408db65da417ea4004515abe5691c07f4612e7a877d7da51"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-run_host_player.py.gz",
+        "bytes": 20190,
+        "sha256": "ff1a5090bd7e89e68ec11c81b05040c2a2f7da102ef50d6a7b4d7bb6150c8031"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-02/cases/baseline/run_player_owned.py",
+        "bytes": 23580,
+        "sha256": "cf5f75fa9a6354835a192fc4bc11513d83c6fc072a5d1dc967bb786c8c7d704a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-run_player_owned.py.gz",
+        "bytes": 6924,
+        "sha256": "890a2a43aa04d1d1253391217e22347c167d1cf37a6e97a6ce6f9578ee3741d6"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/partial-thermal-projection-01.jsonl",
+        "bytes": 81900,
+        "sha256": "1a3bb2aa27cf3406e462c4d1131e978a94536a018dce6bcfe62c058de7ba1a22"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/partial-thermal-projection-01.jsonl.gz",
+        "bytes": 2139,
+        "sha256": "00c6fef42a79b28ea6456fb471953394ecd90b62ab26451eb5e4d2b13489b3d1"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/cache-after-01.json",
+        "bytes": 17853,
+        "sha256": "1932a635d4a2d29fec06d96e91af943df28ff426ec40f9374d6a8655466f02ca"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-cache-after-01.json.gz",
+        "bytes": 7081,
+        "sha256": "7faf692328d95fb7babba8c0af4fc0117bca51bf4ff9f75dd5049c36c6c302c0"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/cache-before-01.json",
+        "bytes": 17853,
+        "sha256": "1932a635d4a2d29fec06d96e91af943df28ff426ec40f9374d6a8655466f02ca"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-cache-before-01.json.gz",
+        "bytes": 7081,
+        "sha256": "7faf692328d95fb7babba8c0af4fc0117bca51bf4ff9f75dd5049c36c6c302c0"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/close_case.py",
+        "bytes": 7181,
+        "sha256": "65fd664b0322968d9eff2204b243f14161c28390310c34be4c33df221c5d656f"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-close_case.py.gz",
+        "bytes": 2521,
+        "sha256": "b60b45175bb5a4356464684e8c96e32a4b527d17500caed6860985ce6b748f44"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/diagnostic-assessment.json",
+        "bytes": 153934,
+        "sha256": "1165f92584422abb0b6b0d4c8033ae1a175a6d3ec50cefe58cda9794e533f490"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-diagnostic-assessment.json.gz",
+        "bytes": 7542,
+        "sha256": "f94983efb8a258ec5efbaeea20d7311e0e49359b3b73c86671458e7d4f958223"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/output-01/native-result.json",
+        "bytes": 266061,
+        "sha256": "7ff35f8d823bedd67c89eda97b513c30c2e5f605730c9ce2dde9757a80a71e3d"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-output-01-native-result.json.gz",
+        "bytes": 15605,
+        "sha256": "87e9fd60b8f292fbd7eb2084548c7eb7272954e179fec1d98b549675d747af46"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/output-01/native.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-output-01-native.stdout.log.gz",
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/output-01/observations.jsonl",
+        "bytes": 400875,
+        "sha256": "ba5b0d725647412449a3be53a646dc34cdeb653637b42981571b69810685986b"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-output-01-observations.jsonl.gz",
+        "bytes": 28922,
+        "sha256": "6fee374c634efbf8eb6528fc3609d95c0a4d8a5e3588cf9e45c5737bc855ed84"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/output-01/progress.json",
+        "bytes": 563,
+        "sha256": "b67002717159330d10daf1ee939052fa0120ffe3b38b4627b250a89ff35afa8a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-output-01-progress.json.gz",
+        "bytes": 330,
+        "sha256": "6823056261d273aea71905436e24c3eae2a5d729e8115cf8df5104f0a28dcb33"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/output-01/result.json",
+        "bytes": 537456,
+        "sha256": "246d478387c512fe3e12a9a303b9d56f46fc3a5859c1b1d548332a9e33f315ee"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-output-01-result.json.gz",
+        "bytes": 51037,
+        "sha256": "ad232c49076fbfe9e45f50b4d2b4c3a4d25bfd07d69b90ff55e404c9d68b174d"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/plan.json",
+        "bytes": 61641,
+        "sha256": "b31c07da589780c488ca0f571eb5221f47fec279e3632585a5fffdc896391032"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-plan.json.gz",
+        "bytes": 10725,
+        "sha256": "3240bc09857d557db45369ed8e782a6f5b7d49cf4b38dcbf8bcd59264c4a757b"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/readiness.json",
+        "bytes": 2734,
+        "sha256": "572a26e479ea214382a3867a75094aff22aa1dfa99578344c9f6315319b842bb"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-readiness.json.gz",
+        "bytes": 1147,
+        "sha256": "075e0f4b2ac918faac30888c81956a5f26c0168f42f895fbd5ceaee7de1710cb"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/root-finished-01.json",
+        "bytes": 3006,
+        "sha256": "f46270af2df1077f300f26d2a8b5dec5e584b60af59c9b2759727b0ed195e1b0"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-root-finished-01.json.gz",
+        "bytes": 1259,
+        "sha256": "22d47649e79e2bd521f7b51e1f3366f8a52cf0281d3ce1f57acd7fbb5831aedf"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/root-packet-review-01.json",
+        "bytes": 1357,
+        "sha256": "4aeb5fc9b47fab23d36a31a54bd9f32f280bcf0197ce51f35eec3fa2bf01241b"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-root-packet-review-01.json.gz",
+        "bytes": 738,
+        "sha256": "bbcc66ffe6f20ed5fcb7dbd76e49ead6c1c13fdcbe7d3172372dbcca137ef5c7"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/root-unit-dispatch-01.json",
+        "bytes": 4670,
+        "sha256": "5287c28393804252899641c41f2f903c6b71f612e50a2676d6417d496397bd8f"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-root-unit-dispatch-01.json.gz",
+        "bytes": 1594,
+        "sha256": "208de1045227bf97b55ae2235fd0454fb86a7774c40b9594595637d293fb3abb"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/run_host_player.py",
+        "bytes": 71627,
+        "sha256": "90b4a7fa1fdc1442b0a4377b0f61872d9197c6cb19dc66be1976c2abbd7f9d53"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-run_host_player.py.gz",
+        "bytes": 20161,
+        "sha256": "0eac46060c6bf17300c785bd6cc904e0e63d0a8a5150361c6eec8ef36d129116"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-mesa-current-player-03/cases/candidate/run_player_owned.py",
+        "bytes": 23580,
+        "sha256": "7647f94fdc65710bcb55b681f1fd61eefef08a26f03d744ff94be0c23e5beb7f"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-run_player_owned.py.gz",
+        "bytes": 6924,
+        "sha256": "2a7bee7f95f4a331fb3abe95c5f771f3e7fd2b670437baf1d151d5374f527fcc"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/retained-thermal-projection-01.jsonl",
+        "bytes": 111384,
+        "sha256": "a4c794bc9f54ab5157ad4ecc82175ea717c33473c9fe478de43129949058f826"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/retained-thermal-projection-01.jsonl.gz",
+        "bytes": 2648,
+        "sha256": "66ce720d8bb0cba87ed29c795ca29c9363d4b1d70bd0573340f112ce791732ac"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/cache-after-01.json",
+        "bytes": 17849,
+        "sha256": "639a62c8eddf22313e69808f225133b70493c58e6b939983b050ff29b50788cf"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-cache-after-01.json.gz",
+        "bytes": 7082,
+        "sha256": "79166c1c80d0633463c042ae167a78da4dc14aed85557ee541a7627c38f60a68"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/cache-before-01.json",
+        "bytes": 17849,
+        "sha256": "639a62c8eddf22313e69808f225133b70493c58e6b939983b050ff29b50788cf"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-cache-before-01.json.gz",
+        "bytes": 7082,
+        "sha256": "79166c1c80d0633463c042ae167a78da4dc14aed85557ee541a7627c38f60a68"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/close_case.py",
+        "bytes": 7181,
+        "sha256": "65fd664b0322968d9eff2204b243f14161c28390310c34be4c33df221c5d656f"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-close_case.py.gz",
+        "bytes": 2521,
+        "sha256": "b60b45175bb5a4356464684e8c96e32a4b527d17500caed6860985ce6b748f44"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/diagnostic-assessment.json",
+        "bytes": 132672,
+        "sha256": "8cc41a55d87ed257d420c15d66e1534e5c687bb67289c13767d9f810e87ea0ac"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-diagnostic-assessment.json.gz",
+        "bytes": 6521,
+        "sha256": "6d845545a895b316e91e9e31edbaf650015c56b371480df430d1645ac29c0e3d"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/launch_case.py",
+        "bytes": 7693,
+        "sha256": "fb050f485c4a53ac2eafbab481e5b68b5d80cc8f0294ef71de6f5dd49ea4f715"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-launch_case.py.gz",
+        "bytes": 2901,
+        "sha256": "79d5eb4eb068b4f5b49b2c68c9b7202c5d106cfc8d3c032d1c01869ed0504ba2"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/output-01/native-result.json",
+        "bytes": 266856,
+        "sha256": "e7f000e426870c73be9fa7af7cd7938372b07c2b2f5ab119815eb2461580b245"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-output-01-native-result.json.gz",
+        "bytes": 15843,
+        "sha256": "4507d04d0e180ce34bc305e07119621ffcf09bc54eb00bdeaf5ff4fbdb84556f"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/output-01/native.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-output-01-native.stdout.log.gz",
+        "bytes": 20,
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/output-01/observations.jsonl",
+        "bytes": 480137,
+        "sha256": "34bdc197288655ccbb5cc725f10d52fe84898ebb9034d0b687b40872bffe8e02"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-output-01-observations.jsonl.gz",
+        "bytes": 34824,
+        "sha256": "ba7d6bb8908b3500c5ec7a317380af0480fed5764aabdc8e187298de169550a9"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/output-01/progress.json",
+        "bytes": 575,
+        "sha256": "8bcd9cdbbec7e0cb31323086176ba0c462acc71ead63702e2029db96feca1d45"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-output-01-progress.json.gz",
+        "bytes": 336,
+        "sha256": "d3cf1e6dc04d2bce142cbc4a9dfcee8dbccc6335291e2b21ce22df662e76c4b2"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/output-01/result.json",
+        "bytes": 538060,
+        "sha256": "004c0ce1b239111338d64bdd9c3fb00714e3f8d9aa1fa3a9d3cbb3ea35a54410"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-output-01-result.json.gz",
+        "bytes": 50698,
+        "sha256": "6d9974bcca0144a0fadbe4421a325cbf38e18bd98082efe4525b4f14382fd697"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/plan.json",
+        "bytes": 62049,
+        "sha256": "2bb04f5dc8a55270134a6c9e97648c72b19317439b64e6ae233f6696b7cc63f9"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-plan.json.gz",
+        "bytes": 10733,
+        "sha256": "c82e6c5c5b72db8cb1de474e24f1dfa3bee088d974ac90f892b5283e07bbf9a1"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/prepare.py",
+        "bytes": 3723,
+        "sha256": "79d36a48fe282740a46095f9371c24dfa1423ec025c3c9e71fad7b33f4f58a93"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-prepare.py.gz",
+        "bytes": 1506,
+        "sha256": "a9b2a0e2bf1859e547a99aa0f2d89ce1e85485d98c0b2881b4868f3838bd7e51"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/readiness.json",
+        "bytes": 2661,
+        "sha256": "4faded9764c163b9cfbf92793c9cd35f8c1cedfd84217ae5746b6b46b33c1a46"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-readiness.json.gz",
+        "bytes": 1118,
+        "sha256": "434072d10b167cd01b010faa7156cd0d118743174c664043fcf43fb5a69a60e0"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/root-build-receipt-01.json",
+        "bytes": 1048,
+        "sha256": "05818bd0616319f9ea19c0154ade599dd3cf42dc061ff3dfa6e1d6ab3b1a559c"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-root-build-receipt-01.json.gz",
+        "bytes": 500,
+        "sha256": "37f82f089915d43869bb0096f74ca1063072700a3c385a48d25566b41ca0b434"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/root-finished-01.json",
+        "bytes": 2917,
+        "sha256": "1ac9a6a6092f3cd1a6246d6107cecb117a48606a96aabb49b03f456af1004a58"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-root-finished-01.json.gz",
+        "bytes": 1237,
+        "sha256": "c0c7b56db144c69db16f994147c38f6e689627c50d0388735c0cbe329f93cede"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/root-packet-review-01.json",
+        "bytes": 1134,
+        "sha256": "d04ccf56bcd60dc31fd7bd1ed29618fff33e4ac240afef9a7261f3c88367d2b3"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-root-packet-review-01.json.gz",
+        "bytes": 651,
+        "sha256": "fb2ae794567f6ed072e5d1fe4df63799fcbde516ca68c33a020074a58a7930e3"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/root-source-build-attestation-01.json",
+        "bytes": 19801,
+        "sha256": "85a3a65d63b9521b0a198b436553cbc5f5edb36e09a4949d963e67f2e1ad6d6d"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-root-source-build-attestation-01.json.gz",
+        "bytes": 5689,
+        "sha256": "75b587078fdf782d09f5219a854d84955d3ec12cbc751093d5e446336a4d3812"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/root-unit-dispatch-01.json",
+        "bytes": 4336,
+        "sha256": "30fdd3b5a57c661858b1d4e92bbaebdda1a1aa3295892edea56f7d19c0915d20"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-root-unit-dispatch-01.json.gz",
+        "bytes": 1501,
+        "sha256": "705a6887669ef523a7dc9d198b068266ba8a766a1f8785afaa30df083d5f12e6"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/run_host_player.py",
+        "bytes": 71682,
+        "sha256": "a2511e8adc34dcd785ea262031d14d33d7450907edb891b31625247341f486b8"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-run_host_player.py.gz",
+        "bytes": 20197,
+        "sha256": "bd6db13bf0fe1a523bf40b84f272d351425ccd5e6b7766b694f2d6ee279d8de8"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/cases/candidate/run_player_owned.py",
+        "bytes": 23580,
+        "sha256": "0a534bb7db48f2ddd4366d2760a032253c6cf6af1e675fc8abfabb79b5a32c23"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-run_player_owned.py.gz",
+        "bytes": 6927,
+        "sha256": "a3bfbd38cc61637db12f991718ca66b3b1907e3d09a1dcb99b37c8f19be697d7"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/two-core-thermal-projection-01.jsonl",
+        "bytes": 119644,
+        "sha256": "3613745ad8319677f63f103d62781ecb520bf83ab050c62eb7964f87af6b1239"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-thermal-projection-01.jsonl.gz",
+        "bytes": 2845,
+        "sha256": "27de98e355bb89ed1ef197e278d38176b4559bed57c4829d83704978180c41e3"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-two-core-single-01/window-critical-guard-checks-01.log",
+        "bytes": 98,
+        "sha256": "17625c1268cf812734a1d805e1ea783de8062234209a5198bd3dc7ff80a8a9b9"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/two-core-window-critical-guard-checks-01.log.gz",
+        "bytes": 52,
+        "sha256": "b96711814f94db1c3189b7384a3bbfe1cd18ed65a207af9134a8858252b6a814"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/analyze_results.py",
+        "bytes": 7005,
+        "sha256": "12b4996d3ce85d329d0e16097e0fdf35f0080de106c73a784bea9f94be7b0c3e"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/window-analyze_results.py.gz",
+        "bytes": 2803,
+        "sha256": "5f3a4c6c5bacc280c7af0fbf3e36bd53cec7f68720f29f3be0e14733d15d7bea"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/authorization-and-inhibition-01.json",
+        "bytes": 2429,
+        "sha256": "ca9804df0f0b30f0a2e46de9b0fcbd037b8037acd9ebab1cdb928697ae381683"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/window-authorization-and-inhibition-01.json.gz",
+        "bytes": 1066,
+        "sha256": "cfea72175ff5d8ca43fb6dbc1d12b8041a500abc7f8d837d4f8429771d683d7d"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/deadline-release-01.json",
+        "bytes": 503,
+        "sha256": "e9362422c87bee6d35822f8abedf7262cd484966c25820763bcbabd396f35672"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/window-deadline-release-01.json.gz",
+        "bytes": 312,
+        "sha256": "8850d875cb7d6c3b4ebfd8b816640acd469bc106287132bdd3ffe5292006f052"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/exact-inhibition-01.json",
+        "bytes": 2210,
+        "sha256": "0d3e8b6d513fcecf7df99b4dfd24bd48ab2ab73faf3a2776ba8b7c6adb91326a"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/window-exact-inhibition-01.json.gz",
+        "bytes": 905,
+        "sha256": "825b7c5b213bb639594bcc65ad882b2c6f52dac3be4bc65d52166e8153da3a2a"
+      },
+      "UTF8_and_roundtrip_verified": true
+    },
+    {
+      "source": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/results-01.json",
+        "bytes": 33174,
+        "sha256": "22f918932e2b02ff80ead76e154e15f3c12e86efa9fe176289264cdca72f74da"
+      },
+      "archive": {
+        "path": "docs/benchmarks/data/m2-store-window-player-2026-10-26/window-results-01.json.gz",
+        "bytes": 4637,
+        "sha256": "c4db0980532dbf8c781457f2f95df7e029b2ec1ff7cfd5f38d65cb6c4af05b77"
+      },
+      "UTF8_and_roundtrip_verified": true
+    }
+  ],
+  "gitleaks_exit_zero": true,
+  "gitleaks_log": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/archive-gitleaks-01.log",
+    "bytes": 79,
+    "sha256": "31c0b0996123413b84b1e1aa56b69310d0f5349e6bed6d47d3d101031b128c1f"
+  },
+  "audio_models_binaries_caches_and_unrelated_process_inventories_included": false,
+  "original_failures_preserved": true,
+  "all_client_scopes_independently_closed": true,
+  "original_idle_inhibitor_automatically_released": true,
+  "analyzer": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/analyze_results.py",
+    "bytes": 7005,
+    "sha256": "12b4996d3ce85d329d0e16097e0fdf35f0080de106c73a784bea9f94be7b0c3e"
+  },
+  "archive_preparer": {
+    "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-store-window-2026-10-26/archive_results.py",
+    "bytes": 5345,
+    "sha256": "243d6b3e821836d36e7c42271a58e468dca634e10c6c09a63b8d6affd2765661"
+  }
+}
