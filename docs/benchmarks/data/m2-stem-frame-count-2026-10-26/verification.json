@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "scope": "Offline generated PCM; no player, model, GPU, audio device or client latency qualification.",
+  "prototype_measurements_are_not_product_latency": true,
+  "all_10_long_counts_match_complete_file_Best": true,
+  "mono_prototype_rejected": true,
+  "product_regression_suites_passed": [
+    "audio-stem-rate-converter",
+    "live-stem-bridge"
+  ],
+  "actual_audio_filter": "SRC_SINC_BEST_QUALITY",
+  "counting_filter": "SRC_SINC_FASTEST stereo discarded zeros only",
+  "product_source_files": [
+    {
+      "path": "src/audio/StemRateConverter.cpp",
+      "bytes": 11753,
+      "sha256": "be21990d0552e76b148e3b6a9222eca4e97ed35221daf86f13fa0b1a6b355050"
+    },
+    {
+      "path": "src/audio/StemRateConverter.hpp",
+      "bytes": 4329,
+      "sha256": "bdbbc65eeabc057d35fb96581ea1ebd366b0ad0570f3a18ff7f17f1e72f4eed7"
+    },
+    {
+      "path": "tests/audio_stem_rate_converter_test.cpp",
+      "bytes": 21114,
+      "sha256": "ce8efb6cdd92d332a8e253058408216f36857649a15bc3cff67d8c18b8af64e2"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "baseline-profile.json",
+      "bytes": 558,
+      "sha256": "c622e051d3a75581bb159470b0c0f63a9efee5747aca2a5e30ff2f470b543063"
+    },
+    {
+      "file": "candidate-prototype-profile.json",
+      "bytes": 558,
+      "sha256": "6c336c160bd6052891dfa286bc9be035d677669c3a5f67ffc37aff27e7a9ec5f"
+    },
+    {
+      "file": "long-count-oracle.jsonl",
+      "bytes": 952,
+      "sha256": "6429644cea0a2f746e425cee6203412e1ee7046e8dbee0bde9169541fea4d11a"
+    },
+    {
+      "file": "product-regressions.log",
+      "bytes": 336,
+      "sha256": "7b8faa3fd63a6cbc54d1d06e40f998cd5a562550807ed8f22e43acc94392b9e5"
+    },
+    {
+      "file": "rejected-mono-regression.log",
+      "bytes": 57,
+      "sha256": "6c52b6f52340a1cbb88c917c49202a8601c0acca64df5c8d9b1d92d0021c4087"
+    },
+    {
+      "file": "upstream-source.json",
+      "bytes": 510,
+      "sha256": "38c27fa126f0c69cfad46e33a1a20edb8642f3f22cec685db56e828d2862186b"
+    }
+  ],
+  "M2_service_p99_target_ms": 4095,
+  "release_gate_changed": false,
+  "new_client_authorization_required": true
+}
