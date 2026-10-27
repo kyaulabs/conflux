@@ -16,6 +16,6 @@ Exact frame geometry matters: this fixture produces 1,123,201 frames, one more t
 
 The product converter and live-bridge regression suites passed after the change. They cover exact PCM against complete-file Best preparation, partitions, gaps, seeks, EOF, invalid inputs, budgets and cancellation. The converter suite now includes the exact four-hop live source in its frame-count and budget checks. These checks establish the tested geometry and audio behavior, not a guarantee about every future library version.
 
-No client test of this candidate has run. The [latest player checks](store-window-player-2026-10-26.md) still miss the unchanged 4.095-second service p99 target and record starvation. Best quality, the 15 W ceiling, thermal protection, the completed-hour requirement and all M2/release gates remain unchanged. A new physical test window is required because the earlier authorization ended at 20:00.
+This offline check did not include a client run. A [subsequent player check with fresh user readiness](frame-count-player-2026-10-26.md) completed 120.006 seconds but reported 9.767-second service p99 and steady starvation. Best quality, the 15 W ceiling, thermal protection, the 4.095-second target, the completed-hour requirement and all M2/release gates remain unchanged.
 
 The small text-only evidence set and its hashes are listed in [verification.json](data/m2-stem-frame-count-2026-10-26/verification.json).
