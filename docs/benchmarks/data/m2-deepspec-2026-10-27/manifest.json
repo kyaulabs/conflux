@@ -1,0 +1,1456 @@
+{
+  "schema": 1,
+  "utc": "2026-10-27T16:31:04.640584+00:00",
+  "files": [
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/LICENSE",
+      "relative_origin": "LICENSE",
+      "file": "000-LICENSE.gz",
+      "raw_bytes": 34520,
+      "raw_sha256": "76a97c878c9c7a8321bb395c2b44d3fe2f8d81314d219b20138ed0e2dddd5182",
+      "gzip_bytes": 11769,
+      "gzip_sha256": "3adb95d5f45cf0436a4fbba988d432ba892eeb79a62a1212ebb9959fde844222"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/README.rst",
+      "relative_origin": "README.rst",
+      "file": "001-README.rst.gz",
+      "raw_bytes": 5127,
+      "raw_sha256": "c0b1f96eb2a60d215f9fe0a4e0cef59b7d300f34731658f10940b3872c32b678",
+      "gzip_bytes": 2084,
+      "gzip_sha256": "33c589428267c8bd065ce109d39c17acdc96ad1188640a06e18b3dac74c705ab"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/archive_evidence.py",
+      "relative_origin": "archive_evidence.py",
+      "file": "002-archive_evidence.py.gz",
+      "raw_bytes": 3446,
+      "raw_sha256": "229b81995b251d803f277f686c816da8f63e3495a01d115a2845f18e022eddfb",
+      "gzip_bytes": 1535,
+      "gzip_sha256": "19438c6b9d058a2270265c40f9191fa765a2ee95c3fdab0a3036cfa84fc78537"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/close_comparison.py",
+      "relative_origin": "close_comparison.py",
+      "file": "003-close_comparison.py.gz",
+      "raw_bytes": 5294,
+      "raw_sha256": "cce241b4e9abe99949ace366f89caafea5612cea124a69fadfe26732b4f919ea",
+      "gzip_bytes": 1863,
+      "gzip_sha256": "3221df472d82634378db8cc592c060c5e0f2f4d6b9cbe58037425d18b707f525"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/config-audit-01.json",
+      "relative_origin": "config-audit-01.json",
+      "file": "004-config-audit-01.json.gz",
+      "raw_bytes": 17093,
+      "raw_sha256": "33dfc5f6fb33f2c2f7fe6a9d38ece288e3f99905295c0a5d375b350863b9533c",
+      "gzip_bytes": 1230,
+      "gzip_sha256": "152cf3fc6885959b81d9afc190f84c87b22c2c0137d445e8630cb3733b8985e3"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/documentation-01.json",
+      "relative_origin": "documentation-01.json",
+      "file": "005-documentation-01.json.gz",
+      "raw_bytes": 372,
+      "raw_sha256": "1400e4c3fc5e148feabd1c5ebe9975025c42a832c00ca1cf3b7cd7d7ac9b0c8b",
+      "gzip_bytes": 271,
+      "gzip_sha256": "22072e28beccc2045b55044f0ca16564b94bddf2bd05e63a746189c29c245941"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/download-01.json",
+      "relative_origin": "download-01.json",
+      "file": "006-download-01.json.gz",
+      "raw_bytes": 1460,
+      "raw_sha256": "fa873ca85c007aff90e4a5a65ff04e1533dfe8b332ae7e124b6b6929b9b17826",
+      "gzip_bytes": 642,
+      "gzip_sha256": "cd21230734c77be7b2b533ffb90b136c1110651605a7c633e41f1ad04dd39aff"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/download-plan-01.json",
+      "relative_origin": "download-plan-01.json",
+      "file": "007-download-plan-01.json.gz",
+      "raw_bytes": 1263,
+      "raw_sha256": "87d8fd764c13c87ba68f48d359483f0cebbffd5eee726e316b20599328c027ef",
+      "gzip_bytes": 548,
+      "gzip_sha256": "fbe8acf58e12aa89bf95b5b6dd8a4589155e2f568d28755e141f9235e38ab0b1"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/global-key-rule-01.json",
+      "relative_origin": "fmak-01/global-key-rule-01.json",
+      "file": "008-fmak-01--global-key-rule-01.json.gz",
+      "raw_bytes": 1609,
+      "raw_sha256": "7d3b83e979a280f2a92e2e6832f494a8718d2982b33fef1ee7adabb5b3078afb",
+      "gzip_bytes": 925,
+      "gzip_sha256": "28022d70ad9a290d5c0256e9f88deaa88451f1d4198e94994e46c321879beac9"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/keycnn_worker.py",
+      "relative_origin": "fmak-01/keycnn_worker.py",
+      "file": "009-fmak-01--keycnn_worker.py.gz",
+      "raw_bytes": 6858,
+      "raw_sha256": "02a47211d9a57e50496297724e16cb4c28597b9acc2fd3b1dafdb2605391ee54",
+      "gzip_bytes": 2800,
+      "gzip_sha256": "89a58743e78f5adc67c3bdd432cdb2380fc7e2d16fbc7a1e8101111e1deed6ba"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/music-plan-01.json",
+      "relative_origin": "fmak-01/music-plan-01.json",
+      "file": "010-fmak-01--music-plan-01.json.gz",
+      "raw_bytes": 61027,
+      "raw_sha256": "05efe336dfd55f2f19a7c4daa83a31e308d1e64e1cbbb97d1578745eed4f5b82",
+      "gzip_bytes": 12772,
+      "gzip_sha256": "9aecfbac273c2c0f8801d4f3e501abfd8bb1aefd62dae7867e20c5fd953d59f0"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/offline-checks-01.log",
+      "relative_origin": "fmak-01/offline-checks-01.log",
+      "file": "011-fmak-01--offline-checks-01.log.gz",
+      "raw_bytes": 1242,
+      "raw_sha256": "84d3bc68d4f27b381eab93fb9a40cae91ff8d886da79acada7eca5fe6e527928",
+      "gzip_bytes": 377,
+      "gzip_sha256": "d466bfc408930f875625847e16ee61ce41879755497a1f1529dcadffae060fa6"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/offline-verification-01.json",
+      "relative_origin": "fmak-01/offline-verification-01.json",
+      "file": "012-fmak-01--offline-verification-01.json.gz",
+      "raw_bytes": 1784,
+      "raw_sha256": "00b0d96d6a4ea174946472e04f6b4bf67c819faa2f8c256cb16444f569b4832a",
+      "gzip_bytes": 623,
+      "gzip_sha256": "74bdfa8fd11b1c4f0d52658e080b5b3dd7940472dae6bdcedc59020d3952bf23"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/003853-capture.json",
+      "relative_origin": "fmak-01/output-01/003853-capture.json",
+      "file": "013-fmak-01--output-01--003853-capture.json.gz",
+      "raw_bytes": 201,
+      "raw_sha256": "5472166f761cc76d1366be4b8c27b0cde96817078a5f1411c6a4ba736f6419fe",
+      "gzip_bytes": 158,
+      "gzip_sha256": "b4d96d813d6951d79ba1758614bbeee47845c7c3308e456e775d713c341c436e"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/005153-capture.json",
+      "relative_origin": "fmak-01/output-01/005153-capture.json",
+      "file": "014-fmak-01--output-01--005153-capture.json.gz",
+      "raw_bytes": 201,
+      "raw_sha256": "d7c258b6bc913bf50afef14110ddcde615d0f3c143583d460b9c58618f1cfae2",
+      "gzip_bytes": 158,
+      "gzip_sha256": "fb2c13bfa8a7f62b736ad482b1c12df6c3d353cb78358e338ba716cc563ffb0d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/010518-capture.json",
+      "relative_origin": "fmak-01/output-01/010518-capture.json",
+      "file": "015-fmak-01--output-01--010518-capture.json.gz",
+      "raw_bytes": 25380,
+      "raw_sha256": "a0bad8babe2031b292e7f754f718c7ed1c4c5142069e6589cb7c2d6a6314d752",
+      "gzip_bytes": 1754,
+      "gzip_sha256": "76f4bb4ebb2b60fd64b4303b0a3cc6ae78e33714fcf45fc4ed4496df36953e7f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/010518-prediction.json",
+      "relative_origin": "fmak-01/output-01/010518-prediction.json",
+      "file": "016-fmak-01--output-01--010518-prediction.json.gz",
+      "raw_bytes": 85781,
+      "raw_sha256": "a91658de1ffdc46f742ee3892cfc9974b45a8bedc43e8ad967d17eeaef7869d5",
+      "gzip_bytes": 25931,
+      "gzip_sha256": "431c2f90bfda22ed7f2e2298fa5ca90f68c6610daca03bc8f8b20354215c3fcb"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/010518-source.json",
+      "relative_origin": "fmak-01/output-01/010518-source.json",
+      "file": "017-fmak-01--output-01--010518-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "2c5cd0f113107bb1c8bc5421fd76b98d5a5a21491e0c8f9d901e1486cbce3312",
+      "gzip_bytes": 238,
+      "gzip_sha256": "34bad3e58504a61866010170a87a3ac1cc288b5a49baccf721d9a24dad5fdc5f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/010518-warnings.json",
+      "relative_origin": "fmak-01/output-01/010518-warnings.json",
+      "file": "018-fmak-01--output-01--010518-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/010518-worker.stderr",
+      "relative_origin": "fmak-01/output-01/010518-worker.stderr",
+      "file": "019-fmak-01--output-01--010518-worker.stderr.gz",
+      "raw_bytes": 546,
+      "raw_sha256": "a5d35c158a0df9f9fabbb9bdda3d2c8272be1e6caf4288dc10289fccbb841d89",
+      "gzip_bytes": 254,
+      "gzip_sha256": "2c69de21ea1c54bd953f4709b8eb0cdd19a68202dd04cab861393cfc0f3d0970"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013079-capture.json",
+      "relative_origin": "fmak-01/output-01/013079-capture.json",
+      "file": "020-fmak-01--output-01--013079-capture.json.gz",
+      "raw_bytes": 24587,
+      "raw_sha256": "0598a3cc72f052561c5cbf330b33552c37a42a336c1344ca33d8a944add316b4",
+      "gzip_bytes": 1749,
+      "gzip_sha256": "73a2cc1dd3cb4663ee9fd28413b5495a0c2147c32ed4e7fd3c8746a5fb712635"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013079-prediction.json",
+      "relative_origin": "fmak-01/output-01/013079-prediction.json",
+      "file": "021-fmak-01--output-01--013079-prediction.json.gz",
+      "raw_bytes": 83213,
+      "raw_sha256": "cca8c3cad9f79dfe8b1a44dfad5da62c89246cfe176f7761b3f23752b8ad4682",
+      "gzip_bytes": 25468,
+      "gzip_sha256": "a31585092fca50f6e3b07ac8e253376e3e1c38c50930e85c1a3b3ee82f7e3e28"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013079-source.json",
+      "relative_origin": "fmak-01/output-01/013079-source.json",
+      "file": "022-fmak-01--output-01--013079-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "802db97cc59110dba62bd6fbb56746acd0ef2a509c31fb5e2bfdb4186ff09b07",
+      "gzip_bytes": 239,
+      "gzip_sha256": "36ff315d32da83fbc5b41a866175ffeacef71c6872f8c05b6f2ced7412758aff"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013079-warnings.json",
+      "relative_origin": "fmak-01/output-01/013079-warnings.json",
+      "file": "023-fmak-01--output-01--013079-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013079-worker.stderr",
+      "relative_origin": "fmak-01/output-01/013079-worker.stderr",
+      "file": "024-fmak-01--output-01--013079-worker.stderr.gz",
+      "raw_bytes": 542,
+      "raw_sha256": "419de2f6fd0f338bc45abe6454e80401c862bf61f7b2783fe4d2a7f1ab97fec5",
+      "gzip_bytes": 251,
+      "gzip_sha256": "1d89934def0c59c7fb02807113670611eb234cde464f0c7a1509d89235552ea7"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013088-capture.json",
+      "relative_origin": "fmak-01/output-01/013088-capture.json",
+      "file": "025-fmak-01--output-01--013088-capture.json.gz",
+      "raw_bytes": 22927,
+      "raw_sha256": "69bd8236c96802fc2924ba86284470fa215ccbd4ae07c0432f0734dd3bb20bbe",
+      "gzip_bytes": 1648,
+      "gzip_sha256": "fd7acdf1ac1212b028c22e69bf839ec440ac09ce342a3ae4272a83ff95dc8cd8"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013088-prediction.json",
+      "relative_origin": "fmak-01/output-01/013088-prediction.json",
+      "file": "026-fmak-01--output-01--013088-prediction.json.gz",
+      "raw_bytes": 76953,
+      "raw_sha256": "b336c2da9a96f7466fa3c2f08f60409de3766d379facfd01ae1ac6177a751821",
+      "gzip_bytes": 23869,
+      "gzip_sha256": "709c5ee4d02ebc6ffc4393988ded3ec7ae529fa2f92054f09f6cd52b414f5d33"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013088-source.json",
+      "relative_origin": "fmak-01/output-01/013088-source.json",
+      "file": "027-fmak-01--output-01--013088-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "def0f410b5d30adb2cc09dbf07150ac119cb06fa9128cabb6bab88d496ddcd88",
+      "gzip_bytes": 241,
+      "gzip_sha256": "5bcf100aec3fd29da12dda2606382f34897da2b98fb446b5fa0d84dbef656895"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013088-warnings.json",
+      "relative_origin": "fmak-01/output-01/013088-warnings.json",
+      "file": "028-fmak-01--output-01--013088-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/013088-worker.stderr",
+      "relative_origin": "fmak-01/output-01/013088-worker.stderr",
+      "file": "029-fmak-01--output-01--013088-worker.stderr.gz",
+      "raw_bytes": 545,
+      "raw_sha256": "508a858d19c29195addd130c1f284ef7cd01ccff5f73b20a4c19e5edf694233b",
+      "gzip_bytes": 253,
+      "gzip_sha256": "bfa70183de4156a93c484c446cd901a35aed02e43f72ef02eedc0b9b97e24aa0"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/014033-capture.json",
+      "relative_origin": "fmak-01/output-01/014033-capture.json",
+      "file": "030-fmak-01--output-01--014033-capture.json.gz",
+      "raw_bytes": 18176,
+      "raw_sha256": "b8750323010fa5ee457936fc04171ed941a87eec7c2a426c3c235654bd82bded",
+      "gzip_bytes": 1475,
+      "gzip_sha256": "77fd78283ef04d5567753eeb2c68b028519673ee1d6efc8ea87f249015078d12"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/014033-prediction.json",
+      "relative_origin": "fmak-01/output-01/014033-prediction.json",
+      "file": "031-fmak-01--output-01--014033-prediction.json.gz",
+      "raw_bytes": 60912,
+      "raw_sha256": "3c278acbcafb2da00b2fae7d29c47fc882d06ad7995a27cb8bb6e6cc7a72562f",
+      "gzip_bytes": 18157,
+      "gzip_sha256": "1ec90f9534b26fda86290f7648d056c51d3e8d5c17e0eb4d976cf053a93fe782"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/014033-source.json",
+      "relative_origin": "fmak-01/output-01/014033-source.json",
+      "file": "032-fmak-01--output-01--014033-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "9c319cdcbbe93034cab5ee9d4b8ff942a0406490215298ede1dc5071437ad7cf",
+      "gzip_bytes": 240,
+      "gzip_sha256": "cf075455320d834da94adb822337ad03f5477a77b78d31cc01e5a1ce3b671525"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/014033-warnings.json",
+      "relative_origin": "fmak-01/output-01/014033-warnings.json",
+      "file": "033-fmak-01--output-01--014033-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/014033-worker.stderr",
+      "relative_origin": "fmak-01/output-01/014033-worker.stderr",
+      "file": "034-fmak-01--output-01--014033-worker.stderr.gz",
+      "raw_bytes": 545,
+      "raw_sha256": "6046f79233dd402073abf4889747d097b5a2ce099cc03918813b67352342bdb2",
+      "gzip_bytes": 255,
+      "gzip_sha256": "e0f6776a1ea13c8edd4636d6cbd819b4df7a3f4f648b0170924d0d6f264d986c"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/039588-capture.json",
+      "relative_origin": "fmak-01/output-01/039588-capture.json",
+      "file": "035-fmak-01--output-01--039588-capture.json.gz",
+      "raw_bytes": 33965,
+      "raw_sha256": "39d23c547cf89816b10b3dd51e159caed9f4b1faaed47a51941dc54c5d2b149e",
+      "gzip_bytes": 2255,
+      "gzip_sha256": "69bc793af3fb899aebd463429130597435c40e7a8db20e958ac28eb37eb597bc"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/039588-prediction.json",
+      "relative_origin": "fmak-01/output-01/039588-prediction.json",
+      "file": "036-fmak-01--output-01--039588-prediction.json.gz",
+      "raw_bytes": 114707,
+      "raw_sha256": "07216ca85cb9221fc9f79022b4ade148f6725426f1b20249524b2b507f6daebb",
+      "gzip_bytes": 35689,
+      "gzip_sha256": "f4323ed0d55ce0a09bb37a66461b0cd68ad75444d61ecaeaf7a116944fff466f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/039588-source.json",
+      "relative_origin": "fmak-01/output-01/039588-source.json",
+      "file": "037-fmak-01--output-01--039588-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "879f1080b560e762ca7e97ec2372b5bdd9e8a67f163501d908ad2bb0f3e0329f",
+      "gzip_bytes": 241,
+      "gzip_sha256": "eb2780bf5f143a1ee4095231773f1b23d1881074b4bc1cb20a092ed9117b35ce"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/039588-warnings.json",
+      "relative_origin": "fmak-01/output-01/039588-warnings.json",
+      "file": "038-fmak-01--output-01--039588-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/039588-worker.stderr",
+      "relative_origin": "fmak-01/output-01/039588-worker.stderr",
+      "file": "039-fmak-01--output-01--039588-worker.stderr.gz",
+      "raw_bytes": 545,
+      "raw_sha256": "20b73bf38421ce12c249ca25d11228441aaa56ede659e992daacad5f4a34107a",
+      "gzip_bytes": 253,
+      "gzip_sha256": "0c5b9bb85b0210a4702e4726e96a6a84902c4cfed40a46ec12eb97c09fea07dc"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/040989-capture.json",
+      "relative_origin": "fmak-01/output-01/040989-capture.json",
+      "file": "040-fmak-01--output-01--040989-capture.json.gz",
+      "raw_bytes": 30984,
+      "raw_sha256": "ca5a334a1dc713fc1a051a6af09f3f37158c841274b210cc6d2d2431c8abd587",
+      "gzip_bytes": 2073,
+      "gzip_sha256": "1cca4a1591b3594d75ff13ebfa29b254f1692774d3ba30edbdf7a604e637ceb3"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/040989-prediction.json",
+      "relative_origin": "fmak-01/output-01/040989-prediction.json",
+      "file": "041-fmak-01--output-01--040989-prediction.json.gz",
+      "raw_bytes": 105063,
+      "raw_sha256": "6ece674ab4c176d80d9d73d4c606de2453baa79562c44488caf4d7c2c3d4237d",
+      "gzip_bytes": 32243,
+      "gzip_sha256": "57345c4d2d5ed86922d0068b09ba0421f1c61a28a2901d27a05fc315030bad79"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/040989-source.json",
+      "relative_origin": "fmak-01/output-01/040989-source.json",
+      "file": "042-fmak-01--output-01--040989-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "75b50106a2f9b9d67206c13b961f7d2e82e53110188b2bcd17c7b8dfc6addf83",
+      "gzip_bytes": 240,
+      "gzip_sha256": "a17b599f22c9da005ba5e7201d8279a2ee90be769a0067f4949ce2f743f8bd64"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/040989-warnings.json",
+      "relative_origin": "fmak-01/output-01/040989-warnings.json",
+      "file": "043-fmak-01--output-01--040989-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/040989-worker.stderr",
+      "relative_origin": "fmak-01/output-01/040989-worker.stderr",
+      "file": "044-fmak-01--output-01--040989-worker.stderr.gz",
+      "raw_bytes": 541,
+      "raw_sha256": "4de0d5257b1aa808485d3ff096e21f39314c30980239201ab28cd018360d6cb1",
+      "gzip_bytes": 253,
+      "gzip_sha256": "698023fa9d40dad4bf205a2d7aef060960b69067a8320110f4c6a5effe47bfc1"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/045099-capture.json",
+      "relative_origin": "fmak-01/output-01/045099-capture.json",
+      "file": "045-fmak-01--output-01--045099-capture.json.gz",
+      "raw_bytes": 19199,
+      "raw_sha256": "01f23967a753970ef5f18ff7a57666b3b54ec630924f4f34d7be4cca49bdcc4a",
+      "gzip_bytes": 1546,
+      "gzip_sha256": "fd9f3552bd80e73fffffb3e1f626a76ef00cfea8663fe993a406bedef9557056"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/045099-prediction.json",
+      "relative_origin": "fmak-01/output-01/045099-prediction.json",
+      "file": "046-fmak-01--output-01--045099-prediction.json.gz",
+      "raw_bytes": 64034,
+      "raw_sha256": "a32bd09d145fa48ee78dfb66add4c7c65eda541b67e4e94c8b546154a770852b",
+      "gzip_bytes": 19496,
+      "gzip_sha256": "3d9c8bd377f210f03f2a5cf815c6d9891ef94a1725601e2ca4712024285202d9"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/045099-source.json",
+      "relative_origin": "fmak-01/output-01/045099-source.json",
+      "file": "047-fmak-01--output-01--045099-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "97d4ca15027ccb737c43717ddaf86e1916f6cce54e294f58523883cb385973ac",
+      "gzip_bytes": 239,
+      "gzip_sha256": "0fe5ae3f44cae6fb184cc05c019ddb5e3b3a93ff31d1793fb7f8b0ea3d945067"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/045099-warnings.json",
+      "relative_origin": "fmak-01/output-01/045099-warnings.json",
+      "file": "048-fmak-01--output-01--045099-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/045099-worker.stderr",
+      "relative_origin": "fmak-01/output-01/045099-worker.stderr",
+      "file": "049-fmak-01--output-01--045099-worker.stderr.gz",
+      "raw_bytes": 545,
+      "raw_sha256": "e1e02ebfacca012affe39a5c3dbc6fbcf2591f423688f68baac747f3a586bd62",
+      "gzip_bytes": 254,
+      "gzip_sha256": "c61c51fe04540a008a4675ad020c7a51b4371c9a6be7bc54d9d3511916b2c56f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/047070-capture.json",
+      "relative_origin": "fmak-01/output-01/047070-capture.json",
+      "file": "050-fmak-01--output-01--047070-capture.json.gz",
+      "raw_bytes": 17472,
+      "raw_sha256": "62620b2e687f7e380c8ffa8ae7ec8ebae3a3eec0fdbe0f0413b09c6f47072d7e",
+      "gzip_bytes": 1450,
+      "gzip_sha256": "1be66a1ea258e1afc7750452fd56576e50d3a2a36c81ec8b1800a14b0cd51096"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/047070-prediction.json",
+      "relative_origin": "fmak-01/output-01/047070-prediction.json",
+      "file": "051-fmak-01--output-01--047070-prediction.json.gz",
+      "raw_bytes": 58039,
+      "raw_sha256": "d9889777dbf0683b2cb6e5d93aa8439c2d62f7099c85f8d22e1d303bcf49577d",
+      "gzip_bytes": 17918,
+      "gzip_sha256": "2eb9c633b8a58942b1dc3e820d1c06dfa9851980ac71f71d5ed10ddf4551fc2e"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/047070-source.json",
+      "relative_origin": "fmak-01/output-01/047070-source.json",
+      "file": "052-fmak-01--output-01--047070-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "7cc1d66801e13b4f7f3331c748554b2e3922eda9aebb1d72a1b60d19198dc7e9",
+      "gzip_bytes": 242,
+      "gzip_sha256": "a4c2ee4360bb47cf6e8bdba815c9db3beb07675703c700e05e4be93bfb32bc32"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/047070-warnings.json",
+      "relative_origin": "fmak-01/output-01/047070-warnings.json",
+      "file": "053-fmak-01--output-01--047070-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/047070-worker.stderr",
+      "relative_origin": "fmak-01/output-01/047070-worker.stderr",
+      "file": "054-fmak-01--output-01--047070-worker.stderr.gz",
+      "raw_bytes": 547,
+      "raw_sha256": "8ce419cc269a5c788b236014d2b2a3371766f29330b2d3337fbc059c053f0244",
+      "gzip_bytes": 255,
+      "gzip_sha256": "6ae5b921d46fc9014aa92654c384e060d272b2bbd039f8379873d86ed4cfb147"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/050892-capture.json",
+      "relative_origin": "fmak-01/output-01/050892-capture.json",
+      "file": "055-fmak-01--output-01--050892-capture.json.gz",
+      "raw_bytes": 31471,
+      "raw_sha256": "18f363cda89300f436339d2d1197cd30ae02329b115d03a87285bdcc110229a3",
+      "gzip_bytes": 2121,
+      "gzip_sha256": "3b1ba15272aca7bd7c4a246004a4fe337f815befd2c6903330178c1a42c39911"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/050892-prediction.json",
+      "relative_origin": "fmak-01/output-01/050892-prediction.json",
+      "file": "056-fmak-01--output-01--050892-prediction.json.gz",
+      "raw_bytes": 107378,
+      "raw_sha256": "0c418e7eaac83337b64142345e8c4af19976a981c026deaf2f92d0ffd73319a9",
+      "gzip_bytes": 30468,
+      "gzip_sha256": "482d349d832e7f5ad5a9201ba2dbc167c32f3e3d53a8e93c89bfcd5d8f944b0f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/050892-source.json",
+      "relative_origin": "fmak-01/output-01/050892-source.json",
+      "file": "057-fmak-01--output-01--050892-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "5b9205b68508094448c9ff8ebfb6eae85436f3edfd1728733bc76c9665f3f8f6",
+      "gzip_bytes": 240,
+      "gzip_sha256": "39722c4b71fa1ec1dc34e725d2248057c857cf5a5c17edb9a53dc53fc6935005"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/050892-warnings.json",
+      "relative_origin": "fmak-01/output-01/050892-warnings.json",
+      "file": "058-fmak-01--output-01--050892-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/050892-worker.stderr",
+      "relative_origin": "fmak-01/output-01/050892-worker.stderr",
+      "file": "059-fmak-01--output-01--050892-worker.stderr.gz",
+      "raw_bytes": 544,
+      "raw_sha256": "1fdac7a2d0dcb96265ce21b23b98a53fb46cdf431d04ca63b88df7cf893b8150",
+      "gzip_bytes": 253,
+      "gzip_sha256": "7c0d4dfc7596c0c1b338b24c40c79bfe25ccf435cbc01689ee8ae37da8afcafb"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/059542-capture.json",
+      "relative_origin": "fmak-01/output-01/059542-capture.json",
+      "file": "060-fmak-01--output-01--059542-capture.json.gz",
+      "raw_bytes": 38918,
+      "raw_sha256": "e2aa8a68139cb7fd1d3832649a5ce026915ab405207ae206f7e29e9d55290974",
+      "gzip_bytes": 2454,
+      "gzip_sha256": "33abf256015faa53e50d6e768157c01d594cb231882383cc6c90e581553ccbc2"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/059542-prediction.json",
+      "relative_origin": "fmak-01/output-01/059542-prediction.json",
+      "file": "061-fmak-01--output-01--059542-prediction.json.gz",
+      "raw_bytes": 131422,
+      "raw_sha256": "e26cf7613eeae895add48360f5f6b0dbafce0eef211f6f4ee385fe0d57dc52d3",
+      "gzip_bytes": 38877,
+      "gzip_sha256": "63987707157b0ae251894a30ec946ec9b6f81bb27e68416ce9c03cedfafebe5f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/059542-source.json",
+      "relative_origin": "fmak-01/output-01/059542-source.json",
+      "file": "062-fmak-01--output-01--059542-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "54276938247e1d42c366bfa4adc6c4bf54ca03cb62b07dc1c3180165955a365e",
+      "gzip_bytes": 238,
+      "gzip_sha256": "f85b1ad9c5a4d237405f78ad1e2cb6ad91502779ae8e68b042758128bb0962df"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/059542-warnings.json",
+      "relative_origin": "fmak-01/output-01/059542-warnings.json",
+      "file": "063-fmak-01--output-01--059542-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/059542-worker.stderr",
+      "relative_origin": "fmak-01/output-01/059542-worker.stderr",
+      "file": "064-fmak-01--output-01--059542-worker.stderr.gz",
+      "raw_bytes": 542,
+      "raw_sha256": "ed4dd836c7498d355d5f429731653ccf7b9f8c47d1d1042775a2c776435c9e59",
+      "gzip_bytes": 250,
+      "gzip_sha256": "bbcded82528d5d299f94fc7b5eb90009eff09fa2ab53b72a37cb3104e73e512b"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/061480-capture.json",
+      "relative_origin": "fmak-01/output-01/061480-capture.json",
+      "file": "065-fmak-01--output-01--061480-capture.json.gz",
+      "raw_bytes": 201,
+      "raw_sha256": "1baeafc2a1567c48c3be330547612849be421cd3593daaa1a3e7c5d29a5cd653",
+      "gzip_bytes": 158,
+      "gzip_sha256": "deff0aa679d4898c05fe2d7c063a89c06c84e0c812a1660f3c727f2b5c0c46af"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/061673-capture.json",
+      "relative_origin": "fmak-01/output-01/061673-capture.json",
+      "file": "066-fmak-01--output-01--061673-capture.json.gz",
+      "raw_bytes": 34285,
+      "raw_sha256": "b36d44314f7cb710a10ae19ba5d6ce0d8beea2da61119f19d384b18eca89e860",
+      "gzip_bytes": 2255,
+      "gzip_sha256": "767d0ea93d751d2d84361bcf60a2680e51e3b7d22ed5e06a6e455ba30d44e4f3"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/061673-prediction.json",
+      "relative_origin": "fmak-01/output-01/061673-prediction.json",
+      "file": "067-fmak-01--output-01--061673-prediction.json.gz",
+      "raw_bytes": 115463,
+      "raw_sha256": "6541522fae1e6699e7f378f092888f5221532792108a12688c1375917abbd5f0",
+      "gzip_bytes": 32980,
+      "gzip_sha256": "b4b0109557d1c6118e57ab9b085c531ea391aa34caeab71cf84c36e650d9943b"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/061673-source.json",
+      "relative_origin": "fmak-01/output-01/061673-source.json",
+      "file": "068-fmak-01--output-01--061673-source.json.gz",
+      "raw_bytes": 329,
+      "raw_sha256": "8b0b2fb86fcb863027d30e9dbe131afa8f8cfa74147dbf7a81453d45fdf795fe",
+      "gzip_bytes": 241,
+      "gzip_sha256": "8aa360669c23b092b07e06333ca6d47fe7a940542732746026f375bd5c768d24"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/061673-warnings.json",
+      "relative_origin": "fmak-01/output-01/061673-warnings.json",
+      "file": "069-fmak-01--output-01--061673-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/061673-worker.stderr",
+      "relative_origin": "fmak-01/output-01/061673-worker.stderr",
+      "file": "070-fmak-01--output-01--061673-worker.stderr.gz",
+      "raw_bytes": 544,
+      "raw_sha256": "c5bf69d96e4f7429a710f5cb21b6d954a8ac5e1471a66bb32f9c4e4719692b09",
+      "gzip_bytes": 253,
+      "gzip_sha256": "972a3fa7720c931382afe2c0c9527d37c1b1cc0ef119edecac9d96f2c68ef575"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065671-capture.json",
+      "relative_origin": "fmak-01/output-01/065671-capture.json",
+      "file": "071-fmak-01--output-01--065671-capture.json.gz",
+      "raw_bytes": 18175,
+      "raw_sha256": "8b65a87207c824973336c71a5522a04858187d6cad8190dd509a6ed9aa701544",
+      "gzip_bytes": 1476,
+      "gzip_sha256": "a7622447df1d47c64a7088e4806a12a76e6ecdc01696320e1c00093b8f54b391"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065671-prediction.json",
+      "relative_origin": "fmak-01/output-01/065671-prediction.json",
+      "file": "072-fmak-01--output-01--065671-prediction.json.gz",
+      "raw_bytes": 60444,
+      "raw_sha256": "907e12849d44820cc974905e5b02945eec668c57bdba4bb8c0b28cbc1643435f",
+      "gzip_bytes": 17990,
+      "gzip_sha256": "e8998a5b86b06c900c14578a5bb90b630a7f90f3f6b5390d2af89bbf6ae22daf"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065671-source.json",
+      "relative_origin": "fmak-01/output-01/065671-source.json",
+      "file": "073-fmak-01--output-01--065671-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "ca47935a370221f673dc8687e6c963f93ebb9de531f8bdaa02b10e74c8a207ea",
+      "gzip_bytes": 240,
+      "gzip_sha256": "9bd668f8b89afd2aad4973eaabc58f32d573e7c66abe160b55076ab056257645"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065671-warnings.json",
+      "relative_origin": "fmak-01/output-01/065671-warnings.json",
+      "file": "074-fmak-01--output-01--065671-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065671-worker.stderr",
+      "relative_origin": "fmak-01/output-01/065671-worker.stderr",
+      "file": "075-fmak-01--output-01--065671-worker.stderr.gz",
+      "raw_bytes": 545,
+      "raw_sha256": "bfa22fc39e0104226ccbc1ab2524984435fb62253af3861960ce8a872e226d42",
+      "gzip_bytes": 255,
+      "gzip_sha256": "fe06050fd8173d2640b8f14e8eb2175083303e6ca4b70f9186112a268174a6e0"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065781-capture.json",
+      "relative_origin": "fmak-01/output-01/065781-capture.json",
+      "file": "076-fmak-01--output-01--065781-capture.json.gz",
+      "raw_bytes": 30071,
+      "raw_sha256": "9863c72200c5d3d20ef9e32022e14992266b3dfe57c5dc1e2c7b2ee1a45059a6",
+      "gzip_bytes": 2053,
+      "gzip_sha256": "532f6b491e79da7836bdf4a1679fc817c052d34ae07f62350112268587dc091d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065781-prediction.json",
+      "relative_origin": "fmak-01/output-01/065781-prediction.json",
+      "file": "077-fmak-01--output-01--065781-prediction.json.gz",
+      "raw_bytes": 102284,
+      "raw_sha256": "8d699dd45cdbc14559cb66b119a81de3ff0f68c348a0f7f661247a25294eac9b",
+      "gzip_bytes": 29782,
+      "gzip_sha256": "dd96904179d71a5a8b9e8d03354827e6f2c7882cb72b43a0fd62f66703108f0a"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065781-source.json",
+      "relative_origin": "fmak-01/output-01/065781-source.json",
+      "file": "078-fmak-01--output-01--065781-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "c3a19c580b4e89ace54f3cdeac5c268509458eb9ffec0f585a6bde0b8c36668f",
+      "gzip_bytes": 239,
+      "gzip_sha256": "11affe9664e746b6bee4b75ac1b21fa35d16f1b284df081955bf8fbf0cf7e3c6"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065781-warnings.json",
+      "relative_origin": "fmak-01/output-01/065781-warnings.json",
+      "file": "079-fmak-01--output-01--065781-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/065781-worker.stderr",
+      "relative_origin": "fmak-01/output-01/065781-worker.stderr",
+      "file": "080-fmak-01--output-01--065781-worker.stderr.gz",
+      "raw_bytes": 547,
+      "raw_sha256": "2358d640cac91c66a4c30fffb2eb1457d5ad93236ea7077da6061d854f2718fd",
+      "gzip_bytes": 256,
+      "gzip_sha256": "a202b82cfb991894ce4fa12ec4babf1bf956df7f6c4550d643a659184db9922e"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071506-capture.json",
+      "relative_origin": "fmak-01/output-01/071506-capture.json",
+      "file": "081-fmak-01--output-01--071506-capture.json.gz",
+      "raw_bytes": 19423,
+      "raw_sha256": "bd4e67c6fe2b2d5960d971af623650656b91fb41d2e8c99d4b5e23c1d4f90822",
+      "gzip_bytes": 1516,
+      "gzip_sha256": "5b0b182376f1a7787b594c0f962c013af84c1fce8c9e8bf8025782fb7f9990ea"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071506-prediction.json",
+      "relative_origin": "fmak-01/output-01/071506-prediction.json",
+      "file": "082-fmak-01--output-01--071506-prediction.json.gz",
+      "raw_bytes": 64566,
+      "raw_sha256": "9e2081effeb61f7b8a8fc990bc49d62c27245d2400bc675d085d8a87a6d81895",
+      "gzip_bytes": 20015,
+      "gzip_sha256": "ba4dc527167653831e6d9249878db55961665eb10aee0c4393aea05f042e7f8d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071506-source.json",
+      "relative_origin": "fmak-01/output-01/071506-source.json",
+      "file": "083-fmak-01--output-01--071506-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "48aa38c0147bcc84798a16e975cbe0e73faa3eb694adee2ac40c4d9df09f6606",
+      "gzip_bytes": 240,
+      "gzip_sha256": "d8daf66c3635778feb92c9cc3d1555af03c8ce4dbe80aa6c6aa449f1e7acbd19"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071506-warnings.json",
+      "relative_origin": "fmak-01/output-01/071506-warnings.json",
+      "file": "084-fmak-01--output-01--071506-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071506-worker.stderr",
+      "relative_origin": "fmak-01/output-01/071506-worker.stderr",
+      "file": "085-fmak-01--output-01--071506-worker.stderr.gz",
+      "raw_bytes": 546,
+      "raw_sha256": "06c5cbf7a2e5e9439ce27e74eb40e889947a32b10f70e98f1a8736ec45804112",
+      "gzip_bytes": 256,
+      "gzip_sha256": "abd60d8be6254e9c696e511c684bb3c05f6d9cfd19b399cd5c596b9270b8d9bb"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071516-capture.json",
+      "relative_origin": "fmak-01/output-01/071516-capture.json",
+      "file": "086-fmak-01--output-01--071516-capture.json.gz",
+      "raw_bytes": 49949,
+      "raw_sha256": "92709f54c304f3712ac917bbcf5f8fc37bc29d399236a017cab05ec659c44e2b",
+      "gzip_bytes": 2877,
+      "gzip_sha256": "07160def9f07e5eca55d37f1cc8f849949560b97d20cc574b30372ea8d655e89"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071516-prediction.json",
+      "relative_origin": "fmak-01/output-01/071516-prediction.json",
+      "file": "087-fmak-01--output-01--071516-prediction.json.gz",
+      "raw_bytes": 170466,
+      "raw_sha256": "00e0a583eacbb3fc9c76b59429ad02efe1d2434a01df21f594f44b9048ad8c9f",
+      "gzip_bytes": 47445,
+      "gzip_sha256": "a32345a770fe3b6bdccdbd3e8d259c3bace43e214c4d3b68dcc982954d200695"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071516-source.json",
+      "relative_origin": "fmak-01/output-01/071516-source.json",
+      "file": "088-fmak-01--output-01--071516-source.json.gz",
+      "raw_bytes": 329,
+      "raw_sha256": "524beda0c3e83569115068dad82a3164c9deb2bf122720b6ef35df4fa081ac1d",
+      "gzip_bytes": 242,
+      "gzip_sha256": "67d3d4af0400fce114802c52c6fa3d96a402b6935abd3b09f6d3b9ff11adeb7a"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071516-warnings.json",
+      "relative_origin": "fmak-01/output-01/071516-warnings.json",
+      "file": "089-fmak-01--output-01--071516-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/071516-worker.stderr",
+      "relative_origin": "fmak-01/output-01/071516-worker.stderr",
+      "file": "090-fmak-01--output-01--071516-worker.stderr.gz",
+      "raw_bytes": 546,
+      "raw_sha256": "637fd0c0263cdba2d206e35eef31f705753cd55bde565bd87bd76df722e91361",
+      "gzip_bytes": 256,
+      "gzip_sha256": "d4ac7b82b1a313023bb10508c357fe5feef7c3e4809add21f4f815aef3df6d59"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/074906-capture.json",
+      "relative_origin": "fmak-01/output-01/074906-capture.json",
+      "file": "091-fmak-01--output-01--074906-capture.json.gz",
+      "raw_bytes": 15503,
+      "raw_sha256": "1a254e26a848889e7d79f46e214f0793aa1dc50554da0ac3e133c80c95f18a93",
+      "gzip_bytes": 1364,
+      "gzip_sha256": "13c9af76e9176a10f3d4637d20eef7df58c3c08c7175713c4105a02440b830a1"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/074906-prediction.json",
+      "relative_origin": "fmak-01/output-01/074906-prediction.json",
+      "file": "092-fmak-01--output-01--074906-prediction.json.gz",
+      "raw_bytes": 51205,
+      "raw_sha256": "65d2f2bd324da2f214545783f7d52e60e97b685156160bc9d1c41f5c74e50d01",
+      "gzip_bytes": 15627,
+      "gzip_sha256": "59a66d8b112a2daa5f9f3b4d76b700671e3d9dfddfd4b3644efa76ef525461da"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/074906-source.json",
+      "relative_origin": "fmak-01/output-01/074906-source.json",
+      "file": "093-fmak-01--output-01--074906-source.json.gz",
+      "raw_bytes": 327,
+      "raw_sha256": "735a20bc581ae92f01ff1b1df57fd3366f80d77d82afbc3b52d89309428e462f",
+      "gzip_bytes": 237,
+      "gzip_sha256": "e67e590e175a59bd43db6fd1066cfa952578c0485abd99325edbf9bc86bc03d7"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/074906-warnings.json",
+      "relative_origin": "fmak-01/output-01/074906-warnings.json",
+      "file": "094-fmak-01--output-01--074906-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/074906-worker.stderr",
+      "relative_origin": "fmak-01/output-01/074906-worker.stderr",
+      "file": "095-fmak-01--output-01--074906-worker.stderr.gz",
+      "raw_bytes": 547,
+      "raw_sha256": "50d41709a840e44e5253a461cbe36040eb44743358da6f4585ce38b965ded23c",
+      "gzip_bytes": 254,
+      "gzip_sha256": "49bb7870ca72736528567325d805055b3a9ec786ce692ef1291b7803189ccd34"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/075746-capture.json",
+      "relative_origin": "fmak-01/output-01/075746-capture.json",
+      "file": "096-fmak-01--output-01--075746-capture.json.gz",
+      "raw_bytes": 36545,
+      "raw_sha256": "de5830748651609fa0886a65d078d030a8a5bee980b988ef74f50436abf9b72d",
+      "gzip_bytes": 2425,
+      "gzip_sha256": "6960a682869a72b2e38830444d633ea949eec648490f6ece6921310788cc292c"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/075746-prediction.json",
+      "relative_origin": "fmak-01/output-01/075746-prediction.json",
+      "file": "097-fmak-01--output-01--075746-prediction.json.gz",
+      "raw_bytes": 122132,
+      "raw_sha256": "bcb67deaf379768c5919bc529109597ea2bf86224aba1f7c8de6688b13c2a593",
+      "gzip_bytes": 40188,
+      "gzip_sha256": "61a3c6bd4377972e25807e98922d96299cb775136242d15d84d6ad460fbb1832"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/075746-source.json",
+      "relative_origin": "fmak-01/output-01/075746-source.json",
+      "file": "098-fmak-01--output-01--075746-source.json.gz",
+      "raw_bytes": 329,
+      "raw_sha256": "01dc7c62c31289438fdb71e8535db3c90467ae5c9eb8cf12057281051176d1bf",
+      "gzip_bytes": 242,
+      "gzip_sha256": "ce4fc8169a301f98e1ebb33f31284507c5a4daa0654c72d4b328a94268f62ad1"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/075746-warnings.json",
+      "relative_origin": "fmak-01/output-01/075746-warnings.json",
+      "file": "099-fmak-01--output-01--075746-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/075746-worker.stderr",
+      "relative_origin": "fmak-01/output-01/075746-worker.stderr",
+      "file": "100-fmak-01--output-01--075746-worker.stderr.gz",
+      "raw_bytes": 544,
+      "raw_sha256": "842a4515b0787fe748aaa7ad2d45abab6ecb76292f71f26b936a511e55cf26fd",
+      "gzip_bytes": 253,
+      "gzip_sha256": "314bb5198b0cddd6c994086ba2e6ce748f5e4b347e485bbd123e3d12a3a08fc4"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/086476-capture.json",
+      "relative_origin": "fmak-01/output-01/086476-capture.json",
+      "file": "101-fmak-01--output-01--086476-capture.json.gz",
+      "raw_bytes": 31271,
+      "raw_sha256": "4206eaeb412c5e0e091edbebc1c94d0db5808d17baa6da322e08f9a1d92df292",
+      "gzip_bytes": 2040,
+      "gzip_sha256": "3010335a73280f4b32fabce8cbdc20edb750ebdc15c26dbc5366fb40d1c9f97f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/086476-prediction.json",
+      "relative_origin": "fmak-01/output-01/086476-prediction.json",
+      "file": "102-fmak-01--output-01--086476-prediction.json.gz",
+      "raw_bytes": 105616,
+      "raw_sha256": "8d6302585821bbb2e881313be94de77f8cfdd2bfae0aeb434f775a81056134d1",
+      "gzip_bytes": 32020,
+      "gzip_sha256": "5301f2c5d33ed680400ef577c74b67fa25bfad575716eaf28e4ce1831a80db90"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/086476-source.json",
+      "relative_origin": "fmak-01/output-01/086476-source.json",
+      "file": "103-fmak-01--output-01--086476-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "726b4c3db0ad81148d7e5b5f49643e404f9ba980f216f533328dc57fd3bb8b91",
+      "gzip_bytes": 240,
+      "gzip_sha256": "687a7ecbfbd78d254151cd5d10be3e82fb7559d6d8c4c26f65d7c0cef4be1e41"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/086476-warnings.json",
+      "relative_origin": "fmak-01/output-01/086476-warnings.json",
+      "file": "104-fmak-01--output-01--086476-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/086476-worker.stderr",
+      "relative_origin": "fmak-01/output-01/086476-worker.stderr",
+      "file": "105-fmak-01--output-01--086476-worker.stderr.gz",
+      "raw_bytes": 543,
+      "raw_sha256": "642c69f7b411d912ffc5b76b4e3a23c7dd07834743e9e93cc6df6479fbeaa200",
+      "gzip_bytes": 254,
+      "gzip_sha256": "a20c8caf109e7415272b56a2f6fa084ff7a3c3c5376d659246285ec0f5853bb4"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/105052-capture.json",
+      "relative_origin": "fmak-01/output-01/105052-capture.json",
+      "file": "106-fmak-01--output-01--105052-capture.json.gz",
+      "raw_bytes": 43636,
+      "raw_sha256": "8d62389f3eed12aa024e7ded36be03272fd8f97fa44aae0623f69dfa92709bb4",
+      "gzip_bytes": 2643,
+      "gzip_sha256": "92e78b1fd4ac1fda229c47414001cfc02cd70915028ad76e7f3bbaa963872676"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/105052-prediction.json",
+      "relative_origin": "fmak-01/output-01/105052-prediction.json",
+      "file": "107-fmak-01--output-01--105052-prediction.json.gz",
+      "raw_bytes": 148153,
+      "raw_sha256": "bf1da9496b71e2160195945a9ebbbe83a34a9338e106b28ea9d220a6419754a5",
+      "gzip_bytes": 42732,
+      "gzip_sha256": "863d746a9d7be424e93dd4c48fb05a35035e5c33746ed78f652c0d91f1d7bd54"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/105052-source.json",
+      "relative_origin": "fmak-01/output-01/105052-source.json",
+      "file": "108-fmak-01--output-01--105052-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "624b82bff140c5ad44aa6daf4098a22f213935c248c4151c58662e7abe2a08f9",
+      "gzip_bytes": 241,
+      "gzip_sha256": "93e76af6a17d180cc82a25648aff22e0fc4c78edf2735e2afc7e73388ef1f9cf"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/105052-warnings.json",
+      "relative_origin": "fmak-01/output-01/105052-warnings.json",
+      "file": "109-fmak-01--output-01--105052-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/105052-worker.stderr",
+      "relative_origin": "fmak-01/output-01/105052-worker.stderr",
+      "file": "110-fmak-01--output-01--105052-worker.stderr.gz",
+      "raw_bytes": 541,
+      "raw_sha256": "05e786d8030b43958cbeb6db7b84f37c7307f91f8cc9fe53819b12573a04fc5e",
+      "gzip_bytes": 250,
+      "gzip_sha256": "e697b6ae5b9e2bfea1429bc2d56321e1cf04425d5db97ec8b011e5de72543586"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/107616-capture.json",
+      "relative_origin": "fmak-01/output-01/107616-capture.json",
+      "file": "111-fmak-01--output-01--107616-capture.json.gz",
+      "raw_bytes": 32908,
+      "raw_sha256": "c1e9e19fda9c9aee1522de235dc81551c8c414ef9e15583d3f0258089ff63a01",
+      "gzip_bytes": 2199,
+      "gzip_sha256": "28dcccd0522d005c8c7692e917f4dd1b3df35e42041d4c3c6273b8899a356e31"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/107616-prediction.json",
+      "relative_origin": "fmak-01/output-01/107616-prediction.json",
+      "file": "112-fmak-01--output-01--107616-prediction.json.gz",
+      "raw_bytes": 110718,
+      "raw_sha256": "cc66e09348c9a2ae4e22ab0b77c818ad6aa70fc66256f17767f8b1944da2ec17",
+      "gzip_bytes": 32842,
+      "gzip_sha256": "6189fe9f0f7f91bef0ed4791c1459c742bbc30563f51e30faa4b2e5e46c938d3"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/107616-source.json",
+      "relative_origin": "fmak-01/output-01/107616-source.json",
+      "file": "113-fmak-01--output-01--107616-source.json.gz",
+      "raw_bytes": 328,
+      "raw_sha256": "a4f8d3ef6a31ab07fd5fbfbfa2a75a1d95e456858404debd6849ec39ff6b6f5d",
+      "gzip_bytes": 240,
+      "gzip_sha256": "048773be8597c29775d479d84f7212f859784dcbf3edfcb2a8e70eaa2d733733"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/107616-warnings.json",
+      "relative_origin": "fmak-01/output-01/107616-warnings.json",
+      "file": "114-fmak-01--output-01--107616-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/107616-worker.stderr",
+      "relative_origin": "fmak-01/output-01/107616-worker.stderr",
+      "file": "115-fmak-01--output-01--107616-worker.stderr.gz",
+      "raw_bytes": 545,
+      "raw_sha256": "6c9c249a03fda6f5d583d0dc570b71d2896d637014e6cc0d09b8f78e28937e0a",
+      "gzip_bytes": 253,
+      "gzip_sha256": "89f616f9ae9abf162b012c588f32b111f21859dbdbb26d25cc87a813593a2ed1"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/112316-capture.json",
+      "relative_origin": "fmak-01/output-01/112316-capture.json",
+      "file": "116-fmak-01--output-01--112316-capture.json.gz",
+      "raw_bytes": 56153,
+      "raw_sha256": "cd0b04ea756257e519b1b8a699526195a5bc9178bd32d4216a2812953ccea566",
+      "gzip_bytes": 3235,
+      "gzip_sha256": "c42915a76a16916b5cd051b6d187c15912e2f3735c3c74ad16fbfce164b6083e"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/112316-prediction.json",
+      "relative_origin": "fmak-01/output-01/112316-prediction.json",
+      "file": "117-fmak-01--output-01--112316-prediction.json.gz",
+      "raw_bytes": 191139,
+      "raw_sha256": "5ba0c7ba28137f5c46c99b3111291a2e9f6f118872b232a2e11b23b49162ec4e",
+      "gzip_bytes": 56001,
+      "gzip_sha256": "070d0ebafc6116dc21ebb112baf83cd9352ff49d1daf1ba4af9ba8b8dfc7486f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/112316-source.json",
+      "relative_origin": "fmak-01/output-01/112316-source.json",
+      "file": "118-fmak-01--output-01--112316-source.json.gz",
+      "raw_bytes": 329,
+      "raw_sha256": "e0c71c0787495ed405bf89031c5ad3bf2728e51d0d15451fcd0da416bdbb4518",
+      "gzip_bytes": 241,
+      "gzip_sha256": "dcbc50e6b42a3e34c9a7df86674553a945bd8eeba174518612a89a44ab5e4d21"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/112316-warnings.json",
+      "relative_origin": "fmak-01/output-01/112316-warnings.json",
+      "file": "119-fmak-01--output-01--112316-warnings.json.gz",
+      "raw_bytes": 1131,
+      "raw_sha256": "2cf60001c8f360393957043baeb28895aee5fce600599f521613af4a166d408c",
+      "gzip_bytes": 520,
+      "gzip_sha256": "0eb5bd7d8797449bc41a442a151b4fc79095ccc61ac022f09bac91efe5950f88"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/112316-worker.stderr",
+      "relative_origin": "fmak-01/output-01/112316-worker.stderr",
+      "file": "120-fmak-01--output-01--112316-worker.stderr.gz",
+      "raw_bytes": 543,
+      "raw_sha256": "3ac2d9353424e9e431076d048e53fd760932c40ebda2d08234440a5c075f6cf4",
+      "gzip_bytes": 253,
+      "gzip_sha256": "57db3126642b9eb872eeb521e25ae66535ef9799dfefe9f79f33efaa2df8cd68"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/predictions-before-scoring.json",
+      "relative_origin": "fmak-01/output-01/predictions-before-scoring.json",
+      "file": "121-fmak-01--output-01--predictions-before-scoring.json.gz",
+      "raw_bytes": 700752,
+      "raw_sha256": "aa9dd9741b9ebc3b2a48a121803736270c5fe066a358c0e40f8b03b50dc6a1ef",
+      "gzip_bytes": 33336,
+      "gzip_sha256": "b9817ee4c0b6f7e62285d8e6af37be39f987ad06a6fa345c9744ef006b6abb61"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/output-01/scores.json",
+      "relative_origin": "fmak-01/output-01/scores.json",
+      "file": "122-fmak-01--output-01--scores.json.gz",
+      "raw_bytes": 21101,
+      "raw_sha256": "239223430963f5ac360e92880dd11973f7a0c56bd346b0f5ea78be5a0b9ea9ec",
+      "gzip_bytes": 6062,
+      "gzip_sha256": "4ed701636d7d232732615dc16613d2dc86c0ebd8f4dd3f8e8f2f6c407bb3e9e8"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/post-close-verification-01.json",
+      "relative_origin": "fmak-01/post-close-verification-01.json",
+      "file": "123-fmak-01--post-close-verification-01.json.gz",
+      "raw_bytes": 640,
+      "raw_sha256": "580786742b41c4ebdfba774a10963f60e589f26ef08c3e09059a5edfee5e2189",
+      "gzip_bytes": 394,
+      "gzip_sha256": "d211c8c25be42ae3ae6c129a9e7e4ad6dfb903db3db9840f637fc61e1e758839"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/protocol.py",
+      "relative_origin": "fmak-01/protocol.py",
+      "file": "124-fmak-01--protocol.py.gz",
+      "raw_bytes": 5443,
+      "raw_sha256": "a42acc9f77472758b42cb1c9cd421090115e9e20f78f4072b873dbac4e196346",
+      "gzip_bytes": 1928,
+      "gzip_sha256": "aab9be7839e84891237dd4580d62092dc3ce2cd7a51b5007e2748d3350c2d37d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/reservation-01.json",
+      "relative_origin": "fmak-01/reservation-01.json",
+      "file": "125-fmak-01--reservation-01.json.gz",
+      "raw_bytes": 1654,
+      "raw_sha256": "be0e409044edd44240ce8353e32fc16ff6a671bb4ad8adbb0d5a039e8ac10fd4",
+      "gzip_bytes": 540,
+      "gzip_sha256": "409066739b35ef719fd1d820c00a1a7a67d3dfe528d3b555b5bb5a4afac0fde6"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/root-finished-01.json",
+      "relative_origin": "fmak-01/root-finished-01.json",
+      "file": "126-fmak-01--root-finished-01.json.gz",
+      "raw_bytes": 3493,
+      "raw_sha256": "bc5fc4e05a2635c8254b07eb242a96c01d126f46479289c095a2e8e8cee0299a",
+      "gzip_bytes": 949,
+      "gzip_sha256": "386d6b1569f7268d03ff2b52f6d8a9c7dc0d8467b3c52807faf1571dc4a26476"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/run_fmak.py",
+      "relative_origin": "fmak-01/run_fmak.py",
+      "file": "127-fmak-01--run_fmak.py.gz",
+      "raw_bytes": 5937,
+      "raw_sha256": "91204257e81732b0e1a99429840f478d2002c3b164fcd404ba3b35b84dde7126",
+      "gzip_bytes": 2195,
+      "gzip_sha256": "01ea3094a9300728c0d68ce0419fe3a1b3fd8eea25dafd200f8f513ddda9680a"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/run_once.py",
+      "relative_origin": "fmak-01/run_once.py",
+      "file": "128-fmak-01--run_once.py.gz",
+      "raw_bytes": 7100,
+      "raw_sha256": "da7d07a98b3e386a2b357a97d196a4fc5c2656c0e3338959780c273d76edaae8",
+      "gzip_bytes": 2470,
+      "gzip_sha256": "47035bfde430a8a55d1c5eb5efc66b1abdf141450eb50956d12ec12e61359b2f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/score_global.py",
+      "relative_origin": "fmak-01/score_global.py",
+      "file": "129-fmak-01--score_global.py.gz",
+      "raw_bytes": 3157,
+      "raw_sha256": "f257abe69f291c03f7bf6e7b803d602e0bec5fd13e1fbf9a0186cd7ab880c2d8",
+      "gzip_bytes": 1176,
+      "gzip_sha256": "e8caccdc8005d5b4cdf3b8d284334919021298194377b8f1b90ed7d391656e35"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/test_global.py",
+      "relative_origin": "fmak-01/test_global.py",
+      "file": "130-fmak-01--test_global.py.gz",
+      "raw_bytes": 5904,
+      "raw_sha256": "04f55ccc2ea6448dc44d8aba619427506df5e10dc2526db350340fd45ad7e91d",
+      "gzip_bytes": 1950,
+      "gzip_sha256": "fcbfc15edc6c40534eade89b44452ec9f711a3ef52d345ca90d6c128babee7fa"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/unit.stderr.log",
+      "relative_origin": "fmak-01/unit.stderr.log",
+      "file": "131-fmak-01--unit.stderr.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/fmak-01/unit.stdout.log",
+      "relative_origin": "fmak-01/unit.stdout.log",
+      "file": "132-fmak-01--unit.stdout.log.gz",
+      "raw_bytes": 1316,
+      "raw_sha256": "f1a142bcf322e24504605d83472f5741c040a1619cfe03755adfccba4bea320a",
+      "gzip_bytes": 279,
+      "gzip_sha256": "07d0a293b556950c510517b51d1d2b476e31cc676ec5750c5664be2760fe1224"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/model-config-01.json",
+      "relative_origin": "model-config-01.json",
+      "file": "133-model-config-01.json.gz",
+      "raw_bytes": 40597,
+      "raw_sha256": "fba2f8e7b5ecc6c964a87376fc1cfaa86c2961d06bf6d9344f88fc08c8c04923",
+      "gzip_bytes": 1554,
+      "gzip_sha256": "1fc0183af0754daa046348ed40bab640fca0dbcfd14f4359f8321e30d82417cc"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/model-config-h5dump-01.txt",
+      "relative_origin": "model-config-h5dump-01.txt",
+      "file": "134-model-config-h5dump-01.txt.gz",
+      "raw_bytes": 21293,
+      "raw_sha256": "ad9724ef44517561726b13ad45c4647dc9a117ecb91c422b8fe84fad5854666d",
+      "gzip_bytes": 1470,
+      "gzip_sha256": "dbde5d727376b55b2ffa6b76e1295abc18f2fbaedbcc789dba08690f989d942f"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/check_directional.py",
+      "relative_origin": "numeric-forward-01/check_directional.py",
+      "file": "135-numeric-forward-01--check_directional.py.gz",
+      "raw_bytes": 1763,
+      "raw_sha256": "9c8e5fafffad38c9bcd53d3101553aaa4b0e34605a1fb6fd6a6f541d2f0fe278",
+      "gzip_bytes": 793,
+      "gzip_sha256": "5bfd57a0dfd9e7478998c744f7df17e914dac963aece312650f3627d4f02bd9c"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/check_numeric.py",
+      "relative_origin": "numeric-forward-01/check_numeric.py",
+      "file": "136-numeric-forward-01--check_numeric.py.gz",
+      "raw_bytes": 7065,
+      "raw_sha256": "e73c8342b66b77f0ff530e7ec518a81a8c474c85d15be3110e0a97c9ecc7cb22",
+      "gzip_bytes": 2555,
+      "gzip_sha256": "1d9e341a3823c4ca3689b467315b18e143d47954ff3c15980a40a7afe817f4c8"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/directional-green-01.log",
+      "relative_origin": "numeric-forward-01/directional-green-01.log",
+      "file": "137-numeric-forward-01--directional-green-01.log.gz",
+      "raw_bytes": 251,
+      "raw_sha256": "3c808bfb115d970660e5dd73ffb426becae1cbda4283a7ff501c4ae58f59741a",
+      "gzip_bytes": 151,
+      "gzip_sha256": "138bfe38c7b15d7c41270afe8416df5fda7e847b0615ad843f36c93758870fd5"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/directional-red-01.log",
+      "relative_origin": "numeric-forward-01/directional-red-01.log",
+      "file": "138-numeric-forward-01--directional-red-01.log.gz",
+      "raw_bytes": 679,
+      "raw_sha256": "74eee8159c1efb442866b93ab30a75a76ea1328e161ba3683922344fdd26fa20",
+      "gzip_bytes": 312,
+      "gzip_sha256": "0700d7267a1088b4034820a121ba51d785d5d2374526114e2f72a3cfe164485c"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/extract_weights.py",
+      "relative_origin": "numeric-forward-01/extract_weights.py",
+      "file": "139-numeric-forward-01--extract_weights.py.gz",
+      "raw_bytes": 6391,
+      "raw_sha256": "0b2c49948d9b3b090bb78bbd42f9d93afff0511df4d2d7ffe54c084b599d5b7b",
+      "gzip_bytes": 2517,
+      "gzip_sha256": "ab27bf4527af43a7e20ca2d32ca865f3d5cf7e94b41eb8c11db959f3f0b1ea3e"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/extraction-01.log",
+      "relative_origin": "numeric-forward-01/extraction-01.log",
+      "file": "140-numeric-forward-01--extraction-01.log.gz",
+      "raw_bytes": 104,
+      "raw_sha256": "0adccc9ec5faec91a04c8c26be78ef20eefe715eff5b897ad2396ea794adde78",
+      "gzip_bytes": 110,
+      "gzip_sha256": "564dceacfab9658a8691de4dc50a74af95cfd9a2c1f4c2044d029b9e7c8746da"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/extraction-execution-01.json",
+      "relative_origin": "numeric-forward-01/extraction-execution-01.json",
+      "file": "141-numeric-forward-01--extraction-execution-01.json.gz",
+      "raw_bytes": 145,
+      "raw_sha256": "4affc6445de2efa3c418d1f28a662401d03d3b5ceb042c43b7038a3309e366f9",
+      "gzip_bytes": 139,
+      "gzip_sha256": "a048e04db789209188c2daf9e1429071036ffed46470a23becb04a6d344c3f98"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/inventory-01.txt",
+      "relative_origin": "numeric-forward-01/inventory-01.txt",
+      "file": "142-numeric-forward-01--inventory-01.txt.gz",
+      "raw_bytes": 15916,
+      "raw_sha256": "501f048a1596707a9b5e540901f4add5a49b93af210deb6c7e2b19dccc246b90",
+      "gzip_bytes": 1186,
+      "gzip_sha256": "a28455ff656a8004513f07f07012049315f0cac0b53a03b9f77a4f20e85c5b40"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/keycnn_numeric.py",
+      "relative_origin": "numeric-forward-01/keycnn_numeric.py",
+      "file": "143-numeric-forward-01--keycnn_numeric.py.gz",
+      "raw_bytes": 6400,
+      "raw_sha256": "7a573bfc12562f3f1e1c329ff0fc543f8e80d773fc143ef99465673f064fa27e",
+      "gzip_bytes": 2451,
+      "gzip_sha256": "52c9a1de6a9caab798f780ef39764235f1a9ac70565018fe27b19784527eeae5"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/numeric-execution-01.json",
+      "relative_origin": "numeric-forward-01/numeric-execution-01.json",
+      "file": "144-numeric-forward-01--numeric-execution-01.json.gz",
+      "raw_bytes": 725,
+      "raw_sha256": "3a4bd6491e5e4bf8c9c02454e5ecbe9b8d88eee62b8d0c9cd2510d34fe3f22cb",
+      "gzip_bytes": 337,
+      "gzip_sha256": "e3e8516c9b273e1a04ec69426fa9beb88da77fbf10e3bb8341dce44bb0e80d72"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/numeric-green-01.log",
+      "relative_origin": "numeric-forward-01/numeric-green-01.log",
+      "file": "145-numeric-forward-01--numeric-green-01.log.gz",
+      "raw_bytes": 181,
+      "raw_sha256": "3c1e8dbad7a1002715dc46e3e1be2fe90a857b8be201eb41106a6d1b75db1fee",
+      "gzip_bytes": 165,
+      "gzip_sha256": "fc1d3382df8fed5d127c457847c1049f07bf617b78a7e2e5e84c8019b03168d0"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/numeric-plan-01.json",
+      "relative_origin": "numeric-forward-01/numeric-plan-01.json",
+      "file": "146-numeric-forward-01--numeric-plan-01.json.gz",
+      "raw_bytes": 21325,
+      "raw_sha256": "85621a463df2036f4cb8b2992e965be41694d7ee3089bee763c771cfb18e004f",
+      "gzip_bytes": 4414,
+      "gzip_sha256": "3673eb6a8ba723a730e917834a0d75ba8601318cdd6f9177b1aa0f0c40bb06b9"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/plan-01.json",
+      "relative_origin": "numeric-forward-01/plan-01.json",
+      "file": "147-numeric-forward-01--plan-01.json.gz",
+      "raw_bytes": 1635,
+      "raw_sha256": "5f8ffc239cf53177fa193bd76094be5b88bed568f587ab68b40e34413a277719",
+      "gzip_bytes": 778,
+      "gzip_sha256": "feee2b6da5572afcc1fa0592c9a99b213f98f0ce88898824654003551d2ea56d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/result-01.json",
+      "relative_origin": "numeric-forward-01/result-01.json",
+      "file": "148-numeric-forward-01--result-01.json.gz",
+      "raw_bytes": 22413,
+      "raw_sha256": "de44233cb6b89d3905dcb89c20ac5d00b26946cf1e9c0de2d74d5ecadd278f05",
+      "gzip_bytes": 2366,
+      "gzip_sha256": "901654e9231d5105b3d61a0d9211332a15b5167ec09e5f770d8d9e760c468109",
+      "origin_raw_bytes": 22337,
+      "origin_raw_sha256": "72e11f65da0ed37975c4a5d7c7e4b72765049a15d8a840c882af14b27ca15d10",
+      "publication_transform": "files_digest_map_to_path_sha256_records_v1"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/numeric-forward-01/tensor-audit-01.json",
+      "relative_origin": "numeric-forward-01/tensor-audit-01.json",
+      "file": "149-numeric-forward-01--tensor-audit-01.json.gz",
+      "raw_bytes": 44104,
+      "raw_sha256": "0d10b0fbd1814ec3a2ceb73a1fc5f41f2ef83a3026d1dc89c5e05d2195b29aca",
+      "gzip_bytes": 6756,
+      "gzip_sha256": "76755a26eab5fff498a373411087f9a0e502867875015bdb7daaf5ac0324cc80"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/paired-comparison-01.json",
+      "relative_origin": "paired-comparison-01.json",
+      "file": "150-paired-comparison-01.json.gz",
+      "raw_bytes": 6059,
+      "raw_sha256": "90f4e1ebb1ec4bb023e0bbd31ccd12c4e9089727fd296c426e708ba2cbfbc133",
+      "gzip_bytes": 802,
+      "gzip_sha256": "80a2917e0c019877c3ed8abdcb21243ae8508fce11c5719a29258b891aba2e3b"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/publication-branch-01.json",
+      "relative_origin": "publication-branch-01.json",
+      "file": "151-publication-branch-01.json.gz",
+      "raw_bytes": 225,
+      "raw_sha256": "84c688cf60800c5a0de81866ae8f8d47359d6d0f3cbf914d9f3a4b3a4a0d700a",
+      "gzip_bytes": 188,
+      "gzip_sha256": "ed4101ac649b06b2e8cf9c55e10efbf5abebc9f272e1cb9c40fa308827ba29d5"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/source-format-notes-01.json",
+      "relative_origin": "source-format-notes-01.json",
+      "file": "152-source-format-notes-01.json.gz",
+      "raw_bytes": 1849,
+      "raw_sha256": "2fc518625ee72f83c806bd09241dd94c61f7084b28415baf920655e9ceab4dd4",
+      "gzip_bytes": 477,
+      "gzip_sha256": "c8791db188e21d738f6340e1107238b52d93581dc8bc1847eaf587f82a963b02"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/structural-comparison-01.json",
+      "relative_origin": "structural-comparison-01.json",
+      "file": "153-structural-comparison-01.json.gz",
+      "raw_bytes": 3586,
+      "raw_sha256": "7a2c5e8eeee12c72f511ad1bf4a3d2ffa0364064802fba06cdadeb85b167bf1d",
+      "gzip_bytes": 538,
+      "gzip_sha256": "d3609bee86d5c75b9866e528128c2966031f5f293db05c076a6164469ab9a494"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/weight-header-audit-01.json",
+      "relative_origin": "weight-header-audit-01.json",
+      "file": "154-weight-header-audit-01.json.gz",
+      "raw_bytes": 813,
+      "raw_sha256": "cc17f1d28e69f7fcef6f4ec0eb7655c051ddf68b5b7c95d5f9c8d14f12e59e53",
+      "gzip_bytes": 498,
+      "gzip_sha256": "18d7baed25eb5a57ad6fa02166bd582f249df889fdf1abbb813cf3520d95c550"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/weight-headers-01.txt",
+      "relative_origin": "weight-headers-01.txt",
+      "file": "155-weight-headers-01.txt.gz",
+      "raw_bytes": 49068,
+      "raw_sha256": "b1dc1da63667a7a37a4ea95b091035a7b0471c496e6ab94c3dccd12a6c645e04",
+      "gzip_bytes": 1708,
+      "gzip_sha256": "f714039327465b50d40ed1bf9f6a0d15994f32cfff08943a60055811bcfa3f0d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/write_report.py",
+      "relative_origin": "write_report.py",
+      "file": "156-write_report.py.gz",
+      "raw_bytes": 6887,
+      "raw_sha256": "c2095cf25451b9c0e4131d3f1f00380e06c3c6ef4cd405aeffa988032b0e75dc",
+      "gzip_bytes": 3218,
+      "gzip_sha256": "e5fdd520442c4b9b81942236bae77fdd49d45209466846b7ca8575606268e394"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-fmak-assessment-01/keycnn-01/output-01/scores.json",
+      "relative_origin": "baseline-winterreise-scores.json",
+      "file": "157-baseline-winterreise-scores.json.gz",
+      "raw_bytes": 21336,
+      "raw_sha256": "331565de394321b20f44f301dcc3980b36842bec2a6969bd340ff1fd393ae998",
+      "gzip_bytes": 6367,
+      "gzip_sha256": "3661620babb5f2bf9cfcec8167b9e0b99594fd9ebaa14e9e45d5e34d032d84a6"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/publication_digest_format.py",
+      "relative_origin": "publication_digest_format.py",
+      "file": "158-publication_digest_format.py.gz",
+      "raw_bytes": 3792,
+      "raw_sha256": "bee6c3fe91c6546cc77ea826d38c3e3181bf8ddb42b239cd95b2d75b81afb6b4",
+      "gzip_bytes": 1463,
+      "gzip_sha256": "31a738285cdd27b9623bb94d8e5549c5bbefcdc01d89557cdd0fd0cfae702c3d"
+    },
+    {
+      "origin": "/home/kyau/projects/kyaulabs/conflux/build/m2-deepspec-assessment-01/publication-format-01.json",
+      "relative_origin": "publication-format-01.json",
+      "file": "159-publication-format-01.json.gz",
+      "raw_bytes": 625,
+      "raw_sha256": "bcab18b3733c85cf3bdc633d98ac514d0c5baceddb458de4d79cd322dbee5a6e",
+      "gzip_bytes": 414,
+      "gzip_sha256": "f5f5a265b702a68c70e3affe6b24d3781ed9bcbbe64c767d39812cab27f851bd"
+    }
+  ],
+  "archive_count": 160,
+  "compressed_bytes": 832570,
+  "scope": "UTF-8 text evidence only; no audio, PCM, CQT tensors, numeric weights, model containers or executables",
+  "candidate_enabled": false,
+  "latency_qualified": false,
+  "training_independence_verified": false,
+  "publication_format_note": "One source-digest map is represented as path/SHA256 records; original bytes are recoverable and separately checksum-bound."
+}
