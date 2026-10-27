@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "artifacts": [
+    {
+      "file": "build-red-01.log.gz",
+      "bytes": 609,
+      "SHA256": "060f30293780e5d371653b11fd6c65af1de72c8988cd024232028cac3c8533f6",
+      "expanded_bytes": 2223,
+      "expanded_SHA256": "94882ece7f071df7a3894b76fe4a07eb36f6c9d7e8516741264c01fccf4f9b65"
+    },
+    {
+      "file": "build-green-01.log.gz",
+      "bytes": 252,
+      "SHA256": "8938249a3070c76680f7abdf6bac48ea219b463abe74191009460c802b738517",
+      "expanded_bytes": 635,
+      "expanded_SHA256": "f8929bba18058b367fe6e4bdc9f09c22a46c361ebff59479bee505b6c00ce656"
+    },
+    {
+      "file": "regression-red-01.log.gz",
+      "bytes": 521,
+      "SHA256": "613367336d9d103911782bf1f2dca923c22ded1e19d45c78bf331d52286d4e1c",
+      "expanded_bytes": 1043,
+      "expanded_SHA256": "a59cda0054ae2013c3f51181b8837fcc7501f228a93faa2369aea3c177c7eeca"
+    },
+    {
+      "file": "regression-red-01.json.gz",
+      "bytes": 126,
+      "SHA256": "17c564ed44a5dfc40ec44956cb8253c6c83136d02f9ba030a185f4260fbd30ec",
+      "expanded_bytes": 132,
+      "expanded_SHA256": "2a57d821ca3b74ebc225f7025829d313604dc599c20348bc11d0d6453247fa70"
+    },
+    {
+      "file": "focused-green-01.log.gz",
+      "bytes": 322,
+      "SHA256": "ddd1fd03d659f8d298d3a2edb166cbe145b6a3f366a51630d48372a2952f8d3b",
+      "expanded_bytes": 591,
+      "expanded_SHA256": "b996c1a31e8daf7f4291f2e4c4eba159dacc15d8b50110415b85178183549967"
+    },
+    {
+      "file": "focused-green-01.json.gz",
+      "bytes": 79,
+      "SHA256": "fb809c6d13bc84d860b53370d20beca14d23b3131e12a42ede4e00731ff291a1",
+      "expanded_bytes": 63,
+      "expanded_SHA256": "864c9fa251b4751ee0a47365fed349b7ae5b8aeb26c95ec6cc5fd6e5815750cd"
+    },
+    {
+      "file": "full-green-01.log.gz",
+      "bytes": 1162,
+      "SHA256": "e62c8409ca800e01ad43d238fb99ccaa75fa88251e75963843225f11e46a1592",
+      "expanded_bytes": 5384,
+      "expanded_SHA256": "904dc62339a593ed62a261760b39a97daea1c07c3f939b411360fa833556edab"
+    },
+    {
+      "file": "full-green-01.json.gz",
+      "bytes": 79,
+      "SHA256": "f0e0f11555baae9736142d0a1ae373474f59974bc6c2772ab0a0642b2449fcf2",
+      "expanded_bytes": 63,
+      "expanded_SHA256": "6667c0f68836e81389ad10ff9597e4e07651f06d9bface86e58ab761824eb6ab"
+    },
+    {
+      "file": "archive_evidence.py.gz",
+      "bytes": 1581,
+      "SHA256": "e036aca8fa23b68f530e5a5e7dccd368010884b3d175fb50136d518c3b5a5b78",
+      "expanded_bytes": 4063,
+      "expanded_SHA256": "bb6fefcfc1df6aae511ad4bf12c30affe66b9cc64aeb54100b025812305cf78e"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "src/library/StemEngineSupport.cpp",
+      "bytes": 13885,
+      "SHA256": "2572c88fe677c415c931a805a3e4c51fb7f50ab224c3e6de4ff1c70a9039a929"
+    },
+    {
+      "path": "tests/prepared_track_store_test.cpp",
+      "bytes": 65621,
+      "SHA256": "fc958f219da026babab7d8a033734c98e9ba2e7c941600f50cd5aaafea7c3c45"
+    }
+  ],
+  "audio_PCM_model_weights_features_or_binaries_included": false,
+  "musical_or_laptop_latency_qualified": false
+}
