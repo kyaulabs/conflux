@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "source": "M2 generated TensorFlow 1.15.2 numerical reference, 2026-10-28",
+  "selection": {
+    "source": "M2 generated TensorFlow 1.15.2 numerical reference, 2026-10-28",
+    "scope": "Frozen generated comparison plan, checker and revisions, dependency/build/execution records, all completed and failed reference result text, independently checked all-batch top classes, input hashes/shapes and exact owned-container cleanup. No comparison rows filtered.",
+    "excluded_directories": [
+      "input",
+      "publication-input",
+      "publication-input-02",
+      "publication-01",
+      "__pycache__"
+    ],
+    "excluded_files": [
+      "apollo-collected-01/failed-build-container-inspect-01.json"
+    ],
+    "publication_transformation": "Omit unneeded base-image environment from one full inspect receipt; retain derived identity/state/command/mounts and original hash. Gitleaks false-positive classification retained; no scanner suppression.",
+    "excluded_payloads": [
+      "model weights",
+      "generated numeric arrays",
+      "container image/runtime"
+    ],
+    "model_sha256": "0a99c26b7d8a4f7123b3cdade75c7986ef686d6805378c43cada874497f53f9a",
+    "musical_accuracy_qualified": false,
+    "product_backend_enabled": false
+  },
+  "files": [
+    {
+      "path": "Dockerfile",
+      "bytes": 399,
+      "sha256": "a903b2bc9c4b30dc0d810d67ef546eab63b9ee5c1eedffcd0210d563dc819421"
+    },
+    {
+      "path": "apollo-collected-01/collection-01.json",
+      "bytes": 3331,
+      "sha256": "7e8a60037c69f077da9578ec82bcf14a7d4265e6db67827448a5bf4b75c3ce2d"
+    },
+    {
+      "path": "apollo-collected-01/execution-plan-01.json",
+      "bytes": 1845,
+      "sha256": "f4c3acec878b086026dff28f34d5ca3353b433e3205c6b9a8e9024c5771e8913"
+    },
+    {
+      "path": "apollo-collected-01/execution-plan-02.json",
+      "bytes": 1751,
+      "sha256": "3863aebc0090fde8df3371a6cb374ae51aded97675642ec670eb9408ff23f888"
+    },
+    {
+      "path": "apollo-collected-01/execution-plan-03.json",
+      "bytes": 1751,
+      "sha256": "46a558a6215c7c31daec70ae89db8baea9ec8c832205bd3e1bd98b56ef1f814f"
+    },
+    {
+      "path": "apollo-collected-01/execution-result-01.json",
+      "bytes": 932,
+      "sha256": "8690ba8f771f2319efa70d503cb175c5be5844b11a767ecfd63c91cd62dea1b1"
+    },
+    {
+      "path": "apollo-collected-01/execution-result-02.json",
+      "bytes": 842,
+      "sha256": "ac565986c12cfa58e29c1db9c2980ca4d42f56f53cac01ef12e5223eecb7aa8d"
+    },
+    {
+      "path": "apollo-collected-01/execution-result-03.json",
+      "bytes": 842,
+      "sha256": "25fdbd6940e56958909f7c7650d928ecfb4408111059a4444d24ee63152e2cbc"
+    },
+    {
+      "path": "apollo-collected-01/failed-build-container-cleanup-01.json",
+      "bytes": 147,
+      "sha256": "a5182a3524aec26f97988fb50b1401cbbb48cd0bbd9b7a2d4fe330476b7efa54"
+    },
+    {
+      "path": "apollo-collected-01/image-build-01.json",
+      "bytes": 707,
+      "sha256": "4a1b71fd8880823681bb7cce3e819f89605db09a5736ab6d67e030cd80eddf8e"
+    },
+    {
+      "path": "apollo-collected-01/image-build-01.log",
+      "bytes": 3502,
+      "sha256": "c0d47fa6ba60c093876dcac664f390a9bbc3b0d72b1594af6765954c37ceaceb"
+    },
+    {
+      "path": "apollo-collected-01/image-build-02.json",
+      "bytes": 809,
+      "sha256": "c86e16b0758e8f7050936f3f79630dbe87410a81097b25dbb0669c91998da275"
+    },
+    {
+      "path": "apollo-collected-01/image-build-02.log",
+      "bytes": 7736,
+      "sha256": "d3874e55dff8aa38eaf86a24a22c19c4aaa6289a70562c53a680d69adbc42e33"
+    },
+    {
+      "path": "apollo-collected-01/output-01/result.json",
+      "bytes": 999,
+      "sha256": "2befffe71a4f408960405dc8e2085fabe7464248eafe373bab5f0ca85ae79ef2"
+    },
+    {
+      "path": "apollo-collected-01/output-02/result.json",
+      "bytes": 28926,
+      "sha256": "17a6a42dfc7e96677f5212804df2fbe31e6feba43f0219ac13e9ac1bee24ad8e"
+    },
+    {
+      "path": "apollo-collected-01/output-03/result.json",
+      "bytes": 29191,
+      "sha256": "0fdafbbd0a60da32b1753cfbce6dbb9a7a18b2c42e5487b58e1b185b2b4428c4"
+    },
+    {
+      "path": "apollo-collected-01/pip-report-01.json",
+      "bytes": 93302,
+      "sha256": "f44173b18d535f2aba84ab48f3638900490d41091e7503b61a34c3cea1b3c1ae"
+    },
+    {
+      "path": "apollo-collected-01/requirements-resolved-01.txt",
+      "bytes": 415,
+      "sha256": "cfcec941ba5acab8da277dc771b57442815d0052825dfe89ca216d9ee10aa84a"
+    },
+    {
+      "path": "apollo-collected-01/runtime.stderr-01.log",
+      "bytes": 1670,
+      "sha256": "06bcf6fad859b9ce3a1d332720d494cbccc4d935a3addf902cca4599f66c0080"
+    },
+    {
+      "path": "apollo-collected-01/runtime.stderr-02.log",
+      "bytes": 1670,
+      "sha256": "06bcf6fad859b9ce3a1d332720d494cbccc4d935a3addf902cca4599f66c0080"
+    },
+    {
+      "path": "apollo-collected-01/runtime.stderr-03.log",
+      "bytes": 1670,
+      "sha256": "06bcf6fad859b9ce3a1d332720d494cbccc4d935a3addf902cca4599f66c0080"
+    },
+    {
+      "path": "apollo-collected-01/runtime.stdout-01.log",
+      "bytes": 862,
+      "sha256": "bc14a32bc74281b99431b2dd532b7bd034dc751ef6f2bdb6d78a3087455b14d9"
+    },
+    {
+      "path": "apollo-collected-01/runtime.stdout-02.log",
+      "bytes": 803,
+      "sha256": "60b3268a2a529f00e811835f65e3324c4c7fe18224b1ca4e4c1631c83ecdc93a"
+    },
+    {
+      "path": "apollo-collected-01/runtime.stdout-03.log",
+      "bytes": 1020,
+      "sha256": "1b27ec941641867782f6cd9a2da8859e963f9cf261a3e6b0bfd6c31359802caf"
+    },
+    {
+      "path": "assessment-01.json",
+      "bytes": 2573,
+      "sha256": "4d89651d62f60f7b81d0f4d0c680f6a6abec978a1429d29761a4ce995d6344e5"
+    },
+    {
+      "path": "execution-result-02.json",
+      "bytes": 842,
+      "sha256": "ac565986c12cfa58e29c1db9c2980ca4d42f56f53cac01ef12e5223eecb7aa8d"
+    },
+    {
+      "path": "failed-build-container-publication-01.json",
+      "bytes": 1194,
+      "sha256": "cb3b0f265bec7d68b65d13ba087de44e760ba237604b0a4db6586ddd328c2d0c"
+    },
+    {
+      "path": "feed-fetch-fix-01.json",
+      "bytes": 513,
+      "sha256": "865647896bbe121de173f32d3133efee092df2e87ddee5b0f41840a04c42b7ba"
+    },
+    {
+      "path": "generate_inputs.py",
+      "bytes": 2448,
+      "sha256": "1f0bdaf22cc9e226303cdd77b3a9e6e28be18168ecff774a2d2ec1012dd4de8c"
+    },
+    {
+      "path": "gitleaks-classification-01.json",
+      "bytes": 730,
+      "sha256": "e087fb6b5921da6dc2b48103eb341f71231d3921d0b01cabeb6a210d305428d4"
+    },
+    {
+      "path": "gitleaks-results-01.json",
+      "bytes": 710,
+      "sha256": "f2ab186fd689d264c0669c382ce1d4c5d468e46d64d2d0e9ea8c89d9a12edf21"
+    },
+    {
+      "path": "input-manifest-01.json",
+      "bytes": 17681,
+      "sha256": "a2eb4d9976e754786411972aed833d69654961aad8cf4028ef3091f19f38b161"
+    },
+    {
+      "path": "input-metadata/fixtures.json",
+      "bytes": 9104,
+      "sha256": "e553b89ea425fee09ab2320d10238fe55abb5da1d5eb2ccfa47fbe3a0143d990"
+    },
+    {
+      "path": "input-metadata/model-config.json",
+      "bytes": 40597,
+      "sha256": "fba2f8e7b5ecc6c964a87376fc1cfaa86c2961d06bf6d9344f88fc08c8c04923"
+    },
+    {
+      "path": "input-metadata/plan.json",
+      "bytes": 2244,
+      "sha256": "3cdb0e334e6d8db5b62f0c6a7f1539213ce0e11e556a717b4093a4d724159da9"
+    },
+    {
+      "path": "input-metadata/tensors.json",
+      "bytes": 19321,
+      "sha256": "b95eb5b4c4ee2022f4de2aeb82334499e2421cf3fcd5ca718e1209143c47af72"
+    },
+    {
+      "path": "package_results_02.py",
+      "bytes": 4345,
+      "sha256": "fc7be88e45d167aa7188c6b5bde31da7c9bf946aaa240904c15556fdb3b8e33d"
+    },
+    {
+      "path": "plan-01.json",
+      "bytes": 2244,
+      "sha256": "3cdb0e334e6d8db5b62f0c6a7f1539213ce0e11e556a717b4093a4d724159da9"
+    },
+    {
+      "path": "publication-selection.json",
+      "bytes": 1110,
+      "sha256": "eb4f89ea60632e8d944ca153003f564ea1beed9fbc8cf445865e1fec24ca1a29"
+    },
+    {
+      "path": "reference-before-feed-fetch-fix.py",
+      "bytes": 7008,
+      "sha256": "bcc78e277caaccd12ac4086eace5873549da4dd1a4f62816b03b25cbeef693ff"
+    },
+    {
+      "path": "reference-result-02.json",
+      "bytes": 28926,
+      "sha256": "17a6a42dfc7e96677f5212804df2fbe31e6feba43f0219ac13e9ac1bee24ad8e"
+    },
+    {
+      "path": "reference-strict-comparison-02.py",
+      "bytes": 6989,
+      "sha256": "3b94ae6c6dceeaabf382713fce2eeafbf364ff997be0630988a7aec8bae7cb01"
+    },
+    {
+      "path": "reference.py",
+      "bytes": 8221,
+      "sha256": "7274bc5d88ad96197c16ff82161555e5fa1c7d20dd9367de3fccfd4b4c1bc6eb"
+    },
+    {
+      "path": "results-evidence-verification-01.json",
+      "bytes": 193,
+      "sha256": "6240add1d1ff0bedf1037940ca6348a4346e679429f81647e11e9a2e0a461e3e"
+    },
+    {
+      "path": "run_apollo_reference_02.py",
+      "bytes": 3788,
+      "sha256": "bb5f48eca1c73396ccbb7caa82be719f8da9ad44d2795c4105d1dd65ffd5c75b"
+    },
+    {
+      "path": "run_apollo_reference_03.py",
+      "bytes": 3788,
+      "sha256": "3e643a76a6d25991d3da971f3d9cfa5a9b88b72ba977f3859dc0454edca36991"
+    }
+  ]
+}

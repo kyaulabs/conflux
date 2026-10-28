@@ -1,6 +1,6 @@
 # Explicit redraw-load diagnostic
 
-The 50 ms redraw diagnostic is prepared and has passed offline verification. No physical player, real-model or GPU run has started. It does not replace the failed [Balanced waveform comparison](balanced-waveform-player-2026-10-27.md) or change the laptop's 4.095-second target.
+The explicit 50 ms redraw diagnostic passed offline verification. Its first [physical comparison](redraw-player-2026-10-28.md) then completed the failed 16 ms baseline at 10.323-second p99; the 50 ms arm stopped during thermal admission before playback. No redraw performance effect is established. The diagnostic does not replace the failed [Balanced waveform comparison](balanced-waveform-player-2026-10-27.md) or change the laptop's 4.095-second target.
 
 The normal controller polls state every 50 ms. The actual-model benchmark additionally calls `window.update()` every 16 ms, even when no new controller snapshot is due. Those are update-request intervals, not guaranteed presentation rates. Qt may coalesce requests or redraw for other reasons. The difference identifies a factor to isolate; it does not establish that forced redraws caused the earlier stalls.
 
@@ -12,4 +12,4 @@ All 35 fast runner tests passed. Two new regressions reject the parent implement
 
 The [offline evidence manifest](data/normal-redraw-diagnostic-2026-10-28/manifest.json) binds source/build hashes, generated native results, boundary checks, intentional parent failures and cleanup. All 34 text files passed hash verification and secret scanning; audio, fake model/executable and cache payloads are omitted.
 
-The next physical comparison must use the same built player with 16 ms and 50 ms forced redraw requests, changing only that option. It needs a newly frozen packet and fresh AC/open-lid/minimized-Codex/visible-window conditions. Best quality, normal Balanced operation, the 15 W ceiling, thermal-guard reductions and the unchanged target remain required. No power-profile or guard change is proposed, and no default-stress or release gate is waived.
+Any further physical comparison must use the same built player with 16 ms and 50 ms forced redraw requests, changing only that option. The first comparison window is closed; a 50 ms result remains pending. Further work needs a newly frozen packet and fresh AC/open-lid/minimized-Codex/visible-window conditions. Best quality, normal Balanced operation, the 15 W ceiling, thermal-guard reductions and the unchanged target remain required. No power-profile or guard change is proposed, and no default-stress or release gate is waived.
