@@ -1092,6 +1092,13 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             const auto left = cue.received(0), right = cue.received(1);
             cue.validate(true);
             await([&] { return cue.received(0) >= left + 1024 && cue.received(1) >= right + 1024; }, "Fresh equalized cue samples did not arrive");
+            QJsonArray checks = detail["cue_checks"].toArray();
+            checks.append(QJsonObject{{"received_left_before", qint64(left)}, {"received_right_before", qint64(right)},
+                {"received_left_after", qint64(cue.received(0))}, {"received_right_after", qint64(cue.received(1))},
+                {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
+                {"validation_acknowledged", cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
+                {"output_frame", qint64(controller.audioState().outputFrame)}});
+            detail["cue_checks"] = checks;
             require(!cue.wrong() && !cue.zeros(), "Prefader cue contains analytic boosted PCM independently of channel/master/crossfader gains");
         };
         checkCue();
@@ -1104,9 +1111,14 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         // checkCue above proved a completed armed callback, so this false ACK
         // cannot be the initial default or precede in-flight armed sample work.
         await([&] { return !cue.observingValidation(); }, "Cue validation did not acknowledge disarm before rebuild");
+        // Exercise an old GUI checkpoint while the current session keeps advancing.
+        // It must not later be mistaken for settled output from the rebuilt session.
+        await([&] { return controller.audioState().outputFrame >= beforeRoute.outputFrame + 8192; },
+              "Old EQ session did not advance beyond the captured routing checkpoint");
         controller.configureAudioRouting(ports[0], ports[1], ports[2], ports[3]);
         await([&] { return !controller.busy() && controller.outputReady() && controller.completedSessions() == sessions + 1 &&
-            controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096; }, "EQ routing rebuild did not restore and settle");
+            controller.audioState().cueReady &&
+            controller.audioState().sourceFrame[0] >= beforeRoute.sourceFrame[0] + 4096; }, "EQ routing rebuild did not restore cue readiness");
         const auto restored = controller.audioState();
         require(restored.eqGainDb == beforeRoute.eqGainDb && restored.playing == beforeRoute.playing &&
                 restored.deckGain == beforeRoute.deckGain && restored.masterGain == beforeRoute.masterGain &&
@@ -1117,6 +1129,11 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
                 controller.decks()[1].toMap()["sourceId"] == sourceIds[1].toMap()["sourceId"] && controller.recording()["active"].toBool() &&
                 controller.recording()["path"].toString() == boostPath,
                 "Explicit routing rebuild restores all EQ targets, transport, cue and gains with the same active writer");
+        // The pre-rebuild source checkpoint can already be old. Measure settling
+        // from this ready session's output clock, not that earlier source cursor.
+        detail["rebuild_cue_ready_output_frame"] = qint64(controller.audioState().outputFrame);
+        settle();
+        detail["rebuild_settled_output_frame"] = qint64(controller.audioState().outputFrame);
         checkCue();
         detail["boost_rebuild_recording"] = finishRecording(boostPath, prefix, float(boost * .125), true);
         const auto final = controller.audioState();
