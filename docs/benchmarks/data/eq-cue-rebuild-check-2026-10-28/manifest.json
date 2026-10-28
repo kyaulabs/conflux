@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "fresh-boundary-01.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fresh-boundary-01.stdout.log",
+      "bytes": 55987,
+      "sha256": "55bd5046342db8d0d4f05a53899f87668dfcd6f3c6c6325561658e70b054e10a"
+    },
+    {
+      "path": "fresh-boundary-01/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fresh-boundary-01/check.stdout.json",
+      "bytes": 36324,
+      "sha256": "a4d6fb24be141b4beb7fe40f114899e5fe39f12e94090b4c47d2d5ba786d6a42"
+    },
+    {
+      "path": "fresh-boundary-01/cleanup-pw-dump.json",
+      "bytes": 12352,
+      "sha256": "a5199324b8fbef86356e4d5f8dddc06104261c58d0e474035efa8e9f96768fce"
+    },
+    {
+      "path": "fresh-boundary-01/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fresh-boundary-01/controller-preparation-phase.json",
+      "bytes": 5225,
+      "sha256": "29f0f72d6572d9a2e34d15e629365083a7241c7ad9430d9b68d412512d8f3997"
+    },
+    {
+      "path": "fresh-boundary-01/daemon.log",
+      "bytes": 224797,
+      "sha256": "1e5fbc97dfc86d3790406bfb92d287b834a63350bff7277871a98acbd8f0ecb4"
+    },
+    {
+      "path": "fresh-boundary-01/preflight-pw-dump.json",
+      "bytes": 12356,
+      "sha256": "10b0193e698a73544351cf7dee73b7698bd2c396580585df1b31db969ca95067"
+    },
+    {
+      "path": "fresh-boundary-01/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fresh-boundary-01/recordings/generated-eq-controller-detail.json",
+      "bytes": 2423,
+      "sha256": "d5c12cf8302e6955548d418882ffec6f1ded3a72897a2a3b72dea8c87e1d830a"
+    },
+    {
+      "path": "fresh-boundary-01/recordings/generated-loop-controller-detail.json",
+      "bytes": 19332,
+      "sha256": "d24c6124fa1525ea7f2ef06f645def465196cab26489bbee499ce2ffdf64e27f"
+    },
+    {
+      "path": "fresh-boundary-01/recordings/generated-scratch-controller-detail.json",
+      "bytes": 5243,
+      "sha256": "8e9cf2a53df44fce66562eafb74cb73b51474526d0237af43d4f577b22c2b9cf"
+    },
+    {
+      "path": "fresh-boundary-01/result.json",
+      "bytes": 55987,
+      "sha256": "55bd5046342db8d0d4f05a53899f87668dfcd6f3c6c6325561658e70b054e10a"
+    },
+    {
+      "path": "fresh-boundary-result-01.json",
+      "bytes": 3043,
+      "sha256": "e1618bdd004d854b3e3f2ea2df7efc01f34c373e7c51453733d3feff5073a9c2"
+    },
+    {
+      "path": "fresh-boundary-source.cpp",
+      "bytes": 276875,
+      "sha256": "9e60d73f04cc4d577a2c467d0567df3f6edad0bee034391ea032b1fa4f95e8cd"
+    },
+    {
+      "path": "fresh-output-regression-red-01.json",
+      "bytes": 289,
+      "sha256": "a45300de9c76832ba651e011e8207ddf6938e77e2d3d413e2eecd2bca436c4b0"
+    },
+    {
+      "path": "old-boundary-01.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "old-boundary-01.stdout.log",
+      "bytes": 55789,
+      "sha256": "39601c1bb7a4f040b51e7f6be995c70663d9e32baf8ac38c049b5caffbb7365c"
+    },
+    {
+      "path": "old-boundary-01/check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "old-boundary-01/check.stdout.json",
+      "bytes": 36146,
+      "sha256": "f4b370ec689166d0b76a754a07b587c8e36dc3e1a4934092b1627b7a1f2bd229"
+    },
+    {
+      "path": "old-boundary-01/cleanup-pw-dump.json",
+      "bytes": 12352,
+      "sha256": "a9a29140589dafb45a1d2d4489dc552524b7b2d6e147a0abf2156e19010cccb7"
+    },
+    {
+      "path": "old-boundary-01/cleanup-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "old-boundary-01/controller-preparation-phase.json",
+      "bytes": 5232,
+      "sha256": "369cc4b70d2b9001307a5694cbbf545a2f67b36fb4f7332f4ed06a83c9f964ff"
+    },
+    {
+      "path": "old-boundary-01/daemon.log",
+      "bytes": 225279,
+      "sha256": "13ee9966f87f88bf71ed63ad1a1cc4fae973a9ecfe8c9b5e03043e89bea8917d"
+    },
+    {
+      "path": "old-boundary-01/preflight-pw-dump.json",
+      "bytes": 12356,
+      "sha256": "f3312904684fc5d68423c7fb454d9e1fe2803efed4620a27ee2fdefe61343198"
+    },
+    {
+      "path": "old-boundary-01/preflight-pw-dump.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "old-boundary-01/recordings/generated-eq-controller-detail.json",
+      "bytes": 2337,
+      "sha256": "ddb82a9b33e9c60592e1e18b4b714613b09c6eed921aff4114ad197c2348c2e8"
+    },
+    {
+      "path": "old-boundary-01/recordings/generated-loop-controller-detail.json",
+      "bytes": 19221,
+      "sha256": "3f4b52127538531f971b2481aaf2e4bc854436cfaebe13d3ed85ca5e94bf6aac"
+    },
+    {
+      "path": "old-boundary-01/recordings/generated-scratch-controller-detail.json",
+      "bytes": 5244,
+      "sha256": "9adbd25200ad4861441b5ff44f3f1633f2222189f57d77aa8fd0af222dcbb76a"
+    },
+    {
+      "path": "old-boundary-01/result.json",
+      "bytes": 55789,
+      "sha256": "39601c1bb7a4f040b51e7f6be995c70663d9e32baf8ac38c049b5caffbb7365c"
+    },
+    {
+      "path": "old-boundary-result-01.json",
+      "bytes": 2899,
+      "sha256": "f486afb8c7843ce003561931cd0c9a0545b84b6be869edf7ba86b476716825c0"
+    },
+    {
+      "path": "old-boundary-source.cpp",
+      "bytes": 276451,
+      "sha256": "c548ebc91c010cbdbd91de0bc371eec1a8612043cc24dcff561583dcb818077f"
+    },
+    {
+      "path": "original-CI/failed-artifact-text/private-preparation/check.stdout.json",
+      "bytes": 29713,
+      "sha256": "f162696c43fa1fe98607c615586c5a00c40afb6b1bf75d2bdce7894f002b8e9b"
+    },
+    {
+      "path": "original-CI/failed-artifact-text/private-preparation/recordings/generated-eq-controller-detail.json",
+      "bytes": 1101,
+      "sha256": "07e8ed008f425aa6be03ab7e8ab251a1f0c3655e1bb4c902ade44398420b045e"
+    },
+    {
+      "path": "original-CI/failed-artifact-text/private-preparation/result.json",
+      "bytes": 47611,
+      "sha256": "f913224a1c0c13e952539702218ef38062af55c97fe9a58005dbffa3ae962fd9"
+    },
+    {
+      "path": "original-CI/postmerge-artifacts-01.json",
+      "bytes": 110,
+      "sha256": "190a94d5cc5c398442f053011b8bc09e00c4420d765afdbf72cc993260f2272a"
+    },
+    {
+      "path": "original-CI/postmerge-failed-01.log",
+      "bytes": 57828,
+      "sha256": "fd8a379c12e714819b6b60fce9981fe4cad0603675ad268dddccee092a46fb58"
+    },
+    {
+      "path": "original-CI/postmerge-latest-02.json",
+      "bytes": 614,
+      "sha256": "60c6d115ada4ff2587a0023c7fe5e5e25450d475bcfc274dd0e3208400ace990"
+    },
+    {
+      "path": "source-analysis-01.json",
+      "bytes": 727,
+      "sha256": "70a83bd535f430130087e54b7730967a5e65c8aaaac598e7c0cce84d1458a439"
+    }
+  ],
+  "archive": {
+    "path": "evidence.tar.gz",
+    "bytes": 226415,
+    "sha256": "5e9fc169ef994755c72b4a18bfc071a605cd39710974911cc260b972c68d5f96"
+  },
+  "scope": "Original failed CI and private generated regression/correction. No physical/model/GPU test, latency qualification, signal-tolerance or timeout change. Audio and fake executable/model/cache payloads excluded."
+}
