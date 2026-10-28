@@ -12,6 +12,7 @@
 #include <QLockFile>
 #include <QRandomGenerator>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <samplerate.h>
 #include <sndfile.h>
 #include <algorithm>
@@ -376,6 +377,10 @@ public:
         checkStop(stop);
         return output_;
     }
+    void setProcessEnvironment(const QProcessEnvironment& environment)
+    {
+        process_.setProcessEnvironment(environment);
+    }
     bool finish() noexcept { return owner_.finish(); }
 
 private:
@@ -399,6 +404,12 @@ QJsonObject describeEngine(const StemEngine& engine, const EngineFiles& files, s
     verifyEngine(files, stop);
     bool groupsGone = true;
     ExportProcess process(groupsGone);
+    // Identity probes import NumPy but do no inference. Avoid idle numerical
+    // thread pools without changing the exporter/runtime or parent environment.
+    auto environment = QProcessEnvironment::systemEnvironment();
+    for (const auto* key : {"OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"})
+        environment.insert(QString::fromLatin1(key), QStringLiteral("1"));
+    process.setProcessEnvironment(environment);
     const auto output = process.run(files[0].invocation, {"-B", files[1].path, "--describe"}, stop,
         std::chrono::seconds(std::min(engine.maxSeconds, 5)), engine.maxDiagnosticBytes);
     verifyEngine(files, stop);

@@ -50,6 +50,11 @@ def describe():
             'window_frames': 343980, 'hop_frames': 257985, 'overlap_frames': 85995,
             'normalization': 'track-mono-sample-variance-f32-v1',
             'overlap_add': 'fixed-grid-triangle-f32-v1'}
+if MODE == 'thread-environment':
+    names = ['OMP_NUM_THREADS', 'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'NUMEXPR_NUM_THREADS',
+             'CONFLUX_TEST_DESCRIPTOR_SENTINEL']
+    stage = 'describe' if sys.argv[1:] == ['--describe'] else 'export'
+    P.with_suffix('.' + stage + '-env').write_text(json.dumps({name: os.environ.get(name) for name in names}))
 if sys.argv[1:] == ['--describe']:
     P.with_suffix('.prefix').write_text(sys.prefix)
     print(json.dumps(describe())); sys.exit(0)
