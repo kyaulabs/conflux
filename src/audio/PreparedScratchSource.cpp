@@ -43,6 +43,17 @@ bool sameFile(const struct stat &a, const struct stat &b) noexcept {
 struct Filters {
     std::vector<float> coefficients;
     Filters() : coefficients(speedBanks * (phases + 1) * taps) {
+        // The phase/tap window is shared across every speed bank.
+        std::vector<double> windows((phases + 1) * taps);
+        for (std::size_t phase = 0; phase <= phases; ++phase) {
+            for (std::size_t tap = 0; tap < taps; ++tap) {
+                const double distance = double(tap) - 31.0 - double(phase) / phases;
+                if (std::abs(distance) >= 32.0)
+                    continue;
+                const double angle = std::numbers::pi * distance / 32.0;
+                windows[phase * taps + tap] = .42 + .5 * std::cos(angle) + .08 * std::cos(2 * angle);
+            }
+        }
         for (std::size_t bank = 0; bank < speedBanks; ++bank) {
             const double cutoff = 1.0 / (1.0 + double(bank) / 8.0);
             for (std::size_t phase = 0; phase <= phases; ++phase) {
@@ -52,10 +63,8 @@ struct Filters {
                     const double distance = double(tap) - 31.0 - double(phase) / phases;
                     if (std::abs(distance) >= 32.0)
                         continue;
-                    const double angle = std::numbers::pi * distance / 32.0;
-                    const double window = .42 + .5 * std::cos(angle) + .08 * std::cos(2 * angle);
                     const double argument = std::numbers::pi * cutoff * distance;
-                    row[tap] = cutoff * (argument == 0 ? 1 : std::sin(argument) / argument) * window;
+                    row[tap] = cutoff * (argument == 0 ? 1 : std::sin(argument) / argument) * windows[phase * taps + tap];
                     sum += row[tap];
                 }
                 if (!std::isfinite(sum) || sum <= 0)
