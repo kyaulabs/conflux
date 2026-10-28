@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "parent_commit": "5f24bb7a39de09a0eb3b87c238fb44647c2b7741",
+  "source_file": "src/audio/PreparedScratchSource.cpp",
+  "baseline_source_sha256": "d41ab0b170b5957f95ef8eb23be1933a44c63f30b413136726a8d61529b89bab",
+  "candidate_source_sha256": "f3c32573d6518aec7f76533d472e3b83da8591147ba95cca971e3921701600b5",
+  "method": "Compile the actual production source into the temporary probe, count calls through the linker cos wrapper and compare every generated coefficient byte. The window table is constructor-local and freed after initialization. CPU observations use std::clock in the single-thread probe.",
+  "coefficient_count": 3739200,
+  "coefficient_bytes": 14956800,
+  "baseline_and_candidate_coefficients_sha256": "06c3123e91824e1d7dbab26ca4665096116c68700bb69f0ec46af1c257866c1d",
+  "cosine_calls_before": 7478172,
+  "cosine_calls_after": 131196,
+  "speed_banks": 57,
+  "phases_including_endpoint": 1025,
+  "taps": 64,
+  "temporary_window_bytes": 524800,
+  "retained_filter_storage_unchanged": true,
+  "host_results": {
+    "laptop": {
+      "all_coefficients_byte_identical": true,
+      "expected_initial_cost_failure": true,
+      "source_files_verified": 404,
+      "existing_scratch_CTest_targets_passed": [
+        "audio-prepared-scratch",
+        "audio-scratch-playback",
+        "audio-scratch-transport"
+      ],
+      "baseline_thread_CPU_observation_ms": 95.754,
+      "candidate_thread_CPU_observation_ms": 46.235,
+      "hardware_audio_or_model_started": false
+    },
+    "Apollo": {
+      "all_coefficients_byte_identical": true,
+      "expected_initial_cost_failure": true,
+      "source_files_verified": 404,
+      "existing_scratch_CTest_targets_passed": [
+        "audio-prepared-scratch",
+        "audio-scratch-playback",
+        "audio-scratch-transport"
+      ],
+      "baseline_thread_CPU_observation_ms": 311.628,
+      "candidate_thread_CPU_observation_ms": 148.848,
+      "hardware_audio_or_model_started": false
+    }
+  },
+  "GPU_model_audio_started": false,
+  "live_stem_service_target_ms": 4095,
+  "live_stem_latency_qualified": false,
+  "sustained_audio_UI_qualified": false,
+  "scope": "Numerical equality and constructor work reduction. Individual thread-CPU observations are descriptive; no causal end-to-end latency improvement or thermal qualification follows.",
+  "reproduction": {
+    "baseline_source": "git show 5f24bb7a39de09a0eb3b87c238fb44647c2b7741:src/audio/PreparedScratchSource.cpp > PreparedScratchSource.baseline.cpp",
+    "candidate_source": "Copy current src/audio/PreparedScratchSource.cpp to PreparedScratchSource.candidate.cpp; copy its header to include/audio/PreparedScratchSource.hpp.",
+    "probe": "python check_filter_table.py --baseline && python check_filter_table.py",
+    "existing_tests": "ctest --test-dir build/dev --output-on-failure -R '^audio-(prepared-scratch|scratch-playback|scratch-transport)$'"
+  }
+}
