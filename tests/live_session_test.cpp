@@ -274,6 +274,10 @@ int main()
         LiveSession::InitialState initial;
         initial.sourceFrame = {1, 2};
         initial.cueFrame = {0, 1};
+        initial.hotCues[0].set[7] = true;
+        initial.hotCues[0].frames[7] = 1;
+        initial.hotCues[1].set[0] = true;
+        initial.hotCues[1].frames[0] = 2;
         initial.playing = {true, false};
         initial.deckGain = {.5F, .25F};
         initial.masterGain = .75F;
@@ -284,6 +288,16 @@ int main()
         passed &= require(restored.stoppedState().stemBank == std::array<bool, 2>{} &&
                           restored.stoppedState().stemGain == std::array<std::array<float, 4>, 2>{},
                           "normal session invented bank capabilities or gain targets");
+        auto invalidCues = initial;
+        invalidCues.hotCues[1].frames[0] = 3;
+        passed &= rejects([&] { LiveSession invalid(a, b, invalidCues); },
+                          "initial hot cue at EOF was accepted");
+        LiveSession::InitialState unloadedCues;
+        unloadedCues.hotCues[1].set[0] = true;
+        passed &= rejects([&] { LiveSession invalid(a, {}, unloadedCues); },
+                          "unloaded deck accepted initial hot cues");
+        passed &= require(restored.stoppedState().hotCues == initial.hotCues,
+                          "source hot cues were not restored in the native snapshot");
         auto invalidStems = initial;
         invalidStems.stemGain[0][0] = .5F;
         passed &= rejects([&] { LiveSession invalid(a, b, invalidStems); },
@@ -313,9 +327,11 @@ int main()
         // global target without altering either deck's cue or gain settings.
         auto resumedInitial = initial;
         resumedInitial.crossfader = restored.stoppedState().crossfader;
+        resumedInitial.hotCues = restored.stoppedState().hotCues;
         LiveSession resumed(a, b, resumedInitial);
         const auto resumedState = resumed.stoppedState();
-        passed &= require(resumedState.crossfader == .125F && resumedState.masterGain == initial.masterGain &&
+        passed &= require(resumedState.hotCues == initial.hotCues &&
+                          resumedState.crossfader == .125F && resumedState.masterGain == initial.masterGain &&
                           resumedState.deckGain == initial.deckGain && resumedState.cueGain == initial.cueGain &&
                           resumedState.cueSelected == initial.cueSelected && resumedState.cueFrame == initial.cueFrame,
                           "session reconstruction lost the crossfader or changed independent deck/cue targets");

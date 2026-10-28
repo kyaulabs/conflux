@@ -32,8 +32,15 @@ public:
         std::uint64_t blockFrames = 0;
     };
 
+    struct HotCues {
+        static constexpr std::size_t count = 8;
+        std::array<std::uint64_t, count> frames{};
+        std::array<bool, count> set{};
+        bool operator==(const HotCues&) const = default;
+    };
+
     struct Command {
-        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd, EqGain, ResidentHoldArm, ResidentHoldEnter, ResidentHoldExit, ResidentHoldCancel };
+        enum class Type { Play, Pause, Seek, DeckGain, MasterGain, CuePress, CueRelease, HotCue, HotCueClear, CueOn, CueOff, CueGain, Jog, StemGain, RetrySource, Crossfader, LoopIn, LoopOut, LoopToggle, TempoPercent, MasterTempo, TempoReset, ScratchBegin, ScratchMove, ScratchEnd, EqGain, ResidentHoldArm, ResidentHoldEnter, ResidentHoldExit, ResidentHoldCancel };
         Type type = Type::Play;
         std::uint32_t deck = 0;
         std::uint64_t frame = 0;
@@ -46,6 +53,7 @@ public:
         double tempoPercent = 0;
         std::uint64_t scratchToken = 0, sourceGeneration = 0;
         double scratchIntervalSeconds = 0;
+        std::uint32_t hotCue = 0;
         std::uint64_t residentHoldToken = 0, transportRevision = 0;
     };
 
@@ -150,6 +158,16 @@ public:
     // Newly constructed decks have a temporary cue at frame zero, including
     // leading silence. EOF is a valid stored cue, as it is for source seeks.
     bool setCueFrame(std::size_t deck, std::uint64_t frame) noexcept;
+    // Empty pad: capture this owner's current source sample without changing
+    // playback. Filled pad: one ordered seek-and-play, preserving temporary CUE.
+    // Point cues are separate from manual loop storage; active loops cannot be
+    // captured as a point. Replacement clears slots; same-source continuation
+    // retains them. Restore is for quiesced/session initialization only.
+    bool hotCue(std::size_t deck, std::size_t slot) noexcept;
+    bool clearHotCue(std::size_t deck, std::size_t slot) noexcept;
+    bool restoreHotCues(std::size_t deck, const HotCues& cues) noexcept;
+    [[nodiscard]] HotCues hotCues(std::size_t deck) const noexcept
+    { return deck < deckCount ? decks_[deck].hotCues : HotCues{}; }
     bool apply(const Command& command) noexcept;
     [[nodiscard]] std::uint64_t frameClock() const noexcept { return frameClock_; }
     [[nodiscard]] std::uint64_t sourceFrame(std::size_t deck = 0) const noexcept
@@ -197,6 +215,7 @@ private:
         std::uint64_t frame = 0;
         double nominalPosition = 0;
         std::uint64_t cueFrame = 0;
+        HotCues hotCues{};
         std::uint64_t scratchToken = 0;
         std::uint64_t transportRevision = 0;
         std::uint64_t starvedFrames = 0;

@@ -2809,6 +2809,24 @@ private slots:
         controller.shutdown();
     }
 
+    void rejectsHotCuesWithoutLoadedOutput()
+    {
+        conflux::DeckController controller;
+        const auto before = controller.decks();
+        for (const int deck : {-1, 0, 1, 2}) {
+            for (const int slot : {-1, 0, 7, 8}) {
+                QVERIFY(!controller.hotCue(deck, slot));
+                QVERIFY(!controller.clearHotCue(deck, slot));
+                QCOMPARE(controller.decks(), before);
+                QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
+            }
+        }
+        controller.shutdown();
+        QVERIFY(!controller.hotCue(0, 0));
+        QVERIFY(!controller.clearHotCue(0, 0));
+        verifyNoPlayback(controller);
+    }
+
     void rejectsCueWithoutLoadedOutput()
     {
         conflux::DeckController controller;

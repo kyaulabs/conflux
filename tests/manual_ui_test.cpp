@@ -472,6 +472,10 @@ public:
         calls.append(QVariantMap{{"action", "recordStop"}});
         setRecording("Finalizing", true);
     }
+    Q_INVOKABLE bool hotCue(int deck, int slot)
+    { calls.append(QVariantMap{{"action", "hotCue"}, {"deck", deck}, {"slot", slot}}); return true; }
+    Q_INVOKABLE bool clearHotCue(int deck, int slot)
+    { calls.append(QVariantMap{{"action", "clearHotCue"}, {"deck", deck}, {"slot", slot}}); return true; }
     Q_INVOKABLE bool cuePress(int deck)
     {
         calls.append(QVariantMap{{"action", "cuePress"}, {"deck", deck}});
@@ -3081,6 +3085,77 @@ private slots:
         QCOMPARE(ui_->endpoint.calls.size(), 2); // Replacement cannot revive the pointer token.
     }
 
+    void hotCuePadsWaitForAudioAcknowledgement_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<bool>("dark");
+        for (int deck = 0; deck < 2; ++deck)
+            for (bool dark : {false, true})
+                QTest::newRow(qPrintable(QString("deck%1-%2").arg(deck).arg(dark))) << deck << dark;
+    }
+
+    void hotCuePadsWaitForAudioAcknowledgement()
+    {
+        QFETCH(int, deck);
+        QFETCH(bool, dark);
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        const auto prefix = QString("deck%1HotCue").arg(deck);
+        auto* pad = ui_->item((prefix + "7").toUtf8().constData());
+        auto* remove = ui_->item((prefix + "Delete").toUtf8().constData());
+        QVERIFY(pad && remove);
+        QVERIFY(!pad->isEnabled() && !remove->isEnabled());
+        ui_->endpoint.loadState(deck);
+        ui_->endpoint.setReady(true);
+        QTRY_VERIFY(pad->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(pad));
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls[0].toMap(), (QVariantMap{{"action", "hotCue"}, {"deck", deck}, {"slot", 7}}));
+        QVERIFY(!pad->parentItem()->property("indicatorOn").toBool());
+        QVariantList points;
+        for (int index = 0; index < 8; ++index)
+            points.append(QVariantMap{{"set", index == 7}, {"seconds", index == 7 ? 1.25 : 0.}});
+        ui_->endpoint.snapshotDeck(deck, {{"hotCues", points}});
+        QTRY_VERIFY(pad->parentItem()->property("indicatorOn").toBool());
+        auto* accessible = QAccessible::queryAccessibleInterface(pad);
+        QVERIFY(accessible);
+        QVERIFY(accessible->text(QAccessible::Name).contains("hot cue H"));
+        QVERIFY(accessible->text(QAccessible::Description).contains("1.250"));
+        pad->forceActiveFocus();
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls[1], ui_->endpoint.calls[0]);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(remove));
+        QTRY_VERIFY(remove->parentItem()->property("indicatorOn").toBool());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(pad));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        QCOMPARE(ui_->endpoint.calls[2].toMap(), (QVariantMap{{"action", "clearHotCue"}, {"deck", deck}, {"slot", 7}}));
+        QVERIFY(pad->parentItem()->property("indicatorOn").toBool()); // Wait for native ACK.
+        QTRY_VERIFY(!remove->parentItem()->property("indicatorOn").toBool());
+        points[7] = QVariantMap{{"set", false}, {"seconds", 0.}};
+        ui_->endpoint.snapshotDeck(deck, {{"hotCues", points}});
+        QTRY_VERIFY(!pad->parentItem()->property("indicatorOn").toBool());
+        ui_->endpoint.setReplacing(deck, true);
+        QTRY_VERIFY(!pad->isEnabled() && !remove->isEnabled());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void hotCueCaptureIsDisabledDuringLoopButRecallRemainsAvailable()
+    {
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.setReady(true);
+        QVariantList points;
+        for (int index = 0; index < 8; ++index)
+            points.append(QVariantMap{{"set", index == 0}, {"seconds", 0.}});
+        auto loop = UiEndpoint::loopState(true);
+        loop["active"] = true;
+        ui_->endpoint.snapshotDeck(0, {{"hotCues", points}, {"loop", loop}});
+        QTRY_VERIFY(ui_->item("deck0HotCue0")->isEnabled());
+        QVERIFY(!ui_->item("deck0HotCue1")->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("deck0HotCue0")));
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls[0].toMap()["action"].toString(), QString("hotCue"));
+    }
+
     void pointerCueHoldRoutesBothDecks()
     {
         ui_->endpoint.loadState(0);
@@ -3506,13 +3581,12 @@ private slots:
         ui_->endpoint.loadState(0);
         ui_->endpoint.loadState(1);
         ui_->endpoint.setReady(true);
-        unsigned hotCues = 0, trims = 0, colors = 0, activeEq = 0, reservedEq = 0, memoryCalls = 0;
+        unsigned trims = 0, colors = 0, activeEq = 0, reservedEq = 0, memoryCalls = 0;
         const auto inspect = [&](auto&& self, QQuickItem* item) -> void {
             const auto reason = item->property("unavailableReason").toString();
-            if (reason.contains("Hot cues") || reason.contains("Memory cue")) {
+            if (reason.contains("Memory cue")) {
                 QVERIFY(!item->property("available").toBool());
-                hotCues += reason.contains("Hot cues");
-                memoryCalls += reason.contains("Memory cue");
+                ++memoryCalls;
             }
             const auto help = item->property("helpText").toString();
             if (help.startsWith("Input trim is not implemented.") ||
@@ -3529,7 +3603,7 @@ private slots:
             for (auto* child : item->childItems()) self(self, child);
         };
         inspect(inspect, ui_->window->contentItem());
-        QVERIFY(hotCues > 0 && trims == 4 && colors == 4 && memoryCalls > 0);
+        QVERIFY(trims == 4 && colors == 4 && memoryCalls > 0);
         QCOMPARE(activeEq, 6U);
         QCOMPARE(reservedEq, 6U); // C and D remain reserved.
         QVERIFY(ui_->endpoint.calls.isEmpty());

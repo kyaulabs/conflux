@@ -646,6 +646,44 @@ bool RenderCore::setCueFrame(std::size_t deck, std::uint64_t frame) noexcept
     return true;
 }
 
+bool RenderCore::hotCue(std::size_t deck, std::size_t slot) noexcept
+{
+    if (deck >= deckCount || slot >= HotCues::count || !decks_[deck].source.frames)
+        return false;
+    auto& state = decks_[deck];
+    if (!state.hotCues.set[slot]) {
+        if (state.frame >= sourceFrames(deck) || scratchState(deck).active || loopState(deck).active)
+            return false;
+        state.hotCues.frames[slot] = state.frame;
+        state.hotCues.set[slot] = true;
+        return true;
+    }
+    // Both calls run on the render owner without an intervening audio block.
+    // Seek clears loop/preview state and notifies the existing read-ahead/DSP
+    // source; Play uses the existing transport envelope and activity contract.
+    return seek(deck, state.hotCues.frames[slot]) && setPlaying(deck, true);
+}
+
+bool RenderCore::clearHotCue(std::size_t deck, std::size_t slot) noexcept
+{
+    if (deck >= deckCount || slot >= HotCues::count || !decks_[deck].source.frames)
+        return false;
+    decks_[deck].hotCues.set[slot] = false;
+    decks_[deck].hotCues.frames[slot] = 0;
+    return true;
+}
+
+bool RenderCore::restoreHotCues(std::size_t deck, const HotCues& cues) noexcept
+{
+    if (deck >= deckCount || !decks_[deck].source.frames)
+        return false;
+    for (std::size_t slot = 0; slot < HotCues::count; ++slot)
+        if (cues.set[slot] && cues.frames[slot] >= sourceFrames(deck))
+            return false;
+    decks_[deck].hotCues = cues;
+    return true;
+}
+
 bool RenderCore::apply(const Command& command) noexcept
 {
     switch (command.type) {
@@ -662,6 +700,8 @@ bool RenderCore::apply(const Command& command) noexcept
     case Command::Type::Crossfader: return setCrossfader(command.gain);
     case Command::Type::CuePress: return cuePress(command.deck);
     case Command::Type::CueRelease: return cueRelease(command.deck);
+    case Command::Type::HotCue: return hotCue(command.deck, command.hotCue);
+    case Command::Type::HotCueClear: return clearHotCue(command.deck, command.hotCue);
     case Command::Type::CueOn: return setCueSelected(command.deck, true);
     case Command::Type::CueOff: return setCueSelected(command.deck, false);
     case Command::Type::CueGain: return setCueGain(command.gain);
