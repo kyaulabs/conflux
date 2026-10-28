@@ -487,11 +487,42 @@ class HourPlaybackTest(unittest.TestCase):
                                      ("process_or_parent_disappeared_during_walk", 202))
                     self.assertEqual(failure["parent_proof"],
                                      {"pid": 101, "start_ticks": 1001, "group": 101, "session": 101, "ppid": 1})
-                    self.assertIsNone(failure["observed_identity"])
+                    self.assertEqual(failure["walk_phase"],
+                                     "parent_identity_before_walk" if parent_read else "process_identity")
+                    if parent_read:
+                        self.assertEqual(failure["observed_identity"],
+                                         {"pid": 202, "start_ticks": 2002, "group": 202, "session": 202, "ppid": 101})
+                    else:
+                        self.assertIsNone(failure["observed_identity"])
                     failure.pop("observed_monotonic_ns")
                     outcomes.append((set(result["owned"]), failure))
             if len(outcomes) == 2:
                 self.assertEqual(outcomes[0], outcomes[1])
+
+    def test_known_child_vanishing_after_identity_keeps_partial_proof_and_failure(self):
+        for known in (False, True):
+            with self.subTest(known=known):
+                proc, (remember, _, _, snapshot) = self.ownership_observer()
+                if known:
+                    remember()
+                original = Path.read_text
+                child_reads = 0
+                def read(path, *args, **kwargs):
+                    nonlocal child_reads
+                    if path == proc / "202/stat":
+                        child_reads += 1
+                        if child_reads == 2:
+                            raise ProcessLookupError(errno.ESRCH, "child exited after task walk")
+                    return original(path, *args, **kwargs)
+                with patch.object(Path, "read_text", read):
+                    remember()
+                result = snapshot()
+                self.assertFalse(result["ownership_complete"])
+                failure = result["ownership_failures"][-1]
+                self.assertEqual(failure["walk_phase"], "process_identity_after_walk")
+                self.assertEqual(failure["observed_identity"],
+                                 {"pid": 202, "start_ticks": 2002, "group": 202, "session": 202, "ppid": 101})
+                self.assertEqual((202, 2002) in result["owned"], known)
 
     def test_exiting_thread_children_matches_missing_file_handling(self):
         for error in (FileNotFoundError(errno.ENOENT, "gone"), ProcessLookupError(errno.ESRCH, "gone")):

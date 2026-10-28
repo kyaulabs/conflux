@@ -673,7 +673,7 @@ def run_live(args):
         nonlocal requested_stop, stop_at
         if requested_stop is None:
             requested_stop, stop_at = reason, time.monotonic(); stop.write_text(reason + "\n")
-    def record_ownership_loss(reason, pid, parent_proof=None, observed=None):
+    def record_ownership_loss(reason, pid, parent_proof=None, observed=None, walk_phase=None):
         nonlocal ownership_complete, ownership_failure_count, ownership_failure_overflow
         ownership_complete = False; ownership_failure_count += 1
         if len(ownership_failures) >= 128:
@@ -682,7 +682,8 @@ def run_live(args):
         def context(value):
             return None if value is None else {key: value[key] for key in ("pid", "start_ticks", "group", "session", "ppid")}
         ownership_failures.append({"reason": reason, "pid": pid, "observed_monotonic_ns": time.monotonic_ns(),
-            "parent_proof": context(parent_proof), "observed_identity": context(observed)})
+            "parent_proof": context(parent_proof), "observed_identity": context(observed),
+            **({"walk_phase": walk_phase} if walk_phase is not None else {})})
     def remember_command(identity, parent_proof):
         nonlocal command_history_bytes
         key = tuple(identity[name] for name in ("pid", "start_ticks", "group", "session"))
@@ -718,6 +719,7 @@ def run_live(args):
             visited.add(pid)
             if len(visited) > 64:
                 raise RuntimeError("Owned process observation exceeds fixed64 tree bound")
+            identity = None; walk_phase = "process_identity"
             try:
                 identity = process_record(pid)
                 if parent_proof is None:
@@ -725,9 +727,12 @@ def run_live(args):
                         return  # Never adopt a replacement for our direct child.
                 elif identity["ppid"] != parent_proof["pid"]:
                     record_ownership_loss("parent_pid_changed_before_walk", pid, parent_proof, identity); continue
-                elif not same_identity(process_record(parent_proof["pid"]), parent_proof):
-                    record_ownership_loss("parent_identity_changed_before_walk", pid, parent_proof, identity); continue
+                if parent_proof is not None:
+                    walk_phase = "parent_identity_before_walk"
+                    if not same_identity(process_record(parent_proof["pid"]), parent_proof):
+                        record_ownership_loss("parent_identity_changed_before_walk", pid, parent_proof, identity); continue
                 key = (pid, identity["start_ticks"])
+                walk_phase = "thread_list"
                 tasks = list((Path("/proc") / str(pid) / "task").iterdir())
                 if len(tasks) > 256:
                     raise RuntimeError("Owned process exceeds fixed256 thread bound")
@@ -740,10 +745,13 @@ def run_live(args):
                         children.update(int(value) for value in raw.split())
                     except (FileNotFoundError, ProcessLookupError):
                         pass
+                walk_phase = "process_identity_after_walk"
                 if not same_identity(process_record(pid), identity):
                     record_ownership_loss("identity_changed_during_walk", pid, parent_proof, identity); continue
-                if parent_proof is not None and not same_identity(process_record(parent_proof["pid"]), parent_proof):
-                    record_ownership_loss("parent_identity_changed_during_walk", pid, parent_proof, identity); continue
+                if parent_proof is not None:
+                    walk_phase = "parent_identity_after_walk"
+                    if not same_identity(process_record(parent_proof["pid"]), parent_proof):
+                        record_ownership_loss("parent_identity_changed_during_walk", pid, parent_proof, identity); continue
                 new_identity = key not in owned
                 live_count = len(live_owned()) if new_identity else 0
                 # Keep the just-proven identity available for cleanup even when
@@ -759,7 +767,9 @@ def run_live(args):
                 pending.extend((value, identity) for value in children)
             except (FileNotFoundError, ProcessLookupError):
                 if parent_proof is not None:
-                    record_ownership_loss("process_or_parent_disappeared_during_walk", pid, parent_proof)
+                    # Partial context explains the loss; it never adopts the
+                    # child or changes the failed ownership/cleanup gate.
+                    record_ownership_loss("process_or_parent_disappeared_during_walk", pid, parent_proof, identity, walk_phase)
     def live_owned():
         matches = {}
         for (pid, _), expected in owned.items():
