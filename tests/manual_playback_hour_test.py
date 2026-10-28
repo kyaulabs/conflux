@@ -91,6 +91,49 @@ class HourPlaybackTest(unittest.TestCase):
                       ("--live-stems-hour", "--active-controls"), ("--active-controls",)):
             with self.subTest(extra=extra), self.assertRaises(SystemExit): self.cli(*extra)
 
+    def test_normal_redraw_requires_explicit_short_visible_controls(self):
+        _, args = self.cli("--live-stems", "--active-controls", "--normal-redraw")
+        self.assertTrue(args.normal_redraw)
+        self.assertEqual(args.seconds, 120)
+        for extra in (("--normal-redraw",), ("--live-stems", "--normal-redraw"),
+                      ("--live-stems-hour", "--active-controls", "--normal-redraw"),
+                      ("--live-stems", "--active-controls", "--normal-redraw", "--background"),
+                      ("--live-stems", "--active-controls", "--normal-redraw", "--seconds", "180")):
+            with self.subTest(extra=extra), self.assertRaises(SystemExit): self.cli(*extra)
+        for change in ({"active_controls": False}, {"background": True},
+                       {"live_stems_hour": True}, {"seconds": 180}):
+            args = SimpleNamespace(normal_redraw=True, active_controls=True,
+                                   live_stems_hour=False, background=False, seconds=120)
+            for key, value in change.items(): setattr(args, key, value)
+            with self.subTest(change=change), self.assertRaisesRegex(RuntimeError, "Normal redraw"):
+                soak.run_live(args)  # Scope admission precedes all binary/asset attributes and file work.
+
+    def test_normal_redraw_evidence_cannot_impersonate_default_stress(self):
+        native, observations = self.controls_fixture()
+        native.update(mode="live-stems-controls-normal-redraw", forced_redraw_interval_ms=50)
+        result = soak.validate_active_controls(native, observations, normal_redraw=True)
+        self.assertEqual(result["actions"], 16)
+        self.assertFalse(result["qualified"])
+        with self.assertRaises(RuntimeError): soak.validate_active_controls(native, observations)
+        for cadence in (None, True, "50", 16, 51):
+            with self.subTest(cadence=cadence), self.assertRaises(RuntimeError):
+                soak.validate_active_controls({**native, "forced_redraw_interval_ms": cadence},
+                                              observations, normal_redraw=True)
+        disguised = {**native, "mode": "live-stems-controls"}
+        with self.assertRaises(RuntimeError): soak.validate_active_controls(disguised, observations)
+        for change in ({"steady_starved_frames": 256}, {"last_recovery_complete": False},
+                       {"execution_deadline_misses": 1}):
+            with self.subTest(change=change), self.assertRaises(RuntimeError):
+                soak.validate_active_controls({**native, **change}, observations, normal_redraw=True)
+        late = copy.deepcopy(observations); late["service_hops"]["nearest_rank_p99_ms"] = 4095
+        with self.assertRaises(RuntimeError): soak.validate_active_controls(native, late, normal_redraw=True)
+        candidate = {"passed": True, "cleanup_proven": True, "mode": native["mode"], "ui_mode": "visible",
+                     "native": native, "hour_gates": {"visible_ui_qualification_eligible": True}}
+        self.assertFalse(soak.live_qualified(candidate, True))
+        native, _ = self.controls_fixture(functional=True)
+        native.update(mode="live-stems-controls-normal-redraw", forced_redraw_interval_ms=50)
+        self.assertFalse(soak.validate_active_controls(native, functional=True, normal_redraw=True)["qualified"])
+
     def test_actual_controls_targets_restore_both_decks_and_selected_cue(self):
         native, observations = self.controls_fixture()
         self.assertEqual(soak.validate_active_controls(native, observations)["actions"], 16)

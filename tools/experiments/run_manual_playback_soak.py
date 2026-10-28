@@ -309,17 +309,21 @@ def validate_hour_result(native, observations, background=False):
             "scope": "background audio/stem hour; visible UI not qualified" if background else "visible audio/UI hour"}
 
 
-def validate_active_controls(native, observations=None, *, functional=False):
+def validate_active_controls(native, observations=None, *, functional=False, normal_redraw=False):
     """Validate the fixed actual-Qt sequence; private evidence never qualifies service timing."""
     def check(value, message):
         if not value:
             raise RuntimeError("Active controls: " + message)
-    check(native.get("mode") == "live-stems-controls" and native.get("passed") is True and
+    expected_mode = "live-stems-controls-normal-redraw" if normal_redraw else "live-stems-controls"
+    if normal_redraw or "forced_redraw_interval_ms" in native:
+        check(type(native.get("forced_redraw_interval_ms")) is int and
+              native["forced_redraw_interval_ms"] == (50 if normal_redraw else 16), "forced redraw cadence differs")
+    check(native.get("mode") == expected_mode and native.get("passed") is True and
           native.get("cancelled") is False and native.get("shutdown_completed") is True and
           native.get("functional_only") is functional and native.get("host_audio") is (not functional) and
           native.get("ui_mode") == "visible" and native.get("window_policy") == "visible", "incomplete/wrong mode")
     seconds = native.get("requested_seconds")
-    check(type(seconds) is int and (1 <= seconds <= 10 if functional else 120 <= seconds <= 180), "duration admission")
+    check(type(seconds) is int and (1 <= seconds <= 10 if functional else seconds == 120 if normal_redraw else 120 <= seconds <= 180), "duration admission")
     check(native.get("manual_controls_complete") is True and len(native.get("manual_controls", [])) == 16,
           "missing/incomplete control sequence")
     check(native["measurement_intervals_closed"] and native["last_recovery_complete"] and
@@ -403,7 +407,9 @@ def live_qualified(result, hour, background=False):
     """Keep background diagnostics outside visible audio/UI hour qualification."""
     gates, native = result.get("hour_gates"), result.get("native", {})
     return bool(hour and not background and result.get("passed") is True and result.get("cleanup_proven") is True
+                and result.get("mode") != "live-stems-controls-normal-redraw"
                 and result.get("ui_mode", "visible") == "visible" and isinstance(native, dict)
+                and native.get("mode") != "live-stems-controls-normal-redraw"
                 and native.get("ui_mode", "visible") == "visible" and isinstance(gates, dict) and gates
                 and gates.get("visible_ui_qualification_eligible", True) is True)
 
@@ -581,6 +587,9 @@ def run_live(args):
     hour = args.live_stems_hour
     background = args.background
     active_controls = getattr(args, "active_controls", False)
+    normal_redraw = getattr(args, "normal_redraw", False)
+    if normal_redraw and (not active_controls or hour or background or args.seconds != 120):
+        raise RuntimeError("Normal redraw requires exactly 120 seconds of short visible active controls")
     binary = args.binary.resolve(strict=True)
     source, peer = args.track_a.resolve(strict=True), args.track_b.resolve(strict=True)
     assets = {name: getattr(args, name).absolute() for name in ("python", "exporter", "worker", "service", "runtime", "model")}
@@ -595,6 +604,10 @@ def run_live(args):
     if active_controls:
         result["mode"] = "live-stems-controls"
         result["scope"] = "Short visible actual-player accessible UI command path under load; no pointer/touch, physical assistive technology or sustained qualification"
+    if normal_redraw:
+        result["mode"] = "live-stems-controls-normal-redraw"
+        result["forced_redraw_interval_ms"] = 50
+        result["scope"] = "50 ms forced-redraw diagnostic only; default 16 ms stress load and qualification unchanged"
     if hour:
         result["scope"] = "Sustained actual-player qualification only for the recorded two-deck, one-separator fixed mix; other M2 requirements remain open"
         result["qualified_scope"] = "Exact pinned source/model/runtime, Vulkan two threads, Best conversion, 48kHz/256 stereo, A stems/B finite peer, fixed gains, visible Main.qml, float WAV; no hardware cue, EQ/effects, four-deck, fallback, musical-quality or physical latency qualification"
@@ -820,7 +833,7 @@ def run_live(args):
             previous[number] = signal.signal(number, lambda signum, _frame: request_stop(f"runner signal {signum}"))
         native_mode = "--live-stems-hour" if hour else "--live-stems"
         if active_controls:
-            native_mode = "--live-stems-controls"
+            native_mode = "--live-stems-controls-normal-redraw" if normal_redraw else "--live-stems-controls"
         if background:
             native_mode += "-background"
         command = [str(binary), native_mode, str(source), str(peer), str(output), str(args.seconds), str(stop),
@@ -899,7 +912,7 @@ def run_live(args):
         result["host_after"] = observation(sensors); result["thermal_summary"] = thermal_summary(output / "host-observations.jsonl")
         result["power_after"] = power_state(); result["guard_after"] = live_guard()
         if active_controls:
-            result["active_controls"] = validate_active_controls(native, result["observations"])
+            result["active_controls"] = validate_active_controls(native, result["observations"], normal_redraw=normal_redraw)
         if hour:
             result["hour_gates"] = validate_hour_result(native, result["observations"], background)
         result["passed"] = bool(child.poll() == 0 and native["passed"] and not requested_stop and complete_capture and result["pins_unchanged"]
@@ -1016,6 +1029,7 @@ def main():
     modes.add_argument("--live-stems-hour", action="store_true", help="exactly one hour of sustained actual-model controller playback")
     parser.add_argument("--background", action="store_true", help="live audio/stem diagnostics without visible UI qualification")
     parser.add_argument("--active-controls", action="store_true", help="short visible live mode with 16 actual accessible UI actions")
+    parser.add_argument("--normal-redraw", action="store_true", help="explicit 50 ms forced-redraw diagnostic; requires exactly 120s visible active controls")
     for name in ("python", "exporter", "worker", "service", "runtime", "model", "readiness-decision"):
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--guard-script", type=Path, default=Path.home() / ".local/bin/thermal-guard")
@@ -1027,6 +1041,8 @@ def main():
         parser.error("--background requires --live-stems or --live-stems-hour")
     if args.seconds is None:
         args.seconds = 3600 if args.live_stems_hour else 120 if args.live_stems else 1800
+    if args.normal_redraw and (not args.active_controls or not args.live_stems or args.live_stems_hour or args.background or args.seconds != 120):
+        parser.error("--normal-redraw requires exactly 120 seconds of short visible --live-stems --active-controls")
     live_names = ("python", "exporter", "worker", "service", "runtime", "model", "readiness_decision")
     if args.live_stems or args.live_stems_hour:
         if (args.seconds != 3600 if args.live_stems_hour else not 120 <= args.seconds <= 180) or any(getattr(args, name) is None or not getattr(args, name).is_absolute() for name in live_names):

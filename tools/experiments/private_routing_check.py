@@ -39,8 +39,11 @@ def main():
     modes.add_argument("--resident-takeover-case", choices=("interior", "boundary", "entry"),
                        help="run one generated direct-session resident OUT takeover case")
     modes.add_argument("--ui-controls-soak", type=Path, help="preparation helper runs this exact soak's actual Qt sequence on the private daemon")
+    parser.add_argument("--normal-redraw", action="store_true", help="use the explicit 50 ms diagnostic for --ui-controls-soak")
     parser.add_argument("--soak-sha256", default="", help="required exact executable SHA256 with --ui-controls-soak")
     args = parser.parse_args()
+    if args.normal_redraw and not args.ui_controls_soak:
+        parser.error("--normal-redraw requires --ui-controls-soak and --functional-only")
     if args.ui_controls_soak:
         try:
             args.ui_controls_soak = ui_controls_binary(args.ui_controls_soak, args.soak_sha256, args.functional_only)
@@ -181,7 +184,7 @@ context.modules = [
                     if args.resident_takeover_case:
                         command.extend(("--resident-takeover-case", args.resident_takeover_case))
                     if args.ui_controls_soak:
-                        command.extend(("--ui-controls-soak", str(args.ui_controls_soak), args.soak_sha256))
+                        command.extend(("--ui-controls-soak-normal-redraw" if args.normal_redraw else "--ui-controls-soak", str(args.ui_controls_soak), args.soak_sha256))
                     checker = subprocess.Popen(
                         command, env=environment,
                         stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)
