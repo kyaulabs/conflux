@@ -1,0 +1,72 @@
+--- original/production_24.py
++++ candidate/rss_candidate.py
+@@ -189,37 +189,34 @@
+     return rows,terminal
+ 
+ 
+-def sampled_rss(owner,owned,failures):
+-    """Sample exact owned lifetimes; a missing RSS requires proved exit state."""
++def sampled_rss(owner,owned,failures,deadline=float('inf')):
++    """Wait briefly for valid RSS or proved exit; never invent a live RSS value."""
+     total=0; zombies=0
+     for expected in owner['live_owned'](owned,failures).values():
+         pid=expected['pid']
++        until=min(deadline,time.monotonic()+.02)
+         try:
+-            before=owner['process_record'](pid)
+-            require(owner['same_identity'](before,expected),'RSS lifetime changed')
+-            path=Path('/proc')/str(pid)/'status'
+-            raw=path.read_bytes();require(len(raw)<=16384,'RSS status bound')
+-            lines=raw.decode().splitlines()
+-            after=owner['process_record'](pid)
+-            require(owner['same_identity'](after,expected),'RSS lifetime changed')
+-            states=[line.split() for line in lines if line.startswith('State:')]
+-            require(len(states)==1 and len(states[0])>=2,'RSS process state missing')
+-            if states[0][1] in ('Z','X','x'):
+-                zombies+=1;continue
+-            values=[line.split() for line in lines if line.startswith('VmRSS:')]
+-            if not values:
+-                # Exit may release mm after the first status state was printed.
+-                # One same-lifetime second observation must now prove exit;
+-                # an unavailable live RSS is still a fatal observation failure.
+-                raw=path.read_bytes();require(len(raw)<=16384,'RSS status bound')
++            for attempt in range(32):
++                before=owner['process_record'](pid)
++                require(owner['same_identity'](before,expected),'RSS lifetime changed')
++                raw=(Path('/proc')/str(pid)/'status').read_bytes()
++                require(len(raw)<=16384,'RSS status bound')
+                 require(owner['same_identity'](owner['process_record'](pid),expected),'RSS lifetime changed')
+-                states=[line.split() for line in raw.decode().splitlines() if line.startswith('State:')]
+-                require(len(states)==1 and len(states[0])>=2 and states[0][1] in ('Z','X','x'),
+-                    'Live owned RSS missing')
+-                zombies+=1;continue
+-            require(len(values)==1 and len(values[0])==3 and values[0][2]=='kB' and
+-                values[0][1].isascii() and values[0][1].isdigit(),'Live owned RSS malformed')
+-            total+=int(values[0][1])*1024
++                lines=raw.decode().splitlines()
++                states=[line.split() for line in lines if line.startswith('State:')]
++                require(len(states)==1 and len(states[0])>=2,'RSS process state missing')
++                if states[0][1] in ('Z','X','x'):
++                    zombies+=1;break
++                values=[line.split() for line in lines if line.startswith('VmRSS:')]
++                if not values:
++                    # exit_mm() precedes EXIT_ZOMBIE. Still require a later
++                    # same-lifetime terminal state or an actual RSS observation.
++                    remaining=until-time.monotonic()
++                    require(remaining>0 and attempt<31,'Live owned RSS missing')
++                    time.sleep(min(.001,remaining));continue
++                require(len(values)==1 and len(values[0])==3 and values[0][2]=='kB' and
++                    values[0][1].isascii() and values[0][1].isdigit(),'Live owned RSS malformed')
++                total+=int(values[0][1])*1024;break
+         except (FileNotFoundError,ProcessLookupError): continue
+     require(not failures,'Owned identity observation failed')
+     return total,zombies
+@@ -290,7 +287,7 @@
+         for name in ('stdout','stderr'): selector.register(getattr(child,name),selectors.EVENT_READ,name)
+         while child.poll() is None and time.monotonic()<deadline:
+             owner['remember_owned'](child,identity,owned,groups,deadline)
+-            rss,zombies=sampled_rss(owner,owned,report['errors']);report['rss_samples']+=1
++            rss,zombies=sampled_rss(owner,owned,report['errors'],deadline=deadline);report['rss_samples']+=1
+             report['maximum_sampled_owned_rss_bytes']=max(report['maximum_sampled_owned_rss_bytes'],rss)
+             report['zombie_rss_observations']+=zombies
+             if rss>report['rss_limit_bytes']:
