@@ -1,0 +1,252 @@
+{
+  "schema": 1,
+  "scope": "Complete text telemetry and native-result projections for four synchronized short redraw runs. No audio, weights, binaries or driver caches.",
+  "source_head": "cbeefc0a2834681085efaae335e965449d565eb0",
+  "qualified": false,
+  "entries": [
+    {
+      "path": "laptop-16-native.json.gz",
+      "raw_bytes": 198394,
+      "raw_sha256": "539ff71d05305dd8db9a58e6fd3ef5ca65322046a1a2156dea9082f14f28dd3c",
+      "gzip_bytes": 15383,
+      "gzip_sha256": "3f1cc9641be49096d1384ce165d0cba7836168abccff2416180d037e6b3971e6",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/baseline/output-01/result.json",
+        "bytes": 543800,
+        "sha256": "d0671302dc016c3268514bc2ca0907c5977874c6288e669b581ff8327622c70a"
+      },
+      "projection": "Extract native object; omit wrapper host/process inventory. Values unchanged."
+    },
+    {
+      "path": "laptop-16-summary.json.gz",
+      "raw_bytes": 21104,
+      "raw_sha256": "a1cf6c98cbf02f703711b0fe5de5f6921e742ee62e3a15fafef5af7101c93748",
+      "gzip_bytes": 4324,
+      "gzip_sha256": "1474280fca9e3a5eeee15cadee739c47dc1c1324095dc56544f98e730cdb786c",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/baseline/output-01/result.json",
+        "bytes": 543800,
+        "sha256": "d0671302dc016c3268514bc2ca0907c5977874c6288e669b581ff8327622c70a"
+      },
+      "projection": "Extract observations object; values unchanged."
+    },
+    {
+      "path": "laptop-16-assessment.json.gz",
+      "raw_bytes": 126194,
+      "raw_sha256": "2c23be007a0eb319c4e411773ba56ab8f76423a17e94145478205afe85ae5ee5",
+      "gzip_bytes": 6670,
+      "gzip_sha256": "cb6aa3a6c4c5ca04d2bec94cfb537d78f901d12d74546a16389e722d5f0c100d",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/baseline/diagnostic-assessment.json",
+        "bytes": 126194,
+        "sha256": "2c23be007a0eb319c4e411773ba56ab8f76423a17e94145478205afe85ae5ee5"
+      }
+    },
+    {
+      "path": "laptop-16-observations.jsonl.gz",
+      "raw_bytes": 642058,
+      "raw_sha256": "3de528f5a43d48e6ce8e0c8bb71f66ddb886b9ecbd323a0f6b0ec2a4507032b6",
+      "gzip_bytes": 46794,
+      "gzip_sha256": "03119faa1497bcc63d7130523f2823374a2400b810d7fcee8d7dca18ef2ef1d0",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/baseline/output-01/observations.jsonl",
+        "bytes": 642058,
+        "sha256": "3de528f5a43d48e6ce8e0c8bb71f66ddb886b9ecbd323a0f6b0ec2a4507032b6"
+      }
+    },
+    {
+      "path": "laptop-50-native.json.gz",
+      "raw_bytes": 199332,
+      "raw_sha256": "f0582ba97d78094ad893d78d6ea64244b0991477074fc80283c74324b4fa7461",
+      "gzip_bytes": 15248,
+      "gzip_sha256": "2362cc01ff56fc5cd96f98fa430ed9db200265161c8c59b48989236aaffa786e",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/candidate/output-01/result.json",
+        "bytes": 539813,
+        "sha256": "f3f54dec1065d4a5ec8fe475cf256a8fa45f144b8cf2a88c4de52c9f9057ad87"
+      },
+      "projection": "Extract native object; omit wrapper host/process inventory. Values unchanged."
+    },
+    {
+      "path": "laptop-50-summary.json.gz",
+      "raw_bytes": 24928,
+      "raw_sha256": "bd5a69ae43482db3d8e33481f05846f2174217591a2af1435ab0351b68a6187b",
+      "gzip_bytes": 4883,
+      "gzip_sha256": "dc9ccb0f629a29f899540f1c35082df1ff45287976cecb6369adda47929f73ce",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/candidate/output-01/result.json",
+        "bytes": 539813,
+        "sha256": "f3f54dec1065d4a5ec8fe475cf256a8fa45f144b8cf2a88c4de52c9f9057ad87"
+      },
+      "projection": "Extract observations object; values unchanged."
+    },
+    {
+      "path": "laptop-50-assessment.json.gz",
+      "raw_bytes": 134420,
+      "raw_sha256": "d4fee6213ab8fdf101dd38123b3c13691c5f0b4a264046a32c913c57eb937c44",
+      "gzip_bytes": 6842,
+      "gzip_sha256": "996d6c41eee6cd8c56788f9baea03a02fe40bba278df5c8147a5fc5845af8ddd",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/candidate/diagnostic-assessment.json",
+        "bytes": 134420,
+        "sha256": "d4fee6213ab8fdf101dd38123b3c13691c5f0b4a264046a32c913c57eb937c44"
+      }
+    },
+    {
+      "path": "laptop-50-observations.jsonl.gz",
+      "raw_bytes": 808329,
+      "raw_sha256": "64134494b605e395c8b521773e2590c68d84598a74cb5e592885c8f33aa0593c",
+      "gzip_bytes": 62329,
+      "gzip_sha256": "c32a1e764ee3bb86f70a5a3272bb0712b35ba8475215063ef4ab98a5803db046",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/cases/candidate/output-01/observations.jsonl",
+        "bytes": 808329,
+        "sha256": "64134494b605e395c8b521773e2590c68d84598a74cb5e592885c8f33aa0593c"
+      }
+    },
+    {
+      "path": "apollo-16-native.json.gz",
+      "raw_bytes": 268332,
+      "raw_sha256": "0897fefd4c470e85a30e8e5f0c42c27125dfe7b9fdb11d9fb54f7653cf9a9f99",
+      "gzip_bytes": 16005,
+      "gzip_sha256": "09b9c337c491f981928255892d2e6d6489fd3c1306044e4ba573fffde13057e5",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/cases/baseline/private-player-01/recordings/actual-player/native-result.json",
+        "bytes": 268332,
+        "sha256": "0897fefd4c470e85a30e8e5f0c42c27125dfe7b9fdb11d9fb54f7653cf9a9f99"
+      }
+    },
+    {
+      "path": "apollo-16-summary.json.gz",
+      "raw_bytes": 25606,
+      "raw_sha256": "1f6917a092ed8860e4616a287d1479e25f576513e225293fc9a6e267e17feb84",
+      "gzip_bytes": 4815,
+      "gzip_sha256": "318bfe47e4f620d1395ae9604c9046cc85ef6d20fa76c3165fa2b2c9b4b78b7a",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/cases/baseline/private-player-01/recordings/actual-player/observation-summary.json",
+        "bytes": 25606,
+        "sha256": "1f6917a092ed8860e4616a287d1479e25f576513e225293fc9a6e267e17feb84"
+      }
+    },
+    {
+      "path": "apollo-16-observations.jsonl.gz",
+      "raw_bytes": 810491,
+      "raw_sha256": "631564f7c7e582c686976cb0aef3cbad0075a5780ea43b792576f6b022b4ee9e",
+      "gzip_bytes": 61926,
+      "gzip_sha256": "e98e11bc5d8ee773d479918224bf195b15564b2a7cf06dbba785a377444e14e8",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/cases/baseline/private-player-01/recordings/actual-player/observations.jsonl",
+        "bytes": 810491,
+        "sha256": "631564f7c7e582c686976cb0aef3cbad0075a5780ea43b792576f6b022b4ee9e"
+      }
+    },
+    {
+      "path": "apollo-50-native.json.gz",
+      "raw_bytes": 268245,
+      "raw_sha256": "7a8f2f6760b48a92219d987632898f2c191d8d455f4412fc454dc9c5ea17060d",
+      "gzip_bytes": 15913,
+      "gzip_sha256": "23919df9f92338be169623247d7b6e1e8a61ce9100169e40a7f3d0dcac60767e",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/cases/candidate/private-player-01/recordings/actual-player/native-result.json",
+        "bytes": 268245,
+        "sha256": "7a8f2f6760b48a92219d987632898f2c191d8d455f4412fc454dc9c5ea17060d"
+      }
+    },
+    {
+      "path": "apollo-50-summary.json.gz",
+      "raw_bytes": 25562,
+      "raw_sha256": "53feefbecb53e9eff6121f55e68d729b1ac94c6f4467a067dad78f844bce3bdc",
+      "gzip_bytes": 4810,
+      "gzip_sha256": "a00b4dd765c47d7edb363c3e513bade8ad9088ae20183df0255e1b49b8edf9e2",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/cases/candidate/private-player-01/recordings/actual-player/observation-summary.json",
+        "bytes": 25562,
+        "sha256": "53feefbecb53e9eff6121f55e68d729b1ac94c6f4467a067dad78f844bce3bdc"
+      }
+    },
+    {
+      "path": "apollo-50-observations.jsonl.gz",
+      "raw_bytes": 810459,
+      "raw_sha256": "7dc85d310e14e8293fb1a5a78c51e119e4e848a700127487c7e397a40707ffde",
+      "gzip_bytes": 61937,
+      "gzip_sha256": "cfce3daf3560d922a81ebcb6d8caf0e591742473062a6ea824e545701699e336",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/cases/candidate/private-player-01/recordings/actual-player/observations.jsonl",
+        "bytes": 810459,
+        "sha256": "7dc85d310e14e8293fb1a5a78c51e119e4e848a700127487c7e397a40707ffde"
+      }
+    },
+    {
+      "path": "independent-assessment.json.gz",
+      "raw_bytes": 8367,
+      "raw_sha256": "c6370c26f1a381c09bccfbd8ced2e0cb1202b09353add150c9c7dfe4e601e778",
+      "gzip_bytes": 2021,
+      "gzip_sha256": "a9f5f2d4c3d300ae075ec2df201d987d2c235cf382b60c998eb8cd678874d12e",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/independent-assessment-01.json",
+        "bytes": 8367,
+        "sha256": "c6370c26f1a381c09bccfbd8ced2e0cb1202b09353add150c9c7dfe4e601e778"
+      }
+    },
+    {
+      "path": "laptop-pair.json.gz",
+      "raw_bytes": 1845,
+      "raw_sha256": "f13fc5ab97466a0dd58750725f6aab16b529f498626aa0f1e8077046f422204a",
+      "gzip_bytes": 575,
+      "gzip_sha256": "bc4838fad2979ca2e2de6392be547cd72408672a7e6881c858dbb0dc641b497f",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/pair-controller-result-01.json",
+        "bytes": 1845,
+        "sha256": "f13fc5ab97466a0dd58750725f6aab16b529f498626aa0f1e8077046f422204a"
+      }
+    },
+    {
+      "path": "host-dispatch.json.gz",
+      "raw_bytes": 590,
+      "raw_sha256": "c9628c4939f403e19159b5cc5290d475f1e1beea7e8e0dfbcd56f594d7413e73",
+      "gzip_bytes": 375,
+      "gzip_sha256": "d63a754b044be01d301294615d3a5a5259338e9cb1eb783c97b3daeb21c41e79",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/pair-controller-dispatch-01.json",
+        "bytes": 590,
+        "sha256": "c9628c4939f403e19159b5cc5290d475f1e1beea7e8e0dfbcd56f594d7413e73"
+      }
+    },
+    {
+      "path": "apollo-pair.json.gz",
+      "raw_bytes": 1536,
+      "raw_sha256": "6800754dbd5f09f8b56750c06e00dd0430ee1447beb7520ad53b845a348ef092",
+      "gzip_bytes": 516,
+      "gzip_sha256": "d74885c5d8f6afaa837eeda1d31661daf9983aba7a646620f23c4ab4cc971cc9",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/apollo-collected-01/pair-result-01.json",
+        "bytes": 1536,
+        "sha256": "6800754dbd5f09f8b56750c06e00dd0430ee1447beb7520ad53b845a348ef092"
+      }
+    },
+    {
+      "path": "test-window-closed.json.gz",
+      "raw_bytes": 491,
+      "raw_sha256": "98e6f8165f3674b357d3523db609c227000686397164a30d0a5cf7a62be6b776",
+      "gzip_bytes": 301,
+      "gzip_sha256": "4d20f25cce96f3e8a18bdc582bc07550d0f63db9563525fc1ec618d221e7530e",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/test-window-closed-01.json",
+        "bytes": 491,
+        "sha256": "98e6f8165f3674b357d3523db609c227000686397164a30d0a5cf7a62be6b776"
+      }
+    },
+    {
+      "path": "source-binding.json.gz",
+      "raw_bytes": 1029,
+      "raw_sha256": "f356d01687f29f91d077b2cb1dc87cc8cbe5e268c32435fc43ba1b90a05728ef",
+      "gzip_bytes": 508,
+      "gzip_sha256": "27418fc7d7c9e98882f1ce93ae5f372d9d487a37ac28c35eddd24ae2f7c0cc5f",
+      "original_capture": {
+        "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-synchronized-redraw-comparison-01/source-publication-binding-01.json",
+        "bytes": 1029,
+        "sha256": "f356d01687f29f91d077b2cb1dc87cc8cbe5e268c32435fc43ba1b90a05728ef"
+      }
+    }
+  ]
+}
