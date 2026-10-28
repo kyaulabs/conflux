@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "recorded_at_utc": "2026-10-28T06:38:48.609416+00:00",
+  "source": "f262aba1752261814dbbda083f592dfacd842f67",
+  "merged": "f25b26ef7795e9e3d2132364c472c2ba90ee2380",
+  "question_item_id": "[\"request_user_input_async\",\"call_82ed3766cba8460697ed32338581bd17\",0]",
+  "question": "In CONFLUX, load a track onto a manual stereo deck, press an empty A\u2013H pad to set it, seek elsewhere, then press the pad to return and play. Try DELETE \u2192 that pad too. Do the cues behave correctly while the other deck and recording continue? If anything fails, name the deck and action.",
+  "human_reply": "both work",
+  "verdict": "accepted",
+  "scope": "Hands-on A\u2013H setting/recall/play and DELETE trial; no instrumented timing or sustained performance claim.",
+  "performance_benchmark": false,
+  "sustained_gate_waived": false
+}
