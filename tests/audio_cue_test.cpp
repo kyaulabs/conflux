@@ -52,6 +52,68 @@ bool silence(const std::array<float, N>& samples)
     return std::ranges::all_of(samples, [](float sample) { return sample == 0.F; });
 }
 
+bool hotCueCaptureRecallAndIsolation()
+{
+    bool passed = true;
+    RenderCore core(sourceA, sourceB);
+    std::array<float, 2> output{};
+    passed &= require(core.setPlaying(0, false) && core.seek(0, 3) && core.setCueFrame(0, 1) &&
+        core.setDeckGain(0, .5F) && core.setPlaying(1, false), "hot-cue setup failed");
+    Command command{Type::HotCue, 0, 999};
+    command.hotCue = 7;
+    const auto before = state(core);
+    passed &= require(core.apply(command) && core.hotCues(0).set[7] && core.hotCues(0).frames[7] == 3 &&
+        state(core) == before, "empty hot cue did not capture the render cursor without changing transport");
+    passed &= require(core.seek(0, 9) && core.apply(command) && core.isPlaying() &&
+        core.sourceFrame() == 3 && core.cueFrame() == 1 && core.render(output) &&
+        output == std::array<float, 2>{.1875F, -.21875F} && core.sourceFrame() == 4,
+        "hot cue did not atomically seek/play the actual source with its gain and temporary cue preserved");
+    passed &= require(core.hotCues(1) == RenderCore::HotCues{} && !core.isPlaying(1),
+        "hot cue changed the other deck");
+    passed &= require(core.setPlaying(0, false) && core.seek(0, 1) && core.cuePress(0) &&
+        core.isCuePreviewing() && core.apply(command) && core.cueRelease(0) && core.isPlaying() &&
+        core.sourceFrame() == 3, "release of temporary CUE stopped hot-cue playback");
+    passed &= require(core.render(output) && core.sourceFrame() == 4 && core.apply(command) &&
+        core.sourceFrame() == 3, "repeated hot cue did not retrigger during playback");
+    const auto running = state(core);
+    command.type = Type::HotCueClear;
+    passed &= require(core.apply(command) && core.hotCues(0) == RenderCore::HotCues{} &&
+        state(core) == running && core.apply(command), "clearing a hot cue changed transport or was not idempotent");
+    return passed;
+}
+
+bool hotCueValidationAndSourceLifetime()
+{
+    bool passed = true;
+    RenderCore core(sourceA);
+    RenderCore::HotCues points;
+    for (std::size_t index = 0; index < points.set.size(); ++index) {
+        points.set[index] = true;
+        points.frames[index] = index;
+    }
+    passed &= require(core.restoreHotCues(0, points) && core.hotCues(0) == points,
+        "eight source-bound hot cues could not be restored");
+    const auto before = state(core);
+    for (const auto deck : {std::size_t(1), std::size_t(2), std::numeric_limits<std::size_t>::max()})
+        passed &= require(!core.hotCue(deck, 0) && !core.clearHotCue(deck, 0) &&
+            !core.restoreHotCues(deck, points) && core.hotCues(deck) == RenderCore::HotCues{},
+            "invalid/unloaded hot-cue deck was accepted");
+    for (const auto slot : {std::size_t(8), std::numeric_limits<std::size_t>::max()})
+        passed &= require(!core.hotCue(0, slot) && !core.clearHotCue(0, slot), "invalid hot-cue slot was accepted");
+    auto invalid = points;
+    invalid.frames[7] = sourceA.size() / 2;
+    passed &= require(!core.restoreHotCues(0, invalid) && core.hotCues(0) == points && state(core) == before,
+        "invalid restored hot cue partially changed accepted state");
+    passed &= require(core.clearHotCue(0, 0) && core.seek(0, core.sourceFrames()) && !core.hotCue(0, 0) &&
+        !core.hotCues(0).set[0], "hot cue captured EOF instead of an actual source sample");
+    passed &= require(core.setPlaying(0, false) && core.seek(0, 0) && core.replaceSource(0, {sourceB.size() / 2, sourceB.data()}) &&
+        core.hotCues(0) == RenderCore::HotCues{}, "replacing the source retained another track's hot cues");
+    RenderCore empty;
+    passed &= require(!empty.hotCue(0, 0) && !empty.clearHotCue(0, 0) &&
+        !empty.restoreHotCues(0, points), "empty source admitted hot cues");
+    return passed;
+}
+
 bool settingAndBackCue()
 {
     bool passed = true;
@@ -267,5 +329,6 @@ int main()
     const bool transport = seekPauseAndIndependentEof();
     const bool invalid = invalidStateAndRestoration();
     const bool partitions = partitionParity();
-    return setting && audition && transport && invalid && partitions ? 0 : 1;
+    return hotCueCaptureRecallAndIsolation() && hotCueValidationAndSourceLifetime() &&
+        setting && audition && transport && invalid && partitions ? 0 : 1;
 }

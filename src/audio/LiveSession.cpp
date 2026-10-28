@@ -161,11 +161,12 @@ public:
             }
             if (!renderer_.sourceFrames(deck)) {
                 if (initial.sourceFrame[deck] || initial.cueFrame[deck] || initial.playing[deck] || initial.cueSelected[deck] ||
-                    initial.residentHoldRangeId[deck])
+                    initial.residentHoldRangeId[deck] || initial.hotCues[deck] != RenderCore::HotCues{})
                     throw std::invalid_argument("Unloaded deck cannot have transport or cue selection");
                 continue;
             }
-            if (!renderer_.setCueFrame(deck, initial.cueFrame[deck]) ||
+            if (!renderer_.restoreHotCues(deck, initial.hotCues[deck]) ||
+                !renderer_.setCueFrame(deck, initial.cueFrame[deck]) ||
                 !renderer_.restorePrimedCursor(deck, initial.sourceFrame[deck]) ||
                 !renderer_.setDeckGain(deck, initial.deckGain[deck]) ||
                 !renderer_.setPlaying(deck, initial.playing[deck]) ||
@@ -649,10 +650,13 @@ public:
                 command.type == RenderCore::Command::Type::ResidentHoldExit ||
                 command.type == RenderCore::Command::Type::ResidentHoldCancel;
             const bool validDeck = command.deck < sourceGeneration_.size();
-            const bool stale = (scratch || hold) && validDeck && command.sourceGeneration != sourceGeneration_[command.deck];
+            const bool hotCue = command.type == RenderCore::Command::Type::HotCue ||
+                command.type == RenderCore::Command::Type::HotCueClear;
+            const bool sourceBound = scratch || hold || hotCue;
+            const bool stale = sourceBound && validDeck && command.sourceGeneration != sourceGeneration_[command.deck];
             // A paired release of an already retired source is a safe no-op;
             // it must never stop a new source's gesture. Stale new motion fails.
-            const bool applied = (scratch || hold) && !validDeck ? false : stale ?
+            const bool applied = sourceBound && !validDeck ? false : stale ?
                 command.type == RenderCore::Command::Type::ScratchEnd && command.scratchToken != 0 : renderer_.apply(command);
             applied ? ++applied_ : ++rejected_;
             lastCommandId_ = command.id;
@@ -728,6 +732,7 @@ public:
             state.sourceGeneration[deck] = sourceGeneration_[deck];
             state.transportRevision[deck] = renderer_.transportRevision(deck);
             state.cueFrame[deck] = renderer_.cueFrame(deck);
+            state.hotCues[deck] = renderer_.hotCues(deck);
             state.playing[deck] = renderer_.isPlaying(deck);
             state.cueHeld[deck] = renderer_.isCueHeld(deck);
             state.cuePreview[deck] = renderer_.isCuePreviewing(deck);

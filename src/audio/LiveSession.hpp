@@ -28,6 +28,7 @@ public:
         std::array<std::uint64_t, RenderCore::deckCount> sourceFrame{};
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
+        std::array<RenderCore::HotCues, RenderCore::deckCount> hotCues{};
         // Explicit caller authorization installed after transport restoration
         // and before callbacks. Zero leaves recovery unarmed.
         std::array<std::uint64_t, RenderCore::deckCount> residentHoldRangeId{};
@@ -49,6 +50,7 @@ public:
         std::array<std::uint64_t, RenderCore::deckCount> cueFrame{};
         std::array<bool, RenderCore::deckCount> playing{};
         std::array<bool, RenderCore::deckCount> cueHeld{}, cuePreview{};
+        std::array<RenderCore::HotCues, RenderCore::deckCount> hotCues{};
         std::array<bool, RenderCore::deckCount> buffering{}, sourceReadError{};
         std::array<bool, RenderCore::deckCount> sourceReadErrorObserved{};
         std::array<std::uint64_t, RenderCore::deckCount> starvedFrames{};

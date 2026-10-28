@@ -280,7 +280,7 @@ void exactContinuationPreservesBothBusesAndRunningMix()
     RenderCore changed(old.sourceRef(), AudioSource::fromMemory(peer));
     RenderCore unchanged(reference.sourceRef(), AudioSource::fromMemory(peer));
     for (auto* core : {&changed, &unchanged}) {
-        require(core->setCueFrame(0, 91) && core->setCueSelected(0, true) && core->configureRamps(240),
+        require(core->hotCue(0, 7) && core->setCueFrame(0, 91) && core->setCueSelected(0, true) && core->configureRamps(240),
             "Continuation transport setup failed");
     }
     std::array<float, 600> master{}, cue{}, expectedMaster{}, expectedCue{};
@@ -303,6 +303,7 @@ void exactContinuationPreservesBothBusesAndRunningMix()
         "Exact primed source continuation failed");
     require(changed.sourceFrame() == next && changed.sourcePosition() == double(next) &&
         changed.frameClock() == clock && changed.isPlaying() && changed.cueFrame() == 91 &&
+        changed.hotCues(0) == unchanged.hotCues(0) && changed.hotCues(0).set[7] &&
         changed.isCueSelected() && changed.deckGain() == .4F && changed.eqGainDb(0, 0) == -12.F &&
         changed.stemGain(0, 2) == 0 && changed.stemGain(0, 3) == 0 &&
         changed.transportRevision(0) > revision, "Continuation reset channel or transport state");

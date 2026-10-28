@@ -131,6 +131,8 @@ public:
                                           const QString& cueLeft, const QString& cueRight);
     Q_INVOKABLE void startRecording(const QUrl& url);
     Q_INVOKABLE void stopRecording();
+    Q_INVOKABLE bool hotCue(int deck, int slot);
+    Q_INVOKABLE bool clearHotCue(int deck, int slot);
     Q_INVOKABLE bool cuePress(int deck);
     Q_INVOKABLE void cueRelease(int deck);
     // Called after output has stopped by the host integration check as well as
@@ -303,6 +305,7 @@ private:
     void poll();
     bool submit(audio::RenderCore::Command command);
     bool flushCueReleases();
+    bool submitHotCue(int deck, int slot, bool clear);
     struct ScratchIdentity {
         QString token, sourceId;
         std::uint64_t nativeToken = 0, sourceGeneration = 0;

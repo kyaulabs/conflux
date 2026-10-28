@@ -18,6 +18,9 @@ Item {
     readonly property string sourceId: String(deck.sourceId || "")
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
+    readonly property var hotCues: deck.hotCues || []
+    property bool hotCueDeleteMode: false
+    onCanControlChanged: if (!canControl) hotCueDeleteMode = false
     readonly property var tempoState: deck.tempo || ({})
     readonly property var scratchState: deck.scratch || ({})
     readonly property bool liveStems: Boolean(deck.liveStems)
@@ -88,7 +91,7 @@ Item {
         return Math.floor(value / 60) + ":" + String(value % 60).padStart(2, "0")
     }
     onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
-    onSourceIdChanged: { if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch(); if (residentHoldDialog) residentHoldDialog.close() }
+    onSourceIdChanged: { hotCueDeleteMode = false; if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch(); if (residentHoldDialog) residentHoldDialog.close() }
     onScratchSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
     onCanScratchChanged: { if (!canScratch && jogInput) jogInput.finishScratch() }
     onLoadProgressChanged: { if (waveform) waveform.requestPaint() }
@@ -887,6 +890,23 @@ Item {
             }
         }
     }
+    DeckButton {
+        focusColor: surface.deckColor
+        x: surface.width - surface.edge - width
+        y: surface.hotCueTop - 22
+        width: 64; height: 20; fontPixelSize: 9
+        visible: !Boolean(surface.deck.stemBank)
+        buttonObjectName: "deck" + surface.deckIndex + "HotCueDelete"
+        text: "DELETE"
+        accessibleName: surface.deckName + " hot cue Delete mode"
+        indicatorColor: Brand.ConfluxTheme.warning
+        indicatorOn: surface.hotCueDeleteMode
+        available: surface.canControl && !surface.deck.sourceReadError
+        actionDescription: surface.hotCueDeleteMode ? "Delete is on. Choose one stored hot-cue pad, or press Delete again to cancel."
+                                                   : "Turn on Delete, then choose a stored hot-cue pad to clear it without moving playback."
+        unavailableReason: "Load a track and wait for audio output before editing hot cues."
+        onPressed: surface.hotCueDeleteMode = !surface.hotCueDeleteMode
+    }
     Row {
         x: surface.edge
         y: surface.hotCueTop
@@ -901,8 +921,30 @@ Item {
                 height: 36
                 text: String.fromCharCode(65 + index)
                 indicatorColor: surface.deckColor
-                available: false
-                unavailableReason: "Hot cues are not implemented in this milestone."
+                readonly property var point: surface.hotCues[index] || ({})
+                readonly property bool pointSet: Boolean(point.set)
+                buttonObjectName: "deck" + surface.deckIndex + "HotCue" + index
+                accessibleName: surface.deckName + " hot cue " + text
+                indicatorOn: pointSet
+                available: surface.canControl && !surface.deck.sourceReadError
+                    && (surface.hotCueDeleteMode ? pointSet : pointSet ||
+                        (!surface.loop.active && !surface.scratchState.active
+                         && surface.deck.positionSeconds < surface.deck.durationSeconds))
+                actionDescription: surface.hotCueDeleteMode ? "Delete stored hot cue " + text + " without changing playback."
+                    : pointSet ? "Play from hot cue " + text + " at " + Number(point.seconds).toFixed(3) + " seconds."
+                    : "Set hot cue " + text + " at the current source sample. Cues stay with this loaded track until replacement."
+                unavailableReason: !surface.canControl ? "Load a track and wait for audio output."
+                    : surface.deck.sourceReadError ? "This source has an audio read error."
+                    : surface.hotCueDeleteMode ? "This pad has no stored hot cue to delete."
+                    : "Exit the active loop or vinyl gesture and choose a position before the track ends to set a point cue."
+                onPressed: {
+                    if (surface.hotCueDeleteMode) {
+                        if (surface.controller.clearHotCue(surface.deckIndex, index))
+                            surface.hotCueDeleteMode = false
+                    } else {
+                        surface.controller.hotCue(surface.deckIndex, index)
+                    }
+                }
             }
         }
     }

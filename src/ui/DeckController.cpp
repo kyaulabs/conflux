@@ -451,6 +451,13 @@ QVariantList DeckController::decks() const
             {"cueSelected", state_.cueSelected[deck]},
             {"meter", meterMap(state_.meters.deck[deck])},
             {"savedCue", savedDeckCue(deck)},
+            {"hotCues", [&] {
+                QVariantList result;
+                for (std::size_t slot = 0; slot < audio::RenderCore::HotCues::count; ++slot)
+                    result.append(QVariantMap{{"set", state_.hotCues[deck].set[slot]},
+                        {"seconds", state_.hotCues[deck].frames[slot] / double(audio::RenderCore::sampleRate)}});
+                return result;
+            }()},
             {"cueSeconds", state_.cueFrame[deck] / double(audio::RenderCore::sampleRate)},
             {"cueHeld", state_.cueHeld[deck]}, {"cuePreview", state_.cuePreview[deck]},
             {"buffering", state_.buffering[deck]}, {"sourceReadError", state_.sourceReadError[deck]},
@@ -1706,6 +1713,7 @@ void DeckController::loaded()
     state_.sourceFrame[pendingDeck_] = 0;
     state_.sourcePosition[pendingDeck_] = 0;
     state_.cueFrame[pendingDeck_] = 0;
+    state_.hotCues[pendingDeck_] = {};
     state_.cueHeld[pendingDeck_] = state_.cuePreview[pendingDeck_] = false;
     state_.buffering[pendingDeck_] = state_.sourceReadError[pendingDeck_] = false;
     state_.sourceReadErrorObserved[pendingDeck_] = false;
@@ -1730,6 +1738,7 @@ void DeckController::installSession(std::unique_ptr<audio::PreparedPlayback> ret
     audio::LiveSession::InitialState initial;
     initial.sourceFrame = state_.sourceFrame;
     initial.cueFrame = state_.cueFrame;
+    initial.hotCues = state_.hotCues;
     initial.playing = state_.playing;
     initial.deckGain = state_.deckGain;
     initial.eqGainDb = state_.eqGainDb;
@@ -1966,6 +1975,7 @@ void DeckController::installed()
             ++waveformRevisions_[deck];
             cueDown_[deck] = cueReleasePending_[deck] = false;
             state_.sourceFrame[deck] = state_.sourceFrames[deck] = state_.cueFrame[deck] = 0;
+            state_.hotCues[deck] = {};
             state_.sourcePosition[deck] = 0;
             state_.sourceGeneration[deck] = state_.starvedFrames[deck] = 0;
             state_.playing[deck] = state_.cueSelected[deck] = false;
@@ -2076,7 +2086,8 @@ bool DeckController::submit(audio::RenderCore::Command command)
     using Type = audio::RenderCore::Command::Type;
     const bool transportEndsScratch = command.deck < scratchGestures_.size() &&
         (command.type == Type::Play || command.type == Type::Pause || command.type == Type::Seek ||
-         command.type == Type::Jog || command.type == Type::CuePress || command.type == Type::RetrySource);
+         command.type == Type::Jog || command.type == Type::CuePress || command.type == Type::HotCue ||
+         command.type == Type::RetrySource);
     const auto failedTransport = [&] {
         if (transportEndsScratch) {
             queueScratchEnd(command.deck);
@@ -2280,6 +2291,34 @@ bool DeckController::flushCueReleases()
         error_.clear();
     return true;
 }
+
+bool DeckController::submitHotCue(int deck, int slot, bool clear)
+{
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] ||
+        slot < 0 || slot >= int(audio::RenderCore::HotCues::count)) {
+        fail("Choose a hot-cue pad on a loaded deck.");
+        return false;
+    }
+    if (state_.sourceReadError[deck]) {
+        fail("This source has an audio read error.");
+        return false;
+    }
+    if (!clear && !state_.hotCues[deck].set[slot] &&
+        (state_.loops[deck].active || scratchBusy(deck) ||
+         state_.sourceFrame[deck] >= clips_[deck]->frames())) {
+        fail("Set a point cue before the track ends, outside an active loop or vinyl gesture.");
+        return false;
+    }
+    audio::RenderCore::Command command;
+    command.type = clear ? audio::RenderCore::Command::Type::HotCueClear : audio::RenderCore::Command::Type::HotCue;
+    command.deck = std::uint32_t(deck);
+    command.hotCue = std::uint32_t(slot);
+    command.sourceGeneration = state_.sourceGeneration[deck];
+    return submit(command);
+}
+
+bool DeckController::hotCue(int deck, int slot) { return submitHotCue(deck, slot, false); }
+bool DeckController::clearHotCue(int deck, int slot) { return submitHotCue(deck, slot, true); }
 
 bool DeckController::cuePress(int deck)
 {

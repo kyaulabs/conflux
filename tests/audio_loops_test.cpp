@@ -316,6 +316,34 @@ void repeatedWrapsAndExitReloop()
     }
 }
 
+void pointHotCueExitsLoopWithoutStoringLoopAsPoint()
+{
+    for (const bool bank : {false, true}) {
+        Signals signals;
+        auto owner = signals.playback(bank);
+        require(owner->prime(0, 2s), "Cannot prime hot-cue/loop fixture");
+        RenderCore core(owner->sourceRef(), AudioSource::fromMemory(signals.peer));
+        Oracle oracle(core, signals, bank);
+        require(core.hotCue(0, 0), "Cannot capture prepared hot cue");
+        oracle.linearTo(loopIn);
+        require(core.loopIn(0), "Cannot capture loop IN");
+        awaitCache(core);
+        oracle.linearTo(loopIn + 256);
+        require(core.loopOut(0), "Cannot capture loop OUT");
+        const auto before = core.loopState(0);
+        const auto points = core.hotCues(0);
+        require(!core.hotCue(0, 1) && core.hotCues(0) == points && sameLoop(before, core.loopState(0)),
+                "Active loop was silently stored as a point or changed by rejection");
+        const auto peer = core.sourceFrame(1), clock = core.frameClock();
+        require(core.hotCue(0, 0) && core.sourceFrame(0) == 0 && core.isPlaying(0) &&
+                core.sourceFrame(1) == peer && core.frameClock() == clock,
+                "Point recall failed to leave the loop independently of the other deck");
+        cleared(core);
+        oracle.controls();
+        oracle.linearTo(32);
+    }
+}
+
 void minimumAndRejectedOutPreserveTransport()
 {
     Signals signals;
@@ -544,6 +572,7 @@ int main()
 {
     try {
         repeatedWrapsAndExitReloop();
+        pointHotCueExitsLoopWithoutStoringLoopAsPoint();
         minimumAndRejectedOutPreserveTransport();
         optionalCacheFailurePreservesHealthyLinearPlayback();
         sameFrameTransportInvalidatesPendingAndActiveLoops();
