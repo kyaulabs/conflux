@@ -506,11 +506,12 @@ On 21 October 2026, the user authorized M3 manual mixing controls in parallel
 with M2: crossfader, tempo/key-lock and loops. M2 remains open. Its Best-quality
 live-stem service target stays below 4.095 seconds at p99. The latest
 [shared-staging player diagnostic](../benchmarks/shared-staging-player-2026-10-28.md)
-reached 9.706 seconds on the laptop baseline, with playback starvation and an
-unproven process-ownership interval; the laptop candidate did not run. Both
-short Apollo virtual-audio arms were below the target and cannot substitute
-for the laptop gate. The combined manual mixing trial and A–H hot cues have
-user acceptance. M3's shared sustained audio/UI gate remains open before
+reached 9.706 seconds on the laptop baseline and 9.833 seconds on the candidate,
+with steady-playback starvation in both. The baseline's ownership failure is
+retained; the candidate follow-up proved cleanup but failed final audio health.
+All three short Apollo virtual-audio arms were below the target and cannot
+substitute for the laptop gate. The combined manual mixing trial and A–H hot
+cues have user acceptance. M3's shared sustained audio/UI gate remains open before
 `0.1.0`; complete and verify each new control before enabling it.
 
 | Milestone | Work | Evidence required before moving on |
