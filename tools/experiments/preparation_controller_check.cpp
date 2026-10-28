@@ -2865,7 +2865,7 @@ int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCa
 
 } // namespace liveFailure
 
-int uiControlsFixture(int argc, char** argv, const QString& binary, const QString& expectedSha, bool functionalOnly)
+int uiControlsFixture(int argc, char** argv, const QString& binary, const QString& expectedSha, bool functionalOnly, bool normalRedraw)
 {
     const auto began = Clock::now(), deadline = began + std::chrono::seconds(75);
     QCoreApplication app(argc, argv);
@@ -2962,7 +2962,7 @@ int uiControlsFixture(int argc, char** argv, const QString& binary, const QStrin
         environment.insert("QT_QUICK_CONTROLS_STYLE", "Basic"); environment.insert("XDG_CACHE_HOME", childOutput + "/cache");
         environment.remove("CONFLUX_ALLOW_HOST_SOAK");
         child.setProcessEnvironment(environment); child.setProgram(binary);
-        const QStringList arguments{"--live-stems-controls", source, peer, childOutput, "10", childOutput + "/stop",
+        const QStringList arguments{normalRedraw ? "--live-stems-controls-normal-redraw" : "--live-stems-controls", source, peer, childOutput, "10", childOutput + "/stop",
             fixture.engine.pythonExecutable, fixture.engine.exporterPath, fixture.engine.workerPath, fixture.service,
             fixture.engine.runtimePath, fixture.engine.modelPath};
         child.setArguments(arguments); child.setProcessChannelMode(QProcess::SeparateChannels);
@@ -3001,7 +3001,8 @@ int uiControlsFixture(int argc, char** argv, const QString& binary, const QStrin
             QFile file(childOutput + "/native-result.json");
             if (!file.open(QIODevice::ReadOnly) || file.size() > 1024 * 1024) throw std::runtime_error("Bounded controls result missing");
             const auto document = QJsonDocument::fromJson(file.readAll()); const auto native = document.object();
-            if (!document.isObject() || !native["passed"].toBool() || native["mode"].toString() != "live-stems-controls" ||
+            if (!document.isObject() || !native["passed"].toBool() || native["mode"].toString() != (normalRedraw ? "live-stems-controls-normal-redraw" : "live-stems-controls") ||
+                native["forced_redraw_interval_ms"].toInt() != (normalRedraw ? 50 : 16) ||
                 !native["functional_only"].toBool() || native["host_audio"].toBool() || native["qualified"].toBool() ||
                 !native["manual_controls_complete"].toBool() || native["manual_controls"].toArray().size() != 16 ||
                 !native["shutdown_completed"].toBool() || native["cancelled"].toBool())
@@ -3032,16 +3033,17 @@ int main(int argc, char** argv)
     try {
         bool functionalOnly = false, liveFailureOnly = false;
         QString uiControlsBinary, uiControlsSha;
-        bool uiControlsRequested = false;
+        bool uiControlsRequested = false, normalRedraw = false;
         std::optional<liveFailure::ContinuationCase> continuationCase;
         const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold,resident-takeover,resident-cancel} | --ui-controls-soak ABSOLUTE_BINARY SHA256]";
         if (argc < 3) throw std::runtime_error(usage);
         for (int argument = 3; argument < argc; ++argument) {
             const std::string_view option(argv[argument]);
             if (option == "--functional-only") functionalOnly = true;
-            else if (option == "--ui-controls-soak") {
+            else if (option == "--ui-controls-soak" || option == "--ui-controls-soak-normal-redraw") {
                 if (uiControlsRequested || argument + 2 >= argc) throw std::runtime_error(usage);
                 uiControlsRequested = true;
+                normalRedraw = option == "--ui-controls-soak-normal-redraw";
                 uiControlsBinary = QString::fromLocal8Bit(argv[++argument]);
                 uiControlsSha = QString::fromLocal8Bit(argv[++argument]);
             }
@@ -3063,7 +3065,7 @@ int main(int argc, char** argv)
         if (liveFailureOnly && continuationCase) throw std::runtime_error(usage);
         if (uiControlsRequested) {
             if (liveFailureOnly || continuationCase) throw std::runtime_error(usage);
-            return uiControlsFixture(argc, argv, uiControlsBinary, uiControlsSha, functionalOnly);
+            return uiControlsFixture(argc, argv, uiControlsBinary, uiControlsSha, functionalOnly, normalRedraw);
         }
         if (liveFailureOnly || continuationCase) return liveFailure::run(argc, argv, functionalOnly, continuationCase);
         // Gcov cold-cache throughput is outside functional load-latency qualification.

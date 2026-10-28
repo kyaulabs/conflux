@@ -151,10 +151,11 @@ QJsonObject controlSnapshot(const State& s)
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--private-live-stems-controls|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-controls-normal-redraw|--private-live-stems-controls|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
     const bool privateControls = mode == "--private-live-stems-controls";
-    const bool activeControls = privateControls || mode == "--live-stems-controls";
+    const bool normalRedraw = mode == "--live-stems-controls-normal-redraw";
+    const bool activeControls = privateControls || normalRedraw || mode == "--live-stems-controls";
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
     const bool oneThread = mode == "--live-stems-hidden-one-thread";
     const bool hidden = oneThread || mode == "--live-stems-hidden";
@@ -167,9 +168,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     // host qualification or extend the existing generated-fixture modes.
     if (privateControls && !functional) return 2;
     const bool shortFunctional = functional && !privateControls;
+    const bool fixedTwoMinute = privateControls || (normalRedraw && !functional);
     bool valid = false;
     const int seconds = QString::fromLocal8Bit(argv[5]).toInt(&valid);
-    if (!valid || (hour ? seconds != 3600 : privateControls ? seconds != 120 : shortFunctional ? seconds < 1 || seconds > 10 : seconds < 120 || seconds > 180) ||
+    if (!valid || (hour ? seconds != 3600 : fixedTwoMinute ? seconds != 120 : shortFunctional ? seconds < 1 || seconds > 10 : seconds < 120 || seconds > 180) ||
         (!functional && qEnvironmentVariable("CONFLUX_ALLOW_HOST_SOAK") != "1")) return 2;
     const auto platform = QGuiApplication::platformName();
     if (functional ? (platform != "offscreen" && platform != "minimal") : (platform == "offscreen" || platform == "minimal")) return 2;
@@ -277,6 +279,11 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
     if (activeControls) {
         result["mode"] = "live-stems-controls";
         result["scope"] = "Short actual-player accessible UI controls under load; no pointer/touch, physical assistive-technology, hardware-cue or sustained qualification";
+    }
+    result["forced_redraw_interval_ms"] = normalRedraw ? 50 : 16;
+    if (normalRedraw) {
+        result["mode"] = "live-stems-controls-normal-redraw";
+        result["scope"] = "Explicit 50ms forced-redraw diagnostic; default16ms stress load unchanged; no sustained or normal-stress qualification";
     }
     if (privateControls) {
         result["mode"] = "private-live-stems-controls";
@@ -414,7 +421,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         QObject::connect(window, &QQuickWindow::sceneGraphError, &app, [&](QQuickWindow::SceneGraphError code, const QString& message) {
             if (sceneErrors.size() < 32) sceneErrors.append(QJsonObject{{"code", int(code)}, {"message", message.left(1024)}});
         });
-        framePump.setInterval(16); QObject::connect(&framePump, &QTimer::timeout, window, [window] { if (window) window->update(); }); framePump.start();
+        framePump.setInterval(normalRedraw ? 50 : 16); QObject::connect(&framePump, &QTimer::timeout, window, [window] { if (window) window->update(); }); framePump.start();
         if (uiPolicy.requiresStartupPresentation(functional)) wait([&] { return window->isExposed() && presented >= 10; }, 5000);
         if (functional) {
             QString left, right;
@@ -826,6 +833,7 @@ int main(int argc, char** argv)
 {
     QGuiApplication app(argc, argv);
     if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-controls" ||
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-controls-normal-redraw" ||
         QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden-one-thread"))
