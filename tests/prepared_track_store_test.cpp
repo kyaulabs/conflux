@@ -12,6 +12,8 @@
 #include <QLockFile>
 #include <QRegularExpression>
 #include <QStandardPaths>
+#include <QProcessEnvironment>
+#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QtTest>
 
@@ -606,6 +608,66 @@ private slots:
                 QCOMPARE(lstat(QFile::encodeName(root).constData(), &status), 0);
                 QVERIFY(S_ISFIFO(status.st_mode));
             } else QVERIFY(!QFileInfo::exists(root));
+        });
+    }
+
+    void descriptionThreadLimitsDoNotChangeExportOrParent_data()
+    {
+        QTest::addColumn<bool>("inherited");
+        QTest::newRow("unset") << false;
+        QTest::newRow("large-inherited-pools") << true;
+    }
+
+    void descriptionThreadLimitsDoNotChangeExportOrParent()
+    {
+        QFETCH(bool, inherited);
+        checked([&] {
+            const std::array names{"OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS",
+                                   "NUMEXPR_NUM_THREADS", "CONFLUX_TEST_DESCRIPTOR_SENTINEL"};
+            const auto original = QProcessEnvironment::systemEnvironment();
+            const auto restore = qScopeGuard([&] {
+                for (const auto* name : names) {
+                    if (original.contains(QString::fromLatin1(name)))
+                        qputenv(name, original.value(QString::fromLatin1(name)).toUtf8());
+                    else qunsetenv(name);
+                }
+            });
+            QJsonObject expectedExport;
+            for (std::size_t i = 0; i + 1 < names.size(); ++i) {
+                if (inherited) QVERIFY(qputenv(names[i], "8"));
+                else QVERIFY(qunsetenv(names[i]));
+                expectedExport.insert(QString::fromLatin1(names[i]), inherited ? QJsonValue("8") : QJsonValue());
+            }
+            QVERIFY(qputenv(names.back(), "preserved"));
+            expectedExport.insert(QString::fromLatin1(names.back()), "preserved");
+            auto expectedDescription = expectedExport;
+            for (std::size_t i = 0; i + 1 < names.size(); ++i)
+                expectedDescription.insert(QString::fromLatin1(names[i]), "1");
+
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            wave(source, stemSamples(), 44100);
+            auto engine = stemEngine(directory.path(), "thread-environment");
+            engine.threads = 3;
+            const auto marker = engine.exporterPath.left(engine.exporterPath.size() - 3);
+            PreparedTrackStore store(root);
+            QVERIFY(!store.findPreparedStemBank(source, engine));
+            QCOMPARE(QJsonDocument::fromJson(readBytes(marker + ".describe-env")).object(), expectedDescription);
+            QVERIFY(!QFileInfo::exists(marker + ".export-env"));
+
+            auto prepared = store.prepareStemBank(source, engine);
+            QVERIFY(bankSamplesMatch(prepared));
+            QCOMPARE(QJsonDocument::fromJson(readBytes(marker + ".describe-env")).object(), expectedDescription);
+            QCOMPARE(QJsonDocument::fromJson(readBytes(marker + ".export-env")).object(), expectedExport);
+            const auto manifest = QJsonDocument::fromJson(readBytes(bankPath(root, prepared, "manifest.json"))).object();
+            QCOMPARE(manifest.value("export").toObject().value("runtime").toObject().value("ready").toObject().value("threads"), QJsonValue(3));
+            const auto parent = QProcessEnvironment::systemEnvironment();
+            for (const auto* name : names) {
+                const auto key = QString::fromLatin1(name);
+                QCOMPARE(parent.contains(key), !expectedExport.value(key).isNull());
+                if (parent.contains(key)) QCOMPARE(parent.value(key), expectedExport.value(key).toString());
+            }
         });
     }
 
