@@ -1,0 +1,595 @@
+{
+  "schema": 1,
+  "members": [
+    {
+      "file": "completed-summary-01.json.gz",
+      "decoded_file": "completed-summary-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/completed-summary-01.json",
+      "original_bytes": 6122,
+      "original_sha256": "b21bb652c9877572c85a816135eae885a09b325edde25e1bd6035e8ff0460530",
+      "decoded_sha256": "b21bb652c9877572c85a816135eae885a09b325edde25e1bd6035e8ff0460530",
+      "gzip_bytes": 1797,
+      "gzip_sha256": "66fe4ee7f92d403230c82963e05ef70d41d17cd6ba11fb2a3fc358f16e06bccb"
+    },
+    {
+      "file": "packet-pins.json.gz",
+      "decoded_file": "packet-pins.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/packet-pins.json",
+      "original_bytes": 5349,
+      "original_sha256": "d9416827b38b12aeb40011a3c65c95f604a4070e0bab5c7bd17c165ac614c823",
+      "decoded_sha256": "d9416827b38b12aeb40011a3c65c95f604a4070e0bab5c7bd17c165ac614c823",
+      "gzip_bytes": 1835,
+      "gzip_sha256": "8279b400c32a51a458403cb5678614fc57868f0c29ef9cdc40860a4495296e92"
+    },
+    {
+      "file": "source-binding-01.json.gz",
+      "decoded_file": "source-binding-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/source-binding-01.json",
+      "original_bytes": 69190,
+      "original_sha256": "1f47b2b244125121bc204ad5db3de5d556b100e6ee2447719f5a28fe92a76a7b",
+      "decoded_sha256": "1f47b2b244125121bc204ad5db3de5d556b100e6ee2447719f5a28fe92a76a7b",
+      "gzip_bytes": 20938,
+      "gzip_sha256": "c5aac3e85894c52f47edbac6fa5589adcd1d69e7c54cac4bfec4a8e0aa0c52d5"
+    },
+    {
+      "file": "readiness.json.gz",
+      "decoded_file": "readiness.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/readiness.json",
+      "original_bytes": 1303,
+      "original_sha256": "821a21be861ecca789b932938590377d935deda5f2c7aa395342aad260893e38",
+      "decoded_sha256": "821a21be861ecca789b932938590377d935deda5f2c7aa395342aad260893e38",
+      "gzip_bytes": 773,
+      "gzip_sha256": "4dc9ffb32983bb19b239b36e962fdc0f38ad7e90545fb3b6a33aaa413f6b6de0"
+    },
+    {
+      "file": "both-dispatch.json.gz",
+      "decoded_file": "both-dispatch.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/both-dispatch.json",
+      "original_bytes": 235,
+      "original_sha256": "03c69f1827982f2acde9072c86f24b6c2496639ed05791a1a4ca431ccfff5ecc",
+      "decoded_sha256": "03c69f1827982f2acde9072c86f24b6c2496639ed05791a1a4ca431ccfff5ecc",
+      "gzip_bytes": 180,
+      "gzip_sha256": "a9df1323c04291d281a1283f2afab973b79d642106fd50edd6fe91bab90bef2f"
+    },
+    {
+      "file": "laptop-terminal-cleanup-01.json.gz",
+      "decoded_file": "laptop-terminal-cleanup-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-terminal-cleanup-01.json",
+      "original_bytes": 1552,
+      "original_sha256": "1805072fd1e4d47da6d911071a573d895fa65937d99193819c58ad5465d7533e",
+      "decoded_sha256": "1805072fd1e4d47da6d911071a573d895fa65937d99193819c58ad5465d7533e",
+      "gzip_bytes": 558,
+      "gzip_sha256": "84622f53a33b356623d106798fb068d031edd290f9643072592eb3b730e3978c"
+    },
+    {
+      "file": "apollo-terminal-proof-01.json.gz",
+      "decoded_file": "apollo-terminal-proof-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-terminal-proof-01.json",
+      "original_bytes": 626446,
+      "original_sha256": "ffed1269040792bd3d5d30582fa57c0824b83426e0c0adf2072c407a364345fb",
+      "decoded_sha256": "ffed1269040792bd3d5d30582fa57c0824b83426e0c0adf2072c407a364345fb",
+      "gzip_bytes": 41984,
+      "gzip_sha256": "f7e2f762b04e0d1388eb562ab83a6b029305f8cd05c721b9609bf1941943047d"
+    },
+    {
+      "file": "laptop-plan.json.gz",
+      "decoded_file": "laptop-plan.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-plan.json",
+      "original_bytes": 89489,
+      "original_sha256": "d00faa5ab1f136f64b0d8970509843c896975129499c2086549c52c529798001",
+      "decoded_sha256": "d00faa5ab1f136f64b0d8970509843c896975129499c2086549c52c529798001",
+      "gzip_bytes": 28222,
+      "gzip_sha256": "257bf3d81852dcaf43d49ffbda5d67e0b3ea96a7a501b220cd9de86b2cfc8482"
+    },
+    {
+      "file": "build-receipt-01.json.gz",
+      "decoded_file": "build-receipt-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/build-receipt-01.json",
+      "original_bytes": 2022,
+      "original_sha256": "513779473f948f4c28d41ce47f58b8ea347db0ad63ddfe77b4f05261b406af05",
+      "decoded_sha256": "513779473f948f4c28d41ce47f58b8ea347db0ad63ddfe77b4f05261b406af05",
+      "gzip_bytes": 724,
+      "gzip_sha256": "4533636590deb93f2359fc13f4bacefe9766704a2c110517708cf0e417db3912"
+    },
+    {
+      "file": "apollo-build-accepted-02.json.gz",
+      "decoded_file": "apollo-build-accepted-02.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-build-accepted-02.json",
+      "original_bytes": 946,
+      "original_sha256": "ad33d7c468099bbd02baa20a661909952456047044b5533e6cc83e91e2b449af",
+      "decoded_sha256": "ad33d7c468099bbd02baa20a661909952456047044b5533e6cc83e91e2b449af",
+      "gzip_bytes": 520,
+      "gzip_sha256": "11d5b87f648776d9b0df68552b2eea25a690a7a3d3b61853580155fa11a34be1"
+    },
+    {
+      "file": "actual-desktop-entry-check-01.json.gz",
+      "decoded_file": "actual-desktop-entry-check-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/actual-desktop-entry-check-01.json",
+      "original_bytes": 3110,
+      "original_sha256": "f5fcb0b90e61263135933a9f90227c4ab95752afefafad561fcbb670d32a12b1",
+      "decoded_sha256": "f5fcb0b90e61263135933a9f90227c4ab95752afefafad561fcbb670d32a12b1",
+      "gzip_bytes": 1123,
+      "gzip_sha256": "661d04ccbbe136f2f6cea0a1058f170c529c03cc2c33ec3e010e6eeb72171e9b"
+    },
+    {
+      "file": "apollo-actual-entry-check-01.json.gz",
+      "decoded_file": "apollo-actual-entry-check-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-actual-entry-check-01.json",
+      "original_bytes": 1514,
+      "original_sha256": "058423c0811e68c3a90826fc0061b25a0f37e4a17d8fd24696449af114bd8ba0",
+      "decoded_sha256": "058423c0811e68c3a90826fc0061b25a0f37e4a17d8fd24696449af114bd8ba0",
+      "gzip_bytes": 533,
+      "gzip_sha256": "326f6107fb4406691cf7c2999a7ddc203da9621d41fc757efa68a979595247f3"
+    },
+    {
+      "file": "offline-checks-01.json.gz",
+      "decoded_file": "offline-checks-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/offline-checks-01.json",
+      "original_bytes": 1112,
+      "original_sha256": "0df97924c131afca8e16750422ff861d47d58e60a0c668eab27204ec75981f23",
+      "decoded_sha256": "0df97924c131afca8e16750422ff861d47d58e60a0c668eab27204ec75981f23",
+      "gzip_bytes": 485,
+      "gzip_sha256": "6dd09e18991ad40fcf4d668e846c3be26180292596dadce6e7b4c67b2109352d"
+    },
+    {
+      "file": "laptop-baseline-result.json.gz",
+      "decoded_file": "laptop-baseline-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-results-01/baseline/output-01/result.json",
+      "original_bytes": 295517,
+      "original_sha256": "d8221e8dd591020e1bd2115346685900f32bdd95657b86514d4af45cb5e127cb",
+      "decoded_sha256": "d8221e8dd591020e1bd2115346685900f32bdd95657b86514d4af45cb5e127cb",
+      "gzip_bytes": 29951,
+      "gzip_sha256": "0cfe12460ade91bbfbf3c321da2b5327d287de0e284ac0992a75ef34d8132225"
+    },
+    {
+      "file": "laptop-baseline-native-result.json.gz",
+      "decoded_file": "laptop-baseline-native-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-results-01/baseline/output-01/native-result.json",
+      "original_bytes": 267545,
+      "original_sha256": "d906b58538b1a453fe5d5a82703a88597f98baf354fb199277dbc65933bb0c1e",
+      "decoded_sha256": "d906b58538b1a453fe5d5a82703a88597f98baf354fb199277dbc65933bb0c1e",
+      "gzip_bytes": 16271,
+      "gzip_sha256": "235af50a65b3019f1ae1c16d34aaf6f08d42ec16f396bdac309185e4aa9fd49a"
+    },
+    {
+      "file": "laptop-baseline-observations.jsonl.gz",
+      "decoded_file": "laptop-baseline-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-results-01/baseline/output-01/observations.jsonl",
+      "original_bytes": 640431,
+      "original_sha256": "bf976be76a428f3465dbe5bd8df2d08720548bb26e8bd0206702ce378c046136",
+      "decoded_sha256": "bf976be76a428f3465dbe5bd8df2d08720548bb26e8bd0206702ce378c046136",
+      "gzip_bytes": 46325,
+      "gzip_sha256": "1d0f343d549f824ba5e0d5c03ace00d4c6cde729370e7065480862668d94f62d"
+    },
+    {
+      "file": "laptop-baseline-host-observations.jsonl.gz",
+      "decoded_file": "laptop-baseline-host-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-results-01/baseline/output-01/host-observations.jsonl",
+      "original_bytes": 134386,
+      "original_sha256": "ef47d36cbd174d15cc46e68cb9429425e060a0871d096fe7492561d3f2e03d67",
+      "decoded_sha256": "ef47d36cbd174d15cc46e68cb9429425e060a0871d096fe7492561d3f2e03d67",
+      "gzip_bytes": 3233,
+      "gzip_sha256": "4d0b76085d5175d77e780e707ad9f3d1dacb6f7431dd5518c76a1f5199537482"
+    },
+    {
+      "file": "laptop-pair-result.json.gz",
+      "decoded_file": "laptop-pair-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-results-01/pair-result.json",
+      "original_bytes": 2377,
+      "original_sha256": "b4be32c2a8d9414d5c82adc4fad7bdf8c0e27280c991edabf29832497ef8dbfc",
+      "decoded_sha256": "b4be32c2a8d9414d5c82adc4fad7bdf8c0e27280c991edabf29832497ef8dbfc",
+      "gzip_bytes": 1068,
+      "gzip_sha256": "3c2da76e1a2ec8e74cdf02da6be2cd055e1249d2e2d7464320b7a746bdf0fcde"
+    },
+    {
+      "file": "laptop-baseline-settling.jsonl.gz",
+      "decoded_file": "laptop-baseline-settling.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/laptop-results-01/baseline/settling.jsonl",
+      "original_bytes": 171981,
+      "original_sha256": "fb5783a34b023c14ae912591c6438fd9e0c60335610b6fbaab8c8cbda96cb1e1",
+      "decoded_sha256": "fb5783a34b023c14ae912591c6438fd9e0c60335610b6fbaab8c8cbda96cb1e1",
+      "gzip_bytes": 4259,
+      "gzip_sha256": "90624d41273e167b0fa371851ba90fdefd74624dc5cbecefc8c05c02206965dd"
+    },
+    {
+      "file": "apollo-baseline-GPU.csv.gz",
+      "decoded_file": "apollo-baseline-GPU.csv",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/baseline-GPU.csv",
+      "original_bytes": 7524,
+      "original_sha256": "bbe0b28fa05cbf287a47799687ba47cc0b44a8c784669ec11f4624e975ca54e2",
+      "decoded_sha256": "bbe0b28fa05cbf287a47799687ba47cc0b44a8c784669ec11f4624e975ca54e2",
+      "gzip_bytes": 1308,
+      "gzip_sha256": "9db79fd203789b6fbe551c97d080ed1e2f55ac2c9e396552b383b598f3a8123b"
+    },
+    {
+      "file": "apollo-baseline-native.json.gz",
+      "decoded_file": "apollo-baseline-native.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/baseline-native.json",
+      "original_bytes": 268319,
+      "original_sha256": "f0cc84556208eded0b97f4894d6dd8ee08fa4671127148ded32d53957ebfd519",
+      "decoded_sha256": "f0cc84556208eded0b97f4894d6dd8ee08fa4671127148ded32d53957ebfd519",
+      "gzip_bytes": 16062,
+      "gzip_sha256": "b52cf515b19ed7acad6536bc986a8320003266fd35ba46e06515f748aaf3b8bf"
+    },
+    {
+      "file": "apollo-baseline-observations.jsonl.gz",
+      "decoded_file": "apollo-baseline-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/baseline-observations.jsonl",
+      "original_bytes": 809901,
+      "original_sha256": "4fc9a10db68ab02ec542d331779b831598164b2866c229afcf9037ef68f982cb",
+      "decoded_sha256": "4fc9a10db68ab02ec542d331779b831598164b2866c229afcf9037ef68f982cb",
+      "gzip_bytes": 61945,
+      "gzip_sha256": "d9dfc668bc01d35f9c9bcd153808a999ea5eb537c7ca0dd7a8b9621031a43872"
+    },
+    {
+      "file": "apollo-candidate-GPU.csv.gz",
+      "decoded_file": "apollo-candidate-GPU.csv",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/candidate-GPU.csv",
+      "original_bytes": 7574,
+      "original_sha256": "49fad1b3e81d241996303b3c345b935559d99128fe3dfcf629d11b392273dad9",
+      "decoded_sha256": "49fad1b3e81d241996303b3c345b935559d99128fe3dfcf629d11b392273dad9",
+      "gzip_bytes": 1298,
+      "gzip_sha256": "f44f643ead5267d6b7909589eedbce197c41f677f4267b16dc6f3e3593eecb43"
+    },
+    {
+      "file": "apollo-candidate-native.json.gz",
+      "decoded_file": "apollo-candidate-native.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/candidate-native.json",
+      "original_bytes": 268358,
+      "original_sha256": "1513c04c9959e88bd1bc7374af85d19c69c2a4b1fd76c490892bdc4d3eb77e67",
+      "decoded_sha256": "1513c04c9959e88bd1bc7374af85d19c69c2a4b1fd76c490892bdc4d3eb77e67",
+      "gzip_bytes": 16076,
+      "gzip_sha256": "a45451f92a32104441fa38a52d820268c0492a4de7f570083cf0397016fb2d96"
+    },
+    {
+      "file": "apollo-candidate-observations.jsonl.gz",
+      "decoded_file": "apollo-candidate-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/candidate-observations.jsonl",
+      "original_bytes": 810451,
+      "original_sha256": "38ad3e3f88150f6839f618d08294f2c4f224dfcbaa475e7d85c5f0544ef50a63",
+      "decoded_sha256": "38ad3e3f88150f6839f618d08294f2c4f224dfcbaa475e7d85c5f0544ef50a63",
+      "gzip_bytes": 61865,
+      "gzip_sha256": "163306de44c95ecbc473ea8dc92b71231c56a122553924490186d073a390ab3d"
+    },
+    {
+      "file": "apollo-manifest.json.gz",
+      "decoded_file": "apollo-manifest.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/apollo-captures-01/manifest.json",
+      "original_bytes": 1765,
+      "original_sha256": "3c401498b8dd4b80c708299e9e142d9a5ea6fa60f0e35d8a576b3c90396ac5cd",
+      "decoded_sha256": "3c401498b8dd4b80c708299e9e142d9a5ea6fa60f0e35d8a576b3c90396ac5cd",
+      "gzip_bytes": 552,
+      "gzip_sha256": "4018f7767fd1587be17a286c23f544ffdff09b32b99fade1e207be2a564507ec"
+    },
+    {
+      "file": "numeric-both-hosts-completed-summary-01.json.gz",
+      "decoded_file": "numeric-both-hosts-completed-summary-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/gpu-check-01/both-hosts-completed-summary-01.json",
+      "original_bytes": 6609,
+      "original_sha256": "68b6a7916e50b43d3016213b07a619c4964abc15c60c1ae42566691edbe243fd",
+      "decoded_sha256": "68b6a7916e50b43d3016213b07a619c4964abc15c60c1ae42566691edbe243fd",
+      "gzip_bytes": 1704,
+      "gzip_sha256": "256a7aa745dfc3aecc5435e971b7a19100fc8ae29b98f29ea3ef827ca2aec749"
+    },
+    {
+      "file": "numeric-laptop-completed-summary-01.json.gz",
+      "decoded_file": "numeric-laptop-completed-summary-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/gpu-check-01/laptop-completed-summary-01.json",
+      "original_bytes": 2748,
+      "original_sha256": "66836784495cac69c64b501b0fef72fdf0f112c7d2734c7beb3cf49f6fa870c4",
+      "decoded_sha256": "66836784495cac69c64b501b0fef72fdf0f112c7d2734c7beb3cf49f6fa870c4",
+      "gzip_bytes": 975,
+      "gzip_sha256": "5b6dd27c3e43ed21ef53eb8c61ee73950d1bfa09641286547d1bdda211b49fd7"
+    },
+    {
+      "file": "numeric-apollo-completed-proof-01.json.gz",
+      "decoded_file": "numeric-apollo-completed-proof-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/gpu-check-01/apollo-completed-proof-01.json",
+      "original_bytes": 46700,
+      "original_sha256": "1dc6870d02b2b56a387820b5662a71e78af7d1cd9a15a1030dcd1403ecb5a680",
+      "decoded_sha256": "1dc6870d02b2b56a387820b5662a71e78af7d1cd9a15a1030dcd1403ecb5a680",
+      "gzip_bytes": 7206,
+      "gzip_sha256": "62be469807636d201eed0647dfc98e9186a3c77ae41d939ffd466aef2b505ad2"
+    },
+    {
+      "file": "numeric-all-tests-closed-01.json.gz",
+      "decoded_file": "numeric-all-tests-closed-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/gpu-check-01/all-tests-closed-01.json",
+      "original_bytes": 264,
+      "original_sha256": "ed3fa6733f6264cc978feac920b992e11fec57e9929e9fa9b97a7ed0371efdbc",
+      "decoded_sha256": "ed3fa6733f6264cc978feac920b992e11fec57e9929e9fa9b97a7ed0371efdbc",
+      "gzip_bytes": 179,
+      "gzip_sha256": "a61417f16f5f8e088851155e7a3d5089a5db463467a36f1fb16eed512fbe493e"
+    },
+    {
+      "file": "numeric-wireguard-preflight-01.json.gz",
+      "decoded_file": "numeric-wireguard-preflight-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/gpu-check-01/wireguard-preflight-01.json",
+      "original_bytes": 262,
+      "original_sha256": "bb724722bf6c292cf260184df38327f889628a073b9033b3881b978ba57a20c3",
+      "decoded_sha256": "bb724722bf6c292cf260184df38327f889628a073b9033b3881b978ba57a20c3",
+      "gzip_bytes": 205,
+      "gzip_sha256": "db65965ba0fcb2cf5e20b7565904da289fd4fc9dd880f0d3528b21ce60a8266a"
+    },
+    {
+      "file": "staging-only.patch.gz",
+      "decoded_file": "staging-only.patch",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/normal-staging-only.patch",
+      "original_bytes": 1983,
+      "original_sha256": "54080031bda414b05a8112f61e38d60ced1e6405fe7b194e0e4a5d667d3b35b2",
+      "decoded_sha256": "54080031bda414b05a8112f61e38d60ced1e6405fe7b194e0e4a5d667d3b35b2",
+      "gzip_bytes": 709,
+      "gzip_sha256": "eeb29ffe9185b4abb1c178916fcbaa9727641b94e85267fd840037cabdee2621"
+    },
+    {
+      "file": "runtime-build-receipt.json.gz",
+      "decoded_file": "runtime-build-receipt.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-flash-shared-staging-01/normal-runtime-build-receipt-01.json",
+      "original_bytes": 8869,
+      "original_sha256": "286b8e0fa0052d824a7dc76ececf134b9aa02494bc3eb842cc916fe363c8a83e",
+      "decoded_sha256": "286b8e0fa0052d824a7dc76ececf134b9aa02494bc3eb842cc916fe363c8a83e",
+      "gzip_bytes": 2100,
+      "gzip_sha256": "7ba6dc36ffc10a3fdb0775ecfc1a8a9f1fbbcbb59897c19e74ed9799d525ba54"
+    },
+    {
+      "file": "report-verification-01.json.gz",
+      "decoded_file": "report-verification-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-01/report-verification-01.json",
+      "original_bytes": 1674,
+      "original_sha256": "fc5519a6a99dfe793cb88d5bb8bf79a3cf39c5c62bae305298fb45f01b2f89aa",
+      "decoded_sha256": "fc5519a6a99dfe793cb88d5bb8bf79a3cf39c5c62bae305298fb45f01b2f89aa",
+      "gzip_bytes": 653,
+      "gzip_sha256": "e8e68facf3f7f21e22c06667a15f2d1b60ea379c6b23eb287d8806f09f075af6"
+    },
+    {
+      "file": "followup-readiness.json.gz",
+      "decoded_file": "followup-readiness.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/readiness.json",
+      "original_bytes": 1287,
+      "original_sha256": "9e90b59648b971162c739f9fa32fd32fba999e24c2143fabccc5ffd3668113ab",
+      "decoded_sha256": "9e90b59648b971162c739f9fa32fd32fba999e24c2143fabccc5ffd3668113ab",
+      "gzip_bytes": 764,
+      "gzip_sha256": "f56ca4e7cd33279ec68ed3fb9dc2020593e8ba052cce1b53de4d834aa2ba83df"
+    },
+    {
+      "file": "followup-both-dispatch.json.gz",
+      "decoded_file": "followup-both-dispatch.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/both-dispatch.json",
+      "original_bytes": 235,
+      "original_sha256": "f46261baf07d5a5310b047b300e379ebedeb173813979d5d1a0e3e61b685909f",
+      "decoded_sha256": "f46261baf07d5a5310b047b300e379ebedeb173813979d5d1a0e3e61b685909f",
+      "gzip_bytes": 181,
+      "gzip_sha256": "fdce526f5f89787a20444a9f1b118b947cae6a445d57177c4510e41f9327ea37"
+    },
+    {
+      "file": "followup-packet-pins.json.gz",
+      "decoded_file": "followup-packet-pins.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/packet-pins.json",
+      "original_bytes": 4851,
+      "original_sha256": "768690adc93928aea6f783730b36534305237e3380b3f1c22724006bec170d53",
+      "decoded_sha256": "768690adc93928aea6f783730b36534305237e3380b3f1c22724006bec170d53",
+      "gzip_bytes": 1657,
+      "gzip_sha256": "f41369c354dba4441c06d679c09c2ff54bc58843acf5ca5aa1e3a3c2d0772743"
+    },
+    {
+      "file": "followup-laptop-plan.json.gz",
+      "decoded_file": "followup-laptop-plan.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-plan.json",
+      "original_bytes": 89991,
+      "original_sha256": "8b9fd4a010d9898f7c5f7d0086f888d3911891be1ea873f245dd143b90f34920",
+      "decoded_sha256": "8b9fd4a010d9898f7c5f7d0086f888d3911891be1ea873f245dd143b90f34920",
+      "gzip_bytes": 28474,
+      "gzip_sha256": "7dc82ed5378d37349387bbd1c3a0f023aad4978249ef27d988594c8e0b1406f2"
+    },
+    {
+      "file": "followup-apollo-operations-binding-01.json.gz",
+      "decoded_file": "followup-apollo-operations-binding-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-operations-binding-01.json",
+      "original_bytes": 106303,
+      "original_sha256": "a88c8ae9a98bccf67fbe2a4d0b6d6087e509c5e77c3d4aea1b57998c58617f1d",
+      "decoded_sha256": "a88c8ae9a98bccf67fbe2a4d0b6d6087e509c5e77c3d4aea1b57998c58617f1d",
+      "gzip_bytes": 22830,
+      "gzip_sha256": "27c578d26daffedb8a5ed1bff1fee2abf4eb7dd9dd1c037421a3804ea1f1e4ce"
+    },
+    {
+      "file": "followup-one-arm-offline-checks-01.json.gz",
+      "decoded_file": "followup-one-arm-offline-checks-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/one-arm-offline-checks-01.json",
+      "original_bytes": 470,
+      "original_sha256": "9db29522df681429556cb2e8e7069857efebdd45a389ac19f245a4733e05208c",
+      "decoded_sha256": "9db29522df681429556cb2e8e7069857efebdd45a389ac19f245a4733e05208c",
+      "gzip_bytes": 168,
+      "gzip_sha256": "680069ee3f6e5701d213af7775147feab0f1cefe84c18917ecb96d466b3d44c4"
+    },
+    {
+      "file": "followup-actual-desktop-entry-check-01.json.gz",
+      "decoded_file": "followup-actual-desktop-entry-check-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/actual-desktop-entry-check-01.json",
+      "original_bytes": 3168,
+      "original_sha256": "3066c9667fccdba3f51b2ad812f6e23415ea87185436d36438e8c0dfb881ff36",
+      "decoded_sha256": "3066c9667fccdba3f51b2ad812f6e23415ea87185436d36438e8c0dfb881ff36",
+      "gzip_bytes": 1135,
+      "gzip_sha256": "c9b4fc2b60f98764a327e97627381fff04f18ecb761f2505cf7cd1bdd4881186"
+    },
+    {
+      "file": "followup-laptop-terminal-cleanup-01.json.gz",
+      "decoded_file": "followup-laptop-terminal-cleanup-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-terminal-cleanup-01.json",
+      "original_bytes": 1008,
+      "original_sha256": "30502bb25451bb6dabd99ca80a3e6b6531aa3a9027939f4b1b62e2e2079429f7",
+      "decoded_sha256": "30502bb25451bb6dabd99ca80a3e6b6531aa3a9027939f4b1b62e2e2079429f7",
+      "gzip_bytes": 510,
+      "gzip_sha256": "3e8f024db48a3c894fbef8971586c40127cc75d7455bc300d9d286eb0e6e923b"
+    },
+    {
+      "file": "followup-apollo-terminal-proof-01.json.gz",
+      "decoded_file": "followup-apollo-terminal-proof-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-terminal-proof-01.json",
+      "original_bytes": 348193,
+      "original_sha256": "1f2151c02f2d5f263fae13e5b265dd240c3d88eafb34136f22d1cd927e7b7a27",
+      "decoded_sha256": "1f2151c02f2d5f263fae13e5b265dd240c3d88eafb34136f22d1cd927e7b7a27",
+      "gzip_bytes": 25633,
+      "gzip_sha256": "252c63abd02c50a4f54087dd989596e269c2b3fe3e4c56837bf28b84d1e5c149"
+    },
+    {
+      "file": "followup-run_laptop_pair.py.gz",
+      "decoded_file": "followup-run_laptop_pair.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/run_laptop_pair.py",
+      "original_bytes": 743,
+      "original_sha256": "b8b6887ba2f29efe15c4220d80ee24d06f4f6e2576887b67bfff1e4dbde5f3e9",
+      "decoded_sha256": "b8b6887ba2f29efe15c4220d80ee24d06f4f6e2576887b67bfff1e4dbde5f3e9",
+      "gzip_bytes": 443,
+      "gzip_sha256": "252b47c30024e0bf508b4dfc93660b96205b8142553defec471ce9b7fde6f90a"
+    },
+    {
+      "file": "followup-run_apollo_pair.py.gz",
+      "decoded_file": "followup-run_apollo_pair.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/run_apollo_pair.py",
+      "original_bytes": 751,
+      "original_sha256": "86bf7457ea5a4dd7a71724b170104a18c111f0c0c7f68c6ce76dd526d60c9c11",
+      "decoded_sha256": "86bf7457ea5a4dd7a71724b170104a18c111f0c0c7f68c6ce76dd526d60c9c11",
+      "gzip_bytes": 443,
+      "gzip_sha256": "d59f76f23574d07b7a6a06e082a6ca3fe361d4c84523ffbadc503530dd14cb5d"
+    },
+    {
+      "file": "followup-independent-assessment-local-01.json.gz",
+      "decoded_file": "followup-independent-assessment-local-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/independent-assessment-local-01.json",
+      "original_bytes": 4577,
+      "original_sha256": "6a1e445bf59001f71fd2b7a03fc39a70434e2a24de9b4f9afdde5233966fbc46",
+      "decoded_sha256": "6a1e445bf59001f71fd2b7a03fc39a70434e2a24de9b4f9afdde5233966fbc46",
+      "gzip_bytes": 1667,
+      "gzip_sha256": "4fb8a25ae1b0b05a27132538fa591b0c93a6f4b4d547639a5dabf9f1eecf4e85"
+    },
+    {
+      "file": "followup-report-verification-02.json.gz",
+      "decoded_file": "followup-report-verification-02.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/report-verification-02.json",
+      "original_bytes": 5770,
+      "original_sha256": "1d193159a77a6acc6a6d661ed8e926b02b25d4c6948a4b041c32af41d52739b9",
+      "decoded_sha256": "1d193159a77a6acc6a6d661ed8e926b02b25d4c6948a4b041c32af41d52739b9",
+      "gzip_bytes": 1755,
+      "gzip_sha256": "2d9ce4680a059f88341dacaa31ffbefeea74ae99c5aa4974663d2cef34d48356"
+    },
+    {
+      "file": "followup-laptop-candidate-result.json.gz",
+      "decoded_file": "followup-laptop-candidate-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-results-01/candidate/output-01/result.json",
+      "original_bytes": 294408,
+      "original_sha256": "71989ca15e0f6256b35946767f8ff02b57d96b1994612984d02af2eeb7b84be0",
+      "decoded_sha256": "71989ca15e0f6256b35946767f8ff02b57d96b1994612984d02af2eeb7b84be0",
+      "gzip_bytes": 29801,
+      "gzip_sha256": "e2a303a752a6d2e21f27e0584f3dcaf4a7565516688bca31cab8238146f987f7"
+    },
+    {
+      "file": "followup-laptop-candidate-native-result.json.gz",
+      "decoded_file": "followup-laptop-candidate-native-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-results-01/candidate/output-01/native-result.json",
+      "original_bytes": 268047,
+      "original_sha256": "3db1addbab477c4c2d545ec9ad80e765f37c31bd1087aa343fcb48abd6a8df06",
+      "decoded_sha256": "3db1addbab477c4c2d545ec9ad80e765f37c31bd1087aa343fcb48abd6a8df06",
+      "gzip_bytes": 16260,
+      "gzip_sha256": "a46c89fda01bcc670e1735cfcdc084e349393b0e8adaa0434b6e1fc28f3a1f35"
+    },
+    {
+      "file": "followup-laptop-candidate-observations.jsonl.gz",
+      "decoded_file": "followup-laptop-candidate-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-results-01/candidate/output-01/observations.jsonl",
+      "original_bytes": 642332,
+      "original_sha256": "5aae9c05998fbc1df522064952fe762e6d3b8ac94b779943c5deba4106ce78e8",
+      "decoded_sha256": "5aae9c05998fbc1df522064952fe762e6d3b8ac94b779943c5deba4106ce78e8",
+      "gzip_bytes": 47039,
+      "gzip_sha256": "d8b0054a4a5c59a8abd12b3664a15eb66fe7dc27242c72cbc8100ebc7846bca4"
+    },
+    {
+      "file": "followup-laptop-candidate-host-observations.jsonl.gz",
+      "decoded_file": "followup-laptop-candidate-host-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-results-01/candidate/output-01/host-observations.jsonl",
+      "original_bytes": 130634,
+      "original_sha256": "9429b26a6b36523a5de1c23d84cf483e5d20ee08b66aecab3ea0d07f526fa6ca",
+      "decoded_sha256": "9429b26a6b36523a5de1c23d84cf483e5d20ee08b66aecab3ea0d07f526fa6ca",
+      "gzip_bytes": 3190,
+      "gzip_sha256": "5dd505fb2a58206a46bd5e8c50064b488ed951a02ef11da154cde4195ee7956e"
+    },
+    {
+      "file": "followup-laptop-candidate-settling.jsonl.gz",
+      "decoded_file": "followup-laptop-candidate-settling.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-results-01/candidate/settling.jsonl",
+      "original_bytes": 61564,
+      "original_sha256": "83907f56ca845c2aea49f0a08fe68c1ef0f936f091b65c8b9d467f2935124384",
+      "decoded_sha256": "83907f56ca845c2aea49f0a08fe68c1ef0f936f091b65c8b9d467f2935124384",
+      "gzip_bytes": 2099,
+      "gzip_sha256": "8c956f88b4dd118263ab538e04ffa7a204f120cb65e7bba885434811dc5e64cc"
+    },
+    {
+      "file": "followup-laptop-pair-result.json.gz",
+      "decoded_file": "followup-laptop-pair-result.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/laptop-results-01/pair-result.json",
+      "original_bytes": 3050,
+      "original_sha256": "c9efd0dd99d7d922f212076a0e8429f4e1276b1336c716afe65108b8bb084c12",
+      "decoded_sha256": "c9efd0dd99d7d922f212076a0e8429f4e1276b1336c716afe65108b8bb084c12",
+      "gzip_bytes": 1045,
+      "gzip_sha256": "0618b27f2a2920b4036b6419b9ab28ee17ae91ca33b20ad8c892268b2526df24"
+    },
+    {
+      "file": "followup-apollo-candidate-GPU.csv.gz",
+      "decoded_file": "followup-apollo-candidate-GPU.csv",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-captures-01/candidate-GPU.csv",
+      "original_bytes": 7572,
+      "original_sha256": "bd1d0ef2ad3ab10644a3737548756c2acfaebf3ae34b96e7e53504132144ebe3",
+      "decoded_sha256": "bd1d0ef2ad3ab10644a3737548756c2acfaebf3ae34b96e7e53504132144ebe3",
+      "gzip_bytes": 1335,
+      "gzip_sha256": "3bb1b70eb2c553966a3e805dab5c62a2b42cb3abb60f0a9f7406077ce58f5bc8"
+    },
+    {
+      "file": "followup-apollo-candidate-inside.json.gz",
+      "decoded_file": "followup-apollo-candidate-inside.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-captures-01/candidate-inside.json",
+      "original_bytes": 458,
+      "original_sha256": "fb36aba349b384a7251c3cb7193d654ec21fb7d0d896cdb16e8052b5f490ba62",
+      "decoded_sha256": "fb36aba349b384a7251c3cb7193d654ec21fb7d0d896cdb16e8052b5f490ba62",
+      "gzip_bytes": 323,
+      "gzip_sha256": "95e9068b4b7bd7e9af111b73a5faa5b210f3deedda8b318fbc8b2f7fb5952902"
+    },
+    {
+      "file": "followup-apollo-candidate-native.json.gz",
+      "decoded_file": "followup-apollo-candidate-native.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-captures-01/candidate-native.json",
+      "original_bytes": 268314,
+      "original_sha256": "8d1f9e771a3e3b605b4a442198c80b633a68a39a5d30a83d8e102ebc531426ba",
+      "decoded_sha256": "8d1f9e771a3e3b605b4a442198c80b633a68a39a5d30a83d8e102ebc531426ba",
+      "gzip_bytes": 16016,
+      "gzip_sha256": "f522c5d7d7f1383c92391fe2aebf527e3a8e8a667cdd74c42dd50eb999d76c51"
+    },
+    {
+      "file": "followup-apollo-candidate-observations.jsonl.gz",
+      "decoded_file": "followup-apollo-candidate-observations.jsonl",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-captures-01/candidate-observations.jsonl",
+      "original_bytes": 812016,
+      "original_sha256": "dc477ab5bbcc6fb29f38fc7381868e6b95d5512ebfb8448709789db9a63ae314",
+      "decoded_sha256": "dc477ab5bbcc6fb29f38fc7381868e6b95d5512ebfb8448709789db9a63ae314",
+      "gzip_bytes": 62168,
+      "gzip_sha256": "90722536ce9ff550033faa369923d03a46f46fffa086a5d4feee268e17852b89"
+    },
+    {
+      "file": "followup-apollo-candidate-routing.json.gz",
+      "decoded_file": "followup-apollo-candidate-routing.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-captures-01/candidate-routing.json",
+      "original_bytes": 130349,
+      "original_sha256": "490e95b7c42e7d0624a477d043ea145f21db232ac921cc69b44374f7165a24cb",
+      "decoded_sha256": "490e95b7c42e7d0624a477d043ea145f21db232ac921cc69b44374f7165a24cb",
+      "gzip_bytes": 10195,
+      "gzip_sha256": "029d45bbd2eb72b54d0c30d029c404ef6b54eec2cde91bf2f0227ed1ae1b808a"
+    },
+    {
+      "file": "followup-apollo-manifest.json.gz",
+      "decoded_file": "followup-apollo-manifest.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-shared-staging-player-followup-02/apollo-captures-01/manifest.json",
+      "original_bytes": 1472,
+      "original_sha256": "e43fea14cb94d9c859bd922710af029bf1a40245c2f6b063042fd3baa44d216e",
+      "decoded_sha256": "e43fea14cb94d9c859bd922710af029bf1a40245c2f6b063042fd3baa44d216e",
+      "gzip_bytes": 512,
+      "gzip_sha256": "d415a3467f872cee185f119d94b0a3317e2a5fe989a0d9a6bd911adc206de1bc"
+    }
+  ]
+}
