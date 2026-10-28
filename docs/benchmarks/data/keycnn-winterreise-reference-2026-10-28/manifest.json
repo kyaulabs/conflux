@@ -1,0 +1,335 @@
+{
+  "schema": 1,
+  "scope": "Exact Winterreise294160-parameter music candidate; generated CPU normalization/graph/batch reference. No musical accuracy, confidence, timing-boundary or release qualification.",
+  "files": [
+    {
+      "file": "local-plan-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/plan-01.json",
+      "bytes": 2691,
+      "sha256": "d7e4a63a554e2412f608732ce4571f7ef8c9b3068c99ce9b73c0386997f13d4b",
+      "compressed_bytes": 1120,
+      "compressed_sha256": "802f53616bfd44096c82d37dec869b3c3b022c9e83f31904d24e0af540a1ad33"
+    },
+    {
+      "file": "local-preparation-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/preparation-01.json",
+      "bytes": 397,
+      "sha256": "6d69b4bbfe07a03ae4e1d5586f7f26fd9a8c46ea9177a753d6a44667006b575a",
+      "compressed_bytes": 273,
+      "compressed_sha256": "64d28915d7d635f5d9d2a5cc0c85beead215cb965274fe8e2fffb3644fe074a8"
+    },
+    {
+      "file": "local-comparison-frozen-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/comparison-frozen-01.json",
+      "bytes": 1201,
+      "sha256": "7e5d20105536da0fe3d080896246c2405d5bc4da87ce5de065b41d951a8a6833",
+      "compressed_bytes": 620,
+      "compressed_sha256": "e15cd0f74962fad803788742128672c933e0b557e548d9b06aba1b32ff355e4e"
+    },
+    {
+      "file": "local-generate_inputs.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/generate_inputs.py",
+      "bytes": 2493,
+      "sha256": "176e8d005edd30d6c6770f4261414332abce1685ab37389c463e1333c898b5bc",
+      "compressed_bytes": 1143,
+      "compressed_sha256": "77bb414eccd240698edbf31bb57bdacd0a3289d9873c4602537ddc6b2d119a6f"
+    },
+    {
+      "file": "local-fixture-generation-01.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/fixture-generation-01.log",
+      "bytes": 103,
+      "sha256": "71ddc0f3b25d5fa83d8dbfbd422ef017beff77745a0b3e9447ce02450a93dac6",
+      "compressed_bytes": 105,
+      "compressed_sha256": "54d7da1202d91a8487ed7f335bc26e1e9436511056606c37b4b1368211fd42aa"
+    },
+    {
+      "file": "local-fixture-generation-receipt-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/fixture-generation-receipt-01.json",
+      "bytes": 248,
+      "sha256": "8f117830015fd3198d68ec647ad1e74ce4611b7cec252d0e79c6c88448cddcef",
+      "compressed_bytes": 193,
+      "compressed_sha256": "f519f4967882faad947fabc01901f930b211a729eb64dcbd3edbbcb2e262c302"
+    },
+    {
+      "file": "local-input-manifest-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/input-manifest-01.json",
+      "bytes": 17656,
+      "sha256": "70202e404131f09e7201c05d69ea70c5a43aaca8b9c01ad42eaabd99a39ca825",
+      "compressed_bytes": 5203,
+      "compressed_sha256": "22716c079eb598d6316b099266aa42ff96ed700c74758e31c80ec037ce1ef62e"
+    },
+    {
+      "file": "local-check_local.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/check_local.py",
+      "bytes": 3807,
+      "sha256": "3cb9c03dcb78023621b97a999ead78ab918a0baea06ae2a867a4676fc3e84f1e",
+      "compressed_bytes": 1640,
+      "compressed_sha256": "b6f9f504ee3dc4aad7a9538aeb9b2f51aa89657f4019d085ef4ae55c7410c675"
+    },
+    {
+      "file": "local-check_local_02.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/check_local_02.py",
+      "bytes": 3807,
+      "sha256": "924e04e62a0398d733db079f87a8410437b04421f2315da2fc8f1cb80b2f2113",
+      "compressed_bytes": 1641,
+      "compressed_sha256": "21162f8657c40f99f323fed5571437e63e9aa5013686fe4204c0eebd15ad3284"
+    },
+    {
+      "file": "local-reference.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/reference.py",
+      "bytes": 8178,
+      "sha256": "43471b79c7a6b501656c462495d0bfb42fc42bf76e7a98a74a02cb5f3fc761a8",
+      "compressed_bytes": 2976,
+      "compressed_sha256": "fb307fba3412cc075b2a17f474fe0443fb3f9a40da4bc0e3f06aa68a4bdf8866"
+    },
+    {
+      "file": "local-reference-v2.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/reference-v2.py",
+      "bytes": 8195,
+      "sha256": "4dd56a02e30d84db717eb6192eec3547f13e7156bbba667d4e6369fdc6a4f171",
+      "compressed_bytes": 2984,
+      "compressed_sha256": "080f28ee0cf2427ec54b8088c15036d4088c1a79f442cb3b74e08149811703f2"
+    },
+    {
+      "file": "local-prepare_apollo.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/prepare_apollo.py",
+      "bytes": 3147,
+      "sha256": "012e1ab3bfc134d318675352324f1209af7ec215a0d99efc70ce18445042b334",
+      "compressed_bytes": 1349,
+      "compressed_sha256": "506694c5f043c6510e74df1d67316a7081180b2df82ec4286863f07dc0e7bcd8"
+    },
+    {
+      "file": "local-run_apollo_reference.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/run_apollo_reference.py",
+      "bytes": 4857,
+      "sha256": "370c20422ab882ebda9cdb0e19868b7a13002ef6ed16117d010b917316812750",
+      "compressed_bytes": 2020,
+      "compressed_sha256": "c1b726e7b2170216fb34712abc227b37c0074cbc139c9b47cac87347175ce62f"
+    },
+    {
+      "file": "local-run_apollo_reference_02.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/run_apollo_reference_02.py",
+      "bytes": 4863,
+      "sha256": "f681149b98f0eef901f6f0bee98272b46479c1c68ea4ad41381debd853c3b95b",
+      "compressed_bytes": 2028,
+      "compressed_sha256": "9f24bc3af059b2213c309b452f6520e53ccf857894de849e32a5c72571ca0710"
+    },
+    {
+      "file": "local-apollo-preparation-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-preparation-01.json",
+      "bytes": 411,
+      "sha256": "c803449acf7cf1f1e1828db34556f9364906cd7a94bc3fb0bc12dc776d6fd3b8",
+      "compressed_bytes": 286,
+      "compressed_sha256": "a17590c12a1c1f1eeb80c21e6e09e5e36945e4787565e19903e98ebed4d07553"
+    },
+    {
+      "file": "local-apollo-preparation-02.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-preparation-02.json",
+      "bytes": 452,
+      "sha256": "8f8a19bd881672d36a9c1ea3af27cdcca3f0aec50846ec07ce89235c46cc5392",
+      "compressed_bytes": 310,
+      "compressed_sha256": "17c5ec0201126c65bf3e6601c767262c54b12e4fa83c5c0e04ea1bd51acbfca8"
+    },
+    {
+      "file": "local-initializer-metadata-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/initializer-metadata-01.json",
+      "bytes": 637,
+      "sha256": "4853362c27e7ca32c8946cb4a42df6879963ffe5b0e3f963697d1d8c1cda30e7",
+      "compressed_bytes": 282,
+      "compressed_sha256": "eb0dc2136aba752211854820d185a0b8399f67a73a3c0984658d3915011c5d87"
+    },
+    {
+      "file": "local-initializer-correction-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/initializer-correction-01.json",
+      "bytes": 532,
+      "sha256": "af096939cd2235c33f9f8522232893a245e236eab67cea437d4d306f26d23cef",
+      "compressed_bytes": 357,
+      "compressed_sha256": "1ecd361ad8cac62adf5c6055c951fa4f68d80b5e5522ce74160b6eaf09940813"
+    },
+    {
+      "file": "local-local-execution-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/local-execution-01.json",
+      "bytes": 207,
+      "sha256": "0baed41771136ce83d7ba2a2eaab885b3aabcbeec16b6ac1f979d8e9fda0f2f2",
+      "compressed_bytes": 168,
+      "compressed_sha256": "21a6097ac69c7a1f34f7e0206e264d642354803166205e906abc368e5822624e"
+    },
+    {
+      "file": "local-local-execution-02.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/local-execution-02.json",
+      "bytes": 207,
+      "sha256": "c542b5058a6db620ffc9f5331dc836ec5a526a3f4679205092b22530bc684f90",
+      "compressed_bytes": 169,
+      "compressed_sha256": "0ebe6fc3596f935e037feb047544008e857134e80c8ee8bb5fa8f609161510d2"
+    },
+    {
+      "file": "local-local-run-01.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/local-run-01.log",
+      "bytes": 554,
+      "sha256": "7e20323ae373fa96ebea40b9fac1f1e78962e819177a4dfde2a339b42a452acc",
+      "compressed_bytes": 364,
+      "compressed_sha256": "c8ae2bf73fa4daf09569dee990e93d1eaab7206f12f7149a16b895a0b7072cd1"
+    },
+    {
+      "file": "local-local-run-02.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/local-run-02.log",
+      "bytes": 555,
+      "sha256": "da364e54a0694094ac0c8392554f5a76376d45fecb7ea3e872843cc7a48bf1ad",
+      "compressed_bytes": 365,
+      "compressed_sha256": "0ba4a690f2288adb40c0e238f5246c7bb0e6fb0c220b50a17e0b1cc2df5a1595"
+    },
+    {
+      "file": "local-local-output-01--result.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/local-output-01/result.json",
+      "bytes": 22034,
+      "sha256": "0b8e0d017f67ab34dadbb71d8927d0f61edc610e94bd77a57193d4fee8f5962e",
+      "compressed_bytes": 1126,
+      "compressed_sha256": "48d0342dbf0ba66d27621944881ec31af9ce1b36b56422ee43f717528c627054"
+    },
+    {
+      "file": "local-local-output-02--result.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/local-output-02/result.json",
+      "bytes": 22035,
+      "sha256": "c28bbddce43787eae524f770786cdf9f90f6e5f1b5b3d56682a1020401ba226a",
+      "compressed_bytes": 1127,
+      "compressed_sha256": "03a1b7911c5520eac417be128e5038bf59604af002f91d6ac582d239e7d3abac"
+    },
+    {
+      "file": "local-results-evidence-verification-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/results-evidence-verification-01.json",
+      "bytes": 2713,
+      "sha256": "ffe717a532ec812c0895045923e2899aabe7775f7a6145955a76288aa6ad225d",
+      "compressed_bytes": 931,
+      "compressed_sha256": "f934f0dfde7e48ec2bd8da370ea6d4f4f7ef04c1b285d72696fc8a8d7ec2adee"
+    },
+    {
+      "file": "local-assessment-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/assessment-01.json",
+      "bytes": 2427,
+      "sha256": "dfc953f9a9423ab61408a9671e5dd426946537bc03781e74e184d8edd13dfbdd",
+      "compressed_bytes": 970,
+      "compressed_sha256": "0558dc96ba1a57e915125fd972557d0f77712a0ef734df6696a94028b83a834c"
+    },
+    {
+      "file": "fixtures.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/input/fixtures.json",
+      "bytes": 9075,
+      "sha256": "c3dedabf86d46a470d6f4fe17e36ab0e07fb5cbbc46d6efc2d29dd1ccd6848ea",
+      "compressed_bytes": 2157,
+      "compressed_sha256": "f8515f2d127497655c86a3ef7b3b25fb5840919ec2e58310f38f801561d0157a"
+    },
+    {
+      "file": "apollo-execution-result-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/execution-result-01.json",
+      "bytes": 2268,
+      "sha256": "613c9cc05c902c13222029f5af2fffbee28cf995f5ee4ebe6c3a5a55cf03700f",
+      "compressed_bytes": 1032,
+      "compressed_sha256": "3274c3d09f70e9d057350265cacc0b102f98c774beff45dd53098257ded66cf8"
+    },
+    {
+      "file": "apollo-execution-result-02.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/execution-result-02.json",
+      "bytes": 2270,
+      "sha256": "fe39f00e5bc8da5cf10c249d8a39cfdcd1e61063b0e925777c53bc87e8cefdc7",
+      "compressed_bytes": 1039,
+      "compressed_sha256": "9586871cd21b07e9d519cea04529f83c634e96c8b8b5cc39f037938a72040aa8"
+    },
+    {
+      "file": "apollo-input-manifest-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/input-manifest-01.json",
+      "bytes": 17656,
+      "sha256": "70202e404131f09e7201c05d69ea70c5a43aaca8b9c01ad42eaabd99a39ca825",
+      "compressed_bytes": 5203,
+      "compressed_sha256": "22716c079eb598d6316b099266aa42ff96ed700c74758e31c80ec037ce1ef62e"
+    },
+    {
+      "file": "apollo-output-01--result.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/output-01/result.json",
+      "bytes": 603,
+      "sha256": "87fd625732beb4b2189ee6634f6f8d42414124f9a924b66c0152d37d04c0b965",
+      "compressed_bytes": 391,
+      "compressed_sha256": "0152d25c1958e751bd6f6b95ed8b8839076761eda256666df847d83c9f3bae8e"
+    },
+    {
+      "file": "apollo-output-02--result.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/output-02/result.json",
+      "bytes": 29447,
+      "sha256": "bd5cfd9f8b00a08583ae0f4cad9b61890522e3b9e092c56bb4f8f18e63512ecf",
+      "compressed_bytes": 2134,
+      "compressed_sha256": "89f12fb4d98135a408ea9e757ae39e202fe14cc3e2e6654e28edfcb2f4c63f0d"
+    },
+    {
+      "file": "apollo-preparation-01.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/preparation-01.json",
+      "bytes": 429,
+      "sha256": "27f7d9c6beaaa8d42c3b4e1cd81585bdfb9a9857c9ab89e7dde2f31b053312ba",
+      "compressed_bytes": 291,
+      "compressed_sha256": "c0c57131c96e157d1f3d7425e3b902bd403fe5af708b3419b619f554de796a8a"
+    },
+    {
+      "file": "apollo-preparation-02.json.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/preparation-02.json",
+      "bytes": 472,
+      "sha256": "dd9e1809b6c29f4a10eddd7b20d89cb22458d5d0978cbf5dcf50fa5ae29660b0",
+      "compressed_bytes": 314,
+      "compressed_sha256": "b5aa3eed58d6811e6526dec77f781bcd53681fb61e62b073765a6a796a0cbe8a"
+    },
+    {
+      "file": "apollo-reference-v2.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/reference-v2.py",
+      "bytes": 8195,
+      "sha256": "4dd56a02e30d84db717eb6192eec3547f13e7156bbba667d4e6369fdc6a4f171",
+      "compressed_bytes": 2984,
+      "compressed_sha256": "080f28ee0cf2427ec54b8088c15036d4088c1a79f442cb3b74e08149811703f2"
+    },
+    {
+      "file": "apollo-reference.py.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/reference.py",
+      "bytes": 8178,
+      "sha256": "43471b79c7a6b501656c462495d0bfb42fc42bf76e7a98a74a02cb5f3fc761a8",
+      "compressed_bytes": 2976,
+      "compressed_sha256": "fb307fba3412cc075b2a17f474fe0443fb3f9a40da4bc0e3f06aa68a4bdf8866"
+    },
+    {
+      "file": "apollo-reference.sha256.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/reference.sha256",
+      "bytes": 65,
+      "sha256": "296fcd15320d665f5a5ffc33bf42058d7535b5018d47c4b36e61fc133a1d9744",
+      "compressed_bytes": 72,
+      "compressed_sha256": "0b576cb9730f5e7bd977bebce3f335e54d6ca76fe1ba919961f3c451db512c7e"
+    },
+    {
+      "file": "apollo-stderr-01.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/stderr-01.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compressed_bytes": 20,
+      "compressed_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "apollo-stderr-02.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/stderr-02.log",
+      "bytes": 1668,
+      "sha256": "aaa9c05e1b4ed2632454796e0e744df31e90ae7d5be4ee4fd0f4c3d3101ecc4c",
+      "compressed_bytes": 424,
+      "compressed_sha256": "ba36d529a8641f5b8c6e80fe2674e012231f3bd215b5edfa775e5c94a20ee69b"
+    },
+    {
+      "file": "apollo-stdout-01.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/stdout-01.log",
+      "bytes": 567,
+      "sha256": "7962c8af1c6f2a979e9beb02a963975fe3806990224f9f4fade98d3505c032ab",
+      "compressed_bytes": 381,
+      "compressed_sha256": "3eeab9aa6e875303330b39b64aca01e27a413d9ff13e764e0daffbf8bd657292"
+    },
+    {
+      "file": "apollo-stdout-02.log.gz",
+      "source": "build/m2-winterreise-tf115-reference-01/apollo-collected-01/stdout-02.log",
+      "bytes": 1188,
+      "sha256": "4c36ceddf02effed46fc5ebbe18fe92e6a0cf5a5929219eed15c04e60eb083c7",
+      "compressed_bytes": 693,
+      "compressed_sha256": "2c01541d8b59c2c593ccfe8766089f7350429b8222166104f8e30d0f2dbd4037"
+    }
+  ],
+  "omitted": "Audio, model weights, tensor/feature/posterior arrays, executables, installed runtimes and driver caches. Their identity metadata remains where needed."
+}

@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "scope": "Complete120s default16ms warm-admission diagnostic and undispatched50ms arm; no sustained or matched-pair qualification.",
+  "files": [
+    {
+      "file": "pair-pair-readiness-received-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/pair-readiness-received-01.json",
+      "bytes": 1213,
+      "sha256": "2f5eaafea9db8f1e068a2bc44dcc265af15c82ed773b34b18f24a68b8a53d975",
+      "compressed_bytes": 747,
+      "compressed_sha256": "1c937fda7651af31d3c9d1e9bb2190f2dff11a30d8baaee9b115632612c05dc2"
+    },
+    {
+      "file": "pair-policy-edit-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/policy-edit-01.json",
+      "bytes": 1198,
+      "sha256": "f4a12a62433b29a9ed023d23cebae34380cf1c692d40e0f4113a9e42a7c7e7ec",
+      "compressed_bytes": 653,
+      "compressed_sha256": "77776dc1da4a72da6ae4c8d98c83582625f1406dfaee2aa54f1312ea420a7718"
+    },
+    {
+      "file": "pair-one-factor-review-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/one-factor-review-01.json",
+      "bytes": 748,
+      "sha256": "d352a8c344950d06ea28d9397b5bd2d65c3694f8801c8d9d383e292ae5ab10b2",
+      "compressed_bytes": 455,
+      "compressed_sha256": "c3384032aedbadd9a5e3f316e1e21eb89368632b304522c4a5f23752ee890ad4"
+    },
+    {
+      "file": "pair-freeze-verification-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/freeze-verification-01.json",
+      "bytes": 678,
+      "sha256": "01153dbccac24b01550b26c461254a7473130c60f4bad0e09e04709adcdc2226",
+      "compressed_bytes": 438,
+      "compressed_sha256": "552a882a2486b102d73288fd510c4079c2550dd746c1a2d6654a777511aff2d9"
+    },
+    {
+      "file": "pair-actual-desktop-entry-check-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/actual-desktop-entry-check-01.json",
+      "bytes": 7031,
+      "sha256": "a945acbb3cd6b56af0f162612ac9b9c48440e76cd71ff3952066318b553743b7",
+      "compressed_bytes": 1186,
+      "compressed_sha256": "34d7fddb80df04b2bb36c7ffd3495051312509460260b33b281b90f399d40e1b"
+    },
+    {
+      "file": "baseline-readiness.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/readiness.json",
+      "bytes": 1524,
+      "sha256": "aabe9cf8159c83b4427e4422c9f39ec3b746e180afe7ff5535578b574ba81567",
+      "compressed_bytes": 898,
+      "compressed_sha256": "db2acaf5c99dc8b3ad53c3d8117484403e6fca3e2fd3051d1dba4a30139034b3"
+    },
+    {
+      "file": "baseline-plan.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/plan.json",
+      "bytes": 81912,
+      "sha256": "8f2d27636a7b3b31554ca846731569fdbeb6776377869da53b04c72b31e516c2",
+      "compressed_bytes": 18088,
+      "compressed_sha256": "92d8e30786866bb905d3b775c93bac1545b15dd20c50c1b83af0e40ffcffc805"
+    },
+    {
+      "file": "baseline-root-launch-plan-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/root-launch-plan-01.json",
+      "bytes": 2131,
+      "sha256": "8d65f1fa732df9e676b654cc60a3558bae93f3c79c4790b1447cda0c2d3e3ea4",
+      "compressed_bytes": 850,
+      "compressed_sha256": "6d8fd09d0cc40d92ab31e528e52deec1fb9f9da448c7cc1586eded6fabb8c322"
+    },
+    {
+      "file": "baseline-root-unit-dispatch-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/root-unit-dispatch-01.json",
+      "bytes": 3136,
+      "sha256": "dc58654601a1d0e4900cd16a28d324c43c0c74f031255af1120aa6f2efac9728",
+      "compressed_bytes": 1049,
+      "compressed_sha256": "81aee06a841aca8347a66bfedecf198b30b5650d035333e372ccacbfff7ff189"
+    },
+    {
+      "file": "baseline-dispatch-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/dispatch-01.json",
+      "bytes": 23897,
+      "sha256": "001956177b1b957a0b0f6e5d88eef556626ff34ccc4cb1b6b7d911201f58a958",
+      "compressed_bytes": 2675,
+      "compressed_sha256": "3196b53586ee2af152e3c23b5787957470db361ec3a3d9ef639f9e7a5a5de4a1"
+    },
+    {
+      "file": "baseline-admission-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/admission-01.json",
+      "bytes": 59927,
+      "sha256": "2576fe5478b2879e2a8baafbfe92b3e6d01c97868ba490da35eaa06f9b31635e",
+      "compressed_bytes": 4133,
+      "compressed_sha256": "a57e07a1729f372e7b3f6fbfbad9676af6e9e132b3eeaf20a224a83a7815ddf1"
+    },
+    {
+      "file": "baseline-diagnostic-assessment.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/diagnostic-assessment.json",
+      "bytes": 151429,
+      "sha256": "162e456de3bfd6b635011f8fb4f6c90831715178bc20fe7d3f529f9247056321",
+      "compressed_bytes": 7298,
+      "compressed_sha256": "dd2a143b9885a011c04082c1c958a2e8a761d4d770e7802ec31cf7eed8d333ba"
+    },
+    {
+      "file": "baseline-root-finished-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/root-finished-01.json",
+      "bytes": 2726,
+      "sha256": "feae8340f44bcef36440a680f70444daba99f87ad50605f0f0d3f501e07289b5",
+      "compressed_bytes": 1137,
+      "compressed_sha256": "b7d35dca5bf41088c4f45c2b159dad6425b53257919aa4bba024a3479e332f2e"
+    },
+    {
+      "file": "baseline-run_host_player.py.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/run_host_player.py",
+      "bytes": 78442,
+      "sha256": "21c485c35c7ce458547656a51251527718fbe1bf4441df35de308e351701035f",
+      "compressed_bytes": 21961,
+      "compressed_sha256": "e66bd31644e726ad6e2bae4202e05ebe42d69a78a78134facbd97efb51ebb064"
+    },
+    {
+      "file": "baseline-run_player_owned.py.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/run_player_owned.py",
+      "bytes": 23580,
+      "sha256": "8553bf2a1b82a0612d7930bea3cfd73cf51bfc6b848bdeac1f309392f9d8f50a",
+      "compressed_bytes": 6927,
+      "compressed_sha256": "a1c90af4f6ab8e6dc3cc84300f527fd62549659b85a66db0fb44fdc834c1114f"
+    },
+    {
+      "file": "baseline-close_case.py.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/close_case.py",
+      "bytes": 7436,
+      "sha256": "6b5766c2ec609d2617af0d7b92d61ba300c4a497d5183a1afdd38e0724d8159a",
+      "compressed_bytes": 2579,
+      "compressed_sha256": "792f75c8a0682833b51a52ce562d3515d6465a7b12ad5b741618f257c0c9ff44"
+    },
+    {
+      "file": "baseline-output-result.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/output-01/result.json",
+      "bytes": 537730,
+      "sha256": "2050e2c0bf3142bba3ed88a714681be95f6445b8c0f3db4e32836dc0e21c855e",
+      "compressed_bytes": 51646,
+      "compressed_sha256": "2d68864b4550b1b4d3796053b20f264b21e276027ea43eefa67026aab935002e"
+    },
+    {
+      "file": "baseline-output-native-result.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/output-01/native-result.json",
+      "bytes": 268519,
+      "sha256": "bdf4af1372e5f71ef8c8959b25b9e4f20107525f1f8cb59fca241662ebcc47fe",
+      "compressed_bytes": 16138,
+      "compressed_sha256": "eab6db8d8ff97b3b9ec052dcbde92e65cf96a98e5642d3c71d44c8c6514144fa"
+    },
+    {
+      "file": "baseline-output-observations.jsonl.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/output-01/observations.jsonl",
+      "bytes": 807932,
+      "sha256": "274bd3bcbf2f5921ae4bb123ee0564c22b14d1c0f85e090ebdbed7ce372a8cf2",
+      "compressed_bytes": 60998,
+      "compressed_sha256": "dac51d6357f3dc6ceddbcf8007c4dd3f30cfb55d755a00257f7b0c3a36b65416"
+    },
+    {
+      "file": "baseline-output-progress.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/output-01/progress.json",
+      "bytes": 581,
+      "sha256": "98ea6ab466c28049cad2e0aeeffdffbe3777786a17c76d135758544ab750d42f",
+      "compressed_bytes": 345,
+      "compressed_sha256": "bb58027a91881de4c667bac131aca68e09bf77bbb1cd646fdd80c12c574411eb"
+    },
+    {
+      "file": "baseline-output-owned-pipewire-cleanup.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/baseline/output-01/owned-pipewire-cleanup.json",
+      "bytes": 30,
+      "sha256": "677bbdeb490193f575dc7fa38d7dbcc20b5905504439ce08e0a9502f0f1217fa",
+      "compressed_bytes": 50,
+      "compressed_sha256": "354f6c692c1ea2f7e9448de61559f605b80eb2d8c847a1acbd095b559957eb2a"
+    },
+    {
+      "file": "candidate-plan.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/candidate/plan.json",
+      "bytes": 81929,
+      "sha256": "fc241c312015b331e1c0e2842572fffb4948d6bd59ebad74e6e900bdb3fd39cc",
+      "compressed_bytes": 18082,
+      "compressed_sha256": "54e9ea6857312872d252fdf421b2e6c23dffef03cee1ac5374a6b68ede04a99e"
+    },
+    {
+      "file": "candidate-root-not-dispatched-01.json.gz",
+      "source": "build/m2-warm-redraw-comparison-01/cases/candidate/root-not-dispatched-01.json",
+      "bytes": 816,
+      "sha256": "41dcc9af67a1641f266aa9cf3f43e7d84c785eb3145629e2fc7411bbb3741999",
+      "compressed_bytes": 468,
+      "compressed_sha256": "bdc7bbe0996ec4cd5e88579374d7941111295576d5f763d3840eebec42b0a518"
+    },
+    {
+      "file": "thermal-projection-01.json.gz",
+      "source": "build/m2-reference-reports-01/thermal-projection-01.json",
+      "bytes": 164781,
+      "sha256": "d529b73ca8ba3c218912c66eb7b344f0b38bb2add752982510e0649aa58f7b71",
+      "compressed_bytes": 4203,
+      "compressed_sha256": "0d7ee72bdcf40848e5ea6de74f8612ca76419bf81b234a1574320ad0b5b22211"
+    },
+    {
+      "file": "report-facts-01.json.gz",
+      "source": "build/m2-reference-reports-01/report-facts-01.json",
+      "bytes": 250,
+      "sha256": "d5956fd63b6ca02a39932b01b041e0c94d3f9cd349627754509c460c3b38f50b",
+      "compressed_bytes": 184,
+      "compressed_sha256": "50712c92aa5cf56faf198a5ee0513893dec09c64ebab111f5b4b435c37799117"
+    }
+  ],
+  "omitted": "Audio, model weights, tensor/feature/posterior arrays, executables, installed runtimes and driver caches. Their identity metadata remains where needed."
+}
