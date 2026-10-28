@@ -151,10 +151,12 @@ QJsonObject controlSnapshot(const State& s)
 // host qualification and requires the same isolated daemon ownership checks.
 int livePlayback(QGuiApplication& app, int argc, char** argv)
 {
-    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-controls-normal-redraw|--private-live-stems-controls|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
+    if (argc != 13) { std::cerr << "Usage: --live-stems|--live-stems-controls|--live-stems-controls-normal-redraw|--private-live-stems-controls|--private-live-stems-controls-normal-redraw|--live-stems-hour|--live-stems-background|--live-stems-hour-background|--live-stems-hidden|--live-stems-hidden-one-thread SOURCE PEER OUTPUT SECONDS STOP PYTHON EXPORTER WORKER SERVICE RUNTIME MODEL\n"; return 2; }
     const auto mode = QString::fromLocal8Bit(argv[1]);
-    const bool privateControls = mode == "--private-live-stems-controls";
-    const bool normalRedraw = mode == "--live-stems-controls-normal-redraw";
+    const bool privateControls = mode == "--private-live-stems-controls" ||
+        mode == "--private-live-stems-controls-normal-redraw";
+    const bool normalRedraw = mode == "--live-stems-controls-normal-redraw" ||
+        mode == "--private-live-stems-controls-normal-redraw";
     const bool activeControls = privateControls || normalRedraw || mode == "--live-stems-controls";
     const bool hour = mode == "--live-stems-hour" || mode == "--live-stems-hour-background";
     const bool oneThread = mode == "--live-stems-hidden-one-thread";
@@ -286,7 +288,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
         result["scope"] = "Explicit 50ms forced-redraw diagnostic; default16ms stress load unchanged; no sustained or normal-stress qualification";
     }
     if (privateControls) {
-        result["mode"] = "private-live-stems-controls";
+        result["mode"] = normalRedraw ? "private-live-stems-controls-normal-redraw" : "private-live-stems-controls";
         result["scope"] = "Two-minute actual-model/UI controls diagnostic on private virtual audio; no host, physical audio, sustained or laptop qualification";
     }
     QJsonArray manualControls;
@@ -834,7 +836,9 @@ int main(int argc, char** argv)
     QGuiApplication app(argc, argv);
     if (argc > 1 && (QString::fromLocal8Bit(argv[1]) == "--live-stems" || QString::fromLocal8Bit(argv[1]) == "--live-stems-controls" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-controls-normal-redraw" ||
-        QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
+        QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls" ||
+        QString::fromLocal8Bit(argv[1]) == "--private-live-stems-controls-normal-redraw" ||
+        QString::fromLocal8Bit(argv[1]) == "--live-stems-hour" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-background" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hour-background" ||
         QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden" || QString::fromLocal8Bit(argv[1]) == "--live-stems-hidden-one-thread"))
         return livePlayback(app, argc, argv);
