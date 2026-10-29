@@ -1822,12 +1822,17 @@ private:
 };
 void continuousPeer(const State& before, const State& after)
 {
+    // Paused setup may drop GUI reports without losing audio. Require no new
+    // dropped snapshots inside this playing interval; retain cumulative counts.
     if (after.outputFrame <= before.outputFrame || after.sourceFrame[1] < before.sourceFrame[1] ||
         after.sourceFrame[1] - before.sourceFrame[1] != after.outputFrame - before.outputFrame ||
         after.sourceGeneration[1] != before.sourceGeneration[1] || !after.playing[1] ||
         after.buffering[1] || after.sourceReadError[1] || after.sourceReadErrorObserved[1] ||
-        after.starvedFrames[1] != 0 || after.invalidBuffers || after.rejected || after.snapshotDrops)
-        throw std::runtime_error("Prepared bass peer/output atomic clocks or health changed");
+        after.starvedFrames[1] != 0 || after.invalidBuffers || after.rejected ||
+        after.snapshotDrops != before.snapshotDrops)
+        throw std::runtime_error("Prepared bass peer/output atomic clocks or health changed: " +
+            QJsonDocument(QJsonObject{{"before", snapshot(before)}, {"after", snapshot(after)}})
+                .toJson(QJsonDocument::Compact).toStdString());
 }
 std::array<float, 2> ramp(bool rising, std::uint32_t step)
 {
@@ -2438,6 +2443,8 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
         insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome), "Only retired owned resident cache/library is removed");
         results.append(report);
     } catch (const std::exception& error) {
+        report["failure_context"] = QJsonObject{{"audio", snapshot(controller.audioState())},
+            {"recording", QJsonObject::fromVariantMap(controller.recording())}, {"actions", evidence.actions}};
         if (locked) gate.unlock();
         controller.shutdown(); evidence.inspectResources = true; evidence.lastOutput = UINT64_MAX;
         try { evidence.write(false, QString::fromUtf8(error.what())); } catch (...) {}
