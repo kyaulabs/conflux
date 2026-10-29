@@ -42,11 +42,15 @@ public:
     PreparedTempoSource& operator=(const PreparedTempoSource&) = delete;
 
     // Fixed stores only: no IO, allocation, lock, notification or DSP work.
-    // Accept [0,frames], finite[-6,6]. A valid request gets a never-reused new
+    // Accept linear [0,frames], finite[-6,6]. A valid request gets a never-reused new
     // generation and invalidates every previous synchronous View borrow BEFORE
-    // publication. Frame==frames produces a consumable empty EOF marker.
+    // publication. Linear frame==frames produces a consumable empty EOF marker.
     // A same-frame request is still an explicit new generation/re-prime.
-    bool request(std::uint64_t frame, double percent, bool keyLock) noexcept;
+    // Optional [loopIn,loopOut) repeats immutable input through the same DSP
+    // state. Both zero means linear playback; otherwise frame must be within
+    // the bounded 256-frame to 64-second range. Natural wraps never re-prime.
+    bool request(std::uint64_t frame, double percent, bool keyLock,
+                 std::uint64_t loopIn = 0, std::uint64_t loopOut = 0) noexcept;
     // Same generation/backend, including active SRC/R3 crossing zero. Fresh
     // unity->nonzero requires request(). Key-lock changes also use request().
     // Latest requests may coalesce; old queued data keeps its old metadata.
@@ -63,11 +67,14 @@ public:
     // true only after EOF consumption, after every queued actual tail frame.
     bool consume(std::size_t frames) noexcept;
     [[nodiscard]] double nominalPosition() const noexcept;
+    // Consumed nominal wraps in the current generation, never producer lead.
+    [[nodiscard]] std::uint64_t loopWraps() const noexcept;
     [[nodiscard]] std::uint64_t generation() const noexcept;
     // percent is requested; appliedPercent comes from consumed packet input
     // revision metadata, NOT an exact audible-effect or R3 source mapping.
     // pending includes initial fill/deferred configuration. Position advances
-    // only with consumed output and clamps at source EOF while tail drains.
+    // only with consumed output; loops wrap inside their range, while linear
+    // playback clamps at source EOF as its actual tail drains.
     AudioTempoState status() noexcept;
     // Atomic current-generation health; safe for external/control sampling.
     // Optional setup failure must not be confused with legacy reader health.

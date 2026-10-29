@@ -3908,6 +3908,60 @@ private slots:
         }
     }
 
+    void preparedLoopAndTempoControlsWorkTogether()
+    {
+        ui_->endpoint.loadState(0, 3.0);
+        ui_->endpoint.loadState(1, 3.0);
+        ui_->endpoint.setReady(true);
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto prefix = QString("deck%1").arg(deck);
+            auto* in = ui_->item((prefix + "LoopIn").toUtf8().constData());
+            auto* out = ui_->item((prefix + "LoopOut").toUtf8().constData());
+            auto* toggle = ui_->item((prefix + "LoopToggle").toUtf8().constData());
+            auto* lock = ui_->item((prefix + "MasterTempo").toUtf8().constData());
+            auto* rail = ui_->item((prefix + "Tempo").toUtf8().constData());
+            auto* status = ui_->item((prefix + "LoopStatus").toUtf8().constData());
+            QVERIFY(in && out && toggle && lock && rail && status);
+            auto tempo = UiEndpoint::tempoState(true);
+            tempo["active"] = true; tempo["percent"] = 6.; tempo["keyLock"] = true;
+            ui_->endpoint.snapshotTempo(deck, tempo);
+            ui_->endpoint.snapshotDeck(deck, {{"playing", true}});
+            QTRY_VERIFY(in->isEnabled());
+            auto count = ui_->endpoint.calls.size();
+            const auto beforeIn = ui_->endpoint.decks();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(in));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "loopIn", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeIn);
+
+            auto loop = UiEndpoint::loopState(true);
+            loop["inSet"] = true; loop["ready"] = true; loop["inSeconds"] = 1.;
+            loop["minimumOutSeconds"] = 1. + 256. / 48000.; loop["limitSeconds"] = 8.;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            QTRY_VERIFY(out->isEnabled() && rail->isEnabled() && lock->isEnabled());
+            QVERIFY(!status->property("text").toString().contains("RESET TEMPO"));
+            count = ui_->endpoint.calls.size();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(out));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "loopOut", deck);
+            loop["outSet"] = true; loop["active"] = true; loop["outSeconds"] = 3.;
+            ui_->endpoint.snapshotLoop(deck, loop);
+            QTRY_VERIFY(toggle->isEnabled() && rail->isEnabled() && lock->isEnabled());
+            QVERIFY(status->property("text").toString().startsWith("LOOP "));
+            const auto beforeModeChange = ui_->endpoint.decks();
+            count = ui_->endpoint.calls.size();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(lock));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "masterTempo", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeModeChange);
+            count = ui_->endpoint.calls.size();
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(toggle));
+            QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+            verifyCueCall(count, "loopToggle", deck);
+            QCOMPARE(ui_->endpoint.decks(), beforeModeChange);
+        }
+    }
+
     void tempoAvailabilityAndFailureReset()
     {
         struct Scenario {
@@ -3925,9 +3979,9 @@ private slots:
             Scenario{"linear-read-error", {{"sourceReadError", true}}, {}, {}, true, false, false},
             Scenario{"worker-error-reset", {{"sourceReadError", true}}, {{"active", true}, {"errorCode", EIO}}, {}, true, false, true},
             Scenario{"early-worker-error", {}, {{"active", true}, {"errorCode", EIO}}, {}, true, false, true},
-            Scenario{"loop-in-pending", {}, {}, {{"inSet", true}}, true, false, false},
-            Scenario{"loop-out-stored", {}, {}, {{"outSet", true}}, true, false, false},
-            Scenario{"loop-exit-remainder", {}, {}, {{"cached", true}}, true, false, false},
+            Scenario{"loop-in-pending", {}, {}, {{"inSet", true}}, true, true, false},
+            Scenario{"loop-out-stored", {}, {}, {{"outSet", true}}, true, true, false},
+            Scenario{"loop-exit-remainder", {}, {}, {{"cached", true}}, true, true, false},
             Scenario{"pending", {}, {{"active", true}, {"pending", true}}, {}, true, true, true},
             Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true}
         };
@@ -3950,7 +4004,7 @@ private slots:
                 QTRY_COMPARE(rail->isEnabled(), scenario.controls);
                 QCOMPARE(lock->isEnabled(), scenario.controls);
                 QCOMPARE(reset->isEnabled(), scenario.reset);
-                if (tempo["active"].toBool()) QVERIFY2(!in->isEnabled(), scenario.label);
+                if (scenario.controls) QVERIFY2(in->isEnabled(), scenario.label);
                 const auto before = ui_->endpoint.calls.size();
                 if (!scenario.controls) {
                     QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(rail));

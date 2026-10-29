@@ -26,6 +26,10 @@ struct AudioReadResult {
     // renderer applies its existing filtered transport envelope at this frame.
     static constexpr std::uint32_t noTransition = UINT32_MAX;
     std::uint32_t transitionFrame = noTransition;
+    // Processed prepared loops attest each nominal wrap in this prefix. The
+    // renderer accepts these only inside the active bounded loop and checks
+    // the resulting forward distance against the supported tempo range.
+    std::uint32_t loopWraps = 0;
 };
 
 enum class AudioResidentHoldCommand { Arm, Enter, Exit, Cancel };
@@ -70,7 +74,7 @@ struct AudioScratchState {
 };
 
 struct AudioLoopState {
-    static constexpr std::uint64_t minimumFrames = 256;
+    static constexpr std::uint64_t minimumFrames = 256, maximumFrames = 64U * 48000U;
     std::uint64_t inFrame = 0, outFrame = 0, limitFrame = 0;
     std::uint64_t residentBytes = 0;
     int errorCode = 0;

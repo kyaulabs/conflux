@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 
+#include "audio/AudioSource.hpp"
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -17,7 +19,7 @@ namespace conflux::audio {
 // cancel. Never retain a View across callbacks that can change the request.
 class PreparedLoopCache {
 public:
-    static constexpr std::uint64_t maxFrames = 64U * 48000U;
+    static constexpr std::uint64_t maxFrames = AudioLoopState::maximumFrames;
     static constexpr std::uint64_t maxBytes = 4U * maxFrames * 2U * sizeof(float);
 
     struct View {

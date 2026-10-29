@@ -428,16 +428,18 @@ void preparedControlsAndSharedRenderSideGains()
                     source.loopControl(source.context, AudioLoopCommand::In, 17),
                 "Prepared source lost optional tempo/loop capabilities");
         const auto idleGeneration = status().generation;
-        require(!control(AudioTempoCommand::Set, -6, false, 17) &&
-                    !control(AudioTempoCommand::Set, 0, true, 17) && status().generation == idleGeneration &&
+        require(control(AudioTempoCommand::Set, 0, true, 17) && status().generation == idleGeneration &&
+                    status().keyLock && source.loopState(source.context).inSet &&
+                    control(AudioTempoCommand::Set, -6, false, 17) && status().active &&
                     source.loopState(source.context).inSet,
-                "Pending loop IN allowed a tempo/zero-key-lock action or lost its bounds");
+                "Pending loop IN lost its bounds or rejected prepared tempo/zero-key-lock selection");
         require(source.loopControl(source.context, AudioLoopCommand::Clear, 17) &&
                     control(AudioTempoCommand::Set, -6, false, 17), "Cannot enter processed mode after clearing IN");
         const auto initial = status().generation;
         require(control(AudioTempoCommand::Set, 0, false, 17) && status().active && status().generation == initial &&
-                    !source.loopControl(source.context, AudioLoopCommand::In, 17),
-                "Active DSP crossing zero reset its generation or incorrectly enabled looping");
+                    source.loopControl(source.context, AudioLoopCommand::In, 17) &&
+                    source.loopControl(source.context, AudioLoopCommand::Clear, 17),
+                "Active DSP crossing zero reset its generation or rejected/retained a new loop IN");
         require(control(AudioTempoCommand::Set, 0, true, 17) && status().generation > initial && status().keyLock,
                 "Key-lock rebuild at zero did not establish a fresh generation");
         const auto beforeSession = status().generation;
