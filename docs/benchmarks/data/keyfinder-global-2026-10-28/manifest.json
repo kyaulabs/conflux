@@ -1,0 +1,1837 @@
+{
+  "schema": 1,
+  "members": [
+    {
+      "file": "verification-apollo-build.stderr.log.gz",
+      "decoded_file": "verification-apollo-build.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-build.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-apollo-build.stdout.log.gz",
+      "decoded_file": "verification-apollo-build.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-build.stdout.log",
+      "original_bytes": 274,
+      "original_sha256": "44ca06e2e3a25a7b227a827a4b8beb9058fbcbaa1f28f27540002c43e871f6a6",
+      "gzip_bytes": 226,
+      "gzip_sha256": "b8b741cea300b091e03b3e9104b7eaa542ad1bfbf66f07bb08a820fe5d329ebb"
+    },
+    {
+      "file": "verification-apollo-environment-01.json.gz",
+      "decoded_file": "verification-apollo-environment-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-environment-01.json",
+      "original_bytes": 1459,
+      "original_sha256": "453e7b544a09abb2a09197de109ea677ba790259888df3ff98e9fa8a0087aeda",
+      "gzip_bytes": 780,
+      "gzip_sha256": "b5b44bee3f8d632678359071c6bcc9b826e986fa9cde4918671f84c8b87e74f2"
+    },
+    {
+      "file": "verification-apollo-environment.stderr.log.gz",
+      "decoded_file": "verification-apollo-environment.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-environment.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-apollo-environment.stdout.log.gz",
+      "decoded_file": "verification-apollo-environment.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-environment.stdout.log",
+      "original_bytes": 1327,
+      "original_sha256": "b93caf89d902472ac050fec6a58db7a0807a12457ff08c55f55fdc50a2474735",
+      "gzip_bytes": 762,
+      "gzip_sha256": "8a75ccdba55115ebb2b6566afd8fdfedbc06072be354100fc510236b55d9a35c"
+    },
+    {
+      "file": "verification-apollo-music-dispatch.stderr.log.gz",
+      "decoded_file": "verification-apollo-music-dispatch.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-music-dispatch.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-apollo-music-dispatch.stdout.log.gz",
+      "decoded_file": "verification-apollo-music-dispatch.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/apollo-music-dispatch.stdout.log",
+      "original_bytes": 164,
+      "original_sha256": "f07799f05cee7ed1c6eed16e7bd4d6544984d92207618bd689a3634ac2104a6c",
+      "gzip_bytes": 160,
+      "gzip_sha256": "a5adf249f6e2b74916b50ee1804fc73b230f7e58f7f85151b8054210212b62b2"
+    },
+    {
+      "file": "verification-build-results-01.json.gz",
+      "decoded_file": "verification-build-results-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/build-results-01.json",
+      "original_bytes": 827,
+      "original_sha256": "d73a04e1ee3e5abeea3b010b9fdc4e9287296873ed449cce2ca41b988000c440",
+      "gzip_bytes": 359,
+      "gzip_sha256": "755023867a56852aa38cdac999afeba51eed519ef6b691e26ede6e9305ca086a"
+    },
+    {
+      "file": "verification-build_both.py.gz",
+      "decoded_file": "verification-build_both.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/build_both.py",
+      "original_bytes": 5180,
+      "original_sha256": "d3c0145d6c900cc179367b311f2a6f73ebd3cc62715e28503abc2208e98f9085",
+      "gzip_bytes": 2118,
+      "gzip_sha256": "eb5afe47e94f5dfff660676b010936a5a33c2ac9fb1eb5981272b479a83fc008"
+    },
+    {
+      "file": "verification-corpus-closed-before-scoring-01.json.gz",
+      "decoded_file": "verification-corpus-closed-before-scoring-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-closed-before-scoring-01.json",
+      "original_bytes": 625,
+      "original_sha256": "1a5b8fb99ac1d6a0bb4937d6a55023d9395b87e7b11ad4508e6b2af783dfcfe5",
+      "gzip_bytes": 344,
+      "gzip_sha256": "4650e7c09d7b9679c6ae59b094d86a62e6542aa14db9d0caa16d9571e9c67efa"
+    },
+    {
+      "file": "verification-corpus-dispatch-01.json.gz",
+      "decoded_file": "verification-corpus-dispatch-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-dispatch-01.json",
+      "original_bytes": 184,
+      "original_sha256": "d4e8dedf7d58e7fd4df197b2448eadcde0f29bd988c8dcef507bf4ae1aea70a1",
+      "gzip_bytes": 138,
+      "gzip_sha256": "ada9619f140150ae19ebbf82d4b7af842846921cf58e7a2baaec3f5fac593071"
+    },
+    {
+      "file": "verification-corpus-laptop.stderr.log.gz",
+      "decoded_file": "verification-corpus-laptop.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-laptop.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-corpus-laptop.stdout.log.gz",
+      "decoded_file": "verification-corpus-laptop.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-laptop.stdout.log",
+      "original_bytes": 1628,
+      "original_sha256": "625530d2671cdf853e9295e05cfed426a8d3a797fd3da3cfc215a0eb1224deb3",
+      "gzip_bytes": 448,
+      "gzip_sha256": "5e5ace854ad1db1055b477343c3a94015c663315de57e26460965931f4ca7883"
+    },
+    {
+      "file": "verification-corpus-launch-reservation-01.json.gz",
+      "decoded_file": "verification-corpus-launch-reservation-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-launch-reservation-01.json",
+      "original_bytes": 308,
+      "original_sha256": "2b06b16aa1fe6a3561fcaa2f83cc7c48f74427acedfe697440f20a25523d7930",
+      "gzip_bytes": 258,
+      "gzip_sha256": "0fa76bcd14c8bd596ba43ff0cdcd857a155efa379cfc60df7e80e95cf346d0ea"
+    },
+    {
+      "file": "verification-corpus-observation-001.json.gz",
+      "decoded_file": "verification-corpus-observation-001.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-observation-001.json",
+      "original_bytes": 678,
+      "original_sha256": "948046b405b5f56d1633c1dd58090c73e84f2f6f44a7762d9145cfe240b30f3e",
+      "gzip_bytes": 332,
+      "gzip_sha256": "a0f0944680c295fe6d80935ecb90d8e24a578abfdda28ef05cecbd7509eb034c"
+    },
+    {
+      "file": "verification-corpus-observation-002.json.gz",
+      "decoded_file": "verification-corpus-observation-002.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-observation-002.json",
+      "original_bytes": 682,
+      "original_sha256": "c701af426649b0c7961fe7000b1b08af78bc5e0cedcc2593e138ad3a32651062",
+      "gzip_bytes": 333,
+      "gzip_sha256": "1e042dfff7ec2c4cb13de9041ee26511085bf9f89f953fad5fcf2abc24bf3b96"
+    },
+    {
+      "file": "verification-corpus-observation-003.json.gz",
+      "decoded_file": "verification-corpus-observation-003.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-observation-003.json",
+      "original_bytes": 1869,
+      "original_sha256": "8a407694f24019594c8867f10e36b358930f25034839677d74d6278c786dcb34",
+      "gzip_bytes": 645,
+      "gzip_sha256": "8fcd59bd0215428f50dcf7f35ba48e15c2b60546e5ffb3a73693690247b1ff24"
+    },
+    {
+      "file": "verification-corpus-offline-01.log.gz",
+      "decoded_file": "verification-corpus-offline-01.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-01.log",
+      "original_bytes": 105,
+      "original_sha256": "f1cebebf1e239f3684342233cbf3e209ae56891b7c129813a2e690a18982daa8",
+      "gzip_bytes": 54,
+      "gzip_sha256": "1c8a6b7f8810f46c6111114aa3cca44aa6996954b93215ad99670b7610bc5023"
+    },
+    {
+      "file": "verification-corpus-offline-02.log.gz",
+      "decoded_file": "verification-corpus-offline-02.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-02.log",
+      "original_bytes": 106,
+      "original_sha256": "8b2962784a460340db7aac4a3466ed0ed5600d5baeace763ef41dbe2e59fe81a",
+      "gzip_bytes": 54,
+      "gzip_sha256": "11a2fbffa3475d043210f5b63a4db73f58c2ced6b2238c2ee96c12b0b12a39b6"
+    },
+    {
+      "file": "verification-corpus-offline-03.log.gz",
+      "decoded_file": "verification-corpus-offline-03.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-03.log",
+      "original_bytes": 106,
+      "original_sha256": "b7e0c314cbca2f34600a3c6fe80915a9491c2aeaf663b83e66aa1f106f4d5d60",
+      "gzip_bytes": 54,
+      "gzip_sha256": "390a5d30c1ccb9ff119622d90d95be766d5c04fdd979901a46360259a228d789"
+    },
+    {
+      "file": "verification-corpus-offline-apollo-02.stderr.log.gz",
+      "decoded_file": "verification-corpus-offline-apollo-02.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-apollo-02.stderr.log",
+      "original_bytes": 8513,
+      "original_sha256": "e22b5a907de4170afcead18f036bd6f62db4d3e8bcbca9d49945553c78753a84",
+      "gzip_bytes": 1985,
+      "gzip_sha256": "b76f0a8d6f04fc3fa76de64b0fd88e14b1c41b0f08a4b35d4bac430a1d949315"
+    },
+    {
+      "file": "verification-corpus-offline-apollo-02.stdout.log.gz",
+      "decoded_file": "verification-corpus-offline-apollo-02.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-apollo-02.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-corpus-offline-apollo-03.stderr.log.gz",
+      "decoded_file": "verification-corpus-offline-apollo-03.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-apollo-03.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-corpus-offline-apollo-03.stdout.log.gz",
+      "decoded_file": "verification-corpus-offline-apollo-03.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-offline-apollo-03.stdout.log",
+      "original_bytes": 383,
+      "original_sha256": "f4c984318b2dd419250ab5fa2ec8f4f4b31b1ab4b12eaaccdeac927fd15505e0",
+      "gzip_bytes": 251,
+      "gzip_sha256": "c3ee49a8fb8a970bdb7aa9db236a101849a35709a1b8e19bc83b3b6bb56fdd3f"
+    },
+    {
+      "file": "verification-corpus-plan-01.json.gz",
+      "decoded_file": "verification-corpus-plan-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-plan-01.json",
+      "original_bytes": 19633,
+      "original_sha256": "36bbf2d4618c7a09fad36635b6cc48f66a3993cef5756fe6536b54f57b973eb4",
+      "gzip_bytes": 3843,
+      "gzip_sha256": "c04e5446a3ff49ea46d52308b5a6431ea1c077abc1446343085e165eed6456f9"
+    },
+    {
+      "file": "verification-corpus-preparation-02.json.gz",
+      "decoded_file": "verification-corpus-preparation-02.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-preparation-02.json",
+      "original_bytes": 401,
+      "original_sha256": "00e245f521482d5d661656dfce12ea1d963d474b78290ad88bcfc82d1f6490fb",
+      "gzip_bytes": 255,
+      "gzip_sha256": "14d0b496f7577a097f76eb5b0f47d53cc3e31e6e7dc856fe5b934769587fdc0d"
+    },
+    {
+      "file": "verification-corpus-preparation.stderr.log.gz",
+      "decoded_file": "verification-corpus-preparation.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-preparation.stderr.log",
+      "original_bytes": 7786,
+      "original_sha256": "3ae99e08455e4418cdde27417f9fbc58d35a1dce441d9eb1d3f97d46ff6a1b5b",
+      "gzip_bytes": 1183,
+      "gzip_sha256": "49816abaf531a8e82c531139b3f1f4a13fbab966396135f89d2865241b87c5c0"
+    },
+    {
+      "file": "verification-corpus-preparation.stdout.log.gz",
+      "decoded_file": "verification-corpus-preparation.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-preparation.stdout.log",
+      "original_bytes": 7730,
+      "original_sha256": "df690784de7dbbc6b6ebe2adb198494ca3bb0e366d5df173baa9c356b683e7fb",
+      "gzip_bytes": 1175,
+      "gzip_sha256": "cb75a4e373c2d83b9df95bde43de3a87825d8c3e5b9f743ef416307ab4a6c92a"
+    },
+    {
+      "file": "verification-corpus-retirement-01.json.gz",
+      "decoded_file": "verification-corpus-retirement-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-retirement-01.json",
+      "original_bytes": 1131,
+      "original_sha256": "7c4c4045123c57a3b1ff69199d129d88b57b85fa77329b223bae907403e4640e",
+      "gzip_bytes": 331,
+      "gzip_sha256": "89d2fcaf6d1bea7798509ade9d751ada04bc150a5503f698b717b695a950e3be"
+    },
+    {
+      "file": "verification-corpus-scores-01.json.gz",
+      "decoded_file": "verification-corpus-scores-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-scores-01.json",
+      "original_bytes": 11881,
+      "original_sha256": "e7a65cefea6a087cf6b1a4bd073ff33a4b35fecdc37854ce1a5c60ebc060ab38",
+      "gzip_bytes": 1036,
+      "gzip_sha256": "74ca5d8f09fe66b7827c8d4a1addb554830926c396d739ebeeafb1d55c171e53"
+    },
+    {
+      "file": "verification-correct_offline_fixture.py.gz",
+      "decoded_file": "verification-correct_offline_fixture.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/correct_offline_fixture.py",
+      "original_bytes": 4267,
+      "original_sha256": "aeaf22af0529e4c73866300d57d436d7f5a5cabeb14b0e3d6b689f42446f5275",
+      "gzip_bytes": 1798,
+      "gzip_sha256": "bb47b129f15218e5c10fdb2b81d00f76e0d8864bc81d409761bb7799ebf4d089"
+    },
+    {
+      "file": "verification-generated-apollo.stderr.log.gz",
+      "decoded_file": "verification-generated-apollo.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/generated-apollo.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-generated-apollo.stdout.log.gz",
+      "decoded_file": "verification-generated-apollo.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/generated-apollo.stdout.log",
+      "original_bytes": 1268,
+      "original_sha256": "847c13c05659de712bc8ca4125af253e90ce3ca603806abc7c9e09c8e8e2ab7d",
+      "gzip_bytes": 422,
+      "gzip_sha256": "6213aa022af3ccbd197e64687e1ef8145b98af3b3afabee433a429bf120ac4a0"
+    },
+    {
+      "file": "verification-generated-laptop.stderr.log.gz",
+      "decoded_file": "verification-generated-laptop.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/generated-laptop.stderr.log",
+      "original_bytes": 1172,
+      "original_sha256": "57b0d2a58be7f89fda5d360bbeea6536312bcb9cf5637b1fff76b4673c4cfdea",
+      "gzip_bytes": 358,
+      "gzip_sha256": "5d5848adc9266e7b816f60c5fb4ffa1a4456c75507b58b2d3511bc157ead5776"
+    },
+    {
+      "file": "verification-generated-laptop.stdout.log.gz",
+      "decoded_file": "verification-generated-laptop.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/generated-laptop.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-generated-results-01.json.gz",
+      "decoded_file": "verification-generated-results-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/generated-results-01.json",
+      "original_bytes": 1975,
+      "original_sha256": "f27d536d3a99970f0dca37f4e858fa9cb51837f8cba8252170b82579b2b841c5",
+      "gzip_bytes": 651,
+      "gzip_sha256": "2bad18ba6358c58d512e49aea4bc88d0d539f15b8792fec3f777797331bcf86d"
+    },
+    {
+      "file": "verification-keyfinder_global_worker.cpp.gz",
+      "decoded_file": "verification-keyfinder_global_worker.cpp",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/keyfinder_global_worker.cpp",
+      "original_bytes": 5124,
+      "original_sha256": "990985379a5e4c565ebc21c15439c3b0b68ef610a57870d50809986867c36463",
+      "gzip_bytes": 1945,
+      "gzip_sha256": "97e082ca45ad803b4393e09986b6ca13875a69cabd970a4c633fe2822d86b48c"
+    },
+    {
+      "file": "verification-laptop-music-dispatch.stderr.log.gz",
+      "decoded_file": "verification-laptop-music-dispatch.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/laptop-music-dispatch.stderr.log",
+      "original_bytes": 123,
+      "original_sha256": "a64673a2f76609d50d97dc4bed318e1c766d5b6c47305ffc9149dec4f95ee15a",
+      "gzip_bytes": 130,
+      "gzip_sha256": "1b5d58793ba91b4ac8b6ca53122014a6e465fc737a9a5a832fac0bb85de9e82c"
+    },
+    {
+      "file": "verification-laptop-music-dispatch.stdout.log.gz",
+      "decoded_file": "verification-laptop-music-dispatch.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/laptop-music-dispatch.stdout.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-launch_corpus.py.gz",
+      "decoded_file": "verification-launch_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/launch_corpus.py",
+      "original_bytes": 8028,
+      "original_sha256": "e9c8ce3f1866d68be9685ef6c146e2cdd692b0848c026ef78793387dab99634c",
+      "gzip_bytes": 3049,
+      "gzip_sha256": "904981183f873f726915bf786c932abee45eb208f0554120c83c2e70aff9b8a0"
+    },
+    {
+      "file": "verification-local-build.stderr.log.gz",
+      "decoded_file": "verification-local-build.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/local-build.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-local-build.stdout.log.gz",
+      "decoded_file": "verification-local-build.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/local-build.stdout.log",
+      "original_bytes": 1500,
+      "original_sha256": "cf15a7fb8fbe10621f6bba7e5d2216131aa3c1fef63fb54ec82e210844d1cc05",
+      "gzip_bytes": 321,
+      "gzip_sha256": "5cc414604d3b1d493eedf16c4cf3e42c6ed4ba7eb17e151ae93d25867c704f0c"
+    },
+    {
+      "file": "verification-observe_corpus.py.gz",
+      "decoded_file": "verification-observe_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/observe_corpus.py",
+      "original_bytes": 2314,
+      "original_sha256": "bc0f2c73f7bbee753bcce67e3f2744e92be2f90259fe3fff54e40ac285600c8f",
+      "gzip_bytes": 1154,
+      "gzip_sha256": "e99d3c7bc35a9145292aa496ad86c36dd935be4bd76f980801d0fb642db66490"
+    },
+    {
+      "file": "verification-prepare_apollo.py.gz",
+      "decoded_file": "verification-prepare_apollo.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/prepare_apollo.py",
+      "original_bytes": 3868,
+      "original_sha256": "5b09c72537450e6727483bfb16598a12eb71e72427347e933a4d2c9a3c866e2e",
+      "gzip_bytes": 1598,
+      "gzip_sha256": "560a5a3b412ce1afd7845c4d433312532ad207b41ac581ad86304a18031dfbf3"
+    },
+    {
+      "file": "verification-prepare_corpus.py.gz",
+      "decoded_file": "verification-prepare_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/prepare_corpus.py",
+      "original_bytes": 7821,
+      "original_sha256": "0fd7ad14c495cc209898406c4a776af5d37f70405b80995e53d4bc29aacb6d47",
+      "gzip_bytes": 3139,
+      "gzip_sha256": "84fb39539518e34346f76e3ce0a5d48c130e6ad5990be15d508e4ac0d4475570"
+    },
+    {
+      "file": "verification-prospective-plan-01.json.gz",
+      "decoded_file": "verification-prospective-plan-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/prospective-plan-01.json",
+      "original_bytes": 2023,
+      "original_sha256": "81737bbfa6876debbea7e7995bc078bca2997659223d6e77bf1ab109867e8f3d",
+      "gzip_bytes": 1006,
+      "gzip_sha256": "85f51cf99f11afc19053fd666994b0f29d5113ce4dc5f80b1314f718b9a50b43"
+    },
+    {
+      "file": "verification-retire_collect_corpus.py.gz",
+      "decoded_file": "verification-retire_collect_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/retire_collect_corpus.py",
+      "original_bytes": 5387,
+      "original_sha256": "bf471c5f602367a7c0969ab843e451ca3051948af4ff0f9872813dc8be0dfb4b",
+      "gzip_bytes": 2178,
+      "gzip_sha256": "116af153053ed2a21a9ed7b96b18931723890c8958c9e18719409b568ec00503"
+    },
+    {
+      "file": "verification-run_corpus.py.gz",
+      "decoded_file": "verification-run_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/run_corpus.py",
+      "original_bytes": 7433,
+      "original_sha256": "16b5426f229e6f788525e3b59c6dd256a2f9f877681a0938b7fc5dd9488867ea",
+      "gzip_bytes": 2810,
+      "gzip_sha256": "62a4acbdfcefbda9ce21b0e19db71fba984cb8ec3e8182548e8e177585822def"
+    },
+    {
+      "file": "verification-score_corpus.py.gz",
+      "decoded_file": "verification-score_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/score_corpus.py",
+      "original_bytes": 4547,
+      "original_sha256": "d54869e24d051c55cc322b1616bc6a8b36bb21341eb4639f356088094997f2cf",
+      "gzip_bytes": 1748,
+      "gzip_sha256": "ee9d0cc395dc9ca0588c294a57c749c7bf62dacb26b533e9ca6a34af6a6515b7"
+    },
+    {
+      "file": "verification-source-transfer-01.json.gz",
+      "decoded_file": "verification-source-transfer-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/source-transfer-01.json",
+      "original_bytes": 13322,
+      "original_sha256": "e31a320244f384822612a8e4399a2d4a1551ad475516e8167dc931a939054aeb",
+      "gzip_bytes": 4275,
+      "gzip_sha256": "2a4893aa039eafba5ccd5e6a984471c1dda6f776f507f2950c119d934d2e0e56"
+    },
+    {
+      "file": "verification-source-transfer.stderr.log.gz",
+      "decoded_file": "verification-source-transfer.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/source-transfer.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "verification-source-transfer.stdout.log.gz",
+      "decoded_file": "verification-source-transfer.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/source-transfer.stdout.log",
+      "original_bytes": 188,
+      "original_sha256": "a20fb2629e27437c1a6049cf156f9ac8488c56aed0f0ebda4469ac237c402e52",
+      "gzip_bytes": 169,
+      "gzip_sha256": "cdde5c0fc824142a2c11534b86b823d5f71dbec31bf7f462ad61fad7f2cec5d5"
+    },
+    {
+      "file": "verification-test_both.py.gz",
+      "decoded_file": "verification-test_both.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/test_both.py",
+      "original_bytes": 5151,
+      "original_sha256": "ccfee155c7ffdbd22e767c6228476e3d4e46e9895c2e7f69887011a71011178e",
+      "gzip_bytes": 2155,
+      "gzip_sha256": "c6db0bd34165c6904a8cf7486e0156ba322fcec5b48956d30e17466f9758c83e"
+    },
+    {
+      "file": "verification-test_corpus-before-noexec-01.py.gz",
+      "decoded_file": "verification-test_corpus-before-noexec-01.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/test_corpus-before-noexec-01.py",
+      "original_bytes": 4937,
+      "original_sha256": "adec4e44517987ef550975ea33e24fd184351f0b6cf65d6e67d3d4c659843e0e",
+      "gzip_bytes": 1817,
+      "gzip_sha256": "9cb499bd89cf90cddc994340054da2533a1f0762f7fb0209da1ab8aa9832fcc8"
+    },
+    {
+      "file": "verification-test_corpus.py.gz",
+      "decoded_file": "verification-test_corpus.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/test_corpus.py",
+      "original_bytes": 5029,
+      "original_sha256": "0b0b5061a8f00a6abfd1d0af475c3d6ef69a05560f78092856591ef5a64dbf85",
+      "gzip_bytes": 1851,
+      "gzip_sha256": "7d1c8270c8e54df9fa20914df2d6965a8450d0a1dfab07e0dd9f0eaed102c880"
+    },
+    {
+      "file": "verification-test_global_worker.py.gz",
+      "decoded_file": "verification-test_global_worker.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/test_global_worker.py",
+      "original_bytes": 5303,
+      "original_sha256": "e59c17cc98f746552be4e38ee30258b8b06617730d12c0789e91d22f8197df8b",
+      "gzip_bytes": 1867,
+      "gzip_sha256": "371297d393f2dc0a7f16b73aca7e4f943d95d9286acb2492f542faa22883202c"
+    },
+    {
+      "file": "music-output-01--003853-capture.json.gz",
+      "decoded_file": "music-output-01--003853-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/003853-capture.json",
+      "original_bytes": 201,
+      "original_sha256": "e50be091298ed9433a05da081169e41272ee768fce0047ce6571fb2d462341a0",
+      "gzip_bytes": 161,
+      "gzip_sha256": "590bd01f4edf51f9047f831b575c8115ff400e52dfe3cf740692ab629d036f8d"
+    },
+    {
+      "file": "music-output-01--005153-capture.json.gz",
+      "decoded_file": "music-output-01--005153-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/005153-capture.json",
+      "original_bytes": 201,
+      "original_sha256": "849583508dc7eb3a7b904b574002e3a20059158c717eaa6e7060eeada05a5985",
+      "gzip_bytes": 160,
+      "gzip_sha256": "e6a8f47af93a2bee84484a80a109f7ab16a178be9d67bc9a235e5271d2cfbcd4"
+    },
+    {
+      "file": "music-output-01--010518-capture.json.gz",
+      "decoded_file": "music-output-01--010518-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/010518-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "02ddf58d96deef8521933a2a06b360408191e49b6f68c172f41d8c83af1b2932",
+      "gzip_bytes": 449,
+      "gzip_sha256": "81d43a0baba5756cc0f43e2d1f838e07eced612f87e7749729688b10a607e94c"
+    },
+    {
+      "file": "music-output-01--010518-prediction.json.gz",
+      "decoded_file": "music-output-01--010518-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/010518-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "256fd241c7d9d36f92a6cf9a6a79972396633e4e609fec4510f8710df7095034",
+      "gzip_bytes": 307,
+      "gzip_sha256": "aa7a828b7f7d03c41ea4962ea7fecdb4ce7fbd9c4848337548f94c8d6933e193"
+    },
+    {
+      "file": "music-output-01--010518-source.json.gz",
+      "decoded_file": "music-output-01--010518-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/010518-source.json",
+      "original_bytes": 327,
+      "original_sha256": "2c5cd0f113107bb1c8bc5421fd76b98d5a5a21491e0c8f9d901e1486cbce3312",
+      "gzip_bytes": 238,
+      "gzip_sha256": "34bad3e58504a61866010170a87a3ac1cc288b5a49baccf721d9a24dad5fdc5f"
+    },
+    {
+      "file": "music-output-01--013079-capture.json.gz",
+      "decoded_file": "music-output-01--013079-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/013079-capture.json",
+      "original_bytes": 809,
+      "original_sha256": "aa2b6dabb97cc188f7b0eb3e0af94d30392ec6bb4085126f54bc8ba186cd51a6",
+      "gzip_bytes": 447,
+      "gzip_sha256": "70ffad0af4cb4b5944f00bdedca08395e6adcaf15fd67559ad21cff8f1551ca0"
+    },
+    {
+      "file": "music-output-01--013079-prediction.json.gz",
+      "decoded_file": "music-output-01--013079-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/013079-prediction.json",
+      "original_bytes": 426,
+      "original_sha256": "b9d61efafd60af57965a6c48ab6d386c86dcc3303e3ebe853e132eff09560523",
+      "gzip_bytes": 305,
+      "gzip_sha256": "4feeb00b732e11dd5f959542c0f23e1494e3dbd963f87cdf92b7410d26b4bc9d"
+    },
+    {
+      "file": "music-output-01--013079-source.json.gz",
+      "decoded_file": "music-output-01--013079-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/013079-source.json",
+      "original_bytes": 327,
+      "original_sha256": "802db97cc59110dba62bd6fbb56746acd0ef2a509c31fb5e2bfdb4186ff09b07",
+      "gzip_bytes": 239,
+      "gzip_sha256": "36ff315d32da83fbc5b41a866175ffeacef71c6872f8c05b6f2ced7412758aff"
+    },
+    {
+      "file": "music-output-01--013088-capture.json.gz",
+      "decoded_file": "music-output-01--013088-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/013088-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "915bb4db99659d4d71294017571506eeb3d5517ca1745b82d6b23b7445f0190a",
+      "gzip_bytes": 450,
+      "gzip_sha256": "64daadc386f6e804f1c49c12d7ee357ee9f58f269160f4f4a5d75f20cea832e2"
+    },
+    {
+      "file": "music-output-01--013088-prediction.json.gz",
+      "decoded_file": "music-output-01--013088-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/013088-prediction.json",
+      "original_bytes": 426,
+      "original_sha256": "fb818ff47a07a1d094e26cab0920f4bf40040f0d60bdd27cb5b74766c92f8f27",
+      "gzip_bytes": 306,
+      "gzip_sha256": "4a972ad1af869d8f1e84e1e3620f8a8eae6a0f431313d8cf76921d0ece463194"
+    },
+    {
+      "file": "music-output-01--013088-source.json.gz",
+      "decoded_file": "music-output-01--013088-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/013088-source.json",
+      "original_bytes": 327,
+      "original_sha256": "def0f410b5d30adb2cc09dbf07150ac119cb06fa9128cabb6bab88d496ddcd88",
+      "gzip_bytes": 241,
+      "gzip_sha256": "5bcf100aec3fd29da12dda2606382f34897da2b98fb446b5fa0d84dbef656895"
+    },
+    {
+      "file": "music-output-01--014033-capture.json.gz",
+      "decoded_file": "music-output-01--014033-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/014033-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "6a1e5677ee8c8b5c020c450fbbca5c353c02fe28b3b85a29e06236c7e9650319",
+      "gzip_bytes": 447,
+      "gzip_sha256": "5e28fa73eb88da0de7f892d5aa555c2ee23a1f02010c77252d89966610e732da"
+    },
+    {
+      "file": "music-output-01--014033-prediction.json.gz",
+      "decoded_file": "music-output-01--014033-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/014033-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "59baedb6ece4a12d4f2a57c1acd290b5d487f5a005d95a2e9522f0717d053774",
+      "gzip_bytes": 306,
+      "gzip_sha256": "954219eaf5911df5b7f99e7f45fd9aa5a0427d46da94dbc57a7d75976a6434c2"
+    },
+    {
+      "file": "music-output-01--014033-source.json.gz",
+      "decoded_file": "music-output-01--014033-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/014033-source.json",
+      "original_bytes": 327,
+      "original_sha256": "9c319cdcbbe93034cab5ee9d4b8ff942a0406490215298ede1dc5071437ad7cf",
+      "gzip_bytes": 240,
+      "gzip_sha256": "cf075455320d834da94adb822337ad03f5477a77b78d31cc01e5a1ce3b671525"
+    },
+    {
+      "file": "music-output-01--039588-capture.json.gz",
+      "decoded_file": "music-output-01--039588-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/039588-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "86509a037c15ceed0ccefda35a1caa91f44f4b1b4181f005e4ddbeb5bd57a33c",
+      "gzip_bytes": 449,
+      "gzip_sha256": "b9c98293f9770c214b683064aa725d30f1a2d1501e320e5c8036f1966f953754"
+    },
+    {
+      "file": "music-output-01--039588-prediction.json.gz",
+      "decoded_file": "music-output-01--039588-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/039588-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "2b4f306bfe5138deaca328c54d7514057d87669cc82f60b1bb2280dc60afeb38",
+      "gzip_bytes": 304,
+      "gzip_sha256": "589c4c905a4e2deb701d3162fff858eca7404dcbc51d7d5b0efc3f7cac7a507d"
+    },
+    {
+      "file": "music-output-01--039588-source.json.gz",
+      "decoded_file": "music-output-01--039588-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/039588-source.json",
+      "original_bytes": 328,
+      "original_sha256": "879f1080b560e762ca7e97ec2372b5bdd9e8a67f163501d908ad2bb0f3e0329f",
+      "gzip_bytes": 241,
+      "gzip_sha256": "eb2780bf5f143a1ee4095231773f1b23d1881074b4bc1cb20a092ed9117b35ce"
+    },
+    {
+      "file": "music-output-01--040989-capture.json.gz",
+      "decoded_file": "music-output-01--040989-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/040989-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "63cceb10c410537c40df0fa79e8ad094414d8e2684b021c97d4342b3249a7bdb",
+      "gzip_bytes": 448,
+      "gzip_sha256": "fa499b53a7d2f05e34a7e95a49378134ce75fc7d0e43a0a0c5334af3fc10b74f"
+    },
+    {
+      "file": "music-output-01--040989-prediction.json.gz",
+      "decoded_file": "music-output-01--040989-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/040989-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "777bda3e8b376ddd423ad6d9e2daf8798738ce21288652faeb994e61a7363a9d",
+      "gzip_bytes": 307,
+      "gzip_sha256": "f59722a6725fe7a159cef72c12e01c2fe59bae19a6981a07e9df7921c1c1af68"
+    },
+    {
+      "file": "music-output-01--040989-source.json.gz",
+      "decoded_file": "music-output-01--040989-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/040989-source.json",
+      "original_bytes": 328,
+      "original_sha256": "75b50106a2f9b9d67206c13b961f7d2e82e53110188b2bcd17c7b8dfc6addf83",
+      "gzip_bytes": 240,
+      "gzip_sha256": "a17b599f22c9da005ba5e7201d8279a2ee90be769a0067f4949ce2f743f8bd64"
+    },
+    {
+      "file": "music-output-01--045099-capture.json.gz",
+      "decoded_file": "music-output-01--045099-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/045099-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "52e1dfe71c10dd32c3f1078f0e2115aa31445d35bdf98bbbaa32fc20b40dbced",
+      "gzip_bytes": 447,
+      "gzip_sha256": "397f46f02e316b9005fe9327a4a0dafc1097519cc6c75c25bd69c52ad9d1e37a"
+    },
+    {
+      "file": "music-output-01--045099-prediction.json.gz",
+      "decoded_file": "music-output-01--045099-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/045099-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "28ed321bf137f200258d4695fffaa4f48cc7b2d1d3b5e1947aefed588276c80f",
+      "gzip_bytes": 305,
+      "gzip_sha256": "4d0ba51f186c0b59fdbd189540f3be9d9563c4d3eacd8fa56dc1b5cd1c3fba3f"
+    },
+    {
+      "file": "music-output-01--045099-source.json.gz",
+      "decoded_file": "music-output-01--045099-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/045099-source.json",
+      "original_bytes": 327,
+      "original_sha256": "97d4ca15027ccb737c43717ddaf86e1916f6cce54e294f58523883cb385973ac",
+      "gzip_bytes": 239,
+      "gzip_sha256": "0fe5ae3f44cae6fb184cc05c019ddb5e3b3a93ff31d1793fb7f8b0ea3d945067"
+    },
+    {
+      "file": "music-output-01--047070-capture.json.gz",
+      "decoded_file": "music-output-01--047070-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/047070-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "1d3e7e5b9ac4a5f70348a27255048075d94f6953f930465caf562f54767a1e9e",
+      "gzip_bytes": 450,
+      "gzip_sha256": "8a609a795c7f8541ef607a0359959de943122f83828953ba3c5373a4abaefce9"
+    },
+    {
+      "file": "music-output-01--047070-prediction.json.gz",
+      "decoded_file": "music-output-01--047070-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/047070-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "290b4772358cccbf3f7746f01f79c85b03d41f7f286dcf9e5173f79cde49facf",
+      "gzip_bytes": 305,
+      "gzip_sha256": "35c32e4699460342726684678f9588ad536d1b535a7a4c628e33f717799e2002"
+    },
+    {
+      "file": "music-output-01--047070-source.json.gz",
+      "decoded_file": "music-output-01--047070-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/047070-source.json",
+      "original_bytes": 327,
+      "original_sha256": "7cc1d66801e13b4f7f3331c748554b2e3922eda9aebb1d72a1b60d19198dc7e9",
+      "gzip_bytes": 242,
+      "gzip_sha256": "a4c2ee4360bb47cf6e8bdba815c9db3beb07675703c700e05e4be93bfb32bc32"
+    },
+    {
+      "file": "music-output-01--050892-capture.json.gz",
+      "decoded_file": "music-output-01--050892-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/050892-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "2f5462ad424f8905a964d16111a8ae04c4c610b8ef4f0b4c5fecaaf01c0fe3c9",
+      "gzip_bytes": 448,
+      "gzip_sha256": "7d084030552490e32ebc2602109393764501f88bd1dd70032109564b2dfc32bb"
+    },
+    {
+      "file": "music-output-01--050892-prediction.json.gz",
+      "decoded_file": "music-output-01--050892-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/050892-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "7256eb0285e07201746f1231b473d3d976836ad4f549c52921d0c6ea2381b614",
+      "gzip_bytes": 302,
+      "gzip_sha256": "71783429f7dd1f9e7597115b1c9159e154762b043ece11767ff02fd37765b500"
+    },
+    {
+      "file": "music-output-01--050892-source.json.gz",
+      "decoded_file": "music-output-01--050892-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/050892-source.json",
+      "original_bytes": 328,
+      "original_sha256": "5b9205b68508094448c9ff8ebfb6eae85436f3edfd1728733bc76c9665f3f8f6",
+      "gzip_bytes": 240,
+      "gzip_sha256": "39722c4b71fa1ec1dc34e725d2248057c857cf5a5c17edb9a53dc53fc6935005"
+    },
+    {
+      "file": "music-output-01--059542-capture.json.gz",
+      "decoded_file": "music-output-01--059542-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/059542-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "5bc56cc7b1fe0728b4e78dee2b8cfa2755d1fe970d19c7518ac55d1de7b2d575",
+      "gzip_bytes": 443,
+      "gzip_sha256": "6ac606d96ab5b65d8acd160b7c18fcf82a8d2f1f70582487b9106478d4e4692f"
+    },
+    {
+      "file": "music-output-01--059542-prediction.json.gz",
+      "decoded_file": "music-output-01--059542-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/059542-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "728ac5206a48a83279bae1d85f05a7ae9d75dcaf880674e0fef766ffaa24786e",
+      "gzip_bytes": 303,
+      "gzip_sha256": "f63252d759c41a8a7ac1ae4794cce047013657712f327b7984be21ad41e2e22e"
+    },
+    {
+      "file": "music-output-01--059542-source.json.gz",
+      "decoded_file": "music-output-01--059542-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/059542-source.json",
+      "original_bytes": 328,
+      "original_sha256": "54276938247e1d42c366bfa4adc6c4bf54ca03cb62b07dc1c3180165955a365e",
+      "gzip_bytes": 238,
+      "gzip_sha256": "f85b1ad9c5a4d237405f78ad1e2cb6ad91502779ae8e68b042758128bb0962df"
+    },
+    {
+      "file": "music-output-01--061480-capture.json.gz",
+      "decoded_file": "music-output-01--061480-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/061480-capture.json",
+      "original_bytes": 201,
+      "original_sha256": "70a76c73589359edd6e42c30f881dfa14687fac312c24034ec5674fd61d7d201",
+      "gzip_bytes": 161,
+      "gzip_sha256": "c4c3f51665dad5b8d2468bbbcc77b17222bb8ac0153dab999529699e7a8a5b83"
+    },
+    {
+      "file": "music-output-01--061673-capture.json.gz",
+      "decoded_file": "music-output-01--061673-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/061673-capture.json",
+      "original_bytes": 813,
+      "original_sha256": "0582f67e6f96c7a75287a5fda5219dbd811fc989dda6e3f697c33572b1c2ec5e",
+      "gzip_bytes": 449,
+      "gzip_sha256": "5d6b98bf3bbc5485866ca8c3ce9ee976e615c950cafa0126cf5c83a6dd9a3fab"
+    },
+    {
+      "file": "music-output-01--061673-prediction.json.gz",
+      "decoded_file": "music-output-01--061673-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/061673-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "3556fa39511d310eaa6af754d5e28fc9f4bb25d60e95955409b6a94782b564d9",
+      "gzip_bytes": 305,
+      "gzip_sha256": "15e2682a9232bb4a8dd0f827bdb5cb57333fb30bd8c68461752cd5c3e4d3075f"
+    },
+    {
+      "file": "music-output-01--061673-source.json.gz",
+      "decoded_file": "music-output-01--061673-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/061673-source.json",
+      "original_bytes": 329,
+      "original_sha256": "8b0b2fb86fcb863027d30e9dbe131afa8f8cfa74147dbf7a81453d45fdf795fe",
+      "gzip_bytes": 241,
+      "gzip_sha256": "8aa360669c23b092b07e06333ca6d47fe7a940542732746026f375bd5c768d24"
+    },
+    {
+      "file": "music-output-01--065671-capture.json.gz",
+      "decoded_file": "music-output-01--065671-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/065671-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "55b6b41f3ab7c8687b9601ba9734dfe6cb70dce0f1755836e9b79bb3853623a8",
+      "gzip_bytes": 448,
+      "gzip_sha256": "95bd2f30b8d513e1755982dd2cbb89d68f8e84e67da2d18439b1d55059da9019"
+    },
+    {
+      "file": "music-output-01--065671-prediction.json.gz",
+      "decoded_file": "music-output-01--065671-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/065671-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "187d137d9dbb76e5c869d562e52ea7cc499d488f268c54956a1110b31b7b3040",
+      "gzip_bytes": 306,
+      "gzip_sha256": "472aa654d7f9a87384392288b4b80c8eafec129dc612c5434fbeb2b49bf66e52"
+    },
+    {
+      "file": "music-output-01--065671-source.json.gz",
+      "decoded_file": "music-output-01--065671-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/065671-source.json",
+      "original_bytes": 327,
+      "original_sha256": "ca47935a370221f673dc8687e6c963f93ebb9de531f8bdaa02b10e74c8a207ea",
+      "gzip_bytes": 240,
+      "gzip_sha256": "9bd668f8b89afd2aad4973eaabc58f32d573e7c66abe160b55076ab056257645"
+    },
+    {
+      "file": "music-output-01--065781-capture.json.gz",
+      "decoded_file": "music-output-01--065781-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/065781-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "9dd07cafd93376b648d47ba11dca0051d032e017ed19cefafe3eeb1bf064c3bf",
+      "gzip_bytes": 446,
+      "gzip_sha256": "d06a2ebcf085051a3fe2e188d321fc1e41fa4639df35778977fbc8a1481a4ec4"
+    },
+    {
+      "file": "music-output-01--065781-prediction.json.gz",
+      "decoded_file": "music-output-01--065781-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/065781-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "c2fabb5820fb6d58f4ece0b07a2a45cc3e536e89f2c06e04e72ff1a96c0e3cb7",
+      "gzip_bytes": 306,
+      "gzip_sha256": "7a39eafc18ef883db618654f1e859040a8286a4f904adfe99a2c21f55a3bfa18"
+    },
+    {
+      "file": "music-output-01--065781-source.json.gz",
+      "decoded_file": "music-output-01--065781-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/065781-source.json",
+      "original_bytes": 328,
+      "original_sha256": "c3a19c580b4e89ace54f3cdeac5c268509458eb9ffec0f585a6bde0b8c36668f",
+      "gzip_bytes": 239,
+      "gzip_sha256": "11affe9664e746b6bee4b75ac1b21fa35d16f1b284df081955bf8fbf0cf7e3c6"
+    },
+    {
+      "file": "music-output-01--071506-capture.json.gz",
+      "decoded_file": "music-output-01--071506-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/071506-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "541e709d593e98b6e0d47b5acb111c84372423d10ed0b9b92aafed2434b12a90",
+      "gzip_bytes": 448,
+      "gzip_sha256": "693aa05643bd40948b8a205729f29337601e9dd648997238d04cc22b4185125c"
+    },
+    {
+      "file": "music-output-01--071506-prediction.json.gz",
+      "decoded_file": "music-output-01--071506-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/071506-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "2a158fd463a5ca35780c7996f3e0b722eabb9c0b702002979ab03230770b1cd7",
+      "gzip_bytes": 305,
+      "gzip_sha256": "cebe49ebc3088d4e5be834345aa6a4985d8be8e25e0b569083cc6c2f9f4a2439"
+    },
+    {
+      "file": "music-output-01--071506-source.json.gz",
+      "decoded_file": "music-output-01--071506-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/071506-source.json",
+      "original_bytes": 327,
+      "original_sha256": "48aa38c0147bcc84798a16e975cbe0e73faa3eb694adee2ac40c4d9df09f6606",
+      "gzip_bytes": 240,
+      "gzip_sha256": "d8daf66c3635778feb92c9cc3d1555af03c8ce4dbe80aa6c6aa449f1e7acbd19"
+    },
+    {
+      "file": "music-output-01--071516-capture.json.gz",
+      "decoded_file": "music-output-01--071516-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/071516-capture.json",
+      "original_bytes": 813,
+      "original_sha256": "7c7a7096d844695e32397de30ea0645bc07300b269001b78e76ad70e96fb5080",
+      "gzip_bytes": 449,
+      "gzip_sha256": "b948a9835e4309200c3b7dae477540f48047eed16b46b8ce2d0295d669e10248"
+    },
+    {
+      "file": "music-output-01--071516-prediction.json.gz",
+      "decoded_file": "music-output-01--071516-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/071516-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "628f5da503817f815b040c0111b9dfd67693c2d66dd04d71843377ff8704d3e6",
+      "gzip_bytes": 306,
+      "gzip_sha256": "e2a2718f3dbc7eff34e8711c3858cc15d1bac44d8bc784309aa7e40483b74da2"
+    },
+    {
+      "file": "music-output-01--071516-source.json.gz",
+      "decoded_file": "music-output-01--071516-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/071516-source.json",
+      "original_bytes": 329,
+      "original_sha256": "524beda0c3e83569115068dad82a3164c9deb2bf122720b6ef35df4fa081ac1d",
+      "gzip_bytes": 242,
+      "gzip_sha256": "67d3d4af0400fce114802c52c6fa3d96a402b6935abd3b09f6d3b9ff11adeb7a"
+    },
+    {
+      "file": "music-output-01--074906-capture.json.gz",
+      "decoded_file": "music-output-01--074906-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/074906-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "2f8cb193779be97cbe51a4c41df1b3b57b56fe441e767b65cc9fdce962b59177",
+      "gzip_bytes": 445,
+      "gzip_sha256": "0fedfd0dccd07217d0e3e3478d517d6d5aa23f48bc5428cda5a77cbb89f3e5aa"
+    },
+    {
+      "file": "music-output-01--074906-prediction.json.gz",
+      "decoded_file": "music-output-01--074906-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/074906-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "e7e9e8c98c91930cdea82e90c885ba6c0091f7c853fcc98da70622fc271ad758",
+      "gzip_bytes": 305,
+      "gzip_sha256": "62e89c21028ae1e774a5ba4a42db1b5e2377b960947da8286d4e95f2ef51fbf1"
+    },
+    {
+      "file": "music-output-01--074906-source.json.gz",
+      "decoded_file": "music-output-01--074906-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/074906-source.json",
+      "original_bytes": 327,
+      "original_sha256": "735a20bc581ae92f01ff1b1df57fd3366f80d77d82afbc3b52d89309428e462f",
+      "gzip_bytes": 237,
+      "gzip_sha256": "e67e590e175a59bd43db6fd1066cfa952578c0485abd99325edbf9bc86bc03d7"
+    },
+    {
+      "file": "music-output-01--075746-capture.json.gz",
+      "decoded_file": "music-output-01--075746-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/075746-capture.json",
+      "original_bytes": 813,
+      "original_sha256": "46832ad69684cb0aa1209f4df1f9cbae9dc84f5b46ebedfed0b7103b02910e0f",
+      "gzip_bytes": 449,
+      "gzip_sha256": "61bfc3b836c6f58ce2f0e3584ac7e49ae1a94896c0e8a67d3d57f94f7470e61d"
+    },
+    {
+      "file": "music-output-01--075746-prediction.json.gz",
+      "decoded_file": "music-output-01--075746-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/075746-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "a899f26b9cbff51a2de33f5031040782dc05d68761f88f975483b056a660f6ad",
+      "gzip_bytes": 306,
+      "gzip_sha256": "d1f6f17f0ba49cdab299c23c343b4c62c0586f26bc9337619b294cc0e8c99063"
+    },
+    {
+      "file": "music-output-01--075746-source.json.gz",
+      "decoded_file": "music-output-01--075746-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/075746-source.json",
+      "original_bytes": 329,
+      "original_sha256": "01dc7c62c31289438fdb71e8535db3c90467ae5c9eb8cf12057281051176d1bf",
+      "gzip_bytes": 242,
+      "gzip_sha256": "ce4fc8169a301f98e1ebb33f31284507c5a4daa0654c72d4b328a94268f62ad1"
+    },
+    {
+      "file": "music-output-01--086476-capture.json.gz",
+      "decoded_file": "music-output-01--086476-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/086476-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "7872d31e794af9422c1ab401df3103f2e2939301cee81d4fbbefaf7c67a78a91",
+      "gzip_bytes": 449,
+      "gzip_sha256": "cc93bc21417b0b6931119ebca8c753d9218d2edd9379f0ff956d3433a4b6745d"
+    },
+    {
+      "file": "music-output-01--086476-prediction.json.gz",
+      "decoded_file": "music-output-01--086476-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/086476-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "7d1150589ff402cb936afa64aaac7cf2defffa937b90ea4d77f4f58ecef70b21",
+      "gzip_bytes": 304,
+      "gzip_sha256": "80ac94ba5a46efe91816a9a91613b6d791020c8f7d4229722b255104784b0c0c"
+    },
+    {
+      "file": "music-output-01--086476-source.json.gz",
+      "decoded_file": "music-output-01--086476-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/086476-source.json",
+      "original_bytes": 328,
+      "original_sha256": "726b4c3db0ad81148d7e5b5f49643e404f9ba980f216f533328dc57fd3bb8b91",
+      "gzip_bytes": 240,
+      "gzip_sha256": "687a7ecbfbd78d254151cd5d10be3e82fb7559d6d8c4c26f65d7c0cef4be1e41"
+    },
+    {
+      "file": "music-output-01--105052-capture.json.gz",
+      "decoded_file": "music-output-01--105052-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/105052-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "3e0cff6b2acef7d21d1c7c245e650bcfaaacd927a5108fa506e97bdff519b4fe",
+      "gzip_bytes": 450,
+      "gzip_sha256": "3317b518ec130eac97804e18737e93ce2dbb82be90c2b4d015be445984954f90"
+    },
+    {
+      "file": "music-output-01--105052-prediction.json.gz",
+      "decoded_file": "music-output-01--105052-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/105052-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "d85daa9d6d2a32a02e1248bdeb0cd1b28c94d14a6e6c3c418b1c2fffd5b54adf",
+      "gzip_bytes": 306,
+      "gzip_sha256": "dabfa35e0bce01a45baeaa2679353eb0a3ade5d62953fed670efe3f349707e7d"
+    },
+    {
+      "file": "music-output-01--105052-source.json.gz",
+      "decoded_file": "music-output-01--105052-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/105052-source.json",
+      "original_bytes": 328,
+      "original_sha256": "624b82bff140c5ad44aa6daf4098a22f213935c248c4151c58662e7abe2a08f9",
+      "gzip_bytes": 241,
+      "gzip_sha256": "93e76af6a17d180cc82a25648aff22e0fc4c78edf2735e2afc7e73388ef1f9cf"
+    },
+    {
+      "file": "music-output-01--107616-capture.json.gz",
+      "decoded_file": "music-output-01--107616-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/107616-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "3e732e42262918be2e0ae3530245404a61f481f2ccbec526a2b166a177459c18",
+      "gzip_bytes": 447,
+      "gzip_sha256": "c6a18392fffae17cb8e12d56b09da8bf6228608e4bc783cbfd0f0f1255142158"
+    },
+    {
+      "file": "music-output-01--107616-prediction.json.gz",
+      "decoded_file": "music-output-01--107616-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/107616-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "36a1154003e31b71fbc63127526ac2b7cac1bf21b8c6f456f83917593183fbf9",
+      "gzip_bytes": 304,
+      "gzip_sha256": "3591558d0c59b9896443040b1964aa86a79c291b3d5de93095bdf036794584ec"
+    },
+    {
+      "file": "music-output-01--107616-source.json.gz",
+      "decoded_file": "music-output-01--107616-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/107616-source.json",
+      "original_bytes": 328,
+      "original_sha256": "a4f8d3ef6a31ab07fd5fbfbfa2a75a1d95e456858404debd6849ec39ff6b6f5d",
+      "gzip_bytes": 240,
+      "gzip_sha256": "048773be8597c29775d479d84f7212f859784dcbf3edfcb2a8e70eaa2d733733"
+    },
+    {
+      "file": "music-output-01--112316-capture.json.gz",
+      "decoded_file": "music-output-01--112316-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/112316-capture.json",
+      "original_bytes": 813,
+      "original_sha256": "cb03e500b65be226700e1016838e435ac763c4fdb1d0a4ebcdb68db252e4f2c9",
+      "gzip_bytes": 448,
+      "gzip_sha256": "44ba3c3cdbad0737581ee9293a14a94d2286ee818697592ce23feee9b2bcb204"
+    },
+    {
+      "file": "music-output-01--112316-prediction.json.gz",
+      "decoded_file": "music-output-01--112316-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/112316-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "c66d53d8a25fa4cf63cd2361fcc08e5811015ba7fb285e2243e892768f5ae672",
+      "gzip_bytes": 306,
+      "gzip_sha256": "c6a57558f6c2eafab8169554353adbd5cde2daa9832187be76b0cb76825a5e2c"
+    },
+    {
+      "file": "music-output-01--112316-source.json.gz",
+      "decoded_file": "music-output-01--112316-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/112316-source.json",
+      "original_bytes": 329,
+      "original_sha256": "e0c71c0787495ed405bf89031c5ad3bf2728e51d0d15451fcd0da416bdbb4518",
+      "gzip_bytes": 241,
+      "gzip_sha256": "dcbc50e6b42a3e34c9a7df86674553a945bd8eeba174518612a89a44ab5e4d21"
+    },
+    {
+      "file": "music-output-01--prediction-receipt.json.gz",
+      "decoded_file": "music-output-01--prediction-receipt.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/prediction-receipt.json",
+      "original_bytes": 465,
+      "original_sha256": "36a7bb8a2f33bd99bd86aed98680663e5a64fc035c3231781378188a682caea4",
+      "gzip_bytes": 296,
+      "gzip_sha256": "1706606fa0344103f4c86b7edfab2f200866b7d551561fd433e91359b7f2ef75"
+    },
+    {
+      "file": "music-output-01--predictions-before-scoring.json.gz",
+      "decoded_file": "music-output-01--predictions-before-scoring.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/music-output-01/predictions-before-scoring.json",
+      "original_bytes": 18818,
+      "original_sha256": "3fb80be4aed5f43933cb6ebf35fdcd0df710c87bb019e43a509ae9b50496b6ea",
+      "gzip_bytes": 3965,
+      "gzip_sha256": "72666fb8ccbb760ec74644de903003412eeb24d4faf497b0531968e451253ce3"
+    },
+    {
+      "file": "corpus-apollo-01--container-music.stderr.log.gz",
+      "decoded_file": "corpus-apollo-01--container-music.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/container-music.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "corpus-apollo-01--container-music.stdout.log.gz",
+      "decoded_file": "corpus-apollo-01--container-music.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/container-music.stdout.log",
+      "original_bytes": 1627,
+      "original_sha256": "91292742a8faa504a76c6f9d0225dfc372a746656e4cef3b090f62a278648a00",
+      "gzip_bytes": 446,
+      "gzip_sha256": "15e4fcaa612b09966ec574cb2925968879345d6b1c208fe5bb110e7f2c972d92"
+    },
+    {
+      "file": "corpus-apollo-01--input-manifest-01.json.gz",
+      "decoded_file": "corpus-apollo-01--input-manifest-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/input-manifest-01.json",
+      "original_bytes": 4057,
+      "original_sha256": "412459e24253227b1120e20c5723cd36797640c4eee5b82f6f2d02fd176b70e4",
+      "gzip_bytes": 1534,
+      "gzip_sha256": "53b84e3a826ee162f0ae4d63bfdc61ac76249b39c924170c380f9d48f9b1507c"
+    },
+    {
+      "file": "corpus-apollo-01--input-manifest-02.json.gz",
+      "decoded_file": "corpus-apollo-01--input-manifest-02.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/input-manifest-02.json",
+      "original_bytes": 4057,
+      "original_sha256": "028b964a477bd4a1e66b0fd34fa486d50fb0f218e2ebc235a84219a5f3773cf7",
+      "gzip_bytes": 1531,
+      "gzip_sha256": "92c42b4394b6a77116483e303edc76f50b0478c8c6ccf3ff12d485d104f62a4e"
+    },
+    {
+      "file": "corpus-apollo-01--music-owner-receipt-01.json.gz",
+      "decoded_file": "corpus-apollo-01--music-owner-receipt-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/music-owner-receipt-01.json",
+      "original_bytes": 2394,
+      "original_sha256": "aba7478b795e924de8936f02227923cc18ff399f5e093f871ebc72df8a50294f",
+      "gzip_bytes": 1015,
+      "gzip_sha256": "bf67bf112f40a204eecc239945e2fd97c4e351025b023a63f955699f3428848c"
+    },
+    {
+      "file": "corpus-apollo-01--offline-preparation-01.json.gz",
+      "decoded_file": "corpus-apollo-01--offline-preparation-01.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/offline-preparation-01.json",
+      "original_bytes": 7746,
+      "original_sha256": "224c1c72e6eda8bdf249d0a31545ff7d0763687823d324241d1acd3e9a4c3e46",
+      "gzip_bytes": 1179,
+      "gzip_sha256": "2e341bc4863b675f63fde389db01c7abd6711d9449c82512e6029fbacdeb3d6e"
+    },
+    {
+      "file": "corpus-apollo-01--offline-preparation-02.json.gz",
+      "decoded_file": "corpus-apollo-01--offline-preparation-02.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/offline-preparation-02.json",
+      "original_bytes": 401,
+      "original_sha256": "00e245f521482d5d661656dfce12ea1d963d474b78290ad88bcfc82d1f6490fb",
+      "gzip_bytes": 255,
+      "gzip_sha256": "14d0b496f7577a097f76eb5b0f47d53cc3e31e6e7dc856fe5b934769587fdc0d"
+    },
+    {
+      "file": "corpus-apollo-01--operations--music_owner.py.gz",
+      "decoded_file": "corpus-apollo-01--operations--music_owner.py",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/operations/music_owner.py",
+      "original_bytes": 2870,
+      "original_sha256": "a998da60febcae60941073801d1ee4ead9b4c9ab020979f73ece52c7ccfdb0bc",
+      "gzip_bytes": 1374,
+      "gzip_sha256": "35cd2ab58c9721e536de0de25dd2100f833448dd046ff14309daf18891f7f6a3"
+    },
+    {
+      "file": "corpus-apollo-01--operations--plan.json.gz",
+      "decoded_file": "corpus-apollo-01--operations--plan.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/operations/plan.json",
+      "original_bytes": 19275,
+      "original_sha256": "e367b959afa0560e96cc9f09614d0fead4d4a330fc994740e7cddd5a9cfae3e6",
+      "gzip_bytes": 3828,
+      "gzip_sha256": "5c72866bd2478891f9ffac6f571434a79918d668f110f166c6e1105e9d3dbea6"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--003853-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--003853-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/003853-capture.json",
+      "original_bytes": 201,
+      "original_sha256": "e50be091298ed9433a05da081169e41272ee768fce0047ce6571fb2d462341a0",
+      "gzip_bytes": 161,
+      "gzip_sha256": "590bd01f4edf51f9047f831b575c8115ff400e52dfe3cf740692ab629d036f8d"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--005153-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--005153-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/005153-capture.json",
+      "original_bytes": 201,
+      "original_sha256": "849583508dc7eb3a7b904b574002e3a20059158c717eaa6e7060eeada05a5985",
+      "gzip_bytes": 160,
+      "gzip_sha256": "e6a8f47af93a2bee84484a80a109f7ab16a178be9d67bc9a235e5271d2cfbcd4"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--010518-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--010518-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/010518-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "e8657a9da293fd3298156ca195870ca62056e34c5157e2e47753ee95e17fe3ac",
+      "gzip_bytes": 448,
+      "gzip_sha256": "44dcae52e168ba0022fff2829136f7550ebc7adec0e61a1345d1d18be86ec708"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--010518-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--010518-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/010518-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "256fd241c7d9d36f92a6cf9a6a79972396633e4e609fec4510f8710df7095034",
+      "gzip_bytes": 307,
+      "gzip_sha256": "aa7a828b7f7d03c41ea4962ea7fecdb4ce7fbd9c4848337548f94c8d6933e193"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--010518-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--010518-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/010518-source.json",
+      "original_bytes": 327,
+      "original_sha256": "2c5cd0f113107bb1c8bc5421fd76b98d5a5a21491e0c8f9d901e1486cbce3312",
+      "gzip_bytes": 238,
+      "gzip_sha256": "34bad3e58504a61866010170a87a3ac1cc288b5a49baccf721d9a24dad5fdc5f"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--013079-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--013079-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/013079-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "8e2923caa91587398b749ff6c95072325e5527052474415db0b096556525ac8e",
+      "gzip_bytes": 448,
+      "gzip_sha256": "20c0ca82542f80a4a8fdd3f2d4f06e67335fd5d94e9f9e9833bfaa8758539c0f"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--013079-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--013079-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/013079-prediction.json",
+      "original_bytes": 426,
+      "original_sha256": "b9d61efafd60af57965a6c48ab6d386c86dcc3303e3ebe853e132eff09560523",
+      "gzip_bytes": 305,
+      "gzip_sha256": "4feeb00b732e11dd5f959542c0f23e1494e3dbd963f87cdf92b7410d26b4bc9d"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--013079-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--013079-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/013079-source.json",
+      "original_bytes": 327,
+      "original_sha256": "802db97cc59110dba62bd6fbb56746acd0ef2a509c31fb5e2bfdb4186ff09b07",
+      "gzip_bytes": 239,
+      "gzip_sha256": "36ff315d32da83fbc5b41a866175ffeacef71c6872f8c05b6f2ced7412758aff"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--013088-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--013088-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/013088-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "475c04a67488936bb6e737450b3ac5dce602eac4d4a205733427ddfb9ad12321",
+      "gzip_bytes": 450,
+      "gzip_sha256": "0f198abbe50a5ef897ad024393f8448dba26fff6998acbbac97496be9ef6cad7"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--013088-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--013088-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/013088-prediction.json",
+      "original_bytes": 426,
+      "original_sha256": "fb818ff47a07a1d094e26cab0920f4bf40040f0d60bdd27cb5b74766c92f8f27",
+      "gzip_bytes": 306,
+      "gzip_sha256": "4a972ad1af869d8f1e84e1e3620f8a8eae6a0f431313d8cf76921d0ece463194"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--013088-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--013088-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/013088-source.json",
+      "original_bytes": 327,
+      "original_sha256": "def0f410b5d30adb2cc09dbf07150ac119cb06fa9128cabb6bab88d496ddcd88",
+      "gzip_bytes": 241,
+      "gzip_sha256": "5bcf100aec3fd29da12dda2606382f34897da2b98fb446b5fa0d84dbef656895"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--014033-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--014033-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/014033-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "1cd11b6d6c8c651717e5c7aa784cbb633ad96055881d68096647a7616f2915ef",
+      "gzip_bytes": 448,
+      "gzip_sha256": "ab1cc921c9a08cbd95f5eba2c9c167ac8fd67a68f0d512b9cd6adaf27368f54f"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--014033-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--014033-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/014033-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "59baedb6ece4a12d4f2a57c1acd290b5d487f5a005d95a2e9522f0717d053774",
+      "gzip_bytes": 306,
+      "gzip_sha256": "954219eaf5911df5b7f99e7f45fd9aa5a0427d46da94dbc57a7d75976a6434c2"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--014033-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--014033-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/014033-source.json",
+      "original_bytes": 327,
+      "original_sha256": "9c319cdcbbe93034cab5ee9d4b8ff942a0406490215298ede1dc5071437ad7cf",
+      "gzip_bytes": 240,
+      "gzip_sha256": "cf075455320d834da94adb822337ad03f5477a77b78d31cc01e5a1ce3b671525"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--039588-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--039588-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/039588-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "b467a331cc7736cf6508c0fa549030dd9a0de63b8f858a84ca6dca1fc75ebc64",
+      "gzip_bytes": 449,
+      "gzip_sha256": "b421af929c951752e11e53192225167eab0cc6246191696cd4a79a82aeef5fc2"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--039588-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--039588-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/039588-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "2b4f306bfe5138deaca328c54d7514057d87669cc82f60b1bb2280dc60afeb38",
+      "gzip_bytes": 304,
+      "gzip_sha256": "589c4c905a4e2deb701d3162fff858eca7404dcbc51d7d5b0efc3f7cac7a507d"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--039588-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--039588-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/039588-source.json",
+      "original_bytes": 328,
+      "original_sha256": "879f1080b560e762ca7e97ec2372b5bdd9e8a67f163501d908ad2bb0f3e0329f",
+      "gzip_bytes": 241,
+      "gzip_sha256": "eb2780bf5f143a1ee4095231773f1b23d1881074b4bc1cb20a092ed9117b35ce"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--040989-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--040989-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/040989-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "bdd04e0cfc497cacfd373ec4580b4cb750eab35ac93e84e8dc8043f2a73a2dbd",
+      "gzip_bytes": 447,
+      "gzip_sha256": "4f1f4ebfd937ced29fabed5f31be3b98b4ed2a57cf66c680a77ef29db14bff50"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--040989-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--040989-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/040989-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "777bda3e8b376ddd423ad6d9e2daf8798738ce21288652faeb994e61a7363a9d",
+      "gzip_bytes": 307,
+      "gzip_sha256": "f59722a6725fe7a159cef72c12e01c2fe59bae19a6981a07e9df7921c1c1af68"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--040989-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--040989-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/040989-source.json",
+      "original_bytes": 328,
+      "original_sha256": "75b50106a2f9b9d67206c13b961f7d2e82e53110188b2bcd17c7b8dfc6addf83",
+      "gzip_bytes": 240,
+      "gzip_sha256": "a17b599f22c9da005ba5e7201d8279a2ee90be769a0067f4949ce2f743f8bd64"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--045099-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--045099-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/045099-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "a751abcfbb8339acf5924e87429b0a31c3c4a6189f9f6da4ed1d52d5cdc7cd7a",
+      "gzip_bytes": 446,
+      "gzip_sha256": "a87b1feb1f7e18747e9e6c84e1beee348aab735ae00e5aea2c5ff269359af0e2"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--045099-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--045099-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/045099-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "28ed321bf137f200258d4695fffaa4f48cc7b2d1d3b5e1947aefed588276c80f",
+      "gzip_bytes": 305,
+      "gzip_sha256": "4d0ba51f186c0b59fdbd189540f3be9d9563c4d3eacd8fa56dc1b5cd1c3fba3f"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--045099-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--045099-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/045099-source.json",
+      "original_bytes": 327,
+      "original_sha256": "97d4ca15027ccb737c43717ddaf86e1916f6cce54e294f58523883cb385973ac",
+      "gzip_bytes": 239,
+      "gzip_sha256": "0fe5ae3f44cae6fb184cc05c019ddb5e3b3a93ff31d1793fb7f8b0ea3d945067"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--047070-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--047070-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/047070-capture.json",
+      "original_bytes": 808,
+      "original_sha256": "7301c65d99c83f52579a05f8abd4f8bbf8823cc712fa957c67ee71426672ba9f",
+      "gzip_bytes": 447,
+      "gzip_sha256": "e2a60e30e2892f8c97df604c903937956bd1a4fd42331a2dc4bdf3716aab94fb"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--047070-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--047070-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/047070-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "290b4772358cccbf3f7746f01f79c85b03d41f7f286dcf9e5173f79cde49facf",
+      "gzip_bytes": 305,
+      "gzip_sha256": "35c32e4699460342726684678f9588ad536d1b535a7a4c628e33f717799e2002"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--047070-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--047070-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/047070-source.json",
+      "original_bytes": 327,
+      "original_sha256": "7cc1d66801e13b4f7f3331c748554b2e3922eda9aebb1d72a1b60d19198dc7e9",
+      "gzip_bytes": 242,
+      "gzip_sha256": "a4c2ee4360bb47cf6e8bdba815c9db3beb07675703c700e05e4be93bfb32bc32"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--050892-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--050892-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/050892-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "10a008c475c10fb29aeed1da278e5a341126ca64d1ca74c512b8aae6684c9d87",
+      "gzip_bytes": 447,
+      "gzip_sha256": "28777f3f40f52500fba42a94d9803b39e442881d53cdc499216822cbee8c9d9c"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--050892-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--050892-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/050892-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "7256eb0285e07201746f1231b473d3d976836ad4f549c52921d0c6ea2381b614",
+      "gzip_bytes": 302,
+      "gzip_sha256": "71783429f7dd1f9e7597115b1c9159e154762b043ece11767ff02fd37765b500"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--050892-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--050892-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/050892-source.json",
+      "original_bytes": 328,
+      "original_sha256": "5b9205b68508094448c9ff8ebfb6eae85436f3edfd1728733bc76c9665f3f8f6",
+      "gzip_bytes": 240,
+      "gzip_sha256": "39722c4b71fa1ec1dc34e725d2248057c857cf5a5c17edb9a53dc53fc6935005"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--059542-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--059542-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/059542-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "5456a8b9b1f305cec7d910e4bf870e109b119e60d2bd8180ccb8c9e17c72bc41",
+      "gzip_bytes": 445,
+      "gzip_sha256": "70f8afd4f2851ccd525b999d10af30c49a4756c9492abe85b0365995e14bb7be"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--059542-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--059542-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/059542-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "728ac5206a48a83279bae1d85f05a7ae9d75dcaf880674e0fef766ffaa24786e",
+      "gzip_bytes": 303,
+      "gzip_sha256": "f63252d759c41a8a7ac1ae4794cce047013657712f327b7984be21ad41e2e22e"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--059542-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--059542-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/059542-source.json",
+      "original_bytes": 328,
+      "original_sha256": "54276938247e1d42c366bfa4adc6c4bf54ca03cb62b07dc1c3180165955a365e",
+      "gzip_bytes": 238,
+      "gzip_sha256": "f85b1ad9c5a4d237405f78ad1e2cb6ad91502779ae8e68b042758128bb0962df"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--061480-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--061480-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/061480-capture.json",
+      "original_bytes": 201,
+      "original_sha256": "70a76c73589359edd6e42c30f881dfa14687fac312c24034ec5674fd61d7d201",
+      "gzip_bytes": 161,
+      "gzip_sha256": "c4c3f51665dad5b8d2468bbbcc77b17222bb8ac0153dab999529699e7a8a5b83"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--061673-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--061673-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/061673-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "d873a1860a1172d331c3573fa2bd6dfdc19cdbf8248dc6dc3c13511921a0e654",
+      "gzip_bytes": 449,
+      "gzip_sha256": "bfcf72a270ff553c0ed6eed186eea991dbea33100177e8b4ed56ee0e9bdf6a55"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--061673-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--061673-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/061673-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "3556fa39511d310eaa6af754d5e28fc9f4bb25d60e95955409b6a94782b564d9",
+      "gzip_bytes": 305,
+      "gzip_sha256": "15e2682a9232bb4a8dd0f827bdb5cb57333fb30bd8c68461752cd5c3e4d3075f"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--061673-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--061673-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/061673-source.json",
+      "original_bytes": 329,
+      "original_sha256": "8b0b2fb86fcb863027d30e9dbe131afa8f8cfa74147dbf7a81453d45fdf795fe",
+      "gzip_bytes": 241,
+      "gzip_sha256": "8aa360669c23b092b07e06333ca6d47fe7a940542732746026f375bd5c768d24"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--065671-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--065671-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/065671-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "f7ec483d1f23052fd9dcc0024b232803554815ed33336918c9d18a5b18d05788",
+      "gzip_bytes": 448,
+      "gzip_sha256": "3eb3b515edab2a87ed34c7098878ca48916630bc165246a9d6fd188a83ce410f"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--065671-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--065671-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/065671-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "187d137d9dbb76e5c869d562e52ea7cc499d488f268c54956a1110b31b7b3040",
+      "gzip_bytes": 306,
+      "gzip_sha256": "472aa654d7f9a87384392288b4b80c8eafec129dc612c5434fbeb2b49bf66e52"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--065671-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--065671-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/065671-source.json",
+      "original_bytes": 327,
+      "original_sha256": "ca47935a370221f673dc8687e6c963f93ebb9de531f8bdaa02b10e74c8a207ea",
+      "gzip_bytes": 240,
+      "gzip_sha256": "9bd668f8b89afd2aad4973eaabc58f32d573e7c66abe160b55076ab056257645"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--065781-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--065781-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/065781-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "8fcbbed5cff89103d7d8d34576f54fdce062bb458f0e0ea0e8fa0e8bdb99bb40",
+      "gzip_bytes": 446,
+      "gzip_sha256": "13b3996d5811cd8694d03331cb41528212ff5b25e65469143daf5fe0edaf9912"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--065781-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--065781-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/065781-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "c2fabb5820fb6d58f4ece0b07a2a45cc3e536e89f2c06e04e72ff1a96c0e3cb7",
+      "gzip_bytes": 306,
+      "gzip_sha256": "7a39eafc18ef883db618654f1e859040a8286a4f904adfe99a2c21f55a3bfa18"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--065781-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--065781-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/065781-source.json",
+      "original_bytes": 328,
+      "original_sha256": "c3a19c580b4e89ace54f3cdeac5c268509458eb9ffec0f585a6bde0b8c36668f",
+      "gzip_bytes": 239,
+      "gzip_sha256": "11affe9664e746b6bee4b75ac1b21fa35d16f1b284df081955bf8fbf0cf7e3c6"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--071506-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--071506-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/071506-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "4f2ee49b4fad4cb62f805dc22f24e60d61a14fa37c27298f212875ea07d75046",
+      "gzip_bytes": 449,
+      "gzip_sha256": "12121c4390eff62259574bbcd887bf73c1e6fa3bea17460716701b7c65a10f67"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--071506-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--071506-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/071506-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "2a158fd463a5ca35780c7996f3e0b722eabb9c0b702002979ab03230770b1cd7",
+      "gzip_bytes": 305,
+      "gzip_sha256": "cebe49ebc3088d4e5be834345aa6a4985d8be8e25e0b569083cc6c2f9f4a2439"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--071506-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--071506-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/071506-source.json",
+      "original_bytes": 327,
+      "original_sha256": "48aa38c0147bcc84798a16e975cbe0e73faa3eb694adee2ac40c4d9df09f6606",
+      "gzip_bytes": 240,
+      "gzip_sha256": "d8daf66c3635778feb92c9cc3d1555af03c8ce4dbe80aa6c6aa449f1e7acbd19"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--071516-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--071516-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/071516-capture.json",
+      "original_bytes": 813,
+      "original_sha256": "01c4cda06240f8abd2aee5a0d10595a60480d886ca58be3e47f1224a369a95d8",
+      "gzip_bytes": 450,
+      "gzip_sha256": "572a374c2f2bfdf452c366ff73a9172e692e3f8b6297da15295763bf34318f3d"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--071516-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--071516-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/071516-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "628f5da503817f815b040c0111b9dfd67693c2d66dd04d71843377ff8704d3e6",
+      "gzip_bytes": 306,
+      "gzip_sha256": "e2a2718f3dbc7eff34e8711c3858cc15d1bac44d8bc784309aa7e40483b74da2"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--071516-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--071516-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/071516-source.json",
+      "original_bytes": 329,
+      "original_sha256": "524beda0c3e83569115068dad82a3164c9deb2bf122720b6ef35df4fa081ac1d",
+      "gzip_bytes": 242,
+      "gzip_sha256": "67d3d4af0400fce114802c52c6fa3d96a402b6935abd3b09f6d3b9ff11adeb7a"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--074906-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--074906-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/074906-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "fc14c3b5f8fd1c2f481839bde5e37a6829f3607cafdae74258822f550b8804ce",
+      "gzip_bytes": 447,
+      "gzip_sha256": "16d4f391a42dd186cb744821a7f584fccc6a922626ebc46a0da649372cb6529d"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--074906-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--074906-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/074906-prediction.json",
+      "original_bytes": 427,
+      "original_sha256": "e7e9e8c98c91930cdea82e90c885ba6c0091f7c853fcc98da70622fc271ad758",
+      "gzip_bytes": 305,
+      "gzip_sha256": "62e89c21028ae1e774a5ba4a42db1b5e2377b960947da8286d4e95f2ef51fbf1"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--074906-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--074906-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/074906-source.json",
+      "original_bytes": 327,
+      "original_sha256": "735a20bc581ae92f01ff1b1df57fd3366f80d77d82afbc3b52d89309428e462f",
+      "gzip_bytes": 237,
+      "gzip_sha256": "e67e590e175a59bd43db6fd1066cfa952578c0485abd99325edbf9bc86bc03d7"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--075746-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--075746-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/075746-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "c641f24e6d1084a55d47483caf4faef51519c1356bfa62241adec5f7a864306d",
+      "gzip_bytes": 449,
+      "gzip_sha256": "d976cf9b68334d99507132f60f4361baa973d0cf4741f20125de7f2b02e73b92"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--075746-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--075746-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/075746-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "a899f26b9cbff51a2de33f5031040782dc05d68761f88f975483b056a660f6ad",
+      "gzip_bytes": 306,
+      "gzip_sha256": "d1f6f17f0ba49cdab299c23c343b4c62c0586f26bc9337619b294cc0e8c99063"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--075746-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--075746-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/075746-source.json",
+      "original_bytes": 329,
+      "original_sha256": "01dc7c62c31289438fdb71e8535db3c90467ae5c9eb8cf12057281051176d1bf",
+      "gzip_bytes": 242,
+      "gzip_sha256": "ce4fc8169a301f98e1ebb33f31284507c5a4daa0654c72d4b328a94268f62ad1"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--086476-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--086476-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/086476-capture.json",
+      "original_bytes": 812,
+      "original_sha256": "0cb94284b9dab72781385d3ab6477b5f28a0368b03bb031d431850b2d14064c6",
+      "gzip_bytes": 449,
+      "gzip_sha256": "547424de676733d09b90c98812600faa0abad33760f1b593fb05505ab054a5a2"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--086476-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--086476-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/086476-prediction.json",
+      "original_bytes": 428,
+      "original_sha256": "7d1150589ff402cb936afa64aaac7cf2defffa937b90ea4d77f4f58ecef70b21",
+      "gzip_bytes": 304,
+      "gzip_sha256": "80ac94ba5a46efe91816a9a91613b6d791020c8f7d4229722b255104784b0c0c"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--086476-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--086476-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/086476-source.json",
+      "original_bytes": 328,
+      "original_sha256": "726b4c3db0ad81148d7e5b5f49643e404f9ba980f216f533328dc57fd3bb8b91",
+      "gzip_bytes": 240,
+      "gzip_sha256": "687a7ecbfbd78d254151cd5d10be3e82fb7559d6d8c4c26f65d7c0cef4be1e41"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--105052-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--105052-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/105052-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "d499f06487aedd0a4b0b25db110cdece88a170a2a3000dd50fd0db2b2d8e0fde",
+      "gzip_bytes": 448,
+      "gzip_sha256": "8fc9292354d3935d425d0acc6bfc392ef5cd79e9d28418532b999dc6097a76c9"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--105052-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--105052-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/105052-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "d85daa9d6d2a32a02e1248bdeb0cd1b28c94d14a6e6c3c418b1c2fffd5b54adf",
+      "gzip_bytes": 306,
+      "gzip_sha256": "dabfa35e0bce01a45baeaa2679353eb0a3ade5d62953fed670efe3f349707e7d"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--105052-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--105052-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/105052-source.json",
+      "original_bytes": 328,
+      "original_sha256": "624b82bff140c5ad44aa6daf4098a22f213935c248c4151c58662e7abe2a08f9",
+      "gzip_bytes": 241,
+      "gzip_sha256": "93e76af6a17d180cc82a25648aff22e0fc4c78edf2735e2afc7e73388ef1f9cf"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--107616-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--107616-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/107616-capture.json",
+      "original_bytes": 811,
+      "original_sha256": "92665a01098845f72337ce8769e9d6539e35f1b14537d6331449d287de98dd9f",
+      "gzip_bytes": 447,
+      "gzip_sha256": "05a777d366837c6ddaafb72ad983164be03f0bc5925e7564284f26177eb72a6c"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--107616-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--107616-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/107616-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "36a1154003e31b71fbc63127526ac2b7cac1bf21b8c6f456f83917593183fbf9",
+      "gzip_bytes": 304,
+      "gzip_sha256": "3591558d0c59b9896443040b1964aa86a79c291b3d5de93095bdf036794584ec"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--107616-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--107616-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/107616-source.json",
+      "original_bytes": 328,
+      "original_sha256": "a4f8d3ef6a31ab07fd5fbfbfa2a75a1d95e456858404debd6849ec39ff6b6f5d",
+      "gzip_bytes": 240,
+      "gzip_sha256": "048773be8597c29775d479d84f7212f859784dcbf3edfcb2a8e70eaa2d733733"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--112316-capture.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--112316-capture.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/112316-capture.json",
+      "original_bytes": 810,
+      "original_sha256": "acb5722a5b44a752d2434fad918e4ab6ed7abc27e6eec4e69889b850991fe8ee",
+      "gzip_bytes": 446,
+      "gzip_sha256": "ca981795abd0ab5b781f016729261aa06ac279891112774cf9add2bc823943ce"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--112316-prediction.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--112316-prediction.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/112316-prediction.json",
+      "original_bytes": 429,
+      "original_sha256": "c66d53d8a25fa4cf63cd2361fcc08e5811015ba7fb285e2243e892768f5ae672",
+      "gzip_bytes": 306,
+      "gzip_sha256": "c6a57558f6c2eafab8169554353adbd5cde2daa9832187be76b0cb76825a5e2c"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--112316-source.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--112316-source.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/112316-source.json",
+      "original_bytes": 329,
+      "original_sha256": "e0c71c0787495ed405bf89031c5ad3bf2728e51d0d15451fcd0da416bdbb4518",
+      "gzip_bytes": 241,
+      "gzip_sha256": "dcbc50e6b42a3e34c9a7df86674553a945bd8eeba174518612a89a44ab5e4d21"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--prediction-receipt.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--prediction-receipt.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/prediction-receipt.json",
+      "original_bytes": 464,
+      "original_sha256": "06d46afbb1c499719e195b45d51db47cc3a2d380f8deba19252ad7fb1720f554",
+      "gzip_bytes": 295,
+      "gzip_sha256": "6e653c83dc93add87911b62801208789e67efa84915b157333acc859d07b14c2"
+    },
+    {
+      "file": "corpus-apollo-01--results--output-01--predictions-before-scoring.json.gz",
+      "decoded_file": "corpus-apollo-01--results--output-01--predictions-before-scoring.json",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/results/output-01/predictions-before-scoring.json",
+      "original_bytes": 18813,
+      "original_sha256": "20dab77f62ba6438edce8232e089c8b30ad2ea59ce20438d93d658a306554bef",
+      "gzip_bytes": 3961,
+      "gzip_sha256": "da74dcf2d455b28005489583a7a9af355d1c86a0f036839e74c1c3fff316b92a"
+    },
+    {
+      "file": "corpus-apollo-01--unit-music.stderr.log.gz",
+      "decoded_file": "corpus-apollo-01--unit-music.stderr.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/unit-music.stderr.log",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "corpus-apollo-01--unit-music.stdout.log.gz",
+      "decoded_file": "corpus-apollo-01--unit-music.stdout.log",
+      "original_path": "/home/kyau/projects/kyaulabs/conflux/build/m2-keyfinder-global-01/corpus-apollo-01/unit-music.stdout.log",
+      "original_bytes": 2124,
+      "original_sha256": "3fe9cec7de1cf59a9d6626e2c5c90779765f24bd12462ae890c32b05040258ee",
+      "gzip_bytes": 985,
+      "gzip_sha256": "61040b1625b73b9cc2a5ec3f3cacc3aace9927c333b591a1ab7c57956b8a14bc"
+    }
+  ],
+  "scope": "Complete diagnostic text, protocol/build operations and per-case music captures; excludes audio, binaries, third-party source and caches",
+  "reference_after_both_captures_closed": true,
+  "failed_setups_and_original_three_decoder_failures_retained": true,
+  "production_backend_enabled": false,
+  "qualified": false
+}
