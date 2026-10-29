@@ -54,11 +54,11 @@ Item {
         : deck.sourceReadError || scratchState.errorCode ? "The prepared scratch source has a read error."
         : "Vinyl scratch is unavailable for this prepared source."
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
-                                    && !deck.cuePreview && !hasLoop
+                                    && !deck.cuePreview
     readonly property bool canResetTempo: canControl && Boolean(tempoState.supported)
                                          && Boolean(tempoState.active) && !deck.cuePreview
     readonly property bool canLoop: canControl && Boolean(loop.supported) && !deck.sourceReadError
-                                   && !deck.cuePreview && !tempoState.active
+                                   && !deck.cuePreview && !tempoState.errorCode
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
     readonly property color deckColor: deckIndex === 0 ? Brand.ConfluxTheme.deckA : Brand.ConfluxTheme.deckB
     readonly property color displayAccent: deckIndex === 0 ? "#58D6C3" : "#F2C568"
@@ -1001,8 +1001,7 @@ Item {
         y: surface.loopTop + 39
         width: surface.width - 2 * surface.edge - 75
         height: 15
-        text: surface.tempoState.active ? "LOOP / RESET TEMPO FIRST"
-              : surface.loop.errorCode ? "LOOP CACHE ERROR / RELOAD OR SET IN"
+        text: surface.loop.errorCode ? "LOOP CACHE ERROR / RELOAD OR SET IN"
               : !surface.loop.supported ? "MANUAL LOOP / PREPARED AUDIO"
               : !surface.loop.inSet ? "MANUAL LOOP / SET IN"
               : !surface.loop.ready ? "LOOP / PREPARING IN"
@@ -1033,7 +1032,7 @@ Item {
         actionDescription: "On: changing BPM keeps the original pitch. Off: faster playback raises pitch and slower playback lowers it."
         toolTipText: "MASTER TEMPO · " + (surface.tempoState.keyLock ? "ON: pitch stays the same as BPM changes."
                                                                       : "OFF: pitch rises or falls with BPM. Press to preserve pitch.")
-        unavailableReason: "Master Tempo requires ready prepared audio without a cue preview, read error or stored loop."
+        unavailableReason: "Master Tempo requires ready prepared audio without a cue preview or read error."
         onPressed: surface.controller.toggleMasterTempo(surface.deckIndex)
     }
 

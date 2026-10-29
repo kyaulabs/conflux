@@ -379,7 +379,7 @@ int PreparedPlayback::preparedRenderError() const noexcept
 AudioLoopState PreparedPlayback::loopState() const noexcept
 {
     auto state = loop_;
-    state.supported = !live_ && bool(loopCache_) && !tempoState().active &&
+    state.supported = !live_ && bool(loopCache_) &&
         !(scratchSource_ && scratchSource_->active());
     state.errorCode = loopSetupError_;
     if (loopCache_) {
@@ -421,29 +421,37 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
             if (!tempoSource_->cancel()) return false;
             // The legacy bank/readers may still be parked at a pre-tempo
             // cursor. This is an asynchronous refill, never a stale resume.
-            seekLinear(frame);
+            // Raw unity uses the already validated resident loop. Park the
+            // ordinary reader at OUT for the later EXIT remainder handoff.
+            loop_.cached = loop_.active;
+            seekLinear(loop_.cached ? loop_.outFrame : frame);
         }
         return true; // Keep the selected Master Tempo setting at legacy zero.
     }
-    if (command != AudioTempoCommand::Set) return false;
+    if (command != AudioTempoCommand::Set || preparedRenderError()) return false;
+    if (loop_.active && !loopState().ready) return false;
+    const auto request = [&] {
+        return tempoSource_->request(frame, percent, keyLock,
+            loop_.active ? loop_.inFrame : 0, loop_.active ? loop_.outFrame : 0);
+    };
     if (state.active) {
         bool accepted = state.keyLock == keyLock
             ? tempoSource_->requestSpeed(percent)
-            : tempoSource_->request(frame, percent, keyLock);
+            : request();
         // A mode/session reset at zero creates a fresh exact-unity backend.
         // Its first nonzero speed needs explicit setup, unlike an active
         // SRC/R3 stream crossing zero, which requestSpeed already accepts.
         if (!accepted && state.keyLock == keyLock && state.percent == 0 && percent != 0 && !state.errorCode)
-            accepted = tempoSource_->request(frame, percent, keyLock);
+            accepted = request();
         if (accepted) tempoKeyLock_ = keyLock;
         return accepted;
     }
-    if (loop_.inSet || loop_.outSet || loop_.cached || preparedRenderError()) return false;
     if (percent == 0) {
         tempoKeyLock_ = keyLock;
         return true;
     }
-    if (!tempoSource_->request(frame, percent, keyLock)) return false;
+    if (!request()) return false;
+    loop_.cached = false;
     tempoKeyLock_ = keyLock;
     return true;
 }
@@ -531,7 +539,12 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
     if (live_ || stopped_ || frame > frames_) return false;
     if (scratchSource_ && scratchSource_->active()) return false;
     unusedContinuationPrime_ = false;
+    const auto tempo = tempoState();
+    const auto request = [&](std::uint64_t cursor, std::uint64_t in = 0, std::uint64_t out = 0) {
+        return !tempo.active || tempoSource_->request(cursor, tempo.percent, tempo.keyLock, in, out);
+    };
     if (command == AudioLoopCommand::Clear) {
+        if (loop_.active && !request(frame)) return false;
         const bool wasCached = loop_.cached;
         clearLoop();
         // Clear can precede a same-frame seek, for which RenderCore need not
@@ -539,12 +552,10 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
         if (wasCached) seekLinear(frame);
         return true;
     }
-    // Crossing zero inside SRC/R3 preserves queued/filter state and remains
-    // processed mode until an explicit reset restores the legacy source.
-    if (tempoState().active) return false;
     if (!loopCache_) return false;
     if (command == AudioLoopCommand::In) {
         if (frame == frames_ || preparedRenderError()) return false;
+        if (loop_.active && !request(frame)) return false;
         const bool wasCached = loop_.cached;
         loop_ = {};
         if (wasCached) seekLinear(frame);
@@ -558,20 +569,24 @@ bool PreparedPlayback::loopControl(AudioLoopCommand command, std::uint64_t frame
         if (loop_.outSet || !loopState().ready || frame <= loop_.inFrame ||
             frame > loop_.limitFrame || frame - loop_.inFrame < AudioLoopState::minimumFrames)
             return false;
+        if (!request(loop_.inFrame, loop_.inFrame, frame)) return false;
         loop_.outFrame = frame;
-        loop_.outSet = loop_.active = loop_.cached = true;
+        loop_.outSet = loop_.active = true;
+        loop_.cached = !tempo.active;
         return true;
     }
     if (command == AudioLoopCommand::Toggle && loop_.outSet) {
         if (loop_.active) {
+            if (!request(frame)) return false;
             loop_.active = false;
             return true;
         }
-        if (!loopState().ready) return false;
-        // Before the cached EXIT remainder ends, the original bank still owns
-        // its OUT staging. Only a resumed linear reader needs one new seek.
-        if (!loop_.cached) seekLinear(loop_.outFrame);
-        loop_.active = loop_.cached = true;
+        if (!loopState().ready || !request(loop_.inFrame, loop_.inFrame, loop_.outFrame)) return false;
+        // The raw unity path resumes its cached range. A processed loop uses
+        // one new cyclic stream, then retains its DSP state at every wrap.
+        if (!tempo.active && !loop_.cached) seekLinear(loop_.outFrame);
+        loop_.active = true;
+        loop_.cached = !tempo.active;
         return true;
     }
     return false;
@@ -663,6 +678,7 @@ AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
     result.positionValid = true;
     result.nominalPosition = tempoSource_->nominalPosition();
     result.finished = tempoSource_->status().finished;
+    const auto beforeWraps = tempoSource_->loopWraps();
     if (output.size() / StemBankSource::channels > PreparedTempoSource::blockFrames) {
         result.failed = true;
         return result;
@@ -706,6 +722,9 @@ AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
     }
     result.nominalPosition = tempoSource_->nominalPosition();
     result.finished = tempoSource_->status().finished;
+    const auto wraps = tempoSource_->loopWraps() - beforeWraps;
+    if (wraps > UINT32_MAX) result.failed = true;
+    else result.loopWraps = static_cast<std::uint32_t>(wraps);
     return result;
 }
 

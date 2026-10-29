@@ -350,9 +350,15 @@ bool RenderCore::loopIn(std::size_t deck) noexcept
 {
     if (deck >= deckCount) return false;
     auto& state = decks_[deck];
+    const auto before = tempoState(deck);
     if (state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
         !state.source.loopControl(state.source.context, AudioLoopCommand::In, state.frame)) return false;
     transportIntent(state);
+    if (before.generation != tempoState(deck).generation) {
+        state.nominalPosition = double(state.frame);
+        state.buffering = false;
+        transition(state);
+    }
     return true;
 }
 
@@ -368,6 +374,7 @@ bool RenderCore::loopOut(std::size_t deck) noexcept
     state.frame = loopState(deck).inFrame;
     state.nominalPosition = double(state.frame);
     state.buffering = false;
+    if (tempoState(deck).active) transition(state);
     if (wasActive != renderActive(state)) notifyActivity(state);
     return true;
 }
@@ -376,6 +383,7 @@ bool RenderCore::loopToggle(std::size_t deck) noexcept
 {
     if (deck >= deckCount) return false;
     auto& state = decks_[deck];
+    const auto before = tempoState(deck);
     if (state.cuePreviewing || scratchState(deck).active || !state.source.loopControl ||
         !state.source.loopControl(state.source.context, AudioLoopCommand::Toggle, state.frame))
         return false;
@@ -388,6 +396,11 @@ bool RenderCore::loopToggle(std::size_t deck) noexcept
         state.buffering = false;
         if (!wasActive) transition(state);
         notifyActivity(state);
+    }
+    if (before.generation != tempoState(deck).generation) {
+        state.nominalPosition = double(state.frame);
+        state.buffering = false;
+        transition(state);
     }
     return true;
 }
@@ -930,14 +943,33 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
                     (beforeHold.active || afterHold.active);
                 const bool processed = tempoState(index).active;
                 const bool scratching = scratchState(index).active;
-                if (((processed || scratching || result.residentHold) && !result.positionValid) ||
+                const auto loop = loopState(index);
+                const bool processedLoop = processed && loop.supported && loop.ready && loop.active && !loop.cached &&
+                    loop.inFrame < loop.outFrame && loop.outFrame <= deck.source.frames &&
+                    loop.outFrame - loop.inFrame >= AudioLoopState::minimumFrames &&
+                    loop.outFrame - loop.inFrame <= AudioLoopState::maximumFrames;
+                bool badLoopPosition = (result.loopWraps && !processedLoop) ||
+                    (processed && loop.active && !processedLoop);
+                if (processedLoop) {
+                    const double length = double(loop.outFrame - loop.inFrame);
+                    const double advance = result.nominalPosition - deck.nominalPosition + double(result.loopWraps) * length;
+                    const double tolerance = 1e-6 + 8 * std::numeric_limits<double>::epsilon() *
+                        std::max(double(deck.source.frames), length);
+                    badLoopPosition = result.finished || result.residentHold || scratching ||
+                        deck.nominalPosition < double(loop.inFrame) || deck.nominalPosition >= double(loop.outFrame) ||
+                        result.nominalPosition < double(loop.inFrame) || result.nominalPosition >= double(loop.outFrame) ||
+                        result.loopWraps > 1 + (result.frames * 106U / 100U) / AudioLoopState::minimumFrames ||
+                        advance < .94 * double(result.frames) - tolerance ||
+                        advance > 1.06 * double(result.frames) + tolerance;
+                }
+                if (badLoopPosition || ((processed || scratching || result.residentHold) && !result.positionValid) ||
                     (result.residentHold && (!resident ||
                         result.nominalPosition != std::floor(result.nominalPosition) ||
                         result.nominalPosition > deck.nominalPosition+double(result.frames))) ||
                     (result.transitionFrame != AudioReadResult::noTransition &&
                         (!resident || result.transitionFrame >= result.frames)) ||
                     (result.positionValid && ((!processed && !scratching && !resident) || !std::isfinite(result.nominalPosition) ||
-                        (!scratching && result.nominalPosition < deck.nominalPosition) || result.nominalPosition < 0 ||
+                        (!scratching && !processedLoop && result.nominalPosition < deck.nominalPosition) || result.nominalPosition < 0 ||
                         result.nominalPosition > double(deck.source.frames) ||
                         (!result.frames && !result.finished && result.nominalPosition != deck.nominalPosition))) ||
                     (result.finished && !processed && !resident) || result.frames > requested || std::ranges::any_of(
@@ -980,9 +1012,10 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
             }
             delivered[index] += available[index];
             const auto loop = loopState(index);
-            if (loop.active && decks_[index].frame == loop.outFrame)
-                decks_[index].frame = loop.inFrame;
-            if (loop.active) decks_[index].nominalPosition = double(decks_[index].frame);
+            if (loop.active && loop.cached) {
+                if (deck.frame == loop.outFrame) deck.frame = loop.inFrame;
+                deck.nominalPosition = double(deck.frame);
+            }
         }
         offset += count;
     }
