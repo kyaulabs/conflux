@@ -154,6 +154,35 @@ std::uint64_t cacheUsage(int root, const PreparedTrackStore::Limits& limits, std
     return cacheUsage(root, limits, stop, true); // Existing preparation still collects stale stages.
 }
 
+static bool capturedArtifactPresent(const QString& cacheRoot, const QByteArray& key,
+    const PreparedTrackStore::Limits& limits, std::stop_token stop)
+{
+    Descriptor root(open(QFile::encodeName(cacheRoot).constData(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC));
+    if (root.get() < 0) {
+        if (errno != ENOENT) ioError("Cannot open prepared cache root");
+        checkStop(stop);
+        return false;
+    }
+    QLockFile lock(QDir(cacheRoot).filePath(".lock"));
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+    while (!lock.tryLock(0)) {
+        checkStop(stop);
+        if (lock.error() != QLockFile::LockFailedError) throw std::runtime_error("Cannot lock prepared cache");
+        if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("Prepared cache is busy");
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    checkStop(stop);
+    (void)cacheUsage(root.get(), limits, stop, false);
+    struct stat entry{};
+    if (fstatat(root.get(), key.constData(), &entry, AT_SYMLINK_NOFOLLOW) != 0) {
+        if (errno != ENOENT) ioError("Cannot inspect prepared cache artifact");
+        checkStop(stop);
+        return false;
+    }
+    if (!S_ISDIR(entry.st_mode)) throw std::runtime_error("unsafe cache entry: non-directory artifact");
+    return true;
+}
+
 int openCacheFile(int directory, const char* name)
 {
     const int descriptor = openat(directory, name, O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOFOLLOW);
@@ -626,9 +655,17 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
 }
 
 std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
-    const QString& sourcePath, const StemEngine& engine, std::stop_token stop)
+    const QString& sourcePath, const StemEngine& engine, std::stop_token stop, const QString& expectedArtifactKey)
 {
     checkStop(stop);
+    const auto expectedKey = expectedArtifactKey.toLatin1();
+    if (!expectedArtifactKey.isEmpty()) {
+        if (!hexDigest(expectedKey)) throw std::invalid_argument("Invalid captured artifact key");
+        // Absence of this exact captured bank cannot yield a continuation.
+        // Inspect the bounded cache before hashing unused operands or spawning
+        // an engine description while live inference is already struggling.
+        if (!capturedArtifactPresent(cacheRoot_, expectedKey, limits_, stop)) return std::nullopt;
+    }
     Descriptor source(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
     if (source.get() < 0) ioError("Cannot open audio source");
     const auto sourceBefore = statusOf(source.get());
@@ -646,6 +683,10 @@ std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
         verifyEngine(files, stop);
         checkStop(stop);
     };
+    if (!expectedKey.isEmpty() && expectedKey != key) {
+        verifyUsed();
+        return std::nullopt;
+    }
     Descriptor root(open(QFile::encodeName(cacheRoot_).constData(), O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC));
     if (root.get() < 0) {
         if (errno != ENOENT) ioError("Cannot open prepared cache root");

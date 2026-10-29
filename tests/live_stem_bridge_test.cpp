@@ -1508,6 +1508,23 @@ private slots:
         });
     }
 
+    void missingCapturedBankDoesNotDescribeWhileLiveJobExists()
+    {
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211); const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
+            PreparedTrackStore store(root, limits());
+            auto live = store.prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            const auto prefix = fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".prefix";
+            require(!QFileInfo::exists(prefix), "Live setup unexpectedly started the exporter descriptor");
+            require(!store.findPreparedStemBank(source, fixture.engine, {}, live.artifactKey),
+                    "Live-only job was accepted as a prepared bank");
+            require(!QFileInfo::exists(prefix), "Missing captured bank restarted the Python descriptor during live playback");
+            stop(live); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Miss lookup changed live-job cleanup");
+        });
+    }
+
     void capturedPreparedIdentityRejectsChangedPipeline_data()
     {
         QTest::addColumn<QByteArray>("changed");
@@ -1534,13 +1551,15 @@ private slots:
             else ++fixture.engine.threads;
             const auto callsPath = fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls";
             const auto calls = readBytes(callsPath);
-            require(!store.findPreparedStemBank(source, fixture.engine) && readBytes(callsPath) == calls,
+            require(!store.findPreparedStemBank(source, fixture.engine, {}, capturedKey) && readBytes(callsPath) == calls,
                     "Changed pipeline reused the old bank or started an exporter during discovery");
             auto changedBank = store.prepareStemBank(source, fixture.engine);
             require(live.artifactKey == capturedKey && changedBank.artifactKey != capturedKey &&
                     changedBank.sourceSha256 == live.sourceSha256,
                     "Captured live identity followed changed paths/configuration or accepted another pipeline");
-            auto reused = store.findPreparedStemBank(source, fixture.engine);
+            require(!store.findPreparedStemBank(source, fixture.engine, {}, capturedKey),
+                    "Captured lookup adopted another pipeline's bank");
+            auto reused = store.findPreparedStemBank(source, fixture.engine, {}, changedBank.artifactKey);
             require(reused && reused->artifactKey == changedBank.artifactKey && reused->artifactKey != capturedKey,
                     "New pipeline lookup did not remain distinct from the active captured identity");
         });

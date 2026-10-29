@@ -1476,10 +1476,10 @@ void DeckController::considerContinuation()
                         throw std::runtime_error("Prepared continuation admission cancelled or timed out.");
                 };
                 check();
-                // Cache-only discovery validates existing files. Its bounded
-                // --describe is not an export or a second separator instance.
+                // The captured key rejects an absent bank without starting
+                // a descriptor; present candidates retain full validation.
                 auto bank = library::PreparedTrackStore(cache, limits).findPreparedStemBank(
-                    original->sourcePath, engine, admission.get_token());
+                    original->sourcePath, engine, admission.get_token(), original->artifactKey);
                 check();
                 if (!bank) return {{}, "No complete compatible prepared stem bank is available.", {}, false};
                 if (bank->sourceSha256 != original->liveSourceSha256 || bank->artifactKey != original->artifactKey ||
