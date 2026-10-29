@@ -49,8 +49,9 @@ unverified where the required interfaces are unavailable. See the
 
 **M2 is in progress: library preparation and stems.** Its first slices add
 [persistent preparation, cancellation and local library import/load](docs/M2.md). The live-stem
-service target remains a release blocker: the latest completed validation measured
-**5.1722 seconds p99 against a 4.095-second target**. The approved
+service target remains a release blocker: integrated laptop playback has not
+qualified **p99 below 4.095 seconds**. The [M2 results](docs/M2.md) retain the
+failed hour and later short diagnostics. The approved
 [M0 feasibility decision](docs/decisions/0002-m0-stem-runtime.md) retains that
 target unchanged. Manual playback qualification does not measure stem inference.
 
