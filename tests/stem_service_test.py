@@ -712,16 +712,24 @@ class ServiceTest(unittest.TestCase):
 
 class ServiceNativeLifecycleTest(unittest.TestCase):
     def test_cli_signal_reaps_fake_native_in_inherited_process_group(self):
+        self.assert_cli_signal_reaps_native(block_request=False)
+
+    def test_cli_signal_aborts_inflight_native_without_publishing_partial_stems(self):
+        self.assert_cli_signal_reaps_native(block_request=True)
+
+    def assert_cli_signal_reaps_native(self, *, block_request):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source, model, runtime = (root / name for name in ("input.f32", "model", "runtime.py"))
             write_source(source, 17)
             model.write_bytes(b"bounded fake model")
-            runtime.write_text("#!" + sys.executable + "\n" + r'''import argparse, json, os, pathlib, sys
+            runtime.write_text("#!" + sys.executable + "\nBLOCK_REQUEST = " + repr(block_request) + "\n" + r'''import argparse, json, os, pathlib, signal, sys, time
 import numpy as np
 p = argparse.ArgumentParser()
 p.add_argument('--model'); p.add_argument('--backend'); p.add_argument('--threads', type=int)
 a = p.parse_args()
+if BLOCK_REQUEST:
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
 start_ticks = pathlib.Path('/proc/self/stat').read_text().split(') ',1)[1].split()[19]
 pathlib.Path(__file__).with_suffix('.pid').write_text(json.dumps({'pid':os.getpid(),'start_ticks':start_ticks}))
 print(json.dumps({'event':'ready','sample_rate':44100,'channels':2,'segment_frames':343980,
@@ -729,6 +737,10 @@ print(json.dumps({'event':'ready','sample_rate':44100,'channels':2,'segment_fram
     'revision':'a'*40,'weight_storage':'f32','fence_wait_mode':'blocking','pid':os.getpid()}), flush=True)
 for line in sys.stdin:
     request = json.loads(line)
+    if BLOCK_REQUEST:
+        pathlib.Path(__file__).with_suffix('.request').write_text(str(request['id']))
+        while True:
+            time.sleep(1)
     samples = np.fromfile(request['input'], dtype='<f4').reshape(343980,2)
     np.stack([samples * np.float32(index + 1) for index in range(4)]).astype('<f4').tofile(request['output'])
     print(json.dumps({'event':'result','id':request['id'],'frames':343980,'stems':4}), flush=True)
@@ -769,8 +781,18 @@ for line in sys.stdin:
                 self.assertEqual(child.stdin.write(wire), len(wire))
                 event('accepted')
                 event('runtime')
-                chunk = event('chunk')
-                self.assertEqual(chunk['frames'], 17)
+                chunk = None
+                if block_request:
+                    # The marker is emitted only after consuming the request;
+                    # a ready message alone does not prove active inference.
+                    until = time.monotonic() + 4
+                    while not runtime.with_suffix('.request').exists():
+                        self.assertIsNone(child.poll())
+                        self.assertLess(time.monotonic(), until, 'Native did not consume the request')
+                        time.sleep(.01)
+                else:
+                    chunk = event('chunk')
+                    self.assertEqual(chunk['frames'], 17)
                 native_pid = int(json.loads(runtime.with_suffix('.pid').read_text())['pid'])
                 self.assertEqual(os.getpgid(native_pid), child.pid,
                                  'Service/native runtime escaped the caller-owned process group')
@@ -778,13 +800,18 @@ for line in sys.stdin:
                 closed = event('closed')
                 self.assertEqual(closed['reason'], 'signal')
                 self.assertTrue(closed['worker_closed'])
-                self.assertEqual(closed['outstanding_slots'], 1)
+                self.assertEqual(closed['outstanding_slots'], 0 if block_request else 1)
                 self.assertEqual(child.wait(timeout=5), 130)
                 with self.assertRaises(ProcessLookupError):
                     os.kill(native_pid, 0)
                 self.assertFalse((root / 'service' / 'native').exists())
-                self.assertTrue((root / 'service' / chunk['file']).is_file(),
-                                'Close must not silently ACK a caller-held immutable slot')
+                if block_request:
+                    self.assertFalse(list((root/'service').glob('slot*.f32')),
+                                     'An unfinished native request must not publish partial stems')
+                    self.assertFalse(any(value.get('event') == 'chunk' for value in events))
+                else:
+                    self.assertTrue((root / 'service' / chunk['file']).is_file(),
+                                    'Close must not silently ACK a caller-held immutable slot')
                 self.assertLessEqual(len(child.stderr.read(65537)), 65536)
             finally:
                 # Give the real supervisor its normal bounded close/reap path
