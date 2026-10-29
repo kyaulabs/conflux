@@ -2528,6 +2528,9 @@ void continuationScenario(const QString& output, const QString& privateRoot,
         if (kind != ContinuationCase::Miss && kind != ContinuationCase::Foreground)
             seedBank(a, cache, fixture.engine, evidence);
         const auto callsBeforeFailure = digest(exporterCalls);
+        const auto descriptorMarker = fixture.engine.exporterPath.chopped(3) + ".prefix";
+        if (kind == ContinuationCase::Miss)
+            insist(QFile::remove(descriptorMarker), "Initial explicit fixture preparation ran the descriptor probe");
         const auto metadata = controller.decks()[0].toMap();
         const auto preparation = controller.preparation();
         const auto sessions = controller.completedSessions();
@@ -2632,6 +2635,8 @@ void continuationScenario(const QString& output, const QString& privateRoot,
             await(evidence, [&] { const auto s = controller.audioState(); return !s.cueHeld[0] && s.stemGain[0][1] == .5F; },
                 "Continued finite owner did not accept release and manual stem gain");
         } else if (kind == ContinuationCase::Miss) {
+            insist(!QFileInfo::exists(descriptorMarker),
+                "Automatic missing-bank continuation did not restart the Python descriptor during live playback");
             await(evidence, [&] { return controller.audioState().outputFrame >= held.outputFrame + holdFrames; },
                 "Prepared peer did not continue while the matching bank was unavailable");
             const auto unavailable = controller.audioState(); continuousPeer(before, unavailable);

@@ -89,11 +89,13 @@ public:
     PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {});
     PreparedStemTrack prepareStemBank(const QString& sourcePath, const StemEngine& engine,
                                       std::stop_token stop = {});
-    // Read-only bank discovery; only an absent root/key returns no value.
+    // Read-only bank discovery; absence or a captured-identity mismatch is a miss.
     // Validates used inputs and current budgets without repair/export/staging.
+    // A captured key can reject a missing artifact before using source/engine;
+    // a present candidate still requires their full current identity checks.
     // A bounded engine --describe is permitted, but never model inference.
     std::optional<PreparedStemTrack> findPreparedStemBank(const QString& sourcePath,
-        const StemEngine& engine, std::stop_token stop = {});
+        const StemEngine& engine, std::stop_token stop = {}, const QString& expectedArtifactKey = {});
     // Off-thread transient whole owner beneath this store's root/limits.
     // Returns validated service-ready metadata; first real prime starts load.
     // Never primes here, creates a complete stem file, or borrows the caller's

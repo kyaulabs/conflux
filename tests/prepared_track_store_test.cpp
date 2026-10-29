@@ -355,8 +355,16 @@ private slots:
         });
     }
 
+    void stemLookupMissDoesNotPrepareOrCreateRoot_data()
+    {
+        QTest::addColumn<bool>("captured");
+        QTest::newRow("current-pipeline") << false;
+        QTest::newRow("captured-live-identity") << true;
+    }
+
     void stemLookupMissDoesNotPrepareOrCreateRoot()
     {
+        QFETCH(bool, captured);
         checked([&] {
             QTemporaryDir directory;
             QVERIFY(directory.isValid());
@@ -364,30 +372,118 @@ private slots:
             wave(source, stemSamples(), 44100);
             const auto engine = stemEngine(directory.path());
             const auto marker = engine.exporterPath.left(engine.exporterPath.size() - 3);
-            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(source, engine).has_value());
+            const auto key = captured ? QString(64, QChar(u'a')) : QString{};
+            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(source, engine, {}, key).has_value());
             QVERIFY(!QFileInfo::exists(root));
+            if (captured) QVERIFY(!QFileInfo::exists(marker + ".prefix"));
             QVERIFY(!QFileInfo::exists(marker + ".calls"));
             QVERIFY(!QFileInfo::exists(marker + ".started"));
 
             // An existing empty root and an unrelated normal artifact are
             // genuine keyed misses; discovery must not create a bank or stage.
             QVERIFY(QDir().mkpath(root));
-            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(source, engine).has_value());
+            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(source, engine, {}, key).has_value());
             QVERIFY(QDir(root).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot).isEmpty());
             auto normal = PreparedTrackStore(root).prepare(source);
             const auto manifest = readBytes(entryPath(root, normal, "manifest.json"));
             const auto pcm = readBytes(entryPath(root, normal, "audio.f32"));
             const auto names = QDir(root).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
-            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(source, engine).has_value());
+            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(source, engine, {}, key).has_value());
             PreparedTrackStore::Limits belowUsage;
             belowUsage.maxCacheBytes = std::uint64_t(pcm.size());
             QVERIFY(rejects<std::length_error>([&] {
-                PreparedTrackStore(root, belowUsage).findPreparedStemBank(source, engine); }, "budget"));
+                PreparedTrackStore(root, belowUsage).findPreparedStemBank(source, engine, {}, key); }, "budget"));
             QCOMPARE(QDir(root).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot), names);
             QCOMPARE(readBytes(entryPath(root, normal, "manifest.json")), manifest);
             QCOMPARE(readBytes(entryPath(root, normal, "audio.f32")), pcm);
+            if (captured) QVERIFY(!QFileInfo::exists(marker + ".prefix"));
             QVERIFY(!QFileInfo::exists(marker + ".calls"));
             QVERIFY(!QFileInfo::exists(marker + ".started"));
+        });
+    }
+
+    void capturedStemLookupRejectsInvalidKey_data()
+    {
+        QTest::addColumn<QString>("key");
+        QTest::newRow("short") << QString("abc");
+        QTest::newRow("traversal") << ("../" + QString(64, QChar(u'a')));
+        QTest::newRow("upper-case") << QString(64, QChar(u'A'));
+        auto nul = QString(64, QChar(u'a')); nul[31] = QChar(u'\0');
+        QTest::newRow("embedded-nul") << nul;
+    }
+
+    void capturedStemLookupRejectsInvalidKey()
+    {
+        QFETCH(QString, key);
+        checked([&] {
+            QTemporaryDir directory;
+            const auto root = directory.filePath("cache"), source = directory.filePath("source.wav");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            QVERIFY(rejects<std::invalid_argument>([&] {
+                (void)PreparedTrackStore(root).findPreparedStemBank(source, engine, {}, key);
+            }, "artifact key"));
+            QVERIFY(!QFileInfo::exists(root));
+            QVERIFY(!QFileInfo::exists(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".prefix"));
+        });
+    }
+
+    void capturedStemLookupMissingKeyRetainsCacheGuards_data()
+    {
+        QTest::addColumn<QString>("fault");
+        for (const auto* fault : {"root-symlink", "entry-symlink", "orphan-stage", "entry-budget", "cancelled", "busy"})
+            QTest::newRow(fault) << QString::fromLatin1(fault);
+    }
+
+    void capturedStemLookupMissingKeyRetainsCacheGuards()
+    {
+        QFETCH(QString, fault);
+        checked([&] {
+            QTemporaryDir directory;
+            const auto root = directory.filePath("cache"), source = directory.filePath("source.wav");
+            wave(source, stemSamples(), 44100);
+            const auto engine = stemEngine(directory.path());
+            const QString key(64, QChar(u'a'));
+            PreparedTrackStore::Limits limits;
+            QVERIFY(QDir().mkpath(root));
+            const auto sentinel = directory.filePath("outside");
+            QVERIFY(QDir().mkpath(sentinel));
+            writeBytes(QDir(sentinel).filePath("keep"), "preserve outside bytes");
+            QString stage;
+            std::stop_source cancellation;
+            std::unique_ptr<QLockFile> lock;
+            if (fault == "root-symlink") {
+                QVERIFY(QDir().rmdir(root));
+                QCOMPARE(symlink(QFile::encodeName(sentinel).constData(), QFile::encodeName(root).constData()), 0);
+            } else if (fault == "entry-symlink") {
+                QCOMPARE(symlink(QFile::encodeName(sentinel).constData(),
+                    QFile::encodeName(QDir(root).filePath(key)).constData()), 0);
+            } else if (fault == "orphan-stage") {
+                stage = QDir(root).filePath(".stage-0123456789abcdef");
+                QVERIFY(QDir().mkpath(stage));
+                writeBytes(QDir(stage).filePath("audio.f32"), "uncommitted bytes");
+            } else if (fault == "entry-budget") {
+                (void)PreparedTrackStore(root).prepare(source);
+                const auto other = directory.filePath("other.wav");
+                auto samples = stemSamples(); samples[0] = .125F;
+                wave(other, samples, 44100);
+                (void)PreparedTrackStore(root).prepare(other);
+                limits.maxEntries = 1;
+            } else if (fault == "cancelled") cancellation.request_stop();
+            else {
+                lock = std::make_unique<QLockFile>(QDir(root).filePath(".lock"));
+                QVERIFY(lock->tryLock(0));
+            }
+            const auto lookup = [&] {
+                (void)PreparedTrackStore(root, limits).findPreparedStemBank(source, engine, cancellation.get_token(), key);
+            };
+            if (fault == "entry-budget") QVERIFY(rejects<std::length_error>(lookup, "entry limit"));
+            else QVERIFY(rejects<std::runtime_error>(lookup,
+                fault == "root-symlink" ? "cache root" : fault == "entry-symlink" ? "unsafe cache entry" :
+                fault == "orphan-stage" ? "staging" : fault == "cancelled" ? "cancel" : "busy"));
+            QVERIFY(!QFileInfo::exists(engine.exporterPath.left(engine.exporterPath.size() - 3) + ".prefix"));
+            QCOMPARE(readBytes(QDir(sentinel).filePath("keep")), QByteArray("preserve outside bytes"));
+            if (!stage.isEmpty()) QCOMPARE(readBytes(QDir(stage).filePath("audio.f32")), QByteArray("uncommitted bytes"));
         });
     }
 
@@ -417,7 +513,7 @@ private slots:
             // needs no native/staging headroom beyond the existing files.
             const auto alias = directory.filePath("same content # %.wav");
             writeBytes(alias, readBytes(source));
-            auto found = PreparedTrackStore(root, exact).findPreparedStemBank(alias, engine);
+            auto found = PreparedTrackStore(root, exact).findPreparedStemBank(alias, engine, {}, seeded.artifactKey);
             QVERIFY(found.has_value());
             QVERIFY(found->cacheHit);
             QVERIFY(bankSamplesMatch(*found));
@@ -444,7 +540,7 @@ private slots:
             auto changed = stemSamples();
             changed[0] = .125F;
             wave(alias, changed, 44100);
-            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(alias, engine).has_value());
+            QVERIFY(!PreparedTrackStore(root).findPreparedStemBank(alias, engine, {}, seeded.artifactKey).has_value());
             QCOMPARE(readBytes(marker + ".calls"), calls);
             QVERIFY(!QFileInfo::exists(marker + ".started"));
             QVERIFY(bankSamplesMatch(seeded));
@@ -455,14 +551,18 @@ private slots:
     void stemLookupPresentFailurePreservesEntry_data()
     {
         QTest::addColumn<QString>("fault");
+        QTest::addColumn<bool>("captured");
         for (const auto* fault : {"manifest", "digest", "incomplete", "symlink", "fifo",
-                                 "prepared", "manifest-budget", "cache-budget", "entry-budget", "orphan-stage"})
-            QTest::newRow(fault) << QString::fromLatin1(fault);
+                                 "prepared", "manifest-budget", "cache-budget", "entry-budget", "orphan-stage"}) {
+            QTest::newRow(fault) << QString::fromLatin1(fault) << false;
+            QTest::newRow((QByteArray(fault) + "-captured").constData()) << QString::fromLatin1(fault) << true;
+        }
     }
 
     void stemLookupPresentFailurePreservesEntry()
     {
         QFETCH(QString, fault);
+        QFETCH(bool, captured);
         checked([&] {
             QTemporaryDir directory;
             QVERIFY(directory.isValid());
@@ -523,7 +623,8 @@ private slots:
             }
             const auto names = QDir(root).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
             auto rejected = [&] {
-                auto lookup = [&] { PreparedTrackStore(root, limits).findPreparedStemBank(source, engine); };
+                auto lookup = [&] { PreparedTrackStore(root, limits).findPreparedStemBank(
+                    source, engine, {}, captured ? seeded.artifactKey : QString{}); };
                 if (fault == "prepared" || fault.endsWith("-budget"))
                     return rejects<std::length_error>(lookup, fault == "entry-budget" ? "entry limit" : "budget");
                 if (fault == "symlink" || fault == "fifo")
