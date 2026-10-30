@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "passed": true,
+  "members": 135,
+  "aliases": 37,
+  "decoded_Gitleaks_findings_after_pinned_fixture_omission": 0,
+  "raw_hop_recomputation": {
+    "laptop": {
+      "count": 537,
+      "maximum_ms": 2833.983961958438,
+      "nearest_rank_p99_ms": 2728.7945770658553,
+      "at_or_above_target": 0,
+      "measured_wall_ms": 3600011,
+      "raw_observation_records": 38063,
+      "recording_frames": 173079296
+    },
+    "apollo": {
+      "count": 555,
+      "maximum_ms": 1026.121711009182,
+      "nearest_rank_p99_ms": 994.3267190828919,
+      "at_or_above_target": 0,
+      "measured_wall_ms": 3600005,
+      "raw_observation_records": 39203,
+      "recording_frames": 173330432
+    }
+  },
+  "new_local_links": [
+    {
+      "page": "docs/benchmarks/current-player-hour-2026-10-29.md",
+      "target": "data/current-player-hour-2026-10-29/summary.json"
+    },
+    {
+      "page": "docs/benchmarks/current-player-hour-2026-10-29.md",
+      "target": "data/current-player-hour-2026-10-29/manifest.json"
+    },
+    {
+      "page": "docs/benchmarks/current-player-hour-2026-10-29.md",
+      "target": "onedrive-player-hour-2026-10-28.md"
+    },
+    {
+      "page": "docs/benchmarks/current-player-hour-2026-10-29.md",
+      "target": "short-burst-cap-player-2026-10-29.md"
+    },
+    {
+      "page": "docs/benchmarks/current-player-hour-2026-10-29.md",
+      "target": "corrected-cache-player-2026-10-29.md"
+    },
+    {
+      "page": "docs/M2.md",
+      "target": "benchmarks/current-player-hour-2026-10-29.md"
+    },
+    {
+      "page": "docs/M2.md",
+      "target": "decisions/0002-m0-stem-runtime.md"
+    },
+    {
+      "page": "docs/M3.md",
+      "target": "benchmarks/current-player-hour-2026-10-29.md"
+    },
+    {
+      "page": "docs/handoff/PLAN.md",
+      "target": "../benchmarks/current-player-hour-2026-10-29.md"
+    }
+  ],
+  "product_sources_unchanged": true,
+  "later_test_only_change": [
+    "tests/stem_service_test.py"
+  ],
+  "M2_M3_complete": false,
+  "release_published": false
+}

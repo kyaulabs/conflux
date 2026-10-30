@@ -505,12 +505,17 @@ latency gate. It does not complete M6's full first-usable scope.
 On 21 October 2026, the user authorized M3 manual mixing controls in parallel
 with M2: crossfader, tempo/key-lock and loops. M2 remains open. Its Best-quality
 live-stem service target stays below 4.095 seconds at p99. The
-[current M2 results](../M2.md) retain the failed integrated laptop hour and later
-short diagnostics. Apollo's short virtual-audio results cannot replace the
-primary-laptop gate. The combined manual mixing trial and A–H hot cues have user
-acceptance; the new prepared loop/tempo combination still needs its hands-on
-check. M3's shared sustained audio/UI gate remains open before `0.1.0`; complete
-and verify each new control before enabling it.
+[current-player hour](../benchmarks/current-player-hour-2026-10-29.md) passed
+on the primary laptop at 2.729-second p99, with no steady starvation or callback
+misses, under the tested fixed mix, copied shader cache and temporary 15 W
+short-term cap. Apollo also completed an hour on private virtual audio; that
+secondary result cannot replace the primary-laptop gate. Earlier failed hours
+and short diagnostics remain retained. The combined manual mixing trial and
+A–H hot cues have user acceptance; the prepared loop/tempo combination still
+needs its hands-on check. Musical-analysis/fallback qualification, hard-worker
+cancellation and live-stem tempo remain open before `0.1.0`. Complete and verify
+each new control before enabling it; the fixed-mix hour does not exercise every
+M3 control or close either milestone.
 
 | Milestone | Work | Evidence required before moving on |
 | --- | --- | --- |
