@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "source_head": "6e1623ff0261d3cc5200380cd8f1b15260bc57f4",
+  "quality": "Best",
+  "strict_p99_target_ms": 4095,
+  "laptop": {
+    "schema": 1,
+    "utc": "2026-10-30T05:00:00.562322+00:00",
+    "source_head": "6e1623ff0261d3cc5200380cd8f1b15260bc57f4",
+    "quality": "Best",
+    "primary_laptop_hour_scope_qualified": true,
+    "M2_M3_complete": false,
+    "release_published": false,
+    "measured_wall_ms": 3600011,
+    "p99_recomputed_from_all_completed_hops": true,
+    "service_hops": {
+      "count": 537,
+      "maximum_ms": 2833.983961958438,
+      "nearest_rank_p99_ms": 2728.7945770658553,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 0,
+      "complete": true
+    },
+    "thermal_summary": {
+      "samples": 1761,
+      "sample_interval_seconds": 2,
+      "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+      "maximum_observed_millidegrees_C": 77000,
+      "85000": {
+        "samples_at_or_above": 0,
+        "longest_consecutive_sample_span_seconds": 0.0
+      },
+      "95000": {
+        "samples_at_or_above": 0,
+        "longest_consecutive_sample_span_seconds": 0.0
+      },
+      "profile_epp_observations": [
+        {
+          "at_utc": "2026-10-30T03:55:27.334696+00:00",
+          "values": {
+            "/sys/firmware/acpi/platform_profile": "balanced",
+            "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+          }
+        }
+      ]
+    },
+    "configured_MMIO_long_short_samples": {
+      "15000000/15000000": 1761
+    },
+    "profile_samples": {
+      "balanced": 1761
+    },
+    "steady_starved_frames": 0,
+    "control_starved_frames": 22956032,
+    "control_starved_seconds": 478.2506666666667,
+    "timing": [
+      {
+        "at_least_100ms": 0,
+        "callbacks": 679842,
+        "driver_cycle_available": true,
+        "driver_discontinuity_flag_mask": 16,
+        "driver_position_discontinuities": 0,
+        "driver_position_observed": true,
+        "driver_recovery_flag_mask": 2,
+        "driver_recovery_flags": 0,
+        "execution_deadline_misses": 0,
+        "execution_p999_upper_us": 197,
+        "execution_p99_upper_us": 140,
+        "graph_quantum_max": 256,
+        "graph_quantum_min": 256,
+        "maximum_execution_ns": 1342334
+      }
+    ],
+    "recording": {
+      "acceptedFrames": 173079296,
+      "active": false,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/home/kyau/projects/kyaulabs/conflux/build/m2-current-player-hour-04/packet-01/laptop-results-01/candidate/output-01/master.wav",
+      "status": "Complete",
+      "writtenFrames": 173079296
+    },
+    "recorded_audio": {
+      "channels": 2,
+      "format": 65542,
+      "frames": 173079296,
+      "nonzero_samples": 345719137,
+      "peak_left": 0.05362687632441521,
+      "peak_right": 0.053402915596961975,
+      "sample_rate": 48000
+    },
+    "replays": 133,
+    "eof_count": 133,
+    "peer_rewinds": 8,
+    "logical_unfinished_generation_seek": {
+      "submitted": true,
+      "exercised": true,
+      "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+    },
+    "stale_packets_discarded": 1,
+    "hard_GPU_worker_termination_exercised": false,
+    "load_to_first_cursor_poll_upper_ms": 5819.813046,
+    "invalid_buffers": 0,
+    "source_read_failures": 0,
+    "rejected_commands": 0,
+    "scene_errors": [],
+    "telemetry": {
+      "attempted": 38063,
+      "bytes": 21701957,
+      "dropped": 0,
+      "invalid_clock_reads": 0,
+      "producer_finished": true,
+      "retained": 38063
+    },
+    "diagnostic_tail": {
+      "WAV_finalized_before_idle_close": true,
+      "begin_ns": 595583726625084,
+      "callback_deadline_misses": 0,
+      "close_budget_seconds": 3,
+      "close_requested_ns": 595603262148923,
+      "converter_complete": true,
+      "drain_state": 2,
+      "elapsed_ms": 19853,
+      "end_ns": 595603580283433,
+      "epoch": 136,
+      "generation": 135,
+      "invalid_buffers": 0,
+      "last_output_advance_ns": 595603569562619,
+      "measured_boundary_closed": true,
+      "measured_output_end_begin": 173085440,
+      "measured_output_end_end": 173085440,
+      "measured_wall_ms_begin": 3600011,
+      "measured_wall_ms_end": 3600011,
+      "output_begin": 173085440,
+      "output_end": 174039552,
+      "output_progress_observed": true,
+      "raw_complete": true,
+      "recording_written_frames_begin": 173079296,
+      "recording_written_frames_end": 173079296,
+      "render_eof": true,
+      "scope": "Measured interval is closed; WAV finalized before EOF/idle-close drain, whose later audio is unrecorded; every completed hop retained",
+      "source_read_error": false,
+      "starved_a": 0,
+      "starved_b": 0,
+      "status": "ReadyForStop",
+      "tail_budget_seconds": 60,
+      "validated_hops_begin": 536,
+      "validated_hops_end": 537
+    },
+    "owner_cleanup_proven": true,
+    "scope": "Current fixed-mix player at Best quality, Balanced 15 W long/temporary 15 W short cap, original guard, copied verified shader cache, visible 16 ms UI; no permanent host policy or full milestone promotion."
+  },
+  "apollo": {
+    "measured_wall_ms": 3600005,
+    "measurement_complete": true,
+    "service_hops": {
+      "count": 555,
+      "maximum_ms": 1026.121711009182,
+      "nearest_rank_p99_ms": 994.3267190828919,
+      "strict_target_ms": 4095,
+      "at_or_above_target": 0,
+      "complete": true
+    },
+    "steady_starved_frames": 0,
+    "control_starved_frames": 18548224,
+    "control_starved_seconds": 386.42133333333334,
+    "callback_deadline_misses": 0,
+    "driver_discontinuities": 0,
+    "driver_recovery_flags": 0,
+    "invalid_buffers": 0,
+    "source_read_failures": 0,
+    "rejected_commands": 0,
+    "scene_errors": [],
+    "recording": {
+      "acceptedFrames": 173330432,
+      "active": false,
+      "error": "",
+      "overflowFrames": 0,
+      "path": "/results/private-player-01/recordings/actual-player/master.wav",
+      "status": "Complete",
+      "writtenFrames": 173330432
+    },
+    "recorded_audio": {
+      "channels": 2,
+      "format": 65542,
+      "frames": 173330432,
+      "nonzero_samples": 346298003,
+      "peak_left": 0.05363132059574127,
+      "peak_right": 0.05337928980588913,
+      "sample_rate": 48000
+    },
+    "replays": 137,
+    "eof_count": 137,
+    "peer_controls": 8,
+    "incomplete_generation_seek": {
+      "submitted": true,
+      "exercised": true,
+      "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+    },
+    "stale_packets_discarded": 1,
+    "hard_worker_termination_exercised": false,
+    "observation_counters": {
+      "attempted": 39203,
+      "bytes": 22386158,
+      "dropped": 0,
+      "invalid_clock_reads": 0,
+      "producer_finished": true,
+      "retained": 39203
+    },
+    "error": "",
+    "load_to_first_cursor_poll_upper_ms": 11009.812188,
+    "thermal_summary": null
+  },
+  "successful_hours_started_together": false,
+  "M2_M3_complete": false,
+  "release_published": false
+}

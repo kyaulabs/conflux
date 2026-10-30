@@ -144,6 +144,16 @@ public:
     void validate(bool value) { armed_.store(value, std::memory_order_release); }
     bool observingValidation() const { return observedArmed_.load(std::memory_order_acquire); }
     std::uint64_t received(std::size_t channel) const { return received_[channel].load(); }
+    std::uint64_t processed(std::size_t channel) const { return processed_[channel].load(std::memory_order_acquire); }
+    QJsonObject firstMismatch() const
+    {
+        if (!mismatchReady_.load(std::memory_order_acquire)) return {};
+        return {{"graph_position", qint64(mismatch_.position)}, {"graph_nsec", qint64(mismatch_.nsec)},
+            {"checked_before_callback", qint64(mismatch_.checked)}, {"channel", int(mismatch_.channel)},
+            {"first_bad_frame", int(mismatch_.frame)}, {"callback_frames", int(mismatch_.frames)},
+            {"first_value", QString::number(mismatch_.first, 'g', 9)},
+            {"last_value", QString::number(mismatch_.last, 'g', 9)}};
+    }
     std::uint64_t wrong() const { return wrong_.load(); }
     std::uint64_t zeros() const { return zeros_.load(); }
 private:
@@ -161,14 +171,23 @@ private:
         if (!position || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
         const bool armed = self.armed_.load(std::memory_order_acquire);
-        std::array<std::uint64_t, 2> received{};
+        std::array<std::uint64_t, 2> received{}, processed{};
         for (std::size_t channel = 0; channel < self.ports_.size(); ++channel) {
             const auto* samples = static_cast<const float*>(pw_filter_get_dsp_buffer(self.ports_[channel], frames));
-            if (!samples || !armed) continue;
+            if (!samples) continue;
+            processed[channel] = frames;
+            if (!armed) continue;
             std::uint64_t wrong = 0, zeros = 0;
             for (std::size_t frame = 0; frame < frames; ++frame) {
                 zeros += samples[frame] == 0.F;
-                wrong += !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
+                const bool bad = !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
+                wrong += bad;
+                if (bad && !self.mismatchReady_.load(std::memory_order_relaxed)) {
+                    self.mismatch_ = {position->clock.position, position->clock.nsec,
+                        self.received_[channel].load(std::memory_order_relaxed), std::uint32_t(channel),
+                        frame, frames, samples[frame], samples[frames - 1]};
+                    self.mismatchReady_.store(true, std::memory_order_release);
+                }
             }
             self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
             self.zeros_.fetch_add(zeros, std::memory_order_relaxed);
@@ -177,8 +196,10 @@ private:
         // Counts acknowledge both channels' completed sample/error checks.
         // Disarming is observed only after any previously armed work finishes.
         self.observedArmed_.store(armed, std::memory_order_release);
-        for (std::size_t channel = 0; channel < received.size(); ++channel)
+        for (std::size_t channel = 0; channel < received.size(); ++channel) {
+            self.processed_[channel].fetch_add(processed[channel], std::memory_order_release);
             self.received_[channel].fetch_add(received[channel], std::memory_order_release);
+        }
     }
     static const pw_filter_events& events()
     {
@@ -188,7 +209,13 @@ private:
     std::string name_;
     const float tolerance_;
     std::array<void*, 2> ports_{};
-    std::array<std::atomic<std::uint64_t>, 2> received_{};
+    std::array<std::atomic<std::uint64_t>, 2> received_{}, processed_{};
+    struct Mismatch {
+        std::uint64_t position = 0, nsec = 0, checked = 0;
+        std::uint32_t channel = 0, frame = 0, frames = 0;
+        float first = 0, last = 0;
+    } mismatch_;
+    std::atomic<bool> mismatchReady_{false};
     std::atomic<std::uint64_t> wrong_{0}, zeros_{0};
     std::atomic<bool> armed_{false};
     std::atomic<bool> observedArmed_{false};
@@ -1090,11 +1117,17 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         settle();
         auto checkCue = [&] {
             const auto left = cue.received(0), right = cue.received(1);
+            const auto wrongBefore = cue.wrong(), zerosBefore = cue.zeros();
+            const auto processedLeft = cue.processed(0), processedRight = cue.processed(1);
             cue.validate(true);
             await([&] { return cue.received(0) >= left + 1024 && cue.received(1) >= right + 1024; }, "Fresh equalized cue samples did not arrive");
             QJsonArray checks = detail["cue_checks"].toArray();
             checks.append(QJsonObject{{"received_left_before", qint64(left)}, {"received_right_before", qint64(right)},
                 {"received_left_after", qint64(cue.received(0))}, {"received_right_after", qint64(cue.received(1))},
+                {"wrong_before", qint64(wrongBefore)}, {"zeros_before", qint64(zerosBefore)},
+                {"processed_left_before", qint64(processedLeft)}, {"processed_right_before", qint64(processedRight)},
+                {"processed_left_after", qint64(cue.processed(0))}, {"processed_right_after", qint64(cue.processed(1))},
+                {"first_mismatch", cue.firstMismatch()},
                 {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
                 {"validation_acknowledged", cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
                 {"output_frame", qint64(controller.audioState().outputFrame)}});
@@ -1111,6 +1144,9 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         // checkCue above proved a completed armed callback, so this false ACK
         // cannot be the initial default or precede in-flight armed sample work.
         await([&] { return !cue.observingValidation(); }, "Cue validation did not acknowledge disarm before rebuild");
+        detail["cue_disarmed_before_rebuild"] = QJsonObject{{"wrong", qint64(cue.wrong())},
+            {"zeros", qint64(cue.zeros())}, {"processed_left", qint64(cue.processed(0))},
+            {"processed_right", qint64(cue.processed(1))}, {"first_mismatch", cue.firstMismatch()}};
         // Exercise an old GUI checkpoint while the current session keeps advancing.
         // It must not later be mistaken for settled output from the rebuilt session.
         await([&] { return controller.audioState().outputFrame >= beforeRoute.outputFrame + 8192; },
@@ -1132,8 +1168,12 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         // The pre-rebuild source checkpoint can already be old. Measure settling
         // from this ready session's output clock, not that earlier source cursor.
         detail["rebuild_cue_ready_output_frame"] = qint64(controller.audioState().outputFrame);
+        detail["rebuild_cue_ready_processed_left"] = qint64(cue.processed(0));
+        detail["rebuild_cue_ready_processed_right"] = qint64(cue.processed(1));
         settle();
         detail["rebuild_settled_output_frame"] = qint64(controller.audioState().outputFrame);
+        detail["rebuild_settled_processed_left"] = qint64(cue.processed(0));
+        detail["rebuild_settled_processed_right"] = qint64(cue.processed(1));
         checkCue();
         detail["boost_rebuild_recording"] = finishRecording(boostPath, prefix, float(boost * .125), true);
         const auto final = controller.audioState();
@@ -1152,6 +1192,16 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
     } catch (const std::exception& error) {
         detail["passed"] = false; detail["error"] = error.what();
         detail["recording_at_failure"] = QJsonObject::fromVariantMap(controller.recording());
+        detail["cue_at_failure"] = QJsonObject{{"wrong", qint64(cue.wrong())},
+            {"zeros", qint64(cue.zeros())}, {"first_mismatch", cue.firstMismatch()}};
+        const auto state = controller.audioState();
+        detail["audio_state_at_failure"] = QJsonObject{{"output_frame", qint64(state.outputFrame)},
+            {"source_frames", QJsonArray{qint64(state.sourceFrame[0]), qint64(state.sourceFrame[1])}},
+            {"starved_frames", QJsonArray{qint64(state.starvedFrames[0]), qint64(state.starvedFrames[1])}},
+            {"buffering", QJsonArray{state.buffering[0], state.buffering[1]}},
+            {"read_errors", QJsonArray{state.sourceReadError[0], state.sourceReadError[1]}},
+            {"invalid_buffers", qint64(state.invalidBuffers)}, {"rejected", qint64(state.rejected)},
+            {"cue_ready", state.cueReady}};
         (void)save(detailPath, detail); controller.shutdown(); throw;
     }
 }

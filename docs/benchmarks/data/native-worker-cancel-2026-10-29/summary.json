@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "hosts": {
+    "laptop": {
+      "passed": true,
+      "close_ms": 34.556193,
+      "native_returncode": -9,
+      "native_pidfd_readable": true,
+      "native_reaped": true,
+      "supervisor_thread_stopped": true,
+      "native_spool_absent": true,
+      "partial_chunks_published": 0,
+      "native_identity": {
+        "pid": 2441454,
+        "start_ticks": 63037906,
+        "group": 2441448,
+        "session": 2441448
+      },
+      "input_close_read_observed_ns": 597494379681368,
+      "GPU_fence_preemption_proven": false,
+      "full_player_shutdown_qualified": false
+    },
+    "apollo": {
+      "passed": true,
+      "close_ms": 69.739053,
+      "native_returncode": -9,
+      "native_pidfd_readable": true,
+      "native_reaped": true,
+      "supervisor_thread_stopped": true,
+      "native_spool_absent": true,
+      "partial_chunks_published": 0,
+      "native_identity": {
+        "pid": 62,
+        "start_ticks": 61065273,
+        "group": 60,
+        "session": 60
+      },
+      "input_close_read_observed_ns": 610653661504285,
+      "GPU_fence_preemption_proven": false,
+      "full_player_shutdown_qualified": false
+    }
+  },
+  "owners_retired": true,
+  "host_power_policy_changed": false,
+  "M2_M3_complete": false
+}
