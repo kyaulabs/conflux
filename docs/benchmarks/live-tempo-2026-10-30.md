@@ -24,8 +24,8 @@ joins the old input worker before restoring the selected tempo on a new worker.
 The [verification record](data/live-tempo-2026-10-30/verification.json) binds the
 changed source files and completed checks to the develop parent
 `18b3fde9aa81298fb4bcca8964203d933a82d881`.
-The [archive manifest](data/live-tempo-2026-10-30/manifest.json) pins 43 original
-text records in three gzip JSON bundles. They contain no music, model weights,
+The [archive manifest](data/live-tempo-2026-10-30/manifest.json) pins 52 original
+text records in four gzip JSON bundles. They contain no music, model weights,
 executables or caches.
 
 | Check | Result and scope |
@@ -36,6 +36,31 @@ executables or caches.
 | Apollo CPU checks | All seven selected audio suites passed. The later RenderCore case passed after recompiling only its test; product audio archives were unchanged. Both containers were absent after completion. No GPU or audio device was exposed. |
 | ASan/UBSan and leak checks | Four selected suites passed. The first executables could not initialize ASan because their PIE mapping overlapped shadow memory. Relinking only the test executables without PIE resolved startup; the instrumented audio archives, production flags and host security settings were unchanged. Initial failures are retained. |
 | ThreadSanitizer | All four selected suites passed with the product audio library instrumented. Third-party DSP libraries were not instrumented in either sanitizer run. |
+
+The initial signed source `3a932eb079c35af6f64d265894e09ea3eafdb8a6`
+passed five of six push/PR CI jobs. Both Linux core suites passed all 60 targets;
+both coverage jobs and PR Linux passed their later virtual-routing checks.
+The [push Linux job](https://github.com/kyaulabs/conflux/actions/runs/41035541790/job/123995345374)
+failed the strict continuation check after ten GUI snapshot reports were dropped.
+The peer advanced exactly 50,432 frames with the output clock and had no
+buffering, starvation, read errors, invalid buffers or rejected commands.
+Only the snapshot-drop predicate failed. Its cause remains unresolved; no
+oracle or threshold was relaxed and no workflow was retried.
+
+The unchanged local scenario subsequently passed all 19 checks and classified
+every stereo frame of its 26,112-frame recording, with maximum oracle error
+1.49e-8. Its private daemon was reaped. Initial PR coverage measured
+**10,450/11,643 C++ lines (89.75%)** and **1,463/1,680 Python lines (87.08%)**.
+Push coverage measured 89.72% and 87.08%. QML and the native stem adapter remain
+unmeasured. These figures belong to the initial signed source.
+
+The existing control-status help was then corrected to describe eligible live
+tempo and prepared loop/tempo support. The rebuilt player's offscreen software
+smoke check exited successfully with 119 frames. It uses the existing harness,
+so the normal help panel was not opened. Product audio sources were unchanged. The [follow-up record](data/live-tempo-2026-10-30/followup.json)
+retains the original CI failure, exact comparison, coverage artifact digests,
+local reproduction and help/binary hashes. This follow-up does not establish a
+fix for the original snapshot loss.
 
 The live-owner behavior test first failed because tempo hooks were unavailable.
 A subsequent mode-change regression detected repeated separation of already
