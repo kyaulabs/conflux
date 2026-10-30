@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "question_item_id": "call_bc8e9ff58bea46d08f318a1b3c2c7b83",
+  "question": "Make a short manual loop, change BPM with Master Tempo on/off, then try EXIT and RELOOP. Check for clicks, cutouts or unstable timing.",
+  "answer": "loops work good",
+  "follow_up": "i closed conflux",
+  "accepted": true,
+  "scope": "User response to the combined prepared-loop/BPM/Master Tempo listening check; no live-stem tempo or hardware qualification is implied."
+}

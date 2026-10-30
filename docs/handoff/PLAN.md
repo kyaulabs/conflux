@@ -511,9 +511,12 @@ misses, under the tested fixed mix, copied shader cache and temporary 15 W
 short-term cap. Apollo also completed an hour on private virtual audio; that
 secondary result cannot replace the primary-laptop gate. Earlier failed hours
 and short diagnostics remain retained. The combined manual mixing trial and
-A–H hot cues have user acceptance; the prepared loop/tempo combination still
-needs its hands-on check. Musical-analysis/fallback qualification, hard-worker
-cancellation and live-stem tempo remain open before `0.1.0`. Complete and verify
+A–H hot cues have user acceptance; the later combined prepared-loop/tempo
+listening check was also accepted with "loops work good". Actual native-worker
+forced cleanup passed at the consumed-input boundary on both hosts; active
+GPU-fence/full-player shutdown remains unqualified. Musical-analysis/fallback
+qualification, remaining cancellation coverage and live-stem tempo remain open
+before `0.1.0`. Complete and verify
 each new control before enabling it; the fixed-mix hour does not exercise every
 M3 control or close either milestone.
 

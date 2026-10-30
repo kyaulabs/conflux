@@ -1,0 +1,7 @@
+{
+  "unit": "conflux-loop-tempo-user-trial-20261029-01.service",
+  "user_reported_closed": true,
+  "exit_state": "ActiveState=active\nSubState=exited\nMainPID=0\nResult=success\nExecMainStatus=0\n",
+  "retired_state": "LoadState=not-found\nMainPID=0\nControlGroup=\n",
+  "client_stopped_by_user": true
+}
