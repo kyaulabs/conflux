@@ -113,7 +113,9 @@ void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t 
 
 class Sink {
 public:
-    explicit Sink(std::string name, float tolerance = 0.F) : name_(std::move(name)), tolerance_(tolerance)
+    explicit Sink(std::string name, float tolerance = 0.F,
+                  std::uint64_t validationFrames = std::numeric_limits<std::uint64_t>::max())
+        : name_(std::move(name)), tolerance_(tolerance), validationFrames_(validationFrames)
     {
         loop_ = pw_thread_loop_new(name_.c_str(), nullptr);
         if (!loop_) throw std::runtime_error("Cannot create private sink loop");
@@ -171,14 +173,17 @@ private:
         if (!position || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
         const bool armed = self.armed_.load(std::memory_order_acquire);
+        if (armed && !self.wasArmed_) self.remaining_.fill(self.validationFrames_);
+        self.wasArmed_ = armed;
         std::array<std::uint64_t, 2> received{}, processed{};
         for (std::size_t channel = 0; channel < self.ports_.size(); ++channel) {
             const auto* samples = static_cast<const float*>(pw_filter_get_dsp_buffer(self.ports_[channel], frames));
             if (!samples) continue;
             processed[channel] = frames;
             if (!armed) continue;
+            const auto checked = std::min<std::uint64_t>(frames, self.remaining_[channel]);
             std::uint64_t wrong = 0, zeros = 0;
-            for (std::size_t frame = 0; frame < frames; ++frame) {
+            for (std::size_t frame = 0; frame < checked; ++frame) {
                 zeros += samples[frame] == 0.F;
                 const bool bad = !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
                 wrong += bad;
@@ -191,7 +196,8 @@ private:
             }
             self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
             self.zeros_.fetch_add(zeros, std::memory_order_relaxed);
-            received[channel] = frames;
+            self.remaining_[channel] -= checked;
+            received[channel] = checked;
         }
         // Counts acknowledge both channels' completed sample/error checks.
         // Disarming is observed only after any previously armed work finishes.
@@ -208,6 +214,10 @@ private:
     }
     std::string name_;
     const float tolerance_;
+    const std::uint64_t validationFrames_;
+    // Callback-owned budgets restart only after an acknowledged disarm.
+    std::array<std::uint64_t, 2> remaining_{};
+    bool wasArmed_ = false;
     std::array<void*, 2> ports_{};
     std::array<std::atomic<std::uint64_t>, 2> received_{}, processed_{};
     struct Mismatch {
@@ -1039,7 +1049,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
     };
     conflux::DeckController controller;
     Sink master("conflux-eq-master-" + std::to_string(::getpid()));
-    Sink cue("conflux-eq-cue-" + std::to_string(::getpid()), 1e-6F);
+    constexpr std::uint64_t cueProbeFrames = 1024;
+    Sink cue("conflux-eq-cue-" + std::to_string(::getpid()), 1e-6F, cueProbeFrames);
     controller.refreshAudioRouting();
     std::array<QString, 4> ports;
     await([&] {
@@ -1120,7 +1131,16 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             const auto wrongBefore = cue.wrong(), zerosBefore = cue.zeros();
             const auto processedLeft = cue.processed(0), processedRight = cue.processed(1);
             cue.validate(true);
-            await([&] { return cue.received(0) >= left + 1024 && cue.received(1) >= right + 1024; }, "Fresh equalized cue samples did not arrive");
+            await([&] { return cue.received(0) >= left + cueProbeFrames && cue.received(1) >= right + cueProbeFrames; }, "Fresh equalized cue samples did not arrive");
+            // Delay the observer deliberately: subsequent virtual callbacks must
+            // not extend this sample probe into an accidental continuity test.
+            const auto completedLeft = cue.processed(0), completedRight = cue.processed(1);
+            await([&] { return cue.processed(0) >= completedLeft + 2048 && cue.processed(1) >= completedRight + 2048; },
+                  "Cue receiver did not advance after the bounded sample probe");
+            cue.validate(false);
+            await([&] { return !cue.observingValidation(); }, "Cue sample probe did not acknowledge disarm");
+            require(cue.received(0) == left + cueProbeFrames && cue.received(1) == right + cueProbeFrames,
+                    "Delayed observer cannot extend either channel beyond its exact cue probe");
             QJsonArray checks = detail["cue_checks"].toArray();
             checks.append(QJsonObject{{"received_left_before", qint64(left)}, {"received_right_before", qint64(right)},
                 {"received_left_after", qint64(cue.received(0))}, {"received_right_after", qint64(cue.received(1))},
@@ -1129,7 +1149,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
                 {"processed_left_after", qint64(cue.processed(0))}, {"processed_right_after", qint64(cue.processed(1))},
                 {"first_mismatch", cue.firstMismatch()},
                 {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
-                {"validation_acknowledged", cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
+                {"validation_frames_per_channel", qint64(cueProbeFrames)},
+                {"validation_disarmed", !cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
                 {"output_frame", qint64(controller.audioState().outputFrame)}});
             detail["cue_checks"] = checks;
             require(!cue.wrong() && !cue.zeros(), "Prefader cue contains analytic boosted PCM independently of channel/master/crossfader gains");
@@ -1140,10 +1161,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         await([&] { return controller.recording()["status"].toString() == "Recording" &&
             controller.recording()["acceptedFrames"].toULongLong() >= 2048; }, "Boost EQ recording did not attach");
         const auto prefix = controller.recording()["acceptedFrames"].toULongLong();
-        const auto beforeRoute = controller.audioState(); const auto sourceIds = controller.decks(); cue.validate(false);
-        // checkCue above proved a completed armed callback, so this false ACK
-        // cannot be the initial default or precede in-flight armed sample work.
-        await([&] { return !cue.observingValidation(); }, "Cue validation did not acknowledge disarm before rebuild");
+        const auto beforeRoute = controller.audioState(); const auto sourceIds = controller.decks();
+        // checkCue has completed and acknowledged disarm before any rebuild.
         detail["cue_disarmed_before_rebuild"] = QJsonObject{{"wrong", qint64(cue.wrong())},
             {"zeros", qint64(cue.zeros())}, {"processed_left", qint64(cue.processed(0))},
             {"processed_right", qint64(cue.processed(1))}, {"first_mismatch", cue.firstMismatch()}};
@@ -1187,6 +1206,25 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         detail["peer_replacement_advance"] = qint64(installed.sourceFrame[1] - beforeReplace.sourceFrame[1]);
         detail["rebuild_source_frames_before"] = QJsonArray{qint64(beforeRoute.sourceFrame[0]), qint64(beforeRoute.sourceFrame[1])};
         detail["rebuild_source_frames_after"] = QJsonArray{qint64(restored.sourceFrame[0]), qint64(restored.sourceFrame[1])};
+        // Prove the bounded oracle still rejects bad samples inside its window.
+        // Keep its cumulative mismatch latch; never clear a failed positive probe.
+        controller.setCueGain(0.);
+        await([&] { return controller.audioState().cueGain == 0.F; }, "Silent cue target was not acknowledged");
+        settle();
+        const auto negativeLeft = cue.received(0), negativeRight = cue.received(1);
+        cue.validate(true);
+        await([&] { return cue.received(0) >= negativeLeft + cueProbeFrames &&
+                          cue.received(1) >= negativeRight + cueProbeFrames; }, "Negative cue probe did not complete");
+        cue.validate(false);
+        await([&] { return !cue.observingValidation(); }, "Negative cue probe did not acknowledge disarm");
+        require(cue.received(0) == negativeLeft + cueProbeFrames && cue.received(1) == negativeRight + cueProbeFrames &&
+                cue.wrong() == 2 * cueProbeFrames && cue.zeros() == 2 * cueProbeFrames && !cue.firstMismatch().isEmpty(),
+                "Bounded cue probe rejects every intentionally silent sample on both channels");
+        detail["negative_cue_probe"] = QJsonObject{{"expected_silence", true},
+            {"checked_left_frames", qint64(cue.received(0) - negativeLeft)},
+            {"checked_right_frames", qint64(cue.received(1) - negativeRight)},
+            {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
+            {"first_mismatch", cue.firstMismatch()}};
         require(save(detailPath, detail), "Bounded EQ controller/sample evidence is retained");
         controller.shutdown(); observations["eq_controller"] = detail;
     } catch (const std::exception& error) {

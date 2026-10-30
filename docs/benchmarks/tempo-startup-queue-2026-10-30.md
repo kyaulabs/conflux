@@ -55,7 +55,28 @@ ASLR, host power or thermal policy was weakened.
 The [verification record](data/tempo-startup-queue-2026-10-30/verification.json)
 and [archive manifest](data/tempo-startup-queue-2026-10-30/manifest.json) bind the
 source, protocols and retained results. No music, model, executable or cache is
-included. Current-build recovery listening, laptop/Apollo audio/UI measurements
-and sustained workload qualification remain open. The Best-quality service
+included. The user accepted the offline recovery and prepared-return comparison
+on 30 October: “Recovery and return sound acceptable.” Those clips use `212b892`,
+before the startup-prefill change. Current-player laptop/Apollo audio/UI
+measurements and sustained qualification remain open. The Best-quality service
 requirement remains p99 below 4.095 seconds on the primary laptop. M2, M3 and
 0.1.0 remain open.
+
+Both CI workflows for `a0d68c1` passed all 60 CTest targets. The PR workflow
+passed; the push coverage workflow failed its separate generated EQ/CUE check.
+Its receiver latched one all-zero stereo callback after the first 1,024-frame
+probe had completed but before validation was disarmed. The later probe added
+no errors. Application starvation, invalid-buffer and read-error counters stayed
+zero, and the master recording passed its sample checks. The failed run remains
+a failure; those observations do not establish physical audio continuity.
+
+The EQ test now bounds each probe to exactly 1,024 frames per channel in the
+receiver callback. It deliberately waits through another 2,048 delivered frames
+before disarming, checking that observer delay cannot extend either probe. It
+also checks an intentionally silent CUE window: all 2,048 stereo samples must be
+rejected. The cumulative mismatch latch is never cleared. Both complete private
+preparation checks passed on the laptop and Apollo; their daemons, graph nodes
+and owned runners were removed. Other receiver checks retain continuous
+validation. Product audio, deadlines and physical continuity gates are unchanged.
+The [follow-up evidence](data/cue-probe-2026-10-30/verification.json) retains the
+original CI failure, exact test delta, paired results and listening receipt.
