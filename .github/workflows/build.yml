@@ -54,8 +54,18 @@ jobs:
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-callback-interior-check --resident-takeover-case interior
       - name: Test resident range callback alignment
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-callback-boundary-check --resident-takeover-case boundary
+      - name: Check processed resident takeover (tempo-fast)
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-tempo-fast-check --resident-takeover-case tempo-fast
+      - name: Check processed resident takeover (tempo-slow)
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-tempo-slow-check --resident-takeover-case tempo-slow
+      - name: Check processed resident takeover (tempo-master-fast)
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-tempo-master-fast-check --resident-takeover-case tempo-master-fast
+      - name: Check processed resident takeover (tempo-master-slow)
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-manual-routing-check build/resident-tempo-master-slow-check --resident-takeover-case tempo-master-slow
       - name: Test resident prepared continuation
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-takeover-check --continuation-case resident-takeover
+      - name: Check automatic processed resident takeover
+        run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-tempo-takeover-check --functional-only --continuation-case resident-tempo-takeover
       - name: Test resident continuation cancellation
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-cancel-check --continuation-case resident-cancel
 

@@ -1260,15 +1260,58 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         }
     }
     if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
-    continuationPrimeFrame_ = frame;
+    continuationPrimePosition_ = double(frame);
     unusedContinuationPrime_ = bool(bank_);
     return true;
 }
 
-bool PreparedPlayback::primeTempo(std::uint64_t frame, double percent, bool keyLock,
+bool PreparedPlayback::primeContinuation(double position, const AudioTempoState& tempo,
+                                          std::chrono::milliseconds timeout, std::stop_token stop)
+{
+    unusedContinuationPrime_ = false;
+    const auto now = Clock::now();
+    if (live_ || !bank_ || !std::isfinite(position) || position < 0 || position >= double(frames_) ||
+        !std::isfinite(tempo.percent) || tempo.percent < -6 || tempo.percent > 6 || tempo.finished ||
+        (tempo.active && !tempo.supported) ||
+        (!tempo.active && (tempo.percent != 0 || position != std::floor(position))) ||
+        loop_.inSet || loop_.outSet || loop_.active || loop_.cached ||
+        (scratchSource_ && scratchSource_->active()) || timeout.count() < 0 ||
+        timeout > std::chrono::duration_cast<std::chrono::milliseconds>(Clock::time_point::max()-now)) {
+        primeError_.store(EINVAL,std::memory_order_relaxed);
+        return false;
+    }
+    if (stopped_ || stop.stop_requested()) {
+        primeError_.store(ECANCELED,std::memory_order_relaxed);
+        return false;
+    }
+    primeError_.store(0,std::memory_order_relaxed);
+    if (!tempo.active) {
+        if (tempoSource_ && tempoSource_->status().active && !tempoSource_->cancel()) {
+            primeError_.store(EIO,std::memory_order_relaxed);
+            return false;
+        }
+        tempoKeyLock_ = tempo.keyLock;
+        const auto remaining = std::max(std::chrono::milliseconds(0),
+            std::chrono::duration_cast<std::chrono::milliseconds>(now+timeout-Clock::now()));
+        return prime(std::uint64_t(position),remaining,stop);
+    }
+    if (!tempoSource_) {
+        primeError_.store(tempoSetupError_ ? tempoSetupError_ : EIO,std::memory_order_relaxed);
+        return false;
+    }
+    if (!primeTempo(position,tempo.percent,tempo.keyLock,now+timeout,stop)) return false;
+    tempoKeyLock_ = tempo.keyLock;
+    continuationPrimePosition_ = position;
+    unusedContinuationPrime_ = true;
+    return true;
+}
+
+bool PreparedPlayback::primeTempo(double position, double percent, bool keyLock,
                                   Clock::time_point deadline, std::stop_token stop)
 {
-    if (!tempoSource_->request(frame, percent, keyLock)) {
+    const bool requested = live_ ? tempoSource_->request(std::uint64_t(position),percent,keyLock)
+                                 : tempoSource_->requestAt(position,percent,keyLock);
+    if (!requested) {
         const int code = tempoSource_->errorCode();
         primeError_.store(code ? code : EIO, std::memory_order_relaxed);
         return false;
@@ -1343,10 +1386,10 @@ bool PreparedPlayback::copyStemMixStateFrom(const PreparedPlayback& source) noex
     return bank_->copyMixStateFrom(*source.bank_);
 }
 
-bool PreparedPlayback::primedForContinuation(std::uint64_t frame) const noexcept
+bool PreparedPlayback::primedForContinuation(double position) const noexcept
 {
-    return !live_ && !stopped_ && bank_ && unusedContinuationPrime_ && frame < frames_ &&
-        continuationPrimeFrame_ == frame && !errorCode();
+    return !live_ && !stopped_ && bank_ && unusedContinuationPrime_ && std::isfinite(position) && position >= 0 && position < double(frames_) &&
+        continuationPrimePosition_ == position && !errorCode();
 }
 
 int PreparedPlayback::errorCode() const noexcept

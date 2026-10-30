@@ -412,6 +412,109 @@ void rebuildAndStopDuringRecovery()
                 "Shutdown failed to join active live/resident processors and producer");
     }
 }
+void renderTempoContinuation()
+{
+    std::array<std::unique_ptr<std::FILE,CloseReference>,4> files;
+    std::array<int,4> fds{};
+    for(std::size_t role=0;role<4;++role) {
+        files[role].reset(std::tmpfile());require(bool(files[role]),"Cannot create continuation bank fixture");
+        for(std::uint64_t first=0;first<extent;first+=1024) {
+            std::array<float,2048> block{};const auto count=std::min<std::uint64_t>(1024,extent-first);
+            for(std::size_t f=0;f<count;++f)for(std::size_t channel=0;channel<2;++channel)
+                block[f*2+channel]=sample(role,first+f,channel);
+            require(std::fwrite(block.data(),sizeof(float),count*2,files[role].get())==count*2,
+                    "Cannot write continuation bank fixture");
+        }
+        require(!std::fflush(files[role].get()),"Cannot flush continuation bank fixture");fds[role]=fileno(files[role].get());
+    }
+    for(const bool resident : {false,true})for(const bool keyLock : {false,true})for(const double percent : {-6.,6.}) {
+        AudioResidentHoldRange range{92,1234,1234+8193,8193*AudioResidentHoldRange::bytesPerFrame,
+            AudioResidentHoldRange::Provenance::DjRange};
+        const auto rangeId=resident ? range.id : 0;
+        auto control=std::make_shared<Control>();auto owner=PreparedPlayback::makeLive(5007,extent,producer(control),
+            resident ? std::optional(range) : std::nullopt);
+        require(owner->prime(0,std::chrono::seconds(4)),"Cannot prime live continuation fixture");
+        AudioSource peer{10000000,nullptr,nullptr,[](void*,std::uint64_t,std::span<float> pcm)noexcept{
+            std::fill(pcm.begin(),pcm.end(),.01F);return AudioReadResult{pcm.size()/2,false};}};
+        RenderCore core(owner->sourceRef(),peer);
+        require(core.setPlaying(0,true) && core.setPlaying(1,true) && core.setCueSelected(0,true) &&
+                core.setDeckGain(0,.5F) && core.setCrossfader(.25F) &&
+                core.setTempoPercent(0,percent) && (!keyLock || core.toggleMasterTempo(0)),
+                "Cannot select continuation transport/mix mode");
+        require(core.setStemGain(0,0,.5F),"Cannot select continuation drums");
+        for(std::size_t role=1;role<4;++role)require(core.setStemGain(0,role,0),"Cannot mute unwanted continuation stem");
+        std::array<float,514> master{},cue{};
+        auto render=[&](std::size_t frames=257){const auto clock=core.frameClock(),peerFrame=core.sourceFrame(1);
+            require(core.renderBuses(std::span(master).first(frames*2),std::span(cue).first(frames*2)) &&
+                    core.frameClock()==clock+frames && core.sourceFrame(1)==peerFrame+frames,
+                    "Continuation disturbed peer/output clocks");};
+        await([&]{render();return core.sourcePosition(0)>512 && core.tempoState(0).appliedPercent==percent;});
+        if(resident) {
+            require(core.residentHoldControl(0,AudioResidentHoldCommand::Arm,range.id,core.transportRevision(0)),
+                    "Cannot arm processed continuation recovery");
+            await([&]{return core.residentHoldState(0).ready;});
+            require(core.residentHoldControl(0,AudioResidentHoldCommand::Enter,range.id,core.transportRevision(0)),
+                    "Cannot enter processed continuation recovery");
+        }
+        control->failure.store(EIO);await([&]{return control->exited.load();});render();
+        const auto position=core.sourcePosition(0);const auto revision=core.transportRevision(0);
+        require(position!=std::floor(position),"Continuation fixture did not retain a fractional source position");
+        PreparedPlayback candidate(fds,extent);
+        const auto mode=core.tempoState(0);
+        for(const bool wrongKeyLock : {false,true}) {
+            auto mismatch=mode;
+            if(wrongKeyLock)mismatch.keyLock=!mode.keyLock;
+            else mismatch.percent=-mode.percent;
+            require(candidate.primeContinuation(position,mismatch,std::chrono::seconds(2)),
+                    "Cannot prime mismatched continuation fixture");
+            require(core.continuationStatus(0,candidate.sourceRef(),position,revision,rangeId)==RenderCore::ContinuationStatus::Invalid &&
+                    core.sourcePosition(0)==position && core.transportRevision(0)==revision &&
+                    candidate.primedForContinuation(position),
+                    "A prepared bank with another BPM or Master Tempo setting changed the live deck");
+        }
+        require(candidate.primeContinuation(position,mode,std::chrono::seconds(2)) &&
+                candidate.primedForContinuation(position),"Cannot prime tempo-matched continuation bank");
+        auto source=candidate.sourceRef();
+        require(core.continuationStatus(0,source,position+.125,revision,rangeId)==RenderCore::ContinuationStatus::Invalid &&
+                core.continuationStatus(0,source,position,revision+1,rangeId)==RenderCore::ContinuationStatus::Invalid,
+                "Stale continuation ticket was accepted");
+        require(core.continuationPrefixFrames(RenderCore::deckCount,257)==0 &&
+                core.continuationPrefixFrames(0,0)==0,"Invalid recovery prefix request returned audio frames");
+        if(resident) {
+            require(core.continuationStatus(0,source,position,revision,rangeId)==RenderCore::ContinuationStatus::WaitingForHoldOut,
+                    "Processed recovery continuation did not wait for its output boundary");
+            await([&]{
+                const auto before=core.residentHoldState(0);
+                if(before.audibleFrame==before.outFrame)return true;
+                const auto count=core.continuationPrefixFrames(0,257);
+                require(count>0 && count<=257,"Processed recovery produced an invalid output prefix");
+                render(count);
+                const auto after=core.residentHoldState(0);
+                require(after.active && after.audibleFrame>=before.audibleFrame &&
+                        after.audibleFrame<=after.outFrame && core.sourcePosition(0)==position &&
+                        candidate.primedForContinuation(position),
+                        "Recovery passed OUT or consumed the candidate inside a purported safe output prefix");
+                return after.audibleFrame==after.outFrame;
+            });
+            require(core.continuationPrefixFrames(0,257)==0,"Processed OUT sentinel allowed another old-source read");
+        } else require(core.continuationPrefixFrames(0,257)==0,"Unconfigured recovery invented an output boundary");
+        require(core.continuationStatus(0,source,position,revision,rangeId)==RenderCore::ContinuationStatus::Ready &&
+                candidate.copyStemMixStateFrom(*owner) && core.continueSource(0,source,position,revision,rangeId),
+                "Tempo-aware prepared handoff rejected a matching fractional cursor");
+        require(core.sourcePosition(0)==position && core.transportRevision(0)==revision+1 &&
+                core.tempoState(0).active && core.tempoState(0).percent==percent &&
+                core.tempoState(0).keyLock==keyLock && core.deckGain(0)==.5F && core.crossfader()==.25F &&
+                core.isCueSelected(0) && source.stemGain(source.context,0)==.5F,
+                "Prepared handoff changed position, mode or manual mixer state");
+        for(std::size_t role=1;role<4;++role)require(source.stemGain(source.context,role)==0,
+                "Prepared handoff restored an unwanted stem role");
+        for(std::size_t block=0;block<8;++block){render();require(!candidate.errorCode(),"Prepared handoff source failed");}
+        require(core.sourcePosition(0)>position && !candidate.primedForContinuation(position),
+                "Prepared handoff failed to consume its primed output");
+        candidate.stop();owner->stop();require(control->exited.load(),"Retired continuation producer remained live");
+    }
+}
+
 void renderProcessedRecovery()
 {
     for (const bool keyLock : {false,true}) {
@@ -469,6 +572,6 @@ void renderProcessedRecovery()
 }
 int main()
 {
-    try { pendingTempoArm(); liveControls(); renderCommands(); preservesConfiguredRecovery(); recoveryAtSelectedTempo(); rebuildAndStopDuringRecovery(); renderProcessedRecovery(); std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n"; return 0; }
+    try { pendingTempoArm(); liveControls(); renderCommands(); preservesConfiguredRecovery(); recoveryAtSelectedTempo(); rebuildAndStopDuringRecovery(); renderProcessedRecovery(); renderTempoContinuation(); std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n"; return 0; }
     catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

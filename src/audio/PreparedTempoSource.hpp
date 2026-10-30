@@ -75,6 +75,10 @@ public:
     // the bounded 256-frame to 64-second range. Natural wraps never re-prime.
     bool request(std::uint64_t frame, double percent, bool keyLock,
                  std::uint64_t loopIn = 0, std::uint64_t loopOut = 0) noexcept;
+    // Prepared linear continuation keeps a fractional nominal transport cursor.
+    // Immutable PCM starts at floor(position); this does not transfer the old
+    // DSP filter state or promise sub-frame audio-phase alignment.
+    bool requestAt(double position, double percent, bool keyLock) noexcept;
     // Same generation/backend, including active SRC/R3 crossing zero. Fresh
     // unity->nonzero requires request(). Key-lock changes also use request().
     // Latest requests may coalesce; old queued data keeps its old metadata.

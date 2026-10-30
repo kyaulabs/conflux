@@ -51,7 +51,7 @@ public:
     struct Request {
         std::uint64_t serial = 0, generation = 0, frame = 0, initialCommand = 0;
         std::uint64_t loopIn = 0, loopOut = 0;
-        double initialPercent = 0, percent = 0;
+        double initialPercent = 0, percent = 0, nominalStart = 0;
         bool enabled = false, keyLock = false;
     };
 
@@ -114,6 +114,7 @@ public:
         requestVersion_.store(ownerSerial_ * 2U - 1U, std::memory_order_seq_cst);
         requestGeneration_.store(ownerGeneration_, std::memory_order_seq_cst);
         requestFrame_.store(ownerFrame_, std::memory_order_seq_cst);
+        requestNominalStart_.store(std::bit_cast<std::uint64_t>(ownerStartPosition_), std::memory_order_seq_cst);
         requestLoopIn_.store(ownerLoopIn_, std::memory_order_seq_cst);
         requestLoopOut_.store(ownerLoopOut_, std::memory_order_seq_cst);
         requestInitialCommand_.store(ownerInitialCommand_, std::memory_order_seq_cst);
@@ -123,24 +124,32 @@ public:
         requestEnabled_.store(ownerEnabled_, std::memory_order_seq_cst);
         requestVersion_.store(ownerSerial_ * 2U, std::memory_order_seq_cst);
     }
+    bool requestAt(double position, double percent, bool keyLock) noexcept
+    {
+        if (stream_.read || !std::isfinite(position) || position < 0 || position > double(frames_)) return false;
+        return request(std::uint64_t(position),percent,keyLock,0,0,position);
+    }
     bool request(std::uint64_t frame, double percent, bool keyLock,
-                 std::uint64_t loopIn, std::uint64_t loopOut) noexcept
+                 std::uint64_t loopIn, std::uint64_t loopOut, double position) noexcept
     {
         if (stream_.read && loopOut && !stream_.allowLoops) return false;
         if (loopOut ? (loopOut > frames_ || loopIn >= loopOut || frame < loopIn || frame >= loopOut ||
                        loopOut - loopIn < AudioLoopState::minimumFrames ||
                        loopOut - loopIn > AudioLoopState::maximumFrames) : loopIn != 0)
             return false;
-        if (frame > frames_ || !validPercent(percent) || !reserveCommand(true)) return false;
+        if (frame > frames_ || !std::isfinite(position) || position < 0 || position > double(frames_) ||
+            std::floor(position) != double(frame) || (loopOut && position != double(frame)) ||
+            !validPercent(percent) || !reserveCommand(true)) return false;
         // The preceding synchronous borrow has ended. Invalidate before the
         // worker can observe a newer generation or recycle stale slots.
         ownerEnabled_ = false;
         offset_ = 0;
         ownerFrame_ = frame;
+        ownerStartPosition_ = position;
         ownerLoopIn_ = loopIn;
         ownerLoopOut_ = loopOut;
         ownerWraps_ = 0;
-        ownerNominal_ = static_cast<long double>(frame);
+        ownerNominal_ = static_cast<long double>(position);
         ownerPercent_ = ownerInitialPercent_ = percent;
         ownerInitialCommand_ = ownerSerial_;
         ownerKeyLock_ = keyLock;
@@ -314,6 +323,7 @@ private:
         if (before & 1U) return false;
         result.generation = requestGeneration_.load(std::memory_order_seq_cst);
         result.frame = requestFrame_.load(std::memory_order_seq_cst);
+        result.nominalStart = std::bit_cast<double>(requestNominalStart_.load(std::memory_order_seq_cst));
         result.loopIn = requestLoopIn_.load(std::memory_order_seq_cst);
         result.loopOut = requestLoopOut_.load(std::memory_order_seq_cst);
         result.initialCommand = requestInitialCommand_.load(std::memory_order_seq_cst);
@@ -430,7 +440,7 @@ private:
                 generation = request.generation;
                 nextFrame = request.frame;
                 inputFrames = inputOffset = 0;
-                nominal = static_cast<long double>(request.frame);
+                nominal = static_cast<long double>(request.nominalStart);
                 desiredPercent = appliedPercent = request.initialPercent;
                 desiredCommand = appliedCommand = request.initialCommand;
                 desiredRevision = appliedRevision = 1;
@@ -560,11 +570,11 @@ private:
     std::atomic<int> workerError_{0}, ownerError_{0};
     std::atomic<bool> stopped_{false};
     std::atomic<std::uint64_t> requestVersion_{0}, requestGeneration_{0}, requestFrame_{0}, requestInitialCommand_{0};
-    std::atomic<std::uint64_t> requestInitialPercent_{0}, requestPercent_{0};
+    std::atomic<std::uint64_t> requestInitialPercent_{0}, requestPercent_{0}, requestNominalStart_{0};
     std::atomic<std::uint64_t> requestLoopIn_{0}, requestLoopOut_{0};
     std::atomic<bool> requestKeyLock_{false}, requestEnabled_{false};
     std::uint64_t ownerSerial_ = 0, ownerFrame_ = 0, ownerInitialCommand_ = 0, ownerAppliedCommand_ = 0;
-    double ownerPercent_ = 0, ownerInitialPercent_ = 0, ownerAppliedPercent_ = 0;
+    double ownerPercent_ = 0, ownerInitialPercent_ = 0, ownerAppliedPercent_ = 0, ownerStartPosition_ = 0;
     std::size_t offset_ = 0;
     bool ownerEnabled_ = false, ownerFinished_ = false, ownerKeyLock_ = false, ownerHasDsp_ = false;
     std::jthread worker_;
@@ -577,7 +587,9 @@ PreparedTempoSource::PreparedTempoSource(StreamInput input)
 PreparedTempoSource::~PreparedTempoSource() = default;
 bool PreparedTempoSource::request(std::uint64_t frame, double percent, bool keyLock,
                                   std::uint64_t loopIn, std::uint64_t loopOut) noexcept
-{ return impl_->request(frame, percent, keyLock, loopIn, loopOut); }
+{ return impl_->request(frame, percent, keyLock, loopIn, loopOut, double(frame)); }
+bool PreparedTempoSource::requestAt(double position, double percent, bool keyLock) noexcept
+{ return impl_->requestAt(position,percent,keyLock); }
 bool PreparedTempoSource::requestSpeed(double percent) noexcept { return impl_->requestSpeed(percent); }
 bool PreparedTempoSource::outputConfigurationCurrent() const noexcept { return impl_->outputConfigurationCurrent(); }
 bool PreparedTempoSource::cancel() noexcept { return impl_->cancel(); }

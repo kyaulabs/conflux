@@ -113,20 +113,24 @@ public:
     bool replaceSource(std::size_t deck, AudioSource source) noexcept;
     [[nodiscard]] bool isDeckSilentForReplacement(std::size_t deck) const noexcept;
     // Render-boundary continuation of a separately validated, exact same-track
-    // four-stem bank, already primed at nextFrame. No discontinuity or reset of
-    // channel/EQ/CUE/transport/mix state. The caller retains both source owners
-    // through callback completion and transfers the bank's exact gain ramps.
-    // Active prepared DSP/loops require a separate state-transfer contract.
+    // four-stem bank, already primed at the exact nominal position and mode.
+    // Retains channel/EQ/CUE/transport/mix state. The caller retains both source
+    // owners through callback completion and transfers the exact gain ramps.
+    // Processed continuation starts a fresh Best-quality processor with the
+    // transport envelope. Manual loops remain ineligible.
     [[nodiscard]] bool canContinueSource(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision) const noexcept;
+        double position, std::uint64_t transportRevision) const noexcept;
     enum class ContinuationStatus { Invalid, WaitingForHoldOut, Ready };
     // A nonzero range binds an active approved hold. Only its audible OUT is a
-    // swap boundary; nextFrame remains the parked original linear cursor.
+    // swap boundary; position remains the parked original linear cursor.
     [[nodiscard]] ContinuationStatus continuationStatus(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision,
+        double position, std::uint64_t transportRevision,
         std::uint64_t residentHoldRangeId = 0) const noexcept;
+    // Bound one render span so an active recovery cannot pass OUT before its
+    // last output frame. Zero means OUT itself, invalid state or no active hold.
+    [[nodiscard]] std::size_t continuationPrefixFrames(std::size_t deck, std::size_t maximum) const noexcept;
     bool continueSource(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision,
+        double position, std::uint64_t transportRevision,
         std::uint64_t residentHoldRangeId = 0) noexcept;
     [[nodiscard]] std::uint64_t transportRevision(std::size_t deck) const noexcept
     { return deck < deckCount ? decks_[deck].transportRevision : 0; }

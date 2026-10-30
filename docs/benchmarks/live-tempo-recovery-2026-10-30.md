@@ -47,8 +47,9 @@ These CPU/generated-audio checks do not establish musical quality, physical audi
 continuity or GPU latency.
 
 Tempo changes and reset remain unavailable while resident recovery is active.
-Leave recovery first. Tempo-aware prepared-bank continuation is also unfinished;
-the existing unity/integer-cursor eligibility rules remain. Manual loops and
+Leave recovery first. That checkpoint retained unity/integer-cursor
+continuation eligibility. The [tempo-aware continuation follow-up](tempo-continuation-2026-10-30.md)
+now covers fractional cursors and the processed recovery OUT handoff. Manual loops and
 scratching still require prepared audio. These restrictions are visible in the
 controls and are not a waiver of the remaining M2/M3 integration work.
 
