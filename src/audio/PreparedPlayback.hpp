@@ -103,6 +103,7 @@ private:
     void createLoopCache(std::span<const int> fds) noexcept;
     void createTempoSource(std::span<const int> fds) noexcept;
     std::unique_ptr<PreparedTempoSource> makeLiveTempoSource();
+    std::unique_ptr<PreparedTempoSource> makeResidentTempoSource();
     void createLiveTempoSource() noexcept;
     bool primeTempo(std::uint64_t frame, double percent, bool keyLock,
                     std::chrono::steady_clock::time_point deadline, std::stop_token stop);
@@ -127,6 +128,7 @@ private:
                                    std::span<float> output) noexcept;
     void seekLiveInput(std::uint64_t frame) noexcept;
     AudioReadResult readResidentHold(std::span<float> output) noexcept;
+    AudioReadResult readResidentTempo(std::span<float> output) noexcept;
     bool residentHoldControl(AudioResidentHoldCommand, std::uint64_t rangeId, std::uint64_t frame) noexcept;
     [[nodiscard]] AudioResidentHoldState residentHoldState() const noexcept;
     void seekLive(std::uint64_t frame) noexcept;
@@ -137,6 +139,9 @@ private:
     std::unique_ptr<StemBankSource> bank_;
     std::unique_ptr<PreparedLoopCache> loopCache_;
     std::unique_ptr<PreparedTempoSource> tempoSource_;
+    // Separate immutable resident-loop processor. The live processor remains
+    // parked at its consumed nominal position while this queue is audible.
+    std::unique_ptr<PreparedTempoSource> residentTempoSource_;
     // Optional bounded bidirectional PCM windows, owned with this playback.
     std::unique_ptr<PreparedScratchSource> scratchSource_;
     AudioLoopState loop_{}; // Sole render owner, or control after quiescence.

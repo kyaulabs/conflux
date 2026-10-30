@@ -3983,7 +3983,10 @@ private slots:
             Scenario{"loop-out-stored", {}, {}, {{"outSet", true}}, true, true, false},
             Scenario{"loop-exit-remainder", {}, {}, {{"cached", true}}, true, true, false},
             Scenario{"pending", {}, {{"active", true}, {"pending", true}}, {}, true, true, true},
-            Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true}
+            Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true},
+            Scenario{"resident-recovery", {{"liveStems", true},
+                {"residentHold", QVariantMap{{"configured", true}, {"active", true}}}},
+                {{"active", true}}, {}, true, false, false}
         };
         for (int deck = 0; deck < 2; ++deck) {
             const auto prefix = QString("deck%1").arg(deck);

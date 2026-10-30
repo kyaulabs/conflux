@@ -91,6 +91,11 @@ public:
     }
     ~Impl() { stop(); }
 
+    bool outputConfigurationCurrent() const noexcept
+    {
+        return ownerEnabled_ && !stopped_.load(std::memory_order_relaxed) &&
+            (ownerSerial_ == ownerInitialCommand_ || ownerAppliedCommand_ == ownerSerial_);
+    }
     bool reserveCommand(bool newGeneration) noexcept
     {
         if (stopped_.load(std::memory_order_relaxed) || ownerError_.load(std::memory_order_relaxed)) return false;
@@ -121,7 +126,7 @@ public:
     bool request(std::uint64_t frame, double percent, bool keyLock,
                  std::uint64_t loopIn, std::uint64_t loopOut) noexcept
     {
-        if (stream_.read && loopOut) return false;
+        if (stream_.read && loopOut && !stream_.allowLoops) return false;
         if (loopOut ? (loopOut > frames_ || loopIn >= loopOut || frame < loopIn || frame >= loopOut ||
                        loopOut - loopIn < AudioLoopState::minimumFrames ||
                        loopOut - loopIn > AudioLoopState::maximumFrames) : loopIn != 0)
@@ -574,6 +579,7 @@ bool PreparedTempoSource::request(std::uint64_t frame, double percent, bool keyL
                                   std::uint64_t loopIn, std::uint64_t loopOut) noexcept
 { return impl_->request(frame, percent, keyLock, loopIn, loopOut); }
 bool PreparedTempoSource::requestSpeed(double percent) noexcept { return impl_->requestSpeed(percent); }
+bool PreparedTempoSource::outputConfigurationCurrent() const noexcept { return impl_->outputConfigurationCurrent(); }
 bool PreparedTempoSource::cancel() noexcept { return impl_->cancel(); }
 PreparedTempoSource::View PreparedTempoSource::peek() noexcept { return impl_->peek(); }
 bool PreparedTempoSource::consume(std::size_t frames) noexcept { return impl_->consume(frames); }

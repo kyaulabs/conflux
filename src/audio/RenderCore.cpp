@@ -962,10 +962,13 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
                         advance < .94 * double(result.frames) - tolerance ||
                         advance > 1.06 * double(result.frames) + tolerance;
                 }
+                const double residentLimit = deck.nominalPosition+double(result.frames)*(processed ? 1.06 : 1.)+
+                    (processed ? 8*std::numeric_limits<double>::epsilon()*std::max(1.,deck.nominalPosition) : 0.);
                 if (badLoopPosition || ((processed || scratching || result.residentHold) && !result.positionValid) ||
                     (result.residentHold && (!resident ||
-                        result.nominalPosition != std::floor(result.nominalPosition) ||
-                        result.nominalPosition > deck.nominalPosition+double(result.frames))) ||
+                        (!processed && result.nominalPosition != std::floor(result.nominalPosition)) ||
+                        (afterHold.active && result.nominalPosition != deck.nominalPosition && beforeHold.active) ||
+                        result.nominalPosition > residentLimit)) ||
                     (result.transitionFrame != AudioReadResult::noTransition &&
                         (!resident || result.transitionFrame >= result.frames)) ||
                     (result.positionValid && ((!processed && !scratching && !resident) || !std::isfinite(result.nominalPosition) ||
