@@ -94,6 +94,10 @@ public:
     // using its spans before consume/request/cancel/stop; never retain them
     // across callback boundaries. Worker cannot recycle an unconsumed slot.
     View peek() noexcept;
+    // Playback startup borrow: wait for the existing bounded queue to fill
+    // once per generation, or a shorter EOF/error. Never consumes PCM and
+    // never reprimes later reads. Same single-owner borrow rules as peek().
+    View peekPrepared() noexcept;
     // Acknowledge only the returned prefix; reject over-consumption unchanged.
     // consume(0) acknowledges a zero-frame EOF/error marker. Finished becomes
     // true only after EOF consumption, after every queued actual tail frame.

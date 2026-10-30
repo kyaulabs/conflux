@@ -222,6 +222,22 @@ public:
             result.leaves[leaf] = std::span<const float>(slot.leaves[leaf]).subspan(offset_ * 2U, result.frames * 2U);
         return result;
     }
+    View peekPrepared() noexcept
+    {
+        const auto view = peek();
+        if (!view || preparedGeneration_ == ownerGeneration_) return view;
+        const auto first = consumed_.load(std::memory_order_relaxed);
+        const auto end = written_.load(std::memory_order_acquire);
+        bool ready = end - first == slotCount;
+        for (auto cursor = first; cursor < end && cursor - first < slotCount; ++cursor) {
+            const auto& slot = slots_[cursor % slotCount];
+            if (slot.generation != ownerGeneration_) return {};
+            ready = ready || slot.terminal || slot.error;
+        }
+        if (!ready) return {};
+        preparedGeneration_ = ownerGeneration_;
+        return view;
+    }
     bool consume(std::size_t frames) noexcept
     {
         const auto view = peek();
@@ -301,6 +317,7 @@ public:
     const std::size_t leafCount_;
     long double ownerNominal_ = 0;
     std::uint64_t ownerGeneration_ = 0, ownerLoopIn_ = 0, ownerLoopOut_ = 0, ownerWraps_ = 0;
+    std::uint64_t preparedGeneration_ = 0;
     double nominalPosition() const noexcept
     { return reportedPosition(ownerNominal_, ownerLoopIn_, ownerLoopOut_); }
 
@@ -594,6 +611,7 @@ bool PreparedTempoSource::requestSpeed(double percent) noexcept { return impl_->
 bool PreparedTempoSource::outputConfigurationCurrent() const noexcept { return impl_->outputConfigurationCurrent(); }
 bool PreparedTempoSource::cancel() noexcept { return impl_->cancel(); }
 PreparedTempoSource::View PreparedTempoSource::peek() noexcept { return impl_->peek(); }
+PreparedTempoSource::View PreparedTempoSource::peekPrepared() noexcept { return impl_->peekPrepared(); }
 bool PreparedTempoSource::consume(std::size_t frames) noexcept { return impl_->consume(frames); }
 double PreparedTempoSource::nominalPosition() const noexcept { return impl_->nominalPosition(); }
 std::uint64_t PreparedTempoSource::loopWraps() const noexcept { return impl_->ownerWraps_; }

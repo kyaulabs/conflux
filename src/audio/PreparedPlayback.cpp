@@ -478,7 +478,10 @@ AudioTempoState PreparedPlayback::tempoState() const noexcept
     state.keyLock = tempoKeyLock_;
     state.errorCode = tempoSetupError_;
     if (tempoSource_) {
-        state = live_ && liveTempoInput_ && live_->holdActive ? residentTempoSource_->status() : tempoSource_->status();
+        auto* source = live_ && liveTempoInput_ && live_->holdActive
+            ? residentTempoSource_.get() : tempoSource_.get();
+        state = source->status();
+        if (state.active && !state.finished && !state.errorCode && !source->peekPrepared()) state.pending = true;
         state.supported = !stopped_ && !(scratchSource_ && scratchSource_->active());
         if (!state.active) state.keyLock = tempoKeyLock_;
     }
@@ -786,7 +789,7 @@ AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
     // starvation. Mixing still uses the bank's one current gain-ramp state.
     for (std::size_t slot = 0; slot < PreparedTempoSource::slotCount &&
          result.frames < output.size() / StemBankSource::channels; ++slot) {
-        const auto view = tempoSource_->peek();
+        const auto view = tempoSource_->peekPrepared();
         if (!view) break;
         if (view.generation != tempoSource_->generation()) { result.failed = true; break; }
         if (view.errorCode) {
@@ -835,7 +838,7 @@ AudioResidentHoldState PreparedPlayback::residentHoldState() const noexcept
     if (liveTempoInput_) {
         if (live_->holdActive) ready = ready && !residentTempoSource_->errorCode();
         else if (live_->holdArmed) {
-            const auto view = residentTempoSource_->peek();
+            const auto view = residentTempoSource_->peekPrepared();
             ready = ready && (live_->holdTempoAligned || live_->code()) && view.frames &&
                 !view.errorCode && !residentTempoSource_->errorCode();
         }
@@ -958,7 +961,7 @@ AudioReadResult PreparedPlayback::readResidentTempo(std::span<float> output) noe
             live_->holdOffset = std::uint64_t(residentTempoSource_->nominalPosition());
             live_->holdTransition = true;
         }
-        const auto view = residentTempoSource_->peek();
+        const auto view = residentTempoSource_->peekPrepared();
         if (!view) break;
         if (view.generation != residentTempoSource_->generation() || view.errorCode || view.terminal ||
             view.leafCount != stemCount || !std::isfinite(view.nominalStart) ||
@@ -1319,7 +1322,7 @@ bool PreparedPlayback::primeTempo(double position, double percent, bool keyLock,
     for (;;) {
         if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
         if (const int code = tempoSource_->errorCode()) { primeError_.store(code, std::memory_order_relaxed); return false; }
-        const auto view = tempoSource_->peek();
+        const auto view = tempoSource_->peekPrepared();
         if (view.errorCode) { primeError_.store(view.errorCode, std::memory_order_relaxed); return false; }
         if (view && view.generation == tempoSource_->generation()) return true;
         const auto current = Clock::now();

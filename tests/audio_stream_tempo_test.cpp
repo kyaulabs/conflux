@@ -124,6 +124,77 @@ void rawStemInput()
     require(bank.readUnmixed(cursor, std::span(packed).first(7)).failed && bank.sourceFrame() == cursor,
             "Partial four-stem frame changed input state");
 }
+PreparedTempoSource::View preparedNext(PreparedTempoSource& source)
+{
+    PreparedTempoSource::View view;
+    await([&] { view = source.peekPrepared(); return bool(view); });
+    return view;
+}
+void preparedStartup()
+{
+    Input input; input.leaves = 1; input.available.store(PreparedTempoSource::blockFrames);
+    PreparedTempoSource source(input.descriptor());
+    require(source.request(0, 0, false), "Prepared startup request rejected");
+    auto view = next(source); exact(view, 0);
+    require(view.frames == PreparedTempoSource::blockFrames && !source.peekPrepared() &&
+                source.nominalPosition() == 0.,
+            "One available packet prematurely qualified playback or advanced its cursor");
+    input.available.store(PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames);
+    view = preparedNext(source); exact(view, 0);
+    require(source.consume(512), "Prepared partial consume rejected");
+    view = source.peekPrepared(); exact(view, 512);
+    require(view.frames == 512 && source.nominalPosition() == 512. && source.consume(512),
+            "Prepared partial read lost its exact source prefix");
+    // No further input is available. A consumed slot leaves a shorter queue;
+    // playback must continue without requiring another startup fill.
+    view = source.peekPrepared(); exact(view, 1024);
+    require(view.frames == PreparedTempoSource::blockFrames,
+            "Prepared playback tried to reprime after startup consumption");
+    input.available.store(PreparedTempoSource::blockFrames);
+    const auto oldGeneration = source.generation();
+    require(source.request(0, 0, false) && source.generation() != oldGeneration,
+            "Prepared generation restart rejected");
+    view = next(source); exact(view, 0);
+    require(!source.peekPrepared() && source.nominalPosition() == 0.,
+            "New generation reused an old startup proof");
+    require(source.cancel() && !source.peekPrepared(), "Cancel retained a prepared view");
+    source.stop();
+    require(!source.peekPrepared() && !input.wrongThread.load(),
+            "Prepared startup borrowed stopped PCM or performed input on the render owner");
+}
+void preparedTerminal()
+{
+    Input shortInput; shortInput.frames = 31; shortInput.leaves = 1; shortInput.available.store(31);
+    PreparedTempoSource shortSource(shortInput.descriptor());
+    require(shortSource.request(0, 0, false), "Short prepared request rejected");
+    auto view = preparedNext(shortSource); exact(view, 0);
+    require(view.frames == 31 && !view.terminal && shortSource.consume(31),
+            "A short source was stranded waiting for a full startup queue");
+    view = preparedNext(shortSource);
+    require(view.terminal && !view.frames && shortSource.consume(0) && shortSource.status().finished,
+            "Short prepared EOF was lost or consumed before its audio");
+    require(shortSource.request(31, 0, false), "Exact prepared EOF request rejected");
+    view = preparedNext(shortSource);
+    require(view.terminal && !view.frames && shortSource.consume(0) && shortSource.status().finished,
+            "An empty EOF waited for a full startup queue");
+    shortSource.stop();
+
+    Input broken; broken.leaves = 1; broken.available.store(PreparedTempoSource::blockFrames);
+    PreparedTempoSource faulty(broken.descriptor());
+    require(faulty.request(0, 0, false), "Prepared failure setup rejected");
+    view = next(faulty); exact(view, 0);
+    require(!faulty.peekPrepared(), "Failure fixture unexpectedly prefilled");
+    broken.fault.store(3);
+    await([&] { return faulty.errorCode() == EIO && bool(faulty.peekPrepared()); });
+    view = faulty.peekPrepared(); exact(view, 0);
+    require(view.frames == PreparedTempoSource::blockFrames && faulty.consume(view.frames),
+            "A startup error discarded an already queued valid prefix");
+    view = preparedNext(faulty);
+    require(view.errorCode == EIO && !view.terminal && !view.frames && faulty.consume(0) &&
+                !faulty.status().finished && faulty.errorCode() == EIO,
+            "Startup failure was hidden or reported as successful EOF");
+    faulty.stop();
+}
 void gaps()
 {
     Input input; input.frames = 17009;
@@ -354,7 +425,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
+    try { rawStemInput(); preparedStartup(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
