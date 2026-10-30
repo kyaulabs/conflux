@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "parent": "18b3fde9aa81298fb4bcca8964203d933a82d881",
+  "branch": "feat/kyau-d86364-live-stem-tempo",
+  "source_files": {
+    "CMakeLists.txt": {
+      "bytes": 30538,
+      "sha256": "3ea055f9fd882c35a2b9bdc52133080723fd807d753f371ecb010ae161576065"
+    },
+    "src/audio/PreparedPlayback.cpp": {
+      "bytes": 60145,
+      "sha256": "8fadfc8aca01b5c7e849c8215d0c374748c703f5a33b6fe210fc3900b224e04b"
+    },
+    "src/audio/PreparedPlayback.hpp": {
+      "bytes": 8944,
+      "sha256": "e2380a134240cf532f7568639e4b20dc070bd53eb68cefe1d7985db1c4275f26"
+    },
+    "src/audio/PreparedTempoSource.cpp": {
+      "bytes": 30611,
+      "sha256": "f5482151e0ea0ef45f27a43a0dec5e41a1a34ba802750ee863d42655ef8b76b6"
+    },
+    "src/audio/PreparedTempoSource.hpp": {
+      "bytes": 6226,
+      "sha256": "ffad1463da19c957a5a4b4b164917e3653eafa7435e7c4fe0c0be8ef9c9273bf"
+    },
+    "src/audio/StemBankSource.cpp": {
+      "bytes": 9860,
+      "sha256": "d642611ddf526581a0abf73ade4bc36be617bfd4ef026e3e00638485bf31b4c2"
+    },
+    "src/audio/StemBankSource.hpp": {
+      "bytes": 5293,
+      "sha256": "443189aaa3fcba117fb76ddad387e2ee5bd82218f74ff1ccfc8e3fccd29101de"
+    },
+    "src/ui/DeckController.cpp": {
+      "bytes": 140699,
+      "sha256": "bc16f62b177dbcee56a5a3bd71a12c9e888158d1d707297e400bdbe680d6dc11"
+    },
+    "tests/audio_live_tempo_test.cpp": {
+      "bytes": 13697,
+      "sha256": "b97bb944b0f2253c65e76f65ce9f0ff8dac2175571135e66af731d81a14b5aa8"
+    },
+    "tests/audio_stream_tempo_test.cpp": {
+      "bytes": 15008,
+      "sha256": "31106204b00d3af3f6b853ca11f9cfaf3580e1afecd908979a2a0ce0ed74adec"
+    },
+    "tests/deck_controller_test.cpp": {
+      "bytes": 172584,
+      "sha256": "0277605d3dc00197db593388547f31d0020c1124cc5436587760efa4cee23c81"
+    }
+  },
+  "source_snapshot_sha256": "fd3ffecc5c7a5678eaf546f8a3a0fd603c6aebe172e74b1cf886726238ea48a8",
+  "normal_full_build_passed": true,
+  "first_full_CTest": {
+    "passed": 59,
+    "total": 60,
+    "exit": 8,
+    "sole_failure": "Outdated prepared-only message assertion in deck-controller"
+  },
+  "controller_followup": {
+    "complete_Qt_cases_passed": 60,
+    "final_invalid_deck_message_cases_passed": 3
+  },
+  "render_core_command_followup_passed_on_both_hosts": true,
+  "apollo_core_targets_passed": 7,
+  "apollo_containers_absent": true,
+  "ASan_UBSan_leak_targets_passed": 4,
+  "TSan_targets_passed": 4,
+  "external_DSP_libraries_instrumented": false,
+  "initial_ASan_startup_failed": true,
+  "ASan_layout_correction": "Only test executables relinked non-PIE; instrumented audio archives unchanged",
+  "raw_history_bytes": 2097152,
+  "output_queue_payload_bytes": 262144,
+  "existing_live_buffer_payload_bytes": 9437184,
+  "raw_history_uses_original_mix": false,
+  "configured_recovery_holds_preserved_with_tempo_unavailable": true,
+  "live_tempo_recovery_hold_coexistence_complete": false,
+  "recorded_music_listening_accepted": false,
+  "new_code_GPU_audio_UI_latency_qualified": false,
+  "strict_p99_target_seconds": 4.095,
+  "model_or_quality_settings_changed": false,
+  "host_power_thermal_sync_or_security_policy_changed": false,
+  "M2_M3_or_release_marked_complete": false
+}

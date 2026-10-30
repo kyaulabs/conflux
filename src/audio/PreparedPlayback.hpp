@@ -34,6 +34,9 @@ public:
     PreparedPlayback(int normalizedFd, std::uint64_t frames);
     PreparedPlayback(std::array<int, stemCount> normalizedFds, std::uint64_t frames);
     static constexpr std::uint64_t liveReserveFrames = 262144;
+    // 2 MiB of recent, unchanged four-stem PCM; no original mix or disk cache.
+    // Mode resets/recent seeks can re-prime DSP without re-running separation.
+    static constexpr std::uint64_t liveTempoHistoryFrames = 65536;
     static constexpr auto liveWait = std::chrono::seconds(60);
     class LiveProducerPort {
     public:
@@ -99,6 +102,10 @@ private:
     PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_t frames);
     void createLoopCache(std::span<const int> fds) noexcept;
     void createTempoSource(std::span<const int> fds) noexcept;
+    std::unique_ptr<PreparedTempoSource> makeLiveTempoSource();
+    void createLiveTempoSource() noexcept;
+    bool primeTempo(std::uint64_t frame, double percent, bool keyLock,
+                    std::chrono::steady_clock::time_point deadline, std::stop_token stop);
     void createScratchSource(std::span<const int> fds) noexcept;
     AudioReadResult readPrepared(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readTempo(std::span<float> output) noexcept;
@@ -116,6 +123,9 @@ private:
     [[nodiscard]] int preparedRenderError() const noexcept;
     AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readLinearLive(std::uint64_t frame, std::span<float> output) noexcept;
+    AudioReadResult readUnmixedLive(std::uint64_t generation, std::uint64_t frame,
+                                   std::span<float> output) noexcept;
+    void seekLiveInput(std::uint64_t frame) noexcept;
     AudioReadResult readResidentHold(std::span<float> output) noexcept;
     bool residentHoldControl(AudioResidentHoldCommand, std::uint64_t rangeId, std::uint64_t frame) noexcept;
     [[nodiscard]] AudioResidentHoldState residentHoldState() const noexcept;
@@ -134,6 +144,10 @@ private:
     int tempoSetupError_ = 0;
     int scratchSetupError_ = 0;
     bool tempoKeyLock_ = false; // Legacy unity selection does not start DSP.
+    // Render/control owner only. Once transferred, the tempo worker owns all
+    // live raw cursor/staging/recovery demand until quiesced stop/reconstruction.
+    bool liveTempoInput_ = false;
+    AudioTempoState liveTempoRestore_{};
     std::uint64_t frames_;
     std::atomic<int> primeError_{0};
     bool stopped_ = false;

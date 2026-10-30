@@ -82,6 +82,13 @@ public:
             throw;
         }
     }
+    Impl(StreamInput input) : frames_(input.frames), leafCount_(input.leafCount), stream_(input)
+    {
+        if ((leafCount_ != 1 && leafCount_ != 4) || !frames_ || frames_ > (std::uint64_t{1} << 53U) ||
+            !stream_.context || !stream_.read || !stream_.errorCode)
+            throw std::invalid_argument("Streaming tempo requires one/four nonempty raw leaves and bounded callbacks");
+        worker_ = std::jthread([this](std::stop_token stop) { run(stop); });
+    }
     ~Impl() { stop(); }
 
     bool reserveCommand(bool newGeneration) noexcept
@@ -114,6 +121,7 @@ public:
     bool request(std::uint64_t frame, double percent, bool keyLock,
                  std::uint64_t loopIn, std::uint64_t loopOut) noexcept
     {
+        if (stream_.read && loopOut) return false;
         if (loopOut ? (loopOut > frames_ || loopIn >= loopOut || frame < loopIn || frame >= loopOut ||
                        loopOut - loopIn < AudioLoopState::minimumFrames ||
                        loopOut - loopIn > AudioLoopState::maximumFrames) : loopIn != 0)
@@ -325,14 +333,42 @@ private:
     }
     int allUnchanged() const noexcept
     {
+        if (stream_.read) {
+            const int code = stream_.errorCode(stream_.context);
+            return code < 0 ? EINVAL : code;
+        }
         for (std::size_t leaf = 0; leaf < leafCount_; ++leaf)
             if (const int code = unchanged(leaf)) return code;
         return 0;
     }
     int readInput(std::uint64_t generation, std::uint64_t frame, std::size_t count,
-        std::span<float> packed, std::span<float> stereo, std::stop_token stop) const noexcept
+        std::span<float> packed, std::span<float> stereo, std::stop_token stop,
+        std::size_t& actual) const noexcept
     {
+        actual = 0;
         const auto channels = leafCount_ * 2U;
+        if (stream_.read) {
+            if (!current(generation, stop)) return ECANCELED;
+            if (const int code = allUnchanged()) return code;
+            auto destination = packed.first(count * channels);
+            // Detect a provider claiming unwritten/stale samples. This bounded
+            // sentinel initialization and all validation stay off callback.
+            std::fill(destination.begin(), destination.end(), std::numeric_limits<float>::quiet_NaN());
+            const auto part = stream_.read(stream_.context, generation, frame, destination);
+            if (!current(generation, stop)) return ECANCELED;
+            if (part.failed) {
+                const int code = allUnchanged();
+                return code ? code : EIO;
+            }
+            if (part.frames > count || part.positionValid || part.residentHold || part.loopWraps ||
+                part.transitionFrame != AudioReadResult::noTransition ||
+                (part.finished && frame + part.frames != frames_)) return EINVAL;
+            for (const float value : destination.first(part.frames * channels))
+                if (!std::isfinite(value)) return EILSEQ;
+            if (const int code = allUnchanged()) return code;
+            actual = part.frames;
+            return 0;
+        }
         for (std::size_t leaf = 0; leaf < leafCount_; ++leaf) {
             if (!current(generation, stop)) return ECANCELED;
             if (const int code = unchanged(leaf)) return code;
@@ -355,6 +391,7 @@ private:
             if (!current(generation, stop)) return ECANCELED;
             if (const int code = unchanged(leaf)) return code;
         }
+        actual = count;
         return 0;
     }
     void publishError(std::uint64_t generation, int code) noexcept
@@ -410,6 +447,8 @@ private:
                     }
                 }
             }
+            if (request.enabled && current(generation, stop) && stream_.service)
+                stream_.service(stream_.context);
             if (generationDone || !current(generation, stop)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 continue;
@@ -436,12 +475,14 @@ private:
                     if (inputOffset == inputFrames && request.loopOut && nextFrame == request.loopOut)
                         nextFrame = request.loopIn;
                     const auto inputEnd = request.loopOut ? request.loopOut : frames_;
+                    bool inputUnavailable = false;
                     if (inputOffset == inputFrames && nextFrame < inputEnd) {
-                        inputFrames = static_cast<std::size_t>(std::min<std::uint64_t>(blockFrames, inputEnd - nextFrame));
-                        inputOffset = 0;
-                        const int code = readInput(generation, nextFrame, inputFrames, input, stereo, stop);
+                        const auto wanted = static_cast<std::size_t>(std::min<std::uint64_t>(blockFrames, inputEnd - nextFrame));
+                        inputOffset = inputFrames = 0;
+                        const int code = readInput(generation, nextFrame, wanted, input, stereo, stop, inputFrames);
                         if (code) throw std::system_error(code, std::generic_category());
                         nextFrame += inputFrames;
+                        inputUnavailable = !inputFrames;
                     }
                     const auto channels = leafCount_ * 2U;
                     const auto offered = std::span<const float>(input).subspan(inputOffset * channels,
@@ -461,8 +502,16 @@ private:
                         if (const int code = allUnchanged()) throw std::system_error(code, std::generic_category());
                         terminalPending = true;
                     }
-                    if (!step.internalProgress && !step.inputFramesUsed && !step.outputFrames && !terminalPending)
+                    if (!step.internalProgress && !step.inputFramesUsed && !step.outputFrames && !terminalPending) {
+                        if (inputUnavailable) {
+                            // Empty input is a temporary gap. Pending DSP output
+                            // was still allowed to drain above; no EOF or source
+                            // advance is synthesized while awaiting a raw prefix.
+                            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+                            continue;
+                        }
                         throw std::runtime_error("Prepared tempo worker made no progress");
+                    }
                 }
             } catch (const std::bad_alloc&) { terminalError = ENOMEM; produced = 0; terminalPending = true; }
               catch (const std::system_error& error) { terminalError = error.code().value(); produced = 0; terminalPending = true; }
@@ -497,6 +546,7 @@ private:
         for (auto& fd : fds_) if (fd >= 0) { close(fd); fd = -1; }
     }
 
+    const StreamInput stream_{};
     std::array<int, maximumLeaves> fds_{-1, -1, -1, -1};
     std::array<struct stat, maximumLeaves> identities_{};
     std::array<Slot, slotCount> slots_{};
@@ -517,6 +567,8 @@ private:
 
 PreparedTempoSource::PreparedTempoSource(std::span<const int> fds, std::uint64_t frames)
     : impl_(std::make_unique<Impl>(fds, frames)) {}
+PreparedTempoSource::PreparedTempoSource(StreamInput input)
+    : impl_(std::make_unique<Impl>(input)) {}
 PreparedTempoSource::~PreparedTempoSource() = default;
 bool PreparedTempoSource::request(std::uint64_t frame, double percent, bool keyLock,
                                   std::uint64_t loopIn, std::uint64_t loopOut) noexcept

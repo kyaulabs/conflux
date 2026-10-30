@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 namespace conflux::audio {
+static_assert(std::atomic<bool>::is_always_lock_free);
 
 StemBankSource::StemBankSource(std::array<AudioSource, stemCount> stems, std::uint64_t initialFrame)
     : cursor_(initialFrame)
@@ -97,7 +98,7 @@ float StemBankSource::gain(std::size_t stem) const noexcept
 
 bool StemBankSource::hasReadFailure() const noexcept
 {
-    return std::ranges::any_of(stems_, [](const StagedStem& stem) { return stem.failed; });
+    return readFailure_.load(std::memory_order_relaxed);
 }
 
 AudioReadResult StemBankSource::readCached(
@@ -142,7 +143,12 @@ void StemBankSource::mix(const std::array<std::span<const float>, stemCount>& in
 
 void StemBankSource::discontinuity(std::uint64_t frame) noexcept
 {
-    if (frame > frames_) return;
+    (void)seekInput(frame);
+}
+
+bool StemBankSource::seekInput(std::uint64_t frame) noexcept
+{
+    if (frame > frames_) return false;
     cursor_ = frame;
     // No output can be read between these notifications: there is one render
     // owner. Workers may prepare independently, but only a shared prefix commits.
@@ -152,6 +158,8 @@ void StemBankSource::discontinuity(std::uint64_t frame) noexcept
         if (stem.source.discontinuity)
             stem.source.discontinuity(stem.source.context, frame);
     }
+    readFailure_.store(false, std::memory_order_relaxed);
+    return true;
 }
 
 void StemBankSource::fill(StagedStem& stem, std::size_t wanted) noexcept
@@ -179,10 +187,12 @@ void StemBankSource::fill(StagedStem& stem, std::size_t wanted) noexcept
         // The provider may already have advanced. Do not use its malformed
         // prefix or retry an old position; only a new discontinuity recovers it.
         stem.failed = true;
+        readFailure_.store(true, std::memory_order_relaxed);
         return;
     }
     stem.count += result.frames;
     stem.failed = result.failed;
+    if (result.failed) readFailure_.store(true, std::memory_order_relaxed);
 }
 
 AudioReadResult StemBankSource::read(std::uint64_t frame, std::span<float> output) noexcept
@@ -193,23 +203,50 @@ AudioReadResult StemBankSource::read(std::uint64_t frame, std::span<float> outpu
     started_ = true;
     if (frame != cursor_) discontinuity(frame);
     const auto wanted = static_cast<std::size_t>(std::min<std::uint64_t>(output.size() / channels, frames_ - cursor_));
-    std::size_t common = wanted;
-    bool failed = false;
-    for (auto& stem : stems_) {
-        fill(stem, wanted);
-        common = std::min(common, stem.count);
-        failed |= stem.failed;
-    }
+    const auto prefix = stage(wanted);
     std::array<std::span<const float>, stemCount> inputs{};
     for (std::size_t stem = 0; stem < stemCount; ++stem)
-        inputs[stem] = std::span(stems_[stem].samples).subspan(stems_[stem].offset * channels, common * channels);
-    mix(inputs, common, output);
+        inputs[stem] = std::span(stems_[stem].samples).subspan(stems_[stem].offset * channels, prefix.frames * channels);
+    mix(inputs, prefix.frames, output);
+    commitInput(prefix.frames);
+    return prefix;
+}
+
+AudioReadResult StemBankSource::stage(std::size_t wanted) noexcept
+{
+    AudioReadResult result{wanted, false};
     for (auto& stem : stems_) {
-        stem.offset += common;
-        stem.count -= common;
+        fill(stem, wanted);
+        result.frames = std::min(result.frames, stem.count);
+        result.failed |= stem.failed;
     }
-    cursor_ += common;
-    return {common, failed};
+    return result;
+}
+
+void StemBankSource::commitInput(std::size_t frames) noexcept
+{
+    for (auto& stem : stems_) {
+        stem.offset += frames;
+        stem.count -= frames;
+    }
+    cursor_ += frames;
+}
+
+AudioReadResult StemBankSource::readUnmixed(std::uint64_t frame, std::span<float> output) noexcept
+{
+    constexpr auto packedChannels = stemCount * channels;
+    if (output.size() % packedChannels || output.size() / packedChannels > blockFrames ||
+        frame > frames_ || frame != cursor_) return {0, true};
+    if (output.empty()) return {};
+    const auto wanted = static_cast<std::size_t>(std::min<std::uint64_t>(output.size() / packedChannels, frames_ - cursor_));
+    const auto prefix = stage(wanted);
+    for (std::size_t f = 0; f < prefix.frames; ++f)
+        for (std::size_t leaf = 0; leaf < stemCount; ++leaf)
+            for (std::size_t channel = 0; channel < channels; ++channel)
+                output[f * packedChannels + leaf * channels + channel] =
+                    stems_[leaf].samples[(stems_[leaf].offset + f) * channels + channel];
+    commitInput(prefix.frames);
+    return prefix;
 }
 
 } // namespace conflux::audio
