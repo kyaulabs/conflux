@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "scope": "Closed synthetic build, command, data-contract and lifecycle checks; no music/model/hardware qualification",
+  "members": [
+    {
+      "file": "normal-checks.json.gz",
+      "gzip_bytes": 12867,
+      "gzip_sha256": "a2d279de16dcc7dd9eec65a754cc929ac5ed4e14c514c654fd88e41259c427c5",
+      "original_bytes": 62511,
+      "original_sha256": "6a146ab34532768099272938bb8eb91aad339f921f20de5d123fe897b8d5540c",
+      "text_members": 20
+    },
+    {
+      "file": "sanitizer-checks.json.gz",
+      "gzip_bytes": 7507,
+      "gzip_sha256": "885a25b0e7dd16f31e9c32f76309398d7048273171888d318bac7457e6f80ed3",
+      "original_bytes": 86579,
+      "original_sha256": "b11a079523e8afd7cdc30f4f5f6a3d9bf6e6dbd06331ab84a01a8b983b21d4c5",
+      "text_members": 13
+    },
+    {
+      "file": "protocols.json.gz",
+      "gzip_bytes": 10144,
+      "gzip_sha256": "35ecb0f02ee4ef7cf2f3d43c16160a128f9289d2aa03ab570a28ff4a41411652",
+      "original_bytes": 54863,
+      "original_sha256": "3a62a7ccaa36e06cfd5b979f752f96524ec3e431629fce407ec09ec31a12ffa7",
+      "text_members": 10
+    }
+  ],
+  "verification": {
+    "file": "verification.json",
+    "bytes": 3187,
+    "sha256": "221c43215187926debc89ab8cc061259499d8dc225f2614dd7005b62669df845"
+  },
+  "model_music_executables_or_caches_included": false
+}

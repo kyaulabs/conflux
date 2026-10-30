@@ -2475,9 +2475,9 @@ void DeckController::setCrossfader(double position)
 
 void DeckController::setTempoPercent(int deck, double percent)
 {
-    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live() ||
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] ||
         !std::isfinite(percent) || percent < -6.0 || percent > 6.0) {
-        fail("Tempo requires prepared audio and a value between -6 and +6 percent.");
+        fail("Tempo requires a loaded deck and a value between -6 and +6 percent.");
         return;
     }
     audio::RenderCore::Command command;
@@ -2527,8 +2527,8 @@ void DeckController::clearBpmOverride(int deck)
 
 void DeckController::toggleMasterTempo(int deck)
 {
-    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
-        fail("Master Tempo requires prepared audio.");
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) {
+        fail("Load a track before selecting Master Tempo.");
         return;
     }
     audio::RenderCore::Command command;
@@ -2539,8 +2539,8 @@ void DeckController::toggleMasterTempo(int deck)
 
 void DeckController::resetTempo(int deck)
 {
-    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck] || clips_[deck]->live()) {
-        fail("Tempo reset requires prepared audio.");
+    if (deck < 0 || deck >= int(clips_.size()) || !clips_[deck]) {
+        fail("Load a track before resetting tempo.");
         return;
     }
     audio::RenderCore::Command command;
