@@ -397,6 +397,7 @@ QVariantList DeckController::decks() const
                 {"pending", continuation_ && continuation_->deck == deck},
                 {"attempts", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].attempts)},
                 {"sourceFrame", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].frame)},
+                {"sourcePosition", continuationEpisodes_[deck].position},
                 {"sourceGeneration", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].sourceGeneration)},
                 {"residentHoldRangeId", QString::number(continuationEpisodes_[deck].residentHoldRangeId)},
                 {"generation", QVariant::fromValue<qulonglong>(continuationEpisodes_[deck].generation)}}},
@@ -1348,12 +1349,16 @@ bool DeckController::continuationEligible(std::size_t deck) const
         (!state_.buffering[deck] && !continuationResidentRangeId(deck)) ||
         (state_.residentHold[deck].active && !continuationResidentRangeId(deck)) ||
         state_.sourceFrames[deck] != clips_[deck]->frames() || state_.sourceFrame[deck] >= clips_[deck]->frames() ||
-        state_.sourcePosition[deck] != double(state_.sourceFrame[deck]) ||
+        !std::isfinite(state_.sourcePosition[deck]) || state_.sourcePosition[deck] < 0 ||
+        std::floor(state_.sourcePosition[deck]) != double(state_.sourceFrame[deck]) ||
         state_.transportRevision[deck] == std::numeric_limits<std::uint64_t>::max()) return false;
     const auto& tempo = state_.tempo[deck];
     const auto& loop = state_.loops[deck];
-    return !tempo.active && !tempo.pending && !tempo.keyLock && tempo.percent == 0 && tempo.appliedPercent == 0 &&
-        !state_.scratch[deck].active && !loop.inSet && !loop.outSet && !loop.active && !loop.cached;
+    const bool mode = std::isfinite(tempo.percent) && tempo.percent >= -6 && tempo.percent <= 6 &&
+        !tempo.finished && (tempo.active ? tempo.supported :
+            (!tempo.pending && tempo.percent == 0 && tempo.appliedPercent == 0));
+    return mode && !state_.scratch[deck].active &&
+        !loop.inSet && !loop.outSet && !loop.active && !loop.cached;
 }
 
 bool DeckController::continuationCurrent() const
@@ -1364,7 +1369,10 @@ bool DeckController::continuationCurrent() const
     return session_.get() == attempt.session && clips_[deck] == attempt.original && continuationEligible(deck) &&
         sourceIds_[deck] == attempt.original->liveSourceSha256 &&
         state_.sourceGeneration[deck] == attempt.sourceGeneration && state_.transportRevision[deck] == attempt.revision &&
-        state_.sourceFrame[deck] == attempt.frame && continuationResidentRangeId(deck) == attempt.residentHoldRangeId;
+        state_.sourceFrame[deck] == attempt.frame && state_.sourcePosition[deck] == attempt.position &&
+        state_.tempo[deck].active == attempt.tempo.active && state_.tempo[deck].percent == attempt.tempo.percent &&
+        state_.tempo[deck].keyLock == attempt.tempo.keyLock &&
+        continuationResidentRangeId(deck) == attempt.residentHoldRangeId;
 }
 
 void DeckController::cancelContinuation(std::size_t deck, const QString& reason)
@@ -1393,11 +1401,12 @@ void DeckController::considerContinuation()
             // Healthy progress or a deliberate non-rendering state ends this
             // stall. An unchanged failed/buffering source does not rearm a miss.
             if ((!state_.buffering[deck] && !state_.residentHold[deck].active) ||
-                state_.sourceFrame[deck] != episode.frame || state_.transportRevision[deck] != episode.revision ||
+                state_.sourceFrame[deck] != episode.frame || state_.sourcePosition[deck] != episode.position ||
+                state_.transportRevision[deck] != episode.revision ||
                 rangeId != episode.residentHoldRangeId) {
                 episode.attempted = false; episode.stalled.invalidate();
                 if (!state_.buffering[deck] && (state_.playing[deck] || state_.cuePreview[deck]) &&
-                    state_.sourceFrame[deck] > episode.frame) {
+                    state_.sourcePosition[deck] > episode.position) {
                     episode.status = "Idle"; episode.detail.clear();
                 }
             }
@@ -1405,11 +1414,13 @@ void DeckController::considerContinuation()
         }
         if (episode.clip != clips_[deck].get() || episode.sourceGeneration != state_.sourceGeneration[deck] ||
             episode.revision != state_.transportRevision[deck] || episode.frame != state_.sourceFrame[deck] ||
+            episode.position != state_.sourcePosition[deck] ||
             episode.residentHoldRangeId != rangeId) {
             const auto attempts = episode.clip == clips_[deck].get() ? episode.attempts : 0;
             episode = {};
             episode.clip = clips_[deck].get(); episode.sourceGeneration = state_.sourceGeneration[deck];
             episode.revision = state_.transportRevision[deck]; episode.frame = state_.sourceFrame[deck];
+            episode.position = state_.sourcePosition[deck];
             episode.residentHoldRangeId = rangeId;
             episode.attempts = attempts; episode.stalled.start();
         }
@@ -1445,17 +1456,19 @@ void DeckController::considerContinuation()
         ContinuationAttempt attempt;
         attempt.deck = deck; attempt.original = original; attempt.session = session_.get();
         attempt.sourceGeneration = state_.sourceGeneration[deck]; attempt.revision = state_.transportRevision[deck];
-        attempt.frame = state_.sourceFrame[deck]; attempt.generation = ++nextSourceGeneration_;
+        attempt.frame = state_.sourceFrame[deck]; attempt.position = state_.sourcePosition[deck];
+        attempt.tempo = state_.tempo[deck]; attempt.generation = ++nextSourceGeneration_;
         attempt.residentHoldRangeId = rangeId;
         attempt.deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
         episode.generation = attempt.generation;
         const auto frame = attempt.frame;
+        const auto position = attempt.position;const auto tempo = attempt.tempo;
         const auto deadline = attempt.deadline;
         continuation_ = std::move(attempt);
         episode.status = "Checking"; episode.detail.clear();
         loadCancellation_ = std::stop_source{};
         loaderPurpose_ = LoaderPurpose::Continuation;
-        loader_.setFuture(QtConcurrent::run([original, frame, deadline, limits,
+        loader_.setFuture(QtConcurrent::run([original, frame, position, tempo, deadline, limits,
             cache = baseCache + "/prepared/v1", engine = *preparationOptions_.stemEngine,
             parentStop = loadCancellation_.get_token()]() -> LoadResult {
             try {
@@ -1496,9 +1509,9 @@ void DeckController::considerContinuation()
                 check();
                 const auto remaining = std::chrono::duration_cast<std::chrono::milliseconds>(
                     deadline - std::chrono::steady_clock::now());
-                if (remaining.count() <= 0 || !prepared->playback->prime(frame,
+                if (remaining.count() <= 0 || !prepared->playback->primeContinuation(position,tempo,
                     std::min(std::chrono::milliseconds(2000), remaining), admission.get_token()) ||
-                    !prepared->playback->primedForContinuation(frame))
+                    !prepared->playback->primedForContinuation(position))
                     throw std::runtime_error("Prepared continuation could not prime its exact source cursor.");
                 check();
                 return {std::move(prepared), {}, {}, true};
@@ -1541,7 +1554,7 @@ void DeckController::continuationLoaded(const LoadResult& result)
     // Control publication and the callback both require the unused exact prime.
     // No seek/reset/stop or gain retarget is applied to this candidate here.
     attempt.published = session_->requestSourceContinuation(attempt.deck, attempt.prepared->playback,
-        attempt.sourceGeneration, attempt.revision, attempt.frame, attempt.generation, attempt.residentHoldRangeId);
+        attempt.sourceGeneration, attempt.revision, attempt.position, attempt.generation, attempt.residentHoldRangeId);
     if (!attempt.published) {
         episode.status = "Unavailable"; episode.detail = "The exact prepared continuation could not be published.";
         auto playback = std::move(attempt.prepared->playback);

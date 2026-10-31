@@ -29,7 +29,7 @@ void await(const std::function<bool()>& condition)
 struct Input {
     std::uint64_t frames = 48000;
     std::size_t leaves = 4;
-    std::atomic<std::uint64_t> available{0}, calls{0}, services{0};
+    std::atomic<std::uint64_t> available{0}, calls{0}, services{0}, emptyReads{0};
     std::atomic<int> fault{0};
     const std::thread::id caller = std::this_thread::get_id();
     std::atomic<bool> wrongThread{false};
@@ -53,6 +53,7 @@ struct Input {
                 if (self.fault.load() == 6) return AudioReadResult{0, false, true, 0};
                 const auto end = std::min(self.frames, self.available.load());
                 const auto count = first < end ? std::min<std::uint64_t>(wanted, end - first) : 0;
+                if (!count) self.emptyReads.fetch_add(1);
                 for (std::size_t f = 0; f < count; ++f)
                     for (std::size_t leaf = 0; leaf < self.leaves; ++leaf)
                         for (std::size_t channel = 0; channel < 2; ++channel)
@@ -123,6 +124,77 @@ void rawStemInput()
     require(bank.readUnmixed(cursor, std::span(packed).first(7)).failed && bank.sourceFrame() == cursor,
             "Partial four-stem frame changed input state");
 }
+PreparedTempoSource::View preparedNext(PreparedTempoSource& source)
+{
+    PreparedTempoSource::View view;
+    await([&] { view = source.peekPrepared(); return bool(view); });
+    return view;
+}
+void preparedStartup()
+{
+    Input input; input.leaves = 1; input.available.store(PreparedTempoSource::blockFrames);
+    PreparedTempoSource source(input.descriptor());
+    require(source.request(0, 0, false), "Prepared startup request rejected");
+    auto view = next(source); exact(view, 0);
+    require(view.frames == PreparedTempoSource::blockFrames && !source.peekPrepared() &&
+                source.nominalPosition() == 0.,
+            "One available packet prematurely qualified playback or advanced its cursor");
+    input.available.store(PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames);
+    view = preparedNext(source); exact(view, 0);
+    require(source.consume(512), "Prepared partial consume rejected");
+    view = source.peekPrepared(); exact(view, 512);
+    require(view.frames == 512 && source.nominalPosition() == 512. && source.consume(512),
+            "Prepared partial read lost its exact source prefix");
+    // No further input is available. A consumed slot leaves a shorter queue;
+    // playback must continue without requiring another startup fill.
+    view = source.peekPrepared(); exact(view, 1024);
+    require(view.frames == PreparedTempoSource::blockFrames,
+            "Prepared playback tried to reprime after startup consumption");
+    input.available.store(PreparedTempoSource::blockFrames);
+    const auto oldGeneration = source.generation();
+    require(source.request(0, 0, false) && source.generation() != oldGeneration,
+            "Prepared generation restart rejected");
+    view = next(source); exact(view, 0);
+    require(!source.peekPrepared() && source.nominalPosition() == 0.,
+            "New generation reused an old startup proof");
+    require(source.cancel() && !source.peekPrepared(), "Cancel retained a prepared view");
+    source.stop();
+    require(!source.peekPrepared() && !input.wrongThread.load(),
+            "Prepared startup borrowed stopped PCM or performed input on the render owner");
+}
+void preparedTerminal()
+{
+    Input shortInput; shortInput.frames = 31; shortInput.leaves = 1; shortInput.available.store(31);
+    PreparedTempoSource shortSource(shortInput.descriptor());
+    require(shortSource.request(0, 0, false), "Short prepared request rejected");
+    auto view = preparedNext(shortSource); exact(view, 0);
+    require(view.frames == 31 && !view.terminal && shortSource.consume(31),
+            "A short source was stranded waiting for a full startup queue");
+    view = preparedNext(shortSource);
+    require(view.terminal && !view.frames && shortSource.consume(0) && shortSource.status().finished,
+            "Short prepared EOF was lost or consumed before its audio");
+    require(shortSource.request(31, 0, false), "Exact prepared EOF request rejected");
+    view = preparedNext(shortSource);
+    require(view.terminal && !view.frames && shortSource.consume(0) && shortSource.status().finished,
+            "An empty EOF waited for a full startup queue");
+    shortSource.stop();
+
+    Input broken; broken.leaves = 1; broken.available.store(PreparedTempoSource::blockFrames);
+    PreparedTempoSource faulty(broken.descriptor());
+    require(faulty.request(0, 0, false), "Prepared failure setup rejected");
+    view = next(faulty); exact(view, 0);
+    require(!faulty.peekPrepared(), "Failure fixture unexpectedly prefilled");
+    broken.fault.store(3);
+    await([&] { return faulty.errorCode() == EIO && bool(faulty.peekPrepared()); });
+    view = faulty.peekPrepared(); exact(view, 0);
+    require(view.frames == PreparedTempoSource::blockFrames && faulty.consume(view.frames),
+            "A startup error discarded an already queued valid prefix");
+    view = preparedNext(faulty);
+    require(view.errorCode == EIO && !view.terminal && !view.frames && faulty.consume(0) &&
+                !faulty.status().finished && faulty.errorCode() == EIO,
+            "Startup failure was hidden or reported as successful EOF");
+    faulty.stop();
+}
 void gaps()
 {
     Input input; input.frames = 17009;
@@ -152,6 +224,30 @@ void gaps()
     await([&] { return input.services.load() >= service + 3; });
     require(source.nominalPosition() == double(input.frames) && source.status().finished,
             "Finished-stream activity service changed transport");
+}
+void outputRevisionAcrossGap()
+{
+    Input input;input.available.store(16384);
+    PreparedTempoSource source(input.descriptor());
+    require(source.request(0,6,false) && source.outputConfigurationCurrent(),
+            "A fresh generation was confused with queued older control revisions");
+    require(source.requestSpeed(-6) && !source.outputConfigurationCurrent(),
+            "A pending speed revision was mistaken for current queued output");
+    await([&] {
+        const auto view=source.peek();
+        if(view.frames)require(source.consume(view.frames),"Revision reference consume failed");
+        return source.outputConfigurationCurrent();
+    });
+    const auto emptyReads=input.emptyReads.load();
+    await([&] {
+        const auto view=source.peek();
+        if(view.frames)require(source.consume(view.frames),"Gap revision drain failed");
+        return input.emptyReads.load()>=emptyReads+3 && !source.peek();
+    });
+    require(source.status().pending && source.outputConfigurationCurrent(),
+            "A missing raw suffix revoked an already-applied output configuration");
+    require(source.cancel() && !source.outputConfigurationCurrent(),"Cancelled output remained current");
+    source.stop();require(!source.outputConfigurationCurrent(),"Stopped output remained current");
 }
 void seekAndCancel()
 {
@@ -238,6 +334,66 @@ void boundedPrefetch()
     view = next(source); exact(view, 4000);
 }
 struct FileCloser { void operator()(std::FILE* file) const noexcept { if (file) std::fclose(file); } };
+void immutableLoopReference()
+{
+    constexpr std::uint64_t frames = 4096;
+    struct Resident {
+        std::array<std::vector<float>,4> leaves;
+        std::atomic<bool> ready{false};
+        std::uint64_t previous = 0, wraps = 0; // input worker, inspected after join
+    };
+    for (const bool keyLock : {false,true}) for (const double percent : {-6.,6.}) {
+        Resident input;
+        std::array<std::unique_ptr<std::FILE,FileCloser>,4> files;
+        std::array<int,4> fds{};
+        for (std::size_t role=0;role<4;++role) {
+            auto& leaf = input.leaves[role];leaf.resize(frames*2);
+            for (std::size_t f=0;f<frames;++f) for(std::size_t channel=0;channel<2;++channel)
+                leaf[f*2+channel] = Input::sample(f,role,channel);
+            files[role].reset(std::tmpfile());require(bool(files[role]),"Resident reference file failed");
+            require(std::fwrite(leaf.data(),sizeof(float),leaf.size(),files[role].get())==leaf.size() &&
+                    !std::fflush(files[role].get()),"Resident reference write failed");
+            fds[role]=fileno(files[role].get());
+        }
+        PreparedTempoSource finite(fds,frames);
+        PreparedTempoSource memory(PreparedTempoSource::StreamInput{
+            frames,4,&input,
+            [](void* context,std::uint64_t,std::uint64_t frame,std::span<float> output) noexcept {
+                auto& resident=*static_cast<Resident*>(context);
+                if (!resident.ready.load()) return AudioReadResult{};
+                if (frame<resident.previous) ++resident.wraps;
+                resident.previous=frame;
+                const auto count=std::min<std::size_t>(output.size()/8,frames-frame);
+                for(std::size_t f=0;f<count;++f) for(std::size_t role=0;role<4;++role)
+                    for(std::size_t channel=0;channel<2;++channel)
+                        output[f*8+role*2+channel]=resident.leaves[role][(frame+f)*2+channel];
+                return AudioReadResult{count,false};
+            },[](const void*) noexcept{return 0;},nullptr,true});
+        require(finite.request(0,percent,keyLock,0,frames) && memory.request(0,percent,keyLock,0,frames),
+                "Immutable resident loop request rejected");
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        require(!memory.peek() && !memory.errorCode() && !memory.status().finished,
+                "Pending resident capture became silence, failure or EOF");
+        input.ready.store(true);
+        auto take=[](PreparedTempoSource& source) {
+            std::vector<float> result;
+            constexpr std::size_t wanted=20000;
+            while(result.size()<wanted*8) {
+                PreparedTempoSource::View view;
+                await([&]{view=source.peek();return bool(view);});
+                require(view.frames && !view.errorCode && !view.terminal,"Resident loop ended or failed");
+                const auto count=std::min(view.frames,wanted-result.size()/8);
+                for(std::size_t f=0;f<count;++f)for(std::size_t role=0;role<4;++role)
+                    for(std::size_t channel=0;channel<2;++channel)result.push_back(view.leaves[role][f*2+channel]);
+                require(source.consume(count),"Resident reference consume failed");
+            }
+            return result;
+        };
+        const auto expected=take(finite),actual=take(memory);
+        require(expected==actual,"Resident memory-loop DSP differs from the same immutable file loop");
+        finite.stop();memory.stop();require(input.wraps>0,"Resident reference did not wrap input");
+    }
+}
 void dspReference()
 {
     for (const auto leaves : {1U, 4U}) for (const auto prefix : {0U, 3072U})
@@ -269,7 +425,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); gaps(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference();
+    try { rawStemInput(); preparedStartup(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

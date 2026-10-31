@@ -54,9 +54,9 @@ Item {
         : deck.sourceReadError || scratchState.errorCode ? "The prepared scratch source has a read error."
         : "Vinyl scratch is unavailable for this prepared source."
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
-                                    && !deck.cuePreview
+                                    && !deck.cuePreview && !residentHold.active
     readonly property bool canResetTempo: canControl && Boolean(tempoState.supported)
-                                         && Boolean(tempoState.active) && !deck.cuePreview
+                                         && Boolean(tempoState.active) && !deck.cuePreview && !residentHold.active
     readonly property bool canLoop: canControl && Boolean(loop.supported) && !deck.sourceReadError
                                    && !deck.cuePreview && !tempoState.errorCode
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
@@ -1032,7 +1032,8 @@ Item {
         actionDescription: "On: changing BPM keeps the original pitch. Off: faster playback raises pitch and slower playback lowers it."
         toolTipText: "MASTER TEMPO · " + (surface.tempoState.keyLock ? "ON: pitch stays the same as BPM changes."
                                                                       : "OFF: pitch rises or falls with BPM. Press to preserve pitch.")
-        unavailableReason: "Master Tempo requires ready prepared audio without a cue preview or read error."
+        unavailableReason: surface.residentHold.active ? "Leave recovery before changing Master Tempo."
+                                                      : "Master Tempo requires ready audio without a cue preview or read error."
         onPressed: surface.controller.toggleMasterTempo(surface.deckIndex)
     }
 
@@ -1506,14 +1507,16 @@ Item {
             buttonObjectName: "deck" + surface.deckIndex + "TempoReset"
             accessibleName: surface.deckName + " reset tempo"
             available: surface.canResetTempo
-            actionDescription: "Restore original speed and leave processed tempo mode, keeping the Master Tempo selection."
-            unavailableReason: "Reset becomes available when prepared tempo processing is active."
+            actionDescription: "Return to the reference BPM and retain the Master Tempo selection."
+            unavailableReason: surface.residentHold.active ? "Leave recovery before resetting tempo."
+                                                          : "Reset needs a loaded deck with an active tempo adjustment."
             onPressed: surface.controller.resetTempo(surface.deckIndex)
         }
         MouseArea { id: tempoHover; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
         ToolTip.visible: tempoHover.containsMouse
         ToolTip.delay: 450
-        ToolTip.text: surface.hasReferenceBpm ? "BPM ±6% · Down: faster · Up: slower · Arrows: 0.1 BPM · Shift: 1 BPM · Reset restores reference BPM."
+        ToolTip.text: surface.residentHold.active ? "Leave recovery before changing BPM."
+                     : surface.hasReferenceBpm ? "BPM ±6% · Down: faster · Up: slower · Arrows: 0.1 BPM · Shift: 1 BPM · Reset restores reference BPM."
                                             : "Set the track's reference BPM in the display to use the BPM rail."
     }
 

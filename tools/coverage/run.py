@@ -168,7 +168,12 @@ def main():
                     ("private-resident-hold", "conflux-preparation-controller-check", ["--continuation-case", "resident-hold"]),
                     ("private-resident-callback-interior", "conflux-manual-routing-check", ["--resident-takeover-case", "interior"]),
                     ("private-resident-callback-boundary", "conflux-manual-routing-check", ["--resident-takeover-case", "boundary"]),
+                    ("private-resident-tempo-fast", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-fast"]),
+                    ("private-resident-tempo-slow", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-slow"]),
+                    ("private-resident-tempo-master-fast", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-master-fast"]),
+                    ("private-resident-tempo-master-slow", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-master-slow"]),
                     ("private-resident-takeover", "conflux-preparation-controller-check", ["--continuation-case", "resident-takeover"]),
+                    ("private-resident-tempo-takeover", "conflux-preparation-controller-check", ["--continuation-case", "resident-tempo-takeover"]),
                     ("private-resident-cancel", "conflux-preparation-controller-check", ["--continuation-case", "resident-cancel"]),
                 ]:
                     with tempfile.TemporaryDirectory(prefix=f"conflux-coverage-{stage}-") as temporary:

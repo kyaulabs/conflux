@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-30T20:26:18.484322+00:00",
+  "base_source": "a0d68c18b976a45549d29482ddc6353398d290ec",
+  "changed_test_source": {
+    "file": "tools/experiments/preparation_controller_check.cpp",
+    "sha256": "bbaf466fa9411a8d8a9d2eeb7220f51e281738dc6346089f449fdb296f377050"
+  },
+  "paired_preparation": {
+    "scope": "Generated private audio only; bounded exact sample probes, not continuous delivery/hardware/latency qualification",
+    "hosts": {
+      "laptop": {
+        "positive_frames_per_channel": 2048,
+        "positive_wrong_samples": 0,
+        "positive_zero_samples": 0,
+        "negative_frames_per_channel": 1024,
+        "negative_wrong_samples": 2048,
+        "negative_zero_samples": 2048,
+        "private_daemon_reaped": true,
+        "graph_cleanup_passed": true
+      },
+      "apollo": {
+        "positive_frames_per_channel": 2048,
+        "positive_wrong_samples": 0,
+        "positive_zero_samples": 0,
+        "negative_frames_per_channel": 1024,
+        "negative_wrong_samples": 2048,
+        "negative_zero_samples": 2048,
+        "private_daemon_reaped": true,
+        "graph_cleanup_passed": true
+      }
+    },
+    "all_passed": true,
+    "product_code_changed": false,
+    "physical_audio_model_or_GPU_started": false
+  },
+  "original_push_coverage_run": 41118372532,
+  "original_push_coverage_passed": false,
+  "original_pull_request_run": 41118379856,
+  "original_pull_request_passed": true,
+  "original_failure_retained": true,
+  "old_job_terminal_metadata_reconciled": true,
+  "listening": {
+    "recorded_utc": "2026-10-30T20:13:49.877808+00:00",
+    "question_id": "call_5c5918b6681243ec905b885e047fddae",
+    "user_verdict": "Recovery and return sound acceptable",
+    "accepted_scope": "Continuous reference versus recovery and prepared return for Club XL and When the Light Breaks, faster/slower BPM, Master Tempo off/on; intentional section repeats and entry/wrap/return joins",
+    "render_source_head": "212b892e46e90ce118fc740b2d4ba32a2af785e7",
+    "render_manifest_sha256": "0e2c64346f0fd4cbb747608b951197083e9a29ba6662d3c9b0e30748b678b190",
+    "publication_sha256": "03875c159be8aa2baae5f3b6cf4aaa60352c630d4865e3944340eb5ca0aa6693",
+    "physical_realtime_current_player_latency_or_thermal_qualification": false,
+    "startup_prefill_source": "a0d68c18b976a45549d29482ddc6353398d290ec",
+    "startup_prefill_actual_player_qualification": false
+  },
+  "product_audio_code_changed_by_followup": false,
+  "current_source_physical_latency_thermal_qualification": false,
+  "new_exact_head_CI": "Pending publication; no failing-run coverage attributed to a passing build",
+  "manifest_sha256": "4450eb323c054fb4c2e116abdaaef9692c73faba20912bfa8c5e10a907582e0e"
+}

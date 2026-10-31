@@ -12,12 +12,14 @@
 #include <atomic>
 #include <bit>
 #include <chrono>
+#include <cmath>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <future>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -1423,6 +1425,326 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
     }
 }
 
+
+void runProcessedResidentContinuation(const std::filesystem::path& directory, std::string_view label)
+{
+    using Kind = conflux::audio::SourceHandoff::Kind;
+    using Range = conflux::audio::AudioResidentHoldRange;
+    constexpr std::uint64_t frames = 48000 * 30, peerStart = 512, rangeId = 879, generation = 5;
+    constexpr std::uint32_t tempoId = 6101, masterTempoId = 6102, armId = 6103, enterId = 6104, mixId = 6105;
+    const bool keyLock = label == "tempo-master-fast" || label == "tempo-master-slow";
+    const double percent = label == "tempo-fast" || label == "tempo-master-fast" ? 6. : -6.;
+    const double rate = 1. + percent / 100.;
+    const std::string prefix = "resident-takeover-" + std::string(label);
+    const Range range{rangeId, 4096, 4096 + 8193, 8193 * Range::bytesPerFrame, Range::Provenance::DjRange};
+    auto producer = std::make_shared<LiveOwnerProducer>();
+    auto candidate = primedSyntheticSource(frames, liveOwnerValue[0], liveOwnerValue[1], true);
+    auto* const candidateIdentity = candidate.get();
+    Sink master("conflux-routing-check-" + prefix + "-master", 2);
+    const RoutingConfig routing{pair(discover(2), master.name(), 0), {}};
+    LiveSession::PlaybackSources owners{};
+    owners[0] = liveOwnerFixture(1801, frames, producer, range);
+    owners[1] = primedSyntheticSource(frames, masterValue[0] * 4.F, masterValue[1] * 4.F);
+    auto* const oldIdentity = owners[0].get();
+    auto* const peerIdentity = owners[1].get();
+    const auto path = directory / (prefix + ".wav");
+    auto recorder = std::make_unique<StereoRecorder>(path);
+    LiveSession::InitialState initial;
+    initial.sourceFrame = {0, peerStart};
+    initial.cueFrame = {96, 384};
+    initial.playing = {true, true};
+    initial.deckGain = {.375F, .5F};
+    initial.masterGain = .5F;
+    initial.crossfader = 1.F;
+    initial.eqGainDb[0] = {-12.F, 3.F, -6.F};
+    initial.cueSelected = {true, false};
+    initial.cueGain = .25F;
+    initial.stemGain[0] = {0.F, .25F, .5F, .75F};
+    auto targets = initial.stemGain[0];
+    LiveSession session(std::move(owners), initial);
+    LiveSession::State state{};
+    std::optional<LiveSession::State> firstHeld, firstInstalled;
+    bool enterIssued = false, retiredAfterAck = false, ownersReturned = false;
+    double parked = 0;
+    std::uint64_t revision = 0, baselineStarved = 0, holdEntryOutput = 0, ackOutput = 0, swapOutput = 0,
+                  suffix = 0, recorded = 0, written = 0;
+    unsigned staleRejected = 0;
+    const auto save = [&](bool passed, std::string_view error = {}) {
+        master.saveOperands(diagnosticDirectory / (prefix + "-receiver.json"));
+        std::ofstream out(diagnosticDirectory / (prefix + ".json"));
+        out << "{\"passed\":" << (passed ? "true" : "false")
+            << ",\"qualified\":false,\"case\":" << json(label)
+            << ",\"scope\":\"Generated private LiveSession processed recovery OUT handoff; exact "
+               "peer/recording and nominal clock metadata. A is master-muted; core tests cover its DSP PCM "
+               "and both buses. No model, physical audio, musical, sustained or latency qualification.\""
+            << ",\"error\":" << json(error) << ",\"percent\":" << percent
+            << ",\"master_tempo\":" << (keyLock ? "true" : "false")
+            << ",\"parked_nominal_position\":" << std::setprecision(17) << parked
+            << ",\"hold_entry_output_frame\":" << holdEntryOutput
+            << ",\"callback_end_ack_output_frame\":" << ackOutput << ",\"swap_output_frame\":" << swapOutput
+            << ",\"prepared_suffix_output_frames\":" << suffix
+            << ",\"stale_tickets_rejected\":" << staleRejected
+            << ",\"retired_after_ack\":" << (retiredAfterAck ? "true" : "false")
+            << ",\"quiesced_owners_returned\":" << (ownersReturned ? "true" : "false")
+            << ",\"historical_read_failure\":" << (state.sourceReadErrorObserved[0] ? "true" : "false")
+            << ",\"pre_hold_starved_frames\":" << baselineStarved
+            << ",\"final_starved_frames\":" << state.starvedFrames[0]
+            << ",\"snapshot_drops\":" << state.snapshotDrops << ",\"recorded_frames\":" << recorded
+            << ",\"written_frames\":" << written << ",\"producer_starts\":" << producer->started.load()
+            << ",\"producer_exits\":" << producer->exited.load() << "}\n";
+    };
+    const auto observe = [&] {
+        const auto error = session.error();
+        if (!error.empty())
+            throw std::runtime_error(error);
+        for (std::size_t i = 0; i < 32 && session.pollState(state); ++i) {
+            if (enterIssued && !firstHeld && state.lastCommandId >= enterId && state.residentHold[0].active &&
+                state.sourceGeneration[0] == 0)
+                firstHeld = state;
+            if (!firstInstalled && state.sourceGeneration[0] == generation)
+                firstInstalled = state;
+        }
+        if (master.wrong())
+            throw std::runtime_error("Processed continuation changed the exact peer samples");
+        if (state.snapshotDrops)
+            throw std::runtime_error("Processed continuation lost callback END snapshots");
+    };
+    const auto controlsMatch = [&] {
+        return state.deckGain == initial.deckGain && state.eqGainDb == initial.eqGainDb &&
+               state.cueFrame == initial.cueFrame && state.cueSelected == initial.cueSelected &&
+               state.cueGain == initial.cueGain && state.masterGain == initial.masterGain &&
+               state.crossfader == initial.crossfader && state.stemGain[0] == targets &&
+               state.sourceFrame[1] == peerStart + state.outputFrame && state.playing[0] &&
+               state.playing[1] && state.tempo[0].active && state.tempo[0].percent == percent &&
+               state.tempo[0].keyLock == keyLock;
+    };
+    try {
+        std::string error;
+        require(session.start(error, routing), prefix + ": private session connects");
+        (void)awaitSteadySamples(session);
+        master.validateSamples(true);
+        RenderCore::Command tempo{RenderCore::Command::Type::TempoPercent, 0};
+        tempo.id = tempoId;
+        tempo.tempoPercent = percent;
+        require(session.submit(tempo), prefix + ": real callback receives selected BPM change");
+        if (keyLock) {
+            RenderCore::Command command{RenderCore::Command::Type::MasterTempo, 0};
+            command.id = masterTempoId;
+            require(session.submit(command), prefix + ": real callback receives Master Tempo");
+        }
+        wait(
+            [&] {
+                observe();
+                return state.lastCommandId >= (keyLock ? masterTempoId : tempoId) &&
+                       state.sourceFrame[0] > 4096 && !state.buffering[0] &&
+                       state.tempo[0].appliedPercent == percent && controlsMatch();
+            },
+            "Processed live source did not settle before recovery arm");
+        RenderCore::Command arm{RenderCore::Command::Type::ResidentHoldArm, 0};
+        arm.id = armId;
+        arm.residentHoldToken = rangeId;
+        arm.transportRevision = state.transportRevision[0];
+        require(session.submit(arm), prefix + ": exact recovery range enters control FIFO");
+        wait(
+            [&] {
+                observe();
+                return state.lastCommandId == armId && state.residentHold[0].ready &&
+                       state.residentHold[0].armed;
+            },
+            "Processed recovery range did not become ready");
+        require(session.requestRecorder(recorder.get()), prefix + ": recorder request accepted");
+        wait(
+            [&] {
+                observe();
+                return session.recorderAttached() && !session.recorderChangePending() &&
+                       recorder->acceptedFrames() >= 2048;
+            },
+            "Processed recovery recorder did not attach");
+        RenderCore::Command enter{RenderCore::Command::Type::ResidentHoldEnter, 0};
+        enter.id = enterId;
+        enter.residentHoldToken = rangeId;
+        enter.transportRevision = state.transportRevision[0];
+        require(session.submit(enter), prefix + ": current recovery entry accepted");
+        enterIssued = true;
+        wait(
+            [&] {
+                observe();
+                return firstHeld.has_value();
+            },
+            "Processed hold did not enter through the actual callback");
+        parked = firstHeld->sourcePosition[0];
+        revision = firstHeld->transportRevision[0];
+        baselineStarved = firstHeld->starvedFrames[0];
+        require(firstHeld->outputFrame >= 256 && firstHeld->outputFrame % 256 == 0,
+                prefix + ": first held snapshot has the fixed callback END");
+        holdEntryOutput = firstHeld->outputFrame - 256;
+        require(std::isfinite(parked) && parked >= 0 && parked < double(frames) &&
+                    state.sourcePosition[0] == parked && state.sourceFrame[0] == std::uint64_t(parked) &&
+                    state.streamFramesMin == 256 && state.streamFramesMax == 256 &&
+                    state.graphRate == 48000 && controlsMatch() && !state.buffering[0] &&
+                    state.residentHold[0].rangeId == rangeId && state.residentHold[0].ready &&
+                    state.residentHold[0].armed && !state.residentHold[0].exitPending,
+                prefix + ": actual processed hold parks F with unchanged manual controls");
+        producer->induceFailure.store(true, std::memory_order_release);
+        wait(
+            [&] {
+                observe();
+                return state.sourceReadError[0] && state.residentHold[0].errorCode == EIO;
+            },
+            "Processed held producer EIO did not become visible");
+        require(!state.sourceReadErrorObserved[0] && state.starvedFrames[0] == baselineStarved &&
+                    state.residentHold[0].active,
+                prefix + ": independent producer failure leaves resident audio running");
+        auto priming = std::async(std::launch::async, [&, mode = state.tempo[0]] {
+            return candidate->primeContinuation(parked, mode, 2s);
+        });
+        wait(
+            [&] {
+                observe();
+                return priming.wait_for(0ms) == std::future_status::ready;
+            },
+            "Processed continuation priming did not finish");
+        require(priming.get() && candidate->primedForContinuation(parked),
+                prefix + ": finite candidate primes exact nominal cursor and mode off callback");
+        std::optional<LiveSession::SourceReplacementResult> completion;
+        for (unsigned bad = 0; bad < 3; ++bad) {
+            require(session.requestSourceContinuation(0, candidate, bad == 0 ? 1 : 0,
+                                                      bad == 1 ? revision - 1 : revision, parked, 2 + bad,
+                                                      bad == 2 ? rangeId + 1 : rangeId) &&
+                        !candidate,
+                    prefix + ": stale identity is published once to actual callback");
+            wait(
+                [&] {
+                    observe();
+                    completion = session.takeSourceReplacementResult();
+                    return bool(completion);
+                },
+                "Processed stale-ticket completion timed out");
+            require(!completion->completion.installed && completion->completion.kind == Kind::Continuation &&
+                        completion->retiredPlayback.get() == candidateIdentity &&
+                        state.sourcePosition[0] == parked && state.transportRevision[0] == revision &&
+                        state.residentHold[0].active && controlsMatch() && !producer->exited,
+                    prefix + ": stale ticket retains the live hold and exact candidate owner");
+            candidate = std::move(completion->retiredPlayback);
+            completion.reset();
+            require(candidate->primedForContinuation(parked),
+                    prefix + ": rejected candidate still has its unused prime");
+            ++staleRejected;
+        }
+        const auto beforeOutput = state.outputFrame;
+        RenderCore::Command gain{RenderCore::Command::Type::StemGain, 0};
+        gain.id = mixId;
+        gain.stem = 0;
+        gain.gain = .375F;
+        require(session.submit(gain), prefix + ": current stem target precedes the handoff in FIFO");
+        targets[0] = gain.gain;
+        require(session.requestSourceContinuation(0, candidate, 0, revision, parked, generation, rangeId) &&
+                    !candidate,
+                prefix + ": one current processed range continuation is published");
+        wait(
+            [&] {
+                observe();
+                return firstInstalled.has_value();
+            },
+            "Processed OUT handoff did not install");
+        require(session.sourceReplacementPending() && !producer->exited && session.recorderAttached(),
+                prefix + ": old owner survives uncollected callback END");
+        wait(
+            [&] {
+                observe();
+                completion = session.takeSourceReplacementResult();
+                return bool(completion);
+            },
+            "Processed handoff ACK timed out");
+        ackOutput = completion->completion.outputFrame;
+        require(completion->completion.installed && completion->completion.kind == Kind::Continuation &&
+                    completion->completion.generation == generation &&
+                    completion->retiredPlayback.get() == oldIdentity &&
+                    completion->completion.retired.sourceFrame == std::uint64_t(parked) &&
+                    completion->completion.retired.readFailed && ackOutput == firstInstalled->outputFrame &&
+                    ackOutput > beforeOutput,
+                prefix + ": callback ACK returns the exact failed owner after final use");
+        const double nominalSuffix = (firstInstalled->sourcePosition[0] - parked) / rate;
+        require(std::isfinite(nominalSuffix) && nominalSuffix >= -1e-6 && nominalSuffix <= 256. + 1e-6,
+                prefix + ": processed finite suffix fits one callback");
+        suffix = std::uint64_t(std::llround(std::max(0., nominalSuffix)));
+        require(std::abs(nominalSuffix - double(suffix)) < 1e-6 && suffix <= 256 && ackOutput >= suffix,
+                prefix + ": consumed nominal clock identifies an integer output suffix");
+        swapOutput = ackOutput - suffix;
+        require(swapOutput > holdEntryOutput, prefix + ": old hold output precedes takeover");
+        const long double oldAdvance = static_cast<long double>(swapOutput - holdEntryOutput) * rate;
+        const long double length = range.outFrame - range.inFrame;
+        const auto wraps = std::floor((oldAdvance + 1e-7L) / length);
+        const auto residual = oldAdvance - wraps * length;
+        require(
+            wraps >= 1 && residual >= -1e-6L && residual < rate + 1e-6L,
+            prefix +
+                ": takeover consumes exactly through a processed OUT sample, never an extra wrapped prefix");
+        require(firstInstalled->transportRevision[0] == revision + 1 &&
+                    firstInstalled->lastCommandId == mixId && firstInstalled->stemGain[0] == targets &&
+                    !firstInstalled->residentHold[0].supported &&
+                    firstInstalled->sourceReadErrorObserved[0] && !firstInstalled->sourceReadError[0],
+                prefix + ": installed callback retains current role targets and original failure evidence");
+        const auto progressed = state;
+        wait(
+            [&] {
+                observe();
+                return state.outputFrame >= progressed.outputFrame + 1024 && state.sourcePosition[0] > parked;
+            },
+            "Processed finite source did not advance");
+        require(std::abs((state.sourcePosition[0] - progressed.sourcePosition[0]) -
+                         double(state.outputFrame - progressed.outputFrame) * rate) < 1e-6 &&
+                    state.sourceGeneration[0] == generation && state.transportRevision[0] == revision + 1 &&
+                    controlsMatch() && state.starvedFrames[0] == baselineStarved && !state.starvedFrames[1] &&
+                    !state.invalidBuffers && !state.rejected && state.sourceReadErrorObserved[0] &&
+                    !state.sourceReadError[0] && !recorder->failed() && !recorder->overflowCount(),
+                prefix +
+                    ": processed and peer clocks, exact controls, role exclusions and recording stay intact");
+        auto oldRef = completion->retiredPlayback->sourceRef();
+        require(!oldRef.residentHoldState(oldRef.context).active &&
+                    completion->retiredPlayback->errorCode() == EIO,
+                prefix + ": retired owner has no resident borrow and retains its own failure");
+        auto retirement =
+            std::async(std::launch::async,
+                       [retired = std::move(completion->retiredPlayback)]() mutable { retired.reset(); });
+        completion.reset();
+        retirement.get();
+        retiredAfterAck = true;
+        require(producer->exited == 1,
+                prefix + ": off-thread retirement joins the original producer only after ACK");
+        master.validateSamples(false);
+        auto stopped = session.stopAndTakePlaybacks();
+        state = session.stoppedState();
+        require(!stopped.replacement && stopped.active[0].get() == candidateIdentity &&
+                    stopped.active[1].get() == peerIdentity && !session.sourceReplacementPending() &&
+                    !session.recorderAttached() && !session.recorderChangePending(),
+                prefix + ": quiescence returns exact active owners and detaches recorder");
+        ownersReturned = true;
+        recorded = recorder->acceptedFrames();
+        auto cleanup =
+            std::async(std::launch::async, [stopped = std::move(stopped)]() mutable { stopped.active = {}; });
+        cleanup.get();
+        session.stop();
+        recorder->stop();
+        written = recorder->writtenFrames();
+        require(recorded && written == recorded && !recorder->failed() && !recorder->overflowCount(),
+                prefix + ": complete master recording drains");
+        verifyRecording(path, recorded);
+        require(!master.wrong() &&
+                    (!executionDeadlineGate || (!master.zerosAfterSignal(0) && !master.zerosAfterSignal(1))),
+                prefix + ": exact peer receiver remains strict");
+        if (executionDeadlineGate)
+            require(!state.deadlineMisses, prefix + ": no callback deadline misses");
+        save(true);
+    } catch (const std::exception& error) {
+        save(false, error.what());
+        failureDiagnostic(session, prefix.c_str(), error.what());
+        saveFailedRecordingOperands(session, *recorder, path,
+                                    diagnosticDirectory / (prefix + "-failed-recording.json"));
+        throw;
+    }
+}
+
 void runLiveOwnerDetach(const std::filesystem::path& directory, bool awaitInstalled)
 {
     const std::string label = awaitInstalled ? "live-owner-installed" : "live-owner-immediate";
@@ -1679,11 +2001,13 @@ int main(int argc, char** argv)
         std::string residentCase;
         if (index < argc && std::string_view(argv[index]) == "--resident-takeover-case" && index+2 == argc) {
             residentCase = argv[index+1]; index += 2;
-            if (residentCase != "interior" && residentCase != "boundary" && residentCase != "entry")
-                throw std::runtime_error("Resident takeover case must be interior, boundary or entry");
+            if (residentCase != "interior" && residentCase != "boundary" && residentCase != "entry" &&
+                residentCase != "tempo-fast" && residentCase != "tempo-slow" &&
+                residentCase != "tempo-master-fast" && residentCase != "tempo-master-slow")
+                throw std::runtime_error("Unknown resident takeover case");
         }
         if (argc < 3 || index != argc)
-            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only] [--resident-takeover-case interior|boundary|entry]");
+            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only] [--resident-takeover-case interior|boundary|entry|tempo-fast|tempo-slow|tempo-master-fast|tempo-master-slow]");
         validatePrivateEnvironment(argv[1]);
         const std::filesystem::path output(argv[2]);
         diagnosticDirectory = output.parent_path();
@@ -1691,7 +2015,8 @@ int main(int argc, char** argv)
                 "Fresh absolute recording output directory validated");
         pw_init(nullptr, nullptr);
         if (!residentCase.empty()) {
-            runResidentSourceContinuation(output, residentCase);
+            if (residentCase.starts_with("tempo-")) runProcessedResidentContinuation(output, residentCase);
+            else runResidentSourceContinuation(output, residentCase);
             std::cout << "{\"passed\":true,\"qualified\":false,\"scope\":\"One generated private direct-session resident OUT takeover; no physical/model/audio qualification\",\"resident_takeover_case\":"
                       << json(residentCase) << ",\"execution_deadline_gate\":" << (executionDeadlineGate ? "true" : "false") << ",\"checks\":";
             writeChecks(std::cout); std::cout << "}\n";

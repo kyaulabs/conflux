@@ -1,0 +1,360 @@
+{
+  "schema": 1,
+  "base": "e86585b537175ea5b5570c6c05565f1f103db050",
+  "utc": "2026-10-30T12:11:17.704176+00:00",
+  "source_files": [
+    {
+      "file": "qml/DeckSurface.qml",
+      "bytes": 82459,
+      "sha256": "985387fd105ab72ceebe915f2d67b2c5427df018ebf9f485f2df6967a1d83543"
+    },
+    {
+      "file": "qml/Main.qml",
+      "bytes": 71556,
+      "sha256": "e09e43e32ecec4f0d0fba8e19696134d44d1aa3e0eafc2abfa874b3a6934ebf7"
+    },
+    {
+      "file": "src/audio/PreparedPlayback.cpp",
+      "bytes": 68024,
+      "sha256": "c345ec7c264be6aca76dfffeed04f8f6bbaf5715c1c4d72dc7484a5408283e9b"
+    },
+    {
+      "file": "src/audio/PreparedPlayback.hpp",
+      "bytes": 9302,
+      "sha256": "0d9bca278dab7cc8ff38fa42487b74f1d51833775bb6fc2b32aee2edb309aa3a"
+    },
+    {
+      "file": "src/audio/PreparedTempoSource.cpp",
+      "bytes": 30986,
+      "sha256": "ce923203a792ef37590aacfa09bb9930b42dce84cfa9185d1d797960766ee746"
+    },
+    {
+      "file": "src/audio/PreparedTempoSource.hpp",
+      "bytes": 6687,
+      "sha256": "1463dc4af9573b9c9a488852b2e683fdf27a7d9e5621c0f4870473994f79444b"
+    },
+    {
+      "file": "src/audio/RenderCore.cpp",
+      "bytes": 47611,
+      "sha256": "07105f4855e55073bd621574bdf1eb5f0bc88c9f711f0f25ef7acbb16da81250"
+    },
+    {
+      "file": "tests/audio_live_tempo_test.cpp",
+      "bytes": 30131,
+      "sha256": "f7a883a5c0dbd6f4838773ec87f4e9891591f104fe2d08ef614075afc8ac85ae"
+    },
+    {
+      "file": "tests/audio_stream_tempo_test.cpp",
+      "bytes": 20022,
+      "sha256": "f16978c25422a8ee014a4f2bee3748d4c795e5973e493bbc354834830cff3009"
+    },
+    {
+      "file": "tests/manual_ui_test.cpp",
+      "bytes": 339062,
+      "sha256": "5ec1ad6c80188b854c1d1b773ed66281c0b984f8c9641377ef2f1f48a1f1cd28"
+    }
+  ],
+  "source_patch_sha256": "9774ee35db8c6b62582153d368aaaeccd7c43331ceb0d0a1a2670a1091513f53",
+  "full_local_targets": 60,
+  "full_local_ui_cases": 238,
+  "apollo_audio_targets": 9,
+  "full_pair": {
+    "hosts": {
+      "laptop": {
+        "command": [
+          "systemd-run",
+          "--user",
+          "--pipe",
+          "--wait",
+          "--collect",
+          "--unit=conflux-live-recovery-cpu-20261030-02.service",
+          "--property=Type=exec",
+          "--property=Restart=no",
+          "--property=KillMode=control-group",
+          "--property=TimeoutStopSec=15s",
+          "--property=RuntimeMaxSec=600",
+          "--property=MemoryMax=6G",
+          "--property=CPUQuota=150%",
+          "--property=Nice=15",
+          "--property=UMask=0077",
+          "--property=WorkingDirectory=/home/kyau/.codex/worktrees/resident-stem-hold/conflux",
+          "--setenv=QT_QPA_PLATFORM=offscreen",
+          "--setenv=QT_QUICK_BACKEND=software",
+          "--setenv=QT_QUICK_CONTROLS_STYLE=Basic",
+          "--setenv=XDG_CACHE_HOME=/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/ctest-cache-02",
+          "--setenv=XDG_DATA_HOME=/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/ctest-data-02",
+          "ctest",
+          "--test-dir",
+          "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/normal",
+          "--output-on-failure",
+          "--verbose",
+          "-j",
+          "1"
+        ],
+        "started_utc": "2026-10-30T11:54:18.388886+00:00",
+        "exit": 0,
+        "elapsed_seconds": 291.32725123595446,
+        "unit": "conflux-live-recovery-cpu-20261030-02.service",
+        "original_ownership": {
+          "LoadState": "loaded",
+          "ActiveState": "active",
+          "InvocationID": "9d50bc616c9a4a39a591c2494f35f759",
+          "ControlGroup": "/user.slice/user-1000.slice/user@1000.service/app.slice/conflux-live-recovery-cpu-20261030-02.service"
+        },
+        "unit_absent": true,
+        "original_cgroup_absent": true
+      },
+      "apollo": {
+        "command": [
+          "/bin/python3",
+          "-B",
+          "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/run_apollo_core_02.py"
+        ],
+        "started_utc": "2026-10-30T11:54:18.389053+00:00",
+        "exit": 0,
+        "elapsed_seconds": 24.739221242954955,
+        "container_absent": true,
+        "source_pins_unchanged": true
+      }
+    },
+    "concurrent_dispatch": true,
+    "source_manifest_sha256": "1269b376cd1394c28b431a54ca5d16b2b4108e054eb192a3d79ae28a0e0746ae",
+    "shared_audio_targets": 9,
+    "laptop_scope": "complete CTest suite",
+    "apollo_scope": "frozen nine audio suites",
+    "all_passed": true,
+    "physical_audio_model_or_GPU_started": false,
+    "latency_qualification": false
+  },
+  "final_test_only_pair": {
+    "schema": 1,
+    "hosts": {
+      "laptop": {
+        "build": {
+          "exit": 0,
+          "elapsed_seconds": 1.7684357030084357,
+          "command": [
+            "cmake",
+            "--build",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/normal",
+            "--parallel",
+            "1",
+            "--target",
+            "conflux-audio-live-tempo-test"
+          ]
+        },
+        "check": {
+          "exit": 0,
+          "elapsed_seconds": 1.1660684080561623,
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/normal",
+            "--output-on-failure",
+            "--verbose",
+            "-R",
+            "^audio-live-tempo$",
+            "-j",
+            "1"
+          ]
+        },
+        "product_archive_unchanged": true,
+        "product_archive_sha256": "41efdf232c2c35580fc97a3468f66fe78e94273cd89210e02a4a6d2a5b51274e"
+      },
+      "apollo": {
+        "exit": 0,
+        "elapsed_seconds": 15.117719004047103,
+        "command": [
+          "ssh",
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "ConnectTimeout=10",
+          "-o",
+          "ForwardAgent=no",
+          "-o",
+          "ForwardX11=no",
+          "-o",
+          "ClearAllForwardings=yes",
+          "-o",
+          "StrictHostKeyChecking=yes",
+          "-o",
+          "HostName=10.4.20.101",
+          "-o",
+          "HostKeyAlias=[apollo.kyaulabs]:4222",
+          "-p",
+          "4222",
+          "kyau@apollo.kyaulabs",
+          "python3",
+          "-"
+        ],
+        "remote": {
+          "exit": 0,
+          "container_absent": true,
+          "product_archive_unchanged": true,
+          "product_archive_sha256": "41efdf232c2c35580fc97a3468f66fe78e94273cd89210e02a4a6d2a5b51274e",
+          "stdout": "[1/2] Building CXX object CMakeFiles/conflux-audio-live-tempo-test.dir/tests/audio_live_tempo_test.cpp.o\n[2/2] Linking CXX executable conflux-audio-live-tempo-test\nUpdateCTestConfiguration  from :/build/DartConfiguration.tcl\nParse Config file:/build/DartConfiguration.tcl\nTest project /build\nConstructing a list of tests\nDone constructing a list of tests\nUpdating test list for fixtures\nAdded 0 tests to meet fixture requirements\nChecking test dependency graph...\nChecking test dependency graph end\ntest 2\n    Start 2: audio-live-tempo\n\n2: Test command: /build/conflux-audio-live-tempo-test\n2: Working Directory: /build\n2: Test timeout computed to be: 60\n2: Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n1/1 Test #2: audio-live-tempo .................   Passed    6.18 sec\n\nThe following tests passed:\n\taudio-live-tempo\n\n100% tests passed out of 1\n\nTotal Test time (real) =   6.18 sec\n",
+          "stderr": ""
+        }
+      }
+    },
+    "all_passed": true,
+    "concurrent_dispatch": true,
+    "source_manifest_sha256": "3704eb11c1d775328ede243e0d96b931b68ca192672b99293be07febe351e1d5",
+    "GPU_or_physical_audio_or_model_started": false,
+    "latency_qualification": false
+  },
+  "sanitizers": {
+    "address": {
+      "schema": 1,
+      "kind": "address",
+      "passed": true,
+      "commands": [
+        {
+          "command": [
+            "cmake",
+            "-S",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/core-snapshot-03/source",
+            "-B",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/address-sanitizer-01/build",
+            "-G",
+            "Ninja",
+            "-DCMAKE_BUILD_TYPE=Debug",
+            "-DCMAKE_CXX_FLAGS_DEBUG=-O1 -g",
+            "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer",
+            "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined -no-pie"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "cmake",
+            "--build",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/address-sanitizer-01/build",
+            "--parallel",
+            "1",
+            "--target",
+            "conflux-audio-live-tempo-test",
+            "conflux-audio-stream-tempo-test",
+            "conflux-audio-stem-bank-test",
+            "conflux-audio-live-recovery-test"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/address-sanitizer-01/build",
+            "--output-on-failure",
+            "--verbose",
+            "-R",
+            "^(audio-live-tempo|audio-stream-tempo|audio-stem-bank|audio-live-recovery)$",
+            "-j",
+            "1"
+          ],
+          "exit": 0
+        }
+      ],
+      "source_manifest_sha256": "3704eb11c1d775328ede243e0d96b931b68ca192672b99293be07febe351e1d5",
+      "source_pins_unchanged": true,
+      "elapsed_seconds": 137.28967610700056,
+      "product_audio_library_instrumented": true,
+      "external_DSP_libraries_instrumented": false,
+      "GPU_or_hardware_audio_used": false,
+      "hardware_or_latency_qualification": false,
+      "runtime_initialization_unavailable": false,
+      "ASan_test_executables_non_PIE": true,
+      "production_flags_or_host_security_settings_changed": false
+    },
+    "thread": {
+      "schema": 1,
+      "kind": "thread",
+      "passed": true,
+      "commands": [
+        {
+          "command": [
+            "cmake",
+            "-S",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/core-snapshot-03/source",
+            "-B",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/thread-sanitizer-01/build",
+            "-G",
+            "Ninja",
+            "-DCMAKE_BUILD_TYPE=Debug",
+            "-DCMAKE_CXX_FLAGS_DEBUG=-O1 -g",
+            "-DCMAKE_CXX_FLAGS=-fsanitize=thread -fno-omit-frame-pointer",
+            "-DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "cmake",
+            "--build",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/thread-sanitizer-01/build",
+            "--parallel",
+            "1",
+            "--target",
+            "conflux-audio-live-tempo-test",
+            "conflux-audio-stream-tempo-test",
+            "conflux-audio-stem-bank-test",
+            "conflux-audio-live-recovery-test"
+          ],
+          "exit": 0
+        },
+        {
+          "command": [
+            "ctest",
+            "--test-dir",
+            "/home/kyau/projects/kyaulabs/conflux/build/m3-live-recovery-tempo-01/thread-sanitizer-01/build",
+            "--output-on-failure",
+            "--verbose",
+            "-R",
+            "^(audio-live-tempo|audio-stream-tempo|audio-stem-bank|audio-live-recovery)$",
+            "-j",
+            "1"
+          ],
+          "exit": 0
+        }
+      ],
+      "source_manifest_sha256": "3704eb11c1d775328ede243e0d96b931b68ca192672b99293be07febe351e1d5",
+      "source_pins_unchanged": true,
+      "elapsed_seconds": 77.58373386203311,
+      "product_audio_library_instrumented": true,
+      "external_DSP_libraries_instrumented": false,
+      "GPU_or_hardware_audio_used": false,
+      "hardware_or_latency_qualification": false,
+      "runtime_initialization_unavailable": false,
+      "ASan_test_executables_non_PIE": false,
+      "production_flags_or_host_security_settings_changed": false
+    }
+  },
+  "review": {
+    "schema": 1,
+    "utc": "2026-10-30T12:11:17.678251+00:00",
+    "reviewer": "primary agent, no independent reviewer",
+    "source_patch_sha256": "9774ee35db8c6b62582153d368aaaeccd7c43331ceb0d0a1a2670a1091513f53",
+    "findings": [],
+    "checked": [
+      "immutable range publication uses release/acquire before both readers",
+      "live raw demand stays under the linear worker after transfer",
+      "render owner alone accesses output configuration, control and nominal cursors",
+      "bank staging health is atomic; independent producer error does not invalidate resident PCM",
+      "old processors join before reconstruction swaps bank ownership",
+      "range/source/session authorization remains fail closed",
+      "held cursor and fractional return are bounded by renderer validation"
+    ],
+    "limitations": [
+      "held tempo edits remain gated",
+      "tempo-aware prepared continuation not implemented",
+      "real-music acceptance and current-code hardware qualification pending"
+    ]
+  },
+  "model_GPU_physical_audio_started": false,
+  "latency_qualified": false,
+  "measured_coverage_for_this_revision": null,
+  "M2_complete": false,
+  "M3_complete": false,
+  "release_allowed": false
+}
