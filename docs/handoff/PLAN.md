@@ -513,9 +513,14 @@ secondary result cannot replace the primary-laptop gate. Earlier failed hours
 and short diagnostics remain retained. The combined manual mixing trial and
 A–H hot cues have user acceptance; the later combined prepared-loop/tempo
 listening check was also accepted with "loops work good". Actual native-worker
-forced cleanup passed at the consumed-input boundary on both hosts; active
-GPU-fence/full-player shutdown remains unqualified. Musical-analysis/fallback
-qualification, remaining cancellation coverage and live-stem tempo remain open
+forced cleanup passed at the consumed-input boundary on both hosts and now also
+passed after an observed unfinished submitted Vulkan fence wait. Full-player
+shutdown remains unqualified. The
+[resident queue-boundary regression](../benchmarks/resident-queue-boundary-2026-10-30.md)
+reproduced a 19-frame short read despite sufficient queued PCM and verified a
+bounded reader correction on both hosts. Its relationship to the earlier
+realtime underrun remains unproven. Musical-analysis/fallback qualification,
+remaining cancellation coverage and live-stem tempo remain open
 before `0.1.0`. Complete and verify
 each new control before enabling it; the fixed-mix hour does not exercise every
 M3 control or close either milestone.
