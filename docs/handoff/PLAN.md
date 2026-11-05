@@ -518,6 +518,10 @@ GPU waits and full-player shutdown have since been observed in the
 [full-player check](../benchmarks/full-player-shutdown-2026-11-04.md): the
 laptop closed in 324 ms and Apollo in 506 ms, within three seconds. Their waits
 completed during cancellation; this does not prove GPU command preemption.
+The [resident queue-boundary regression](../benchmarks/resident-queue-boundary-2026-10-30.md)
+reproduced a 19-frame short read despite sufficient queued PCM and verified a
+bounded reader correction on both hosts. Its relationship to the earlier
+realtime underrun remains unproven.
 Musical-analysis/fallback and current-build sustained qualification remain open
 before `0.1.0`. On 4 November the user explicitly retained full M2/M3
 qualification before release. Complete and verify

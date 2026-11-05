@@ -944,7 +944,9 @@ AudioReadResult PreparedPlayback::readResidentTempo(std::span<float> output) noe
     if (!live_->hold->ready() || bank_->hasReadFailure()) { result.failed = true; return result; }
     const auto length = live_->hold->range().outFrame-live_->hold->range().inFrame;
     const auto wanted = output.size()/2;
-    for (std::size_t slot=0;slot<PreparedTempoSource::slotCount && result.frames<wanted;++slot) {
+    // Loop OUT can split a queued slot without retiring it. One source read
+    // crosses at most one OUT, so eight queued slots can require nine pieces.
+    for (std::size_t slot=0;slot<PreparedTempoSource::slotCount+1U && result.frames<wanted;++slot) {
         if (live_->holdOffset == length) {
             if (live_->holdExit && !live_->code() && !tempoSource_->errorCode()) {
                 const auto offset = result.frames;
