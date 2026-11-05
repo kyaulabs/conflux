@@ -522,8 +522,11 @@ The [resident queue-boundary regression](../benchmarks/resident-queue-boundary-2
 reproduced a 19-frame short read despite sufficient queued PCM and verified a
 bounded reader correction on both hosts. Its relationship to the earlier
 realtime underrun remains unproven.
-Musical-analysis/fallback and current-build sustained qualification remain open
-before `0.1.0`. On 4 November the user explicitly retained full M2/M3
+The [selected-tempo hour](../benchmarks/selected-tempo-hour-2026-11-05.md)
+completed on Apollo at 1.008-second p99 but failed continuity with 14 ms of
+steady starvation. Both laptop admissions ended before playback.
+Musical-analysis/fallback and current primary-laptop sustained qualification
+remain open before `0.1.0`. On 4 November the user explicitly retained full M2/M3
 qualification before release. Complete and verify
 each new control before enabling it; the fixed-mix hour does not exercise every
 M3 control or close either milestone.
