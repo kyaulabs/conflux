@@ -514,9 +514,13 @@ and short diagnostics remain retained. The combined manual mixing trial and
 A–H hot cues have user acceptance; the later combined prepared-loop/tempo
 listening check was also accepted with "loops work good". Actual native-worker
 forced cleanup passed at the consumed-input boundary on both hosts; active
-GPU-fence/full-player shutdown remains unqualified. Musical-analysis/fallback
-qualification, remaining cancellation coverage and live-stem tempo remain open
-before `0.1.0`. Complete and verify
+GPU waits and full-player shutdown have since been observed in the
+[full-player check](../benchmarks/full-player-shutdown-2026-11-04.md): the
+laptop closed in 324 ms and Apollo in 506 ms, within three seconds. Their waits
+completed during cancellation; this does not prove GPU command preemption.
+Musical-analysis/fallback and current-build sustained qualification remain open
+before `0.1.0`. On 4 November the user explicitly retained full M2/M3
+qualification before release. Complete and verify
 each new control before enabling it; the fixed-mix hour does not exercise every
 M3 control or close either milestone.
 
