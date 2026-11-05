@@ -172,6 +172,7 @@ def main():
                     ("private-resident-tempo-slow", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-slow"]),
                     ("private-resident-tempo-master-fast", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-master-fast"]),
                     ("private-resident-tempo-master-slow", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-master-slow"]),
+                    ("private-resident-tempo-master-auto", "conflux-manual-routing-check", ["--resident-takeover-case", "tempo-master-fast-auto"]),
                     ("private-resident-takeover", "conflux-preparation-controller-check", ["--continuation-case", "resident-takeover"]),
                     ("private-resident-tempo-takeover", "conflux-preparation-controller-check", ["--continuation-case", "resident-tempo-takeover"]),
                     ("private-resident-cancel", "conflux-preparation-controller-check", ["--continuation-case", "resident-cancel"]),

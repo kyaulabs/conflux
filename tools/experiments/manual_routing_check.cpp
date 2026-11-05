@@ -1432,8 +1432,9 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
     using Range = conflux::audio::AudioResidentHoldRange;
     constexpr std::uint64_t frames = 48000 * 30, peerStart = 512, rangeId = 879, generation = 5;
     constexpr std::uint32_t tempoId = 6101, masterTempoId = 6102, armId = 6103, enterId = 6104, mixId = 6105;
-    const bool keyLock = label == "tempo-master-fast" || label == "tempo-master-slow";
-    const double percent = label == "tempo-fast" || label == "tempo-master-fast" ? 6. : -6.;
+    const bool forceAutomaticEntry = label == "tempo-master-fast-auto";
+    const bool keyLock = label == "tempo-master-fast" || label == "tempo-master-slow" || forceAutomaticEntry;
+    const double percent = label == "tempo-fast" || label == "tempo-master-fast" || forceAutomaticEntry ? 6. : -6.;
     const double rate = 1. + percent / 100.;
     const std::string prefix = "resident-takeover-" + std::string(label);
     const Range range{rangeId, 4096, 4096 + 8193, 8193 * Range::bytesPerFrame, Range::Provenance::DjRange};
@@ -1463,11 +1464,14 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
     auto targets = initial.stemGain[0];
     LiveSession session(std::move(owners), initial);
     LiveSession::State state{};
-    std::optional<LiveSession::State> firstHeld, firstInstalled;
-    bool enterIssued = false, retiredAfterAck = false, ownersReturned = false;
+    std::optional<LiveSession::State> firstHeld, lastLinear, firstInstalled;
+    bool retiredAfterAck = false, ownersReturned = false;
+    std::uint64_t expectedRejected = 0;
+    bool activeBeforeEnter = false;
+    std::uint64_t beforeEnterOutput = 0, beforeEnterAudible = 0;
     double parked = 0;
     std::uint64_t revision = 0, baselineStarved = 0, holdEntryOutput = 0, ackOutput = 0, swapOutput = 0,
-                  suffix = 0, recorded = 0, written = 0;
+                  suffix = 0, holdStarved = 0, recorded = 0, written = 0;
     unsigned staleRejected = 0;
     const auto save = [&](bool passed, std::string_view error = {}) {
         master.saveOperands(diagnosticDirectory / (prefix + "-receiver.json"));
@@ -1476,13 +1480,24 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
             << ",\"qualified\":false,\"case\":" << json(label)
             << ",\"scope\":\"Generated private LiveSession processed recovery OUT handoff; exact "
                "peer/recording and nominal clock metadata. A is master-muted; core tests cover its DSP PCM "
-               "and both buses. No model, physical audio, musical, sustained or latency qualification.\""
+               "and both buses. Functional-only mode retains buffering but does not qualify its absence. "
+               "No model, physical audio, musical, sustained or latency qualification.\""
             << ",\"error\":" << json(error) << ",\"percent\":" << percent
             << ",\"master_tempo\":" << (keyLock ? "true" : "false")
             << ",\"parked_nominal_position\":" << std::setprecision(17) << parked
             << ",\"hold_entry_output_frame\":" << holdEntryOutput
+            << ",\"active_before_enter\":" << (activeBeforeEnter ? "true" : "false")
+            << ",\"before_enter_output_frame\":" << beforeEnterOutput
+            << ",\"before_enter_audible_frame\":" << beforeEnterAudible
+            << ",\"first_held_audible_frame\":" << (firstHeld ? firstHeld->residentHold[0].audibleFrame : 0)
+            << ",\"rejected_commands\":" << state.rejected
+            << ",\"expected_rejected_commands\":" << expectedRejected
+            << ",\"first_held_last_command_id\":" << (firstHeld ? firstHeld->lastCommandId : 0)
+            << ",\"last_linear_output_frame\":" << (lastLinear ? lastLinear->outputFrame : 0)
+            << ",\"last_linear_nominal_position\":" << (lastLinear ? lastLinear->sourcePosition[0] : 0)
             << ",\"callback_end_ack_output_frame\":" << ackOutput << ",\"swap_output_frame\":" << swapOutput
             << ",\"prepared_suffix_output_frames\":" << suffix
+            << ",\"hold_starved_output_frames\":" << holdStarved
             << ",\"stale_tickets_rejected\":" << staleRejected
             << ",\"retired_after_ack\":" << (retiredAfterAck ? "true" : "false")
             << ",\"quiesced_owners_returned\":" << (ownersReturned ? "true" : "false")
@@ -1498,9 +1513,15 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
         if (!error.empty())
             throw std::runtime_error(error);
         for (std::size_t i = 0; i < 32 && session.pollState(state); ++i) {
-            if (enterIssued && !firstHeld && state.lastCommandId >= enterId && state.residentHold[0].active &&
-                state.sourceGeneration[0] == 0)
-                firstHeld = state;
+            // An armed source may enter recovery itself while setup or the
+            // manual entry command is waiting. Retain the actual first held
+            // callback, including a possible linear prefix in that callback.
+            if (!firstHeld && state.sourceGeneration[0] == 0) {
+                if (state.lastCommandId >= armId && state.residentHold[0].active)
+                    firstHeld = state;
+                else
+                    lastLinear = state;
+            }
             if (!firstInstalled && state.sourceGeneration[0] == generation)
                 firstInstalled = state;
         }
@@ -1552,6 +1573,11 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
                        state.residentHold[0].armed;
             },
             "Processed recovery range did not become ready");
+        if (forceAutomaticEntry) {
+            producer->induceFailure.store(true, std::memory_order_release);
+            wait([&] { observe(); return firstHeld.has_value(); },
+                 "Induced early automatic recovery did not enter");
+        }
         require(session.requestRecorder(recorder.get()), prefix + ": recorder request accepted");
         wait(
             [&] {
@@ -1560,24 +1586,38 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
                        recorder->acceptedFrames() >= 2048;
             },
             "Processed recovery recorder did not attach");
+        activeBeforeEnter = state.residentHold[0].active;
+        beforeEnterOutput = state.outputFrame;
+        beforeEnterAudible = state.residentHold[0].audibleFrame;
+        require(!state.rejected, prefix + ": setup controls applied without rejection");
         RenderCore::Command enter{RenderCore::Command::Type::ResidentHoldEnter, 0};
         enter.id = enterId;
         enter.residentHoldToken = rangeId;
         enter.transportRevision = state.transportRevision[0];
-        require(session.submit(enter), prefix + ": current recovery entry accepted");
-        enterIssued = true;
+        require(session.submit(enter), prefix + ": current recovery entry submitted");
         wait(
             [&] {
                 observe();
-                return firstHeld.has_value();
+                return firstHeld && state.lastCommandId == enterId;
             },
             "Processed hold did not enter through the actual callback");
+        // Automatic entry before this FIFO command legitimately rejects the
+        // now-redundant Enter, and no other control may be rejected.
+        expectedRejected = firstHeld->lastCommandId < enterId ? 1 : 0;
+        require(state.rejected == expectedRejected && (!forceAutomaticEntry || expectedRejected == 1),
+                prefix + ": entry applies or is rejected only after observed automatic recovery");
         parked = firstHeld->sourcePosition[0];
         revision = firstHeld->transportRevision[0];
-        baselineStarved = firstHeld->starvedFrames[0];
-        require(firstHeld->outputFrame >= 256 && firstHeld->outputFrame % 256 == 0,
-                prefix + ": first held snapshot has the fixed callback END");
-        holdEntryOutput = firstHeld->outputFrame - 256;
+        require(lastLinear && firstHeld->outputFrame >= 256 && firstHeld->outputFrame % 256 == 0 &&
+                    lastLinear->outputFrame + 256 == firstHeld->outputFrame &&
+                    !lastLinear->residentHold[0].active,
+                prefix + ": first held snapshot follows the last linear callback END");
+        baselineStarved = lastLinear->starvedFrames[0];
+        const double linearPrefix = (parked - lastLinear->sourcePosition[0]) / rate;
+        require(std::isfinite(linearPrefix) && linearPrefix >= -1e-6 && linearPrefix < 256. &&
+                    std::abs(linearPrefix - std::round(linearPrefix)) < 1e-6,
+                prefix + ": parked cursor identifies the actual linear prefix before recovery");
+        holdEntryOutput = lastLinear->outputFrame + std::uint64_t(std::llround(std::max(0., linearPrefix)));
         require(std::isfinite(parked) && parked >= 0 && parked < double(frames) &&
                     state.sourcePosition[0] == parked && state.sourceFrame[0] == std::uint64_t(parked) &&
                     state.streamFramesMin == 256 && state.streamFramesMax == 256 &&
@@ -1592,7 +1632,8 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
                 return state.sourceReadError[0] && state.residentHold[0].errorCode == EIO;
             },
             "Processed held producer EIO did not become visible");
-        require(!state.sourceReadErrorObserved[0] && state.starvedFrames[0] == baselineStarved &&
+        require(!state.sourceReadErrorObserved[0] &&
+                    (!executionDeadlineGate || state.starvedFrames[0] == baselineStarved) &&
                     state.residentHold[0].active,
                 prefix + ": independent producer failure leaves resident audio running");
         auto priming = std::async(std::launch::async, [&, mode = state.tempo[0]] {
@@ -1672,7 +1713,18 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
                 prefix + ": consumed nominal clock identifies an integer output suffix");
         swapOutput = ackOutput - suffix;
         require(swapOutput > holdEntryOutput, prefix + ": old hold output precedes takeover");
-        const long double oldAdvance = static_cast<long double>(swapOutput - holdEntryOutput) * rate;
+        require(completion->completion.retired.starvedFrames >= baselineStarved &&
+                    firstInstalled->starvedFrames[0] == completion->completion.retired.starvedFrames &&
+                    !firstInstalled->buffering[0],
+                prefix + ": primed suffix adds no missing frames to the retained old-owner counter");
+        holdStarved = completion->completion.retired.starvedFrames - baselineStarved;
+        require(holdStarved <= swapOutput - holdEntryOutput,
+                prefix + ": missing held samples stay within the observed output interval");
+        // Functional coverage may run slower than the private graph clock.
+        // Only consumed resident samples advance its cursor; output silence
+        // remains reported and the normal execution gate still rejects it.
+        const long double oldAdvance =
+            static_cast<long double>(swapOutput - holdEntryOutput - holdStarved) * rate;
         const long double length = range.outFrame - range.inFrame;
         const auto wraps = std::floor((oldAdvance + 1e-7L) / length);
         const auto residual = oldAdvance - wraps * length;
@@ -1692,11 +1744,17 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
                 return state.outputFrame >= progressed.outputFrame + 1024 && state.sourcePosition[0] > parked;
             },
             "Processed finite source did not advance");
+        require(state.starvedFrames[0] >= progressed.starvedFrames[0] &&
+                    state.starvedFrames[0] - progressed.starvedFrames[0] <= state.outputFrame - progressed.outputFrame,
+                prefix + ": finite-source missing frames stay within their own output interval");
+        const auto progressedFrames = state.outputFrame - progressed.outputFrame -
+            (state.starvedFrames[0] - progressed.starvedFrames[0]);
         require(std::abs((state.sourcePosition[0] - progressed.sourcePosition[0]) -
-                         double(state.outputFrame - progressed.outputFrame) * rate) < 1e-6 &&
+                         double(progressedFrames) * rate) < 1e-6 &&
                     state.sourceGeneration[0] == generation && state.transportRevision[0] == revision + 1 &&
-                    controlsMatch() && state.starvedFrames[0] == baselineStarved && !state.starvedFrames[1] &&
-                    !state.invalidBuffers && !state.rejected && state.sourceReadErrorObserved[0] &&
+                    controlsMatch() && (!executionDeadlineGate || state.starvedFrames[0] == baselineStarved) &&
+                    !state.starvedFrames[1] &&
+                    !state.invalidBuffers && state.rejected == expectedRejected && state.sourceReadErrorObserved[0] &&
                     !state.sourceReadError[0] && !recorder->failed() && !recorder->overflowCount(),
                 prefix +
                     ": processed and peer clocks, exact controls, role exclusions and recording stay intact");
@@ -2003,11 +2061,12 @@ int main(int argc, char** argv)
             residentCase = argv[index+1]; index += 2;
             if (residentCase != "interior" && residentCase != "boundary" && residentCase != "entry" &&
                 residentCase != "tempo-fast" && residentCase != "tempo-slow" &&
-                residentCase != "tempo-master-fast" && residentCase != "tempo-master-slow")
+                residentCase != "tempo-master-fast" && residentCase != "tempo-master-slow" &&
+                residentCase != "tempo-master-fast-auto")
                 throw std::runtime_error("Unknown resident takeover case");
         }
         if (argc < 3 || index != argc)
-            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only] [--resident-takeover-case interior|boundary|entry|tempo-fast|tempo-slow|tempo-master-fast|tempo-master-slow]");
+            throw std::runtime_error("Usage: manual-routing-check PRIVATE_RUNTIME EMPTY_OUTPUT_DIRECTORY [--functional-only] [--resident-takeover-case interior|boundary|entry|tempo-fast|tempo-slow|tempo-master-fast|tempo-master-slow|tempo-master-fast-auto]");
         validatePrivateEnvironment(argv[1]);
         const std::filesystem::path output(argv[2]);
         diagnosticDirectory = output.parent_path();
