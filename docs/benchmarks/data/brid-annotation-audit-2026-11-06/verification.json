@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "archive": {
+    "path": "evidence.tar.gz",
+    "bytes": 174925,
+    "sha256": "0233b9557e9a84ecc4dec4d288166e4a99221145ea0698b89666d57543ad70ce"
+  },
+  "members": [
+    {
+      "path": "ATTRIBUTION.txt",
+      "bytes": 489,
+      "sha256": "a8b728f30352b6e7d83fe978cbe093f200b8ab06536eb5aac8438ba45dfb42c5"
+    },
+    {
+      "path": "analysis/audit_annotations.py",
+      "bytes": 4378,
+      "sha256": "d8f0a21d85bcef4ca1faf343aebb37bf56437e1edf5a6a1446fed5ec021ac5ab"
+    },
+    {
+      "path": "analysis/result.json",
+      "bytes": 54354,
+      "sha256": "2224082f0c949d278766a37b3a44413b07624adbe034fedba52e363afd45e370"
+    },
+    {
+      "path": "analysis/test_annotations.py",
+      "bytes": 808,
+      "sha256": "ce6eb95d24506465881aa68506a2149a88ccf1e0cf5d80168f567f46ca86f704"
+    },
+    {
+      "path": "reference/protocol.json",
+      "bytes": 210705,
+      "sha256": "68e28485cb33dc78a2774e3d30a4a4eac2e619630abce9d380021221521bb34a"
+    },
+    {
+      "path": "sources/annotations.zip",
+      "bytes": 84989,
+      "sha256": "605ad57dd9ad86fb3dbb40368a961c7d0db91595a3574aa15b8eb0bbe35ac6dd"
+    },
+    {
+      "path": "sources/description.pdf",
+      "bytes": 100833,
+      "sha256": "74c8cd5dab7881d4abef52fc7b14dfc905bb35291ec4d00bfa44daec88296ab5"
+    },
+    {
+      "path": "sources/description.txt",
+      "bytes": 49680,
+      "sha256": "80d646d4fa5011e7134891f4a1315edc52edb653494aac7c4b0b85ae4c897083"
+    },
+    {
+      "path": "sources/source-pins.json",
+      "bytes": 1296,
+      "sha256": "36ff8be3785a7444403304c186465ec869d392ff37c24040ba080fe270ab9aaa"
+    },
+    {
+      "path": "sources/zenodo-record.json",
+      "bytes": 6181,
+      "sha256": "b31d997ca51f3b9958297126292f94a2a4a5453116d24bb172fddc3e5f09ac37"
+    }
+  ],
+  "archive_loader_sha256": "e2434fbd8779e4fc24b4fb99bb60d1a9598c1fb8bbcbe698db73f7408acc3de9",
+  "fixed_denominator": 93,
+  "qualified": false,
+  "no_model_media_or_inference": true
+}

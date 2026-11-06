@@ -537,6 +537,13 @@ The upstream mono frontend also passed 4/93 and reduced downbeat micro F1 from
 The [Explore This backend comparison](../benchmarks/brid-explore-this-2026-11-06.md)
 then returned all 93 cases but regressed to 60 beat passes, zero joint passes
 and 0.267928 downbeat micro F1. It was rejected; the existing backend is retained.
+The [reference annotation audit](../benchmarks/brid-annotation-audit-2026-11-06.md)
+confirmed that all 4,342 beat timestamps and 2,205 position-one labels across
+all 93 cases match the publisher files exactly; no reference convention was
+changed. The [current-driver cache comparison](../benchmarks/current-driver-cache-2026-11-06.md)
+returned eight exact outputs but retained laptop stalls of 18.253 and 15.532
+seconds. Both laptop processes started in 7.5 W Power Saver, so this raw-runtime
+diagnostic supplies no current Balanced player-service or sustained qualification.
 Musical-analysis/fallback and current primary-laptop sustained qualification
 remain open before `0.1.0`. On 4 November the user explicitly retained full M2/M3
 qualification before release. Complete and verify
