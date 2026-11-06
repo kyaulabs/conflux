@@ -446,6 +446,43 @@ private:
         long double nominal = 0;
         int terminalError = 0;
         bool terminalPending = false, generationDone = true;
+        std::size_t partialFrames = 0;
+        auto publishPartial = [&] {
+            if (!partialFrames) return true;
+            if (!current(generation, stop)) return false;
+            const auto position = written_.load(std::memory_order_relaxed);
+            slots_[position % slotCount].frames = partialFrames;
+            written_.store(position + 1U, std::memory_order_release);
+            partialFrames = 0;
+            return true;
+        };
+        // Only the worker waits. A metadata boundary can publish its partial
+        // packet after DSP has already produced the next revision's samples.
+        auto waitForSlot = [&] {
+            while (current(generation, stop)) {
+                const auto position = written_.load(std::memory_order_relaxed);
+                if (position == std::numeric_limits<std::uint64_t>::max()) {
+                    publishError(generation, EOVERFLOW);
+                    generationDone = true;
+                    return false;
+                }
+                if (position - consumed_.load(std::memory_order_acquire) < slotCount) return true;
+                if (stream_.service) stream_.service(stream_.context);
+                std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            }
+            return false;
+        };
+        auto initializeSlot = [&](Slot& slot, const Request& request) {
+            slot.generation = generation;
+            slot.command = appliedCommand;
+            slot.frames = 0;
+            slot.nominalStart = nominal;
+            slot.nominalStep = 1.0 + appliedPercent / 100.0;
+            slot.requestedPercent = request.percent;
+            slot.appliedPercent = appliedPercent;
+            slot.terminal = false;
+            slot.error = 0;
+        };
         while (!stop.stop_requested() && !stopped_.load(std::memory_order_relaxed)) {
             Request request;
             if (!readRequest(request) || !request.generation) {
@@ -454,6 +491,7 @@ private:
             }
             if (request.generation != generation) {
                 processor.reset();
+                partialFrames = 0; // Unpublished old-generation audio is never reusable.
                 generation = request.generation;
                 nextFrame = request.frame;
                 inputFrames = inputOffset = 0;
@@ -521,7 +559,7 @@ private:
                         (inputFrames - inputOffset) * channels);
                     const bool eof = !request.loopOut && nextFrame == frames_ && inputOffset == inputFrames;
                     const auto step = processor->process(processor->generation(), offered,
-                        std::span(output).first(blockFrames * channels), eof);
+                        std::span(output).first((blockFrames - partialFrames) * channels), eof);
                     inputOffset += step.inputFramesUsed;
                     produced = step.outputFrames;
                     if (step.appliedInputConfiguration == desiredRevision &&
@@ -539,6 +577,9 @@ private:
                             // Empty input is a temporary gap. Pending DSP output
                             // was still allowed to drain above; no EOF or source
                             // advance is synthesized while awaiting a raw prefix.
+                            // Expose the actual valid prefix before waiting for
+                            // more input; packing must not strand a short tail.
+                            if (!publishPartial()) continue;
                             std::this_thread::sleep_for(std::chrono::milliseconds(2));
                             continue;
                         }
@@ -551,26 +592,37 @@ private:
             if (!current(generation, stop)) continue;
             if (terminalError) publishError(generation, terminalError);
             if (!produced && !terminalPending) continue;
-            auto& slot = slots_[position % slotCount];
-            slot.generation = generation;
-            slot.command = appliedCommand;
-            slot.frames = produced;
-            slot.nominalStart = nominal;
-            slot.nominalStep = 1.0 + appliedPercent / 100.0;
-            slot.requestedPercent = request.percent;
-            slot.appliedPercent = appliedPercent;
-            slot.terminal = !produced && terminalPending && !terminalError;
-            slot.error = !produced ? terminalError : 0;
+            if (!produced) {
+                if (!publishPartial() || !waitForSlot()) continue;
+                const auto marker = written_.load(std::memory_order_relaxed);
+                auto& slot = slots_[marker % slotCount];
+                initializeSlot(slot, request);
+                slot.terminal = !terminalError;
+                slot.error = terminalError;
+                if (!current(generation, stop)) continue;
+                written_.store(marker + 1U, std::memory_order_release);
+                generationDone = true;
+                continue;
+            }
+            const auto& pending = slots_[written_.load(std::memory_order_relaxed) % slotCount];
+            if (partialFrames && (pending.command != appliedCommand ||
+                pending.appliedPercent != appliedPercent || pending.requestedPercent != request.percent)) {
+                if (!publishPartial() || !waitForSlot()) continue;
+            }
+            auto& slot = slots_[written_.load(std::memory_order_relaxed) % slotCount];
+            if (!partialFrames) initializeSlot(slot, request);
+            // Compatible DSP fragments share one existing slot. Small retrieves
+            // must not consume the eight-slot reserve with mostly unused space.
             const auto channels = leafCount_ * 2U;
             for (std::size_t leaf = 0; leaf < leafCount_; ++leaf)
                 for (std::size_t frame = 0; frame < produced; ++frame)
                     for (std::size_t channel = 0; channel < 2U; ++channel)
-                        slot.leaves[leaf][frame * 2U + channel] = output[frame * channels + leaf * 2U + channel];
+                        slot.leaves[leaf][(partialFrames + frame) * 2U + channel] =
+                            output[frame * channels + leaf * 2U + channel];
+            partialFrames += produced;
             nominal = mapPosition(nominal + static_cast<long double>(produced) * slot.nominalStep,
                                   request.loopIn, request.loopOut);
-            if (!current(generation, stop)) continue;
-            written_.store(position + 1U, std::memory_order_release);
-            if (!produced && terminalPending) generationDone = true;
+            if (partialFrames == blockFrames || terminalPending) (void)publishPartial();
         }
     }
     void closeFiles() noexcept

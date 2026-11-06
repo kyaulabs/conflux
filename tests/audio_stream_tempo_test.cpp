@@ -27,12 +27,12 @@ void await(const std::function<bool()>& condition)
     }
 }
 struct Input {
-    std::uint64_t frames = 48000;
-    std::size_t leaves = 4;
+    std::uint64_t frames = 48000, failAfterFrame = 0;
+    std::size_t leaves = 4, maximumRead = 1024;
     std::atomic<std::uint64_t> available{0}, calls{0}, services{0}, emptyReads{0};
     std::atomic<int> fault{0};
     const std::thread::id caller = std::this_thread::get_id();
-    std::atomic<bool> wrongThread{false};
+    std::atomic<bool> wrongThread{false}, pauseWorker{false}, workerPaused{false};
     static float sample(std::uint64_t frame, std::size_t leaf, std::size_t channel)
     {
         return float(.06 * (leaf + 1) * std::sin((frame + 13 * leaf + 29 * channel) * .017));
@@ -51,8 +51,10 @@ struct Input {
                 if (self.fault.load() == 3) return AudioReadResult{0, true};
                 if (self.fault.load() == 5) return AudioReadResult{1, false}; // Unwritten advertised sample.
                 if (self.fault.load() == 6) return AudioReadResult{0, false, true, 0};
-                const auto end = std::min(self.frames, self.available.load());
-                const auto count = first < end ? std::min<std::uint64_t>(wanted, end - first) : 0;
+                if (self.failAfterFrame && first >= self.failAfterFrame) return AudioReadResult{0, true};
+                const auto end = std::min({self.frames, self.available.load(),
+                    self.failAfterFrame ? self.failAfterFrame : self.frames});
+                const auto count = first < end ? std::min<std::uint64_t>({wanted, end - first, self.maximumRead}) : 0;
                 if (!count) self.emptyReads.fetch_add(1);
                 for (std::size_t f = 0; f < count; ++f)
                     for (std::size_t leaf = 0; leaf < self.leaves; ++leaf)
@@ -66,6 +68,12 @@ struct Input {
                 auto& self = *static_cast<Input*>(context);
                 self.services.fetch_add(1);
                 if (std::this_thread::get_id() == self.caller) self.wrongThread.store(true);
+                if (self.pauseWorker.load()) {
+                    self.workerPaused.store(true);
+                    while (self.pauseWorker.load())
+                        std::this_thread::sleep_for(std::chrono::microseconds(100));
+                    self.workerPaused.store(false);
+                }
             }};
     }
 };
@@ -162,6 +170,42 @@ void preparedStartup()
     require(!source.peekPrepared() && !input.wrongThread.load(),
             "Prepared startup borrowed stopped PCM or performed input on the render owner");
 }
+// A full queue must retain useful audio time even when R3 retrieves small
+// fragments. Freeze only the worker after prefill; consume 100 ms in ordinary
+// callback-sized reads, without allowing scheduling to refill the reserve.
+// Fully available input arrives in legal short reads, as at packet boundaries.
+void preparedDspReserve()
+{
+    Input input; input.available.store(input.frames); input.maximumRead = 37;
+    PreparedTempoSource source(input.descriptor());
+    struct Resume { Input& input; ~Resume() { input.pauseWorker.store(false); } } resume{input};
+    require(source.request(0, 6., true), "Processed reserve request rejected");
+    (void)preparedNext(source);
+    input.pauseWorker.store(true);
+    await([&] { return input.workerPaused.load(); });
+    constexpr std::size_t protectedFrames = 4800;
+    std::size_t consumed = 0;
+    while (consumed < protectedFrames) {
+        const auto wanted = std::min<std::size_t>(256, protectedFrames-consumed);
+        std::size_t copied = 0;
+        while (copied < wanted) {
+            const auto view = source.peekPrepared();
+            require(bool(view) && view.frames && !view.errorCode && !view.terminal,
+                    "Full processed queue exhausted before 100 ms without worker refill");
+            const auto count = std::min(wanted-copied, view.frames);
+            for (std::size_t leaf=0; leaf<view.leafCount; ++leaf)
+                for (float value : view.leaves[leaf].first(count*2))
+                    require(std::isfinite(value), "Processed reserve supplied invalid PCM");
+            require(source.consume(count), "Processed reserve consume rejected");
+            copied += count;
+        }
+        consumed += copied;
+    }
+    require(std::abs(source.nominalPosition()-double(protectedFrames)*1.06)<1e-6,
+            "Buffered DSP reserve changed the consumed source clock");
+    input.pauseWorker.store(false);
+    source.stop();
+}
 void preparedTerminal()
 {
     Input shortInput; shortInput.frames = 31; shortInput.leaves = 1; shortInput.available.store(31);
@@ -178,6 +222,25 @@ void preparedTerminal()
     require(view.terminal && !view.frames && shortSource.consume(0) && shortSource.status().finished,
             "An empty EOF waited for a full startup queue");
     shortSource.stop();
+
+    Input partialFailure; partialFailure.leaves = 1; partialFailure.maximumRead = 37;
+    partialFailure.failAfterFrame = 333; partialFailure.available.store(partialFailure.frames);
+    PreparedTempoSource partial(partialFailure.descriptor());
+    require(partial.request(0, 0, false), "Partial failure request rejected");
+    std::uint64_t prefix = 0;
+    for (;;) {
+        view = preparedNext(partial);
+        if (view.errorCode) {
+            require(!view.frames && !view.terminal && view.errorCode == EIO && partial.consume(0),
+                    "Partial-prefix failure was hidden or became successful EOF");
+            break;
+        }
+        exact(view, prefix); prefix += view.frames;
+        require(partial.consume(view.frames), "Valid prefix before error was not consumable");
+    }
+    require(prefix == 333 && !partial.status().finished && partial.errorCode() == EIO,
+            "Worker error discarded a partially packed valid source prefix");
+    partial.stop();
 
     Input broken; broken.leaves = 1; broken.available.store(PreparedTempoSource::blockFrames);
     PreparedTempoSource faulty(broken.descriptor());
@@ -425,7 +488,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); preparedStartup(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
+    try { rawStemInput(); preparedStartup(); preparedDspReserve(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
