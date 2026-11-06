@@ -527,8 +527,16 @@ completed on Apollo at 1.008-second p99 but failed continuity with 14 ms of
 steady starvation. Both laptop admissions ended before playback.
 The [queue diagnostic and output-packing fix](../benchmarks/tempo-output-packing-2026-11-05.md)
 reproduced empty prepared-tempo reads on the laptop at 7.133-second p99.
-Generated correctness checks pass on both hosts; candidate hardware performance
-has not run.
+Generated correctness checks pass on both hosts; current primary-laptop
+candidate performance remains unqualified.
+The [fixed BRID decoder/frontend comparison](../benchmarks/brid-decoder-frontend-2026-11-06.md)
+retained all 93 recordings. The baseline and two/three/four-beat DBN each passed
+both numeric screens on 4/93; the official three/four-beat DBN passed 0/93.
+The upstream mono frontend also passed 4/93 and reduced downbeat micro F1 from
+0.518031 to 0.508646. No candidate was adopted; confidence remains unknown.
+The [Explore This backend comparison](../benchmarks/brid-explore-this-2026-11-06.md)
+then returned all 93 cases but regressed to 60 beat passes, zero joint passes
+and 0.267928 downbeat micro F1. It was rejected; the existing backend is retained.
 Musical-analysis/fallback and current primary-laptop sustained qualification
 remain open before `0.1.0`. On 4 November the user explicitly retained full M2/M3
 qualification before release. Complete and verify

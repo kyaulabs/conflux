@@ -1,0 +1,97 @@
+{
+  "verified_members": 677,
+  "fixed_denominator": 93,
+  "re_scored_predictions": 372,
+  "variants": {
+    "minimal": {
+      "denominator": 93,
+      "failures": 0,
+      "beat_passes": 81,
+      "downbeat_passes": 4,
+      "both_passes": 4,
+      "downbeat_micro": {
+        "matched": 984,
+        "extras": 610,
+        "misses": 1221,
+        "F1": 0.5180310608054751
+      },
+      "qualified": false
+    },
+    "official_3_4": {
+      "denominator": 93,
+      "failures": 0,
+      "beat_passes": 85,
+      "downbeat_passes": 1,
+      "both_passes": 0,
+      "downbeat_micro": {
+        "matched": 718,
+        "extras": 403,
+        "misses": 1487,
+        "F1": 0.4317498496692724
+      },
+      "qualified": false
+    },
+    "candidate_2_3_4": {
+      "denominator": 93,
+      "failures": 0,
+      "beat_passes": 84,
+      "downbeat_passes": 6,
+      "both_passes": 4,
+      "downbeat_micro": {
+        "matched": 781,
+        "extras": 436,
+        "misses": 1424,
+        "F1": 0.45645821157218003
+      },
+      "qualified": false
+    },
+    "mono_frontend": {
+      "denominator": 93,
+      "failures": 0,
+      "beat_passes": 81,
+      "downbeat_passes": 4,
+      "both_passes": 4,
+      "downbeat_micro": {
+        "matched": 956,
+        "extras": 598,
+        "misses": 1249,
+        "F1": 0.5086459164671455
+      },
+      "qualified": false
+    }
+  },
+  "re_computed_head_windows": {
+    "1": {
+      "references": 2205,
+      "down_positive": 985,
+      "beat_positive": 2146,
+      "down_positive_fraction": 0.4467120181405896,
+      "beat_positive_fraction": 0.9732426303854875,
+      "median_window_max_downbeat_logit": -0.7353501319885254,
+      "median_window_max_beat_logit": 10.716597557067871,
+      "joint_sign_categories": {
+        "down_nonpositive_beat_positive": 1165,
+        "down_positive_beat_positive": 981,
+        "down_nonpositive_beat_nonpositive": 55,
+        "down_positive_beat_nonpositive": 4
+      }
+    },
+    "2": {
+      "references": 2137,
+      "down_positive": 516,
+      "beat_positive": 2087,
+      "down_positive_fraction": 0.24145999064108564,
+      "beat_positive_fraction": 0.9766027140851661,
+      "median_window_max_downbeat_logit": -4.104917526245117,
+      "median_window_max_beat_logit": 10.715473175048828,
+      "joint_sign_categories": {
+        "down_positive_beat_positive": 514,
+        "down_nonpositive_beat_positive": 1573,
+        "down_nonpositive_beat_nonpositive": 48,
+        "down_positive_beat_nonpositive": 2
+      }
+    }
+  },
+  "model_GPU_or_audio_started": false,
+  "qualified": false
+}
