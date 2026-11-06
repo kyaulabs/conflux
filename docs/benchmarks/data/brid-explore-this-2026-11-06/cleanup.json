@@ -1,0 +1,29 @@
+{
+  "removed": [
+    {
+      "path": "/srv/conflux-tests/work/explore-this-full-20261106-01",
+      "files": 862,
+      "logical_bytes": 2453562
+    },
+    {
+      "path": "/srv/conflux-tests/work/explore-this-pilot-20261106-01",
+      "files": 31,
+      "logical_bytes": 179633
+    },
+    {
+      "path": "/srv/conflux-tests/work/explore-this-assets-20261106-01",
+      "files": 2,
+      "logical_bytes": 78040635
+    }
+  ],
+  "complete_predictions_preserved_locally": 93,
+  "archive_verified_before_cleanup": true,
+  "dedicated_daemon_empty": true,
+  "original_corpus_runtime_music_recordings_and_unrelated_services_untouched": true,
+  "at_utc": "2026-11-06T09:22:51.020133+00:00",
+  "retained_archive": {
+    "path": "evidence.tar.gz",
+    "bytes": 558632,
+    "sha256": "6ccf331b52f73bbc69e01faae0a606b394272bc21102af308cb86ee1cc8e276b"
+  }
+}

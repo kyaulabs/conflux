@@ -1,0 +1,37 @@
+{
+  "verified_members": 899,
+  "fixed_denominator": 93,
+  "re_scored_candidate_cases": 93,
+  "re_scored_baseline_cases": 93,
+  "raw_mask_protocol_cases": 93,
+  "candidate": {
+    "denominator": 93,
+    "failures": 0,
+    "beat_passes": 60,
+    "downbeat_passes": 0,
+    "both_passes": 0,
+    "downbeat_micro": {
+      "matched": 439,
+      "extras": 633,
+      "misses": 1766,
+      "F1": 0.2679279829111993
+    },
+    "qualified": false
+  },
+  "baseline": {
+    "denominator": 93,
+    "failures": 0,
+    "beat_passes": 81,
+    "downbeat_passes": 4,
+    "both_passes": 4,
+    "downbeat_micro": {
+      "matched": 984,
+      "extras": 610,
+      "misses": 1221,
+      "F1": 0.5180310608054751
+    },
+    "qualified": false
+  },
+  "models_GPU_audio_or_network_started": false,
+  "qualified": false
+}
