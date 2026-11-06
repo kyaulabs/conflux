@@ -1,0 +1,434 @@
+{
+  "schema": 1,
+  "archive": {
+    "path": "evidence.tar.gz",
+    "bytes": 200602,
+    "sha256": "0cd072f538a2fafe36a07d72c97c134908f43a8c634cec142fffe023ef70175b"
+  },
+  "members": [
+    {
+      "path": "analysis/apollo-archive-manifest.json",
+      "bytes": 8127,
+      "sha256": "c07e377df7d16ba7dfe49a74c62ed9449ac220d84c05c15530d6dd74707ccae0"
+    },
+    {
+      "path": "analysis/apollo-evidence.tar.gz",
+      "bytes": 36205,
+      "sha256": "091ea69b5e23dcce296da1004c1c258af2b60863de23b91110f2f021def04350"
+    },
+    {
+      "path": "analysis/summary.json",
+      "bytes": 11582,
+      "sha256": "783dea71889bbceb9ba85b641b7f5e9e4b4b55de507980fa7b4ee6b2b57e1571"
+    },
+    {
+      "path": "analysis/thermal-guard-journal.log",
+      "bytes": 1305,
+      "sha256": "9254b17214763659314a0a750a93b3339cdecb801a9889877e69679ea5d53ed6"
+    },
+    {
+      "path": "c1106/apollo-config.json",
+      "bytes": 286,
+      "sha256": "25393d400ac8953bcc03299bdedbcee615dd4ab75c7831b8c80bd2ed524d35b8"
+    },
+    {
+      "path": "c1106/apollo-plan.json",
+      "bytes": 1864,
+      "sha256": "18d64ce0238a73d158fc9c97351bb82522c6ba55646b25e6240ad4a751798ce3"
+    },
+    {
+      "path": "c1106/apollo-results/output-01/baseline.stderr",
+      "bytes": 1777,
+      "sha256": "b3d4e4c2859e9ccd17121c72452ea82f23d6833bcc0fe75d5e3419a12e20f642"
+    },
+    {
+      "path": "c1106/apollo-results/output-01/candidate.stderr",
+      "bytes": 1777,
+      "sha256": "b3d4e4c2859e9ccd17121c72452ea82f23d6833bcc0fe75d5e3419a12e20f642"
+    },
+    {
+      "path": "c1106/apollo-results/owner-dispatch.json",
+      "bytes": 1952,
+      "sha256": "61da82ea7f143c458d062700ec08d2ce3f7e8f223f6c0bdaa38ff894f5e8cb01"
+    },
+    {
+      "path": "c1106/apollo-results/owner-result.json",
+      "bytes": 1963,
+      "sha256": "becd7c70ecf38e3d6c6a10c90af6a60571c4e189cca910fc8cf4fe6aa90f98bf"
+    },
+    {
+      "path": "c1106/apollo-results/result.json",
+      "bytes": 9608,
+      "sha256": "52ce44b44a7d21a4b3c61960050713641a3f24c0e1cd31788239059bcac59d1b"
+    },
+    {
+      "path": "c1106/apollo-results/unit-retired.json",
+      "bytes": 227,
+      "sha256": "c6931e9ecee706796e9fdce04b80fb4f0ce91038b1aff9e340a30659d7e4fb59"
+    },
+    {
+      "path": "c1106/apollo-stage.json",
+      "bytes": 3741,
+      "sha256": "670b8476ab25d7975116b07acad34ab87ae3ffdc0ecf17b9d2216746800dbef0"
+    },
+    {
+      "path": "c1106/apollo-stage.stderr.log",
+      "bytes": 443,
+      "sha256": "c434952d05ef3c1eff076cebee0f8e161970dcb75906bcca5e638ae5a45c490e"
+    },
+    {
+      "path": "c1106/apollo-stage.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c1106/apollo-update.stderr.log",
+      "bytes": 222,
+      "sha256": "048e2ba89ae430962e02f5341cf60c694fb7e131cb417790075a56b32ca09992"
+    },
+    {
+      "path": "c1106/apollo-update.stdout.log",
+      "bytes": 3239,
+      "sha256": "0522345ba6d1da3d17034504ce79eb6df76e141a3a848fcf32bdbba5ce527348"
+    },
+    {
+      "path": "c1106/apollo_owner.py",
+      "bytes": 7515,
+      "sha256": "5aa68b0ac1a207c4234103964af130a914f7d958968a74bf3fcf81429434f889"
+    },
+    {
+      "path": "c1106/apollo_pair.py",
+      "bytes": 1301,
+      "sha256": "e30cba0ff90240e3d3ab3555287fb347990cfb02257b1267a98846b8923b5642"
+    },
+    {
+      "path": "c1106/cache_control.py",
+      "bytes": 2251,
+      "sha256": "c4b98cb508fcec22eab2e45a741fced159ab95f81744e786aeacfa3a901204b9"
+    },
+    {
+      "path": "c1106/cache_identity.py",
+      "bytes": 3849,
+      "sha256": "5dc2d48066923ab6668d7f008335a06efb0622334d8821c4ce0ac5fd9fda6dac"
+    },
+    {
+      "path": "c1106/compare_pcm.py",
+      "bytes": 19717,
+      "sha256": "75ae6cc8259ddf007f33a6700b292c27859e34ac3d38b45b2e403df3c086d9c3"
+    },
+    {
+      "path": "c1106/created-cache-identity.json",
+      "bytes": 25279,
+      "sha256": "0b476e8d53a9eb5d252b0f171c17253160754cd6f108aa3e46d06bf4c181d58c"
+    },
+    {
+      "path": "c1106/dispatch.json",
+      "bytes": 771,
+      "sha256": "dd1c2b684e3ea0adaef16da5cd97094eaa4b272f2c9c8b0e797fae7f54646582"
+    },
+    {
+      "path": "c1106/entry_check.py",
+      "bytes": 1091,
+      "sha256": "424cd3fa6bfea7795894584e6a934f4b93b4db0c50010c322c531057afbb7d30"
+    },
+    {
+      "path": "c1106/inputs-manifest.json",
+      "bytes": 12185,
+      "sha256": "ef79d642a46b9ed11f952db6cc2d4c24c4db0271cae39b626a471abdd0565882"
+    },
+    {
+      "path": "c1106/intel-icd.json",
+      "bytes": 133,
+      "sha256": "4827456a0201d44d5c2cb9a95c51c41c89d6bdd9d9536c95775d99d6980e543b"
+    },
+    {
+      "path": "c1106/laptop-entry.json",
+      "bytes": 1502,
+      "sha256": "d05184e53cda90b16a3b49ae085227d5f9275c5d5f10cec15406db55965132fa"
+    },
+    {
+      "path": "c1106/laptop-plan.json",
+      "bytes": 4614,
+      "sha256": "87f88d003d455d914bc9507a835761c7b8407dfb1884176505bd5e553a0c52a6"
+    },
+    {
+      "path": "c1106/launch_both.py",
+      "bytes": 5494,
+      "sha256": "ca39cde280ae225a41b3827a852c91284dca6bbb80138874d5d886452025b37f"
+    },
+    {
+      "path": "c1106/native-readiness.json",
+      "bytes": 1277,
+      "sha256": "31783eb1a891ade5f359663cda1f6ccc54f1f5d7be01ea39d60a361fd9881573"
+    },
+    {
+      "path": "c1106/native_exit.py",
+      "bytes": 2447,
+      "sha256": "ead8f01484811b9cfbddbb7188bd17bd8d9bb8da2440e9183ad7821503d04358"
+    },
+    {
+      "path": "c1106/native_fixture.py",
+      "bytes": 2328,
+      "sha256": "af9d746dec367fc3a68530e50d18947243f5fa003b4fff789c30d568632e57bc"
+    },
+    {
+      "path": "c1106/nvidia-inputs-original.json",
+      "bytes": 12425,
+      "sha256": "6284b8ac800cd590a492c561b40caa7dfc892d43cdc795a2d3415583ceb665e0"
+    },
+    {
+      "path": "c1106/offline.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c1106/offline.stdout.log",
+      "bytes": 176,
+      "sha256": "69da3cfcf05c5df34862b4cccf593a45967f8b48c7721b46201d638886e6e17f"
+    },
+    {
+      "path": "c1106/output-01/baseline-cooldown.jsonl",
+      "bytes": 195767,
+      "sha256": "3e55613ef46030ed577ddc0ab5f240c30a56324a30fea28e89358ed0874888dc"
+    },
+    {
+      "path": "c1106/output-01/baseline.stderr",
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    {
+      "path": "c1106/output-01/failed-runtime.stderr",
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    {
+      "path": "c1106/output-01/host-observations.jsonl",
+      "bytes": 11574,
+      "sha256": "8d37ddb9eee97bc2166045ff2f3c997fe38b61a01bce0198912234e0f4e84845"
+    },
+    {
+      "path": "c1106/output-01/result.json",
+      "bytes": 7872,
+      "sha256": "f581c8d1c40bef09be6ccad54a6406c05ff46410c8ab2da3f0dc2f6f27b1ffdc"
+    },
+    {
+      "path": "c1106/packet-pins.json",
+      "bytes": 8156,
+      "sha256": "62040088eb529ead1a5ae741315fa41aba1ff5386f22cd6f91cde2dc8d054f54"
+    },
+    {
+      "path": "c1106/readiness.json",
+      "bytes": 1045,
+      "sha256": "78d3dd2991029c41d5cde4bcbbaa2dc79e9dea7b9590915a60bcfe40509c9f0d"
+    },
+    {
+      "path": "c1106/reservation.json",
+      "bytes": 74,
+      "sha256": "88ee1bfa9105f854c31654324338320ebcd370ef9a54227d55bda664d324f23d"
+    },
+    {
+      "path": "c1106/run_laptop.py",
+      "bytes": 2168,
+      "sha256": "d49066c6a3860203ff8960364890a010a97d1166b0e8dc19a033a19afbac0d14"
+    },
+    {
+      "path": "c1106/stage_apollo.py",
+      "bytes": 3516,
+      "sha256": "0e6b3ae9f101aa2f8283e7762865bc8ec609f26b6d23f5750293c5d49255070c"
+    },
+    {
+      "path": "c1106/test_cache_compare.py",
+      "bytes": 6458,
+      "sha256": "40d3453bf560310fc069d9a4f7369b74235686ebeba63cbe90e725fe3f652516"
+    },
+    {
+      "path": "c1106/test_native_exit.py",
+      "bytes": 2995,
+      "sha256": "3431b2d0a52320dfd3ea337fafc6ab2c917c32c3ed48b075de3d6fc74b565eac"
+    },
+    {
+      "path": "c1106/unit-retired.json",
+      "bytes": 287,
+      "sha256": "5e588de1342fa34202815ad8fac49084db52bc50cee66a358122ee6c85d67ee7"
+    },
+    {
+      "path": "c1106/unit.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c1106/unit.stdout.log",
+      "bytes": 176,
+      "sha256": "023f1b4479043a0ef408ad073801318ba2052d422f3bd325451f3f45e7266382"
+    },
+    {
+      "path": "c1106/worker.py",
+      "bytes": 35868,
+      "sha256": "b38ab1dae456f9da69cbb30563595559f10e018246e86763dffffa89b9bacdff"
+    },
+    {
+      "path": "cleanup/apollo-cleanup.json",
+      "bytes": 294,
+      "sha256": "3e9384d02167bd39f5ce8c59ed213030f36269027da0b8fcb400baf2c33ef175"
+    },
+    {
+      "path": "cleanup/laptop-cleanup.json",
+      "bytes": 443,
+      "sha256": "6a980a12da83a0887948d938c06f204100dc9dba0d093d03f4bdde84955b1f22"
+    },
+    {
+      "path": "d1106/compare_retained.py",
+      "bytes": 22105,
+      "sha256": "d7f7700a78bae62a4d6999efc4ec901ae1284e730ca3e0af06863ccb6f54f602"
+    },
+    {
+      "path": "d1106/derivation.json",
+      "bytes": 600,
+      "sha256": "b38d8bf41a03d9fb4fa05d1a244e2000c447c185ba895887cb9380038d2497dc"
+    },
+    {
+      "path": "d1106/dispatch.json",
+      "bytes": 1809,
+      "sha256": "986c0a2fa73fe74ef3b6dc20fce73fd1519bcd7612376c3c41a392a05088a248"
+    },
+    {
+      "path": "d1106/output-01/candidate.stderr",
+      "bytes": 1808,
+      "sha256": "1b5e9eeebf4683be5779e598d123d922a045d81858d60ebe4172b97d6ad10ea1"
+    },
+    {
+      "path": "d1106/output-01/host-observations.jsonl",
+      "bytes": 38580,
+      "sha256": "c7b56219a13a8db6696b591d96bb430b6f17ddb1c67257424daef920cacab289"
+    },
+    {
+      "path": "d1106/output-01/result.json",
+      "bytes": 77814,
+      "sha256": "6965448fe7acbb5e7d4ec55b0d7f6e89452033d583bafd2ac32b7fca2241badb"
+    },
+    {
+      "path": "d1106/output-01/retained-cooldown.jsonl",
+      "bytes": 61728,
+      "sha256": "a17af56bbb2177c5ce91cc3a1cbd4193a22172513699ace250e1115f89b8daa0"
+    },
+    {
+      "path": "d1106/plan.json",
+      "bytes": 5709,
+      "sha256": "03403b758a7cbce3644b5d7f24844b4b980b1c1c42f5c8ca5ef0174604e80bd2"
+    },
+    {
+      "path": "d1106/readiness.json",
+      "bytes": 1391,
+      "sha256": "17ec14aaa0e2c85d09bfb9a7cfb5ff46831532858e3fbd693be64b20bd633007"
+    },
+    {
+      "path": "d1106/retained-seed-inventory.json",
+      "bytes": 13722,
+      "sha256": "27de2f7388c96f4bfbdb32821495681745c70d0f581a3612e1a63afdba01fd35"
+    },
+    {
+      "path": "d1106/test_origin.py",
+      "bytes": 2124,
+      "sha256": "892810adc89e9b68294d82367c5d135e082f126d6f909e3aebedec4cb7ac9c43"
+    },
+    {
+      "path": "d1106/unit-retired.json",
+      "bytes": 288,
+      "sha256": "ad3ef11a6734cbd94838d520a254175e6fad90e7d13f83fe206e772df1b1a3db"
+    },
+    {
+      "path": "d1106/unit.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "d1106/unit.stdout.log",
+      "bytes": 60,
+      "sha256": "438df3fb8f19c2f1048a484474586ed9e1ff5eec82c719f01009080adc46ea73"
+    },
+    {
+      "path": "retained/current-Intel-cache-metadata.json",
+      "bytes": 41385,
+      "sha256": "06c354238afe9ddb62fa1181fa9ca9974003b0ae7f3e87165f84ee2a381fe695"
+    },
+    {
+      "path": "runs/cache-identity-20261106/audit_seed.py",
+      "bytes": 3849,
+      "sha256": "5dc2d48066923ab6668d7f008335a06efb0622334d8821c4ce0ac5fd9fda6dac"
+    },
+    {
+      "path": "runs/cache-identity-20261106/cache-overrides.json",
+      "bytes": 39,
+      "sha256": "d78ec7daaeabe66b28df55a21f23cb11cf185877f8f26065f784d2ef9b687563"
+    },
+    {
+      "path": "runs/cache-identity-20261106/loader-environment.json",
+      "bytes": 357,
+      "sha256": "787668dd705f22836bf87e9fe49ec477347fa9cede4503f014b810f68d72ac6c"
+    },
+    {
+      "path": "runs/cache-identity-20261106/real-seed-audit.json",
+      "bytes": 26283,
+      "sha256": "d884dc239b983834b509c413041f7a42e4a506e855d946ada2ea27dba52afe9a"
+    },
+    {
+      "path": "runs/cache-identity-20261106/source-pins.json",
+      "bytes": 2820,
+      "sha256": "138766542e737b43798d849511b701c2b1898e8dd1ff741844e571ecd8434f03"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/intel/vulkan/anv_physical_device.c",
+      "bytes": 150790,
+      "sha256": "b8a33ae7940202c039be99d5ee299db07854a3462b84e464f69fc19bb7a0fbc9"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/build_id.c",
+      "bytes": 5622,
+      "sha256": "49f3d06d3cde24bc443eb78f0fdcce747ed39952db896a67f4c6519e91402b76"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/build_id.h",
+      "bytes": 1993,
+      "sha256": "ac583f9957ba781f5d3e6ef18a63209f8ef4d1eb7d4fddc4f58b1e0640fcbff2"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/disk_cache.c",
+      "bytes": 21751,
+      "sha256": "65bb3f0f829c8ee1ac7fb6ffe3b3dc76b8edb783b7d70ee82b69a43e2162ddfa"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/disk_cache.h",
+      "bytes": 10244,
+      "sha256": "85685fa5b78b1d0920170b2eecdf32dc58e8dec3e3537fcf2e98e6ce7b546411"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/disk_cache_os.c",
+      "bytes": 38660,
+      "sha256": "9e655c6e2b1627b47136226a9ea31d7586df2cf84670c64e4b5154fa5ef327d1"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/mesa-blake3.c",
+      "bytes": 3249,
+      "sha256": "a744827ad379b7358769f6202eb11e97ff5a413d857192237390b90dd8b0083a"
+    },
+    {
+      "path": "runs/cache-identity-20261106/src/util/mesa-blake3.h",
+      "bytes": 2483,
+      "sha256": "abe40b32adcee7e10c08ccb9158ba55fe7b0e7fae7e5161966555a53b3483b6a"
+    },
+    {
+      "path": "runs/cache-identity-20261106/summary.json",
+      "bytes": 17043,
+      "sha256": "251a1e46dde9b66d7f1de6ebc1be0b88fcda35b29dd22c24346b7465d1da998e"
+    },
+    {
+      "path": "runs/cache-identity-20261106/test_audit_seed.py",
+      "bytes": 2585,
+      "sha256": "602b89ed0754c32b78df0d88bd283a3818bcacf599549d8c4c789c667634edd3"
+    }
+  ],
+  "archive_loader_sha256": "e2434fbd8779e4fc24b4fb99bb60d1a9598c1fb8bbcbe698db73f7408acc3de9",
+  "original_archive_sha256": "8a4997b2315f45b1b8c776ce3309e4850b5d1645caa126e671f99d3651a3a186",
+  "no_runtime_media_weights_or_generated_cache_files": true,
+  "qualified": false
+}

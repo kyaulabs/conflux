@@ -1,0 +1,15 @@
+{
+  "verified_members": 10,
+  "fixed_denominator": 93,
+  "reference_cases_verified": 93,
+  "beat_timestamps": 4342,
+  "position_one_labels": 2205,
+  "leading_position_two_cases": 25,
+  "focused_parser_checks": 4,
+  "all_timestamps_and_positions_exact": true,
+  "reference_convention_correction_warranted": false,
+  "predictions_rescored": false,
+  "qualified": false,
+  "confidence": "Unknown",
+  "models_GPU_audio_or_network_started": false
+}

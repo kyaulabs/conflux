@@ -1,0 +1,24 @@
+{
+  "verified_members": 84,
+  "verified_Apollo_nested_members": 39,
+  "exact_outputs": 8,
+  "native_process_exits": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "original_laptop_statistics_failure_preserved": true,
+  "retained_laptop_round_trip_ms": [
+    18252.91202304652,
+    15532.351892034058
+  ],
+  "laptop_start_profile": "Power Saver",
+  "laptop_start_long_term_W": 7.5,
+  "cache_hits_proven": false,
+  "service_p99": null,
+  "audio_UI_hard_cancellation_exercised": false,
+  "passive_Apollo_unit_retirement_after_window": true,
+  "qualified": false,
+  "models_GPU_audio_or_network_started": false
+}
