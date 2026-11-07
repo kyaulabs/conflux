@@ -206,6 +206,51 @@ void preparedDspReserve()
     input.pauseWorker.store(false);
     source.stop();
 }
+void readyPrefixAfterDrainingReserve()
+{
+    constexpr auto reserve = PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames;
+    constexpr std::size_t readyFrames = 128;
+    Input input;
+    input.available.store(reserve + readyFrames);
+    struct ReadBarriers {
+        PreparedTempoSource::StreamInput input;
+        std::atomic<unsigned> entered{0}, released{0};
+    } barriers{input.descriptor()};
+    PreparedTempoSource source({input.frames, input.leaves, &barriers,
+        [](void* context, std::uint64_t generation, std::uint64_t frame, std::span<float> output) noexcept {
+            auto& gates = *static_cast<ReadBarriers*>(context);
+            const unsigned barrier = frame == reserve ? 1 : frame == reserve + readyFrames ? 2 : 0;
+            if (barrier) {
+                gates.entered.store(barrier);
+                while (gates.released.load() < barrier)
+                    std::this_thread::sleep_for(std::chrono::microseconds(100));
+            }
+            return gates.input.read(gates.input.context, generation, frame, output);
+        }, [](const void*) noexcept { return 0; }});
+    struct ReleaseOnExit {
+        ReadBarriers& barriers;
+        ~ReleaseOnExit() { barriers.released.store(2); }
+    } release{barriers};
+
+    require(source.request(0, 0, false), "Drained reserve request rejected");
+    (void)preparedNext(source);
+    for (std::size_t first = 0; first < reserve; first += PreparedTempoSource::blockFrames) {
+        const auto view = source.peekPrepared();
+        require(view.frames == PreparedTempoSource::blockFrames, "Initial reserve was fragmented");
+        exact(view, first);
+        require(source.consume(view.frames), "Cannot drain the initial reserve");
+    }
+    // Pause the worker at the next input boundary after it has processed a
+    // short prefix. Playback must be able to use that PCM while input waits.
+    await([&] { return barriers.entered.load() == 1; });
+    require(!source.peekPrepared(), "Expected a drained published queue");
+    barriers.released.store(1);
+    await([&] { return barriers.entered.load() == 2; });
+    const auto view = source.peekPrepared();
+    require(view.frames == readyFrames, "Ready prefix withheld while the active queue was empty");
+    exact(view, reserve);
+    require(source.consume(view.frames) && !source.peekPrepared(), "Ready prefix was duplicated");
+}
 void preparedTerminal()
 {
     Input shortInput; shortInput.frames = 31; shortInput.leaves = 1; shortInput.available.store(31);
@@ -488,7 +533,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); preparedStartup(); preparedDspReserve(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
+    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAfterDrainingReserve(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

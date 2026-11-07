@@ -447,6 +447,7 @@ private:
         int terminalError = 0;
         bool terminalPending = false, generationDone = true;
         std::size_t partialFrames = 0;
+        bool publishedAudioThisGeneration = false;
         auto publishPartial = [&] {
             if (!partialFrames) return true;
             if (!current(generation, stop)) return false;
@@ -454,6 +455,7 @@ private:
             slots_[position % slotCount].frames = partialFrames;
             written_.store(position + 1U, std::memory_order_release);
             partialFrames = 0;
+            publishedAudioThisGeneration = true;
             return true;
         };
         // Only the worker waits. A metadata boundary can publish its partial
@@ -492,6 +494,7 @@ private:
             if (request.generation != generation) {
                 processor.reset();
                 partialFrames = 0; // Unpublished old-generation audio is never reusable.
+                publishedAudioThisGeneration = false;
                 generation = request.generation;
                 nextFrame = request.frame;
                 inputFrames = inputOffset = 0;
@@ -622,7 +625,13 @@ private:
             partialFrames += produced;
             nominal = mapPosition(nominal + static_cast<long double>(produced) * slot.nominalStep,
                                   request.loopIn, request.loopOut);
-            if (partialFrames == blockFrames || terminalPending) (void)publishPartial();
+            // Pack while the reserve holds usable audio. If playback has
+            // drained this generation, give it the ready prefix before doing
+            // more input/DSP work.
+            if (partialFrames == blockFrames || terminalPending ||
+                (publishedAudioThisGeneration &&
+                 written_.load(std::memory_order_relaxed) == consumed_.load(std::memory_order_acquire)))
+                (void)publishPartial();
         }
     }
     void closeFiles() noexcept
