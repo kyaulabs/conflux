@@ -527,13 +527,13 @@ completed on Apollo at 1.008-second p99 but failed continuity with 14 ms of
 steady starvation. Both laptop admissions ended before playback.
 The [queue diagnostic and output-packing fix](../benchmarks/tempo-output-packing-2026-11-05.md)
 reproduced empty prepared-tempo reads on the laptop at 7.133-second p99.
-Generated correctness checks pass on both hosts; candidate hardware performance
-has not run.
-Musical-analysis/fallback and current primary-laptop sustained qualification
-remain open before `0.1.0`. On 4 November the user explicitly retained full M2/M3
-qualification before release. Complete and verify
-each new control before enabling it; the fixed-mix hour does not exercise every
-M3 control or close either milestone.
+The [current fixed-tempo hour](../benchmarks/current-fixed-tempo-hour-2026-11-07.md)
+qualified the primary laptop's fixed mix at 2.744-second p99, below the strict
+4.095-second target, with zero steady starvation and callback misses. Apollo's
+1.048-second p99 accompanied 21.3 ms of steady starvation in private audio.
+Automatic musical analysis, integrated fallback and the remaining M2/M3
+acceptance checks are open. The user retained full M2/M3 qualification before
+`0.1.0`. Complete and verify each new control before enabling it.
 
 | Milestone | Work | Evidence required before moving on |
 | --- | --- | --- |
