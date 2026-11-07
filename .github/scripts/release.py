@@ -23,9 +23,10 @@ def require(ok, message):
         raise ValueError(message)
 
 
-def run(*args, env=None, input=None):
-    return subprocess.run(args, cwd=ROOT, env=env, input=input, text=True,
-                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True).stdout.strip()
+def run(*args, env=None, input=None, strip=True):
+    stdout = subprocess.run(args, cwd=ROOT, env=env, input=input, text=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True).stdout
+    return stdout.strip() if strip else stdout
 
 
 def git(*args):
@@ -117,6 +118,23 @@ def floor(target, base, *, existing_sha=None):
     return previous
 
 
+def unfenced_lines(text):
+    fence = ""
+    for line in text.split("\n"):
+        match = re.fullmatch(r" {0,3}(`{3,}|~{3,})(.*)", line)
+        if match:
+            delimiter, info = match.groups()
+            if fence:
+                if delimiter[0] == fence[0] and len(delimiter) >= len(fence) and not info.strip(" \t"):
+                    fence = ""
+                continue
+            if delimiter[0] == "~" or "`" not in info:
+                fence = delimiter
+                continue
+        if not fence:
+            yield line
+
+
 def evidence(tree, path, target):
     require(type(path) is str and path.endswith(".md") and not path.startswith("/")
             and str(PurePosixPath(path)) == path and ".." not in PurePosixPath(path).parts,
@@ -124,15 +142,13 @@ def evidence(tree, path, target):
     entry = git("ls-tree", tree, "--", path).split()
     require(len(entry) == 4 and entry[0] in ("100644", "100755") and entry[1] == "blob"
             and entry[3] == path, "Mixing evidence must be a tracked regular file")
-    text = git("show", f"{tree}:{path}")
+    lines = list(unfenced_lines(run("git", "show", f"{tree}:{path}", strip=False)))
     markers = (MIXING_MARKER, M2_MARKER, M3_MARKER) if target == "0.1.0" else (MIXING_MARKER,)
     for marker in markers:
-        require(re.search(r"(?m)^" + re.escape(marker) + r"\r?$", text),
+        require(marker in lines,
                 "Actual mixing acceptance must be recorded before release" if marker == MIXING_MARKER
                 else "First 0.1.0 release requires recorded " + ("M2" if marker == M2_MARKER else "M3") + " completion")
-    for marker in markers:
-        text = text.replace(marker, "")
-    require(text.strip(), "Acceptance evidence requires nonempty prose")
+    require(any(line.strip() for line in lines if line not in markers), "Acceptance evidence requires nonempty prose")
     return git("rev-parse", f"{tree}:{path}")
 
 
