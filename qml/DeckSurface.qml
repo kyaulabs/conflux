@@ -1158,6 +1158,7 @@ Item {
             acceptedButtons: Qt.LeftButton
             preventStealing: true
             property string scratchToken: ""
+            property int touchId: -1
             property string gestureSourceId: ""
             property string gestureSourceGeneration: ""
             property bool dragging: false
@@ -1175,6 +1176,7 @@ Item {
                 const token = scratchToken
                 // Clear before invoking a synchronous controller notification.
                 scratchToken = ""
+                touchId = -1
                 dragging = false
                 angleValid = false
                 cumulativeFrames = 0
@@ -1219,21 +1221,20 @@ Item {
                 if (!surface.controller.moveScratch(surface.deckIndex, scratchToken, frames))
                     finishScratch()
             }
-            onPressed: mouse => {
-                if (!surface.canScratch || radiusAt(mouse.x, mouse.y) > width / 2) {
-                    mouse.accepted = false
-                    return
-                }
+            function beginAt(x, y, pointId) {
+                if (scratchToken.length > 0 || touchId >= 0 || !surface.canScratch || radiusAt(x, y) > width / 2)
+                    return false
+                touchId = pointId
                 jog.forceActiveFocus(Qt.MouseFocusReason)
                 const current = surface.controller.decks[surface.deckIndex] || ({})
                 const source = String(current.sourceId || "")
                 const generation = String(current.sourceGeneration || "0")
-                const angle = Math.atan2(mouse.y - height / 2, mouse.x - width / 2)
-                const validAngle = radiusAt(mouse.x, mouse.y) >= width * 0.15
+                const angle = Math.atan2(y - height / 2, x - width / 2)
+                const validAngle = radiusAt(x, y) >= width * 0.15
                 const token = surface.controller.beginScratch(surface.deckIndex)
                 if (typeof token !== "string" || token.length === 0) {
-                    mouse.accepted = false
-                    return
+                    touchId = -1
+                    return false
                 }
                 scratchToken = token
                 gestureSourceId = source
@@ -1243,14 +1244,22 @@ Item {
                 lastSentFrames = 0
                 previousAngle = angle
                 angleValid = validAngle
-                // Begin may synchronously replace/disable the source or release focus.
-                if (!pressed || !surface.canScratch || !ownerCurrent() || !jog.activeFocus
+                // Begin may synchronously replace or disable the source.
+                const contactStillHeld = pointId >= 0 ? touchId === pointId : pressed && jog.activeFocus
+                if (!contactStillHeld || !surface.canScratch || !ownerCurrent()
                     || !jog.hostWindow || !jog.hostWindow.active)
                     finishScratch()
+                return true
             }
-            onPositionChanged: mouse => { if (pressed) moveAt(mouse.x, mouse.y) }
-            onReleased: mouse => { moveAt(mouse.x, mouse.y); finishScratch() }
-            onCanceled: finishScratch()
+            onPressed: mouse => { mouse.accepted = beginAt(mouse.x, mouse.y, -1) }
+            onPositionChanged: mouse => { if (pressed && touchId < 0) moveAt(mouse.x, mouse.y) }
+            onReleased: mouse => {
+                if (touchId < 0) {
+                    moveAt(mouse.x, mouse.y)
+                    finishScratch()
+                }
+            }
+            onCanceled: { if (touchId < 0) finishScratch() }
             onEnabledChanged: { if (!enabled) finishScratch() }
             onVisibleChanged: { if (!visible) finishScratch() }
             Component.onDestruction: finishScratch()
@@ -1267,7 +1276,40 @@ Item {
                 wheel.accepted = true
             }
         }
-        onActiveFocusChanged: { if (!activeFocus) jogInput.finishScratch() }
+        MultiPointTouchArea {
+            objectName: "deck" + surface.deckIndex + "ScratchTouch"
+            anchors.fill: parent
+            mouseEnabled: false
+            enabled: surface.canScratch
+            onPressed: points => {
+                for (const point of points) {
+                    if (jogInput.beginAt(point.x, point.y, point.pointId))
+                        break
+                }
+            }
+            function heldTouch(points) {
+                for (const point of points) {
+                    if (point.pointId === jogInput.touchId)
+                        return point
+                }
+                return null
+            }
+            onUpdated: points => {
+                const point = heldTouch(points)
+                if (point)
+                    jogInput.moveAt(point.x, point.y)
+            }
+            onReleased: points => {
+                const point = heldTouch(points)
+                if (point) {
+                    jogInput.moveAt(point.x, point.y)
+                    jogInput.finishScratch()
+                }
+            }
+            onCanceled: points => { if (heldTouch(points)) jogInput.finishScratch() }
+            onGestureStarted: gesture => gesture.grab()
+        }
+        onActiveFocusChanged: { if (!activeFocus && jogInput.touchId < 0) jogInput.finishScratch() }
         onHostWindowChanged: { if ((!hostWindow || !hostWindow.active) && jogInput) jogInput.finishScratch() }
         Connections {
             target: jog.hostWindow

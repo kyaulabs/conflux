@@ -668,16 +668,19 @@ private slots:
     }
     void cleanup()
     {
-        if (touchActive_ && ui_ && ui_->window) {
+        if ((touchActive_ || secondTouchActive_) && ui_ && ui_->window) {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
             QTest::touchEvent(ui_->window, touchDevice_.get(), false).cancel();
 #else
             // Retire the known contact through Qt's input path before the
             // window is destroyed; Qt6.4 has no public platform-cancel helper.
-            QTest::touchEvent(ui_->window, touchDevice_.get(), false)
-                .release(0, QPoint(0, 0), ui_->window).commit();
+            auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+            if (touchActive_) touch.release(0, QPoint(0, 0), ui_->window);
+            if (secondTouchActive_) touch.release(1, QPoint(0, 0), ui_->window);
+            touch.commit();
 #endif
             touchActive_ = false;
+            secondTouchActive_ = false;
         }
         ui_.reset();
         QCoreApplication::sendPostedEvents();
@@ -2967,7 +2970,7 @@ private slots:
         ui_->endpoint.loadState(0, 5); ui_->endpoint.loadState(1, 5);
         ui_->endpoint.setReady(true);
         auto* jog = ui_->item(QString("deck%1Jog").arg(deck).toUtf8().constData());
-        auto* input = ui_->item(QString("deck%1ScratchInput").arg(deck).toUtf8().constData());
+        auto* input = ui_->item(QString("deck%1ScratchTouch").arg(deck).toUtf8().constData());
         QVERIFY(jog && input);
         QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
         jog->polish(); ui_->window->update(); QTRY_VERIFY(polished.count() > 0);
@@ -2992,11 +2995,8 @@ private slots:
         }
         QCOMPARE(ui_->endpoint.decks(), before); // No optimistic source/play acknowledgement.
         if (cancelGrab) {
-            // Public on Qt6.4 too: lose the actual synthesized-touch mouse grab.
-            // This is not a platform TouchCancel; the separate version-gated
-            // platform-cancel case retains that explicitly narrower scope.
-            input->ungrabMouse();
-            QTRY_VERIFY(!input->property("pressed").toBool());
+            // Lose the native touch grab independently of a platform TouchCancel.
+            input->ungrabTouchPoints();
             QTRY_COMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
             const auto ended = ui_->endpoint.calls.size();
             touch.move(0, point(-pi / 2), ui_->window).commit();
@@ -3029,6 +3029,115 @@ private slots:
         verifyCueCall(oldCalls + 1, "scratchEnd", deck);
         QCOMPARE(ui_->endpoint.calls.last().toMap()["token"].toString(), fresh);
         QCOMPARE(ui_->endpoint.decks(), before);
+    }
+
+    void bothDecksScratchWithIndependentTouchContacts()
+    {
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 5);
+        ui_->endpoint.loadState(1, 5);
+        ui_->endpoint.setReady(true);
+        auto* a = ui_->item("deck0Jog");
+        auto* b = ui_->item("deck1Jog");
+        QVERIFY(a && b);
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        a->polish();
+        b->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto point = [](QQuickItem* jog, qreal x, qreal y) {
+            return jog->mapToScene(QPointF(jog->width() * x, jog->height() * y)).toPoint();
+        };
+        const auto aStart = point(a, .5, .15);
+        const auto bStart = point(b, .5, .15);
+        const auto aMove = point(a, .85, .5);
+        const auto bMove = point(b, .15, .5);
+        const auto before = ui_->endpoint.decks();
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, aStart, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "scratchBegin", 0);
+        touch.stationary(0).press(1, bStart, ui_->window).commit();
+        secondTouchActive_ = true;
+        QTRY_COMPARE_WITH_TIMEOUT(ui_->endpoint.calls.size(), 2, 1500);
+        verifyCueCall(1, "scratchBegin", 1);
+        const auto aToken = ui_->endpoint.calls[0].toMap()["token"];
+        const auto bToken = ui_->endpoint.calls[1].toMap()["token"];
+        QVERIFY(aToken != bToken);
+
+        touch.move(0, aMove, ui_->window).stationary(1).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "scratchMove", 0);
+        QCOMPARE(ui_->endpoint.calls[2].toMap()["token"], aToken);
+        QVERIFY(std::abs(ui_->endpoint.calls[2].toMap()["frames"].toLongLong() - 24000) < 500);
+        touch.release(0, aMove, ui_->window).stationary(1).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        verifyCueCall(3, "scratchEnd", 0);
+        QCOMPARE(ui_->endpoint.calls[3].toMap()["token"], aToken);
+
+        touch.move(1, bMove, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
+        verifyCueCall(4, "scratchMove", 1);
+        QCOMPARE(ui_->endpoint.calls[4].toMap()["token"], bToken);
+        QVERIFY(std::abs(ui_->endpoint.calls[4].toMap()["frames"].toLongLong() + 24000) < 500);
+        touch.release(1, bMove, ui_->window).commit();
+        secondTouchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 6);
+        verifyCueCall(5, "scratchEnd", 1);
+        QCOMPARE(ui_->endpoint.calls[5].toMap()["token"], bToken);
+        QCOMPARE(ui_->endpoint.decks(), before);
+    }
+
+    void crossfaderTouchKeepsTheHeldPlatter()
+    {
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 5);
+        ui_->endpoint.setReady(true);
+        auto* jog = ui_->item("deck0Jog");
+        auto* fader = ui_->item("crossfader");
+        QVERIFY(jog && fader);
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        jog->polish();
+        fader->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto aStart = jog->mapToScene(QPointF(jog->width() * .5, jog->height() * .15)).toPoint();
+        const auto aMove = jog->mapToScene(QPointF(jog->width() * .85, jog->height() * .5)).toPoint();
+        auto* handle = fader->property("handle").value<QQuickItem*>();
+        QVERIFY(handle);
+        const auto faderStart = handle->mapToScene(QPointF(handle->width() / 2, handle->height() / 2)).toPoint();
+        const auto faderEnd = faderStart + QPoint(qRound(fader->width() * .33), 0);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, aStart, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "scratchBegin", 0);
+        const auto token = ui_->endpoint.calls[0].toMap()["token"];
+
+        touch.stationary(0).press(1, faderStart, ui_->window).commit();
+        secondTouchActive_ = true;
+        touch.stationary(0).move(1, faderEnd, ui_->window).commit();
+        QTRY_VERIFY(ui_->endpoint.calls.size() > 1);
+        for (qsizetype i = 1; i < ui_->endpoint.calls.size(); ++i)
+            QCOMPARE(ui_->endpoint.calls[i].toMap()["action"].toString(), QString("crossfader"));
+        QVERIFY(ui_->endpoint.calls.last().toMap()["value"].toDouble() > .7);
+
+        touch.move(0, aMove, ui_->window).stationary(1).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchMove"));
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["token"], token);
+        touch.stationary(0).release(1, faderEnd, ui_->window).commit();
+        secondTouchActive_ = false;
+        for (const auto& item : ui_->endpoint.calls)
+            QVERIFY(item.toMap()["action"].toString() != "scratchEnd");
+
+        touch.release(0, aMove, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("scratchEnd"));
+        QCOMPARE(ui_->endpoint.calls.last().toMap()["token"], token);
     }
 
     void vinylPlatformTouchCancelEndsOnceAndAllowsFreshContact()
@@ -6033,6 +6142,7 @@ private:
     std::unique_ptr<QPointingDevice> touchDevice_{QTest::createTouchDevice()};
     std::unique_ptr<UiFixture> ui_;
     bool touchActive_ = false;
+    bool secondTouchActive_ = false;
 };
 
 } // namespace
