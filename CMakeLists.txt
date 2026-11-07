@@ -206,6 +206,12 @@ if(BUILD_TESTING)
     target_link_options(conflux-audio-file-mpeg-length-test PRIVATE
         -Wl,--wrap=sf_open_fd -Wl,--wrap=sf_error)
     add_test(NAME audio-file-mpeg-length COMMAND conflux-audio-file-mpeg-length-test)
+    add_executable(conflux-audio-file-id3-padding-test tests/audio_file_id3_padding_test.cpp)
+    target_link_libraries(conflux-audio-file-id3-padding-test PRIVATE conflux-audio)
+    target_compile_options(conflux-audio-file-id3-padding-test PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME audio-file-id3-padding COMMAND conflux-audio-file-id3-padding-test
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/mpeg-sine.mp3)
+    set_tests_properties(audio-file-id3-padding PROPERTIES TIMEOUT 15)
     add_executable(conflux-audio-transport-test tests/audio_transport_test.cpp)
     target_link_libraries(conflux-audio-transport-test PRIVATE conflux-audio Threads::Threads)
     target_compile_options(conflux-audio-transport-test PRIVATE -Wall -Wextra -Wpedantic)
