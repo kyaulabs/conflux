@@ -329,6 +329,14 @@ class ReleaseGitCliffTests(unittest.TestCase):
             for kind, replacement in (("inline", "Completion syntax: " + marker),
                                       ("quoted", "`" + marker + "`"), ("blockquote", "> " + marker)):
                 cases.append((kind + "-" + label, self.acceptance.replace(marker, replacement), label))
+        for fence in ("```", "~~~"):
+            for marker, label in zip(markers, ("mixing", "M2", "M3")):
+                example = f"  {fence}markdown\n{marker}\n{fence}\n"
+                error = "Actual mixing acceptance" if label == "mixing" else label
+                cases.append((f"fenced-{label}", self.acceptance.replace(marker + "\n", example), error))
+            examples_only = "\n".join(markers) + f"\n\n{fence}\nExample text.\n{fence}\n"
+            cases.append(("markers-and-example-only", examples_only, "nonempty prose"))
+        cases.append(("indented-first-marker", "    " + self.acceptance, "Actual mixing acceptance"))
         cases.append(("markers-only", "\n".join(markers) + "\n", "nonempty prose"))
         for label, text, error in cases:
             with self.subTest(evidence=label):
@@ -345,6 +353,15 @@ class ReleaseGitCliffTests(unittest.TestCase):
         self.commit("docs: synthetic later release evidence")
         head = self.g("rev-parse", "HEAD")
         self.assertEqual(release.evidence(head, "docs/mixing.md", "0.1.1"),
+                         self.g("rev-parse", head + ":docs/mixing.md"))
+
+    def test_release_evidence_accepts_declarations_after_an_example(self):
+        fence = "````"
+        example = f"{fence}markdown\n{fence[:-1]}\n{fence}\n"
+        (self.path / "docs/mixing.md").write_text(example + "\n" + self.acceptance)
+        self.commit("docs: declare acceptance after a fenced example")
+        head = self.g("rev-parse", "HEAD")
+        self.assertEqual(release.evidence(head, "docs/mixing.md", "0.1.0"),
                          self.g("rev-parse", head + ":docs/mixing.md"))
 
     def test_initial_validation_rechecks_completion_and_exact_evidence_blob(self):
