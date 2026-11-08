@@ -22,7 +22,6 @@ import os
 from pathlib import Path
 import stat
 import statistics
-import struct
 import sys
 import types
 
@@ -63,8 +62,14 @@ def validate_pcm(pcm, frames):
     validate_frames(frames)
     if not isinstance(pcm, (bytes, bytearray)) or len(pcm) != frames * CHANNELS * 4:
         raise ValueError("expected exact stereo 48000 Hz little-endian float32 PCM")
-    if any(not math.isfinite(value) for (value,) in struct.iter_unpack("<f", pcm)):
-        raise ValueError("nonfinite input PCM")
+    import numpy as np
+
+    samples = np.frombuffer(pcm, dtype="<f4")
+    # Keep the temporary finite-sample mask bounded even for a maximum-length track.
+    block_samples = 1 << 20
+    for start in range(0, samples.size, block_samples):
+        if not np.isfinite(samples[start:start + block_samples]).all():
+            raise ValueError("nonfinite input PCM")
 
 
 def read_pcm(stream, frames):
