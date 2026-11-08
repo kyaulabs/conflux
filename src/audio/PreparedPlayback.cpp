@@ -314,7 +314,9 @@ std::unique_ptr<PreparedTempoSource> PreparedPlayback::makeLiveTempoSource()
 
 std::unique_ptr<PreparedTempoSource> PreparedPlayback::makeResidentTempoSource()
 {
-    const auto length = live_->hold->range().outFrame-live_->hold->range().inFrame;
+    const auto& range = live_->hold->range();
+    const auto length = range.outFrame - range.inFrame;
+    if (range.admittedBytes < AudioResidentHoldRange::retainedBytes(length)) return {};
     return std::make_unique<PreparedTempoSource>(PreparedTempoSource::StreamInput{
         length, stemCount, this,
         [](void* context, std::uint64_t, std::uint64_t frame, std::span<float> output) noexcept {
@@ -322,8 +324,8 @@ std::unique_ptr<PreparedTempoSource> PreparedPlayback::makeResidentTempoSource()
             const auto& cache = *owner.live_->hold;
             const auto length = cache.range().outFrame-cache.range().inFrame;
             constexpr auto channels = stemCount*2;
-            if (frame > length || output.size()%channels || output.size()/channels > PreparedTempoSource::blockFrames ||
-                owner.bank_->hasReadFailure()) return AudioReadResult{0,true};
+            if (frame > length || output.size()%channels || output.size()/channels > PreparedTempoSource::blockFrames)
+                return AudioReadResult{0,true};
             if (!cache.ready()) return AudioReadResult{};
             const auto leaves = cache.leaves();
             const auto count = std::size_t(std::min<std::uint64_t>(output.size()/channels,length-frame));
@@ -333,11 +335,9 @@ std::unique_ptr<PreparedTempoSource> PreparedPlayback::makeResidentTempoSource()
                         output[f*channels+role*2+channel] = leaves[role][(frame+f)*2+channel];
             return AudioReadResult{count,false};
         },
-        [](const void* context) noexcept {
-            // A failed producer does not invalidate accepted immutable resident
-            // PCM. Malformed bank staging remains a fault for both paths.
-            return static_cast<const PreparedPlayback*>(context)->bank_->hasReadFailure() ? EIO : 0;
-        }, nullptr, true});
+        // The worker reads accepted immutable PCM only. The render owner
+        // still checks its bank health at entry and on every recovery read.
+        [](const void*) noexcept { return 0; }, nullptr, true, true});
 }
 
 void PreparedPlayback::createLiveTempoSource() noexcept
@@ -828,7 +828,12 @@ AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
 }
 
 std::uint64_t PreparedPlayback::residentHoldBytes() const noexcept
-{ return live_ && live_->hold ? live_->hold->bytes() : 0; }
+{
+    if (!live_ || !live_->hold) return 0;
+    const auto& range = live_->hold->range();
+    return residentTempoSource_ ? AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame)
+                                : live_->hold->bytes();
+}
 
 AudioResidentHoldState PreparedPlayback::residentHoldState() const noexcept
 {
@@ -836,7 +841,9 @@ AudioResidentHoldState PreparedPlayback::residentHoldState() const noexcept
     const auto& range = live_->hold->range();
     bool ready = live_->hold->ready();
     if (liveTempoInput_) {
-        if (live_->holdActive) ready = ready && !residentTempoSource_->errorCode();
+        ready = ready && !bank_->hasReadFailure();
+        if (!residentTempoSource_) ready = false;
+        else if (live_->holdActive) ready = ready && !residentTempoSource_->errorCode();
         else if (live_->holdArmed) {
             const auto view = residentTempoSource_->peekPrepared();
             ready = ready && (live_->holdTempoAligned || live_->code()) && view.frames &&
@@ -868,7 +875,7 @@ bool PreparedPlayback::residentHoldControl(AudioResidentHoldCommand command, std
         if (live_->holdActive) return false;
         if (liveTempoInput_) {
             const auto tempo = tempoSource_->status();
-            if (!residentTempoSource_->request(0,tempo.percent,tempo.keyLock,0,
+            if (!residentTempoSource_ || !residentTempoSource_->request(0,tempo.percent,tempo.keyLock,0,
                     live_->hold->range().outFrame-live_->hold->range().inFrame)) return false;
             live_->holdTempoAligned = tempoSource_->outputConfigurationCurrent();
         }
@@ -944,9 +951,8 @@ AudioReadResult PreparedPlayback::readResidentTempo(std::span<float> output) noe
     if (!live_->hold->ready() || bank_->hasReadFailure()) { result.failed = true; return result; }
     const auto length = live_->hold->range().outFrame-live_->hold->range().inFrame;
     const auto wanted = output.size()/2;
-    // Loop OUT can split a queued slot without retiring it. One source read
-    // crosses at most one OUT, so eight queued slots can require nine pieces.
-    for (std::size_t slot=0;slot<PreparedTempoSource::slotCount+1U && result.frames<wanted;++slot) {
+    // The immutable view ends at OUT. A source read can cross it once.
+    for (std::size_t part = 0; part < 2 && result.frames < wanted; ++part) {
         if (live_->holdOffset == length) {
             if (live_->holdExit && !live_->code() && !tempoSource_->errorCode()) {
                 const auto offset = result.frames;
@@ -971,18 +977,17 @@ AudioReadResult PreparedPlayback::readResidentTempo(std::span<float> output) noe
             view.nominalStart < 0 || view.nominalStart >= double(length)) {
             result.failed = true; break;
         }
-        const auto toOut = std::size_t(std::max(1.,std::ceil((double(length)-view.nominalStart)/view.nominalStep)));
-        const auto count = std::min({wanted-result.frames,view.frames,toOut});
+        const auto count = std::min(wanted - result.frames, view.frames);
         const auto beforeWraps = residentTempoSource_->loopWraps();
-        const auto part = bank_->readCached(view.leaves,0,output.subspan(result.frames*2,count*2));
-        if (part.failed || part.frames != count || !residentTempoSource_->consume(part.frames)) {
+        const auto mixed = bank_->readCached(view.leaves,0,output.subspan(result.frames*2,count*2));
+        if (mixed.failed || mixed.frames != count || !residentTempoSource_->consume(mixed.frames)) {
             result.failed = true; break;
         }
         if (live_->holdTransition) {
             result.transitionFrame = std::uint32_t(result.frames);
             live_->holdTransition = false;
         }
-        result.frames += part.frames;
+        result.frames += mixed.frames;
         const auto wraps = residentTempoSource_->loopWraps()-beforeWraps;
         if (wraps>1) { result.failed = true; break; }
         live_->holdOffset = wraps ? length : std::uint64_t(residentTempoSource_->nominalPosition());
@@ -1156,12 +1161,12 @@ void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
         // Allocate the replacement while the old worker remains intact. A
         // failed allocation leaves its bank/input/processor ownership intact.
         auto replacementTempo = makeLiveTempoSource();
-        auto replacementResident = live_->hold ? makeResidentTempoSource() : nullptr;
         liveTempoRestore_ = tempoState();
         tempoSource_->stop(); // Off callback, before raw control ownership returns.
-        if (residentTempoSource_) residentTempoSource_->stop();
+        // The resident worker borrows immutable PCM, independently of the
+        // bank being replaced. Reuse its allocation and revoke its old view.
+        if (residentTempoSource_) (void)residentTempoSource_->cancel();
         tempoSource_ = std::move(replacementTempo);
-        residentTempoSource_ = std::move(replacementResident);
         live_->tempoInputGeneration = 0;
         live_->tempoHistoryValid = false;
         liveTempoInput_ = false;

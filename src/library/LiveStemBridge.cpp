@@ -1030,7 +1030,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
             range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
             range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames)
             throw std::invalid_argument("Invalid explicitly selected live stem recovery range");
-        const auto bytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+        const auto bytes = audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame);
         if (bytes > limits_.maxPreparedBytes || range.admittedBytes < bytes)
             throw std::length_error("Live stem recovery range exceeds admitted PCM bytes");
         return bytes;
@@ -1121,7 +1121,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         QLockFile lock(QDir(rootPath).filePath(".lock")); lockRoot(lock, stop);
         // Same record atomically shrinks; no uncharged interval or second
         // admission can spend this operation's decoder headroom prematurely.
-        // Resident raw PCM is C++ owned; do not change Python service geometry.
+        // Both resident PCM allocations are C++ owned. Python service geometry is unchanged.
         job->publishRecord(job->serviceBytes + metadataBytes + residentBytes, stop);
     }
     verifySource(original.get(), originalBefore, originalDigest, stop);

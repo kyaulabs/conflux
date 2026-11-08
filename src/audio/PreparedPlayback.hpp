@@ -59,6 +59,8 @@ public:
         std::uint64_t sourceId, std::uint64_t exactFrames, LiveProducer producer,
         std::optional<AudioResidentHoldRange> residentHold = {});
     // Exact extra raw payload charged by the optional construction-time range.
+    // Whole retained recovery allocation. The range state attests raw
+    // PCM bytes separately for source-bound handoff checks.
     [[nodiscard]] std::uint64_t residentHoldBytes() const noexcept;
     [[nodiscard]] bool isLive() const noexcept { return bool(live_); }
     ~PreparedPlayback();

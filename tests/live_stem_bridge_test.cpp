@@ -379,7 +379,8 @@ private slots:
         checked([&] {
             QTemporaryDir directory;
             const auto source = directory.filePath("resident-source.wav"), root = directory.filePath("cache");
-            constexpr std::uint64_t inputFrames = 8192, bytes = 2048 * 32;
+            constexpr std::uint64_t inputFrames = 8192, rawBytes = 2048 * 32;
+            constexpr std::uint64_t bytes = 135264; // Raw plus the bounded slow-tempo period.
             writeSource(source, inputFrames);
             const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
             const auto bounded = limits(true);
@@ -425,7 +426,7 @@ private slots:
             require(opted.playback->prime(0, std::chrono::seconds(10)), "Approved live range did not prime");
             auto sourceRef = opted.playback->sourceRef();
             const auto state = sourceRef.residentHoldState(sourceRef.context);
-            require(state.ready && !state.armed && state.residentBytes == bytes &&
+            require(state.ready && !state.armed && state.residentBytes == rawBytes &&
                 state.inFrame == request.range.inFrame && state.outFrame == exactFrames,
                 "Accepted raw packets did not capture the exact unarmed tail range");
             opted.playback->stop();
