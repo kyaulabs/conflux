@@ -87,6 +87,14 @@ public:
         if ((leafCount_ != 1 && leafCount_ != 4) || !frames_ || frames_ > (std::uint64_t{1} << 53U) ||
             !stream_.context || !stream_.read || !stream_.errorCode)
             throw std::invalid_argument("Streaming tempo requires one/four nonempty raw leaves and bounded callbacks");
+        if (stream_.cacheLoop) {
+            if (!stream_.allowLoops || leafCount_ != maximumLeaves || frames_ < AudioResidentHoldRange::minimumFrames ||
+                frames_ > AudioResidentHoldRange::maximumFrames)
+                throw std::invalid_argument("Invalid processed recovery cache geometry");
+            cycleCapacity_ = AudioResidentHoldRange::maximumProcessedFrames(frames_);
+            for (std::size_t leaf = 0; leaf < leafCount_; ++leaf)
+                cycle_[leaf] = std::make_unique_for_overwrite<float[]>(cycleCapacity_ * 2U);
+        }
         worker_ = std::jthread([this](std::stop_token stop) { run(stop); });
     }
     ~Impl() { stop(); }
@@ -133,6 +141,7 @@ public:
                  std::uint64_t loopIn, std::uint64_t loopOut, double position) noexcept
     {
         if (stream_.read && loopOut && !stream_.allowLoops) return false;
+        if (stream_.cacheLoop && (frame != 0 || loopIn != 0 || loopOut != frames_)) return false;
         if (loopOut ? (loopOut > frames_ || loopIn >= loopOut || frame < loopIn || frame >= loopOut ||
                        loopOut - loopIn < AudioLoopState::minimumFrames ||
                        loopOut - loopIn > AudioLoopState::maximumFrames) : loopIn != 0)
@@ -168,7 +177,7 @@ public:
         if (!validPercent(percent) || !ownerEnabled_ || ownerFinished_ || errorCode() ||
             (!ownerHasDsp_ && percent != 0)) return false;
         if (percent == ownerPercent_) return !stopped_.load(std::memory_order_relaxed);
-        if (!reserveCommand(false)) return false;
+        if (stream_.cacheLoop || !reserveCommand(false)) return false;
         ownerPercent_ = percent;
         publish();
         return true;
@@ -200,6 +209,20 @@ public:
     }
     View peek() noexcept
     {
+        if (stream_.cacheLoop) {
+            if (!ownerEnabled_ || stopped_.load(std::memory_order_relaxed) ||
+                cycleGeneration_.load(std::memory_order_acquire) != ownerGeneration_) return {};
+            View result;
+            result.leafCount = leafCount_;
+            result.frames = std::min(blockFrames, cycleFrames_ - offset_);
+            result.generation = ownerGeneration_;
+            result.nominalStart = nominalPosition();
+            result.nominalStep = 1.0 + ownerPercent_ / 100.0;
+            result.requestedPercent = result.appliedInputPercent = ownerPercent_;
+            for (std::size_t leaf = 0; leaf < leafCount_; ++leaf)
+                result.leaves[leaf] = {cycle_[leaf].get() + offset_ * 2U, result.frames * 2U};
+            return result;
+        }
         retireStale();
         if (!ownerEnabled_ || stopped_.load(std::memory_order_relaxed)) return {};
         const auto position = consumed_.load(std::memory_order_relaxed);
@@ -225,7 +248,7 @@ public:
     View peekPrepared() noexcept
     {
         const auto view = peek();
-        if (!view || preparedGeneration_ == ownerGeneration_) return view;
+        if (!view || stream_.cacheLoop || preparedGeneration_ == ownerGeneration_) return view;
         const auto first = consumed_.load(std::memory_order_relaxed);
         const auto end = written_.load(std::memory_order_acquire);
         bool ready = end - first == slotCount;
@@ -242,6 +265,23 @@ public:
     {
         const auto view = peek();
         if (!view || frames > view.frames) return false;
+        if (stream_.cacheLoop) {
+            if (!frames) return true;
+            if (offset_ + frames == cycleFrames_) {
+                if (ownerWraps_ == std::numeric_limits<std::uint64_t>::max()) {
+                    ownerError_.store(EOVERFLOW, std::memory_order_relaxed);
+                    return false;
+                }
+                ++ownerWraps_;
+                offset_ = 0;
+            } else {
+                offset_ += frames;
+            }
+            ownerNominal_ = static_cast<long double>(offset_) * frames_ / cycleFrames_;
+            ownerAppliedPercent_ = ownerPercent_;
+            ownerAppliedCommand_ = ownerSerial_;
+            return true;
+        }
         const auto position = consumed_.load(std::memory_order_relaxed);
         const auto& slot = slots_[position % slotCount];
         if (!slot.frames) {
@@ -447,6 +487,7 @@ private:
         int terminalError = 0;
         bool terminalPending = false, generationDone = true;
         std::size_t partialFrames = 0;
+        std::size_t warmupFrames = 0, periodFrames = 0, generatedFrames = 0, capturedFrames = 0;
         bool publishedAudioThisGeneration = false;
         auto publishPartial = [&] {
             if (!partialFrames) return true;
@@ -494,6 +535,7 @@ private:
             if (request.generation != generation) {
                 processor.reset();
                 partialFrames = 0; // Unpublished old-generation audio is never reusable.
+                generatedFrames = capturedFrames = 0;
                 publishedAudioThisGeneration = false;
                 generation = request.generation;
                 nextFrame = request.frame;
@@ -508,6 +550,13 @@ private:
                 if (request.enabled && current(generation, stop)) {
                     try {
                         if (const int code = allUnchanged()) throw std::system_error(code, std::generic_category());
+                        if (stream_.cacheLoop) {
+                            const auto period = static_cast<long double>(frames_) / (1.0 + request.initialPercent / 100.0);
+                            warmupFrames = std::size_t(std::ceil(period));
+                            periodFrames = std::size_t(std::ceil(2 * period)) - warmupFrames;
+                            if (!periodFrames || periodFrames > cycleCapacity_)
+                                throw std::runtime_error("Processed recovery period exceeds its capacity");
+                        }
                         if (request.frame == frames_) terminalPending = true;
                         else processor = std::make_unique<TempoProcessor>(TempoProcessor::Config{
                             leafCount_ * 2U, request.initialPercent, request.keyLock});
@@ -594,6 +643,33 @@ private:
               catch (...) { terminalError = EIO; produced = 0; terminalPending = true; }
             if (!current(generation, stop)) continue;
             if (terminalError) publishError(generation, terminalError);
+            if (stream_.cacheLoop) {
+                if (terminalPending) {
+                    if (!terminalError) publishError(generation, EIO);
+                    generationDone = true;
+                    continue;
+                }
+                const auto first = generatedFrames < warmupFrames
+                    ? std::min(produced, warmupFrames - generatedFrames) : 0U;
+                const auto count = std::min(produced - first, periodFrames - capturedFrames);
+                const auto channels = leafCount_ * 2U;
+                for (std::size_t leaf = 0; leaf < leafCount_; ++leaf)
+                    for (std::size_t frame = 0; frame < count; ++frame)
+                        for (std::size_t channel = 0; channel < 2U; ++channel)
+                            cycle_[leaf][(capturedFrames + frame) * 2U + channel] =
+                                output[(first + frame) * channels + leaf * 2U + channel];
+                generatedFrames += produced;
+                capturedFrames += count;
+                if (capturedFrames == periodFrames && current(generation, stop)) {
+                    // Only the render owner can replace the generation. A new
+                    // request ends its old borrow before the worker can refill.
+                    cycleFrames_ = periodFrames;
+                    cycleGeneration_.store(generation, std::memory_order_release);
+                    generationDone = true;
+                    processor.reset();
+                }
+                continue;
+            }
             if (!produced && !terminalPending) continue;
             if (!produced) {
                 if (!publishPartial() || !waitForSlot()) continue;
@@ -640,6 +716,9 @@ private:
     }
 
     const StreamInput stream_{};
+    std::array<std::unique_ptr<float[]>, maximumLeaves> cycle_;
+    std::size_t cycleCapacity_ = 0, cycleFrames_ = 0;
+    std::atomic<std::uint64_t> cycleGeneration_{0};
     std::array<int, maximumLeaves> fds_{-1, -1, -1, -1};
     std::array<struct stat, maximumLeaves> identities_{};
     std::array<Slot, slotCount> slots_{};

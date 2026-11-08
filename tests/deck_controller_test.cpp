@@ -394,10 +394,12 @@ private slots:
             const auto before = controller.decks();
             const auto retained = controller.retainedPcmBytes();
             QCOMPARE(retained, std::uint64_t(480 * 8));
+            // 2,048 raw frames and 2,179 processed frames, each with four stereo leaves.
+            constexpr std::uint64_t recoveryCharge = 135264;
             controller.loadLibraryStemTrackWithRecoveryRange(1, id, 2048. / 48000, 4096. / 48000);
             QVERIFY(QThreadPool::globalInstance()->waitForDone(10000));
             QVERIFY(controller.busy());
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             safety.capture(); QVERIFY(!safety.children.empty() && !safety.gone());
             ControllerRetirementBarrier barrier;
             QVERIFY(controller.cancelPreparation());
@@ -405,7 +407,7 @@ private slots:
             QCoreApplication::sendPostedEvents();
             QVERIFY(controller.busy());
             QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             QCOMPARE(controller.decks()[0], before[0]);
             barrier.release();
             QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
@@ -420,7 +422,7 @@ private slots:
             QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
             QVERIFY(hold["configured"].toBool() && hold["ready"].toBool() && !hold["armed"].toBool());
             QCOMPARE(hold["residentBytes"].toULongLong(), qulonglong(65536));
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             // This fixture deliberately has no output server. It must not fake
             // a fresh callback ticket, positive Arm or playback qualification.
             QVERIFY(!controller.outputReady());

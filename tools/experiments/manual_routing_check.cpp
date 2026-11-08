@@ -1437,7 +1437,7 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
     const double percent = label == "tempo-fast" || label == "tempo-master-fast" || forceAutomaticEntry ? 6. : -6.;
     const double rate = 1. + percent / 100.;
     const std::string prefix = "resident-takeover-" + std::string(label);
-    const Range range{rangeId, 4096, 4096 + 8193, 8193 * Range::bytesPerFrame, Range::Provenance::DjRange};
+    const Range range{rangeId, 4096, 4096 + 8193, Range::retainedBytes(8193), Range::Provenance::DjRange};
     auto producer = std::make_shared<LiveOwnerProducer>();
     auto candidate = primedSyntheticSource(frames, liveOwnerValue[0], liveOwnerValue[1], true);
     auto* const candidateIdentity = candidate.get();
@@ -1723,15 +1723,12 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
         // Functional coverage may run slower than the private graph clock.
         // Only consumed resident samples advance its cursor; output silence
         // remains reported and the normal execution gate still rejects it.
-        const long double oldAdvance =
-            static_cast<long double>(swapOutput - holdEntryOutput - holdStarved) * rate;
-        const long double length = range.outFrame - range.inFrame;
-        const auto wraps = std::floor((oldAdvance + 1e-7L) / length);
-        const auto residual = oldAdvance - wraps * length;
-        require(
-            wraps >= 1 && residual >= -1e-6L && residual < rate + 1e-6L,
-            prefix +
-                ": takeover consumes exactly through a processed OUT sample, never an extra wrapped prefix");
+        // A warmed 8,193-frame fixture has 7,729 output samples at +6%
+        // and 8,716 at -6%. The cached period repeats that integer count.
+        const auto delivered = swapOutput - holdEntryOutput - holdStarved;
+        const std::uint64_t period = percent > 0 ? 7729 : 8716;
+        require(delivered >= period && delivered % period == 0,
+                prefix + ": takeover consumes exactly through a processed OUT sample, never an extra wrapped prefix");
         require(firstInstalled->transportRevision[0] == revision + 1 &&
                     firstInstalled->lastCommandId == mixId && firstInstalled->stemGain[0] == targets &&
                     !firstInstalled->residentHold[0].supported &&

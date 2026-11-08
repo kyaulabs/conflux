@@ -231,6 +231,8 @@ struct ResidentReference {
     std::array<std::unique_ptr<std::FILE,CloseReference>,4> files;
     std::unique_ptr<PreparedTempoSource> processor;
     const std::uint64_t frames;
+    std::vector<float> period;
+    std::size_t offset = 0;
     ResidentReference(std::uint64_t firstFrame,std::uint64_t length,double percent,bool keyLock) : frames(length) {
         std::array<int,4> fds{};
         for(std::size_t role=0;role<4;++role) {
@@ -242,24 +244,27 @@ struct ResidentReference {
             require(!std::fflush(files[role].get()),"Recovery reference flush failed"); fds[role]=fileno(files[role].get());
         }
         processor=std::make_unique<PreparedTempoSource>(fds,frames);
-        reset(percent,keyLock);
-    }
-    void reset(double percent,bool keyLock) {
-        require(processor->request(0,percent,keyLock,0,frames),"Recovery reference loop request rejected");
-    }
-    void compare(std::span<const float> actual) {
-        std::size_t offset=0;
-        while(offset<actual.size()/2) {
+        require(processor->request(0,percent,keyLock,0,frames), "Recovery reference loop request rejected");
+        while (processor->loopWraps() < 2) {
             PreparedTempoSource::View view;
-            await([&]{view=processor->peek();return bool(view);});
-            require(view.frames && !view.errorCode && !view.terminal,"Recovery reference failed or ended");
-            const auto count=std::min(view.frames,actual.size()/2-offset);
-            for(std::size_t frame=0;frame<count;++frame)for(std::size_t channel=0;channel<2;++channel) {
-                const float expected=float(double(view.leaves[0][frame*2+channel])*.5);
-                require(actual[(offset+frame)*2+channel]==expected,
-                        "Processed recovery waveform differs from its independent selected-stem file-loop oracle");
-            }
-            require(processor->consume(count),"Recovery reference prefix consume failed");offset+=count;
+            await([&] { view=processor->peek(); return bool(view); });
+            require(view.frames && !view.errorCode && !view.terminal, "Recovery reference failed or ended");
+            const auto remaining=std::size_t(std::max(1.,std::ceil((double(frames)-view.nominalStart)/view.nominalStep)));
+            const auto count=std::min(view.frames,remaining);
+            if (processor->loopWraps() == 1)
+                period.insert(period.end(),view.leaves[0].begin(),view.leaves[0].begin()+count*2);
+            require(processor->consume(count), "Recovery reference prefix consume failed");
+        }
+        require(!period.empty(), "Independent reference had no second processed period");
+        processor->stop();
+    }
+    void reset() { offset = 0; }
+    void compare(std::span<const float> actual) {
+        for (const auto sample : actual) {
+            const float expected=float(double(period[offset])*.5);
+            require(sample==expected,
+                    "Processed recovery differs from the warmed selected-stem file-loop period");
+            if (++offset == period.size()) offset = 0;
         }
     }
 };
@@ -268,7 +273,7 @@ void recoveryAtSelectedTempo()
     for (const bool keyLock : {false, true}) for (const double percent : {-6., 6.}) {
         auto control = std::make_shared<Control>();
         const std::uint64_t recoveryIn=keyLock ? 1234 : 0;
-        AudioResidentHoldRange range{89, recoveryIn, recoveryIn+8192, 8192 * AudioResidentHoldRange::bytesPerFrame,
+        AudioResidentHoldRange range{89, recoveryIn, recoveryIn+8192, AudioResidentHoldRange::retainedBytes(8192),
                                      AudioResidentHoldRange::Provenance::DjRange};
         auto owner = PreparedPlayback::makeLive(5004, extent, producer(control), range);
         require(owner->prime(0, std::chrono::seconds(4)), "Selected-tempo recovery did not prime");
@@ -295,7 +300,8 @@ void recoveryAtSelectedTempo()
         std::size_t heldFrames = 0;
         while (heldFrames < 20000) {
             const auto part = read(source, cursor, output);
-            require(part.residentHold && part.positionValid && !part.finished && cursor == parked &&
+            require(part.frames == output.size()/2 && part.residentHold && part.positionValid &&
+                    !part.finished && cursor == parked &&
                     source.residentHoldState(source.context).active,
                     "Processed resident recovery moved the linear cursor or became EOF");
             reference.compare(std::span(output).first(part.frames*2));
@@ -327,7 +333,7 @@ void recoveryAtSelectedTempo()
         require(source.residentHoldControl(source.context, AudioResidentHoldCommand::Arm, range.id,
                                           std::uint64_t(cursor)), "Second processed recovery arm rejected");
         await([&] { return source.residentHoldState(source.context).ready; });
-        reference.reset(percent,keyLock);
+        reference.reset();
         const auto failedAt = cursor;
         control->failure.store(EIO);
         await([&] { return control->exited.load() && source.residentHoldState(source.context).errorCode == EIO; });
@@ -340,7 +346,7 @@ void recoveryAtSelectedTempo()
                                           std::uint64_t(cursor)), "Faulted resident exit request rejected");
         for (std::size_t block=0;block<48;++block) {
             const auto part = read(source,cursor,output);
-            require(part.residentHold && !part.failed && cursor == failedAt &&
+            require(part.frames == output.size()/2 && part.residentHold && !part.failed && cursor == failedAt &&
                     source.residentHoldState(source.context).active && source.residentHoldState(source.context).ready,
                     "Producer failure discarded healthy processed resident audio");
             reference.compare(std::span(output).first(part.frames*2));
@@ -357,7 +363,7 @@ void recoveryAtSelectedTempo()
 void pendingTempoArm()
 {
     auto control=std::make_shared<Control>();
-    AudioResidentHoldRange range{93,0,4096,4096*AudioResidentHoldRange::bytesPerFrame,
+    AudioResidentHoldRange range{93,0,4096,AudioResidentHoldRange::retainedBytes(4096),
                                  AudioResidentHoldRange::Provenance::DjRange};
     auto owner=PreparedPlayback::makeLive(5006,extent,producer(control),range);
     require(owner->prime(0,std::chrono::seconds(4)),"Pending-arm fixture did not prime");
@@ -377,7 +383,7 @@ void rebuildAndStopDuringRecovery()
 {
     for (const bool keyLock : {false,true}) {
         auto control=std::make_shared<Control>();
-        AudioResidentHoldRange range{95,0,4096,4096*AudioResidentHoldRange::bytesPerFrame,
+        AudioResidentHoldRange range{95,0,4096,AudioResidentHoldRange::retainedBytes(4096),
                                      AudioResidentHoldRange::Provenance::DjRange};
         auto owner=PreparedPlayback::makeLive(5007,extent,producer(control),range);
         require(owner->prime(0,std::chrono::seconds(4)),"Held rebuild fixture did not prime");
@@ -428,7 +434,7 @@ void renderTempoContinuation()
         require(!std::fflush(files[role].get()),"Cannot flush continuation bank fixture");fds[role]=fileno(files[role].get());
     }
     for(const bool resident : {false,true})for(const bool keyLock : {false,true})for(const double percent : {-6.,6.}) {
-        AudioResidentHoldRange range{92,1234,1234+8193,8193*AudioResidentHoldRange::bytesPerFrame,
+        AudioResidentHoldRange range{92,1234,1234+8193,AudioResidentHoldRange::retainedBytes(8193),
             AudioResidentHoldRange::Provenance::DjRange};
         const auto rangeId=resident ? range.id : 0;
         auto control=std::make_shared<Control>();auto owner=PreparedPlayback::makeLive(5007,extent,producer(control),
@@ -519,7 +525,7 @@ void renderProcessedRecovery()
 {
     for (const bool keyLock : {false,true}) {
         auto control = std::make_shared<Control>();
-        AudioResidentHoldRange range{91,0,4096,4096*AudioResidentHoldRange::bytesPerFrame,
+        AudioResidentHoldRange range{91,0,4096,AudioResidentHoldRange::retainedBytes(4096),
                                      AudioResidentHoldRange::Provenance::DjRange};
         auto owner = PreparedPlayback::makeLive(5005,extent,producer(control),range);
         require(owner->prime(0,std::chrono::seconds(4)), "Rendered processed recovery did not prime");

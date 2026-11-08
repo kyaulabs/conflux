@@ -59,6 +59,9 @@ public:
         // a live provider observe pause without requiring another input read.
         void (*service)(void*) noexcept = nullptr;
         bool allowLoops = false; // Immutable resident input only; live stays sequential.
+        // Approved recovery only. A full-range request publishes one immutable
+        // processed period after warm-up and repeats it without worker reads.
+        bool cacheLoop = false;
     };
     explicit PreparedTempoSource(StreamInput input);
     ~PreparedTempoSource();

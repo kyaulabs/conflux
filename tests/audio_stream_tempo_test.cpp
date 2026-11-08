@@ -502,6 +502,70 @@ void immutableLoopReference()
         finite.stop();memory.stop();require(input.wraps>0,"Resident reference did not wrap input");
     }
 }
+void completeRecoverySurvivesPausedWorker()
+{
+    for (const auto keyLock : {false, true}) {
+        Input input;
+        input.frames = 14579;
+        input.available.store(input.frames);
+        auto descriptor = input.descriptor();
+        descriptor.allowLoops = true;
+        descriptor.cacheLoop = true;
+        PreparedTempoSource source(descriptor);
+        struct Unpause {
+            Input& input;
+            ~Unpause() { input.pauseWorker.store(false); }
+        } unpause{input};
+
+        const double percent = keyLock ? 6. : -6.;
+        require(!source.request(0,percent,keyLock) &&
+                !source.request(1,percent,keyLock,0,input.frames),
+                "Processed recovery accepted a partial or linear request");
+        require(source.request(0,percent,keyLock,0,input.frames), "Recovery request failed");
+        await([&] { return source.peekPrepared().frames != 0; });
+        const auto generation = source.generation();
+        input.pauseWorker.store(true);
+        await([&] { return input.workerPaused.load(); });
+        const auto reads = input.calls.load();
+
+        auto takePeriod = [&](std::uint64_t wraps) {
+            std::array<std::vector<float>, 4> samples;
+            while (source.loopWraps() == wraps) {
+                const auto view = source.peekPrepared();
+                require(view.frames && view.generation == generation && !view.errorCode && !view.terminal,
+                        "Resident period starved while its worker was paused");
+                const auto count = std::min<std::size_t>(view.frames, 257);
+                for (std::size_t role = 0; role < samples.size(); ++role)
+                    samples[role].insert(samples[role].end(),view.leaves[role].begin(),
+                                         view.leaves[role].begin() + count*2);
+                require(samples[0].size()/2 <= AudioResidentHoldRange::maximumProcessedFrames(input.frames) &&
+                        source.consume(count), "Resident period exceeded its bound or rejected a read");
+            }
+            require(source.nominalPosition() == 0. &&
+                    samples[0].size()/2 > PreparedTempoSource::slotCount*PreparedTempoSource::blockFrames,
+                    "Full recovery period did not cross the old reserve and return exactly to IN");
+            return samples;
+        };
+
+        const auto first = takePeriod(0);
+        require(first == takePeriod(1) && first == takePeriod(2) && input.calls.load() == reads,
+                "Recovery changed its accepted four-stem period while the worker was paused");
+        require(!source.requestSpeed(-percent) && source.cancel() && !source.peekPrepared(),
+                "Recovery retained an old view or accepted an in-place tempo change");
+        require(source.request(0,-percent,!keyLock,0,input.frames) && !source.peekPrepared(),
+                "Rearm published an old recovery period");
+        input.fault.store(3);
+        input.pauseWorker.store(false);
+        await([&] { return source.errorCode() != 0; });
+        require(!source.peekPrepared(), "Failed processing published an incomplete period");
+        input.fault.store(0);
+        require(source.request(0,-percent,!keyLock,0,input.frames), "Recovery rearm after a failed preparation rejected");
+        await([&] { return source.peekPrepared().frames != 0; });
+        const auto replacement = source.peekPrepared();
+        require(replacement.generation != generation && replacement.appliedInputPercent == -percent &&
+                !input.wrongThread.load(), "Replacement period has stale mode or reads ran on render");
+    }
+}
 void dspReference()
 {
     for (const auto leaves : {1U, 4U}) for (const auto prefix : {0U, 3072U})
@@ -533,7 +597,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAfterDrainingReserve(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference();
+    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAfterDrainingReserve(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

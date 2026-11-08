@@ -140,7 +140,7 @@ DeckController::PreparedPcm::PreparedPcm(std::uint64_t frames, std::vector<float
             range.inFrame >= range.outFrame || range.outFrame > liveFrames ||
             range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
             range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames ||
-            range.admittedBytes < (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame)
+            range.admittedBytes < audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame))
             throw std::invalid_argument("Invalid retained live recovery range metadata");
     }
 }
@@ -152,8 +152,8 @@ std::uint64_t DeckController::PreparedPcm::bytes() const noexcept
     // A terminal producer can clean its disk job while this resident payload
     // still belongs to a pending/active/retiring playback. Keep that owner
     // charged here too; active reservation + metadata conservatively overcount.
-    return live() ? (residentHold ? (residentHold->outFrame - residentHold->inFrame) *
-        audio::AudioResidentHoldRange::bytesPerFrame : 0) : frames() * 8 * audioLeaves.size();
+    return live() ? (residentHold ? audio::AudioResidentHoldRange::retainedBytes(
+        residentHold->outFrame - residentHold->inFrame) : 0) : frames() * 8 * audioLeaves.size();
 }
 
 std::unique_ptr<audio::PreparedPlayback> DeckController::PreparedPcm::makePlayback() const
@@ -869,7 +869,7 @@ void DeckController::loadLibraryStemTrackWithRecoveryRange(int deck, const QStri
         range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames) {
         fail("Choose a recovery section between 0.042667 and 8 seconds."); return;
     }
-    range.admittedBytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+    range.admittedBytes = audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame);
     range.provenance = audio::AudioResidentHoldRange::Provenance::DjRange;
     try { range.id = nextLiveSourceToken(); }
     catch (const std::exception& error) { fail(QString::fromUtf8(error.what())); return; }
@@ -948,7 +948,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             fail("A recovery range must belong to this selected library stem source and have valid bounds.");
             return;
         }
-        const auto bytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+        const auto bytes = audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame);
         if (bytes > preparationOptions_.limits.maxPreparedBytes || range.admittedBytes < bytes) {
             fail("The selected recovery range exceeds the admitted PCM byte budget.");
             return;

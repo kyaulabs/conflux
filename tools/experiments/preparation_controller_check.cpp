@@ -2437,7 +2437,9 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
                         "Functional-only processed controller check reports A underruns and verifies parked/consumed cursor accounting; it does not qualify A continuity. Peer/recording remain exact. Strict callback and real-player gates are separate." :
                         "No additional A underruns after initial selected-tempo startup; peer/recording remain exact. No hardware or sustained qualification.";
                 }
-                const auto expectedRetained = retainedBefore-initial["residentBytes"].toULongLong()+settled.sourceFrames[0]*32;
+                // This 3,072-frame fixture retains 3,269 processed frames at the admitted slow-tempo bound.
+                constexpr std::uint64_t heldAllocation = 202912;
+                const auto expectedRetained = retainedBefore - heldAllocation + settled.sourceFrames[0]*32;
                 await(evidence, [&] { return services.gone(0) && bound.groupGone() &&
                     controller.retainedPcmBytes() == expectedRetained; }, "Acquired old live/range ownership did not retire off-thread");
                 controller.stopRecording();
