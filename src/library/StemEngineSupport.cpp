@@ -83,12 +83,12 @@ void writeAll(int descriptor, const char* data, std::size_t count, std::stop_tok
 
 // Read exactly the captured size, never chase a growing source to EOF. All
 // callers own the descriptor throughout; pread does not consume decoder offset.
-Scan scan(int descriptor, std::uint64_t bytes, std::stop_token stop,
-          std::uint64_t frames, int copyTo, bool littleEndian)
+static Scan scanFile(int descriptor, std::uint64_t bytes, std::stop_token stop,
+                     std::uint64_t frames, int copyTo, bool littleEndian, bool collectPeaks)
 {
     QCryptographicHash hash(QCryptographicHash::Sha256);
     Scan result;
-    if (frames) result.peaks.assign(std::min<std::uint64_t>(512, frames), 0.F);
+    if (frames && collectPeaks) result.peaks.assign(std::min<std::uint64_t>(512, frames), 0.F);
     std::array<float, 8192> buffer{};
     float maximum = 0;
     for (std::uint64_t position = 0; position < bytes;) {
@@ -116,11 +116,13 @@ Scan scan(int descriptor, std::uint64_t bytes, std::stop_token stop,
                 const auto left = sample(index * 2), right = sample(index * 2 + 1);
                 if (!std::isfinite(left) || !std::isfinite(right))
                     throw std::invalid_argument("Prepared cache contains non-finite PCM");
-                const auto peak = std::max(std::abs(left), std::abs(right));
-                const auto frame = position / frameBytes + index;
-                auto& bin = result.peaks[frame * result.peaks.size() / frames];
-                bin = std::max(bin, peak);
-                maximum = std::max(maximum, peak);
+                if (collectPeaks) {
+                    const auto peak = std::max(std::abs(left), std::abs(right));
+                    const auto frame = position / frameBytes + index;
+                    auto& bin = result.peaks[frame * result.peaks.size() / frames];
+                    bin = std::max(bin, peak);
+                    maximum = std::max(maximum, peak);
+                }
             }
         }
         hash.addData(QByteArrayView(data, qsizetype(wanted)));
@@ -132,6 +134,17 @@ Scan scan(int descriptor, std::uint64_t bytes, std::stop_token stop,
     result.sha256 = hash.result().toHex();
     checkStop(stop);
     return result;
+}
+
+Scan scan(int descriptor, std::uint64_t bytes, std::stop_token stop,
+          std::uint64_t frames, int copyTo, bool littleEndian)
+{
+    return scanFile(descriptor, bytes, stop, frames, copyTo, littleEndian, true);
+}
+
+QByteArray finitePcmDigest(int descriptor, std::uint64_t frames, std::stop_token stop)
+{
+    return scanFile(descriptor, frames * frameBytes, stop, frames, -1, false, false).sha256;
 }
 
 void verifySource(int descriptor, const struct stat& before, const QByteArray& digest, std::stop_token stop)

@@ -35,6 +35,14 @@ class AnalyzeBpmTest(unittest.TestCase):
                 with self.subTest(pair=pair), self.assertRaises(ValueError):
                     bpm.validate_pcm(struct.pack("<ff", *pair), 1)
 
+    def test_nonfinite_pcm_at_end_of_long_input_is_rejected(self):
+        frames = 600_000
+        raw = bytearray(frames * 8)
+        bpm.validate_pcm(raw, frames)
+        struct.pack_into("<I", raw, len(raw) - 4, 0x7f800001)  # Signaling NaN in the final channel.
+        with self.assertRaisesRegex(ValueError, "nonfinite input PCM"):
+            bpm.validate_pcm(raw, frames)
+
     def test_short_reads_are_accumulated_without_accepting_truncation(self):
         class ShortReads(io.BytesIO):
             def read(self, count=-1):
