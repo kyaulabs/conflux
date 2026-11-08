@@ -394,10 +394,12 @@ private slots:
             const auto before = controller.decks();
             const auto retained = controller.retainedPcmBytes();
             QCOMPARE(retained, std::uint64_t(480 * 8));
+            // 2,048 raw frames and 2,179 processed frames, each with four stereo leaves.
+            constexpr std::uint64_t recoveryCharge = 135264;
             controller.loadLibraryStemTrackWithRecoveryRange(1, id, 2048. / 48000, 4096. / 48000);
             QVERIFY(QThreadPool::globalInstance()->waitForDone(10000));
             QVERIFY(controller.busy());
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             safety.capture(); QVERIFY(!safety.children.empty() && !safety.gone());
             ControllerRetirementBarrier barrier;
             QVERIFY(controller.cancelPreparation());
@@ -405,7 +407,7 @@ private slots:
             QCoreApplication::sendPostedEvents();
             QVERIFY(controller.busy());
             QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             QCOMPARE(controller.decks()[0], before[0]);
             barrier.release();
             QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
@@ -420,7 +422,7 @@ private slots:
             QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
             QVERIFY(hold["configured"].toBool() && hold["ready"].toBool() && !hold["armed"].toBool());
             QCOMPARE(hold["residentBytes"].toULongLong(), qulonglong(65536));
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             // This fixture deliberately has no output server. It must not fake
             // a fresh callback ticket, positive Arm or playback qualification.
             QVERIFY(!controller.outputReady());
@@ -595,12 +597,13 @@ private slots:
                 QCOMPARE(controller.submittedCommands(), submitted);
                 QVERIFY(controller.liveStemObservations(0) == handle);
             }
+            QVERIFY(liveDecks[0].toMap()["tempo"].toMap()["supported"].toBool());
             controller.setTempoPercent(0, 3);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
             for (const auto command : {&conflux::DeckController::toggleMasterTempo,
                                        &conflux::DeckController::resetTempo}) {
                 (controller.*command)(0);
-                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
             }
             QCOMPARE(controller.decks(), liveDecks);
             QCOMPARE(controller.submittedCommands(), submitted);
@@ -1938,10 +1941,10 @@ private slots:
         const auto empty = controller.decks();
         for (const int deck : {-1, 0, 1, 2}) {
             controller.setTempoPercent(deck, 1);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             for (const auto command : selectionCommands) {
                 (controller.*command)(deck);
-                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             }
             QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
             QCOMPARE(controller.decks(), empty);
@@ -2015,7 +2018,7 @@ private slots:
         }
         for (const int deck : {-1, 2}) {
             controller.setTempoPercent(deck, 1);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             for (const auto command : selectionCommands) (controller.*command)(deck);
             unchanged();
         }

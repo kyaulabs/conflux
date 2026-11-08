@@ -78,6 +78,15 @@ Explicit user instructions for this task override the defaults below.
 
 ### Testing
 
+- Put CONFLUX test/build outputs, benchmark captures, temporary worktrees,
+  dependency caches and scratch files under `/srv/conflux-tests/laptop/`.
+  Apollo uses its existing `/srv/conflux-tests/` workspace. Do not create
+  these temporary artifacts under the home directory or repository.
+- Use task-specific directories, including test `TMPDIR` and XDG cache/data/
+  state homes. After verification, remove owned temporary files, caches,
+  environments and obsolete worktrees. Retain only compact evidence and
+  inputs still needed for open work; never clean unrelated files or user music,
+  recordings and library data.
 - Verify the change and its impact. Complete required project checks.
 - Reuse existing tests first. Add tests for real behavior and regression
   risks, not tests that mechanically repeat the implementation.

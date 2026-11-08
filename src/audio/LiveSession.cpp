@@ -679,20 +679,20 @@ public:
     }
     bool requestSourceContinuation(std::size_t deck, std::unique_ptr<PreparedPlayback>& candidate,
                                    std::uint64_t expectedSourceGeneration,
-                                   std::uint64_t expectedTransportRevision, std::uint64_t frame,
+                                   std::uint64_t expectedTransportRevision, double position,
                                    std::uint64_t generation, std::uint64_t residentHoldRangeId) noexcept
     {
         if (!ready() || !candidate || candidate->isLive() || candidate->errorCode() ||
             replacementPlayback_ || handoff_.busy() || deck >= RenderCore::deckCount ||
             generation <= lastRequestedGeneration_ || generation <= expectedSourceGeneration ||
-            frame >= candidate->frames() ||
+            !std::isfinite(position) || position < 0 || position >= double(candidate->frames()) ||
             expectedTransportRevision == std::numeric_limits<std::uint64_t>::max())
             return false;
         const auto source = candidate->sourceRef();
         if (!source.setStemGain || !source.stemGain || !candidate->configureStemRamps(240) ||
-            !candidate->primedForContinuation(frame)) return false;
+            !candidate->primedForContinuation(position)) return false;
         if (!handoff_.request({deck, source, candidate.get(), generation, SourceHandoff::Kind::Continuation,
-                              expectedSourceGeneration, expectedTransportRevision, frame, residentHoldRangeId}))
+                              expectedSourceGeneration, expectedTransportRevision, position, residentHoldRangeId}))
             return false;
         replacementDeck_ = deck;
         replacementKind_ = SourceHandoff::Kind::Continuation;
@@ -859,8 +859,8 @@ public:
                 const auto* previous = self.activePlaybacks_[replacement.deck];
                 const auto status = previous && replacement.playback &&
                     self.sourceGeneration_[replacement.deck] == replacement.expectedSourceGeneration &&
-                    !replacement.playback->errorCode() && replacement.playback->primedForContinuation(replacement.frame) ?
-                    self.renderer_.continuationStatus(replacement.deck, replacement.source, replacement.frame,
+                    !replacement.playback->errorCode() && replacement.playback->primedForContinuation(replacement.position) ?
+                    self.renderer_.continuationStatus(replacement.deck, replacement.source, replacement.position,
                         replacement.expectedTransportRevision, replacement.residentHoldRangeId) :
                     RenderCore::ContinuationStatus::Invalid;
                 if (status == RenderCore::ContinuationStatus::WaitingForHoldOut) return;
@@ -871,7 +871,7 @@ public:
                         self.renderer_.starvedFrames(replacement.deck), self.renderer_.readFailed(replacement.deck) ||
                         previous->errorCode()};
                     replacementInstalled = self.renderer_.continueSource(replacement.deck, replacement.source,
-                        replacement.frame, replacement.expectedTransportRevision, replacement.residentHoldRangeId);
+                        replacement.position, replacement.expectedTransportRevision, replacement.residentHoldRangeId);
                     if (replacementInstalled) {
                         self.activePlaybacks_[replacement.deck] = replacement.playback;
                         self.sourceGeneration_[replacement.deck] = replacement.generation;
@@ -906,12 +906,13 @@ public:
                 auto count = std::min<std::uint32_t>(scratchFrames, frames - offset);
                 const bool heldPrefix = replacementPending && !replacementCompleted && replacement.residentHoldRangeId;
                 const auto beforeHold = heldPrefix ? self.renderer_.residentHoldState(replacement.deck) : AudioResidentHoldState{};
+                const bool processedHold = heldPrefix && self.renderer_.tempoState(replacement.deck).active;
                 if (heldPrefix) {
-                    if (beforeHold.audibleFrame >= beforeHold.outFrame) {
+                    count = std::uint32_t(self.renderer_.continuationPrefixFrames(replacement.deck, count));
+                    if (!count) {
                         replacementCompleted = true;
                         continue;
                     }
-                    count = std::uint32_t(std::min<std::uint64_t>(count, beforeHold.outFrame-beforeHold.audibleFrame));
                 }
                 auto master = std::span(self.masterScratch_).first(count * 2U);
                 auto cuePcm = std::span(self.cueScratch_).first(count * 2U);
@@ -922,9 +923,12 @@ public:
                     const auto afterHold = self.renderer_.residentHoldState(replacement.deck);
                     // A malformed/failed resident prefix cannot leave a borrowed
                     // candidate waiting forever. No wrap was allowed in this span.
-                    if (!afterHold.active || afterHold.rangeId != beforeHold.rangeId ||
-                        afterHold.linearFrame != replacement.frame ||
-                        afterHold.audibleFrame != beforeHold.audibleFrame+count)
+                    const bool validAdvance = processedHold
+                        ? afterHold.audibleFrame >= beforeHold.audibleFrame && afterHold.audibleFrame <= beforeHold.outFrame &&
+                            afterHold.audibleFrame-beforeHold.audibleFrame <= std::uint64_t(std::ceil(1.06*count))+1
+                        : afterHold.audibleFrame == beforeHold.audibleFrame+count;
+                    if (!afterHold.active || !afterHold.ready || afterHold.rangeId != beforeHold.rangeId ||
+                        afterHold.linearFrame != std::uint64_t(replacement.position) || !validAdvance)
                         replacementCompleted = true;
                 }
                 self.accumulateMeters(self.renderer_.meters());
@@ -1183,9 +1187,9 @@ bool LiveSession::submit(const RenderCore::Command& command)noexcept { return im
 bool LiveSession::requestSourceReplacement(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,std::uint64_t generation)noexcept
 { return impl_->requestSourceReplacement(deck,candidate,generation); }
 bool LiveSession::requestSourceContinuation(std::size_t deck,std::unique_ptr<PreparedPlayback>& candidate,
-    std::uint64_t expectedSourceGeneration,std::uint64_t expectedTransportRevision,std::uint64_t frame,
+    std::uint64_t expectedSourceGeneration,std::uint64_t expectedTransportRevision,double position,
     std::uint64_t generation,std::uint64_t residentHoldRangeId)noexcept
-{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,frame,generation,residentHoldRangeId); }
+{ return impl_->requestSourceContinuation(deck,candidate,expectedSourceGeneration,expectedTransportRevision,position,generation,residentHoldRangeId); }
 bool LiveSession::sourceReplacementPending()const noexcept { return impl_->handoff_.busy(); }
 std::optional<LiveSession::SourceReplacementResult> LiveSession::takeSourceReplacementResult()noexcept
 { return impl_->takeSourceReplacementResult(); }

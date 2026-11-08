@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <cmath>
 #include <limits>
 
 namespace conflux::audio {
@@ -22,7 +23,8 @@ public:
         PreparedPlayback* playback = nullptr;
         std::uint64_t generation = 0;
         Kind kind = Kind::Replacement;
-        std::uint64_t expectedSourceGeneration = 0, expectedTransportRevision = 0, frame = 0;
+        std::uint64_t expectedSourceGeneration = 0, expectedTransportRevision = 0;
+        double position = 0; // Exact nominal cursor; the containing raw frame may be fractional.
         // Nonzero continues at this active resident range's audible OUT, with
         // the linear frame parked. Zero retains ordinary immediate continuation.
         std::uint64_t residentHoldRangeId = 0;
@@ -49,7 +51,7 @@ public:
             !next.source.frames || !next.generation ||
             (next.kind != Kind::Replacement && !continuation) ||
             (!continuation && next.residentHoldRangeId) ||
-            (continuation && (next.frame >= next.source.frames ||
+            (continuation && (!std::isfinite(next.position) || next.position < 0 || next.position >= double(next.source.frames) ||
                 next.generation <= next.expectedSourceGeneration ||
                 next.expectedTransportRevision == std::numeric_limits<std::uint64_t>::max())))
             return false;
