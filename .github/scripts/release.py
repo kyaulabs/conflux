@@ -307,6 +307,11 @@ def release_from_run(run_id):
     require(workflow["event"] != "workflow_dispatch" or workflow.get("head_branch") == "main",
             "Manual release retry must originate from main, never a tag")
     jobs = pages(f"actions/runs/{int(run_id)}/jobs?filter=latest", token="GH_TOKEN", key="jobs")
+    # Closing a PR can skip the entire release while the run reports success.
+    if (workflow["event"] == "pull_request"
+            and sum(job.get("name") == "validate" for job in jobs) == 1
+            and all(job.get("status") == "completed" and job.get("conclusion") == "skipped" for job in jobs)):
+        return None
     for name in ("validate", "publish", "verify / linux", "verify / coverage", "verify / release-tools"):
         selected = [job for job in jobs if job.get("name") == name]
         require(len(selected) == 1 and selected[0].get("status") == "completed"
@@ -355,6 +360,8 @@ def backmerge(run_id):
     who = json.loads(run("gh", "api", "user", env=auth("GH_TOKEN")))
     require(who.get("login") == "kyaulabs-bot", "Backmerge GH_TOKEN must belong to kyaulabs-bot")
     release = release_from_run(run_id)
+    if release is None:
+        return None
     stable_publication(release, token="GH_TOKEN")
     require(git("rev-parse", "origin/main") == release["sha"], "Main moved beyond this release; refusing stale backmerge")
     body, marker = backmerge_body(release, run_id)

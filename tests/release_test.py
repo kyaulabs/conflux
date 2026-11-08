@@ -161,6 +161,20 @@ class ReleaseUnitTests(unittest.TestCase):
             with self.subTest(change=change), mock.patch.object(release, "api", side_effect=self.run_api(row, job_rows)):
                 with self.assertRaises(ValueError): release.release_from_run(42)
 
+    def test_backmerge_ignores_pr_close_when_all_release_jobs_were_skipped(self):
+        workflow = successful_run()
+        workflow["head_branch"] = "feat/closed-without-release"
+        skipped = [{**job, "conclusion": "skipped"} for job in jobs()]
+        for job_rows in (skipped, skipped[:1]):
+            with self.subTest(job_rows=len(job_rows)), \
+                 mock.patch.object(release, "api", side_effect=self.run_api(workflow, job_rows)) as api, \
+                 mock.patch.object(release, "run", return_value='{"login":"kyaulabs-bot"}'), \
+                 mock.patch.object(release, "stable_publication") as publication:
+                self.assertIsNone(release.backmerge(42))
+                self.assertEqual(api.call_count, 2)
+                self.assertTrue(all(call.kwargs.get("method", "GET") == "GET" for call in api.call_args_list))
+                publication.assert_not_called()
+
     def test_run_fallback_accepts_actual_head_sha_shape_but_not_other_branch_or_latest_main(self):
         row = successful_run(); row["pull_requests"] = []
         with mock.patch.object(release, "api", side_effect=self.run_api(row, fallback=[{"number": 7}])), \
