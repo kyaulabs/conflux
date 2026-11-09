@@ -5159,7 +5159,7 @@ private slots:
         QVERIFY(!stop->isEnabled());
         path->setProperty("text", "relative.wav");
         QVERIFY(!start->isEnabled());
-        const QString file = "/tmp/Music Set/New #mix%.wav";
+        const QString file = "/tmp/Music Set/New <b>mix #%.wav";
         path->setProperty("text", file);
         QTRY_VERIFY(start->isEnabled());
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(start));
@@ -5170,7 +5170,9 @@ private slots:
         QTRY_VERIFY(!start->isEnabled() && !path->isEnabled() && stop->isEnabled());
         QVERIFY(!ui_->item("audioRoutingApply")->isEnabled());
         QCOMPARE(ui_->item("recordingStatus")->property("text").toString(), QString("Recording: Recording"));
-        QCOMPARE(ui_->item("recordingSavedPath")->property("text").toString(), file);
+        auto* savedPath = ui_->item("recordingSavedPath");
+        QCOMPARE(savedPath->property("text").toString(), file);
+        QCOMPARE(savedPath->property("textFormat").toInt(), int(Qt::PlainText));
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(stop));
         QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
         QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("recordStop"));
@@ -5178,9 +5180,12 @@ private slots:
         ui_->endpoint.setRecording("Complete", false);
         QTRY_VERIFY(start->isEnabled() && path->isEnabled());
         QCOMPARE(ui_->item("recordingStatus")->property("text").toString(), QString("Recording: Complete"));
-        ui_->endpoint.setRecording("Failed", false, "Cannot write WAV file: disk full");
-        QTRY_VERIFY(ui_->item("recordingError")->isVisible());
-        QCOMPARE(ui_->item("recordingError")->property("text").toString(), QString("Cannot write WAV file: disk full"));
+        const QString error = "Cannot write WAV file: <b>disk full</b>";
+        ui_->endpoint.setRecording("Failed", false, error);
+        auto* recordingError = ui_->item("recordingError");
+        QTRY_VERIFY(recordingError->isVisible());
+        QCOMPARE(recordingError->property("text").toString(), error);
+        QCOMPARE(recordingError->property("textFormat").toInt(), int(Qt::PlainText));
         QVERIFY(ui_->closeAudioSettings());
     }
 

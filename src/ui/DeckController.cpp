@@ -2683,6 +2683,13 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
 void DeckController::startRecording(const QUrl& url)
 {
     if (closing_) return;
+    const auto path = url.toLocalFile();
+    if (!url.isLocalFile() || (!url.host().isEmpty() && url.host() != "localhost") ||
+        !QFileInfo(path).isAbsolute() || path.contains(QChar(u'\0'))) {
+        recordingError_ = "Enter a new absolute local WAV path.";
+        notifyStateChanged();
+        return;
+    }
     if (!ready_ || !session_) {
         recordingError_ = "Audio output must be ready before recording.";
         notifyStateChanged();
@@ -2693,19 +2700,12 @@ void DeckController::startRecording(const QUrl& url)
         notifyStateChanged();
         return;
     }
-    if (!url.isLocalFile() || (!url.host().isEmpty() && url.host() != "localhost") ||
-        !QFileInfo(url.toLocalFile()).isAbsolute()) {
-        recordingError_ = "Enter a new absolute local WAV path.";
-        notifyStateChanged();
-        return;
-    }
-    recordingPath_ = url.toLocalFile();
+    recordingPath_ = path;
     recordingError_.clear();
     recordingStatus_ = "Starting";
     recordingStopRequested_ = false;
     recordingStartPending_ = true;
     lastRecording_ = {};
-    const auto path = recordingPath_;
     recordingStarter_.setFuture(QtConcurrent::run([path]() -> RecordingStart {
         try {
             const auto encoded = QFile::encodeName(path);
