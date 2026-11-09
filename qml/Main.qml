@@ -1287,6 +1287,7 @@ ApplicationWindow {
                     Label {
                         objectName: "recordingSavedPath"
                         text: deckController.recording.path
+                        textFormat: Text.PlainText
                         visible: text.length > 0
                         wrapMode: Text.WrapAnywhere
                         color: Brand.ConfluxTheme.text
@@ -1304,6 +1305,7 @@ ApplicationWindow {
                     Label {
                         objectName: "recordingError"
                         text: deckController.recording.error
+                        textFormat: Text.PlainText
                         visible: text.length > 0
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.accent
