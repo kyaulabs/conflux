@@ -5408,6 +5408,65 @@ private slots:
         QVERIFY(ui_->warnings.isEmpty());
     }
 
+    void stemLevelKeyboardFocusIsVisible_data()
+    {
+        QTest::addColumn<bool>("lightTheme");
+        QTest::newRow("dark") << false;
+        QTest::newRow("light") << true;
+    }
+
+    void stemLevelKeyboardFocusIsVisible()
+    {
+        QFETCH(bool, lightTheme);
+        ui_->window->resize(1180, 760);
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.setOverviewStem(deck, "drums");
+        }
+        ui_->endpoint.setReady(true);
+        if (lightTheme)
+            QTest::keyClick(ui_->window, Qt::Key_F6);
+
+        auto* left = ui_->item("deck0Stem0Gain");
+        auto* right = ui_->item("deck1Stem3Gain");
+        QVERIFY(left && right);
+        QTRY_VERIFY(left->isVisible() && right->isVisible());
+        const auto deckColor = [](QQuickItem* slider) {
+            return slider->parentItem()->parentItem()->property("deckColor").value<QColor>();
+        };
+        const auto outlinePixel = [this](QQuickItem* slider) {
+            auto* background = slider->property("background").value<QQuickItem*>();
+            if (!background) return QColor{};
+            const auto image = ui_->window->grabWindow();
+            const auto location = background->mapToScene(QPointF(1, background->height() / 2));
+            const auto pixel = (location * image.devicePixelRatio()).toPoint();
+            return image.rect().contains(pixel) ? image.pixelColor(pixel) : QColor{};
+        };
+        const auto leftColor = deckColor(left);
+        const auto rightColor = deckColor(right);
+        QVERIFY(leftColor.isValid() && rightColor.isValid() && leftColor != rightColor);
+        auto* browse = ui_->item("deck0Browse");
+        QVERIFY(browse);
+        browse->forceActiveFocus();
+        QTRY_VERIFY(browse->hasActiveFocus());
+        QTRY_VERIFY(outlinePixel(left).isValid() && outlinePixel(right).isValid());
+        const auto inactiveLeft = outlinePixel(left);
+        const auto inactiveRight = outlinePixel(right);
+        QVERIFY(inactiveLeft != leftColor);
+        QVERIFY(inactiveRight != rightColor);
+
+        left->forceActiveFocus();
+        QTRY_VERIFY(left->hasActiveFocus());
+        QTRY_COMPARE_WITH_TIMEOUT(outlinePixel(left), leftColor, 1500);
+        QCOMPARE(outlinePixel(right), inactiveRight);
+        right->forceActiveFocus();
+        QTRY_VERIFY(right->hasActiveFocus());
+        QTRY_COMPARE_WITH_TIMEOUT(outlinePixel(right), rightColor, 1500);
+        QCOMPARE(outlinePixel(left), inactiveLeft);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
     void stemLevelsRoutePointerKeyboardAndGateOnlyReplacementDeck()
     {
         ui_->window->resize(1180, 760);
