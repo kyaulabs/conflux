@@ -866,7 +866,7 @@ for line in sys.stdin:
 
 
 class PhaseObservationAnalysisTest(unittest.TestCase):
-    def summary(self, phases):
+    def summary(self, phases, terminal_records=()):
         from tools.experiments.run_manual_playback_soak import summarize_live_observations
 
         setup = {"input_frames": 17, "output_frames": 19, "factory_entry_ns": 1,
@@ -884,6 +884,12 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                            worker_ready_seconds=1000.25, service_published_seconds=1000.375,
                            hop_service_present=True, hop_service_ms=125.0, **phases)
             rows.append(row)
+        for fields in terminal_records:
+            ordinal = len(rows)
+            rows.append({"type": "record", "kind": 10, "ordinal": ordinal, "observed_ns": ordinal * 100,
+                         "epoch": 11, "generation": 1, "input_first": 17,
+                         "telemetry_dropped_present": True, "telemetry_dropped": 0, **fields})
+        native["observation_counters"].update(attempted=len(rows) - 1, retained=len(rows) - 1)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "observations.jsonl"
             path.write_text("".join(json.dumps(row) + "\n" for row in rows))
@@ -905,6 +911,27 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                         "nearest_rank_p99_ms": phases.get(key), "present_for_all_chunks": key in phases})
                 self.assertEqual(result["service_hops"]["strict_target_ms"], 4095)
                 self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
+
+    def test_service_metrics_require_terminal_loss_evidence(self):
+        for label, terminal_records, complete in (
+            ("missing close", (), False),
+            ("no loss count on close", ({"telemetry_dropped_present": False},), False),
+            ("zero loss on close", ({},), True),
+            ("loss on close", ({"telemetry_dropped": 1},), False),
+        ):
+            with self.subTest(label=label):
+                result = self.summary({}, terminal_records)
+                self.assertEqual(result["service_metrics_complete"], complete)
+                self.assertEqual(result["service_hops"]["complete"], complete)
+                self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
+
+    def test_service_close_rejects_invalid_loss_and_trailing_observations(self):
+        for value in (True, -1, "0", None):
+            with self.subTest(value=value), self.assertRaisesRegex(RuntimeError, "Invalid service telemetry loss"):
+                self.summary({}, ({"telemetry_dropped": value},))
+        for trailing in ({}, {"kind": 1, "telemetry_dropped_present": False}):
+            with self.subTest(trailing=trailing), self.assertRaisesRegex(RuntimeError, "after stem service close"):
+                self.summary({}, ({}, trailing))
 
     def test_phase_analysis_rejects_invalid_optional_scalars(self):
         for value in (None, True, "1", float("nan"), float("inf"), -float("inf"), -.125):
