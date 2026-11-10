@@ -16,6 +16,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -41,8 +42,14 @@ double cpu_milliseconds(const rusage& usage) {
         + (usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) / 1000.0;
 }
 
-void emit(json::Value::Object object) {
-    std::cout << json::stringify(json::Value::make_object(std::move(object))) << '\n' << std::flush;
+void emit(json::Value::Object object, std::optional<std::int64_t> request_id = std::nullopt) {
+    auto message = json::stringify(json::Value::make_object(std::move(object)));
+    if (request_id) {
+        // The upstream double serializer can round exact integers near 2^53.
+        // Emit request identities as decimal integers without changing other fields.
+        message.insert(1, "\"id\":" + std::to_string(*request_id) + (message.size() > 2 ? "," : ""));
+    }
+    std::cout << message << '\n' << std::flush;
     if (!std::cout) {
         throw std::runtime_error("worker output pipe closed");
     }
@@ -211,7 +218,6 @@ int main(int argc, char** argv) {
                 write_samples(output_path, output);
                 const auto& timing = pipeline.last_timing();
                 emit({{"event", json::Value::make_string("result")},
-                    {"id", json::Value::make_number(id)},
                     {"frames", json::Value::make_number(config.segment_samples)},
                     {"stems", json::Value::make_number(config.sources.size())},
                     {"elapsed_ms", json::Value::make_number(milliseconds(request_start))},
@@ -225,11 +231,10 @@ int main(int argc, char** argv) {
                     {"graph_compute_ms", json::Value::make_number(timing.graph_compute_ms)},
                     {"graph_readback_ms", json::Value::make_number(timing.graph_readback_ms)},
                     {"postprocess_ms", json::Value::make_number(timing.postprocess_ms)},
-                    {"graph_rebuild_ms", json::Value::make_number(timing.graph_rebuild_ms)}});
+                    {"graph_rebuild_ms", json::Value::make_number(timing.graph_rebuild_ms)}}, id);
             } catch (const std::exception& error) {
                 emit({{"event", json::Value::make_string("error")},
-                    {"id", json::Value::make_number(id)},
-                    {"message", json::Value::make_string(error.what())}});
+                    {"message", json::Value::make_string(error.what())}}, id);
             }
         }
         return 0;
