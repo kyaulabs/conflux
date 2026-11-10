@@ -839,6 +839,7 @@ ApplicationWindow {
                         height: 56
                         highlighted: library.selectedId === modelData.id
                         onClicked: library.selectTrack(modelData)
+                        Accessible.onPressAction: clicked()
                         Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
                         Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Whole-track levels appear in details. Tempo, beat, phrase and key are unknown."
                         background: Rectangle {
