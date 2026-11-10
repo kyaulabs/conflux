@@ -80,7 +80,9 @@ void write_samples(const std::filesystem::path& path, const std::vector<float>& 
 }
 } // namespace
 
-int main(int argc, char** argv) {
+extern "C" bool ggml_vk_conflux_shutdown();
+
+static int run_runtime(int argc, char** argv, bool& vulkan_used) {
     try {
         if constexpr (std::endian::native != std::endian::little) {
             throw std::runtime_error("this experimental adapter requires a little-endian host");
@@ -124,6 +126,7 @@ int main(int argc, char** argv) {
         }
 
         const auto load_start = Clock::now();
+        vulkan_used = backend.type == engine::core::BackendType::Vulkan;
         engine::core::ExecutionContext context(backend);
         const auto assets = engine::models::demucs::load_htdemucs_assets(model);
         if (assets->submodels.size() != 1) {
@@ -242,4 +245,14 @@ int main(int argc, char** argv) {
         std::cerr << "conflux-stem-runtime: " << error.what() << '\n';
         return 1;
     }
+}
+
+int main(int argc, char** argv) {
+    bool vulkan_used = false;
+    const int status = run_runtime(argc, argv, vulkan_used);
+    if (vulkan_used && !ggml_vk_conflux_shutdown()) {
+        std::cerr << "conflux-stem-runtime: Vulkan shutdown did not finish cleanly\n";
+        return 1;
+    }
+    return status;
 }
