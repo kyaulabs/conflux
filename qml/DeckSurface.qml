@@ -6,9 +6,13 @@ import "../brand/integration/qtquick" as Brand
 
 Item {
     id: surface
+    readonly property bool atTrackEnd: Boolean(deck.loaded) && deck.durationSeconds > 0
+        && deck.positionSeconds >= deck.durationSeconds && !deck.sourceReadError && !deck.buffering
+        && !deck.cuePreview && !loop.active && !residentHold.active && !scratchState.active
+        && (!tempoState.active || tempoState.finished)
     readonly property string transportStatus: !deck.loaded ? "EMPTY" : deck.sourceReadError ? "READ ERROR"
                                              : deck.buffering ? "BUFFERING" : deck.cuePreview ? "CUE PREVIEW"
-                                             : deck.playing ? "PLAYING" : "PAUSED"
+                                             : atTrackEnd ? "END OF TRACK" : deck.playing ? "PLAYING" : "PAUSED"
     required property int deckIndex
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
@@ -1145,7 +1149,7 @@ Item {
             radius: width / 2
             color: "#071014"
             border.color: surface.displayAccent
-            border.width: surface.deck.playing ? 4 : 2
+            border.width: surface.deck.playing && !surface.atTrackEnd ? 4 : 2
             Column {
                 anchors.centerIn: parent
                 spacing: 4
@@ -1382,15 +1386,18 @@ Item {
             width: 56
             height: 56
             round: true
-            text: surface.deck.playing ? "Pause" : "Play"
-            displayText: surface.deck.playing ? "Ⅱ" : "▶"
+            readonly property bool stoppingAtEnd: surface.atTrackEnd && Boolean(surface.deck.playing)
+            text: stoppingAtEnd ? "Stop" : surface.deck.playing ? "Pause" : "Play"
+            displayText: stoppingAtEnd ? "■" : surface.deck.playing ? "Ⅱ" : "▶"
             fontPixelSize: 22
             buttonObjectName: "deck" + surface.deckIndex + "Play"
-            accessibleName: text + " " + surface.deckName
+            accessibleName: text + " " + surface.deckName + (stoppingAtEnd ? " at end of track" : "")
             indicatorColor: Brand.ConfluxTheme.success
-            indicatorOn: Boolean(surface.deck.playing)
+            indicatorOn: Boolean(surface.deck.playing) && !surface.atTrackEnd
             available: surface.canControl
             unavailableReason: "Load a track and wait for audio output to use playback."
+            actionDescription: stoppingAtEnd ? "Clear the play request and leave the cursor at the end of the track."
+                                             : unavailableReason
             onPressed: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
         }
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(9) }
