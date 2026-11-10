@@ -843,6 +843,47 @@ private slots:
         QVERIFY(!ui_->item("masterGain")->isEnabled());
     }
 
+    void deckReportsTrackEndWithoutClearingThePlayRequest()
+    {
+        ui_->endpoint.loadState(0, 9.75);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.snapshotDeck(0, {{"playing", true}});
+        auto* const status = ui_->item("deck0TransportStatus");
+        auto* const play = ui_->item("deck0Play");
+        QVERIFY(status && play);
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+
+        ui_->endpoint.snapshotDeck(0, {{"positionSeconds", 10.0},
+                                      {"tempo", QVariantMap{{"active", true}, {"finished", false}}}});
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Pause"));
+        ui_->endpoint.snapshotTempo(0, {{"active", true}, {"finished", true}});
+        QTRY_VERIFY(status->property("text").toString().startsWith("END OF TRACK"));
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Stop"));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+
+        ui_->endpoint.snapshotDeck(0, {{"tempo", QVariantMap{}},
+                                      {"residentHold", QVariantMap{{"active", true}}}});
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+        ui_->endpoint.snapshotDeck(0, {{"residentHold", QVariantMap{}}, {"positionSeconds", 4.0}});
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Pause"));
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+
+        ui_->endpoint.snapshotDeck(0, {{"positionSeconds", 10.0},
+                                      {"scratch", QVariantMap{{"active", false}, {"pending", true}}}});
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Stop"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(play));
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        const auto request = ui_->endpoint.calls.constLast().toMap();
+        QCOMPARE(request.value("action").toString(), QStringLiteral("playing"));
+        QCOMPARE(request.value("deck").toInt(), 0);
+        QCOMPARE(request.value("value").toBool(), false);
+        QCOMPARE(ui_->endpoint.decks().at(0).toMap().value("positionSeconds").toDouble(), 10.0);
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Play"));
+        QTRY_VERIFY(status->property("text").toString().startsWith("END OF TRACK"));
+    }
+
     void keyboardTraversalReachesEnabledControlsWithoutCommands_data()
     {
         QTest::addColumn<int>("fontPixels");
