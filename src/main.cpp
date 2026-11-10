@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <QCommandLineParser>
 #include <QFontDatabase>
+#include <QDir>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
@@ -85,8 +86,10 @@ int main(int argc, char** argv) {
     }
     if (!parser.isSet("smoke-test") && (suppliedBpmPaths ||
         (QFileInfo::exists(bpmPython) && QFileInfo::exists(bpmSource) && QFileInfo::exists(bpmModel)))) {
-        const auto adjacentWorker = QCoreApplication::applicationDirPath() + "/analyze_bpm.py";
-        const auto worker = QFileInfo::exists(adjacentWorker) ? adjacentWorker : QString(CONFLUX_BPM_WORKER_PATH);
+        const QDir binaryDirectory(QCoreApplication::applicationDirPath());
+        const auto adjacentWorker = binaryDirectory.filePath(QStringLiteral("analyze_bpm.py"));
+        const auto worker = QFileInfo::exists(adjacentWorker)
+            ? adjacentWorker : binaryDirectory.filePath(QStringLiteral(CONFLUX_BPM_WORKER_PATH));
         preparationOptions.bpmEngine = conflux::library::BpmEngine{bpmPython, bpmSource, bpmModel, worker};
     }
     const std::array<const char*, 5> stemPaths{
