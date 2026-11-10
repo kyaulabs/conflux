@@ -2050,14 +2050,17 @@ private slots:
     void cueSheetImportUsesSelectedSourceAndLiteralPath_data()
     {
         QTest::addColumn<int>("activation");
-        QTest::newRow("pointer") << 0;
-        QTest::newRow("button-keyboard") << 1;
-        QTest::newRow("path-enter") << 2;
+        QTest::addColumn<bool>("accessibleSelection");
+        QTest::newRow("pointer") << 0 << false;
+        QTest::newRow("button-keyboard") << 1 << false;
+        QTest::newRow("path-enter") << 2 << false;
+        QTest::newRow("accessible-track-selection") << 0 << true;
     }
 
     void cueSheetImportUsesSelectedSourceAndLiteralPath()
     {
         QFETCH(int, activation);
+        QFETCH(bool, accessibleSelection);
         const QString selectedId(64, QLatin1Char('d'));
         ui_->endpoint.setLibrary({
             QVariantMap{{"id", QString(64, QLatin1Char('a'))}, {"name", "Other source"},
@@ -2080,7 +2083,20 @@ private slots:
         QTest::keyClick(ui_->window, Qt::Key_Return);
         QCOMPARE(ui_->endpoint.calls.size(), 0);
         QTRY_VERIFY(ui_->item("libraryTrack1"));
-        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        auto* track = ui_->item("libraryTrack1");
+        if (accessibleSelection) {
+            auto* accessible = QAccessible::queryAccessibleInterface(track);
+            QVERIFY(accessible);
+            QCOMPARE(accessible->role(), QAccessible::ListItem);
+            auto* actions = accessible->actionInterface();
+            QVERIFY(actions);
+            const auto press = QAccessibleActionInterface::pressAction();
+            QVERIFY(actions->actionNames().contains(press));
+            actions->doAction(press);
+            QCOMPARE(ui_->endpoint.calls.size(), 0);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(track));
+        }
         QTRY_VERIFY(importButton->isEnabled());
         if (activation == 0) {
             QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
