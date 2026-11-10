@@ -161,6 +161,20 @@ class ReleaseUnitTests(unittest.TestCase):
             with self.subTest(change=change), mock.patch.object(release, "api", side_effect=self.run_api(row, job_rows)):
                 with self.assertRaises(ValueError): release.release_from_run(42)
 
+    def test_backmerge_ignores_pr_close_when_all_release_jobs_were_skipped(self):
+        workflow = successful_run()
+        workflow["head_branch"] = "feat/closed-without-release"
+        skipped = [{**job, "conclusion": "skipped"} for job in jobs()]
+        for job_rows in (skipped, skipped[:1]):
+            with self.subTest(job_rows=len(job_rows)), \
+                 mock.patch.object(release, "api", side_effect=self.run_api(workflow, job_rows)) as api, \
+                 mock.patch.object(release, "run", return_value='{"login":"kyaulabs-bot"}'), \
+                 mock.patch.object(release, "stable_publication") as publication:
+                self.assertIsNone(release.backmerge(42))
+                self.assertEqual(api.call_count, 2)
+                self.assertTrue(all(call.kwargs.get("method", "GET") == "GET" for call in api.call_args_list))
+                publication.assert_not_called()
+
     def test_run_fallback_accepts_actual_head_sha_shape_but_not_other_branch_or_latest_main(self):
         row = successful_run(); row["pull_requests"] = []
         with mock.patch.object(release, "api", side_effect=self.run_api(row, fallback=[{"number": 7}])), \
@@ -250,7 +264,9 @@ class ReleaseGitCliffTests(unittest.TestCase):
         self.g("config", "user.email", "fixture@example.invalid")
         (self.path / ".github").mkdir(); (self.path / "docs").mkdir()
         (self.path / "cliff.toml").write_bytes((REPO / "cliff.toml").read_bytes())
-        (self.path / "CMakeLists.txt").write_text("project(CONFLUX VERSION 0.0.0 LANGUAGES CXX)\n")
+        (self.path / "CMakeLists.txt").write_text(
+            "# Example: project(CONFLUX VERSION 0.0.0 LANGUAGES CXX)\n"
+            "project(CONFLUX VERSION 0.0.0 LANGUAGES CXX)\n")
         (self.path / "CHANGELOG.md").write_text("# Changelog\n")
         self.acceptance = "\n".join((release.MIXING_MARKER, release.M2_MARKER, release.M3_MARKER)) + \
             "\nSynthetic fixture acceptance and milestone completion; not actual product acceptance.\n"
@@ -272,7 +288,9 @@ class ReleaseGitCliffTests(unittest.TestCase):
         release.prepare("0.1.0", "docs/mixing.md")
         self.assertEqual(self.g("branch", "--show-current"), "release/0.1.0")
         self.assertEqual(self.g("rev-parse", "HEAD"), self.base)  # no automatic commit
-        self.assertEqual(release.project_version((self.path / "CMakeLists.txt").read_text()), "0.1.0")
+        cmake = (self.path / "CMakeLists.txt").read_text()
+        self.assertEqual(release.project_version(cmake), "0.1.0")
+        self.assertTrue(cmake.startswith("# Example: project(CONFLUX VERSION 0.0.0 LANGUAGES CXX)\n"))
         self.assertEqual(json.loads((self.path / ".github/release.json").read_text())["develop_sha"], self.base)
         self.commit("chore(release): prepare 0.1.0")
         head = self.g("rev-parse", "HEAD")
@@ -288,6 +306,32 @@ class ReleaseGitCliffTests(unittest.TestCase):
         with mock.patch.object(release, "api", side_effect=api):
             for _ in range(2):
                 self.assertEqual(release.resolve(7)["sha"], merge)
+
+    def test_release_rejects_edits_to_generated_artifacts(self):
+        release.prepare("0.1.0", "docs/mixing.md")
+        self.commit("chore(release): prepare synthetic release")
+        prepared = self.g("rev-parse", "HEAD")
+        release.validate_tree(prepared, "0.1.0")
+        for filename, change in (
+            ("CMakeLists.txt", "extra-build-instruction"),
+            ("CHANGELOG.md", "manual-release-notes"),
+            ("CHANGELOG.md", "executable-mode"),
+            ("CHANGELOG.md", "different-bytes"),
+        ):
+            with self.subTest(change=change):
+                self.g("reset", "--hard", prepared)
+                artifact = self.path / filename
+                if change == "extra-build-instruction":
+                    artifact.write_text(artifact.read_text() + "add_custom_target(extra ALL)\n")
+                elif change == "manual-release-notes":
+                    artifact.write_text("# Changelog\n\n## [v0.1.0]\n\nUnrelated notes.\n")
+                elif change == "executable-mode":
+                    artifact.chmod(0o755)
+                else:
+                    artifact.write_bytes(artifact.read_bytes().replace(b"\n", b"\r\n"))
+                self.commit("chore(release): alter generated artifact fixture")
+                with self.assertRaisesRegex(ValueError, "Generated release artifact differs: " + filename):
+                    release.validate_tree(self.g("rev-parse", "HEAD"), "0.1.0")
 
     def test_resolve_rejects_source_change_only_in_merge_result(self):
         source = self.path / "source.cpp"

@@ -158,6 +158,21 @@ def project_version(text):
     return matches[0]
 
 
+def preparation_files(base, target, mixing_evidence):
+    cmake = run("git", "show", f"{base}:CMakeLists.txt", strip=False)
+    old_project = f"project(CONFLUX VERSION {project_version(cmake)} LANGUAGES CXX)"
+    new_project = f"project(CONFLUX VERSION {target} LANGUAGES CXX)"
+    changelog = cliff(base, None, "--tag", "v" + target)
+    require(re.search(r"(?m)^##\s+.*(?<![0-9.])v?" + re.escape(target) + r"(?=[\]\s(])", changelog),
+            "Release version is absent from generated changelog heading")
+    return {
+        "CMakeLists.txt": re.sub(r"(?m)^" + re.escape(old_project) + "$", new_project, cmake, count=1),
+        "CHANGELOG.md": changelog + "\n",
+        ".github/release.json": json.dumps({"version": target, "develop_sha": base,
+            "mixing_evidence": mixing_evidence}, indent=2) + "\n",
+    }
+
+
 def validate_tree(head, target, *, existing_sha=None):
     require(SHA.fullmatch(head), "Invalid release head")
     provenance = json.loads(git("show", f"{head}:.github/release.json"))
@@ -167,16 +182,17 @@ def validate_tree(head, target, *, existing_sha=None):
     base = provenance["develop_sha"]
     git("merge-base", "--is-ancestor", base, "origin/develop")
     git("merge-base", "--is-ancestor", base, head)
-    require(project_version(git("show", f"{head}:CMakeLists.txt")) == target, "CMake version differs")
     require(evidence(head, provenance["mixing_evidence"], target) == evidence(base, provenance["mixing_evidence"], target),
             "Mixing evidence differs from recorded develop source")
-    changelog = git("show", f"{head}:CHANGELOG.md")
-    require(re.search(r"(?m)^##\s+.*(?<![0-9.])v?" + re.escape(target) + r"(?=[\]\s(])", changelog),
-            "Release version is absent from changelog heading")
-    paths = set(git("diff", "--name-only", base, head).splitlines())
-    require(paths <= {"CMakeLists.txt", "CHANGELOG.md", ".github/release.json"},
-            "Release branch must contain only preparation changes after recorded develop")
     previous = floor(target, base, existing_sha=existing_sha)
+    files = preparation_files(base, target, provenance["mixing_evidence"])
+    paths = set(git("diff", "--no-renames", "--name-only", base, head).splitlines())
+    require(paths <= files.keys(), "Release branch must contain only preparation changes after recorded develop")
+    for path, content in files.items():
+        # Compare the actual blob and mode. Text reads can normalize line endings.
+        expected = run("git", "hash-object", "--stdin", input=content)
+        entry = git("ls-tree", head, "--", path).split()
+        require(entry == ["100644", "blob", expected, path], "Generated release artifact differs: " + path)
     return previous, provenance
 
 
@@ -213,15 +229,10 @@ def prepare(target, mixing_evidence):
     base = git("rev-parse", "origin/develop")
     floor(target, base)
     evidence(base, mixing_evidence, target)
-    cmake = git("show", f"{base}:CMakeLists.txt")
-    old = project_version(cmake)
-    changelog = cliff(base, None, "--tag", "v" + target)
-    require(changelog.strip(), "git-cliff returned an empty changelog")
+    files = preparation_files(base, target, mixing_evidence)
     git("switch", "-c", "release/" + target, base)
-    (ROOT / "CMakeLists.txt").write_text(cmake.replace("VERSION " + old + " LANGUAGES", "VERSION " + target + " LANGUAGES", 1) + "\n")
-    (ROOT / "CHANGELOG.md").write_text(changelog + "\n")
-    (ROOT / ".github/release.json").write_text(json.dumps({"version": target, "develop_sha": base,
-        "mixing_evidence": mixing_evidence}, indent=2) + "\n")
+    for path, content in files.items():
+        (ROOT / path).write_text(content)
     print(f"Prepared release/{target}; review, sign and commit the three preparation files. No commit or push performed.")
 
 
@@ -307,6 +318,11 @@ def release_from_run(run_id):
     require(workflow["event"] != "workflow_dispatch" or workflow.get("head_branch") == "main",
             "Manual release retry must originate from main, never a tag")
     jobs = pages(f"actions/runs/{int(run_id)}/jobs?filter=latest", token="GH_TOKEN", key="jobs")
+    # Closing a PR can skip the entire release while the run reports success.
+    if (workflow["event"] == "pull_request"
+            and sum(job.get("name") == "validate" for job in jobs) == 1
+            and all(job.get("status") == "completed" and job.get("conclusion") == "skipped" for job in jobs)):
+        return None
     for name in ("validate", "publish", "verify / linux", "verify / coverage", "verify / release-tools"):
         selected = [job for job in jobs if job.get("name") == name]
         require(len(selected) == 1 and selected[0].get("status") == "completed"
@@ -355,6 +371,8 @@ def backmerge(run_id):
     who = json.loads(run("gh", "api", "user", env=auth("GH_TOKEN")))
     require(who.get("login") == "kyaulabs-bot", "Backmerge GH_TOKEN must belong to kyaulabs-bot")
     release = release_from_run(run_id)
+    if release is None:
+        return None
     stable_publication(release, token="GH_TOKEN")
     require(git("rev-parse", "origin/main") == release["sha"], "Main moved beyond this release; refusing stale backmerge")
     body, marker = backmerge_body(release, run_id)

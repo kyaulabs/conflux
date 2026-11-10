@@ -5178,7 +5178,7 @@ private slots:
         QVERIFY(!stop->isEnabled());
         path->setProperty("text", "relative.wav");
         QVERIFY(!start->isEnabled());
-        const QString file = "/tmp/Music Set/New #mix%.wav";
+        const QString file = "/tmp/Music Set/New <b>mix #%.wav";
         path->setProperty("text", file);
         QTRY_VERIFY(start->isEnabled());
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(start));
@@ -5189,7 +5189,9 @@ private slots:
         QTRY_VERIFY(!start->isEnabled() && !path->isEnabled() && stop->isEnabled());
         QVERIFY(!ui_->item("audioRoutingApply")->isEnabled());
         QCOMPARE(ui_->item("recordingStatus")->property("text").toString(), QString("Recording: Recording"));
-        QCOMPARE(ui_->item("recordingSavedPath")->property("text").toString(), file);
+        auto* savedPath = ui_->item("recordingSavedPath");
+        QCOMPARE(savedPath->property("text").toString(), file);
+        QCOMPARE(savedPath->property("textFormat").toInt(), int(Qt::PlainText));
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(stop));
         QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
         QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("recordStop"));
@@ -5197,9 +5199,12 @@ private slots:
         ui_->endpoint.setRecording("Complete", false);
         QTRY_VERIFY(start->isEnabled() && path->isEnabled());
         QCOMPARE(ui_->item("recordingStatus")->property("text").toString(), QString("Recording: Complete"));
-        ui_->endpoint.setRecording("Failed", false, "Cannot write WAV file: disk full");
-        QTRY_VERIFY(ui_->item("recordingError")->isVisible());
-        QCOMPARE(ui_->item("recordingError")->property("text").toString(), QString("Cannot write WAV file: disk full"));
+        const QString error = "Cannot write WAV file: <b>disk full</b>";
+        ui_->endpoint.setRecording("Failed", false, error);
+        auto* recordingError = ui_->item("recordingError");
+        QTRY_VERIFY(recordingError->isVisible());
+        QCOMPARE(recordingError->property("text").toString(), error);
+        QCOMPARE(recordingError->property("textFormat").toInt(), int(Qt::PlainText));
         QVERIFY(ui_->closeAudioSettings());
     }
 
@@ -5424,6 +5429,65 @@ private slots:
         ui_->endpoint.setSourceId(0, QString(64, QLatin1Char('c')));
         QTRY_VERIFY(!dialog->property("visible").toBool());
         QCOMPARE(ui_->endpoint.calls.size(), 3);
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
+    void stemLevelKeyboardFocusIsVisible_data()
+    {
+        QTest::addColumn<bool>("lightTheme");
+        QTest::newRow("dark") << false;
+        QTest::newRow("light") << true;
+    }
+
+    void stemLevelKeyboardFocusIsVisible()
+    {
+        QFETCH(bool, lightTheme);
+        ui_->window->resize(1180, 760);
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.setOverviewStem(deck, "drums");
+        }
+        ui_->endpoint.setReady(true);
+        if (lightTheme)
+            QTest::keyClick(ui_->window, Qt::Key_F6);
+
+        auto* left = ui_->item("deck0Stem0Gain");
+        auto* right = ui_->item("deck1Stem3Gain");
+        QVERIFY(left && right);
+        QTRY_VERIFY(left->isVisible() && right->isVisible());
+        const auto deckColor = [](QQuickItem* slider) {
+            return slider->parentItem()->parentItem()->property("deckColor").value<QColor>();
+        };
+        const auto outlinePixel = [this](QQuickItem* slider) {
+            auto* background = slider->property("background").value<QQuickItem*>();
+            if (!background) return QColor{};
+            const auto image = ui_->window->grabWindow();
+            const auto location = background->mapToScene(QPointF(1, background->height() / 2));
+            const auto pixel = (location * image.devicePixelRatio()).toPoint();
+            return image.rect().contains(pixel) ? image.pixelColor(pixel) : QColor{};
+        };
+        const auto leftColor = deckColor(left);
+        const auto rightColor = deckColor(right);
+        QVERIFY(leftColor.isValid() && rightColor.isValid() && leftColor != rightColor);
+        auto* browse = ui_->item("deck0Browse");
+        QVERIFY(browse);
+        browse->forceActiveFocus();
+        QTRY_VERIFY(browse->hasActiveFocus());
+        QTRY_VERIFY(outlinePixel(left).isValid() && outlinePixel(right).isValid());
+        const auto inactiveLeft = outlinePixel(left);
+        const auto inactiveRight = outlinePixel(right);
+        QVERIFY(inactiveLeft != leftColor);
+        QVERIFY(inactiveRight != rightColor);
+
+        left->forceActiveFocus();
+        QTRY_VERIFY(left->hasActiveFocus());
+        QTRY_COMPARE_WITH_TIMEOUT(outlinePixel(left), leftColor, 1500);
+        QCOMPARE(outlinePixel(right), inactiveRight);
+        right->forceActiveFocus();
+        QTRY_VERIFY(right->hasActiveFocus());
+        QTRY_COMPARE_WITH_TIMEOUT(outlinePixel(right), rightColor, 1500);
+        QCOMPARE(outlinePixel(left), inactiveLeft);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
         QVERIFY(ui_->warnings.isEmpty());
     }
 

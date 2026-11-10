@@ -48,7 +48,7 @@ conflux_flash_require_pin("${CMAKE_CURRENT_SOURCE_DIR}/GraphPhaseTiming.cmake"
 conflux_flash_require_pin("${CMAKE_CURRENT_SOURCE_DIR}/BlockingVulkanWait.cmake"
     "4ae34a1fee27c3fec3b5a4b9884a0c86fe7395acabf9d7c2006345e56384ddb3")
 conflux_flash_require_pin("${CMAKE_CURRENT_SOURCE_DIR}/htdemucs_segment.cpp"
-    "a00c5c84bf57adeea7aa21eea992da4ee50d219fbc6994180de4dbf9fd03d7d9")
+    "06c715ee228bc1927457cc9a6aed5c8632f969258a9f4d6a87302bb9bb6edaf0")
 conflux_flash_require_pin("${phase_pipeline}"
     "f06814211f00eab41487caacefe1c2492dfe1d2a0ddd6da1f90bdbcc566fc8f9")
 conflux_flash_require_pin("${phase_header}"

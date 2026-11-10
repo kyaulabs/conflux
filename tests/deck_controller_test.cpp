@@ -2851,6 +2851,23 @@ private slots:
         QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
     }
 
+    void recordingRejectsEncodedNulBeforeStarting()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const auto prefix = directory.filePath("truncated.wav");
+        const auto url = QUrl::fromEncoded(QUrl::fromLocalFile(prefix).toEncoded() + "%00suffix.wav");
+        QVERIFY(url.toLocalFile().contains(QChar(u'\0')));
+        conflux::DeckController controller;
+        controller.startRecording(url);
+        const auto recording = controller.recording();
+        QCOMPARE(recording["error"].toString(), QString("Enter a new absolute local WAV path."));
+        QCOMPARE(recording["status"].toString(), QString("Idle"));
+        QVERIFY(recording["path"].toString().isEmpty());
+        QVERIFY(!recording["active"].toBool());
+        QVERIFY(!QFileInfo::exists(prefix));
+    }
+
     void routingRecordingAndMetersWithoutOutput()
     {
         QTemporaryDir directory;

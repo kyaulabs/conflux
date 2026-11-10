@@ -434,7 +434,7 @@ BpmEstimate analyze(const audio::PreparedAudio& audio, const BpmEngine& engine, 
             flags < 0 || (flags & O_ACCMODE) == O_WRONLY || !S_ISREG(before.st_mode) ||
             before.st_size < 0 || std::uint64_t(before.st_size) != frames * 8U)
             throw BpmSourceError("BPM analysis requires exact bounded regular prepared PCM");
-        digest = detail::scan(audio.descriptor(), frames * 8U, stop, frames).sha256;
+        digest = detail::finitePcmDigest(audio.descriptor(), frames, stop);
         if (!detail::unchanged(before, detail::statusOf(audio.descriptor())))
             throw BpmSourceError("Prepared PCM changed during BPM input verification");
     } catch (const std::exception& error) {

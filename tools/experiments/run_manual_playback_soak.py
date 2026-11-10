@@ -450,6 +450,8 @@ def summarize_live_observations(path, native):
     last_sequence = last_generation = 0; last_accepted_epoch = 0
     total_input, total_output = native["setup"]["input_frames"], native["setup"]["output_frames"]
     for row in records:
+        if counts["ServiceClosed"]:
+            raise RuntimeError("Observation after stem service close")
         ordinal = row["ordinal"]
         if previous_ordinal is not None and ordinal != previous_ordinal + 1:
             raise RuntimeError("Observation ordinal gap without reported loss")
@@ -549,8 +551,18 @@ def summarize_live_observations(path, native):
                     not epochs[last_accepted_epoch]["validated_end"] <= row["input_first"] <= total_input):
                 raise RuntimeError("Closed raw endpoint/binding differs")
             epochs[last_accepted_epoch]["raw_service_endpoint"] = row["input_first"]
-        if row["telemetry_dropped_present"]:
-            telemetry.append({"kind": kind, "generation": row["generation"], "dropped": row["telemetry_dropped"]})
+        present = row["telemetry_dropped_present"]
+        if type(present) is not bool or (present and kind not in ("RawComplete", "ServiceClosed")):
+            raise RuntimeError("Invalid service telemetry loss presence")
+        if present:
+            dropped = row["telemetry_dropped"]
+            if type(dropped) is not int or dropped < 0:
+                raise RuntimeError("Invalid service telemetry loss count")
+            telemetry.append({"kind": kind, "generation": row["generation"], "dropped": dropped})
+    # Producer shutdown and earlier generation totals cannot certify service
+    # loss at close. Keep the measured durations even when this proof is absent.
+    metrics_complete = bool(telemetry and telemetry[-1]["kind"] == "ServiceClosed"
+                            and not any(row["dropped"] for row in telemetry))
     stats = duration_stats
     seek = next((row for row in native["controls"] if row["kind"] == "incomplete_generation_seek"), None)
     seek_observed = bool(seek and accepted_at.get(seek["previous_generation"], math.inf) <= seek["issued_ns"]
@@ -561,7 +573,7 @@ def summarize_live_observations(path, native):
         if epoch.get("reserve_published_ns") is not None:
             epoch["command_to_published_reserve_ms"] = (epoch["reserve_published_ns"] - epoch["command_ns"]) / 1e6
     setup = native["setup"]
-    return {"service_telemetry_loss": telemetry, "service_metrics_complete": not any(row["dropped"] for row in telemetry),
+    return {"service_telemetry_loss": telemetry, "service_metrics_complete": metrics_complete,
             "factory_spans_ms": {"entry_to_capture": (setup["input_captured_ns"] - setup["factory_entry_ns"]) / 1e6,
                 "capture_to_count": (setup["count_complete_ns"] - setup["input_captured_ns"]) / 1e6,
                 "count_to_commit": (setup["factory_committed_ns"] - setup["count_complete_ns"]) / 1e6},
@@ -572,7 +584,9 @@ def summarize_live_observations(path, native):
                       if native.get("mode") == "live-stems-hour" else
                       "Short repeated-generation diagnostics; no sustained p99 or physical/consumed timing qualification"),
             "kind_counts": counts, "epochs": epochs, "service_hops": {**stats(hops), "strict_target_ms": 4095,
-                "at_or_above_target": sum(value >= 4095 for value in hops), "complete": len(hops) == counts["ChunkValidated"] > 0 and not any(row["dropped"] for row in telemetry)}, "lease_validation": stats(validation),
+                "at_or_above_target": sum(value >= 4095 for value in hops),
+                "complete": metrics_complete and len(hops) == counts["ChunkValidated"] > 0},
+            "lease_validation": stats(validation),
             "worker_ready_to_service_pre_emit": {**stats(ready_to_pre_emit),
                 "scope": "Python monotonic domain only; excludes JSON serialization/write, pipe delivery and C++ receipt"},
             "chunk_phases": {"scope": "Original nested durations in ms for validated chunks only; omissions remain absent. Preroll, canceled and discarded work is not fully covered. No cross-clock subtraction or additive phase interpretation.",

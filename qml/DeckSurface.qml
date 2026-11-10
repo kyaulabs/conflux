@@ -851,10 +851,14 @@ Item {
                     target: surface.controller
                     function onStateChanged() { stemLevel.refreshAccepted() }
                 }
-                background: Item {
+                background: Rectangle {
                     x: stemLevel.leftPadding
                     width: stemLevel.availableWidth
                     height: stemLevel.height
+                    radius: 3
+                    color: "transparent"
+                    border.width: stemLevel.activeFocus ? 2 : 0
+                    border.color: surface.deckColor
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
                         y: 1
@@ -884,7 +888,7 @@ Item {
                     radius: 2
                     color: Brand.ConfluxTheme.raised
                     border.width: 2
-                    border.color: stemLevel.activeFocus ? surface.deckColor : surface.deckColor
+                    border.color: surface.deckColor
                     opacity: stemLevel.enabled ? 1 : 0.4
                 }
             }
