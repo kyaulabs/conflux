@@ -4103,7 +4103,8 @@ private slots:
             auto* lock = ui_->item((prefix + "MasterTempo").toUtf8().constData());
             auto* reset = ui_->item((prefix + "TempoReset").toUtf8().constData());
             auto* in = ui_->item((prefix + "LoopIn").toUtf8().constData());
-            QVERIFY(rail && lock && reset && in);
+            auto* status = ui_->item((prefix + "TempoStatus").toUtf8().constData());
+            QVERIFY(rail && lock && reset && in && status);
             for (const auto& scenario : scenarios) {
                 ui_->endpoint.loadState(deck);
                 ui_->endpoint.setReady(scenario.ready);
@@ -4129,6 +4130,21 @@ private slots:
                     verifyCueCall(before, "tempoReset", deck);
                 }
             }
+
+            auto* accessibleRail = QAccessible::queryAccessibleInterface(rail);
+            auto* accessibleStatus = QAccessible::queryAccessibleInterface(status);
+            QVERIFY(accessibleRail && accessibleStatus);
+            QCOMPARE(status->property("text").toString(), QString("RECOVERY"));
+            QCOMPARE(accessibleStatus->text(QAccessible::Name),
+                     QString("Deck %1 tempo RECOVERY").arg(deck == 0 ? "A" : "B"));
+            QCOMPARE(accessibleRail->text(QAccessible::Description),
+                     QString("Leave recovery before changing BPM."));
+
+            ui_->endpoint.snapshotDeck(deck, {{"residentHold", QVariantMap{
+                {"configured", true}, {"active", false}}}});
+            QTRY_VERIFY(rail->isEnabled() && lock->isEnabled() && reset->isEnabled());
+            QCOMPARE(status->property("text").toString(), QString("READY"));
+            QVERIFY(!accessibleRail->text(QAccessible::Description).contains("Leave recovery"));
         }
     }
 

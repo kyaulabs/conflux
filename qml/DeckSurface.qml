@@ -1398,6 +1398,7 @@ Item {
         x: surface.width - surface.edge - 48
         y: surface.jogTop + 5
         width: 48
+        readonly property string recoveryHint: "Leave recovery before changing BPM."
         height: Math.max(180, surface.height - y - 53)
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BPM"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(10) }
         Slider {
@@ -1420,7 +1421,8 @@ Item {
             enabled: surface.canTempo && surface.hasReferenceBpm
             opacity: enabled ? 1 : .48
             Accessible.name: surface.deckName + " tempo BPM"
-            Accessible.description: "BPM within six percent of the reference. Down increases speed; up decreases it. Arrows change 0.1 BPM, Shift changes 1 BPM. Master Tempo keeps musical pitch; Reset restores reference BPM."
+            Accessible.description: surface.residentHold.active ? tempoRail.recoveryHint
+                                    : "BPM within six percent of the reference. Down increases speed; up decreases it. Arrows change 0.1 BPM, Shift changes 1 BPM. Master Tempo keeps musical pitch; Reset restores reference BPM."
             Accessible.onIncreaseAction: requestStep(.1)
             Accessible.onDecreaseAction: requestStep(-.1)
             property bool restoringAcknowledgement: false
@@ -1526,7 +1528,8 @@ Item {
             objectName: "deck" + surface.deckIndex + "TempoStatus"
             anchors.horizontalCenter: parent.horizontalCenter
             y: parent.height - 68
-            text: surface.tempoState.errorCode ? (surface.tempoState.active ? "ERROR / RESET" : "TEMPO ERROR")
+            text: surface.residentHold.active ? "RECOVERY"
+                  : surface.tempoState.errorCode ? (surface.tempoState.active ? "ERROR / RESET" : "TEMPO ERROR")
                   : surface.scratchState.active ? "SCRATCH"
                   : !surface.tempoState.supported ? "UNAVAILABLE"
                   : surface.tempoState.pending ? "PENDING"
@@ -1557,7 +1560,7 @@ Item {
         MouseArea { id: tempoHover; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
         ToolTip.visible: tempoHover.containsMouse
         ToolTip.delay: 450
-        ToolTip.text: surface.residentHold.active ? "Leave recovery before changing BPM."
+        ToolTip.text: surface.residentHold.active ? tempoRail.recoveryHint
                      : surface.hasReferenceBpm ? "BPM ±6% · Down: faster · Up: slower · Arrows: 0.1 BPM · Shift: 1 BPM · Reset restores reference BPM."
                                             : "Set the track's reference BPM in the display to use the BPM rail."
     }
