@@ -50,7 +50,9 @@ public:
     LiveState(std::uint64_t identity, std::uint64_t frames, LiveProducer callback,
               std::optional<AudioResidentHoldRange> range)
         : buffer(identity, frames), producer(std::move(callback)), policy(frames),
-          hold(range ? std::make_unique<ResidentStemHold>(identity,frames,*range) : nullptr) {}
+          hold(range ? std::make_unique<ResidentStemHold>(identity,frames,*range) : nullptr),
+          tempoOpeningCapacity(std::min<std::uint64_t>(frames, liveReserveFrames)),
+          tempoOpening(new (std::nothrow) float[tempoOpeningCapacity * stemCount * 2]) {}
     [[nodiscard]] int code() const noexcept
     {
         if (const auto error = health.load(std::memory_order_relaxed)) return error;
@@ -125,6 +127,22 @@ public:
         demand.active = value;
         publishDemand();
     }
+    void captureTempoOpening(const LiveStemBuffer::Packet& packet) noexcept
+    {
+        if (!tempoOpening) return;
+        const auto first = tempoOpeningEnd.load(std::memory_order_relaxed);
+        const auto end = std::min(tempoOpeningCapacity, packet.firstFrame + packet.frames);
+        if (first < packet.firstFrame || first >= end) return;
+        for (auto frame = first; frame < end; ++frame) {
+            const auto offset = (frame - packet.firstFrame) * 2;
+            auto* output = tempoOpening.get() + frame * stemCount * 2;
+            for (std::size_t stem = 0; stem < stemCount; ++stem)
+                std::copy_n(packet.stems[stem].data() + offset, 2, output + stem * 2);
+        }
+        // The producer only appends. A tempo worker that acquires this end can
+        // read that prefix for the lifetime of the source, across bank rebuilds.
+        tempoOpeningEnd.store(end, std::memory_order_release);
+    }
     LiveStemBuffer buffer;
     LiveProducer producer;
     Recovery policy; // Sole producer; never touched by rendering or priming.
@@ -139,10 +157,10 @@ public:
     std::uint64_t tempoInputGeneration = 0; // Tempo worker, or quiesced control.
     std::unique_ptr<std::array<float, liveTempoHistoryFrames * stemCount * 2>> tempoHistory;
     std::uint64_t tempoHistoryFirst = 0, tempoHistoryEnd = 0;
-    // The tempo worker owns this source-local prefix and its replay cursor.
-    std::unique_ptr<float[]> tempoOpening;
-    std::uint64_t tempoOpeningCapacity = 0, tempoOpeningEnd = 0;
-    bool tempoOpeningReplay = false;
+    const std::uint64_t tempoOpeningCapacity;
+    const std::unique_ptr<float[]> tempoOpening;
+    std::atomic<std::uint64_t> tempoOpeningEnd{0};
+    std::uint64_t tempoOpeningReplayEnd = 0; // Fixed when the tempo worker selects a replay suffix.
     bool tempoHistoryValid = false; // Same raw-input owner; reset only after join.
     std::atomic<std::uint64_t> attempt{1}, grant{0};
     std::atomic<std::uint64_t> version{2}, wait{1}, epoch{1}, cursor{0};
@@ -174,6 +192,7 @@ LiveStemBuffer::PublishResult PreparedPlayback::LiveProducerPort::tryPublish(
     const auto result = state_->buffer.tryPublish(packet);
     if (result == LiveStemBuffer::PublishResult::Accepted) {
         if (state_->hold) state_->hold->captureAccepted(packet);
+        state_->captureTempoOpening(packet);
         {
             const std::lock_guard lock(state_->mutex);
             state_->publishedEpoch = packet.epoch;
@@ -300,10 +319,6 @@ std::unique_ptr<PreparedTempoSource> PreparedPlayback::makeLiveTempoSource()
 {
     if (!live_->tempoHistory)
         live_->tempoHistory = std::make_unique_for_overwrite<std::array<float, liveTempoHistoryFrames * stemCount * 2>>();
-    if (!live_->tempoOpening) {
-        live_->tempoOpeningCapacity = std::min<std::uint64_t>(frames_, liveReserveFrames);
-        live_->tempoOpening = std::make_unique_for_overwrite<float[]>(live_->tempoOpeningCapacity * stemCount * 2);
-    }
     return std::make_unique<PreparedTempoSource>(PreparedTempoSource::StreamInput{
         frames_, stemCount, this,
         [](void* context, std::uint64_t generation, std::uint64_t frame, std::span<float> output) noexcept {
@@ -1074,22 +1089,27 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
     if (generation != live_->tempoInputGeneration) {
         const bool retained = live_->tempoHistoryValid && frame >= live_->tempoHistoryFirst &&
             frame <= live_->tempoHistoryEnd;
-        live_->tempoOpeningReplay = !retained && frame < live_->tempoOpeningEnd;
+        live_->tempoOpeningReplayEnd = 0;
         if (!retained) {
-            // Begin the live suffix as soon as replay requests the validated
-            // prefix. The tempo worker reads cached input while it arrives.
-            const auto resume = live_->tempoOpeningReplay ? live_->tempoOpeningEnd : frame;
-            if (resume < frames_ && (live_->tempoInputGeneration || resume != live_->demand.cursor))
-                seekLiveInput(resume);
+            auto resume = frame;
+            // Keep the primed bank on first activation at its current cursor.
+            if (live_->tempoInputGeneration || frame != live_->demand.cursor) {
+                const auto openingEnd = live_->tempoOpeningEnd.load(std::memory_order_acquire);
+                if (frame < openingEnd) {
+                    live_->tempoOpeningReplayEnd = openingEnd;
+                    resume = openingEnd;
+                }
+                if (resume < frames_) seekLiveInput(resume);
+            }
             live_->tempoHistoryFirst = live_->tempoHistoryEnd = resume;
             live_->tempoHistoryValid = true;
         }
         live_->tempoInputGeneration = generation;
     }
     if (live_->code()) return {0,true};
-    if (live_->tempoOpeningReplay && frame < live_->tempoOpeningEnd) {
+    if (frame < live_->tempoOpeningReplayEnd) {
         const auto count = std::size_t(std::min<std::uint64_t>(output.size()/packedChannels,
-            live_->tempoOpeningEnd-frame));
+            live_->tempoOpeningReplayEnd-frame));
         std::copy_n(live_->tempoOpening.get()+frame*packedChannels, count*packedChannels, output.data());
         return {count,false};
     }
@@ -1110,11 +1130,6 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
     }
     const auto result = bank_->readUnmixed(frame, output);
     if (result.failed) return result;
-    if (frame == live_->tempoOpeningEnd && frame < live_->tempoOpeningCapacity) {
-        const auto count = std::min<std::uint64_t>(result.frames, live_->tempoOpeningCapacity-frame);
-        std::copy_n(output.data(), count*packedChannels, live_->tempoOpening.get()+frame*packedChannels);
-        live_->tempoOpeningEnd += count;
-    }
     const auto offset = std::size_t(frame%liveTempoHistoryFrames);
     const auto first = std::min<std::size_t>(result.frames, liveTempoHistoryFrames-offset);
     std::copy_n(output.data(), first*packedChannels, live_->tempoHistory->data()+offset*packedChannels);
@@ -1192,8 +1207,7 @@ void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
         tempoSource_ = std::move(replacementTempo);
         live_->tempoInputGeneration = 0;
         live_->tempoHistoryValid = false;
-        live_->tempoOpeningEnd = 0;
-        live_->tempoOpeningReplay = false;
+        live_->tempoOpeningReplayEnd = 0;
         liveTempoInput_ = false;
     }
     if (live_) setLiveActive(false);
