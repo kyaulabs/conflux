@@ -34,6 +34,21 @@ Item {
     readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property var localTiming: deck.localTiming || ({})
+    readonly property string localKeyText: {
+        const harmony = deck.harmony || ({})
+        if (!deck.loaded || deck.replacing || showingPreparation)
+            return ""
+        if (harmony.status === "Ambiguous")
+            return "KEY AMBIGUOUS"
+        if (harmony.status !== "Estimated" || !harmony.candidates || !harmony.candidates.length)
+            return ""
+        const key = harmony.candidates[0]
+        const names = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]
+        if (!Number.isInteger(key.tonic) || key.tonic < 0 || key.tonic >= names.length
+                || (key.mode !== "Major" && key.mode !== "Minor"))
+            return ""
+        return "KEY EST. " + names[key.tonic] + (key.mode === "Major" ? " MAJ" : " MIN")
+    }
     readonly property real localBpm: Number(localTiming.bpm) || 0
     readonly property bool hasLocalTiming: Boolean(deck.loaded) && !showingPreparation
         && localTiming.status === "Estimated" && Number.isFinite(localBpm) && localBpm >= 20 && localBpm <= 400
@@ -451,21 +466,24 @@ Item {
             y: Math.max(elapsedLabel.y + elapsedLabel.height, bpmReference.y + bpmReference.height) + 2
             width: parent.width - 28
             height: Math.max(12, implicitHeight)
-            text: surface.showingPreparation ? "LOCAL PREPARING"
-                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN"
+            text: (surface.showingPreparation ? "LOCAL PREPARING"
+                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN")
+                + (surface.localKeyText ? "  ·  " + surface.localKeyText : "")
             textFormat: Text.PlainText
+            elide: Text.ElideRight
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: Brand.ConfluxTheme.textPixels(8)
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             Accessible.name: surface.deckName + ", " + text
-            Accessible.description: surface.hasLocalTiming
+            Accessible.description: (surface.hasLocalTiming
                 ? "Original-speed interbeat estimate from "
                     + (Number(surface.localTiming.firstFrame) / 48000).toFixed(3) + " to "
                     + (Number(surface.localTiming.endFrame) / 48000).toFixed(3)
                     + " source seconds. Confidence is unknown. Reference BPM and playback are unchanged."
-                : "Local tempo is unknown. Reference BPM and playback are unchanged."
+                : "Local tempo is unknown. Reference BPM and playback are unchanged.")
+                + (surface.localKeyText ? " Local key confidence is unknown." : "")
         }
         Label {
             id: trackStatus
