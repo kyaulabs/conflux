@@ -106,11 +106,14 @@ if MODE in ['descendant', 'dead-leader']:
     fields = pathlib.Path('/proc/%d/stat' % child.pid).read_text().rsplit(') ', 1)[1].split()
     marker('.native-start').write_text(fields[19])
     marker('.native').write_text(str(child.pid))
-def runtime_event(tag):
-    emit({'event': 'runtime', 'worker_generation': tag, 'model_id': model['sha256'],
+def runtime_event(tag, retired=None, revision='a' * 40):
+    value = {'event': 'runtime', 'worker_generation': tag, 'model_id': model['sha256'],
         'ready': {'sample_rate': 44100, 'channels': 2, 'segment_frames': WINDOW,
-            'stems': ROLES, 'backend': a.backend, 'threads': a.threads, 'revision': 'a' * 40,
-            'weight_storage': 'native', 'fence_wait_mode': 'blocking'}})
+            'stems': ROLES, 'backend': a.backend, 'threads': a.threads, 'revision': revision,
+            'weight_storage': 'native', 'fence_wait_mode': 'blocking'}}
+    if retired is not None:
+        value['replaces_generation'] = retired
+    emit(value)
     trace({'fixture': 'runtime', 'generation': tag})
 def publish():
     global cursor, sequence, chunks, saw_two
@@ -258,6 +261,10 @@ try:
             tag = generation + 1 if MODE == 'runtime-future' else generation
             runtime_event(tag)
         if not source_seen:
+            if generation == 2 and MODE.startswith('runtime-restart'):
+                retired = None if MODE == 'runtime-restart-no-proof' else 2 if MODE == 'runtime-restart-current' else 1
+                revision = 'b' * 40 if MODE == 'runtime-restart-changed' else 'a' * 40
+                runtime_event(generation, retired, revision)
             source_seen = True
             source_id = identity(P.with_name('source.wav'))['sha256'] if MODE == 'source-original' else source['sha256']
             tag = generation - 1 if MODE == 'stale-after-seek' and generation > 1 else generation

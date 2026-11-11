@@ -1285,6 +1285,43 @@ private slots:
         });
     }
 
+    void runtimeReplacementIsBoundToRetiredGeneration_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        QTest::addColumn<bool>("accepted");
+        QTest::newRow("older-fault-same-runtime") << QByteArray("runtime-restart") << true;
+        QTest::newRow("duplicate-without-proof") << QByteArray("runtime-restart-no-proof") << false;
+        QTest::newRow("replaces-current-generation") << QByteArray("runtime-restart-current") << false;
+        QTest::newRow("changed-runtime-revision") << QByteArray("runtime-restart-changed") << false;
+    }
+    void runtimeReplacementIsBoundToRetiredGeneration()
+    {
+        QFETCH(QByteArray, mode);
+        QFETCH(bool, accepted);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211);
+            const auto fixture = conflux::test::makeStemServiceFixture(directory.path(), mode);
+            auto reference = references(directory.path(), 211);
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            require(live.playback->configureStemRamps(0) && live.playback->prime(0, std::chrono::seconds(10)),
+                    "Cannot establish initial runtime and reserve");
+            const bool primed = live.playback->prime(37, std::chrono::seconds(10));
+            require(primed == accepted, "Replacement runtime admission differs from its retired-generation proof");
+            if (accepted) {
+                RenderCore core(live.playback->sourceRef(), peer()); selectRole(core, 0);
+                require(core.restorePrimedCursor(0, 37) && compareBlock(core, reference[0], 17) == 17,
+                        "Replacement runtime did not preserve seek PCM and source clock");
+                require(count(fixture, "fixture", "runtime") == 2 && count(fixture, "command", "seek") == 1,
+                        "Unexpected replacement receipt or seek count");
+            } else {
+                require(live.playback->errorCode() != 0, "Rejected replacement left the owner healthy");
+            }
+            stop(live); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Replacement verification leaked a job");
+        });
+    }
+
     void olderOrdinaryEventAfterNewAcceptedControlIsFatal_data()
     {
         QTest::addColumn<QByteArray>("mode");
