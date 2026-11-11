@@ -243,6 +243,7 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             const auto phase = [&](const char* key, const std::optional<double>& milliseconds) {
                 if (milliseconds) value.insert(QLatin1String(key), *milliseconds);
             };
+            if (row.inferenceReused) value.insert("inference_reused", true);
             phase("source_read_ms", row.sourceReadMs); phase("request_ms", row.requestMs); phase("overlap_ms", row.overlapMs);
             phase("native_elapsed_ms", row.nativeElapsedMs); phase("native_inference_wall_ms", row.nativeInferenceWallMs);
             phase("native_inference_cpu_ms", row.nativeInferenceCpuMs); phase("native_frontend_ms", row.nativeFrontendMs);

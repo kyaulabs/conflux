@@ -367,6 +367,12 @@ class _Session:
                 if not _finite(metrics[key]):
                     raise RuntimeError("invalid native chunk timing")
                 native_timings["native_" + key] = metrics[key]
+        if "inference_reused" in event:
+            if (event["inference_reused"] is not True or native_timings
+                    or "request_ms" in timings or "source_read_ms" in timings
+                    or not {"overlap_ms", "hop_service_ms"} <= timings.keys()):
+                raise RuntimeError("invalid cached stem timing")
+            timings["inference_reused"] = True
         if native_timings:
             # Keep the existing 32-member per-object wire cap unchanged.
             timings["native_timings"] = native_timings

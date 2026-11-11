@@ -614,6 +614,7 @@ private slots:
         QTest::newRow("wire-hop-omitted") << QByteArray("timing-no-hop");
         QTest::newRow("wire-phases-partial") << QByteArray("timing-partial");
         QTest::newRow("wire-phases-present-zero") << QByteArray("timing-zero");
+        QTest::newRow("wire-cached-inference") << QByteArray("timing-cached");
     }
     void observationsPreservePinnedContextAndWireTiming()
     {
@@ -666,14 +667,16 @@ private slots:
             require(chunk.workerGeneration == 1 && chunk.requestId == 1 && chunk.leaseSequence == 1 &&
                 chunk.inputFirst44100 == 0 && chunk.inputFrames44100 == 211 && chunk.final &&
                 chunk.observedNs <= chunk.validatedNs && chunk.workerReadySeconds == 1000.25 &&
-                chunk.servicePublishedSeconds == 1000.375 && chunk.hopServicePresent == (mode == "timing") &&
+                chunk.servicePublishedSeconds == 1000.375 && chunk.inferenceReused == (mode == "timing-cached") &&
+                chunk.hopServicePresent == (mode == "timing" || mode == "timing-cached") &&
                 (!chunk.hopServicePresent || chunk.hopServiceMs == 125.0), "Raw timing changed wire units/presence or lease geometry");
             const std::array phases{chunk.sourceReadMs, chunk.requestMs, chunk.overlapMs, chunk.nativeElapsedMs,
                 chunk.nativeInferenceWallMs, chunk.nativeInferenceCpuMs, chunk.nativeFrontendMs, chunk.nativeGraphMs,
                 chunk.nativeGraphUploadMs, chunk.nativeGraphComputeMs, chunk.nativeGraphReadbackMs,
                 chunk.nativePostprocessMs, chunk.nativeGraphRebuildMs};
             for (std::size_t i = 0; i < phases.size(); ++i) {
-                const bool present = mode == "timing" || mode == "timing-zero" || (mode == "timing-partial" && i % 2 == 0);
+                const bool present = mode == "timing" || mode == "timing-zero" ||
+                    (mode == "timing-partial" && i % 2 == 0) || (mode == "timing-cached" && i == 2);
                 const double expected = mode == "timing-zero" ? 0.0 : double(i) * .125;
                 require(phases[i].has_value() == present && (!present || *phases[i] == expected),
                     "Phase timing changed exact value, original ms, omission or present zero");
@@ -702,6 +705,7 @@ private slots:
                 QTest::newRow(mode.constData()) << mode;
             }
         QTest::newRow("opaque-native-field") << QByteArray("timing-extra");
+        QTest::newRow("cached-with-native-timing") << QByteArray("timing-cached-with-native");
         for (const auto* kind : {"bool", "string", "null", "array"}) {
             const auto mode = QByteArray("timing-container:") + kind;
             QTest::newRow(mode.constData()) << mode;

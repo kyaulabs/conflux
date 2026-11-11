@@ -208,6 +208,20 @@ def duration_stats(values):
             "nearest_rank_p99_ms": ordered[math.ceil(.99 * len(ordered)) - 1] if ordered else None}
 
 
+def live_timing_passes(observations):
+    hops = observations["service_hops"]
+    inferred = observations.get("inferred_service_hops", hops)
+    phases = observations["chunk_phases"]["fields"]
+    count = hops["count"]
+    return (observations["service_metrics_complete"] and hops["complete"]
+            and count == observations["kind_counts"]["ChunkValidated"] > 0
+            and hops["nearest_rank_p99_ms"] < 4095
+            and 0 < inferred["count"] <= count and inferred["nearest_rank_p99_ms"] < 4095
+            and set(phases) == set(LIVE_PHASE_NAMES)
+            and all(row["count"] == (count if key == "overlap_ms" else inferred["count"])
+                    for key, row in phases.items()))
+
+
 def validate_hour_result(native, observations, background=False):
     """Check bounded native hour evidence before the wrapper's cleanup gate."""
     def check(condition, description):
@@ -296,12 +310,8 @@ def validate_hour_result(native, observations, background=False):
     check(steady == [native["steady_starved_a"], native["steady_starved_b"]] == [0, 0]
           and native["steady_starved_frames"] == sum(steady) and native["control_starved_frames"] == sum(controlled),
           "deck-specific steady starvation observed")
-    hops = observations["service_hops"]; phases = observations["chunk_phases"]["fields"]
-    check(observations["service_metrics_complete"] and hops["complete"]
-          and hops["count"] == observations["kind_counts"]["ChunkValidated"] > 0
-          and hops["nearest_rank_p99_ms"] < 4095, "service hop p99/loss gate failed")
-    check(set(phases) == set(LIVE_PHASE_NAMES) and all(row["present_for_all_chunks"] and row["count"] == hops["count"] for row in phases.values()),
-          "all thirteen phases required on every validated chunk")
+    hops = observations["service_hops"]
+    check(live_timing_passes(observations), "service hop p99/loss/thirteen-phase gate failed")
     return {"peer_rewinds": len(peers), "service_hops": hops["count"],
             "service_hops_at_or_above_target": hops["at_or_above_target"],
             "strict_service_p99_target_ms": 4095, "steady_starved_a": steady[0], "steady_starved_b": steady[1],
@@ -390,12 +400,7 @@ def validate_active_controls(native, observations=None, *, functional=False, nor
           0 < native["maximum_frame_presentation_gap_ns"] < 2000000000, "UI not responsive")
     if not functional:
         check(native["execution_deadline_misses"] == 0 and observations is not None, "host timing evidence missing")
-        hops, phases = observations["service_hops"], observations["chunk_phases"]["fields"]
-        check(observations["service_metrics_complete"] and hops["complete"] and
-              hops["count"] == observations["kind_counts"]["ChunkValidated"] > 0 and
-              hops["nearest_rank_p99_ms"] < 4095 and set(phases) == set(LIVE_PHASE_NAMES) and
-              all(x["present_for_all_chunks"] and x["count"] == hops["count"] for x in phases.values()),
-              "strict service p99/loss/thirteen-phase gate failed")
+        check(live_timing_passes(observations), "strict service p99/loss/thirteen-phase gate failed")
         check(bool(native["timing"]) and all(x["driver_position_observed"] and not x["driver_position_discontinuities"] and
               not x["driver_recovery_flags"] and x["graph_quantum_min"] == x["graph_quantum_max"] == 256
               for x in native["timing"]), "driver continuity/quantum fault")
@@ -441,7 +446,7 @@ def summarize_live_observations(path, native):
     names = ("ServiceReady", "RuntimeReady", "RequestObserved", "CommandQueued", "CommandAccepted", "ChunkValidated",
              "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed")
     counts = dict.fromkeys(names, 0)
-    hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], []
+    hops, inferred_hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], [], []
     phase_names = LIVE_PHASE_NAMES
     phases = {key: [] for key in phase_names}
     phase_hops = []
@@ -498,13 +503,21 @@ def summarize_live_observations(path, native):
             if not math.isfinite(delay) or delay < 0:
                 raise RuntimeError("Python-domain ready-to-pre-emit interval is invalid")
             ready_to_pre_emit.append(delay)
+            reused = "inference_reused" in row
+            if reused and (row["inference_reused"] is not True or not row["hop_service_present"]
+                           or "overlap_ms" not in row or any(key in row for key in phase_names if key != "overlap_ms")):
+                raise RuntimeError("Invalid cached stem timing")
             if row["hop_service_present"]:
                 if not math.isfinite(row["hop_service_ms"]) or row["hop_service_ms"] < 0:
                     raise RuntimeError("Invalid optional hop service interval")
                 hops.append(row["hop_service_ms"])
+                if not reused:
+                    inferred_hops.append(row["hop_service_ms"])
             phase_row = {key: row[key] for key in ("epoch", "generation", "request_id", "lease_sequence", "input_first", "input_frames")}
             if row["hop_service_present"]:
                 phase_row["hop_service_ms"] = row["hop_service_ms"]
+            if reused:
+                phase_row["inference_reused"] = True
             for key in phase_names:
                 if key in row:
                     value = row[key]
@@ -586,10 +599,11 @@ def summarize_live_observations(path, native):
             "kind_counts": counts, "epochs": epochs, "service_hops": {**stats(hops), "strict_target_ms": 4095,
                 "at_or_above_target": sum(value >= 4095 for value in hops),
                 "complete": metrics_complete and len(hops) == counts["ChunkValidated"] > 0},
+            "inferred_service_hops": {**stats(inferred_hops), "at_or_above_target": sum(value >= 4095 for value in inferred_hops)},
             "lease_validation": stats(validation),
             "worker_ready_to_service_pre_emit": {**stats(ready_to_pre_emit),
                 "scope": "Python monotonic domain only; excludes JSON serialization/write, pipe delivery and C++ receipt"},
-            "chunk_phases": {"scope": "Original nested durations in ms for validated chunks only; omissions remain absent. Preroll, canceled and discarded work is not fully covered. No cross-clock subtraction or additive phase interpretation.",
+            "chunk_phases": {"scope": "Nested durations in ms for validated chunks. Reused inference has delivery and overlap timings only. Preroll, canceled and discarded work is not fully covered. No cross-clock subtraction or additive phase interpretation.",
                 "hops": phase_hops, "fields": {key: {**stats(values), "present_for_all_chunks": len(values) == counts["ChunkValidated"] > 0}
                                                  for key, values in phases.items()}},
             "packet_ready_to_publish": stats(publication), "actual_full_waits": stats(full_waits),

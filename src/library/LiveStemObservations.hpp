@@ -39,7 +39,7 @@ public:
     struct Record {
         Kind kind = Kind::ServiceReady;
         bool hopServicePresent = false, fullObserved = false, final = false;
-        bool serviceTelemetryDroppedPresent = false;
+        bool serviceTelemetryDroppedPresent = false, inferenceReused = false;
         std::uint64_t ordinal = 0, observedNs = 0;
         std::uint64_t providerEpoch = 0, workerGeneration = 0;
         std::uint64_t commandId = 0, requestId = 0, leaseSequence = 0;
