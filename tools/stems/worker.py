@@ -717,6 +717,12 @@ class StemWorker:
                        for index in range(max(0, target - 1), target + 1)]
         return all(window is not None and window[0] is source for window in windows) and _signature(source.path) == source.signature
 
+    def _remember_window_locked(self, start, source, request_id, weighted):
+        self._weighted_windows[start] = (source, request_id, weighted)
+        self._weighted_windows.move_to_end(start)
+        if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
+            self._weighted_windows.popitem(last=False)
+
     def _produce(self, command, source):
         if command.start >= source.frames:
             self._emit("complete", command.generation, source_id=source.identity,
@@ -782,6 +788,15 @@ class StemWorker:
                 denominator[:overlap] += _WEIGHT[HOP:HOP + overlap]
             previous = weighted[:, HOP:].copy()
             if preroll:
+                if source.source_format == "f32le" and not timings.get("inference_reused", False):
+                    with self._condition:
+                        if self._closed or self._command != command:
+                            raise _Superseded
+                        target = self._weighted_windows.get(start + HOP)
+                        # Keep a cold seek's overlap window. If the target is
+                        # cached already, preserve its cached suffix instead.
+                        if target is None or target[0] is not source:
+                            self._remember_window_locked(start, source, request_id, weighted)
                 continue
             hop /= denominator[None, :, None]
             # audio.cpp restores the track-wide mono mean to EACH source.
@@ -806,12 +821,8 @@ class StemWorker:
             with self._condition:
                 if self._closed or self._command != command:
                     raise _Superseded
-                # Retain the weighted windows so later seeks rebuild the same overlap.
                 if source.source_format == "f32le":
-                    self._weighted_windows[start] = (source, request_id, weighted)
-                    self._weighted_windows.move_to_end(start)
-                    if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
-                        self._weighted_windows.popitem(last=False)
+                    self._remember_window_locked(start, source, request_id, weighted)
                 self._chunks.append(event)
                 self._ready_high_water = max(self._ready_high_water, len(self._chunks))
                 event["ready_queue_depth"] = len(self._chunks)
