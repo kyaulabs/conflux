@@ -6,6 +6,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cstring>
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
@@ -15,6 +16,7 @@
 #include <memory>
 #include <stdexcept>
 #include <thread>
+#include <vector>
 using namespace conflux::audio;
 namespace {
 using Clock = std::chrono::steady_clock;
@@ -81,6 +83,55 @@ AudioReadResult read(AudioSource source, double& cursor, std::span<float> output
     });
     return result;
 }
+void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
+{
+    auto control = std::make_shared<Control>();
+    auto owner = PreparedPlayback::makeLive(5013, extent, producer(control));
+    require(owner->prime(0, std::chrono::seconds(4)), "Opening replay fixture did not prime");
+    const auto source = owner->sourceRef();
+    require(owner->configureStemRamps(0), "Opening replay gain setup rejected");
+    for (std::size_t role = 0; role < 4; ++role)
+        require(source.setStemGain(source.context, role, role == 1 ? 1.F : 0.F), "Opening replay solo gain rejected");
+    source.setRenderActive(source.context, true);
+    require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, true, 0),
+            "Opening replay Master Tempo rejected");
+
+    const auto capture = [&](bool replay) {
+        constexpr std::size_t protectedFrames = 4 * 48000;
+        std::array<float, 2048> block{};
+        std::vector<float> pcm;
+        const auto deadline = Clock::now() + std::chrono::seconds(8);
+        double cursor = 0;
+        for (;;) {
+            const auto result = source.read(source.context, std::uint64_t(std::floor(cursor)), block);
+            require(!result.failed && result.positionValid && result.nominalPosition >= cursor,
+                    "Opening replay lost its exact source clock");
+            cursor = result.nominalPosition;
+            pcm.insert(pcm.end(), block.begin(), block.begin() + result.frames * 2);
+            if (replay && !control->allowance.load() && pcm.size() / 2 >= protectedFrames) {
+                require(control->target.load() == PreparedPlayback::liveReserveFrames,
+                        "Opening replay did not start the live suffix at the cache boundary");
+                control->allowance.store(extent);
+            }
+            if (result.finished) break;
+            require(Clock::now() < deadline, "Opening replay ran out of PCM while the suffix was blocked");
+            if (!result.frames) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        require(cursor == extent && control->allowance.load() == extent, "Opening replay did not consume exact EOF");
+        return pcm;
+    };
+
+    const auto original = capture(false);
+    control->allowance.store(0);
+    source.discontinuity(source.context, 0);
+    const auto replayed = capture(true);
+    require(original.size() == replayed.size() &&
+                !std::memcmp(original.data(), replayed.data(), original.size() * sizeof(float)),
+            "Opening replay changed the rendered stem solo");
+    owner->stop();
+    require(control->exited.load(), "Opening replay producer did not retire");
+}
+
 void liveControls()
 {
     auto control = std::make_shared<Control>();
@@ -578,6 +629,6 @@ void renderProcessedRecovery()
 }
 int main()
 {
-    try { pendingTempoArm(); liveControls(); renderCommands(); preservesConfiguredRecovery(); recoveryAtSelectedTempo(); rebuildAndStopDuringRecovery(); renderProcessedRecovery(); renderTempoContinuation(); std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n"; return 0; }
+    try { pendingTempoArm(); liveControls(); cachedOpeningPlaysWhileTheLiveSuffixIsBlocked(); renderCommands(); preservesConfiguredRecovery(); recoveryAtSelectedTempo(); rebuildAndStopDuringRecovery(); renderProcessedRecovery(); renderTempoContinuation(); std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n"; return 0; }
     catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
