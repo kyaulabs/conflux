@@ -40,9 +40,9 @@ struct Control {
     std::atomic<bool> exited{false};
     std::atomic<int> failure{0};
 };
-PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control)
+PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control, std::uint64_t sourceFrames = extent)
 {
-    return [control](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
+    return [control, sourceFrames](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
         std::uint64_t epoch = 0, cursor = 0, target = 0;
         std::array<std::array<float, LiveStemBuffer::blockFrames * 2>, 4> leaves{};
         while (!stop.stop_requested()) {
@@ -55,14 +55,14 @@ PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control)
                 control->target.store(target); control->epoch.store(epoch);
             }
             const auto allowance = control->allowance.load();
-            if (cursor == extent || cursor - target >= allowance) {
+            if (cursor == sourceFrames || cursor - target >= allowance) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1)); continue;
             }
-            const auto count = std::size_t(std::min<std::uint64_t>({extent - cursor, LiveStemBuffer::blockFrames, allowance - (cursor - target)}));
+            const auto count = std::size_t(std::min<std::uint64_t>({sourceFrames - cursor, LiveStemBuffer::blockFrames, allowance - (cursor - target)}));
             for (std::size_t role = 0; role < 4; ++role)
                 for (std::size_t f = 0; f < count; ++f)
                     for (std::size_t c = 0; c < 2; ++c) leaves[role][f * 2 + c] = sample(role, cursor + f, c);
-            LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == extent, {}};
+            LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == sourceFrames, {}};
             for (std::size_t role = 0; role < 4; ++role) packet.stems[role] = std::span(leaves[role]).first(count * 2);
             const auto result = port.tryPublish(packet);
             if (result == LiveStemBuffer::PublishResult::Accepted) cursor += count;
@@ -85,8 +85,12 @@ AudioReadResult read(AudioSource source, double& cursor, std::span<float> output
 }
 void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
 {
+    // Reach EOF past both the opening reserve and the recent-history window.
+    // Longer tracks add DSP work without exercising a different replay path.
+    constexpr auto sourceFrames = PreparedPlayback::liveReserveFrames + PreparedPlayback::liveTempoHistoryFrames;
     auto control = std::make_shared<Control>();
-    auto owner = PreparedPlayback::makeLive(5013, extent, producer(control));
+    control->allowance.store(sourceFrames);
+    auto owner = PreparedPlayback::makeLive(5013, sourceFrames, producer(control, sourceFrames));
     require(owner->prime(0, std::chrono::seconds(4)), "Opening replay fixture did not prime");
     const auto source = owner->sourceRef();
     require(owner->configureStemRamps(0), "Opening replay gain setup rejected");
@@ -111,13 +115,15 @@ void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
             if (replay && !control->allowance.load() && pcm.size() / 2 >= protectedFrames) {
                 require(control->target.load() == PreparedPlayback::liveReserveFrames,
                         "Opening replay did not start the live suffix at the cache boundary");
-                control->allowance.store(extent);
+                control->allowance.store(sourceFrames);
             }
             if (result.finished) break;
-            require(Clock::now() < deadline, "Opening replay ran out of PCM while the suffix was blocked");
+            require(Clock::now() < deadline, !replay ? "Opening first pass did not finish" :
+                !control->allowance.load() ? "Opening replay could not play four seconds with the suffix blocked" :
+                "Opening replay did not finish after releasing the suffix");
             if (!result.frames) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        require(cursor == extent && control->allowance.load() == extent, "Opening replay did not consume exact EOF");
+        require(cursor == sourceFrames && control->allowance.load() == sourceFrames, "Opening replay did not consume exact EOF");
         return pcm;
     };
 
