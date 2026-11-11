@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include <QCommandLineParser>
 #include <QFontDatabase>
+#include <QDir>
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
@@ -95,8 +96,10 @@ int main(int argc, char** argv) {
         const QFileInfo interpreter(python);
         if (parser.isSet("smoke-test") || !interpreter.isAbsolute() || python.contains(QChar(u'\0')) ||
             !interpreter.isFile() || !interpreter.isExecutable()) parser.showHelp(2);
-        const auto adjacent = QCoreApplication::applicationDirPath() + "/analyze_harmony.py";
-        const auto worker = QFileInfo(adjacent).isFile() ? adjacent : QString(CONFLUX_HARMONY_WORKER_PATH);
+        const QDir binaryDirectory(QCoreApplication::applicationDirPath());
+        const auto adjacent = binaryDirectory.filePath(QStringLiteral("analyze_harmony.py"));
+        const auto worker = QFileInfo(adjacent).isFile()
+            ? adjacent : binaryDirectory.filePath(QStringLiteral(CONFLUX_HARMONY_WORKER_PATH));
         preparationOptions.harmonyEngine = conflux::library::HarmonyEngine{python, worker};
     }
     const std::array<const char*, 5> stemPaths{
