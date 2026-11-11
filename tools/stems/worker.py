@@ -9,7 +9,7 @@ is bounded, source-major float32 [stem, frame, channel]. NumPy is required only
 for this isolated experiment, not the application build.
 """
 
-from collections import deque
+from collections import OrderedDict, deque
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 import hashlib
@@ -34,6 +34,7 @@ WINDOW = 343980
 HOP = 257985
 OVERLAP = WINDOW - HOP
 STEMS = ("drums", "bass", "other", "vocals")
+_SEEK_CACHE_WINDOWS = 3
 _WEIGHT = np.concatenate((np.arange(1, WINDOW // 2 + 1, dtype=np.float32),
                           np.arange(WINDOW - WINDOW // 2, 0, -1, dtype=np.float32)))
 _WEIGHT /= _WEIGHT.max()
@@ -360,7 +361,7 @@ class StemWorker:
         self._model_id = None
         self._model_signature = None
         self._cached_source = None
-        self._last_weighted_window = None
+        self._weighted_windows = OrderedDict()
         self._request_id = 0
         self._thread = threading.Thread(target=self._run, name="conflux-stem-worker", daemon=True)
         self._thread.start()
@@ -378,7 +379,7 @@ class StemWorker:
                 raise RuntimeError("load a source before seeking")
             self._generation += 1
             if action != "seek":
-                self._last_weighted_window = None
+                self._weighted_windows.clear()
             if action == "cancel":
                 self._cancelled += 1
             now = time.monotonic()
@@ -541,8 +542,8 @@ class StemWorker:
         self._emit("runtime_ready", self._generation, model_id=self._model_id, runtime=ready)
 
     def _drop_runtime(self):
-        self._last_weighted_window = None
         with self._condition:
+            self._weighted_windows.clear()
             native = self._native
         if native is not None:
             try:
@@ -680,19 +681,18 @@ class StemWorker:
         for index in range(first_window, (source.frames + HOP - 1) // HOP):
             self._check(command)
             preroll = index < target_window
+            start = index * HOP
             with self._condition:
                 while not preroll and len(self._chunks) >= self.max_ready:
                     if self._closed or self._command != command:
                         raise _Superseded
                     self._condition.wait()
+                cached = self._weighted_windows.get(start)
             self._check(command)
-            start = index * HOP
             service_started = time.monotonic()
-            cached = self._last_weighted_window
-            if (cached is not None and cached[0] is source and cached[1] == start
-                    and start < command.start < start + HOP
+            if (cached is not None and cached[0] is source
                     and _signature(source.path) == source.signature):
-                _, _, request_id, weighted = cached
+                _, request_id, weighted = cached
                 overlap_started = time.monotonic()
                 timings = {"inference_reused": True}
             else:
@@ -759,9 +759,12 @@ class StemWorker:
             with self._condition:
                 if self._closed or self._command != command:
                     raise _Superseded
-                # Only a published live window can be reused by a later seek.
+                # Retain the weighted windows so later seeks rebuild the same overlap.
                 if source.source_format == "f32le":
-                    self._last_weighted_window = (source, start, request_id, weighted)
+                    self._weighted_windows[start] = (source, request_id, weighted)
+                    self._weighted_windows.move_to_end(start)
+                    if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
+                        self._weighted_windows.popitem(last=False)
                 self._chunks.append(event)
                 self._ready_high_water = max(self._ready_high_water, len(self._chunks))
                 event["ready_queue_depth"] = len(self._chunks)
