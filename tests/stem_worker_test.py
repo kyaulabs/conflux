@@ -577,6 +577,39 @@ class WorkerTest(unittest.TestCase):
                                       expected[:, HOP:])
 
 
+    def test_repeat_cold_seek_reuses_preroll_while_suffix_is_pending(self):
+        raw = self.root / "cold-seek-preroll.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        start = HOP + 17
+        original = worker.load_f32(raw, start_frame=start)
+        self.assertTrue(fake.wait_call(1))
+        fake.release(2)
+        first = self.event(worker, "chunk", original)
+        self.assertEqual((first["request_id"], first["frame_start"]), (2, start))
+        np.testing.assert_array_equal(first["samples"], expected[:, start:2 * HOP])
+        self.assertTrue(fake.wait_call(3))
+
+        target = start + 19
+        repeat = worker.seek(target)
+        replayed = self.event(worker, "chunk", repeat, timeout=1)
+        self.assertEqual((replayed["request_id"], replayed["frame_start"]), (2, target))
+        self.assertTrue(replayed["inference_reused"])
+        self.assertEqual(fake.calls, 3)
+        self.assertEqual(worker.statistics()["inflight"]["request_id"], 3)
+        np.testing.assert_array_equal(replayed["samples"], expected[:, target:2 * HOP])
+
+        fake.release()
+        self.assertEqual(self.event(worker, "discarded", original)["request_id"], 3)
+        self.assertTrue(fake.wait_call(4))
+        fake.release()
+        remaining, = self.collect(worker, repeat)
+        np.testing.assert_array_equal(remaining["samples"], expected[:, 2 * HOP:])
+        self.assertEqual(fake.calls, 4)
+
     def test_superseded_inference_failure_preserves_cold_seek(self):
         raw = self.root / "cold-seek-fault.f32"
         self.audio.astype("<f4").tofile(raw)
