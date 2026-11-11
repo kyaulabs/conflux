@@ -102,6 +102,10 @@ void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
     };
     const auto capture = [&](AudioSource source, Control& control, bool replay) {
         constexpr std::size_t protectedFrames = 4 * 48000;
+        constexpr auto suffixLead = 4 * LiveStemBuffer::blockFrames;
+        // The opening's time-stretched output is shorter than its raw frame
+        // count at +6%. Require enough audio to cross into the first packets.
+        constexpr auto handoffFrames = PreparedPlayback::liveReserveFrames * 100 / 106 + 8192;
         std::array<float, 2048> block{};
         std::vector<float> pcm;
         const auto deadline = Clock::now() + std::chrono::seconds(8);
@@ -115,11 +119,14 @@ void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
             if (replay && !control.allowance.load() && pcm.size() / 2 >= protectedFrames) {
                 require(control.target.load() == PreparedPlayback::liveReserveFrames,
                         "Opening replay did not start the live suffix at the cache boundary");
-                control.allowance.store(sourceFrames);
+                control.allowance.store(suffixLead);
             }
+            if (replay && control.allowance.load() == suffixLead && pcm.size() / 2 >= handoffFrames)
+                control.allowance.store(sourceFrames);
             if (result.finished) break;
             require(Clock::now() < deadline, !replay ? "Opening first pass did not finish" :
                 !control.allowance.load() ? "Opening replay could not play four seconds with the suffix blocked" :
+                control.allowance.load() == suffixLead ? "Opening replay held ready suffix PCM until the full reserve" :
                 "Opening replay did not finish after releasing the suffix");
             if (!result.frames) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
