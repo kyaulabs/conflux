@@ -31,6 +31,8 @@ struct Input {
     std::size_t leaves = 4, maximumRead = 1024;
     std::atomic<std::uint64_t> available{0}, calls{0}, services{0}, emptyReads{0};
     std::atomic<int> fault{0};
+    std::atomic<bool> gateAfterFinalInput{false}, finalInputRead{false};
+    std::atomic<std::uint64_t> tailStep{0}, releasedTailStep{0};
     const std::thread::id caller = std::this_thread::get_id();
     std::atomic<bool> wrongThread{false}, pauseWorker{false}, workerPaused{false};
     static float sample(std::uint64_t frame, std::size_t leaf, std::size_t channel)
@@ -61,6 +63,7 @@ struct Input {
                         for (std::size_t channel = 0; channel < 2; ++channel)
                             output[f * self.leaves * 2 + leaf * 2 + channel] = sample(first + f, leaf, channel);
                 if (self.fault.load() == 4 && count) output[0] = NAN;
+                if (count && first + count == self.frames) self.finalInputRead.store(true);
                 return AudioReadResult{std::size_t(count), false};
             },
             [](const void*) noexcept { return 0; },
@@ -68,6 +71,11 @@ struct Input {
                 auto& self = *static_cast<Input*>(context);
                 self.services.fetch_add(1);
                 if (std::this_thread::get_id() == self.caller) self.wrongThread.store(true);
+                if (self.gateAfterFinalInput.load() && self.finalInputRead.load()) {
+                    const auto step = ++self.tailStep;
+                    while (self.gateAfterFinalInput.load() && self.releasedTailStep.load() < step)
+                        std::this_thread::sleep_for(std::chrono::microseconds(100));
+                }
                 if (self.pauseWorker.load()) {
                     self.workerPaused.store(true);
                     while (self.pauseWorker.load())
@@ -206,7 +214,7 @@ void preparedDspReserve()
     input.pauseWorker.store(false);
     source.stop();
 }
-void readyPrefixAfterDrainingReserve()
+void readyPrefixAtLowReserve(std::size_t remainingSlots)
 {
     constexpr auto reserve = PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames;
     constexpr std::size_t readyFrames = 128;
@@ -234,7 +242,8 @@ void readyPrefixAfterDrainingReserve()
 
     require(source.request(0, 0, false), "Drained reserve request rejected");
     (void)preparedNext(source);
-    for (std::size_t first = 0; first < reserve; first += PreparedTempoSource::blockFrames) {
+    const auto firstRetained = reserve - remainingSlots * PreparedTempoSource::blockFrames;
+    for (std::size_t first = 0; first < firstRetained; first += PreparedTempoSource::blockFrames) {
         const auto view = source.peekPrepared();
         require(view.frames == PreparedTempoSource::blockFrames, "Initial reserve was fragmented");
         exact(view, first);
@@ -243,11 +252,17 @@ void readyPrefixAfterDrainingReserve()
     // Pause the worker at the next input boundary after it has processed a
     // short prefix. Playback must be able to use that PCM while input waits.
     await([&] { return barriers.entered.load() == 1; });
-    require(!source.peekPrepared(), "Expected a drained published queue");
+    require(bool(source.peekPrepared()) == (remainingSlots != 0), "Unexpected active reserve depth");
     barriers.released.store(1);
     await([&] { return barriers.entered.load() == 2; });
+    for (std::size_t first = firstRetained; first < reserve; first += PreparedTempoSource::blockFrames) {
+        const auto packet = source.peekPrepared();
+        require(packet.frames == PreparedTempoSource::blockFrames, "Retained reserve was fragmented");
+        exact(packet, first);
+        require(source.consume(packet.frames), "Cannot drain the retained reserve");
+    }
     const auto view = source.peekPrepared();
-    require(view.frames == readyFrames, "Ready prefix withheld while the active queue was empty");
+    require(view.frames == readyFrames, "Ready prefix withheld when the active queue ran low");
     exact(view, reserve);
     require(source.consume(view.frames) && !source.peekPrepared(), "Ready prefix was duplicated");
 }
@@ -426,6 +441,54 @@ std::vector<float> drain(PreparedTempoSource& source)
         require(source.consume(view.frames), "DSP output prefix rejected");
     }
 }
+void finalPcmAndEofPublishedTogether()
+{
+    Input input;
+    input.frames = 8193;
+    input.available.store(input.frames);
+    PreparedTempoSource source(input.descriptor());
+    require(source.request(0, 6, true), "Reference key-lock request rejected");
+    const auto expected = drain(source);
+    require(!expected.empty() && expected.size() % (input.leaves * 2) == 0, "Reference PCM geometry");
+    source.stop();
+
+    Input gated;
+    gated.frames = input.frames;
+    gated.available.store(gated.frames);
+    gated.gateAfterFinalInput.store(true);
+    PreparedTempoSource delayed(gated.descriptor());
+    struct ReleaseWorker {
+        Input& input;
+        ~ReleaseWorker() { input.gateAfterFinalInput.store(false); }
+    } release{gated};
+    require(delayed.request(0, 6, true), "Gated key-lock request rejected");
+    std::size_t samples = 0;
+    while (samples < expected.size()) {
+        PreparedTempoSource::View view;
+        await([&] {
+            const auto step = gated.tailStep.load();
+            view = delayed.peek();
+            if (!view && step > gated.releasedTailStep.load()) gated.releasedTailStep.store(step);
+            return bool(view);
+        });
+        require(!view.errorCode && !view.terminal && view.leafCount == gated.leaves &&
+                    view.frames && view.frames * gated.leaves * 2 <= expected.size() - samples,
+                "Gated worker ended early, lost a role or delivered extra PCM");
+        for (std::size_t frame = 0; frame < view.frames; ++frame)
+            for (std::size_t leaf = 0; leaf < view.leafCount; ++leaf)
+                for (std::size_t channel = 0; channel < 2; ++channel)
+                    require(view.leaves[leaf][frame * 2 + channel] == expected[samples++], "Gated PCM changed");
+        require(delayed.consume(view.frames), "Could not consume final PCM");
+    }
+
+    await([&] { return gated.tailStep.load() > gated.releasedTailStep.load(); });
+    const auto terminal = delayed.peek();
+    require(terminal.terminal && !terminal.frames && !delayed.status().finished,
+            "Final PCM left an empty queue before its EOF marker");
+    require(delayed.consume(0) && delayed.status().finished && delayed.nominalPosition() == double(gated.frames),
+            "EOF was not acknowledged after the last PCM");
+}
+
 void boundedPrefetch()
 {
     Input input; input.available.store(input.frames);
@@ -597,7 +660,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAfterDrainingReserve(); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
+    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAtLowReserve(0); readyPrefixAtLowReserve(1); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); finalPcmAndEofPublishedTogether(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

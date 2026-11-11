@@ -233,7 +233,7 @@ public:
         result.leafCount = leafCount_;
         result.frames = slot.frames - offset_;
         result.generation = slot.generation;
-        result.terminal = slot.terminal;
+        result.terminal = slot.terminal && !result.frames;
         result.errorCode = slot.error;
         result.nominalStart = reportedPosition(mapPosition(
             slot.nominalStart + static_cast<long double>(offset_) * slot.nominalStep,
@@ -284,7 +284,7 @@ public:
         }
         const auto position = consumed_.load(std::memory_order_relaxed);
         const auto& slot = slots_[position % slotCount];
-        if (!slot.frames) {
+        if (!view.frames) {
             if (frames) return false;
             if (slot.terminal && !slot.error) {
                 ownerFinished_ = true;
@@ -311,7 +311,7 @@ public:
         ownerNominal_ = mapPosition(next, ownerLoopIn_, ownerLoopOut_);
         ownerAppliedPercent_ = slot.appliedPercent;
         ownerAppliedCommand_ = slot.command;
-        if (offset_ == slot.frames) {
+        if (offset_ == slot.frames && !slot.terminal) {
             offset_ = 0;
             consumed_.store(position + 1U, std::memory_order_release);
         }
@@ -488,15 +488,18 @@ private:
         bool terminalPending = false, generationDone = true;
         std::size_t partialFrames = 0;
         std::size_t warmupFrames = 0, periodFrames = 0, generatedFrames = 0, capturedFrames = 0;
-        bool publishedAudioThisGeneration = false;
-        auto publishPartial = [&] {
+        std::uint64_t firstGenerationSlot = 0;
+        auto publishPartial = [&](bool terminal = false) {
             if (!partialFrames) return true;
             if (!current(generation, stop)) return false;
             const auto position = written_.load(std::memory_order_relaxed);
-            slots_[position % slotCount].frames = partialFrames;
+            auto& slot = slots_[position % slotCount];
+            slot.frames = partialFrames;
+            // Keep the logical zero-frame EOF after the final PCM. Release
+            // both together so a callback cannot see an empty queue between them.
+            slot.terminal = terminal;
             written_.store(position + 1U, std::memory_order_release);
             partialFrames = 0;
-            publishedAudioThisGeneration = true;
             return true;
         };
         // Only the worker waits. A metadata boundary can publish its partial
@@ -536,7 +539,7 @@ private:
                 processor.reset();
                 partialFrames = 0; // Unpublished old-generation audio is never reusable.
                 generatedFrames = capturedFrames = 0;
-                publishedAudioThisGeneration = false;
+                firstGenerationSlot = written_.load(std::memory_order_relaxed);
                 generation = request.generation;
                 nextFrame = request.frame;
                 inputFrames = inputOffset = 0;
@@ -672,6 +675,10 @@ private:
             }
             if (!produced && !terminalPending) continue;
             if (!produced) {
+                if (!terminalError && partialFrames) {
+                    if (publishPartial(true)) generationDone = true;
+                    continue;
+                }
                 if (!publishPartial() || !waitForSlot()) continue;
                 const auto marker = written_.load(std::memory_order_relaxed);
                 auto& slot = slots_[marker % slotCount];
@@ -701,13 +708,17 @@ private:
             partialFrames += produced;
             nominal = mapPosition(nominal + static_cast<long double>(produced) * slot.nominalStep,
                                   request.loopIn, request.loopOut);
-            // Pack while the reserve holds usable audio. If playback has
-            // drained this generation, give it the ready prefix before doing
-            // more input/DSP work.
-            if (partialFrames == blockFrames || terminalPending ||
-                (publishedAudioThisGeneration &&
-                 written_.load(std::memory_order_relaxed) == consumed_.load(std::memory_order_acquire)))
-                (void)publishPartial();
+            // Keep startup packets packed. Once playback has consumed from
+            // this generation, publish the ready prefix before another
+            // input/DSP step when only one queued packet remains.
+            if (terminalPending) {
+                if (publishPartial(true)) generationDone = true;
+            } else {
+                const auto consumed = consumed_.load(std::memory_order_acquire);
+                if (partialFrames == blockFrames || (consumed > firstGenerationSlot &&
+                    written_.load(std::memory_order_relaxed) - consumed <= 1))
+                    (void)publishPartial();
+            }
         }
     }
     void closeFiles() noexcept
