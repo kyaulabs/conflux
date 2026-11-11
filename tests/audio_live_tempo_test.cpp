@@ -15,6 +15,7 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <string_view>
 #include <thread>
 #include <vector>
 using namespace conflux::audio;
@@ -666,8 +667,27 @@ void renderProcessedRecovery()
     }
 }
 }
-int main()
+int main(int argc, char** argv)
 {
-    try { pendingTempoArm(); liveControls(); cachedOpeningPlaysWhileTheLiveSuffixIsBlocked(); renderCommands(); preservesConfiguredRecovery(); recoveryAtSelectedTempo(); rebuildAndStopDuringRecovery(); renderProcessedRecovery(); renderTempoContinuation(); std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n"; return 0; }
-    catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
+    try {
+        if (argc == 2 && std::string_view(argv[1]) == "--opening-replay") {
+            cachedOpeningPlaysWhileTheLiveSuffixIsBlocked();
+            std::cout << "Live opening replay passed with immediate and delayed Master Tempo\n";
+            return 0;
+        }
+        require(argc == 1, "Unknown live tempo test case");
+        pendingTempoArm();
+        liveControls();
+        renderCommands();
+        preservesConfiguredRecovery();
+        recoveryAtSelectedTempo();
+        rebuildAndStopDuringRecovery();
+        renderProcessedRecovery();
+        renderTempoContinuation();
+        std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n";
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << error.what() << '\n';
+        return 1;
+    }
 }
