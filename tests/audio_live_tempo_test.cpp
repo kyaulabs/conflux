@@ -223,7 +223,10 @@ void liveControls()
     }
     source.discontinuity(source.context, 0); cursor = 0;
     read(source, cursor, output);
-    require(control->epoch.load() != retainedEpoch, "Evicted raw frames reused an old provider epoch");
+    // Cached audio can reach playback before the producer observes its new request.
+    await([&] { return control->epoch.load() != retainedEpoch; });
+    require(control->target.load() == PreparedPlayback::liveReserveFrames,
+            "Evicted raw frames did not request a fresh suffix at the opening boundary");
     require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, true, std::uint64_t(cursor)), "Live mode restore setup rejected");
     require(owner->primeForSession(5000, std::chrono::seconds(4)), "Live tempo session reconstruction did not prime");
     source = owner->sourceRef(); state = source.tempoState(source.context);
