@@ -6,6 +6,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cstring>
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
@@ -14,7 +15,9 @@
 #include <limits>
 #include <memory>
 #include <stdexcept>
+#include <string_view>
 #include <thread>
+#include <vector>
 using namespace conflux::audio;
 namespace {
 using Clock = std::chrono::steady_clock;
@@ -38,9 +41,9 @@ struct Control {
     std::atomic<bool> exited{false};
     std::atomic<int> failure{0};
 };
-PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control)
+PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control, std::uint64_t sourceFrames = extent)
 {
-    return [control](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
+    return [control, sourceFrames](std::stop_token stop, PreparedPlayback::LiveProducerPort& port) {
         std::uint64_t epoch = 0, cursor = 0, target = 0;
         std::array<std::array<float, LiveStemBuffer::blockFrames * 2>, 4> leaves{};
         while (!stop.stop_requested()) {
@@ -53,14 +56,14 @@ PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control)
                 control->target.store(target); control->epoch.store(epoch);
             }
             const auto allowance = control->allowance.load();
-            if (cursor == extent || cursor - target >= allowance) {
+            if (cursor == sourceFrames || cursor - target >= allowance) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1)); continue;
             }
-            const auto count = std::size_t(std::min<std::uint64_t>({extent - cursor, LiveStemBuffer::blockFrames, allowance - (cursor - target)}));
+            const auto count = std::size_t(std::min<std::uint64_t>({sourceFrames - cursor, LiveStemBuffer::blockFrames, allowance - (cursor - target)}));
             for (std::size_t role = 0; role < 4; ++role)
                 for (std::size_t f = 0; f < count; ++f)
                     for (std::size_t c = 0; c < 2; ++c) leaves[role][f * 2 + c] = sample(role, cursor + f, c);
-            LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == extent, {}};
+            LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == sourceFrames, {}};
             for (std::size_t role = 0; role < 4; ++role) packet.stems[role] = std::span(leaves[role]).first(count * 2);
             const auto result = port.tryPublish(packet);
             if (result == LiveStemBuffer::PublishResult::Accepted) cursor += count;
@@ -81,6 +84,91 @@ AudioReadResult read(AudioSource source, double& cursor, std::span<float> output
     });
     return result;
 }
+void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
+{
+    // Reach EOF past both the opening reserve and the recent-history window.
+    // Longer tracks add DSP work without exercising a different replay path.
+    constexpr auto sourceFrames = PreparedPlayback::liveReserveFrames + PreparedPlayback::liveTempoHistoryFrames;
+    const auto openDeck = [&](std::uint64_t id, const std::shared_ptr<Control>& control) {
+        control->allowance.store(sourceFrames);
+        auto owner = PreparedPlayback::makeLive(id, sourceFrames, producer(control, sourceFrames));
+        require(owner->prime(0, std::chrono::seconds(4)), "Opening replay fixture did not prime");
+        const auto source = owner->sourceRef();
+        require(owner->configureStemRamps(0), "Opening replay gain setup rejected");
+        for (std::size_t role = 0; role < 4; ++role)
+            require(source.setStemGain(source.context, role, role == 1 ? 1.F : 0.F), "Opening replay solo gain rejected");
+        source.setRenderActive(source.context, true);
+        return owner;
+    };
+    const auto capture = [&](AudioSource source, Control& control, bool replay) {
+        constexpr std::size_t protectedFrames = 4 * 48000;
+        std::array<float, 2048> block{};
+        std::vector<float> pcm;
+        const auto deadline = Clock::now() + std::chrono::seconds(8);
+        double cursor = 0;
+        for (;;) {
+            const auto result = source.read(source.context, std::uint64_t(std::floor(cursor)), block);
+            require(!result.failed && result.positionValid && result.nominalPosition >= cursor,
+                    "Opening replay lost its exact source clock");
+            cursor = result.nominalPosition;
+            pcm.insert(pcm.end(), block.begin(), block.begin() + result.frames * 2);
+            if (replay && !control.allowance.load() && pcm.size() / 2 >= protectedFrames) {
+                require(control.target.load() == PreparedPlayback::liveReserveFrames,
+                        "Opening replay did not start the live suffix at the cache boundary");
+                control.allowance.store(sourceFrames);
+            }
+            if (result.finished) break;
+            require(Clock::now() < deadline, !replay ? "Opening first pass did not finish" :
+                !control.allowance.load() ? "Opening replay could not play four seconds with the suffix blocked" :
+                "Opening replay did not finish after releasing the suffix");
+            if (!result.frames) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        require(cursor == sourceFrames && control.allowance.load() == sourceFrames, "Opening replay did not consume exact EOF");
+        return pcm;
+    };
+
+    auto control = std::make_shared<Control>();
+    auto owner = openDeck(5013, control);
+    const auto source = owner->sourceRef();
+    const auto openingEpoch = control->epoch.load();
+    require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, true, 0),
+            "Opening replay Master Tempo rejected");
+    const auto original = capture(source, *control, false);
+    require(control->epoch.load() == openingEpoch, "Opening Master Tempo discarded the primed bank");
+    const auto checkReplay = [&](AudioSource replaySource, Control& state) {
+        state.allowance.store(0);
+        replaySource.discontinuity(replaySource.context, 0);
+        const auto replayed = capture(replaySource, state, true);
+        require(original.size() == replayed.size() &&
+                    !std::memcmp(original.data(), replayed.data(), original.size() * sizeof(float)),
+                "Opening replay changed the rendered stem solo");
+    };
+    checkReplay(source, *control);
+    owner->stop();
+    require(control->exited.load(), "Opening replay producer did not retire");
+
+    auto unityControl = std::make_shared<Control>();
+    auto unityOwner = openDeck(5014, unityControl);
+    const auto unitySource = unityOwner->sourceRef();
+    const auto primedEpoch = unityControl->epoch.load();
+    std::array<float, 2048> block{};
+    std::uint64_t rawCursor = 0;
+    for (int i = 0; i < 4; ++i) {
+        const auto raw = unitySource.read(unitySource.context, rawCursor, block);
+        require(!raw.failed && raw.frames == 1024, "Opening unity playback lost its primed PCM");
+        rawCursor += raw.frames;
+    }
+    require(unitySource.tempoControl(unitySource.context, AudioTempoCommand::Set, 6, true, rawCursor),
+            "Master Tempo activation after unity playback rejected");
+    double cursor = rawCursor;
+    read(unitySource, cursor, block);
+    require(cursor > rawCursor && unityControl->epoch.load() == primedEpoch,
+            "Master Tempo activation discarded the available unity stem input");
+    checkReplay(unitySource, *unityControl);
+    unityOwner->stop();
+    require(unityControl->exited.load(), "Unity-to-tempo replay producer did not retire");
+}
+
 void liveControls()
 {
     auto control = std::make_shared<Control>();
@@ -136,7 +224,10 @@ void liveControls()
     }
     source.discontinuity(source.context, 0); cursor = 0;
     read(source, cursor, output);
-    require(control->epoch.load() != retainedEpoch, "Evicted raw frames reused an old provider epoch");
+    // Cached audio can reach playback before the producer observes its new request.
+    await([&] { return control->epoch.load() != retainedEpoch; });
+    require(control->target.load() == PreparedPlayback::liveReserveFrames,
+            "Evicted raw frames did not request a fresh suffix at the opening boundary");
     require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, true, std::uint64_t(cursor)), "Live mode restore setup rejected");
     require(owner->primeForSession(5000, std::chrono::seconds(4)), "Live tempo session reconstruction did not prime");
     source = owner->sourceRef(); state = source.tempoState(source.context);
@@ -576,8 +667,27 @@ void renderProcessedRecovery()
     }
 }
 }
-int main()
+int main(int argc, char** argv)
 {
-    try { pendingTempoArm(); liveControls(); renderCommands(); preservesConfiguredRecovery(); recoveryAtSelectedTempo(); rebuildAndStopDuringRecovery(); renderProcessedRecovery(); renderTempoContinuation(); std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n"; return 0; }
-    catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
+    try {
+        if (argc == 2 && std::string_view(argv[1]) == "--opening-replay") {
+            cachedOpeningPlaysWhileTheLiveSuffixIsBlocked();
+            std::cout << "Live opening replay passed with immediate and delayed Master Tempo\n";
+            return 0;
+        }
+        require(argc == 1, "Unknown live tempo test case");
+        pendingTempoArm();
+        liveControls();
+        renderCommands();
+        preservesConfiguredRecovery();
+        recoveryAtSelectedTempo();
+        rebuildAndStopDuringRecovery();
+        renderProcessedRecovery();
+        renderTempoContinuation();
+        std::cout << "Live tempo source-clock, gains, seeks, reconstruction and cancellation passed\n";
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << error.what() << '\n';
+        return 1;
+    }
 }
