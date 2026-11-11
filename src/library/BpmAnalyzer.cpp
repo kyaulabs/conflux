@@ -25,6 +25,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <sys/file.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
@@ -550,26 +551,48 @@ BpmEstimate analyzeBpm(const audio::PreparedAudio& audio, const BpmEngine& engin
     }
 }
 
-std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate& estimate, std::uint64_t sourceFrame) noexcept
+namespace {
+bool validTimingGeometry(const BpmEstimate& estimate) noexcept
 {
     const auto frames = estimate.analysisFrames;
-    if (!frames || frames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U || sourceFrame >= frames ||
-        estimate.beats.size() < 2 || estimate.beats.size() > std::min(maximumEvents, frames * 50U / 48000U + 1U))
-        return {};
-    auto previous = estimate.beats.front().frame;
-    if (previous >= frames) return {};
-    std::optional<BpmTempoInterval> selected;
-    for (std::size_t index = 1; index < estimate.beats.size(); ++index) {
-        const auto current = estimate.beats[index].frame;
-        if (current >= frames || current <= previous) return {};
-        if (sourceFrame >= previous && sourceFrame < current) {
-            const double bpm = 60. * 48000. / (current - previous);
-            if (std::isfinite(bpm) && bpm >= 20 && bpm <= 400)
-                selected = BpmTempoInterval{previous, current, bpm};
-        }
-        previous = current;
-    }
-    return selected;
+    const auto& beats = estimate.beats;
+    if (!frames || frames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U ||
+        beats.size() < 2 || beats.size() > std::min(maximumEvents, frames * 50U / 48000U + 1U) ||
+        beats.back().frame >= frames)
+        return false;
+    return std::adjacent_find(beats.begin(), beats.end(), [](const BpmBeat& left, const BpmBeat& right) {
+        return left.frame >= right.frame;
+    }) == beats.end();
+}
+
+std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, std::uint64_t frame) noexcept
+{
+    const auto& beats = estimate.beats;
+    const auto next = std::upper_bound(beats.begin(), beats.end(), frame,
+        [](std::uint64_t value, const BpmBeat& beat) { return value < beat.frame; });
+    if (next == beats.begin() || next == beats.end()) return {};
+    const auto first = (next - 1)->frame;
+    const double bpm = 60. * 48000. / (next->frame - first);
+    if (bpm < 20 || bpm > 400) return {};
+    return BpmTempoInterval{first, next->frame, bpm};
+}
+} // namespace
+
+std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate& estimate, std::uint64_t sourceFrame) noexcept
+{
+    if (sourceFrame >= estimate.analysisFrames || !validTimingGeometry(estimate)) return {};
+    return findTimingInterval(estimate, sourceFrame);
+}
+
+BpmTiming::BpmTiming(BpmEstimate estimate) noexcept
+    : estimate_(std::move(estimate)), valid_(validTimingGeometry(estimate_))
+{
+}
+
+std::optional<BpmTempoInterval> BpmTiming::at(std::uint64_t sourceFrame) const noexcept
+{
+    if (!valid_ || sourceFrame >= estimate_.analysisFrames) return {};
+    return findTimingInterval(estimate_, sourceFrame);
 }
 
 std::optional<double> tempoPercentForBpm(double reference, double target) noexcept

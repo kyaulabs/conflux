@@ -309,18 +309,19 @@ QVariantList DeckController::decks() const
     QVariantList result;
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         const bool loading = preparationActive() && !pendingImport_ && int(deck) == pendingDeck_;
+        const auto& bpm = bpmTiming_[deck].estimate();
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"sourceId", sourceIds_[deck]},
             {"title", presentations_[deck].title}, {"artist", presentations_[deck].artist},
             {"album", presentations_[deck].album}, {"artworkDataUrl", presentations_[deck].artworkDataUrl},
             {"bpm", QVariantMap{
-                {"estimated", bpmEstimates_[deck].bpm.value_or(0.)},
-                {"reference", bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.))},
+                {"estimated", bpm.bpm.value_or(0.)},
+                {"reference", bpmOverrides_[deck].value_or(bpm.bpm.value_or(0.))},
                 {"manual", bpmOverrides_[deck].has_value()},
-                {"status", bpmEstimates_[deck].status}, {"error", bpmEstimates_[deck].error}}},
+                {"status", bpm.status}, {"error", bpm.error}}},
             {"localTiming", ui::localTimingForDisplay(
-                bpmEstimates_[deck], clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.,
+                bpmTiming_[deck], clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.,
                 state_.residentHold[deck],
                 clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
                     std::optional<audio::AudioResidentHoldRange>{})},
@@ -1719,7 +1720,7 @@ void DeckController::loaded()
     if (sourceIds_[pendingDeck_] != result.prepared->sourceId) bpmOverrides_[pendingDeck_].reset();
     sourceIds_[pendingDeck_] = result.prepared->sourceId;
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
-    bpmEstimates_[pendingDeck_] = std::move(result.prepared->bpm);
+    bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(result.prepared->bpm));
     harmonyEstimates_[pendingDeck_] = std::move(result.prepared->harmony);
     waveforms_[pendingDeck_] = result.prepared->waveform;
     ++waveformRevisions_[pendingDeck_];
@@ -1889,7 +1890,7 @@ void DeckController::settleReplacement(bool stopped)
     scratchGestures_[pendingDeck_].reset();
     scratchEnds_[pendingDeck_].reset();
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
-    bpmEstimates_[pendingDeck_] = std::move(pendingLoad_->bpm);
+    bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(pendingLoad_->bpm));
     harmonyEstimates_[pendingDeck_] = std::move(pendingLoad_->harmony);
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     ++waveformRevisions_[pendingDeck_];
@@ -1981,7 +1982,7 @@ void DeckController::installed()
             names_[deck].clear();
             sourceIds_[deck].clear();
             presentations_[deck] = {};
-            bpmEstimates_[deck] = {};
+            bpmTiming_[deck] = {};
             harmonyEstimates_[deck] = {};
             bpmOverrides_[deck].reset();
             waveforms_[deck].clear();
@@ -2506,7 +2507,7 @@ void DeckController::setTempoBpm(int deck, double bpm)
         fail("Load a track before changing BPM.");
         return;
     }
-    const auto reference = bpmOverrides_[deck].value_or(bpmEstimates_[deck].bpm.value_or(0.));
+    const auto reference = bpmOverrides_[deck].value_or(bpmTiming_[deck].estimate().bpm.value_or(0.));
     const auto percent = library::tempoPercentForBpm(reference, bpm);
     if (!percent) {
         fail("BPM needs a valid original reference and a target within the tempo range.");
