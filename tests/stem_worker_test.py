@@ -499,6 +499,80 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(sum(chunk["frames"] for chunk in self.collect(worker, generation)), 3)
         self.assertEqual(fake.starts, 1)
 
+    def test_seek_reuses_exact_window_tail_while_new_suffix_is_blocked(self):
+        raw = self.root / "seek-tail.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True))
+        generation = worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        initial = self.event(worker, "chunk", generation)
+        self.assertTrue(fake.wait_call(2))
+        frame = HOP - 4704
+        seek = worker.seek(frame)
+        fake.release()
+        stale = self.event(worker, "discarded", generation)
+        self.assertEqual(stale["request_id"], 2)
+        reused = self.event(worker, "chunk", seek, timeout=1)
+        self.assertEqual((reused["frame_start"], reused["frames"]), (frame, 4704))
+        self.assertEqual(reused["request_id"], initial["request_id"])
+        self.assertIs(reused["inference_reused"], True)
+        self.assertNotIn("metrics", reused)
+        np.testing.assert_array_equal(reused["samples"], expected[:, frame:HOP])
+        self.assertTrue(fake.wait_call(3))
+        fake.release(2)
+        suffix = self.collect(worker, seek)
+        np.testing.assert_array_equal(np.concatenate([c["samples"] for c in suffix], axis=1), expected[:, HOP:])
+        self.assertEqual(fake.calls, 4)
+
+    def test_backward_seek_reuses_three_published_windows_with_an_active_request(self):
+        raw = self.root / "backward-seek.f32"
+        audio = fixture(self.root / "four-windows.wav", 3 * HOP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        generation = worker.load_f32(raw)
+        published = []
+        for call in range(1, 4):
+            self.assertTrue(fake.wait_call(call))
+            fake.release()
+            published.append(self.event(worker, "chunk", generation))
+        self.assertTrue(fake.wait_call(4))
+        frame = HOP - 4704
+        seek = worker.seek(frame)
+        fake.release()
+        self.assertEqual(self.event(worker, "discarded", generation)["request_id"], 4)
+        replayed = [self.event(worker, "chunk", seek) for _ in published]
+        self.assertEqual(replayed[0]["frame_start"], frame)
+        self.assertEqual([chunk["request_id"] for chunk in replayed],
+                         [chunk["request_id"] for chunk in published])
+        self.assertTrue(all(chunk["inference_reused"] is True and "metrics" not in chunk for chunk in replayed))
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in replayed], axis=1),
+                                      expected[:, frame:3 * HOP])
+
+        self.assertTrue(fake.wait_call(5))
+        fake.release()
+        suffix, = self.collect(worker, seek)
+        np.testing.assert_array_equal(suffix["samples"], expected[:, 3 * HOP:])
+
+        # The fourth publication evicts window zero. An exact-grid seek
+        # infers it as preroll, then publishes the remaining windows from cache.
+        revisit = worker.seek(HOP)
+        preroll = self.event(worker, "started", revisit)
+        self.assertEqual((preroll["window_start_frame"], preroll["preroll"], preroll["request_id"]),
+                         (0, True, 6))
+        fake.release()
+        restored = self.collect(worker, revisit)
+        self.assertEqual(restored[0]["frame_start"], HOP)
+        self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
+        self.assertEqual(fake.calls, 6)
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
+                                      expected[:, HOP:])
+
     def test_seek_matches_continuous_grid_and_reuses_model_and_statistics(self):
         worker, fake = self.worker()
         baseline = self.collect(worker, worker.load(self.path))

@@ -151,6 +151,10 @@ def publish():
         target = event.setdefault('native_timings', {}) if key.startswith('native_') else event
         target[key] = {'bool': True, 'string': '1', 'nan': float('nan'), 'inf': float('inf'),
             'negative-inf': -float('inf'), 'negative': -.125}[kind]
+    if MODE in ['timing-cached', 'timing-cached-with-native']:
+        event.update(inference_reused=True, overlap_ms=.25, hop_service_ms=125.0,
+                     worker_ready_at=1000.25, published_at=1000.375)
+    if MODE == 'timing-cached-with-native': event['native_timings'] = {'native_elapsed_ms': 5.0}
     if MODE == 'timing-extra': event['native_timings'] = {'private_path': '/private/input.f32'}
     if MODE.startswith('timing-container:'):
         event['native_timings'] = {'bool': True, 'string': 'opaque', 'null': None, 'array': []}[MODE.split(':')[1]]

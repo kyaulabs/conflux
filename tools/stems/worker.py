@@ -9,7 +9,7 @@ is bounded, source-major float32 [stem, frame, channel]. NumPy is required only
 for this isolated experiment, not the application build.
 """
 
-from collections import deque
+from collections import OrderedDict, deque
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 import hashlib
@@ -34,6 +34,7 @@ WINDOW = 343980
 HOP = 257985
 OVERLAP = WINDOW - HOP
 STEMS = ("drums", "bass", "other", "vocals")
+_SEEK_CACHE_WINDOWS = 3
 _WEIGHT = np.concatenate((np.arange(1, WINDOW // 2 + 1, dtype=np.float32),
                           np.arange(WINDOW - WINDOW // 2, 0, -1, dtype=np.float32)))
 _WEIGHT /= _WEIGHT.max()
@@ -360,6 +361,7 @@ class StemWorker:
         self._model_id = None
         self._model_signature = None
         self._cached_source = None
+        self._weighted_windows = OrderedDict()
         self._request_id = 0
         self._thread = threading.Thread(target=self._run, name="conflux-stem-worker", daemon=True)
         self._thread.start()
@@ -376,6 +378,8 @@ class StemWorker:
             if action != "cancel" and self._path is None:
                 raise RuntimeError("load a source before seeking")
             self._generation += 1
+            if action != "seek":
+                self._weighted_windows.clear()
             if action == "cancel":
                 self._cancelled += 1
             now = time.monotonic()
@@ -539,6 +543,7 @@ class StemWorker:
 
     def _drop_runtime(self):
         with self._condition:
+            self._weighted_windows.clear()
             native = self._native
         if native is not None:
             try:
@@ -676,43 +681,51 @@ class StemWorker:
         for index in range(first_window, (source.frames + HOP - 1) // HOP):
             self._check(command)
             preroll = index < target_window
+            start = index * HOP
             with self._condition:
                 while not preroll and len(self._chunks) >= self.max_ready:
                     if self._closed or self._command != command:
                         raise _Superseded
                     self._condition.wait()
+                cached = self._weighted_windows.get(start)
             self._check(command)
-            start = index * HOP
             service_started = time.monotonic()
-            samples = self._read_window(source, start)
-            source_read_ms = (time.monotonic() - service_started) * 1000
-            self._check(command)
-            self._request_id += 1
-            request_id = self._request_id
-            started = time.monotonic()
-            self._emit("started", command.generation, request_id=request_id,
-                       source_id=source.identity, window_start_frame=start, preroll=preroll,
-                       timestamp=started)
-            with self._condition:
-                self._inflight = {"generation": command.generation, "request_id": request_id,
-                                  "window_start_frame": start, "source_id": source.identity,
-                                  "timestamp": started, "preroll": preroll}
-            try:
-                output, metrics = self._native.infer(samples, request_id)
-            finally:
+            if (cached is not None and cached[0] is source
+                    and _signature(source.path) == source.signature):
+                _, request_id, weighted = cached
+                overlap_started = time.monotonic()
+                timings = {"inference_reused": True}
+            else:
+                samples = self._read_window(source, start)
+                source_read_ms = (time.monotonic() - service_started) * 1000
+                self._check(command)
+                self._request_id += 1
+                request_id = self._request_id
+                started = time.monotonic()
+                self._emit("started", command.generation, request_id=request_id,
+                           source_id=source.identity, window_start_frame=start, preroll=preroll,
+                           timestamp=started)
                 with self._condition:
-                    self._inflight = None
-            elapsed = (time.monotonic() - started) * 1000
-            if not self._active(command):
-                self._emit("discarded", command.generation, request_id=request_id,
-                           source_id=source.identity, window_start_frame=start, request_ms=elapsed)
-                raise _Superseded
-            if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
-                raise RuntimeError("stem backend returned invalid samples")
-            overlap_started = time.monotonic()
-            # Fixed source grid, including a zero-padded final window. This avoids
-            # the upstream offline session's moving, centered final-window grid.
-            weighted = output * _WEIGHT[None, :, None]
+                    self._inflight = {"generation": command.generation, "request_id": request_id,
+                                      "window_start_frame": start, "source_id": source.identity,
+                                      "timestamp": started, "preroll": preroll}
+                try:
+                    output, metrics = self._native.infer(samples, request_id)
+                finally:
+                    with self._condition:
+                        self._inflight = None
+                elapsed = (time.monotonic() - started) * 1000
+                if not self._active(command):
+                    self._emit("discarded", command.generation, request_id=request_id,
+                               source_id=source.identity, window_start_frame=start, request_ms=elapsed)
+                    raise _Superseded
+                if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
+                    raise RuntimeError("stem backend returned invalid samples")
+                overlap_started = time.monotonic()
+                # Fixed source grid, including a zero-padded final window. This avoids
+                # the upstream offline session's moving, centered final-window grid.
+                weighted = output * _WEIGHT[None, :, None]
+                timings = dict(request_ms=elapsed, metrics=metrics, source_read_ms=source_read_ms)
             valid = min(HOP, source.frames - start)
             hop = weighted[:, :valid].copy()
             denominator = _WEIGHT[:valid].copy()
@@ -739,14 +752,19 @@ class StemWorker:
                      "source_format": source.source_format,
                      "window_start_frame": start, "frames": hop.shape[1],
                      "sample_rate": RATE, "channels": CHANNELS, "stems": STEMS,
-                     "samples": hop, "request_ms": elapsed, "metrics": metrics,
-                     "source_read_ms": source_read_ms,
+                     "samples": hop, **timings,
                      "overlap_ms": (ready - overlap_started) * 1000,
                      "hop_service_ms": (ready - service_started) * 1000,
                      "control_latency_ms": (ready - command.issued) * 1000}
             with self._condition:
                 if self._closed or self._command != command:
                     raise _Superseded
+                # Retain the weighted windows so later seeks rebuild the same overlap.
+                if source.source_format == "f32le":
+                    self._weighted_windows[start] = (source, request_id, weighted)
+                    self._weighted_windows.move_to_end(start)
+                    if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
+                        self._weighted_windows.popitem(last=False)
                 self._chunks.append(event)
                 self._ready_high_water = max(self._ready_high_water, len(self._chunks))
                 event["ready_queue_depth"] = len(self._chunks)

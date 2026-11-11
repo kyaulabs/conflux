@@ -688,7 +688,7 @@ private:
     void chunk(const QJsonObject& value)
     {
         keys(value, {"v", "event", "slot", "sequence", "generation", "source_id", "model_id", "file", "source_frames", "source_format", "sample_rate", "channels", "stems", "frame_start", "window_start_frame", "frames", "final", "bytes", "sha256", "request_id", "worker_ready_at", "published_at"},
-            {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms", "native_timings"});
+            {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms", "native_timings", "inference_reused"});
         current(value);
         require(sourceSeen_ && !rawComplete_ && digest(value.value("model_id")) == modelDigest() &&
             integer(value.value("source_frames")) == job_->inputFrames && text(value.value("source_format")) == "f32le" &&
@@ -714,6 +714,10 @@ private:
              "native_graph_upload_ms", "native_graph_compute_ms", "native_graph_readback_ms",
              "native_postprocess_ms", "native_graph_rebuild_ms"})
             if (nativeTimings.contains(key)) (void)finite(nativeTimings.value(key));
+        const bool inferenceReused = value.contains("inference_reused");
+        require(!inferenceReused || (boolean(value.value("inference_reused")) &&
+            !value.contains("native_timings") && !value.contains("request_ms") && !value.contains("source_read_ms") &&
+            value.contains("overlap_ms") && value.contains("hop_service_ms")), "Invalid cached stem timing");
         const auto expected = digest(value.value("sha256"));
         const auto receiptNs = stamp();
         auto& lease = leases_[slot];
@@ -731,6 +735,7 @@ private:
             record.final = boolean(value.value("final"));
             record.workerReadySeconds = value.value("worker_ready_at").toDouble();
             record.servicePublishedSeconds = value.value("published_at").toDouble();
+            record.inferenceReused = inferenceReused;
             record.hopServicePresent = value.contains("hop_service_ms");
             if (record.hopServicePresent) record.hopServiceMs = value.value("hop_service_ms").toDouble();
             const auto phase = [](const QJsonObject& timings, const char* key) -> std::optional<double> {

@@ -367,6 +367,30 @@ class ServiceTest(unittest.TestCase):
                 harness.event("accepted", identifier=harness.ack(chunk))
                 harness.close_clean()
 
+    def test_cached_inference_wire_timing_has_no_native_phases(self):
+        for conflicting in (False, True):
+            with self.subTest(conflicting=conflicting):
+                def mutate(event):
+                    if event.get("event") == "chunk":
+                        event.update(inference_reused=True, overlap_ms=.25)
+                        if not conflicting:
+                            event.pop("request_ms")
+
+                harness = Harness(self, configure=lambda worker: setattr(worker, "mutate", mutate)).start()
+                harness.event("ready")
+                harness.event("accepted", identifier=harness.send("load", frame=0))
+                if conflicting:
+                    harness.finish(error=True)
+                    self.assertFalse(any(event.get("event") == "chunk" for event in harness.remaining()))
+                else:
+                    chunk = harness.event("chunk")
+                    self.assertIs(chunk["inference_reused"], True)
+                    self.assertEqual(chunk["overlap_ms"], .25)
+                    self.assertNotIn("native_timings", chunk)
+                    self.assertNotIn("request_ms", chunk)
+                    harness.event("accepted", identifier=harness.ack(chunk))
+                    harness.close_clean()
+
     def test_invalid_recognized_phase_timings_never_publish(self):
         for key in WORKER_PHASES + ("hop_service_ms",) + NATIVE_PHASES:
             for value in (True, "1", float("nan"), float("inf"), -float("inf"), -0.125):
@@ -911,6 +935,15 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                         "nearest_rank_p99_ms": phases.get(key), "present_for_all_chunks": key in phases})
                 self.assertEqual(result["service_hops"]["strict_target_ms"], 4095)
                 self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
+
+    def test_cached_hop_contributes_to_delivery_only(self):
+        result = self.summary({"inference_reused": True, "overlap_ms": .25}, ({},))
+        self.assertTrue(result["service_hops"]["complete"])
+        self.assertEqual(result["service_hops"]["count"], 1)
+        self.assertEqual(result["inferred_service_hops"]["count"], 0)
+        self.assertIs(result["chunk_phases"]["hops"][0]["inference_reused"], True)
+        with self.assertRaisesRegex(RuntimeError, "Invalid cached stem timing"):
+            self.summary({"inference_reused": True, "overlap_ms": .25, "request_ms": 0.})
 
     def test_service_metrics_require_terminal_loss_evidence(self):
         for label, terminal_records, complete in (
