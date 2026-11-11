@@ -11,7 +11,7 @@
 
 namespace conflux::audio {
 
-// One prepared-PCM tempo worker, independent of legacy readers/bank/loop cache.
+// One raw-PCM tempo worker over immutable files or bounded live input.
 // Construct and stop off callback; all other methods except errorCode have one
 // render owner, or a control owner before streaming/after callback quiescence.
 class PreparedTempoSource {
@@ -37,6 +37,28 @@ public:
     // Sources are immutable for this owner's lifetime. Constructor exceptions
     // own/close every partial resource; callers may retain healthy legacy PCM.
     PreparedTempoSource(std::span<const int> fds, std::uint64_t frames);
+
+    // Borrow one/four aligned, raw, interleaved stereo leaves from a live input.
+    // Both callbacks run ONLY on this source's non-RT worker. They must return
+    // promptly; missing data is a zero-frame prefix, never inserted silence or
+    // EOF. Every reported sample must be written and finite. The provider owns
+    // its input cursor: a new nonzero generation starts at the requested frame;
+    // subsequent reads in that generation request sequential common prefixes.
+    // Context and its storage must outlive stop()/destruction. No cached loops
+    // are admitted for this sequential input; explicit seeks use a generation.
+    struct StreamInput {
+        std::uint64_t frames = 0;
+        std::size_t leafCount = 0;
+        void* context = nullptr;
+        AudioReadResult (*read)(void*, std::uint64_t generation, std::uint64_t firstFrame,
+                                std::span<float> interleavedLeaves) noexcept = nullptr;
+        int (*errorCode)(const void*) noexcept = nullptr;
+        // Optional bounded worker-side activity service. Also runs while the
+        // output ring is full or EOF has finished, until cancel/stop. This lets
+        // a live provider observe pause without requiring another input read.
+        void (*service)(void*) noexcept = nullptr;
+    };
+    explicit PreparedTempoSource(StreamInput input);
     ~PreparedTempoSource();
     PreparedTempoSource(const PreparedTempoSource&) = delete;
     PreparedTempoSource& operator=(const PreparedTempoSource&) = delete;

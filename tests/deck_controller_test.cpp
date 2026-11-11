@@ -595,12 +595,13 @@ private slots:
                 QCOMPARE(controller.submittedCommands(), submitted);
                 QVERIFY(controller.liveStemObservations(0) == handle);
             }
+            QVERIFY(liveDecks[0].toMap()["tempo"].toMap()["supported"].toBool());
             controller.setTempoPercent(0, 3);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
             for (const auto command : {&conflux::DeckController::toggleMasterTempo,
                                        &conflux::DeckController::resetTempo}) {
                 (controller.*command)(0);
-                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
             }
             QCOMPARE(controller.decks(), liveDecks);
             QCOMPARE(controller.submittedCommands(), submitted);
@@ -1938,10 +1939,10 @@ private slots:
         const auto empty = controller.decks();
         for (const int deck : {-1, 0, 1, 2}) {
             controller.setTempoPercent(deck, 1);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             for (const auto command : selectionCommands) {
                 (controller.*command)(deck);
-                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             }
             QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
             QCOMPARE(controller.decks(), empty);
@@ -2015,7 +2016,7 @@ private slots:
         }
         for (const int deck : {-1, 2}) {
             controller.setTempoPercent(deck, 1);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             for (const auto command : selectionCommands) (controller.*command)(deck);
             unchanged();
         }

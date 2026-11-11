@@ -134,6 +134,11 @@ public:
     bool holdArmed = false, holdActive = false, holdExit = false, holdTransition = false;
     std::atomic<int> health{0};
     std::atomic<bool> stopping{false};
+    std::atomic<bool> tempoRenderActive{false};
+    std::uint64_t tempoInputGeneration = 0; // Tempo worker, or quiesced control.
+    std::unique_ptr<std::array<float, liveTempoHistoryFrames * stemCount * 2>> tempoHistory;
+    std::uint64_t tempoHistoryFirst = 0, tempoHistoryEnd = 0;
+    bool tempoHistoryValid = false; // Same raw-input owner; reset only after join.
     std::atomic<std::uint64_t> attempt{1}, grant{0};
     std::atomic<std::uint64_t> version{2}, wait{1}, epoch{1}, cursor{0};
     std::atomic<bool> active{false};
@@ -203,6 +208,9 @@ PreparedPlayback::PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_
     : live_(std::move(live)), frames_(frames)
 {
     bank_ = std::make_unique<StemBankSource>(live_->buffer.sourceRefs());
+    // Preserve configured recovery policy until tempo/hold coexistence has its
+    // own implementation and acceptance. These owners keep the raw path.
+    if (!live_->hold) createLiveTempoSource();
 }
 
 std::unique_ptr<PreparedPlayback> PreparedPlayback::makeLive(
@@ -285,6 +293,35 @@ void PreparedPlayback::createTempoSource(std::span<const int> fds) noexcept
     }
 }
 
+std::unique_ptr<PreparedTempoSource> PreparedPlayback::makeLiveTempoSource()
+{
+    if (!live_->tempoHistory)
+        live_->tempoHistory = std::make_unique_for_overwrite<std::array<float, liveTempoHistoryFrames * stemCount * 2>>();
+    return std::make_unique<PreparedTempoSource>(PreparedTempoSource::StreamInput{
+        frames_, stemCount, this,
+        [](void* context, std::uint64_t generation, std::uint64_t frame, std::span<float> output) noexcept {
+            return static_cast<PreparedPlayback*>(context)->readUnmixedLive(generation, frame, output);
+        },
+        [](const void* context) noexcept {
+            const auto& owner = *static_cast<const PreparedPlayback*>(context);
+            if (const int code = owner.live_->code()) return code;
+            return owner.bank_->hasReadFailure() ? EIO : 0;
+        },
+        [](void* context) noexcept {
+            auto& owner = *static_cast<PreparedPlayback*>(context);
+            owner.live_->setActive(owner.live_->tempoRenderActive.load(std::memory_order_relaxed));
+        }});
+}
+
+void PreparedPlayback::createLiveTempoSource() noexcept
+{
+    try { tempoSource_ = makeLiveTempoSource(); }
+    catch (const std::system_error& error) { tempoSetupError_ = error.code().value() > 0 ? error.code().value() : EIO; }
+    catch (const std::bad_alloc&) { tempoSetupError_ = ENOMEM; }
+    catch (const std::invalid_argument&) { tempoSetupError_ = EINVAL; }
+    catch (...) { tempoSetupError_ = EIO; }
+}
+
 void PreparedPlayback::createScratchSource(std::span<const int> fds) noexcept
 {
     // Optional duplicated raw FDs/window storage must not make healthy legacy
@@ -358,6 +395,15 @@ AudioSource PreparedPlayback::sourceRef() noexcept
         [](void* context, bool active) noexcept {
             static_cast<PreparedPlayback*>(context)->setLiveActive(active);
         }};
+    if (!live_->hold) {
+        source.tempoControl = [](void* context, AudioTempoCommand command, double percent,
+                                 bool keyLock, std::uint64_t frame) noexcept {
+            return static_cast<PreparedPlayback*>(context)->tempoControl(command, percent, keyLock, frame);
+        };
+        source.tempoState = [](const void* context) noexcept {
+            return static_cast<const PreparedPlayback*>(context)->tempoState();
+        };
+    }
     if (live_->hold) {
         source.residentHoldControl = [](void* context, AudioResidentHoldCommand command,
                                        std::uint64_t rangeId, std::uint64_t frame) noexcept {
@@ -410,7 +456,7 @@ AudioTempoState PreparedPlayback::tempoState() const noexcept
 bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, bool keyLock,
                                     std::uint64_t frame) noexcept
 {
-    if (live_ || stopped_ || !tempoSource_ || (scratchSource_ && scratchSource_->active()) || frame > frames_ ||
+    if (stopped_ || !tempoSource_ || (scratchSource_ && scratchSource_->active()) || frame > frames_ ||
         !std::isfinite(percent) || percent < -6 || percent > 6)
         return false;
     unusedContinuationPrime_ = false;
@@ -418,6 +464,11 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
     if (command == AudioTempoCommand::Reset) {
         if (percent != 0) return false;
         if (state.active) {
+            if (live_) {
+                // Keep the raw input's single worker owner. A fresh exact-unity
+                // generation drops the old SRC/R3 tail and retains key lock.
+                return tempoSource_->request(frame, 0, tempoKeyLock_);
+            }
             if (!tempoSource_->cancel()) return false;
             // The legacy bank/readers may still be parked at a pre-tempo
             // cursor. This is an asynchronous refill, never a stale resume.
@@ -431,8 +482,13 @@ bool PreparedPlayback::tempoControl(AudioTempoCommand command, double percent, b
     if (command != AudioTempoCommand::Set || preparedRenderError()) return false;
     if (loop_.active && !loopState().ready) return false;
     const auto request = [&] {
-        return tempoSource_->request(frame, percent, keyLock,
+        const bool previous = liveTempoInput_;
+        if (live_) liveTempoInput_ = true; // Stop render-side raw access before publication.
+        const bool accepted = tempoSource_->request(frame, percent, keyLock,
             loop_.active ? loop_.inFrame : 0, loop_.active ? loop_.outFrame : 0);
+        if (!accepted) liveTempoInput_ = previous;
+        else if (live_) unusedLivePrime_ = false;
+        return accepted;
     };
     if (state.active) {
         bool accepted = state.keyLock == keyLock
@@ -816,8 +872,12 @@ AudioReadResult PreparedPlayback::readResidentHold(std::span<float> output) noex
 AudioReadResult PreparedPlayback::readLive(std::uint64_t frame, std::span<float> output) noexcept
 {
     if (output.size()%2 || output.size()/2 > StemBankSource::blockFrames || frame > frames_ ||
-        frame != live_->demand.cursor || stopped_ || live_->stopping.load(std::memory_order_relaxed))
-        return {0,true};
+        stopped_ || live_->stopping.load(std::memory_order_relaxed)) return {0,true};
+    if (liveTempoInput_) {
+        if (frame != static_cast<std::uint64_t>(tempoSource_->nominalPosition())) return {0,true};
+        return readTempo(output);
+    }
+    if (frame != live_->demand.cursor) return {0,true};
     if (output.empty() || frame == frames_) return {};
     if (live_->holdActive) return readResidentHold(output);
     auto result = readLinearLive(frame,output);
@@ -858,15 +918,62 @@ AudioReadResult PreparedPlayback::readLinearLive(std::uint64_t frame, std::span<
     return result;
 }
 
-void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
+AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std::uint64_t frame,
+                                                  std::span<float> output) noexcept
 {
-    (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,frame);
+    constexpr auto packedChannels = stemCount * 2;
+    if (!generation || frame > frames_ || output.size()%packedChannels ||
+        output.size()/packedChannels > PreparedTempoSource::blockFrames ||
+        live_->code() || live_->stopping.load(std::memory_order_relaxed)) return {0,true};
+    if (generation != live_->tempoInputGeneration) {
+        const bool retained = live_->tempoHistoryValid && frame >= live_->tempoHistoryFirst &&
+            frame <= live_->tempoHistoryEnd;
+        if (!retained) {
+            // First activation retains the exact staged common prefix. Later
+            // requests outside the recent validated range need a fresh epoch.
+            if (live_->tempoInputGeneration || frame != live_->demand.cursor) seekLiveInput(frame);
+            live_->tempoHistoryFirst = live_->tempoHistoryEnd = frame;
+            live_->tempoHistoryValid = true;
+        }
+        live_->tempoInputGeneration = generation;
+    }
+    if (live_->code() || frame < live_->tempoHistoryFirst) return {0,true};
+    if (frame < live_->tempoHistoryEnd) {
+        const auto count = std::size_t(std::min<std::uint64_t>(output.size()/packedChannels,
+            live_->tempoHistoryEnd-frame));
+        const auto offset = std::size_t(frame%liveTempoHistoryFrames);
+        const auto first = std::min<std::size_t>(count, liveTempoHistoryFrames-offset);
+        std::copy_n(live_->tempoHistory->data()+offset*packedChannels, first*packedChannels, output.data());
+        std::copy_n(live_->tempoHistory->data(), (count-first)*packedChannels, output.data()+first*packedChannels);
+        return {count,false};
+    }
+    if (frame != live_->demand.cursor || frame != live_->tempoHistoryEnd) return {0,true};
+    if (live_->demand.waitSerial) {
+        if (live_->grant.load(std::memory_order_acquire) != live_->demand.waitSerial) return {};
+        if (!live_->openGate()) return {0,true};
+    }
+    const auto result = bank_->readUnmixed(frame, output);
+    if (result.failed) return result;
+    const auto offset = std::size_t(frame%liveTempoHistoryFrames);
+    const auto first = std::min<std::size_t>(result.frames, liveTempoHistoryFrames-offset);
+    std::copy_n(output.data(), first*packedChannels, live_->tempoHistory->data()+offset*packedChannels);
+    std::copy_n(output.data()+first*packedChannels, (result.frames-first)*packedChannels, live_->tempoHistory->data());
+    live_->demand.cursor += result.frames;
+    live_->tempoHistoryEnd += result.frames;
+    if (live_->tempoHistoryEnd > liveTempoHistoryFrames)
+        live_->tempoHistoryFirst = std::max(live_->tempoHistoryFirst, live_->tempoHistoryEnd-liveTempoHistoryFrames);
+    const auto wanted = std::min<std::uint64_t>(output.size()/packedChannels, frames_-frame);
+    if (result.frames < wanted) {
+        if (!live_->closeGate()) return {result.frames,true};
+        live_->publishDemand();
+    }
+    return result;
+}
+
+void PreparedPlayback::seekLiveInput(std::uint64_t frame) noexcept
+{
     if (frame > frames_ || live_->stopping.load(std::memory_order_relaxed) || !live_->closeGate()) return;
-    unusedLivePrime_ = false;
-    // Token invalidation precedes the bounded bank/provider work, so an old
-    // deadline cannot win after this new attempt has already superseded it.
-    const auto source = bank_->sourceRef();
-    source.discontinuity(source.context, frame);
+    if (!bank_->seekInput(frame)) { live_->failRender(EINVAL); return; }
     LiveStemBuffer::Request request;
     if (!live_->buffer.tryRequest(request) || request.firstFrame != frame) {
         live_->failRender(EIO); return;
@@ -876,7 +983,24 @@ void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
     live_->publishDemand();
 }
 
-void PreparedPlayback::setLiveActive(bool active) noexcept { live_->setActive(active); }
+void PreparedPlayback::seekLive(std::uint64_t frame) noexcept
+{
+    (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,frame);
+    unusedLivePrime_ = false;
+    if (liveTempoInput_) {
+        const auto state = tempoSource_->status();
+        if (!tempoSource_->request(frame, state.percent, state.keyLock))
+            primeError_.store(tempoSource_->errorCode() ? tempoSource_->errorCode() : EIO, std::memory_order_relaxed);
+        return;
+    }
+    seekLiveInput(frame);
+}
+
+void PreparedPlayback::setLiveActive(bool active) noexcept
+{
+    live_->tempoRenderActive.store(active, std::memory_order_relaxed);
+    if (!liveTempoInput_) live_->setActive(active);
+}
 
 void PreparedPlayback::resetBankForSession() { resetBankForSessionAt(0); }
 
@@ -895,6 +1019,17 @@ void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
     // Construct before replacing: a failed allocation leaves every existing
     // bank, view, producer and health field intact. This never restarts an owner.
     auto replacement = std::make_unique<StemBankSource>(sources, frame);
+    if (live_ && liveTempoInput_) {
+        // Allocate the replacement while the old worker remains intact. A
+        // failed allocation leaves its bank/input/processor ownership intact.
+        auto replacementTempo = makeLiveTempoSource();
+        liveTempoRestore_ = tempoSource_->status();
+        tempoSource_->stop(); // Off callback, before raw control ownership returns.
+        tempoSource_ = std::move(replacementTempo);
+        live_->tempoInputGeneration = 0;
+        live_->tempoHistoryValid = false;
+        liveTempoInput_ = false;
+    }
     if (live_) setLiveActive(false);
     bank_ = std::move(replacement);
 }
@@ -926,6 +1061,7 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
         (void)scratchSource_->relocate(frame);
     }
     if (live_) {
+        if (liveTempoInput_) resetBankForSessionAt(frame);
         setLiveActive(false);
         seekLive(frame);
         if (live_->code()) return false;
@@ -962,6 +1098,14 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
             livePrimeFrame_ = frame;
             livePrimeEpoch_ = request.epoch;
             unusedLivePrime_ = true;
+            if (liveTempoRestore_.active) {
+                const auto selected = liveTempoRestore_;
+                liveTempoRestore_ = {};
+                liveTempoInput_ = true;
+                unusedLivePrime_ = false;
+                lock.unlock();
+                return primeTempo(frame, selected.percent, selected.keyLock, deadline, stop);
+            }
             return true;
         }
         primeError_.store(ETIMEDOUT, std::memory_order_relaxed);
@@ -969,37 +1113,7 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     }
     if (tempoSource_) {
         const auto state = tempoSource_->status();
-        if (state.active) {
-            // Preserve the whole owner's selected mode across quiesced
-            // session installation, but invalidate its old queued generation.
-            if (!tempoSource_->request(frame, state.percent, state.keyLock)) {
-                const int code = tempoSource_->errorCode();
-                primeError_.store(code ? code : EIO, std::memory_order_relaxed);
-                return false;
-            }
-            for (;;) {
-                if (stop.stop_requested()) {
-                    primeError_.store(ECANCELED, std::memory_order_relaxed);
-                    return false;
-                }
-                if (const int code = tempoSource_->errorCode()) {
-                    primeError_.store(code, std::memory_order_relaxed);
-                    return false;
-                }
-                const auto view = tempoSource_->peek();
-                if (view.errorCode) {
-                    primeError_.store(view.errorCode, std::memory_order_relaxed);
-                    return false;
-                }
-                if (view && view.generation == tempoSource_->generation()) return true;
-                const auto current = Clock::now();
-                if (current >= deadline) {
-                    primeError_.store(ETIMEDOUT, std::memory_order_relaxed);
-                    return false;
-                }
-                std::this_thread::sleep_until(std::min(deadline, current + std::chrono::milliseconds(1)));
-            }
-        }
+        if (state.active) return primeTempo(frame, state.percent, state.keyLock, deadline, stop);
     }
     for (const auto& reader : readers_) {
         if (!reader) continue;
@@ -1018,6 +1132,26 @@ bool PreparedPlayback::prime(std::uint64_t frame, std::chrono::milliseconds time
     continuationPrimeFrame_ = frame;
     unusedContinuationPrime_ = bool(bank_);
     return true;
+}
+
+bool PreparedPlayback::primeTempo(std::uint64_t frame, double percent, bool keyLock,
+                                  Clock::time_point deadline, std::stop_token stop)
+{
+    if (!tempoSource_->request(frame, percent, keyLock)) {
+        const int code = tempoSource_->errorCode();
+        primeError_.store(code ? code : EIO, std::memory_order_relaxed);
+        return false;
+    }
+    for (;;) {
+        if (stop.stop_requested()) { primeError_.store(ECANCELED, std::memory_order_relaxed); return false; }
+        if (const int code = tempoSource_->errorCode()) { primeError_.store(code, std::memory_order_relaxed); return false; }
+        const auto view = tempoSource_->peek();
+        if (view.errorCode) { primeError_.store(view.errorCode, std::memory_order_relaxed); return false; }
+        if (view && view.generation == tempoSource_->generation()) return true;
+        const auto current = Clock::now();
+        if (current >= deadline) { primeError_.store(ETIMEDOUT, std::memory_order_relaxed); return false; }
+        std::this_thread::sleep_until(std::min(deadline, current + std::chrono::milliseconds(1)));
+    }
 }
 
 bool PreparedPlayback::primeForSession(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop)
@@ -1108,7 +1242,7 @@ std::string PreparedPlayback::error() const
     if (tempoSource_)
         if (const auto code = tempoSource_->errorCode()) {
             if (!result.empty()) result += "; ";
-            result += "Prepared tempo: " + std::generic_category().message(code);
+            result += "Tempo processing: " + std::generic_category().message(code);
         }
     for (std::size_t stem = 0; stem < readers_.size(); ++stem) {
         if (!readers_[stem] || !readers_[stem]->errorCode()) continue;
@@ -1126,6 +1260,9 @@ void PreparedPlayback::stop() noexcept
     if (stopped_) return;
     (void)residentHoldControl(AudioResidentHoldCommand::Cancel,0,0);
     stopped_ = true;
+    if (tempoSource_) tempoSource_->stop();
+    liveTempoInput_ = false;
+    liveTempoRestore_ = {};
     if (live_) {
         setLiveActive(false); // Render already quiesced; never clears health.
         {
@@ -1138,7 +1275,6 @@ void PreparedPlayback::stop() noexcept
         live_->thread.request_stop();
         if (live_->thread.joinable()) live_->thread.join();
     }
-    if (tempoSource_) tempoSource_->stop();
     if (scratchSource_) {
         scratchSource_->end();
         scratchSource_->stop();
