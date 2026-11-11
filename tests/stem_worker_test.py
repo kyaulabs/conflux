@@ -6,6 +6,7 @@ import hashlib
 import io
 import json
 import os
+import signal
 from pathlib import Path
 import stat
 import subprocess
@@ -817,7 +818,7 @@ sys.stdin.readline()
                         native.infer(np.zeros((WINDOW, 2), dtype=np.float32), 1)
                 finally:
                     native.close()
-                self.assertIsNotNone(native.process.returncode)
+                self.assertEqual(native.process.returncode, -signal.SIGKILL)
                 with self.assertRaises(ChildProcessError):
                     os.waitpid(native.process.pid, os.WNOHANG)
                 self.assertTrue(native.process.stdin.closed)

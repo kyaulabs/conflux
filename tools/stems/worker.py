@@ -51,6 +51,7 @@ class NativeRuntime:
         self._process_reaped = False
         self._closed = False
         self._close_failed = False
+        self._idle = False
         self.max_stderr_bytes = max_stderr_bytes
         self._stderr_tail = bytearray()
         self.timeout = timeout
@@ -180,9 +181,11 @@ class NativeRuntime:
                 or ready.get("stems") != list(STEMS)):
             raise RuntimeError(f"unexpected native stem contract: {ready}")
         ready["process_environment"] = dict(self.process_environment)
+        self._idle = True
         return ready
 
     def infer(self, samples, request_id):
+        self._idle = False
         input_path, output_path = self.root / "input.f32", self.root / "output.f32"
         np.asarray(samples, dtype="<f4").tofile(input_path)
         output_path.unlink(missing_ok=True)
@@ -200,9 +203,11 @@ class NativeRuntime:
         output = np.fromfile(output_path, dtype="<f4").reshape(len(STEMS), WINDOW, CHANNELS)
         if not np.isfinite(output).all():
             raise RuntimeError("native stem output contains non-finite samples")
+        self._idle = True
         return output, result
 
     def abort(self):
+        self._idle = False
         try:
             self.process.kill()
         except ProcessLookupError:
@@ -210,6 +215,16 @@ class NativeRuntime:
 
     def _close_process(self):
         if self.process.poll() is None:
+            if self._idle:
+                # Only a validated handshake or reply leaves an idle worker.
+                # Give native teardown a bounded chance to complete.
+                self._idle = False
+                quit_request = b'{"command":"quit"}\n'
+                with suppress(OSError, subprocess.TimeoutExpired):
+                    if self.process.stdin.write(quit_request) == len(quit_request):
+                        self.process.wait(timeout=0.5)
+                        self._process_reaped = True
+                        return
             self.abort()
         self.process.wait(timeout=2)
         self._process_reaped = True
