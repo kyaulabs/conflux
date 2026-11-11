@@ -2154,8 +2154,14 @@ private slots:
         const auto* tail = conflux::library::localHarmonyAt(estimate, 384000);
         QVERIFY(tail); QCOMPARE(tail->status, QString("Unknown")); QCOMPARE(tail->endFrame, std::uint64_t(384013));
         QVERIFY(!conflux::library::localHarmonyAt(estimate, 384013));
+        const conflux::library::HarmonyTiming timing(estimate);
+        QVERIFY(timing.at(191999) && timing.at(192000));
+        QCOMPARE(timing.at(191999)->candidates.front().tonic, 0);
+        QCOMPARE(timing.at(192000)->candidates.front().tonic, 2);
+        QVERIFY(!timing.at(384013));
         auto corrupt = estimate; corrupt.windows[1].firstFrame++;
         QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        QVERIFY(!conflux::library::HarmonyTiming(corrupt).at(0));
         corrupt = estimate; corrupt.pcmSha256 = "bad";
         QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
         for (const auto* mode : {"hash", "bool-schema", "frames", "duplicate", "overlap", "confidence", "nan", "missing-end", "extra", "flood"}) {

@@ -275,7 +275,8 @@ if(CONFLUX_BUILD_UI)
     target_compile_options(conflux-ui PRIVATE -Wall -Wextra -Wpedantic)
     qt_add_executable(conflux src/main.cpp)
     target_compile_definitions(conflux PRIVATE CONFLUX_VERSION="${PROJECT_VERSION}"
-        CONFLUX_BPM_WORKER_PATH="${CMAKE_INSTALL_FULL_DATADIR}/conflux/analyze_bpm.py")
+        CONFLUX_BPM_WORKER_PATH="${CMAKE_INSTALL_FULL_DATADIR}/conflux/analyze_bpm.py"
+        CONFLUX_HARMONY_WORKER_PATH="${CMAKE_INSTALL_FULL_DATADIR}/conflux/analyze_harmony.py")
     configure_file(tools/timing/analyze_bpm.py analyze_bpm.py COPYONLY)
     configure_file(tools/timing/analyze_harmony.py analyze_harmony.py COPYONLY)
     target_link_libraries(conflux PRIVATE conflux-ui Qt6::Quick Qt6::QuickControls2 Qt6::QuickDialogs2 Qt6::Svg)

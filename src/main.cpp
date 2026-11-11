@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
     parser.addOption({"bpm-python", "Local CPU BPM Python executable (all three BPM paths required).", "path"});
     parser.addOption({"bpm-source", "Pinned Beat This source directory.", "path"});
     parser.addOption({"bpm-model", "Pinned local final0 checkpoint.", "path"});
+    parser.addOption({"harmony-python", "Local Python executable with NumPy for optional key estimates.", "path"});
     parser.process(app);
     if ((parser.isSet("screenshot") || parser.isSet("smoke-stop-file") ||
          parser.isSet("smoke-progress-file")) && !parser.isSet("smoke-test"))
@@ -88,6 +89,15 @@ int main(int argc, char** argv) {
         const auto adjacentWorker = QCoreApplication::applicationDirPath() + "/analyze_bpm.py";
         const auto worker = QFileInfo::exists(adjacentWorker) ? adjacentWorker : QString(CONFLUX_BPM_WORKER_PATH);
         preparationOptions.bpmEngine = conflux::library::BpmEngine{bpmPython, bpmSource, bpmModel, worker};
+    }
+    if (parser.isSet("harmony-python")) {
+        const auto python = parser.value("harmony-python");
+        const QFileInfo interpreter(python);
+        if (parser.isSet("smoke-test") || !interpreter.isAbsolute() || python.contains(QChar(u'\0')) ||
+            !interpreter.isFile() || !interpreter.isExecutable()) parser.showHelp(2);
+        const auto adjacent = QCoreApplication::applicationDirPath() + "/analyze_harmony.py";
+        const auto worker = QFileInfo(adjacent).isFile() ? adjacent : QString(CONFLUX_HARMONY_WORKER_PATH);
+        preparationOptions.harmonyEngine = conflux::library::HarmonyEngine{python, worker};
     }
     const std::array<const char*, 5> stemPaths{
         "stem-python", "stem-exporter", "stem-worker", "stem-runtime", "stem-model"};

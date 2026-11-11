@@ -326,7 +326,8 @@ QVariantList DeckController::decks() const
                 clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
                     std::optional<audio::AudioResidentHoldRange>{})},
             {"harmony", [&]() -> QVariantMap {
-                const auto& estimate = harmonyEstimates_[deck];
+                const auto& timing = harmonyTiming_[deck];
+                const auto& estimate = timing.estimate();
                 QVariantMap value{{"status", "Unknown"}, {"analysisStatus", estimate.status},
                     {"error", estimate.error}, {"confidence", "Unknown"}, {"sourceFrame", qulonglong(0)},
                     {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(0)}, {"candidates", QVariantList{}},
@@ -344,7 +345,7 @@ QVariantList DeckController::decks() const
                         return value;
                     frame = hold.audibleFrame;
                 }
-                if (const auto* window = library::localHarmonyAt(estimate, frame)) {
+                if (const auto* window = timing.at(frame)) {
                     value["status"] = window->status; value["reason"] = window->reason;
                     value["sourceFrame"] = QVariant::fromValue<qulonglong>(frame);
                     value["firstFrame"] = QVariant::fromValue<qulonglong>(window->firstFrame);
@@ -1721,7 +1722,7 @@ void DeckController::loaded()
     sourceIds_[pendingDeck_] = result.prepared->sourceId;
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
     bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(result.prepared->bpm));
-    harmonyEstimates_[pendingDeck_] = std::move(result.prepared->harmony);
+    harmonyTiming_[pendingDeck_] = library::HarmonyTiming(std::move(result.prepared->harmony));
     waveforms_[pendingDeck_] = result.prepared->waveform;
     ++waveformRevisions_[pendingDeck_];
     state_.sourceFrame[pendingDeck_] = 0;
@@ -1891,7 +1892,7 @@ void DeckController::settleReplacement(bool stopped)
     scratchEnds_[pendingDeck_].reset();
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
     bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(pendingLoad_->bpm));
-    harmonyEstimates_[pendingDeck_] = std::move(pendingLoad_->harmony);
+    harmonyTiming_[pendingDeck_] = library::HarmonyTiming(std::move(pendingLoad_->harmony));
     waveforms_[pendingDeck_] = pendingLoad_->waveform;
     ++waveformRevisions_[pendingDeck_];
     pendingLoad_.reset();
@@ -1983,7 +1984,7 @@ void DeckController::installed()
             sourceIds_[deck].clear();
             presentations_[deck] = {};
             bpmTiming_[deck] = {};
-            harmonyEstimates_[deck] = {};
+            harmonyTiming_[deck] = {};
             bpmOverrides_[deck].reset();
             waveforms_[deck].clear();
             ++waveformRevisions_[deck];

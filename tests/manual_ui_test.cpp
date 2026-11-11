@@ -4370,6 +4370,31 @@ private slots:
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
+    void localKeyDisplayPreservesAmbiguityAndClearsDuringReplacement()
+    {
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.loadState(0);
+        auto* label = ui_->item("deck0LocalTempo");
+        QVERIFY(label);
+        const auto before = ui_->endpoint.calls.size();
+        auto harmony = QVariantMap{{"status", "Estimated"},
+            {"candidates", QVariantList{QVariantMap{{"tonic", 3}, {"mode", "Minor"}}}}};
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY EST. E♭ MIN"));
+        harmony["status"] = "Ambiguous";
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY AMBIGUOUS"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", false}});
+        ui_->endpoint.snapshotDeck(0, {{"loading", true}, {"harmony", harmony}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL PREPARING"));
+        ui_->endpoint.snapshotDeck(0, {{"loading", false}, {"loaded", false}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        QCOMPARE(ui_->endpoint.calls.size(), before);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void bpmReferenceChangesAndUnknownStateDoNotSubmitTempo()
     {
         ui_->endpoint.setReady(true);
