@@ -512,10 +512,11 @@ class WorkerTest(unittest.TestCase):
         self.assertTrue(fake.wait_call(2))
         frame = HOP - 4704
         seek = worker.seek(frame)
+        reused = self.event(worker, "chunk", seek, timeout=1)
+        self.assertEqual(fake.calls, 2)
         fake.release()
         stale = self.event(worker, "discarded", generation)
         self.assertEqual(stale["request_id"], 2)
-        reused = self.event(worker, "chunk", seek, timeout=1)
         self.assertEqual((reused["frame_start"], reused["frames"]), (frame, 4704))
         self.assertEqual(reused["request_id"], initial["request_id"])
         self.assertIs(reused["inference_reused"], True)
@@ -544,9 +545,11 @@ class WorkerTest(unittest.TestCase):
         self.assertTrue(fake.wait_call(4))
         frame = HOP - 4704
         seek = worker.seek(frame)
+        replayed = [self.event(worker, "chunk", seek, timeout=1) for _ in published]
+        self.assertEqual(fake.calls, 4)
+        self.assertEqual(worker.statistics()["inflight"]["request_id"], 4)
         fake.release()
         self.assertEqual(self.event(worker, "discarded", generation)["request_id"], 4)
-        replayed = [self.event(worker, "chunk", seek) for _ in published]
         self.assertEqual(replayed[0]["frame_start"], frame)
         self.assertEqual([chunk["request_id"] for chunk in replayed],
                          [chunk["request_id"] for chunk in published])
@@ -572,6 +575,63 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(fake.calls, 6)
         np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
                                       expected[:, HOP:])
+
+
+    def test_superseded_inference_failure_preserves_cold_seek(self):
+        raw = self.root / "cold-seek-fault.f32"
+        self.audio.astype("<f4").tofile(raw)
+        broken = FakeRuntime(blocked=True, fail=True)
+        replacement = FakeRuntime()
+        backends = iter((broken, replacement))
+        worker = StemWorker("fake-runtime", self.model, _backend_factory=lambda *_: next(backends))
+        self.workers.append(worker)
+
+        old = worker.load_f32(raw)
+        self.assertTrue(broken.wait_call(1))
+        frame = HOP + 17
+        latest = worker.seek(frame)
+        broken.release()
+
+        failure = self.event(worker, "error")
+        self.assertEqual(failure["generation"], old)
+        self.assertIn("injected runtime fault", failure["message"])
+        chunks = self.collect(worker, latest)
+        self.assertEqual(chunks[0]["frame_start"], frame)
+        self.assertEqual(chunks[0]["request_id"], 3)  # Prior-grid window then requested window.
+        self.assertFalse(chunks[0].get("inference_reused", False))
+        reference, _ = self.worker()
+        continuous = self.collect(reference, reference.load_f32(raw))
+        expected = np.concatenate([chunk["samples"] for chunk in continuous], axis=1)
+        actual = np.concatenate([chunk["samples"] for chunk in chunks], axis=1)
+        np.testing.assert_array_equal(actual, expected[:, frame:])
+        self.assertTrue(broken.closed)
+        self.assertEqual(replacement.starts, 1)
+
+
+    def test_cached_seek_fault_marks_active_prefix_stale(self):
+        raw = self.root / "cached-seek-fault.f32"
+        self.audio.astype("<f4").tofile(raw)
+        worker, fake = self.worker(FakeRuntime(blocked=True))
+        old = worker.load_f32(raw)
+        self.assertTrue(fake.wait_call(1))
+        fake.release()
+        initial = self.event(worker, "chunk", old)
+        self.assertTrue(fake.wait_call(2))
+
+        frame = HOP - 4704
+        latest = worker.seek(frame)
+        cached = self.event(worker, "chunk", latest, timeout=1)
+        self.assertTrue(cached["inference_reused"])
+        self.assertTrue(worker.is_current(cached))
+        np.testing.assert_array_equal(cached["samples"], initial["samples"][:, frame:])
+        fake.fail = True
+        fake.release()
+
+        failure = self.event(worker, "error")
+        self.assertEqual(failure["generation"], latest)
+        self.assertIn("injected runtime fault", failure["message"])
+        self.assertFalse(worker.is_current(cached))
+        self.assertEqual(fake.calls, 2)
 
     def test_seek_matches_continuous_grid_and_reuses_model_and_statistics(self):
         worker, fake = self.worker()

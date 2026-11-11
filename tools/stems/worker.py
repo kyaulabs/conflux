@@ -10,6 +10,7 @@ for this isolated experiment, not the application build.
 """
 
 from collections import OrderedDict, deque
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 import hashlib
@@ -356,6 +357,8 @@ class StemWorker:
         self._backend_pid = None
         self._processing_generation = 0
         self._inflight = None
+        self._pending_inference = None
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='conflux-native-stems')
         self._native = None
         self._cleanup_error = None
         self._model_id = None
@@ -542,6 +545,10 @@ class StemWorker:
         self._emit("runtime_ready", self._generation, model_id=self._model_id, runtime=ready)
 
     def _drop_runtime(self):
+        # The inference owner may still be consuming a reply after supersession.
+        # Close the native transport only after that exchange is finished.
+        with suppress(Exception):
+            self._wait_inference()
         with self._condition:
             self._weighted_windows.clear()
             native = self._native
@@ -670,6 +677,46 @@ class StemWorker:
             samples[:count] /= source.std
         return samples
 
+    def _notify_inference(self, _):
+        with self._condition:
+            self._condition.notify_all()
+
+    def _exchange(self, native, samples, request_id, started):
+        output, metrics = native.infer(samples, request_id)
+        return output, metrics, (time.monotonic() - started) * 1000
+
+    def _wait_inference(self, command=None):
+        pending = self._pending_inference
+        if pending is None:
+            return None
+        owner, event, future = pending
+        with self._condition:
+            while not future.done():
+                if command is not None and (self._closed or self._command != command):
+                    raise _Superseded
+                self._condition.wait()
+            if command is not None and (self._closed or self._command != command):
+                raise _Superseded
+            self._pending_inference = None
+            self._inflight = None
+        output, metrics, elapsed = future.result()
+        if owner != command:
+            self._emit("discarded", owner.generation, request_id=event["request_id"],
+                       source_id=event["source_id"], window_start_frame=event["window_start_frame"],
+                       request_ms=elapsed)
+            return None
+        return output, metrics, elapsed
+
+    def _cached_seek_prefix(self, command):
+        source = self._cached_source
+        if source is None or command.path != source.path or command.source_format != source.source_format:
+            return False
+        target = command.start // HOP
+        with self._condition:
+            windows = [self._weighted_windows.get(index * HOP)
+                       for index in range(max(0, target - 1), target + 1)]
+        return all(window is not None and window[0] is source for window in windows) and _signature(source.path) == source.signature
+
     def _produce(self, command, source):
         if command.start >= source.frames:
             self._emit("complete", command.generation, source_id=source.identity,
@@ -696,8 +743,13 @@ class StemWorker:
                 overlap_started = time.monotonic()
                 timings = {"inference_reused": True}
             else:
+                # A cached prefix can be published while the superseded native
+                # request finishes. Fresh input still uses the sole exchange.
+                self._wait_inference(command)
+                self._check(command)
+                read_started = time.monotonic()
                 samples = self._read_window(source, start)
-                source_read_ms = (time.monotonic() - service_started) * 1000
+                source_read_ms = (time.monotonic() - read_started) * 1000
                 self._check(command)
                 self._request_id += 1
                 request_id = self._request_id
@@ -706,19 +758,14 @@ class StemWorker:
                            source_id=source.identity, window_start_frame=start, preroll=preroll,
                            timestamp=started)
                 with self._condition:
-                    self._inflight = {"generation": command.generation, "request_id": request_id,
-                                      "window_start_frame": start, "source_id": source.identity,
-                                      "timestamp": started, "preroll": preroll}
-                try:
-                    output, metrics = self._native.infer(samples, request_id)
-                finally:
-                    with self._condition:
-                        self._inflight = None
-                elapsed = (time.monotonic() - started) * 1000
-                if not self._active(command):
-                    self._emit("discarded", command.generation, request_id=request_id,
-                               source_id=source.identity, window_start_frame=start, request_ms=elapsed)
-                    raise _Superseded
+                    event = {"generation": command.generation, "request_id": request_id,
+                             "window_start_frame": start, "source_id": source.identity,
+                             "timestamp": started, "preroll": preroll}
+                    future = self._executor.submit(self._exchange, self._native, samples, request_id, started)
+                    self._inflight = event
+                    self._pending_inference = (command, event, future)
+                    future.add_done_callback(self._notify_inference)
+                output, metrics, elapsed = self._wait_inference(command)
                 if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
                     raise RuntimeError("stem backend returned invalid samples")
                 overlap_started = time.monotonic()
@@ -779,13 +826,36 @@ class StemWorker:
             while True:
                 with self._condition:
                     while not self._closed and (self._command is None or self._command.generation == processed):
+                        if self._pending_inference is not None and self._pending_inference[2].done():
+                            break
                         self._condition.wait()
                     if self._closed:
                         return
                     command = self._command
-                    processed = command.generation
-                    self._processing_generation = processed
+                    producing = command is not None and command.generation != processed
+                    if producing:
+                        processed = command.generation
+                        self._processing_generation = processed
+                    else:
+                        command = self._pending_inference[0]
                 try:
+                    if not producing:
+                        self._wait_inference()
+                        continue
+                    if self._pending_inference is not None and not self._cached_seek_prefix(command):
+                        previous, _, _ = self._pending_inference
+                        try:
+                            self._wait_inference(command)
+                        except _Superseded:
+                            raise
+                        except Exception as error:
+                            # A cold seek has published nothing from the failed
+                            # runtime. Keep the fault with its original generation
+                            # so the new seek can start with a fresh runtime.
+                            self._emit("error", previous.generation, message=str(error),
+                                       source_path=str(previous.path))
+                            if not self._drop_runtime():
+                                return
                     self._ensure_runtime(command)
                     self._check(command)
                     source = self._source(command)
@@ -803,3 +873,4 @@ class StemWorker:
                         return
         finally:
             self._drop_runtime()
+            self._executor.shutdown(wait=True)
