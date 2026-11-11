@@ -942,6 +942,7 @@ private slots:
         // The queried first interval is valid in all late-corruption/cap cases.
         // Checking only neighbors would silently accept a malformed map.
         QVERIFY(!library::localTempoAt(estimate, 12000));
+        QVERIFY(!library::BpmTiming(std::move(estimate)).at(12000));
     }
     void cachedLocalTempoMatchesTheOriginalTimingMap()
     {

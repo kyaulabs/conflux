@@ -345,7 +345,7 @@ private:
     std::array<QString, 2> names_{};
     std::array<QString, 2> sourceIds_{};
     std::array<library::TrackPresentation, 2> presentations_{};
-    std::array<library::BpmEstimate, 2> bpmEstimates_{};
+    std::array<library::BpmTiming, 2> bpmTiming_{};
     std::array<library::HarmonyEstimate, 2> harmonyEstimates_{};
     std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
