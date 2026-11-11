@@ -91,6 +91,7 @@ public:
         epoch.store(demand.epoch, std::memory_order_seq_cst);
         cursor.store(demand.cursor, std::memory_order_seq_cst);
         active.store(demand.active, std::memory_order_seq_cst);
+        openingSuffix.store(demand.openingSuffix, std::memory_order_seq_cst);
         version.store(demand.token * 2, std::memory_order_seq_cst);
     }
     bool snapshot(Recovery::Demand& output) const noexcept
@@ -99,25 +100,27 @@ public:
         if (before & 1U) return false;
         Recovery::Demand result{before / 2, wait.load(std::memory_order_seq_cst),
             epoch.load(std::memory_order_seq_cst), cursor.load(std::memory_order_seq_cst),
-            active.load(std::memory_order_seq_cst)};
+            active.load(std::memory_order_seq_cst), openingSuffix.load(std::memory_order_seq_cst)};
         if (before != version.load(std::memory_order_seq_cst) ||
             attempt.load(std::memory_order_seq_cst) != result.token) return false;
         output = result;
         return true;
     }
-    bool closeGate() noexcept
+    bool closeGate(bool forOpeningSuffix = false) noexcept
     {
         if (nextWait == std::numeric_limits<std::uint64_t>::max()) {
             failRender(EOVERFLOW); return false;
         }
         if (!advance()) return false;
         demand.waitSerial = ++nextWait;
+        demand.openingSuffix = forOpeningSuffix;
         return true;
     }
     bool openGate() noexcept
     {
         if (!advance()) return false;
         demand.waitSerial = 0;
+        demand.openingSuffix = false;
         publishDemand();
         return true;
     }
@@ -164,7 +167,7 @@ public:
     bool tempoHistoryValid = false; // Same raw-input owner; reset only after join.
     std::atomic<std::uint64_t> attempt{1}, grant{0};
     std::atomic<std::uint64_t> version{2}, wait{1}, epoch{1}, cursor{0};
-    std::atomic<bool> active{false};
+    std::atomic<bool> active{false}, openingSuffix{false};
     // Render owner only, including quiesced prime/reset/lifecycle disarm.
     Recovery::Demand demand{1, 1, 1, 0, false};
     std::uint64_t nextWait = 1;
@@ -1099,7 +1102,8 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
                     live_->tempoOpeningReplayEnd = openingEnd;
                     resume = openingEnd;
                 }
-                if (resume < frames_) seekLiveInput(resume);
+                if (resume < frames_)
+                    seekLiveInput(resume, resume - frame >= liveReserveFrames);
             }
             live_->tempoHistoryFirst = live_->tempoHistoryEnd = resume;
             live_->tempoHistoryValid = true;
@@ -1146,9 +1150,9 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
     return result;
 }
 
-void PreparedPlayback::seekLiveInput(std::uint64_t frame) noexcept
+void PreparedPlayback::seekLiveInput(std::uint64_t frame, bool openingSuffix) noexcept
 {
-    if (frame > frames_ || live_->stopping.load(std::memory_order_relaxed) || !live_->closeGate()) return;
+    if (frame > frames_ || live_->stopping.load(std::memory_order_relaxed) || !live_->closeGate(openingSuffix)) return;
     if (!bank_->seekInput(frame)) { live_->failRender(EINVAL); return; }
     LiveStemBuffer::Request request;
     if (!live_->buffer.tryRequest(request) || request.firstFrame != frame) {

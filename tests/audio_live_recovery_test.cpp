@@ -121,6 +121,22 @@ void deterministicPolicyAndCommit()
     Policy pausedReady(total);
     require(pausedReady.update(inactive, {2, reserve}, start).kind == Kind::Grant,
             "Paused ready reserve could not be pre-granted");
+
+    constexpr auto suffixLead = 4 * LiveStemBuffer::blockFrames;
+    Policy opening(total);
+    auto suffix = d;
+    suffix.cursor = reserve;
+    suffix.openingSuffix = true;
+    require(opening.update(suffix, {1, reserve + suffixLead}, start).kind == Kind::None &&
+            opening.update(suffix, {2, reserve + suffixLead - 1}, start + 1s).kind == Kind::None,
+            "Cached replay granted stale or partial suffix audio");
+    require(opening.update(suffix, {2, reserve + suffixLead}, start + 2s).kind == Kind::Grant,
+            "Cached replay waited for a second full reserve");
+    const Policy::Demand underrun{2, 2, 2, reserve + suffixLead, true};
+    require(opening.update(underrun, {2, underrun.cursor + suffixLead}, start + 3s).kind == Kind::None,
+            "A later underrun inherited the shorter cached replay reserve");
+    require(opening.update(underrun, {2, underrun.cursor + reserve}, start + 4s).kind == Kind::Grant,
+            "A later underrun did not accept its full reserve");
 }
 
 struct ActivitySource {
