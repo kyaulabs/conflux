@@ -773,18 +773,28 @@ private:
         require(ready_, "Stem event preceded ready");
         if (kind == "accepted") { accepted(value); return; }
         if (kind == "runtime") {
-            keys(value, {"v", "event", "worker_generation", "model_id", "ready"});
+            keys(value, {"v", "event", "worker_generation", "model_id", "ready"}, {"replaces_generation"});
             const auto tag = integer(value.value("worker_generation"));
-            require(!runtimeSeen_ && tag > 0 && tag <= generation_ && digest(value.value("model_id")) == modelDigest(),
+            require(tag > runtimeGeneration_ && tag <= generation_ && digest(value.value("model_id")) == modelDigest(),
                     "Unknown or repeated runtime startup tag");
-            validateRuntimeReady(object(value.value("ready")), job_->engine); runtimeSeen_ = true;
+            auto ready = object(value.value("ready"));
+            validateRuntimeReady(ready, job_->engine);
+            if (runtimeGeneration_) {
+                const auto retired = integer(value.value("replaces_generation"));
+                require(runtimeGeneration_ <= retired && retired < tag && !sourceSeen_ && ready == runtimeReady_,
+                        "Invalid replacement of a superseded stem runtime");
+            } else {
+                require(!value.contains("replaces_generation"), "Initial runtime cannot replace a stem generation");
+            }
+            runtimeReady_ = std::move(ready);
+            runtimeGeneration_ = tag;
             auto record = observation(Kind::RuntimeReady);
             record.workerGeneration = tag;
             if (tag != generation_) record.providerEpoch = 0; // Older known startup context, no guessed epoch.
             observe(record);
         } else if (kind == "source") {
             keys(value, {"v", "event", "generation", "source_id", "source_frames", "source_format", "mean", "std"});
-            current(value); require(runtimeSeen_ && !sourceSeen_ && integer(value.value("source_frames")) == job_->inputFrames &&
+            current(value); require(runtimeGeneration_ && !sourceSeen_ && integer(value.value("source_frames")) == job_->inputFrames &&
                 text(value.value("source_format")) == "f32le", "Invalid stem source context");
             (void)finite(value.value("mean"), true); require(finite(value.value("std")) > 0, "Invalid source normalization");
             sourceSeen_ = true; // Worker PCM is already restored; never apply these a second time.
@@ -979,8 +989,9 @@ private:
     std::size_t pendingFrames_ = 0, inputFrames_ = 0, inputOffset_ = 0;
     int inputSlot_ = -1;
     std::uint64_t pendingFirst_ = 0, convertedInput_ = 0, nextCommand_ = 0,
-        acceptedEpoch_ = 0, generation_ = 0, lastSequence_ = 0, rawNext_ = 0;
-    bool ready_ = false, loaded_ = false, active_ = false, runtimeSeen_ = false, sourceSeen_ = false,
+        acceptedEpoch_ = 0, generation_ = 0, runtimeGeneration_ = 0, lastSequence_ = 0, rawNext_ = 0;
+    QJsonObject runtimeReady_;
+    bool ready_ = false, loaded_ = false, active_ = false, sourceSeen_ = false,
         rawComplete_ = false, finished_ = false, closing_ = false, closed_ = false;
     bool diagnosticDrain_ = false, diagnosticReady_ = false;
     std::uint64_t packetReadyNs_ = 0, firstFullNs_ = 0;

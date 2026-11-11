@@ -30,7 +30,7 @@ bool whitespace(char value) noexcept
 bool integerMember(const QString& name) noexcept
 {
     static constexpr std::string_view names[]{
-        "v", "schema", "id", "generation", "worker_generation", "current_generation", "sequence", "slot",
+        "v", "schema", "id", "generation", "worker_generation", "replaces_generation", "current_generation", "sequence", "slot",
         "source_frames", "frames", "bytes", "sample_rate", "channels", "window_frames", "hop_frames",
         "overlap_frames", "segment_frames", "threads", "frame", "frame_start", "window_start_frame", "request_id",
         "reservation_bytes", "max_input_bytes", "max_job_bytes", "max_diagnostic_bytes", "telemetry_dropped",

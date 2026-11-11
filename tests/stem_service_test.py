@@ -22,7 +22,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.stems import service
-from tools.stems.worker import CHANNELS, HOP, RATE, STEMS, WINDOW
+from tools.stems.worker import CHANNELS, HOP, RATE, STEMS, WINDOW, StemWorker
 
 WORKER_PHASES = ("source_read_ms", "request_ms", "overlap_ms")
 NATIVE_PHASES = ("elapsed_ms", "inference_wall_ms", "inference_cpu_ms", "frontend_ms", "graph_ms",
@@ -153,7 +153,7 @@ class FakeWorker:
 
 
 class Harness:
-    def __init__(self, case, frames=17, configure=None, limits=None, prefill_output=False):
+    def __init__(self, case, frames=17, configure=None, limits=None, prefill_output=False, worker_factory=FakeWorker):
         self.case = case
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
@@ -183,7 +183,7 @@ class Harness:
                 pass
 
         def factory(*args, **kwargs):
-            worker = FakeWorker(*args, **kwargs)
+            worker = worker_factory(*args, **kwargs)
             self.workers.append(worker)
             self.factory_created.set()
             if configure:
@@ -543,6 +543,63 @@ class ServiceTest(unittest.TestCase):
         harness.next_id = 4
         harness.event("accepted", identifier=harness.ack(chunk))
         harness.close_clean()
+
+    def test_cold_seek_recovers_after_superseded_native_failure(self):
+        entered, release = threading.Event(), threading.Event()
+        self.addCleanup(release.set)
+
+        class Backend:
+            def __init__(self, failing):
+                self.failing = failing
+                self.closed = False
+
+            def start(self):
+                return ready("vulkan", 2)
+
+            def infer(self, samples, request_id):
+                if self.failing:
+                    entered.set()
+                    if not release.wait(4):
+                        raise TimeoutError("test did not release obsolete inference")
+                    raise RuntimeError("obsolete native inference failed")
+                return np.repeat(samples[None], len(STEMS), axis=0), {"elapsed_ms": 1.0}
+
+            def close(self):
+                self.closed = True
+
+            def abort(self):
+                release.set()
+
+        original, replacement = Backend(True), Backend(False)
+        backends = iter((original, replacement))
+
+        def worker_factory(*args, **kwargs):
+            kwargs["_backend_factory"] = lambda *_: next(backends)
+            return StemWorker(*args, **kwargs)
+
+        harness = Harness(self, frames=31, worker_factory=worker_factory).start()
+        harness.event("ready")
+        load = harness.event("accepted", identifier=harness.send("load", frame=0))
+        first_ready = harness.event("runtime")
+        self.assertTrue(entered.wait(3))
+        seek = harness.event("accepted", identifier=harness.send("seek", frame=7))
+        release.set()
+        restarted = harness.event("runtime")
+        self.assertEqual(restarted["worker_generation"], seek["generation"])
+        self.assertEqual(restarted["replaces_generation"], load["generation"])
+        self.assertEqual(restarted["ready"], first_ready["ready"])
+        self.assertTrue(original.closed)
+        chunk = harness.event("chunk")
+        self.assertEqual((chunk["generation"], chunk["frame_start"], chunk["frames"]),
+                         (seek["generation"], 7, 24))
+        self.assertNotIn("inference_reused", chunk)
+        samples = np.fromfile(harness.directory / chunk["file"], dtype="<f4").reshape(4, 24, 2)
+        np.testing.assert_allclose(samples, np.broadcast_to(harness.audio[7:], samples.shape), atol=2e-7)
+        harness.event("accepted", identifier=harness.ack(chunk))
+        self.assertEqual(harness.event("complete")["generation"], seek["generation"])
+        self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
+        self.assertTrue(replacement.closed)
+        self.assertFalse(any(event.get("event") in ("chunk", "error") for event in harness.remaining()))
 
     def test_invalid_current_worker_payloads_never_publish(self):
         def change(kind, key, value):
