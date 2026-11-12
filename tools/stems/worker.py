@@ -379,6 +379,7 @@ class StemWorker:
         self._model_id = None
         self._model_signature = None
         self._cached_source = None
+        self._opening_weighted_window = None
         self._weighted_windows = OrderedDict()
         self._request_id = 0
         self._thread = threading.Thread(target=self._run, name="conflux-stem-worker", daemon=True)
@@ -397,6 +398,7 @@ class StemWorker:
                 raise RuntimeError("load a source before seeking")
             self._generation += 1
             if action != "seek":
+                self._opening_weighted_window = None
                 self._weighted_windows.clear()
             if action == "cancel":
                 self._cancelled += 1
@@ -567,6 +569,7 @@ class StemWorker:
         with suppress(Exception):
             self._wait_inference()
         with self._condition:
+            self._opening_weighted_window = None
             self._weighted_windows.clear()
             native = self._native
         if native is not None:
@@ -731,12 +734,23 @@ class StemWorker:
             return False
         target = command.start // HOP
         with self._condition:
-            windows = [self._weighted_windows.get(index * HOP)
+            windows = [self._weighted_window_locked(index * HOP)
                        for index in range(max(0, target - 1), target + 1)]
         return all(window is not None and window[0] is source for window in windows) and _signature(source.path) == source.signature
 
+    def _weighted_window_locked(self, start):
+        if start == 0:
+            return self._opening_weighted_window
+        return self._weighted_windows.get(start)
+
     def _remember_window_locked(self, start, source, request_id, weighted):
-        self._weighted_windows[start] = (source, request_id, weighted)
+        entry = (source, request_id, weighted)
+        if start == 0:
+            # Cached playback resumes within this first model window. Keep
+            # one opening window outside the three recent non-opening slots.
+            self._opening_weighted_window = entry
+            return
+        self._weighted_windows[start] = entry
         self._weighted_windows.move_to_end(start)
         if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
             self._weighted_windows.popitem(last=False)
@@ -758,7 +772,7 @@ class StemWorker:
                     if self._closed or self._command != command:
                         raise _Superseded
                     self._condition.wait()
-                cached = self._weighted_windows.get(start)
+                cached = self._weighted_window_locked(start)
             self._check(command)
             service_started = time.monotonic()
             if (cached is not None and cached[0] is source
@@ -810,7 +824,7 @@ class StemWorker:
                     with self._condition:
                         if self._closed or self._command != command:
                             raise _Superseded
-                        target = self._weighted_windows.get(start + HOP)
+                        target = self._weighted_window_locked(start + HOP)
                         # Keep a cold seek's overlap window. If the target is
                         # cached already, preserve its cached suffix instead.
                         if target is None or target[0] is not source:
