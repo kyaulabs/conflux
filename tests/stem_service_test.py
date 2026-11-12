@@ -798,13 +798,20 @@ class ServiceNativeLifecycleTest(unittest.TestCase):
     def test_cli_signal_aborts_inflight_native_without_publishing_partial_stems(self):
         self.assert_cli_signal_reaps_native(block_request=True)
 
-    def assert_cli_signal_reaps_native(self, *, block_request):
+    def test_cli_reports_native_exit_error_during_idle_shutdown(self):
+        self.assert_cli_signal_reaps_native(block_request=False, quit_exit=42)
+
+    def test_cli_keeps_close_shape_for_callers_without_native_shutdown_capability(self):
+        self.assert_cli_signal_reaps_native(block_request=False, report_shutdown=False)
+
+    def assert_cli_signal_reaps_native(self, *, block_request, quit_exit=0, report_shutdown=True):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source, model, runtime = (root / name for name in ("input.f32", "model", "runtime.py"))
             write_source(source, 17)
             model.write_bytes(b"bounded fake model")
-            runtime.write_text("#!" + sys.executable + "\nBLOCK_REQUEST = " + repr(block_request) + "\n" + r'''import argparse, json, os, pathlib, signal, sys, time
+            runtime.write_text("#!" + sys.executable + "\nBLOCK_REQUEST = " + repr(block_request)
+                               + "\nQUIT_EXIT = " + repr(quit_exit) + "\n" + r'''import argparse, json, os, pathlib, signal, sys, time
 import numpy as np
 p = argparse.ArgumentParser()
 p.add_argument('--model'); p.add_argument('--backend'); p.add_argument('--threads', type=int)
@@ -818,6 +825,8 @@ print(json.dumps({'event':'ready','sample_rate':44100,'channels':2,'segment_fram
     'revision':'a'*40,'weight_storage':'f32','fence_wait_mode':'blocking','pid':os.getpid()}), flush=True)
 for line in sys.stdin:
     request = json.loads(line)
+    if request == {'command': 'quit'}:
+        sys.exit(QUIT_EXIT)
     if BLOCK_REQUEST:
         pathlib.Path(__file__).with_suffix('.request').write_text(str(request['id']))
         while True:
@@ -829,6 +838,10 @@ for line in sys.stdin:
             runtime.chmod(0o700)
             environment = os.environ.copy()
             environment['PYTHONDONTWRITEBYTECODE'] = '1'
+            if report_shutdown:
+                environment['CONFLUX_STEM_NATIVE_SHUTDOWN'] = '1'
+            else:
+                environment.pop('CONFLUX_STEM_NATIVE_SHUTDOWN', None)
             child = subprocess.Popen([sys.executable, '-B', str(Path(service.__file__)), '--input', str(source),
                 '--directory', str(root / 'service'), '--runtime', str(runtime), '--model', str(model),
                 '--backend', 'cpu', '--threads', '2', '--max-seconds', '15'],
@@ -881,6 +894,12 @@ for line in sys.stdin:
                 closed = event('closed')
                 self.assertEqual(closed['reason'], 'signal')
                 self.assertTrue(closed['worker_closed'])
+                if report_shutdown:
+                    expected = ({'signal': signal.SIGKILL, 'kill_requested': True} if block_request else
+                                {'exit_code': quit_exit, 'kill_requested': False})
+                    self.assertEqual(closed['native_shutdown'], expected)
+                else:
+                    self.assertNotIn('native_shutdown', closed)
                 self.assertEqual(closed['outstanding_slots'], 0 if block_request else 1)
                 self.assertEqual(child.wait(timeout=5), 130)
                 with self.assertRaises(ProcessLookupError):
@@ -1022,6 +1041,23 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
         for trailing in ({}, {"kind": 1, "telemetry_dropped_present": False}):
             with self.subTest(trailing=trailing), self.assertRaisesRegex(RuntimeError, "after stem service close"):
                 self.summary({}, ({}, trailing))
+
+    def test_native_shutdown_preserves_clean_error_and_signal_results(self):
+        self.assertIsNone(self.summary({}, ({},))["native_shutdown"])
+        for shutdown in ({"exit_code": 0, "kill_requested": False},
+                         {"exit_code": 42, "kill_requested": False},
+                         {"signal": 9, "kill_requested": True}):
+            with self.subTest(shutdown=shutdown):
+                result = self.summary({}, ({"native_shutdown": shutdown},))
+                self.assertEqual(result["native_shutdown"], shutdown)
+                self.assertTrue(result["service_metrics_complete"])
+        for invalid in ({"signal": 0, "kill_requested": True},
+                        {"signal": 9, "exit_code": 0, "kill_requested": False},
+                        {"exit_code": 0, "kill_requested": 1}):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(RuntimeError, "native shutdown"):
+                self.summary({}, ({"native_shutdown": invalid},))
+        with self.assertRaisesRegex(RuntimeError, "Invalid native shutdown observation"):
+            self.summary({"native_shutdown": {"signal": 9, "kill_requested": True}})
 
     def test_phase_analysis_rejects_invalid_optional_scalars(self):
         for value in (None, True, "1", float("nan"), float("inf"), -float("inf"), -.125):

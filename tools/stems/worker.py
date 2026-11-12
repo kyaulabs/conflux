@@ -51,6 +51,7 @@ class NativeRuntime:
             raise ValueError("invalid native diagnostic byte limit")
         self._fixed_spool = spool_directory is not None
         self._process_reaped = False
+        self._kill_requested = False
         self._closed = False
         self._close_failed = False
         self._idle = False
@@ -208,8 +209,21 @@ class NativeRuntime:
         self._idle = True
         return output, result
 
+    @property
+    def shutdown_result(self):
+        if not self._process_reaped:
+            return None
+        status = self.process.returncode
+        result = {"kill_requested": self._kill_requested}
+        if status < 0:
+            result["signal"] = -status
+        else:
+            result["exit_code"] = status
+        return result
+
     def abort(self):
         self._idle = False
+        self._kill_requested = True
         try:
             self.process.kill()
         except ProcessLookupError:
@@ -354,6 +368,7 @@ class StemWorker:
         self._discarded = 0
         self._cancelled = 0
         self._backend_starts = 0
+        self._native_shutdown = None
         self._backend_pid = None
         self._processing_generation = 0
         self._inflight = None
@@ -429,7 +444,8 @@ class StemWorker:
                     "inflight": dict(self._inflight) if self._inflight is not None else None,
                     "discarded_count": self._discarded, "cancel_count": self._cancelled,
                     "backend_start_count": self._backend_starts,
-                    "backend_pid": self._backend_pid, "closed": self._closed}
+                    "backend_pid": self._backend_pid, "closed": self._closed,
+                    "native_shutdown": None if self._native_shutdown is None else dict(self._native_shutdown)}
 
     def is_current(self, event):
         with self._condition:
@@ -536,6 +552,7 @@ class StemWorker:
                                self.request_timeout)
         with self._condition:
             self._native = native
+            self._native_shutdown = None
         ready = native.start()
         if _signature(self.model) != signature:
             raise RuntimeError("stem model changed during runtime loading")
@@ -565,6 +582,7 @@ class StemWorker:
                 return False
             with self._condition:
                 if self._native is native:
+                    self._native_shutdown = getattr(native, "shutdown_result", None)
                     self._native = None
                     self._backend_pid = None
         return True

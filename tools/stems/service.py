@@ -526,10 +526,15 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
                                    "code": type(primary).__name__, "message": str(primary)[:1024],
                                    "retained_job": retained})
                     if closed and not retained:
-                        wire.emit({"event": "closed", "generation": session.generation if session else 0,
+                        receipt = {"event": "closed", "generation": session.generation if session else 0,
                                    "reason": "error" if primary is not None else reason, "worker_closed": True,
                                    "outstanding_slots": sum(lease is not None for lease in session.leases) if session else 0,
-                                   "telemetry_dropped": session.drops() if session else 0, "closed_at": time.monotonic()})
+                                   "telemetry_dropped": session.drops() if session else 0, "closed_at": time.monotonic()}
+                        if os.environ.get("CONFLUX_STEM_NATIVE_SHUTDOWN") == "1":
+                            native_shutdown = worker.statistics().get("native_shutdown")
+                            if native_shutdown is not None:
+                                receipt["native_shutdown"] = native_shutdown
+                        wire.emit(receipt)
                     wire.drain()
                 except BaseException as drain_error:
                     if primary is None:

@@ -299,10 +299,17 @@ finally:
     trace({'fixture': 'closed', 'outstanding_slots': sum(lease is not None for lease in leases),
            'wire_bytes_before_closed': wire_bytes})
     actual_outstanding = sum(lease is not None for lease in leases)
-    emit({'event': 'closed', 'generation': generation,
+    receipt = {'event': 'closed', 'generation': generation,
         'reason': 'signal' if stop else reason, 'worker_closed': True,
         'outstanding_slots': (actual_outstanding + 1) % 3 if MODE == 'bad-closed-count' else actual_outstanding,
-        'telemetry_dropped': 7, 'closed_at': time.monotonic()})
+        'telemetry_dropped': 7, 'closed_at': time.monotonic()}
+    if MODE != 'legacy-closed' and os.environ.get('CONFLUX_STEM_NATIVE_SHUTDOWN') == '1':
+        receipt['native_shutdown'] = {'exit_code': 0, 'kill_requested': False}
+        if MODE == 'native-signal':
+            receipt['native_shutdown'] = {'signal': 9, 'kill_requested': True}
+        if MODE == 'bad-native-shutdown':
+            receipt['native_shutdown']['signal'] = 9
+    emit(receipt)
 )PY";
     writeFixtureBytes(fixture.service, script);
     writeFixtureBytes(fixture.marker(".outside"), "outside sentinel must survive\n");

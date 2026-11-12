@@ -514,8 +514,12 @@ private slots:
                 "Diagnostic finish lost a tail request/ACK or launched another generation");
             const auto closed = std::ranges::find_if(commands, [](const auto& row) { return row.value("fixture").toString() == "closed"; });
             require(closed != commands.end() && closed->value("outstanding_slots").toInt() == 0, "Diagnostic close retained an unacknowledged raw lease");
-            require(uniqueObservation(rows, ObservationKind::ServiceClosed).workerGeneration == accepted.workerGeneration,
+            const auto& closeObservation = uniqueObservation(rows, ObservationKind::ServiceClosed);
+            require(closeObservation.workerGeneration == accepted.workerGeneration,
                 "Diagnostic finish omitted its actual service close receipt");
+            require(closeObservation.nativeShutdown && closeObservation.nativeShutdown->exitStatus == 0 &&
+                !closeObservation.nativeShutdown->killRequested,
+                "Diagnostic finish lost the native child exit status");
             const auto tail = std::ranges::find_if(rows, [](const auto& row) { return row.kind == ObservationKind::ChunkValidated && row.requestId == 2; });
             require(tail != rows.end() && tail->inputFirst44100 == hop && tail->inputFrames44100 == 211 && tail->final &&
                 tail->hopServicePresent && tail->hopServiceMs == 350.125 &&
@@ -1377,6 +1381,9 @@ private slots:
         QTest::newRow("normal-accepted-ack") << QByteArray("good");
         QTest::newRow("wrong-accepted-ack") << QByteArray("bad-ack");
         QTest::newRow("wrong-closed-count") << QByteArray("bad-closed-count");
+        QTest::newRow("legacy-closed") << QByteArray("legacy-closed");
+        QTest::newRow("native-kill") << QByteArray("native-signal");
+        QTest::newRow("ambiguous-native-shutdown") << QByteArray("bad-native-shutdown");
     }
     void acceptedAckAndClosedCountsMustMatchActualLeases()
     {
@@ -1391,7 +1398,19 @@ private slots:
                 require(await([&] { return live.playback->errorCode() != 0; }), "Wrong accepted ACK identity was ignored");
             else require(primed && !live.playback->errorCode(), "Valid prefix failed before closing");
             live.playback->stop();
-            require((mode == "good") == (live.playback->errorCode() == 0), "Closing message erased an error or mismatched lease count");
+            const bool valid = mode == "good" || mode == "legacy-closed" || mode == "native-signal";
+            require(valid == (live.playback->errorCode() == 0),
+                "Closing message erased an error or accepted invalid telemetry");
+            if (mode == "legacy-closed" || mode == "native-signal") {
+                std::vector<Observation> rows;
+                drainObservations(live.observations, rows);
+                const auto& closed = uniqueObservation(rows, ObservationKind::ServiceClosed);
+                if (mode == "legacy-closed")
+                    require(!closed.nativeShutdown, "Legacy close invented a native status");
+                else
+                    require(closed.nativeShutdown && closed.nativeShutdown->exitStatus == -9 &&
+                        closed.nativeShutdown->killRequested, "Bridge lost the native signal or kill request");
+            }
             live.playback.reset(); assertGone(fixture.marker(".started"));
             require(rootNames(root).isEmpty(), "Proven group cleanup did not remove known safe job");
         });
