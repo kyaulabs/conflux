@@ -375,9 +375,9 @@ class WorkerTest(unittest.TestCase):
         self.assertTrue(fake.wait_call(1))
         cancelled = worker.cancel()
         self.assertGreater(cancelled, old)
-        fake.release()
-        self.event(worker, "discarded", old)
         latest = worker.seek(HOP + 7)
+        fake.release()
+        self.assertEqual(self.event(worker, "discarded", old)["request_id"], 1)
         source = self.event(worker, "source_ready", latest)
         self.assertTrue(source["reused"])
         self.assertEqual(source["source_format"], "f32le")
@@ -386,6 +386,7 @@ class WorkerTest(unittest.TestCase):
         chunk = self.event(worker, "chunk", latest)
         self.assertEqual(chunk["frame_start"], HOP + 7)
         self.assertEqual(chunk["source_format"], "f32le")
+        self.assertEqual(chunk["request_id"], 3)
         self.assertTrue(worker.is_current(chunk))
         worker.cancel()
         self.assertFalse(worker.is_current(chunk))
@@ -515,18 +516,21 @@ class WorkerTest(unittest.TestCase):
         reused = self.event(worker, "chunk", seek, timeout=1)
         self.assertEqual(fake.calls, 2)
         fake.release()
-        stale = self.event(worker, "discarded", generation)
-        self.assertEqual(stale["request_id"], 2)
+        continued = self.event(worker, "chunk", seek, timeout=1)
+        self.assertEqual(continued["request_id"], 2)
+        self.assertEqual(continued["frame_start"], HOP)
+        self.assertEqual(continued["metrics"]["id"], 2)
+        self.assertNotIn("inference_reused", continued)
         self.assertEqual((reused["frame_start"], reused["frames"]), (frame, 4704))
         self.assertEqual(reused["request_id"], initial["request_id"])
         self.assertIs(reused["inference_reused"], True)
         self.assertNotIn("metrics", reused)
         np.testing.assert_array_equal(reused["samples"], expected[:, frame:HOP])
         self.assertTrue(fake.wait_call(3))
-        fake.release(2)
-        suffix = self.collect(worker, seek)
+        fake.release()
+        suffix = [continued, *self.collect(worker, seek)]
         np.testing.assert_array_equal(np.concatenate([c["samples"] for c in suffix], axis=1), expected[:, HOP:])
-        self.assertEqual(fake.calls, 4)
+        self.assertEqual(fake.calls, 3)
 
     def test_backward_seek_reuses_three_published_windows_with_an_active_request(self):
         raw = self.root / "backward-seek.f32"
@@ -549,7 +553,9 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(fake.calls, 4)
         self.assertEqual(worker.statistics()["inflight"]["request_id"], 4)
         fake.release()
-        self.assertEqual(self.event(worker, "discarded", generation)["request_id"], 4)
+        suffix, = self.collect(worker, seek)
+        self.assertEqual(suffix["request_id"], 4)
+        self.assertNotIn("inference_reused", suffix)
         self.assertEqual(replayed[0]["frame_start"], frame)
         self.assertEqual([chunk["request_id"] for chunk in replayed],
                          [chunk["request_id"] for chunk in published])
@@ -557,9 +563,7 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in replayed], axis=1),
                                       expected[:, frame:3 * HOP])
 
-        self.assertTrue(fake.wait_call(5))
-        fake.release()
-        suffix, = self.collect(worker, seek)
+        self.assertEqual(fake.calls, 4)
         np.testing.assert_array_equal(suffix["samples"], expected[:, 3 * HOP:])
 
         # The first window has aged out of the three recent-window slots.
@@ -568,19 +572,19 @@ class WorkerTest(unittest.TestCase):
         revisit = worker.seek(opening_anchor)
         opening = self.event(worker, "chunk", revisit, timeout=1)
         restored = [opening, *self.collect(worker, revisit)]
-        self.assertEqual([chunk["request_id"] for chunk in restored], [1, 2, 3, 5])
+        self.assertEqual([chunk["request_id"] for chunk in restored], [1, 2, 3, 4])
         self.assertEqual(opening["frame_start"], opening_anchor)
         self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
-        self.assertEqual(fake.calls, 5)
+        self.assertEqual(fake.calls, 4)
         np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
                                       expected[:, opening_anchor:])
 
         # The same retained opening supplies exact-grid preroll, without
         # evicting one of the three useful recent weighted windows.
         restored = self.collect(worker, worker.seek(HOP))
-        self.assertEqual([chunk["request_id"] for chunk in restored], [2, 3, 5])
+        self.assertEqual([chunk["request_id"] for chunk in restored], [2, 3, 4])
         self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
-        self.assertEqual(fake.calls, 5)
+        self.assertEqual(fake.calls, 4)
         np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
                                       expected[:, HOP:])
 
@@ -610,12 +614,11 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(replayed["samples"], expected[:, target:2 * HOP])
 
         fake.release()
-        self.assertEqual(self.event(worker, "discarded", original)["request_id"], 3)
-        self.assertTrue(fake.wait_call(4))
-        fake.release()
         remaining, = self.collect(worker, repeat)
+        self.assertEqual(remaining["request_id"], 3)
+        self.assertNotIn("inference_reused", remaining)
         np.testing.assert_array_equal(remaining["samples"], expected[:, 2 * HOP:])
-        self.assertEqual(fake.calls, 4)
+        self.assertEqual(fake.calls, 3)
 
     def test_superseded_inference_failure_preserves_cold_seek(self):
         raw = self.root / "cold-seek-fault.f32"
