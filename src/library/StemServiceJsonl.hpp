@@ -45,7 +45,7 @@ public:
     // slot,source_frames,frames,bytes,sample_rate,channels,window_frames,hop_frames,
     // overlap_frames,segment_frames,threads,frame,frame_start,window_start_frame,
     // request_id,reservation_bytes,max_input_bytes,max_job_bytes,
-    // max_diagnostic_bytes,telemetry_dropped,outstanding_slots.
+    // max_diagnostic_bytes,telemetry_dropped,outstanding_slots,exit_code,signal.
     //
     // Syntax/Unicode/duplicate/unsafe-integer errors -> invalid_argument;
     // structural/byte caps -> length_error. Either error makes this parser

@@ -453,6 +453,7 @@ def summarize_live_observations(path, native):
     current_epoch, previous_ordinal = 0, None
     epochs, commands, accepted_at, completed_at, telemetry = {}, {}, {}, {}, []
     last_sequence = last_generation = 0; last_accepted_epoch = 0
+    native_shutdown = None
     total_input, total_output = native["setup"]["input_frames"], native["setup"]["output_frames"]
     for row in records:
         if counts["ServiceClosed"]:
@@ -564,6 +565,20 @@ def summarize_live_observations(path, native):
                     not epochs[last_accepted_epoch]["validated_end"] <= row["input_first"] <= total_input):
                 raise RuntimeError("Closed raw endpoint/binding differs")
             epochs[last_accepted_epoch]["raw_service_endpoint"] = row["input_first"]
+        if "native_shutdown" in row:
+            shutdown = row["native_shutdown"]
+            if kind != "ServiceClosed" or type(shutdown) is not dict or type(shutdown.get("kill_requested")) is not bool:
+                raise RuntimeError("Invalid native shutdown observation")
+            fields = set(shutdown) - {"kill_requested"}
+            if fields == {"exit_code"}:
+                status, minimum, maximum = shutdown["exit_code"], 0, 255
+            elif fields == {"signal"}:
+                status, minimum, maximum = shutdown["signal"], 1, 64
+            else:
+                raise RuntimeError("Ambiguous native shutdown observation")
+            if type(status) is not int or not minimum <= status <= maximum:
+                raise RuntimeError("Invalid native shutdown status")
+            native_shutdown = shutdown
         present = row["telemetry_dropped_present"]
         if type(present) is not bool or (present and kind not in ("RawComplete", "ServiceClosed")):
             raise RuntimeError("Invalid service telemetry loss presence")
@@ -587,6 +602,7 @@ def summarize_live_observations(path, native):
             epoch["command_to_published_reserve_ms"] = (epoch["reserve_published_ns"] - epoch["command_ns"]) / 1e6
     setup = native["setup"]
     return {"service_telemetry_loss": telemetry, "service_metrics_complete": metrics_complete,
+            "native_shutdown": native_shutdown,
             "factory_spans_ms": {"entry_to_capture": (setup["input_captured_ns"] - setup["factory_entry_ns"]) / 1e6,
                 "capture_to_count": (setup["count_complete_ns"] - setup["input_captured_ns"]) / 1e6,
                 "count_to_commit": (setup["factory_committed_ns"] - setup["count_complete_ns"]) / 1e6},

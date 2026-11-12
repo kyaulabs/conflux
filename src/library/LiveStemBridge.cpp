@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLockFile>
+#include <QProcessEnvironment>
 #include <QRandomGenerator>
 #include <algorithm>
 #include <array>
@@ -362,6 +363,11 @@ public:
             latest_ = initial_;
             const auto path = QDir(job_->rootPath).filePath(QString::fromStdString(job_->name));
             const auto input = QDir(path).filePath("input.f32"), directory = QDir(path).filePath("service");
+            // Older services ignore this capability request. Older players
+            // never request the additional field in their strict close schema.
+            auto environment = QProcessEnvironment::systemEnvironment();
+            environment.insert("CONFLUX_STEM_NATIVE_SHUTDOWN", "1");
+            process_.setProcessEnvironment(environment);
             process_.start(job_->files[0].invocation, {"-B", job_->service.path,
                 "--input", input, "--directory", directory, "--runtime", job_->files[3].path, "--model", job_->files[4].path,
                 "--backend", job_->engine.backend, "--threads", QString::number(job_->engine.threads),
@@ -816,7 +822,8 @@ private:
             record.serviceTelemetryDroppedPresent = true; record.serviceTelemetryDropped = dropped;
             observe(record);
         } else if (kind == "closed") {
-            keys(value, {"v", "event", "generation", "reason", "worker_closed", "outstanding_slots", "telemetry_dropped", "closed_at"});
+            keys(value, {"v", "event", "generation", "reason", "worker_closed", "outstanding_slots", "telemetry_dropped", "closed_at"},
+                {"native_shutdown"});
             const auto reason = text(value.value("reason"));
             require(closing_ && integer(value.value("generation")) == generation_ && boolean(value.value("worker_closed")) &&
                 (reason == "close" || reason == "eof" || reason == "signal") &&
@@ -826,10 +833,24 @@ private:
                 std::ranges::none_of(leases_, [](const auto& lease) { return lease.occupied; })),
                 "Diagnostic close retained raw leases or was cancelled");
             const auto dropped = integer(value.value("telemetry_dropped"));
-            (void)finite(value.value("closed_at")); closed_ = true;
+            (void)finite(value.value("closed_at"));
             auto record = observation(Kind::ServiceClosed);
             record.inputFirst44100 = rawNext_;
             record.serviceTelemetryDroppedPresent = true; record.serviceTelemetryDropped = dropped;
+            if (value.contains("native_shutdown")) {
+                const auto shutdown = object(value.value("native_shutdown"));
+                keys(shutdown, {"kill_requested"}, {"exit_code", "signal"});
+                require(shutdown.contains("exit_code") != shutdown.contains("signal"), "Ambiguous native shutdown status");
+                int status = 0;
+                if (shutdown.contains("signal")) {
+                    status = -int(integer(shutdown.value("signal"), 64));
+                    require(status < 0, "Invalid native shutdown signal");
+                } else {
+                    status = int(integer(shutdown.value("exit_code"), 255));
+                }
+                record.nativeShutdown = LiveStemObservations::NativeShutdown{status, boolean(shutdown.value("kill_requested"))};
+            }
+            closed_ = true;
             observe(record);
         } else invalid("Unknown stem service event");
     }
