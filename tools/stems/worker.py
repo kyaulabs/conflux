@@ -718,7 +718,7 @@ class StemWorker:
         output, metrics = native.infer(samples, request_id)
         return output, metrics, (time.monotonic() - started) * 1000
 
-    def _wait_inference(self, command=None, *, adopt=False):
+    def _wait_inference(self, command=None, *, adopt=False, keep_pending=False):
         pending = self._pending_inference
         if pending is None:
             return None
@@ -730,8 +730,9 @@ class StemWorker:
                 self._condition.wait()
             if command is not None and (self._closed or self._command != command):
                 raise _Superseded
-            self._pending_inference = None
-            self._inflight = None
+            if not keep_pending:
+                self._pending_inference = None
+                self._inflight = None
         output, metrics, elapsed = future.result()
         if owner != command and not adopt:
             self._emit("discarded", owner.generation, request_id=event["request_id"],
@@ -740,11 +741,15 @@ class StemWorker:
             return None
         return output, metrics, elapsed
 
+    def _pending_matches_window(self, command, source, start):
+        pending = self._pending_inference
+        return (pending is not None and source.source_format == "f32le" and pending.source is source
+                and pending.command.source_generation == command.source_generation
+                and pending.event["window_start_frame"] == start)
+
     def _inference_for_window(self, command, source, start, preroll):
         pending = self._pending_inference
-        if (pending is not None and source.source_format == "f32le" and pending.source is source
-                and pending.command.source_generation == command.source_generation
-                and pending.event["window_start_frame"] == start):
+        if self._pending_matches_window(command, source, start):
             # The pending request used this exact grid window and normalization.
             # Keep its real request timings and charge the new hop for the wait.
             output, metrics, elapsed = self._wait_inference(command, adopt=True)
@@ -776,15 +781,19 @@ class StemWorker:
         output, metrics, elapsed = self._wait_inference(command)
         return output, metrics, elapsed, request_id, source_read_ms
 
-    def _cached_seek_prefix(self, command):
+    def _seek_prefix_status(self, command):
         source = self._cached_source
-        if source is None or command.path != source.path or command.source_format != source.source_format:
-            return False
+        if (source is None or command.path != source.path or command.source_format != source.source_format
+                or command.start >= source.frames or _signature(source.path) != source.signature):
+            return False, False
         target = command.start // HOP
         with self._condition:
-            windows = [self._weighted_window_locked(index * HOP)
-                       for index in range(max(0, target - 1), target + 1)]
-        return all(window is not None and window[0] is source for window in windows) and _signature(source.path) == source.signature
+            for index in range(max(0, target - 1), target + 1):
+                start = index * HOP
+                window = self._weighted_window_locked(start)
+                if window is None or window[0] is not source:
+                    return False, self._pending_matches_window(command, source, start)
+        return True, False
 
     def _weighted_window_locked(self, start):
         if start == 0:
@@ -803,7 +812,7 @@ class StemWorker:
         if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
             self._weighted_windows.popitem(last=False)
 
-    def _produce(self, command, source):
+    def _produce(self, command, source, retained_service=None):
         if command.start >= source.frames:
             self._emit("complete", command.generation, source_id=source.identity,
                        frame_start=command.start)
@@ -823,6 +832,8 @@ class StemWorker:
                 cached = self._weighted_window_locked(start)
             self._check(command)
             service_started = time.monotonic()
+            if retained_service is not None and retained_service[0] == start:
+                service_started = retained_service[1]
             if (cached is not None and cached[0] is source
                     and _signature(source.path) == source.signature):
                 _, request_id, weighted = cached
@@ -912,24 +923,31 @@ class StemWorker:
                     if not producing:
                         self._wait_inference()
                         continue
-                    if self._pending_inference is not None and not self._cached_seek_prefix(command):
-                        previous = self._pending_inference.command
-                        try:
-                            self._wait_inference(command)
-                        except _Superseded:
-                            raise
-                        except Exception as error:
-                            # A cold seek has published nothing from the failed
-                            # runtime. Keep the fault with its original generation
-                            # so the new seek can start with a fresh runtime.
-                            self._emit("error", previous.generation, message=str(error),
-                                       source_path=str(previous.path))
-                            if not self._drop_runtime():
-                                return
+                    retained_service = None
+                    if self._pending_inference is not None:
+                        cached_prefix, retain = self._seek_prefix_status(command)
+                        if not cached_prefix:
+                            pending = self._pending_inference
+                            service_started = time.monotonic()
+                            try:
+                                # Before a cold seek publishes, a failed old request
+                                # still belongs to its original generation. Keep a
+                                # successful reply only for the first missing window.
+                                self._wait_inference(command, adopt=retain, keep_pending=retain)
+                                if retain:
+                                    retained_service = pending.event["window_start_frame"], service_started
+                            except _Superseded:
+                                raise
+                            except Exception as error:
+                                previous = pending.command
+                                self._emit("error", previous.generation, message=str(error),
+                                           source_path=str(previous.path))
+                                if not self._drop_runtime():
+                                    return
                     self._ensure_runtime(command)
                     self._check(command)
                     source = self._source(command)
-                    self._produce(command, source)
+                    self._produce(command, source, retained_service)
                 except _Superseded:
                     continue
                 except Exception as error:
