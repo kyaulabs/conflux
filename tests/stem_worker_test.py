@@ -562,20 +562,27 @@ class WorkerTest(unittest.TestCase):
         suffix, = self.collect(worker, seek)
         np.testing.assert_array_equal(suffix["samples"], expected[:, 3 * HOP:])
 
-        # The fourth publication evicts window zero. An exact-grid seek
-        # infers it as preroll, then publishes the remaining windows from cache.
-        revisit = worker.seek(HOP)
-        preroll = self.event(worker, "started", revisit)
-        self.assertEqual((preroll["window_start_frame"], preroll["preroll"], preroll["request_id"]),
-                         (0, True, 6))
-        fake.release()
-        restored = self.collect(worker, revisit)
-        self.assertEqual(restored[0]["frame_start"], HOP)
+        # The first window has aged out of the three recent-window slots.
+        # A replay at the converter anchor must still use the original opening.
+        opening_anchor = 236082
+        revisit = worker.seek(opening_anchor)
+        opening = self.event(worker, "chunk", revisit, timeout=1)
+        restored = [opening, *self.collect(worker, revisit)]
+        self.assertEqual([chunk["request_id"] for chunk in restored], [1, 2, 3, 5])
+        self.assertEqual(opening["frame_start"], opening_anchor)
         self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
-        self.assertEqual(fake.calls, 6)
+        self.assertEqual(fake.calls, 5)
+        np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
+                                      expected[:, opening_anchor:])
+
+        # The same retained opening supplies exact-grid preroll, without
+        # evicting one of the three useful recent weighted windows.
+        restored = self.collect(worker, worker.seek(HOP))
+        self.assertEqual([chunk["request_id"] for chunk in restored], [2, 3, 5])
+        self.assertTrue(all(chunk["inference_reused"] is True for chunk in restored))
+        self.assertEqual(fake.calls, 5)
         np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
                                       expected[:, HOP:])
-
 
     def test_repeat_cold_seek_reuses_preroll_while_suffix_is_pending(self):
         raw = self.root / "cold-seek-preroll.f32"
