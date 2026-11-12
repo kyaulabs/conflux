@@ -3,14 +3,14 @@
 """Experimental M0 supervisor; never call from the audio callback.
 
 One background thread streams stereo 44.1 kHz PCM16 WAV or raw F32LE input to one
-persistent native separator. Cancellation invalidates work immediately; an in-flight GPU
-request finishes and is discarded. Timeout/close can terminate the child. Output
+persistent native separator. Cancellation invalidates work immediately. A same-source
+seek can use an active request for the exact input window. Timeout/close can terminate the child. Output
 is bounded, source-major float32 [stem, frame, channel]. NumPy is required only
 for this isolated experiment, not the application build.
 """
 
 from collections import OrderedDict, deque
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 import hashlib
@@ -273,6 +273,7 @@ class _Command:
     path: Path
     start: int
     issued: float
+    source_generation: int
     source_format: str = "wav_pcm16"
 
 
@@ -285,6 +286,15 @@ class _Source:
     mean: np.float32
     std: np.float32
     source_format: str = "wav_pcm16"
+
+
+@dataclass(frozen=True)
+class _PendingInference:
+    command: _Command
+    source: _Source
+    event: dict
+    future: Future
+    source_read_ms: float
 
 
 class _Superseded(Exception):
@@ -353,6 +363,7 @@ class StemWorker:
         self._factory = _backend_factory
         self._condition = threading.Condition()
         self._generation = 0
+        self._source_generation = 0
         self._command = None
         self._path = None
         self._source_format = "wav_pcm16"
@@ -398,13 +409,14 @@ class StemWorker:
                 raise RuntimeError("load a source before seeking")
             self._generation += 1
             if action != "seek":
+                self._source_generation = self._generation
                 self._opening_weighted_window = None
                 self._weighted_windows.clear()
             if action == "cancel":
                 self._cancelled += 1
             now = time.monotonic()
             self._command = None if action == "cancel" else _Command(
-                self._generation, self._path, start, now, self._source_format)
+                self._generation, self._path, start, now, self._source_generation, self._source_format)
             self._source_id = None
             self._requested_start = start
             self._next_consume = start
@@ -706,11 +718,11 @@ class StemWorker:
         output, metrics = native.infer(samples, request_id)
         return output, metrics, (time.monotonic() - started) * 1000
 
-    def _wait_inference(self, command=None):
+    def _wait_inference(self, command=None, *, adopt=False):
         pending = self._pending_inference
         if pending is None:
             return None
-        owner, event, future = pending
+        owner, event, future = pending.command, pending.event, pending.future
         with self._condition:
             while not future.done():
                 if command is not None and (self._closed or self._command != command):
@@ -721,12 +733,48 @@ class StemWorker:
             self._pending_inference = None
             self._inflight = None
         output, metrics, elapsed = future.result()
-        if owner != command:
+        if owner != command and not adopt:
             self._emit("discarded", owner.generation, request_id=event["request_id"],
                        source_id=event["source_id"], window_start_frame=event["window_start_frame"],
                        request_ms=elapsed)
             return None
         return output, metrics, elapsed
+
+    def _inference_for_window(self, command, source, start, preroll):
+        pending = self._pending_inference
+        if (pending is not None and source.source_format == "f32le" and pending.source is source
+                and pending.command.source_generation == command.source_generation
+                and pending.event["window_start_frame"] == start):
+            # The pending request used this exact grid window and normalization.
+            # Keep its real request timings and charge the new hop for the wait.
+            output, metrics, elapsed = self._wait_inference(command, adopt=True)
+            if _signature(source.path) != source.signature:
+                raise RuntimeError("stem source changed during pending inference")
+            return output, metrics, elapsed, pending.event["request_id"], pending.source_read_ms
+
+        # The persistent transport permits only one request at a time.
+        self._wait_inference(command)
+        self._check(command)
+        read_started = time.monotonic()
+        samples = self._read_window(source, start)
+        source_read_ms = (time.monotonic() - read_started) * 1000
+        self._check(command)
+        self._request_id += 1
+        request_id = self._request_id
+        started = time.monotonic()
+        self._emit("started", command.generation, request_id=request_id,
+                   source_id=source.identity, window_start_frame=start, preroll=preroll,
+                   timestamp=started)
+        with self._condition:
+            event = {"generation": command.generation, "request_id": request_id,
+                     "window_start_frame": start, "source_id": source.identity,
+                     "timestamp": started, "preroll": preroll}
+            future = self._executor.submit(self._exchange, self._native, samples, request_id, started)
+            self._inflight = event
+            self._pending_inference = _PendingInference(command, source, event, future, source_read_ms)
+            future.add_done_callback(self._notify_inference)
+        output, metrics, elapsed = self._wait_inference(command)
+        return output, metrics, elapsed, request_id, source_read_ms
 
     def _cached_seek_prefix(self, command):
         source = self._cached_source
@@ -781,29 +829,8 @@ class StemWorker:
                 overlap_started = time.monotonic()
                 timings = {"inference_reused": True}
             else:
-                # A cached prefix can be published while the superseded native
-                # request finishes. Fresh input still uses the sole exchange.
-                self._wait_inference(command)
-                self._check(command)
-                read_started = time.monotonic()
-                samples = self._read_window(source, start)
-                source_read_ms = (time.monotonic() - read_started) * 1000
-                self._check(command)
-                self._request_id += 1
-                request_id = self._request_id
-                started = time.monotonic()
-                self._emit("started", command.generation, request_id=request_id,
-                           source_id=source.identity, window_start_frame=start, preroll=preroll,
-                           timestamp=started)
-                with self._condition:
-                    event = {"generation": command.generation, "request_id": request_id,
-                             "window_start_frame": start, "source_id": source.identity,
-                             "timestamp": started, "preroll": preroll}
-                    future = self._executor.submit(self._exchange, self._native, samples, request_id, started)
-                    self._inflight = event
-                    self._pending_inference = (command, event, future)
-                    future.add_done_callback(self._notify_inference)
-                output, metrics, elapsed = self._wait_inference(command)
+                output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
+                    command, source, start, preroll)
                 if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
                     raise RuntimeError("stem backend returned invalid samples")
                 overlap_started = time.monotonic()
@@ -869,7 +896,7 @@ class StemWorker:
             while True:
                 with self._condition:
                     while not self._closed and (self._command is None or self._command.generation == processed):
-                        if self._pending_inference is not None and self._pending_inference[2].done():
+                        if self._pending_inference is not None and self._pending_inference.future.done():
                             break
                         self._condition.wait()
                     if self._closed:
@@ -880,13 +907,13 @@ class StemWorker:
                         processed = command.generation
                         self._processing_generation = processed
                     else:
-                        command = self._pending_inference[0]
+                        command = self._pending_inference.command
                 try:
                     if not producing:
                         self._wait_inference()
                         continue
                     if self._pending_inference is not None and not self._cached_seek_prefix(command):
-                        previous, _, _ = self._pending_inference
+                        previous = self._pending_inference.command
                         try:
                             self._wait_inference(command)
                         except _Superseded:
