@@ -634,6 +634,8 @@ void dspReference()
     for (const auto leaves : {1U, 4U}) for (const auto prefix : {0U, 3072U})
         for (bool keyLock : {false, true}) for (double percent : {-6., 6.}) {
         Input input; input.frames = 12011; input.leaves = leaves;
+        // R3 should receive the same fixed input blocks when live reads fragment.
+        if (keyLock) input.maximumRead = 389;
         std::array<std::unique_ptr<std::FILE, FileCloser>, 4> files;
         std::array<int, 4> fds{};
         for (std::size_t leaf = 0; leaf < leaves; ++leaf) {
@@ -649,7 +651,7 @@ void dspReference()
         PreparedTempoSource live{input.descriptor()};
         input.available.store(prefix);
         require(finite.request(0, percent, keyLock) && live.request(0, percent, keyLock), "DSP requests rejected");
-        await([&] { return input.calls.load() >= prefix / 1024 + 3; });
+        await([&] { return input.emptyReads.load() >= 3; });
         require(!live.errorCode() && !live.status().finished, "Gap incorrectly finalized the DSP");
         input.available.store(input.frames);
         const auto expected = drain(finite), actual = drain(live);
