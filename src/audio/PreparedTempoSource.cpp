@@ -481,7 +481,7 @@ private:
         std::array<float, blockFrames * 2U> stereo{};
         std::uint64_t generation = 0, nextFrame = 0;
         std::uint64_t desiredRevision = 1, appliedRevision = 1, desiredCommand = 0, appliedCommand = 0;
-        std::size_t inputFrames = 0, inputOffset = 0;
+        std::size_t inputFrames = 0, inputOffset = 0, stagedInput = 0;
         double desiredPercent = 0, appliedPercent = 0;
         long double nominal = 0;
         int terminalError = 0;
@@ -542,7 +542,7 @@ private:
                 firstGenerationSlot = written_.load(std::memory_order_relaxed);
                 generation = request.generation;
                 nextFrame = request.frame;
-                inputFrames = inputOffset = 0;
+                inputFrames = inputOffset = stagedInput = 0;
                 nominal = static_cast<long double>(request.nominalStart);
                 desiredPercent = appliedPercent = request.initialPercent;
                 desiredCommand = appliedCommand = request.initialCommand;
@@ -600,16 +600,28 @@ private:
                     if (inputOffset == inputFrames && request.loopOut && nextFrame == request.loopOut)
                         nextFrame = request.loopIn;
                     const auto inputEnd = request.loopOut ? request.loopOut : frames_;
-                    bool inputUnavailable = false;
+                    bool inputUnavailable = false, inputStaged = false;
+                    const auto channels = leafCount_ * 2U;
                     if (inputOffset == inputFrames && nextFrame < inputEnd) {
                         const auto wanted = static_cast<std::size_t>(std::min<std::uint64_t>(blockFrames, inputEnd - nextFrame));
                         inputOffset = inputFrames = 0;
-                        const int code = readInput(generation, nextFrame, wanted, input, stereo, stop, inputFrames);
+                        std::size_t received = 0;
+                        const int code = readInput(generation, nextFrame + stagedInput, wanted - stagedInput,
+                            std::span(input).subspan(stagedInput * channels), stereo, stop, received);
                         if (code) throw std::system_error(code, std::generic_category());
-                        nextFrame += inputFrames;
-                        inputUnavailable = !inputFrames;
+                        stagedInput += received;
+                        // Use stable input geometry for finite, linear R3 streams.
+                        if (stream_.read && !request.loopOut && request.keyLock && request.initialPercent != 0 &&
+                            stagedInput < wanted) {
+                            inputUnavailable = !received;
+                            inputStaged = received != 0;
+                        } else {
+                            inputFrames = stagedInput;
+                            nextFrame += inputFrames;
+                            stagedInput = 0;
+                            inputUnavailable = !inputFrames;
+                        }
                     }
-                    const auto channels = leafCount_ * 2U;
                     const auto offered = std::span<const float>(input).subspan(inputOffset * channels,
                         (inputFrames - inputOffset) * channels);
                     const bool eof = !request.loopOut && nextFrame == frames_ && inputOffset == inputFrames;
@@ -628,6 +640,7 @@ private:
                         terminalPending = true;
                     }
                     if (!step.internalProgress && !step.inputFramesUsed && !step.outputFrames && !terminalPending) {
+                        if (inputStaged) continue;
                         if (inputUnavailable) {
                             // Empty input is a temporary gap. Pending DSP output
                             // was still allowed to drain above; no EOF or source
