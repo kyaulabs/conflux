@@ -37,7 +37,7 @@ float sample(std::size_t role, std::uint64_t frame, std::size_t channel)
     return channel ? -value : value;
 }
 struct Control {
-    std::atomic<std::uint64_t> allowance{extent}, target{0}, epoch{0};
+    std::atomic<std::uint64_t> allowance{extent}, target{0}, epoch{0}, published{0};
     std::atomic<bool> exited{false};
     std::atomic<int> failure{0};
 };
@@ -66,7 +66,10 @@ PreparedPlayback::LiveProducer producer(std::shared_ptr<Control> control, std::u
             LiveStemBuffer::Packet packet{request.sourceId, epoch, cursor, count, cursor + count == sourceFrames, {}};
             for (std::size_t role = 0; role < 4; ++role) packet.stems[role] = std::span(leaves[role]).first(count * 2);
             const auto result = port.tryPublish(packet);
-            if (result == LiveStemBuffer::PublishResult::Accepted) cursor += count;
+            if (result == LiveStemBuffer::PublishResult::Accepted) {
+                cursor += count;
+                control->published.store(cursor);
+            }
             else if (result == LiveStemBuffer::PublishResult::Invalid) { port.fail(EPROTO); break; }
             else std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
@@ -248,6 +251,67 @@ void liveControls()
             "Missing live input inserted audio, moved transport or failed prematurely");
     const auto begin = Clock::now(); owner->stop();
     require(Clock::now() - begin < std::chrono::seconds(1) && control->exited.load(), "Stalled live tempo prevented complete owner shutdown");
+}
+void coldSeekRetainsItsAudibleReserve()
+{
+    constexpr auto target = PreparedPlayback::liveReserveFrames + 18000;
+    constexpr auto replacement = extent - PreparedPlayback::liveReserveFrames + 123;
+    constexpr auto required = PreparedPlayback::liveReserveFrames;
+    const auto collect = [&](bool fragmented) {
+        auto control = std::make_shared<Control>();
+        auto owner = PreparedPlayback::makeLive(5091, extent, producer(control));
+        require(owner->prime(0, std::chrono::seconds(4)), "Cold seek fixture did not prime");
+        const auto source = owner->sourceRef();
+        source.setRenderActive(source.context, true);
+        require(source.tempoControl(source.context, AudioTempoCommand::Set, 6, true, 0),
+                "Cold seek fixture rejected Master Tempo");
+        const auto seek = [&](std::uint64_t frame) {
+            source.discontinuity(source.context, frame);
+            await([&] { return control->target.load() == frame; });
+        };
+        std::array<float, 512> output{};
+        if (fragmented) {
+            control->allowance.store(required / 2);
+            seek(target);
+            await([&] { return control->published.load() == target + required / 2; });
+            const auto assertMuted = [&](std::uint64_t frame) {
+                const auto muted = source.read(source.context, frame, output);
+                require(!muted.failed && !muted.frames && muted.positionValid && muted.nominalPosition == double(frame),
+                        "A partial cold seek reserve escaped to playback");
+            };
+            assertMuted(target);
+            source.setRenderActive(source.context, false);
+            source.setRenderActive(source.context, true);
+            source.discontinuity(source.context, target);
+            assertMuted(target);
+            // A new position inside the pending raw range needs its own reserve.
+            // The original seek must not grant the new target.
+            seek(target + 4096);
+            assertMuted(target + 4096);
+        }
+        // The replacement is within one reserve of EOF. It can open when
+        // the exact remaining frames arrive, including the one-frame tail.
+        control->allowance.store(fragmented ? extent - replacement - 1 : extent);
+        seek(replacement);
+        if (fragmented) {
+            await([&] { return control->published.load() == extent - 1; });
+            const auto muted = source.read(source.context, replacement, output);
+            require(!muted.failed && !muted.frames && muted.positionValid && muted.nominalPosition == double(replacement),
+                    "An obsolete seek or a partial tail opened the replacement reserve");
+            control->allowance.store(extent);
+        }
+        double cursor = replacement;
+        std::vector<float> pcm;
+        for (unsigned block = 0; block < 20; ++block) {
+            const auto result = read(source, cursor, output);
+            pcm.insert(pcm.end(), output.begin(), output.begin() + result.frames * 2);
+        }
+        require(cursor > replacement, "Released seek did not advance from its target");
+        return pcm;
+    };
+    const auto continuous = collect(false);
+    const auto fragmented = collect(true);
+    require(!fragmented.empty() && fragmented == continuous, "Cold seek changed PCM after releasing its reserve");
 }
 void renderCommands()
 {
@@ -685,6 +749,7 @@ int main(int argc, char** argv)
         require(argc == 1, "Unknown live tempo test case");
         pendingTempoArm();
         liveControls();
+        coldSeekRetainsItsAudibleReserve();
         renderCommands();
         preservesConfiguredRecovery();
         recoveryAtSelectedTempo();
