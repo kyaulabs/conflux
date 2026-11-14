@@ -1,0 +1,261 @@
+{
+  "schema": 1,
+  "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+  "recorded_utc": "2026-10-31T18:11:46.490759+00:00",
+  "files": [
+    {
+      "file": "001-approved-physical-test-preemption-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-01/approved-physical-test-preemption-01.json",
+      "bytes": 2686,
+      "sha256": "d1c796f4c6931c869291347c2e31a9b8ceb6c44f9d0427f5c6059763d850c66b",
+      "gzip_bytes": 982,
+      "gzip_sha256": "30774f80c6541ef8e89736af88323f67388d3568f02c240a282b2c5faa97ce04"
+    },
+    {
+      "file": "002-plan.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-continuation-01/plan.json",
+      "bytes": 9961,
+      "sha256": "6beb1f0216aba1b327402ba08c525dae916eb3bb72e205fedd125dada2e89a45",
+      "gzip_bytes": 2741,
+      "gzip_sha256": "9260e5a63ba7dee548e81364a9dbd825eda8f0664dfcc2ac3dde7930dbcd388c"
+    },
+    {
+      "file": "003-continuation_inputs.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-continuation-01/continuation_inputs.py",
+      "bytes": 4217,
+      "sha256": "30e890aed942fd66545dff2e92c3cc67f08d21505039a99723ab8165bc2e9675",
+      "gzip_bytes": 1431,
+      "gzip_sha256": "ccbeffe403091d566266772eca0c1e86b4c4921252b366cb3cdf00db972fa3ac"
+    },
+    {
+      "file": "004-generate_publisher_corpus.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-continuation-01/generate_publisher_corpus.py",
+      "bytes": 9232,
+      "sha256": "a28916c135700edb9c9da2c39cc96cea988c5ec9fbe4230b5d8bdf18bea4db8e",
+      "gzip_bytes": 3422,
+      "gzip_sha256": "83db4377426f73cf8331da0c3790b3ad10b352b9aee663b7e6d7a270ac33fd28"
+    },
+    {
+      "file": "005-corpus_owner.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-continuation-01/corpus_owner.py",
+      "bytes": 6651,
+      "sha256": "954714e1eee1babeb36d240ea9a09591facbeea2eec0bd405a80790217103967",
+      "gzip_bytes": 2472,
+      "gzip_sha256": "62aa975c1940cca250b5e4c7404b3a7c47cdcb8b30cc89b8b434805ed98ff889"
+    },
+    {
+      "file": "006-dispatch-result-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-continuation-01/dispatch-result-01.json",
+      "bytes": 1243,
+      "sha256": "72d4a5d24549ffafd05996e9cd693e6d5a89ea6d39fbbcf8f7e363ed836cccb5",
+      "gzip_bytes": 473,
+      "gzip_sha256": "72876c89537c9faa22c118b8dff3083a9e27db40ff34ac14cedbbffbf1e07bd2"
+    },
+    {
+      "file": "007-full-corpus-closed-verification-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/corpus-continuation-01/full-corpus-closed-verification-01.json",
+      "bytes": 47412,
+      "sha256": "8440129c262150ae696bc208e107f145ca2ef49a1669480e3f565111ed848f61",
+      "gzip_bytes": 6601,
+      "gzip_sha256": "6d64d39b40ae97d53c0d67b19b97d7ba60d5fb7a5de8c01fd7424b517a765f32"
+    },
+    {
+      "file": "008-plan.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/plan.json",
+      "bytes": 408666,
+      "sha256": "ff9fec840ef12535266d49628ffe2fc78676d87c92ecb0977ed3333fa5662409",
+      "gzip_bytes": 84835,
+      "gzip_sha256": "1a897d6bc40f597ee9e1832233e8d281dbdad079b621c463128166b6935ffc5f"
+    },
+    {
+      "file": "009-extract_publisher_pcm16.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/extract_publisher_pcm16.py",
+      "bytes": 10761,
+      "sha256": "109bb2c1d7d57517d3659baac723e536cf75e7e9b38ee3a0834164bdd0f3f6ac",
+      "gzip_bytes": 3639,
+      "gzip_sha256": "e916c0f87f2711d25ea65a79dd1bc8ca7beb2ef4a93c84f7d55291f2431576eb"
+    },
+    {
+      "file": "010-features_owner.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/features_owner.py",
+      "bytes": 7885,
+      "sha256": "855e6cbc29b5613a61b1aad8d136c4f8df218447927d70fe1d750f3cd1da2b1e",
+      "gzip_bytes": 2842,
+      "gzip_sha256": "be59daf1fff8e168d8aa839ec532d54baf0cab834278f72128a8877f9a456bd0"
+    },
+    {
+      "file": "011-spectrogram.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/spectrogram.py",
+      "bytes": 2392,
+      "sha256": "14fb203a73e44e2b0a585e5b829b4e2964e5839ea8dd4bd9e4a5fea2c5a23cf9",
+      "gzip_bytes": 956,
+      "gzip_sha256": "1dfec1150af3d3c0dd05a7ad0c72c4ca2ce0b19bc6213b786113a5bb9d9f8b1b"
+    },
+    {
+      "file": "012-dispatch-result-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/dispatch-result-01.json",
+      "bytes": 1224,
+      "sha256": "b8565be7d03a6cd0a1e7df8aefb462170f268a2460a01770c4545007ccb21395",
+      "gzip_bytes": 459,
+      "gzip_sha256": "09f13effd56ebd76299550fdabc84484ce46f21ef50b5e1393f8f2df995f403a"
+    },
+    {
+      "file": "013-composite-handoff-checks-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/composite-handoff-checks-01.json",
+      "bytes": 186,
+      "sha256": "2ffd11dc990b1bd8488616bf291d2d3f49679ddf60faea43aaff2bb27eb1d1fe",
+      "gzip_bytes": 144,
+      "gzip_sha256": "df96c704beccfa7b50507c63545e062936f5bb0bbd8db43631b80d6844bd3c45"
+    },
+    {
+      "file": "014-completed-features-closure-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/features-continuation-01/completed-features-closure-01.json",
+      "bytes": 44692,
+      "sha256": "9057a78e96d52a313b898c900ddde5923ce632554aa15164789e744da538fbac",
+      "gzip_bytes": 5389,
+      "gzip_sha256": "cc5d8efbba5d1bfa1fee1321b568400c2329f692c589a1a209d26fcc1df2cf79"
+    },
+    {
+      "file": "015-plan.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/plan.json",
+      "bytes": 8431,
+      "sha256": "94a3d51d24359209b23fe21ebf72aa932cf3844bd9bfbb69e1b0b85abb3dd559",
+      "gzip_bytes": 1749,
+      "gzip_sha256": "2e8ab6182f189969cb5185ae2d4981c5b4dfc284b374a1b9ec0fe374cc7cc968"
+    },
+    {
+      "file": "016-handoff-check-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/handoff-check-01.json",
+      "bytes": 1033,
+      "sha256": "97f5b233e76739b46b037a1ecb9fd31682de224915603e3a2ef3d4a94b1e3e41",
+      "gzip_bytes": 306,
+      "gzip_sha256": "7c58001b172d21e48949fffb54a05d4ddcd404ed0a5845f5d26c18a356ac4b72"
+    },
+    {
+      "file": "017-structure_music_supervisor.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/structure_music_supervisor.py",
+      "bytes": 10761,
+      "sha256": "023ddc8f30ea72c2fe0fda385d4f05b87d418ec5d28515aa8587084bbf7ef4cf",
+      "gzip_bytes": 3555,
+      "gzip_sha256": "30630705fe7052aed3ae08fa07881d03807c3b1a8b1b4319f0a5363cc072b52d"
+    },
+    {
+      "file": "018-structure_music_owner.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/structure_music_owner.py",
+      "bytes": 4243,
+      "sha256": "f45c304848ee5496c339e37bd1abed2ebb6db00f2a82722217cbda374599051c",
+      "gzip_bytes": 1587,
+      "gzip_sha256": "45d7b4fba8dff94870053c4ded19964ad42ab87490f666d6a11a7c55db3f3f75"
+    },
+    {
+      "file": "019-assess_music_structure.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/assess_music_structure.py",
+      "bytes": 7972,
+      "sha256": "ed78435ecc25ac82841b7f32e511ab904b7ab81d47c3f3d2607f48ba3fd75984",
+      "gzip_bytes": 2859,
+      "gzip_sha256": "ad8948797c2067c9dfb84bf9cb2d832adf8b083429602c049472f771c9f29873"
+    },
+    {
+      "file": "020-model_bootstrap.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/model_bootstrap.py",
+      "bytes": 4142,
+      "sha256": "2d53ec0bd798309fff173d478791786e9e1271f106eb914b33201f541c6dc69c",
+      "gzip_bytes": 1669,
+      "gzip_sha256": "e0842480aa458d0c3ce0b9f44c6e502f69b097705f8df50f9a8b3d1b9252ce47"
+    },
+    {
+      "file": "021-postprocess_bootstrap.py.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/postprocess_bootstrap.py",
+      "bytes": 3159,
+      "sha256": "a70c72ef544eb889ff57c70f015ca11adba41d1aadf4af606a5d7761dd9c306f",
+      "gzip_bytes": 1213,
+      "gzip_sha256": "d08a1018101164fe2b1f6d5923c9262be4aa924ff6c9fd2700bfb47fdfe2c6e4"
+    },
+    {
+      "file": "022-dispatch-result-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/dispatch-result-01.json",
+      "bytes": 1272,
+      "sha256": "60b858bdc64eb5f80873ca2999fd7cae43babd5f377610e63b5d7f4dc56fa105",
+      "gzip_bytes": 471,
+      "gzip_sha256": "5b30132a1e982c13bf0173ed38025a7133c095eb4ad4e0d781cc776626df2fec"
+    },
+    {
+      "file": "023-full-assessment-closed-verification-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/full-assessment-closed-verification-01.json",
+      "bytes": 129204,
+      "sha256": "9c9f1c7ca8adb4118cc2d38f59a9265fbc2bd3e5a1cc7e798bc62058a9df2d47",
+      "gzip_bytes": 11698,
+      "gzip_sha256": "b4e131d720c51bb69062c282206583a8b47108802ded97c029bbed864cefed40"
+    },
+    {
+      "file": "024-boundary-report-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/boundary-report-01.json",
+      "bytes": 219319,
+      "sha256": "ede7c8d71651680163f4edfa04b988b9ed23cbd15b6ae4b6c5ad82e4fdf1bdab",
+      "gzip_bytes": 22180,
+      "gzip_sha256": "3ac4f87a8741f9b829f6b7c5ea35b901fed72920bf58f0df7bccbc38a552ebd4"
+    },
+    {
+      "file": "025-comparison-01.json.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/comparison-01.json",
+      "bytes": 2660,
+      "sha256": "7e96e9543763d5c4bff043ee73f811b39ba065d80e1b5ccce9838e92a2e444cc",
+      "gzip_bytes": 694,
+      "gzip_sha256": "347684097a2be6d191db67d5fd42327acd6251010fc6cbdf21adc01701fdf9d4"
+    },
+    {
+      "file": "026-LICENSE.all-in-one.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/LICENSE.all-in-one",
+      "bytes": 1066,
+      "sha256": "f75e7cd094466fd9a06b31eff35068d07f120fcd0c04e2893df75384ae1c4abf",
+      "gzip_bytes": 646,
+      "gzip_sha256": "07811cbe1f05383ce22769d58b48294eb497d9383a887654f96bd180dcdbe8a4"
+    },
+    {
+      "file": "027-LICENSE.natten.gz",
+      "original": "build/m2-structure-assessment-01/publisher-demix-audit-01/structure-continuation-01/LICENSE.natten",
+      "bytes": 1069,
+      "sha256": "b52c367031ba8ce93cedcf77a3a22fedd4d2170ddac29f9ac533089d3789c1e9",
+      "gzip_bytes": 647,
+      "gzip_sha256": "5119ff0dfd5e1de308db080ea0ae1635f8ca12f56d752c060fa40aaa3ed3f9a9"
+    },
+    {
+      "file": "028-boundary_metrics.py.gz",
+      "original": "build/m2-structure-assessment-01/boundary_metrics.py",
+      "bytes": 4223,
+      "sha256": "ed09c93082c462f0cc6c261e466e022cfbaaebd257b9d576e076d27a86548df3",
+      "gzip_bytes": 1473,
+      "gzip_sha256": "af64914ec19e67f269fcd04d89be4f553318c1e6f0f63d7d2e70ff4302d77200"
+    },
+    {
+      "file": "029-score_music_boundaries.py.gz",
+      "original": "build/m2-structure-assessment-01/score_music_boundaries.py",
+      "bytes": 4414,
+      "sha256": "7a416a998f8d53633f32417335a279d675ad9a2b07d72e9f3d80104ef77afee2",
+      "gzip_bytes": 1424,
+      "gzip_sha256": "403b258b7f39160ce83897dc007bd9c457d9797724194b230dc7f9ec75e7adaa"
+    },
+    {
+      "file": "030-section-assessment-result-01.json.gz",
+      "original": "build/m2-structure-assessment-01/section-assessment-result-01.json",
+      "bytes": 3974,
+      "sha256": "5491fd1eecc69f39de67a682d821c99c7efd6c4a3ccca529c950d39ef61d59b8",
+      "gzip_bytes": 1586,
+      "gzip_sha256": "048c75e86eb3a44c61f50deffeec6ac45b06e7032cddebb8d7439ccfa8e83f0a"
+    },
+    {
+      "file": "031-apollo-boundary-report.json.gz",
+      "original": "build/m2-structure-assessment-01/music-replay-02/apollo-boundary-report.json",
+      "bytes": 217726,
+      "sha256": "5de113bfa5cdc718e1f2f11a3de8bb15e8a8678738cd915da3fbacf1fc5d2639",
+      "gzip_bytes": 21345,
+      "gzip_sha256": "b8e4eb293faaa27b36dd5c142471cbbb738807b7e69614a0b15ff38da84fd51b"
+    }
+  ],
+  "total_uncompressed_bytes": 1181876,
+  "total_gzip_bytes": 191488,
+  "audio_models_binaries_or_credentials_included": false,
+  "qualified": false,
+  "scope": "Original interrupted reference owner, six-preserved/two-new continuation, complete publisher PCM16 feature extraction, closed CPU-only eight-fold assessment and unchanged two-annotator scores. Raw audio, feature arrays, logits, runtime and model weights stay external.",
+  "annotation_policy_sha256": "e0e43a1ab80578f04aa81022e044e5b537d4b3adedfa7aa8223b40ce4f31aae0"
+}

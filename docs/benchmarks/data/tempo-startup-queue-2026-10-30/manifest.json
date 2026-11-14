@@ -1,0 +1,2746 @@
+{
+  "schema": 1,
+  "bundles": [
+    {
+      "file": "checks.json.gz",
+      "bytes": 490880,
+      "sha256": "42defffe334c51a936396f6e2554b9de02f7d09d466a36f4d9497f1396afac9d",
+      "decoded_bytes": 5086476,
+      "members": [
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/check.stdout.json",
+          "bytes": 9205,
+          "sha256": "699383d36c6e3ca17e106b1a5eb9cd1881cf6944a030c7347ab74aaa5b3cb983"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/cleanup-pw-dump.json",
+          "bytes": 12358,
+          "sha256": "e3a6a6ae7e6b086c61df3f4ea370b9d764d50782ae848079fd2b8335050ac377"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/daemon.log",
+          "bytes": 30875,
+          "sha256": "16fd208657efe2e6b40598cc4d6e9f6beeedab505cff9b7b591fef2371b13827"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/preflight-pw-dump.json",
+          "bytes": 12363,
+          "sha256": "3a7f6c273637278f27ab7da5ab9b72b2b091fa1463d4a20c3ec0183a0c4b5699"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/evidence-scheduler-resident-tempo-takeover-01/result.json",
+          "bytes": 8193,
+          "sha256": "c7892dcaaf569d025f726449728688f906c7632d275055cdf3286e2db52e95ff"
+        },
+        {
+          "file": "controller-scheduler-laptop-01/trace.jsonl",
+          "bytes": 194225,
+          "sha256": "d8b590243ce2b4555033833b499ec24396f1f9653d540dcd8047be53ec0bcc60"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/check.stdout.json",
+          "bytes": 5876,
+          "sha256": "96e35585a2f439a5d1b9534a188a11766df28ed6a21acc5e8f7ec426f831ba35"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "b422718886aa8607d5532da311bef3116fc78a0b36af16ff136e2b9e2b2f56d8"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/daemon.log",
+          "bytes": 31383,
+          "sha256": "09c2a5827b33ea0caa4d9ed0407e55c57c599182182d65353f037294027a00e9"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "08c7d093ef03231f33a551e465e2bfcd776350bbbdd6b29f447f90e01d61727d"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/evidence-scheduler2-resident-tempo-takeover-01/result.json",
+          "bytes": 5925,
+          "sha256": "23f8ed03673fe9046ea407795ea34aa9114f2d76de6df91f6d81a1e729931f36"
+        },
+        {
+          "file": "controller-scheduler-laptop-02/trace.jsonl",
+          "bytes": 946891,
+          "sha256": "b77a35d1d3999059ec468f458b7b13ccd868ce8c2eed6f26c1e2084d978b84ca"
+        },
+        {
+          "file": "controller-scheduler-pair-results-01.json",
+          "bytes": 8016,
+          "sha256": "963cbff74233f9b2678ddf512d5fdccb5dc946ead6a67a1b75530ce140706025"
+        },
+        {
+          "file": "controller-scheduler-pair-results-02.json",
+          "bytes": 8016,
+          "sha256": "b9fd6242c3a035e80dd1183098f5410905d16d55c0ba714ba7f696f37ceb9a9c"
+        },
+        {
+          "file": "controller-strict-cpu2-apollo-resident-tempo-takeover-01.json",
+          "bytes": 5792,
+          "sha256": "77b73066edabc2e6c5090b29b8057fdc5ae04f77bdd85bb8757dc73b841a6ad6"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/check.stdout.json",
+          "bytes": 9247,
+          "sha256": "bf076cfd0ffbb1d58f38d2a2522bc11159d3733a2a8b3ae5a6fc8e82a83fa0e7"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "63716b9f5c29e94ffee7c668629a9fbe3cb2a7b1926ea6eef66c72203b008bf5"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/daemon.log",
+          "bytes": 31753,
+          "sha256": "21d993893847e8aec818263997b51e6d3e33994227e7e2dbe38a279ee7f6466b"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "b92c97d4ef93e85dd80c837b67799b945207874fe49d7c9e7417617272064fda"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "controller-strict-cpu2-laptop-01/evidence-strict-cpu2-resident-tempo-takeover-01/result.json",
+          "bytes": 8235,
+          "sha256": "b21804c4bf584fbe3147deb273acf9f6af322d3dc0970c5c6412c98a6ce8fa3e"
+        },
+        {
+          "file": "controller-strict-cpu2-pair-results-01.json",
+          "bytes": 7948,
+          "sha256": "5136de63821223c988a676aab2d5fd98c879c5407aa74f58d5ca2cffb438ab8d"
+        },
+        {
+          "file": "controller-strict-cpu2-summary-01.json",
+          "bytes": 1304,
+          "sha256": "8bb1326d9e8c9cca50f873e793279939c76b88529d2f333b434418bcf540693e"
+        },
+        {
+          "file": "prewarm-prototype-01/0.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/0.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/1.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/1.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/2.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/2.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/abba-bindings-01.json",
+          "bytes": 883,
+          "sha256": "dbe521bf9cb813f125250e9ee97120ae0d96e1d039bfdb73df06fcc78b05619c"
+        },
+        {
+          "file": "prewarm-prototype-01/abba-results-01.json",
+          "bytes": 30416,
+          "sha256": "d895503ad182abfd23db83a54c940ddfe975c7f07ec8e45fb4cda153f6da1be8"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-baseline-01-01.json",
+          "bytes": 5786,
+          "sha256": "27416f0cf8b931423d79c143d0f8668972939df3ea71a8a464791c03fc6716be"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-baseline-01-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-baseline-01-01.stdout.log",
+          "bytes": 4824,
+          "sha256": "bf1e51cb9e463a89e352d436c922edcb5d5d1b0dbcca19547b6eadcf29a7dc2f"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-baseline-02-01.json",
+          "bytes": 5786,
+          "sha256": "d339a56df2629cc5a4027f8d46d2e43ea8fecd776bb8a62c75f25374d70a47ae"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-baseline-02-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-baseline-02-01.stdout.log",
+          "bytes": 4824,
+          "sha256": "dee62c53e844c3048fd33d82ecd5a1144ad247981270d74206252735b13e7cdc"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-binary-pins-01.json",
+          "bytes": 240,
+          "sha256": "7e37a1b790cbfc9ae3c3c239729d8a7bdd84862e8e08d852c7341f61e4341851"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-build-01.json",
+          "bytes": 2230,
+          "sha256": "069c32cabc34312c25965f59c66850366147eea51f875c2bf1c37d7d8d75cd43"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-build.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-build.stdout.log",
+          "bytes": 2230,
+          "sha256": "069c32cabc34312c25965f59c66850366147eea51f875c2bf1c37d7d8d75cd43"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-candidate-01-01.json",
+          "bytes": 5787,
+          "sha256": "ce1400575a72364db7decaafc33ba9edce20a20864eae7cc4f36ba0edd71e6a9"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-candidate-01-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-candidate-01-01.stdout.log",
+          "bytes": 4825,
+          "sha256": "ad5f005910d24f8665b4b7208be20385380ed32cd78145a93ffa0860ee59627e"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-candidate-02-01.json",
+          "bytes": 5787,
+          "sha256": "51b60337c5a89d84adf774d6cc33be8e6893055d94455ceb5e134da6b0551802"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-candidate-02-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/apollo-candidate-02-01.stdout.log",
+          "bytes": 4825,
+          "sha256": "0aac59bca59211dd7a1c9afadb89b92fe26f9560a938c537029a1fd16c6a9cc5"
+        },
+        {
+          "file": "prewarm-prototype-01/build-receipt-01.json",
+          "bytes": 3419,
+          "sha256": "10a386347db73ee8a9ddbe35ede9ce01765ce398b60159ddfd898e4492a77390"
+        },
+        {
+          "file": "prewarm-prototype-01/candidate-source-01.json",
+          "bytes": 498,
+          "sha256": "0bed51302be4fef65d864866d2ffc10879320a2a66e7e7c5c17e648aff979176"
+        },
+        {
+          "file": "prewarm-prototype-01/local-compile-commands-01.json",
+          "bytes": 1695,
+          "sha256": "f97c1935bb3dac57ea18ec4a08c636bf8f675bc916eb7b582d772841641e1a32"
+        },
+        {
+          "file": "prewarm-prototype-01/local-owner-01.json",
+          "bytes": 427,
+          "sha256": "2b7144a4aeddb334bfbcb5696eaeb86520d108dcc1c6e076aa69d280ce75bc31"
+        },
+        {
+          "file": "prewarm-prototype-01/rejected-01.json",
+          "bytes": 2334,
+          "sha256": "f4f1d0e399a37d8334c308b0430490f1b7413fbb3f42b1f04ef072c90e3ccd63"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/check.stdout.json",
+          "bytes": 5887,
+          "sha256": "9976468fcfb03897a0c4320569978df5a710d3c6e785dc0a1098905641f1f028"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "490aff533a68f802df841bb5e357800dc0739e457b496853a9fbbef84d41ecc4"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/daemon.log",
+          "bytes": 30751,
+          "sha256": "ee340b246bd393476335a89e80044e511d6bdec6a4b92b6724f811f03de0c107"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "b54199c9309bb4e9e5878568ad56eba56d9beddc6ff8e5095a0cd68c50b3d873"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-01/result.json",
+          "bytes": 5936,
+          "sha256": "8a61f400a2177935d3016037e187732b18c9c1a4601cb758723558ecafd51827"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/check.stdout.json",
+          "bytes": 5887,
+          "sha256": "c3c48614aab494161cd16c20a33cd8c70b3c38293be3adb978080352e947ea17"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "4e51eca97d13897b16bc160c9e73774854bdf16730133c9d64801794b2f85934"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/daemon.log",
+          "bytes": 30751,
+          "sha256": "79b110fbc8bb9571aed39b37086d3e60fb518ce23d728f93a65a0263e3e7d5ea"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "7d052ab48dc4430a8a4b7ddeb00162e259d964ed8271c696b6e13624374abe3a"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-baseline-02/result.json",
+          "bytes": 5936,
+          "sha256": "e83347cce5a787d318a2511c8e2c1c92e4a95cc521957110b2768bc8c59f4932"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/check.stdout.json",
+          "bytes": 9175,
+          "sha256": "866e9f0ddf792ceaeed4bedf293bdce63d35a443dd0e7f48586c808adc09d7f8"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "268f79526dba61f0ffce692f60fb29be8a1bcac8b990dab4a81e71e2d9a7fb4f"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/daemon.log",
+          "bytes": 34018,
+          "sha256": "2ccec6ffa3e66a95f8cabaa81a6b514feae3d5fe5631bd95133d0d29ed7d045a"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "05cb103c77483bfb358ef2967f35214262d0a4e4670256425db6af14f0c5a0f4"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-01/result.json",
+          "bytes": 8163,
+          "sha256": "f09627a87e712e55fef9c6bb2c21c4df8e7c9994b99800ff360ea49f1ca7d117"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/check.stdout.json",
+          "bytes": 3684,
+          "sha256": "7a0af48f9be7fecfb755d556469954d183523aa495f5c84e851bba405985c1f6"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/cleanup-pw-dump.json",
+          "bytes": 12358,
+          "sha256": "fa72182ad2525b605f899deea559139dbfc626105e77a0ac6a7fd72095647eea"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/daemon.log",
+          "bytes": 33277,
+          "sha256": "cfd05377ab567027cbebc98b6de530d5f03f612612fb9de5eb98d13f1a0f0267"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/preflight-pw-dump.json",
+          "bytes": 12363,
+          "sha256": "89723870e468d613f7ee72ebe1df2297e2be3932c08bbfed1a546dd094cf530f"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/results-laptop/evidence-candidate-02/result.json",
+          "bytes": 3754,
+          "sha256": "ae107fd2742d1a00d4aaf0b72b9e4d496d46e29ba9aced67fe66ab182aade90a"
+        },
+        {
+          "file": "prewarm-prototype-01/stage-01.json",
+          "bytes": 328,
+          "sha256": "77f319043ad36a75a2204925ad99d60838215cfafe6e2e8ef5a194b0e8f832f1"
+        },
+        {
+          "file": "prewarm-prototype-01/stage.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "prewarm-prototype-01/stage.stdout.log",
+          "bytes": 328,
+          "sha256": "77f319043ad36a75a2204925ad99d60838215cfafe6e2e8ef5a194b0e8f832f1"
+        },
+        {
+          "file": "prewarm-prototype-01/unit.stderr.log",
+          "bytes": 299,
+          "sha256": "c2edf5d1633d00f0ebe56892f0ab0857d8bbf58535075859a5da63dee58d1849"
+        },
+        {
+          "file": "prewarm-prototype-01/unit.stdout.log",
+          "bytes": 2945,
+          "sha256": "48f95457471df4cde5ef36ff3a6c8230d9d45632d0dcf801e47f06ff5470d4b6"
+        },
+        {
+          "file": "scheduler-trace-01/apollo-collection-01.json",
+          "bytes": 147,
+          "sha256": "1deeb256fffc36d538013e5a05e965905812356f877cf2dee807e63588ca2aa6"
+        },
+        {
+          "file": "scheduler-trace-01/derivation-01.json",
+          "bytes": 503,
+          "sha256": "dafff4b25a99188c4ee9a77c82ca4ae67cdd4939176d02355515f8e3f23ce90f"
+        },
+        {
+          "file": "scheduler-trace-01/smoke-01.json",
+          "bytes": 1934,
+          "sha256": "f825ec713237f4d28c798d8339ab6c602657167eb1b950b5379783fb3ed7b22b"
+        },
+        {
+          "file": "scheduler-trace-01/smoke-trace.jsonl",
+          "bytes": 8266,
+          "sha256": "594d53e75201ea3a3397ab8274f17a6ba33de1772cbaac9a63ceff47f4b1df80"
+        },
+        {
+          "file": "scheduler-trace-01/smoke.stderr.log",
+          "bytes": 298,
+          "sha256": "91a4babb5297a7fc46bd3d14b8e7b9860050cbc940ea6df9cc39799ad5244804"
+        },
+        {
+          "file": "scheduler-trace-01/smoke.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "scheduler-trace-01/stage-01.json",
+          "bytes": 277,
+          "sha256": "70f82c86f860ab18face59cddf524acefd1d9ed4e8efb14ca520b545895f2c6f"
+        },
+        {
+          "file": "scheduler-trace-01/stage.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "scheduler-trace-01/stage.stdout.log",
+          "bytes": 277,
+          "sha256": "70f82c86f860ab18face59cddf524acefd1d9ed4e8efb14ca520b545895f2c6f"
+        },
+        {
+          "file": "scheduler-trace-02/analysis-01.json",
+          "bytes": 24052,
+          "sha256": "31cd23aee89b4787f639d4596f771af25830cb265754c9f2557a90a799d93dfd"
+        },
+        {
+          "file": "scheduler-trace-02/apollo-collection-01.json",
+          "bytes": 147,
+          "sha256": "4ab2d3565b91a3f150c617b4f7f31c2060e0078837a65b6a8fb01af5359d2844"
+        },
+        {
+          "file": "scheduler-trace-02/derivation-01.json",
+          "bytes": 358,
+          "sha256": "ab7a0150a2971615083e863c9673ec1bcd3d059eed19312eed4bf4c397b2cad3"
+        },
+        {
+          "file": "scheduler-trace-02/stage-01.json",
+          "bytes": 277,
+          "sha256": "16071d835d886aa5e021b30b443cc74948f15520814fad0365865742249f9dee"
+        },
+        {
+          "file": "scheduler-trace-02/stage.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "scheduler-trace-02/stage.stdout.log",
+          "bytes": 277,
+          "sha256": "16071d835d886aa5e021b30b443cc74948f15520814fad0365865742249f9dee"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/0.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/0.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/1.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/1.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/2.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/2.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/3.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/3.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/4.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/4.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/5.stderr.log",
+          "bytes": 56,
+          "sha256": "bcb9d453f9c8a6627d726c81644c39a26f5562de49bb94e8cb7bfdba7900d3be"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/5.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/6.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/6.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/7.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/7.stdout.log",
+          "bytes": 166,
+          "sha256": "e5eda3d5e66b5fd9708453e19a370d48b1c82dc734648aac15b234bd84285880"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/abba-bindings-01.json",
+          "bytes": 921,
+          "sha256": "fc982251a201fc9146a3d7250167c99fc059e827a183b933c879a4fccbd63923"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/abba-results-01.json",
+          "bytes": 30529,
+          "sha256": "7fbdb6202ca2479ea6c70891494e9ab4e87355edbd1369f4afb51c8f289f8ff0"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-baseline-01-01.json",
+          "bytes": 5791,
+          "sha256": "3d53f1deca05d6eaa4d08b28975301541b756db75d4a48c872b264cf03e05bfd"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-baseline-01-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-baseline-01-01.stdout.log",
+          "bytes": 4829,
+          "sha256": "d1f2358e9ec9d28e9bbdcdf5a75bc8aa528a5d578746caa00ef8859e2318779b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-baseline-02-01.json",
+          "bytes": 5792,
+          "sha256": "efd92990045bd2293513f9485a9b472a17bfa7fffeacbd3ab80e2917ff4a81f8"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-baseline-02-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-baseline-02-01.stdout.log",
+          "bytes": 4830,
+          "sha256": "2db421a9b64c3eb55afcadf0fe14a39640ccdfc3a4d6186b8c3fed0169b03ed5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-build-01.json",
+          "bytes": 4156,
+          "sha256": "b7272e78dbf2ca91c25994880d8ded589cbf4e6f7b3236a26fbca465884e2d80"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-build.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-build.stdout.log",
+          "bytes": 4156,
+          "sha256": "b7272e78dbf2ca91c25994880d8ded589cbf4e6f7b3236a26fbca465884e2d80"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-candidate-01-01.json",
+          "bytes": 5801,
+          "sha256": "f2a8d5cc5a15ba7b0cb0cb9e7d9b6b52f9c830fba170202b73f630de95eae1b7"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-candidate-01-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-candidate-01-01.stdout.log",
+          "bytes": 4839,
+          "sha256": "b49d307ce217068aa57e8170f6d3dcf86f57f5e810b81409d67c6e242f89b9e1"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-candidate-02-01.json",
+          "bytes": 5802,
+          "sha256": "f3727e441a62286514e576023aa85db156d83c62a673cd069e178277f6781428"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-candidate-02-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-candidate-02-01.stdout.log",
+          "bytes": 4840,
+          "sha256": "7bee914fc6a28e45dab158f87fdc9315bba5908c82a991f6f8bb8f6116e22dab"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-baseline-01-01.json",
+          "bytes": 9088,
+          "sha256": "6c9b93b19cfc0d17b287796f118494a4d0184c4df39b8960c090fae079a5da24"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-baseline-01-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-baseline-01-01.stdout.log",
+          "bytes": 6338,
+          "sha256": "0dcc9555a2020354492655c9b87df20573df52ba188c4c2aba856585caea4d13"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-baseline-02-01.json",
+          "bytes": 9088,
+          "sha256": "d9600085f03ec85206a4736c1804c4a4d11e26ffcece9628e14eed94d4dcde07"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-baseline-02-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-baseline-02-01.stdout.log",
+          "bytes": 6338,
+          "sha256": "b4a793c2f2506bb379076abc4e22fabc7c9131bdc145f00fe44b02041277da52"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-candidate-01-01.json",
+          "bytes": 9144,
+          "sha256": "4c5ba9d5f6ff15c3ff3429ceda702d501d8e9bcbb87bb7d6571b71033f5c9249"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-candidate-01-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-candidate-01-01.stdout.log",
+          "bytes": 6394,
+          "sha256": "736d576ca5c277c863591cf1e602c4af011d18cc1382efab08c70bfe661d867a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-candidate-02-01.json",
+          "bytes": 9134,
+          "sha256": "f7ec6e3607aa4e225fe64cab2c307c7d6b38f625ec357908b167e1d368c84d93"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-candidate-02-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-long-candidate-02-01.stdout.log",
+          "bytes": 6384,
+          "sha256": "e7aca9974ba49edb23f4ffab098faa7d73cd4ead1fbf4708a5792ccdeb67bd1f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-verification-01.json",
+          "bytes": 9756,
+          "sha256": "61218798c5926e466d918e7157ef6d17dbb1e0f07013ba69486536b3aaaa754c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-verify.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/apollo-verify.stdout.log",
+          "bytes": 9756,
+          "sha256": "61218798c5926e466d918e7157ef6d17dbb1e0f07013ba69486536b3aaaa754c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-normal-verification-01.json",
+          "bytes": 602,
+          "sha256": "6c26955e38226bed7ef94d964dc65091853bcb98579b9d5fd5dbc174a3eec28c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-build-controller-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-build-controller-02.stdout.log",
+          "bytes": 241,
+          "sha256": "5a00e8a307aaf3d42cd8009f74ffb1a605bafc4bab8c7c0b2d0fbd766b04d25a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-core-build-02.json",
+          "bytes": 14165,
+          "sha256": "31a2332c270e2d1997cbd14c9cfa28a64e0145078ba449f2715539569a481795"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-core-checks-02.json",
+          "bytes": 13149,
+          "sha256": "492a50e71c64087bbd2f2ba8a7208e141004e5338eef3f2620a63fed04aff47c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-core-checks-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-core-checks-02.stdout.log",
+          "bytes": 11053,
+          "sha256": "83b4d4ac30aa9bc2319d9200eabcf2465a32c5df10a7c250a3da824afd148757"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-core-stage-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-core-stage-02.stdout.log",
+          "bytes": 12071,
+          "sha256": "639c4658ab8e741dd34424e3890d4824318714fef5cdecc24345d50bded6bfd4"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-paired-full-core-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/apollo-paired-full-core-02.stdout.log",
+          "bytes": 3257,
+          "sha256": "63d4c847651a54e5043cdf6b8c32de662b06ad4ac48111b3160e0b01e7bac24a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/core-snapshot-02/source-manifest.json",
+          "bytes": 9082,
+          "sha256": "7f2801c5c69e5256383ec55b0304756bcf1d4f3bf9323593478cfc728d37653e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/core-source-manifest-02.json",
+          "bytes": 9082,
+          "sha256": "7f2801c5c69e5256383ec55b0304756bcf1d4f3bf9323593478cfc728d37653e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/full-build-02.json",
+          "bytes": 1118,
+          "sha256": "b9f067451332522bc0f9df3e966ee74fae6e361fb36aa2de472031cd94e8eea1"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/full-build-02.stderr.log",
+          "bytes": 315,
+          "sha256": "126f779a211a3cf01992c4d2f6db2734de5d324a827ea59eb49d681e2abbd9fa"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/full-build-02.stdout.log",
+          "bytes": 4108,
+          "sha256": "74bef9351441fc2cf1798ecc6137446d376a2e821e377aaf995dd8e2734a1196"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/initial-full-LastTest.log",
+          "bytes": 110326,
+          "sha256": "728c8ca7172905febdfb85d99633a51e7fbb85c4caac4c910f82a8fd84d03fe0"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/initial-full-LastTestsFailed.log",
+          "bytes": 26,
+          "sha256": "d054352763924cd5cfc558252505130eadea8889fc0b089c7417df3fa2a88bfc"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/initial-full-tests-01.json",
+          "bytes": 12779,
+          "sha256": "e8ee6fd7490d875778de5ca44b53e6204ae7cc8a5176dafb74957272b8529e47"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/laptop-paired-full-core-02.stderr.log",
+          "bytes": 337,
+          "sha256": "d82ffe2b53abb874ab04f8b5bcc0ee44dd3d814b0083337ae7e09fe6e7bae073"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/laptop-paired-full-core-02.stdout.log",
+          "bytes": 100057,
+          "sha256": "62f4104dad0942beabc17820d012c06d8ef906af070f1e16d9b3c19106f662c3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/paired-build-02.json",
+          "bytes": 1579,
+          "sha256": "6558bde6c013bfb848e13cf5917197984210ade5edc4413f04063768b4a4e942"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/paired-full-core-02.json",
+          "bytes": 2670,
+          "sha256": "6c614684b16311adc8baa412de2e3cdb30d64ef10a07e354ff4775a40eb4362b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/working-sources-02.json",
+          "bytes": 635,
+          "sha256": "88a9001bd1c5fb643ee2fb8909742176ad6bb0efc6e679badb2768de4cd85326"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/0.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/0.stdout.log",
+          "bytes": 993,
+          "sha256": "f878761c15785332588658f1abedf0206516aea18f4efa172705d142101fdd0f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/1.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/1.stdout.log",
+          "bytes": 2947,
+          "sha256": "81670df182eac40a0bbd485a23caadf8f317ef3f90d0099f28c22609786299bd"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/2.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/2.stdout.log",
+          "bytes": 5396,
+          "sha256": "52dba340a7dbd6eee29d0eac24170c37d78a29670544d2898283ef04888f6b4a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-02/result.json",
+          "bytes": 2416,
+          "sha256": "13d8eba8ab523145ecab16e8bf4fb76e3475078ff8b738c9c26dd208b1d3ecbc"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-apollo-02.json",
+          "bytes": 1949,
+          "sha256": "f804b128d3dc326903733e368f5c02fe24d31058c28812755fec1141b606a30c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-apollo-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-apollo-02.stdout.log",
+          "bytes": 1425,
+          "sha256": "52ab47cdbb33043de4d8f1692538c47a906c5483643232adc2a6ece91747d6ce"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-controller-02.stderr.log",
+          "bytes": 317,
+          "sha256": "1717358e0a32cb78d2c38238b8945a802d7db1e8c838aa2e8ee822c1dfce0440"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-controller-02.stdout.log",
+          "bytes": 2092,
+          "sha256": "d59bbe2485cd825fe70df78a979fabe26b29ec46d240e604555a611f0978ff8d"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/address-sanitizer-pair-02.json",
+          "bytes": 5793,
+          "sha256": "315a4e8c82ef2c215716552cb00336e32edf91f07df8de5aec1581af9e8ddc91"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-build-controller-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-build-controller-02.stdout.log",
+          "bytes": 261,
+          "sha256": "19b51e0b8fa8f0d44c5ec01aefae0fe82a86cf9cbaa6cf3509089ea0dc29fd21"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-core-build-02.json",
+          "bytes": 12672,
+          "sha256": "1ea07ea67f0e90590b2b50cca8a2e2b3eecc897a64ca13da294ab49e9bb364c8"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-core-checks-02.json",
+          "bytes": 10876,
+          "sha256": "9ca1accbc4b96c4d153f4b7a9ac7c9fa54dea71d4e69f8e5e76d477e4a75bcf0"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-core-checks-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-core-checks-02.stdout.log",
+          "bytes": 8736,
+          "sha256": "25f0d462955f5d44c7e7ca6244fc8b3d20b81e280d792cc32c355db02c986cbf"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-core-stage-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-core-stage-02.stdout.log",
+          "bytes": 10534,
+          "sha256": "61819e9f6f9b7ffa2833a048c66cd3c84ddf7126f3515700bec64f22dc6cc875"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-paired-full-core-02.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/apollo-paired-full-core-02.stdout.log",
+          "bytes": 838,
+          "sha256": "30189fa834845e564beb76fdc0dae4188721f44c77294fb5616500e668aa28e4"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/core-snapshot-02/source-manifest.json",
+          "bytes": 9279,
+          "sha256": "c3c9205abecc7b09f55669f2ad6e6f61a262ad534ee2087733cd00cde746905c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/core-source-manifest-02.json",
+          "bytes": 9279,
+          "sha256": "c3c9205abecc7b09f55669f2ad6e6f61a262ad534ee2087733cd00cde746905c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/full-build-02.json",
+          "bytes": 1119,
+          "sha256": "3ea34b6fe032a00808a806749915b6bd585180db877daf7ff974389e19ff71ad"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/full-build-02.stderr.log",
+          "bytes": 302,
+          "sha256": "6289a80853422679707a90e715bcc253b94ac336fa776dc8ab1f6fdf4e071ea5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/full-build-02.stdout.log",
+          "bytes": 182,
+          "sha256": "8fa200e0bdbec09948d67a2766d7c54a7d14a0d111036ac28bc6a7e890433f86"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/laptop-paired-full-core-02.stderr.log",
+          "bytes": 299,
+          "sha256": "cd72919169206fcebb6e2054da08f27401d43aa2ba8260ec3d34e32bfa46636f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/laptop-paired-full-core-02.stdout.log",
+          "bytes": 1095,
+          "sha256": "b5cca98d98d8d4352fe81c9f25171ca620cb4f3f4dda569217c85eea283d453f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/paired-build-02.json",
+          "bytes": 1580,
+          "sha256": "d82f41b0d226aa389a8fcdf0bb9dba334411babf5c4d90b82d9f13eb131ab842"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/paired-full-core-02.json",
+          "bytes": 2763,
+          "sha256": "242c76a1cead87988348aedc16fe7d56ea8bdca87ded9bd9593c2dd647838823"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/0.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/0.stdout.log",
+          "bytes": 992,
+          "sha256": "59c5e71da5c3dad405aeff15f8dc8f03555b8da53604a1601265de25f87c9a58"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/1.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/1.stdout.log",
+          "bytes": 2947,
+          "sha256": "81670df182eac40a0bbd485a23caadf8f317ef3f90d0099f28c22609786299bd"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/2.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/2.stdout.log",
+          "bytes": 5377,
+          "sha256": "6f7d6755f8411e770361107dd6c8ccc8ca2e642d96a14de5431b37f3e2e70f25"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-02/result.json",
+          "bytes": 2383,
+          "sha256": "1c0cddf6bd097e0a54d70529cf903dd74b816df13af6038f95630b71763d7e29"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-controller-02.stderr.log",
+          "bytes": 316,
+          "sha256": "8ca68b1a8752109582a5f00f8112281b6f7f4e4357ad7a96bb14e9e45741bdfe"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-controller-02.stdout.log",
+          "bytes": 2059,
+          "sha256": "66164d0ad28ae0993947d1164d0ac304b5eec078d6c1bc28db40bf84b991947a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/thread-sanitizer-pair-02.json",
+          "bytes": 3608,
+          "sha256": "31007317f566bb767ed4d02b64700cfddefcf6e50999e271620b6551875cfb03"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/working-sources-02.json",
+          "bytes": 798,
+          "sha256": "554b4475c0902f3f045c1aef8997a952edcc67c0c7d79cfad56f353ddbde2958"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/build-receipt-01.json",
+          "bytes": 7250,
+          "sha256": "2fc2d799c497eca0e78d09fe7e84649908ce45cb7993cdfe3d259078c64dc765"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/candidate-source-01.json",
+          "bytes": 1184,
+          "sha256": "efbf0a895d199f27fbf688c02517dabee72d163a44f962646541789f0e121cba"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/extended-fixture-source-01.json",
+          "bytes": 825,
+          "sha256": "098d9112d457a2557bc54af3e39b2aa46fb89c6b6267d9d8bf93868d00c79736"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/local-owner-01.json",
+          "bytes": 419,
+          "sha256": "a0edaa1773f3938b1682e3d7d36acc2e47cfca4346cd6ffc666737a5a99f1198"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-abba-bindings-01.json",
+          "bytes": 1104,
+          "sha256": "d5976076c999c78e7342fdfe8ca6bcd674ca9ad68ed3ff23ea2a0da6811cd766"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-abba-results-01.json",
+          "bytes": 46698,
+          "sha256": "1471781f533c3fee5b249a86ecc7ecf757b5950050e6fcf139185055785fe7e5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-fast-01.json",
+          "bytes": 1411,
+          "sha256": "f3b060e6ebf32e0ccbe699823acb1c9a056e26bbb0643bd53e36b1ef0b14abf3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-fast-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-fast-01.stdout.log",
+          "bytes": 1279,
+          "sha256": "176b068a4d07e88fab147763d435ee0c24d496d6336e588c33f515468557f1e4"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-master-fast-01.json",
+          "bytes": 1435,
+          "sha256": "f27e12d8122ce5c7de83d0921d3320ba8289b0546be9cbe1264ba528b31d8b50"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-master-fast-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-master-fast-01.stdout.log",
+          "bytes": 1303,
+          "sha256": "121ad1a7cc37ad60f155011ca683740ffa8df0e9bebf2acb6e25199177e5722b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-master-slow-01.json",
+          "bytes": 1436,
+          "sha256": "f406fe55302403a35eb7820cc6c7b67a1aad66ae1d8061e85a4e9c6da7d00d7d"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-master-slow-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-master-slow-01.stdout.log",
+          "bytes": 1304,
+          "sha256": "b4d303bc2371e17ee6fcd7469e270f316b05cbed1174ed06887583c96128c216"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-slow-01.json",
+          "bytes": 1407,
+          "sha256": "a24fadaa549efffa1e172747a1b3a46bff85f60dec15b3529d092b996e2463ad"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-slow-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-baseline-tempo-slow-01.stdout.log",
+          "bytes": 1275,
+          "sha256": "b72bcc3da36d4652d6370f87edf3173d0e0a56d9b7cbd38b445c14461f26b79d"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-build-01.json",
+          "bytes": 1166,
+          "sha256": "5f826534fd97c090626ccb2bfbf0a58d5351574a16c32f0352fb47e464fc341c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-build-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-build-01.stdout.log",
+          "bytes": 924,
+          "sha256": "1eb29faa824a033f2ba445cde462eb3440393f7e23d5b012a74888367d904351"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-fast-01.json",
+          "bytes": 1414,
+          "sha256": "a13ea1d12cbd0112df062a3bbc8616a2013965d9f7a88eb69db1c00a0b715784"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-fast-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-fast-01.stdout.log",
+          "bytes": 1282,
+          "sha256": "ab60132bc525079dc5fc91cee73054fba611170eb7d0926edc587e745ee1aa50"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-master-fast-01.json",
+          "bytes": 1424,
+          "sha256": "54e086c7792cd7b5b5d241251736da19d4a474ce4be3d82c0c9d1fe2b6adf582"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-master-fast-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-master-fast-01.stdout.log",
+          "bytes": 1292,
+          "sha256": "cf8be82daedf92c4e695e5eca105e15a780c4ed391d9a290b412703ab769b21c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-master-slow-01.json",
+          "bytes": 1428,
+          "sha256": "91595bdbd83612b21d06bf478145ec81909e239926e83882a30746acda63e8ab"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-master-slow-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-master-slow-01.stdout.log",
+          "bytes": 1296,
+          "sha256": "9957ca5b8ed4a5cb083fb5d40989a165c8dc367d53156ec98d7f1cc419713d26"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-slow-01.json",
+          "bytes": 1414,
+          "sha256": "9c300e41669101b4a64f45418edb2d1dd88cb06e32a5938118d7925d2a7b7fad"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-slow-01.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-apollo-candidate-tempo-slow-01.stdout.log",
+          "bytes": 1282,
+          "sha256": "8b6e9e1bf837e99e7c5647fa49e017409dd783058fd718eb07d2e82d004de8cf"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-build-pair-01.json",
+          "bytes": 3335,
+          "sha256": "bbd56b0fe8920d4cbd45a8915a0da9a9e33ef81657b38f79e881faf99948c8d6"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/0.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/0.stdout.log",
+          "bytes": 959,
+          "sha256": "c53f32054bd042b51a172600b4336d927ad202bbc52f1dc75f3ff70c52476181"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/1.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/1.stdout.log",
+          "bytes": 187,
+          "sha256": "22528fd3416a69df1b072a5d89e6baeb1a534475c739d8cc678c1dac810b2a35"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-fast-01.stderr.log",
+          "bytes": 312,
+          "sha256": "89c385485025daf51547256fc37ef55b3bbf9209d009d3eed3b647a8b2ad3533"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-fast-01.stdout.log",
+          "bytes": 4478,
+          "sha256": "b3f96deb5841aaeca4451ab22cd6468367e3070c8f1974a11f3362298454c578"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-master-fast-01.stderr.log",
+          "bytes": 319,
+          "sha256": "aad9f6c8905233de07aed6f9f83b5dc3c651c8bc3eb35c58384970619ac70e25"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-master-fast-01.stdout.log",
+          "bytes": 4812,
+          "sha256": "64bbca50aa75e29b0e0807f40122f5fea6b73bdb0e45d1b7456a6405f6f9ba25"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-master-slow-01.stderr.log",
+          "bytes": 319,
+          "sha256": "888094e5524851109aa010ed3e78ee51ecce30e043963aa7b03ff9d42a5471e9"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-master-slow-01.stdout.log",
+          "bytes": 4812,
+          "sha256": "29bfa65d70f15aa1c0794f1b18a0a4cf238f2b2deb535a308bff37cfdc3be206"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-slow-01.stderr.log",
+          "bytes": 312,
+          "sha256": "d76901fc3ee1467f8ee82b28b0b82ec1e928eff2fef744cb4f643eb1c83a626c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/baseline-tempo-slow-01.stdout.log",
+          "bytes": 4478,
+          "sha256": "2180fe9c21acbad433a80f9a156a9817e89b16cf72d7d5e5f6db51f54aaeb039"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/build-receipt-01.json",
+          "bytes": 1705,
+          "sha256": "50f231178ee89d6fe7e281030b1975ccaa8d6d0c7fc3ffd318c0835f48aed5d4"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-fast-01.stderr.log",
+          "bytes": 313,
+          "sha256": "6a6e15ef7f8f823258200aa3f3eb0bd4248db96a00967bfba510697549143b5e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-fast-01.stdout.log",
+          "bytes": 4478,
+          "sha256": "b3f96deb5841aaeca4451ab22cd6468367e3070c8f1974a11f3362298454c578"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-master-fast-01.stderr.log",
+          "bytes": 320,
+          "sha256": "c97ac0d31a890cf3d102d31789e5a99aa6d433baf0fe41cb289db44ab20e6db5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-master-fast-01.stdout.log",
+          "bytes": 4812,
+          "sha256": "64bbca50aa75e29b0e0807f40122f5fea6b73bdb0e45d1b7456a6405f6f9ba25"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-master-slow-01.stderr.log",
+          "bytes": 320,
+          "sha256": "dccf06538f44bb99b3f1fc089f11f6040af0c9741a872bb3f9ef9606022a6061"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-master-slow-01.stdout.log",
+          "bytes": 4812,
+          "sha256": "29bfa65d70f15aa1c0794f1b18a0a4cf238f2b2deb535a308bff37cfdc3be206"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-slow-01.stderr.log",
+          "bytes": 313,
+          "sha256": "de5400482a8f5a6a490b072a4eb365e32da4aab9c6819c17009c050a9c83f339"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/candidate-tempo-slow-01.stdout.log",
+          "bytes": 4478,
+          "sha256": "2180fe9c21acbad433a80f9a156a9817e89b16cf72d7d5e5f6db51f54aaeb039"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/check.stdout.json",
+          "bytes": 3638,
+          "sha256": "e5f3ab49899c55d7af19b86bee2244ede5f82b29d8a93cd05732ce373faed8a3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "bd5f04bc6f65d793c8b1f27efca6204a966e308982969d89ece5c4ad1d92e562"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/daemon.log",
+          "bytes": 30063,
+          "sha256": "952b532b9b81464ce08ca307789a2729214c3387fdc06700ac7528699ea44870"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "0377d693424f8788fb812e10115c93eb78a11e55cbad35c09eea46b5133ef445"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/resident-takeover-tempo-fast-receiver.json",
+          "bytes": 181,
+          "sha256": "9a34faa5317305b34502f6934045dd5c12027c4406b0f6340a366291369760f3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/resident-takeover-tempo-fast.json",
+          "bytes": 880,
+          "sha256": "f56c1b5047b98765cf78771265c1b1ab304f9846f7fb50e868cbd973835d87e2"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-fast-01/result.json",
+          "bytes": 4478,
+          "sha256": "b3f96deb5841aaeca4451ab22cd6468367e3070c8f1974a11f3362298454c578"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/check.stdout.json",
+          "bytes": 3965,
+          "sha256": "9e8dc35c71d94b04bec92d470491c730a1f1ad7d33c32b59df7f0a59e0241500"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "03c56a52e051922e4db5c42db8ba70b66a39b2cf70dea119ad6d9d8f9af86312"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/daemon.log",
+          "bytes": 30506,
+          "sha256": "85ca2e018ddd3b3e3289e27b74d574c9ab55375a88ddc0cb6100115308d6b47f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "d6cfd630899b820431a60e732684be600804502a402ba25edc4819c59454611a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/resident-takeover-tempo-master-fast-receiver.json",
+          "bytes": 181,
+          "sha256": "bed3b17fcec8569eb336dce3c857d7c8503a7dcaef2f3b01c54bdc8d5e2e200f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/resident-takeover-tempo-master-fast.json",
+          "bytes": 886,
+          "sha256": "66da6e32bcd938c9361febfaba3d4d5a2c709d44803267cde9a7b225bd4aff21"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-fast-01/result.json",
+          "bytes": 4812,
+          "sha256": "64bbca50aa75e29b0e0807f40122f5fea6b73bdb0e45d1b7456a6405f6f9ba25"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/check.stdout.json",
+          "bytes": 3965,
+          "sha256": "36728b39c8be11455d55b947c8ec633fbf7306564cb0c7b98e222b715ed09b3c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "3ae1d85e1046052ed7c667e430fcd38749916f47fbceac06ddc33b71fa377c87"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/daemon.log",
+          "bytes": 30506,
+          "sha256": "ea8785d826570f8339617c71a1eee251c31c2ec11d238686099bf0ca868d5c8e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "98e521c7ded9a58147711aa5ae0d689b3b3c30253d7d67819048924329f1b2ed"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/resident-takeover-tempo-master-slow-receiver.json",
+          "bytes": 181,
+          "sha256": "21612ec17b8e56ca2a929c6d532f0ec24d852a6dd308ccb2e431f7fabd8cfda8"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/resident-takeover-tempo-master-slow.json",
+          "bytes": 888,
+          "sha256": "525e882347646884fd5a84d9cddd64aa5baa313423a583f30ee45019cfba9fd5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-master-slow-01/result.json",
+          "bytes": 4812,
+          "sha256": "29bfa65d70f15aa1c0794f1b18a0a4cf238f2b2deb535a308bff37cfdc3be206"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/check.stdout.json",
+          "bytes": 3638,
+          "sha256": "7b4d1ca3deef9edb4f603d0516748d5a1d465eeb7b0f9ed621bb33924042046e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "d84dcf966823d64aa9a074451547d5a0362d9adeb4f385bf0ff07e451addb056"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/daemon.log",
+          "bytes": 30063,
+          "sha256": "70a63ecca2a17e6738924b6d94118dd3b63a064be6484508cce1df1c8c42d910"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "fa2296fc95c1ed046f919d2a0777ce8cd40d968917235b851f6d448510190381"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/resident-takeover-tempo-slow-receiver.json",
+          "bytes": 181,
+          "sha256": "5f4a56d823af8c1a35ff549f6e0cb2f4440e362297cac2a591662f48d4d93ec2"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/resident-takeover-tempo-slow.json",
+          "bytes": 879,
+          "sha256": "412d5bc680ae11b9b03727e8b32530e23bbb42e75a76f867da241383aa3bf9a4"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-baseline-tempo-slow-01/result.json",
+          "bytes": 4478,
+          "sha256": "2180fe9c21acbad433a80f9a156a9817e89b16cf72d7d5e5f6db51f54aaeb039"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/check.stdout.json",
+          "bytes": 3638,
+          "sha256": "e5f3ab49899c55d7af19b86bee2244ede5f82b29d8a93cd05732ce373faed8a3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "a42d9fe9cbfb10b400d9873d554bfdbbfee1231f2b90a9da813359d3e4a882e6"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/daemon.log",
+          "bytes": 30063,
+          "sha256": "d407d16c3b735197f2e3b672e104cb7e2e9f8f0099d78b91655e6a34a3838cfa"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "df132c4976da21c8d8dbde98c22dced5d871219f4b41a060901c537f93a8dad6"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/resident-takeover-tempo-fast-receiver.json",
+          "bytes": 181,
+          "sha256": "e6182beea53a43a97dab10a0235e3c651a6266bacfdc4969f5bf0d09f5834c72"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/resident-takeover-tempo-fast.json",
+          "bytes": 866,
+          "sha256": "39fa82a3826a6f8e1dbed0735197c6aeaaba07d0caef75f04dc3b6585ff10007"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-fast-01/result.json",
+          "bytes": 4478,
+          "sha256": "b3f96deb5841aaeca4451ab22cd6468367e3070c8f1974a11f3362298454c578"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/check.stdout.json",
+          "bytes": 3965,
+          "sha256": "9e8dc35c71d94b04bec92d470491c730a1f1ad7d33c32b59df7f0a59e0241500"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "30ce8aad8e902824e7143c1bb4a41b6e9b27367c55c8b09ba0ce47b695bc60ec"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/daemon.log",
+          "bytes": 30133,
+          "sha256": "5352321f1d51c419cf7733222879ea47838b40e599437a80c172be453600e4d7"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "802ddcf6188c9109ca8cf50b4e033148d58bb3c0a0dffb2590a751bbd73d6d18"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/resident-takeover-tempo-master-fast-receiver.json",
+          "bytes": 181,
+          "sha256": "4236d5eab9096ef20c87bb6f16fea77db9636147eb76cc606c8e2000cd6d0e38"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/resident-takeover-tempo-master-fast.json",
+          "bytes": 887,
+          "sha256": "5f9ab3203c0a6cb781286e653cf63b7fdee1335225ce54580d359eeda1a5fa80"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-fast-01/result.json",
+          "bytes": 4812,
+          "sha256": "64bbca50aa75e29b0e0807f40122f5fea6b73bdb0e45d1b7456a6405f6f9ba25"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/check.stdout.json",
+          "bytes": 3965,
+          "sha256": "36728b39c8be11455d55b947c8ec633fbf7306564cb0c7b98e222b715ed09b3c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "f798aba26ed39515e1f739236e8e4f03a02aeca0eb04aa733698028ecded5134"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/daemon.log",
+          "bytes": 30391,
+          "sha256": "1ff29156cd499e46213bca6a8b38110b6de3f2a9931545c17ce08967ba89c243"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "b4443c234148e14bb3a546324cbd6c0e0f1c856a2508644edf0d658adf26fb17"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/resident-takeover-tempo-master-slow-receiver.json",
+          "bytes": 181,
+          "sha256": "e6182beea53a43a97dab10a0235e3c651a6266bacfdc4969f5bf0d09f5834c72"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/resident-takeover-tempo-master-slow.json",
+          "bytes": 888,
+          "sha256": "462e8d7db26254881c1d3751477df301b4d7bded59e97ab6598cba2e71210f9e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-master-slow-01/result.json",
+          "bytes": 4812,
+          "sha256": "29bfa65d70f15aa1c0794f1b18a0a4cf238f2b2deb535a308bff37cfdc3be206"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/check.stdout.json",
+          "bytes": 3638,
+          "sha256": "7b4d1ca3deef9edb4f603d0516748d5a1d465eeb7b0f9ed621bb33924042046e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "d1109b779c18ed9c2d3dcd7f80a399c80634c8e409ee03f94f5c047fc3751558"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/daemon.log",
+          "bytes": 30063,
+          "sha256": "61ecb3d4ec6c26062f0cdb49ddf8f41528ceaad903b7029ba9a02a4be5d1373f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "8a1dd886b9b678468b1d0135b47c6ed5bc9a1640f23539a3daa35ec865b46373"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/resident-takeover-tempo-slow-receiver.json",
+          "bytes": 181,
+          "sha256": "cdbae8be389e94ef0445ec686392f70b0cf410c25445c1a94e9dae082b8b5b2c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/resident-takeover-tempo-slow.json",
+          "bytes": 879,
+          "sha256": "ea2da670a1ad47c1d28c336dd2cdc0d334348725c7b4a0bebfc7fd65bef73a3c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-laptop-01/evidence-candidate-tempo-slow-01/result.json",
+          "bytes": 4478,
+          "sha256": "2180fe9c21acbad433a80f9a156a9817e89b16cf72d7d5e5f6db51f54aaeb039"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-pair-baseline-results-01.json",
+          "bytes": 11024,
+          "sha256": "1e8670a1d040b3744cfa3ac6987ed919c68fee379f54c658810e6a1624a48987"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-pair-candidate-results-01.json",
+          "bytes": 11030,
+          "sha256": "580de94d26fb40fd395d8a01a3d09a700a8de725e59634257e1d861c9b6bb3f6"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/callback-snapshot-01/source-manifest.json",
+          "bytes": 743,
+          "sha256": "3644d6872074eaf9563995b81647a2f5b4b62ee3a6cab657cb10eb7cfe137e86"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/source-manifest.json",
+          "bytes": 821,
+          "sha256": "60e24e5b5c5b07fcd93890520e7191a7ef54604a589f5777e402f7882b22b974"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/summary-01.json",
+          "bytes": 6736,
+          "sha256": "91faa368b32fbae3ed485593b2ae472bd9a7b5d11fbf81811da2c7e061492d54"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/check.stdout.json",
+          "bytes": 5878,
+          "sha256": "1171b4b87d09b42d6c56ffe78e1a79945bd844c6350c6b49ec31e74fd88fbd7b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/cleanup-pw-dump.json",
+          "bytes": 12358,
+          "sha256": "81d8b413c2e0a3eeb5bbf4233c284eb874452f671d1acbc23c72e8c86fc51c85"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/daemon.log",
+          "bytes": 30751,
+          "sha256": "df97c65ba3223c3f6200d9656b14e5e57d2f7e595ed1d33b2548eb902fbd64b5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/preflight-pw-dump.json",
+          "bytes": 12363,
+          "sha256": "7335f000921230c1f3ae932f44c4a8af1bf652950ecc27ce6cd23211d774b109"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-01/result.json",
+          "bytes": 5927,
+          "sha256": "e2253667216ec16a542b852b3605ad6a03b545e35f50985c3afbefa8072001a5"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/check.stdout.json",
+          "bytes": 5877,
+          "sha256": "4cf326a9ecbf2d22108b41ef7fbd7ff8b5babcaa3ca0145f189678f2692aba9a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "597b79c2a3235ced1425c206933e7466443bfa04d363baa33c774e25c101a638"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/daemon.log",
+          "bytes": 30378,
+          "sha256": "92773dc22312610aa58e2cfa66b82a5df01e1d88b8600b01a5ed1fda799641be"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "e762c83bd38a482690324f4373a341eb42ed9967d97ec1a3f2197f8db1b15468"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-baseline-02/result.json",
+          "bytes": 5926,
+          "sha256": "a20caf435b329485c7e538058795caf3ba2c74833008c52e12c5e760bd178c1d"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/check.stdout.json",
+          "bytes": 5896,
+          "sha256": "25771f87aa4e05d3587549f4a7ca0315ddc2f870817289b0a42195de01d677d8"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "049eafa6e5869ead2c3d356722b9036224516b91a17e0f0dd69c876cd4cd8a43"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/daemon.log",
+          "bytes": 30894,
+          "sha256": "b651fc3bd13e35312c725ee547ad6c44a450082ab9f57ad50cde5628ac16d376"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "88c932c90a02e6d1d52c05a45b9e836136cf0e5a03d4e8c2a0e1d873f94ffbf3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-01/result.json",
+          "bytes": 5945,
+          "sha256": "0fad0a6c09a025b1cd57dcc65ad2b3f00779e457edbccf30d9d5074f4703392f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/check.stdout.json",
+          "bytes": 5885,
+          "sha256": "cbb8fd19ccb07118320cfebbbd37b20dc458fd064d5ee755361a2c40d423facd"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "43767182fe07a7d339a868195ce88b2e84d7e7075df2d1c7513c99752e7cbf01"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/daemon.log",
+          "bytes": 30751,
+          "sha256": "948bcee1e4bdbb3cf7b90caf73e2e5f58ee36868dc092a68aa7befb331eb88c2"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "e7ebe1952ecfdec4f7d7dd3c81ad5d6d803b6dd4416c808e7a539c93b84329ed"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-laptop/evidence-candidate-02/result.json",
+          "bytes": 5934,
+          "sha256": "41b993b19dea6d58987c164d1dca91a9242d7439dbf57c7b2824ef8cb3b9f7a7"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/check.stdout.json",
+          "bytes": 10563,
+          "sha256": "df9422f8119a5ef3cfa8a570cae9fc04dbffcf9848ebb04c955defa47764a089"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "fed614cd1b37f4b3e13f520783b2db75a9674bc430350fe0635445f7bcb0d5c6"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/daemon.log",
+          "bytes": 30378,
+          "sha256": "a2c2385a0051e402c8567e913c0fc10cf8445c8929d19c3527a194d7b368fab9"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "9a81817721f344d8ce48b935547061c80abde017f191379d41ed7e4528ed9a93"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-01/result.json",
+          "bytes": 9295,
+          "sha256": "082c90d6d4405557243a7f4de9e87f384e26250dc38d3040e60cd0efcf41f108"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/check.stdout.json",
+          "bytes": 10565,
+          "sha256": "de1f02c638f4e65584e4e7b941b62eeb7e6c44f5d87b2c9990de7ae01d6e62bb"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "26d3404667355fbd53cdf6eeebe393e526c8146f864cb531687affa998b3ff59"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/daemon.log",
+          "bytes": 30378,
+          "sha256": "36078b899f27796c1fb0005a8785b8475e860352574faac31866cc324dfb7a42"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "5a2e3c2257c9ef5c243cc40a5ffab4a34ab0144f2299bb4727ae9c30e29556c2"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-baseline-02/result.json",
+          "bytes": 9297,
+          "sha256": "ccfec6b785197020231cda3d649f949bea7157e32713ffd02c9c82e42a72131b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/check.stdout.json",
+          "bytes": 10564,
+          "sha256": "8492439119cdc7348995e6380180ed4d8001f6f6da685b0fbe1f73249859c344"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "cec53e95f61970d9dcb6ab326d43c7af32d33c8a78f1be7c8ffcde28e00c8e38"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/daemon.log",
+          "bytes": 30378,
+          "sha256": "890f1a91345363b7ccbb2068eccd9ed4125f33464a08f7e102085e819cb2d754"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "4ef286806c265e0f2da2237492ead6a905023aa9419c746f0d0563e372dec873"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-01/result.json",
+          "bytes": 9296,
+          "sha256": "bbba7bfd44064a802f83a85da9892726be6713bbb38ee05c64c935d6f4973621"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/check.stdout.json",
+          "bytes": 10564,
+          "sha256": "26041ec4dcf5a88695d279f516223b6d96beafe1818df42ebd49dc4aa4ca3e35"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/cleanup-pw-dump.json",
+          "bytes": 12359,
+          "sha256": "3ba1d885861dc69cb969d706fb8128ba1b61485c6ff7434bb573f378344095a0"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/cleanup-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/daemon.log",
+          "bytes": 30378,
+          "sha256": "2f0b67e41145939977b19e2df733d18b661657953faad7a6f783e257bf14ee85"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/preflight-pw-dump.json",
+          "bytes": 12364,
+          "sha256": "9e6f545d6b8440c31da13830f30e7d02ae45154a5fffba49f8e5800adde755a3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/preflight-pw-dump.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/results-long-laptop/evidence-long-candidate-02/result.json",
+          "bytes": 9296,
+          "sha256": "1b9bf5be25b0be80ff4a2d9aef7e06aa008d94652053573d12db602c9c90994f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/stage-01.json",
+          "bytes": 726,
+          "sha256": "717addef392ae075afa51f7c00e24831609792d82724d1d1cd672445083dc43e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/stage.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/stage.stdout.log",
+          "bytes": 726,
+          "sha256": "717addef392ae075afa51f7c00e24831609792d82724d1d1cd672445083dc43e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/unit.stderr.log",
+          "bytes": 295,
+          "sha256": "e4edd046944e699ddfbb20eafa1d1ad06fcfc22557d27933cff36ca2f92dfbec"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/unit.stdout.log",
+          "bytes": 6102,
+          "sha256": "9176ee6ead0728902e5c758f8b6c43f295f5a5416e6645d7c648a0a1dbfdb94f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verification-01.json",
+          "bytes": 16051,
+          "sha256": "be3138b56956172ccde325a2cb2553e78a545bb40ed280909dffe31f477dc40c"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-0.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-0.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-1.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-1.stdout.log",
+          "bytes": 82,
+          "sha256": "c754e01e61da0c2c53d035e8a8969c29943e3a01a11aa007f8a2b0020da46947"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-10.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-10.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-11.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-11.stdout.log",
+          "bytes": 94,
+          "sha256": "13f6a10688d4bf198966f144112ce730fc9b43d1a89551a2e14eea4a99de4e81"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-12.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-12.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-13.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-13.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-14.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-14.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-15.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-15.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-16.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-16.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-17.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-17.stdout.log",
+          "bytes": 78,
+          "sha256": "e224127cc8304c67dcbf414197151cca81db9369c0922bc283ad1ba30a0a1a33"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-18.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-18.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-19.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-19.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-2.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-2.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-20.stderr.log",
+          "bytes": 2997,
+          "sha256": "c6db93c05155a39d06caca88a45c1c2f806d3ba8bea37083bd2f05d5b1251763"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-20.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-21.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-21.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-22.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-22.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-3.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-3.stdout.log",
+          "bytes": 78,
+          "sha256": "04406931eba12cf6323115076ab2b9b23582349c07f802da5809f17e0f9899c4"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-4.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-4.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-5.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-5.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-6.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-6.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-7.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-7.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-8.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-8.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-9.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-9.stdout.log",
+          "bytes": 81,
+          "sha256": "2616d4d595e4a19c4b5e32d1d0fc5d9c6dba0d64d5a67fbd83c60df48baaf344"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-local-owner-01.json",
+          "bytes": 420,
+          "sha256": "dee69e56fbfc9ac66d0bacf0af789149c5f73023b21aef40a89f9d59b0917bf0"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-stage-01.json",
+          "bytes": 601,
+          "sha256": "1c66320b68186c3e6102d2fa9db0bbd9aff95447a38e32c1856b5b78f76a7050"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-stage.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-stage.stdout.log",
+          "bytes": 601,
+          "sha256": "1c66320b68186c3e6102d2fa9db0bbd9aff95447a38e32c1856b5b78f76a7050"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-unit.stderr.log",
+          "bytes": 306,
+          "sha256": "77cf889cf20bc05a8af53061f1feab38d818597cce54b6f450281f747ff79193"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify-unit.stdout.log",
+          "bytes": 1694,
+          "sha256": "412eca156582fb89a9e9e340864abd93d811d2fa9da21dc762d369d07387d03f"
+        },
+        {
+          "file": "scheduler-trace-01/apollo-trace.jsonl",
+          "bytes": 255372,
+          "sha256": "814e3b4bafe68d10795e58c52693841a5a939bb71f3ce4643ae3af59af7968e9"
+        },
+        {
+          "file": "scheduler-trace-01/apollo-trace.jsonl.gz.source.json",
+          "bytes": 211,
+          "sha256": "df163c0c67ad9e291ced4f14ee5a280effb84d1f1664ce0c65c1f65737404a00"
+        },
+        {
+          "file": "scheduler-trace-02/apollo-trace.jsonl",
+          "bytes": 759974,
+          "sha256": "79de58a5129c72d0d79ab686381fa367df0a8762d745e9377309839149c0ea1d"
+        },
+        {
+          "file": "scheduler-trace-02/apollo-trace.jsonl.gz.source.json",
+          "bytes": 211,
+          "sha256": "9aa7f7dd03ce59689b893cf764c7fa01f7684f751de7ac66124f5d164d6ceb68"
+        }
+      ]
+    },
+    {
+      "file": "protocols.json.gz",
+      "bytes": 212092,
+      "sha256": "0c033dd40213e30a2c83911b9e3d9a5cf3d9c81c0476467c62ab276d14e143d7",
+      "decoded_bytes": 1043157,
+      "members": [
+        {
+          "file": "prewarm-prototype-01/PreparedPlayback.cpp",
+          "bytes": 71382,
+          "sha256": "84b51a6edcaaef2fc205309ef5869603444220e8d7e9f149752dd29c7afd2405"
+        },
+        {
+          "file": "prewarm-prototype-01/build.py",
+          "bytes": 3928,
+          "sha256": "9599841fad96d1041e1165272a043a1182c95ab961d2db49436292b2c95bb5ef"
+        },
+        {
+          "file": "prewarm-prototype-01/candidate.patch",
+          "bytes": 4148,
+          "sha256": "e5717b6701295f7514bdfe2e08d1c6e62a08a9da256ec59ce88618c2d1619dd4"
+        },
+        {
+          "file": "prewarm-prototype-01/run_abba_01.py",
+          "bytes": 9725,
+          "sha256": "a4d57265d04e5a96b4302463f83447f25d5307ad8fbfc22d6078cf6eedc6e5e4"
+        },
+        {
+          "file": "run_controller_scheduler_pair_01.py",
+          "bytes": 9018,
+          "sha256": "42ff0cdfd5df6441242facebd7616027321763eabe5454a01cfbae11be7aa58c"
+        },
+        {
+          "file": "run_controller_scheduler_pair_02.py",
+          "bytes": 9027,
+          "sha256": "4850b052b40fcb155cc2e06ece13387064ebdeeb52f2514c5966092f532da5d5"
+        },
+        {
+          "file": "run_controller_strict_cpu2_pair_01.py",
+          "bytes": 8112,
+          "sha256": "738d6bf04e6a6da8f9b2868755d4f823a8fec32c236805004147cd4412ed0f55"
+        },
+        {
+          "file": "scheduler-trace-01/driver-derivation.patch",
+          "bytes": 9078,
+          "sha256": "d514b8466fec8362e28b71c022de856c28471a534dcc58b491244d3589835097"
+        },
+        {
+          "file": "scheduler-trace-01/monitor.py",
+          "bytes": 6185,
+          "sha256": "407d14a239d2893ff585895611123af329ee34c1bb83c748b95fd98dcf1e6755"
+        },
+        {
+          "file": "scheduler-trace-01/retained-full-process-test-module.py",
+          "bytes": 4905,
+          "sha256": "760f5aec40c467e896288db700a173c9ea5b981572a3ff00b7a55d09419a008b"
+        },
+        {
+          "file": "scheduler-trace-01/sampling.py",
+          "bytes": 4294,
+          "sha256": "52221566fbf43b389d135492dddbd26e518bf2b54f1f78053498a2389d02b25f"
+        },
+        {
+          "file": "scheduler-trace-01/test_process_cpu.py",
+          "bytes": 2457,
+          "sha256": "ccd3111e732553697a1ed6a5edf95ac5f09a1ee03874feb16ad1069b54e2b602"
+        },
+        {
+          "file": "scheduler-trace-01/test_thread_cpu.py",
+          "bytes": 4902,
+          "sha256": "9d2224fd9861f44b5009e469c7024b2c4415c632128c45afac3e25cfb918d5dd"
+        },
+        {
+          "file": "scheduler-trace-02/driver-derivation.patch",
+          "bytes": 10082,
+          "sha256": "f1098643615883576c6dc819fe04b43a4f9c4e9805cdee028e7ed218ddaca7bb"
+        },
+        {
+          "file": "scheduler-trace-02/monitor.py",
+          "bytes": 6288,
+          "sha256": "e197742bb2ecad84671326831c6d838886f8c0eb13ffa5d3c0b32d288b993d73"
+        },
+        {
+          "file": "scheduler-trace-02/sampling-derivation.patch",
+          "bytes": 3237,
+          "sha256": "90e0c20d8349fbcb6f11399a95f68788b72a5a6b785bff47087e828c27029174"
+        },
+        {
+          "file": "scheduler-trace-02/sampling.py",
+          "bytes": 4569,
+          "sha256": "7ea335badc4285262aec5f2ae427594c7f678b3c9a6bd1f53d1453dac01e595c"
+        },
+        {
+          "file": "scheduler-trace-02/test_process_cpu.py",
+          "bytes": 2457,
+          "sha256": "ccd3111e732553697a1ed6a5edf95ac5f09a1ee03874feb16ad1069b54e2b602"
+        },
+        {
+          "file": "scheduler-trace-02/test_thread_cpu.py",
+          "bytes": 5091,
+          "sha256": "a7ea76cc4885dbc2f4cd7252bd3535097d7fe69bed190becf557b98cb9d6af09"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/PreparedPlayback.cpp",
+          "bytes": 70402,
+          "sha256": "2fdcc233eb59ef5715b203c597048965078e36ffae68fafbf8053d6a5e27d65a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/PreparedTempoSource.cpp",
+          "bytes": 32817,
+          "sha256": "3d725472a1154cc864a1839787624302135c31801ac77be31dee37f86164f21b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/audio_scratch_playback_test-candidate.cpp",
+          "bytes": 54807,
+          "sha256": "6fbd7b329b6e4981972351564ef1d961856e6e47700b862aad48d89abcf87793"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/build_pair_02.py",
+          "bytes": 4034,
+          "sha256": "8c46bb5d79a199ef5549fd327924d04401fbe15697a52eeb26f806c61c8807ae"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/initial-scratch-test.cpp",
+          "bytes": 54165,
+          "sha256": "2c71d48e2397d18c51b999105580fb66ad23e55c886686e392c04dda53c06da9"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/run_apollo_core_02.py",
+          "bytes": 3993,
+          "sha256": "d4517c4442e9a19b8611e92c20d84f5704a9d17e3c023d26deaaeda5c71f6e95"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/run_paired_full_core_02.py",
+          "bytes": 4754,
+          "sha256": "c77e95557017af90bc533866870190c42abef9f7538c8ecaa17ecdc91c53874a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/run_sanitizer_02.py",
+          "bytes": 3281,
+          "sha256": "5ade9ede759bdb9d7f6367a82081a925a8a2d57cd9b7d06d49de352d3244eb61"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/run_sanitizer_pair_02.py",
+          "bytes": 8888,
+          "sha256": "1458db7eff310bd3749f3686b9e9288653bd095c3fac1a7c1680d92a1c653d0a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-01/stage_apollo_core_02.py",
+          "bytes": 6981,
+          "sha256": "a28d842151cd9a806e96b2b947082764c37340f6d2785722ea32e076b49ac41e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/build_pair_02.py",
+          "bytes": 4034,
+          "sha256": "c4260303cc9b32e9337c7203793a7b77ee606d66227e298394c639ed86126b1f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/run_apollo_core_02.py",
+          "bytes": 4025,
+          "sha256": "0df781202b6cfa254c7970acc74a180fa4c5f0608770c316d76bbbf3ae1d6311"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/run_paired_full_core_02.py",
+          "bytes": 4811,
+          "sha256": "44ce0b80b4dcada38f50ea03b748ae3ffc500ca437116070b258c51c5590e081"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/run_sanitizer_02.py",
+          "bytes": 3342,
+          "sha256": "c80b8d67e78219986f91aa265b8269627971c73b3dd86e30051e76df52b33184"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/run_sanitizer_pair_02.py",
+          "bytes": 9212,
+          "sha256": "84fa0092f7cec2f0dbf23343ec56a170eb5447d25441c9ef7a3b9de81e0b732b"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/applied-verification-02/stage_apollo_core_02.py",
+          "bytes": 7068,
+          "sha256": "7a288dca0a7bfe1f42bb554f2538bae0b6ddca3d28a2c5a3adce04f0cdbfa7c3"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/build.py",
+          "bytes": 5221,
+          "sha256": "8768099aeede8662b6ad9b4ba05bc5bd01aee59e87afd2d2837eca9750f0e027"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/candidate.patch",
+          "bytes": 5741,
+          "sha256": "122984e9e60f5f260aba55baf2ade36f74d7effdec108d1f0f898b93e8b403cd"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/fixture.patch",
+          "bytes": 3319,
+          "sha256": "a03b809d2dacaceae27425cc01941c7e043d8cf4725ddd95a89ef7522fd24f8a"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/manual_routing_check.cpp",
+          "bytes": 137798,
+          "sha256": "08404df796b9ad859d8fce85d9ad2f084efa5b0bb2b11129212a63d36259edc7"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/private_routing_check.py",
+          "bytes": 12889,
+          "sha256": "8f05dde7b53e1562bbe4a26828ca555aefd7379337d9e6fdc47c56cf50faa926"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/run_pair.py",
+          "bytes": 8571,
+          "sha256": "edb35d004380291fdd2bf8859c23f3c755132c965fc245766e7ffbe4aca34c5f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-callback-01/stage_pair.py",
+          "bytes": 8648,
+          "sha256": "bcc293d511367ddf5d02ffa15f5d8402384c47e3c5b2ea3a7bb6903c18553434"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-source/tests/StemExportFixture.hpp",
+          "bytes": 6558,
+          "sha256": "ae51f613ba9e1d5d66ad6f19e86d91783be0a5231caa663e0f9e529b5fe224bf"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-source/tests/StemServiceFixture.hpp",
+          "bytes": 17397,
+          "sha256": "e96a4fa5a9746d3eea6af23a6d30f1cb415012f2b150c93ab319287175dbdfbe"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/long-source/tools/experiments/preparation_controller_check.cpp",
+          "bytes": 289391,
+          "sha256": "47e096259476458cd7bd755b1c3fc3942267330a26bd2c78bb5b0d9975396d84"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/overlay/audio/PreparedPlayback.hpp",
+          "bytes": 9742,
+          "sha256": "1c0736413aabc8c424143e52d5a47d81ee71acba0bafcb3e95bd948da444eecf"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/overlay/audio/PreparedTempoSource.hpp",
+          "bytes": 7252,
+          "sha256": "28e94ce3ec96d19cd973ad0ff7c9442179412d3cb07040f41079fe0b3701f03f"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/prefill_test.cpp",
+          "bytes": 5287,
+          "sha256": "963471589e20507035da2537f492becff3426ca1314421e11c133ef82840f1d2"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/run_abba_01.py",
+          "bytes": 9827,
+          "sha256": "07ef5344e0f0d19724b9b4843649c572e67433d74981066df3326d291a62521e"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/run_long_abba_01.py",
+          "bytes": 10309,
+          "sha256": "02fb5c4d9cccc566f812dddc97084fa3e2d1cd303a338a81f9d7624bb2a1ad31"
+        },
+        {
+          "file": "tempo-prefill-prototype-01/verify.py",
+          "bytes": 4717,
+          "sha256": "1a667aabfc221793064169a44741d960253755c4c9cb9fefd59056b01b5ffa58"
+        },
+        {
+          "file": "applied-product-and-test.patch",
+          "bytes": 16967,
+          "sha256": "680a9e8b1f9d33425b43594ac37d830d75a3ea451c99aabd01e3a840d955d497"
+        }
+      ]
+    }
+  ]
+}

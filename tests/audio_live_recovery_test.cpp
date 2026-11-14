@@ -610,10 +610,11 @@ void residentPreparedTakeoverAtExactOutPreservesMarkerRampsAndFailure()
             "Early boundary request consumed candidate PCM or moved parked F");
         f.render(1970);
         require(f.core->residentHoldState().audibleFrame == reserve-17 &&
-            f.core->setStemGain(0, 0, .375F), "Cannot retarget mute immediately before OUT");
+            f.core->continuationPrefixFrames(0,1024)==17 && f.core->continuationPrefixFrames(0,3)==3 &&
+            f.core->setStemGain(0, 0, .375F), "Cannot bound the raw OUT prefix or retarget its mute");
         f.oracle.gains[0].set(.375);
         f.render(17); // Last old-source prefix; ramp is now17/240, not its earlier value.
-        require(f.core->residentHoldState().audibleFrame == reserve &&
+        require(f.core->residentHoldState().audibleFrame == reserve && f.core->continuationPrefixFrames(0,1024)==0 &&
             f.core->sourceFrame() == reserve && f.core->transportRevision(0) == revision &&
             f.core->continuationStatus(0, source, reserve, revision, 771) == Status::Ready &&
             candidate->primedForContinuation(reserve), "Exact OUT was skipped, wrapped or consumed finite readiness");

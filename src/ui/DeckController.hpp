@@ -218,6 +218,7 @@ private:
     struct ContinuationEpisode {
         const PreparedPcm* clip = nullptr;
         std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, attempts = 0, residentHoldRangeId = 0;
+        double position = 0;
         QElapsedTimer stalled;
         bool attempted = false;
         QString status = "Idle", detail;
@@ -227,6 +228,8 @@ private:
         std::shared_ptr<const PreparedPcm> original;
         const audio::LiveSession* session = nullptr;
         std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, residentHoldRangeId = 0;
+        double position = 0;
+        audio::AudioTempoState tempo{};
         std::chrono::steady_clock::time_point deadline;
         std::shared_ptr<PreparedLoad> prepared;
         std::unique_ptr<audio::PreparedPlayback> retired;

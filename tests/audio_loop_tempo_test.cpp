@@ -297,14 +297,19 @@ void combinedControlsAndPeerClock()
                 require(bounds.active && !bounds.cached && core.tempoState(0).active,
                         "Combined controls did not use processed loop");
                 bool fractional = false;
-                for (std::size_t block = 0; block < 80; ++block)
-                {
+                std::size_t committed = 0;
+                wait([&] {
+                    const auto before = core.sourcePosition(0);
                     render();
                     const auto position = core.sourcePosition(0);
                     require(position >= double(bounds.inFrame) && position < double(bounds.outFrame),
                             "Processed loop escaped its bounds");
                     fractional |= position != std::floor(position);
-                }
+                    // Priming/underflow attempts exercise peer clocks, but
+                    // cannot establish the processed source's cursor behavior.
+                    if (position != before) ++committed;
+                    return committed == 80;
+                }, "Processed loop did not deliver 80 source prefixes");
                 require(fractional, "RenderCore discarded processed loop's fractional cursor");
                 const auto paused = core.sourcePosition(0);
                 const auto generation = core.tempoState(0).generation;
