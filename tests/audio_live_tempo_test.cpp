@@ -111,7 +111,9 @@ void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
         constexpr auto handoffFrames = PreparedPlayback::liveReserveFrames * 100 / 106 + 8192;
         std::array<float, 2048> block{};
         std::vector<float> pcm;
-        const auto deadline = Clock::now() + std::chrono::seconds(8);
+        // Check for a stall. A coverage build can take more than eight
+        // seconds to process a full stream while PCM is still arriving.
+        auto deadline = Clock::now() + std::chrono::seconds(8);
         double cursor = 0;
         for (;;) {
             const auto result = source.read(source.context, std::uint64_t(std::floor(cursor)), block);
@@ -127,7 +129,8 @@ void cachedOpeningPlaysWhileTheLiveSuffixIsBlocked()
             if (replay && control.allowance.load() == suffixLead && pcm.size() / 2 >= handoffFrames)
                 control.allowance.store(sourceFrames);
             if (result.finished) break;
-            require(Clock::now() < deadline, !replay ? "Opening first pass did not finish" :
+            if (result.frames) deadline = Clock::now() + std::chrono::seconds(8);
+            require(Clock::now() < deadline, !replay ? "Opening first pass stopped making progress" :
                 !control.allowance.load() ? "Opening replay could not play four seconds with the suffix blocked" :
                 control.allowance.load() == suffixLead ? "Opening replay held ready suffix PCM until the full reserve" :
                 "Opening replay did not finish after releasing the suffix");

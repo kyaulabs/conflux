@@ -502,6 +502,13 @@ private:
             partialFrames = 0;
             return true;
         };
+        auto publishIfRunningLow = [&] {
+            const auto consumed = consumed_.load(std::memory_order_acquire);
+            // Keep the startup queue packed. During playback two queued slots
+            // can drain before the next input fetch and DSP step finish.
+            return !partialFrames || consumed <= firstGenerationSlot ||
+                written_.load(std::memory_order_relaxed) - consumed > 2 || publishPartial();
+        };
         // Only the worker waits. A metadata boundary can publish its partial
         // packet after DSP has already produced the next revision's samples.
         auto waitForSlot = [&] {
@@ -625,6 +632,9 @@ private:
                     const auto offered = std::span<const float>(input).subspan(inputOffset * channels,
                         (inputFrames - inputOffset) * channels);
                     const bool eof = !request.loopOut && nextFrame == frames_ && inputOffset == inputFrames;
+                    // The consumer may have drained the ready queue during the input read.
+                    // Release already processed audio before entering another DSP step.
+                    if (!publishIfRunningLow()) continue;
                     const auto step = processor->process(processor->generation(), offered,
                         std::span(output).first((blockFrames - partialFrames) * channels), eof);
                     inputOffset += step.inputFramesUsed;
@@ -721,16 +731,12 @@ private:
             partialFrames += produced;
             nominal = mapPosition(nominal + static_cast<long double>(produced) * slot.nominalStep,
                                   request.loopIn, request.loopOut);
-            // Keep startup packets packed. Once playback has consumed from
-            // this generation, publish the ready prefix before another
-            // input/DSP step when only one queued packet remains.
             if (terminalPending) {
                 if (publishPartial(true)) generationDone = true;
+            } else if (partialFrames == blockFrames) {
+                (void)publishPartial();
             } else {
-                const auto consumed = consumed_.load(std::memory_order_acquire);
-                if (partialFrames == blockFrames || (consumed > firstGenerationSlot &&
-                    written_.load(std::memory_order_relaxed) - consumed <= 1))
-                    (void)publishPartial();
+                (void)publishIfRunningLow();
             }
         }
     }

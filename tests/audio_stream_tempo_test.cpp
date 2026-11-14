@@ -662,7 +662,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAtLowReserve(0); readyPrefixAtLowReserve(1); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); finalPcmAndEofPublishedTogether(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
+    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAtLowReserve(0); readyPrefixAtLowReserve(1); readyPrefixAtLowReserve(2); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); finalPcmAndEofPublishedTogether(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
