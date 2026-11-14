@@ -843,6 +843,47 @@ private slots:
         QVERIFY(!ui_->item("masterGain")->isEnabled());
     }
 
+    void deckReportsTrackEndWithoutClearingThePlayRequest()
+    {
+        ui_->endpoint.loadState(0, 9.75);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.snapshotDeck(0, {{"playing", true}});
+        auto* const status = ui_->item("deck0TransportStatus");
+        auto* const play = ui_->item("deck0Play");
+        QVERIFY(status && play);
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+
+        ui_->endpoint.snapshotDeck(0, {{"positionSeconds", 10.0},
+                                      {"tempo", QVariantMap{{"active", true}, {"finished", false}}}});
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Pause"));
+        ui_->endpoint.snapshotTempo(0, {{"active", true}, {"finished", true}});
+        QTRY_VERIFY(status->property("text").toString().startsWith("END OF TRACK"));
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Stop"));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+
+        ui_->endpoint.snapshotDeck(0, {{"tempo", QVariantMap{}},
+                                      {"residentHold", QVariantMap{{"active", true}}}});
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+        ui_->endpoint.snapshotDeck(0, {{"residentHold", QVariantMap{}}, {"positionSeconds", 4.0}});
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Pause"));
+        QTRY_VERIFY(status->property("text").toString().startsWith("PLAYING"));
+        QCOMPARE(ui_->endpoint.calls.size(), 0);
+
+        ui_->endpoint.snapshotDeck(0, {{"positionSeconds", 10.0},
+                                      {"scratch", QVariantMap{{"active", false}, {"pending", true}}}});
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Stop"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(play));
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        const auto request = ui_->endpoint.calls.constLast().toMap();
+        QCOMPARE(request.value("action").toString(), QStringLiteral("playing"));
+        QCOMPARE(request.value("deck").toInt(), 0);
+        QCOMPARE(request.value("value").toBool(), false);
+        QCOMPARE(ui_->endpoint.decks().at(0).toMap().value("positionSeconds").toDouble(), 10.0);
+        QTRY_COMPARE(play->property("text").toString(), QStringLiteral("Play"));
+        QTRY_VERIFY(status->property("text").toString().startsWith("END OF TRACK"));
+    }
+
     void keyboardTraversalReachesEnabledControlsWithoutCommands_data()
     {
         QTest::addColumn<int>("fontPixels");
@@ -2050,14 +2091,17 @@ private slots:
     void cueSheetImportUsesSelectedSourceAndLiteralPath_data()
     {
         QTest::addColumn<int>("activation");
-        QTest::newRow("pointer") << 0;
-        QTest::newRow("button-keyboard") << 1;
-        QTest::newRow("path-enter") << 2;
+        QTest::addColumn<bool>("accessibleSelection");
+        QTest::newRow("pointer") << 0 << false;
+        QTest::newRow("button-keyboard") << 1 << false;
+        QTest::newRow("path-enter") << 2 << false;
+        QTest::newRow("accessible-track-selection") << 0 << true;
     }
 
     void cueSheetImportUsesSelectedSourceAndLiteralPath()
     {
         QFETCH(int, activation);
+        QFETCH(bool, accessibleSelection);
         const QString selectedId(64, QLatin1Char('d'));
         ui_->endpoint.setLibrary({
             QVariantMap{{"id", QString(64, QLatin1Char('a'))}, {"name", "Other source"},
@@ -2080,7 +2124,20 @@ private slots:
         QTest::keyClick(ui_->window, Qt::Key_Return);
         QCOMPARE(ui_->endpoint.calls.size(), 0);
         QTRY_VERIFY(ui_->item("libraryTrack1"));
-        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack1")));
+        auto* track = ui_->item("libraryTrack1");
+        if (accessibleSelection) {
+            auto* accessible = QAccessible::queryAccessibleInterface(track);
+            QVERIFY(accessible);
+            QCOMPARE(accessible->role(), QAccessible::ListItem);
+            auto* actions = accessible->actionInterface();
+            QVERIFY(actions);
+            const auto press = QAccessibleActionInterface::pressAction();
+            QVERIFY(actions->actionNames().contains(press));
+            actions->doAction(press);
+            QCOMPARE(ui_->endpoint.calls.size(), 0);
+        } else {
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(track));
+        }
         QTRY_VERIFY(importButton->isEnabled());
         if (activation == 0) {
             QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(importButton));
@@ -4367,6 +4424,31 @@ private slots:
             QCOMPARE(ui_->endpoint.decks()[deck].toMap()["tempo"].toMap(), tempo);
             QCOMPARE(ui_->endpoint.calls.size(), before);
         }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void localKeyDisplayPreservesAmbiguityAndClearsDuringReplacement()
+    {
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.loadState(0);
+        auto* label = ui_->item("deck0LocalTempo");
+        QVERIFY(label);
+        const auto before = ui_->endpoint.calls.size();
+        auto harmony = QVariantMap{{"status", "Estimated"},
+            {"candidates", QVariantList{QVariantMap{{"tonic", 3}, {"mode", "Minor"}}}}};
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY EST. E♭ MIN"));
+        harmony["status"] = "Ambiguous";
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY AMBIGUOUS"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", false}});
+        ui_->endpoint.snapshotDeck(0, {{"loading", true}, {"harmony", harmony}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL PREPARING"));
+        ui_->endpoint.snapshotDeck(0, {{"loading", false}, {"loaded", false}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        QCOMPARE(ui_->endpoint.calls.size(), before);
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 

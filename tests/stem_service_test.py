@@ -22,7 +22,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.stems import service
-from tools.stems.worker import CHANNELS, HOP, RATE, STEMS, WINDOW
+from tools.stems.worker import CHANNELS, HOP, RATE, STEMS, WINDOW, StemWorker
 
 WORKER_PHASES = ("source_read_ms", "request_ms", "overlap_ms")
 NATIVE_PHASES = ("elapsed_ms", "inference_wall_ms", "inference_cpu_ms", "frontend_ms", "graph_ms",
@@ -153,7 +153,7 @@ class FakeWorker:
 
 
 class Harness:
-    def __init__(self, case, frames=17, configure=None, limits=None, prefill_output=False):
+    def __init__(self, case, frames=17, configure=None, limits=None, prefill_output=False, worker_factory=FakeWorker):
         self.case = case
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
@@ -183,7 +183,7 @@ class Harness:
                 pass
 
         def factory(*args, **kwargs):
-            worker = FakeWorker(*args, **kwargs)
+            worker = worker_factory(*args, **kwargs)
             self.workers.append(worker)
             self.factory_created.set()
             if configure:
@@ -367,6 +367,30 @@ class ServiceTest(unittest.TestCase):
                 harness.event("accepted", identifier=harness.ack(chunk))
                 harness.close_clean()
 
+    def test_cached_inference_wire_timing_has_no_native_phases(self):
+        for conflicting in (False, True):
+            with self.subTest(conflicting=conflicting):
+                def mutate(event):
+                    if event.get("event") == "chunk":
+                        event.update(inference_reused=True, overlap_ms=.25)
+                        if not conflicting:
+                            event.pop("request_ms")
+
+                harness = Harness(self, configure=lambda worker: setattr(worker, "mutate", mutate)).start()
+                harness.event("ready")
+                harness.event("accepted", identifier=harness.send("load", frame=0))
+                if conflicting:
+                    harness.finish(error=True)
+                    self.assertFalse(any(event.get("event") == "chunk" for event in harness.remaining()))
+                else:
+                    chunk = harness.event("chunk")
+                    self.assertIs(chunk["inference_reused"], True)
+                    self.assertEqual(chunk["overlap_ms"], .25)
+                    self.assertNotIn("native_timings", chunk)
+                    self.assertNotIn("request_ms", chunk)
+                    harness.event("accepted", identifier=harness.ack(chunk))
+                    harness.close_clean()
+
     def test_invalid_recognized_phase_timings_never_publish(self):
         for key in WORKER_PHASES + ("hop_service_ms",) + NATIVE_PHASES:
             for value in (True, "1", float("nan"), float("inf"), -float("inf"), -0.125):
@@ -519,6 +543,63 @@ class ServiceTest(unittest.TestCase):
         harness.next_id = 4
         harness.event("accepted", identifier=harness.ack(chunk))
         harness.close_clean()
+
+    def test_cold_seek_recovers_after_superseded_native_failure(self):
+        entered, release = threading.Event(), threading.Event()
+        self.addCleanup(release.set)
+
+        class Backend:
+            def __init__(self, failing):
+                self.failing = failing
+                self.closed = False
+
+            def start(self):
+                return ready("vulkan", 2)
+
+            def infer(self, samples, request_id):
+                if self.failing:
+                    entered.set()
+                    if not release.wait(4):
+                        raise TimeoutError("test did not release obsolete inference")
+                    raise RuntimeError("obsolete native inference failed")
+                return np.repeat(samples[None], len(STEMS), axis=0), {"elapsed_ms": 1.0}
+
+            def close(self):
+                self.closed = True
+
+            def abort(self):
+                release.set()
+
+        original, replacement = Backend(True), Backend(False)
+        backends = iter((original, replacement))
+
+        def worker_factory(*args, **kwargs):
+            kwargs["_backend_factory"] = lambda *_: next(backends)
+            return StemWorker(*args, **kwargs)
+
+        harness = Harness(self, frames=31, worker_factory=worker_factory).start()
+        harness.event("ready")
+        load = harness.event("accepted", identifier=harness.send("load", frame=0))
+        first_ready = harness.event("runtime")
+        self.assertTrue(entered.wait(3))
+        seek = harness.event("accepted", identifier=harness.send("seek", frame=7))
+        release.set()
+        restarted = harness.event("runtime")
+        self.assertEqual(restarted["worker_generation"], seek["generation"])
+        self.assertEqual(restarted["replaces_generation"], load["generation"])
+        self.assertEqual(restarted["ready"], first_ready["ready"])
+        self.assertTrue(original.closed)
+        chunk = harness.event("chunk")
+        self.assertEqual((chunk["generation"], chunk["frame_start"], chunk["frames"]),
+                         (seek["generation"], 7, 24))
+        self.assertNotIn("inference_reused", chunk)
+        samples = np.fromfile(harness.directory / chunk["file"], dtype="<f4").reshape(4, 24, 2)
+        np.testing.assert_allclose(samples, np.broadcast_to(harness.audio[7:], samples.shape), atol=2e-7)
+        harness.event("accepted", identifier=harness.ack(chunk))
+        self.assertEqual(harness.event("complete")["generation"], seek["generation"])
+        self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
+        self.assertTrue(replacement.closed)
+        self.assertFalse(any(event.get("event") in ("chunk", "error") for event in harness.remaining()))
 
     def test_invalid_current_worker_payloads_never_publish(self):
         def change(kind, key, value):
@@ -717,13 +798,20 @@ class ServiceNativeLifecycleTest(unittest.TestCase):
     def test_cli_signal_aborts_inflight_native_without_publishing_partial_stems(self):
         self.assert_cli_signal_reaps_native(block_request=True)
 
-    def assert_cli_signal_reaps_native(self, *, block_request):
+    def test_cli_reports_native_exit_error_during_idle_shutdown(self):
+        self.assert_cli_signal_reaps_native(block_request=False, quit_exit=42)
+
+    def test_cli_keeps_close_shape_for_callers_without_native_shutdown_capability(self):
+        self.assert_cli_signal_reaps_native(block_request=False, report_shutdown=False)
+
+    def assert_cli_signal_reaps_native(self, *, block_request, quit_exit=0, report_shutdown=True):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source, model, runtime = (root / name for name in ("input.f32", "model", "runtime.py"))
             write_source(source, 17)
             model.write_bytes(b"bounded fake model")
-            runtime.write_text("#!" + sys.executable + "\nBLOCK_REQUEST = " + repr(block_request) + "\n" + r'''import argparse, json, os, pathlib, signal, sys, time
+            runtime.write_text("#!" + sys.executable + "\nBLOCK_REQUEST = " + repr(block_request)
+                               + "\nQUIT_EXIT = " + repr(quit_exit) + "\n" + r'''import argparse, json, os, pathlib, signal, sys, time
 import numpy as np
 p = argparse.ArgumentParser()
 p.add_argument('--model'); p.add_argument('--backend'); p.add_argument('--threads', type=int)
@@ -737,6 +825,8 @@ print(json.dumps({'event':'ready','sample_rate':44100,'channels':2,'segment_fram
     'revision':'a'*40,'weight_storage':'f32','fence_wait_mode':'blocking','pid':os.getpid()}), flush=True)
 for line in sys.stdin:
     request = json.loads(line)
+    if request == {'command': 'quit'}:
+        sys.exit(QUIT_EXIT)
     if BLOCK_REQUEST:
         pathlib.Path(__file__).with_suffix('.request').write_text(str(request['id']))
         while True:
@@ -748,6 +838,10 @@ for line in sys.stdin:
             runtime.chmod(0o700)
             environment = os.environ.copy()
             environment['PYTHONDONTWRITEBYTECODE'] = '1'
+            if report_shutdown:
+                environment['CONFLUX_STEM_NATIVE_SHUTDOWN'] = '1'
+            else:
+                environment.pop('CONFLUX_STEM_NATIVE_SHUTDOWN', None)
             child = subprocess.Popen([sys.executable, '-B', str(Path(service.__file__)), '--input', str(source),
                 '--directory', str(root / 'service'), '--runtime', str(runtime), '--model', str(model),
                 '--backend', 'cpu', '--threads', '2', '--max-seconds', '15'],
@@ -800,6 +894,12 @@ for line in sys.stdin:
                 closed = event('closed')
                 self.assertEqual(closed['reason'], 'signal')
                 self.assertTrue(closed['worker_closed'])
+                if report_shutdown:
+                    expected = ({'signal': signal.SIGKILL, 'kill_requested': True} if block_request else
+                                {'exit_code': quit_exit, 'kill_requested': False})
+                    self.assertEqual(closed['native_shutdown'], expected)
+                else:
+                    self.assertNotIn('native_shutdown', closed)
                 self.assertEqual(closed['outstanding_slots'], 0 if block_request else 1)
                 self.assertEqual(child.wait(timeout=5), 130)
                 with self.assertRaises(ProcessLookupError):
@@ -912,6 +1012,15 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
                 self.assertEqual(result["service_hops"]["strict_target_ms"], 4095)
                 self.assertEqual(result["service_hops"]["nearest_rank_p99_ms"], 125.0)
 
+    def test_cached_hop_contributes_to_delivery_only(self):
+        result = self.summary({"inference_reused": True, "overlap_ms": .25}, ({},))
+        self.assertTrue(result["service_hops"]["complete"])
+        self.assertEqual(result["service_hops"]["count"], 1)
+        self.assertEqual(result["inferred_service_hops"]["count"], 0)
+        self.assertIs(result["chunk_phases"]["hops"][0]["inference_reused"], True)
+        with self.assertRaisesRegex(RuntimeError, "Invalid cached stem timing"):
+            self.summary({"inference_reused": True, "overlap_ms": .25, "request_ms": 0.})
+
     def test_service_metrics_require_terminal_loss_evidence(self):
         for label, terminal_records, complete in (
             ("missing close", (), False),
@@ -932,6 +1041,23 @@ class PhaseObservationAnalysisTest(unittest.TestCase):
         for trailing in ({}, {"kind": 1, "telemetry_dropped_present": False}):
             with self.subTest(trailing=trailing), self.assertRaisesRegex(RuntimeError, "after stem service close"):
                 self.summary({}, ({}, trailing))
+
+    def test_native_shutdown_preserves_clean_error_and_signal_results(self):
+        self.assertIsNone(self.summary({}, ({},))["native_shutdown"])
+        for shutdown in ({"exit_code": 0, "kill_requested": False},
+                         {"exit_code": 42, "kill_requested": False},
+                         {"signal": 9, "kill_requested": True}):
+            with self.subTest(shutdown=shutdown):
+                result = self.summary({}, ({"native_shutdown": shutdown},))
+                self.assertEqual(result["native_shutdown"], shutdown)
+                self.assertTrue(result["service_metrics_complete"])
+        for invalid in ({"signal": 0, "kill_requested": True},
+                        {"signal": 9, "exit_code": 0, "kill_requested": False},
+                        {"exit_code": 0, "kill_requested": 1}):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(RuntimeError, "native shutdown"):
+                self.summary({}, ({"native_shutdown": invalid},))
+        with self.assertRaisesRegex(RuntimeError, "Invalid native shutdown observation"):
+            self.summary({"native_shutdown": {"signal": 9, "kill_requested": True}})
 
     def test_phase_analysis_rejects_invalid_optional_scalars(self):
         for value in (None, True, "1", float("nan"), float("inf"), -float("inf"), -.125):

@@ -857,6 +857,19 @@ class HourPlaybackTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             soak.validate_hour_result(native, observations)
 
+    def test_cached_hops_cannot_hide_a_failed_fresh_inference_tail(self):
+        native, observations = self.fixture()
+        observations["service_hops"].update(soak.duration_stats([1] * 195 + [3000] * 5))
+        observations["inferred_service_hops"] = soak.duration_stats([3000] * 5)
+        for key in soak.LIVE_PHASE_NAMES:
+            if key != "overlap_ms":
+                observations["chunk_phases"]["fields"][key].update(count=5, present_for_all_chunks=False)
+        soak.validate_hour_result(native, observations)
+        observations["service_hops"].update(soak.duration_stats([1] * 195 + [3000] * 4 + [4095]))
+        observations["inferred_service_hops"] = soak.duration_stats([3000] * 4 + [4095])
+        with self.assertRaises(RuntimeError):
+            soak.validate_hour_result(native, observations)
+
     def test_hour_bounds_and_health_fail_closed(self):
         self.assertEqual(soak.live_evidence_limits(True), (65536, 64 * 1024**2))
         self.assertEqual(soak.live_evidence_limits(False), (16384, 32 * 1024**2))

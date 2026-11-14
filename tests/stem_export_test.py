@@ -8,6 +8,7 @@ import hashlib
 import io
 import json
 import os
+import signal
 from pathlib import Path
 import stat
 import subprocess
@@ -488,6 +489,49 @@ class NativeBoundedDiagnosticsTest(unittest.TestCase):
         self.assertFalse(runtime.root.exists())
         with self.assertRaises(ChildProcessError):
             os.waitpid(pid, os.WNOHANG)
+
+    def test_idle_native_quits_after_a_complete_request(self):
+        marker = self.root / "quit"
+        runtime = self.runtime(
+            "import json, pathlib, sys\n"
+            "print(" + repr(json.dumps(ready("cpu"))) + ", flush=True)\n"
+            "request = json.loads(sys.stdin.readline())\n"
+            "with open(request['output'], 'wb') as out:\n"
+            f"    out.truncate({len(STEMS) * WINDOW * CHANNELS * 4})\n"
+            "print(json.dumps(dict(event='result', id=request['id'], "
+            f"frames={WINDOW}, stems={len(STEMS)})), flush=True)\n"
+            "assert json.loads(sys.stdin.readline()) == {'command': 'quit'}\n"
+            f"pathlib.Path({str(marker)!r}).touch()\n"
+        )
+        runtime.start()
+        _, result = runtime.infer(np.zeros((WINDOW, CHANNELS), dtype=np.float32), 17)
+        self.assertEqual(result["id"], 17)
+        pid = runtime.process.pid
+        runtime.close()
+        self.assertEqual(runtime.process.returncode, 0)
+        self.assertTrue(marker.is_file())
+        self.assertFalse(runtime.root.exists())
+        with self.assertRaises(ChildProcessError):
+            os.waitpid(pid, os.WNOHANG)
+
+    def test_unresponsive_idle_quit_is_terminated_and_reaped(self):
+        marker = self.root / "quit"
+        runtime = self.runtime(
+            "import json, pathlib, sys, time\n"
+            "print(" + repr(json.dumps(ready("cpu"))) + ", flush=True)\n"
+            "assert json.loads(sys.stdin.readline()) == {'command': 'quit'}\n"
+            f"pathlib.Path({str(marker)!r}).touch()\n"
+            "time.sleep(30)\n"
+        )
+        runtime.start()
+        began = time.monotonic()
+        runtime.close()
+        self.assertLess(time.monotonic() - began, 2.5)
+        self.assertTrue(marker.is_file())
+        self.assertEqual(runtime.process.returncode, -signal.SIGKILL)
+        self.assertFalse(runtime.root.exists())
+        with self.assertRaises(ChildProcessError):
+            os.waitpid(runtime.process.pid, os.WNOHANG)
 
     def test_continuous_stderr_cannot_extend_absolute_request_deadline(self):
         runtime = self.runtime("import os\nwhile True: os.write(2,b'x'*4096)\n", timeout=0.05)

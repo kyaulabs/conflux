@@ -14,6 +14,7 @@
 #include <array>
 #include <atomic>
 #include <charconv>
+#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
@@ -458,7 +459,7 @@ public:
             }
         });
     }
-    static void coreError(void* data, std::uint32_t id, int, int, const char* message) noexcept
+    static void coreError(void* data, std::uint32_t id, int, int result, const char* message) noexcept
     {
         auto& self = *static_cast<Impl*>(data);
         self.control([&] {
@@ -466,7 +467,28 @@ public:
                 if (link.proxy && pw_proxy_get_id(reinterpret_cast<pw_proxy*>(link.proxy)) == id) {
                     link.state = PW_LINK_STATE_ERROR; self.refreshRouting(); return;
                 }
-            if (id == PW_ID_CORE) self.setError(message);
+            if (id != PW_ID_CORE) return;
+            // Native protocol errors for a vanished resource are reported on
+            // the core. Keep the verified route only if the local proxy is
+            // gone too. Link, filter and endpoint failures still gate audio.
+            if (result == -ENOENT && self.ready() && message) {
+                constexpr std::string_view prefix = "unknown resource ";
+                constexpr std::string_view separator = " op:";
+                const std::string_view detail(message);
+                if (detail.starts_with(prefix)) {
+                    std::uint32_t resource = PW_ID_ANY;
+                    const auto end = detail.data() + detail.size();
+                    const auto parsed = std::from_chars(detail.data() + prefix.size(), end, resource);
+                    if (parsed.ec == std::errc{} && resource > PW_ID_CLIENT && resource != PW_ID_ANY &&
+                        std::string_view(parsed.ptr, end).starts_with(separator)) {
+                        unsigned opcode = 0;
+                        const auto operation = std::from_chars(parsed.ptr + separator.size(), end, opcode);
+                        if (operation.ec == std::errc{} && operation.ptr == end &&
+                            !pw_core_find_proxy(self.core_, resource)) return;
+                    }
+                }
+            }
+            self.setError(message);
         });
     }
     static void filterState(void* data, pw_filter_state, pw_filter_state state, const char* error) noexcept

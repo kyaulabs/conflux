@@ -6,9 +6,13 @@ import "../brand/integration/qtquick" as Brand
 
 Item {
     id: surface
+    readonly property bool atTrackEnd: Boolean(deck.loaded) && deck.durationSeconds > 0
+        && deck.positionSeconds >= deck.durationSeconds && !deck.sourceReadError && !deck.buffering
+        && !deck.cuePreview && !loop.active && !residentHold.active && !scratchState.active
+        && (!tempoState.active || tempoState.finished)
     readonly property string transportStatus: !deck.loaded ? "EMPTY" : deck.sourceReadError ? "READ ERROR"
                                              : deck.buffering ? "BUFFERING" : deck.cuePreview ? "CUE PREVIEW"
-                                             : deck.playing ? "PLAYING" : "PAUSED"
+                                             : atTrackEnd ? "END OF TRACK" : deck.playing ? "PLAYING" : "PAUSED"
     required property int deckIndex
     required property var controller
     readonly property var deck: controller.decks[deckIndex]
@@ -34,6 +38,21 @@ Item {
     readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property var localTiming: deck.localTiming || ({})
+    readonly property string localKeyText: {
+        const harmony = deck.harmony || ({})
+        if (!deck.loaded || deck.replacing || showingPreparation)
+            return ""
+        if (harmony.status === "Ambiguous")
+            return "KEY AMBIGUOUS"
+        if (harmony.status !== "Estimated" || !harmony.candidates || !harmony.candidates.length)
+            return ""
+        const key = harmony.candidates[0]
+        const names = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]
+        if (!Number.isInteger(key.tonic) || key.tonic < 0 || key.tonic >= names.length
+                || (key.mode !== "Major" && key.mode !== "Minor"))
+            return ""
+        return "KEY EST. " + names[key.tonic] + (key.mode === "Major" ? " MAJ" : " MIN")
+    }
     readonly property real localBpm: Number(localTiming.bpm) || 0
     readonly property bool hasLocalTiming: Boolean(deck.loaded) && !showingPreparation
         && localTiming.status === "Estimated" && Number.isFinite(localBpm) && localBpm >= 20 && localBpm <= 400
@@ -451,21 +470,24 @@ Item {
             y: Math.max(elapsedLabel.y + elapsedLabel.height, bpmReference.y + bpmReference.height) + 2
             width: parent.width - 28
             height: Math.max(12, implicitHeight)
-            text: surface.showingPreparation ? "LOCAL PREPARING"
-                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN"
+            text: (surface.showingPreparation ? "LOCAL PREPARING"
+                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN")
+                + (surface.localKeyText ? "  ·  " + surface.localKeyText : "")
             textFormat: Text.PlainText
+            elide: Text.ElideRight
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: Brand.ConfluxTheme.textPixels(8)
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             Accessible.name: surface.deckName + ", " + text
-            Accessible.description: surface.hasLocalTiming
+            Accessible.description: (surface.hasLocalTiming
                 ? "Original-speed interbeat estimate from "
                     + (Number(surface.localTiming.firstFrame) / 48000).toFixed(3) + " to "
                     + (Number(surface.localTiming.endFrame) / 48000).toFixed(3)
                     + " source seconds. Confidence is unknown. Reference BPM and playback are unchanged."
-                : "Local tempo is unknown. Reference BPM and playback are unchanged."
+                : "Local tempo is unknown. Reference BPM and playback are unchanged.")
+                + (surface.localKeyText ? " Local key confidence is unknown." : "")
         }
         Label {
             id: trackStatus
@@ -1146,7 +1168,7 @@ Item {
             radius: width / 2
             color: "#071014"
             border.color: surface.displayAccent
-            border.width: surface.deck.playing ? 4 : 2
+            border.width: surface.deck.playing && !surface.atTrackEnd ? 4 : 2
             Column {
                 anchors.centerIn: parent
                 spacing: 4
@@ -1383,15 +1405,18 @@ Item {
             width: 56
             height: 56
             round: true
-            text: surface.deck.playing ? "Pause" : "Play"
-            displayText: surface.deck.playing ? "Ⅱ" : "▶"
+            readonly property bool stoppingAtEnd: surface.atTrackEnd && Boolean(surface.deck.playing)
+            text: stoppingAtEnd ? "Stop" : surface.deck.playing ? "Pause" : "Play"
+            displayText: stoppingAtEnd ? "■" : surface.deck.playing ? "Ⅱ" : "▶"
             fontPixelSize: 22
             buttonObjectName: "deck" + surface.deckIndex + "Play"
-            accessibleName: text + " " + surface.deckName
+            accessibleName: text + " " + surface.deckName + (stoppingAtEnd ? " at end of track" : "")
             indicatorColor: Brand.ConfluxTheme.success
-            indicatorOn: Boolean(surface.deck.playing)
+            indicatorOn: Boolean(surface.deck.playing) && !surface.atTrackEnd
             available: surface.canControl
             unavailableReason: "Load a track and wait for audio output to use playback."
+            actionDescription: stoppingAtEnd ? "Clear the play request and leave the cursor at the end of the track."
+                                             : unavailableReason
             onPressed: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
         }
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(9) }
