@@ -158,6 +158,9 @@ public:
     std::atomic<bool> stopping{false};
     std::atomic<bool> tempoRenderActive{false};
     std::uint64_t tempoInputGeneration = 0; // Tempo worker, or quiesced control.
+    // The worker can warm the new processor while the reserve is filling.
+    // Publish the wait for that generation before making any output visible.
+    std::atomic<std::uint64_t> tempoPrefillGeneration{0}, tempoPrefillWait{0};
     std::unique_ptr<std::array<float, liveTempoHistoryFrames * stemCount * 2>> tempoHistory;
     std::uint64_t tempoHistoryFirst = 0, tempoHistoryEnd = 0;
     const std::uint64_t tempoOpeningCapacity;
@@ -817,6 +820,10 @@ AudioReadResult PreparedPlayback::readTempo(std::span<float> output) noexcept
          result.frames < output.size() / StemBankSource::channels; ++slot) {
         const auto view = tempoSource_->peekPrepared();
         if (!view) break;
+        // The acquired slot carries its seek barrier. A later grant also
+        // proves that the worker opened this generation's earlier wait.
+        if (live_ && live_->tempoPrefillGeneration.load(std::memory_order_acquire) == view.generation &&
+            live_->grant.load(std::memory_order_acquire) < live_->tempoPrefillWait.load(std::memory_order_relaxed)) break;
         if (view.generation != tempoSource_->generation()) { result.failed = true; break; }
         if (view.errorCode) {
             (void)tempoSource_->consume(0);
@@ -1093,7 +1100,14 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
         const bool retained = live_->tempoHistoryValid && frame >= live_->tempoHistoryFirst &&
             frame <= live_->tempoHistoryEnd;
         live_->tempoOpeningReplayEnd = 0;
-        if (!retained) {
+        if (retained) {
+            // A second seek into prefetched raw PCM inherits its unopened
+            // reserve. Only a new provider request may replace that wait.
+            if (live_->demand.waitSerial &&
+                live_->tempoPrefillGeneration.load(std::memory_order_relaxed) == live_->tempoInputGeneration &&
+                live_->tempoPrefillWait.load(std::memory_order_relaxed) == live_->demand.waitSerial)
+                live_->tempoPrefillGeneration.store(generation, std::memory_order_release);
+        } else {
             auto resume = frame;
             // Keep the primed bank on first activation at its current cursor.
             if (live_->tempoInputGeneration || frame != live_->demand.cursor) {
@@ -1102,8 +1116,13 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
                     live_->tempoOpeningReplayEnd = openingEnd;
                     resume = openingEnd;
                 }
-                if (resume < frames_)
+                if (resume < frames_) {
                     seekLiveInput(resume, resume - frame >= liveReserveFrames);
+                    if (resume == frame && !live_->code()) {
+                        live_->tempoPrefillWait.store(live_->demand.waitSerial, std::memory_order_relaxed);
+                        live_->tempoPrefillGeneration.store(generation, std::memory_order_release);
+                    }
+                }
             }
             live_->tempoHistoryFirst = live_->tempoHistoryEnd = resume;
             live_->tempoHistoryValid = true;
@@ -1128,9 +1147,15 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
         return {count,false};
     }
     if (frame != live_->demand.cursor || frame != live_->tempoHistoryEnd) return {0,true};
+    bool fillingSeekReserve = false;
     if (live_->demand.waitSerial) {
-        if (live_->grant.load(std::memory_order_acquire) != live_->demand.waitSerial) return {};
-        if (!live_->openGate()) return {0,true};
+        if (live_->grant.load(std::memory_order_acquire) == live_->demand.waitSerial) {
+            if (!live_->openGate()) return {0,true};
+        } else {
+            fillingSeekReserve = live_->tempoPrefillGeneration.load(std::memory_order_relaxed) == generation &&
+                live_->tempoPrefillWait.load(std::memory_order_relaxed) == live_->demand.waitSerial;
+            if (!fillingSeekReserve) return {};
+        }
     }
     const auto result = bank_->readUnmixed(frame, output);
     if (result.failed) return result;
@@ -1143,7 +1168,7 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
     if (live_->tempoHistoryEnd > liveTempoHistoryFrames)
         live_->tempoHistoryFirst = std::max(live_->tempoHistoryFirst, live_->tempoHistoryEnd-liveTempoHistoryFrames);
     const auto wanted = std::min<std::uint64_t>(output.size()/packedChannels, frames_-frame);
-    if (result.frames < wanted) {
+    if (result.frames < wanted && !fillingSeekReserve) {
         if (!live_->closeGate()) return {result.frames,true};
         live_->publishDemand();
     }
@@ -1210,6 +1235,8 @@ void PreparedPlayback::resetBankForSessionAt(std::uint64_t frame)
         if (residentTempoSource_) (void)residentTempoSource_->cancel();
         tempoSource_ = std::move(replacementTempo);
         live_->tempoInputGeneration = 0;
+        live_->tempoPrefillGeneration.store(0, std::memory_order_relaxed);
+        live_->tempoPrefillWait.store(0, std::memory_order_relaxed);
         live_->tempoHistoryValid = false;
         live_->tempoOpeningReplayEnd = 0;
         liveTempoInput_ = false;
