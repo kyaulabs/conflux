@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QLockFile>
+#include <QProcessEnvironment>
 #include <QRandomGenerator>
 #include <algorithm>
 #include <array>
@@ -362,6 +363,11 @@ public:
             latest_ = initial_;
             const auto path = QDir(job_->rootPath).filePath(QString::fromStdString(job_->name));
             const auto input = QDir(path).filePath("input.f32"), directory = QDir(path).filePath("service");
+            // Older services ignore this capability request. Older players
+            // never request the additional field in their strict close schema.
+            auto environment = QProcessEnvironment::systemEnvironment();
+            environment.insert("CONFLUX_STEM_NATIVE_SHUTDOWN", "1");
+            process_.setProcessEnvironment(environment);
             process_.start(job_->files[0].invocation, {"-B", job_->service.path,
                 "--input", input, "--directory", directory, "--runtime", job_->files[3].path, "--model", job_->files[4].path,
                 "--backend", job_->engine.backend, "--threads", QString::number(job_->engine.threads),
@@ -688,7 +694,7 @@ private:
     void chunk(const QJsonObject& value)
     {
         keys(value, {"v", "event", "slot", "sequence", "generation", "source_id", "model_id", "file", "source_frames", "source_format", "sample_rate", "channels", "stems", "frame_start", "window_start_frame", "frames", "final", "bytes", "sha256", "request_id", "worker_ready_at", "published_at"},
-            {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms", "native_timings"});
+            {"request_ms", "source_read_ms", "overlap_ms", "hop_service_ms", "native_timings", "inference_reused"});
         current(value);
         require(sourceSeen_ && !rawComplete_ && digest(value.value("model_id")) == modelDigest() &&
             integer(value.value("source_frames")) == job_->inputFrames && text(value.value("source_format")) == "f32le" &&
@@ -714,6 +720,10 @@ private:
              "native_graph_upload_ms", "native_graph_compute_ms", "native_graph_readback_ms",
              "native_postprocess_ms", "native_graph_rebuild_ms"})
             if (nativeTimings.contains(key)) (void)finite(nativeTimings.value(key));
+        const bool inferenceReused = value.contains("inference_reused");
+        require(!inferenceReused || (boolean(value.value("inference_reused")) &&
+            !value.contains("native_timings") && !value.contains("request_ms") && !value.contains("source_read_ms") &&
+            value.contains("overlap_ms") && value.contains("hop_service_ms")), "Invalid cached stem timing");
         const auto expected = digest(value.value("sha256"));
         const auto receiptNs = stamp();
         auto& lease = leases_[slot];
@@ -731,6 +741,7 @@ private:
             record.final = boolean(value.value("final"));
             record.workerReadySeconds = value.value("worker_ready_at").toDouble();
             record.servicePublishedSeconds = value.value("published_at").toDouble();
+            record.inferenceReused = inferenceReused;
             record.hopServicePresent = value.contains("hop_service_ms");
             if (record.hopServicePresent) record.hopServiceMs = value.value("hop_service_ms").toDouble();
             const auto phase = [](const QJsonObject& timings, const char* key) -> std::optional<double> {
@@ -768,18 +779,28 @@ private:
         require(ready_, "Stem event preceded ready");
         if (kind == "accepted") { accepted(value); return; }
         if (kind == "runtime") {
-            keys(value, {"v", "event", "worker_generation", "model_id", "ready"});
+            keys(value, {"v", "event", "worker_generation", "model_id", "ready"}, {"replaces_generation"});
             const auto tag = integer(value.value("worker_generation"));
-            require(!runtimeSeen_ && tag > 0 && tag <= generation_ && digest(value.value("model_id")) == modelDigest(),
+            require(tag > runtimeGeneration_ && tag <= generation_ && digest(value.value("model_id")) == modelDigest(),
                     "Unknown or repeated runtime startup tag");
-            validateRuntimeReady(object(value.value("ready")), job_->engine); runtimeSeen_ = true;
+            auto ready = object(value.value("ready"));
+            validateRuntimeReady(ready, job_->engine);
+            if (runtimeGeneration_) {
+                const auto retired = integer(value.value("replaces_generation"));
+                require(runtimeGeneration_ <= retired && retired < tag && !sourceSeen_ && ready == runtimeReady_,
+                        "Invalid replacement of a superseded stem runtime");
+            } else {
+                require(!value.contains("replaces_generation"), "Initial runtime cannot replace a stem generation");
+            }
+            runtimeReady_ = std::move(ready);
+            runtimeGeneration_ = tag;
             auto record = observation(Kind::RuntimeReady);
             record.workerGeneration = tag;
             if (tag != generation_) record.providerEpoch = 0; // Older known startup context, no guessed epoch.
             observe(record);
         } else if (kind == "source") {
             keys(value, {"v", "event", "generation", "source_id", "source_frames", "source_format", "mean", "std"});
-            current(value); require(runtimeSeen_ && !sourceSeen_ && integer(value.value("source_frames")) == job_->inputFrames &&
+            current(value); require(runtimeGeneration_ && !sourceSeen_ && integer(value.value("source_frames")) == job_->inputFrames &&
                 text(value.value("source_format")) == "f32le", "Invalid stem source context");
             (void)finite(value.value("mean"), true); require(finite(value.value("std")) > 0, "Invalid source normalization");
             sourceSeen_ = true; // Worker PCM is already restored; never apply these a second time.
@@ -801,7 +822,8 @@ private:
             record.serviceTelemetryDroppedPresent = true; record.serviceTelemetryDropped = dropped;
             observe(record);
         } else if (kind == "closed") {
-            keys(value, {"v", "event", "generation", "reason", "worker_closed", "outstanding_slots", "telemetry_dropped", "closed_at"});
+            keys(value, {"v", "event", "generation", "reason", "worker_closed", "outstanding_slots", "telemetry_dropped", "closed_at"},
+                {"native_shutdown"});
             const auto reason = text(value.value("reason"));
             require(closing_ && integer(value.value("generation")) == generation_ && boolean(value.value("worker_closed")) &&
                 (reason == "close" || reason == "eof" || reason == "signal") &&
@@ -811,10 +833,24 @@ private:
                 std::ranges::none_of(leases_, [](const auto& lease) { return lease.occupied; })),
                 "Diagnostic close retained raw leases or was cancelled");
             const auto dropped = integer(value.value("telemetry_dropped"));
-            (void)finite(value.value("closed_at")); closed_ = true;
+            (void)finite(value.value("closed_at"));
             auto record = observation(Kind::ServiceClosed);
             record.inputFirst44100 = rawNext_;
             record.serviceTelemetryDroppedPresent = true; record.serviceTelemetryDropped = dropped;
+            if (value.contains("native_shutdown")) {
+                const auto shutdown = object(value.value("native_shutdown"));
+                keys(shutdown, {"kill_requested"}, {"exit_code", "signal"});
+                require(shutdown.contains("exit_code") != shutdown.contains("signal"), "Ambiguous native shutdown status");
+                int status = 0;
+                if (shutdown.contains("signal")) {
+                    status = -int(integer(shutdown.value("signal"), 64));
+                    require(status < 0, "Invalid native shutdown signal");
+                } else {
+                    status = int(integer(shutdown.value("exit_code"), 255));
+                }
+                record.nativeShutdown = LiveStemObservations::NativeShutdown{status, boolean(shutdown.value("kill_requested"))};
+            }
+            closed_ = true;
             observe(record);
         } else invalid("Unknown stem service event");
     }
@@ -974,8 +1010,9 @@ private:
     std::size_t pendingFrames_ = 0, inputFrames_ = 0, inputOffset_ = 0;
     int inputSlot_ = -1;
     std::uint64_t pendingFirst_ = 0, convertedInput_ = 0, nextCommand_ = 0,
-        acceptedEpoch_ = 0, generation_ = 0, lastSequence_ = 0, rawNext_ = 0;
-    bool ready_ = false, loaded_ = false, active_ = false, runtimeSeen_ = false, sourceSeen_ = false,
+        acceptedEpoch_ = 0, generation_ = 0, runtimeGeneration_ = 0, lastSequence_ = 0, rawNext_ = 0;
+    QJsonObject runtimeReady_;
+    bool ready_ = false, loaded_ = false, active_ = false, sourceSeen_ = false,
         rawComplete_ = false, finished_ = false, closing_ = false, closed_ = false;
     bool diagnosticDrain_ = false, diagnosticReady_ = false;
     std::uint64_t packetReadyNs_ = 0, firstFullNs_ = 0;
@@ -1030,7 +1067,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
             range.outFrame - range.inFrame < audio::AudioResidentHoldRange::minimumFrames ||
             range.outFrame - range.inFrame > audio::AudioResidentHoldRange::maximumFrames)
             throw std::invalid_argument("Invalid explicitly selected live stem recovery range");
-        const auto bytes = (range.outFrame - range.inFrame) * audio::AudioResidentHoldRange::bytesPerFrame;
+        const auto bytes = audio::AudioResidentHoldRange::retainedBytes(range.outFrame - range.inFrame);
         if (bytes > limits_.maxPreparedBytes || range.admittedBytes < bytes)
             throw std::length_error("Live stem recovery range exceeds admitted PCM bytes");
         return bytes;
@@ -1121,7 +1158,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
         QLockFile lock(QDir(rootPath).filePath(".lock")); lockRoot(lock, stop);
         // Same record atomically shrinks; no uncharged interval or second
         // admission can spend this operation's decoder headroom prematurely.
-        // Resident raw PCM is C++ owned; do not change Python service geometry.
+        // Both resident PCM allocations are C++ owned. Python service geometry is unchanged.
         job->publishRecord(job->serviceBytes + metadataBytes + residentBytes, stop);
     }
     verifySource(original.get(), originalBefore, originalDigest, stop);

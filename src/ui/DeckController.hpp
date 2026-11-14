@@ -218,6 +218,7 @@ private:
     struct ContinuationEpisode {
         const PreparedPcm* clip = nullptr;
         std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, attempts = 0, residentHoldRangeId = 0;
+        double position = 0;
         QElapsedTimer stalled;
         bool attempted = false;
         QString status = "Idle", detail;
@@ -227,6 +228,8 @@ private:
         std::shared_ptr<const PreparedPcm> original;
         const audio::LiveSession* session = nullptr;
         std::uint64_t sourceGeneration = 0, revision = 0, frame = 0, generation = 0, residentHoldRangeId = 0;
+        double position = 0;
+        audio::AudioTempoState tempo{};
         std::chrono::steady_clock::time_point deadline;
         std::shared_ptr<PreparedLoad> prepared;
         std::unique_ptr<audio::PreparedPlayback> retired;
@@ -342,8 +345,8 @@ private:
     std::array<QString, 2> names_{};
     std::array<QString, 2> sourceIds_{};
     std::array<library::TrackPresentation, 2> presentations_{};
-    std::array<library::BpmEstimate, 2> bpmEstimates_{};
-    std::array<library::HarmonyEstimate, 2> harmonyEstimates_{};
+    std::array<library::BpmTiming, 2> bpmTiming_{};
+    std::array<library::HarmonyTiming, 2> harmonyTiming_{};
     std::array<std::optional<double>, 2> bpmOverrides_{};
     std::array<QVariantList, 2> waveforms_{};
     std::array<std::uint64_t, 2> waveformRevisions_{};

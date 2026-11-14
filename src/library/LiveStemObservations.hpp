@@ -36,10 +36,15 @@ public:
         RawComplete, ConverterComplete, ServiceClosed
     };
 
+    struct NativeShutdown {
+        int exitStatus = 0; // POSIX exit code, or negative signal number.
+        bool killRequested = false;
+    };
+
     struct Record {
         Kind kind = Kind::ServiceReady;
         bool hopServicePresent = false, fullObserved = false, final = false;
-        bool serviceTelemetryDroppedPresent = false;
+        bool serviceTelemetryDroppedPresent = false, inferenceReused = false;
         std::uint64_t ordinal = 0, observedNs = 0;
         std::uint64_t providerEpoch = 0, workerGeneration = 0;
         std::uint64_t commandId = 0, requestId = 0, leaseSequence = 0;
@@ -62,6 +67,8 @@ public:
         std::optional<double> nativePostprocessMs, nativeGraphRebuildMs;
         // RawComplete/ServiceClosed only when the corresponding present flag is true.
         std::uint64_t serviceTelemetryDropped = 0;
+        // ServiceClosed only, absent for legacy helpers or before native start.
+        std::optional<NativeShutdown> nativeShutdown;
     };
 
     struct Counters {

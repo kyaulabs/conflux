@@ -394,10 +394,12 @@ private slots:
             const auto before = controller.decks();
             const auto retained = controller.retainedPcmBytes();
             QCOMPARE(retained, std::uint64_t(480 * 8));
+            // 2,048 raw frames and 2,179 processed frames, each with four stereo leaves.
+            constexpr std::uint64_t recoveryCharge = 135264;
             controller.loadLibraryStemTrackWithRecoveryRange(1, id, 2048. / 48000, 4096. / 48000);
             QVERIFY(QThreadPool::globalInstance()->waitForDone(10000));
             QVERIFY(controller.busy());
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             safety.capture(); QVERIFY(!safety.children.empty() && !safety.gone());
             ControllerRetirementBarrier barrier;
             QVERIFY(controller.cancelPreparation());
@@ -405,7 +407,7 @@ private slots:
             QCoreApplication::sendPostedEvents();
             QVERIFY(controller.busy());
             QCOMPARE(controller.preparation()["status"].toString(), QString("Cancelling"));
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             QCOMPARE(controller.decks()[0], before[0]);
             barrier.release();
             QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
@@ -420,7 +422,7 @@ private slots:
             QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
             QVERIFY(hold["configured"].toBool() && hold["ready"].toBool() && !hold["armed"].toBool());
             QCOMPARE(hold["residentBytes"].toULongLong(), qulonglong(65536));
-            QCOMPARE(controller.retainedPcmBytes(), retained + 65536);
+            QCOMPARE(controller.retainedPcmBytes(), retained + recoveryCharge);
             // This fixture deliberately has no output server. It must not fake
             // a fresh callback ticket, positive Arm or playback qualification.
             QVERIFY(!controller.outputReady());
@@ -595,12 +597,13 @@ private slots:
                 QCOMPARE(controller.submittedCommands(), submitted);
                 QVERIFY(controller.liveStemObservations(0) == handle);
             }
+            QVERIFY(liveDecks[0].toMap()["tempo"].toMap()["supported"].toBool());
             controller.setTempoPercent(0, 3);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
             for (const auto command : {&conflux::DeckController::toggleMasterTempo,
                                        &conflux::DeckController::resetTempo}) {
                 (controller.*command)(0);
-                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QVERIFY(controller.error().contains("not ready", Qt::CaseInsensitive));
             }
             QCOMPARE(controller.decks(), liveDecks);
             QCOMPARE(controller.submittedCommands(), submitted);
@@ -1938,10 +1941,10 @@ private slots:
         const auto empty = controller.decks();
         for (const int deck : {-1, 0, 1, 2}) {
             controller.setTempoPercent(deck, 1);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             for (const auto command : selectionCommands) {
                 (controller.*command)(deck);
-                QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+                QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             }
             QCOMPARE(controller.submittedCommands(), std::uint64_t(0));
             QCOMPARE(controller.decks(), empty);
@@ -2015,7 +2018,7 @@ private slots:
         }
         for (const int deck : {-1, 2}) {
             controller.setTempoPercent(deck, 1);
-            QVERIFY(controller.error().contains("prepared", Qt::CaseInsensitive));
+            QVERIFY(controller.error().contains("load", Qt::CaseInsensitive));
             for (const auto command : selectionCommands) (controller.*command)(deck);
             unchanged();
         }
@@ -2034,11 +2037,12 @@ private slots:
         estimate.status = "Unknown"; // A null whole-track summary can still have local timing.
         estimate.beats = {{4800, true}, {28800, false}, {52800, true}, {70800, false},
                           {86800, false}, {101200, true}, {113200, false}};
+        const conflux::library::BpmTiming timing(estimate);
         struct Row { double position; qulonglong first, end; double bpm; };
         for (const auto row : {Row{52800.75,52800,70800,160}, Row{52799.75,28800,52800,120},
                               Row{70800,70800,86800,180}, Row{4800,4800,28800,120},
                               Row{113199.75,101200,113200,240}}) {
-            const auto local = localTimingForDisplay(estimate, row.position);
+            const auto local = localTimingForDisplay(timing, row.position);
             QCOMPARE(local["status"].toString(), QString("Estimated"));
             QCOMPARE(local["confidence"].toString(), QString("Unknown"));
             QCOMPARE(local["firstFrame"].toULongLong(), row.first);
@@ -2049,35 +2053,35 @@ private slots:
         for (const auto position : {-1., 0., 4799.99, 113200., 144000.,
                                     std::numeric_limits<double>::quiet_NaN(),
                                     std::numeric_limits<double>::infinity()})
-            QCOMPARE(localTimingForDisplay(estimate, position)["status"].toString(), QString("Unknown"));
+            QCOMPARE(localTimingForDisplay(timing, position)["status"].toString(), QString("Unknown"));
         const conflux::audio::AudioResidentHoldRange range{7,52800,101200,
             (101200-52800)*conflux::audio::AudioResidentHoldRange::bytesPerFrame,
             conflux::audio::AudioResidentHoldRange::Provenance::DjRange};
         conflux::audio::AudioResidentHoldState hold{range.id,range.inFrame,range.outFrame,128000,70800,
             range.admittedBytes,range.provenance,EIO,true,true,true,true,false};
-        const auto resident = localTimingForDisplay(estimate, 128000, hold, range);
+        const auto resident = localTimingForDisplay(timing, 128000, hold, range);
         QCOMPARE(resident["status"].toString(), QString("Estimated"));
         QCOMPARE(resident["sourceFrame"].toULongLong(), qulonglong(70800));
         QCOMPARE(resident["bpm"].toDouble(), 180.);
         QVERIFY(resident["resident"].toBool()); // Producer health does not erase independent timing.
         hold.linearFrame = estimate.analysisFrames;
-        QCOMPARE(localTimingForDisplay(estimate, double(estimate.analysisFrames), hold, range)["bpm"].toDouble(), 180.);
+        QCOMPARE(localTimingForDisplay(timing, double(estimate.analysisFrames), hold, range)["bpm"].toDouble(), 180.);
         hold.linearFrame = 128000;
-        QCOMPARE(localTimingForDisplay(estimate, 128000.5, hold, range)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(timing, 128000.5, hold, range)["status"].toString(), QString("Unknown"));
         hold.audibleFrame = range.outFrame;
-        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["status"].toString(), QString("Unknown"));
         hold.audibleFrame = range.inFrame;
-        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["bpm"].toDouble(), 160.);
+        QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["bpm"].toDouble(), 160.);
         ++hold.rangeId;
-        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["status"].toString(), QString("Unknown"));
         --hold.rangeId; ++hold.linearFrame;
-        QCOMPARE(localTimingForDisplay(estimate, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["status"].toString(), QString("Unknown"));
         --hold.linearFrame; hold.active = false;
-        QCOMPARE(localTimingForDisplay(estimate, 52800.5, hold, range)["bpm"].toDouble(), 160.);
+        QCOMPARE(localTimingForDisplay(timing, 52800.5, hold, range)["bpm"].toDouble(), 160.);
         auto failed = estimate; failed.status = "Failed";
-        QCOMPARE(localTimingForDisplay(failed, 52800)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(conflux::library::BpmTiming(failed), 52800)["status"].toString(), QString("Unknown"));
         auto malformed = estimate; malformed.beats.back().frame = malformed.beats.front().frame;
-        QCOMPARE(localTimingForDisplay(malformed, 52800)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(conflux::library::BpmTiming(malformed), 52800)["status"].toString(), QString("Unknown"));
         QCOMPARE(estimate.status, QString("Unknown")); QVERIFY(!estimate.bpm);
     }
 
@@ -2150,8 +2154,14 @@ private slots:
         const auto* tail = conflux::library::localHarmonyAt(estimate, 384000);
         QVERIFY(tail); QCOMPARE(tail->status, QString("Unknown")); QCOMPARE(tail->endFrame, std::uint64_t(384013));
         QVERIFY(!conflux::library::localHarmonyAt(estimate, 384013));
+        const conflux::library::HarmonyTiming timing(estimate);
+        QVERIFY(timing.at(191999) && timing.at(192000));
+        QCOMPARE(timing.at(191999)->candidates.front().tonic, 0);
+        QCOMPARE(timing.at(192000)->candidates.front().tonic, 2);
+        QVERIFY(!timing.at(384013));
         auto corrupt = estimate; corrupt.windows[1].firstFrame++;
         QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
+        QVERIFY(!conflux::library::HarmonyTiming(corrupt).at(0));
         corrupt = estimate; corrupt.pcmSha256 = "bad";
         QVERIFY(!conflux::library::localHarmonyAt(corrupt, 0));
         for (const auto* mode : {"hash", "bool-schema", "frames", "duplicate", "overlap", "confidence", "nan", "missing-end", "extra", "flood"}) {

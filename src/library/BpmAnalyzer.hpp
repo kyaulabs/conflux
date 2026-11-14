@@ -55,6 +55,21 @@ struct BpmTempoInterval {
 [[nodiscard]] std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate&,
                                                         std::uint64_t sourceFrame) noexcept;
 
+// Own the validated timing map at deck load. Queries never mutate the stored
+// estimate and only search the relevant beat interval.
+class BpmTiming {
+public:
+    BpmTiming() = default;
+    explicit BpmTiming(BpmEstimate estimate) noexcept;
+
+    [[nodiscard]] const BpmEstimate& estimate() const noexcept { return estimate_; }
+    [[nodiscard]] std::optional<BpmTempoInterval> at(std::uint64_t sourceFrame) const noexcept;
+
+private:
+    BpmEstimate estimate_;
+    bool valid_ = false;
+};
+
 class BpmSourceError : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;

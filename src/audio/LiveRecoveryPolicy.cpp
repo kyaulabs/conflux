@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "audio/LiveRecoveryPolicy.hpp"
 
+#include "audio/LiveStemBuffer.hpp"
+
 #include <algorithm>
 #include <stdexcept>
 
@@ -19,7 +21,11 @@ LiveRecoveryPolicy::Decision LiveRecoveryPolicy::update(
         armedToken_ = 0;
         return {};
     }
-    const auto requiredEnd = demand.cursor + std::min(reserveFrames, totalFrames_ - demand.cursor);
+    // The cached opening has already primed Master Tempo. A short head start
+    // lets it process the contiguous suffix while the producer keeps filling it.
+    constexpr std::uint64_t openingSuffixFrames = 4 * LiveStemBuffer::blockFrames;
+    const auto reserve = demand.openingSuffix ? openingSuffixFrames : reserveFrames;
+    const auto requiredEnd = demand.cursor + std::min(reserve, totalFrames_ - demand.cursor);
     const bool ready = coverage.epoch == demand.epoch && coverage.end >= requiredEnd;
     if (!demand.active) {
         armedToken_ = 0;

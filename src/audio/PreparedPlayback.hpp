@@ -34,6 +34,9 @@ public:
     PreparedPlayback(int normalizedFd, std::uint64_t frames);
     PreparedPlayback(std::array<int, stemCount> normalizedFds, std::uint64_t frames);
     static constexpr std::uint64_t liveReserveFrames = 262144;
+    // 2 MiB of recent, unchanged four-stem PCM; no original mix or disk cache.
+    // Mode resets/recent seeks can re-prime DSP without re-running separation.
+    static constexpr std::uint64_t liveTempoHistoryFrames = 65536;
     static constexpr auto liveWait = std::chrono::seconds(60);
     class LiveProducerPort {
     public:
@@ -56,6 +59,8 @@ public:
         std::uint64_t sourceId, std::uint64_t exactFrames, LiveProducer producer,
         std::optional<AudioResidentHoldRange> residentHold = {});
     // Exact extra raw payload charged by the optional construction-time range.
+    // Whole retained recovery allocation. The range state attests raw
+    // PCM bytes separately for source-bound handoff checks.
     [[nodiscard]] std::uint64_t residentHoldBytes() const noexcept;
     [[nodiscard]] bool isLive() const noexcept { return bool(live_); }
     ~PreparedPlayback();
@@ -72,6 +77,10 @@ public:
     // Live owners require a clipped 262144-frame contiguous reserve and use
     // one cancellable deadline, at most60s. No view is consumed for readiness.
     bool prime(std::uint64_t frame, std::chrono::milliseconds timeout, std::stop_token stop = {});
+    // Fresh finite bank, before publication. Retain the captured nominal cursor
+    // and selected processing mode; any attempt invalidates an older proof.
+    bool primeContinuation(double position, const AudioTempoState& tempo,
+                           std::chrono::milliseconds timeout, std::stop_token stop = {});
     // Quiesced, before a session borrows this owner. Reset bank/ramp staging;
     // only a healthy, exact, never-read live reserve may avoid a new epoch.
     // Explicit prime() always requests a fresh epoch, even at the same cursor.
@@ -85,9 +94,11 @@ public:
     // source has failed. Cursor/provenance/mode eligibility belongs to caller.
     bool copyStemMixStateFrom(const PreparedPlayback& source) noexcept;
     // Same owner thread as prime/read, after worker publication or quiescence.
-    // True only after an unused successful finite linear bank prime at frame;
-    // attests the existing read-ahead prefix, not the live reserve or all PCM.
-    [[nodiscard]] bool primedForContinuation(std::uint64_t frame) const noexcept;
+    // True only after an unused successful finite bank prime at this exact
+    // nominal position; raw original-speed primes require an integer position.
+    // Attests the queued processed prefix or raw read-ahead prefix, not the
+    // live reserve, old DSP filter history or all PCM.
+    [[nodiscard]] bool primedForContinuation(double position) const noexcept;
     // Atomic reader/control health only; safe to sample from the render owner.
     // RenderCore separately publishes failures reported by the bank's RT read.
     [[nodiscard]] int errorCode() const noexcept;
@@ -99,6 +110,11 @@ private:
     PreparedPlayback(std::unique_ptr<LiveState> live, std::uint64_t frames);
     void createLoopCache(std::span<const int> fds) noexcept;
     void createTempoSource(std::span<const int> fds) noexcept;
+    std::unique_ptr<PreparedTempoSource> makeLiveTempoSource();
+    std::unique_ptr<PreparedTempoSource> makeResidentTempoSource();
+    void createLiveTempoSource() noexcept;
+    bool primeTempo(double position, double percent, bool keyLock,
+                    std::chrono::steady_clock::time_point deadline, std::stop_token stop);
     void createScratchSource(std::span<const int> fds) noexcept;
     AudioReadResult readPrepared(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readTempo(std::span<float> output) noexcept;
@@ -116,7 +132,11 @@ private:
     [[nodiscard]] int preparedRenderError() const noexcept;
     AudioReadResult readLive(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readLinearLive(std::uint64_t frame, std::span<float> output) noexcept;
+    AudioReadResult readUnmixedLive(std::uint64_t generation, std::uint64_t frame,
+                                   std::span<float> output) noexcept;
+    void seekLiveInput(std::uint64_t frame, bool openingSuffix = false) noexcept;
     AudioReadResult readResidentHold(std::span<float> output) noexcept;
+    AudioReadResult readResidentTempo(std::span<float> output) noexcept;
     bool residentHoldControl(AudioResidentHoldCommand, std::uint64_t rangeId, std::uint64_t frame) noexcept;
     [[nodiscard]] AudioResidentHoldState residentHoldState() const noexcept;
     void seekLive(std::uint64_t frame) noexcept;
@@ -127,6 +147,9 @@ private:
     std::unique_ptr<StemBankSource> bank_;
     std::unique_ptr<PreparedLoopCache> loopCache_;
     std::unique_ptr<PreparedTempoSource> tempoSource_;
+    // Separate immutable resident-loop processor. The live processor remains
+    // parked at its consumed nominal position while this queue is audible.
+    std::unique_ptr<PreparedTempoSource> residentTempoSource_;
     // Optional bounded bidirectional PCM windows, owned with this playback.
     std::unique_ptr<PreparedScratchSource> scratchSource_;
     AudioLoopState loop_{}; // Sole render owner, or control after quiescence.
@@ -134,11 +157,15 @@ private:
     int tempoSetupError_ = 0;
     int scratchSetupError_ = 0;
     bool tempoKeyLock_ = false; // Legacy unity selection does not start DSP.
+    // Render/control owner only. Once transferred, the tempo worker owns all
+    // live raw cursor/staging/recovery demand until quiesced stop/reconstruction.
+    bool liveTempoInput_ = false;
+    AudioTempoState liveTempoRestore_{};
     std::uint64_t frames_;
     std::atomic<int> primeError_{0};
     bool stopped_ = false;
     // Sole render/control owner across quiescence and candidate publication.
-    std::uint64_t continuationPrimeFrame_ = 0;
+    double continuationPrimePosition_ = 0;
     bool unusedContinuationPrime_ = false;
     // Render/control owner only across quiescence; producer never touches it.
     std::uint64_t livePrimeFrame_ = 0, livePrimeEpoch_ = 0;

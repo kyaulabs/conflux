@@ -4149,7 +4149,10 @@ private slots:
             Scenario{"loop-out-stored", {}, {}, {{"outSet", true}}, true, true, false},
             Scenario{"loop-exit-remainder", {}, {}, {{"cached", true}}, true, true, false},
             Scenario{"pending", {}, {{"active", true}, {"pending", true}}, {}, true, true, true},
-            Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true}
+            Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true},
+            Scenario{"resident-recovery", {{"liveStems", true},
+                {"residentHold", QVariantMap{{"configured", true}, {"active", true}}}},
+                {{"active", true}}, {}, true, false, false}
         };
         for (int deck = 0; deck < 2; ++deck) {
             const auto prefix = QString("deck%1").arg(deck);
@@ -4157,7 +4160,8 @@ private slots:
             auto* lock = ui_->item((prefix + "MasterTempo").toUtf8().constData());
             auto* reset = ui_->item((prefix + "TempoReset").toUtf8().constData());
             auto* in = ui_->item((prefix + "LoopIn").toUtf8().constData());
-            QVERIFY(rail && lock && reset && in);
+            auto* status = ui_->item((prefix + "TempoStatus").toUtf8().constData());
+            QVERIFY(rail && lock && reset && in && status);
             for (const auto& scenario : scenarios) {
                 ui_->endpoint.loadState(deck);
                 ui_->endpoint.setReady(scenario.ready);
@@ -4183,6 +4187,21 @@ private slots:
                     verifyCueCall(before, "tempoReset", deck);
                 }
             }
+
+            auto* accessibleRail = QAccessible::queryAccessibleInterface(rail);
+            auto* accessibleStatus = QAccessible::queryAccessibleInterface(status);
+            QVERIFY(accessibleRail && accessibleStatus);
+            QCOMPARE(status->property("text").toString(), QString("RECOVERY"));
+            QCOMPARE(accessibleStatus->text(QAccessible::Name),
+                     QString("Deck %1 tempo RECOVERY").arg(deck == 0 ? "A" : "B"));
+            QCOMPARE(accessibleRail->text(QAccessible::Description),
+                     QString("Leave recovery before changing BPM."));
+
+            ui_->endpoint.snapshotDeck(deck, {{"residentHold", QVariantMap{
+                {"configured", true}, {"active", false}}}});
+            QTRY_VERIFY(rail->isEnabled() && lock->isEnabled() && reset->isEnabled());
+            QCOMPARE(status->property("text").toString(), QString("READY"));
+            QVERIFY(!accessibleRail->text(QAccessible::Description).contains("Leave recovery"));
         }
     }
 
@@ -4405,6 +4424,31 @@ private slots:
             QCOMPARE(ui_->endpoint.decks()[deck].toMap()["tempo"].toMap(), tempo);
             QCOMPARE(ui_->endpoint.calls.size(), before);
         }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void localKeyDisplayPreservesAmbiguityAndClearsDuringReplacement()
+    {
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.loadState(0);
+        auto* label = ui_->item("deck0LocalTempo");
+        QVERIFY(label);
+        const auto before = ui_->endpoint.calls.size();
+        auto harmony = QVariantMap{{"status", "Estimated"},
+            {"candidates", QVariantList{QVariantMap{{"tonic", 3}, {"mode", "Minor"}}}}};
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY EST. E♭ MIN"));
+        harmony["status"] = "Ambiguous";
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY AMBIGUOUS"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", false}});
+        ui_->endpoint.snapshotDeck(0, {{"loading", true}, {"harmony", harmony}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL PREPARING"));
+        ui_->endpoint.snapshotDeck(0, {{"loading", false}, {"loaded", false}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        QCOMPARE(ui_->endpoint.calls.size(), before);
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 

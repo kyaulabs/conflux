@@ -121,6 +121,22 @@ void deterministicPolicyAndCommit()
     Policy pausedReady(total);
     require(pausedReady.update(inactive, {2, reserve}, start).kind == Kind::Grant,
             "Paused ready reserve could not be pre-granted");
+
+    constexpr auto suffixLead = 4 * LiveStemBuffer::blockFrames;
+    Policy opening(total);
+    auto suffix = d;
+    suffix.cursor = reserve;
+    suffix.openingSuffix = true;
+    require(opening.update(suffix, {1, reserve + suffixLead}, start).kind == Kind::None &&
+            opening.update(suffix, {2, reserve + suffixLead - 1}, start + 1s).kind == Kind::None,
+            "Cached replay granted stale or partial suffix audio");
+    require(opening.update(suffix, {2, reserve + suffixLead}, start + 2s).kind == Kind::Grant,
+            "Cached replay waited for a second full reserve");
+    const Policy::Demand underrun{2, 2, 2, reserve + suffixLead, true};
+    require(opening.update(underrun, {2, underrun.cursor + suffixLead}, start + 3s).kind == Kind::None,
+            "A later underrun inherited the shorter cached replay reserve");
+    require(opening.update(underrun, {2, underrun.cursor + reserve}, start + 4s).kind == Kind::Grant,
+            "A later underrun did not accept its full reserve");
 }
 
 struct ActivitySource {
@@ -610,10 +626,11 @@ void residentPreparedTakeoverAtExactOutPreservesMarkerRampsAndFailure()
             "Early boundary request consumed candidate PCM or moved parked F");
         f.render(1970);
         require(f.core->residentHoldState().audibleFrame == reserve-17 &&
-            f.core->setStemGain(0, 0, .375F), "Cannot retarget mute immediately before OUT");
+            f.core->continuationPrefixFrames(0,1024)==17 && f.core->continuationPrefixFrames(0,3)==3 &&
+            f.core->setStemGain(0, 0, .375F), "Cannot bound the raw OUT prefix or retarget its mute");
         f.oracle.gains[0].set(.375);
         f.render(17); // Last old-source prefix; ramp is now17/240, not its earlier value.
-        require(f.core->residentHoldState().audibleFrame == reserve &&
+        require(f.core->residentHoldState().audibleFrame == reserve && f.core->continuationPrefixFrames(0,1024)==0 &&
             f.core->sourceFrame() == reserve && f.core->transportRevision(0) == revision &&
             f.core->continuationStatus(0, source, reserve, revision, 771) == Status::Ready &&
             candidate->primedForContinuation(reserve), "Exact OUT was skipped, wrapped or consumed finite readiness");

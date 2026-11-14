@@ -379,7 +379,8 @@ private slots:
         checked([&] {
             QTemporaryDir directory;
             const auto source = directory.filePath("resident-source.wav"), root = directory.filePath("cache");
-            constexpr std::uint64_t inputFrames = 8192, bytes = 2048 * 32;
+            constexpr std::uint64_t inputFrames = 8192, rawBytes = 2048 * 32;
+            constexpr std::uint64_t bytes = 135264; // Raw plus the bounded slow-tempo period.
             writeSource(source, inputFrames);
             const auto fixture = conflux::test::makeStemServiceFixture(directory.path());
             const auto bounded = limits(true);
@@ -425,7 +426,7 @@ private slots:
             require(opted.playback->prime(0, std::chrono::seconds(10)), "Approved live range did not prime");
             auto sourceRef = opted.playback->sourceRef();
             const auto state = sourceRef.residentHoldState(sourceRef.context);
-            require(state.ready && !state.armed && state.residentBytes == bytes &&
+            require(state.ready && !state.armed && state.residentBytes == rawBytes &&
                 state.inFrame == request.range.inFrame && state.outFrame == exactFrames,
                 "Accepted raw packets did not capture the exact unarmed tail range");
             opted.playback->stop();
@@ -514,8 +515,12 @@ private slots:
                 "Diagnostic finish lost a tail request/ACK or launched another generation");
             const auto closed = std::ranges::find_if(commands, [](const auto& row) { return row.value("fixture").toString() == "closed"; });
             require(closed != commands.end() && closed->value("outstanding_slots").toInt() == 0, "Diagnostic close retained an unacknowledged raw lease");
-            require(uniqueObservation(rows, ObservationKind::ServiceClosed).workerGeneration == accepted.workerGeneration,
+            const auto& closeObservation = uniqueObservation(rows, ObservationKind::ServiceClosed);
+            require(closeObservation.workerGeneration == accepted.workerGeneration,
                 "Diagnostic finish omitted its actual service close receipt");
+            require(closeObservation.nativeShutdown && closeObservation.nativeShutdown->exitStatus == 0 &&
+                !closeObservation.nativeShutdown->killRequested,
+                "Diagnostic finish lost the native child exit status");
             const auto tail = std::ranges::find_if(rows, [](const auto& row) { return row.kind == ObservationKind::ChunkValidated && row.requestId == 2; });
             require(tail != rows.end() && tail->inputFirst44100 == hop && tail->inputFrames44100 == 211 && tail->final &&
                 tail->hopServicePresent && tail->hopServiceMs == 350.125 &&
@@ -614,6 +619,7 @@ private slots:
         QTest::newRow("wire-hop-omitted") << QByteArray("timing-no-hop");
         QTest::newRow("wire-phases-partial") << QByteArray("timing-partial");
         QTest::newRow("wire-phases-present-zero") << QByteArray("timing-zero");
+        QTest::newRow("wire-cached-inference") << QByteArray("timing-cached");
     }
     void observationsPreservePinnedContextAndWireTiming()
     {
@@ -666,14 +672,16 @@ private slots:
             require(chunk.workerGeneration == 1 && chunk.requestId == 1 && chunk.leaseSequence == 1 &&
                 chunk.inputFirst44100 == 0 && chunk.inputFrames44100 == 211 && chunk.final &&
                 chunk.observedNs <= chunk.validatedNs && chunk.workerReadySeconds == 1000.25 &&
-                chunk.servicePublishedSeconds == 1000.375 && chunk.hopServicePresent == (mode == "timing") &&
+                chunk.servicePublishedSeconds == 1000.375 && chunk.inferenceReused == (mode == "timing-cached") &&
+                chunk.hopServicePresent == (mode == "timing" || mode == "timing-cached") &&
                 (!chunk.hopServicePresent || chunk.hopServiceMs == 125.0), "Raw timing changed wire units/presence or lease geometry");
             const std::array phases{chunk.sourceReadMs, chunk.requestMs, chunk.overlapMs, chunk.nativeElapsedMs,
                 chunk.nativeInferenceWallMs, chunk.nativeInferenceCpuMs, chunk.nativeFrontendMs, chunk.nativeGraphMs,
                 chunk.nativeGraphUploadMs, chunk.nativeGraphComputeMs, chunk.nativeGraphReadbackMs,
                 chunk.nativePostprocessMs, chunk.nativeGraphRebuildMs};
             for (std::size_t i = 0; i < phases.size(); ++i) {
-                const bool present = mode == "timing" || mode == "timing-zero" || (mode == "timing-partial" && i % 2 == 0);
+                const bool present = mode == "timing" || mode == "timing-zero" ||
+                    (mode == "timing-partial" && i % 2 == 0) || (mode == "timing-cached" && i == 2);
                 const double expected = mode == "timing-zero" ? 0.0 : double(i) * .125;
                 require(phases[i].has_value() == present && (!present || *phases[i] == expected),
                     "Phase timing changed exact value, original ms, omission or present zero");
@@ -702,6 +710,7 @@ private slots:
                 QTest::newRow(mode.constData()) << mode;
             }
         QTest::newRow("opaque-native-field") << QByteArray("timing-extra");
+        QTest::newRow("cached-with-native-timing") << QByteArray("timing-cached-with-native");
         for (const auto* kind : {"bool", "string", "null", "array"}) {
             const auto mode = QByteArray("timing-container:") + kind;
             QTest::newRow(mode.constData()) << mode;
@@ -1281,6 +1290,43 @@ private slots:
         });
     }
 
+    void runtimeReplacementIsBoundToRetiredGeneration_data()
+    {
+        QTest::addColumn<QByteArray>("mode");
+        QTest::addColumn<bool>("accepted");
+        QTest::newRow("older-fault-same-runtime") << QByteArray("runtime-restart") << true;
+        QTest::newRow("duplicate-without-proof") << QByteArray("runtime-restart-no-proof") << false;
+        QTest::newRow("replaces-current-generation") << QByteArray("runtime-restart-current") << false;
+        QTest::newRow("changed-runtime-revision") << QByteArray("runtime-restart-changed") << false;
+    }
+    void runtimeReplacementIsBoundToRetiredGeneration()
+    {
+        QFETCH(QByteArray, mode);
+        QFETCH(bool, accepted);
+        checked([&] {
+            QTemporaryDir directory; const auto source = directory.filePath("source.wav"), root = directory.filePath("cache");
+            writeSource(source, 211);
+            const auto fixture = conflux::test::makeStemServiceFixture(directory.path(), mode);
+            auto reference = references(directory.path(), 211);
+            auto live = PreparedTrackStore(root, limits()).prepareLiveStem(source, fixture.engine, fixture.service, nextToken());
+            require(live.playback->configureStemRamps(0) && live.playback->prime(0, std::chrono::seconds(10)),
+                    "Cannot establish initial runtime and reserve");
+            const bool primed = live.playback->prime(37, std::chrono::seconds(10));
+            require(primed == accepted, "Replacement runtime admission differs from its retired-generation proof");
+            if (accepted) {
+                RenderCore core(live.playback->sourceRef(), peer()); selectRole(core, 0);
+                require(core.restorePrimedCursor(0, 37) && compareBlock(core, reference[0], 17) == 17,
+                        "Replacement runtime did not preserve seek PCM and source clock");
+                require(count(fixture, "fixture", "runtime") == 2 && count(fixture, "command", "seek") == 1,
+                        "Unexpected replacement receipt or seek count");
+            } else {
+                require(live.playback->errorCode() != 0, "Rejected replacement left the owner healthy");
+            }
+            stop(live); assertGone(fixture.marker(".started"));
+            require(rootNames(root).isEmpty(), "Replacement verification leaked a job");
+        });
+    }
+
     void olderOrdinaryEventAfterNewAcceptedControlIsFatal_data()
     {
         QTest::addColumn<QByteArray>("mode");
@@ -1336,6 +1382,9 @@ private slots:
         QTest::newRow("normal-accepted-ack") << QByteArray("good");
         QTest::newRow("wrong-accepted-ack") << QByteArray("bad-ack");
         QTest::newRow("wrong-closed-count") << QByteArray("bad-closed-count");
+        QTest::newRow("legacy-closed") << QByteArray("legacy-closed");
+        QTest::newRow("native-kill") << QByteArray("native-signal");
+        QTest::newRow("ambiguous-native-shutdown") << QByteArray("bad-native-shutdown");
     }
     void acceptedAckAndClosedCountsMustMatchActualLeases()
     {
@@ -1350,7 +1399,19 @@ private slots:
                 require(await([&] { return live.playback->errorCode() != 0; }), "Wrong accepted ACK identity was ignored");
             else require(primed && !live.playback->errorCode(), "Valid prefix failed before closing");
             live.playback->stop();
-            require((mode == "good") == (live.playback->errorCode() == 0), "Closing message erased an error or mismatched lease count");
+            const bool valid = mode == "good" || mode == "legacy-closed" || mode == "native-signal";
+            require(valid == (live.playback->errorCode() == 0),
+                "Closing message erased an error or accepted invalid telemetry");
+            if (mode == "legacy-closed" || mode == "native-signal") {
+                std::vector<Observation> rows;
+                drainObservations(live.observations, rows);
+                const auto& closed = uniqueObservation(rows, ObservationKind::ServiceClosed);
+                if (mode == "legacy-closed")
+                    require(!closed.nativeShutdown, "Legacy close invented a native status");
+                else
+                    require(closed.nativeShutdown && closed.nativeShutdown->exitStatus == -9 &&
+                        closed.nativeShutdown->killRequested, "Bridge lost the native signal or kill request");
+            }
             live.playback.reset(); assertGone(fixture.marker(".started"));
             require(rootNames(root).isEmpty(), "Proven group cleanup did not remove known safe job");
         });

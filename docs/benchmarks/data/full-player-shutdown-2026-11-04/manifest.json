@@ -1,0 +1,321 @@
+{
+  "schema": 1,
+  "scope": "Original text receipts, unmodified earlier failure/Apollo observation and protocol sources. No audio, model, executable or mutable cache.",
+  "files": [
+    {
+      "file": "summary.json",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/shutdown-result-summary.json",
+      "source_bytes": 1763,
+      "source_sha256": "34b8c221202dd86be137431c3d413e18226c7ba1121dffe9a7fe03ef7e1b1ebe",
+      "bytes": 1763,
+      "sha256": "34b8c221202dd86be137431c3d413e18226c7ba1121dffe9a7fe03ef7e1b1ebe",
+      "encoding": "UTF-8 JSON"
+    },
+    {
+      "file": "release-scope.json",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/M2-scope-retained-2026-11-04.json",
+      "source_bytes": 1032,
+      "source_sha256": "2d92b4aaf8cf2b99353b23445d588a891535eaf8e243d366e6ec676ec424a0ff",
+      "bytes": 1032,
+      "sha256": "2d92b4aaf8cf2b99353b23445d588a891535eaf8e243d366e6ec676ec424a0ff",
+      "encoding": "UTF-8 JSON"
+    },
+    {
+      "file": "laptop-native.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/output-01/probe/recordings/player-fence/result.json",
+      "source_bytes": 3711,
+      "source_sha256": "94009a12ad95d559e4b6a177e63b30c1b12c54078b91841f9475dc2eb20d3ebe",
+      "bytes": 1143,
+      "sha256": "3ee0a64a35d2f0b923e9734c533c1bd0abd7b3dc76d18c212dfb961f8d07a888",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "laptop-controller.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/output-01/probe/recordings/player-fence/app-report.json",
+      "source_bytes": 419,
+      "source_sha256": "6b8570e29e45c07046d9da53d079e8a23b4c82c57089ffe747a6f80cb0d5e724",
+      "bytes": 214,
+      "sha256": "125ce957436bf73aae5943fbdc9a675294ddb38a8859d62856c92083d466159d",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "laptop-owner.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/output-01/result.json",
+      "source_bytes": 8216,
+      "source_sha256": "78950ff0c505bfa0164f2271c8627c06795dcc728ebe3af965600e331a0f03a3",
+      "bytes": 2416,
+      "sha256": "eed0fcc36591e96b88d8cc96fd6b7dc34fcd4899e3e28dfd045bd8e2b902ec76",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "desktop-owner.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/desktop-owner-result.json",
+      "source_bytes": 106,
+      "source_sha256": "d399a55e857dc0c0ceb20edf5a575e81d3910949b87e92a28a9ae593a945046c",
+      "bytes": 99,
+      "sha256": "f17f552f6a08d069eb963b4e25ad93558cfc766cd513c5d7e9a5b5fa81026cd5",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "laptop-plan.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/laptop-plan.json",
+      "source_bytes": 5391,
+      "source_sha256": "c6fc1fd7a71cf3b1141827e0832a35db4737706be4ac06aa21bc9bd9169bb3ea",
+      "bytes": 1700,
+      "sha256": "1934bdd25819fca9beef7355c55dfba0be504dd8bc347c41fdec130703a5f511",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "laptop-config.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/laptop-config.json",
+      "source_bytes": 1999,
+      "source_sha256": "df321fc3682b3c85fc4c86aab7db0a60a0363b28f2fad2e7407f9ef7df195624",
+      "bytes": 791,
+      "sha256": "fff9b78c078bc11282de804de47dcaccedfe84281d8f4dc3892b0a576587b0ed",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "prepared.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/prepared.json",
+      "source_bytes": 4466,
+      "source_sha256": "3d0c629c19fdc713d6ccbd40647866fcb3c670bb8fcdd73c5cef6057e789610f",
+      "bytes": 1350,
+      "sha256": "cc9e157b84d5aaad703f0be99fe33e87c9806f9ed511abf566757d191fec7bdd",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "dispatch.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/unit-dispatch.json",
+      "source_bytes": 1633,
+      "source_sha256": "117456b685d05d8d2de9c73905a0e5d028a4f976e433fbb39fb78f038c830865",
+      "bytes": 637,
+      "sha256": "ab5d7abaa9bdab1873303b581971d1a5331ad58f62685d4752ee261174c03c07",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "settling.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/output-01/settling.jsonl",
+      "source_bytes": 60233,
+      "source_sha256": "3acd14ca0fd6d843ffd90a5b146f4f0db5ec65cf2708cabf82f100dac09dff56",
+      "bytes": 1656,
+      "sha256": "13ec8c9be521fae5c6b3304e081b9a7b024d6aa6ba4d0253fddd05363d118ba7",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "host-observations.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/output-01/host-observations.jsonl",
+      "source_bytes": 5829,
+      "source_sha256": "3ac4aa1649cd8161e47c7d11c4f13824a2ef3f2725a3740175859b430385e43d",
+      "bytes": 702,
+      "sha256": "78fcc9d8b9e82f7ddb4d2c16c20e6c09f69482190303402edc63ea1d6acbebb6",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "fence-events.log.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/output-01/probe/recordings/player-fence/fence-events.log",
+      "source_bytes": 146,
+      "source_sha256": "045723de5606390a2043991a7e1868877d15a0b222b9a28c9a2dd31968fd7e4a",
+      "bytes": 106,
+      "sha256": "aab9fed52077fd3b7cf758b311f94baa9e73d75caccec16a24252f0797a71ebd",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "unit-journal.jsonl.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/original-unit-journal.jsonl",
+      "source_bytes": 96709,
+      "source_sha256": "c43bf076cf5ce816b4371ac1de0f696b3bc95313ebc54cbfe31374f7f2b80096",
+      "bytes": 9376,
+      "sha256": "95ea72058ce437966a10537d2ac062d96722dff9ff0b76c62446c98ddf73ece9",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "original-pair-failure.json.gz",
+      "source": "/srv/conflux-tests/laptop/retained/build/m2-player-fence-close-01/packet-01/paired-result-01.json",
+      "source_bytes": 1557,
+      "source_sha256": "f34f538cd73ec8eb3bb756f822a496d8406a69c4cc9524307cb8963865997288",
+      "bytes": 704,
+      "sha256": "e9286c9a78049684025b39893df0d3c323ffc0482d16913051f54269e0a96200",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "original-Apollo-observation.json.gz",
+      "source": "/srv/conflux-tests/laptop/retained/build/m2-player-fence-close-01/packet-01/apollo-observation-01.json",
+      "source_bytes": 5548,
+      "source_sha256": "372e3a43ef52157637a694939aaeac8438f7c08428717747aec7cc3b31377ef8",
+      "bytes": 1730,
+      "sha256": "037c2464fb54d100f02e22f86d35853d7115bcf2bb31479c6ffe226add930c4a",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "rebinding.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/rebinding.json",
+      "source_bytes": 1065,
+      "source_sha256": "6f81f8c13330018225ad889ab269283332721433260173996530bd66cf8038b1",
+      "bytes": 543,
+      "sha256": "b3d6e2d24d5ca3a9c04e9a9890004b920bdf4aab90a0bb9440364e2dcce1a45c",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "model-restoration.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/model-restoration.json",
+      "source_bytes": 556,
+      "source_sha256": "6addd42eda6b30db798093e6b5f013ba35d4f9f26836e643d1e3017b418cdac2",
+      "bytes": 390,
+      "sha256": "3981fa6d6bfb50b7479744d5fcecfaf118a76167c47c27a0446af98eea3b3e91",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "offline-verification.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/offline-verification.json",
+      "source_bytes": 576,
+      "source_sha256": "ca63047314b9ba858b56fd9ab9da50986f3b0fa5b288860ad87c4d3bdd5d0d47",
+      "bytes": 303,
+      "sha256": "bd5c3b696e9a75718d9abc808952db9c9dac5a99ba16b84648fde57a6c108c76",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "admission-checks.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/offline-packet-02/verification.json",
+      "source_bytes": 200,
+      "source_sha256": "23f1070777e8fec4a97b3bff90ddd4754bff93b6da1624d2f28aeff1af96143f",
+      "bytes": 145,
+      "sha256": "f906c6cc66c252c16b97b1e9b53787a0686dd1c9ebcd879833dd908fbdb08a25",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "dispatch-checks.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/dispatch-checks.json",
+      "source_bytes": 198,
+      "source_sha256": "54105670739e579e144ee2ac225857714bb1b775eecc0b550dd798693783d9b7",
+      "bytes": 151,
+      "sha256": "f6aa1e783f761655098d0148d114ad9df52d6242ce9a80ad4bffb65a7c2a4299",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "dispatch-checks.log.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/dispatch-checks.log",
+      "source_bytes": 871,
+      "source_sha256": "c36b012cd052ad648e9ade02a0f120d639ecd2fa40b7ddc65945254b7931405a",
+      "bytes": 287,
+      "sha256": "507e2700526939c10c1f080e5140d03feefc6c2c7d9e2c3ee857a0f67e01a7b4",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "CPU-cases.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/cpu-cases/result.json",
+      "source_bytes": 19642,
+      "source_sha256": "438f813eec92a517f6660c9f8c4b3bf05de6da327d03ced65bd3939fa76178f1",
+      "bytes": 2173,
+      "sha256": "50e8fd87413c4bf4d3fe2c332e02208bd131ef119aa8e1cd946945e21f8c65c5",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "CPU-completion.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/cpu-completion/result.json",
+      "source_bytes": 4799,
+      "source_sha256": "f64d4f84ece3f426fa6c48d4228447b438ad19277d0b1fa2822c3789f54da0b4",
+      "bytes": 1251,
+      "sha256": "763898e2c86e87eca4e7120be9852da365d48c89aca74646d1feb24262c80893",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "actual-unarmed-entry.json.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/actual-dispatch-entry-verify.json",
+      "source_bytes": 147,
+      "source_sha256": "cb60278619bf8f53c71003dca43e52f0de7c21a09dca00de43b7e2dd0bf52d7c",
+      "bytes": 111,
+      "sha256": "2556e34a809f6314de4b8f8cb501ef3aaf4d997c6b040b8037413748f94cb6a2",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "run_guarded.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/run_guarded.py",
+      "source_bytes": 15058,
+      "source_sha256": "ae13bbccb768f861362afed98850a2dfe457a398b63ebfe2a1abc353662a429f",
+      "bytes": 4902,
+      "sha256": "81eb1774efb793f7e8373099faa0607139b084209488d3b0f77ff2c78ca6531e",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "probe_driver.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/probe_driver.py",
+      "source_bytes": 10416,
+      "source_sha256": "7006f2fdcb7124ff57140c3cc69cba4cff09da0f95f0f27f8438f63183e09c96",
+      "bytes": 4104,
+      "sha256": "5d391a468ce0188fd50bea267a904bfe580f7f184711c56e14fab388acf8860b",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "private_routing_check.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/private_routing_check.py",
+      "source_bytes": 12889,
+      "source_sha256": "8f05dde7b53e1562bbe4a26828ca555aefd7379337d9e6fdc47c56cf50faa926",
+      "bytes": 3831,
+      "sha256": "75588305f2e7d9de2c8e40550b0ecf683433d2bc07b440d77eb999efa2f85a7e",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "fence_events.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/fence_events.py",
+      "source_bytes": 2150,
+      "source_sha256": "bb4f0060505ac09f7dc3d02a89ee5acd1104a581097e0fb46b703c10dff68b36",
+      "bytes": 882,
+      "sha256": "c02a6002ed2cd32f07671340e7ddf4d831edd7ba3fc0a88154b3ebb67f67d911",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "host_readings.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/host_readings.py",
+      "source_bytes": 4773,
+      "source_sha256": "2d601bd6125205dba179975276d027a68877cc1b36c72feece6e67f2e7eff769",
+      "bytes": 1814,
+      "sha256": "36df6442b8daa2e5ab18e0ee64948f5312736a9afd3861b096c73b1e9c7600fa",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "desktop_entry.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/desktop_entry.py",
+      "source_bytes": 1822,
+      "source_sha256": "90a554159635c20dcc7d4b825b44aa2be73157c6a2636f9de336d93419f89bc2",
+      "bytes": 840,
+      "sha256": "ae254dfe95f5246d61d297d271045c9d61cdc36e47482e0fb7949c5aafbb0a6d",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "dispatch_laptop.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/dispatch_laptop.py",
+      "source_bytes": 4091,
+      "source_sha256": "587c8c285621726ee4d2e4d0029e1c7d8ace40bcc24dcbd9681dbccf64c15191",
+      "bytes": 1859,
+      "sha256": "afde924a6543f56168d3ad793ffe8bdb5154c4f17484d5463fed78ee70e3daa4",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "packet_checks.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/packet_checks.py",
+      "source_bytes": 16200,
+      "source_sha256": "d9b8988a62bf612e0b9a1c6c18fd5054fcd5c82cd271b7362fdee43939200d97",
+      "bytes": 4471,
+      "sha256": "9af9222853c681b0a5eaa4f8debc31311d58d63cf8646af6ed74bbd6e6b3b7e2",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "fake_suite.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/fake_suite.py",
+      "source_bytes": 4299,
+      "source_sha256": "54c95c2d1a9a1f8282f653d18a4fc10fef3114b978bfca777fa1c465f698ba33",
+      "bytes": 2064,
+      "sha256": "fc2c95d0e1a01cc2aa6ed6245f4f8c863c453b488978c390d2362ce75b5e70e4",
+      "encoding": "gzip UTF-8"
+    },
+    {
+      "file": "fake_suite_completion.py.gz",
+      "source": "/srv/conflux-tests/laptop/runs/s1104/packet/fake_suite_completion.py",
+      "source_bytes": 4498,
+      "source_sha256": "87d33e84ad59ab07e91d530e5466f871112086d14ac241d1638b368487eb5813",
+      "bytes": 2126,
+      "sha256": "9006fe21bfa2f1b35d868dbc23c12e02d4b9e1cacb96cda535498250815364d3",
+      "encoding": "gzip UTF-8"
+    }
+  ]
+}

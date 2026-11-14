@@ -579,6 +579,10 @@ public:
         std::unique_lock lock(state_->mutex);
         require(state_->changed.wait_for(lock, 2s, [&] { return state_->entered; }), "Real scratch worker did not reach gate");
     }
+    bool isEntered() const
+    {
+        const std::lock_guard lock(state_->mutex); return state_->entered;
+    }
     void release()
     {
         { const std::lock_guard lock(state_->mutex); state_->released = true; } state_->changed.notify_all();
@@ -624,40 +628,48 @@ void failedProcessedScratchCanReleaseAndReplace()
         require(core.restorePrimedCursor(0, initial) && core.setDeckGain(1, .25F) &&
             core.setCueSelected(0, true) && core.configureRamps(8),
             "Cannot configure failed-tempo replacement buses");
-        // Ordinary prime has completed; scratch reads at0. Gate the first
-        // tempo input for Stop-first, or the next1024-frame read for End.
+        // Ordinary prime has completed; scratch reads at0. Stop-first blocks
+        // the first tempo input. End blocks later input after playback can
+        // fill its startup queue, retaining actual processed PCM at failure.
         // Gate is destroyed before owner on every assertion failure as well.
-        const auto blockedFrame = initial + (explicitEnd ? PreparedTempoSource::blockFrames : 0);
+        const auto blockedFrame = initial + (explicitEnd
+            ? 2 * PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames : 0);
         Gate gate(fileno(fixture.files[0].get()), blockedFrame * 8);
         require(core.setTempoPercent(0, 6), "Cannot start blocked tempo generation");
-        gate.entered();
+        if (!explicitEnd) gate.entered();
         if (explicitEnd) {
             const auto deliveryDeadline = Clock::now() + 2s;
-            while (core.sourcePosition() == double(initial)) {
+            std::uint64_t delivered = 0;
+            while (!gate.isEntered()) {
                 require(Clock::now() < deliveryDeadline,
-                    "Blocked second tempo read did not leave an actual processed prefix");
+                    "Processed playback did not reach the later gated input read");
+                const auto before = core.sourcePosition();
                 const auto clock = core.frameClock(), peerFrame = core.sourceFrame(1);
-                const auto out = render(core, 1); // Stop after the first actual delivery.
+                const auto out = render(core, 1); // Count only actual consumed SRC frames.
                 require(core.frameClock() == clock + 1 && core.sourceFrame(1) == peerFrame + 1 &&
                     !core.readFailed(0) && !core.readFailed(1) && !owner->errorCode(),
                     "Consuming the queued prefix failed or interrupted peer/output clocks");
                 for (const auto& bus : {out.master, out.cue})
                     require(std::ranges::all_of(bus, [](float value) { return std::isfinite(value); }),
                         "Queued processed prefix produced nonfinite bus output");
-                if (core.sourcePosition() == double(initial)) {
+                if (core.sourcePosition() == before) {
                     require(core.isBuffering(0) && out.cue[0] == 0.F && out.cue[1] == 0.F,
                         "Unavailable processed prefix advanced or leaked old source PCM");
                     std::this_thread::sleep_for(1ms);
+                } else {
+                    require(std::abs(core.sourcePosition() - before - 1.06) < 1e-8,
+                        "Queued prefix changed the consumed SRC clock");
+                    if (++delivered % 64 == 0) std::this_thread::sleep_for(1ms);
                 }
             }
             const auto consumed = core.tempoState(0);
-            require(std::abs(core.sourcePosition() - double(initial) - 1.06) < 1e-8 &&
-                core.sourceFrame() == initial + 1 && consumed.appliedPercent == 6 &&
+            require(delivered && std::abs(core.sourcePosition() - double(initial) - double(delivered) * 1.06) < 1e-8 &&
+                core.sourceFrame() == std::uint64_t(core.sourcePosition()) && consumed.appliedPercent == 6 &&
                 consumed.active && !consumed.keyLock && !consumed.pending &&
                 !consumed.finished && !consumed.errorCode,
-                "Second-read fixture lacks exactly one consumed SRC frame and a remaining queued prefix");
+                "Later-read fixture lacks exact consumed SRC frames and a remaining queued prefix");
             // status.pending==false requires peek() to retain a current slot
-            // after that consumed frame. The next input read is still gated,
+            // after those consumed frames. The next input read is still gated,
             // so no EOF/error marker or later input can satisfy this proof.
         }
         const auto heldFrame = core.sourceFrame();

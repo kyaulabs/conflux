@@ -198,6 +198,7 @@ class _Session:
         self.generation = self.command_id = self.sequence = 0
         self.loaded = self.active = self.source_ready = self.completed = False
         self.runtime_ready = None
+        self.runtime_generation = self.retired_fault = 0
         self.next_frame = 0
         self.leases = [None, None]
 
@@ -283,15 +284,26 @@ class _Session:
                 or event["generation"] > self.generation):
             raise RuntimeError("invalid service worker event generation")
         kind = event.get("event")
+        generation = event["generation"]
         if kind == "runtime_ready":
+            ready = exporter._ready(event, self.model.digest, self.worker.backend, self.worker.threads)
+            receipt = {"event": "runtime", "worker_generation": generation,
+                       "model_id": self.model.digest, "ready": ready}
             if self.runtime_ready is not None:
-                raise RuntimeError("service runtime restarted unexpectedly")
-            self.runtime_ready = exporter._ready(event, self.model.digest,
-                                                  self.worker.backend, self.worker.threads)
-            self.wire.emit({"event": "runtime", "worker_generation": event["generation"],
-                            "model_id": self.model.digest, "ready": self.runtime_ready})
+                if (not self.runtime_generation <= self.retired_fault < generation
+                        or self.source_ready or ready != self.runtime_ready):
+                    raise RuntimeError("service runtime restarted unexpectedly")
+                receipt["replaces_generation"] = self.retired_fault
+            self.runtime_ready = ready
+            self.runtime_generation = generation
+            self.retired_fault = 0
+            self.wire.emit(receipt)
             return
-        if event["generation"] != self.generation or not self.active:
+        if generation != self.generation or not self.active:
+            # The worker reaps a failed runtime before publishing a replacement.
+            # Only a superseded fault can authorize a new runtime receipt.
+            if kind == "error" and self.runtime_generation <= generation < self.generation:
+                self.retired_fault = max(self.retired_fault, generation)
             return
         if kind == "source_ready":
             mean, std = event.get("mean"), event.get("std")
@@ -367,6 +379,12 @@ class _Session:
                 if not _finite(metrics[key]):
                     raise RuntimeError("invalid native chunk timing")
                 native_timings["native_" + key] = metrics[key]
+        if "inference_reused" in event:
+            if (event["inference_reused"] is not True or native_timings
+                    or "request_ms" in timings or "source_read_ms" in timings
+                    or not {"overlap_ms", "hop_service_ms"} <= timings.keys()):
+                raise RuntimeError("invalid cached stem timing")
+            timings["inference_reused"] = True
         if native_timings:
             # Keep the existing 32-member per-object wire cap unchanged.
             timings["native_timings"] = native_timings
@@ -508,10 +526,15 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
                                    "code": type(primary).__name__, "message": str(primary)[:1024],
                                    "retained_job": retained})
                     if closed and not retained:
-                        wire.emit({"event": "closed", "generation": session.generation if session else 0,
+                        receipt = {"event": "closed", "generation": session.generation if session else 0,
                                    "reason": "error" if primary is not None else reason, "worker_closed": True,
                                    "outstanding_slots": sum(lease is not None for lease in session.leases) if session else 0,
-                                   "telemetry_dropped": session.drops() if session else 0, "closed_at": time.monotonic()})
+                                   "telemetry_dropped": session.drops() if session else 0, "closed_at": time.monotonic()}
+                        if os.environ.get("CONFLUX_STEM_NATIVE_SHUTDOWN") == "1":
+                            native_shutdown = worker.statistics().get("native_shutdown")
+                            if native_shutdown is not None:
+                                receipt["native_shutdown"] = native_shutdown
+                        wire.emit(receipt)
                     wire.drain()
                 except BaseException as drain_error:
                     if primary is None:
