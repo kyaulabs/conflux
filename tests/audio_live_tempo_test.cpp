@@ -280,8 +280,14 @@ void coldSeekRetainsItsAudibleReserve()
                         "A partial cold seek reserve escaped to playback");
             };
             assertMuted(target);
+            source.setRenderActive(source.context, false);
+            source.setRenderActive(source.context, true);
             source.discontinuity(source.context, target);
             assertMuted(target);
+            // A new position inside the pending raw range needs its own reserve.
+            // The original seek must not grant the new target.
+            seek(target + 4096);
+            assertMuted(target + 4096);
         }
         // The replacement is within one reserve of EOF. It can open when
         // the exact remaining frames arrive, including the one-frame tail.

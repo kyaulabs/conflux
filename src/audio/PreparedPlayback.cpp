@@ -1097,16 +1097,18 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
         output.size()/packedChannels > PreparedTempoSource::blockFrames ||
         live_->code() || live_->stopping.load(std::memory_order_relaxed)) return {0,true};
     if (generation != live_->tempoInputGeneration) {
-        const bool retained = live_->tempoHistoryValid && frame >= live_->tempoHistoryFirst &&
-            frame <= live_->tempoHistoryEnd;
+        const bool prefilling = live_->demand.waitSerial &&
+            live_->tempoPrefillGeneration.load(std::memory_order_relaxed) == live_->tempoInputGeneration &&
+            live_->tempoPrefillWait.load(std::memory_order_relaxed) == live_->demand.waitSerial;
+        // An ungranted reserve belongs to its original seek target. A repeat
+        // at the same target can reuse it. A different target owns a new wait.
+        const bool newReserve = prefilling && frame != live_->demand.cursor &&
+            live_->grant.load(std::memory_order_acquire) < live_->demand.waitSerial;
+        const bool retained = !newReserve && live_->tempoHistoryValid &&
+            frame >= live_->tempoHistoryFirst && frame <= live_->tempoHistoryEnd;
         live_->tempoOpeningReplayEnd = 0;
         if (retained) {
-            // A second seek into prefetched raw PCM inherits its unopened
-            // reserve. Only a new provider request may replace that wait.
-            if (live_->demand.waitSerial &&
-                live_->tempoPrefillGeneration.load(std::memory_order_relaxed) == live_->tempoInputGeneration &&
-                live_->tempoPrefillWait.load(std::memory_order_relaxed) == live_->demand.waitSerial)
-                live_->tempoPrefillGeneration.store(generation, std::memory_order_release);
+            if (prefilling) live_->tempoPrefillGeneration.store(generation, std::memory_order_release);
         } else {
             auto resume = frame;
             // Keep the primed bank on first activation at its current cursor.
@@ -1146,24 +1148,27 @@ AudioReadResult PreparedPlayback::readUnmixedLive(std::uint64_t generation, std:
         std::copy_n(live_->tempoHistory->data(), (count-first)*packedChannels, output.data()+first*packedChannels);
         return {count,false};
     }
-    if (frame != live_->demand.cursor || frame != live_->tempoHistoryEnd) return {0,true};
+    if (frame != live_->tempoHistoryEnd) return {0,true};
     bool fillingSeekReserve = false;
     if (live_->demand.waitSerial) {
+        const bool prefilling = live_->tempoPrefillGeneration.load(std::memory_order_relaxed) == generation &&
+            live_->tempoPrefillWait.load(std::memory_order_relaxed) == live_->demand.waitSerial;
         if (live_->grant.load(std::memory_order_acquire) == live_->demand.waitSerial) {
+            if (prefilling) live_->demand.cursor = frame;
             if (!live_->openGate()) return {0,true};
         } else {
-            fillingSeekReserve = live_->tempoPrefillGeneration.load(std::memory_order_relaxed) == generation &&
-                live_->tempoPrefillWait.load(std::memory_order_relaxed) == live_->demand.waitSerial;
+            fillingSeekReserve = prefilling;
             if (!fillingSeekReserve) return {};
         }
     }
+    if (!fillingSeekReserve && frame != live_->demand.cursor) return {0,true};
     const auto result = bank_->readUnmixed(frame, output);
     if (result.failed) return result;
     const auto offset = std::size_t(frame%liveTempoHistoryFrames);
     const auto first = std::min<std::size_t>(result.frames, liveTempoHistoryFrames-offset);
     std::copy_n(output.data(), first*packedChannels, live_->tempoHistory->data()+offset*packedChannels);
     std::copy_n(output.data()+first*packedChannels, (result.frames-first)*packedChannels, live_->tempoHistory->data());
-    live_->demand.cursor += result.frames;
+    if (!fillingSeekReserve) live_->demand.cursor += result.frames;
     live_->tempoHistoryEnd += result.frames;
     if (live_->tempoHistoryEnd > liveTempoHistoryFrames)
         live_->tempoHistoryFirst = std::max(live_->tempoHistoryFirst, live_->tempoHistoryEnd-liveTempoHistoryFrames);
