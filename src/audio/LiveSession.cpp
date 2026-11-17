@@ -847,7 +847,13 @@ public:
             auto* buffer = buffers[index] = pw_filter_dequeue_buffer(self.portData_[index]);
             if (!buffer || !buffer->buffer || buffer->buffer->n_datas != 1) continue;
             auto& plane = buffer->buffer->datas[0];
-            if (plane.chunk) { plane.chunk->offset=0; plane.chunk->stride=sizeof(float); plane.chunk->size=0; }
+            if (plane.chunk) {
+                plane.chunk->offset = 0;
+                plane.chunk->stride = sizeof(float);
+                plane.chunk->size = 0;
+                // This callback replaces the payload, so a reused buffer's flags are stale.
+                plane.chunk->flags = SPA_CHUNK_FLAG_NONE;
+            }
             buffer->size = 0;
             if (frames && plane.data && plane.chunk && frames <= plane.maxsize / sizeof(float) &&
                 reinterpret_cast<std::uintptr_t>(plane.data) % alignof(float) == 0) {
