@@ -168,6 +168,16 @@ int main(int argc, char** argv) {
     engine.rootContext()->setContextProperty("repaintTimeline", &repaintTimeline);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
+    // Size the performance window before Qt lays out its drawers.
+    if (const auto* screen = app.primaryScreen(); screen && !parser.isSet("smoke-test")) {
+        const auto usable = screen->availableSize();
+        if (usable.isValid()) {
+            engine.setInitialProperties({
+                {"width", std::clamp(usable.width(), 1180, 1680)},
+                {"height", std::clamp(usable.height(), 760, 1020)},
+            });
+        }
+    }
     engine.load(QUrl(parser.isSet("smoke-test") ? "qrc:/qml/Harness.qml" : "qrc:/qml/Main.qml"));
     if (engine.rootObjects().isEmpty())
         return 1;
