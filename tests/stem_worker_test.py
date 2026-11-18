@@ -588,6 +588,40 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(np.concatenate([chunk["samples"] for chunk in restored], axis=1),
                                       expected[:, HOP:])
 
+    def test_cold_seek_only_infers_windows_that_contribute_to_output(self):
+        raw = self.root / "cold-seek-overlap-boundary.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+
+        for frame, first_window in ((HOP + OVERLAP - 1, 0), (HOP + OVERLAP, HOP)):
+            with self.subTest(frame=frame):
+                worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                opened = worker.load_f32(raw, start_frame=len(self.audio))
+                self.assertEqual(self.collect(worker, opened), [])
+
+                seek = worker.seek(frame)
+                started = self.event(worker, "started", seek)
+                self.assertEqual(started["window_start_frame"], first_window)
+                self.assertEqual(started["preroll"], first_window == 0)
+                calls_to_target = 2 if first_window == 0 else 1
+                fake.release(calls_to_target)
+                first = self.event(worker, "chunk", seek)
+                self.assertEqual((first["request_id"], first["frame_start"]), (calls_to_target, frame))
+                np.testing.assert_array_equal(first["samples"], expected[:, frame:2 * HOP])
+                self.assertTrue(fake.wait_call(calls_to_target + 1))
+
+                repeat = worker.seek(frame)
+                replayed = self.event(worker, "chunk", repeat, timeout=1)
+                self.assertTrue(replayed["inference_reused"])
+                self.assertEqual(replayed["request_id"], first["request_id"])
+                np.testing.assert_array_equal(replayed["samples"], first["samples"])
+                fake.release()
+                final, = self.collect(worker, repeat)
+                np.testing.assert_array_equal(final["samples"], expected[:, 2 * HOP:])
+                self.assertEqual(fake.calls, calls_to_target + 1)
+
     def test_repeat_cold_seek_reuses_preroll_while_suffix_is_pending(self):
         raw = self.root / "cold-seek-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
