@@ -687,6 +687,61 @@ private slots:
         QCoreApplication::processEvents();
     }
 
+    void controlStatusScrollsAndRestoresFocus_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<int>("fontPixels");
+        QTest::newRow("minimum") << QSize(1180, 760) << 15;
+        QTest::newRow("laptop-large-text") << QSize(1280, 800) << 19;
+    }
+
+    void controlStatusScrollsAndRestoresFocus()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(int, fontPixels);
+        const auto oldFont = QGuiApplication::font();
+        const auto restoreFont = qScopeGuard([&] {
+            ui_.reset();
+            QGuiApplication::setFont(oldFont);
+        });
+        ui_.reset();
+        auto font = oldFont;
+        font.setPixelSize(fontPixels);
+        QGuiApplication::setFont(font);
+        ui_ = std::make_unique<UiFixture>();
+        ui_->load();
+        QVERIFY(ui_->window);
+        ui_->window->resize(viewport);
+        QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
+
+        auto* button = ui_->item("controlStatusOpen");
+        auto* popup = ui_->object("controlStatus");
+        QVERIFY(button && popup);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(button));
+        QTRY_VERIFY(popup->property("opened").toBool());
+        auto* scroll = ui_->item("controlStatusScroll");
+        auto* close = ui_->item("controlStatusClose");
+        QVERIFY(scroll && close);
+        QTRY_VERIFY(scroll->hasActiveFocus());
+        verifyControlsFit({"controlStatusScroll", "controlStatusClose"});
+        auto* flickable = scroll->property("contentItem").value<QQuickItem*>();
+        QVERIFY(flickable);
+        QTRY_VERIFY(flickable->property("contentHeight").toReal() > flickable->height());
+        const auto closeBefore = ui_->center(close);
+        QTest::keyClick(ui_->window, Qt::Key_PageDown);
+        QTRY_VERIFY(flickable->property("contentY").toReal() > 0);
+        QCOMPARE(ui_->center(close), closeBefore);
+        QTest::keyClick(ui_->window, Qt::Key_PageUp);
+        QTRY_COMPARE(flickable->property("contentY").toReal(), 0.);
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(close->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!popup->property("visible").toBool());
+        QTRY_VERIFY(button->hasActiveFocus());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void windowChromeFitsAndLeavesHeaderControlsReachable_data()
     {
         QTest::addColumn<QSize>("viewport");
