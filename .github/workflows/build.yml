@@ -71,6 +71,12 @@ jobs:
       - name: Test resident continuation cancellation
         run: python3 tools/experiments/private_routing_check.py build/dev/conflux-preparation-controller-check build/resident-cancel-check --continuation-case resident-cancel
 
+      - name: Verify the relocated private DSP release build
+        if: inputs.ref != ''
+        run: |
+          sudo apt-get install -y libfftw3-dev
+          bash .github/scripts/verify-private-dsp.sh "$RUNNER_TEMP/conflux-private-dsp"
+
   coverage:
     runs-on: ubuntu-24.04
     steps:
