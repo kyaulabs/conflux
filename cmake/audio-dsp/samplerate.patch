@@ -1,0 +1,8 @@
+--- a/src/src_sinc.c
++++ b/src/src_sinc.c
+@@ -988,0 +989,3 @@
++#if defined(__linux__) && defined(__x86_64__) && defined(__GNUC__) && !defined(__clang__)
++__attribute__((target_clones("avx2", "default"))) static void
++#else
+@@ -989,0 +993 @@
++#endif
