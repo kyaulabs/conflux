@@ -307,6 +307,8 @@ ApplicationWindow {
             }
             Item { Layout.fillWidth: true; visible: deckController.error.length === 0 }
             Button {
+                id: statusButton
+                objectName: "controlStatusOpen"
                 text: "CONTROL STATUS"
                 flat: true
                 font.family: Brand.ConfluxTheme.displayFont
@@ -1320,24 +1322,74 @@ ApplicationWindow {
 
     Popup {
         id: controlStatus
+        objectName: "controlStatus"
         anchors.centerIn: parent
         width: Math.min(560, window.width - 48)
-        height: statusContents.implicitHeight + topPadding + bottomPadding
+        height: Math.min(window.height - 48, statusTitle.implicitHeight + statusText.implicitHeight
+                         + Math.max(44, statusClose.implicitHeight) + 2 * statusContents.spacing
+                         + topPadding + bottomPadding)
         modal: true
+        focus: true
         padding: 24
+        onOpened: statusScroll.forceActiveFocus()
+        onClosed: statusButton.forceActiveFocus()
         background: Rectangle { color: Brand.ConfluxTheme.surface; border.color: Brand.ConfluxTheme.divider; radius: 6 }
         ColumnLayout {
             id: statusContents
             anchors.fill: parent
             spacing: 16
-            Label { text: "CONTROL STATUS"; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(24); color: Brand.ConfluxTheme.text }
             Label {
-                text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, three-band channel EQ, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Hold and drag the platter to scratch prepared audio in either direction; release to restore its previous play or pause request and selected BPM and Master Tempo at the consumed position. Clear stored loops before scratching. Live stems do not support vinyl scratch. Arrow keys and the wheel remain positional search.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks and live stems use BPM-based tempo adjustment; move the BPM rail down to speed up. Arrows change 0.1 BPM; Shift and Page keys change 1 BPM. Click the deck LCD BPM value to override the original reference or return to automatic analysis. Automatic values are estimates and can be corrected. The speed range remains six percent around the reference. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET restores the original BPM and retains the Master Tempo selection. Prepared manual loops also support BPM changes and Master Tempo. Live stems retain the selected BPM and Master Tempo through an approved recovery loop. Leave recovery before changing tempo or resetting it.\n\nHot cues A–H capture manual point cues: press an empty pad to set it, or a stored pad to start playback there. DELETE then a stored pad clears it without moving playback. Slots survive an audio-output rebuild and clear when the track is replaced. Active loops cannot be stored in a point pad. Sync and effects await their audio features; their controls are inactive. Decks C/D are reserved."
-                wrapMode: Text.WordWrap
+                id: statusTitle
+                text: "CONTROL STATUS"
+                font.family: Brand.ConfluxTheme.displayFont
+                font.pixelSize: Brand.ConfluxTheme.textPixels(24)
                 color: Brand.ConfluxTheme.text
-                Layout.fillWidth: true
             }
-            Button { text: "CLOSE"; Layout.minimumHeight: 44; onClicked: controlStatus.close() }
+            ScrollView {
+                id: statusScroll
+                objectName: "controlStatusScroll"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                contentWidth: availableWidth
+                contentHeight: statusText.implicitHeight
+                clip: true
+                activeFocusOnTab: true
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                Accessible.name: "Control instructions"
+                function scrollBy(pixels) {
+                    const view = contentItem
+                    view.contentY = Math.max(0, Math.min(view.contentHeight - view.height, view.contentY + pixels))
+                }
+                Keys.onUpPressed: scrollBy(-24)
+                Keys.onDownPressed: scrollBy(24)
+                Keys.onPressed: function(event) {
+                    if (event.key === Qt.Key_PageUp || event.key === Qt.Key_PageDown) {
+                        scrollBy((event.key === Qt.Key_PageUp ? -1 : 1) * (height - 24))
+                        event.accepted = true
+                    }
+                }
+                background: Rectangle {
+                    color: "transparent"
+                    border.color: statusScroll.activeFocus ? Brand.ConfluxTheme.primary : "transparent"
+                    radius: Brand.ConfluxTheme.controlRadius
+                }
+                Label {
+                    id: statusText
+                    width: statusScroll.availableWidth
+                    text: "Load, play/pause, temporary CUE, position seek and jog, channel/master levels, three-band channel EQ, crossfader, headphone cue selection and peak/RMS meters are active. Pause and press deck CUE to set a point; press again there to preview while held. CUE during playback returns to the point and pauses. Press PLAY during a preview to keep playing. The crossfader selects A at left, B at right and both channel levels unchanged at center. Mixer CUE selects the independent pre-fader headphone bus. Choose separate outputs and record the post-master mix in AUDIO / REC. Waveform overviews show actual source peaks, normalized for display. Hold and drag the platter to scratch prepared audio in either direction; release to restore its previous play or pause request and selected BPM and Master Tempo at the consumed position. Clear stored loops before scratching. Live stems do not support vinyl scratch. Arrow keys and the wheel remain positional search.\n\nPrepared tracks support manual IN/OUT and RELOOP/EXIT: set IN, wait for OUT readiness, then press OUT during playback. EXIT continues past OUT; RELOOP starts at IN again. Seek, jog, transport CUE, replacement and an audio-output rebuild clear the loop. Live stems and quantized beat-loop buttons do not support these manual loops.\n\nPrepared tracks and live stems use BPM-based tempo adjustment; move the BPM rail down to speed up. Arrows change 0.1 BPM; Shift and Page keys change 1 BPM. Click the deck LCD BPM value to override the original reference or return to automatic analysis. Automatic values are estimates and can be corrected. The speed range remains six percent around the reference. MASTER TEMPO preserves pitch. Changes follow acknowledged state and may buffer while the worker starts or reprimes. The displayed source time is nominal while processing, and the complete processed tail plays after it reaches the track end. TEMPO RESET restores the original BPM and retains the Master Tempo selection. Prepared manual loops also support BPM changes and Master Tempo. Live stems retain the selected BPM and Master Tempo through an approved recovery loop. Leave recovery before changing tempo or resetting it.\n\nHot cues A–H capture manual point cues: press an empty pad to set it, or a stored pad to start playback there. DELETE then a stored pad clears it without moving playback. Slots survive an audio-output rebuild and clear when the track is replaced. Active loops cannot be stored in a point pad. Sync and effects await their audio features; their controls are inactive. Decks C/D are reserved."
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    color: Brand.ConfluxTheme.text
+                }
+            }
+            Button {
+                id: statusClose
+                objectName: "controlStatusClose"
+                text: "CLOSE"
+                Layout.minimumHeight: 44
+                onClicked: controlStatus.close()
+                Accessible.name: "Close control status (Escape)"
+            }
         }
     }
 }
