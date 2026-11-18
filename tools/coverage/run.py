@@ -23,7 +23,8 @@ ROOT = Path(__file__).resolve().parents[2]
 BUILD = ROOT / "build" / "coverage"
 REPORTS = BUILD / "reports"
 DATA = BUILD / "python-data"
-FLAGS = "--coverage -O0 -g -fprofile-abs-path -fprofile-update=atomic"
+# Keep coverage counters thread-safe and leave time for the private audio graph to run.
+FLAGS = "--coverage -O1 -g -fprofile-abs-path -fprofile-update=atomic"
 
 
 def save(path, value):
