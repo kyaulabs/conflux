@@ -41,6 +41,12 @@ _WEIGHT = np.concatenate((np.arange(1, WINDOW // 2 + 1, dtype=np.float32),
 _WEIGHT /= _WEIGHT.max()
 
 
+def _first_contributing_window(frame):
+    window, offset = divmod(frame, HOP)
+    # The previous window contributes to the first OVERLAP frames of this hop.
+    return window - 1 if window and offset < OVERLAP else window
+
+
 class NativeRuntime:
     """Bounded JSONL/raw-file bridge to tools/runtime/htdemucs_segment.cpp."""
 
@@ -788,7 +794,7 @@ class StemWorker:
             return False, False
         target = command.start // HOP
         with self._condition:
-            for index in range(max(0, target - 1), target + 1):
+            for index in range(_first_contributing_window(command.start), target + 1):
                 start = index * HOP
                 window = self._weighted_window_locked(start)
                 if window is None or window[0] is not source:
@@ -818,7 +824,7 @@ class StemWorker:
                        frame_start=command.start)
             return
         target_window = command.start // HOP
-        first_window = max(0, target_window - 1)
+        first_window = _first_contributing_window(command.start)
         previous = None
         for index in range(first_window, (source.frames + HOP - 1) // HOP):
             self._check(command)
