@@ -24,6 +24,7 @@ function(conflux_add_private_dsp)
     set(LIBSAMPLERATE_INSTALL OFF)
     FetchContent_MakeAvailable(conflux_samplerate conflux_rubberband)
     set_property(TARGET samplerate PROPERTY PUBLIC_HEADER "")
+    target_link_libraries(samplerate PRIVATE Threads::Threads)
     target_compile_options(samplerate PRIVATE
         "$<$<C_COMPILER_ID:GNU,Clang>:-ffp-contract=off>")
 
