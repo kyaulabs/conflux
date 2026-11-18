@@ -11,8 +11,25 @@ find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 pkg_check_modules(PipeWire REQUIRED IMPORTED_TARGET libpipewire-0.3>=0.3.65)
 pkg_check_modules(SndFile REQUIRED IMPORTED_TARGET sndfile>=1.2)
-pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate>=0.2.2)
-pkg_check_modules(RubberBand REQUIRED IMPORTED_TARGET rubberband>=3.3)
+option(CONFLUX_PRIVATE_DSP "Build pinned private Linux DSP libraries for the install" OFF)
+if(CONFLUX_PRIVATE_DSP)
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        message(FATAL_ERROR "CONFLUX_PRIVATE_DSP requires Linux")
+    endif()
+    include(cmake/audio-dsp/PrivateDsp.cmake)
+    conflux_add_private_dsp()
+    # Qt appends its conventional library locations during target setup.
+    file(RELATIVE_PATH conflux_private_dsp_path
+        "${CMAKE_INSTALL_FULL_BINDIR}" "${CMAKE_INSTALL_FULL_LIBDIR}/conflux")
+    list(PREPEND CMAKE_INSTALL_RPATH "\$ORIGIN/${conflux_private_dsp_path}")
+    set(conflux_samplerate samplerate)
+    set(conflux_rubberband conflux-rubberband)
+else()
+    pkg_check_modules(SampleRate REQUIRED IMPORTED_TARGET samplerate>=0.2.2)
+    pkg_check_modules(RubberBand REQUIRED IMPORTED_TARGET rubberband>=3.3)
+    set(conflux_samplerate PkgConfig::SampleRate)
+    set(conflux_rubberband PkgConfig::RubberBand)
+endif()
 
 add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp src/audio/ChannelEq.cpp
     src/audio/PcmReadAhead.cpp src/audio/PreparedPlayback.cpp src/audio/PreparedLoopCache.cpp src/audio/StemBankSource.cpp
@@ -21,7 +38,7 @@ add_library(conflux-audio src/audio/RenderCore.cpp src/audio/AudioFile.cpp src/a
     src/audio/StereoRecorder.cpp src/audio/CallbackTiming.cpp
     src/audio/AudioRouting.cpp)
 target_include_directories(conflux-audio PUBLIC src)
-target_link_libraries(conflux-audio PRIVATE PkgConfig::SndFile PkgConfig::SampleRate PkgConfig::RubberBand Threads::Threads)
+target_link_libraries(conflux-audio PRIVATE PkgConfig::SndFile ${conflux_samplerate} ${conflux_rubberband} Threads::Threads)
 target_compile_options(conflux-audio PRIVATE -Wall -Wextra -Wpedantic)
 
 add_library(conflux-audio-live src/audio/LiveSession.cpp)
@@ -268,7 +285,7 @@ if(CONFLUX_BUILD_UI)
     add_library(conflux-library src/library/PreparedTrackStore.cpp src/library/TrackPresentation.cpp src/library/LibraryCatalog.cpp src/library/CueSheet.cpp
         src/library/StemServiceJsonl.cpp src/library/StemEngineSupport.cpp src/library/LiveStemBridge.cpp src/library/BpmAnalyzer.cpp src/library/HarmonyAnalyzer.cpp)
     target_link_libraries(conflux-library PUBLIC conflux-audio Qt6::Core
-        PRIVATE PkgConfig::SndFile PkgConfig::SampleRate PkgConfig::TagLib Qt6::Gui)
+        PRIVATE PkgConfig::SndFile ${conflux_samplerate} PkgConfig::TagLib Qt6::Gui)
     target_compile_options(conflux-library PRIVATE -Wall -Wextra -Wpedantic)
     add_library(conflux-ui src/ui/DeckController.cpp src/ui/DeckController.hpp)
     target_link_libraries(conflux-ui PUBLIC conflux-audio-live Qt6::Core
