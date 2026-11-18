@@ -17,7 +17,8 @@ namespace conflux::audio {
 class PreparedTempoSource {
 public:
     static constexpr std::size_t blockFrames = 1024, slotCount = 8, maximumLeaves = 4;
-    static constexpr std::uint64_t payloadBytes = slotCount * maximumLeaves * blockFrames * 2U * sizeof(float);
+    static constexpr std::size_t liveSlotCount = 12;
+    static constexpr std::uint64_t payloadBytes = liveSlotCount * maximumLeaves * blockFrames * 2U * sizeof(float);
     struct View {
         std::array<std::span<const float>, maximumLeaves> leaves{};
         std::size_t leafCount = 0, frames = 0;
