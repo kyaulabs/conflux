@@ -199,10 +199,10 @@ public:
 
     void retireStale() noexcept
     {
-        for (std::size_t examined = 0; examined < slotCount; ++examined) {
+        for (std::size_t examined = 0; examined < liveSlotCount; ++examined) {
             const auto position = consumed_.load(std::memory_order_relaxed);
             if (position == written_.load(std::memory_order_acquire) ||
-                (ownerEnabled_ && slots_[position % slotCount].generation == ownerGeneration_)) break;
+                (ownerEnabled_ && slots_[position % liveSlotCount].generation == ownerGeneration_)) break;
             offset_ = 0;
             consumed_.store(position + 1U, std::memory_order_release);
         }
@@ -227,7 +227,7 @@ public:
         if (!ownerEnabled_ || stopped_.load(std::memory_order_relaxed)) return {};
         const auto position = consumed_.load(std::memory_order_relaxed);
         if (position == written_.load(std::memory_order_acquire)) return {};
-        const auto& slot = slots_[position % slotCount];
+        const auto& slot = slots_[position % liveSlotCount];
         if (slot.generation != ownerGeneration_) return {};
         View result;
         result.leafCount = leafCount_;
@@ -251,9 +251,9 @@ public:
         if (!view || stream_.cacheLoop || preparedGeneration_ == ownerGeneration_) return view;
         const auto first = consumed_.load(std::memory_order_relaxed);
         const auto end = written_.load(std::memory_order_acquire);
-        bool ready = end - first == slotCount;
+        bool ready = end - first >= slotCount;
         for (auto cursor = first; cursor < end && cursor - first < slotCount; ++cursor) {
-            const auto& slot = slots_[cursor % slotCount];
+            const auto& slot = slots_[cursor % liveSlotCount];
             if (slot.generation != ownerGeneration_) return {};
             ready = ready || slot.terminal || slot.error;
         }
@@ -283,7 +283,7 @@ public:
             return true;
         }
         const auto position = consumed_.load(std::memory_order_relaxed);
-        const auto& slot = slots_[position % slotCount];
+        const auto& slot = slots_[position % liveSlotCount];
         if (!view.frames) {
             if (frames) return false;
             if (slot.terminal && !slot.error) {
@@ -489,11 +489,17 @@ private:
         std::size_t partialFrames = 0;
         std::size_t warmupFrames = 0, periodFrames = 0, generatedFrames = 0, capturedFrames = 0;
         std::uint64_t firstGenerationSlot = 0;
+        bool livePitchLock = false;
+        auto queueCapacity = [&](std::uint64_t consumed) noexcept {
+            // Keep the initial fill at eight slots. Only extend the live R3
+            // reserve after playback has retired its first output packet.
+            return livePitchLock && consumed > firstGenerationSlot ? liveSlotCount : slotCount;
+        };
         auto publishPartial = [&](bool terminal = false) {
             if (!partialFrames) return true;
             if (!current(generation, stop)) return false;
             const auto position = written_.load(std::memory_order_relaxed);
-            auto& slot = slots_[position % slotCount];
+            auto& slot = slots_[position % liveSlotCount];
             slot.frames = partialFrames;
             // Keep the logical zero-frame EOF after the final PCM. Release
             // both together so a callback cannot see an empty queue between them.
@@ -519,7 +525,8 @@ private:
                     generationDone = true;
                     return false;
                 }
-                if (position - consumed_.load(std::memory_order_acquire) < slotCount) return true;
+                const auto consumed = consumed_.load(std::memory_order_acquire);
+                if (position - consumed < queueCapacity(consumed)) return true;
                 if (stream_.service) stream_.service(stream_.context);
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
             }
@@ -548,6 +555,8 @@ private:
                 generatedFrames = capturedFrames = 0;
                 firstGenerationSlot = written_.load(std::memory_order_relaxed);
                 generation = request.generation;
+                livePitchLock = stream_.read && !stream_.allowLoops && leafCount_ == maximumLeaves &&
+                    request.keyLock && request.initialPercent != 0;
                 nextFrame = request.frame;
                 inputFrames = inputOffset = stagedInput = 0;
                 nominal = static_cast<long double>(request.nominalStart);
@@ -591,7 +600,8 @@ private:
                 generationDone = true;
                 continue;
             }
-            if (position - consumed_.load(std::memory_order_acquire) >= slotCount) {
+            const auto consumed = consumed_.load(std::memory_order_acquire);
+            if (position - consumed >= queueCapacity(consumed)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(2));
                 continue; // No DSP/input feed while the bounded output ring is full.
             }
@@ -704,7 +714,7 @@ private:
                 }
                 if (!publishPartial() || !waitForSlot()) continue;
                 const auto marker = written_.load(std::memory_order_relaxed);
-                auto& slot = slots_[marker % slotCount];
+                auto& slot = slots_[marker % liveSlotCount];
                 initializeSlot(slot, request);
                 slot.terminal = !terminalError;
                 slot.error = terminalError;
@@ -713,12 +723,12 @@ private:
                 generationDone = true;
                 continue;
             }
-            const auto& pending = slots_[written_.load(std::memory_order_relaxed) % slotCount];
+            const auto& pending = slots_[written_.load(std::memory_order_relaxed) % liveSlotCount];
             if (partialFrames && (pending.command != appliedCommand ||
                 pending.appliedPercent != appliedPercent || pending.requestedPercent != request.percent)) {
                 if (!publishPartial() || !waitForSlot()) continue;
             }
-            auto& slot = slots_[written_.load(std::memory_order_relaxed) % slotCount];
+            auto& slot = slots_[written_.load(std::memory_order_relaxed) % liveSlotCount];
             if (!partialFrames) initializeSlot(slot, request);
             // Compatible DSP fragments share one existing slot. Small retrieves
             // must not consume the eight-slot reserve with mostly unused space.
@@ -751,7 +761,7 @@ private:
     std::atomic<std::uint64_t> cycleGeneration_{0};
     std::array<int, maximumLeaves> fds_{-1, -1, -1, -1};
     std::array<struct stat, maximumLeaves> identities_{};
-    std::array<Slot, slotCount> slots_{};
+    std::array<Slot, liveSlotCount> slots_{};
     std::atomic<std::uint64_t> written_{0}, consumed_{0};
     std::atomic<std::uint64_t> activeGeneration_{0}, errorGeneration_{0};
     std::atomic<int> workerError_{0}, ownerError_{0};

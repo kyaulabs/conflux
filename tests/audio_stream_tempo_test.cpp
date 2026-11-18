@@ -214,6 +214,77 @@ void preparedDspReserve()
     input.pauseWorker.store(false);
     source.stop();
 }
+void liveDspSteadyReserve()
+{
+    Input input;
+    input.frames = 128000;
+    input.available.store(input.frames);
+    PreparedTempoSource source(input.descriptor());
+    struct Resume { Input& input; ~Resume() { input.pauseWorker.store(false); } } resume{input};
+    constexpr auto startupFrames = PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames;
+    constexpr auto steadyFrames = 12 * PreparedTempoSource::blockFrames;
+
+    auto freezeFilledWorker = [&] {
+        auto reads = input.calls.load();
+        auto services = input.services.load();
+        // The full worker keeps servicing the provider without reading ahead.
+        await([&] {
+            const auto currentReads = input.calls.load();
+            const auto currentServices = input.services.load();
+            if (currentReads != reads) {
+                reads = currentReads;
+                services = currentServices;
+            }
+            return currentServices - services >= 8;
+        });
+        input.pauseWorker.store(true);
+        await([&] { return input.workerPaused.load(); });
+    };
+    auto resumeWorker = [&] {
+        input.pauseWorker.store(false);
+        await([&] { return !input.workerPaused.load(); });
+    };
+    auto drainReserve = [&](std::uint64_t generation) {
+        const auto start = source.nominalPosition();
+        std::size_t frames = 0;
+        while (const auto view = source.peekPrepared()) {
+            require(view.generation == generation && view.frames && !view.terminal && !view.errorCode,
+                    "Live reserve returned stale PCM, EOF or an error");
+            const auto count = std::min<std::size_t>(256, view.frames);
+            require(source.consume(count), "Live reserve rejected a callback-sized read");
+            frames += count;
+        }
+        require(std::abs(source.nominalPosition() - start - static_cast<double>(frames) * 1.06) < 1e-6,
+                "Live reserve changed the nominal tempo clock");
+        return frames;
+    };
+
+    require(source.request(0, 6., true), "Live start rejected");
+    const auto first = preparedNext(source);
+    freezeFilledWorker();
+    require(drainReserve(first.generation) == startupFrames, "Live startup prefilled beyond eight blocks");
+
+    require(source.request(0, 6., true), "Live restart rejected");
+    resumeWorker();
+    const auto playing = preparedNext(source);
+    require(playing.generation != first.generation && playing.frames == PreparedTempoSource::blockFrames &&
+                source.consume(playing.frames), "Live restart failed to retire the first output block");
+    freezeFilledWorker();
+    require(drainReserve(playing.generation) == steadyFrames,
+            "Steady live Master Tempo did not retain twelve blocks during a worker stall");
+
+    resumeWorker();
+    (void)preparedNext(source);
+    freezeFilledWorker();
+    require(source.request(48000, 6., true) && !source.peekPrepared(),
+            "Live seek exposed queued audio from the previous generation");
+    resumeWorker();
+    const auto sought = preparedNext(source);
+    require(sought.generation != playing.generation && sought.nominalStart == 48000.,
+            "Live seek did not start at its requested source frame");
+    freezeFilledWorker();
+    require(drainReserve(sought.generation) == startupFrames, "Live seek prefilled beyond the startup reserve");
+}
 void readyPrefixAtLowReserve(std::size_t remainingSlots)
 {
     constexpr auto reserve = PreparedTempoSource::slotCount * PreparedTempoSource::blockFrames;
@@ -662,7 +733,7 @@ void dspReference()
 }
 int main()
 {
-    try { rawStemInput(); preparedStartup(); preparedDspReserve(); readyPrefixAtLowReserve(0); readyPrefixAtLowReserve(1); readyPrefixAtLowReserve(2); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); finalPcmAndEofPublishedTogether(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
+    try { rawStemInput(); preparedStartup(); preparedDspReserve(); liveDspSteadyReserve(); readyPrefixAtLowReserve(0); readyPrefixAtLowReserve(1); readyPrefixAtLowReserve(2); preparedTerminal(); gaps(); outputRevisionAcrossGap(); seekAndCancel(); malformed(); finalPcmAndEofPublishedTogether(); boundedPrefetch(); dspReference(); immutableLoopReference(); completeRecoverySurvivesPausedWorker();
         std::cout << "Streaming tempo gap, source-clock, generation, failure and real DSP checks passed\n"; return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }
