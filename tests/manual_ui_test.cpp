@@ -4905,6 +4905,42 @@ private slots:
         QCOMPARE(call.value("value").toDouble(), seek->property("value").toDouble());
     }
 
+    void waveformDragDoesNotSeekAfterPreparedHandoff()
+    {
+        ui_->endpoint.loadState(0, 1.0);
+        ui_->endpoint.loadState(1, 1.0);
+        ui_->endpoint.setReady(true);
+        auto* seek = ui_->item("deck0Seek");
+        QTRY_VERIFY(seek->isEnabled());
+        const auto initial = ui_->endpoint.decks().at(0).toMap();
+        const auto peer = ui_->endpoint.decks().at(1);
+        const auto start = seek->mapToScene(QPointF(seek->width() * .25, seek->height() / 2)).toPoint();
+        const auto end = seek->mapToScene(QPointF(seek->width() * .75, seek->height() / 2)).toPoint();
+
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, start);
+        QTRY_VERIFY(seek->property("pressed").toBool());
+        QTest::mouseMove(ui_->window, end);
+        QTRY_VERIFY(seek->property("value").toDouble() > 5.0);
+
+        // A same-deck continuation changes the acknowledged owner while
+        // preserving the source ID and leaving the control enabled.
+        ui_->endpoint.snapshotDeck(0, {{"sourceGeneration", qulonglong(2)}, {"positionSeconds", 2.5}});
+        QCOMPARE(ui_->endpoint.decks().at(0).toMap().value("sourceId"), initial.value("sourceId"));
+        QVERIFY(seek->isEnabled());
+        const auto previewCancelled = !seek->property("pressed").toBool();
+        const auto restoredPosition = seek->property("value").toDouble();
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, end);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY(previewCancelled);
+        QCOMPARE(restoredPosition, 2.5);
+        QCOMPARE(seek->property("value").toDouble(), 2.5);
+        QCOMPARE(ui_->endpoint.decks().at(1), peer);
+
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, end);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "seek", 0);
+    }
+
     void touchSeekCancellationRestoresAcknowledgedPosition_data()
     {
         QTest::addColumn<int>("deck");
