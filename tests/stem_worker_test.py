@@ -680,6 +680,38 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(suffix["samples"], expected[:, 2 * HOP:])
         self.assertEqual(fake.calls, 3)
 
+    def test_seek_retains_active_target_while_filling_missing_preroll(self):
+        raw = self.root / "seek-active-target-uncached-preroll.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([c["samples"] for c in self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+        opened = worker.load_f32(raw, start_frame=len(self.audio))
+        self.assertEqual(self.collect(worker, opened), [])
+
+        original = worker.seek(HOP + OVERLAP)
+        target = self.event(worker, "started", original)
+        self.assertEqual(target["window_start_frame"], HOP)
+        self.assertTrue(fake.wait_call(1))
+
+        frame = HOP + 17
+        latest = worker.seek(frame)
+        fake.release(3)
+        overlap = self.event(worker, "started", latest)
+        self.assertEqual(overlap["window_start_frame"], 0)
+        self.assertTrue(overlap["preroll"])
+        first = self.event(worker, "chunk", latest)
+        self.assertEqual(first["request_id"], target["request_id"])
+        self.assertEqual(first["metrics"]["id"], target["request_id"])
+        self.assertFalse(first.get("inference_reused", False))
+        self.assertGreaterEqual(first["hop_service_ms"], (first["ready_at"] - overlap["timestamp"]) * 1000)
+        tail, = self.collect(worker, latest)
+        self.assertEqual([first["frame_start"], tail["frame_start"]], [frame, 2 * HOP])
+        np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
+                                      expected[:, frame:])
+        self.assertEqual(worker.statistics()["discarded_count"], 0)
+        self.assertEqual(fake.calls, 3)
+
     def test_seek_uses_active_preroll_before_first_target_chunk(self):
         raw = self.root / "seek-active-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
