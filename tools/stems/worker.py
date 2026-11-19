@@ -617,14 +617,14 @@ class StemWorker:
             source = cached
             reused = True
         else:
-            # Both passes are bounded; never retain an entire track or its stems.
             raw_float = command.source_format == "f32le"
             digest = hashlib.sha256()
-            opened = _open_f32(command.path, signature) if raw_float else command.path.open("rb")
-            with opened as stream:
-                while block := stream.read(1024 * 1024):
-                    self._check(command)
-                    digest.update(block)
+            if not raw_float:
+                # A WAV's byte identity also covers headers and non-PCM chunks.
+                with command.path.open("rb") as stream:
+                    while block := stream.read(1024 * 1024):
+                        self._check(command)
+                        digest.update(block)
             count, mean, m2 = 0, 0.0, 0.0
             opened = _open_f32(command.path, signature) if raw_float else wave.open(str(command.path), "rb")
             with opened as stream:
@@ -640,10 +640,12 @@ class StemWorker:
                     if raw_float:
                         if len(data) % (CHANNELS * 4):
                             raise RuntimeError("stem source changed or was truncated during preparation")
+                        digest.update(data)
                         pcm = np.frombuffer(data, dtype="<f4").reshape(-1, CHANNELS)
                         if not np.isfinite(pcm).all():
                             raise ValueError("F32LE source contains non-finite samples")
-                        mono = pcm.astype(np.float64).mean(axis=1)
+                        mono = np.add(pcm[:, 0], pcm[:, 1], dtype=np.float64)
+                        mono *= 0.5
                     else:
                         pcm = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS)
                         mono = pcm.astype(np.float64).mean(axis=1) / 32768.0
