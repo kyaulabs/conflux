@@ -568,7 +568,8 @@ PreparedTrackStore::PreparedTrackStore(QString cacheRoot, Limits limits)
         throw std::invalid_argument("Invalid prepared cache limits or directory");
 }
 
-PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_token stop)
+PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_token stop,
+                                           const QString& expectedSource)
 {
     checkStop(stop);
     Descriptor source(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
@@ -579,6 +580,7 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
         throw std::length_error("Audio source byte budget exceeded");
     const auto sourceId = scan(source.get(), std::uint64_t(sourceBefore.st_size), stop).sha256;
     if (!unchanged(sourceBefore, statusOf(source.get()))) throw std::runtime_error("Audio source changed during hashing");
+    requireExpectedSource(sourceId, expectedSource);
     const auto presentation = readTrackPresentation(source.get(), sourcePath, stop);
     const auto pipeline = pipelineIdentity();
     const auto key = QCryptographicHash::hash(sourceId + '\n' + QJsonDocument(pipeline).toJson(QJsonDocument::Compact),
@@ -655,7 +657,8 @@ PreparedTrack PreparedTrackStore::prepare(const QString& sourcePath, std::stop_t
 }
 
 std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
-    const QString& sourcePath, const StemEngine& engine, std::stop_token stop, const QString& expectedArtifactKey)
+    const QString& sourcePath, const StemEngine& engine, std::stop_token stop, const QString& expectedArtifactKey,
+    const QString& expectedSource)
 {
     checkStop(stop);
     const auto expectedKey = expectedArtifactKey.toLatin1();
@@ -674,6 +677,7 @@ std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
         throw std::length_error("Audio source byte budget exceeded");
     const auto sourceId = scan(source.get(), std::uint64_t(sourceBefore.st_size), stop).sha256;
     if (!unchanged(sourceBefore, statusOf(source.get()))) throw std::runtime_error("Audio source changed during hashing");
+    requireExpectedSource(sourceId, expectedSource);
     const auto files = pinEngine(engine, stop);
     const auto describe = describeEngine(engine, files, stop);
     const auto pipeline = stemPipeline(engine, files, describe);
@@ -721,7 +725,7 @@ std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
 }
 
 PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath, const StemEngine& engine,
-                                                       std::stop_token stop)
+                                                       std::stop_token stop, const QString& expectedSource)
 {
     checkStop(stop);
     Descriptor source(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
@@ -732,6 +736,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
         throw std::length_error("Audio source byte budget exceeded");
     const auto sourceId = scan(source.get(), std::uint64_t(sourceBefore.st_size), stop).sha256;
     if (!unchanged(sourceBefore, statusOf(source.get()))) throw std::runtime_error("Audio source changed during hashing");
+    requireExpectedSource(sourceId, expectedSource);
     const auto presentation = readTrackPresentation(source.get(), sourcePath, stop);
     const auto files = pinEngine(engine, stop);
     const auto describe = describeEngine(engine, files, stop);

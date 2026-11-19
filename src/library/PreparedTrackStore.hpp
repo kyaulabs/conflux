@@ -86,23 +86,26 @@ public:
 
     explicit PreparedTrackStore(QString cacheRoot);
     PreparedTrackStore(QString cacheRoot, Limits limits);
-    PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {});
+    // Catalog loads can require a source digest before opening a cache or starting a worker.
+    PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {},
+                          const QString& expectedSource = {});
     PreparedStemTrack prepareStemBank(const QString& sourcePath, const StemEngine& engine,
-                                      std::stop_token stop = {});
+                                      std::stop_token stop = {}, const QString& expectedSource = {});
     // Read-only bank discovery; absence or a captured-identity mismatch is a miss.
     // Validates used inputs and current budgets without repair/export/staging.
     // A captured key can reject a missing artifact before using source/engine;
     // a present candidate still requires their full current identity checks.
     // A bounded engine --describe is permitted, but never model inference.
     std::optional<PreparedStemTrack> findPreparedStemBank(const QString& sourcePath,
-        const StemEngine& engine, std::stop_token stop = {}, const QString& expectedArtifactKey = {});
+        const StemEngine& engine, std::stop_token stop = {}, const QString& expectedArtifactKey = {},
+        const QString& expectedSource = {});
     // Off-thread transient whole owner beneath this store's root/limits.
     // Returns validated service-ready metadata; first real prime starts load.
     // Never primes here, creates a complete stem file, or borrows the caller's
     // stop token after return. A distinct nonzero token identifies this owner.
     PreparedLiveStemTrack prepareLiveStem(const QString& sourcePath, const StemEngine& engine,
         const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop = {},
-        std::optional<LiveStemResidentHold> residentHold = {});
+        std::optional<LiveStemResidentHold> residentHold = {}, const QString& expectedSource = {});
 
 private:
     QString cacheRoot_;

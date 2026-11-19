@@ -1050,7 +1050,7 @@ std::uint64_t liveReservationBytes(int directory, const PreparedTrackStore::Limi
 namespace conflux::library {
 PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourcePath,
     const StemEngine& engine, const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop,
-    std::optional<LiveStemResidentHold> residentHold)
+    std::optional<LiveStemResidentHold> residentHold, const QString& expectedSource)
 {
     using namespace detail;
     auto observations = std::shared_ptr<LiveStemObservations>(new LiveStemObservations);
@@ -1082,6 +1082,7 @@ PreparedLiveStemTrack PreparedTrackStore::prepareLiveStem(const QString& sourceP
     if (!unchanged(originalBefore, statusOf(original.get()))) throw std::runtime_error("Audio source changed during hashing");
     if (residentHold && residentHold->sourceSha256 != QString::fromLatin1(originalDigest))
         throw std::runtime_error("Recovery range source changed before live preparation");
+    requireExpectedSource(originalDigest, expectedSource);
     auto presentation = readTrackPresentation(original.get(), sourcePath, stop);
     auto files = pinEngine(engine, stop);
     auto service = pinStemFile(servicePath, true, stop);

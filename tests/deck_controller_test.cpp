@@ -821,6 +821,17 @@ private slots:
             const auto sourceId = controller.libraryTracks()[0].toMap()["id"].toString();
             QCOMPARE(sourceId, seeded.sourceSha256);
             QVERIFY(writeWave(source, 2, 44100, 213));
+            const auto describeMarker = fixture.engine.exporterPath.chopped(3) + ".prefix";
+            QVERIFY(QFile::remove(describeMarker));
+            const auto entries = QDir(cache).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot);
+
+            controller.loadLibraryTrack(1, sourceId);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QVERIFY(controller.error().contains("Source changed"));
+            QCOMPARE(controller.decks(), before);
+            QCOMPARE(controller.retainedPcmBytes(), retained);
+            QCOMPARE(QDir(cache).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot), entries);
+
             controller.loadLibraryStemTrack(1, sourceId);
             QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
             QVERIFY(controller.error().contains("Source changed"));
@@ -828,6 +839,9 @@ private slots:
             QCOMPARE(controller.retainedPcmBytes(), retained);
             QCOMPARE(liveFixtureCount(fixture, "command", "load"), std::size_t(0));
             QCOMPARE(liveFixtureCount(fixture, "command", "seek"), std::size_t(0));
+            QVERIFY(!QFileInfo::exists(fixture.marker(".started")));
+            QVERIFY(!QFileInfo::exists(describeMarker));
+            QCOMPARE(QDir(cache).entryList(QDir::AllEntries | QDir::Hidden | QDir::NoDotAndDotDot), entries);
             QCOMPARE(liveFixtureBytes(manifestPath), QByteArray("{}"));
             QCOMPARE(liveFixtureBytes(fixture.engine.exporterPath.left(fixture.engine.exporterPath.size() - 3) + ".calls"), calls);
             QTRY_VERIFY_WITH_TIMEOUT(safety.gone(), 10000);

@@ -147,6 +147,12 @@ QByteArray finitePcmDigest(int descriptor, std::uint64_t frames, std::stop_token
     return scanFile(descriptor, frames * frameBytes, stop, frames, -1, false, false).sha256;
 }
 
+void requireExpectedSource(const QByteArray& digest, const QString& expected)
+{
+    if (!expected.isEmpty() && QString::fromLatin1(digest) != expected)
+        throw std::runtime_error("Source changed; import this file again before loading its library entry.");
+}
+
 void verifySource(int descriptor, const struct stat& before, const QByteArray& digest, std::stop_token stop)
 {
     if (!unchanged(before, statusOf(descriptor))) throw std::runtime_error("Audio source changed during preparation");
