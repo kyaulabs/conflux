@@ -37,6 +37,7 @@ struct Scan { QByteArray sha256; std::vector<float> peaks; };
 Scan scan(int, std::uint64_t, std::stop_token, std::uint64_t frames = 0, int copyTo = -1,
           bool littleEndian = false);
 QByteArray finitePcmDigest(int, std::uint64_t frames, std::stop_token);
+void requireExpectedSource(const QByteArray& digest, const QString& expected);
 void verifySource(int, const struct stat&, const QByteArray&, std::stop_token);
 struct EngineFile {
     QString path, invocation;

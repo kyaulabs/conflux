@@ -1023,8 +1023,8 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             QString sourceId;
             if (stems) {
                 auto bank = service.isEmpty() ?
-                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop)) :
-                    store.findPreparedStemBank(path, *engine, stop);
+                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop, expectedSource)) :
+                    store.findPreparedStemBank(path, *engine, stop, {}, expectedSource);
                 if (bank) {
                     sourceId = bank->sourceSha256;
                     prepared->cacheHit = bank->cacheHit;
@@ -1035,7 +1035,8 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 } else {
                     // Only a genuine lookup miss reaches the service. A valid
                     // bank never inspects this otherwise unused sixth asset.
-                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop, residentHold);
+                    auto track = store.prepareLiveStem(path, *engine, service, nextLiveSourceToken(), stop,
+                                                       residentHold, expectedSource);
                     sourceId = track.sourceSha256;
                     prepared->presentation = std::move(track.presentation);
                     prepared->audio = std::make_shared<const PreparedPcm>(track.outputFrames,
@@ -1076,7 +1077,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
                 }
             } else {
-                auto track = store.prepare(path, stop);
+                auto track = store.prepare(path, stop, expectedSource);
                 sourceId = track.sourceSha256;
                 prepared->cacheHit = track.cacheHit;
                 prepared->presentation = std::move(track.presentation);
@@ -1102,8 +1103,6 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 prepared->audio = std::make_shared<const PreparedPcm>(std::move(track.audio));
             }
             if (stop.stop_requested()) throw std::runtime_error("Audio preparation cancelled");
-            if (!expectedSource.isEmpty() && sourceId != expectedSource)
-                throw std::runtime_error("Source changed; import this file again before loading its library entry.");
             prepared->sourceId = sourceId;
             report("prime", completedStages);
             if (!prepared->playback) prepared->playback = prepared->audio->makePlayback();
