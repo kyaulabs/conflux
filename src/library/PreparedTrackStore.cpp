@@ -43,6 +43,7 @@ constexpr std::uint64_t frameBytes = 2 * sizeof(float);
 constexpr std::size_t staleStageLimit = 8;
 constexpr std::array<const char*, 4> stemNames{"drums.f32", "bass.f32", "other.f32", "vocals.f32"};
 constexpr std::array<const char*, 4> stemRoles{"drums", "bass", "other", "vocals"};
+constexpr std::size_t vocalStemIndex = 3;
 constexpr std::uint64_t nativeSpoolBytes = 13759200, exportManifestBytes = 16384;
 bool stemLeaf(std::string_view name)
 {
@@ -529,6 +530,7 @@ PreparedStemTrack readStemEntry(int directory, const QByteArray& sourceId, const
     if (stems.size() != 4) throw std::invalid_argument("Prepared stem cache is incomplete");
     std::vector<audio::PreparedAudio> prepared;
     prepared.reserve(4);
+    VocalActivityMap vocalActivity;
     for (std::size_t index = 0; index < stemNames.size(); ++index) {
         const auto stem = stems[qsizetype(index)].toObject();
         if (stem.size() != 4 || stem.value("name") != QJsonValue(QString::fromLatin1(stemRoles[index])) ||
@@ -540,14 +542,16 @@ PreparedStemTrack readStemEntry(int directory, const QByteArray& sourceId, const
         const auto before = statusOf(pcm.get());
         if (before.st_size < 0 || std::uint64_t(before.st_size) != frames * frameBytes)
             throw std::invalid_argument("Prepared stem cache PCM size differs");
-        const auto observed = scan(pcm.get(), frames * frameBytes, stop, frames);
+        auto observed = index == vocalStemIndex ? scanVocalStem(pcm.get(), frames, stop)
+                                                 : scan(pcm.get(), frames * frameBytes, stop, frames);
         if (observed.sha256 != stem.value("sha256").toString().toLatin1() || !unchanged(before, statusOf(pcm.get())))
             throw std::invalid_argument("Prepared stem cache PCM digest differs");
         prepared.push_back(audio::reopenPreparedAudio(pcm.get(), frames, observed.peaks, limits.maxPreparedBytes));
         if (!unchanged(before, statusOf(pcm.get()))) throw std::invalid_argument("Prepared stem cache PCM changed");
+        if (index == vocalStemIndex) vocalActivity = std::move(observed.vocalActivity);
     }
     return {{{std::move(prepared[0]), std::move(prepared[1]), std::move(prepared[2]), std::move(prepared[3])}},
-        QString::fromLatin1(sourceId), QString::fromLatin1(key), true};
+        QString::fromLatin1(sourceId), QString::fromLatin1(key), true, {}, std::move(vocalActivity)};
 }
 } // namespace
 
@@ -845,6 +849,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
         std::vector<audio::PreparedAudio> prepared;
         prepared.reserve(4);
         QJsonArray stems;
+        VocalActivityMap vocalActivity;
         std::uint64_t frames = 0;
         for (std::size_t index = 0; index < stemNames.size(); ++index) {
             Descriptor rawStem(openCacheFile(raw.get(), stemNames[index]));
@@ -864,11 +869,13 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
             if (fsync(destination.get()) != 0) ioError("Cannot synchronize prepared stem PCM");
             Descriptor readable(openCacheFile(stage.directory(), stemNames[index]));
             auto persisted = audio::reopenPreparedAudio(readable.get(), frames, converted.peaks(), limits_.maxPreparedBytes);
-            const auto observed = scan(persisted.descriptor(), frames * frameBytes, stop, frames);
+            auto observed = index == vocalStemIndex ? scanVocalStem(persisted.descriptor(), frames, stop)
+                                                    : scan(persisted.descriptor(), frames * frameBytes, stop, frames);
             if (observed.sha256 != copied.sha256 || !std::ranges::equal(observed.peaks, converted.peaks()))
                 throw std::runtime_error("Prepared stem copy digest or overview differs");
             stems.append(QJsonObject{{"name", QString::fromLatin1(stemRoles[index])}, {"file", QString::fromLatin1(stemNames[index])},
                 {"bytes", double(frames * frameBytes)}, {"sha256", QString::fromLatin1(observed.sha256)}});
+            if (index == vocalStemIndex) vocalActivity = std::move(observed.vocalActivity);
             prepared.push_back(std::move(persisted));
         }
         const QJsonObject object{{"schema", 2}, {"kind", "stem_bank"}, {"source_sha256", QString::fromLatin1(sourceId)},
@@ -890,7 +897,7 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
         checkEntryContents(stage.directory());
         stage.publish(key);
         return {{{std::move(prepared[0]), std::move(prepared[1]), std::move(prepared[2]), std::move(prepared[3])}},
-            QString::fromLatin1(sourceId), QString::fromLatin1(key), false, presentation};
+            QString::fromLatin1(sourceId), QString::fromLatin1(key), false, presentation, std::move(vocalActivity)};
     } catch (const std::exception& error) {
         if (!groupsGone) {
             stage.preserve();

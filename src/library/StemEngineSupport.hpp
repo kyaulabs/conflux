@@ -32,10 +32,16 @@ struct stat statusOf(int);
 bool unchanged(const struct stat&, const struct stat&);
 bool hexDigest(const QByteArray&);
 void writeAll(int, const char*, std::size_t, std::stop_token);
-struct Scan { QByteArray sha256; std::vector<float> peaks; };
+struct Scan {
+    QByteArray sha256;
+    std::vector<float> peaks;
+    VocalActivityMap vocalActivity;
+};
 // Existing native PCM scan/copy. Wire input explicitly selects F32LE decoding.
 Scan scan(int, std::uint64_t, std::stop_token, std::uint64_t frames = 0, int copyTo = -1,
           bool littleEndian = false);
+// Native prepared vocal leaf only. Derives analysis from the same bytes as the digest.
+Scan scanVocalStem(int, std::uint64_t frames, std::stop_token);
 QByteArray finitePcmDigest(int, std::uint64_t frames, std::stop_token);
 void requireExpectedSource(const QByteArray& digest, const QString& expected);
 void verifySource(int, const struct stat&, const QByteArray&, std::stop_token);
