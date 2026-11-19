@@ -1406,13 +1406,42 @@ private slots:
             if (mode == "bad-ack")
                 require(await([&] { return live.playback->errorCode() != 0; }), "Wrong accepted ACK identity was ignored");
             else require(primed && !live.playback->errorCode(), "Valid prefix failed before closing");
-            live.playback->stop();
             const bool valid = mode == "good" || mode == "legacy-closed" || mode == "native-signal";
+            const auto handle = live.observations;
+            std::vector<Observation> rows;
+            if (mode != "good" && mode != "bad-ack") {
+                // Ordinary cancellation may reap the child before a receipt arrives.
+                // Exercise close-packet validation through the finite diagnostic drain.
+                RenderCore core(live.playback->sourceRef(), peer());
+                std::array<float, 1024> output{};
+                require(await([&] {
+                    return core.render(output) && core.sourceFrame(0) == live.outputFrames;
+                }), "Close receipt fixture did not render through EOF");
+                drainObservations(handle, rows);
+                const auto accepted = uniqueObservation(rows, ObservationKind::CommandAccepted);
+                require(handle->requestDiagnosticDrain(accepted.providerEpoch, accepted.workerGeneration,
+                    Clock::now() + std::chrono::seconds(5)), "Cannot request a finite close receipt");
+
+                using DrainState = Observations::DiagnosticDrainState;
+                require(await([&] {
+                    const auto state = handle->diagnosticDrainStatus().state;
+                    return state == DrainState::ReadyForStop || state == DrainState::Failed;
+                }, std::chrono::seconds(5)), "Finite close receipt did not resolve");
+                require(handle->diagnosticDrainStatus().state ==
+                    (valid ? DrainState::ReadyForStop : DrainState::Failed),
+                    "Close receipt admission differed from its expected wire validity");
+            }
+            live.playback->stop();
             require(valid == (live.playback->errorCode() == 0),
                 "Closing message erased an error or accepted invalid telemetry");
+            if (mode == "bad-closed-count")
+                require(handle->failureDetail().find("Unexpected stem close or outstanding lease count") != std::string::npos,
+                    "Wrong outstanding lease count did not reach close-packet validation");
+            if (mode == "bad-native-shutdown")
+                require(handle->failureDetail().find("Ambiguous native shutdown status") != std::string::npos,
+                    "Ambiguous native shutdown did not reach close-packet validation");
             if (mode == "legacy-closed" || mode == "native-signal") {
-                std::vector<Observation> rows;
-                drainObservations(live.observations, rows);
+                drainObservations(handle, rows);
                 const auto& closed = uniqueObservation(rows, ObservationKind::ServiceClosed);
                 if (mode == "legacy-closed")
                     require(!closed.nativeShutdown, "Legacy close invented a native status");
