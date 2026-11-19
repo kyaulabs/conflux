@@ -294,6 +294,9 @@ try:
             trace({'fixture': 'complete', 'generation': generation})
 finally:
     selector.close()
+    if MODE == 'native-signal':
+        # Outlive the player's ordinary shutdown grace.
+        time.sleep(.400)
     if MODE == 'preserve-job': (job / 'unknown-owner').write_bytes(b'preserve this fixed job')
     if child is not None:
         child.terminate()
