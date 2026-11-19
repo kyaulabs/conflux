@@ -793,13 +793,16 @@ class StemWorker:
                 or command.start >= source.frames or _signature(source.path) != source.signature):
             return False, False
         target = command.start // HOP
+        cached_prefix = True
         with self._condition:
             for index in range(_first_contributing_window(command.start), target + 1):
                 start = index * HOP
                 window = self._weighted_window_locked(start)
                 if window is None or window[0] is not source:
-                    return False, self._pending_matches_window(command, source, start)
-        return True, False
+                    cached_prefix = False
+                    if self._pending_matches_window(command, source, start):
+                        return False, True
+        return cached_prefix, False
 
     def _weighted_window_locked(self, start):
         if start == 0:
@@ -826,6 +829,7 @@ class StemWorker:
         target_window = command.start // HOP
         first_window = _first_contributing_window(command.start)
         previous = None
+        retained_target = None
         for index in range(first_window, (source.frames + HOP - 1) // HOP):
             self._check(command)
             preroll = index < target_window
@@ -846,8 +850,18 @@ class StemWorker:
                 overlap_started = time.monotonic()
                 timings = {"inference_reused": True}
             else:
-                output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
-                    command, source, start, preroll)
+                if preroll and self._pending_matches_window(command, source, target_window * HOP):
+                    # Keep the exact target reply while the same native
+                    # transport computes the missing overlap window.
+                    retained_target = self._inference_for_window(command, source, target_window * HOP, False)
+                if index == target_window and retained_target is not None:
+                    if _signature(source.path) != source.signature:
+                        raise RuntimeError("stem source changed during seek preroll")
+                    output, metrics, elapsed, request_id, source_read_ms = retained_target
+                    retained_target = None
+                else:
+                    output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
+                        command, source, start, preroll)
                 if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
                     raise RuntimeError("stem backend returned invalid samples")
                 overlap_started = time.monotonic()
@@ -938,7 +952,7 @@ class StemWorker:
                             try:
                                 # Before a cold seek publishes, a failed old request
                                 # still belongs to its original generation. Keep a
-                                # successful reply only for the first missing window.
+                                # successful reply for a contributing missing window.
                                 self._wait_inference(command, adopt=retain, keep_pending=retain)
                                 if retain:
                                     retained_service = pending.event["window_start_frame"], service_started
