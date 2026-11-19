@@ -33,7 +33,7 @@ public:
     enum class Kind : std::uint8_t {
         ServiceReady, RuntimeReady, RequestObserved, CommandQueued, CommandAccepted,
         ChunkValidated, PacketAccepted, PacketDiscarded,
-        RawComplete, ConverterComplete, ServiceClosed
+        RawComplete, ConverterComplete, ServiceClosed, WorkerRequestStarted
     };
 
     struct NativeShutdown {
@@ -55,6 +55,9 @@ public:
         // PacketAccepted only. Full timestamp is valid only if fullObserved.
         std::uint64_t packetReadyNs = 0, firstFullNs = 0;
         std::uint64_t publishBeginNs = 0, publishEndNs = 0;
+        // WorkerRequestStarted only: Python monotonic seconds before transport submission.
+        double workerStartedSeconds = 0;
+        bool workerPreroll = false;
         // ChunkValidated only: retain wire precision/units, without clock mapping.
         double workerReadySeconds = 0, servicePublishedSeconds = 0, hopServiceMs = 0;
         // Nested durations from the same completed chunk, in original ms. A
