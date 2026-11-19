@@ -424,11 +424,12 @@ public:
                     }
                     break;
                 }
+                bool convertedBatch = false;
                 if (closed_) {
                     require(incoming_.isEmpty(), "Stem service emitted data after closed");
                 } else if (ready_) {
                     schedule();
-                    if (!closing_ && !diagnosticDrain_) convert();
+                    if (!closing_ && !diagnosticDrain_) convertedBatch = convert();
                 }
                 const auto now = Clock::now();
                 if (!closing_ && pending_.id && now >= replyDeadline_)
@@ -441,7 +442,9 @@ public:
                 if (closing_ && now >= closeDeadline_) break;
                 // QProcess belongs only to this thread. A bounded wait services
                 // pipes; it never suspends render or the producer's recovery clock.
-                process_.waitForReadyRead(1);
+                // Poll without blocking after a full productive batch. A
+                // stall, full ring, or EOF retains the normal 1 ms wait.
+                process_.waitForReadyRead(convertedBatch ? 0 : 1);
             }
         } catch (const std::exception& error) {
             failDiagnosticDrain();
@@ -943,23 +946,23 @@ private:
         require(unchanged(lease.before, statusOf(lease.fd->get())), "Live lease changed after validation");
         inputSlot_ = next; inputFrames_ = count; inputOffset_ = 0;
     }
-    void convert()
+    bool convert()
     {
-        if (!converter_ || acceptedEpoch_ != latest_.epoch || !active_ || !sourceSeen_ || !refresh()) return;
+        if (!converter_ || acceptedEpoch_ != latest_.epoch || !active_ || !sourceSeen_ || !refresh()) return false;
         // A fixed number of bounded steps per pipe/control turn. Scratch and
         // pending output survive the next turn, including Full and raw gaps.
         for (unsigned work = 0; work < 8; ++work) {
-            if (!refresh() || !converter_) return;
+            if (!refresh() || !converter_) return false;
             if (pendingFrames_ == 4096 && pendingFirst_ + pendingFrames_ < plan_.outputFrames()) {
-                if (!publish()) return;
+                if (!publish()) return false;
             }
-            if (finished_) { (void)publish(); return; }
+            if (finished_) { (void)publish(); return false; }
             fillInput();
             const bool eof = rawComplete_ && convertedInput_ == plan_.inputFrames() && !inputFrames_;
             std::array<std::span<const float>, 4> input;
             std::array<std::span<float>, 4> output;
             const bool probe = pendingFrames_ == 4096;
-            if (probe && !eof) return; // Await raw complete after the final raw ACK.
+            if (probe && !eof) return false; // Await raw complete after the final raw ACK.
             require(!probe || pendingFirst_ + pendingFrames_ == plan_.outputFrames(), "Unexpected full converter staging");
             for (std::size_t role = 0; role < 4; ++role) {
                 input[role] = std::span<const float>(input_[role]).subspan(inputOffset_ * 2, (inputFrames_ - inputOffset_) * 2);
@@ -992,11 +995,12 @@ private:
             finished_ = step.finished;
             if (pendingFrames_ == 4096 || finished_) {
                 if (pendingFirst_ + pendingFrames_ < plan_.outputFrames() || finished_) {
-                    if (!publish()) return;
+                    if (!publish()) return false;
                 }
             }
-            if (!step.inputFramesUsed && !step.outputFrames && !step.finished) return;
+            if (!step.inputFramesUsed && !step.outputFrames && !step.finished) return false;
         }
+        return true;
     }
     std::shared_ptr<LiveJob> job_;
     Converter::FramePlan plan_;
