@@ -34,6 +34,20 @@ struct StemEngine {
     std::size_t maxDiagnosticBytes = 65536;
 };
 
+enum class VocalActivity : std::uint8_t { Unknown, Inactive, Active };
+
+struct VocalActivityMap {
+    // Source PCM at 48 kHz. An incomplete trailing interval is unclassified.
+    static constexpr std::uint64_t windowFrames = 9600;
+    std::vector<VocalActivity> windows;
+
+    [[nodiscard]] VocalActivity at(std::uint64_t sourceFrame) const noexcept
+    {
+        const auto index = sourceFrame / windowFrames;
+        return index < windows.size() ? windows[index] : VocalActivity::Unknown;
+    }
+};
+
 struct PreparedStemTrack {
     // Fixed separator roles: drums, bass, other, vocals. Every owner has the
     // same actual 48000 Hz frame count, including converter rounding.
@@ -42,6 +56,7 @@ struct PreparedStemTrack {
     QString artifactKey;
     bool cacheHit = false;
     TrackPresentation presentation{};
+    VocalActivityMap vocalActivity{};
 };
 
 // A caller-approved source-relative range, never inferred from a CUE marker.

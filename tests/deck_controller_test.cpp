@@ -586,6 +586,7 @@ private slots:
             QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
             auto handle = controller.liveStemObservations(0);
             QVERIFY2(handle, qPrintable(controller.error()));
+            QCOMPARE(controller.vocalActivityAt(0, 0), QString("Unknown"));
             QVERIFY(handle == controller.liveStemObservations(0) && !controller.liveStemObservations(1));
             const auto liveDecks = controller.decks();
             const auto submitted = controller.submittedCommands();
@@ -962,13 +963,14 @@ private slots:
         qputenv("PIPEWIRE_REMOTE", "conflux-controller-test-unavailable");
         qputenv("XDG_CACHE_HOME", directory.path().toUtf8());
         const auto source = directory.filePath("stem-and-normal.wav");
-        QVERIFY(writeWave(source, 2, 48000, 4800));
+        QVERIFY(writeWave(source, 2, 48000, 14400));
         const auto engineRoot = directory.filePath("engine");
         QVERIFY(QDir().mkpath(engineRoot));
         conflux::DeckController::PreparationOptions options;
         options.stemEngine = conflux::test::makeStemEngineFixture(engineRoot);
         conflux::DeckController controller(options);
         QVERIFY(controller.stemsAvailable());
+        QCOMPARE(controller.vocalActivityAt(0, 0), QString("Unknown"));
         controller.loadStemDeck(0, QUrl::fromLocalFile(source));
         QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
         auto deck = controller.decks()[0].toMap();
@@ -979,13 +981,17 @@ private slots:
         QCOMPARE(deck["stemGains"].toList(), QVariantList({1.F, 1.F, 1.F, 1.F}));
         const auto bankFrames = controller.audioState().sourceFrames[0];
         QVERIFY(bankFrames > 0);
+        QCOMPARE(controller.vocalActivityAt(0, 9599), QString("Active"));
+        QCOMPARE(controller.vocalActivityAt(0, 9600), QString("Unknown"));
+        QCOMPARE(controller.vocalActivityAt(1, 0), QString("Unknown"));
+        QCOMPARE(controller.vocalActivityAt(-1, 0), QString("Unknown"));
         QCOMPARE(controller.retainedPcmBytes(), bankFrames * 8 * 4);
         QVERIFY(!controller.outputReady());
         bool retainedAtCutoff = false;
         connect(&controller, &conflux::DeckController::stateChanged, &controller, [&] {
             if (controller.preparation()["status"].toString() == "Installing" &&
                 !controller.preparation()["stems"].toBool())
-                retainedAtCutoff |= controller.retainedPcmBytes() == bankFrames * 8 * 4 + 4800 * 8;
+                retainedAtCutoff |= controller.retainedPcmBytes() == bankFrames * 8 * 4 + 14400 * 8;
         }, Qt::DirectConnection);
         controller.loadDeck(0, QUrl::fromLocalFile(source));
         QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
@@ -993,6 +999,7 @@ private slots:
         deck = controller.decks()[0].toMap();
         QVERIFY(deck["loaded"].toBool());
         QVERIFY(!deck["stemBank"].toBool());
+        QCOMPARE(controller.vocalActivityAt(0, 0), QString("Unknown"));
         QVERIFY(deck["overviewStem"].toString().isEmpty());
         QCOMPARE(controller.retainedPcmBytes(), controller.audioState().sourceFrames[0] * 8);
         controller.loadStemDeck(0, QUrl::fromLocalFile(source));

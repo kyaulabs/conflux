@@ -118,6 +118,8 @@ public:
     Q_INVOKABLE void loopOut(int deck);
     Q_INVOKABLE void loopToggle(int deck);
     Q_INVOKABLE void setTempoPercent(int deck, double percent);
+    // Source-relative estimate from the installed, verified prepared vocal leaf.
+    Q_INVOKABLE QString vocalActivityAt(int deck, qulonglong sourceFrame) const;
     Q_INVOKABLE void setTempoBpm(int deck, double bpm);
     Q_INVOKABLE void setBpmOverride(int deck, double bpm);
     Q_INVOKABLE void clearBpmOverride(int deck);
@@ -159,7 +161,7 @@ private:
     // owns the charged job through callback handoff and worker retirement.
     struct PreparedPcm {
         explicit PreparedPcm(audio::PreparedAudio audio);
-        explicit PreparedPcm(std::array<audio::PreparedAudio, 4> stems);
+        PreparedPcm(std::array<audio::PreparedAudio, 4> stems, library::VocalActivityMap vocals);
         PreparedPcm(std::uint64_t frames, std::vector<float> sourcePeaks, QString sourceSha256,
                     std::shared_ptr<library::LiveStemObservations> observations,
                     QString sourcePath, QString artifactKey,
@@ -172,6 +174,7 @@ private:
         { return live() ? std::span<const float>(livePeaks) : audioLeaves.front().peaks(); }
         std::unique_ptr<audio::PreparedPlayback> makePlayback() const;
         std::vector<audio::PreparedAudio> audioLeaves;
+        library::VocalActivityMap vocalActivity;
         std::uint64_t liveFrames = 0;
         std::vector<float> livePeaks;
         QString liveSourceSha256;

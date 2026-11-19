@@ -811,6 +811,54 @@ private slots:
         });
     }
 
+    void vocalActivityUsesVerifiedSourceIntervals()
+    {
+        checked([&] {
+            using conflux::library::VocalActivity;
+            QTemporaryDir directory;
+            QVERIFY(directory.isValid());
+            const auto source = directory.filePath("vocal-activity.wav"), root = directory.filePath("cache");
+            constexpr std::array levels{.0005F, .0005F, .3F, .0005F, .0135F, .0135F,
+                .0135F, .2F, .2F, .2F, .0005F};
+            std::vector<float> stereo;
+            constexpr int inputWindowFrames = 8820; // A fifth of a second in the 44.1 kHz fixture.
+            for (const auto level : levels) {
+                for (int frame = 0; frame < inputWindowFrames; ++frame) {
+                    stereo.push_back(level);
+                    stereo.push_back(-level);
+                }
+            }
+            stereo.insert(stereo.end(), 2000, .25F); // Loud but only a partial final interval.
+            wave(source, stereo, 44100);
+
+            const auto engine = stemEngine(directory.path());
+            const auto bank = PreparedTrackStore(root).prepareStemBank(source, engine);
+            QVERIFY(!bank.cacheHit);
+            auto cached = PreparedTrackStore(root).findPreparedStemBank(source, engine, {}, bank.artifactKey);
+            QVERIFY(cached.has_value() && cached->cacheHit);
+            constexpr std::array expected{VocalActivity::Inactive, VocalActivity::Inactive,
+                VocalActivity::Inactive, VocalActivity::Unknown, VocalActivity::Unknown,
+                VocalActivity::Unknown, VocalActivity::Unknown, VocalActivity::Active,
+                VocalActivity::Active, VocalActivity::Active, VocalActivity::Inactive};
+            for (const auto* candidate : {&bank, static_cast<const PreparedStemTrack*>(&*cached)}) {
+                QVERIFY(candidate->stems[3].frames() > 9600 * expected.size());
+                for (std::size_t i = 0; i < expected.size(); ++i) {
+                    QCOMPARE(candidate->vocalActivity.at(i * 9600), expected[i]);
+                    QCOMPARE(candidate->vocalActivity.at((i + 1) * 9600 - 1), expected[i]);
+                }
+                QCOMPARE(candidate->vocalActivity.at(9600 * expected.size()), VocalActivity::Unknown);
+                QCOMPARE(candidate->vocalActivity.at(candidate->stems[3].frames()), VocalActivity::Unknown);
+            }
+            const auto leaf = bankPath(root, bank, "vocals.f32");
+            auto contents = readBytes(leaf);
+            contents[0] = char(contents[0] ^ 1);
+            writeBytes(leaf, contents);
+            QVERIFY(rejects<std::invalid_argument>([&] {
+                (void)PreparedTrackStore(root).findPreparedStemBank(source, engine, {}, bank.artifactKey);
+            }, "digest"));
+        });
+    }
+
     void corruptStemBankRegeneratesAsOneUnit_data()
     {
         QTest::addColumn<bool>("geometry");

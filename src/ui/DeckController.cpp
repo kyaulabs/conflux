@@ -111,7 +111,8 @@ DeckController::PreparedPcm::PreparedPcm(audio::PreparedAudio audio)
     audioLeaves.push_back(std::move(audio));
 }
 
-DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> stems)
+DeckController::PreparedPcm::PreparedPcm(std::array<audio::PreparedAudio, 4> stems, library::VocalActivityMap vocals)
+    : vocalActivity(std::move(vocals))
 {
     const auto commonFrames = stems.front().frames();
     if (!commonFrames || commonFrames > audio::PreparedAudio::defaultMaxPreparedBytes / 8)
@@ -526,6 +527,15 @@ std::shared_ptr<library::LiveStemObservations> DeckController::liveStemObservati
     if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)])
         return {};
     return clips_[std::size_t(deck)]->observations;
+}
+
+QString DeckController::vocalActivityAt(int deck, qulonglong sourceFrame) const
+{
+    if (deck < 0 || std::size_t(deck) >= clips_.size() || !clips_[std::size_t(deck)]) return "Unknown";
+    const auto state = clips_[std::size_t(deck)]->vocalActivity.at(sourceFrame);
+    if (state == library::VocalActivity::Active) return "Active";
+    if (state == library::VocalActivity::Inactive) return "Inactive";
+    return "Unknown";
 }
 
 std::uint64_t DeckController::retainedPcmBytes() const
@@ -1029,7 +1039,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     sourceId = bank->sourceSha256;
                     prepared->cacheHit = bank->cacheHit;
                     prepared->presentation = std::move(bank->presentation);
-                    auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems));
+                    auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems), std::move(bank->vocalActivity));
                     pcm->sourcePath = path; pcm->artifactKey = bank->artifactKey;
                     prepared->audio = std::move(pcm);
                 } else {
@@ -1501,7 +1511,7 @@ void DeckController::considerContinuation()
                         return leaf.frames() != original->frames();
                     }) || frame >= original->frames())
                     throw std::runtime_error("Prepared bank identity or exact source geometry differs from the live source.");
-                auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems));
+                auto pcm = std::make_shared<PreparedPcm>(std::move(bank->stems), std::move(bank->vocalActivity));
                 pcm->sourcePath = original->sourcePath; pcm->artifactKey = original->artifactKey;
                 pcm->liveSourceSha256 = original->liveSourceSha256; pcm->observations = original->observations;
                 auto prepared = std::make_shared<PreparedLoad>();
