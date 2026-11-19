@@ -20,6 +20,7 @@ Item {
     readonly property var presentation: showingPreparation ? (deck.pendingPresentation || ({})) : deck
     readonly property real loadProgress: showingPreparation ? Math.max(0, Math.min(1, Number(deck.loadProgress) || 0)) : 1
     readonly property string sourceId: String(deck.sourceId || "")
+    readonly property string sourceGeneration: String(deck.sourceGeneration || "0")
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
     readonly property var hotCues: deck.hotCues || []
@@ -35,7 +36,6 @@ Item {
     onResidentIdentityChanged: if (residentHoldDialog) residentHoldDialog.close()
     readonly property string recoveryDetail: String(residentHold.detail || "")
         + (residentHold.errorCode ? " Live stems reported an error." : "")
-    readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property var localTiming: deck.localTiming || ({})
     readonly property string localKeyText: {
@@ -111,7 +111,7 @@ Item {
     }
     onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
     onSourceIdChanged: { hotCueDeleteMode = false; if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch(); if (residentHoldDialog) residentHoldDialog.close() }
-    onScratchSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
+    onSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
     onCanScratchChanged: { if (!canScratch && jogInput) jogInput.finishScratch() }
     onLoadProgressChanged: { if (waveform) waveform.requestPaint() }
     onShowingPreparationChanged: { if (waveform) waveform.requestPaint() }
@@ -600,6 +600,7 @@ Item {
                 Accessible.ignored: true
                 property bool gestureActive: false
                 property string gestureSource: ""
+                property string gestureGeneration: ""
                 onGestureActiveChanged: { if (!gestureActive) seek.refreshAccepted() }
                 function valueAtPointer(pointerX) {
                     const span = Math.max(1, seek.availableWidth - seek.handle.width)
@@ -612,6 +613,7 @@ Item {
                 onPressed: mouse => {
                     seek.forceActiveFocus(Qt.MouseFocusReason)
                     gestureSource = surface.sourceId
+                    gestureGeneration = surface.sourceGeneration
                     gestureActive = true
                     seek.value = valueAtPointer(mouse.x)
                 }
@@ -621,7 +623,8 @@ Item {
                 }
                 onReleased: mouse => {
                     const seconds = valueAtPointer(mouse.x)
-                    const commit = gestureActive && surface.canControl && gestureSource === surface.sourceId
+                    const commit = gestureActive && surface.canControl
+                        && gestureSource === surface.sourceId && gestureGeneration === surface.sourceGeneration
                     gestureActive = false
                     if (commit)
                         surface.controller.seekSeconds(surface.deckIndex, seconds)
@@ -632,6 +635,7 @@ Item {
                 Connections {
                     target: surface
                     function onSourceIdChanged() { seekInput.gestureActive = false }
+                    function onSourceGenerationChanged() { seekInput.gestureActive = false }
                 }
             }
             background: Rectangle {
