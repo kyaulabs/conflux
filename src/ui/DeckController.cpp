@@ -311,6 +311,10 @@ QVariantList DeckController::decks() const
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         const bool loading = preparationActive() && !pendingImport_ && int(deck) == pendingDeck_;
         const auto& bpm = bpmTiming_[deck].estimate();
+        const auto position = clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.;
+        const auto& hold = state_.residentHold[deck];
+        const auto recoveryRange = clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
+            std::optional<audio::AudioResidentHoldRange>{};
         result.append(QVariantMap{
             {"name", names_[deck]}, {"loaded", bool(clips_[deck])},
             {"sourceId", sourceIds_[deck]},
@@ -321,11 +325,7 @@ QVariantList DeckController::decks() const
                 {"reference", bpmOverrides_[deck].value_or(bpm.bpm.value_or(0.))},
                 {"manual", bpmOverrides_[deck].has_value()},
                 {"status", bpm.status}, {"error", bpm.error}}},
-            {"localTiming", ui::localTimingForDisplay(
-                bpmTiming_[deck], clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.,
-                state_.residentHold[deck],
-                clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
-                    std::optional<audio::AudioResidentHoldRange>{})},
+            {"localTiming", ui::localTimingForDisplay(bpmTiming_[deck], position, hold, recoveryRange)},
             {"harmony", [&]() -> QVariantMap {
                 const auto& timing = harmonyTiming_[deck];
                 const auto& estimate = timing.estimate();
@@ -333,22 +333,11 @@ QVariantList DeckController::decks() const
                     {"error", estimate.error}, {"confidence", "Unknown"}, {"sourceFrame", qulonglong(0)},
                     {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(0)}, {"candidates", QVariantList{}},
                     {"clock", "Original source48k"}};
-                if (!clips_[deck] || replacing_[deck]) return value;
-                const auto position = state_.sourcePosition[deck];
-                if (!std::isfinite(position) || position < 0 || position > double(audio::PreparedAudio::defaultMaxPreparedBytes / 8U)) return value;
-                auto frame = std::uint64_t(position);
-                const auto& hold = state_.residentHold[deck];
-                if (hold.active) {
-                    const auto range = clips_[deck]->live() ? clips_[deck]->residentHold : std::optional<audio::AudioResidentHoldRange>{};
-                    if (!range || !range->id || !hold.supported || !hold.ready || hold.rangeId != range->id ||
-                        hold.provenance != range->provenance || hold.inFrame != range->inFrame || hold.outFrame != range->outFrame ||
-                        position != double(hold.linearFrame) || hold.audibleFrame < hold.inFrame || hold.audibleFrame >= hold.outFrame)
-                        return value;
-                    frame = hold.audibleFrame;
-                }
-                if (const auto* window = timing.at(frame)) {
+                const auto frame = ui::analysisSourceFrame(position, hold, recoveryRange);
+                if (!frame) return value;
+                if (const auto* window = timing.at(*frame)) {
                     value["status"] = window->status; value["reason"] = window->reason;
-                    value["sourceFrame"] = QVariant::fromValue<qulonglong>(frame);
+                    value["sourceFrame"] = QVariant::fromValue<qulonglong>(*frame);
                     value["firstFrame"] = QVariant::fromValue<qulonglong>(window->firstFrame);
                     value["endFrame"] = QVariant::fromValue<qulonglong>(window->endFrame);
                     QVariantList candidates;

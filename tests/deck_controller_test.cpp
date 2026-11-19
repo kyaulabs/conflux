@@ -2088,7 +2088,13 @@ private slots:
         hold.linearFrame = estimate.analysisFrames;
         QCOMPARE(localTimingForDisplay(timing, double(estimate.analysisFrames), hold, range)["bpm"].toDouble(), 180.);
         hold.linearFrame = 128000;
-        QCOMPARE(localTimingForDisplay(timing, 128000.5, hold, range)["status"].toString(), QString("Unknown"));
+        const auto processedResident = localTimingForDisplay(timing, 128000.5, hold, range);
+        QCOMPARE(processedResident["status"].toString(), QString("Estimated"));
+        QCOMPARE(processedResident["sourceFrame"].toULongLong(), qulonglong(70800));
+        QCOMPARE(processedResident["bpm"].toDouble(), 180.);
+        // A fractional nominal position is valid only in the reported parked frame.
+        QCOMPARE(localTimingForDisplay(timing, 127999.75, hold, range)["status"].toString(), QString("Unknown"));
+        QCOMPARE(localTimingForDisplay(timing, 128001.25, hold, range)["status"].toString(), QString("Unknown"));
         hold.audibleFrame = range.outFrame;
         QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["status"].toString(), QString("Unknown"));
         hold.audibleFrame = range.inFrame;
