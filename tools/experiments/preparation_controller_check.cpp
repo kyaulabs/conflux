@@ -2711,6 +2711,12 @@ void continuationScenario(const QString& output, const QString& privateRoot,
         const auto sessions = controller.completedSessions();
         const auto priorStarved = controller.completedStarvedFrames(), priorFailures = controller.completedReadFailures();
         const auto retainedBefore = controller.retainedPcmBytes();
+        // Create the fixture lock before playback. Qt may sync the lock file
+        // to disk, which would block snapshot polling during the check.
+        if (kind != ContinuationCase::Miss) {
+            insist(gate.tryLock(0), "Owned prepared-cache lock gates only the automatic lookup after setup");
+            locked = true;
+        }
         std::uint64_t retiredStarved = 0, retiredFailures = 0;
         controller.setPlaying(0, true); controller.setPlaying(1, true);
         await(evidence, [&] { const auto s = controller.audioState(); return s.playing[0] && s.playing[1] &&
@@ -2726,10 +2732,6 @@ void continuationScenario(const QString& output, const QString& privateRoot,
             await(evidence, [&] { return controller.recording()["status"].toString() == "Recording" &&
                 controller.recording()["acceptedFrames"].toULongLong() >= holdFrames; },
                 "Continuation master recorder did not attach before failure");
-        }
-        if (kind != ContinuationCase::Miss) {
-            insist(gate.tryLock(0), "Owned prepared-cache lock gates only the automatic lookup after setup");
-            locked = true;
         }
         insist(services.alive(0) && services.count(0, "fixture", "complete") == 0,
             "Induced failure targets the exact incomplete active fixture service");
