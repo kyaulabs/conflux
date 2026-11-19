@@ -26,6 +26,7 @@ import sys
 import types
 
 RATE, CHANNELS, FPS = 48000, 2, 50
+MODEL_RATE, MODEL_FFT_SIZE = 22050, 1024
 MAX_FRAMES = 33554432
 MAX_EVENTS = 34953
 MAX_OUTPUT_BYTES = 4 * 1024**2
@@ -86,12 +87,12 @@ def read_pcm(stream, frames):
 
 def source_mask(frames, resampled_lengths, logit_frames):
     validate_frames(frames)
-    numerator = frames * 22050
+    numerator = frames * MODEL_RATE
     permitted = {numerator // RATE, (numerator + RATE - 1) // RATE}
     if (type(resampled_lengths) not in (list, tuple) or len(resampled_lengths) != 2 or
             any(type(n) is not int or n <= 0 or n not in permitted for n in resampled_lengths) or
             resampled_lengths[0] != resampled_lengths[1] or type(logit_frames) is not int or
-            logit_frames != resampled_lengths[0] // 441 + 1):
+            logit_frames != resampled_lengths[0] // (MODEL_RATE // FPS) + 1):
         raise ValueError("unexpected resampled/centered frontend geometry")
     # Contiguous source prefix BEFORE peak pooling; exclude a centered EOF bin
     # without shifting eligible source timestamps or suppressing its neighbour.
@@ -232,6 +233,11 @@ def run(source_dir, model_path, frames, stream):
             raise ValueError("pinned dependency version differs: " + name)
     pcm = read_pcm(stream, frames)
     pcm_sha256 = hashlib.sha256(pcm).hexdigest()
+    # Reflection padding needs more than half an FFT of resampled audio.
+    # The nearest-frame cutoff is half an FFT plus half a model frame. It
+    # falls between two source-frame counts at these pinned sample rates.
+    if 2 * frames * MODEL_RATE < (MODEL_FFT_SIZE + 1) * RATE:
+        return encode_result(frames, pcm_sha256, None, [], [])
     import numpy as np
     import soxr
     import torch
@@ -270,7 +276,7 @@ def run(source_dir, model_path, frames, stream):
     stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
     linear, lengths = [], []
     for channel in range(CHANNELS):
-        signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=22050)
+        signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=MODEL_RATE)
         lengths.append(len(signal))
         linear.append(frontend.spect.spect_class(torch.tensor(signal, dtype=torch.float32, device="cpu")))
     if linear[0].shape != linear[1].shape:
