@@ -654,6 +654,53 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(remaining["samples"], expected[:, 2 * HOP:])
         self.assertEqual(fake.calls, 3)
 
+    def test_repeat_seek_keeps_opening_preroll_with_cached_forward_windows(self):
+        raw = self.root / "opening-preroll.f32"
+        audio = fixture(self.root / "opening-preroll.wav", 4 * HOP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+
+        # Starting after the overlap fills all three recent slots without the opening.
+        original = worker.load_f32(raw, start_frame=HOP + OVERLAP)
+        forward = []
+        for call in range(1, 4):
+            self.assertTrue(fake.wait_call(call))
+            fake.release()
+            forward.append(self.event(worker, "chunk", original))
+        self.assertTrue(fake.wait_call(4))
+
+        first = worker.seek(HOP + 17)
+        fake.release()  # Finish the superseded suffix request.
+        opening = self.event(worker, "started", first)
+        self.assertEqual(opening["window_start_frame"], 0)
+        self.assertTrue(opening["preroll"])
+        self.assertTrue(fake.wait_call(5))
+        fake.release()
+        first_pass = [self.event(worker, "chunk", first) for _ in forward]
+        self.assertEqual([chunk["request_id"] for chunk in first_pass],
+                         [chunk["request_id"] for chunk in forward])
+        np.testing.assert_array_equal(np.concatenate([c["samples"] for c in first_pass], axis=1),
+                                      expected[:, HOP + 17:4 * HOP])
+        self.assertTrue(fake.wait_call(6))
+
+        repeat = worker.seek(HOP + 37)
+        replay = [self.event(worker, "chunk", repeat, timeout=1) for _ in forward]
+        self.assertEqual([chunk["request_id"] for chunk in replay],
+                         [chunk["request_id"] for chunk in forward])
+        self.assertTrue(all(chunk["inference_reused"] for chunk in replay))
+        np.testing.assert_array_equal(np.concatenate([c["samples"] for c in replay], axis=1),
+                                      expected[:, HOP + 37:4 * HOP])
+        self.assertEqual(fake.calls, 6)
+
+        fake.release()
+        tail, = self.collect(worker, repeat)
+        self.assertEqual(tail["request_id"], 6)
+        np.testing.assert_array_equal(tail["samples"], expected[:, 4 * HOP:])
+        self.assertEqual(fake.calls, 6)
+
     def test_seek_uses_active_target_window_with_cached_preroll(self):
         raw = self.root / "seek-active-target.f32"
         self.audio.astype("<f4").tofile(raw)

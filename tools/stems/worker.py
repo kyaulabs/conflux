@@ -885,9 +885,9 @@ class StemWorker:
                         if self._closed or self._command != command:
                             raise _Superseded
                         target = self._weighted_window_locked(start + HOP)
-                        # Keep a cold seek's overlap window. If the target is
-                        # cached already, preserve its cached suffix instead.
-                        if target is None or target[0] is not source:
+                        # The opening slot cannot evict cached forward windows.
+                        # For other preroll, preserve the existing cached suffix.
+                        if start == 0 or target is None or target[0] is not source:
                             self._remember_window_locked(start, source, request_id, weighted)
                 continue
             hop /= denominator[None, :, None]
