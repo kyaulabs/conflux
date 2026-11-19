@@ -642,10 +642,30 @@ private slots:
                 "Immutable setup conflates identities or exact frame geometry");
             require(count(fixture, "command", "load") == 0 && track.playback->prime(0, std::chrono::seconds(10)),
                     "Factory loaded early or first real prime failed");
+            // The close receipt is required here. Ordinary stop can reap the
+            // service before it replies, so render to EOF and drain first.
+            RenderCore core(track.playback->sourceRef(), peer());
+            std::array<float, 1024> output{};
+            require(await([&] {
+                return core.render(output) && core.sourceFrame(0) == track.outputFrames;
+            }), "Timing fixture did not render through EOF");
+            std::vector<Observation> rows;
+            drainObservations(handle, rows);
+            const auto acceptedCommand = uniqueObservation(rows, ObservationKind::CommandAccepted);
+            const auto deadline = Clock::now() + std::chrono::seconds(5);
+            require(handle->requestDiagnosticDrain(acceptedCommand.providerEpoch, acceptedCommand.workerGeneration, deadline),
+                "Cannot request the timing fixture's close receipt");
+            require(await([&] {
+                const auto state = handle->diagnosticDrainStatus().state;
+                return state == Observations::DiagnosticDrainState::ReadyForStop ||
+                    state == Observations::DiagnosticDrainState::Failed;
+            }, std::chrono::seconds(5)) &&
+                handle->diagnosticDrainStatus().state == Observations::DiagnosticDrainState::ReadyForStop,
+                "Timing fixture did not complete the diagnostic close");
             stop(track); assertGone(fixture.marker(".started"));
             require(rootNames(root).isEmpty(), "Retained observation handle kept job/process ownership alive");
-            require(handle->failureDetail().empty(), "Normal playback/cancellation published a causal failure");
-            std::vector<Observation> rows; drainObservations(handle, rows);
+            require(handle->failureDetail().empty(), "Normal playback/shutdown published a causal failure");
+            drainObservations(handle, rows);
             const auto counters = handle->counters();
             require(counters.producerFinished && !counters.droppedRecords && !counters.invalidClockReads &&
                 counters.attemptedRecords == rows.size(), "Final joined observation accounting is incomplete");
