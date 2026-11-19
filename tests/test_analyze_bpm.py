@@ -52,6 +52,23 @@ class AnalyzeBpmTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             bpm.read_pcm(ShortReads(raw[:-1]), 3)
 
+    def test_valid_input_too_short_for_centered_mel_is_unknown(self):
+        with (patch.object(bpm, "verified_sources", return_value={}),
+              patch("importlib.metadata.version", side_effect=bpm.DEPENDENCIES.__getitem__),
+              patch.object(bpm, "load_upstream", side_effect=AssertionError("must not infer"))):
+            for frames in (1, 1115):
+                with self.subTest(frames=frames):
+                    raw = struct.pack("<ff", .25, -.5) * frames
+                    output = bpm.run("/unused", "/unused", frames, io.BytesIO(raw))
+                    [header] = [json.loads(line) for line in output.splitlines()]
+                    self.assertEqual(header["frames"], frames)
+                    self.assertEqual(header["pcm_sha256"], hashlib.sha256(raw).hexdigest())
+                    self.assertIsNone(header["bpm"])
+                    self.assertEqual(header["beat_count"], 0)
+            for invalid in (b"", struct.pack("<ff", float("nan"), 0)):
+                with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                    bpm.run("/unused", "/unused", 1, io.BytesIO(invalid))
+
     def test_unknown_and_median_of_adjacent_bpms(self):
         self.assertEqual(bpm.summarize_beats([], 144000), (None, 0))
         self.assertEqual(bpm.summarize_beats([.5], 144000), (None, 1))
