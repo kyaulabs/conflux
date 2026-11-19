@@ -807,9 +807,14 @@ private:
         } else if (kind == "started") {
             keys(value, {"v", "event", "generation", "source_id", "model_id", "request_id", "window_start_frame", "preroll", "timestamp"});
             current(value); const auto window = integer(value.value("window_start_frame"));
-            require(sourceSeen_ && digest(value.value("model_id")) == modelDigest() && integer(value.value("request_id")) > 0 &&
+            const auto request = integer(value.value("request_id"));
+            require(sourceSeen_ && digest(value.value("model_id")) == modelDigest() && request > 0 &&
                 window < job_->inputFrames && window % hop == 0, "Invalid started telemetry context");
-            (void)boolean(value.value("preroll")); (void)finite(value.value("timestamp"));
+            auto record = observation(Kind::WorkerRequestStarted);
+            record.requestId = request; record.inputFirst44100 = window;
+            record.workerPreroll = boolean(value.value("preroll"));
+            record.workerStartedSeconds = finite(value.value("timestamp"));
+            observe(record);
         } else if (kind == "chunk") chunk(value);
         else if (kind == "complete") {
             keys(value, {"v", "event", "generation", "source_id", "frame_start", "telemetry_dropped", "completed_at"});

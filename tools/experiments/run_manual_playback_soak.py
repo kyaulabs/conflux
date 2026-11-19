@@ -444,8 +444,9 @@ def summarize_live_observations(path, native):
             and counters["retained"] == counters["attempted"] == len(records)):
         raise RuntimeError("Observation evidence is incomplete")
     names = ("ServiceReady", "RuntimeReady", "RequestObserved", "CommandQueued", "CommandAccepted", "ChunkValidated",
-             "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed")
+             "PacketAccepted", "PacketDiscarded", "RawComplete", "ConverterComplete", "ServiceClosed", "WorkerRequestStarted")
     counts = dict.fromkeys(names, 0)
+    request_starts = set()
     hops, inferred_hops, ready_to_pre_emit, validation, publication, full_waits = [], [], [], [], [], []
     phase_names = LIVE_PHASE_NAMES
     phases = {key: [] for key in phase_names}
@@ -485,6 +486,16 @@ def summarize_live_observations(path, native):
             epochs[row["epoch"]].update(generation=row["generation"], validated_end=row["input_first"], validated_contiguous=True, raw_service_endpoint=None, command_ns=queued["observed_ns"],
                                         first_validated_ns=None)
             accepted_at[row["generation"]] = row["observed_ns"]
+        elif kind == "WorkerRequestStarted":
+            request = row["request_id"]
+            started = row.get("worker_started_seconds")
+            if (row["epoch"] != last_accepted_epoch or row["generation"] != last_generation
+                    or not last_generation or type(request) is not int or request <= 0 or request in request_starts
+                    or not 0 <= row["input_first"] < total_input or row["input_first"] % 257985
+                    or type(row.get("worker_preroll")) is not bool or type(started) not in (int, float)
+                    or not math.isfinite(started) or started < 0):
+                raise RuntimeError("Invalid worker request start observation")
+            request_starts.add(request)
         elif kind == "ChunkValidated":
             epoch = epochs[row["epoch"]]
             end = row["input_first"] + row["input_frames"]

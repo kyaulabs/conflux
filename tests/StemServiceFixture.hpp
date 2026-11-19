@@ -139,6 +139,9 @@ def publish():
         'frames': frames, 'final': cursor + frames == n, 'bytes': value['bytes'], 'sha256': value['sha256'],
         'request_id': sequence, 'worker_ready_at': time.monotonic(), 'published_at': time.monotonic()}
     if MODE in ['timing', 'timing-no-hop', 'timing-partial', 'timing-zero']:
+        emit({'event': 'started', 'generation': generation, 'source_id': source['sha256'],
+              'model_id': model['sha256'], 'request_id': sequence, 'window_start_frame': cursor - cursor % HOP,
+              'preroll': False, 'timestamp': 1000.125})
         event['worker_ready_at'] = 1000.25; event['published_at'] = 1000.375
         if MODE == 'timing': event['hop_service_ms'] = 125.0
         names = ['source_read_ms', 'request_ms', 'overlap_ms', 'native_elapsed_ms', 'native_inference_wall_ms',

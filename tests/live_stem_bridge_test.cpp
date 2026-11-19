@@ -675,6 +675,14 @@ private slots:
                 chunk.servicePublishedSeconds == 1000.375 && chunk.inferenceReused == (mode == "timing-cached") &&
                 chunk.hopServicePresent == (mode == "timing" || mode == "timing-cached") &&
                 (!chunk.hopServicePresent || chunk.hopServiceMs == 125.0), "Raw timing changed wire units/presence or lease geometry");
+            if (mode != "timing-cached") {
+                const auto& started = uniqueObservation(rows, ObservationKind::WorkerRequestStarted);
+                require(started.requestId == chunk.requestId && started.workerGeneration == chunk.workerGeneration &&
+                    started.providerEpoch == chunk.providerEpoch && started.inputFirst44100 == chunk.inputFirst44100 &&
+                    accepted.observedNs <= started.observedNs && started.observedNs <= chunk.observedNs &&
+                    started.workerStartedSeconds == 1000.125 && !started.workerPreroll,
+                    "Worker request lost its validated identity, chronology or Python clock units");
+            }
             const std::array phases{chunk.sourceReadMs, chunk.requestMs, chunk.overlapMs, chunk.nativeElapsedMs,
                 chunk.nativeInferenceWallMs, chunk.nativeInferenceCpuMs, chunk.nativeFrontendMs, chunk.nativeGraphMs,
                 chunk.nativeGraphUploadMs, chunk.nativeGraphComputeMs, chunk.nativeGraphReadbackMs,

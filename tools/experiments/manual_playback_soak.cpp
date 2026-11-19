@@ -243,6 +243,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             const auto phase = [&](const char* key, const std::optional<double>& milliseconds) {
                 if (milliseconds) value.insert(QLatin1String(key), *milliseconds);
             };
+            if (row.kind == Kind::WorkerRequestStarted) {
+                value.insert("worker_started_seconds", row.workerStartedSeconds);
+                value.insert("worker_preroll", row.workerPreroll);
+            }
             if (row.inferenceReused) value.insert("inference_reused", true);
             if (row.nativeShutdown) {
                 const auto& shutdown = *row.nativeShutdown;
