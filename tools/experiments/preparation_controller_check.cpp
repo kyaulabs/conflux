@@ -44,6 +44,7 @@
 #include <iostream>
 #include <limits>
 #include <mutex>
+#include <optional>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
@@ -158,6 +159,8 @@ public:
     }
     std::uint64_t wrong() const { return wrong_.load(); }
     std::uint64_t zeros() const { return zeros_.load(); }
+    std::uint64_t clockBreaks(std::size_t channel) const { return clockBreaks_[channel].load(); }
+    std::uint64_t missingGraphFrames(std::size_t channel) const { return missingGraphFrames_[channel].load(); }
 private:
     void stop() noexcept
     {
@@ -172,8 +175,12 @@ private:
         auto& self = *static_cast<Sink*>(data);
         if (!position || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
+        const auto graphFrame = position->clock.position;
         const bool armed = self.armed_.load(std::memory_order_acquire);
-        if (armed && !self.wasArmed_) self.remaining_.fill(self.validationFrames_);
+        if (armed && !self.wasArmed_) {
+            self.remaining_.fill(self.validationFrames_);
+            self.nextValidatedFrame_.fill(std::nullopt);
+        }
         self.wasArmed_ = armed;
         std::array<std::uint64_t, 2> received{}, processed{};
         for (std::size_t channel = 0; channel < self.ports_.size(); ++channel) {
@@ -182,6 +189,15 @@ private:
             processed[channel] = frames;
             if (!armed) continue;
             const auto checked = std::min<std::uint64_t>(frames, self.remaining_[channel]);
+            if (checked && self.validationFrames_ != std::numeric_limits<std::uint64_t>::max()) {
+                auto& next = self.nextValidatedFrame_[channel];
+                if (next && graphFrame != *next) {
+                    self.clockBreaks_[channel].fetch_add(1, std::memory_order_relaxed);
+                    if (graphFrame > *next)
+                        self.missingGraphFrames_[channel].fetch_add(graphFrame - *next, std::memory_order_relaxed);
+                }
+                next = graphFrame + checked;
+            }
             std::uint64_t wrong = 0, zeros = 0;
             for (std::size_t frame = 0; frame < checked; ++frame) {
                 zeros += samples[frame] == 0.F;
@@ -217,6 +233,8 @@ private:
     const std::uint64_t validationFrames_;
     // Callback-owned budgets restart only after an acknowledged disarm.
     std::array<std::uint64_t, 2> remaining_{};
+    std::array<std::optional<std::uint64_t>, 2> nextValidatedFrame_{};
+    std::array<std::atomic<std::uint64_t>, 2> clockBreaks_{}, missingGraphFrames_{};
     bool wasArmed_ = false;
     std::array<void*, 2> ports_{};
     std::array<std::atomic<std::uint64_t>, 2> received_{}, processed_{};
@@ -1038,7 +1056,7 @@ void runScratchController(const std::filesystem::path& output, const QString& a,
 
 template<class Check>
 void runEqController(const std::filesystem::path& output, const QString& a, const QString& b,
-                     Check&& require, QJsonObject& observations)
+                     bool functionalOnly, Check&& require, QJsonObject& observations)
 {
     const auto deadline = Clock::now() + std::chrono::seconds(8);
     auto await = [&](auto&& predicate, const char* message) {
@@ -1104,7 +1122,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         return inspectStemRecording(path, prefix ? prefix : frames, frames, multiplier, rebuild);
     };
     const auto detailPath = QString::fromStdString((output / "generated-eq-controller-detail.json").string());
-    QJsonObject detail{{"scope", "Generated constant PCM; queued EQ ACK, source replacement, routing restore, analytic DC master and prefader cue samples. No musical/frequency-response, continuous-delivery, hardware or latency qualification."}};
+    QJsonObject detail{{"scope", "Generated constant PCM; queued EQ ACK, source replacement, routing restore, analytic DC master and bounded prefader cue samples with receiver positions."},
+        {"cue_clock_continuity_gate", !functionalOnly}};
     try {
         settle();
         const auto cutPath = QString::fromStdString((output / "generated-eq-cut.wav").string());
@@ -1129,6 +1148,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         auto checkCue = [&] {
             const auto left = cue.received(0), right = cue.received(1);
             const auto wrongBefore = cue.wrong(), zerosBefore = cue.zeros();
+            const std::array breaksBefore{cue.clockBreaks(0), cue.clockBreaks(1)};
+            const std::array missingBefore{cue.missingGraphFrames(0), cue.missingGraphFrames(1)};
             const auto processedLeft = cue.processed(0), processedRight = cue.processed(1);
             cue.validate(true);
             await([&] { return cue.received(0) >= left + cueProbeFrames && cue.received(1) >= right + cueProbeFrames; }, "Fresh equalized cue samples did not arrive");
@@ -1141,6 +1162,9 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             await([&] { return !cue.observingValidation(); }, "Cue sample probe did not acknowledge disarm");
             require(cue.received(0) == left + cueProbeFrames && cue.received(1) == right + cueProbeFrames,
                     "Delayed observer cannot extend either channel beyond its exact cue probe");
+            const auto breaksLeft = cue.clockBreaks(0) - breaksBefore[0];
+            const auto breaksRight = cue.clockBreaks(1) - breaksBefore[1];
+            const bool continuous = !breaksLeft && !breaksRight;
             QJsonArray checks = detail["cue_checks"].toArray();
             checks.append(QJsonObject{{"received_left_before", qint64(left)}, {"received_right_before", qint64(right)},
                 {"received_left_after", qint64(cue.received(0))}, {"received_right_after", qint64(cue.received(1))},
@@ -1150,10 +1174,15 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
                 {"first_mismatch", cue.firstMismatch()},
                 {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
                 {"validation_frames_per_channel", qint64(cueProbeFrames)},
+                {"clock_continuous", continuous},
+                {"clock_discontinuities", QJsonArray{qint64(breaksLeft), qint64(breaksRight)}},
+                {"missing_graph_frames", QJsonArray{qint64(cue.missingGraphFrames(0) - missingBefore[0]),
+                    qint64(cue.missingGraphFrames(1) - missingBefore[1])}},
                 {"validation_disarmed", !cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
                 {"output_frame", qint64(controller.audioState().outputFrame)}});
             detail["cue_checks"] = checks;
             require(!cue.wrong() && !cue.zeros(), "Prefader cue contains analytic boosted PCM independently of channel/master/crossfader gains");
+            require(functionalOnly || continuous, "Prefader cue probe skipped or repeated receiver graph frames");
         };
         checkCue();
         const auto boostPath = QString::fromStdString((output / "generated-eq-boost.wav").string());
@@ -3861,7 +3890,7 @@ int main(int argc, char** argv)
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         runStemController(output, fixtures.path(), a, b, libraryId, functionalOnly, require, observations);
         runScratchController(output, a, b, require, observations);
-        runEqController(output, a, b, require, observations);
+        runEqController(output, a, b, functionalOnly, require, observations);
         runLiveStemController(output, fixtures.path(), a, functionalOnly, require, observations);
         runLostLiveOwners(fixtures.path(), require, observations);
         passed = true;
