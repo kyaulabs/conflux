@@ -5057,6 +5057,74 @@ private slots:
         verifyCueCall(0, "seek", 0);
     }
 
+    void bothWaveformsTrackIndependentTouchSeeks_data()
+    {
+        QTest::addColumn<bool>("replaceFirstDeck");
+        QTest::newRow("release-separately") << false;
+        QTest::newRow("replace-first-owner") << true;
+    }
+
+    void bothWaveformsTrackIndependentTouchSeeks()
+    {
+        QFETCH(bool, replaceFirstDeck);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 1.0);
+        ui_->endpoint.loadState(1, 2.0);
+        ui_->endpoint.setReady(true);
+        auto* a = ui_->item("deck0Seek");
+        auto* b = ui_->item("deck1Seek");
+        QVERIFY(a && b && a->isEnabled() && b->isEnabled());
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        a->polish();
+        b->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto locate = [](QQuickItem* wave, qreal percent) {
+            return wave->mapToScene(QPointF(wave->width() * percent, wave->height() / 2)).toPoint();
+        };
+        const auto aStart = locate(a, .25), aEnd = locate(a, .80);
+        const auto bStart = locate(b, .75), bEnd = locate(b, .35);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, aStart, ui_->window).commit();
+        QTRY_VERIFY(a->property("pressed").toBool());
+        secondTouchActive_ = true;
+        touch.stationary(0).press(1, bStart, ui_->window).commit();
+        QTRY_VERIFY_WITH_TIMEOUT(b->property("pressed").toBool(), 1500);
+        QVERIFY2(a->property("pressed").toBool(), "Touching deck B cancelled deck A's waveform preview");
+
+        touch.move(0, aEnd, ui_->window).move(1, bEnd, ui_->window).commit();
+        QTRY_VERIFY(a->property("value").toDouble() > 7.0);
+        QTRY_VERIFY(b->property("value").toDouble() > 3.0);
+        QVERIFY(b->property("value").toDouble() < 4.0);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        if (replaceFirstDeck) {
+            ui_->endpoint.snapshotDeck(0, {{"sourceGeneration", qulonglong(2)}, {"positionSeconds", 1.5}});
+            QTRY_VERIFY(!a->property("pressed").toBool());
+            QCOMPARE(a->property("value").toDouble(), 1.5);
+            QVERIFY(b->property("pressed").toBool());
+        }
+        touch.stationary(0).release(1, bEnd, ui_->window).commit();
+        secondTouchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "seek", 1);
+        const auto bSeek = ui_->endpoint.calls[0].toMap()["value"].toDouble();
+        QVERIFY(3.0 < bSeek && bSeek < 4.0);
+        QCOMPARE(a->property("pressed").toBool(), !replaceFirstDeck);
+
+        touch.release(0, aEnd, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), replaceFirstDeck ? 1 : 2);
+        if (!replaceFirstDeck) {
+            verifyCueCall(1, "seek", 0);
+            QVERIFY(ui_->endpoint.calls[1].toMap()["value"].toDouble() > 7.0);
+        }
+        QVERIFY(!a->property("pressed").toBool() && !b->property("pressed").toBool());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void touchSeekCancellationRestoresAcknowledgedPosition_data()
     {
         QTest::addColumn<int>("deck");
@@ -5080,7 +5148,7 @@ private slots:
         ui_->endpoint.setReady(true);
         auto* seek = ui_->item(QString("deck%1Seek").arg(deck).toUtf8().constData());
         auto* peer = ui_->item(QString("deck%1Seek").arg(1 - deck).toUtf8().constData());
-        auto* input = ui_->item(QString("deck%1SeekInput").arg(deck).toUtf8().constData());
+        auto* input = ui_->item(QString("deck%1SeekTouch").arg(deck).toUtf8().constData());
         QVERIFY(seek && peer && input && seek->isEnabled() && peer->isEnabled());
         QSignalSpy polishedFrame(ui_->window, &QQuickWindow::frameSwapped);
         seek->polish();
@@ -5110,11 +5178,9 @@ private slots:
             QFAIL("Platform-cancel rows require Qt6.12 or later");
 #endif
         } else {
-            // MouseArea owns Qt's synthesized single-touch mouse grab. Losing
-            // that actual grab must cancel; the contact is still down.
-            input->ungrabMouse();
+            // Losing the touch grab must cancel a preview while its contact is still down.
+            input->ungrabTouchPoints();
         }
-        QTRY_VERIFY(!input->property("pressed").toBool());
         QTRY_VERIFY(!seek->property("pressed").toBool());
         QCOMPARE(ui_->endpoint.calls.size(), 0);
         QTRY_COMPARE(seek->property("value").toDouble(), 2.5);
