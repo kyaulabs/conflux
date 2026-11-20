@@ -3400,6 +3400,122 @@ private slots:
         }
     }
 
+    void bothDecksHoldCueWithIndependentTouchContacts()
+    {
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 0);
+        ui_->endpoint.loadState(1, 0);
+        ui_->endpoint.setReady(true);
+        auto* a = ui_->item("deck0Cue");
+        auto* b = ui_->item("deck1Cue");
+        QTRY_VERIFY(a->isEnabled() && b->isEnabled());
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        a->polish();
+        b->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto aPoint = ui_->center(a);
+        const auto bPoint = ui_->center(b);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, aPoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", 0);
+
+        secondTouchActive_ = true;
+        touch.stationary(0).press(1, bPoint, ui_->window).commit();
+        QTRY_COMPARE_WITH_TIMEOUT(ui_->endpoint.calls.size(), 2, 1500);
+        verifyCueCall(1, "cuePress", 1);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY(ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        QVERIFY(ui_->endpoint.decks()[1].toMap()["cueHeld"].toBool());
+
+        touch.stationary(0).release(1, bPoint, ui_->window).commit();
+        secondTouchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "cueRelease", 1);
+        QVERIFY(ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        QVERIFY(!ui_->endpoint.decks()[1].toMap()["cueHeld"].toBool());
+        touch.release(0, aPoint, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        verifyCueCall(3, "cueRelease", 0);
+        QVERIFY(!ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+    }
+
+    void touchedCueSurvivesPeerPlayUntilEnded_data()
+    {
+        QTest::addColumn<bool>("replaceSource");
+        QTest::newRow("contact-leaves") << false;
+        QTest::newRow("source-replacing") << true;
+    }
+
+    void touchedCueSurvivesPeerPlayUntilEnded()
+    {
+        QFETCH(bool, replaceSource);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 0);
+        ui_->endpoint.loadState(1, 0);
+        ui_->endpoint.setReady(true);
+        auto* cue = ui_->item("deck0Cue");
+        auto* play = ui_->item("deck1Play");
+        QTRY_VERIFY(cue->isEnabled() && play->isEnabled());
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        cue->polish();
+        play->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto cuePoint = ui_->center(cue);
+        const auto playPoint = ui_->center(play);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, cuePoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", 0);
+
+        secondTouchActive_ = true;
+        touch.stationary(0).press(1, playPoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        verifyCueCall(1, "playing", 1);
+        touch.stationary(0).release(1, playPoint, ui_->window).commit();
+        secondTouchActive_ = false;
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY(ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        QVERIFY(ui_->endpoint.decks()[1].toMap()["playing"].toBool());
+
+        auto releasePoint = cuePoint;
+        if (replaceSource) {
+            ui_->endpoint.setReplacing(0, true);
+        } else {
+            releasePoint -= QPoint(0, qRound(cue->height()));
+            touch.move(0, releasePoint, ui_->window).commit();
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "cueRelease", 0);
+        QVERIFY(!ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        touch.release(0, releasePoint, ui_->window).commit();
+        touchActive_ = false;
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 3);
+        QVERIFY(ui_->endpoint.decks()[1].toMap()["playing"].toBool());
+
+        if (replaceSource)
+            ui_->endpoint.setReplacing(0, false);
+        QTRY_VERIFY(cue->isEnabled());
+        touchActive_ = true;
+        touch.press(0, cuePoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        verifyCueCall(3, "cuePress", 0);
+        touch.release(0, cuePoint, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
+        verifyCueCall(4, "cueRelease", 0);
+    }
+
     void keyboardCueHold_data()
     {
         QTest::addColumn<int>("deck");
