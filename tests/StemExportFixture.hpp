@@ -56,6 +56,10 @@ if MODE == 'thread-environment':
     stage = 'describe' if sys.argv[1:] == ['--describe'] else 'export'
     P.with_suffix('.' + stage + '-env').write_text(json.dumps({name: os.environ.get(name) for name in names}))
 if sys.argv[1:] == ['--describe']:
+    if MODE == 'replace-source-link':
+        new_link = P.with_name('replacement-link.wav')
+        new_link.symlink_to(P.with_name('replacement.wav'))
+        new_link.replace(P.with_name('selected.wav'))
     P.with_suffix('.prefix').write_text(sys.prefix)
     print(json.dumps(describe())); sys.exit(0)
 a = argparse.ArgumentParser()

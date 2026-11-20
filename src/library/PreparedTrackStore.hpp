@@ -12,10 +12,15 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
-#include <vector>
+#include <stdexcept>
 #include <stop_token>
+#include <vector>
 
 namespace conflux::library {
+
+class PreparedSourceMismatch : public std::runtime_error {
+public: using std::runtime_error::runtime_error;
+};
 
 struct PreparedTrack {
     audio::PreparedAudio audio;

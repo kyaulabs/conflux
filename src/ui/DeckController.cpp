@@ -1044,14 +1044,12 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                     prepared->playback = std::move(track.playback);
                 }
                 preview(prepared->presentation, prepared->audio->peaks());
-                QString analyzedSource;
                 if (bpmEngine || harmonyEngine) {
                     // Both maps use the same exact original mix, never a stem
                     // leaf/overview. Admit playback before optional analysis.
                     try {
                         report(bpmEngine ? "bpm-prepare" : "harmony-prepare", completedStages);
-                        auto original = store.prepare(path, stop);
-                        analyzedSource = original.sourceSha256;
+                        auto original = store.prepare(path, stop, sourceId);
                         if (bpmEngine) {
                             report("bpm", completedStages);
                             prepared->bpm = library::analyzeBpmCached(original.audio, *bpmEngine, bpmCache, stop);
@@ -1062,6 +1060,11 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                             prepared->harmony = library::analyzeHarmony(original.audio, *harmonyEngine, stop);
                             ++completedStages;
                         }
+                    } catch (const library::PreparedSourceMismatch&) {
+                        if (harmonyEngine)
+                            throw library::HarmonySourceError("Original source changed during harmony analysis");
+                        prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
+                        ++completedStages;
                     } catch (const library::BpmSourceError&) { throw;
                     } catch (const library::HarmonySourceError&) { throw;
                     } catch (const std::exception&) {
@@ -1070,10 +1073,6 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         if (harmonyEngine) prepared->harmony = {"Failed", "Original-mix harmony analysis could not complete.", 0, {}, {}};
                         completedStages = 1 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
                     }
-                }
-                if (!analyzedSource.isEmpty() && analyzedSource != sourceId) {
-                    if (harmonyEngine) throw library::HarmonySourceError("Original source changed during harmony analysis");
-                    prepared->bpm = {{}, "Failed", "Source changed during BPM analysis."};
                 }
             } else {
                 auto track = store.prepare(path, stop, expectedSource);
