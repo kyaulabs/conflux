@@ -58,14 +58,15 @@ while previewing keeps the current position and latches normal playback.
 Release-return and the PLAY latch are explicit CONFLUX policies, not claims
 proved by those pages.
 
-CUE accepts pointer/touch holds and focused Space, Return or Enter holds;
-auto-repeat adds no press. An accepted hold requests one release on physical
-release, cancellation, focus loss, disable/hide, window deactivation or
-destruction. Same-window focus/cancel cleanup waits one event turn so a PLAY
-press can precede it; deferred cleanup cannot release a newer hold. Physical
-release, disable/hide, window deactivation and destruction request cleanup
-without that deferral. Queue pressure retains the release for retry before
-later transport commands.
+CUE accepts mouse and touch holds and focused Space, Return or Enter holds.
+Auto-repeat adds no press. Each touch owns its CUE hold so a second touch can
+operate the other deck. Lifting the finger, leaving the control bounds or
+canceling its contact releases that touch's hold. Mouse and keyboard holds
+also release on focus loss. Their same-window focus and cancel cleanup waits
+one event turn so a PLAY press can precede it. Deferred cleanup checks that the
+same hold is still active. All holds release immediately when the control is
+disabled, hidden or destroyed, or the window deactivates. Queue pressure
+retains the release for retry before later transport commands.
 
 Audio settings can discover ports before loading a track through an inactive,
 unlinked filter. The live session renders master and cue once through four

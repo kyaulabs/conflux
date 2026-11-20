@@ -19,6 +19,7 @@ Item {
     readonly property var hostWindow: face.Window.window
     property bool physicalPress: false
     property int heldKey: 0
+    property int touchContactId: -1
     property int pressGeneration: 0
     property int pendingCancelGeneration: -1
     property bool available: true
@@ -48,6 +49,7 @@ Item {
             return
         physicalPress = false
         heldKey = 0
+        touchContactId = -1
         pendingCancelGeneration = -1
         if (cancel)
             canceled()
@@ -100,13 +102,13 @@ Item {
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
         onClicked: control.clicked()
-        onPressed: control.beginPress()
-        onReleased: control.finishPress(false)
-        onCanceled: control.requestCancel()
+        onPressed: { if (control.touchContactId < 0) control.beginPress() }
+        onReleased: { if (control.touchContactId < 0) control.finishPress(false) }
+        onCanceled: { if (control.touchContactId < 0) control.requestCancel() }
         onEnabledChanged: { if (!enabled) control.finishPress(true) }
         onVisibleChanged: { if (!visible) control.finishPress(true) }
         onActiveFocusChanged: {
-            if (control.holdAction && !activeFocus)
+            if (control.holdAction && !activeFocus && control.touchContactId < 0)
                 control.requestCancel()
         }
         // Space keeps the native Button press/release path. Enter/Return get
@@ -186,6 +188,39 @@ Item {
                 font.letterSpacing: control.round ? 0 : 0.6
                 color: control.round && control.indicatorOn ? control.indicatorColor : Brand.ConfluxTheme.text
             }
+        }
+    }
+    // A held CUE touch belongs to its contact even when another control takes focus.
+    Loader {
+        anchors.fill: parent
+        active: control.holdAction
+        sourceComponent: MultiPointTouchArea {
+            enabled: control.available && face.visible
+            mouseEnabled: false
+            function heldContact(points) {
+                for (const point of points) {
+                    if (point.pointId === control.touchContactId)
+                        return point
+                }
+                return null
+            }
+            onPressed: points => {
+                if (control.physicalPress || points.length === 0)
+                    return
+                const pointId = points[0].pointId
+                control.touchContactId = pointId
+                control.beginPress()
+                if (control.touchContactId === pointId)
+                    face.forceActiveFocus(Qt.MouseFocusReason)
+            }
+            onUpdated: points => {
+                const point = heldContact(points)
+                if (point && !contains(Qt.point(point.x, point.y)))
+                    control.finishPress(true)
+            }
+            onReleased: points => { if (heldContact(points)) control.finishPress(false) }
+            onCanceled: points => { if (heldContact(points)) control.finishPress(true) }
+            onGestureStarted: gesture => gesture.grab()
         }
     }
     // Disabled controls remain honest, while their explanatory tooltip can
