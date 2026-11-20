@@ -785,6 +785,116 @@ bool RenderCore::renderBuses(std::span<float> master, std::span<float> cue) noex
     return renderInternal(master, cue);
 }
 
+bool RenderCore::captureBuses(std::span<float> master, std::span<float> cue, CueBlock& held) noexcept
+{
+    held.owner = nullptr;
+    if (cueCapture_ || master.empty() || master.size() / channels > CueBlock::maxFrames ||
+        (!decks_[0].source.frames && !decks_[1].source.frames))
+        return false;
+    held.frames = master.size() / channels;
+    held.gainBefore = cueRamp_;
+    held.cueGain = cueGain_;
+    held.overrangeBefore = meters_.cue.overrangeSamples;
+    for (std::size_t i = 0; i < deckCount; ++i) {
+        const auto& deck = decks_[i];
+        held.rampBefore[i] = deck.cueRamp;
+        held.sourceFrames[i] = deck.source.frames;
+        held.memory[i] = deck.source.memory;
+        held.contexts[i] = deck.source.context;
+        held.selected[i] = deck.cueSelected;
+    }
+    cueCapture_ = &held;
+    const bool rendered = renderBuses(master, cue);
+    cueCapture_ = nullptr;
+    if (!rendered)
+        return false;
+    held.expectedEnd = frameClock_;
+    held.gainAfter = cueRamp_;
+    held.overrangeAfter = meters_.cue.overrangeSamples;
+    for (std::size_t i = 0; i < deckCount; ++i) {
+        held.rampAfter[i] = decks_[i].cueRamp;
+        held.transport[i] = decks_[i].transportRevision;
+        held.cursorAfter[i] = decks_[i].frame;
+    }
+    held.owner = this;
+    return true;
+}
+
+bool RenderCore::remixCue(CueBlock& held, std::span<const Command> commands, std::span<float> cue) noexcept
+{
+    if (held.owner != this || frameClock_ != held.expectedEnd || cue.size() != held.frames * channels ||
+        cueGain_ != held.cueGain || cueRamp_ != held.gainAfter || meters_.cue.overrangeSamples != held.overrangeAfter)
+        return false;
+    for (std::size_t i = 0; i < deckCount; ++i) {
+        const auto& deck = decks_[i];
+        if (deck.frame != held.cursorAfter[i] || deck.transportRevision != held.transport[i] ||
+            deck.source.frames != held.sourceFrames[i] || deck.source.context != held.contexts[i] ||
+            deck.source.memory != held.memory[i] || deck.cueSelected != held.selected[i] ||
+            deck.cueRamp != held.rampAfter[i])
+            return false;
+    }
+    using Type = Command::Type;
+    for (const auto& command : commands) {
+        if (command.type == Type::CueGain) {
+            if (!std::isfinite(command.gain) || command.gain < 0.F || command.gain > 1.F)
+                return false;
+        } else if ((command.type != Type::CueOn && command.type != Type::CueOff) || command.deck >= deckCount ||
+                   !decks_[command.deck].source.frames) {
+            return false;
+        }
+    }
+    cueRamp_ = held.gainBefore;
+    for (std::size_t i = 0; i < deckCount; ++i)
+        decks_[i].cueRamp = held.rampBefore[i];
+    for (const auto& command : commands)
+        (void)apply(command); // The entire batch was validated before changing state.
+    // If this block expires again, commands on another attempt start from
+    // these retargeted envelopes at the same first sample of the block.
+    held.gainBefore = cueRamp_;
+    for (std::size_t deck = 0; deck < deckCount; ++deck)
+        held.rampBefore[deck] = decks_[deck].cueRamp;
+    StereoMeter revised{};
+    revised.overrangeSamples = held.overrangeBefore;
+    constexpr auto limit = double(std::numeric_limits<float>::max());
+    for (std::size_t frame = 0; frame < held.frames; ++frame) {
+        double left = 0.0, right = 0.0;
+        bool contributed = false;
+        for (std::size_t i = 0; i < deckCount; ++i) {
+            const auto send = decks_[i].cueRamp.next(rampFrames_);
+            const auto& tap = held.taps[i][frame];
+            if (!send || !tap.contributes)
+                continue;
+            const double deckLeft = double(tap.samples[0]) * send;
+            const double deckRight = double(tap.samples[1]) * send;
+            if (contributed) {
+                left += deckLeft;
+                right += deckRight;
+            } else {
+                left = deckLeft;
+                right = deckRight;
+                contributed = true;
+            }
+        }
+        const auto gain = cueRamp_.next(rampFrames_);
+        const auto headphoneLeft = float(std::clamp(left * gain, -limit, limit));
+        const auto headphoneRight = float(std::clamp(right * gain, -limit, limit));
+        cue[frame * channels] = headphoneLeft;
+        cue[frame * channels + 1] = headphoneRight;
+        measure(revised, headphoneLeft, headphoneRight);
+    }
+    for (auto& square : revised.rms)
+        square = std::sqrt(square / held.frames);
+    meters_.cue = revised;
+    held.cueGain = cueGain_;
+    held.gainAfter = cueRamp_;
+    held.overrangeAfter = revised.overrangeSamples;
+    for (std::size_t deck = 0; deck < deckCount; ++deck) {
+        held.selected[deck] = decks_[deck].cueSelected;
+        held.rampAfter[deck] = decks_[deck].cueRamp;
+    }
+    return true;
+}
+
 void RenderCore::beginMeters(std::size_t frames) noexcept
 {
     meters_.blockFrames = frames;
@@ -833,7 +943,7 @@ void RenderCore::writeBuses(std::span<float> master, std::span<float> cue, std::
     measure(meters_.cue, headphoneLeft, headphoneRight);
 }
 
-void RenderCore::mixDeck(std::size_t index, bool available, float rawLeft, float rawRight,
+void RenderCore::mixDeck(std::size_t index, std::size_t frame, bool available, float rawLeft, float rawRight,
                          double& left, double& right, double& cueLeft, double& cueRight,
                          bool& contributed, bool& cueContributed) noexcept
 {
@@ -858,6 +968,8 @@ void RenderCore::mixDeck(std::size_t index, bool available, float rawLeft, float
         }
     }
     deck.last = samples;
+    if (cueCapture_)
+        cueCapture_->taps[index][frame] = {samples, available || samples[0] != 0.F || samples[1] != 0.F};
     const double gain = deck.gainRamp.next(rampFrames_);
     const double crossfaderGain = crossfaderRamps_[index].next(rampFrames_);
     const double cueSend = deck.cueRamp.next(rampFrames_);
@@ -901,7 +1013,7 @@ bool RenderCore::renderInternal(std::span<float> interleaved, std::span<float> c
                 const auto& deck = decks_[index];
                 const bool supplied = frame < available[index];
                 const auto source = supplied ? (deck.frame + frame) * channels : 0;
-                mixDeck(index, supplied, supplied ? deck.source.memory[source] : 0.F,
+                mixDeck(index, frame, supplied, supplied ? deck.source.memory[source] : 0.F,
                         supplied ? deck.source.memory[source + 1] : 0.F,
                         left, right, cueLeft, cueRight, contributed, cueContributed);
             }
@@ -1030,7 +1142,7 @@ bool RenderCore::renderSources(std::span<float> interleaved, std::span<float> cu
             for (std::size_t index = 0; index < deckCount; ++index) {
                 const bool supplied = frame < available[index];
                 if (supplied && results[index].transitionFrame == frame) transition(decks_[index]);
-                mixDeck(index, supplied, supplied ? samples[index][frame * channels] : 0.F,
+                mixDeck(index, offset + frame, supplied, supplied ? samples[index][frame * channels] : 0.F,
                         supplied ? samples[index][frame * channels + 1] : 0.F,
                         left, right, cueLeft, cueRight, contributed, cueContributed);
             }
