@@ -236,16 +236,28 @@ public:
             masterGate_.load(std::memory_order_acquire) && !bufferFault_.load(std::memory_order_relaxed) &&
             !graphFault_.load(std::memory_order_relaxed);
     }
+    enum class CueGate { Closed, Open, BufferFault };
+    bool cueRouteOpen() const noexcept
+    {
+        return cueGate_.load(std::memory_order_acquire) == CueGate::Open;
+    }
+    bool setCueGate(bool open) noexcept
+    {
+        // A real-time buffer fault must survive a concurrent route refresh.
+        auto expected = cueGate_.load(std::memory_order_acquire);
+        return expected != CueGate::BufferFault && cueGate_.compare_exchange_strong(
+            expected, open ? CueGate::Open : CueGate::Closed, std::memory_order_acq_rel);
+    }
     void setError(const char* message) noexcept
     {
         if (!error_[0]) std::snprintf(error_.data(), error_.size(), "%s", message ? message : "PipeWire filter failed");
         ready_.store(false, std::memory_order_release);
         masterGate_.store(false, std::memory_order_release);
-        cueGate_.store(false, std::memory_order_release);
+        (void)setCueGate(false);
     }
     void failCue(CueRouteStatus status, const char* message)
     {
-        cueGate_.store(false, std::memory_order_release);
+        (void)setCueGate(false);
         cueFailed_ = true;
         cueStatus_.store(status, std::memory_order_release);
         cueError_ = message;
@@ -537,7 +549,7 @@ public:
         auto snapshot = collectRouting();
         snapshot.defaultMaster = resolveAudioRouting(snapshot, {}).master;
         snapshot.master = routes_.master; snapshot.cue = routes_.cue;
-        snapshot.masterReady = ready(); snapshot.cueReady = cueGate_.load(std::memory_order_acquire) &&
+        snapshot.masterReady = ready(); snapshot.cueReady = cueRouteOpen() &&
             cueBuffersReady_.load(std::memory_order_acquire) && ready();
         snapshot.cueStatus = cueStatus_.load(std::memory_order_acquire);
         snapshot.masterError = error_[0] ? error_.data() : routes_.masterError;
@@ -631,7 +643,7 @@ public:
                     if (link->output == outputs_[index] &&
                         (id != owned_[index].globalId || link->input != destination(index)))
                         failCue(CueRouteStatus::UnexpectedLink, "Unexpected outgoing cue link; cue muted until explicitly reselected");
-        if (routes_.cue && cueBufferFault_.load(std::memory_order_relaxed) && !cueFailed_)
+        if (routes_.cue && cueGate_.load(std::memory_order_acquire) == CueGate::BufferFault && !cueFailed_)
             failCue(CueRouteStatus::LinkError, "Cue output buffer became unavailable; cue remains muted");
         auto healthy = [&](std::size_t index) {
             const auto& link = owned_[index];
@@ -653,8 +665,8 @@ public:
         const bool master = linksConfirmed_ && healthy(0) && healthy(1);
         masterGate_.store(master, std::memory_order_release);
         const bool cue = master && routes_.cue && !cueFailed_ && healthy(2) && healthy(3);
-        cueGate_.store(cue, std::memory_order_release);
-        if (cue) cueStatus_.store(cueBuffersReady_.load(std::memory_order_acquire) ?
+        const bool published = setCueGate(cue);
+        if (published && cue) cueStatus_.store(cueBuffersReady_.load(std::memory_order_acquire) ?
             CueRouteStatus::Ready : CueRouteStatus::Pending, std::memory_order_release);
         ready_.store(master && activated_ && filterState_ == PW_FILTER_STATE_STREAMING, std::memory_order_release);
     }
@@ -784,7 +796,7 @@ public:
         const auto& timing = timing_.counters();
         state.maxExecutionNs = timing.maxExecutionNs; state.deadlineMisses = timing.deadlineMisses;
         state.streamFramesMin = streamFramesMax_ ? streamFramesMin_ : 0; state.streamFramesMax = streamFramesMax_;
-        state.cueReady = cueGate_.load(std::memory_order_acquire) &&
+        state.cueReady = cueRouteOpen() &&
             cueBuffersReady_.load(std::memory_order_acquire) && ready();
         state.cueRouteStatus = cueStatus_.load(std::memory_order_acquire);
         state.graphRate = graphRate_.load(std::memory_order_relaxed); state.ready = ready();
@@ -863,13 +875,12 @@ public:
         }
         const bool masterValid = valid[0] && valid[1];
         if (masterValid) self.masterBuffersReady_.store(true, std::memory_order_release);
-        bool cue = self.cueGate_.load(std::memory_order_acquire);
+        bool cue = self.cueRouteOpen();
         if (cue && self.ready() && rateValid && masterValid && (!valid[2] || !valid[3])) {
             // Initial link allocation can precede the first usable cue pair.
             // Only a pair that was actually usable can subsequently be lost.
             if (self.cueBuffersReady_.load(std::memory_order_acquire)) {
-                self.cueGate_.store(false, std::memory_order_release);
-                self.cueBufferFault_.store(true, std::memory_order_relaxed);
+                self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
             }
             cue = false;
         }
@@ -961,7 +972,7 @@ public:
                 }
                 self.accumulateMeters(self.renderer_.meters());
                 self.tap_.push(master);
-                cue = cue && self.cueGate_.load(std::memory_order_acquire);
+                cue = cue && self.cueRouteOpen();
                 for (std::size_t frame = 0; frame < count; ++frame) {
                     outputs[0][offset + frame] = master[frame * 2];
                     outputs[1][offset + frame] = master[frame * 2 + 1];
@@ -979,7 +990,7 @@ public:
         }
         // A control-loop link notification may close the cue gate while this
         // block is rendered. Recheck before handing either cue buffer back.
-        if (!self.cueGate_.load(std::memory_order_acquire))
+        if (!self.cueRouteOpen())
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
         for (std::size_t index = 0; index < 4; ++index) {
@@ -990,7 +1001,7 @@ public:
             }
             if (pw_filter_queue_buffer(self.portData_[index], buffers[index]) < 0) {
                 if (index < 2) { ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); }
-                else { self.cueGate_.store(false, std::memory_order_release); self.cueBufferFault_.store(true, std::memory_order_relaxed); }
+                else self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
             }
         }
         // The deadline covers initial playback only. A later graph-state
@@ -1020,10 +1031,10 @@ public:
         config_=config; discoveryOnly_=discoveryOnly; error_.fill(0); routes_={}; cueError_.clear(); defaultSinkName_.clear();
         shuttingDown_=activated_=routesCreated_=linksConfirmed_=discoveryReady_=cueFailed_=false;
         discoveryRound_=0; discoverySequence_=linksSequence_=cueCleanupSequence_=-1; filterState_=PW_FILTER_STATE_UNCONNECTED;
-        ready_.store(false); masterGate_.store(false); cueGate_.store(false); graphValid_.store(false);
+        ready_.store(false); masterGate_.store(false); cueGate_.store(CueGate::Closed); graphValid_.store(false);
         masterBuffersReady_.store(false); cueBuffersReady_.store(false);
         playbackInitialized_.store(false);
-        bufferFault_.store(false); graphFault_.store(false); cueBufferFault_.store(false); graphRate_.store(0);
+        bufferFault_.store(false); graphFault_.store(false); graphRate_.store(0);
         cueStatus_.store(config.cue ? CueRouteStatus::Pending : CueRouteStatus::Disabled);
         started_=Clock::now();
         loop_=pw_thread_loop_new("conflux-audio", nullptr);
@@ -1099,7 +1110,7 @@ public:
     void quiesce() noexcept
     {
         if (loopStarted_) pw_thread_loop_lock(loop_);
-        shuttingDown_=true; ready_.store(false); masterGate_.store(false); cueGate_.store(false);
+        shuttingDown_=true; ready_.store(false); masterGate_.store(false); (void)setCueGate(false);
         if (cueStatus_.load(std::memory_order_relaxed) == CueRouteStatus::Ready)
             cueStatus_.store(CueRouteStatus::Pending, std::memory_order_release);
         if (filter_) pw_filter_set_active(filter_,false);
@@ -1190,7 +1201,9 @@ public:
     pw_filter_state filterState_=PW_FILTER_STATE_UNCONNECTED;
     static_assert(std::atomic<bool>::is_always_lock_free);
     static_assert(std::atomic<CueRouteStatus>::is_always_lock_free);
-    std::atomic<bool> ready_{false},masterGate_{false},cueGate_{false},graphValid_{false},bufferFault_{false},graphFault_{false},cueBufferFault_{false};
+    static_assert(std::atomic<CueGate>::is_always_lock_free);
+    std::atomic<bool> ready_{false},masterGate_{false},graphValid_{false},bufferFault_{false},graphFault_{false};
+    std::atomic<CueGate> cueGate_{CueGate::Closed};
     std::atomic<bool> masterBuffersReady_{false},cueBuffersReady_{false};
     std::atomic<bool> playbackInitialized_{false};
     std::atomic<CueRouteStatus> cueStatus_{CueRouteStatus::Disabled};
