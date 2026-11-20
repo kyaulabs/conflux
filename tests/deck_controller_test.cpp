@@ -7,6 +7,7 @@
 #include "TrackPresentationFixture.hpp"
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -1007,6 +1008,66 @@ private slots:
         QVERIFY(controller.preparation()["cacheHit"].toBool());
         QCOMPARE(controller.retainedPcmBytes(), controller.audioState().sourceFrames[0] * 8 * 4);
         QVERIFY(controller.decks()[0].toMap()["stemBank"].toBool());
+    }
+
+    void optionalStemAnalysisRejectsReplacedSource_data()
+    {
+        QTest::addColumn<bool>("analyzeHarmony");
+        QTest::newRow("bpm-only") << false;
+        QTest::newRow("with-harmony") << true;
+    }
+
+    void optionalStemAnalysisRejectsReplacedSource()
+    {
+        QFETCH(bool, analyzeHarmony);
+        liveControllerChecked([&] {
+            QTemporaryDir directory, runtime;
+            QVERIFY(directory.isValid() && runtime.isValid());
+            RestoreEnvironment restore;
+            isolateLiveController(directory.path(), runtime.path());
+            const auto original = directory.filePath("original.wav");
+            const auto replacement = directory.filePath("replacement.wav");
+            const auto selected = directory.filePath("selected.wav");
+            QVERIFY(writeWave(original, 2, 48000, 14400));
+            QVERIFY(writeWave(replacement, 2, 48000, 19200));
+            QVERIFY(QFile::link(original, selected));
+            const auto originalId = QString::fromLatin1(QCryptographicHash::hash(
+                liveFixtureBytes(original), QCryptographicHash::Sha256).toHex());
+
+            conflux::DeckController::PreparationOptions options;
+            // The provider swaps the selected link after the stem store has
+            // hashed the original, without changing the already open file.
+            options.stemEngine = conflux::test::makeStemEngineFixture(directory.path(), "replace-source-link");
+            const auto worker = directory.filePath("analysis.py");
+            conflux::test::writeFixtureBytes(worker,
+                "from pathlib import Path\nPath(__file__).with_suffix('.started').touch()\n");
+            options.bpmEngine = conflux::library::BpmEngine{options.stemEngine->pythonExecutable,
+                directory.path(), options.stemEngine->modelPath, worker};
+            if (analyzeHarmony)
+                options.harmonyEngine = conflux::library::HarmonyEngine{options.stemEngine->pythonExecutable, worker};
+
+            conflux::DeckController controller(options);
+            controller.loadStemDeck(0, QUrl::fromLocalFile(selected));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 10000);
+            QCOMPARE(QFileInfo(selected).canonicalFilePath(), QFileInfo(replacement).canonicalFilePath());
+            QVERIFY(!QFileInfo::exists(directory.filePath("analysis.started")));
+            const auto cacheRoot = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/prepared/v1";
+            const auto entries = QDir(cacheRoot).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            QCOMPARE(entries.size(), 1);
+            QVERIFY(QFileInfo::exists(cacheRoot + '/' + entries.front() + "/drums.f32"));
+            QVERIFY(!QFileInfo::exists(cacheRoot + '/' + entries.front() + "/audio.f32"));
+
+            const auto deck = controller.decks()[0].toMap();
+            if (analyzeHarmony) {
+                QVERIFY(!deck["loaded"].toBool());
+                QVERIFY(controller.error().contains("Original source changed during harmony analysis"));
+            } else {
+                QVERIFY2(deck["loaded"].toBool(), qPrintable(controller.error()));
+                QVERIFY(deck["stemBank"].toBool());
+                QCOMPARE(deck["sourceId"].toString(), originalId);
+                QCOMPARE(deck["bpm"].toMap()["status"].toString(), QString("Failed"));
+            }
+        });
     }
 
     void optionalBpmCannotConsumeTheOnlyStemCacheEntry()
