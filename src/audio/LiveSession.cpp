@@ -30,7 +30,17 @@
 namespace conflux::audio {
 namespace {
 using Clock = std::chrono::steady_clock;
-constexpr std::size_t scratchFrames = 1024;
+constexpr std::size_t scratchFrames = RenderCore::CueBlock::maxFrames;
+using OutputPointers = std::array<float*, 4>;
+
+bool callbackExpired(const spa_io_clock& current, const CallbackTiming::DriverClock& original) noexcept
+{
+    // The server can advance the shared clock while this client is running.
+    // Reload the position without caching the callback's initial value.
+    static_assert(std::atomic_ref<const std::uint64_t>::is_always_lock_free);
+    return std::atomic_ref<const std::uint64_t>(current.position).load(std::memory_order_relaxed) != original.position;
+}
+
 constexpr std::array<const char*, 4> outputNames{"master_FL", "master_FR", "cue_FL", "cue_FR"};
 constexpr std::uint32_t invalidId = PW_ID_ANY;
 
@@ -825,11 +835,70 @@ public:
         finish(meters_.master); finish(meters_.cue);
     }
 
+    struct RetainedOutput {
+        std::array<std::array<float, scratchFrames>, 4> samples{};
+        RenderCore::CueBlock cueBlock;
+        CallbackTiming::DriverClock clock;
+        bool valid = false, includesCue = false;
+
+        bool matches(const CallbackTiming::DriverClock& now) const noexcept
+        {
+            const auto capabilities = clockCapabilities();
+            if (clock.id != now.id || clock.rateNum != now.rateNum ||
+                clock.rateDenom != now.rateDenom || !now.duration ||
+                clock.duration != now.duration || (now.flags & capabilities.discontinuityFlag) ||
+                now.position <= clock.position)
+                return false;
+
+            // PipeWire advances its cycle counter with the graph. A genuine
+            // resync must not turn an old buffer into the first block of a
+            // different clock sequence.
+            const auto distance = now.position - clock.position;
+            const auto cycles = static_cast<std::uint32_t>(now.cycle - clock.cycle);
+            return distance % now.duration == 0 &&
+                (!capabilities.cycle || distance / now.duration == cycles);
+        }
+    };
+
+    bool restoreOutput(const CallbackTiming::DriverClock& clock, std::uint32_t frames,
+                       const OutputPointers& outputs, bool cue, bool replacing) noexcept
+    {
+        if (!std::exchange(retained_.valid, false) || replacing || !retained_.matches(clock))
+            return false;
+
+        std::array<RenderCore::Command, TransportQueue::capacity> pending;
+        const auto count = commands_.pending(pending);
+        const bool sendCue = cue && retained_.includesCue;
+        const auto fullCue = std::span(cueScratch_).first(frames * 2U);
+        if (count && (!sendCue || !renderer_.remixCue(retained_.cueBlock, std::span(pending).first(count), fullCue)))
+            return false;
+
+        for (std::size_t channel = 0; channel < 2; ++channel)
+            std::copy_n(retained_.samples[channel].data(), frames, outputs[channel]);
+        if (sendCue) {
+            if (count) {
+                for (std::size_t frame = 0; frame < frames; ++frame) {
+                    outputs[2][frame] = fullCue[frame * 2];
+                    outputs[3][frame] = fullCue[frame * 2 + 1];
+                }
+            } else {
+                for (std::size_t channel = 2; channel < outputs.size(); ++channel)
+                    std::copy_n(retained_.samples[channel].data(), frames, outputs[channel]);
+            }
+        }
+        if (count) {
+            commands_.consumePending(static_cast<std::uint32_t>(count));
+            applied_ += count;
+            lastCommandId_ = pending[count - 1].id;
+            meters_.cue = renderer_.meters().cue;
+        }
+        return true;
+    }
+
     static void process(void* data, spa_io_position* position) noexcept
     {
         auto& self = *static_cast<Impl*>(data);
         const auto began = Clock::now();
-        self.tap_.beginBlock();
         SourceHandoff::Request replacement;
         const bool replacementPending = self.handoff_.readPending(replacement);
         bool replacementCompleted = false, replacementInstalled = false;
@@ -837,7 +906,8 @@ public:
         ++self.callbacks_;
         CallbackTiming::DriverClock clock;
         if (position) {
-            clock.id = position->clock.id; clock.position = position->clock.position;
+            clock.id = position->clock.id;
+            clock.position = std::atomic_ref<const std::uint64_t>(position->clock.position).load(std::memory_order_relaxed);
             clock.duration = position->clock.duration; clock.rateNum = position->clock.rate.num;
             clock.rateDenom = position->clock.rate.denom; clock.flags = position->clock.flags;
 #ifdef SPA_IO_CLOCK_FLAG_XRUN_RECOVER
@@ -848,12 +918,19 @@ public:
         const auto frames = durationValid ? static_cast<std::uint32_t>(clock.duration) : 0;
         const bool rateValid = position && clock.rateNum &&
             std::uint64_t(clock.rateDenom) == std::uint64_t(clock.rateNum) * RenderCore::sampleRate;
+        const bool canRetain = rateValid && frames && frames <= scratchFrames;
+        if (canRetain && callbackExpired(position->clock, clock)) {
+            const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - began).count();
+            self.timing_.observe(static_cast<std::uint64_t>(elapsed), 0, &clock);
+            return;
+        }
+        self.tap_.beginBlock();
         if (position && clock.rateNum)
             self.graphRate_.store(clock.rateDenom / clock.rateNum, std::memory_order_relaxed);
         if (!rateValid && position) self.graphFault_.store(true, std::memory_order_relaxed);
         if (rateValid) self.graphValid_.store(true, std::memory_order_release);
         std::array<pw_buffer*, 4> buffers{};
-        std::array<float*, 4> outputs{};
+        OutputPointers outputs{};
         std::array<bool, 4> valid{};
         for (std::size_t index = 0; index < 4; ++index) {
             auto* buffer = buffers[index] = pw_filter_dequeue_buffer(self.portData_[index]);
@@ -886,9 +963,13 @@ public:
         }
         if (cue && valid[2] && valid[3]) self.cueBuffersReady_.store(true, std::memory_order_release);
         std::uint64_t rendered = 0;
+        bool capturedCue = false;
+        const bool resumed = canRetain && self.ready() && masterValid &&
+            self.restoreOutput(clock, frames, outputs, cue, replacementPending);
+        if (!resumed) self.retained_.valid = false;
         if (!durationValid || (self.ready() && !masterValid)) {
             ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
-        } else if (self.ready() && rateValid && masterValid) {
+        } else if (!resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
             const auto tryContinuation = [&]() noexcept {
                 if (!replacementPending || replacementCompleted || replacement.kind != SourceHandoff::Kind::Continuation)
@@ -955,7 +1036,12 @@ public:
                 }
                 auto master = std::span(self.masterScratch_).first(count * 2U);
                 auto cuePcm = std::span(self.cueScratch_).first(count * 2U);
-                if (!self.renderer_.renderBuses(master, cuePcm)) {
+                capturedCue = canRetain && cue && !replacementPending && count == frames &&
+                    (self.renderer_.sourceFrames(0) || self.renderer_.sourceFrames(1));
+                const bool produced = capturedCue ?
+                    self.renderer_.captureBuses(master, cuePcm, self.retained_.cueBlock) :
+                    self.renderer_.renderBuses(master, cuePcm);
+                if (!produced) {
                     ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); break;
                 }
                 if (heldPrefix) {
@@ -990,12 +1076,25 @@ public:
         }
         // A control-loop link notification may close the cue gate while this
         // block is rendered. Recheck before handing either cue buffer back.
-        if (!self.cueRouteOpen())
+        cue = cue && self.cueRouteOpen();
+        if (!cue)
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
+
+        const bool expired = canRetain && callbackExpired(position->clock, clock);
+        if (expired && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
+            // The recorder and source clocks already own this render. Reuse
+            // its samples at the next valid callback without advancing them.
+            self.retained_.clock = clock;
+            self.retained_.includesCue = cue && (resumed ? self.retained_.includesCue : capturedCue);
+            const auto channels = self.retained_.includesCue ? outputs.size() : 2U;
+            for (std::size_t channel = 0; channel < channels; ++channel)
+                std::copy_n(outputs[channel], frames, self.retained_.samples[channel].data());
+            self.retained_.valid = true;
+        }
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
-            if (valid[index]) {
+            if (valid[index] && !expired) {
                 auto& plane = buffers[index]->buffer->datas[0];
                 plane.chunk->size = frames * sizeof(float); buffers[index]->size = frames;
             }
@@ -1130,6 +1229,7 @@ public:
         if (filter_) { pw_filter_disconnect(filter_); pw_filter_destroy(filter_); filter_=nullptr; }
         if (loopStarted_) { pw_thread_loop_unlock(loop_); pw_thread_loop_stop(loop_); loopStarted_=false; }
         if (loop_) { pw_thread_loop_destroy(loop_); loop_=nullptr; }
+        retained_.valid = false;
         tap_.quiesce();
         handoff_.quiesce();
         consumeCommands();
@@ -1183,6 +1283,7 @@ public:
     CallbackTiming timing_{clockCapabilities()};
     RenderCore::Meters meters_{};
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
+    RetainedOutput retained_;
     bool readersStopped_=false, detached_=false, startFailed_=false;
     TransportQueue commands_; StateQueue states_;
     pw_thread_loop* loop_=nullptr; pw_filter* filter_=nullptr; pw_core* core_=nullptr; pw_registry* registry_=nullptr;

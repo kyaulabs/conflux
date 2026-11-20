@@ -76,6 +76,12 @@ public:
     // Separate stereo buses in one engine pass. Buffers must be equal-sized,
     // complete stereo and disjoint; invalid/empty calls preserve all state.
     bool renderBuses(std::span<float> master, std::span<float> cue) noexcept;
+    struct CueBlock;
+    // Keep the post-EQ signals needed to update a rendered headphone block
+    // without advancing either deck or writing the master a second time. Only
+    // the owning session may reuse it, within the same route and graph format.
+    bool captureBuses(std::span<float> master, std::span<float> cue, CueBlock&) noexcept;
+    bool remixCue(CueBlock&, std::span<const Command>, std::span<float> cue) noexcept;
     // Only the render owner may seek, between render calls or before streaming.
     // The output frame clock remains monotonic across source seeks and EOF.
     bool seek(std::uint64_t frame) noexcept;
@@ -213,7 +219,32 @@ private:
         void set(double value, std::uint32_t frames) noexcept;
         double next(std::uint32_t frames) noexcept;
         void snap(double value) noexcept;
+        bool operator==(const GainRamp&) const = default;
     };
+public:
+    struct CueBlock {
+        static constexpr std::size_t maxFrames = 1024;
+    private:
+        friend class RenderCore;
+        struct Tap {
+            std::array<float, channels> samples{};
+            bool contributes = false;
+        };
+        std::array<std::array<Tap, maxFrames>, deckCount> taps{};
+        std::array<GainRamp, deckCount> rampBefore{}, rampAfter{};
+        GainRamp gainBefore{}, gainAfter{};
+        std::array<std::uint64_t, channels> overrangeBefore{}, overrangeAfter{};
+        std::array<std::uint64_t, deckCount> sourceFrames{}, transport{}, cursorAfter{};
+        std::array<const float*, deckCount> memory{};
+        std::array<const void*, deckCount> contexts{};
+        std::array<bool, deckCount> selected{};
+        const RenderCore* owner = nullptr;
+        std::uint64_t expectedEnd = 0;
+        std::size_t frames = 0;
+        float cueGain = 0;
+    };
+
+private:
     struct Deck {
         AudioSource source{};
         std::uint64_t frame = 0;
@@ -244,7 +275,7 @@ private:
     void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
     bool changeTempo(std::size_t deck, AudioTempoCommand command, double percent, bool keyLock) noexcept;
     void transition(Deck& deck) noexcept;
-    void mixDeck(std::size_t index, bool available, float left, float right,
+    void mixDeck(std::size_t index, std::size_t frame, bool available, float left, float right,
                  double& masterLeft, double& masterRight, double& cueLeft, double& cueRight,
                  bool& contributed, bool& cueContributed) noexcept;
     bool renderInternal(std::span<float> master, std::span<float> cue) noexcept;
@@ -258,6 +289,7 @@ private:
     std::array<float, sampleRate> tone_{};
     std::array<Deck, deckCount> decks_{};
     std::array<std::array<float, sourceBlockFrames * channels>, deckCount> sourceScratch_{};
+    CueBlock* cueCapture_ = nullptr;
     Meters meters_{};
     std::uint64_t frameClock_ = 0;
     std::uint32_t phase_ = 0;

@@ -292,6 +292,55 @@ bool partitionsPreserveBusesAndMeterEnergy()
                       "bus samples, bounded stream reads or independent EOF clocks changed across partitions");
     return passed;
 }
+bool retainedCuePreservesMasterAcrossOrderedChanges()
+{
+    constexpr auto frames = 128;
+    std::array<float, 2048> a{}, b{};
+    for (std::size_t i = 0; i < a.size(); ++i) {
+        a[i] = static_cast<float>(static_cast<int>((i * 5) % 31) - 15) / 12.F;
+        b[i] = static_cast<float>(static_cast<int>((i * 13) % 37) - 18) / 17.F;
+    }
+    Reader readA{a}, readB{b};
+    RenderCore retained(readA.source(), readB.source()), reference(a, b);
+    std::array<float, frames * 2> master{}, cue{}, referenceMaster{}, referenceCue{};
+    for (auto* core : {&retained, &reference})
+        if (!require(core->configureRamps(240) && core->setCueSelected(0, true) &&
+                     core->setCueSelected(1, true) && core->setCueGain(.7F) &&
+                     core->renderBuses(master, cue),
+                     "overlapping CUE ramp setup failed"))
+            return false;
+
+    RenderCore::CueBlock held;
+    if (!require(retained.captureBuses(master, cue, held), "capture of retained CUE audio failed"))
+        return false;
+    const auto originalCue = cue;
+    const auto originalMeters = retained.meters();
+    const auto calls = readA.calls + readB.calls;
+    const std::array first{Command{Type::CueOff, 0}, Command{Type::CueGain, 0, 0, .31F}};
+    const std::array invalid{Command{Type::CueOff, 1}, Command{Type::Seek, 0, 768}};
+    const std::array second{Command{Type::CueOn, 0}, Command{Type::CueOff, 1}};
+    bool passed = require(!retained.remixCue(held, invalid, cue) && sameBits(cue, originalCue) &&
+                          sameMeters(retained.meters(), originalMeters) && retained.isCueSelected(1),
+                          "a mixed transport batch partially modified retained CUE");
+
+    passed &= require(retained.remixCue(held, first, cue) && retained.remixCue(held, second, cue),
+                      "successive CUE changes could not update the same retained block");
+    for (const auto& command : first)
+        passed &= require(reference.apply(command), "normal CUE command was rejected");
+    for (const auto& command : second)
+        passed &= require(reference.apply(command), "normal second CUE command was rejected");
+    passed &= require(reference.renderBuses(referenceMaster, referenceCue) && sameBits(master, referenceMaster) &&
+                      sameBits(cue, referenceCue) && sameMeters(retained.meters(), reference.meters()) &&
+                      retained.sourceFrame(0) == reference.sourceFrame(0) &&
+                      retained.sourceFrame(1) == reference.sourceFrame(1) &&
+                      retained.frameClock() == reference.frameClock() && readA.calls + readB.calls == calls,
+                      "retained CUE changed master, source reads, timing, or the ordered ramps");
+    passed &= require(retained.renderBuses(master, cue) && reference.renderBuses(referenceMaster, referenceCue) &&
+                      sameBits(master, referenceMaster) && sameBits(cue, referenceCue) &&
+                      sameMeters(retained.meters(), reference.meters()) && !retained.remixCue(held, first, cue),
+                      "resumed playback diverged or accepted an already retired block");
+    return passed;
+}
 } // namespace
 
 int main()
@@ -302,5 +351,6 @@ int main()
     const bool invalid = invalidCallsAndCommandsPreserveState();
     const bool overflow = finiteOverflowAndMeterSquares();
     const bool partitions = partitionsPreserveBusesAndMeterEnergy();
-    return independent && transport && source && invalid && overflow && partitions ? 0 : 1;
+    const bool retained = retainedCuePreservesMasterAcrossOrderedChanges();
+    return independent && transport && source && invalid && overflow && partitions && retained ? 0 : 1;
 }
