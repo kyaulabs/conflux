@@ -154,7 +154,8 @@ public:
         QJsonObject detail{{"graph_position", qint64(mismatch_.position)}, {"graph_nsec", qint64(mismatch_.nsec)},
             {"checked_before_callback", qint64(mismatch_.checked)}, {"channel", int(mismatch_.channel)},
             {"first_bad_frame", int(mismatch_.frame)}, {"callback_frames", int(mismatch_.frames)},
-            {"readable_input", mismatch_.readable}, {"mapped_bytes", qint64(mismatch_.maxsize)},
+            {"buffer_present", mismatch_.bufferPresent}, {"readable_input", mismatch_.readable},
+            {"mapped_bytes", qint64(mismatch_.maxsize)},
             {"chunk_bytes", qint64(mismatch_.size)}, {"chunk_offset", qint64(mismatch_.offset)},
             {"chunk_stride", mismatch_.stride}, {"chunk_flags", mismatch_.flags}};
         if (mismatch_.readable) {
@@ -189,14 +190,14 @@ private:
             reinterpret_cast<const float*>(start) : nullptr;
     }
     void saveMismatch(const spa_io_position& position, std::size_t channel, std::uint32_t frame,
-                      std::uint32_t frames, const spa_data* plane, const float* samples) noexcept
+                      std::uint32_t frames, bool bufferPresent, const spa_data* plane, const float* samples) noexcept
     {
         if (mismatchReady_.load(std::memory_order_relaxed)) return;
         const auto* chunk = plane ? plane->chunk : nullptr;
         mismatch_ = {position.clock.position, position.clock.nsec,
             received_[channel].load(std::memory_order_relaxed), std::uint32_t(channel), frame, frames,
             plane ? plane->maxsize : 0, chunk ? chunk->size : 0, chunk ? chunk->offset : 0,
-            chunk ? chunk->stride : 0, chunk ? chunk->flags : 0, samples != nullptr,
+            chunk ? chunk->stride : 0, chunk ? chunk->flags : 0, bufferPresent, samples != nullptr,
             samples ? samples[frame] : 0.F, samples ? samples[frames - 1] : 0.F};
         mismatchReady_.store(true, std::memory_order_release);
     }
@@ -207,6 +208,7 @@ private:
         const auto frames = std::uint32_t(position->clock.duration);
         const auto graphFrame = position->clock.position;
         const bool armed = self.armed_.load(std::memory_order_acquire);
+        const bool bounded = self.validationFrames_ != std::numeric_limits<std::uint64_t>::max();
         if (armed && !self.wasArmed_) {
             self.remaining_.fill(self.validationFrames_);
             self.nextValidatedFrame_.fill(std::nullopt);
@@ -216,13 +218,15 @@ private:
         for (std::size_t channel = 0; channel < self.ports_.size(); ++channel) {
             auto* port = self.ports_[channel];
             auto* buffer = pw_filter_dequeue_buffer(port);
-            if (!buffer) continue;
-            const auto* view = buffer->buffer;
+            // A bounded stereo probe checks one graph interval for both
+            // channels, including callbacks with a missing input buffer.
+            if (!buffer && !bounded) continue;
+            const auto* view = buffer ? buffer->buffer : nullptr;
             const auto* plane = view && view->n_datas == 1 ? view->datas : nullptr;
             const auto* samples = inputSamples(plane, frames);
             if (samples) processed[channel] = frames;
             const auto checked = armed ? std::min<std::uint64_t>(frames, self.remaining_[channel]) : 0;
-            if (checked && self.validationFrames_ != std::numeric_limits<std::uint64_t>::max()) {
+            if (checked && bounded) {
                 auto& next = self.nextValidatedFrame_[channel];
                 if (next && graphFrame != *next) {
                     self.clockBreaks_[channel].fetch_add(1, std::memory_order_relaxed);
@@ -233,19 +237,19 @@ private:
             }
             std::uint64_t wrong = 0, zeros = 0;
             if (checked && !samples) {
-                // A short or invalid block fails the PCM check without reading
+                // Missing or invalid input fails the PCM check without reading
                 // stale bytes or counting unread samples as silence.
                 wrong = checked;
-                self.saveMismatch(*position, channel, 0, frames, plane, nullptr);
+                self.saveMismatch(*position, channel, 0, frames, buffer != nullptr, plane, nullptr);
             } else {
                 for (std::uint32_t frame = 0; frame < checked; ++frame) {
                     zeros += samples[frame] == 0.F;
                     const bool bad = !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
                     wrong += bad;
-                    if (bad) self.saveMismatch(*position, channel, frame, frames, plane, samples);
+                    if (bad) self.saveMismatch(*position, channel, frame, frames, true, plane, samples);
                 }
             }
-            (void)pw_filter_queue_buffer(port, buffer);
+            if (buffer) (void)pw_filter_queue_buffer(port, buffer);
             if (checked) {
                 self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
                 self.zeros_.fetch_add(zeros, std::memory_order_relaxed);
@@ -281,7 +285,7 @@ private:
         std::uint32_t channel = 0, frame = 0, frames = 0;
         std::uint32_t maxsize = 0, size = 0, offset = 0;
         std::int32_t stride = 0, flags = 0;
-        bool readable = false;
+        bool bufferPresent = false, readable = false;
         float first = 0, last = 0;
     } mismatch_;
     std::atomic<bool> mismatchReady_{false};
