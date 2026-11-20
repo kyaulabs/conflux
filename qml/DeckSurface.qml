@@ -555,7 +555,8 @@ Item {
             stepSize: 0.1
             enabled: surface.canControl
             visible: !surface.showingPreparation
-            pressed: seekInput.gestureActive && seekInput.pressed
+            pressed: seekInput.gestureActive && (seekInput.pressed || seekInput.touchId >= 0)
+            readonly property var hostWindow: Window.window
             Accessible.name: surface.deckName + " overview position"
             Accessible.description: "Seek within the loaded track. Overview peaks are normalized to that source."
             property bool inputReady: false
@@ -587,7 +588,13 @@ Item {
                 refreshAccepted()
                 restoringAcknowledgement = false
             }
-            onActiveFocusChanged: { if (!activeFocus && seekInput) seekInput.gestureActive = false }
+            onActiveFocusChanged: { if (!activeFocus && seekInput && seekInput.touchId < 0) seekInput.cancelGesture() }
+            onHostWindowChanged: { if ((!hostWindow || !hostWindow.active) && seekInput) seekInput.cancelGesture() }
+            Connections {
+                target: seek.hostWindow
+                function onActiveChanged() { if (!seek.hostWindow.active) seekInput.cancelGesture() }
+                function onVisibleChanged() { if (!seek.hostWindow.visible) seekInput.cancelGesture() }
+            }
             Component.onCompleted: { inputReady = true; refreshAccepted() }
             MouseArea {
                 id: seekInput
@@ -599,6 +606,7 @@ Item {
                 preventStealing: true
                 Accessible.ignored: true
                 property bool gestureActive: false
+                property int touchId: -1
                 property string gestureSource: ""
                 property string gestureGeneration: ""
                 onGestureActiveChanged: { if (!gestureActive) seek.refreshAccepted() }
@@ -610,33 +618,71 @@ Item {
                         position = 1 - position
                     return Math.max(seek.from, Math.min(seek.to, seek.valueAt(position)))
                 }
-                onPressed: mouse => {
+                function beginGesture(pointerX, contactId) {
+                    if (gestureActive)
+                        return
                     seek.forceActiveFocus(Qt.MouseFocusReason)
                     gestureSource = surface.sourceId
                     gestureGeneration = surface.sourceGeneration
+                    touchId = contactId
                     gestureActive = true
-                    seek.value = valueAtPointer(mouse.x)
+                    seek.value = valueAtPointer(pointerX)
                 }
-                onPositionChanged: mouse => {
-                    if (pressed && gestureActive)
-                        seek.value = valueAtPointer(mouse.x)
+                function cancelGesture() {
+                    gestureActive = false
+                    touchId = -1
                 }
-                onReleased: mouse => {
-                    const seconds = valueAtPointer(mouse.x)
+                function releaseGesture(pointerX) {
+                    const seconds = valueAtPointer(pointerX)
                     const commit = gestureActive && surface.canControl
                         && gestureSource === surface.sourceId && gestureGeneration === surface.sourceGeneration
-                    gestureActive = false
+                    cancelGesture()
                     if (commit)
                         surface.controller.seekSeconds(surface.deckIndex, seconds)
                 }
-                onCanceled: gestureActive = false
-                onEnabledChanged: { if (!enabled) gestureActive = false }
-                onVisibleChanged: { if (!visible) gestureActive = false }
+                onPressed: mouse => beginGesture(mouse.x, -1)
+                onPositionChanged: mouse => {
+                    if (pressed && gestureActive && touchId < 0)
+                        seek.value = valueAtPointer(mouse.x)
+                }
+                onReleased: mouse => { if (touchId < 0) releaseGesture(mouse.x) }
+                onCanceled: { if (touchId < 0) cancelGesture() }
+                onEnabledChanged: { if (!enabled) cancelGesture() }
+                onVisibleChanged: { if (!visible) cancelGesture() }
                 Connections {
                     target: surface
-                    function onSourceIdChanged() { seekInput.gestureActive = false }
-                    function onSourceGenerationChanged() { seekInput.gestureActive = false }
+                    function onSourceIdChanged() { seekInput.cancelGesture() }
+                    function onSourceGenerationChanged() { seekInput.cancelGesture() }
                 }
+            }
+            MultiPointTouchArea {
+                objectName: "deck" + surface.deckIndex + "SeekTouch"
+                anchors.fill: parent
+                z: 2
+                enabled: seek.enabled
+                // Qt delivers the accepted touch to this area until release.
+                // Taking a whole-gesture grab can interrupt the peer waveform.
+                mouseEnabled: false
+                Accessible.ignored: true
+                onPressed: points => seekInput.beginGesture(points[0].x, points[0].pointId)
+                function heldTouch(points) {
+                    for (const point of points) {
+                        if (point.pointId === seekInput.touchId)
+                            return point
+                    }
+                    return null
+                }
+                onUpdated: points => {
+                    const point = heldTouch(points)
+                    if (point)
+                        seek.value = seekInput.valueAtPointer(point.x)
+                }
+                onReleased: points => {
+                    const point = heldTouch(points)
+                    if (point)
+                        seekInput.releaseGesture(point.x)
+                }
+                onCanceled: points => { if (heldTouch(points)) seekInput.cancelGesture() }
             }
             background: Rectangle {
                 x: seek.leftPadding
