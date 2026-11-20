@@ -105,7 +105,10 @@ if MODE in ['descendant', 'dead-leader']:
     child = subprocess.Popen([sys.executable, '-B', '-c', 'import time; time.sleep(120)'])
     fields = pathlib.Path('/proc/%d/stat' % child.pid).read_text().rsplit(') ', 1)[1].split()
     marker('.native-start').write_text(fields[19])
-    marker('.native').write_text(str(child.pid))
+    # The test treats .native's presence as readiness for both identity files.
+    pending_pid = marker('.native-pending')
+    pending_pid.write_text(str(child.pid))
+    pending_pid.replace(marker('.native'))
 def runtime_event(tag, retired=None, revision='a' * 40):
     value = {'event': 'runtime', 'worker_generation': tag, 'model_id': model['sha256'],
         'ready': {'sample_rate': 44100, 'channels': 2, 'segment_frames': WINDOW,
