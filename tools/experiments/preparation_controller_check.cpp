@@ -82,6 +82,29 @@ bool save(const QString& path, const QJsonObject& value)
     return file.write(bytes) == bytes.size() && file.commit();
 }
 
+void addStoppedTiming(QJsonObject& detail, const conflux::DeckController& controller)
+{
+    QJsonArray rows;
+    for (const auto& timing : controller.completedTiming()) {
+        const auto& counters = timing.counters;
+        rows.append(QJsonObject{
+            {"callbacks", qint64(counters.callbacks)}, {"max_execution_ns", qint64(counters.maxExecutionNs)},
+            {"deadline_misses", qint64(counters.deadlineMisses)},
+            {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
+            {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
+            {"graph_quantum_min", qint64(counters.graphQuantumMin)},
+            {"graph_quantum_max", qint64(counters.graphQuantumMax)},
+            {"driver_position_observed", counters.graphPositionObserved},
+            {"capabilities", QJsonObject{{"cycle", timing.capabilities.cycle},
+                {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
+                {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
+    }
+    detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
+    detail["stopped_timing"] = rows;
+    detail["stopped_timing_scope"] = "Stopped-session totals include callbacks after the assertion. "
+        "Execution timing does not measure scheduler lateness. Unavailable driver flag masks do not establish zero events.";
+}
+
 void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t totalFrames = fixtureFrames,
                   std::uint32_t sampleRate = 48000)
 {
@@ -1314,7 +1337,15 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             {"read_errors", QJsonArray{state.sourceReadError[0], state.sourceReadError[1]}},
             {"invalid_buffers", qint64(state.invalidBuffers)}, {"rejected", qint64(state.rejected)},
             {"cue_ready", state.cueReady}};
-        (void)save(detailPath, detail); controller.shutdown(); throw;
+        detail["completed_sessions_before_diagnostic_shutdown"] = qint64(controller.completedSessions());
+        cue.validate(false);
+        (void)save(detailPath, detail);
+        try {
+            controller.shutdown();
+            addStoppedTiming(detail, controller);
+            (void)save(detailPath, detail);
+        } catch (...) {} // Preserve the original failure and sample evidence if timing collection fails.
+        throw;
     }
 }
 
@@ -3640,24 +3671,7 @@ int main(int argc, char** argv)
                     {"scope", "Failure-only coherent stored before/after controller snapshots. Catch-time sink atomics are separate asynchronous reads, not the assertion's exact read instant. Received counts are per channel; wrong/zero sample counts sum both channels. No root-cause inference."}};
                 observations["cancelled_preparation_failure"] = detail;
                 controller.shutdown();
-                QJsonArray stoppedTiming;
-                for (const auto& timing : controller.completedTiming()) {
-                    const auto& counters = timing.counters;
-                    stoppedTiming.append(QJsonObject{
-                        {"callbacks", qint64(counters.callbacks)}, {"max_execution_ns", qint64(counters.maxExecutionNs)},
-                        {"deadline_misses", qint64(counters.deadlineMisses)},
-                        {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
-                        {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
-                        {"graph_quantum_min", qint64(counters.graphQuantumMin)},
-                        {"graph_quantum_max", qint64(counters.graphQuantumMax)},
-                        {"driver_position_observed", counters.graphPositionObserved},
-                        {"capabilities", QJsonObject{{"cycle", timing.capabilities.cycle},
-                            {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
-                            {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
-                }
-                detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
-                detail["stopped_timing"] = stoppedTiming;
-                detail["stopped_timing_scope"] = "Quiesced totals include callbacks after the assertion. Execution timing does not measure scheduler lateness; unavailable driver flag masks do not establish zero events.";
+                addStoppedTiming(detail, controller);
                 observations["cancelled_preparation_failure"] = detail;
             } catch (const std::exception& diagnostic) {
                 try { observations["cancelled_preparation_diagnostic_error"] = QString::fromUtf8(diagnostic.what()); }
@@ -3743,27 +3757,8 @@ int main(int argc, char** argv)
                 // Preserve the failing sample evidence before intentional cleanup silence.
                 sink.validate(false);
                 controller.shutdown();
-                QJsonArray stoppedTiming;
-                for (const auto& timing : controller.completedTiming()) {
-                    const auto& counters = timing.counters;
-                    stoppedTiming.append(QJsonObject{
-                        {"callbacks", qint64(counters.callbacks)},
-                        {"max_execution_ns", qint64(counters.maxExecutionNs)},
-                        {"deadline_misses", qint64(counters.deadlineMisses)},
-                        {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
-                        {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
-                        {"graph_quantum_min", qint64(counters.graphQuantumMin)},
-                        {"graph_quantum_max", qint64(counters.graphQuantumMax)},
-                        {"driver_position_observed", counters.graphPositionObserved},
-                        {"capabilities", QJsonObject{
-                            {"cycle", timing.capabilities.cycle},
-                            {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
-                            {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
-                }
                 auto detail = observations["cue_jump_failure"].toObject();
-                detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
-                detail["stopped_timing"] = stoppedTiming;
-                detail["stopped_timing_scope"] = "Quiesced totals for all completed sessions after failure-only shutdown, including callbacks after the assertion. Execution timing does not measure scheduler lateness; unavailable driver flag masks do not establish zero events.";
+                addStoppedTiming(detail, controller);
                 observations["cue_jump_failure"] = detail;
             } catch (const std::exception& diagnostic) {
                 try { observations["cue_jump_timing_diagnostic_error"] = QString::fromUtf8(diagnostic.what()); }
