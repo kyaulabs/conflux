@@ -69,6 +69,30 @@ class AnalyzeBpmTest(unittest.TestCase):
                 with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                     bpm.run("/unused", "/unused", 1, io.BytesIO(invalid))
 
+    def test_digital_silence_is_unknown_without_inference(self):
+        with (patch.object(bpm, "verified_sources", return_value={}),
+              patch("importlib.metadata.version", side_effect=bpm.DEPENDENCIES.__getitem__),
+              patch.object(bpm, "load_upstream", side_effect=AssertionError("must not infer"))):
+            frames = 70_000
+            raw = struct.pack("<ff", -0., 0.) * frames
+            output = bpm.run("/unused", "/unused", frames, io.BytesIO(raw))
+            [header] = [json.loads(line) for line in output.splitlines()]
+            self.assertIsNone(header["bpm"])
+            self.assertEqual(header["beat_count"], 0)
+            self.assertEqual(header["pcm_sha256"], hashlib.sha256(raw).hexdigest())
+
+    def test_activity_edges_preserve_channel_and_source_frame(self):
+        import numpy as np
+
+        stereo = np.zeros((140_000, 2), dtype="<f4")
+        stereo[:, 0] = -0.
+        # The left and right channels start and end at different offsets.
+        # Even a quiet nonzero sample belongs to the source.
+        stereo[65_545, 1] = 1e-12
+        stereo[71_999, 0] = -0.01
+        self.assertEqual(bpm.first_nonzero_frame(stereo), 65_545)
+        self.assertEqual(len(stereo) - 1 - bpm.first_nonzero_frame(stereo[::-1]), 71_999)
+
     def test_unknown_and_median_of_adjacent_bpms(self):
         self.assertEqual(bpm.summarize_beats([], 144000), (None, 0))
         self.assertEqual(bpm.summarize_beats([.5], 144000), (None, 1))

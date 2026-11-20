@@ -9,8 +9,9 @@ and its LICENSE; no third-party code or weights are bundled here.
 
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
-Timing rows retain the same beat/downbeat estimates; their source-frame
-validation does not establish musical accuracy.
+Timing rows retain source-aligned beat and downbeat estimates. Exact zero
+padding at track edges does not supply evidence for the model to extend
+the beat grid. Source validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
 
@@ -97,6 +98,19 @@ def source_mask(frames, resampled_lengths, logit_frames):
     # Contiguous source prefix BEFORE peak pooling; exclude a centered EOF bin
     # without shifting eligible source timestamps or suppressing its neighbour.
     return tuple(k * RATE < frames * FPS for k in range(logit_frames))
+
+
+def first_nonzero_frame(stereo):
+    import numpy as np
+
+    # Find nonzero PCM in either channel without allocating a mask for the
+    # entire track. Signed zeros are silent. This is not a loudness threshold.
+    block_frames = 1 << 16
+    for start in range(0, len(stereo), block_frames):
+        present = np.any(stereo[start:start + block_frames], axis=1)
+        if present.any():
+            return start + int(present.argmax())
+    return None
 
 
 def source_beat_frames(seconds, frames):
@@ -239,6 +253,13 @@ def run(source_dir, model_path, frames, stream):
     if 2 * frames * MODEL_RATE < (MODEL_FFT_SIZE + 1) * RATE:
         return encode_result(frames, pcm_sha256, None, [], [])
     import numpy as np
+
+    stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
+    first = first_nonzero_frame(stereo)
+    if first is None:
+        return encode_result(frames, pcm_sha256, None, [], [])
+    last = frames - 1 - first_nonzero_frame(stereo[::-1])
+
     import soxr
     import torch
 
@@ -273,7 +294,6 @@ def run(source_dir, model_path, frames, stream):
     frontend = upstream.Audio2Frames(str(model_path), device="cpu", float16=False)
     if frontend.model.training or next(frontend.model.parameters()).dtype != torch.float32:
         raise ValueError("model must be CPU float32 evaluation mode")
-    stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
     linear, lengths = [], []
     for channel in range(CHANNELS):
         signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=MODEL_RATE)
@@ -292,6 +312,16 @@ def run(source_dir, model_path, frames, stream):
     postprocessor = upstream.Postprocessor(type="minimal", fps=FPS)
     beats, downbeats = postprocessor(beat, downbeat, padding_mask=torch.tensor(mask, dtype=torch.bool))
     seconds, down_seconds = [float(x) for x in beats], [float(x) for x in downbeats]
+    if not set(down_seconds).issubset(seconds):
+        raise ValueError("downbeat stream is not a subset of beats")
+    # Discard only extrapolation deep in exact leading or trailing silence.
+    # Keep a 70 ms edge margin and filter decoded events so an interior
+    # timestamp or downbeat assignment cannot change.
+    margin = 70 * RATE // 1000
+    for events in (seconds, down_seconds):
+        decoded = source_beat_frames(events, frames)
+        events[:] = [time for time, frame in zip(events, decoded)
+                     if first - margin <= frame <= last + margin]
     bpm, _beat_count = summarize_beats(seconds, frames)
     return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds)
 
