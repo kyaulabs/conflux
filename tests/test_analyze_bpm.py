@@ -93,6 +93,32 @@ class AnalyzeBpmTest(unittest.TestCase):
         self.assertEqual(bpm.first_nonzero_frame(stereo), 65_545)
         self.assertEqual(len(stereo) - 1 - bpm.first_nonzero_frame(stereo[::-1]), 71_999)
 
+    def test_long_stereo_break_suppresses_only_interior_events(self):
+        import numpy as np
+
+        left_end = 65_531
+        minimum = bpm.MIN_INTERIOR_SILENCE
+        margin = bpm.SILENCE_MARGIN_FRAMES
+        frames = left_end + minimum + 70_000
+        stereo = np.zeros((frames, 2), dtype="<f4")
+        stereo[:left_end, 0] = .01
+        stereo[left_end + minimum:, 1] = 1e-12
+        begin, end = left_end + margin, left_end + minimum - margin
+        gaps = bpm.interior_silence_cores(stereo, 0, frames - 1)
+        self.assertEqual(gaps, [(begin, end)])
+        times = [frame / bpm.RATE for frame in (begin - 1, begin, end - 1, end)]
+        keep = bpm.filter_silent_events(times, frames, 0, frames - 1, gaps, (begin,))
+        self.assertEqual(keep, [times[0], times[3]])
+        self.assertEqual(bpm.summarize_beats(keep, frames, (begin,)), (None, 2))
+        self.assertEqual(bpm.summarize_beats([0., .5, times[3]], frames, (begin,)), (120., 3))
+        with self.assertRaisesRegex(ValueError, "distinct increasing"):
+            bpm.filter_silent_events([times[1], times[1]], frames, 0, frames - 1, gaps, (begin,))
+
+        # Even one quiet nonzero sample breaks exact digital silence; the
+        # revised gap is now one frame shorter than the supported cutoff.
+        stereo[left_end, 1] = 1e-12
+        self.assertEqual(bpm.interior_silence_cores(stereo, 0, frames - 1), [])
+
     def test_unknown_and_median_of_adjacent_bpms(self):
         self.assertEqual(bpm.summarize_beats([], 144000), (None, 0))
         self.assertEqual(bpm.summarize_beats([.5], 144000), (None, 1))

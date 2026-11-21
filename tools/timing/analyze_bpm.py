@@ -10,12 +10,13 @@ and its LICENSE; no third-party code or weights are bundled here.
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
 Timing rows retain source-aligned beat and downbeat estimates. Exact zero
-padding at track edges does not supply evidence for the model to extend
-the beat grid. Source validation does not establish musical accuracy.
+padding at the edges or a long break in the source does not supply evidence
+for a continuous beat grid. Source validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
 
 import argparse
+from bisect import bisect_right
 import hashlib
 import json
 import math
@@ -31,6 +32,10 @@ MODEL_RATE, MODEL_FFT_SIZE = 22050, 1024
 MAX_FRAMES = 33554432
 MAX_EVENTS = 34953
 MAX_OUTPUT_BYTES = 4 * 1024**2
+SILENCE_MARGIN_FRAMES = 70 * RATE // 1000
+# The longest local tempo interval is 3 seconds (20 BPM). Leave a longer
+# hole after allowing the same margin as at the track edges.
+MIN_INTERIOR_SILENCE = 3 * RATE + 2 * SILENCE_MARGIN_FRAMES
 RECIPE = "beat-this-final0-linear-mel-v1"
 MODEL_BYTES = 81058141
 MODEL_SHA256 = "8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331"
@@ -113,6 +118,29 @@ def first_nonzero_frame(stereo):
     return None
 
 
+def interior_silence_cores(stereo, first, last):
+    """Return half-open source ranges deep inside prolonged exact stereo silence."""
+    import numpy as np
+
+    if last - first <= MIN_INTERIOR_SILENCE:
+        return []
+    # A qualifying gap cannot fit inside one block. Only the first and last
+    # nonzero frames of each nonempty block are needed to find such a gap.
+    block_frames = 1 << 16
+    margin = SILENCE_MARGIN_FRAMES
+    gaps = []
+    previous_end = first + 1
+    for start in range(first, last + 1, block_frames):
+        present = np.any(stereo[start:min(start + block_frames, last + 1)], axis=1)
+        if not present.any():
+            continue
+        active_start = start + int(present.argmax())
+        if active_start - previous_end >= MIN_INTERIOR_SILENCE:
+            gaps.append((previous_end + margin, active_start - margin))
+        previous_end = start + len(present) - int(present[::-1].argmax())
+    return gaps
+
+
 def source_beat_frames(seconds, frames):
     validate_frames(frames)
     if type(seconds) not in (list, tuple) or len(seconds) > min(MAX_EVENTS, frames * FPS // RATE + 1):
@@ -136,11 +164,25 @@ def source_beat_frames(seconds, frames):
     return result
 
 
-def summarize_beats(seconds, frames):
+def filter_silent_events(seconds, frames, first, last, gaps, gap_starts):
+    decoded = source_beat_frames(seconds, frames)
+    margin = SILENCE_MARGIN_FRAMES
+    events = []
+    for time, frame in zip(seconds, decoded):
+        if first - margin <= frame <= last + margin:
+            index = bisect_right(gap_starts, frame) - 1
+            if index < 0 or frame >= gaps[index][1]:
+                events.append(time)
+    return events
+
+
+def summarize_beats(seconds, frames, gap_starts=()):
     beat_frames = source_beat_frames(seconds, frames)
-    if len(beat_frames) < 2:
+    bpms = [60 * RATE / (b - a) for a, b in zip(beat_frames, beat_frames[1:])
+            if not gap_starts or bisect_right(gap_starts, a) == bisect_right(gap_starts, b)]
+    if not bpms:
         return None, len(beat_frames)
-    bpm = statistics.median(60 * RATE / (b - a) for a, b in zip(beat_frames, beat_frames[1:]))
+    bpm = statistics.median(bpms)
     return (round(bpm, 1) if 20 <= bpm <= 400 else None), len(beat_frames)
 
 
@@ -314,15 +356,13 @@ def run(source_dir, model_path, frames, stream):
     seconds, down_seconds = [float(x) for x in beats], [float(x) for x in downbeats]
     if not set(down_seconds).issubset(seconds):
         raise ValueError("downbeat stream is not a subset of beats")
-    # Discard only extrapolation deep in exact leading or trailing silence.
-    # Keep a 70 ms edge margin and filter decoded events so an interior
-    # timestamp or downbeat assignment cannot change.
-    margin = 70 * RATE // 1000
-    for events in (seconds, down_seconds):
-        decoded = source_beat_frames(events, frames)
-        events[:] = [time for time, frame in zip(events, decoded)
-                     if first - margin <= frame <= last + margin]
-    bpm, _beat_count = summarize_beats(seconds, frames)
+    # Work after decoding so a retained timestamp or its bar assignment
+    # stays exactly where the detector put it. Do not infer tempo across a break.
+    gaps = interior_silence_cores(stereo, first, last)
+    gap_starts = tuple(begin for begin, _ in gaps)
+    seconds = filter_silent_events(seconds, frames, first, last, gaps, gap_starts)
+    down_seconds = filter_silent_events(down_seconds, frames, first, last, gaps, gap_starts)
+    bpm, _beat_count = summarize_beats(seconds, frames, gap_starts)
     return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds)
 
 
