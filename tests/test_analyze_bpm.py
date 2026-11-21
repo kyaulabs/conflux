@@ -133,6 +133,26 @@ class AnalyzeBpmTest(unittest.TestCase):
         self.assertEqual(bpm.summarize_beats([0, 3.01], 192000), (None, 2))
         self.assertEqual(bpm.summarize_beats([0, 7199 / 48000], 192000), (None, 2))
 
+    def test_summary_excludes_unsupported_intervals_only(self):
+        frames = 240000
+        digest = hashlib.sha256(b"fixture").hexdigest()
+        cases = (
+            ([0, .12, 4.12], None),
+            ([0, .5, 4.5], 120.0),
+            ([0, .12, .62], 120.0),
+        )
+        for seconds, expected in cases:
+            with self.subTest(seconds=seconds):
+                estimate, count = bpm.summarize_beats(seconds, frames)
+                self.assertEqual((estimate, count), (expected, len(seconds)))
+                wire = bpm.encode_result(frames, digest, estimate, seconds, [seconds[-1]])
+                header, *events = [json.loads(line) for line in wire.splitlines()]
+                self.assertEqual(header["bpm"], expected)
+                self.assertEqual(events, [
+                    {"frame": round(time * 48000), "downbeat": index == len(seconds) - 1}
+                    for index, time in enumerate(seconds)
+                ])
+
     def test_invalid_events_are_errors_not_filtered_beats(self):
         invalid = ([float("nan")], [float("inf")], [True], ["0.5"], [-.1],
                    [1], [.999999], [0, 0], [.5, .25], [0, 1 / 96000], [10**1000])

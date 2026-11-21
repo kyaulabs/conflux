@@ -178,12 +178,15 @@ def filter_silent_events(seconds, frames, first, last, gaps, gap_starts):
 
 def summarize_beats(seconds, frames, gap_starts=()):
     beat_frames = source_beat_frames(seconds, frames)
-    bpms = [60 * RATE / (b - a) for a, b in zip(beat_frames, beat_frames[1:])
-            if not gap_starts or bisect_right(gap_starts, a) == bisect_right(gap_starts, b)]
-    if not bpms:
-        return None, len(beat_frames)
-    bpm = statistics.median(bpms)
-    return (round(bpm, 1) if 20 <= bpm <= 400 else None), len(beat_frames)
+    bpms = []
+    for first, last in zip(beat_frames, beat_frames[1:]):
+        if gap_starts and bisect_right(gap_starts, first) != bisect_right(gap_starts, last):
+            continue
+        bpm = 60 * RATE / (last - first)
+        # Use the same supported range as the deck's source-local tempo.
+        if 20 <= bpm <= 400:
+            bpms.append(bpm)
+    return (round(statistics.median(bpms), 1) if bpms else None), len(beat_frames)
 
 
 def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
