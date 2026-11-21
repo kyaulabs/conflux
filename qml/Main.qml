@@ -238,6 +238,7 @@ ApplicationWindow {
             Layout.fillHeight: true
             spacing: 10
             DeckSurface {
+                id: deckASurface
                 deckIndex: 0
                 controller: deckController
                 Layout.fillWidth: true
@@ -251,6 +252,7 @@ ApplicationWindow {
                 Layout.fillHeight: true
             }
             DeckSurface {
+                id: deckBSurface
                 deckIndex: 1
                 controller: deckController
                 Layout.fillWidth: true
@@ -381,6 +383,27 @@ ApplicationWindow {
                                             ? selectedTrack.cues : []
         readonly property var selectedLevels: selectedTrack !== null && selectedTrack.levels !== undefined
                                               ? selectedTrack.levels : ({})
+        readonly property string selectedAnalysis: {
+            if (!opened || selectedTrack === null)
+                return "Analysis unavailable"
+
+            let sourceBpm = ""
+            const estimates = []
+            for (const surface of [deckASurface, deckBSurface]) {
+                if (!surface.deck.loaded || surface.deck.replacing || surface.showingPreparation
+                        || surface.sourceId !== selectedId)
+                    continue
+                const estimate = Number(surface.bpmState.estimated)
+                if (!sourceBpm && surface.bpmState.status === "Estimated"
+                        && Number.isFinite(estimate) && estimate >= 20 && estimate <= 400)
+                    sourceBpm = "Estimated source BPM " + estimate.toFixed(1)
+                if (surface.localKeyText)
+                    estimates.push(surface.deckName + " playback " + surface.localKeyText)
+            }
+            if (sourceBpm)
+                estimates.unshift(sourceBpm)
+            return estimates.length ? estimates.join(" · ") : "Analysis unavailable"
+        }
         readonly property var preparation: deckController.preparation
         readonly property string preparationText: {
             if (preparation.status === "Idle") return ""
@@ -843,7 +866,7 @@ ApplicationWindow {
                         onClicked: library.selectTrack(modelData)
                         Accessible.onPressAction: clicked()
                         Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
-                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Whole-track levels appear in details. Tempo, beat, phrase and key are unknown."
+                        Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Track details show levels and available analysis."
                         background: Rectangle {
                             radius: 3
                             color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
@@ -889,7 +912,7 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "libraryTrackAnalysis"
-                        text: "Tempo / beat / phrase / key: unknown."
+                        text: library.selectedAnalysis
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.muted
