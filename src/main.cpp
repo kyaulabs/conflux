@@ -37,6 +37,10 @@ int main(int argc, char** argv) {
         qputenv("QT_QPA_PLATFORMTHEME", "xdgdesktopportal");
 #endif
     QGuiApplication app(argc, argv);
+    // Qt Quick can defer Wayland touch motion until a render frame or release.
+    // Mixing gestures must reach the audio controls even while frames stall.
+    if (QGuiApplication::platformName().startsWith(QStringLiteral("wayland")))
+        qputenv("QML_NO_TOUCH_COMPRESSION", "1");
     QCoreApplication::setApplicationName("conflux");
     QCoreApplication::setApplicationVersion(CONFLUX_VERSION);
     QGuiApplication::setApplicationDisplayName("CONFLUX");
