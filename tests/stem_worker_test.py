@@ -796,6 +796,46 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(worker.statistics()["discarded_count"], 0)
         self.assertEqual(fake.calls, 3)
 
+    def test_repeated_cold_seek_uses_parked_target_during_missing_preroll(self):
+        raw = self.root / "repeated-cold-target.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        cases = (("needs overlap", HOP + 37, 1, 3),
+                 ("past overlap", HOP + OVERLAP + 37, 1, 3),
+                 ("after cancellation", HOP + 37, 4, 5))
+        for description, frame, expected_request, expected_calls in cases:
+            with self.subTest(description=description):
+                worker, fake = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                opened = worker.load_f32(raw, start_frame=len(self.audio))
+                self.assertEqual(self.collect(worker, opened), [])
+
+                original = worker.seek(HOP + OVERLAP)
+                target = self.event(worker, "started", original)
+                self.assertEqual((target["request_id"], target["window_start_frame"]), (1, HOP))
+                self.assertTrue(fake.wait_call(1))
+                first_seek = worker.seek(HOP + 17)
+                fake.release()
+                overlap = self.event(worker, "started", first_seek)
+                self.assertEqual(overlap["window_start_frame"], 0)
+                self.assertTrue(overlap["preroll"])
+                self.assertTrue(fake.wait_call(2))
+
+                if description == "after cancellation":
+                    worker.cancel()
+                final_seek = worker.seek(frame)
+                fake.release(4)
+                first, tail = self.collect(worker, final_seek)
+
+                self.assertEqual((first["request_id"], first["frame_start"]), (expected_request, frame))
+                self.assertEqual(first["metrics"]["id"], expected_request)
+                self.assertFalse(first.get("inference_reused", False))
+                self.assertEqual((tail["request_id"], fake.calls), (expected_calls, expected_calls))
+                np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
+                                              expected[:, frame:])
+                worker.close()
+
     def test_seek_uses_active_preroll_before_first_target_chunk(self):
         raw = self.root / "seek-active-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
