@@ -1745,6 +1745,41 @@ private slots:
         QCOMPARE(raw["url"].toUrl().toLocalFile(), edited);
     }
 
+    void libraryAnalysisUsesOnlyMatchingLoadedSource()
+    {
+        const QString selected(64, QLatin1Char('c'));
+        const QString other(64, QLatin1Char('d'));
+        ui_->endpoint.setLibrary({QVariantMap{{"id", selected}, {"name", "Selected track"},
+            {"path", "/tmp/source.wav"}, {"durationSeconds", 75.0}, {"available", true}}});
+        ui_->endpoint.snapshotDeck(0, {{"loaded", true}, {"sourceId", selected},
+            {"bpm", QVariantMap{{"estimated", 124.5}, {"reference", 138.0},
+                                 {"manual", true}, {"status", "Estimated"}}},
+            {"harmony", QVariantMap{{"status", "Estimated"},
+                {"candidates", QVariantList{QVariantMap{{"tonic", 2}, {"mode", "Minor"}}}}}}});
+        ui_->endpoint.snapshotDeck(1, {{"loaded", true}, {"sourceId", other},
+            {"bpm", QVariantMap{{"estimated", 149.0}, {"status", "Estimated"}}},
+            {"harmony", QVariantMap{{"status", "Ambiguous"}}}});
+
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        auto* row = ui_->item("libraryTrack0");
+        auto* detail = ui_->item("libraryTrackAnalysis");
+        QVERIFY(detail);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
+        QTRY_COMPARE(detail->property("text").toString(),
+                     QString("Estimated source BPM 124.5 · Deck A playback KEY EST. D MIN"));
+
+        ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
+        QTRY_COMPARE(detail->property("text").toString(), QString("Analysis unavailable"));
+        ui_->endpoint.snapshotDeck(1, {{"sourceId", selected}});
+        QTRY_COMPARE(detail->property("text").toString(),
+                     QString("Estimated source BPM 149.0 · Deck B playback KEY AMBIGUOUS"));
+        ui_->endpoint.snapshotDeck(1, {{"bpm", QVariantMap{{"estimated", 0.0}, {"reference", 142.0},
+                                                           {"manual", true}, {"status", "Unavailable"}}}});
+        QTRY_COMPARE(detail->property("text").toString(), QString("Deck B playback KEY AMBIGUOUS"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
     void selectedLibraryLevels_data()
     {
         QTest::addColumn<bool>("includeLevels");
@@ -1788,7 +1823,7 @@ private slots:
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
         QTRY_COMPARE(detail->property("text").toString(), "Whole-track RMS: " + rms + " · Sample peak: " + peak);
         QCOMPARE(detail->property("textFormat").toInt(), int(Qt::PlainText));
-        QCOMPARE(analysis->property("text").toString(), QString("Tempo / beat / phrase / key: unknown."));
+        QCOMPARE(analysis->property("text").toString(), QString("Analysis unavailable"));
         QCOMPARE(row->height(), 56.0);
         QCOMPARE(ui_->item("libraryTrack0Name")->property("text").toString(), QString("<b>Literal track</b>"));
         QCOMPARE(ui_->item("libraryTrack0Name")->property("textFormat").toInt(), int(Qt::PlainText));
