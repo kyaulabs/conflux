@@ -212,16 +212,17 @@ private:
         return reinterpret_cast<std::uintptr_t>(start) % alignof(float) == 0 ?
             reinterpret_cast<const float*>(start) : nullptr;
     }
-    void saveMismatch(const spa_io_position& position, std::size_t channel, std::uint32_t frame,
-                      std::uint32_t frames, bool bufferPresent, const spa_data* plane, const float* samples) noexcept
+    void saveMismatch(std::uint64_t graphFrame, std::uint64_t graphNsec,
+                      std::size_t channel, std::uint32_t frame, std::uint32_t frames,
+                      bool bufferPresent, const spa_data* plane, const float* samples, float sample) noexcept
     {
         if (mismatchReady_.load(std::memory_order_relaxed)) return;
         const auto* chunk = plane ? plane->chunk : nullptr;
-        mismatch_ = {position.clock.position, position.clock.nsec,
+        mismatch_ = {graphFrame, graphNsec,
             received_[channel].load(std::memory_order_relaxed), std::uint32_t(channel), frame, frames,
             plane ? plane->maxsize : 0, chunk ? chunk->size : 0, chunk ? chunk->offset : 0,
             chunk ? chunk->stride : 0, chunk ? chunk->flags : 0, bufferPresent, samples != nullptr,
-            samples ? samples[frame] : 0.F, samples ? samples[frames - 1] : 0.F};
+            sample, samples ? samples[frames - 1] : 0.F};
         mismatchReady_.store(true, std::memory_order_release);
     }
     static void process(void* data, spa_io_position* position) noexcept
@@ -230,6 +231,7 @@ private:
         if (!position || !position->clock.duration || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
         const auto graphFrame = position->clock.position;
+        const auto graphNsec = position->clock.nsec;
         const bool armed = self.armed_.load(std::memory_order_acquire);
         const bool bounded = self.validationFrames_ != std::numeric_limits<std::uint64_t>::max();
         if (armed && !self.wasArmed_) {
@@ -263,13 +265,15 @@ private:
                 // Missing or invalid input fails the PCM check without reading
                 // stale bytes or counting unread samples as silence.
                 wrong = checked;
-                self.saveMismatch(*position, channel, 0, frames, buffer != nullptr, plane, nullptr);
+                self.saveMismatch(graphFrame, graphNsec, channel, 0, frames, buffer != nullptr, plane, nullptr, 0.F);
             } else {
                 for (std::uint32_t frame = 0; frame < checked; ++frame) {
-                    zeros += samples[frame] == 0.F;
-                    const bool bad = !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
+                    // Count and report the same value read from the shared PipeWire buffer.
+                    const auto sample = samples[frame];
+                    zeros += sample == 0.F;
+                    const bool bad = !std::isfinite(sample) || std::abs(sample - expected[channel]) > self.tolerance_;
                     wrong += bad;
-                    if (bad) self.saveMismatch(*position, channel, frame, frames, true, plane, samples);
+                    if (bad) self.saveMismatch(graphFrame, graphNsec, channel, frame, frames, true, plane, samples, sample);
                 }
             }
             if (buffer) (void)pw_filter_queue_buffer(port, buffer);
