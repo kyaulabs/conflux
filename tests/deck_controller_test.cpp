@@ -2447,6 +2447,77 @@ private slots:
         QVERIFY(!controller.decks()[0].toMap()["bpm"].toMap()["manual"].toBool());
     }
 
+    void coldStemExportShowsSourceBeforeWorkerCompletes()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto original = directory.filePath("accepted.flac");
+        const auto next = directory.filePath("separate.flac");
+        QVERIFY(presentationFixture::writeFlac(original, "Accepted title", "Current artist", "Current album",
+            presentationFixture::artwork(Qt::blue), 48000, 4800));
+        QVERIFY(presentationFixture::writeFlac(next, "Incoming title", "Incoming artist", "Incoming album",
+            presentationFixture::artwork(Qt::red), 48000, 9600));
+        conflux::DeckController::PreparationOptions options;
+        options.stemEngine = conflux::test::makeStemEngineFixture(directory.path(), "wait-for-release");
+        options.stemEngine->maxSeconds = 12;
+        conflux::DeckController controller(options);
+        controller.loadDeck(0, QUrl::fromLocalFile(original));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        controller.loadDeck(1, QUrl::fromLocalFile(original));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        const auto accepted = controller.decks();
+        QVERIFY(accepted[0].toMap()["loaded"].toBool() && accepted[1].toMap()["loaded"].toBool());
+        const auto submitted = controller.submittedCommands();
+
+        controller.loadStemDeck(0, QUrl::fromLocalFile(next));
+        QCOMPARE(controller.decks()[0].toMap()["pendingName"].toString(), QString("separate.flac"));
+        QTRY_VERIFY_WITH_TIMEOUT(QFileInfo::exists(directory.filePath("exporter.started")), 5000);
+        QVERIFY(controller.busy());
+        const auto pending = controller.decks()[0].toMap();
+        QVERIFY(pending["loading"].toBool());
+        QCOMPARE(pending["pendingPresentation"].toMap()["title"].toString(), QString("Incoming title"));
+        QCOMPARE(pending["pendingPresentation"].toMap()["artist"].toString(), QString("Incoming artist"));
+        QVERIFY(!pending["pendingPresentation"].toMap()["artworkDataUrl"].toString().isEmpty());
+        const auto waveform = pending["pendingWaveform"].toList();
+        QVERIFY(std::ranges::any_of(waveform, [](const auto& peak) { return peak.toDouble() > 0.; }));
+        QCOMPARE(pending["loadPhase"].toString(), QString("stem-export"));
+        QCOMPARE(pending["loadCompletedStages"].toInt(), 1);
+        QCOMPARE(pending["loadTotalStages"].toInt(), 4);
+        QCOMPARE(pending["loadProgress"].toDouble(), .25);
+        QCOMPARE(pending["sourceId"], accepted[0].toMap()["sourceId"]);
+        QCOMPARE(pending["waveform"], accepted[0].toMap()["waveform"]);
+        QCOMPARE(controller.decks()[1], accepted[1]);
+        QCOMPARE(controller.submittedCommands(), submitted);
+
+        QFile allow(directory.filePath("exporter.release"));
+        QVERIFY(allow.open(QIODevice::WriteOnly));
+        allow.close();
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        // The fixture has no audio sink. Verify the installed owner and track
+        // metadata independently of whether it can connect to an output.
+        const auto installed = controller.decks()[0].toMap();
+        QVERIFY2(installed["loaded"].toBool(), qPrintable(controller.error()));
+        QCOMPARE(installed["title"].toString(), QString("Incoming title"));
+        QVERIFY(installed["stemBank"].toBool());
+        QVERIFY(installed["sourceId"] != accepted[0].toMap()["sourceId"]);
+        QVERIFY(!installed["loading"].toBool());
+        QVERIFY(installed["pendingWaveform"].toList().isEmpty());
+        const auto peer = controller.decks()[1].toMap();
+        QVERIFY(peer["loaded"].toBool());
+        QCOMPARE(peer["sourceId"], accepted[1].toMap()["sourceId"]);
+        QCOMPARE(peer["waveform"], accepted[1].toMap()["waveform"]);
+
+        controller.loadStemDeck(0, QUrl::fromLocalFile(next));
+        QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+        QVERIFY(controller.preparation()["cacheHit"].toBool());
+        QVERIFY(controller.decks()[0].toMap()["stemBank"].toBool());
+        QFile requests(directory.filePath("exporter.calls"));
+        QVERIFY(requests.open(QIODevice::ReadOnly));
+        QCOMPARE(requests.readAll(), QByteArray("x"));
+    }
+
     void pendingPresentationPrecedesBpmAndPreservesActiveTrack()
     {
         QTemporaryDir directory, runtime;

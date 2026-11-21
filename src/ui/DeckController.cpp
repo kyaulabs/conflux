@@ -77,6 +77,7 @@ QString preparationPhaseText(const QString& phase)
 {
     if (phase == "decode-cache") return "Decoding / validating audio cache";
     if (phase == "stems") return "Preparing requested stems";
+    if (phase == "stem-export") return "Separating the track into stems";
     if (phase == "bpm-prepare") return "Preparing original mix for BPM analysis";
     if (phase == "bpm") return "Analyzing original-mix BPM";
     if (phase == "prime") return "Priming playback";
@@ -914,6 +915,13 @@ void DeckController::loadDeck(int deck, const QUrl& url)
 void DeckController::loadStemDeck(int deck, const QUrl& url)
 { beginPreparation(deck, url, false, {}, true); }
 
+int DeckController::trackPreparationStageCount(bool importOnly, bool stems) const
+{
+    if (importOnly) return 3;
+    return 3 + int(stems && preparationOptions_.stemServicePath.isEmpty()) +
+        int(preparationOptions_.bpmEngine.has_value()) + int(preparationOptions_.harmonyEngine.has_value());
+}
+
 void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly,
                                       const QString& expectedSource, bool stems,
                                       std::optional<library::LiveStemResidentHold> residentHold)
@@ -995,9 +1003,9 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
     pendingPresentation_ = {};
     pendingWaveform_.clear();
     const auto serial = ++preparationSerial_;
-    preparationPhase_ = stems ? "stems" : "decode-cache";
+    preparationPhase_ = stems && !service.isEmpty() ? "stems" : "decode-cache";
     preparationCompletedStages_ = 0;
-    preparationTotalStages_ = importOnly ? 3 : 3 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
+    preparationTotalStages_ = trackPreparationStageCount(importOnly, stems);
     const auto report = [this, serial](QString phase, int completedStages,
         std::optional<library::TrackPresentation> presentation = {}, QVariantList waveform = {}) {
         QMetaObject::invokeMethod(this, [this, serial, phase = std::move(phase), completedStages,
@@ -1014,16 +1022,27 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
             library::PreparedTrackStore store(cache, limits);
             auto prepared = std::make_shared<PreparedLoad>();
             int completedStages = 0;
+            const auto waveformFromPeaks = [](std::span<const float> peaks) {
+                QVariantList waveform;
+                waveform.reserve(qsizetype(peaks.size()));
+                for (const auto peak : peaks) waveform.append(peak);
+                return waveform;
+            };
             const auto preview = [&](const library::TrackPresentation& presentation, std::span<const float> peaks) {
-                prepared->waveform.reserve(qsizetype(peaks.size()));
-                for (const auto peak : peaks) prepared->waveform.append(peak);
+                prepared->waveform = waveformFromPeaks(peaks);
                 report(stems ? "stems" : "decode-cache", ++completedStages, presentation, prepared->waveform);
             };
             QString sourceId;
             if (stems) {
-                auto bank = service.isEmpty() ?
-                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop, expectedSource)) :
+                const bool fullBank = service.isEmpty();
+                const auto reportInput = [&](const library::TrackPresentation& presentation, std::span<const float> peaks) {
+                    report("stem-export", 1, presentation, waveformFromPeaks(peaks));
+                };
+                auto bank = fullBank ?
+                    std::optional<library::PreparedStemTrack>(store.prepareStemBank(path, *engine, stop, expectedSource, reportInput)) :
                     store.findPreparedStemBank(path, *engine, stop, {}, expectedSource);
+                // A saved bank completes the input stage without an exporter.
+                completedStages += int(fullBank);
                 if (bank) {
                     sourceId = bank->sourceSha256;
                     prepared->cacheHit = bank->cacheHit;
@@ -1045,6 +1064,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                 }
                 preview(prepared->presentation, prepared->audio->peaks());
                 if (bpmEngine || harmonyEngine) {
+                    const int stemStages = completedStages;
                     // Both maps use the same exact original mix, never a stem
                     // leaf/overview. Admit playback before optional analysis.
                     try {
@@ -1071,7 +1091,7 @@ void DeckController::beginPreparation(int deck, const QUrl& url, bool importOnly
                         if (stop.stop_requested()) throw;
                         if (bpmEngine) prepared->bpm = {{}, "Failed", "Original-mix BPM analysis could not complete."};
                         if (harmonyEngine) prepared->harmony = {"Failed", "Original-mix harmony analysis could not complete.", 0, {}, {}};
-                        completedStages = 1 + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
+                        completedStages = stemStages + int(bpmEngine.has_value()) + int(harmonyEngine.has_value());
                     }
                 }
             } else {
@@ -1142,7 +1162,7 @@ bool DeckController::deferForegroundPreparation(ForegroundPreparation request)
     preparationPhase_ = "continuation-cleanup";
     preparationCompletedStages_ = 0;
     preparationTotalStages_ = request.kind == ForegroundPreparation::Kind::CueImport ? 2 :
-        request.importOnly ? 3 : 3 + int(preparationOptions_.bpmEngine.has_value()) + int(preparationOptions_.harmonyEngine.has_value());
+        trackPreparationStageCount(request.importOnly, request.stems);
     preparationCacheHit_ = false;
     if (request.kind == ForegroundPreparation::Kind::Track && !request.importOnly)
         revokeResidentAuthorization(std::size_t(request.deck), "A new track preparation was accepted.");

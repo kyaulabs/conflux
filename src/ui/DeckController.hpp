@@ -264,6 +264,7 @@ private:
     void beginPreparation(int deck, const QUrl& url, bool importOnly,
                           const QString& expectedSource = {}, bool stems = false,
                           std::optional<library::LiveStemResidentHold> residentHold = {});
+    int trackPreparationStageCount(bool importOnly, bool stems) const;
     bool preparationActive() const;
     void updatePreparation(std::uint64_t serial, QString phase, int completedStages,
                            std::optional<library::TrackPresentation> presentation = {},

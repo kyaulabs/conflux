@@ -76,6 +76,9 @@ if MODE == 'flood':
     sys.stdout.buffer.write(b'x' * 131072); sys.stdout.buffer.flush(); time.sleep(60)
 if MODE == 'block':
     time.sleep(60)
+if MODE == 'wait-for-release':
+    while not P.with_suffix('.release').exists():
+        time.sleep(.005)
 input_bytes = pathlib.Path(v.input).stat().st_size
 frames = input_bytes // 8
 destination = pathlib.Path(v.destination)
