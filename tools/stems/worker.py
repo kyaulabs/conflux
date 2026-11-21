@@ -390,6 +390,7 @@ class StemWorker:
         self._processing_generation = 0
         self._inflight = None
         self._pending_inference = None
+        self._retained_target = None
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='conflux-native-stems')
         self._native = None
         self._cleanup_error = None
@@ -418,6 +419,10 @@ class StemWorker:
                 self._source_generation = self._generation
                 self._opening_weighted_window = None
                 self._weighted_windows.clear()
+                self._retained_target = None
+            elif (self._retained_target is not None
+                  and self._retained_target.event["window_start_frame"] != start // HOP * HOP):
+                self._retained_target = None
             if action == "cancel":
                 self._cancelled += 1
             now = time.monotonic()
@@ -589,6 +594,7 @@ class StemWorker:
         with self._condition:
             self._opening_weighted_window = None
             self._weighted_windows.clear()
+            self._retained_target = None
             native = self._native
         if native is not None:
             try:
@@ -731,6 +737,8 @@ class StemWorker:
         if pending is not None and pending.event["request_id"] == request_id:
             self._pending_inference = None
             self._inflight = None
+        if self._retained_target is not None and self._retained_target.event["request_id"] == request_id:
+            self._retained_target = None
 
     def _wait_inference(self, command=None, *, adopt=False, keep_pending=False):
         pending = self._pending_inference
@@ -760,16 +768,24 @@ class StemWorker:
             return None
         return output, metrics, elapsed
 
-    def _pending_matches_window(self, command, source, start):
-        pending = self._pending_inference
-        return (pending is not None and source.source_format == "f32le" and pending.source is source
-                and pending.command.source_generation == command.source_generation
-                and pending.event["window_start_frame"] == start)
+    @staticmethod
+    def _matches_window(reply, command, source, start):
+        return (reply is not None and source.source_format == "f32le" and reply.source is source
+                and reply.command.source_generation == command.source_generation
+                and reply.event["window_start_frame"] == start)
 
-    def _inference_for_window(self, command, source, start, preroll, *, retain_reply=True):
-        keep_pending = retain_reply and source.source_format == "f32le"
+    def _inference_for_window(self, command, source, start, preroll):
+        retained = self._retained_target
+        if self._matches_window(retained, command, source, start):
+            self._check(command)
+            if _signature(source.path) != source.signature:
+                raise RuntimeError("stem source changed during seek preroll")
+            output, metrics, elapsed = retained.future.result()
+            return output, metrics, elapsed, retained.event["request_id"], retained.source_read_ms
+
+        keep_pending = source.source_format == "f32le"
         pending = self._pending_inference
-        if self._pending_matches_window(command, source, start):
+        if self._matches_window(pending, command, source, start):
             # The pending request used this exact grid window and normalization.
             # Keep its real request timings and charge the new hop for the wait.
             output, metrics, elapsed = self._wait_inference(command, adopt=True, keep_pending=keep_pending)
@@ -814,7 +830,7 @@ class StemWorker:
                 window = self._weighted_window_locked(start)
                 if window is None or window[0] is not source:
                     cached_prefix = False
-                    if self._pending_matches_window(command, source, start):
+                    if self._matches_window(self._pending_inference, command, source, start):
                         return False, True
         return cached_prefix, False
 
@@ -843,7 +859,6 @@ class StemWorker:
         target_window = command.start // HOP
         first_window = _first_contributing_window(command.start)
         previous = None
-        retained_target = None
         for index in range(first_window, (source.frames + HOP - 1) // HOP):
             self._check(command)
             preroll = index < target_window
@@ -856,7 +871,8 @@ class StemWorker:
                 cached = self._weighted_window_locked(start)
             self._check(command)
             service_started = time.monotonic()
-            if retained_service is not None and retained_service[0] == start:
+            if retained_service is not None and (retained_service[0] == start or
+                    self._matches_window(self._retained_target, command, source, start)):
                 service_started = retained_service[1]
             if (cached is not None and cached[0] is source
                     and _signature(source.path) == source.signature):
@@ -864,19 +880,19 @@ class StemWorker:
                 overlap_started = time.monotonic()
                 timings = {"inference_reused": True}
             else:
-                if preroll and self._pending_matches_window(command, source, target_window * HOP):
-                    # Keep the exact target reply while the same native
-                    # transport computes the missing overlap window.
-                    retained_target = self._inference_for_window(
-                        command, source, target_window * HOP, False, retain_reply=False)
-                if index == target_window and retained_target is not None:
-                    if _signature(source.path) != source.signature:
-                        raise RuntimeError("stem source changed during seek preroll")
-                    output, metrics, elapsed, request_id, source_read_ms = retained_target
-                    retained_target = None
-                else:
-                    output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
-                        command, source, start, preroll)
+                pending = self._pending_inference
+                if preroll and self._matches_window(pending, command, source, target_window * HOP):
+                    # Release the native exchange for preroll, while keeping
+                    # the completed target across seeks within its window.
+                    self._wait_inference(command, adopt=True)
+                    with self._condition:
+                        latest = self._command
+                        if (self._closed or latest is None or latest.source_generation != command.source_generation
+                                or latest.start // HOP != target_window):
+                            raise _Superseded
+                        self._retained_target = pending
+                output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
+                    command, source, start, preroll)
                 if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
                     raise RuntimeError("stem backend returned invalid samples")
                 overlap_started = time.monotonic()
