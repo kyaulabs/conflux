@@ -1384,7 +1384,7 @@ bool PreparedPlayback::primeContinuation(double position, const AudioTempoState&
         primeError_.store(tempoSetupError_ ? tempoSetupError_ : EIO,std::memory_order_relaxed);
         return false;
     }
-    if (!primeTempo(position,tempo.percent,tempo.keyLock,now+timeout,stop)) return false;
+    if (!primeTempo(position,tempo.percent,tempo.keyLock,now+timeout,stop,true)) return false;
     tempoKeyLock_ = tempo.keyLock;
     continuationPrimePosition_ = position;
     unusedContinuationPrime_ = true;
@@ -1392,10 +1392,10 @@ bool PreparedPlayback::primeContinuation(double position, const AudioTempoState&
 }
 
 bool PreparedPlayback::primeTempo(double position, double percent, bool keyLock,
-                                  Clock::time_point deadline, std::stop_token stop)
+                                  Clock::time_point deadline, std::stop_token stop, bool continuation)
 {
     const bool requested = live_ ? tempoSource_->request(std::uint64_t(position),percent,keyLock)
-                                 : tempoSource_->requestAt(position,percent,keyLock);
+                                 : tempoSource_->requestAt(position,percent,keyLock,continuation);
     if (!requested) {
         const int code = tempoSource_->errorCode();
         primeError_.store(code ? code : EIO, std::memory_order_relaxed);
