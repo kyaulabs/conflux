@@ -32,12 +32,15 @@ Item {
     signal released()
     signal canceled()
 
+    function finishPendingCancel() {
+        if (physicalPress && pendingCancelGeneration === pressGeneration)
+            finishPress(true)
+    }
     function beginPress(key) {
         if (!available)
             return
-        if (physicalPress && pendingCancelGeneration === pressGeneration)
-            finishPress(true)
-        if (physicalPress)
+        finishPendingCancel()
+        if (!available || physicalPress)
             return
         pressGeneration += 1
         heldKey = key || 0
@@ -56,10 +59,10 @@ Item {
         else
             released()
     }
-    function requestCancel() {
+    function requestCancel(afterBindings = false) {
         if (!physicalPress)
             return
-        if (!holdAction || !hostWindow || !hostWindow.active) {
+        if (!afterBindings && (!holdAction || !hostWindow || !hostWindow.active)) {
             finishPress(true)
             return
         }
@@ -67,8 +70,9 @@ Item {
         if (pendingCancelGeneration === generation)
             return
         pendingCancelGeneration = generation
-        // A Play press in this input event must reach the controller before
-        // same-window focus cleanup ends a held CUE preview.
+        // A held CUE release can publish a new deck snapshot. On disable,
+        // let the availability binding finish before dispatching that release.
+        // On focus changes, let a Play press in this event take precedence.
         Qt.callLater(function() {
             if (!control)
                 return
@@ -78,7 +82,7 @@ Item {
                 control.finishPress(true)
         })
     }
-    onAvailableChanged: { if (!available) finishPress(true) }
+    onAvailableChanged: { if (!available) requestCancel(holdAction) }
     onHostWindowChanged: { if (!hostWindow || !hostWindow.active) finishPress(true) }
     Component.onDestruction: finishPress(true)
     Connections {
@@ -104,12 +108,22 @@ Item {
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
         onReleased: { if (control.touchContactId < 0) control.finishPress(false) }
-        onCanceled: { if (control.touchContactId < 0) control.requestCancel() }
-        onEnabledChanged: { if (!enabled) control.finishPress(true) }
+        onCanceled: {
+            if (control.touchContactId < 0)
+                control.requestCancel(control.holdAction && !control.available)
+        }
+        onEnabledChanged: {
+            if (!enabled) {
+                if (control.holdAction && !control.available)
+                    control.requestCancel(true)
+                else
+                    control.finishPress(true)
+            }
+        }
         onVisibleChanged: { if (!visible) control.finishPress(true) }
         onActiveFocusChanged: {
             if (control.holdAction && !activeFocus && control.touchContactId < 0)
-                control.requestCancel()
+                control.requestCancel(!control.available)
         }
         // Space keeps the native Button press/release path. Enter/Return get
         // matching hold semantics for CUE instead of an immediate activation.
@@ -205,7 +219,10 @@ Item {
                 return null
             }
             onPressed: points => {
-                if (control.physicalPress || points.length === 0)
+                if (!control.available || points.length === 0)
+                    return
+                control.finishPendingCancel()
+                if (!control.available || control.physicalPress)
                     return
                 const pointId = points[0].pointId
                 control.touchContactId = pointId
@@ -219,7 +236,14 @@ Item {
                     control.finishPress(true)
             }
             onReleased: points => { if (heldContact(points)) control.finishPress(false) }
-            onCanceled: points => { if (heldContact(points)) control.finishPress(true) }
+            onCanceled: points => {
+                if (heldContact(points)) {
+                    if (control.available)
+                        control.finishPress(true)
+                    else
+                        control.requestCancel(true)
+                }
+            }
             onGestureStarted: gesture => gesture.grab()
         }
     }

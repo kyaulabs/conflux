@@ -3514,6 +3514,7 @@ private slots:
         touchActive_ = false;
         QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
         verifyCueCall(4, "cueRelease", 0);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void keyboardCueHold_data()
@@ -3557,7 +3558,7 @@ private slots:
         QTest::addColumn<int>("deck");
         QTest::addColumn<QString>("reason");
         for (int deck = 0; deck < 2; ++deck)
-            for (const auto* reason : {"pointer-ungrab", "keyboard-focus", "output-loss", "unload", "hidden"})
+            for (const auto* reason : {"pointer-ungrab", "keyboard-focus", "output-loss", "output-cycle", "unload", "hidden"})
                 QTest::newRow(qPrintable(QString("deck%1-%2").arg(deck).arg(reason))) << deck << QString(reason);
     }
 
@@ -3587,7 +3588,24 @@ private slots:
             ui_->item("masterGain")->forceActiveFocus();
         else if (reason == "output-loss")
             ui_->endpoint.setReady(false);
-        else if (reason == "unload")
+        else if (reason == "output-cycle") {
+            ui_->endpoint.setReady(false);
+            ui_->endpoint.setReady(true);
+            QCOMPARE(ui_->endpoint.calls.size(), 1); // Disable dispatch waits for bindings.
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+            verifyCueCall(1, "cueRelease", deck);
+            verifyCueCall(2, "cuePress", deck);
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), 3);
+            QVERIFY(ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+            verifyCueCall(3, "cueRelease", deck);
+            QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+            return;
+        } else if (reason == "unload")
             ui_->endpoint.unloadState(deck);
         else
             cue->parentItem()->setVisible(false);
@@ -3600,6 +3618,7 @@ private slots:
             QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
         QCoreApplication::processEvents();
         QCOMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void rejectedCuePressHasNoRelease()
