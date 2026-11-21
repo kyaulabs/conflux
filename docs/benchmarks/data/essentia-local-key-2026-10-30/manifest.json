@@ -1,0 +1,459 @@
+{
+  "schema": 1,
+  "source_head": "b8339e186e6d7228855d169397196ba56e0574dc",
+  "recorded_utc": "2026-10-30T23:23:49.218489+00:00",
+  "files": [
+    {
+      "file": "001-prospective-01.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/prospective-01.json",
+      "bytes": 4523,
+      "sha256": "d0f7e596d0e5a9efc7ca69d4d6e07018acc24eaf3060fa7e7e7b0315f060ea73",
+      "gzip_bytes": 1470,
+      "gzip_sha256": "d4dcc841a91581ee16a148606b2886966bad20719c4a6a87e5136c51d0afd413"
+    },
+    {
+      "file": "002-plan-laptop.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/plan-laptop.json",
+      "bytes": 9246,
+      "sha256": "e2c9154db0f1a26dec1e4b768bc4f919e628ba7f35f5af352640ec7ab08d4ad7",
+      "gzip_bytes": 2594,
+      "gzip_sha256": "fa28a4cc9e4412dcc9ba4b5f47bd79ac5d704595d18f060f7b3696c664c27ef0"
+    },
+    {
+      "file": "003-source-manifest.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source-manifest.json",
+      "bytes": 6233,
+      "sha256": "15aedf544e0211f9dcba70e6006052999a98cc515ccc99d482f63f358b683c32",
+      "gzip_bytes": 2256,
+      "gzip_sha256": "0cafb1a7e7336fb13b3b7c092e19891b235c137220ec29cfe8ba29c5d6c69316"
+    },
+    {
+      "file": "004-source-review-01.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source-review-01.json",
+      "bytes": 531,
+      "sha256": "4e8de447c5c38c2faf1bffab1483da38f5b32d987d33181789feef8bd18df517",
+      "gzip_bytes": 329,
+      "gzip_sha256": "0c079f2f19419fc9689670095df877a4704a5da50871d7fa579384ea5c2ffae4"
+    },
+    {
+      "file": "005-worker.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/worker.py",
+      "bytes": 5210,
+      "sha256": "2cfa210b482e839558e4aa9d1ec70cb659af5b88e5c6ab0e869c99e43726889f",
+      "gzip_bytes": 2236,
+      "gzip_sha256": "9b1b13db12844ca8f30336e456ba0673431d72837dc8762e65c1402f9966310f"
+    },
+    {
+      "file": "006-run_corpus.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/run_corpus.py",
+      "bytes": 9614,
+      "sha256": "bdc0e804f532287fe7e3b89842c12865834543d513bad4d4c2c72689f871c902",
+      "gzip_bytes": 3564,
+      "gzip_sha256": "19ca75ba24b9c228899d4b59cb67bedd6ac4af6879c9f7c4a44068c04cb168ac"
+    },
+    {
+      "file": "007-local_validate.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/local_validate.py",
+      "bytes": 3042,
+      "sha256": "1457e1ba45798bc5c76cf9c8be965eb3f86eadbf07801fcfd6d473c5be36431d",
+      "gzip_bytes": 1090,
+      "gzip_sha256": "7a334e63ce3d02d9628e9adf440964c30c6795de5091648750e97ddb09f9fe91"
+    },
+    {
+      "file": "008-complete_two.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/complete_two.py",
+      "bytes": 3178,
+      "sha256": "7cfb75498191b0f1964a3bcf8090e0693c8681679857a97f393cd5e2b5f63811",
+      "gzip_bytes": 1410,
+      "gzip_sha256": "078a36d4a440377f29e887e18f3c2820bb814947da9acf376070cb06cc9e885e"
+    },
+    {
+      "file": "009-run_pair.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/run_pair.py",
+      "bytes": 9674,
+      "sha256": "a819b521d5f86d0093a74a71b0c32d480c32f893b5f9ad1b389c689edec438ff",
+      "gzip_bytes": 3769,
+      "gzip_sha256": "c8f18bfd47b29f7e9327c33815add765f825033c9b18c99b9e2b05bfd7532c39"
+    },
+    {
+      "file": "010-collect_closed_01.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/collect_closed_01.py",
+      "bytes": 3577,
+      "sha256": "de70c47c8f60524293549625e602850ce8ecc59aa26b8e3d630e78d1cc47d6a1",
+      "gzip_bytes": 1603,
+      "gzip_sha256": "15f7cc787b007512be6ada0ddd6021b82213fa767b7c61ce274dd6798964899e"
+    },
+    {
+      "file": "011-score_closed_01.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/score_closed_01.py",
+      "bytes": 6903,
+      "sha256": "a4fb841cccd4202e940933fc2a926f5360c6fa812c328b43d3a3d838925684d4",
+      "gzip_bytes": 2538,
+      "gzip_sha256": "9ff995b3fc3f0b60716294f348340f84569a23af0a0f9fa38f88be0d47a39389"
+    },
+    {
+      "file": "012-test_local_validation.py.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/test_local_validation.py",
+      "bytes": 3155,
+      "sha256": "9f9674051323717446eeb9b13b916eb04b48d530ffa03df5ee6a6a856ec2b302",
+      "gzip_bytes": 1187,
+      "gzip_sha256": "dfa81a5f9740d06590288182dc41563b51bd5e9eb02fe29ccfd10801ce76bdf0"
+    },
+    {
+      "file": "013-pair-owner-result.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/pair-owner-result.json",
+      "bytes": 241,
+      "sha256": "c1cac115ec2044b8f3b0ade261759c37b36de05a05dd27a94806442084833776",
+      "gzip_bytes": 170,
+      "gzip_sha256": "d2d8e459dd74083472b0bcc6c2a49a8ade2a96c45afd60a6e6768c3c50aecf9f"
+    },
+    {
+      "file": "014-pair-reservation.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/pair-reservation.json",
+      "bytes": 171,
+      "sha256": "99300de0c334f5d799a7040c662c27cc2352f4c1c9670b14f8ff0a3e9465db37",
+      "gzip_bytes": 155,
+      "gzip_sha256": "299a7ffc88c12d0ccbb61422dbf94755de1f0c16ad5b81059a083c79d7537347"
+    },
+    {
+      "file": "015-closed-before-scoring-01.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/closed-before-scoring-01.json",
+      "bytes": 1429,
+      "sha256": "45dfe150419ee350558f8e119772a42e8ff5fdc8b9e10426509dce4a89191d39",
+      "gzip_bytes": 528,
+      "gzip_sha256": "c1a272a01abfcdb1f4653dd76d837d636ba02c8393fa7400e8a5b6473664d18d"
+    },
+    {
+      "file": "016-validated-before-scoring-01.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/validated-before-scoring-01.json",
+      "bytes": 198,
+      "sha256": "bf436dda2c0664bc695ef2b3fb112518f6e50c6dfe6862c12d87b6b62cb65499",
+      "gzip_bytes": 153,
+      "gzip_sha256": "f6dc11fae26fc0af0dc733b7a0616760e25bebc1a36eb2450856f0e3ff0c5473"
+    },
+    {
+      "file": "017-scores-01.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/scores-01.json",
+      "bytes": 243215,
+      "sha256": "5f252673b268e51abb9efad7044b38a0e8c919fd90620a155faceb9907592af5",
+      "gzip_bytes": 6915,
+      "gzip_sha256": "191aea0704c8a8a0fc6e6d8cf3b2b428695f299388dcdb0c30518aa9607fa834"
+    },
+    {
+      "file": "018-laptop.stdout.log.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/laptop.stdout.log",
+      "bytes": 613,
+      "sha256": "cb3ca3c27f288c959d70c18edebd86d0a0db90eca6eaecf85fada9ecc66f176a",
+      "gzip_bytes": 368,
+      "gzip_sha256": "95ef0f48aa5c90d8b7dc0cf4f984eb9607b58bc8a5d318dcc30ad26e82e96666"
+    },
+    {
+      "file": "019-laptop.stderr.log.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/laptop.stderr.log",
+      "bytes": 291,
+      "sha256": "bacd47414558b7056d4cb7b6e3aabb151026931aafd7be40817e1d54e80489c7",
+      "gzip_bytes": 220,
+      "gzip_sha256": "914a84d554b653dd70152c968e1c95b7e8f229d287b9556b6993a7bdf7ce5b01"
+    },
+    {
+      "file": "020-apollo.stdout.log.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo.stdout.log",
+      "bytes": 82,
+      "sha256": "e1f92205d6daf4005eebb7578b8901243b0f95f64bc30d4fa28609b45ab917c7",
+      "gzip_bytes": 95,
+      "gzip_sha256": "317b0008b642ff824664343e34a38d920a5e6d8eebd960e5f67860efff899297"
+    },
+    {
+      "file": "021-apollo.stderr.log.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "022-CMakeLists.txt.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source/CMakeLists.txt",
+      "bytes": 595,
+      "sha256": "e5e6bd1f36f535c609098924cdbb773e4154b14f36c93603b4ddfdc948a4f8c6",
+      "gzip_bytes": 353,
+      "gzip_sha256": "b5930d52832bcd978f6f0e3a79a3b8271ccf811619992312692bd4ae7fc725a5"
+    },
+    {
+      "file": "023-prepare_source.cpp.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source/prepare_source.cpp",
+      "bytes": 5957,
+      "sha256": "ebf1a8ed92faaac2617466b0da79f46abed03c47f37b9f0d415f9715cd454ae7",
+      "gzip_bytes": 2234,
+      "gzip_sha256": "3d7cae78982cb2e417aa5de2fa5c8408bd555551259cd1cfd18fa4fdbaddc250"
+    },
+    {
+      "file": "024-sources.hpp.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source/sources.hpp",
+      "bytes": 670,
+      "sha256": "82e86300a9cb1a513f0ffac50731e09ccdd0de1337640a806c00f9c0004e1637",
+      "gzip_bytes": 384,
+      "gzip_sha256": "5b7e20f423d2fb5ae3c9ea7d0a735249e4b4af749ec1fdac9b53ea07bbfb17d3"
+    },
+    {
+      "file": "025-AudioFile.cpp.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source/src/audio/AudioFile.cpp",
+      "bytes": 25630,
+      "sha256": "e18fd021ec5c804f4d0ab800461ab311a024fc52571e40b7a80d6f84f106689a",
+      "gzip_bytes": 6328,
+      "gzip_sha256": "e43b37087cabc95a180fae8401ab47d921e705ad31cad02b1db6341ffa4e2c55"
+    },
+    {
+      "file": "026-AudioFile.hpp.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/source/src/audio/AudioFile.hpp",
+      "bytes": 6530,
+      "sha256": "7c51ed5e4687d77ad314e409ff98ee17a5bdef87fd0277c03eab63ab52907fe0",
+      "gzip_bytes": 1894,
+      "gzip_sha256": "4d8aefd064e84072ddfa5be7003133914ec1e8c74a349c67569f63d440325d7d"
+    },
+    {
+      "file": "027-prepare_local_swd_01.py.gz",
+      "original": "build/m2-essentia-key-01/prepare_local_swd_01.py",
+      "bytes": 4999,
+      "sha256": "7396fdb973bfe34186df7cf957402bb1fa3918b0076c30841869315161c71f08",
+      "gzip_bytes": 2248,
+      "gzip_sha256": "42576342ecf9f37bff2cb961fa99a7435b0903bc7b03a8f0b0946e093c3668a4"
+    },
+    {
+      "file": "028-root-native-map-binding-01.json.gz",
+      "original": "build/m2-analysis-qualification-01/swd-harmony-assessment-draft-01/output-01/root-native-map-binding-01.json",
+      "bytes": 1528,
+      "sha256": "484c2944ff4adb2e214f5a24685b522f88eeef7bc99a07371822e5374347e318",
+      "gzip_bytes": 674,
+      "gzip_sha256": "90089173b919e834b18d6ed301eb7cbfea99067d4f1a63680249fbd0c3a68121"
+    },
+    {
+      "file": "029-root-assessment-summary-01.json.gz",
+      "original": "build/m2-analysis-qualification-01/swd-harmony-assessment-draft-01/root-assessment-summary-01.json",
+      "bytes": 5163,
+      "sha256": "1f19daecce7a65fb47d0a2c56e42734789a7c2b626d3211cc0c20ccd4adf1b24",
+      "gzip_bytes": 1652,
+      "gzip_sha256": "bc232bd31dd71fe249e0ec4e7292fe2d9a5dab6e9f87d13831b5f900d83e5c65"
+    },
+    {
+      "file": "030-score-01.json.gz",
+      "original": "build/m2-analysis-qualification-01/swd-harmony-assessment-draft-01/output-01/score-01.json",
+      "bytes": 110078,
+      "sha256": "82f14c8b2f924641e88ea909ab3c60039158e7957c45c874adde36ebb88272f7",
+      "gzip_bytes": 4778,
+      "gzip_sha256": "8a015c79c1a68587c992bec4823bcdb2176732db9894dbbea720170ddb4d4210"
+    },
+    {
+      "file": "031-score_harmony.py.gz",
+      "original": "build/m2-analysis-qualification-01/swd-harmony-assessment-draft-01/score_harmony.py",
+      "bytes": 11030,
+      "sha256": "26783eddc4961ae1565d2dbcdf9f8bb2b9c41bd8047d17fb72a93e5c969dbb72",
+      "gzip_bytes": 3782,
+      "gzip_sha256": "26eb9c6965a0209181119ead2c00a6f89f5ffeb8f8f2fe0ecbdfc471dd2f2c52"
+    },
+    {
+      "file": "032-700002-capture.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/700002-capture.json",
+      "bytes": 811,
+      "sha256": "bf90ec00710f7a4c63d81ece31f9f7d9ff7e0639599e996df387c58c18613a21",
+      "gzip_bytes": 449,
+      "gzip_sha256": "bda085f71fbb40815fc316192b1a84b4c563cef063ab413ebde667fadac9c15e"
+    },
+    {
+      "file": "033-700002-prediction.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/700002-prediction.json",
+      "bytes": 7541,
+      "sha256": "09a5d3d01685bcbb5e5db448138a5b58455fb5871f3477331fd32302b19533ac",
+      "gzip_bytes": 1296,
+      "gzip_sha256": "abb8cf00ff4d4c01205e88b597cbe981c1fba333804e5698a71692a257dcf3a7"
+    },
+    {
+      "file": "034-700002-source.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/700002-source.json",
+      "bytes": 327,
+      "sha256": "2ac696933a70f788c10d69f7ec6f312171cf2eb74fab6b12b07f693d9c51d6d3",
+      "gzip_bytes": 239,
+      "gzip_sha256": "b42f3eb0962c9d5c6dcb03d46fa1da01b07295c2bfa6ede959ed826071d3711c"
+    },
+    {
+      "file": "035-700003-capture.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/700003-capture.json",
+      "bytes": 811,
+      "sha256": "f8a81b6e64515afa5ac5324b71f79184d31ca4ef42ad497afc8eda112633e610",
+      "gzip_bytes": 448,
+      "gzip_sha256": "6cd77576816ba7725d132c6657f38024cc0d8b2eec1b456dbdee5d72a89dec51"
+    },
+    {
+      "file": "036-700003-prediction.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/700003-prediction.json",
+      "bytes": 10724,
+      "sha256": "042ac7f7f54a0275c721ff78704330c8b213c3d976d4dce1d4314c4bdd21d941",
+      "gzip_bytes": 1575,
+      "gzip_sha256": "1b91aa2931c507aa472c1ffd9b371c2b701dd04e8bfaa392fa26444c01aa0fc2"
+    },
+    {
+      "file": "037-700003-source.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/700003-source.json",
+      "bytes": 327,
+      "sha256": "a7a8f0ec63265a643e3767f19b81e1bc32d9b2bc8b5ed7a8ed5808cbc35a8cd9",
+      "gzip_bytes": 240,
+      "gzip_sha256": "aebf92e98b9cb218328ee05a37b6505584b295f25215d6c552ba5c9becd10ef7"
+    },
+    {
+      "file": "038-predictions-before-scoring.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/predictions-before-scoring.json",
+      "bytes": 1731,
+      "sha256": "c87f865db9faa29f3a8866bf31f887fc40ce89e9bc0341d7b9d6cd2232b0ecb5",
+      "gzip_bytes": 643,
+      "gzip_sha256": "9fdaab46ad8166a56b9b6d60d3f23a4a8c5bc2c131bd517c57276579f0425a31"
+    },
+    {
+      "file": "039-receipt.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/output-laptop/receipt.json",
+      "bytes": 509,
+      "sha256": "743dbc49615fe0396711d178f6c95eb0477f83d66e2b1b28bea4c2df1261347a",
+      "gzip_bytes": 336,
+      "gzip_sha256": "b47293cee4bcdd43627dab209f451f1b227e044915306ac4ee7444a31f8a11f6"
+    },
+    {
+      "file": "040-manifest.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/manifest.json",
+      "bytes": 2702,
+      "sha256": "ed5f96814863ab52ea90078260f36ac9568450a66fe011137a3a6523e673bc79",
+      "gzip_bytes": 950,
+      "gzip_sha256": "3f921cab0ee284f9cf5dde91a029f6daed2ae791f257c4c3d31c79e5762d8d45"
+    },
+    {
+      "file": "041-700002-capture.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700002-capture.json",
+      "bytes": 812,
+      "sha256": "0b73ef111bcf5d7eeba351da6545163ad6bb8008c497f57129dd85d3dfb5ce49",
+      "gzip_bytes": 450,
+      "gzip_sha256": "cce0b02948b435fc3fcc92ebc970f00f977afe29e16e4f569c89a6b830992f0e"
+    },
+    {
+      "file": "042-700002-prediction.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700002-prediction.json",
+      "bytes": 7541,
+      "sha256": "09a5d3d01685bcbb5e5db448138a5b58455fb5871f3477331fd32302b19533ac",
+      "gzip_bytes": 1296,
+      "gzip_sha256": "abb8cf00ff4d4c01205e88b597cbe981c1fba333804e5698a71692a257dcf3a7"
+    },
+    {
+      "file": "043-700002-source.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700002-source.json",
+      "bytes": 327,
+      "sha256": "2ac696933a70f788c10d69f7ec6f312171cf2eb74fab6b12b07f693d9c51d6d3",
+      "gzip_bytes": 239,
+      "gzip_sha256": "b42f3eb0962c9d5c6dcb03d46fa1da01b07295c2bfa6ede959ed826071d3711c"
+    },
+    {
+      "file": "044-700002-worker.stderr.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700002-worker.stderr",
+      "bytes": 80,
+      "sha256": "e757fa064c28b2576e38dcafa5723fb710faa110e76bac76d419c4f78f7d9d77",
+      "gzip_bytes": 98,
+      "gzip_sha256": "ab4ffa68d03c1cf3bfd2dd8cada892b4cf1bf17777c514bbd27cdf843c178342"
+    },
+    {
+      "file": "045-700003-capture.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700003-capture.json",
+      "bytes": 812,
+      "sha256": "ee27590c1c2df812720f6e65cf42a05529bfee4a20196ca62a43af11195e5ae6",
+      "gzip_bytes": 449,
+      "gzip_sha256": "aa69d228538c3f59baaf9db3c15bb2481dd22285a7a428e05a5296afaaf3cad5"
+    },
+    {
+      "file": "046-700003-prediction.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700003-prediction.json",
+      "bytes": 10724,
+      "sha256": "042ac7f7f54a0275c721ff78704330c8b213c3d976d4dce1d4314c4bdd21d941",
+      "gzip_bytes": 1575,
+      "gzip_sha256": "1b91aa2931c507aa472c1ffd9b371c2b701dd04e8bfaa392fa26444c01aa0fc2"
+    },
+    {
+      "file": "047-700003-source.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700003-source.json",
+      "bytes": 327,
+      "sha256": "a7a8f0ec63265a643e3767f19b81e1bc32d9b2bc8b5ed7a8ed5808cbc35a8cd9",
+      "gzip_bytes": 240,
+      "gzip_sha256": "aebf92e98b9cb218328ee05a37b6505584b295f25215d6c552ba5c9becd10ef7"
+    },
+    {
+      "file": "048-700003-worker.stderr.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/700003-worker.stderr",
+      "bytes": 80,
+      "sha256": "e757fa064c28b2576e38dcafa5723fb710faa110e76bac76d419c4f78f7d9d77",
+      "gzip_bytes": 98,
+      "gzip_sha256": "ab4ffa68d03c1cf3bfd2dd8cada892b4cf1bf17777c514bbd27cdf843c178342"
+    },
+    {
+      "file": "049-predictions-before-scoring.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/predictions-before-scoring.json",
+      "bytes": 1733,
+      "sha256": "6463f34efbaa19aebbf4829d4fbeaffef3e99c58eecfb88fa0c4badd7b4a70db",
+      "gzip_bytes": 642,
+      "gzip_sha256": "4516ed9a6dae79815a936558085858268a93de92bc7daa240dfb601288456ac2"
+    },
+    {
+      "file": "050-receipt.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/output-apollo/receipt.json",
+      "bytes": 510,
+      "sha256": "317a67fb7ac29b756d02dc9d731bb675962188723330bb6dca40ad8352c537d3",
+      "gzip_bytes": 339,
+      "gzip_sha256": "a53f41357fcdfc396e074d9dca1a00437755236c7d4dba4764249f3ba3ca995e"
+    },
+    {
+      "file": "051-owner-receipt.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/owner-receipt.json",
+      "bytes": 90,
+      "sha256": "51308824d6003866b629349ddaba5c3e496816ccf7e49ebf513d44c77db00b62",
+      "gzip_bytes": 99,
+      "gzip_sha256": "9e874cd93c5ea2920b4e04bb413740c8ecfc1477eb7f7955652d7f9103f49e3d"
+    },
+    {
+      "file": "052-plan-apollo.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/plan-apollo.json",
+      "bytes": 6575,
+      "sha256": "6fcdf3eaae43f225e81b2002067f5199cb47e42d91bab1a52d340750da7ae31e",
+      "gzip_bytes": 2050,
+      "gzip_sha256": "b6fcc4080c232e932a10e966d52a6c596ec80c96637351061cd4a81dc0a8a099"
+    },
+    {
+      "file": "053-prediction.stderr.log.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/prediction.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "file": "054-prediction.stdout.log.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/prediction.stdout.log",
+      "bytes": 614,
+      "sha256": "adfdac83f4ecb37b340b51a4397a10f0173f2c6c7c09cc3457c07f396f585a02",
+      "gzip_bytes": 371,
+      "gzip_sha256": "e466726f2ee651e330729c307f4d4f64e229a3ea5b8afd9b28d440b98131a94f"
+    },
+    {
+      "file": "055-process-result.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/process-result.json",
+      "bytes": 597,
+      "sha256": "72ee6235a8db366c5638ba1092daffa27f187d06df2cb96da415174445afd9fe",
+      "gzip_bytes": 237,
+      "gzip_sha256": "b19d1bd5c6a200ec23648b3cd9f512fe53a030a8290f9c7a39ab041e17f2b415"
+    },
+    {
+      "file": "056-source-manifest.json.gz",
+      "original": "build/m2-essentia-key-01/local-swd-01/apollo-capture-01/source-manifest.json",
+      "bytes": 7074,
+      "sha256": "e69a97343170d4b246ab43f9f3d461bf798b5832c5c29d6d6242ed90ec6d6411",
+      "gzip_bytes": 2651,
+      "gzip_sha256": "d7b6bd3f10a2cce4f2e092e179474933199273c35de895040014ab65202242eb"
+    }
+  ],
+  "total_uncompressed_bytes": 546685,
+  "total_gzip_bytes": 74027,
+  "audio_models_binaries_or_credentials_included": false,
+  "qualified": false
+}

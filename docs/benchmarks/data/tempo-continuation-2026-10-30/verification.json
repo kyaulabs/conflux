@@ -1,0 +1,349 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-30T17:10:08.328747+00:00",
+  "base": "ffd7fdf1268abbad4d41baf275190a7085193705",
+  "source_files": [
+    {
+      "file": ".github/workflows/build.yml",
+      "bytes": 8279,
+      "sha256": "b38a01f08ad343b40bfadd6f39d4aac64acaa8bb568f5cdad186bc7e58416ea6"
+    },
+    {
+      "file": "src/audio/LiveSession.cpp",
+      "bytes": 68915,
+      "sha256": "381e3a0172cf0417cbcd66f03067094948ad7b8ed06656781b18e32ad79606dd"
+    },
+    {
+      "file": "src/audio/LiveSession.hpp",
+      "bytes": 8823,
+      "sha256": "8990bd01a115ca7601e7966c4e78b18cc8e2a08d3917a276e6d5447af01adc2d"
+    },
+    {
+      "file": "src/audio/PreparedPlayback.cpp",
+      "bytes": 70223,
+      "sha256": "ffb309f109d8e24c45ac205e12cbe2e0b1ae432ba86133e9d30a846ccc8566a3"
+    },
+    {
+      "file": "src/audio/PreparedPlayback.hpp",
+      "bytes": 9742,
+      "sha256": "1c0736413aabc8c424143e52d5a47d81ee71acba0bafcb3e95bd948da444eecf"
+    },
+    {
+      "file": "src/audio/PreparedTempoSource.cpp",
+      "bytes": 31964,
+      "sha256": "a62f71eb0c013b4d8d31b94683884079570f908feb0e8a3ffa15b2be9950f683"
+    },
+    {
+      "file": "src/audio/PreparedTempoSource.hpp",
+      "bytes": 6991,
+      "sha256": "b56bf36083aab1154c52dc160c718e4b5b0357a1e9a13c390835c50e99c14853"
+    },
+    {
+      "file": "src/audio/RenderCore.cpp",
+      "bytes": 49745,
+      "sha256": "67575e1448ba419d56b08b8b7ba2c4b46028b07f532d85dc33652f69f4ee51bc"
+    },
+    {
+      "file": "src/audio/RenderCore.hpp",
+      "bytes": 15638,
+      "sha256": "7ed9e3f3f4f5ef52227f4e527ed2f4dc95ea8160206d8c5becef72d0961f603f"
+    },
+    {
+      "file": "src/audio/SourceHandoff.hpp",
+      "bytes": 4740,
+      "sha256": "bc664075174de6a6343cc70a9df0cdc1467419791949e6c9e55980f1dc809106"
+    },
+    {
+      "file": "src/ui/DeckController.cpp",
+      "bytes": 141672,
+      "sha256": "1d84603fe8b594eb72af7095e5dfc8bec9f958b6d5358e42cc966aad5eb545ed"
+    },
+    {
+      "file": "src/ui/DeckController.hpp",
+      "bytes": 20847,
+      "sha256": "0ba7fde13dacf00c439e27a34ab03ef57fd1bbe615d966678dbf0602d4fb773b"
+    },
+    {
+      "file": "tests/audio_live_recovery_test.cpp",
+      "bytes": 51933,
+      "sha256": "965acea6780a7b2e934f30470a512dcb976add01d6533cca88402444d0561699"
+    },
+    {
+      "file": "tests/audio_live_tempo_test.cpp",
+      "bytes": 38038,
+      "sha256": "d5ebe751f58595e5cdac5507862030077a6a4c102e5d4c796731e5897ba6bb96"
+    },
+    {
+      "file": "tests/audio_loop_tempo_test.cpp",
+      "bytes": 29376,
+      "sha256": "2e04b405bc8cbbbad9997f24ae21059348d1f97d844bfbd282bb93809a221d26"
+    },
+    {
+      "file": "tests/audio_prepared_tempo_test.cpp",
+      "bytes": 39271,
+      "sha256": "201c78759f908073f04071d09fe12e743e18dd1e0fb0851704c417bd106e5de5"
+    },
+    {
+      "file": "tests/audio_source_handoff_test.cpp",
+      "bytes": 24313,
+      "sha256": "11112d22562ccd2765eecf2d279ebc26c3c156c24067389fe0fd6b6a7abce816"
+    },
+    {
+      "file": "tools/coverage/run.py",
+      "bytes": 15191,
+      "sha256": "97d6a82cb5a8701b9d491f036bf25755e634fa007978c2ceb86cc9cd59be9eaf"
+    },
+    {
+      "file": "tools/experiments/manual_routing_check.cpp",
+      "bytes": 136682,
+      "sha256": "6735c372715544a725a74ea2d46b5dcb60d737da0c0c83392640a50c0b3ab3c7"
+    },
+    {
+      "file": "tools/experiments/preparation_controller_check.cpp",
+      "bytes": 288946,
+      "sha256": "e9819c58f42b52d02d30f663d8511d78f530ebe126c4f2266713477b82ae6f80"
+    },
+    {
+      "file": "tools/experiments/private_routing_check.py",
+      "bytes": 12889,
+      "sha256": "8f05dde7b53e1562bbe4a26828ca555aefd7379337d9e6fdc47c56cf50faa926"
+    }
+  ],
+  "product_unchanged_since_full_test_pair": true,
+  "full_core_source_manifest_sha256": "f551fc473a2f82076df122de686cda131700240ce5352710cae6fb53a329eb07",
+  "full_local_ctest_targets": 60,
+  "concurrent_apollo_audio_targets": 10,
+  "direct_callback_summary": {
+    "recorded_utc": "2026-10-30T16:26:03.026266+00:00",
+    "cases": [
+      {
+        "host": "laptop",
+        "case": "tempo-fast",
+        "parked_position": 7265.280000000001,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 7730,
+        "prepared_suffix_output_frames": 206,
+        "initial_tempo_starved_frames": 512,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 11264
+      },
+      {
+        "host": "apollo",
+        "case": "tempo-fast",
+        "parked_position": 7808,
+        "fractional_cursor": false,
+        "old_hold_output_frames": 7730,
+        "prepared_suffix_output_frames": 206,
+        "initial_tempo_starved_frames": 1280,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 11520
+      },
+      {
+        "host": "laptop",
+        "case": "tempo-slow",
+        "parked_position": 6558.719999999999,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 8716,
+        "prepared_suffix_output_frames": 244,
+        "initial_tempo_starved_frames": 512,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 12544
+      },
+      {
+        "host": "apollo",
+        "case": "tempo-slow",
+        "parked_position": 7920.78,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 8716,
+        "prepared_suffix_output_frames": 244,
+        "initial_tempo_starved_frames": 1367,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 12800
+      },
+      {
+        "host": "laptop",
+        "case": "tempo-master-fast",
+        "parked_position": 8079.360000000001,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 7730,
+        "prepared_suffix_output_frames": 206,
+        "initial_tempo_starved_frames": 1792,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 11264
+      },
+      {
+        "host": "apollo",
+        "case": "tempo-master-fast",
+        "parked_position": 11847.68,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 7730,
+        "prepared_suffix_output_frames": 206,
+        "initial_tempo_starved_frames": 4864,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 12800
+      },
+      {
+        "host": "laptop",
+        "case": "tempo-master-slow",
+        "parked_position": 7275.94,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 8716,
+        "prepared_suffix_output_frames": 244,
+        "initial_tempo_starved_frames": 1285,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 12544
+      },
+      {
+        "host": "apollo",
+        "case": "tempo-master-slow",
+        "parked_position": 9682.34,
+        "fractional_cursor": true,
+        "old_hold_output_frames": 8716,
+        "prepared_suffix_output_frames": 244,
+        "initial_tempo_starved_frames": 4613,
+        "additional_hold_or_continuation_starved_frames": 0,
+        "recorded_frames": 12800
+      }
+    ],
+    "all_eight_passed": true,
+    "fractional_cursor_cases": 7,
+    "raw_callback_pair_passed": true,
+    "latency_or_musical_qualification": false
+  },
+  "controller_summary": {
+    "recorded_utc": "2026-10-30T17:06:52.248361+00:00",
+    "all_six_passed": true,
+    "owners_and_private_graphs_retired": true,
+    "cases": [
+      {
+        "host": "laptop",
+        "case": "resident-tempo-takeover",
+        "passed": true,
+        "affected_deck_continuity_gate": false,
+        "processed_buffering": {
+          "after_settle_frames": 0,
+          "at_first_play_observation_frames": 3320,
+          "through_settle_frames": 20278
+        },
+        "processed_buffering_after_stop_frames": 23774,
+        "processed_advance": {
+          "expected_nominal_advance": 3527.6800000000003,
+          "nominal_advance": 3527.6799999999994,
+          "output_frames": 3328,
+          "starved_frames": 0
+        },
+        "wav": {
+          "checked_prefix_or_tail_frames": 53248,
+          "expected_master_multiplier": 1,
+          "frames": 53248,
+          "maximum_prefix_or_tail_error": 0,
+          "prefix_frames": 53248,
+          "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them.",
+          "transient_middle_frames_excluded": 0
+        }
+      },
+      {
+        "host": "apollo",
+        "case": "resident-tempo-takeover",
+        "passed": true,
+        "affected_deck_continuity_gate": false,
+        "processed_buffering": {
+          "after_settle_frames": 614,
+          "at_first_play_observation_frames": 0,
+          "through_settle_frames": 8031
+        },
+        "processed_buffering_after_stop_frames": 10545,
+        "processed_advance": {
+          "expected_nominal_advance": 2605.48,
+          "nominal_advance": 2605.4799999999814,
+          "output_frames": 3072,
+          "starved_frames": 614
+        },
+        "wav": {
+          "checked_prefix_or_tail_frames": 303360,
+          "expected_master_multiplier": 1,
+          "frames": 303360,
+          "maximum_prefix_or_tail_error": 0,
+          "prefix_frames": 303360,
+          "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them.",
+          "transient_middle_frames_excluded": 0
+        }
+      },
+      {
+        "host": "laptop",
+        "case": "resident-takeover",
+        "passed": true,
+        "affected_deck_continuity_gate": true,
+        "processed_buffering": null,
+        "processed_buffering_after_stop_frames": null,
+        "processed_advance": null,
+        "wav": {
+          "checked_prefix_or_tail_frames": 290560,
+          "expected_master_multiplier": 1,
+          "frames": 290560,
+          "maximum_prefix_or_tail_error": 0,
+          "prefix_frames": 290560,
+          "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them.",
+          "transient_middle_frames_excluded": 0
+        }
+      },
+      {
+        "host": "apollo",
+        "case": "resident-takeover",
+        "passed": true,
+        "affected_deck_continuity_gate": true,
+        "processed_buffering": null,
+        "processed_buffering_after_stop_frames": null,
+        "processed_advance": null,
+        "wav": {
+          "checked_prefix_or_tail_frames": 305920,
+          "expected_master_multiplier": 1,
+          "frames": 305920,
+          "maximum_prefix_or_tail_error": 0,
+          "prefix_frames": 305920,
+          "scope": "Generated master prefix and tail checked at 1e-6 tolerance; explicit routing rebuild may omit wall time and ramp between them.",
+          "transient_middle_frames_excluded": 0
+        }
+      },
+      {
+        "host": "laptop",
+        "case": "resident-cancel",
+        "passed": true,
+        "affected_deck_continuity_gate": true,
+        "processed_buffering": null,
+        "processed_buffering_after_stop_frames": null,
+        "processed_advance": null,
+        "wav": null
+      },
+      {
+        "host": "apollo",
+        "case": "resident-cancel",
+        "passed": true,
+        "affected_deck_continuity_gate": true,
+        "processed_buffering": null,
+        "processed_buffering_after_stop_frames": null,
+        "processed_advance": null,
+        "wav": null
+      }
+    ],
+    "physical_audio_model_or_GPU_started": false,
+    "continuity_or_latency_qualification": false
+  },
+  "sanitizers": {
+    "address_undefined_leaks_both_hosts": "7/7 passed per host",
+    "thread_laptop": "7/7 passed",
+    "thread_apollo": "runtime unavailable before test bodies; no ASLR/security changes"
+  },
+  "baseline_listening_source": "e86585b537175ea5b5570c6c05565f1f103db050",
+  "new_recovery_continuation_listening_accepted": false,
+  "physical_audio_model_or_GPU_started": false,
+  "hardware_latency_or_continuity_qualification": false,
+  "unchanged_service_p99_target_seconds": 4.095,
+  "milestone_or_release_complete": false,
+  "failure_interpretation": "Original strict processed-controller failures remain failures. New functional-only processed case reports A underruns and checks consumed/parked cursor accounting. Existing raw/controller, strict callback and hardware continuity gates remain. CPU comparison is inconclusive as to a single cause.",
+  "coverage": "Not yet measured for this revision; previous-head figures are not reused.",
+  "archives": {
+    "file": "manifest.json",
+    "sha256": "2344cf43d81325789067778db2bc9de364ae1aa8d46f2ce2e0cc5e2c854c5ccf"
+  }
+}

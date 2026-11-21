@@ -1,0 +1,252 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-30T19:46:32.870101+00:00",
+  "base": "212b892e46e90ce118fc740b2d4ba32a2af785e7",
+  "source_files": [
+    {
+      "file": "src/audio/PreparedPlayback.cpp",
+      "sha256": "a2dd49bf88ae68a2050215e065422a4f0987bb1c6be94f075fac006ad01b0f16"
+    },
+    {
+      "file": "src/audio/PreparedTempoSource.cpp",
+      "sha256": "df705559a8534f04fccf3dcae820040f9f5a5c9c59b25ae8ec752b7610d6d46c"
+    },
+    {
+      "file": "src/audio/PreparedTempoSource.hpp",
+      "sha256": "e5b53c128eb6172337afca5f1e200898bcd965b381ca0711786f8b48ea856165"
+    },
+    {
+      "file": "tests/audio_stream_tempo_test.cpp",
+      "sha256": "923abbddccd3e6587d1c4b6a81950b1ea17fe4e67ac5e47f56e6847b687f521c"
+    },
+    {
+      "file": "tests/audio_scratch_playback_test.cpp",
+      "sha256": "6fbd7b329b6e4981972351564ef1d961856e6e47700b862aad48d89abcf87793"
+    }
+  ],
+  "normal_verification": {
+    "recorded_utc": "2026-10-30T19:35:53.925130+00:00",
+    "initial_complete_suite": {
+      "passed": 59,
+      "total": 60,
+      "failed": "audio-scratch-playback",
+      "failure_retained": true
+    },
+    "focused_scratch_fix": {
+      "both_hosts_passed": true,
+      "source_delta": "test fixture only",
+      "product_unchanged": true
+    },
+    "all_other_test_binaries_unchanged": true,
+    "aggregate_local_targets_passed": 60,
+    "separate_full_suite_rerun": false,
+    "apollo_unchanged_product_audio_suites": 10,
+    "apollo_additional_scratch_suite": 1,
+    "physical_audio_model_GPU_or_latency_qualification": false
+  },
+  "extended_callback_summary": {
+    "recorded_utc": "2026-10-30T19:19:54.473481+00:00",
+    "variants": {
+      "baseline": [
+        {
+          "host": "laptop",
+          "case": "tempo-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 1024,
+          "recorded_frames": 251136,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 1024,
+          "recorded_frames": 251136,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "laptop",
+          "case": "tempo-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 768,
+          "recorded_frames": 247552,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 768,
+          "recorded_frames": 247808,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "laptop",
+          "case": "tempo-master-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 4864,
+          "recorded_frames": 251136,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-master-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 4352,
+          "recorded_frames": 251392,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "laptop",
+          "case": "tempo-master-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 3333,
+          "recorded_frames": 256512,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-master-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 4101,
+          "recorded_frames": 256768,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        }
+      ],
+      "candidate": [
+        {
+          "host": "laptop",
+          "case": "tempo-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 1280,
+          "recorded_frames": 250880,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 3840,
+          "recorded_frames": 251136,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "laptop",
+          "case": "tempo-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 512,
+          "recorded_frames": 247552,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 2816,
+          "recorded_frames": 247808,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "laptop",
+          "case": "tempo-master-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 3072,
+          "recorded_frames": 251392,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-master-fast",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 7680,
+          "recorded_frames": 258816,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "laptop",
+          "case": "tempo-master-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 2560,
+          "recorded_frames": 247808,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        },
+        {
+          "host": "apollo",
+          "case": "tempo-master-slow",
+          "held_output_frames": 240128,
+          "additional_starved_frames": 0,
+          "before_hold_starved_frames": 6912,
+          "recorded_frames": 256768,
+          "exact_master_recording_verified": true,
+          "retirement_and_quiescence_verified": true,
+          "strict_receiver_and_deadline_checks_passed": true
+        }
+      ]
+    },
+    "all_passed": true,
+    "scope": "Five-second generated private callback recovery and OUT takeover; original and prefill, four tempo modes on two CPU-only hosts",
+    "reliability_improvement_established": false,
+    "physical_audio_model_GPU_latency_or_musical_qualification": false,
+    "product_source_modified": false
+  },
+  "sanitizers": {
+    "address_undefined_leaks": "8/8 per host passed",
+    "thread_laptop": "8/8 passed",
+    "thread_apollo": "Not attempted; prior runtime initialization failure. No security change."
+  },
+  "short_strict_controller_comparison": "ABBA both hosts passed; both controls passed, no reliability improvement established",
+  "extended_controller_comparison": "8 full failures retained; >=5s held without added starvation. Late observer likely missed bounded lookup phase; final lookup status not captured.",
+  "rejected_prewarming": "One laptop continuity failure and one preparation failure before playback; distinct outcomes retained.",
+  "hardware_audio_model_GPU_or_power_changes": false,
+  "current_build_musical_or_latency_qualification": false,
+  "unchanged_service_p99_target_seconds": 4.095,
+  "milestone_or_release_complete": false,
+  "coverage": "Pending exact-head CI; previous revision figures are not reused.",
+  "parent_evidence_manifest_sha256": "2344cf43d81325789067778db2bc9de364ae1aa8d46f2ce2e0cc5e2c854c5ccf",
+  "archives_manifest_sha256": "297c12eb1ecd0c729319b03911a9644c0f53c66515d4ac0108da69029142a37d"
+}

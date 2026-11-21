@@ -34,6 +34,20 @@ struct HarmonyEstimate {
     QByteArray pcmSha256;
     std::vector<HarmonyWindow> windows;
 };
+// Own a validated source map for repeated deck queries.
+class HarmonyTiming {
+public:
+    HarmonyTiming() = default;
+    explicit HarmonyTiming(HarmonyEstimate estimate) noexcept;
+
+    [[nodiscard]] const HarmonyEstimate& estimate() const noexcept { return estimate_; }
+    [[nodiscard]] const HarmonyWindow* at(std::uint64_t sourceFrame) const noexcept;
+
+private:
+    HarmonyEstimate estimate_;
+    bool valid_ = false;
+};
+
 class HarmonySourceError : public std::runtime_error {
 public: using std::runtime_error::runtime_error;
 };

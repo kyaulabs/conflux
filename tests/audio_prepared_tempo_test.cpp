@@ -131,6 +131,50 @@ void exactPacket(const PreparedTempoSource::View& view, const Fixture& fixture,
                 "Tempo worker reordered roles/channels, changed signed zero/headroom or reused live storage");
 }
 
+void fractionalStartMetadataAndPcm()
+{
+    for (const std::size_t leaves : {1U,4U}) for (const bool keyLock : {false,true})
+        for (const double percent : {-6.,0.,6.}) {
+            Fixture fixture(4501);
+            auto fds=fixture.fds();
+            PreparedTempoSource actual{std::span<const int>(fds).first(leaves),fixture.frames};
+            PreparedTempoSource reference{std::span<const int>(fds).first(leaves),fixture.frames};
+            constexpr double position=1234.375;
+            require(actual.requestAt(position,percent,keyLock) && reference.request(1234,percent,keyLock),
+                    "Fractional prepared start was rejected");
+            require(actual.nominalPosition()==position,"Prepared continuation rounded its nominal cursor");
+            const auto generation=actual.generation();
+            for (const double invalid : std::array<double,4>{-1.,NAN,INFINITY,double(fixture.frames)+.25})
+                require(!actual.requestAt(invalid,percent,keyLock) && actual.generation()==generation &&
+                        actual.nominalPosition()==position,"Invalid prepared cursor changed the current generation");
+            std::uint64_t frames=0;
+            for (;;) {
+                const auto got=next(actual),expected=next(reference);
+                require(got.generation==generation && !got.errorCode && !expected.errorCode &&
+                        got.terminal==expected.terminal,"Fractional start changed generation, failure or EOF");
+                require(std::abs(got.nominalStart-std::min(double(fixture.frames),expected.nominalStart+.375))<1e-8,
+                        "Fractional source coordinates drifted from the ordinary DSP clock");
+                if (got.terminal) {
+                    require(!got.frames && actual.consume(0) && reference.consume(0),"Fractional EOF was not consumable");
+                    break;
+                }
+                const auto count=std::min(got.frames,expected.frames);
+                require(count>0,"Fractional prepared start made no progress");
+                for (std::size_t role=0;role<leaves;++role)
+                    require(same(got.leaves[role].first(count*2),expected.leaves[role].first(count*2)),
+                            "Fractional metadata changed the containing-frame Best-quality PCM");
+                require(actual.consume(count) && reference.consume(count),"Fractional prefix consumption failed");
+                frames+=count;
+            }
+            require(frames>0 && actual.status().finished && actual.nominalPosition()==double(fixture.frames),
+                    "Fractional source cropped its actual tail or lost finite EOF");
+            require(actual.requestAt(99.875,percent,keyLock) && actual.generation()>generation &&
+                    next(actual).nominalStart==99.875,"Fractional new generation admitted stale output");
+            actual.stop();reference.stop();
+            require(!actual.requestAt(position,percent,keyLock),"Stopped prepared source accepted a fractional request");
+        }
+}
+
 void exactBypassBackpressureAndConsumedEof()
 {
     for (const std::size_t leaves : {1U, 4U}) {
@@ -411,6 +455,70 @@ void actualDspPacketsAndTailBeforeFinished()
     }
 }
 
+void preparedContinuationModeAndCursor()
+{
+    Fixture fixture(10017);
+    const auto fds=fixture.fds();
+    for (const bool keyLock : {false,true}) for (const double percent : {-6.,0.,6.}) {
+        PreparedPlayback candidate(fds,fixture.frames);
+        AudioTempoState mode;mode.supported=mode.active=true;mode.percent=percent;mode.keyLock=keyLock;
+        mode.errorCode=EIO; // The retired live producer may have failed.
+        constexpr double position=321.375;
+        require(candidate.primeContinuation(position,mode,2s) && candidate.primedForContinuation(position),
+                "Prepared continuation did not retain its exact nominal priming proof");
+        auto source=candidate.sourceRef();
+        const auto state=source.tempoState(source.context);
+        require(state.active && state.percent==percent && state.keyLock==keyLock,
+                "Prepared continuation lost the live deck's requested processing mode");
+        require(!candidate.primedForContinuation(321) && !candidate.primedForContinuation(321.5),
+                "Prepared continuation accepted another fractional source cursor");
+        const auto empty=source.read(source.context,321,{});
+        require(empty.positionValid && empty.nominalPosition==position && !empty.frames &&
+                candidate.primedForContinuation(position),"Empty query consumed the continuation's priming proof");
+        require(source.setStemGain(source.context,0,.5F),"Candidate stem gain was rejected");
+        for(std::size_t role=1;role<4;++role)
+            require(source.setStemGain(source.context,role,0),"Candidate isolated-stem selection was rejected");
+        PreparedTempoSource reference(fds,fixture.frames);
+        require(reference.requestAt(position,percent,keyLock),"Cannot start prepared continuation reference");
+        double cursor=position;
+        for (std::size_t block=0;block<24;++block) {
+            std::array<float,256> pcm{};AudioReadResult part;
+            wait([&]{part=source.read(source.context,std::uint64_t(cursor),pcm);return part.frames||part.failed;},
+                 "Prepared continuation output did not become ready");
+            require(!part.failed && part.positionValid && part.nominalPosition>cursor && part.frames<=128,
+                    "Prepared continuation lost its nominal cursor or finite output");
+            std::size_t compared=0;
+            while(compared<part.frames) {
+                const auto expected=next(reference);const auto count=std::min(expected.frames,part.frames-compared);
+                require(count>0 && !expected.errorCode && !expected.terminal,"Continuation reference ended early");
+                for(std::size_t frame=0;frame<count;++frame)for(std::size_t channel=0;channel<2;++channel)
+                    require(pcm[(compared+frame)*2+channel]==float(double(expected.leaves[0][frame*2+channel])*.5),
+                            "Primed continuation changed the selected-stem DSP output");
+                require(reference.consume(count),"Cannot consume continuation reference");compared+=count;
+            }
+            require(std::abs(part.nominalPosition-reference.nominalPosition())<1e-8,
+                    "Primed continuation's source clock differs from its DSP reference");
+            cursor=part.nominalPosition;
+            require(!candidate.primedForContinuation(position),"Read continuation retained an unused prime proof");
+        }
+        require(candidate.primeContinuation(position,mode,2s),"Cannot re-prime continuation before cancellation");
+        std::stop_source stop;stop.request_stop();
+        require(!candidate.primeContinuation(position,mode,2s,stop.get_token()) &&
+                !candidate.primedForContinuation(position),"Cancelled attempt retained an older continuation proof");
+        candidate.stop();reference.stop();
+    }
+    for(const bool keyLock : {false,true}) {
+        PreparedPlayback candidate(fds,fixture.frames);AudioTempoState mode;mode.keyLock=keyLock;
+        require(candidate.primeContinuation(321,mode,2s) && candidate.primedForContinuation(321),
+                "Legacy continuation could not retain an original-speed selection");
+        auto source=candidate.sourceRef();require(!source.tempoState(source.context).active &&
+                source.tempoState(source.context).keyLock==keyLock,"Legacy continuation changed Master Tempo selection");
+        require(!candidate.primeContinuation(NAN,mode,2s) && !candidate.primedForContinuation(321),
+                "Invalid continuation attempt retained a previous priming proof");
+        candidate.stop();
+    }
+}
+
 void preparedControlsAndSharedRenderSideGains()
 {
     for (const bool bank : {false, true}) {
@@ -540,10 +648,12 @@ extern "C" ssize_t __wrap___pread64_chk(int fd, void* data, size_t count, off64_
 int main()
 {
     try {
+        fractionalStartMetadataAndPcm();
         exactBypassBackpressureAndConsumedEof();
         constructorAndCurrentGenerationFailures();
         inFlightSupersessionAndSameFrameGeneration();
         actualDspPacketsAndTailBeforeFinished();
+        preparedContinuationModeAndCursor();
         preparedControlsAndSharedRenderSideGains();
         return 0;
     } catch (const std::exception& error) {

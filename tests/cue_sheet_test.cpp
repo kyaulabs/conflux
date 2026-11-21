@@ -85,6 +85,37 @@ private slots:
         QVERIFY(mismatch.cues.empty());
     }
 
+    void windowsRelativeFileMatchesUnlessTheLiteralPathExists()
+    {
+        Fixture f;
+        QVERIFY(QDir(f.directory.path()).mkdir("audio"));
+        const auto nested = f.directory.filePath("audio/" + QFileInfo(f.source).fileName());
+        QVERIFY(QFile::rename(f.source, nested));
+        f.selected.sourcePath = nested;
+        const auto relative = QByteArray("audio\\") + QFileInfo(f.source).fileName().toUtf8();
+        write(f.cue, "FILE \"" + relative + "\" WAVE\r\nTRACK 01 AUDIO\r\nINDEX 01 00:00:01\r\n");
+
+        const auto imported = readCueSheet(f.cue, f.selected);
+        QVERIFY2(imported.error.isEmpty(), qPrintable(imported.error));
+        QCOMPARE(imported.cues.size(), std::size_t(1));
+        QCOMPARE(imported.cues[0].frame, std::uint64_t(640));
+
+        // Linux also permits a literal backslash in a filename. In that case
+        // the sheet identifies the literal leaf and must not use the nested one.
+        const auto literal = f.directory.filePath(QString::fromUtf8(relative));
+        const QByteArray otherBytes("A different recording at the literal path");
+        write(literal, otherBytes);
+        const auto ambiguous = readCueSheet(f.cue, f.selected);
+        QVERIFY(!ambiguous.error.isEmpty());
+        QVERIFY(ambiguous.cues.empty());
+        f.selected.sourcePath = literal;
+        f.selected.name = QFileInfo(literal).fileName();
+        f.selected.sourceSha256 = QString::fromLatin1(QCryptographicHash::hash(otherBytes, QCryptographicHash::Sha256).toHex());
+        const auto exact = readCueSheet(f.cue, f.selected);
+        QVERIFY2(exact.error.isEmpty(), qPrintable(exact.error));
+        QCOMPARE(exact.cues, imported.cues);
+    }
+
     void malformedTimeAndStructureRejectWholeImport_data()
     {
         QTest::addColumn<QByteArray>("body");

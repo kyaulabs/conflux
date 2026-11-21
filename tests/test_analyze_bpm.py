@@ -52,6 +52,73 @@ class AnalyzeBpmTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             bpm.read_pcm(ShortReads(raw[:-1]), 3)
 
+    def test_valid_input_too_short_for_centered_mel_is_unknown(self):
+        with (patch.object(bpm, "verified_sources", return_value={}),
+              patch("importlib.metadata.version", side_effect=bpm.DEPENDENCIES.__getitem__),
+              patch.object(bpm, "load_upstream", side_effect=AssertionError("must not infer"))):
+            for frames in (1, 1115):
+                with self.subTest(frames=frames):
+                    raw = struct.pack("<ff", .25, -.5) * frames
+                    output = bpm.run("/unused", "/unused", frames, io.BytesIO(raw))
+                    [header] = [json.loads(line) for line in output.splitlines()]
+                    self.assertEqual(header["frames"], frames)
+                    self.assertEqual(header["pcm_sha256"], hashlib.sha256(raw).hexdigest())
+                    self.assertIsNone(header["bpm"])
+                    self.assertEqual(header["beat_count"], 0)
+            for invalid in (b"", struct.pack("<ff", float("nan"), 0)):
+                with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                    bpm.run("/unused", "/unused", 1, io.BytesIO(invalid))
+
+    def test_digital_silence_is_unknown_without_inference(self):
+        with (patch.object(bpm, "verified_sources", return_value={}),
+              patch("importlib.metadata.version", side_effect=bpm.DEPENDENCIES.__getitem__),
+              patch.object(bpm, "load_upstream", side_effect=AssertionError("must not infer"))):
+            frames = 70_000
+            raw = struct.pack("<ff", -0., 0.) * frames
+            output = bpm.run("/unused", "/unused", frames, io.BytesIO(raw))
+            [header] = [json.loads(line) for line in output.splitlines()]
+            self.assertIsNone(header["bpm"])
+            self.assertEqual(header["beat_count"], 0)
+            self.assertEqual(header["pcm_sha256"], hashlib.sha256(raw).hexdigest())
+
+    def test_activity_edges_preserve_channel_and_source_frame(self):
+        import numpy as np
+
+        stereo = np.zeros((140_000, 2), dtype="<f4")
+        stereo[:, 0] = -0.
+        # The left and right channels start and end at different offsets.
+        # Even a quiet nonzero sample belongs to the source.
+        stereo[65_545, 1] = 1e-12
+        stereo[71_999, 0] = -0.01
+        self.assertEqual(bpm.first_nonzero_frame(stereo), 65_545)
+        self.assertEqual(len(stereo) - 1 - bpm.first_nonzero_frame(stereo[::-1]), 71_999)
+
+    def test_long_stereo_break_suppresses_only_interior_events(self):
+        import numpy as np
+
+        left_end = 65_531
+        minimum = bpm.MIN_INTERIOR_SILENCE
+        margin = bpm.SILENCE_MARGIN_FRAMES
+        frames = left_end + minimum + 70_000
+        stereo = np.zeros((frames, 2), dtype="<f4")
+        stereo[:left_end, 0] = .01
+        stereo[left_end + minimum:, 1] = 1e-12
+        begin, end = left_end + margin, left_end + minimum - margin
+        gaps = bpm.interior_silence_cores(stereo, 0, frames - 1)
+        self.assertEqual(gaps, [(begin, end)])
+        times = [frame / bpm.RATE for frame in (begin - 1, begin, end - 1, end)]
+        keep = bpm.filter_silent_events(times, frames, 0, frames - 1, gaps, (begin,))
+        self.assertEqual(keep, [times[0], times[3]])
+        self.assertEqual(bpm.summarize_beats(keep, frames, (begin,)), (None, 2))
+        self.assertEqual(bpm.summarize_beats([0., .5, times[3]], frames, (begin,)), (120., 3))
+        with self.assertRaisesRegex(ValueError, "distinct increasing"):
+            bpm.filter_silent_events([times[1], times[1]], frames, 0, frames - 1, gaps, (begin,))
+
+        # Even one quiet nonzero sample breaks exact digital silence; the
+        # revised gap is now one frame shorter than the supported cutoff.
+        stereo[left_end, 1] = 1e-12
+        self.assertEqual(bpm.interior_silence_cores(stereo, 0, frames - 1), [])
+
     def test_unknown_and_median_of_adjacent_bpms(self):
         self.assertEqual(bpm.summarize_beats([], 144000), (None, 0))
         self.assertEqual(bpm.summarize_beats([.5], 144000), (None, 1))
@@ -65,6 +132,26 @@ class AnalyzeBpmTest(unittest.TestCase):
         self.assertEqual(bpm.summarize_beats([0, .15], 192000), (400.0, 2))
         self.assertEqual(bpm.summarize_beats([0, 3.01], 192000), (None, 2))
         self.assertEqual(bpm.summarize_beats([0, 7199 / 48000], 192000), (None, 2))
+
+    def test_summary_excludes_unsupported_intervals_only(self):
+        frames = 240000
+        digest = hashlib.sha256(b"fixture").hexdigest()
+        cases = (
+            ([0, .12, 4.12], None),
+            ([0, .5, 4.5], 120.0),
+            ([0, .12, .62], 120.0),
+        )
+        for seconds, expected in cases:
+            with self.subTest(seconds=seconds):
+                estimate, count = bpm.summarize_beats(seconds, frames)
+                self.assertEqual((estimate, count), (expected, len(seconds)))
+                wire = bpm.encode_result(frames, digest, estimate, seconds, [seconds[-1]])
+                header, *events = [json.loads(line) for line in wire.splitlines()]
+                self.assertEqual(header["bpm"], expected)
+                self.assertEqual(events, [
+                    {"frame": round(time * 48000), "downbeat": index == len(seconds) - 1}
+                    for index, time in enumerate(seconds)
+                ])
 
     def test_invalid_events_are_errors_not_filtered_beats(self):
         invalid = ([float("nan")], [float("inf")], [True], ["0.5"], [-.1],

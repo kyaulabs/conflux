@@ -1,0 +1,130 @@
+--- a/src/src_sinc.c
++++ b/src/src_sinc.c
+@@ -55,0 +56,6 @@
++#if defined(__linux__) && defined(ENABLE_SINC_BEST_CONVERTER)
++#include <fenv.h>
++#include <pthread.h>
++#endif
++
++
+@@ -988,0 +995,3 @@
++#if defined(__linux__) && defined(__x86_64__) && defined(__GNUC__) && !defined(__clang__)
++__attribute__((target_clones("avx2", "default"))) static void
++#else
+@@ -989,0 +999 @@
++#endif
+@@ -1061,0 +1072,86 @@
++#if defined(__linux__) && defined(ENABLE_SINC_BEST_CONVERTER)
++/* Fixed output-rate ratio used by the packed eight-channel stems. The
++** coefficients and accumulation order are identical to calc_output_multi.
++*/
++enum
++{
++    CONFLUX_PHASES = 160,
++    CONFLUX_FILTER_INCREMENT = 2381,
++    CONFLUX_TAPS = (ARRAY_LEN (slow_high_qual_coeffs.coeffs) - 2) / CONFLUX_FILTER_INCREMENT + 1
++};
++
++static struct conflux_sinc_phase
++{
++    increment_t start;
++    int left_count, right_count;
++    double left[CONFLUX_TAPS], right[CONFLUX_TAPS];
++} conflux_sinc_phases[CONFLUX_PHASES];
++
++static pthread_once_t conflux_phase_once = PTHREAD_ONCE_INIT;
++
++static int
++conflux_init_phase_side (double *coefficients, increment_t start, increment_t minimum)
++{
++    const increment_t increment = int_to_fp (CONFLUX_FILTER_INCREMENT);
++    const increment_t maximum = int_to_fp (ARRAY_LEN (slow_high_qual_coeffs.coeffs) - 2);
++    const coeff_t *source = slow_high_qual_coeffs.coeffs;
++    increment_t index = start + ((maximum - start) / increment) * increment;
++    int count = 0;
++
++    for (; index >= minimum; index -= increment)
++    {
++        const int whole = fp_to_int (index);
++        assert (count < CONFLUX_TAPS);
++        coefficients[count++] = source[whole] + fp_to_double (index) * (source[whole + 1] - source[whole]);
++    }
++    return count;
++}
++
++static void
++conflux_init_phases (void)
++{
++    const increment_t increment = int_to_fp (CONFLUX_FILTER_INCREMENT);
++    for (int i = 0; i < CONFLUX_PHASES; ++i)
++    {
++        struct conflux_sinc_phase *phase = &conflux_sinc_phases[i];
++        /* This ratio and filter yield no half-integer fixed-point ties. */
++        phase->start = (i * increment + CONFLUX_PHASES / 2) / CONFLUX_PHASES;
++        phase->left_count = conflux_init_phase_side (phase->left, phase->start, 0);
++        phase->right_count = conflux_init_phase_side (phase->right, increment - phase->start, 1);
++    }
++}
++
++#if defined(__x86_64__) && defined(__GNUC__) && !defined(__clang__)
++__attribute__((target_clones("avx2", "default")))
++#endif
++static void
++conflux_output_fixed_phase (const SINC_FILTER *filter,
++                            const struct conflux_sinc_phase *phase, float *output)
++{
++    const int channels = 8;
++    double left[8] = {0}, right[8] = {0};
++    int first = filter->b_current - channels * (phase->left_count - 1);
++    int skip = first < 0 ? int_div_ceil (-first, channels) : 0;
++    first += skip * channels;
++    for (int tap = skip; tap < phase->left_count; ++tap, first += channels)
++    {
++        assert (first >= 0 && first + channels <= filter->b_len &&
++                first + channels <= filter->b_end);
++        for (int ch = 0; ch < channels; ++ch)
++            left[ch] += phase->left[tap] * filter->buffer[first + ch];
++    }
++
++    first = filter->b_current + channels * phase->right_count;
++    for (int tap = 0; tap < phase->right_count; ++tap, first -= channels)
++    {
++        assert (first >= 0 && first + channels <= filter->b_len &&
++                first + channels <= filter->b_end);
++        for (int ch = 0; ch < channels; ++ch)
++            right[ch] += phase->right[tap] * filter->buffer[first + ch];
++    }
++
++    for (int ch = 0; ch < channels; ++ch)
++        output[ch] = (float)(left[ch] + right[ch]);
++}
++#endif
++
+@@ -1083,0 +1180,9 @@
++#if defined(__linux__) && defined(ENABLE_SINC_BEST_CONVERTER)
++    const int conflux_fixed = state->channels == 8 &&
++        filter->coeffs == slow_high_qual_coeffs.coeffs &&
++        filter->index_inc == CONFLUX_FILTER_INCREMENT &&
++        src_ratio == (160.0 / 147.0) && data->src_ratio == src_ratio &&
++        fegetround () == FE_TONEAREST &&
++        pthread_once (&conflux_phase_once, conflux_init_phases) == 0;
++#endif
++
+@@ -1132 +1237,16 @@
+-		calc_output_multi (filter, increment, start_filter_index, state->channels, float_increment / filter->index_inc, data->data_out + filter->out_gen) ;
++#if defined(__linux__) && defined(ENABLE_SINC_BEST_CONVERTER)
++        if (conflux_fixed)
++        {
++            const int nearest = (start_filter_index * CONFLUX_PHASES + increment / 2) / increment;
++            /* Preserve the exact upstream path for off-grid phases, including
++            ** a stream switched to this ratio with a different phase origin.
++            */
++            if (nearest >= 0 && nearest < CONFLUX_PHASES &&
++                conflux_sinc_phases[nearest].start == start_filter_index)
++                conflux_output_fixed_phase (filter, &conflux_sinc_phases[nearest], data->data_out + filter->out_gen);
++            else
++                calc_output_multi (filter, increment, start_filter_index, state->channels, float_increment / filter->index_inc, data->data_out + filter->out_gen) ;
++        }
++        else
++#endif
++        calc_output_multi (filter, increment, start_filter_index, state->channels, float_increment / filter->index_inc, data->data_out + filter->out_gen) ;

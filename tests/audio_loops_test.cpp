@@ -89,9 +89,8 @@ struct Signals {
     }
 };
 
-// Only a real cache worker's first unaligned IN read is held. The ordinary
-// readers are already primed at zero and issue block-aligned reads. A claimed
-// one-shot gate cannot subsequently block a reader re-prime at the same IN.
+// Hold one worker read at a known source frame until the test releases it.
+// Later reads at the same position are never held by the same gate.
 struct ReadGateState {
     struct stat identity{};
     std::uint64_t offset = 0;
@@ -103,10 +102,10 @@ std::mutex gateMutex;
 std::shared_ptr<ReadGateState> activeGate;
 class ReadGate {
 public:
-    explicit ReadGate(int fd) : state_(std::make_shared<ReadGateState>())
+    ReadGate(int fd, std::uint64_t frame) : state_(std::make_shared<ReadGateState>())
     {
         require(fstat(fd, &state_->identity) == 0, "Cannot identify gated PCM");
-        state_->offset = loopIn * 2 * sizeof(float);
+        state_->offset = frame * 2 * sizeof(float);
         const std::lock_guard lock(gateMutex);
         require(!activeGate, "Nested read gate");
         activeGate = state_;
@@ -116,7 +115,7 @@ public:
     {
         std::unique_lock lock(state_->mutex);
         require(state_->changed.wait_for(lock, 5s, [&] { return state_->entered; }),
-                "Actual cache pread did not reach the fixture gate");
+                "Worker read did not reach the fixture gate");
     }
     void release()
     {
@@ -344,6 +343,32 @@ void pointHotCueExitsLoopWithoutStoringLoopAsPoint()
     }
 }
 
+void forwardHotCueUsesPublishedPcm()
+{
+    constexpr auto block = PcmReadAhead::blockFrames;
+    constexpr auto cueFrame = block * 2 - 64;
+    Signals signals(block * 4);
+    std::unique_ptr<PreparedPlayback> owner;
+    ReadGate gate(fileno(signals.files[0].get()), block * 3);
+    owner = signals.playback(false);
+    require(owner->prime(0, 2s), "Cannot prime forward hot-cue fixture");
+    gate.entered(); // Three blocks are published. The worker cannot read ahead again.
+
+    RenderCore core(owner->sourceRef(), AudioSource::fromMemory(signals.peer));
+    Oracle oracle(core, signals, false);
+    RenderCore::HotCues cues{};
+    cues.frames[0] = cueFrame;
+    cues.set[0] = true;
+    require(core.restoreHotCues(0, cues), "Cannot restore forward hot cue");
+    oracle.render(16);
+    require(core.hotCue(0, 0) && core.sourceFrame(0) == cueFrame,
+            "Cannot jump to the buffered cue");
+    oracle.render(128); // Read exact PCM across two buffered blocks immediately.
+
+    gate.release();
+    oracle.linearTo(block * 3 + 128);
+}
+
 void minimumAndRejectedOutPreserveTransport()
 {
     Signals signals;
@@ -353,7 +378,7 @@ void minimumAndRejectedOutPreserveTransport()
     Oracle oracle(core, signals, false);
     require(!core.loopOut(0) && !core.loopToggle(0), "OUT/RELOOP without IN was accepted");
     oracle.linearTo(loopIn);
-    ReadGate gate(fileno(signals.files[0].get()));
+    ReadGate gate(fileno(signals.files[0].get()), loopIn);
     require(core.loopIn(0), "Pending IN rejected");
     gate.entered();
     require(!core.loopState(0).ready, "Blocked cache was reported ready");
@@ -442,7 +467,7 @@ void sameFrameTransportInvalidatesPendingAndActiveLoops()
         };
         oracle.linearTo(loopIn);
         {
-            ReadGate gate(fileno(signals.files[0].get()));
+            ReadGate gate(fileno(signals.files[0].get()), loopIn);
             require(core.loopIn(0), "Pending cancellation IN rejected");
             gate.entered();
             clear();
@@ -573,6 +598,7 @@ int main()
     try {
         repeatedWrapsAndExitReloop();
         pointHotCueExitsLoopWithoutStoringLoopAsPoint();
+        forwardHotCueUsesPublishedPcm();
         minimumAndRejectedOutPreserveTransport();
         optionalCacheFailurePreservesHealthyLinearPlayback();
         sameFrameTransportInvalidatesPendingAndActiveLoops();

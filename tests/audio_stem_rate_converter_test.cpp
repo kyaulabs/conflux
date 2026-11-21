@@ -269,8 +269,8 @@ void planReusedAcrossSeekAnchors()
     for (const auto target : targets) {
         Converter converter(plan, target);
         const auto cell = target / 160;
-        const auto anchor = (cell > 32 ? cell - 32 : 0) * 147;
-        require(converter.inputStartFrame() == anchor, "Seek lost rational anchor or conservative preroll");
+        const auto anchor = target == plan.outputFrames() ? n : (cell > 32 ? cell - 32 : 0) * 147;
+        require(converter.inputStartFrame() == anchor, "Seek lost its rational anchor or fetched unneeded input at EOF");
         const auto actual = drive(converter, source, std::size_t(target), in, out);
         require(actual.inputUsed == n - anchor && actual.finished, "Seek did not cover exactly the remaining source");
         for (unsigned role = 0; role < 4; ++role) {

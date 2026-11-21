@@ -30,17 +30,33 @@ else()
 endif()
 set(shutdown_instance "static vk_instance_t vk_instance;")
 set(shutdown_destructor "    ~vk_device_struct() {")
-foreach(shutdown_anchor IN ITEMS "${shutdown_instance}" "${shutdown_destructor}")
+set(cache_include "#include <vulkan/vulkan_core.h>")
+set(cache_member "    vk::PhysicalDeviceProperties properties;")
+set(cache_creation "        pipeline->pipeline = device->device.createComputePipeline(VK_NULL_HANDLE, compute_pipeline_create_info).value;")
+set(cache_destroy "        device.destroy();")
+foreach(shutdown_anchor IN ITEMS "${shutdown_instance}" "${shutdown_destructor}"
+        "${cache_include}" "${cache_member}" "${cache_creation}" "${cache_destroy}")
     string(FIND "${shutdown_content}" "${shutdown_anchor}" shutdown_first)
     string(FIND "${shutdown_content}" "${shutdown_anchor}" shutdown_last REVERSE)
     if(shutdown_first EQUAL -1 OR NOT shutdown_first EQUAL shutdown_last)
-        message(FATAL_ERROR "Expected one Vulkan shutdown source anchor: ${shutdown_anchor}")
+        message(FATAL_ERROR "Expected one Vulkan lifecycle source anchor: ${shutdown_anchor}")
     endif()
 endforeach()
 string(REPLACE "${shutdown_instance}" "${shutdown_instance}\n\n#include \"VulkanShutdown.inc\""
     shutdown_content "${shutdown_content}")
 string(REPLACE "${shutdown_destructor}"
     "${shutdown_destructor}\n        if (!device) {\n            return;\n        }"
+    shutdown_content "${shutdown_content}")
+string(REPLACE "${cache_include}" "${cache_include}\n#include \"VulkanPipelineCache.hpp\""
+    shutdown_content "${shutdown_content}")
+string(REPLACE "${cache_member}" "${cache_member}\n    conflux::VulkanPipelineCache pipeline_cache;"
+    shutdown_content "${shutdown_content}")
+string(REPLACE "${cache_creation}" [=[        const auto cache = device->pipeline_cache.get(static_cast<VkDevice>(device->device),
+            static_cast<const VkPhysicalDeviceProperties&>(device->properties));
+        pipeline->pipeline = device->device.createComputePipeline(vk::PipelineCache(cache), compute_pipeline_create_info).value;]=]
+    shutdown_content "${shutdown_content}")
+string(REPLACE "${cache_destroy}"
+    "        pipeline_cache.destroy(static_cast<VkDevice>(device));\n${cache_destroy}"
     shutdown_content "${shutdown_content}")
 set(shutdown_source "${CMAKE_CURRENT_BINARY_DIR}/conflux-vulkan-shutdown/ggml-vulkan.cpp")
 file(CONFIGURE OUTPUT "${shutdown_source}" CONTENT "${shutdown_content}" @ONLY)

@@ -1,0 +1,78 @@
+{
+  "source_head": "8b9669e92e764822b272984502b25624609d419d",
+  "files": [
+    {
+      "file": "hour-result-summary.json.gz",
+      "original_bytes": 3748,
+      "original_sha256": "be84f65e9519265e86f58f3f6fc2ab88c2fe5ade88b445da2b86180017f82c67",
+      "gzip_bytes": 1437,
+      "gzip_sha256": "7d0a4051c477f43812490d0e69af40ce31eb0363c0c7c3321d4d252df7a5c256"
+    },
+    {
+      "file": "apollo-collection.json.gz",
+      "original_bytes": 2797,
+      "original_sha256": "e418a63e70fe6397b527a3d11a1974c4d50ad27a7e7b0adabe5ee795f03b0eaa",
+      "gzip_bytes": 948,
+      "gzip_sha256": "95d0e8d5188926daee9f02967a00b5e1c58e35226ed6ae4213b5ab905bf9aee9"
+    },
+    {
+      "file": "laptop-admission-failure-01.json.gz",
+      "original_bytes": 639,
+      "original_sha256": "69e9dd764901fc8371692c179487092c200a2255a5e377f0aa52d15d6936bb43",
+      "gzip_bytes": 381,
+      "gzip_sha256": "0766e8dc9f9a9b3ca666eea85fe812d4f0122c764707a70eb7e3ff07363b834e"
+    },
+    {
+      "file": "laptop-admission-failure-02.json.gz",
+      "original_bytes": 2016,
+      "original_sha256": "3eab73fc3403003be536a63756c985cdd9df8df320950818cce36d5857c88911",
+      "gzip_bytes": 575,
+      "gzip_sha256": "dd471a8fe163df2e0dc3ee14ae6ba6a72ce9e1864f6075b6e71704ef21173e44"
+    },
+    {
+      "file": "native-result.json.gz",
+      "original_bytes": 525114,
+      "original_sha256": "39774d77995e4d2482fb95f8d3dfd8c06a79776c09dfd9487a7970c47a48b621",
+      "gzip_bytes": 38717,
+      "gzip_sha256": "16595a665ddddebd80d06cb1a4cd29640c264b3eaafe99427faf6a42330df443"
+    },
+    {
+      "file": "assessment.json.gz",
+      "original_bytes": 643174,
+      "original_sha256": "cfa9059c8475a58985f0c6909bf62106fa69d9ea48ccfc4f200bcb425405f51d",
+      "gzip_bytes": 85633,
+      "gzip_sha256": "e5e5a95dd977aa038cbde9bd0b4a9f2494386cfe0d31ad30827e4e796725e357"
+    },
+    {
+      "file": "routing-result.json.gz",
+      "original_bytes": 679179,
+      "original_sha256": "4dc954629e7c160af125964cda61d922a06fa73a5c543094b80b76b94df69b45",
+      "gzip_bytes": 85967,
+      "gzip_sha256": "de0967be351e274eed39c1955d0808b6f09fc7361bdf57b1c5ce97b1f36da800"
+    },
+    {
+      "file": "gpu-observations.csv.gz",
+      "original_bytes": 182212,
+      "original_sha256": "3c494c5f160e9e61d42f9a59f2fa646073f9c4aa53a620713d12ff79bc5e742a",
+      "gzip_bytes": 28451,
+      "gzip_sha256": "747bd47daf6bd051ef786b4f9a2b25e4d6b154e99669589c24e2c3a295774f5a"
+    },
+    {
+      "file": "all-completed-service-hops.json.gz",
+      "original_bytes": 777993,
+      "original_sha256": "6318bca17dea507b446adffd1d4643acbfe3e2854ea9bec6df40ec2bbad4b6d1",
+      "gzip_bytes": 93609,
+      "gzip_sha256": "81549928949db830aea129712e6ec108442efa0a564bf36ac8276e6f520d2c46"
+    },
+    {
+      "file": "apollo-finished-artifact-cleanup.json.gz",
+      "original_bytes": 1289,
+      "original_sha256": "e401245e53fbe49657d9ffcb2b5f54ce2b91cc2239a374413e4d3be35dca1a05",
+      "gzip_bytes": 416,
+      "gzip_sha256": "f1133a7d37ed872991208361df966600c0929157744089a24b7fc0501ca456a9"
+    }
+  ],
+  "external_raw_observations_sha256": "4e369fe53a424657be6f4e225fa6f90ed140d6dcf7ad7e7cbcedf280b6e6aac3",
+  "audio_weights_and_runtime_excluded": true,
+  "qualified": false
+}

@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-31T19:13:50.385972+00:00",
+  "scope": "Documentation reconciliation of existing source-pinned receipts; no new player, hardware or musical listening test.",
+  "product_source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+  "primary_target_seconds": 4.095,
+  "checked_existing_cases": [
+    {
+      "host": "laptop",
+      "arm": "baseline",
+      "summary_matches_native_and_service_receipts": true,
+      "manual_control_objects": [
+        "crossfader",
+        "deck0CueSelect",
+        "deck0EqHI",
+        "deck0Gain",
+        "deck1CueSelect",
+        "deck1EqHI",
+        "deck1Gain"
+      ],
+      "initial_selected_mode_startup_ms": 64,
+      "measured_interval_qualification_only": true
+    },
+    {
+      "host": "laptop",
+      "arm": "candidate",
+      "summary_matches_native_and_service_receipts": true,
+      "manual_control_objects": [
+        "crossfader",
+        "deck0CueSelect",
+        "deck0EqHI",
+        "deck0Gain",
+        "deck1CueSelect",
+        "deck1EqHI",
+        "deck1Gain"
+      ],
+      "initial_selected_mode_startup_ms": 105,
+      "measured_interval_qualification_only": true
+    },
+    {
+      "host": "apollo",
+      "arm": "baseline",
+      "summary_matches_native_and_service_receipts": true,
+      "manual_control_objects": [
+        "crossfader",
+        "deck0CueSelect",
+        "deck0EqHI",
+        "deck0Gain",
+        "deck1CueSelect",
+        "deck1EqHI",
+        "deck1Gain"
+      ],
+      "initial_selected_mode_startup_ms": 52,
+      "measured_interval_qualification_only": true
+    },
+    {
+      "host": "apollo",
+      "arm": "candidate",
+      "summary_matches_native_and_service_receipts": true,
+      "manual_control_objects": [
+        "crossfader",
+        "deck0CueSelect",
+        "deck0EqHI",
+        "deck0Gain",
+        "deck1CueSelect",
+        "deck1EqHI",
+        "deck1Gain"
+      ],
+      "initial_selected_mode_startup_ms": 99,
+      "measured_interval_qualification_only": true
+    }
+  ],
+  "reviewed_control_code": [
+    {
+      "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+      "file": "qml/DeckSurface.qml",
+      "bytes": 82459,
+      "sha256": "985387fd105ab72ceebe915f2d67b2c5427df018ebf9f485f2df6967a1d83543"
+    },
+    {
+      "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+      "file": "src/audio/PreparedPlayback.cpp",
+      "bytes": 70573,
+      "sha256": "7be78b731e2183bf95363c77f42aab5bfb33fda4b00a9e843c3106917acfb05a"
+    },
+    {
+      "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+      "file": "src/ui/DeckController.cpp",
+      "bytes": 141672,
+      "sha256": "1d84603fe8b594eb72af7095e5dfc8bec9f958b6d5358e42cc966aad5eb545ed"
+    },
+    {
+      "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+      "file": "src/audio/RenderCore.cpp",
+      "bytes": 49745,
+      "sha256": "67575e1448ba419d56b08b8b7ba2c4b46028b07f532d85dc33652f69f4ee51bc"
+    }
+  ],
+  "active_recovery_tempo_edits_available": false,
+  "current_source_sustained_qualified": false,
+  "full_player_gpu_shutdown_qualified_by_these_runs": false,
+  "M2_complete": false,
+  "M3_complete": false,
+  "release_ready": false,
+  "hardware_started_for_this_documentation_change": false,
+  "new_listening_verdict_claimed": false,
+  "known_limits": [
+    "Small fixed-order two-minute populations; not a counterbalanced causal or sustained comparison.",
+    "Apollo used private virtual audio and an offscreen window.",
+    "Requested laptop basic render loop lacked confirming captured native output.",
+    "Reported buffering, cold-load polling bounds, sampled temperatures and historical failures remain retained.",
+    "Baseline musical verdict and offline recovery verdict apply to their separately recorded older source heads."
+  ]
+}

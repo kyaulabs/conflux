@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "at_utc": "2026-11-05T05:10:23.903729+00:00",
+  "question_item_id": "[\"request_user_input_async\",\"call_a58873a7e1f542e4ba58935f6652a5de\",0]",
+  "human_question": "The shutdown check now passes, but automatic musical-analysis qualification remains open. The exact publisher section pipeline still scores 0.421/0.454 F1 at 0.5 seconds against two annotators. Should I retain full M2 qualification before 0.1.0, or allow a manual-mixing-first release while keeping M2 open? Both retain Best quality and the laptop\u2019s strict 4.095-second p99 gate.",
+  "human_reply": "Keep full M2/M3 qualification before 0.1.0 (original goal)",
+  "decision": "retain_full_M2_goal",
+  "changes_goal_or_release_gates": false,
+  "automatic_beat_phrase_key_cue_analysis_remains_required": true,
+  "strict_primary_laptop_service_p99_seconds": 4.095,
+  "quality": "Best",
+  "manual_first_release_not_authorized": true,
+  "prior_unanswered_scope_question_resolved": true,
+  "further_musical_analysis_investigation_required": true
+}

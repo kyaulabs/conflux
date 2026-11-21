@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "utc": "2026-10-31T04:49:03.759027+00:00",
+  "source_head": "9e35bda2eeb75c54630b392a9b631d3fca212684",
+  "mode": "Fixed106 BPM from explicit100 BPM reference; Best-quality live stems; Master Tempo off/on",
+  "host_tests_concurrent": true,
+  "strict_target_seconds": 4.095,
+  "all_four_short_runs_passed": true,
+  "hosts": {
+    "laptop": {
+      "host_audio": true,
+      "arms": {
+        "baseline": {
+          "setting": "Master Tempo off",
+          "completed_seconds": 120.012,
+          "p99_seconds": 3.0883412830298766,
+          "maximum_service_seconds": 3.0883412830298766,
+          "completed_hops": 21,
+          "target_misses": 0,
+          "native_functional_passed": true,
+          "source_validation_passed": true,
+          "steady_starved_frames": 0,
+          "callback_execution_deadline_misses": 0,
+          "source_read_failures": 0,
+          "invalid_buffers": 0,
+          "control_transitions": 5,
+          "control_buffering_seconds": 22.826666666666668,
+          "replays": 4,
+          "manual_controls_acknowledged": 16,
+          "recording_complete": true,
+          "recording_overflow_frames": 0,
+          "scene_error_count": 0,
+          "frames_presented": 7907,
+          "hard_cancellation_exercised": false,
+          "incomplete_generation_seek": {
+            "submitted": true,
+            "exercised": true,
+            "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+          },
+          "thermal_summary": {
+            "samples": 67,
+            "sample_interval_seconds": 2,
+            "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+            "maximum_observed_millidegrees_C": 72000,
+            "85000": {
+              "samples_at_or_above": 0,
+              "longest_consecutive_sample_span_seconds": 0.0
+            },
+            "95000": {
+              "samples_at_or_above": 0,
+              "longest_consecutive_sample_span_seconds": 0.0
+            },
+            "profile_epp_observations": [
+              {
+                "at_utc": "2026-10-31T04:35:30.889319+00:00",
+                "values": {
+                  "/sys/firmware/acpi/platform_profile": "balanced",
+                  "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+                }
+              }
+            ]
+          },
+          "cold_load_to_first_advance_poll_upper_ms": 6745.606797
+        },
+        "candidate": {
+          "setting": "Master Tempo on",
+          "completed_seconds": 120.011,
+          "p99_seconds": 3.199605194036849,
+          "maximum_service_seconds": 3.199605194036849,
+          "completed_hops": 21,
+          "target_misses": 0,
+          "native_functional_passed": true,
+          "source_validation_passed": true,
+          "steady_starved_frames": 0,
+          "callback_execution_deadline_misses": 0,
+          "source_read_failures": 0,
+          "invalid_buffers": 0,
+          "control_transitions": 5,
+          "control_buffering_seconds": 24.677333333333333,
+          "replays": 4,
+          "manual_controls_acknowledged": 16,
+          "recording_complete": true,
+          "recording_overflow_frames": 0,
+          "scene_error_count": 0,
+          "frames_presented": 8000,
+          "hard_cancellation_exercised": false,
+          "incomplete_generation_seek": {
+            "submitted": true,
+            "exercised": true,
+            "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+          },
+          "thermal_summary": {
+            "samples": 68,
+            "sample_interval_seconds": 2,
+            "scope": "Observed CPU/ACPI samples; sampled spans do not establish continuous exposure or exclude shorter spikes",
+            "maximum_observed_millidegrees_C": 76000,
+            "85000": {
+              "samples_at_or_above": 0,
+              "longest_consecutive_sample_span_seconds": 0.0
+            },
+            "95000": {
+              "samples_at_or_above": 0,
+              "longest_consecutive_sample_span_seconds": 0.0
+            },
+            "profile_epp_observations": [
+              {
+                "at_utc": "2026-10-31T04:39:08.727917+00:00",
+                "values": {
+                  "/sys/firmware/acpi/platform_profile": "balanced",
+                  "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference": "balance_performance"
+                }
+              }
+            ]
+          },
+          "cold_load_to_first_advance_poll_upper_ms": 6049.868052
+        }
+      }
+    },
+    "apollo": {
+      "host_audio": false,
+      "arms": {
+        "baseline": {
+          "setting": "Master Tempo off",
+          "completed_seconds": 120.005,
+          "p99_seconds": 0.917943925014697,
+          "maximum_service_seconds": 0.917943925014697,
+          "completed_hops": 23,
+          "target_misses": 0,
+          "native_functional_passed": true,
+          "source_validation_passed": true,
+          "steady_starved_frames": 0,
+          "callback_execution_deadline_misses": 0,
+          "source_read_failures": 0,
+          "invalid_buffers": 0,
+          "control_transitions": 5,
+          "control_buffering_seconds": 14.794666666666666,
+          "replays": 4,
+          "manual_controls_acknowledged": 16,
+          "recording_complete": true,
+          "recording_overflow_frames": 0,
+          "scene_error_count": 0,
+          "frames_presented": 8383,
+          "hard_cancellation_exercised": false,
+          "incomplete_generation_seek": {
+            "submitted": true,
+            "exercised": true,
+            "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+          },
+          "thermal_summary": null,
+          "cold_load_to_first_advance_poll_upper_ms": 10797.161337
+        },
+        "candidate": {
+          "setting": "Master Tempo on",
+          "completed_seconds": 120.006,
+          "p99_seconds": 0.904574410058558,
+          "maximum_service_seconds": 0.904574410058558,
+          "completed_hops": 23,
+          "target_misses": 0,
+          "native_functional_passed": true,
+          "source_validation_passed": true,
+          "steady_starved_frames": 0,
+          "callback_execution_deadline_misses": 0,
+          "source_read_failures": 0,
+          "invalid_buffers": 0,
+          "control_transitions": 5,
+          "control_buffering_seconds": 15.621333333333334,
+          "replays": 4,
+          "manual_controls_acknowledged": 16,
+          "recording_complete": true,
+          "recording_overflow_frames": 0,
+          "scene_error_count": 0,
+          "frames_presented": 8416,
+          "hard_cancellation_exercised": false,
+          "incomplete_generation_seek": {
+            "submitted": true,
+            "exercised": true,
+            "scope": "Retrospective accepted/RawComplete C++ stamps at seek issue; no native inference-start claim"
+          },
+          "thermal_summary": null,
+          "cold_load_to_first_advance_poll_upper_ms": 10746.545985
+        }
+      }
+    }
+  },
+  "frozen_inputs_unchanged_after_run": true,
+  "power_and_OneDrive_restored": true,
+  "original_failures_retained": true,
+  "full_player_forced_shutdown_or_sustained_qualification": false,
+  "M2_M3_release_complete": false
+}

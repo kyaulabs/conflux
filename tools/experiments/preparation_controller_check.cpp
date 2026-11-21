@@ -44,6 +44,7 @@
 #include <iostream>
 #include <limits>
 #include <mutex>
+#include <optional>
 #include <poll.h>
 #include <stdexcept>
 #include <string>
@@ -81,6 +82,29 @@ bool save(const QString& path, const QJsonObject& value)
     return file.write(bytes) == bytes.size() && file.commit();
 }
 
+void addStoppedTiming(QJsonObject& detail, const conflux::DeckController& controller)
+{
+    QJsonArray rows;
+    for (const auto& timing : controller.completedTiming()) {
+        const auto& counters = timing.counters;
+        rows.append(QJsonObject{
+            {"callbacks", qint64(counters.callbacks)}, {"max_execution_ns", qint64(counters.maxExecutionNs)},
+            {"deadline_misses", qint64(counters.deadlineMisses)},
+            {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
+            {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
+            {"graph_quantum_min", qint64(counters.graphQuantumMin)},
+            {"graph_quantum_max", qint64(counters.graphQuantumMax)},
+            {"driver_position_observed", counters.graphPositionObserved},
+            {"capabilities", QJsonObject{{"cycle", timing.capabilities.cycle},
+                {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
+                {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
+    }
+    detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
+    detail["stopped_timing"] = rows;
+    detail["stopped_timing_scope"] = "Stopped-session totals include callbacks after the assertion. "
+        "Execution timing does not measure scheduler lateness. Unavailable driver flag masks do not establish zero events.";
+}
+
 void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t totalFrames = fixtureFrames,
                   std::uint32_t sampleRate = 48000)
 {
@@ -113,7 +137,9 @@ void writeFixture(const QString& path, qint16 left, qint16 right, std::uint32_t 
 
 class Sink {
 public:
-    explicit Sink(std::string name, float tolerance = 0.F) : name_(std::move(name)), tolerance_(tolerance)
+    explicit Sink(std::string name, float tolerance = 0.F,
+                  std::uint64_t validationFrames = std::numeric_limits<std::uint64_t>::max())
+        : name_(std::move(name)), tolerance_(tolerance), validationFrames_(validationFrames)
     {
         loop_ = pw_thread_loop_new(name_.c_str(), nullptr);
         if (!loop_) throw std::runtime_error("Cannot create private sink loop");
@@ -148,14 +174,23 @@ public:
     QJsonObject firstMismatch() const
     {
         if (!mismatchReady_.load(std::memory_order_acquire)) return {};
-        return {{"graph_position", qint64(mismatch_.position)}, {"graph_nsec", qint64(mismatch_.nsec)},
+        QJsonObject detail{{"graph_position", qint64(mismatch_.position)}, {"graph_nsec", qint64(mismatch_.nsec)},
             {"checked_before_callback", qint64(mismatch_.checked)}, {"channel", int(mismatch_.channel)},
             {"first_bad_frame", int(mismatch_.frame)}, {"callback_frames", int(mismatch_.frames)},
-            {"first_value", QString::number(mismatch_.first, 'g', 9)},
-            {"last_value", QString::number(mismatch_.last, 'g', 9)}};
+            {"buffer_present", mismatch_.bufferPresent}, {"readable_input", mismatch_.readable},
+            {"mapped_bytes", qint64(mismatch_.maxsize)},
+            {"chunk_bytes", qint64(mismatch_.size)}, {"chunk_offset", qint64(mismatch_.offset)},
+            {"chunk_stride", mismatch_.stride}, {"chunk_flags", mismatch_.flags}};
+        if (mismatch_.readable) {
+            detail["first_value"] = QString::number(mismatch_.first, 'g', 9);
+            detail["last_value"] = QString::number(mismatch_.last, 'g', 9);
+        }
+        return detail;
     }
     std::uint64_t wrong() const { return wrong_.load(); }
     std::uint64_t zeros() const { return zeros_.load(); }
+    std::uint64_t clockBreaks(std::size_t channel) const { return clockBreaks_[channel].load(); }
+    std::uint64_t missingGraphFrames(std::size_t channel) const { return missingGraphFrames_[channel].load(); }
 private:
     void stop() noexcept
     {
@@ -165,33 +200,89 @@ private:
         if (started_) { pw_thread_loop_unlock(loop_); pw_thread_loop_stop(loop_); }
         pw_thread_loop_destroy(loop_); loop_ = nullptr; started_ = false;
     }
+    static const float* inputSamples(const spa_data* plane, std::uint32_t frames) noexcept
+    {
+        if (!plane || !plane->data || !plane->chunk || !plane->maxsize) return nullptr;
+        const auto& chunk = *plane->chunk;
+        const auto offset = chunk.offset % plane->maxsize;
+        const auto bytes = frames * sizeof(float);
+        if (chunk.stride != sizeof(float) || chunk.size < bytes || bytes > plane->maxsize - offset ||
+            (chunk.flags & (SPA_CHUNK_FLAG_CORRUPTED | SPA_CHUNK_FLAG_EMPTY))) return nullptr;
+        const auto* start = static_cast<const char*>(plane->data) + offset;
+        return reinterpret_cast<std::uintptr_t>(start) % alignof(float) == 0 ?
+            reinterpret_cast<const float*>(start) : nullptr;
+    }
+    void saveMismatch(std::uint64_t graphFrame, std::uint64_t graphNsec,
+                      std::size_t channel, std::uint32_t frame, std::uint32_t frames,
+                      bool bufferPresent, const spa_data* plane, const float* samples, float sample) noexcept
+    {
+        if (mismatchReady_.load(std::memory_order_relaxed)) return;
+        const auto* chunk = plane ? plane->chunk : nullptr;
+        mismatch_ = {graphFrame, graphNsec,
+            received_[channel].load(std::memory_order_relaxed), std::uint32_t(channel), frame, frames,
+            plane ? plane->maxsize : 0, chunk ? chunk->size : 0, chunk ? chunk->offset : 0,
+            chunk ? chunk->stride : 0, chunk ? chunk->flags : 0, bufferPresent, samples != nullptr,
+            sample, samples ? samples[frames - 1] : 0.F};
+        mismatchReady_.store(true, std::memory_order_release);
+    }
     static void process(void* data, spa_io_position* position) noexcept
     {
         auto& self = *static_cast<Sink*>(data);
-        if (!position || position->clock.duration > 65536) return;
+        if (!position || !position->clock.duration || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
+        const auto graphFrame = position->clock.position;
+        const auto graphNsec = position->clock.nsec;
         const bool armed = self.armed_.load(std::memory_order_acquire);
+        const bool bounded = self.validationFrames_ != std::numeric_limits<std::uint64_t>::max();
+        if (armed && !self.wasArmed_) {
+            self.remaining_.fill(self.validationFrames_);
+            self.nextValidatedFrame_.fill(std::nullopt);
+        }
+        self.wasArmed_ = armed;
         std::array<std::uint64_t, 2> received{}, processed{};
         for (std::size_t channel = 0; channel < self.ports_.size(); ++channel) {
-            const auto* samples = static_cast<const float*>(pw_filter_get_dsp_buffer(self.ports_[channel], frames));
-            if (!samples) continue;
-            processed[channel] = frames;
-            if (!armed) continue;
+            auto* port = self.ports_[channel];
+            auto* buffer = pw_filter_dequeue_buffer(port);
+            // A bounded stereo probe checks one graph interval for both
+            // channels, including callbacks with a missing input buffer.
+            if (!buffer && !bounded) continue;
+            const auto* view = buffer ? buffer->buffer : nullptr;
+            const auto* plane = view && view->n_datas == 1 ? view->datas : nullptr;
+            const auto* samples = inputSamples(plane, frames);
+            if (samples) processed[channel] = frames;
+            const auto checked = armed ? std::min<std::uint64_t>(frames, self.remaining_[channel]) : 0;
+            if (checked && bounded) {
+                auto& next = self.nextValidatedFrame_[channel];
+                if (next && graphFrame != *next) {
+                    self.clockBreaks_[channel].fetch_add(1, std::memory_order_relaxed);
+                    if (graphFrame > *next)
+                        self.missingGraphFrames_[channel].fetch_add(graphFrame - *next, std::memory_order_relaxed);
+                }
+                next = graphFrame + checked;
+            }
             std::uint64_t wrong = 0, zeros = 0;
-            for (std::size_t frame = 0; frame < frames; ++frame) {
-                zeros += samples[frame] == 0.F;
-                const bool bad = !std::isfinite(samples[frame]) || std::abs(samples[frame] - expected[channel]) > self.tolerance_;
-                wrong += bad;
-                if (bad && !self.mismatchReady_.load(std::memory_order_relaxed)) {
-                    self.mismatch_ = {position->clock.position, position->clock.nsec,
-                        self.received_[channel].load(std::memory_order_relaxed), std::uint32_t(channel),
-                        frame, frames, samples[frame], samples[frames - 1]};
-                    self.mismatchReady_.store(true, std::memory_order_release);
+            if (checked && !samples) {
+                // Missing or invalid input fails the PCM check without reading
+                // stale bytes or counting unread samples as silence.
+                wrong = checked;
+                self.saveMismatch(graphFrame, graphNsec, channel, 0, frames, buffer != nullptr, plane, nullptr, 0.F);
+            } else {
+                for (std::uint32_t frame = 0; frame < checked; ++frame) {
+                    // Count and report the same value read from the shared PipeWire buffer.
+                    const auto sample = samples[frame];
+                    zeros += sample == 0.F;
+                    const bool bad = !std::isfinite(sample) || std::abs(sample - expected[channel]) > self.tolerance_;
+                    wrong += bad;
+                    if (bad) self.saveMismatch(graphFrame, graphNsec, channel, frame, frames, true, plane, samples, sample);
                 }
             }
-            self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
-            self.zeros_.fetch_add(zeros, std::memory_order_relaxed);
-            received[channel] = frames;
+            if (buffer) (void)pw_filter_queue_buffer(port, buffer);
+            if (checked) {
+                self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
+                self.zeros_.fetch_add(zeros, std::memory_order_relaxed);
+                self.remaining_[channel] -= checked;
+                received[channel] = checked;
+            }
         }
         // Counts acknowledge both channels' completed sample/error checks.
         // Disarming is observed only after any previously armed work finishes.
@@ -208,11 +299,20 @@ private:
     }
     std::string name_;
     const float tolerance_;
+    const std::uint64_t validationFrames_;
+    // Callback-owned budgets restart only after an acknowledged disarm.
+    std::array<std::uint64_t, 2> remaining_{};
+    std::array<std::optional<std::uint64_t>, 2> nextValidatedFrame_{};
+    std::array<std::atomic<std::uint64_t>, 2> clockBreaks_{}, missingGraphFrames_{};
+    bool wasArmed_ = false;
     std::array<void*, 2> ports_{};
     std::array<std::atomic<std::uint64_t>, 2> received_{}, processed_{};
     struct Mismatch {
         std::uint64_t position = 0, nsec = 0, checked = 0;
         std::uint32_t channel = 0, frame = 0, frames = 0;
+        std::uint32_t maxsize = 0, size = 0, offset = 0;
+        std::int32_t stride = 0, flags = 0;
+        bool bufferPresent = false, readable = false;
         float first = 0, last = 0;
     } mismatch_;
     std::atomic<bool> mismatchReady_{false};
@@ -1028,7 +1128,7 @@ void runScratchController(const std::filesystem::path& output, const QString& a,
 
 template<class Check>
 void runEqController(const std::filesystem::path& output, const QString& a, const QString& b,
-                     Check&& require, QJsonObject& observations)
+                     bool functionalOnly, Check&& require, QJsonObject& observations)
 {
     const auto deadline = Clock::now() + std::chrono::seconds(8);
     auto await = [&](auto&& predicate, const char* message) {
@@ -1039,7 +1139,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
     };
     conflux::DeckController controller;
     Sink master("conflux-eq-master-" + std::to_string(::getpid()));
-    Sink cue("conflux-eq-cue-" + std::to_string(::getpid()), 1e-6F);
+    constexpr std::uint64_t cueProbeFrames = 1024;
+    Sink cue("conflux-eq-cue-" + std::to_string(::getpid()), 1e-6F, cueProbeFrames);
     controller.refreshAudioRouting();
     std::array<QString, 4> ports;
     await([&] {
@@ -1093,7 +1194,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         return inspectStemRecording(path, prefix ? prefix : frames, frames, multiplier, rebuild);
     };
     const auto detailPath = QString::fromStdString((output / "generated-eq-controller-detail.json").string());
-    QJsonObject detail{{"scope", "Generated constant PCM; queued EQ ACK, source replacement, routing restore, analytic DC master and prefader cue samples. No musical/frequency-response, continuous-delivery, hardware or latency qualification."}};
+    QJsonObject detail{{"scope", "Generated constant PCM; queued EQ ACK, source replacement, routing restore, analytic DC master and bounded prefader cue samples with receiver positions."},
+        {"cue_clock_continuity_gate", !functionalOnly}};
     try {
         settle();
         const auto cutPath = QString::fromStdString((output / "generated-eq-cut.wav").string());
@@ -1118,9 +1220,23 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         auto checkCue = [&] {
             const auto left = cue.received(0), right = cue.received(1);
             const auto wrongBefore = cue.wrong(), zerosBefore = cue.zeros();
+            const std::array breaksBefore{cue.clockBreaks(0), cue.clockBreaks(1)};
+            const std::array missingBefore{cue.missingGraphFrames(0), cue.missingGraphFrames(1)};
             const auto processedLeft = cue.processed(0), processedRight = cue.processed(1);
             cue.validate(true);
-            await([&] { return cue.received(0) >= left + 1024 && cue.received(1) >= right + 1024; }, "Fresh equalized cue samples did not arrive");
+            await([&] { return cue.received(0) >= left + cueProbeFrames && cue.received(1) >= right + cueProbeFrames; }, "Fresh equalized cue samples did not arrive");
+            // Delay the observer deliberately: subsequent virtual callbacks must
+            // not extend this sample probe into an accidental continuity test.
+            const auto completedLeft = cue.processed(0), completedRight = cue.processed(1);
+            await([&] { return cue.processed(0) >= completedLeft + 2048 && cue.processed(1) >= completedRight + 2048; },
+                  "Cue receiver did not advance after the bounded sample probe");
+            cue.validate(false);
+            await([&] { return !cue.observingValidation(); }, "Cue sample probe did not acknowledge disarm");
+            require(cue.received(0) == left + cueProbeFrames && cue.received(1) == right + cueProbeFrames,
+                    "Delayed observer cannot extend either channel beyond its exact cue probe");
+            const auto breaksLeft = cue.clockBreaks(0) - breaksBefore[0];
+            const auto breaksRight = cue.clockBreaks(1) - breaksBefore[1];
+            const bool continuous = !breaksLeft && !breaksRight;
             QJsonArray checks = detail["cue_checks"].toArray();
             checks.append(QJsonObject{{"received_left_before", qint64(left)}, {"received_right_before", qint64(right)},
                 {"received_left_after", qint64(cue.received(0))}, {"received_right_after", qint64(cue.received(1))},
@@ -1129,10 +1245,16 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
                 {"processed_left_after", qint64(cue.processed(0))}, {"processed_right_after", qint64(cue.processed(1))},
                 {"first_mismatch", cue.firstMismatch()},
                 {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
-                {"validation_acknowledged", cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
+                {"validation_frames_per_channel", qint64(cueProbeFrames)},
+                {"clock_continuous", continuous},
+                {"clock_discontinuities", QJsonArray{qint64(breaksLeft), qint64(breaksRight)}},
+                {"missing_graph_frames", QJsonArray{qint64(cue.missingGraphFrames(0) - missingBefore[0]),
+                    qint64(cue.missingGraphFrames(1) - missingBefore[1])}},
+                {"validation_disarmed", !cue.observingValidation()}, {"cue_ready", controller.audioState().cueReady},
                 {"output_frame", qint64(controller.audioState().outputFrame)}});
             detail["cue_checks"] = checks;
             require(!cue.wrong() && !cue.zeros(), "Prefader cue contains analytic boosted PCM independently of channel/master/crossfader gains");
+            require(functionalOnly || continuous, "Prefader cue probe skipped or repeated receiver graph frames");
         };
         checkCue();
         const auto boostPath = QString::fromStdString((output / "generated-eq-boost.wav").string());
@@ -1140,10 +1262,8 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         await([&] { return controller.recording()["status"].toString() == "Recording" &&
             controller.recording()["acceptedFrames"].toULongLong() >= 2048; }, "Boost EQ recording did not attach");
         const auto prefix = controller.recording()["acceptedFrames"].toULongLong();
-        const auto beforeRoute = controller.audioState(); const auto sourceIds = controller.decks(); cue.validate(false);
-        // checkCue above proved a completed armed callback, so this false ACK
-        // cannot be the initial default or precede in-flight armed sample work.
-        await([&] { return !cue.observingValidation(); }, "Cue validation did not acknowledge disarm before rebuild");
+        const auto beforeRoute = controller.audioState(); const auto sourceIds = controller.decks();
+        // checkCue has completed and acknowledged disarm before any rebuild.
         detail["cue_disarmed_before_rebuild"] = QJsonObject{{"wrong", qint64(cue.wrong())},
             {"zeros", qint64(cue.zeros())}, {"processed_left", qint64(cue.processed(0))},
             {"processed_right", qint64(cue.processed(1))}, {"first_mismatch", cue.firstMismatch()}};
@@ -1187,6 +1307,25 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
         detail["peer_replacement_advance"] = qint64(installed.sourceFrame[1] - beforeReplace.sourceFrame[1]);
         detail["rebuild_source_frames_before"] = QJsonArray{qint64(beforeRoute.sourceFrame[0]), qint64(beforeRoute.sourceFrame[1])};
         detail["rebuild_source_frames_after"] = QJsonArray{qint64(restored.sourceFrame[0]), qint64(restored.sourceFrame[1])};
+        // Prove the bounded oracle still rejects bad samples inside its window.
+        // Keep its cumulative mismatch latch; never clear a failed positive probe.
+        controller.setCueGain(0.);
+        await([&] { return controller.audioState().cueGain == 0.F; }, "Silent cue target was not acknowledged");
+        settle();
+        const auto negativeLeft = cue.received(0), negativeRight = cue.received(1);
+        cue.validate(true);
+        await([&] { return cue.received(0) >= negativeLeft + cueProbeFrames &&
+                          cue.received(1) >= negativeRight + cueProbeFrames; }, "Negative cue probe did not complete");
+        cue.validate(false);
+        await([&] { return !cue.observingValidation(); }, "Negative cue probe did not acknowledge disarm");
+        require(cue.received(0) == negativeLeft + cueProbeFrames && cue.received(1) == negativeRight + cueProbeFrames &&
+                cue.wrong() == 2 * cueProbeFrames && cue.zeros() == 2 * cueProbeFrames && !cue.firstMismatch().isEmpty(),
+                "Bounded cue probe rejects every intentionally silent sample on both channels");
+        detail["negative_cue_probe"] = QJsonObject{{"expected_silence", true},
+            {"checked_left_frames", qint64(cue.received(0) - negativeLeft)},
+            {"checked_right_frames", qint64(cue.received(1) - negativeRight)},
+            {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
+            {"first_mismatch", cue.firstMismatch()}};
         require(save(detailPath, detail), "Bounded EQ controller/sample evidence is retained");
         controller.shutdown(); observations["eq_controller"] = detail;
     } catch (const std::exception& error) {
@@ -1202,7 +1341,15 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             {"read_errors", QJsonArray{state.sourceReadError[0], state.sourceReadError[1]}},
             {"invalid_buffers", qint64(state.invalidBuffers)}, {"rejected", qint64(state.rejected)},
             {"cue_ready", state.cueReady}};
-        (void)save(detailPath, detail); controller.shutdown(); throw;
+        detail["completed_sessions_before_diagnostic_shutdown"] = qint64(controller.completedSessions());
+        cue.validate(false);
+        (void)save(detailPath, detail);
+        try {
+            controller.shutdown();
+            addStoppedTiming(detail, controller);
+            (void)save(detailPath, detail);
+        } catch (...) {} // Preserve the original failure and sample evidence if timing collection fails.
+        throw;
     }
 }
 
@@ -1721,7 +1868,10 @@ QJsonObject snapshot(const State& s)
         {"b_starved", qint64(s.starvedFrames[1])}, {"a_playing", s.playing[0]},
         {"b_playing", s.playing[1]}, {"callbacks", qint64(s.callbacks)},
         {"invalid_buffers", qint64(s.invalidBuffers)}, {"rejected", qint64(s.rejected)},
-        {"snapshot_drops", qint64(s.snapshotDrops)}, {"ready", s.ready}};
+        {"snapshot_drops", qint64(s.snapshotDrops)}, {"ready", s.ready},
+        {"a_nominal_position", s.sourcePosition[0]}, {"a_hold_armed", s.residentHold[0].armed},
+        {"a_held", s.residentHold[0].active}, {"a_hold_ready", s.residentHold[0].ready},
+        {"a_hold_audible_frame", qint64(s.residentHold[0].audibleFrame)}};
 }
 struct Evidence {
     QString name, output, cache;
@@ -2167,16 +2317,21 @@ void scenario(const QString& output, const QString& privateRoot, bool exitScenar
 }
 
 void residentScenario(const QString& output, const QString& privateRoot, QJsonArray& results,
-                      std::string_view continuationMode = {})
+                      std::string_view continuationMode = {}, bool functionalOnly = false)
 {
-    const bool takeover = continuationMode == "takeover", cancelLookup = continuationMode == "cancel";
+    const bool processed = continuationMode == "tempo-takeover";
+    // CPU-capped/instrumented runs check ownership and consumed-frame accounting.
+    // Strict mode and the direct callback cases retain the continuity oracle.
+    const bool functionalProcessed = processed && functionalOnly;
+    const bool takeover = continuationMode == "takeover" || processed, cancelLookup = continuationMode == "cancel";
     const bool preparedContinuation = takeover || cancelLookup;
-    const auto name = QStringLiteral("resident-") + (takeover ? "takeover" : cancelLookup ? "cancel" : "hold");
+    const auto name = QStringLiteral("resident-") + (processed ? "tempo-takeover" : takeover ? "takeover" : cancelLookup ? "cancel" : "hold");
     const auto local = QDir(output).filePath(name), cacheHome = QDir(privateRoot).filePath(name);
     directory(local); directory(cacheHome);
     Evidence evidence{name, output, privateRoot};
     evidence.inspectResources = false; // Same quiescent-only accounting as continuation cases.
-    QJsonObject report{{"scenario", name}, {"qualified", false}, {"filesystem_observations", "quiescent-only"}};
+    QJsonObject report{{"scenario", name}, {"qualified", false}, {"filesystem_observations", "quiescent-only"},
+        {"affected_deck_continuity_gate", !functionalProcessed}};
     const auto a = QDir(local).filePath("live-a.wav"), b = QDir(local).filePath("normal-b.wav");
     writeFixture(a, 8192, -4096, 12 * 44100, 44100);
     writeFixture(b, 2048, -1024, 30 * 48000, 48000); // Exact bBass, no extra exporter/prepared-bank seed.
@@ -2244,6 +2399,22 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
         }
         const auto exporterCalls = fixture.engine.exporterPath.chopped(3) + ".calls";
         const auto seededCalls = preparedContinuation ? digest(exporterCalls) : QString{};
+        if (processed) {
+            controller.setTempoPercent(0, 6.);
+            controller.toggleMasterTempo(0);
+            const auto tempoCommand = controller.submittedCommands();
+            await(evidence, [&] { const auto state = controller.audioState();
+                return state.lastCommandId >= tempoCommand && state.tempo[0].active &&
+                    state.tempo[0].percent == 6. && state.tempo[0].keyLock;
+            }, "Selected live BPM/Master Tempo did not reach the paused callback");
+            insist(hold()["status"] == "Cancelled" && arm(hold()) && hold()["status"] == "NextPlay",
+                "Accepted manual tempo invalidates old consent; only an explicit current ticket rearms recovery");
+            // Keep the peer's independent exact-sample recording oracle. The
+            // complementary core/callback cases check the processed A source.
+            controller.setDeckGain(0, 0.);
+            await(evidence, [&] { return controller.audioState().deckGain[0] == 0.F; },
+                "Processed test's peer-only master setup did not settle");
+        }
         const auto originalMetadata = controller.decks()[0].toMap();
         const auto retainedBefore = controller.retainedPcmBytes();
         const auto beforePreparation = controller.preparation();
@@ -2254,11 +2425,16 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
         insist(hold()["status"] == "Pending", "First accepted Play waits for a real callback acknowledgement");
         controller.setPlaying(1, true);
         await(evidence, [&] { const auto s = controller.audioState(); return s.residentHold[0].armed &&
-            s.sourceFrame[0] >= 8192 && s.sourceFrame[1] >= 8192; }, "First Play did not arm the approved range on the actual callback");
+            (processed ? s.sourcePosition[0] > 0 : s.sourceFrame[0] >= 8192) && s.sourceFrame[1] >= 8192 &&
+                (functionalProcessed || !s.buffering[0]);
+        }, "First Play did not arm the approved range on the actual callback");
         const auto armed = controller.audioState();
+        const auto baselineStarved = processed ? armed.starvedFrames[0] : 0;
+        evidence.actions["pre_hold_tempo_buffering_frames"] = qint64(baselineStarved);
         insist(armed.transportRevision[0] == beforePlay.transportRevision[0] + 2 && armed.lastCommandId > playId &&
             armed.sourceGeneration[0] == beforePlay.sourceGeneration[0] && armed.residentHold[0].rangeId == initial["rangeId"].toULongLong() &&
-            !armed.residentHold[0].active && !armed.buffering[0] && !armed.sourceReadError[0] && !armed.starvedFrames[0],
+            (processed || !armed.residentHold[0].active) && (functionalProcessed || !armed.buffering[0]) && !armed.sourceReadError[0] &&
+            armed.starvedFrames[0] == baselineStarved,
             "Exactly one accepted Play then guarded Arm is observed with unchanged source identity and healthy linear audio");
         evidence.actions["first_play_armed"] = QJsonObject::fromVariantMap(hold());
         const auto wav = QDir(local).filePath("master.wav");
@@ -2275,23 +2451,34 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
                 controller.recording()["acceptedFrames"].toULongLong() >= recordedAtHold + holdFrames;
         }, "Resident loop/peer/recorder did not span multiple actual callbacks");
         const auto looping = controller.audioState(); continuousPeer(beforeHold, looping); continuousPeer(held, looping);
-        insist(looping.residentHold[0].active && !looping.buffering[0] && !looping.sourceReadError[0] && !looping.starvedFrames[0] &&
-            looping.sourcePosition[0] == double(held.sourceFrame[0]) && looping.residentHold[0].audibleFrame >= 48048 &&
+        evidence.actions["before_hold"] = snapshot(beforeHold);
+        evidence.actions["held"] = snapshot(held); evidence.actions["looped"] = snapshot(looping);
+        insist(looping.residentHold[0].active && (functionalProcessed || !looping.buffering[0]) &&
+            !looping.sourceReadError[0] && looping.starvedFrames[0] >= baselineStarved &&
+            (functionalProcessed || looping.starvedFrames[0] == baselineStarved) &&
+            looping.sourcePosition[0] == (processed ? held.sourcePosition[0] : double(held.sourceFrame[0])) &&
+            looping.residentHold[0].audibleFrame >= 48048 &&
             // The reported next cursor may equal OUT between reads, before wrapping.
             looping.residentHold[0].audibleFrame <= 51120 && controller.completedSessions() == sessions,
-            "Shortage repeats only the approved resident range while F is parked, peer/output continue and no A frame is starved");
+            functionalProcessed ?
+                "Processed recovery retains parked F and approved range through reported buffering while peer/output continue" :
+                "Shortage repeats only the approved resident range while F is parked, peer/output continue and no A frame is starved");
         evidence.actions["held"] = snapshot(held); evidence.actions["looping"] = QJsonObject::fromVariantMap(hold());
         const auto continuation = [&] { return controller.decks()[0].toMap()["continuation"].toMap(); };
         if (preparedContinuation) {
             await(evidence, [&] { return continuation()["status"] == "Checking" &&
                 continuation()["pending"].toBool(); }, "Active unbuffered resident range did not start a cache-only lookup");
             const auto checking = controller.audioState(); const auto attempt = continuation();
-            insist(checking.residentHold[0].active && !checking.buffering[0] && !checking.starvedFrames[0] &&
+            insist(checking.residentHold[0].active && (functionalProcessed || !checking.buffering[0]) &&
+                checking.starvedFrames[0] >= baselineStarved && (functionalProcessed || checking.starvedFrames[0] == baselineStarved) &&
                 attempt["attempts"].toULongLong() == 1 && attempt["sourceFrame"].toULongLong() == held.sourceFrame[0] &&
+                (!processed || attempt["sourcePosition"].toDouble() == held.sourcePosition[0]) &&
                 attempt["sourceGeneration"].toULongLong() == held.sourceGeneration[0] &&
                 attempt["residentHoldRangeId"].toString() == initial["rangeId"].toString() && !controller.busy() &&
                 controller.preparation() == beforePreparation,
-                "One exact range-bound attempt starts while approved audio plays, without buffering or a normal load");
+                functionalProcessed ?
+                    "One exact range-bound attempt retains F and owner during reported buffering without a normal load" :
+                    "One exact range-bound attempt starts while approved audio plays, without buffering or a normal load");
             evidence.actions["continuation_capture"] = QJsonObject::fromVariantMap(attempt);
             if (cancelLookup) {
                 insist(cancel(hold()), "An accepted exact resident Cancel revokes the in-flight lookup immediately");
@@ -2311,7 +2498,7 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
             const auto settled = controller.audioState(); continuousPeer(looping, settled);
             insist(continuation()["attempts"].toULongLong() == 1 && controller.completedSessions() == sessions &&
                 controller.liveStemObservations(0) == handle && handle->setup().sourceToken == token &&
-                (cancelLookup || !settled.starvedFrames[0]) && !settled.starvedFrames[1] && !settled.sourceReadErrorObserved[0] &&
+                (cancelLookup || functionalProcessed || settled.starvedFrames[0] == baselineStarved) && !settled.starvedFrames[1] && !settled.sourceReadErrorObserved[0] &&
                 !settled.sourceReadError[0] && controller.recording()["active"].toBool() &&
                 !controller.recording()["overflowFrames"].toULongLong(),
                 "Settling retains the exact episode, observations, peer, recorder and source health");
@@ -2320,15 +2507,48 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
                 insist(!mapped["liveStems"].toBool() && !mapped["residentHold"].toMap()["configured"].toBool() &&
                     settled.sourceGeneration[0] == continuation()["generation"].toULongLong() &&
                     settled.transportRevision[0] == held.transportRevision[0]+1 && settled.sourceFrames[0] == held.sourceFrames[0] &&
-                    settled.sourcePosition[0] == double(settled.sourceFrame[0]) && settled.stemGain == looping.stemGain &&
+                    (processed ? std::floor(settled.sourcePosition[0]) == double(settled.sourceFrame[0]) &&
+                        settled.tempo[0].active && settled.tempo[0].percent == 6. && settled.tempo[0].keyLock :
+                        settled.sourcePosition[0] == double(settled.sourceFrame[0])) && settled.stemGain == looping.stemGain &&
                     settled.deckGain == looping.deckGain && settled.eqGainDb == looping.eqGainDb &&
                     settled.cueFrame == looping.cueFrame && settled.cueSelected == looping.cueSelected &&
                     settled.masterGain == looping.masterGain && settled.crossfader == looping.crossfader &&
-                    settled.sourceFrame[0]-held.sourceFrame[0] <= settled.outputFrame-looping.outputFrame,
+                    (processed ? settled.sourcePosition[0]-held.sourcePosition[0] <=
+                        1.06*double(settled.outputFrame-looping.outputFrame)+1e-6 :
+                        settled.sourceFrame[0]-held.sourceFrame[0] <= settled.outputFrame-looping.outputFrame),
                     "Automatic range-bound OUT takeover preserves finite F direction, exact geometry, controls and source metadata");
                 for (const auto* key : {"name", "sourceId", "title", "artist", "album", "artworkDataUrl", "bpm", "waveform", "overviewStem"})
                     if (mapped[key] != originalMetadata[key]) throw std::runtime_error("Resident continuation changed original metadata");
-                const auto expectedRetained = retainedBefore-initial["residentBytes"].toULongLong()+settled.sourceFrames[0]*32;
+                if (processed) {
+                    await(evidence, [&] { const auto state = controller.audioState();
+                        return state.outputFrame >= settled.outputFrame+2048 &&
+                            state.sourcePosition[0] >= settled.sourcePosition[0]+1024.;
+                    }, "Prepared processor did not consume further linear audio after takeover");
+                    const auto advanced = controller.audioState(); continuousPeer(settled,advanced);
+                    const auto output = advanced.outputFrame-settled.outputFrame;
+                    const auto starved = advanced.starvedFrames[0]-settled.starvedFrames[0];
+                    insist(advanced.sourceGeneration[0] == settled.sourceGeneration[0] &&
+                        advanced.transportRevision[0] == settled.transportRevision[0] &&
+                        !advanced.residentHold[0].active && advanced.tempo[0].active &&
+                        advanced.tempo[0].percent == 6. && advanced.tempo[0].keyLock &&
+                        starved <= output && (functionalProcessed || !starved) &&
+                        std::abs(advanced.sourcePosition[0]-settled.sourcePosition[0]-double(output-starved)*1.06) < 1e-5,
+                        "Prepared continuation advances only for consumed frames at the retained tempo, without cursor skips during buffering");
+                    report["processed_advance"] = QJsonObject{
+                        {"output_frames", qint64(output)}, {"starved_frames", qint64(starved)},
+                        {"nominal_advance", advanced.sourcePosition[0]-settled.sourcePosition[0]},
+                        {"expected_nominal_advance", double(output-starved)*1.06}};
+                    report["processed_buffering"] = QJsonObject{
+                        {"at_first_play_observation_frames", qint64(baselineStarved)},
+                        {"through_settle_frames", qint64(settled.starvedFrames[0]-baselineStarved)},
+                        {"after_settle_frames", qint64(starved)}};
+                    report["affected_deck_audio_scope"] = functionalProcessed ?
+                        "Functional-only processed controller check reports A underruns and verifies parked/consumed cursor accounting; it does not qualify A continuity. Peer/recording remain exact. Strict callback and real-player gates are separate." :
+                        "No additional A underruns after initial selected-tempo startup; peer/recording remain exact. No hardware or sustained qualification.";
+                }
+                // This 3,072-frame fixture retains 3,269 processed frames at the admitted slow-tempo bound.
+                constexpr std::uint64_t heldAllocation = 202912;
+                const auto expectedRetained = retainedBefore - heldAllocation + settled.sourceFrames[0]*32;
                 await(evidence, [&] { return services.gone(0) && bound.groupGone() &&
                     controller.retainedPcmBytes() == expectedRetained; }, "Acquired old live/range ownership did not retire off-thread");
                 controller.stopRecording();
@@ -2336,9 +2556,13 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
                 const auto recording = controller.recording(); const auto frames = recording["writtenFrames"].toULongLong();
                 insist(recording["status"] == "Complete" && recording["acceptedFrames"] == recording["writtenFrames"] &&
                     !recording["overflowFrames"].toULongLong(), "Resident takeover retains every accepted recorded frame");
-                current(); report["wav"] = inspectStemRecording(wav, frames, frames, 1.F, false, bothBass); current();
+                current(); report["wav"] = inspectStemRecording(wav, frames, frames, 1.F, false, processed ? bBass : bothBass); current();
+                report["processed_tempo"] = processed;
+                report["recording_scope"] = processed ? "Every peer-only master frame; A DSP/buses covered by complementary core/callback tests" :
+                    "Every selected-bass master frame through live, resident and finite sources";
                 insist(report["wav"].toObject()["checked_prefix_or_tail_frames"].toVariant().toULongLong() == frames,
-                    "Every stereo sample through live, held and finite OUT takeover matches the selected-bass oracle");
+                    processed ? "Every master stereo sample matches the unchanged peer during processed source takeover" :
+                        "Every stereo sample through live, held and finite OUT takeover matches the selected-bass oracle");
             } else {
                 insist(settled.sourceGeneration[0] == held.sourceGeneration[0] &&
                     controller.decks()[0].toMap()["liveStems"].toBool() && !settled.residentHold[0].armed &&
@@ -2366,11 +2590,14 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
                 !counters.invalidClockReads && counters.attemptedRecords == evidence.ordinal &&
                 !controller.busy() && !controller.outputReady() && controller.completedSessions() == sessions+1 &&
                 !stoppedAudio.starvedFrames[1] && controller.completedStarvedFrames() == stoppedAudio.starvedFrames[0] &&
-                (cancelLookup ? stoppedAudio.starvedFrames[0] == settled.starvedFrames[0] : !stoppedAudio.starvedFrames[0]) &&
+                (cancelLookup ? stoppedAudio.starvedFrames[0] == settled.starvedFrames[0] :
+                    functionalProcessed ? stoppedAudio.starvedFrames[0] >= settled.starvedFrames[0] :
+                    stoppedAudio.starvedFrames[0] == baselineStarved) &&
                 controller.completedReadFailures() == 0 && controller.completedRejected() == 0 && controller.completedInvalidBuffers() == 0 &&
                 finalRecording["status"] == "Complete" && finalRecording["acceptedFrames"] == finalRecording["writtenFrames"] &&
                 !finalRecording["overflowFrames"].toULongLong(),
                 "Both outcomes retire exact owned jobs, drain every recorded frame and count observed health exactly once");
+            if (processed) report["processed_buffering_after_stop_frames"] = qint64(stoppedAudio.starvedFrames[0]);
             report["passed"] = true; evidence.write(true); evidence.controller = nullptr;
             insist(QDir(cacheHome).removeRecursively() && !QFileInfo::exists(cacheHome), "Only retired resident continuation cache is removed");
             results.append(report); return;
@@ -2503,7 +2730,7 @@ void residentScenario(const QString& output, const QString& privateRoot, QJsonAr
     }
 }
 
-enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground, ResidentHold, ResidentTakeover, ResidentCancel };
+enum class ContinuationCase { Takeover, Miss, Cancel, Stop, Foreground, ResidentHold, ResidentTakeover, ResidentCancel, ResidentTempoTakeover };
 void continuationScenario(const QString& output, const QString& privateRoot,
                           ContinuationCase kind, QJsonArray& results)
 {
@@ -2593,6 +2820,12 @@ void continuationScenario(const QString& output, const QString& privateRoot,
         const auto sessions = controller.completedSessions();
         const auto priorStarved = controller.completedStarvedFrames(), priorFailures = controller.completedReadFailures();
         const auto retainedBefore = controller.retainedPcmBytes();
+        // Create the fixture lock before playback. Qt may sync the lock file
+        // to disk, which would block snapshot polling during the check.
+        if (kind != ContinuationCase::Miss) {
+            insist(gate.tryLock(0), "Owned prepared-cache lock gates only the automatic lookup after setup");
+            locked = true;
+        }
         std::uint64_t retiredStarved = 0, retiredFailures = 0;
         controller.setPlaying(0, true); controller.setPlaying(1, true);
         await(evidence, [&] { const auto s = controller.audioState(); return s.playing[0] && s.playing[1] &&
@@ -2608,10 +2841,6 @@ void continuationScenario(const QString& output, const QString& privateRoot,
             await(evidence, [&] { return controller.recording()["status"].toString() == "Recording" &&
                 controller.recording()["acceptedFrames"].toULongLong() >= holdFrames; },
                 "Continuation master recorder did not attach before failure");
-        }
-        if (kind != ContinuationCase::Miss) {
-            insist(gate.tryLock(0), "Owned prepared-cache lock gates only the automatic lookup after setup");
-            locked = true;
         }
         insist(services.alive(0) && services.count(0, "fixture", "complete") == 0,
             "Induced failure targets the exact incomplete active fixture service");
@@ -2896,10 +3125,11 @@ int run(int argc, char** argv, bool functionalOnly, std::optional<ContinuationCa
         pw_init(nullptr, nullptr);
         if (continuationOnly) {
             if (*continuationCase == ContinuationCase::ResidentHold || *continuationCase == ContinuationCase::ResidentTakeover ||
-                *continuationCase == ContinuationCase::ResidentCancel)
+                *continuationCase == ContinuationCase::ResidentCancel || *continuationCase == ContinuationCase::ResidentTempoTakeover)
                 residentScenario(QString::fromStdString(output.string()), privateRoot, results,
+                    *continuationCase == ContinuationCase::ResidentTempoTakeover ? "tempo-takeover" :
                     *continuationCase == ContinuationCase::ResidentTakeover ? "takeover" :
-                    *continuationCase == ContinuationCase::ResidentCancel ? "cancel" : "");
+                    *continuationCase == ContinuationCase::ResidentCancel ? "cancel" : "", functionalOnly);
             else continuationScenario(QString::fromStdString(output.string()), privateRoot, *continuationCase, results);
         } else {
             scenario(QString::fromStdString(output.string()), privateRoot, false, results);
@@ -3097,7 +3327,7 @@ int main(int argc, char** argv)
         QString uiControlsBinary, uiControlsSha;
         bool uiControlsRequested = false, normalRedraw = false;
         std::optional<liveFailure::ContinuationCase> continuationCase;
-        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold,resident-takeover,resident-cancel} | --ui-controls-soak ABSOLUTE_BINARY SHA256]";
+        const auto usage = "Usage: preparation-controller-check PRIVATE_RUNTIME EMPTY_RECORDING_DIR [--functional-only] [--live-failure-only | --continuation-case {takeover,miss,cancel,stop,foreground,resident-hold,resident-takeover,resident-cancel,resident-tempo-takeover} | --ui-controls-soak ABSOLUTE_BINARY SHA256]";
         if (argc < 3) throw std::runtime_error(usage);
         for (int argument = 3; argument < argc; ++argument) {
             const std::string_view option(argv[argument]);
@@ -3121,6 +3351,7 @@ int main(int argc, char** argv)
                 else if (value == "resident-hold") continuationCase = liveFailure::ContinuationCase::ResidentHold;
                 else if (value == "resident-takeover") continuationCase = liveFailure::ContinuationCase::ResidentTakeover;
                 else if (value == "resident-cancel") continuationCase = liveFailure::ContinuationCase::ResidentCancel;
+                else if (value == "resident-tempo-takeover") continuationCase = liveFailure::ContinuationCase::ResidentTempoTakeover;
                 else throw std::runtime_error(usage);
             } else throw std::runtime_error(usage);
         }
@@ -3444,24 +3675,7 @@ int main(int argc, char** argv)
                     {"scope", "Failure-only coherent stored before/after controller snapshots. Catch-time sink atomics are separate asynchronous reads, not the assertion's exact read instant. Received counts are per channel; wrong/zero sample counts sum both channels. No root-cause inference."}};
                 observations["cancelled_preparation_failure"] = detail;
                 controller.shutdown();
-                QJsonArray stoppedTiming;
-                for (const auto& timing : controller.completedTiming()) {
-                    const auto& counters = timing.counters;
-                    stoppedTiming.append(QJsonObject{
-                        {"callbacks", qint64(counters.callbacks)}, {"max_execution_ns", qint64(counters.maxExecutionNs)},
-                        {"deadline_misses", qint64(counters.deadlineMisses)},
-                        {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
-                        {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
-                        {"graph_quantum_min", qint64(counters.graphQuantumMin)},
-                        {"graph_quantum_max", qint64(counters.graphQuantumMax)},
-                        {"driver_position_observed", counters.graphPositionObserved},
-                        {"capabilities", QJsonObject{{"cycle", timing.capabilities.cycle},
-                            {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
-                            {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
-                }
-                detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
-                detail["stopped_timing"] = stoppedTiming;
-                detail["stopped_timing_scope"] = "Quiesced totals include callbacks after the assertion. Execution timing does not measure scheduler lateness; unavailable driver flag masks do not establish zero events.";
+                addStoppedTiming(detail, controller);
                 observations["cancelled_preparation_failure"] = detail;
             } catch (const std::exception& diagnostic) {
                 try { observations["cancelled_preparation_diagnostic_error"] = QString::fromUtf8(diagnostic.what()); }
@@ -3547,27 +3761,8 @@ int main(int argc, char** argv)
                 // Preserve the failing sample evidence before intentional cleanup silence.
                 sink.validate(false);
                 controller.shutdown();
-                QJsonArray stoppedTiming;
-                for (const auto& timing : controller.completedTiming()) {
-                    const auto& counters = timing.counters;
-                    stoppedTiming.append(QJsonObject{
-                        {"callbacks", qint64(counters.callbacks)},
-                        {"max_execution_ns", qint64(counters.maxExecutionNs)},
-                        {"deadline_misses", qint64(counters.deadlineMisses)},
-                        {"driver_discontinuities", qint64(counters.graphDiscontinuities)},
-                        {"driver_xrun_recovery_flags", qint64(counters.xrunRecoveryFlags)},
-                        {"graph_quantum_min", qint64(counters.graphQuantumMin)},
-                        {"graph_quantum_max", qint64(counters.graphQuantumMax)},
-                        {"driver_position_observed", counters.graphPositionObserved},
-                        {"capabilities", QJsonObject{
-                            {"cycle", timing.capabilities.cycle},
-                            {"discontinuity_flag", qint64(timing.capabilities.discontinuityFlag)},
-                            {"xrun_recovery_flag", qint64(timing.capabilities.xrunRecoveryFlag)}}}});
-                }
                 auto detail = observations["cue_jump_failure"].toObject();
-                detail["completed_sessions_after_diagnostic_shutdown"] = qint64(controller.completedSessions());
-                detail["stopped_timing"] = stoppedTiming;
-                detail["stopped_timing_scope"] = "Quiesced totals for all completed sessions after failure-only shutdown, including callbacks after the assertion. Execution timing does not measure scheduler lateness; unavailable driver flag masks do not establish zero events.";
+                addStoppedTiming(detail, controller);
                 observations["cue_jump_failure"] = detail;
             } catch (const std::exception& diagnostic) {
                 try { observations["cue_jump_timing_diagnostic_error"] = QString::fromUtf8(diagnostic.what()); }
@@ -3739,7 +3934,7 @@ int main(int argc, char** argv)
         observations["fixture_frames_per_track"] = qint64(fixtureFrames);
         runStemController(output, fixtures.path(), a, b, libraryId, functionalOnly, require, observations);
         runScratchController(output, a, b, require, observations);
-        runEqController(output, a, b, require, observations);
+        runEqController(output, a, b, functionalOnly, require, observations);
         runLiveStemController(output, fixtures.path(), a, functionalOnly, require, observations);
         runLostLiveOwners(fixtures.path(), require, observations);
         passed = true;

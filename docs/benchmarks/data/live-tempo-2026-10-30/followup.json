@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "initial_CI_head": "3a932eb079c35af6f64d265894e09ea3eafdb8a6",
+  "initial_jobs_passed": 5,
+  "initial_jobs_total": 6,
+  "initial_jobs_closed": true,
+  "initial_failure": {
+    "run": 41035541790,
+    "event": "push",
+    "attempt": 1,
+    "job": 123995345374,
+    "name": "linux",
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/kyaulabs/conflux/actions/runs/41035541790/job/123995345374"
+  },
+  "failure_comparison": {
+    "before": {
+      "a_buffering": false,
+      "a_cursor": 18176,
+      "a_error": false,
+      "a_frames": 576001,
+      "a_generation": 1,
+      "a_playing": true,
+      "a_render_error": false,
+      "a_starved": 0,
+      "b_buffering": false,
+      "b_cursor": 8448,
+      "b_error": false,
+      "b_frames": 576001,
+      "b_generation": 0,
+      "b_playing": true,
+      "b_render_error": false,
+      "b_starved": 0,
+      "callbacks": 961,
+      "invalid_buffers": 0,
+      "output_frame": 246016,
+      "ready": true,
+      "rejected": 0,
+      "snapshot_drops": 0
+    },
+    "after": {
+      "a_buffering": false,
+      "a_cursor": 38912,
+      "a_error": false,
+      "a_frames": 576001,
+      "a_generation": 2,
+      "a_playing": true,
+      "a_render_error": true,
+      "a_starved": 29696,
+      "b_buffering": false,
+      "b_cursor": 58880,
+      "b_error": false,
+      "b_frames": 576001,
+      "b_generation": 0,
+      "b_playing": true,
+      "b_render_error": false,
+      "b_starved": 0,
+      "callbacks": 1158,
+      "invalid_buffers": 0,
+      "output_frame": 296448,
+      "ready": true,
+      "rejected": 0,
+      "snapshot_drops": 10
+    },
+    "checks": {
+      "output_advanced": true,
+      "peer_clock_exact": true,
+      "peer_generation_unchanged": true,
+      "peer_playing": true,
+      "peer_not_buffering": true,
+      "peer_health_good": true,
+      "peer_starvation_zero": true,
+      "invalid_buffers_zero": true,
+      "rejected_commands_zero": true,
+      "snapshot_reports_not_dropped": false
+    }
+  },
+  "failure_root_cause_established": false,
+  "oracle_or_threshold_relaxed": false,
+  "workflow_retry_performed": false,
+  "coverage": [
+    {
+      "event": "pull_request",
+      "head": "3a932eb079c35af6f64d265894e09ea3eafdb8a6",
+      "run": 41035648477,
+      "artifact_id": 12968063136,
+      "artifact_digest": "sha256:80a420d2443e23a680f56085f39f6721b4bed51676ddc567b6601bb6e8025fcc",
+      "cpp": {
+        "covered": 10450,
+        "total": 11643,
+        "percent": 89.75349995705574,
+        "above_80_percent": true
+      },
+      "python": {
+        "covered": 1463,
+        "total": 1680,
+        "percent": 87.08333333333333,
+        "above_80_percent": true
+      }
+    },
+    {
+      "event": "push",
+      "head": "3a932eb079c35af6f64d265894e09ea3eafdb8a6",
+      "run": 41035541790,
+      "artifact_id": 12967404023,
+      "artifact_digest": "sha256:24a5fabdbbb11ca0cff569b2dc0f9fb8df495cafbf160379f8f16cc56d52a9a0",
+      "cpp": {
+        "covered": 10446,
+        "total": 11643,
+        "percent": 89.71914455037361,
+        "above_80_percent": true
+      },
+      "python": {
+        "covered": 1463,
+        "total": 1680,
+        "percent": 87.08333333333333,
+        "above_80_percent": true
+      }
+    }
+  ],
+  "local_unchanged_oracle_reproduction": {
+    "passed": true,
+    "checks": 19,
+    "wav": {
+      "all_samples_finite": true,
+      "amplitude_tolerance": 1e-06,
+      "baseline_frames": 8192,
+      "bytes": 208984,
+      "every_frame_checked": true,
+      "fact_frames": 26112,
+      "fade_in_frames": 240,
+      "fade_out_frames": 240,
+      "frames": 26112,
+      "maximum_oracle_error": 1.4901161193847656e-08,
+      "peer_only_frames": 14352,
+      "recovered_frames": 3088,
+      "sha256": "6d9eff28be50f67a005f8c3924fcd1e2bbc93ce4bfe28f060ea52c1444883d71",
+      "unclassified_or_omitted_frames": 0
+    },
+    "daemon_reaped": true
+  },
+  "help_followup": {
+    "command": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=5",
+      "25",
+      "/home/kyau/projects/kyaulabs/conflux/build/m3-loop-tempo-01/final-client-01/conflux",
+      "--smoke-test"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 2.0559642140287906,
+    "qml_sha256": "6f571e676c4844d1a03b0529e015805992463c71326a9241980bf84b26444f9d",
+    "binary_sha256": "ec12b6721419a554065b7ac59346660315035baaac8d67e359ab138301a17314",
+    "software_backend": true,
+    "offscreen": true,
+    "model_or_physical_audio_started": false,
+    "hardware_latency_qualified": false,
+    "scope": "Rebuilt binary and existing Harness.qml smoke; the normal help panel was not opened"
+  },
+  "product_audio_source_changed_after_initial_CI": false,
+  "physical_audio_model_or_GPU_started": false,
+  "milestone_or_release_completed": false
+}

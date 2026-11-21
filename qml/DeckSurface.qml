@@ -20,6 +20,7 @@ Item {
     readonly property var presentation: showingPreparation ? (deck.pendingPresentation || ({})) : deck
     readonly property real loadProgress: showingPreparation ? Math.max(0, Math.min(1, Number(deck.loadProgress) || 0)) : 1
     readonly property string sourceId: String(deck.sourceId || "")
+    readonly property string sourceGeneration: String(deck.sourceGeneration || "0")
     readonly property bool canControl: Boolean(deck.loaded) && controller.outputReady && !deck.replacing
     readonly property var loop: deck.loop || ({})
     readonly property var hotCues: deck.hotCues || []
@@ -35,9 +36,23 @@ Item {
     onResidentIdentityChanged: if (residentHoldDialog) residentHoldDialog.close()
     readonly property string recoveryDetail: String(residentHold.detail || "")
         + (residentHold.errorCode ? " Live stems reported an error." : "")
-    readonly property string scratchSourceGeneration: String(deck.sourceGeneration || "0")
     readonly property var bpmState: deck.bpm || ({})
     readonly property var localTiming: deck.localTiming || ({})
+    readonly property string localKeyText: {
+        const harmony = deck.harmony || ({})
+        if (!deck.loaded || deck.replacing || showingPreparation)
+            return ""
+        if (harmony.status === "Ambiguous")
+            return "KEY AMBIGUOUS"
+        if (harmony.status !== "Estimated" || !harmony.candidates || !harmony.candidates.length)
+            return ""
+        const key = harmony.candidates[0]
+        const names = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]
+        if (!Number.isInteger(key.tonic) || key.tonic < 0 || key.tonic >= names.length
+                || (key.mode !== "Major" && key.mode !== "Minor"))
+            return ""
+        return "KEY EST. " + names[key.tonic] + (key.mode === "Major" ? " MAJ" : " MIN")
+    }
     readonly property real localBpm: Number(localTiming.bpm) || 0
     readonly property bool hasLocalTiming: Boolean(deck.loaded) && !showingPreparation
         && localTiming.status === "Estimated" && Number.isFinite(localBpm) && localBpm >= 20 && localBpm <= 400
@@ -58,9 +73,9 @@ Item {
         : deck.sourceReadError || scratchState.errorCode ? "The prepared scratch source has a read error."
         : "Vinyl scratch is unavailable for this prepared source."
     readonly property bool canTempo: canControl && Boolean(tempoState.supported) && !deck.sourceReadError && !tempoState.errorCode
-                                    && !deck.cuePreview
+                                    && !deck.cuePreview && !residentHold.active
     readonly property bool canResetTempo: canControl && Boolean(tempoState.supported)
-                                         && Boolean(tempoState.active) && !deck.cuePreview
+                                         && Boolean(tempoState.active) && !deck.cuePreview && !residentHold.active
     readonly property bool canLoop: canControl && Boolean(loop.supported) && !deck.sourceReadError
                                    && !deck.cuePreview && !tempoState.errorCode
     readonly property string deckName: deckIndex === 0 ? "Deck A" : "Deck B"
@@ -96,7 +111,7 @@ Item {
     }
     onCanEditBpmChanged: { if (!canEditBpm && bpmEditor) bpmEditor.close() }
     onSourceIdChanged: { hotCueDeleteMode = false; if (bpmEditor) bpmEditor.close(); if (jogInput) jogInput.finishScratch(); if (residentHoldDialog) residentHoldDialog.close() }
-    onScratchSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
+    onSourceGenerationChanged: { if (jogInput) jogInput.finishScratch() }
     onCanScratchChanged: { if (!canScratch && jogInput) jogInput.finishScratch() }
     onLoadProgressChanged: { if (waveform) waveform.requestPaint() }
     onShowingPreparationChanged: { if (waveform) waveform.requestPaint() }
@@ -455,21 +470,24 @@ Item {
             y: Math.max(elapsedLabel.y + elapsedLabel.height, bpmReference.y + bpmReference.height) + 2
             width: parent.width - 28
             height: Math.max(12, implicitHeight)
-            text: surface.showingPreparation ? "LOCAL PREPARING"
-                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN"
+            text: (surface.showingPreparation ? "LOCAL PREPARING"
+                : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN")
+                + (surface.localKeyText ? "  ·  " + surface.localKeyText : "")
             textFormat: Text.PlainText
+            elide: Text.ElideRight
             color: "#8EAAA7"
             font.family: Brand.ConfluxTheme.monoFont
             font.pixelSize: Brand.ConfluxTheme.textPixels(8)
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             Accessible.name: surface.deckName + ", " + text
-            Accessible.description: surface.hasLocalTiming
+            Accessible.description: (surface.hasLocalTiming
                 ? "Original-speed interbeat estimate from "
                     + (Number(surface.localTiming.firstFrame) / 48000).toFixed(3) + " to "
                     + (Number(surface.localTiming.endFrame) / 48000).toFixed(3)
                     + " source seconds. Confidence is unknown. Reference BPM and playback are unchanged."
-                : "Local tempo is unknown. Reference BPM and playback are unchanged."
+                : "Local tempo is unknown. Reference BPM and playback are unchanged.")
+                + (surface.localKeyText ? " Local key confidence is unknown." : "")
         }
         Label {
             id: trackStatus
@@ -537,7 +555,8 @@ Item {
             stepSize: 0.1
             enabled: surface.canControl
             visible: !surface.showingPreparation
-            pressed: seekInput.gestureActive && seekInput.pressed
+            pressed: seekInput.gestureActive && (seekInput.pressed || seekInput.touchId >= 0)
+            readonly property var hostWindow: Window.window
             Accessible.name: surface.deckName + " overview position"
             Accessible.description: "Seek within the loaded track. Overview peaks are normalized to that source."
             property bool inputReady: false
@@ -569,7 +588,13 @@ Item {
                 refreshAccepted()
                 restoringAcknowledgement = false
             }
-            onActiveFocusChanged: { if (!activeFocus && seekInput) seekInput.gestureActive = false }
+            onActiveFocusChanged: { if (!activeFocus && seekInput && seekInput.touchId < 0) seekInput.cancelGesture() }
+            onHostWindowChanged: { if ((!hostWindow || !hostWindow.active) && seekInput) seekInput.cancelGesture() }
+            Connections {
+                target: seek.hostWindow
+                function onActiveChanged() { if (!seek.hostWindow.active) seekInput.cancelGesture() }
+                function onVisibleChanged() { if (!seek.hostWindow.visible) seekInput.cancelGesture() }
+            }
             Component.onCompleted: { inputReady = true; refreshAccepted() }
             MouseArea {
                 id: seekInput
@@ -581,7 +606,9 @@ Item {
                 preventStealing: true
                 Accessible.ignored: true
                 property bool gestureActive: false
+                property int touchId: -1
                 property string gestureSource: ""
+                property string gestureGeneration: ""
                 onGestureActiveChanged: { if (!gestureActive) seek.refreshAccepted() }
                 function valueAtPointer(pointerX) {
                     const span = Math.max(1, seek.availableWidth - seek.handle.width)
@@ -591,30 +618,71 @@ Item {
                         position = 1 - position
                     return Math.max(seek.from, Math.min(seek.to, seek.valueAt(position)))
                 }
-                onPressed: mouse => {
+                function beginGesture(pointerX, contactId) {
+                    if (gestureActive)
+                        return
                     seek.forceActiveFocus(Qt.MouseFocusReason)
                     gestureSource = surface.sourceId
+                    gestureGeneration = surface.sourceGeneration
+                    touchId = contactId
                     gestureActive = true
-                    seek.value = valueAtPointer(mouse.x)
+                    seek.value = valueAtPointer(pointerX)
                 }
-                onPositionChanged: mouse => {
-                    if (pressed && gestureActive)
-                        seek.value = valueAtPointer(mouse.x)
-                }
-                onReleased: mouse => {
-                    const seconds = valueAtPointer(mouse.x)
-                    const commit = gestureActive && surface.canControl && gestureSource === surface.sourceId
+                function cancelGesture() {
                     gestureActive = false
+                    touchId = -1
+                }
+                function releaseGesture(pointerX) {
+                    const seconds = valueAtPointer(pointerX)
+                    const commit = gestureActive && surface.canControl
+                        && gestureSource === surface.sourceId && gestureGeneration === surface.sourceGeneration
+                    cancelGesture()
                     if (commit)
                         surface.controller.seekSeconds(surface.deckIndex, seconds)
                 }
-                onCanceled: gestureActive = false
-                onEnabledChanged: { if (!enabled) gestureActive = false }
-                onVisibleChanged: { if (!visible) gestureActive = false }
+                onPressed: mouse => beginGesture(mouse.x, -1)
+                onPositionChanged: mouse => {
+                    if (pressed && gestureActive && touchId < 0)
+                        seek.value = valueAtPointer(mouse.x)
+                }
+                onReleased: mouse => { if (touchId < 0) releaseGesture(mouse.x) }
+                onCanceled: { if (touchId < 0) cancelGesture() }
+                onEnabledChanged: { if (!enabled) cancelGesture() }
+                onVisibleChanged: { if (!visible) cancelGesture() }
                 Connections {
                     target: surface
-                    function onSourceIdChanged() { seekInput.gestureActive = false }
+                    function onSourceIdChanged() { seekInput.cancelGesture() }
+                    function onSourceGenerationChanged() { seekInput.cancelGesture() }
                 }
+            }
+            MultiPointTouchArea {
+                objectName: "deck" + surface.deckIndex + "SeekTouch"
+                anchors.fill: parent
+                z: 2
+                enabled: seek.enabled
+                // Qt delivers the accepted touch to this area until release.
+                // Taking a whole-gesture grab can interrupt the peer waveform.
+                mouseEnabled: false
+                Accessible.ignored: true
+                onPressed: points => seekInput.beginGesture(points[0].x, points[0].pointId)
+                function heldTouch(points) {
+                    for (const point of points) {
+                        if (point.pointId === seekInput.touchId)
+                            return point
+                    }
+                    return null
+                }
+                onUpdated: points => {
+                    const point = heldTouch(points)
+                    if (point)
+                        seek.value = seekInput.valueAtPointer(point.x)
+                }
+                onReleased: points => {
+                    const point = heldTouch(points)
+                    if (point)
+                        seekInput.releaseGesture(point.x)
+                }
+                onCanceled: points => { if (heldTouch(points)) seekInput.cancelGesture() }
             }
             background: Rectangle {
                 x: seek.leftPadding
@@ -1040,7 +1108,8 @@ Item {
         actionDescription: "On: changing BPM keeps the original pitch. Off: faster playback raises pitch and slower playback lowers it."
         toolTipText: "MASTER TEMPO · " + (surface.tempoState.keyLock ? "ON: pitch stays the same as BPM changes."
                                                                       : "OFF: pitch rises or falls with BPM. Press to preserve pitch.")
-        unavailableReason: "Master Tempo requires ready prepared audio without a cue preview or read error."
+        unavailableReason: surface.residentHold.active ? "Leave recovery before changing Master Tempo."
+                                                      : "Master Tempo requires ready audio without a cue preview or read error."
         onPressed: surface.controller.toggleMasterTempo(surface.deckIndex)
     }
 
@@ -1408,6 +1477,7 @@ Item {
         x: surface.width - surface.edge - 48
         y: surface.jogTop + 5
         width: 48
+        readonly property string recoveryHint: "Leave recovery before changing BPM."
         height: Math.max(180, surface.height - y - 53)
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "BPM"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(10) }
         Slider {
@@ -1430,7 +1500,8 @@ Item {
             enabled: surface.canTempo && surface.hasReferenceBpm
             opacity: enabled ? 1 : .48
             Accessible.name: surface.deckName + " tempo BPM"
-            Accessible.description: "BPM within six percent of the reference. Down increases speed; up decreases it. Arrows change 0.1 BPM, Shift changes 1 BPM. Master Tempo keeps musical pitch; Reset restores reference BPM."
+            Accessible.description: surface.residentHold.active ? tempoRail.recoveryHint
+                                    : "BPM within six percent of the reference. Down increases speed; up decreases it. Arrows change 0.1 BPM, Shift changes 1 BPM. Master Tempo keeps musical pitch; Reset restores reference BPM."
             Accessible.onIncreaseAction: requestStep(.1)
             Accessible.onDecreaseAction: requestStep(-.1)
             property bool restoringAcknowledgement: false
@@ -1536,7 +1607,8 @@ Item {
             objectName: "deck" + surface.deckIndex + "TempoStatus"
             anchors.horizontalCenter: parent.horizontalCenter
             y: parent.height - 68
-            text: surface.tempoState.errorCode ? (surface.tempoState.active ? "ERROR / RESET" : "TEMPO ERROR")
+            text: surface.residentHold.active ? "RECOVERY"
+                  : surface.tempoState.errorCode ? (surface.tempoState.active ? "ERROR / RESET" : "TEMPO ERROR")
                   : surface.scratchState.active ? "SCRATCH"
                   : !surface.tempoState.supported ? "UNAVAILABLE"
                   : surface.tempoState.pending ? "PENDING"
@@ -1559,14 +1631,16 @@ Item {
             buttonObjectName: "deck" + surface.deckIndex + "TempoReset"
             accessibleName: surface.deckName + " reset tempo"
             available: surface.canResetTempo
-            actionDescription: "Restore original speed and leave processed tempo mode, keeping the Master Tempo selection."
-            unavailableReason: "Reset becomes available when prepared tempo processing is active."
+            actionDescription: "Return to the reference BPM and retain the Master Tempo selection."
+            unavailableReason: surface.residentHold.active ? "Leave recovery before resetting tempo."
+                                                          : "Reset needs a loaded deck with an active tempo adjustment."
             onPressed: surface.controller.resetTempo(surface.deckIndex)
         }
         MouseArea { id: tempoHover; anchors.fill: parent; hoverEnabled: true; acceptedButtons: Qt.NoButton }
         ToolTip.visible: tempoHover.containsMouse
         ToolTip.delay: 450
-        ToolTip.text: surface.hasReferenceBpm ? "BPM ±6% · Down: faster · Up: slower · Arrows: 0.1 BPM · Shift: 1 BPM · Reset restores reference BPM."
+        ToolTip.text: surface.residentHold.active ? tempoRail.recoveryHint
+                     : surface.hasReferenceBpm ? "BPM ±6% · Down: faster · Up: slower · Arrows: 0.1 BPM · Shift: 1 BPM · Reset restores reference BPM."
                                             : "Set the track's reference BPM in the display to use the BPM rail."
     }
 

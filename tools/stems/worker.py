@@ -3,13 +3,14 @@
 """Experimental M0 supervisor; never call from the audio callback.
 
 One background thread streams stereo 44.1 kHz PCM16 WAV or raw F32LE input to one
-persistent native separator. Cancellation invalidates work immediately; an in-flight GPU
-request finishes and is discarded. Timeout/close can terminate the child. Output
+persistent native separator. Cancellation invalidates work immediately. A same-source
+seek can use an active request for the exact input window. Timeout/close can terminate the child. Output
 is bounded, source-major float32 [stem, frame, channel]. NumPy is required only
 for this isolated experiment, not the application build.
 """
 
-from collections import deque
+from collections import OrderedDict, deque
+from concurrent.futures import Future, ThreadPoolExecutor
 from contextlib import ExitStack, suppress
 from dataclasses import dataclass
 import hashlib
@@ -34,9 +35,16 @@ WINDOW = 343980
 HOP = 257985
 OVERLAP = WINDOW - HOP
 STEMS = ("drums", "bass", "other", "vocals")
+_SEEK_CACHE_WINDOWS = 3
 _WEIGHT = np.concatenate((np.arange(1, WINDOW // 2 + 1, dtype=np.float32),
                           np.arange(WINDOW - WINDOW // 2, 0, -1, dtype=np.float32)))
 _WEIGHT /= _WEIGHT.max()
+
+
+def _first_contributing_window(frame):
+    window, offset = divmod(frame, HOP)
+    # The previous window contributes to the first OVERLAP frames of this hop.
+    return window - 1 if window and offset < OVERLAP else window
 
 
 class NativeRuntime:
@@ -49,6 +57,7 @@ class NativeRuntime:
             raise ValueError("invalid native diagnostic byte limit")
         self._fixed_spool = spool_directory is not None
         self._process_reaped = False
+        self._kill_requested = False
         self._closed = False
         self._close_failed = False
         self._idle = False
@@ -206,8 +215,21 @@ class NativeRuntime:
         self._idle = True
         return output, result
 
+    @property
+    def shutdown_result(self):
+        if not self._process_reaped:
+            return None
+        status = self.process.returncode
+        result = {"kill_requested": self._kill_requested}
+        if status < 0:
+            result["signal"] = -status
+        else:
+            result["exit_code"] = status
+        return result
+
     def abort(self):
         self._idle = False
+        self._kill_requested = True
         try:
             self.process.kill()
         except ProcessLookupError:
@@ -257,6 +279,7 @@ class _Command:
     path: Path
     start: int
     issued: float
+    source_generation: int
     source_format: str = "wav_pcm16"
 
 
@@ -269,6 +292,15 @@ class _Source:
     mean: np.float32
     std: np.float32
     source_format: str = "wav_pcm16"
+
+
+@dataclass(frozen=True)
+class _PendingInference:
+    command: _Command
+    source: _Source
+    event: dict
+    future: Future
+    source_read_ms: float
 
 
 class _Superseded(Exception):
@@ -337,6 +369,7 @@ class StemWorker:
         self._factory = _backend_factory
         self._condition = threading.Condition()
         self._generation = 0
+        self._source_generation = 0
         self._command = None
         self._path = None
         self._source_format = "wav_pcm16"
@@ -352,14 +385,20 @@ class StemWorker:
         self._discarded = 0
         self._cancelled = 0
         self._backend_starts = 0
+        self._native_shutdown = None
         self._backend_pid = None
         self._processing_generation = 0
         self._inflight = None
+        self._pending_inference = None
+        self._retained_target = None
+        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='conflux-native-stems')
         self._native = None
         self._cleanup_error = None
         self._model_id = None
         self._model_signature = None
         self._cached_source = None
+        self._opening_weighted_window = None
+        self._weighted_windows = OrderedDict()
         self._request_id = 0
         self._thread = threading.Thread(target=self._run, name="conflux-stem-worker", daemon=True)
         self._thread.start()
@@ -376,11 +415,19 @@ class StemWorker:
             if action != "cancel" and self._path is None:
                 raise RuntimeError("load a source before seeking")
             self._generation += 1
+            if action != "seek":
+                self._source_generation = self._generation
+                self._opening_weighted_window = None
+                self._weighted_windows.clear()
+                self._retained_target = None
+            elif (self._retained_target is not None
+                  and self._retained_target.event["window_start_frame"] != start // HOP * HOP):
+                self._retained_target = None
             if action == "cancel":
                 self._cancelled += 1
             now = time.monotonic()
             self._command = None if action == "cancel" else _Command(
-                self._generation, self._path, start, now, self._source_format)
+                self._generation, self._path, start, now, self._source_generation, self._source_format)
             self._source_id = None
             self._requested_start = start
             self._next_consume = start
@@ -422,7 +469,8 @@ class StemWorker:
                     "inflight": dict(self._inflight) if self._inflight is not None else None,
                     "discarded_count": self._discarded, "cancel_count": self._cancelled,
                     "backend_start_count": self._backend_starts,
-                    "backend_pid": self._backend_pid, "closed": self._closed}
+                    "backend_pid": self._backend_pid, "closed": self._closed,
+                    "native_shutdown": None if self._native_shutdown is None else dict(self._native_shutdown)}
 
     def is_current(self, event):
         with self._condition:
@@ -529,6 +577,7 @@ class StemWorker:
                                self.request_timeout)
         with self._condition:
             self._native = native
+            self._native_shutdown = None
         ready = native.start()
         if _signature(self.model) != signature:
             raise RuntimeError("stem model changed during runtime loading")
@@ -538,7 +587,14 @@ class StemWorker:
         self._emit("runtime_ready", self._generation, model_id=self._model_id, runtime=ready)
 
     def _drop_runtime(self):
+        # The inference owner may still be consuming a reply after supersession.
+        # Close the native transport only after that exchange is finished.
+        with suppress(Exception):
+            self._wait_inference()
         with self._condition:
+            self._opening_weighted_window = None
+            self._weighted_windows.clear()
+            self._retained_target = None
             native = self._native
         if native is not None:
             try:
@@ -553,6 +609,7 @@ class StemWorker:
                 return False
             with self._condition:
                 if self._native is native:
+                    self._native_shutdown = getattr(native, "shutdown_result", None)
                     self._native = None
                     self._backend_pid = None
         return True
@@ -566,14 +623,14 @@ class StemWorker:
             source = cached
             reused = True
         else:
-            # Both passes are bounded; never retain an entire track or its stems.
             raw_float = command.source_format == "f32le"
             digest = hashlib.sha256()
-            opened = _open_f32(command.path, signature) if raw_float else command.path.open("rb")
-            with opened as stream:
-                while block := stream.read(1024 * 1024):
-                    self._check(command)
-                    digest.update(block)
+            if not raw_float:
+                # A WAV's byte identity also covers headers and non-PCM chunks.
+                with command.path.open("rb") as stream:
+                    while block := stream.read(1024 * 1024):
+                        self._check(command)
+                        digest.update(block)
             count, mean, m2 = 0, 0.0, 0.0
             opened = _open_f32(command.path, signature) if raw_float else wave.open(str(command.path), "rb")
             with opened as stream:
@@ -589,10 +646,12 @@ class StemWorker:
                     if raw_float:
                         if len(data) % (CHANNELS * 4):
                             raise RuntimeError("stem source changed or was truncated during preparation")
+                        digest.update(data)
                         pcm = np.frombuffer(data, dtype="<f4").reshape(-1, CHANNELS)
                         if not np.isfinite(pcm).all():
                             raise ValueError("F32LE source contains non-finite samples")
-                        mono = pcm.astype(np.float64).mean(axis=1)
+                        mono = np.add(pcm[:, 0], pcm[:, 1], dtype=np.float64)
+                        mono *= 0.5
                     else:
                         pcm = np.frombuffer(data, dtype="<i2").reshape(-1, CHANNELS)
                         mono = pcm.astype(np.float64).mean(axis=1) / 32768.0
@@ -665,54 +724,185 @@ class StemWorker:
             samples[:count] /= source.std
         return samples
 
-    def _produce(self, command, source):
+    def _notify_inference(self, _):
+        with self._condition:
+            self._condition.notify_all()
+
+    def _exchange(self, native, samples, request_id, started):
+        output, metrics = native.infer(samples, request_id)
+        return output, metrics, (time.monotonic() - started) * 1000
+
+    def _retire_inference_locked(self, request_id):
+        pending = self._pending_inference
+        if pending is not None and pending.event["request_id"] == request_id:
+            self._pending_inference = None
+            self._inflight = None
+        if self._retained_target is not None and self._retained_target.event["request_id"] == request_id:
+            self._retained_target = None
+
+    def _wait_inference(self, command=None, *, adopt=False, keep_pending=False):
+        pending = self._pending_inference
+        if pending is None:
+            return None
+        owner, event, future = pending.command, pending.event, pending.future
+        with self._condition:
+            while not future.done():
+                if command is not None and (self._closed or self._command != command):
+                    raise _Superseded
+                self._condition.wait()
+            if command is not None and (self._closed or self._command != command):
+                raise _Superseded
+            # The future is complete. Consume the reply without losing its
+            # ownership if an exact-window seek interrupts publication.
+            try:
+                output, metrics, elapsed = future.result()
+            except BaseException:
+                self._retire_inference_locked(event["request_id"])
+                raise
+            if not keep_pending:
+                self._retire_inference_locked(event["request_id"])
+        if owner != command and not adopt:
+            self._emit("discarded", owner.generation, request_id=event["request_id"],
+                       source_id=event["source_id"], window_start_frame=event["window_start_frame"],
+                       request_ms=elapsed)
+            return None
+        return output, metrics, elapsed
+
+    @staticmethod
+    def _matches_window(reply, command, source, start):
+        return (reply is not None and source.source_format == "f32le" and reply.source is source
+                and reply.command.source_generation == command.source_generation
+                and reply.event["window_start_frame"] == start)
+
+    def _inference_for_window(self, command, source, start, preroll):
+        retained = self._retained_target
+        if self._matches_window(retained, command, source, start):
+            self._check(command)
+            if _signature(source.path) != source.signature:
+                raise RuntimeError("stem source changed during seek preroll")
+            output, metrics, elapsed = retained.future.result()
+            return output, metrics, elapsed, retained.event["request_id"], retained.source_read_ms
+
+        keep_pending = source.source_format == "f32le"
+        pending = self._pending_inference
+        if self._matches_window(pending, command, source, start):
+            # The pending request used this exact grid window and normalization.
+            # Keep its real request timings and charge the new hop for the wait.
+            output, metrics, elapsed = self._wait_inference(command, adopt=True, keep_pending=keep_pending)
+            if _signature(source.path) != source.signature:
+                raise RuntimeError("stem source changed during pending inference")
+            return output, metrics, elapsed, pending.event["request_id"], pending.source_read_ms
+
+        # The persistent transport permits only one request at a time.
+        self._wait_inference(command)
+        self._check(command)
+        read_started = time.monotonic()
+        samples = self._read_window(source, start)
+        source_read_ms = (time.monotonic() - read_started) * 1000
+        self._check(command)
+        self._request_id += 1
+        request_id = self._request_id
+        started = time.monotonic()
+        self._emit("started", command.generation, request_id=request_id,
+                   source_id=source.identity, window_start_frame=start, preroll=preroll,
+                   timestamp=started)
+        with self._condition:
+            event = {"generation": command.generation, "request_id": request_id,
+                     "window_start_frame": start, "source_id": source.identity,
+                     "timestamp": started, "preroll": preroll}
+            future = self._executor.submit(self._exchange, self._native, samples, request_id, started)
+            self._inflight = event
+            self._pending_inference = _PendingInference(command, source, event, future, source_read_ms)
+            future.add_done_callback(self._notify_inference)
+        output, metrics, elapsed = self._wait_inference(command, keep_pending=keep_pending)
+        return output, metrics, elapsed, request_id, source_read_ms
+
+    def _seek_prefix_status(self, command):
+        source = self._cached_source
+        if (source is None or command.path != source.path or command.source_format != source.source_format
+                or command.start > source.frames or _signature(source.path) != source.signature):
+            return False, False
+        if command.start == source.frames:
+            # No native response can contribute audio to this empty suffix.
+            return True, False
+        target = command.start // HOP
+        cached_prefix = True
+        with self._condition:
+            for index in range(_first_contributing_window(command.start), target + 1):
+                start = index * HOP
+                window = self._weighted_window_locked(start)
+                if window is None or window[0] is not source:
+                    cached_prefix = False
+                    if self._matches_window(self._pending_inference, command, source, start):
+                        return False, True
+        return cached_prefix, False
+
+    def _weighted_window_locked(self, start):
+        if start == 0:
+            return self._opening_weighted_window
+        return self._weighted_windows.get(start)
+
+    def _remember_window_locked(self, start, source, request_id, weighted):
+        entry = (source, request_id, weighted)
+        if start == 0:
+            # Cached playback resumes within this first model window. Keep
+            # one opening window outside the three recent non-opening slots.
+            self._opening_weighted_window = entry
+            return
+        self._weighted_windows[start] = entry
+        self._weighted_windows.move_to_end(start)
+        if len(self._weighted_windows) > _SEEK_CACHE_WINDOWS:
+            self._weighted_windows.popitem(last=False)
+
+    def _produce(self, command, source, retained_service=None):
         if command.start >= source.frames:
             self._emit("complete", command.generation, source_id=source.identity,
                        frame_start=command.start)
             return
         target_window = command.start // HOP
-        first_window = max(0, target_window - 1)
+        first_window = _first_contributing_window(command.start)
         previous = None
         for index in range(first_window, (source.frames + HOP - 1) // HOP):
             self._check(command)
             preroll = index < target_window
+            start = index * HOP
             with self._condition:
                 while not preroll and len(self._chunks) >= self.max_ready:
                     if self._closed or self._command != command:
                         raise _Superseded
                     self._condition.wait()
+                cached = self._weighted_window_locked(start)
             self._check(command)
-            start = index * HOP
             service_started = time.monotonic()
-            samples = self._read_window(source, start)
-            source_read_ms = (time.monotonic() - service_started) * 1000
-            self._check(command)
-            self._request_id += 1
-            request_id = self._request_id
-            started = time.monotonic()
-            self._emit("started", command.generation, request_id=request_id,
-                       source_id=source.identity, window_start_frame=start, preroll=preroll,
-                       timestamp=started)
-            with self._condition:
-                self._inflight = {"generation": command.generation, "request_id": request_id,
-                                  "window_start_frame": start, "source_id": source.identity,
-                                  "timestamp": started, "preroll": preroll}
-            try:
-                output, metrics = self._native.infer(samples, request_id)
-            finally:
-                with self._condition:
-                    self._inflight = None
-            elapsed = (time.monotonic() - started) * 1000
-            if not self._active(command):
-                self._emit("discarded", command.generation, request_id=request_id,
-                           source_id=source.identity, window_start_frame=start, request_ms=elapsed)
-                raise _Superseded
-            if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
-                raise RuntimeError("stem backend returned invalid samples")
-            overlap_started = time.monotonic()
-            # Fixed source grid, including a zero-padded final window. This avoids
-            # the upstream offline session's moving, centered final-window grid.
-            weighted = output * _WEIGHT[None, :, None]
+            if retained_service is not None and (retained_service[0] == start or
+                    self._matches_window(self._retained_target, command, source, start)):
+                service_started = retained_service[1]
+            if (cached is not None and cached[0] is source
+                    and _signature(source.path) == source.signature):
+                _, request_id, weighted = cached
+                overlap_started = time.monotonic()
+                timings = {"inference_reused": True}
+            else:
+                pending = self._pending_inference
+                if preroll and self._matches_window(pending, command, source, target_window * HOP):
+                    # Release the native exchange for preroll, while keeping
+                    # the completed target across seeks within its window.
+                    self._wait_inference(command, adopt=True)
+                    with self._condition:
+                        latest = self._command
+                        if (self._closed or latest is None or latest.source_generation != command.source_generation
+                                or latest.start // HOP != target_window):
+                            raise _Superseded
+                        self._retained_target = pending
+                output, metrics, elapsed, request_id, source_read_ms = self._inference_for_window(
+                    command, source, start, preroll)
+                if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
+                    raise RuntimeError("stem backend returned invalid samples")
+                overlap_started = time.monotonic()
+                # Fixed source grid, including a zero-padded final window. This avoids
+                # the upstream offline session's moving, centered final-window grid.
+                weighted = output * _WEIGHT[None, :, None]
+                timings = dict(request_ms=elapsed, metrics=metrics, source_read_ms=source_read_ms)
             valid = min(HOP, source.frames - start)
             hop = weighted[:, :valid].copy()
             denominator = _WEIGHT[:valid].copy()
@@ -722,6 +912,16 @@ class StemWorker:
                 denominator[:overlap] += _WEIGHT[HOP:HOP + overlap]
             previous = weighted[:, HOP:].copy()
             if preroll:
+                if source.source_format == "f32le" and not timings.get("inference_reused", False):
+                    with self._condition:
+                        if self._closed or self._command != command:
+                            raise _Superseded
+                        target = self._weighted_window_locked(start + HOP)
+                        # The opening slot cannot evict cached forward windows.
+                        # For other preroll, preserve the existing cached suffix.
+                        if start == 0 or target is None or target[0] is not source:
+                            self._remember_window_locked(start, source, request_id, weighted)
+                        self._retire_inference_locked(request_id)
                 continue
             hop /= denominator[None, :, None]
             # audio.cpp restores the track-wide mono mean to EACH source.
@@ -739,14 +939,16 @@ class StemWorker:
                      "source_format": source.source_format,
                      "window_start_frame": start, "frames": hop.shape[1],
                      "sample_rate": RATE, "channels": CHANNELS, "stems": STEMS,
-                     "samples": hop, "request_ms": elapsed, "metrics": metrics,
-                     "source_read_ms": source_read_ms,
+                     "samples": hop, **timings,
                      "overlap_ms": (ready - overlap_started) * 1000,
                      "hop_service_ms": (ready - service_started) * 1000,
                      "control_latency_ms": (ready - command.issued) * 1000}
             with self._condition:
                 if self._closed or self._command != command:
                     raise _Superseded
+                if source.source_format == "f32le":
+                    self._remember_window_locked(start, source, request_id, weighted)
+                    self._retire_inference_locked(request_id)
                 self._chunks.append(event)
                 self._ready_high_water = max(self._ready_high_water, len(self._chunks))
                 event["ready_queue_depth"] = len(self._chunks)
@@ -761,17 +963,47 @@ class StemWorker:
             while True:
                 with self._condition:
                     while not self._closed and (self._command is None or self._command.generation == processed):
+                        if self._pending_inference is not None and self._pending_inference.future.done():
+                            break
                         self._condition.wait()
                     if self._closed:
                         return
                     command = self._command
-                    processed = command.generation
-                    self._processing_generation = processed
+                    producing = command is not None and command.generation != processed
+                    if producing:
+                        processed = command.generation
+                        self._processing_generation = processed
+                    else:
+                        command = self._pending_inference.command
                 try:
+                    if not producing:
+                        self._wait_inference()
+                        continue
+                    retained_service = None
+                    if self._pending_inference is not None:
+                        cached_prefix, retain = self._seek_prefix_status(command)
+                        if not cached_prefix:
+                            pending = self._pending_inference
+                            service_started = time.monotonic()
+                            try:
+                                # Before a cold seek publishes, a failed old request
+                                # still belongs to its original generation. Keep a
+                                # successful reply for a contributing missing window.
+                                self._wait_inference(command, adopt=retain, keep_pending=retain)
+                                if retain:
+                                    retained_service = pending.event["window_start_frame"], service_started
+                            except _Superseded:
+                                raise
+                            except Exception as error:
+                                previous = pending.command
+                                self._emit("error", previous.generation, message=str(error),
+                                           source_path=str(previous.path))
+                                if not self._drop_runtime():
+                                    return
                     self._ensure_runtime(command)
                     self._check(command)
                     source = self._source(command)
-                    self._produce(command, source)
+                    self._produce(command, source, retained_service)
                 except _Superseded:
                     continue
                 except Exception as error:
@@ -785,3 +1017,4 @@ class StemWorker:
                         return
         finally:
             self._drop_runtime()
+            self._executor.shutdown(wait=True)

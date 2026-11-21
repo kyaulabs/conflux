@@ -76,6 +76,12 @@ public:
     // Separate stereo buses in one engine pass. Buffers must be equal-sized,
     // complete stereo and disjoint; invalid/empty calls preserve all state.
     bool renderBuses(std::span<float> master, std::span<float> cue) noexcept;
+    struct CueBlock;
+    // Keep the post-EQ signals needed to update a rendered headphone block
+    // without advancing either deck or writing the master a second time. Only
+    // the owning session may reuse it, within the same route and graph format.
+    bool captureBuses(std::span<float> master, std::span<float> cue, CueBlock&) noexcept;
+    bool remixCue(CueBlock&, std::span<const Command>, std::span<float> cue) noexcept;
     // Only the render owner may seek, between render calls or before streaming.
     // The output frame clock remains monotonic across source seeks and EOF.
     bool seek(std::uint64_t frame) noexcept;
@@ -113,20 +119,24 @@ public:
     bool replaceSource(std::size_t deck, AudioSource source) noexcept;
     [[nodiscard]] bool isDeckSilentForReplacement(std::size_t deck) const noexcept;
     // Render-boundary continuation of a separately validated, exact same-track
-    // four-stem bank, already primed at nextFrame. No discontinuity or reset of
-    // channel/EQ/CUE/transport/mix state. The caller retains both source owners
-    // through callback completion and transfers the bank's exact gain ramps.
-    // Active prepared DSP/loops require a separate state-transfer contract.
+    // four-stem bank, already primed at the exact nominal position and mode.
+    // Retains channel/EQ/CUE/transport/mix state. The caller retains both source
+    // owners through callback completion and transfers the exact gain ramps.
+    // Processed continuation starts a fresh Best-quality processor with the
+    // transport envelope. Manual loops remain ineligible.
     [[nodiscard]] bool canContinueSource(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision) const noexcept;
+        double position, std::uint64_t transportRevision) const noexcept;
     enum class ContinuationStatus { Invalid, WaitingForHoldOut, Ready };
     // A nonzero range binds an active approved hold. Only its audible OUT is a
-    // swap boundary; nextFrame remains the parked original linear cursor.
+    // swap boundary; position remains the parked original linear cursor.
     [[nodiscard]] ContinuationStatus continuationStatus(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision,
+        double position, std::uint64_t transportRevision,
         std::uint64_t residentHoldRangeId = 0) const noexcept;
+    // Bound one render span so an active recovery cannot pass OUT before its
+    // last output frame. Zero means OUT itself, invalid state or no active hold.
+    [[nodiscard]] std::size_t continuationPrefixFrames(std::size_t deck, std::size_t maximum) const noexcept;
     bool continueSource(std::size_t deck, AudioSource source,
-        std::uint64_t nextFrame, std::uint64_t transportRevision,
+        double position, std::uint64_t transportRevision,
         std::uint64_t residentHoldRangeId = 0) noexcept;
     [[nodiscard]] std::uint64_t transportRevision(std::size_t deck) const noexcept
     { return deck < deckCount ? decks_[deck].transportRevision : 0; }
@@ -209,7 +219,32 @@ private:
         void set(double value, std::uint32_t frames) noexcept;
         double next(std::uint32_t frames) noexcept;
         void snap(double value) noexcept;
+        bool operator==(const GainRamp&) const = default;
     };
+public:
+    struct CueBlock {
+        static constexpr std::size_t maxFrames = 1024;
+    private:
+        friend class RenderCore;
+        struct Tap {
+            std::array<float, channels> samples{};
+            bool contributes = false;
+        };
+        std::array<std::array<Tap, maxFrames>, deckCount> taps{};
+        std::array<GainRamp, deckCount> rampBefore{}, rampAfter{};
+        GainRamp gainBefore{}, gainAfter{};
+        std::array<std::uint64_t, channels> overrangeBefore{}, overrangeAfter{};
+        std::array<std::uint64_t, deckCount> sourceFrames{}, transport{}, cursorAfter{};
+        std::array<const float*, deckCount> memory{};
+        std::array<const void*, deckCount> contexts{};
+        std::array<bool, deckCount> selected{};
+        const RenderCore* owner = nullptr;
+        std::uint64_t expectedEnd = 0;
+        std::size_t frames = 0;
+        float cueGain = 0;
+    };
+
+private:
     struct Deck {
         AudioSource source{};
         std::uint64_t frame = 0;
@@ -240,7 +275,7 @@ private:
     void moveCursor(Deck& deck, std::uint64_t frame) noexcept;
     bool changeTempo(std::size_t deck, AudioTempoCommand command, double percent, bool keyLock) noexcept;
     void transition(Deck& deck) noexcept;
-    void mixDeck(std::size_t index, bool available, float left, float right,
+    void mixDeck(std::size_t index, std::size_t frame, bool available, float left, float right,
                  double& masterLeft, double& masterRight, double& cueLeft, double& cueRight,
                  bool& contributed, bool& cueContributed) noexcept;
     bool renderInternal(std::span<float> master, std::span<float> cue) noexcept;
@@ -254,6 +289,7 @@ private:
     std::array<float, sampleRate> tone_{};
     std::array<Deck, deckCount> decks_{};
     std::array<std::array<float, sourceBlockFrames * channels>, deckCount> sourceScratch_{};
+    CueBlock* cueCapture_ = nullptr;
     Meters meters_{};
     std::uint64_t frameClock_ = 0;
     std::uint32_t phase_ = 0;

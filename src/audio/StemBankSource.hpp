@@ -4,6 +4,7 @@
 #include "audio/AudioSource.hpp"
 
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <span>
@@ -16,7 +17,8 @@ namespace conflux::audio {
 // Construction validates descriptors/geometry without reading PCM or doing I/O;
 // this class neither owns readers nor validates/publishes a persistent cache.
 //
-// All methods belong to the render owner or execute before streaming. Reads
+// Ordinary reads and gain controls belong to the render owner. The explicit
+// unmixed-input path below permits a separate raw-input worker. Reads
 // retain faster stems' raw surplus and commit only their common prefix. Muted
 // stems still participate; a missing stem never substitutes an original mix.
 // Callback work/storage is bounded; no allocation, blocking or I/O occurs here.
@@ -57,6 +59,15 @@ public:
     [[nodiscard]] AudioReadResult readCached(
         const std::array<std::span<const float>, stemCount>& leaves,
         std::uint64_t offsetFrames, std::span<float> output) noexcept;
+    // Raw-input owner, after ordinary read/discontinuity calls have quiesced.
+    // May run alongside render-owned readCached/setGain/gain: raw staging and
+    // gain trajectories are separate. Copy the common prefix as 8 interleaved
+    // channels; retain faster leaves' surplus without applying/advancing gains.
+    // Wrong positions/shapes reject unchanged. Explicit seeks reset only input
+    // staging/provider epochs, preserving every render-owned gain trajectory.
+    [[nodiscard]] AudioReadResult readUnmixed(std::uint64_t frame, std::span<float> output) noexcept;
+    bool seekInput(std::uint64_t frame) noexcept;
+    // Atomic raw-reader health, also safe for the independent gain consumer.
     [[nodiscard]] bool hasReadFailure() const noexcept;
 
 private:
@@ -79,6 +90,8 @@ private:
     AudioReadResult read(std::uint64_t frame, std::span<float> output) noexcept;
     void discontinuity(std::uint64_t frame) noexcept;
     void fill(StagedStem& stem, std::size_t wanted) noexcept;
+    AudioReadResult stage(std::size_t wanted) noexcept;
+    void commitInput(std::size_t frames) noexcept;
     void mix(const std::array<std::span<const float>, stemCount>& inputs,
              std::size_t frames, std::span<float> output) noexcept;
 
@@ -87,6 +100,7 @@ private:
     std::uint64_t frames_ = 0, cursor_ = 0;
     std::uint32_t rampFrames_ = 0;
     bool started_ = false;
+    std::atomic<bool> readFailure_{false};
 };
 
 } // namespace conflux::audio

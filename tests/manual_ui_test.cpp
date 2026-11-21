@@ -687,6 +687,61 @@ private slots:
         QCoreApplication::processEvents();
     }
 
+    void controlStatusScrollsAndRestoresFocus_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<int>("fontPixels");
+        QTest::newRow("minimum") << QSize(1180, 760) << 15;
+        QTest::newRow("laptop-large-text") << QSize(1280, 800) << 19;
+    }
+
+    void controlStatusScrollsAndRestoresFocus()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(int, fontPixels);
+        const auto oldFont = QGuiApplication::font();
+        const auto restoreFont = qScopeGuard([&] {
+            ui_.reset();
+            QGuiApplication::setFont(oldFont);
+        });
+        ui_.reset();
+        auto font = oldFont;
+        font.setPixelSize(fontPixels);
+        QGuiApplication::setFont(font);
+        ui_ = std::make_unique<UiFixture>();
+        ui_->load();
+        QVERIFY(ui_->window);
+        ui_->window->resize(viewport);
+        QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
+
+        auto* button = ui_->item("controlStatusOpen");
+        auto* popup = ui_->object("controlStatus");
+        QVERIFY(button && popup);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(button));
+        QTRY_VERIFY(popup->property("opened").toBool());
+        auto* scroll = ui_->item("controlStatusScroll");
+        auto* close = ui_->item("controlStatusClose");
+        QVERIFY(scroll && close);
+        QTRY_VERIFY(scroll->hasActiveFocus());
+        verifyControlsFit({"controlStatusScroll", "controlStatusClose"});
+        auto* flickable = scroll->property("contentItem").value<QQuickItem*>();
+        QVERIFY(flickable);
+        QTRY_VERIFY(flickable->property("contentHeight").toReal() > flickable->height());
+        const auto closeBefore = ui_->center(close);
+        QTest::keyClick(ui_->window, Qt::Key_PageDown);
+        QTRY_VERIFY(flickable->property("contentY").toReal() > 0);
+        QCOMPARE(ui_->center(close), closeBefore);
+        QTest::keyClick(ui_->window, Qt::Key_PageUp);
+        QTRY_COMPARE(flickable->property("contentY").toReal(), 0.);
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(close->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!popup->property("visible").toBool());
+        QTRY_VERIFY(button->hasActiveFocus());
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void windowChromeFitsAndLeavesHeaderControlsReachable_data()
     {
         QTest::addColumn<QSize>("viewport");
@@ -1690,6 +1745,41 @@ private slots:
         QCOMPARE(raw["url"].toUrl().toLocalFile(), edited);
     }
 
+    void libraryAnalysisUsesOnlyMatchingLoadedSource()
+    {
+        const QString selected(64, QLatin1Char('c'));
+        const QString other(64, QLatin1Char('d'));
+        ui_->endpoint.setLibrary({QVariantMap{{"id", selected}, {"name", "Selected track"},
+            {"path", "/tmp/source.wav"}, {"durationSeconds", 75.0}, {"available", true}}});
+        ui_->endpoint.snapshotDeck(0, {{"loaded", true}, {"sourceId", selected},
+            {"bpm", QVariantMap{{"estimated", 124.5}, {"reference", 138.0},
+                                 {"manual", true}, {"status", "Estimated"}}},
+            {"harmony", QVariantMap{{"status", "Estimated"},
+                {"candidates", QVariantList{QVariantMap{{"tonic", 2}, {"mode", "Minor"}}}}}}});
+        ui_->endpoint.snapshotDeck(1, {{"loaded", true}, {"sourceId", other},
+            {"bpm", QVariantMap{{"estimated", 149.0}, {"status", "Estimated"}}},
+            {"harmony", QVariantMap{{"status", "Ambiguous"}}}});
+
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        auto* row = ui_->item("libraryTrack0");
+        auto* detail = ui_->item("libraryTrackAnalysis");
+        QVERIFY(detail);
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
+        QTRY_COMPARE(detail->property("text").toString(),
+                     QString("Estimated source BPM 124.5 · Deck A playback KEY EST. D MIN"));
+
+        ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
+        QTRY_COMPARE(detail->property("text").toString(), QString("Analysis unavailable"));
+        ui_->endpoint.snapshotDeck(1, {{"sourceId", selected}});
+        QTRY_COMPARE(detail->property("text").toString(),
+                     QString("Estimated source BPM 149.0 · Deck B playback KEY AMBIGUOUS"));
+        ui_->endpoint.snapshotDeck(1, {{"bpm", QVariantMap{{"estimated", 0.0}, {"reference", 142.0},
+                                                           {"manual", true}, {"status", "Unavailable"}}}});
+        QTRY_COMPARE(detail->property("text").toString(), QString("Deck B playback KEY AMBIGUOUS"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
     void selectedLibraryLevels_data()
     {
         QTest::addColumn<bool>("includeLevels");
@@ -1733,7 +1823,7 @@ private slots:
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
         QTRY_COMPARE(detail->property("text").toString(), "Whole-track RMS: " + rms + " · Sample peak: " + peak);
         QCOMPARE(detail->property("textFormat").toInt(), int(Qt::PlainText));
-        QCOMPARE(analysis->property("text").toString(), QString("Tempo / beat / phrase / key: unknown."));
+        QCOMPARE(analysis->property("text").toString(), QString("Analysis unavailable"));
         QCOMPARE(row->height(), 56.0);
         QCOMPARE(ui_->item("libraryTrack0Name")->property("text").toString(), QString("<b>Literal track</b>"));
         QCOMPARE(ui_->item("libraryTrack0Name")->property("textFormat").toInt(), int(Qt::PlainText));
@@ -3345,6 +3435,123 @@ private slots:
         }
     }
 
+    void bothDecksHoldCueWithIndependentTouchContacts()
+    {
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 0);
+        ui_->endpoint.loadState(1, 0);
+        ui_->endpoint.setReady(true);
+        auto* a = ui_->item("deck0Cue");
+        auto* b = ui_->item("deck1Cue");
+        QTRY_VERIFY(a->isEnabled() && b->isEnabled());
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        a->polish();
+        b->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto aPoint = ui_->center(a);
+        const auto bPoint = ui_->center(b);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, aPoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", 0);
+
+        secondTouchActive_ = true;
+        touch.stationary(0).press(1, bPoint, ui_->window).commit();
+        QTRY_COMPARE_WITH_TIMEOUT(ui_->endpoint.calls.size(), 2, 1500);
+        verifyCueCall(1, "cuePress", 1);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY(ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        QVERIFY(ui_->endpoint.decks()[1].toMap()["cueHeld"].toBool());
+
+        touch.stationary(0).release(1, bPoint, ui_->window).commit();
+        secondTouchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "cueRelease", 1);
+        QVERIFY(ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        QVERIFY(!ui_->endpoint.decks()[1].toMap()["cueHeld"].toBool());
+        touch.release(0, aPoint, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        verifyCueCall(3, "cueRelease", 0);
+        QVERIFY(!ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+    }
+
+    void touchedCueSurvivesPeerPlayUntilEnded_data()
+    {
+        QTest::addColumn<bool>("replaceSource");
+        QTest::newRow("contact-leaves") << false;
+        QTest::newRow("source-replacing") << true;
+    }
+
+    void touchedCueSurvivesPeerPlayUntilEnded()
+    {
+        QFETCH(bool, replaceSource);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 0);
+        ui_->endpoint.loadState(1, 0);
+        ui_->endpoint.setReady(true);
+        auto* cue = ui_->item("deck0Cue");
+        auto* play = ui_->item("deck1Play");
+        QTRY_VERIFY(cue->isEnabled() && play->isEnabled());
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        cue->polish();
+        play->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto cuePoint = ui_->center(cue);
+        const auto playPoint = ui_->center(play);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, cuePoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", 0);
+
+        secondTouchActive_ = true;
+        touch.stationary(0).press(1, playPoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        verifyCueCall(1, "playing", 1);
+        touch.stationary(0).release(1, playPoint, ui_->window).commit();
+        secondTouchActive_ = false;
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY(ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        QVERIFY(ui_->endpoint.decks()[1].toMap()["playing"].toBool());
+
+        auto releasePoint = cuePoint;
+        if (replaceSource) {
+            ui_->endpoint.setReplacing(0, true);
+        } else {
+            releasePoint -= QPoint(0, qRound(cue->height()));
+            touch.move(0, releasePoint, ui_->window).commit();
+        }
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "cueRelease", 0);
+        QVERIFY(!ui_->endpoint.decks()[0].toMap()["cueHeld"].toBool());
+        touch.release(0, releasePoint, ui_->window).commit();
+        touchActive_ = false;
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 3);
+        QVERIFY(ui_->endpoint.decks()[1].toMap()["playing"].toBool());
+
+        if (replaceSource)
+            ui_->endpoint.setReplacing(0, false);
+        QTRY_VERIFY(cue->isEnabled());
+        touchActive_ = true;
+        touch.press(0, cuePoint, ui_->window).commit();
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        verifyCueCall(3, "cuePress", 0);
+        touch.release(0, cuePoint, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
+        verifyCueCall(4, "cueRelease", 0);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void keyboardCueHold_data()
     {
         QTest::addColumn<int>("deck");
@@ -3386,7 +3593,7 @@ private slots:
         QTest::addColumn<int>("deck");
         QTest::addColumn<QString>("reason");
         for (int deck = 0; deck < 2; ++deck)
-            for (const auto* reason : {"pointer-ungrab", "keyboard-focus", "output-loss", "unload", "hidden"})
+            for (const auto* reason : {"pointer-ungrab", "keyboard-focus", "output-loss", "output-cycle", "unload", "hidden"})
                 QTest::newRow(qPrintable(QString("deck%1-%2").arg(deck).arg(reason))) << deck << QString(reason);
     }
 
@@ -3416,7 +3623,24 @@ private slots:
             ui_->item("masterGain")->forceActiveFocus();
         else if (reason == "output-loss")
             ui_->endpoint.setReady(false);
-        else if (reason == "unload")
+        else if (reason == "output-cycle") {
+            ui_->endpoint.setReady(false);
+            ui_->endpoint.setReady(true);
+            QCOMPARE(ui_->endpoint.calls.size(), 1); // Disable dispatch waits for bindings.
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+            verifyCueCall(1, "cueRelease", deck);
+            verifyCueCall(2, "cuePress", deck);
+            QCoreApplication::processEvents();
+            QCOMPARE(ui_->endpoint.calls.size(), 3);
+            QVERIFY(ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+            QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+            verifyCueCall(3, "cueRelease", deck);
+            QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+            return;
+        } else if (reason == "unload")
             ui_->endpoint.unloadState(deck);
         else
             cue->parentItem()->setVisible(false);
@@ -3429,6 +3653,7 @@ private slots:
             QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
         QCoreApplication::processEvents();
         QCOMPARE(ui_->endpoint.calls.size(), 2);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
     void rejectedCuePressHasNoRelease()
@@ -3707,7 +3932,11 @@ private slots:
         QFETCH(bool, dark);
         ui_->window->resize(viewport);
         QTRY_COMPARE(ui_->window->size(), viewport);
-        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        QTRY_VERIFY(QRect(QPoint{}, viewport).contains(ui_->center(theme)));
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
         ui_->endpoint.setReady(true);
         QStringList controls;
         for (int deck = 0; deck < 2; ++deck) {
@@ -4149,7 +4378,10 @@ private slots:
             Scenario{"loop-out-stored", {}, {}, {{"outSet", true}}, true, true, false},
             Scenario{"loop-exit-remainder", {}, {}, {{"cached", true}}, true, true, false},
             Scenario{"pending", {}, {{"active", true}, {"pending", true}}, {}, true, true, true},
-            Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true}
+            Scenario{"processed-zero", {}, {{"active", true}, {"percent", 0.0}}, {}, true, true, true},
+            Scenario{"resident-recovery", {{"liveStems", true},
+                {"residentHold", QVariantMap{{"configured", true}, {"active", true}}}},
+                {{"active", true}}, {}, true, false, false}
         };
         for (int deck = 0; deck < 2; ++deck) {
             const auto prefix = QString("deck%1").arg(deck);
@@ -4157,7 +4389,8 @@ private slots:
             auto* lock = ui_->item((prefix + "MasterTempo").toUtf8().constData());
             auto* reset = ui_->item((prefix + "TempoReset").toUtf8().constData());
             auto* in = ui_->item((prefix + "LoopIn").toUtf8().constData());
-            QVERIFY(rail && lock && reset && in);
+            auto* status = ui_->item((prefix + "TempoStatus").toUtf8().constData());
+            QVERIFY(rail && lock && reset && in && status);
             for (const auto& scenario : scenarios) {
                 ui_->endpoint.loadState(deck);
                 ui_->endpoint.setReady(scenario.ready);
@@ -4183,6 +4416,21 @@ private slots:
                     verifyCueCall(before, "tempoReset", deck);
                 }
             }
+
+            auto* accessibleRail = QAccessible::queryAccessibleInterface(rail);
+            auto* accessibleStatus = QAccessible::queryAccessibleInterface(status);
+            QVERIFY(accessibleRail && accessibleStatus);
+            QCOMPARE(status->property("text").toString(), QString("RECOVERY"));
+            QCOMPARE(accessibleStatus->text(QAccessible::Name),
+                     QString("Deck %1 tempo RECOVERY").arg(deck == 0 ? "A" : "B"));
+            QCOMPARE(accessibleRail->text(QAccessible::Description),
+                     QString("Leave recovery before changing BPM."));
+
+            ui_->endpoint.snapshotDeck(deck, {{"residentHold", QVariantMap{
+                {"configured", true}, {"active", false}}}});
+            QTRY_VERIFY(rail->isEnabled() && lock->isEnabled() && reset->isEnabled());
+            QCOMPARE(status->property("text").toString(), QString("READY"));
+            QVERIFY(!accessibleRail->text(QAccessible::Description).contains("Leave recovery"));
         }
     }
 
@@ -4405,6 +4653,31 @@ private slots:
             QCOMPARE(ui_->endpoint.decks()[deck].toMap()["tempo"].toMap(), tempo);
             QCOMPARE(ui_->endpoint.calls.size(), before);
         }
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
+    void localKeyDisplayPreservesAmbiguityAndClearsDuringReplacement()
+    {
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.loadState(0);
+        auto* label = ui_->item("deck0LocalTempo");
+        QVERIFY(label);
+        const auto before = ui_->endpoint.calls.size();
+        auto harmony = QVariantMap{{"status", "Estimated"},
+            {"candidates", QVariantList{QVariantMap{{"tonic", 3}, {"mode", "Minor"}}}}};
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY EST. E♭ MIN"));
+        harmony["status"] = "Ambiguous";
+        ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
+        QTRY_VERIFY(label->property("text").toString().endsWith("KEY AMBIGUOUS"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        ui_->endpoint.snapshotDeck(0, {{"replacing", false}});
+        ui_->endpoint.snapshotDeck(0, {{"loading", true}, {"harmony", harmony}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL PREPARING"));
+        ui_->endpoint.snapshotDeck(0, {{"loading", false}, {"loaded", false}});
+        QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
+        QCOMPARE(ui_->endpoint.calls.size(), before);
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
@@ -4758,8 +5031,12 @@ private slots:
         QFETCH(bool, dark);
         ui_->window->resize(viewport);
         QTRY_COMPARE(ui_->window->size(), viewport);
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        QTRY_VERIFY(QRect(QPoint{}, viewport).contains(ui_->center(theme)));
         if (!dark)
-            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
         ui_->endpoint.loadState(0);
         ui_->endpoint.loadState(1);
         ui_->endpoint.setReady(true);
@@ -4806,6 +5083,110 @@ private slots:
         QCOMPARE(call.value("value").toDouble(), seek->property("value").toDouble());
     }
 
+    void waveformDragDoesNotSeekAfterPreparedHandoff()
+    {
+        ui_->endpoint.loadState(0, 1.0);
+        ui_->endpoint.loadState(1, 1.0);
+        ui_->endpoint.setReady(true);
+        auto* seek = ui_->item("deck0Seek");
+        QTRY_VERIFY(seek->isEnabled());
+        const auto initial = ui_->endpoint.decks().at(0).toMap();
+        const auto peer = ui_->endpoint.decks().at(1);
+        const auto start = seek->mapToScene(QPointF(seek->width() * .25, seek->height() / 2)).toPoint();
+        const auto end = seek->mapToScene(QPointF(seek->width() * .75, seek->height() / 2)).toPoint();
+
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, start);
+        QTRY_VERIFY(seek->property("pressed").toBool());
+        QTest::mouseMove(ui_->window, end);
+        QTRY_VERIFY(seek->property("value").toDouble() > 5.0);
+
+        // A same-deck continuation changes the acknowledged owner while
+        // preserving the source ID and leaving the control enabled.
+        ui_->endpoint.snapshotDeck(0, {{"sourceGeneration", qulonglong(2)}, {"positionSeconds", 2.5}});
+        QCOMPARE(ui_->endpoint.decks().at(0).toMap().value("sourceId"), initial.value("sourceId"));
+        QVERIFY(seek->isEnabled());
+        const auto previewCancelled = !seek->property("pressed").toBool();
+        const auto restoredPosition = seek->property("value").toDouble();
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, end);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY(previewCancelled);
+        QCOMPARE(restoredPosition, 2.5);
+        QCOMPARE(seek->property("value").toDouble(), 2.5);
+        QCOMPARE(ui_->endpoint.decks().at(1), peer);
+
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, end);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "seek", 0);
+    }
+
+    void bothWaveformsTrackIndependentTouchSeeks_data()
+    {
+        QTest::addColumn<bool>("replaceFirstDeck");
+        QTest::newRow("release-separately") << false;
+        QTest::newRow("replace-first-owner") << true;
+    }
+
+    void bothWaveformsTrackIndependentTouchSeeks()
+    {
+        QFETCH(bool, replaceFirstDeck);
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.loadState(0, 1.0);
+        ui_->endpoint.loadState(1, 2.0);
+        ui_->endpoint.setReady(true);
+        auto* a = ui_->item("deck0Seek");
+        auto* b = ui_->item("deck1Seek");
+        QVERIFY(a && b && a->isEnabled() && b->isEnabled());
+        QSignalSpy polished(ui_->window, &QQuickWindow::frameSwapped);
+        a->polish();
+        b->polish();
+        ui_->window->update();
+        QTRY_VERIFY(polished.count() > 0);
+        const auto locate = [](QQuickItem* wave, qreal percent) {
+            return wave->mapToScene(QPointF(wave->width() * percent, wave->height() / 2)).toPoint();
+        };
+        const auto aStart = locate(a, .25), aEnd = locate(a, .80);
+        const auto bStart = locate(b, .75), bEnd = locate(b, .35);
+        auto touch = QTest::touchEvent(ui_->window, touchDevice_.get(), false);
+        touchActive_ = true;
+        touch.press(0, aStart, ui_->window).commit();
+        QTRY_VERIFY(a->property("pressed").toBool());
+        secondTouchActive_ = true;
+        touch.stationary(0).press(1, bStart, ui_->window).commit();
+        QTRY_VERIFY_WITH_TIMEOUT(b->property("pressed").toBool(), 1500);
+        QVERIFY2(a->property("pressed").toBool(), "Touching deck B cancelled deck A's waveform preview");
+
+        touch.move(0, aEnd, ui_->window).move(1, bEnd, ui_->window).commit();
+        QTRY_VERIFY(a->property("value").toDouble() > 7.0);
+        QTRY_VERIFY(b->property("value").toDouble() > 3.0);
+        QVERIFY(b->property("value").toDouble() < 4.0);
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+
+        if (replaceFirstDeck) {
+            ui_->endpoint.snapshotDeck(0, {{"sourceGeneration", qulonglong(2)}, {"positionSeconds", 1.5}});
+            QTRY_VERIFY(!a->property("pressed").toBool());
+            QCOMPARE(a->property("value").toDouble(), 1.5);
+            QVERIFY(b->property("pressed").toBool());
+        }
+        touch.stationary(0).release(1, bEnd, ui_->window).commit();
+        secondTouchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "seek", 1);
+        const auto bSeek = ui_->endpoint.calls[0].toMap()["value"].toDouble();
+        QVERIFY(3.0 < bSeek && bSeek < 4.0);
+        QCOMPARE(a->property("pressed").toBool(), !replaceFirstDeck);
+
+        touch.release(0, aEnd, ui_->window).commit();
+        touchActive_ = false;
+        QTRY_COMPARE(ui_->endpoint.calls.size(), replaceFirstDeck ? 1 : 2);
+        if (!replaceFirstDeck) {
+            verifyCueCall(1, "seek", 0);
+            QVERIFY(ui_->endpoint.calls[1].toMap()["value"].toDouble() > 7.0);
+        }
+        QVERIFY(!a->property("pressed").toBool() && !b->property("pressed").toBool());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void touchSeekCancellationRestoresAcknowledgedPosition_data()
     {
         QTest::addColumn<int>("deck");
@@ -4829,7 +5210,7 @@ private slots:
         ui_->endpoint.setReady(true);
         auto* seek = ui_->item(QString("deck%1Seek").arg(deck).toUtf8().constData());
         auto* peer = ui_->item(QString("deck%1Seek").arg(1 - deck).toUtf8().constData());
-        auto* input = ui_->item(QString("deck%1SeekInput").arg(deck).toUtf8().constData());
+        auto* input = ui_->item(QString("deck%1SeekTouch").arg(deck).toUtf8().constData());
         QVERIFY(seek && peer && input && seek->isEnabled() && peer->isEnabled());
         QSignalSpy polishedFrame(ui_->window, &QQuickWindow::frameSwapped);
         seek->polish();
@@ -4859,11 +5240,9 @@ private slots:
             QFAIL("Platform-cancel rows require Qt6.12 or later");
 #endif
         } else {
-            // MouseArea owns Qt's synthesized single-touch mouse grab. Losing
-            // that actual grab must cancel; the contact is still down.
-            input->ungrabMouse();
+            // Losing the touch grab must cancel a preview while its contact is still down.
+            input->ungrabTouchPoints();
         }
-        QTRY_VERIFY(!input->property("pressed").toBool());
         QTRY_VERIFY(!seek->property("pressed").toBool());
         QCOMPARE(ui_->endpoint.calls.size(), 0);
         QTRY_COMPARE(seek->property("value").toDouble(), 2.5);

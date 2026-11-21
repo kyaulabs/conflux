@@ -46,7 +46,7 @@ the C/D strips must say they are unavailable.
 | Hot Cues A–H and DELETE | Prepared stereo decks expose eight pads. An empty pad captures the current source frame without changing transport; a stored pad returns there and plays. DELETE arms one stored-pad clear without moving playback. Indicators follow the audio acknowledgement. Capture is unavailable during loops or scratching; recall clears either through the existing seek path. Pads survive output rebuilds for the same loaded source and clear on replacement. Stem decks retain their stem-level row. Persistent cue memory, memory navigation and beat quantization remain unavailable. |
 | SEARCH/TRACK SEARCH and direction | Disabled: held fast search, track navigation, reverse and slip playback are not implemented. Use the explicit position rail for current seeking. |
 | 4/8 BEAT LOOP and BEAT JUMP | Disabled: quantized loops and beat navigation are not implemented. |
-| TEMPO rail/reset and MASTER TEMPO | Prepared stereo tracks and four-stem banks support ±6% speed. Move the rail down for positive tempo; MASTER TEMPO preserves pitch with Rubber Band R3. Changes and pending state follow engine acknowledgements. TEMPO RESET returns to the exact normal-read path, retaining the Master Tempo selection. Prepared manual loops work with tempo and Master Tempo; live-stem tempo remains unsupported. Range selection and KEY SYNC remain disabled. |
+| TEMPO rail/reset and MASTER TEMPO | The BPM-based rail supports ±6% speed on prepared audio and live stems. Move it down to increase BPM; MASTER TEMPO preserves pitch with Rubber Band R3. Changes and pending state follow engine acknowledgements. TEMPO RESET retains the Master Tempo selection: prepared audio returns to its normal reader, while active live tempo starts an exact-unity worker generation. Prepared manual loops support tempo and Master Tempo. Approved live recovery and prepared continuation retain the selected mode; tempo controls are disabled while recovery is active, so leave recovery before editing. The [follow-up record](benchmarks/live-tempo-player-2026-10-30.md) separates listening acceptance and passing short-player checks from the pending current-build hour. Range selection and KEY SYNC remain disabled. |
 | BEAT SYNC, MASTER, QUANTIZE and SLIP | Disabled: beat synchronization, quantization and slip transport are not implemented. |
 | Mixer TRIM, COLOR and FX | Disabled: input trim, channel filter and effects processing are not implemented. |
 
@@ -58,14 +58,15 @@ while previewing keeps the current position and latches normal playback.
 Release-return and the PLAY latch are explicit CONFLUX policies, not claims
 proved by those pages.
 
-CUE accepts pointer/touch holds and focused Space, Return or Enter holds;
-auto-repeat adds no press. An accepted hold requests one release on physical
-release, cancellation, focus loss, disable/hide, window deactivation or
-destruction. Same-window focus/cancel cleanup waits one event turn so a PLAY
-press can precede it; deferred cleanup cannot release a newer hold. Physical
-release, disable/hide, window deactivation and destruction request cleanup
-without that deferral. Queue pressure retains the release for retry before
-later transport commands.
+CUE accepts mouse and touch holds and focused Space, Return or Enter holds.
+Auto-repeat adds no press. Each touch owns its CUE hold so a second touch can
+operate the other deck. Lifting the finger, leaving the control bounds or
+canceling its contact releases that touch's hold. Mouse and keyboard holds
+also release on focus loss. Their same-window focus and cancel cleanup waits
+one event turn so a PLAY press can precede it. Deferred cleanup checks that the
+same hold is still active. All holds release immediately when the control is
+disabled, hidden or destroyed, or the window deactivates. Queue pressure
+retains the release for retry before later transport commands.
 
 Audio settings can discover ports before loading a track through an inactive,
 unlinked filter. The live session renders master and cue once through four

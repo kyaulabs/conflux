@@ -10,12 +10,19 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
-#include <vector>
+#include <span>
+#include <stdexcept>
 #include <stop_token>
+#include <vector>
 
 namespace conflux::library {
+
+class PreparedSourceMismatch : public std::runtime_error {
+public: using std::runtime_error::runtime_error;
+};
 
 struct PreparedTrack {
     audio::PreparedAudio audio;
@@ -34,6 +41,20 @@ struct StemEngine {
     std::size_t maxDiagnosticBytes = 65536;
 };
 
+enum class VocalActivity : std::uint8_t { Unknown, Inactive, Active };
+
+struct VocalActivityMap {
+    // Source PCM at 48 kHz. An incomplete trailing interval is unclassified.
+    static constexpr std::uint64_t windowFrames = 9600;
+    std::vector<VocalActivity> windows;
+
+    [[nodiscard]] VocalActivity at(std::uint64_t sourceFrame) const noexcept
+    {
+        const auto index = sourceFrame / windowFrames;
+        return index < windows.size() ? windows[index] : VocalActivity::Unknown;
+    }
+};
+
 struct PreparedStemTrack {
     // Fixed separator roles: drums, bass, other, vocals. Every owner has the
     // same actual 48000 Hz frame count, including converter rounding.
@@ -42,6 +63,7 @@ struct PreparedStemTrack {
     QString artifactKey;
     bool cacheHit = false;
     TrackPresentation presentation{};
+    VocalActivityMap vocalActivity{};
 };
 
 // A caller-approved source-relative range, never inferred from a CUE marker.
@@ -86,23 +108,29 @@ public:
 
     explicit PreparedTrackStore(QString cacheRoot);
     PreparedTrackStore(QString cacheRoot, Limits limits);
-    PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {});
+    // Catalog loads can require a source digest before opening a cache or starting a worker.
+    PreparedTrack prepare(const QString& sourcePath, std::stop_token stop = {},
+                          const QString& expectedSource = {});
+    // On a cache miss, report the captured original before invoking the exporter.
+    // The waveform span is borrowed for the duration of the callback.
+    using StemInputPreview = std::function<void(const TrackPresentation&, std::span<const float>)>;
     PreparedStemTrack prepareStemBank(const QString& sourcePath, const StemEngine& engine,
-                                      std::stop_token stop = {});
+        std::stop_token stop = {}, const QString& expectedSource = {}, const StemInputPreview& onInput = {});
     // Read-only bank discovery; absence or a captured-identity mismatch is a miss.
     // Validates used inputs and current budgets without repair/export/staging.
     // A captured key can reject a missing artifact before using source/engine;
     // a present candidate still requires their full current identity checks.
     // A bounded engine --describe is permitted, but never model inference.
     std::optional<PreparedStemTrack> findPreparedStemBank(const QString& sourcePath,
-        const StemEngine& engine, std::stop_token stop = {}, const QString& expectedArtifactKey = {});
+        const StemEngine& engine, std::stop_token stop = {}, const QString& expectedArtifactKey = {},
+        const QString& expectedSource = {});
     // Off-thread transient whole owner beneath this store's root/limits.
     // Returns validated service-ready metadata; first real prime starts load.
     // Never primes here, creates a complete stem file, or borrows the caller's
     // stop token after return. A distinct nonzero token identifies this owner.
     PreparedLiveStemTrack prepareLiveStem(const QString& sourcePath, const StemEngine& engine,
         const QString& servicePath, std::uint64_t sourceToken, std::stop_token stop = {},
-        std::optional<LiveStemResidentHold> residentHold = {});
+        std::optional<LiveStemResidentHold> residentHold = {}, const QString& expectedSource = {});
 
 private:
     QString cacheRoot_;

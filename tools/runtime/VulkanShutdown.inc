@@ -39,6 +39,9 @@ extern "C" bool ggml_vk_conflux_shutdown() {
         if (device) {
             delete static_cast<ggml_backend_vk_buffer_type_context *>(device->buffer_type.context);
             device->buffer_type.context = nullptr;
+            if (all_devices_idle)
+                device->pipeline_cache.save(static_cast<VkDevice>(device->device),
+                    static_cast<const VkPhysicalDeviceProperties&>(device->properties));
             device.reset();
         }
     }

@@ -14,28 +14,28 @@ CONFLUX branding and a CDJ-3000-style performance view.
 
 The project is building toward an AI DIRECTOR that arranges and mixes music
 while the performer controls EQ and effects. The current player provides
-manual two-deck playback; automatic preparation, stems, editable sets and AI
-direction are the next stages of development.
+manual two-deck playback. Automatic musical analysis and live stems are
+still being qualified. Editable sets and AI direction are later milestones.
 
 ## Current player
 
 - Two local-file decks with mono/stereo decoding at 8–192 kHz, prepared as
   stereo 48 kHz float audio.
-- Play/pause, temporary CUE, overview seeking and positional jog, with short
-  ramps for transport and gain changes.
+- Play/pause, temporary CUE, overview seeking and vinyl-style platter
+  scratching on prepared audio.
 - Background preparation and bounded read-ahead. Replacing one track keeps
   the other deck and recording running.
 - Independent master and headphone mixes, explicit PipeWire routing, channel
   and bus levels, stereo peak/RMS meters and overrange indicators.
 - Manual IN/OUT/RELOOP for prepared tracks and stem banks.
-- Prepared-track tempo at ±6%, with optional pitch-preserving Master Tempo.
-- Fixed A/B crossfader with independent headphone cue and short gain ramps.
+- BPM-based tempo changes within ±6%. Master Tempo preserves pitch as BPM
+  changes.
+- Eight hot cues per prepared stereo deck, with recall and deletion.
+- Three-band A/B EQ and crossfader, with independent headphone cue.
 - Live post-master stereo WAV recording, plus a shared headless render core.
 - Light and dark performance views using the supplied CONFLUX artwork.
 
-Hot cues, sync, EQ and effects remain
-inactive until their audio features are implemented. Jog searches the track
-position; scratch and pitch bend are planned.
+Beat sync, pitch bend and effects remain unavailable.
 
 ## Development status
 
@@ -49,9 +49,9 @@ unverified where the required interfaces are unavailable. See the
 
 **M2 is in progress: library preparation and stems.** Its first slices add
 [persistent preparation, cancellation and local library import/load](docs/M2.md). The live-stem
-service target remains a release blocker: integrated laptop playback has not
-qualified **p99 below 4.095 seconds**. The [M2 results](docs/M2.md) retain the
-failed hour and later short diagnostics. The approved
+service target of **p99 below 4.095 seconds** remains a release blocker for
+the current candidate. The [M2 results](docs/M2.md) describe earlier passes
+under specific conditions and later failures. The approved
 [M0 feasibility decision](docs/decisions/0002-m0-stem-runtime.md) retains that
 target unchanged. Manual playback qualification does not measure stem inference.
 
@@ -94,15 +94,19 @@ ctest --test-dir build/dev --output-on-failure
 build/dev/conflux
 ```
 
-Open **LIBRARY** or a deck's **BROWSE** control, enter an absolute local-file
-path and choose **LOAD A** or **LOAD B**. Each new track starts paused at zero.
+Open **LIBRARY** or the deck's **BROWSE** control. In the deck row, use
+**BROWSE…** to choose a local audio file or enter its absolute path. **LOAD A**
+or **LOAD B** prepares it on that deck, paused at zero. **ADD TO LIBRARY** saves
+the track for later. Select its saved row to load it again.
 The current preparation limit is 256 MiB per track, about 11 minutes 39 seconds
 of stereo 48 kHz float audio. Playback uses a 48 kHz graph.
 Prepared audio is cached between loads. **CANCEL PREPARATION** leaves current
-playback intact; cancellation ends when installation starts.
-Choose **IMPORT** to keep a track in the library, then select its saved row
-and use **LOAD A** or **LOAD B**. Import cancellation ends when saving starts.
-Changed files must be imported again; musical analysis remains pending.
+playback intact until the new track starts replacing the old one.
+
+To import CUE markers, select a saved track, use **BROWSE…** beside
+**IMPORT CUES** to choose its `.cue` file, then select **IMPORT CUES**.
+Use **JUMP A** or **JUMP B** when that track is loaded on the corresponding
+deck. Click the BPM on the deck display to set its original BPM manually.
 
 Use **AUDIO / REC** to select outputs or record the master mix to a new absolute
 `.wav` path. Default master playback works with a stereo output; separate

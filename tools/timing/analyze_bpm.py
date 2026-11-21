@@ -9,12 +9,14 @@ and its LICENSE; no third-party code or weights are bundled here.
 
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
-Timing rows retain the same beat/downbeat estimates; their source-frame
-validation does not establish musical accuracy.
+Timing rows retain source-aligned beat and downbeat estimates. Exact zero
+padding at the edges or a long break in the source does not supply evidence
+for a continuous beat grid. Source validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
 
 import argparse
+from bisect import bisect_right
 import hashlib
 import json
 import math
@@ -26,9 +28,14 @@ import sys
 import types
 
 RATE, CHANNELS, FPS = 48000, 2, 50
+MODEL_RATE, MODEL_FFT_SIZE = 22050, 1024
 MAX_FRAMES = 33554432
 MAX_EVENTS = 34953
 MAX_OUTPUT_BYTES = 4 * 1024**2
+SILENCE_MARGIN_FRAMES = 70 * RATE // 1000
+# The longest local tempo interval is 3 seconds (20 BPM). Leave a longer
+# hole after allowing the same margin as at the track edges.
+MIN_INTERIOR_SILENCE = 3 * RATE + 2 * SILENCE_MARGIN_FRAMES
 RECIPE = "beat-this-final0-linear-mel-v1"
 MODEL_BYTES = 81058141
 MODEL_SHA256 = "8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331"
@@ -86,16 +93,52 @@ def read_pcm(stream, frames):
 
 def source_mask(frames, resampled_lengths, logit_frames):
     validate_frames(frames)
-    numerator = frames * 22050
+    numerator = frames * MODEL_RATE
     permitted = {numerator // RATE, (numerator + RATE - 1) // RATE}
     if (type(resampled_lengths) not in (list, tuple) or len(resampled_lengths) != 2 or
             any(type(n) is not int or n <= 0 or n not in permitted for n in resampled_lengths) or
             resampled_lengths[0] != resampled_lengths[1] or type(logit_frames) is not int or
-            logit_frames != resampled_lengths[0] // 441 + 1):
+            logit_frames != resampled_lengths[0] // (MODEL_RATE // FPS) + 1):
         raise ValueError("unexpected resampled/centered frontend geometry")
     # Contiguous source prefix BEFORE peak pooling; exclude a centered EOF bin
     # without shifting eligible source timestamps or suppressing its neighbour.
     return tuple(k * RATE < frames * FPS for k in range(logit_frames))
+
+
+def first_nonzero_frame(stereo):
+    import numpy as np
+
+    # Find nonzero PCM in either channel without allocating a mask for the
+    # entire track. Signed zeros are silent. This is not a loudness threshold.
+    block_frames = 1 << 16
+    for start in range(0, len(stereo), block_frames):
+        present = np.any(stereo[start:start + block_frames], axis=1)
+        if present.any():
+            return start + int(present.argmax())
+    return None
+
+
+def interior_silence_cores(stereo, first, last):
+    """Return half-open source ranges deep inside prolonged exact stereo silence."""
+    import numpy as np
+
+    if last - first <= MIN_INTERIOR_SILENCE:
+        return []
+    # A qualifying gap cannot fit inside one block. Only the first and last
+    # nonzero frames of each nonempty block are needed to find such a gap.
+    block_frames = 1 << 16
+    margin = SILENCE_MARGIN_FRAMES
+    gaps = []
+    previous_end = first + 1
+    for start in range(first, last + 1, block_frames):
+        present = np.any(stereo[start:min(start + block_frames, last + 1)], axis=1)
+        if not present.any():
+            continue
+        active_start = start + int(present.argmax())
+        if active_start - previous_end >= MIN_INTERIOR_SILENCE:
+            gaps.append((previous_end + margin, active_start - margin))
+        previous_end = start + len(present) - int(present[::-1].argmax())
+    return gaps
 
 
 def source_beat_frames(seconds, frames):
@@ -121,12 +164,29 @@ def source_beat_frames(seconds, frames):
     return result
 
 
-def summarize_beats(seconds, frames):
+def filter_silent_events(seconds, frames, first, last, gaps, gap_starts):
+    decoded = source_beat_frames(seconds, frames)
+    margin = SILENCE_MARGIN_FRAMES
+    events = []
+    for time, frame in zip(seconds, decoded):
+        if first - margin <= frame <= last + margin:
+            index = bisect_right(gap_starts, frame) - 1
+            if index < 0 or frame >= gaps[index][1]:
+                events.append(time)
+    return events
+
+
+def summarize_beats(seconds, frames, gap_starts=()):
     beat_frames = source_beat_frames(seconds, frames)
-    if len(beat_frames) < 2:
-        return None, len(beat_frames)
-    bpm = statistics.median(60 * RATE / (b - a) for a, b in zip(beat_frames, beat_frames[1:]))
-    return (round(bpm, 1) if 20 <= bpm <= 400 else None), len(beat_frames)
+    bpms = []
+    for first, last in zip(beat_frames, beat_frames[1:]):
+        if gap_starts and bisect_right(gap_starts, first) != bisect_right(gap_starts, last):
+            continue
+        bpm = 60 * RATE / (last - first)
+        # Use the same supported range as the deck's source-local tempo.
+        if 20 <= bpm <= 400:
+            bpms.append(bpm)
+    return (round(statistics.median(bpms), 1) if bpms else None), len(beat_frames)
 
 
 def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
@@ -232,7 +292,19 @@ def run(source_dir, model_path, frames, stream):
             raise ValueError("pinned dependency version differs: " + name)
     pcm = read_pcm(stream, frames)
     pcm_sha256 = hashlib.sha256(pcm).hexdigest()
+    # Reflection padding needs more than half an FFT of resampled audio.
+    # The nearest-frame cutoff is half an FFT plus half a model frame. It
+    # falls between two source-frame counts at these pinned sample rates.
+    if 2 * frames * MODEL_RATE < (MODEL_FFT_SIZE + 1) * RATE:
+        return encode_result(frames, pcm_sha256, None, [], [])
     import numpy as np
+
+    stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
+    first = first_nonzero_frame(stereo)
+    if first is None:
+        return encode_result(frames, pcm_sha256, None, [], [])
+    last = frames - 1 - first_nonzero_frame(stereo[::-1])
+
     import soxr
     import torch
 
@@ -267,10 +339,9 @@ def run(source_dir, model_path, frames, stream):
     frontend = upstream.Audio2Frames(str(model_path), device="cpu", float16=False)
     if frontend.model.training or next(frontend.model.parameters()).dtype != torch.float32:
         raise ValueError("model must be CPU float32 evaluation mode")
-    stereo = np.frombuffer(pcm, dtype="<f4").reshape(frames, CHANNELS)
     linear, lengths = [], []
     for channel in range(CHANNELS):
-        signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=22050)
+        signal = soxr.resample(stereo[:, channel], in_rate=RATE, out_rate=MODEL_RATE)
         lengths.append(len(signal))
         linear.append(frontend.spect.spect_class(torch.tensor(signal, dtype=torch.float32, device="cpu")))
     if linear[0].shape != linear[1].shape:
@@ -286,7 +357,15 @@ def run(source_dir, model_path, frames, stream):
     postprocessor = upstream.Postprocessor(type="minimal", fps=FPS)
     beats, downbeats = postprocessor(beat, downbeat, padding_mask=torch.tensor(mask, dtype=torch.bool))
     seconds, down_seconds = [float(x) for x in beats], [float(x) for x in downbeats]
-    bpm, _beat_count = summarize_beats(seconds, frames)
+    if not set(down_seconds).issubset(seconds):
+        raise ValueError("downbeat stream is not a subset of beats")
+    # Work after decoding so a retained timestamp or its bar assignment
+    # stays exactly where the detector put it. Do not infer tempo across a break.
+    gaps = interior_silence_cores(stereo, first, last)
+    gap_starts = tuple(begin for begin, _ in gaps)
+    seconds = filter_silent_events(seconds, frames, first, last, gaps, gap_starts)
+    down_seconds = filter_silent_events(down_seconds, frames, first, last, gaps, gap_starts)
+    bpm, _beat_count = summarize_beats(seconds, frames, gap_starts)
     return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds)
 
 

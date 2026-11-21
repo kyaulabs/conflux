@@ -22,7 +22,7 @@ public:
         // Quiescence disarms through an actual inactive edge if needed.
         // Token also forms the SC mailbox's2*token version.
         std::uint64_t token = 0, waitSerial = 0, epoch = 0, cursor = 0;
-        bool active = false;
+        bool active = false, openingSuffix = false;
         // waitSerial0 explicitly means gate open/no recovery attempt.
         // Closed waits have never-reused nonzero serials across pause/resume.
     };

@@ -7,6 +7,7 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <type_traits>
 
 namespace conflux::audio {
@@ -25,6 +26,23 @@ public:
         commands_[position % capacity] = command;
         written_.store(position + 1U, std::memory_order_release);
         return true;
+    }
+
+    // The sole consumer may inspect one prefix without freeing those slots.
+    // Commit only that prefix after it has been applied. Commands appended
+    // after the acquired snapshot belong to the next callback.
+    std::size_t pending(std::span<RenderCore::Command, capacity> output) const noexcept
+    {
+        const auto first = read_.load(std::memory_order_relaxed);
+        const auto count = written_.load(std::memory_order_acquire) - first;
+        for (std::uint32_t i = 0; i < count; ++i)
+            output[i] = commands_[(first + i) % capacity];
+        return count;
+    }
+
+    void consumePending(std::uint32_t count) noexcept
+    {
+        read_.store(read_.load(std::memory_order_relaxed) + count, std::memory_order_release);
     }
 
     bool tryPop(RenderCore::Command& command) noexcept

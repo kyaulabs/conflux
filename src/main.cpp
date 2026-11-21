@@ -37,6 +37,10 @@ int main(int argc, char** argv) {
         qputenv("QT_QPA_PLATFORMTHEME", "xdgdesktopportal");
 #endif
     QGuiApplication app(argc, argv);
+    // Qt Quick can defer Wayland touch motion until a render frame or release.
+    // Mixing gestures must reach the audio controls even while frames stall.
+    if (QGuiApplication::platformName().startsWith(QStringLiteral("wayland")))
+        qputenv("QML_NO_TOUCH_COMPRESSION", "1");
     QCoreApplication::setApplicationName("conflux");
     QCoreApplication::setApplicationVersion(CONFLUX_VERSION);
     QGuiApplication::setApplicationDisplayName("CONFLUX");
@@ -64,6 +68,7 @@ int main(int argc, char** argv) {
     parser.addOption({"bpm-python", "Local CPU BPM Python executable (all three BPM paths required).", "path"});
     parser.addOption({"bpm-source", "Pinned Beat This source directory.", "path"});
     parser.addOption({"bpm-model", "Pinned local final0 checkpoint.", "path"});
+    parser.addOption({"harmony-python", "Local Python executable with NumPy for optional key estimates.", "path"});
     parser.process(app);
     if ((parser.isSet("screenshot") || parser.isSet("smoke-stop-file") ||
          parser.isSet("smoke-progress-file")) && !parser.isSet("smoke-test"))
@@ -91,6 +96,17 @@ int main(int argc, char** argv) {
         const auto worker = QFileInfo::exists(adjacentWorker)
             ? adjacentWorker : binaryDirectory.filePath(QStringLiteral(CONFLUX_BPM_WORKER_PATH));
         preparationOptions.bpmEngine = conflux::library::BpmEngine{bpmPython, bpmSource, bpmModel, worker};
+    }
+    if (parser.isSet("harmony-python")) {
+        const auto python = parser.value("harmony-python");
+        const QFileInfo interpreter(python);
+        if (parser.isSet("smoke-test") || !interpreter.isAbsolute() || python.contains(QChar(u'\0')) ||
+            !interpreter.isFile() || !interpreter.isExecutable()) parser.showHelp(2);
+        const QDir binaryDirectory(QCoreApplication::applicationDirPath());
+        const auto adjacent = binaryDirectory.filePath(QStringLiteral("analyze_harmony.py"));
+        const auto worker = QFileInfo(adjacent).isFile()
+            ? adjacent : binaryDirectory.filePath(QStringLiteral(CONFLUX_HARMONY_WORKER_PATH));
+        preparationOptions.harmonyEngine = conflux::library::HarmonyEngine{python, worker};
     }
     const std::array<const char*, 5> stemPaths{
         "stem-python", "stem-exporter", "stem-worker", "stem-runtime", "stem-model"};
@@ -156,6 +172,16 @@ int main(int argc, char** argv) {
     engine.rootContext()->setContextProperty("repaintTimeline", &repaintTimeline);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
+    // Size the performance window before Qt lays out its drawers.
+    if (const auto* screen = app.primaryScreen(); screen && !parser.isSet("smoke-test")) {
+        const auto usable = screen->availableSize();
+        if (usable.isValid()) {
+            engine.setInitialProperties({
+                {"width", std::clamp(usable.width(), 1180, 1680)},
+                {"height", std::clamp(usable.height(), 760, 1020)},
+            });
+        }
+    }
     engine.load(QUrl(parser.isSet("smoke-test") ? "qrc:/qml/Harness.qml" : "qrc:/qml/Main.qml"));
     if (engine.rootObjects().isEmpty())
         return 1;

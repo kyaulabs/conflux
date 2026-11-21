@@ -79,6 +79,27 @@ std::uint64_t cueFrame(const QString& value, qsizetype line)
     return ticks * 640; // 48,000 / 75 is exact; no floating-point seek rounding.
 }
 
+bool selectsSource(const QDir& directory, const QString& filename, const QString& sourcePath)
+{
+    const auto literal = QDir::cleanPath(directory.absoluteFilePath(filename));
+    if (literal == sourcePath) return true;
+    // A copied Windows sheet can use backslashes in a relative FILE path.
+    // Drive, rooted and UNC paths must still match the native path exactly.
+    if (!filename.contains(QLatin1Char('\\')) || filename.startsWith(QLatin1Char('\\')) ||
+        filename.contains(QLatin1Char(':')) || QDir::isAbsolutePath(filename))
+        return false;
+
+    auto relative = filename;
+    relative.replace(QLatin1Char('\\'), QLatin1Char('/'));
+    if (QDir::cleanPath(directory.absoluteFilePath(relative)) != sourcePath) return false;
+
+    // A literal backslash is legal on Linux. Do not let the portable spelling
+    // override a real entry, including a broken symlink.
+    struct stat existing{};
+    return lstat(QFile::encodeName(literal).constData(), &existing) < 0 &&
+        (errno == ENOENT || errno == ENOTDIR);
+}
+
 std::vector<CuePoint> parse(const QString& text, const QString& cuePath,
                             const LibraryTrack& selected, std::stop_token stop)
 {
@@ -121,8 +142,7 @@ std::vector<CuePoint> parse(const QString& text, const QString& cuePath,
             const auto type = fields[2].toUpper();
             if (type != "WAVE" && type != "AIFF" && type != "MP3" && type != "BINARY" && type != "MOTOROLA")
                 invalid(number, "Unsupported FILE type");
-            const auto path = QDir::cleanPath(QFileInfo(fields[1]).isAbsolute() ? fields[1] : directory.absoluteFilePath(fields[1]));
-            selectedFile = path == selectedPath;
+            selectedFile = selectsSource(directory, fields[1], selectedPath);
             if (selectedFile && (++matchingFiles > 1 || type == "BINARY" || type == "MOTOROLA"))
                 invalid(number, "Selected source FILE is ambiguous or uses a raw data format");
             file = true; fileHasTrack = false; previousStart.reset();
