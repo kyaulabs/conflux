@@ -3878,7 +3878,11 @@ private slots:
         QFETCH(bool, dark);
         ui_->window->resize(viewport);
         QTRY_COMPARE(ui_->window->size(), viewport);
-        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        QTRY_VERIFY(QRect(QPoint{}, viewport).contains(ui_->center(theme)));
+        if (!dark) QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
         ui_->endpoint.setReady(true);
         QStringList controls;
         for (int deck = 0; deck < 2; ++deck) {
@@ -4973,8 +4977,12 @@ private slots:
         QFETCH(bool, dark);
         ui_->window->resize(viewport);
         QTRY_COMPARE(ui_->window->size(), viewport);
+        auto* theme = ui_->item("themeToggle");
+        QVERIFY(theme);
+        QTRY_VERIFY(QRect(QPoint{}, viewport).contains(ui_->center(theme)));
         if (!dark)
-            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("themeToggle")));
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(theme));
+        QTRY_COMPARE(theme->property("text").toString(), dark ? QString("LIGHT") : QString("DARK"));
         ui_->endpoint.loadState(0);
         ui_->endpoint.loadState(1);
         ui_->endpoint.setReady(true);
