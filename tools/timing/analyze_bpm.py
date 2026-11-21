@@ -36,6 +36,14 @@ SILENCE_MARGIN_FRAMES = 70 * RATE // 1000
 # The longest local tempo interval is 3 seconds (20 BPM). Leave a longer
 # hole after allowing the same margin as at the track edges.
 MIN_INTERIOR_SILENCE = 3 * RATE + 2 * SILENCE_MARGIN_FRAMES
+# Look for dither-sized samples only between two clearly active passages.
+# At least 5% of each 250 ms side must exceed 256 steps of the digital floor.
+DITHER_FLOOR = 2 ** -15
+DITHER_CONTEXT_FRAMES = RATE // 4
+DITHER_CONTEXT_FLOOR = DITHER_FLOOR * 256
+DITHER_CORRELATION_FRAMES = RATE // 100
+MAX_DITHER_ABS_CORRELATION = .25
+MAX_DITHER_WINDOW_POWER_RATIO = 4
 RECIPE = "beat-this-final0-linear-mel-v1"
 MODEL_BYTES = 81058141
 MODEL_SHA256 = "8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331"
@@ -118,27 +126,84 @@ def first_nonzero_frame(stereo):
     return None
 
 
-def interior_silence_cores(stereo, first, last):
-    """Return half-open source ranges deep inside prolonged exact stereo silence."""
+def interior_inactive_spans(stereo, first, last, noise_floor=0):
     import numpy as np
 
-    if last - first <= MIN_INTERIOR_SILENCE:
-        return []
     # A qualifying gap cannot fit inside one block. Only the first and last
-    # nonzero frames of each nonempty block are needed to find such a gap.
+    # active frames of each nonempty block are needed to find such a gap.
     block_frames = 1 << 16
-    margin = SILENCE_MARGIN_FRAMES
-    gaps = []
+    spans = []
     previous_end = first + 1
     for start in range(first, last + 1, block_frames):
-        present = np.any(stereo[start:min(start + block_frames, last + 1)], axis=1)
+        left, right = stereo[start:min(start + block_frames, last + 1)].T
+        if noise_floor:
+            present = (np.abs(left) > noise_floor) | (np.abs(right) > noise_floor)
+        else:
+            present = np.logical_or(left, right)
         if not present.any():
             continue
         active_start = start + int(present.argmax())
         if active_start - previous_end >= MIN_INTERIOR_SILENCE:
-            gaps.append((previous_end + margin, active_start - margin))
+            spans.append((previous_end, active_start))
         previous_end = start + len(present) - int(present[::-1].argmax())
-    return gaps
+    return spans
+
+
+def has_signal_structure(stereo):
+    import numpy as np
+
+    width = DITHER_CORRELATION_FRAMES
+    first_power = (stereo[:width].astype(np.float64)**2).sum(axis=0)
+
+    def structured_windows(samples):
+        windows = samples.reshape(-1, width, CHANNELS).astype(np.float64)
+        power = (windows**2).sum(axis=1)
+        if np.any(np.maximum(power, first_power) >
+                  MAX_DITHER_WINDOW_POWER_RATIO * np.minimum(power, first_power)):
+            return True
+
+        before, after = windows[:, :-1], windows[:, 1:]
+        product = np.abs((before * after).sum(axis=1))
+        pair_energy = np.sqrt((before**2).sum(axis=1) * (after**2).sum(axis=1))
+        return bool(np.any(product > MAX_DITHER_ABS_CORRELATION * pair_energy))
+
+    # Evaluate the same windows in bounded batches. Include a full window
+    # ending at the core boundary when the final window is partial.
+    block = 64 * width
+    full_frames = len(stereo) // width * width
+    for start in range(0, full_frames, block):
+        if structured_windows(stereo[start:min(start + block, full_frames)]):
+            return True
+    return full_frames != len(stereo) and structured_windows(stereo[-width:])
+
+
+def interior_silence_cores(stereo, first, last):
+    """Return source ranges of prolonged exact silence or dither-like activity."""
+    import numpy as np
+
+    if last - first <= MIN_INTERIOR_SILENCE:
+        return []
+    margin = SILENCE_MARGIN_FRAMES
+    spans = set(interior_inactive_spans(stereo, first, last))
+    context = DITHER_CONTEXT_FRAMES
+    for begin, end in interior_inactive_spans(stereo, first, last, DITHER_FLOOR):
+        if (begin, end) in spans:
+            continue
+        sides = (stereo[max(first, begin - context):begin],
+                 stereo[end:min(last + 1, end + context)])
+        if all(np.count_nonzero(np.any(np.abs(side) >= DITHER_CONTEXT_FLOOR, axis=1)) >= context // 20
+               for side in sides) and not has_signal_structure(stereo[begin + margin:end - margin]):
+            spans.add((begin, end))
+
+    cores = []
+    for begin, end in sorted(spans):
+        begin += margin
+        end -= margin
+        if cores and begin <= cores[-1][1]:
+            cores[-1] = (cores[-1][0], max(cores[-1][1], end))
+        else:
+            cores.append((begin, end))
+    return cores
 
 
 def source_beat_frames(seconds, frames):
