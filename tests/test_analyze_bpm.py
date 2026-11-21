@@ -119,6 +119,39 @@ class AnalyzeBpmTest(unittest.TestCase):
         stereo[left_end, 1] = 1e-12
         self.assertEqual(bpm.interior_silence_cores(stereo, 0, frames - 1), [])
 
+    def test_dither_between_active_passages_leaves_quiet_music_supported(self):
+        import numpy as np
+
+        begin, end = bpm.RATE, 5 * bpm.RATE + 131
+        stereo = np.zeros((end + bpm.RATE, 2), dtype="<f4")
+        stereo[:begin, 0] = .03
+        stereo[end:, 1] = -.03
+        gap = stereo[begin:end]
+        floor = 2 ** -15
+        rng = np.random.default_rng(4619)
+        gap[:] = floor * (rng.random(gap.shape) - rng.random(gap.shape))
+        margin = bpm.SILENCE_MARGIN_FRAMES
+
+        def cores():
+            return bpm.interior_silence_cores(stereo, 0, len(stereo) - 1)
+
+        self.assertEqual(cores(), [(begin + margin, end - margin)])
+
+        # Quiet rhythmic attacks can have an uncorrelated waveform.
+        stationary = gap.copy()
+        pulse = np.arange(len(gap)) % (bpm.RATE // 2) < bpm.RATE // 20
+        gap[~pulse, 1] *= .12
+        self.assertEqual(cores(), [])
+        gap[:] = stationary
+
+        # Add a coherent, near-floor signal only in the last partial window
+        # of the timing gap. The opposite channel continues to carry dither.
+        count = 131
+        tail = gap[len(gap) - margin - count:len(gap) - margin]
+        tail[:, 1] = floor * .9 * (-1.) ** np.arange(count)
+        tail[:, 0] = 0.
+        self.assertEqual(cores(), [])
+
     def test_unknown_and_median_of_adjacent_bpms(self):
         self.assertEqual(bpm.summarize_beats([], 144000), (None, 0))
         self.assertEqual(bpm.summarize_beats([.5], 144000), (None, 1))
