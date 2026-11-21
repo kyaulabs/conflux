@@ -930,23 +930,17 @@ public:
         if (!rateValid && position) self.graphFault_.store(true, std::memory_order_relaxed);
         if (rateValid) self.graphValid_.store(true, std::memory_order_release);
         std::array<pw_buffer*, 4> buffers{};
-        OutputPointers outputs{};
+        OutputPointers outputs{}, mapped{};
         std::array<bool, 4> valid{};
         for (std::size_t index = 0; index < 4; ++index) {
             auto* buffer = buffers[index] = pw_filter_dequeue_buffer(self.portData_[index]);
             if (!buffer || !buffer->buffer || buffer->buffer->n_datas != 1) continue;
             auto& plane = buffer->buffer->datas[0];
-            if (plane.chunk) {
-                plane.chunk->offset = 0;
-                plane.chunk->stride = sizeof(float);
-                plane.chunk->size = 0;
-                // This callback replaces the payload, so a reused buffer's flags are stale.
-                plane.chunk->flags = SPA_CHUNK_FLAG_NONE;
-            }
-            buffer->size = 0;
             if (frames && plane.data && plane.chunk && frames <= plane.maxsize / sizeof(float) &&
                 reinterpret_cast<std::uintptr_t>(plane.data) % alignof(float) == 0) {
-                outputs[index] = static_cast<float*>(plane.data); valid[index] = true;
+                mapped[index] = static_cast<float*>(plane.data);
+                outputs[index] = canRetain ? self.publishScratch_[index].data() : mapped[index];
+                valid[index] = true;
                 std::fill_n(outputs[index], frames, 0.F);
             }
         }
@@ -1094,9 +1088,20 @@ public:
         }
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
-            if (valid[index] && !expired) {
-                auto& plane = buffers[index]->buffer->datas[0];
-                plane.chunk->size = frames * sizeof(float); buffers[index]->size = frames;
+            auto* buffer = buffers[index];
+            buffer->size = 0;
+            if (buffer->buffer && buffer->buffer->n_datas == 1) {
+                if (auto* chunk = buffer->buffer->datas[0].chunk) {
+                    chunk->offset = 0;
+                    chunk->stride = sizeof(float);
+                    chunk->flags = SPA_CHUNK_FLAG_NONE;
+                    chunk->size = 0;
+                    if (valid[index] && !expired) {
+                        if (canRetain) std::copy_n(outputs[index], frames, mapped[index]);
+                        chunk->size = frames * sizeof(float);
+                        buffer->size = frames;
+                    }
+                }
             }
             if (pw_filter_queue_buffer(self.portData_[index], buffers[index]) < 0) {
                 if (index < 2) { ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed); }
@@ -1284,6 +1289,8 @@ public:
     RenderCore::Meters meters_{};
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
     RetainedOutput retained_;
+    // Keep the previous mapped payload intact until the new PCM is ready.
+    std::array<std::array<float, scratchFrames>, 4> publishScratch_{};
     bool readersStopped_=false, detached_=false, startFailed_=false;
     TransportQueue commands_; StateQueue states_;
     pw_thread_loop* loop_=nullptr; pw_filter* filter_=nullptr; pw_core* core_=nullptr; pw_registry* registry_=nullptr;
