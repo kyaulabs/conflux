@@ -20,10 +20,10 @@ the minimum version increase:
 
 | Commit | Minimum increase |
 | --- | --- |
-| `fix`, `perf`, `revert` | Patch |
+| `fix`, `patch`, `perf`, `revert` | Patch |
 | `feat` | Minor |
 | `!`, `BREAKING CHANGE:` or `BREAKING-CHANGE:` | Major, including during `0.x` |
-| `docs`, `ci`, `test`, `chore`, `refactor`, `style` alone | No release |
+| `docs`, `ci`, `test`, `chore`, `refactor`, `style`, `ignore` alone | No release |
 
 Breaking changes take precedence over type. Higher versions may mark an
 intentional milestone. Never move or reuse a published version tag for a

@@ -34,10 +34,10 @@ topo_order = false
 sort_commits = "oldest"
 commit_parsers = [
   { message = "^docs", group = "Documentation", skip = true },
-  { message = '^chore|^ci|^test|^style|^refactor', group = "Maintenance", skip = true },
+  { message = '^chore|^ci|^test|^style|^refactor|^ignore', group = "Maintenance", skip = true },
   { body = "(?i)security", group = "Security" },
   { message = "^feat", group = "Features" },
-  { message = "^fix", group = "Fixes" },
+  { message = "^fix|^patch", group = "Fixes" },
   { message = "^perf", group = "Performance" },
   { message = "^revert", group = "Reverts" },
   { message = ".*", group = "Maintenance" },

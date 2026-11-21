@@ -354,14 +354,26 @@ class ReleaseGitCliffTests(unittest.TestCase):
 
     def test_real_cliff_feature_patch_breaking_and_nonincrement_types(self):
         self.g("tag", "v0.1.0")
-        cases = [(kind + ": fixture", None) for kind in ("docs", "ci", "test", "style", "chore", "refactor")]
-        cases += [("feat: next feature", "0.2.0"), ("fix: correction", "0.1.1"),
+        cases = [(kind + ": fixture", None) for kind in ("docs", "ci", "test", "style", "chore", "refactor", "ignore")]
+        cases += [(kind + ": fixture", "0.1.1") for kind in ("fix", "patch", "perf", "revert")]
+        cases += [("feat: next feature", "0.2.0"), ("ignore!: incompatible interface", "1.0.0"),
                   ("docs!: incompatible interface", "1.0.0"), ("docs: update\n\nBREAKING CHANGE: incompatible format", "1.0.0")]
         for index, (message, expected) in enumerate(cases):
             with self.subTest(message=message):
                 self.g("switch", "-c", "case-" + str(index), self.base)
                 (self.path / "change.txt").write_text(str(index)); self.commit(message)
                 self.assertEqual(release.recommend(self.g("rev-parse", "HEAD"), "0.1.0"), expected)
+
+    def test_release_notes_include_patch_and_exclude_ignored_changes(self):
+        self.g("tag", "v0.1.0")
+        (self.path / "notes.txt").write_text("ignored")
+        self.commit("ignore: scratch notes for the release")
+        (self.path / "notes.txt").write_text("fixed")
+        self.commit("patch: correct deck tempo reset")
+        notes = release.cliff(self.g("rev-parse", "HEAD"), "0.1.0", "--unreleased")
+        self.assertIn("### Fixes", notes)
+        self.assertIn("Correct deck tempo reset", notes)
+        self.assertNotIn("Scratch notes for the release", notes)
 
     def test_initial_prepare_requires_mixing_both_milestones_and_real_prose(self):
         markers = (release.MIXING_MARKER, release.M2_MARKER, release.M3_MARKER)
