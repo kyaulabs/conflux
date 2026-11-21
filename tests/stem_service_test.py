@@ -601,6 +601,63 @@ class ServiceTest(unittest.TestCase):
         self.assertTrue(replacement.closed)
         self.assertFalse(any(event.get("event") in ("chunk", "error") for event in harness.remaining()))
 
+    def test_exact_eof_completes_before_obsolete_native_inference(self):
+        entered, release = threading.Event(), threading.Event()
+
+        class Backend:
+            def __init__(self):
+                self.calls = 0
+                self.closed = False
+
+            def start(self):
+                return ready("vulkan", 2)
+
+            def infer(self, samples, request_id):
+                self.calls += 1
+                if self.calls == 1:
+                    entered.set()
+                    if not release.wait(4):
+                        raise TimeoutError("test did not release obsolete inference")
+                return np.repeat(samples[None], len(STEMS), axis=0), {"elapsed_ms": 1.0}
+
+            def close(self):
+                self.closed = True
+
+            def abort(self):
+                release.set()
+
+        backend = Backend()
+
+        def worker_factory(*args, **kwargs):
+            kwargs["_backend_factory"] = lambda *_: backend
+            return StemWorker(*args, **kwargs)
+
+        frames = 64
+        harness = Harness(self, frames, worker_factory=worker_factory).start()
+        self.addCleanup(release.set)
+        harness.event("ready")
+        harness.event("accepted", identifier=harness.send("load", frame=0))
+        harness.event("runtime")
+        self.assertTrue(entered.wait(2))
+        eof = harness.event("accepted", identifier=harness.send("seek", frame=frames))
+        complete = harness.event("complete", timeout=0.75)
+        self.assertEqual((complete["generation"], complete["frame_start"]), (eof["generation"], frames))
+        self.assertEqual(backend.calls, 1)
+        self.assertFalse(any(harness.directory.glob("slot*.f32")))
+
+        tail = harness.event("accepted", identifier=harness.send("seek", frame=frames - 1))
+        release.set()
+        chunk = harness.event("chunk")
+        self.assertEqual((chunk["generation"], chunk["frame_start"], chunk["frames"]),
+                         (tail["generation"], frames - 1, 1))
+        samples = np.fromfile(harness.directory / chunk["file"], dtype="<f4").reshape(4, 1, 2)
+        np.testing.assert_allclose(samples, np.broadcast_to(harness.audio[-1:], samples.shape), atol=2e-7)
+        self.assertEqual(backend.calls, 1)  # The ordinary tail seek reuses its pending window.
+        harness.event("accepted", identifier=harness.ack(chunk))
+        self.assertEqual(harness.event("complete")["generation"], tail["generation"])
+        self.assertEqual(harness.close_clean()["outstanding_slots"], 0)
+        self.assertTrue(backend.closed)
+
     def test_invalid_current_worker_payloads_never_publish(self):
         def change(kind, key, value):
             return lambda event: event.__setitem__(key, value) if event.get("event") == kind else None

@@ -39,8 +39,9 @@ public:
                                  std::stop_token stop = {});
 
     // Construct fresh state for an output cursor in[0,plan.outputFrames()].
-    // Anchor is max(0,floor(target/160)-32)*147; internal discard reaches the
-    // exact target before any samples become output. The closed finite fixture
+    // Below EOF, the anchor is max(0,floor(target/160)-32)*147, with
+    // internal discard up to the target. Exact EOF anchors at inputFrames(),
+    // with no input to convert. The closed finite fixture
     // and closed4*HOP+211 interior-seek fixtures support this candidate; this
     // is finite numerical evidence, not an all-duration equivalence proof.
     explicit StemRateConverter(FramePlan plan, std::uint64_t targetFrame = 0);

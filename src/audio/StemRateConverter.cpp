@@ -112,8 +112,11 @@ public:
         if (target > plan.outputFrames()) throw std::invalid_argument("Stem seek exceeds counted EOF");
         const auto cell = target / outputGrid;
         const auto anchorCell = cell > prerollCells ? cell - prerollCells : 0;
-        inputFrame_ = inputStart_ = anchorCell * inputGrid;
-        generatedFrame_ = anchorCell * outputGrid;
+        // An explicit seek to EOF has no samples to resample. Keep the
+        // empty-input drain contract without fetching the preceding stem hop.
+        const bool atEnd = target == plan.outputFrames();
+        inputFrame_ = inputStart_ = atEnd ? plan.inputFrames() : anchorCell * inputGrid;
+        generatedFrame_ = atEnd ? target : anchorCell * outputGrid;
         if (inputStart_ > plan.inputFrames() || generatedFrame_ > target)
             throw std::invalid_argument("Stem seek anchor exceeds input geometry");
         discard_ = target - generatedFrame_;

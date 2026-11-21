@@ -820,8 +820,11 @@ class StemWorker:
     def _seek_prefix_status(self, command):
         source = self._cached_source
         if (source is None or command.path != source.path or command.source_format != source.source_format
-                or command.start >= source.frames or _signature(source.path) != source.signature):
+                or command.start > source.frames or _signature(source.path) != source.signature):
             return False, False
+        if command.start == source.frames:
+            # No native response can contribute audio to this empty suffix.
+            return True, False
         target = command.start // HOP
         cached_prefix = True
         with self._condition:
