@@ -726,6 +726,12 @@ class StemWorker:
         output, metrics = native.infer(samples, request_id)
         return output, metrics, (time.monotonic() - started) * 1000
 
+    def _retire_inference_locked(self, request_id):
+        pending = self._pending_inference
+        if pending is not None and pending.event["request_id"] == request_id:
+            self._pending_inference = None
+            self._inflight = None
+
     def _wait_inference(self, command=None, *, adopt=False, keep_pending=False):
         pending = self._pending_inference
         if pending is None:
@@ -738,10 +744,15 @@ class StemWorker:
                 self._condition.wait()
             if command is not None and (self._closed or self._command != command):
                 raise _Superseded
+            # The future is complete. Consume the reply without losing its
+            # ownership if an exact-window seek interrupts publication.
+            try:
+                output, metrics, elapsed = future.result()
+            except BaseException:
+                self._retire_inference_locked(event["request_id"])
+                raise
             if not keep_pending:
-                self._pending_inference = None
-                self._inflight = None
-        output, metrics, elapsed = future.result()
+                self._retire_inference_locked(event["request_id"])
         if owner != command and not adopt:
             self._emit("discarded", owner.generation, request_id=event["request_id"],
                        source_id=event["source_id"], window_start_frame=event["window_start_frame"],
@@ -755,12 +766,13 @@ class StemWorker:
                 and pending.command.source_generation == command.source_generation
                 and pending.event["window_start_frame"] == start)
 
-    def _inference_for_window(self, command, source, start, preroll):
+    def _inference_for_window(self, command, source, start, preroll, *, retain_reply=True):
+        keep_pending = retain_reply and source.source_format == "f32le"
         pending = self._pending_inference
         if self._pending_matches_window(command, source, start):
             # The pending request used this exact grid window and normalization.
             # Keep its real request timings and charge the new hop for the wait.
-            output, metrics, elapsed = self._wait_inference(command, adopt=True)
+            output, metrics, elapsed = self._wait_inference(command, adopt=True, keep_pending=keep_pending)
             if _signature(source.path) != source.signature:
                 raise RuntimeError("stem source changed during pending inference")
             return output, metrics, elapsed, pending.event["request_id"], pending.source_read_ms
@@ -786,7 +798,7 @@ class StemWorker:
             self._inflight = event
             self._pending_inference = _PendingInference(command, source, event, future, source_read_ms)
             future.add_done_callback(self._notify_inference)
-        output, metrics, elapsed = self._wait_inference(command)
+        output, metrics, elapsed = self._wait_inference(command, keep_pending=keep_pending)
         return output, metrics, elapsed, request_id, source_read_ms
 
     def _seek_prefix_status(self, command):
@@ -855,7 +867,8 @@ class StemWorker:
                 if preroll and self._pending_matches_window(command, source, target_window * HOP):
                     # Keep the exact target reply while the same native
                     # transport computes the missing overlap window.
-                    retained_target = self._inference_for_window(command, source, target_window * HOP, False)
+                    retained_target = self._inference_for_window(
+                        command, source, target_window * HOP, False, retain_reply=False)
                 if index == target_window and retained_target is not None:
                     if _signature(source.path) != source.signature:
                         raise RuntimeError("stem source changed during seek preroll")
@@ -889,6 +902,7 @@ class StemWorker:
                         # For other preroll, preserve the existing cached suffix.
                         if start == 0 or target is None or target[0] is not source:
                             self._remember_window_locked(start, source, request_id, weighted)
+                        self._retire_inference_locked(request_id)
                 continue
             hop /= denominator[None, :, None]
             # audio.cpp restores the track-wide mono mean to EACH source.
@@ -915,6 +929,7 @@ class StemWorker:
                     raise _Superseded
                 if source.source_format == "f32le":
                     self._remember_window_locked(start, source, request_id, weighted)
+                    self._retire_inference_locked(request_id)
                 self._chunks.append(event)
                 self._ready_high_water = max(self._ready_high_water, len(self._chunks))
                 event["ready_queue_depth"] = len(self._chunks)

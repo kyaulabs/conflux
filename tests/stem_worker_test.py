@@ -727,6 +727,43 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(suffix["samples"], expected[:, 2 * HOP:])
         self.assertEqual(fake.calls, 3)
 
+    def test_seek_reuses_reply_received_before_superseded_chunk_is_published(self):
+        raw = self.root / "seek-returned-target.f32"
+        self.audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        expected = np.concatenate([chunk["samples"] for chunk in
+                                   self.collect(reference, reference.load_f32(raw))], axis=1)
+        worker, fake = self.worker(max_ready=1)
+        received = threading.Event()
+        resume = threading.Event()
+        infer = worker._inference_for_window
+
+        def receive_window(command, source, start, preroll, **options):
+            reply = infer(command, source, start, preroll, **options)
+            if command.generation == 1 and start == HOP:
+                received.set()
+                if not resume.wait(timeout=3):
+                    raise TimeoutError("test did not resume stem reconstruction")
+            return reply
+
+        with patch.object(worker, "_inference_for_window", side_effect=receive_window):
+            original = worker.load_f32(raw)
+            self.event(worker, "chunk", original)
+            try:
+                self.assertTrue(received.wait(timeout=3))
+                frame = HOP + 17
+                latest = worker.seek(frame)
+            finally:
+                resume.set()
+            first, tail = self.collect(worker, latest)
+
+        self.assertEqual((first["request_id"], first["frame_start"]), (2, frame))
+        self.assertEqual(first["metrics"]["id"], 2)
+        self.assertFalse(first.get("inference_reused", False))
+        self.assertEqual((tail["request_id"], fake.calls), (3, 3))
+        np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
+                                      expected[:, frame:])
+
     def test_seek_retains_active_target_while_filling_missing_preroll(self):
         raw = self.root / "seek-active-target-uncached-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
