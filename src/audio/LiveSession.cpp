@@ -985,23 +985,32 @@ public:
             }
         }
         const bool masterValid = valid[0] && valid[1];
+        const bool cueValid = valid[2] && valid[3];
         if (masterValid) self.masterBuffersReady_.store(true, std::memory_order_release);
         bool cue = self.cueRouteOpen();
-        if (cue && self.ready() && rateValid && masterValid && (!valid[2] || !valid[3])) {
+        // A ready graph can temporarily lose its buffers while PipeWire
+        // renegotiates the quantum. One missing block uses the allowance
+        // until the required buffers are seen again.
+        const bool readyForQuantum = durationValid && rateValid && self.ready();
+        const bool changingQuantum = readyForQuantum &&
+            self.lastUsableQuantum_ && self.lastUsableQuantum_ != frames;
+        if (readyForQuantum)
+            self.lastUsableQuantum_ = masterValid && (!cue || cueValid) ? frames : 0;
+        if (cue && self.ready() && rateValid && masterValid && !cueValid) {
             // Initial link allocation can precede the first usable cue pair.
             // Only a pair that was actually usable can subsequently be lost.
-            if (self.cueBuffersReady_.load(std::memory_order_acquire)) {
+            if (!changingQuantum && self.cueBuffersReady_.load(std::memory_order_acquire)) {
                 self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
             }
             cue = false;
         }
-        if (cue && valid[2] && valid[3]) self.cueBuffersReady_.store(true, std::memory_order_release);
+        if (cue && cueValid) self.cueBuffersReady_.store(true, std::memory_order_release);
         std::uint64_t rendered = 0;
         bool capturedCue = false;
         const bool resumed = canRetain && self.ready() && masterValid &&
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
         if (!resumed) self.retained_.valid = false;
-        if (!durationValid || (self.ready() && !masterValid)) {
+        if (!durationValid || (self.ready() && !masterValid && !changingQuantum)) {
             ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
         } else if (!resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
@@ -1329,6 +1338,7 @@ public:
     RenderCore::Meters meters_{};
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
     RetainedOutput retained_;
+    std::uint32_t lastUsableQuantum_ = 0; // Real-time callback owned.
     // Keep the previous mapped payload intact until the new PCM is ready.
     std::array<std::array<float, scratchFrames>, 4> publishScratch_{};
     bool readersStopped_=false, detached_=false, startFailed_=false;
