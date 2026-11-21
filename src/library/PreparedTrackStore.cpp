@@ -729,7 +729,7 @@ std::optional<PreparedStemTrack> PreparedTrackStore::findPreparedStemBank(
 }
 
 PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath, const StemEngine& engine,
-                                                       std::stop_token stop, const QString& expectedSource)
+    std::stop_token stop, const QString& expectedSource, const StemInputPreview& onInput)
 {
     checkStop(stop);
     Descriptor source(open(QFile::encodeName(sourcePath).constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC));
@@ -809,8 +809,11 @@ PreparedStemTrack PreparedTrackStore::prepareStemBank(const QString& sourcePath,
             if (total > available) throw std::length_error("Prepared cache byte budget lacks complete stem-job headroom");
             Descriptor named(openat(stage.directory(), "input.f32", O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, 0600));
             if (named.get() < 0) ioError("Cannot create named stem input");
-            inputDigest = scan(input.descriptor(), inputBytes, stop, 0, named.get()).sha256;
+            const auto captured = scan(input.descriptor(), inputBytes, stop,
+                                       onInput ? inputFrames : 0, named.get(), true);
+            inputDigest = captured.sha256;
             if (fsync(named.get()) != 0) ioError("Cannot synchronize named stem input");
+            if (onInput) onInput(presentation, captured.peaks);
         } // Anonymous copy closes before raw outputs/native spools are created.
         Descriptor input(openCacheFile(stage.directory(), "input.f32"));
         const auto inputBefore = statusOf(input.get());
