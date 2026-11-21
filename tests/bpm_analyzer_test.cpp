@@ -162,6 +162,14 @@ if MODE == 'local-variable':
     events = [{'frame': frame, 'downbeat': index == 0}
               for index, frame in enumerate((12000, 36000, 54000, 70000, 84400))]
     value.update(bpm=None, beat_count=len(events))
+if MODE.startswith('support-'):
+    value['schema'] = 3
+    events = [{'frame': frame, 'downbeat': index in (0, 4), 'unmeasured_before': 2 <= index <= 5}
+              for index, frame in enumerate((4800, 28800, 52800, 76800, 100800, 124800, 148800))]
+    value['beat_count'] = len(events)
+    if MODE == 'support-missing': del events[1]['unmeasured_before']
+    if MODE == 'support-numeric': events[2]['unmeasured_before'] = 1
+    if MODE == 'support-first': events[0]['unmeasured_before'] = True
 if MODE == 'event-bool-frame': events[0]['frame'] = False
 if MODE == 'event-negative': events[0]['frame'] = -1
 if MODE == 'event-fractional': events[0]['frame'] = .5
@@ -710,11 +718,13 @@ private slots:
              "event-exponent", "event-float-spelling", "event-over-line", "missing-event", "extra-event",
              "blank-row", "unterminated", "trailing-bytes"})
             QTest::newRow(mode) << QByteArray(mode);
+        for (const auto* mode : {"support-missing", "support-numeric", "support-first"})
+            QTest::newRow(mode) << QByteArray(mode);
     }
     void invalidWorkerResults()
     {
         QFETCH(QByteArray, mode);
-        Fixture fixture(mode);
+        Fixture fixture(mode, mode.startsWith("support-") ? 172800 : Fixture::frames);
         const auto result = library::analyzeBpm(*fixture.pcm, fixture.engine);
         QCOMPARE(result.status, QString("Failed"));
         QVERIFY(!result.bpm && !result.error.isEmpty());
@@ -889,6 +899,32 @@ private slots:
             QVERIFY(!library::localTempoAt(estimate, frame));
         QCOMPARE(*estimate.bpm, 120.); // Local lookup must not rewrite the summary.
     }
+    void localTempoReportsUnknownWhereTheWorkerWithholdsSupport()
+    {
+        Fixture fixture("support-good", 172800);
+        fixture.prepareCacheIdentity();
+        const auto cache = fixture.cacheRoot();
+        for (bool cached : {false, true}) {
+            const auto estimate = library::analyzeBpmCached(*fixture.pcm, fixture.engine, cache);
+            QCOMPARE(estimate.status, QString("Estimated"));
+            QCOMPARE(estimate.cacheHit, cached);
+            QVERIFY(estimate.bpm);
+            QCOMPARE(*estimate.bpm, 120.);
+            QCOMPARE(estimate.beats.size(), std::size_t(7));
+            QVERIFY(estimate.beats[4].downbeat && estimate.beats[4].unmeasuredBefore);
+            const auto timing = library::BpmTiming(estimate);
+            for (const auto frame : {28800U, 76800U, 124799U}) {
+                QVERIFY(!library::localTempoAt(estimate, frame));
+                QVERIFY(!timing.at(frame));
+            }
+            for (const auto frame : {124800U, 4800U, 28799U}) {
+                QVERIFY(timing.at(frame));
+                QCOMPARE(timing.at(frame)->bpm, 120.);
+            }
+        }
+        QCOMPARE(fixture.invocations(), 1);
+    }
+
     void localTempoUnknownSummaryKeepsSupportedIntervals()
     {
         library::BpmEstimate estimate;
