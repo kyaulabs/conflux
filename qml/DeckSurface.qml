@@ -1100,7 +1100,7 @@ Item {
         height: 36
         text: "MASTER\nTEMPO"
         buttonObjectName: "deck" + surface.deckIndex + "MasterTempo"
-        accessibleName: surface.deckName + " Master Tempo"
+        accessibleName: surface.deckName + " Master Tempo, " + (indicatorOn ? "on" : "off")
         fontPixelSize: 9
         indicatorColor: Brand.ConfluxTheme.warning
         indicatorOn: Boolean(surface.tempoState.keyLock)
