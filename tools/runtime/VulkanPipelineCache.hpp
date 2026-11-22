@@ -35,14 +35,19 @@ public:
                 std::snprintf(uuid + index * 2, 3, "%02x", unsigned(properties.pipelineCacheUUID[index]));
             std::snprintf(name_, sizeof(name_), "%08x-%08x-%s.bin", properties.vendorID, properties.deviceID, uuid);
 
-            const auto data = load(properties);
+            Seed seed;
+            try { seed = load(properties); }
+            catch (const std::bad_alloc&) {
+                // Allocation failure must leave an empty startup cache available.
+            }
+            opened_ = seed.record;
             VkPipelineCacheCreateInfo info{};
             info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-            info.initialDataSize = data.size();
-            info.pInitialData = data.empty() ? nullptr : data.data();
+            info.initialDataSize = seed.data.size();
+            info.pInitialData = seed.data.empty() ? nullptr : seed.data.data();
             VkPipelineCache created = VK_NULL_HANDLE;
             auto status = vkCreatePipelineCache(device, &info, nullptr, &created);
-            if (status != VK_SUCCESS && !data.empty()) {
+            if (status != VK_SUCCESS && !seed.data.empty()) {
                 info.initialDataSize = 0;
                 info.pInitialData = nullptr;
                 status = vkCreatePipelineCache(device, &info, nullptr, &created);
@@ -56,27 +61,18 @@ public:
     // Called after inference and pipeline creation are finished, while the device is still live.
     void save(VkDevice device, const VkPhysicalDeviceProperties& properties) const noexcept
     {
-        if (!cache_)
+        if (!cache_ || flock(directory_, LOCK_EX | LOCK_NB) != 0)
             return;
         try {
-            std::size_t size = 0;
-            if (vkGetPipelineCacheData(device, cache_, &size, nullptr) != VK_SUCCESS ||
-                size < vulkanHeaderSize || size > payloadLimit)
-                return;
-            std::vector<unsigned char> data(size);
-            if (vkGetPipelineCacheData(device, cache_, &size, data.data()) != VK_SUCCESS || size > data.size())
-                return;
-            data.resize(size);
-            if (!matchesDevice(data, properties))
-                return;
-            const Record record{size, fingerprint(data)};
-            if (flock(directory_, LOCK_EX | LOCK_NB) == 0) {
-                publish(record, data);
-                (void)flock(directory_, LOCK_UN);
-            }
+            // Other workers can publish while this device is active. Merge
+            // their additions while holding the same lock as publication.
+            const auto current = load(properties, &opened_);
+            if (current.data.empty() || merge(device, current.data))
+                saveLocked(device, properties);
         } catch (const std::bad_alloc&) {
-            // A cache write is optional.
+            // Leave the existing cache in place if the optional save failed.
         }
+        (void)flock(directory_, LOCK_UN);
     }
 
     void destroy(VkDevice device) noexcept
@@ -95,8 +91,14 @@ private:
     struct Record {
         std::uint64_t size;
         std::uint64_t fingerprint;
+        bool operator==(const Record& other) const noexcept
+        { return size == other.size && fingerprint == other.fingerprint; }
     };
     static_assert(sizeof(Record) == 16);
+    struct Seed {
+        Record record{};
+        std::vector<unsigned char> data;
+    };
 
     static int openDirectory() noexcept
     {
@@ -153,7 +155,7 @@ private:
             std::memcmp(data.data() + 16, properties.pipelineCacheUUID, VK_UUID_SIZE) == 0;
     }
 
-    std::vector<unsigned char> load(const VkPhysicalDeviceProperties& properties) const
+    Seed load(const VkPhysicalDeviceProperties& properties, const Record* alreadyRead = nullptr) const
     {
         const int fd = openat(directory_, name_, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC);
         if (fd < 0)
@@ -163,7 +165,7 @@ private:
             close(fd);
             return {};
         }
-        std::vector<unsigned char> data;
+        Seed seed;
         try {
             struct stat info{};
             Record record{};
@@ -172,17 +174,51 @@ private:
                 info.st_size >= static_cast<off_t>(sizeof(Record) + vulkanHeaderSize) &&
                 info.st_size <= static_cast<off_t>(sizeof(Record) + payloadLimit) &&
                 std::fread(&record, sizeof(record), 1, file) == 1 &&
-                record.size == static_cast<std::uint64_t>(info.st_size) - sizeof(Record)) {
-                data.resize(record.size);
-                if (std::fread(data.data(), 1, data.size(), file) != data.size() ||
-                    !matchesDevice(data, properties) || fingerprint(data) != record.fingerprint)
-                    data.clear();
+                record.size == static_cast<std::uint64_t>(info.st_size) - sizeof(Record) &&
+                (!alreadyRead || !(record == *alreadyRead))) {
+                seed.data.resize(record.size);
+                if (std::fread(seed.data.data(), 1, seed.data.size(), file) == seed.data.size() &&
+                    matchesDevice(seed.data, properties) && fingerprint(seed.data) == record.fingerprint) {
+                    seed.record = record;
+                } else {
+                    seed.data.clear();
+                }
             }
-        } catch (const std::bad_alloc&) {
-            data.clear();
+        } catch (...) {
+            std::fclose(file);
+            throw;
         }
         std::fclose(file);
-        return data;
+        return seed;
+    }
+
+    bool merge(VkDevice device, const std::vector<unsigned char>& data) const noexcept
+    {
+        VkPipelineCacheCreateInfo info{};
+        info.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+        info.initialDataSize = data.size();
+        info.pInitialData = data.data();
+        VkPipelineCache previous = VK_NULL_HANDLE;
+        if (vkCreatePipelineCache(device, &info, nullptr, &previous) != VK_SUCCESS)
+            return false;
+
+        const auto status = vkMergePipelineCaches(device, cache_, 1, &previous);
+        vkDestroyPipelineCache(device, previous, nullptr);
+        return status == VK_SUCCESS;
+    }
+
+    void saveLocked(VkDevice device, const VkPhysicalDeviceProperties& properties) const
+    {
+        std::size_t size = 0;
+        if (vkGetPipelineCacheData(device, cache_, &size, nullptr) != VK_SUCCESS ||
+            size < vulkanHeaderSize || size > payloadLimit)
+            return;
+        std::vector<unsigned char> data(size);
+        if (vkGetPipelineCacheData(device, cache_, &size, data.data()) != VK_SUCCESS || size > data.size())
+            return;
+        data.resize(size);
+        if (matchesDevice(data, properties))
+            publish({size, fingerprint(data)}, data);
     }
 
     void publish(const Record& record, const std::vector<unsigned char>& data) const noexcept
@@ -208,6 +244,7 @@ private:
     }
 
     std::once_flag initialize_;
+    Record opened_{};
     VkPipelineCache cache_ = VK_NULL_HANDLE;
     int directory_ = -1;
     char name_[64]{};
