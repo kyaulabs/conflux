@@ -20,6 +20,7 @@
 namespace conflux::audio {
 namespace {
 constexpr std::uint64_t frameBytes = 2U * sizeof(float);
+constexpr std::size_t continuationPrerollFrames = 1000;
 constexpr auto maximumSerial = std::numeric_limits<std::uint64_t>::max() / 2U;
 static_assert(sizeof(float) == 4 && std::numeric_limits<float>::is_iec559);
 static_assert(sizeof(double) == sizeof(std::uint64_t));
@@ -132,13 +133,18 @@ public:
         requestEnabled_.store(ownerEnabled_, std::memory_order_seq_cst);
         requestVersion_.store(ownerSerial_ * 2U, std::memory_order_seq_cst);
     }
-    bool requestAt(double position, double percent, bool keyLock) noexcept
+    bool requestAt(double position, double percent, bool keyLock, bool continuation) noexcept
     {
-        if (stream_.read || !std::isfinite(position) || position < 0 || position > double(frames_)) return false;
-        return request(std::uint64_t(position),percent,keyLock,0,0,position);
+        if (stream_.read || !std::isfinite(position) || position < 0 || position > double(frames_) ||
+            !validPercent(percent)) return false;
+        const auto frame = std::uint64_t(position);
+        const auto earlier = std::uint64_t(std::lround(continuationPrerollFrames * (1 + percent / 100.)));
+        const bool warm = continuation && keyLock && percent != 0 && frame >= earlier && frame < frames_;
+        return request(frame, percent, keyLock, 0, 0, position, warm ? earlier : 0);
     }
     bool request(std::uint64_t frame, double percent, bool keyLock,
-                 std::uint64_t loopIn, std::uint64_t loopOut, double position) noexcept
+                 std::uint64_t loopIn, std::uint64_t loopOut, double position,
+                 std::uint64_t inputPreroll = 0) noexcept
     {
         if (stream_.read && loopOut && !stream_.allowLoops) return false;
         if (stream_.cacheLoop && (frame != 0 || loopIn != 0 || loopOut != frames_)) return false;
@@ -153,7 +159,7 @@ public:
         // worker can observe a newer generation or recycle stale slots.
         ownerEnabled_ = false;
         offset_ = 0;
-        ownerFrame_ = frame;
+        ownerFrame_ = frame - inputPreroll;
         ownerStartPosition_ = position;
         ownerLoopIn_ = loopIn;
         ownerLoopOut_ = loopOut;
@@ -486,7 +492,7 @@ private:
         long double nominal = 0;
         int terminalError = 0;
         bool terminalPending = false, generationDone = true;
-        std::size_t partialFrames = 0;
+        std::size_t partialFrames = 0, continuationDiscard = 0;
         std::size_t warmupFrames = 0, periodFrames = 0, generatedFrames = 0, capturedFrames = 0;
         std::uint64_t firstGenerationSlot = 0;
         bool livePitchLock = false;
@@ -558,6 +564,10 @@ private:
                 livePitchLock = stream_.read && !stream_.allowLoops && leafCount_ == maximumLeaves &&
                     request.keyLock && request.initialPercent != 0;
                 nextFrame = request.frame;
+                // The worker reads the earlier input, while every published
+                // frame and the owner cursor still start at the requested join.
+                continuationDiscard = request.frame < std::uint64_t(request.nominalStart)
+                    ? continuationPrerollFrames : 0;
                 inputFrames = inputOffset = stagedInput = 0;
                 nominal = static_cast<long double>(request.nominalStart);
                 desiredPercent = appliedPercent = request.initialPercent;
@@ -706,6 +716,9 @@ private:
                 }
                 continue;
             }
+            const auto preroll = std::min(produced, continuationDiscard);
+            continuationDiscard -= preroll;
+            produced -= preroll;
             if (!produced && !terminalPending) continue;
             if (!produced) {
                 if (!terminalError && partialFrames) {
@@ -737,7 +750,7 @@ private:
                 for (std::size_t frame = 0; frame < produced; ++frame)
                     for (std::size_t channel = 0; channel < 2U; ++channel)
                         slot.leaves[leaf][(partialFrames + frame) * 2U + channel] =
-                            output[frame * channels + leaf * 2U + channel];
+                            output[(preroll + frame) * channels + leaf * 2U + channel];
             partialFrames += produced;
             nominal = mapPosition(nominal + static_cast<long double>(produced) * slot.nominalStep,
                                   request.loopIn, request.loopOut);
@@ -785,8 +798,8 @@ PreparedTempoSource::~PreparedTempoSource() = default;
 bool PreparedTempoSource::request(std::uint64_t frame, double percent, bool keyLock,
                                   std::uint64_t loopIn, std::uint64_t loopOut) noexcept
 { return impl_->request(frame, percent, keyLock, loopIn, loopOut, double(frame)); }
-bool PreparedTempoSource::requestAt(double position, double percent, bool keyLock) noexcept
-{ return impl_->requestAt(position,percent,keyLock); }
+bool PreparedTempoSource::requestAt(double position, double percent, bool keyLock, bool continuation) noexcept
+{ return impl_->requestAt(position, percent, keyLock, continuation); }
 bool PreparedTempoSource::requestSpeed(double percent) noexcept { return impl_->requestSpeed(percent); }
 bool PreparedTempoSource::outputConfigurationCurrent() const noexcept { return impl_->outputConfigurationCurrent(); }
 bool PreparedTempoSource::cancel() noexcept { return impl_->cancel(); }

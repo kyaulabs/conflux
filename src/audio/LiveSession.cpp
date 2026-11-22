@@ -22,10 +22,12 @@
 #include <limits>
 #include <map>
 #include <mutex>
+#include <new>
 #include <stdexcept>
 #include <string_view>
 #include <utility>
 #include <type_traits>
+#include <vector>
 
 namespace conflux::audio {
 namespace {
@@ -526,6 +528,26 @@ public:
         });
     }
 
+    // PipeWire adds and removes buffers on the control loop. Size the
+    // staging for each large negotiated plane before the callback uses it.
+    static void addOutputBuffer(void*, void*, pw_buffer* buffer) noexcept
+    {
+        if (!buffer->buffer || buffer->buffer->n_datas != 1) return;
+        const auto capacity = buffer->buffer->datas[0].maxsize / sizeof(float);
+        if (capacity <= scratchFrames) return;
+        try {
+            buffer->user_data = new std::vector<float>(capacity);
+        } catch (const std::bad_alloc&) {
+            // An unstageable output follows the existing buffer-fault path.
+        }
+    }
+
+    static void removeOutputBuffer(void*, void*, pw_buffer* buffer) noexcept
+    {
+        delete static_cast<std::vector<float>*>(buffer->user_data);
+        buffer->user_data = nullptr;
+    }
+
     // Event tables must outlive listener registration.
     static const pw_node_events& nodeEvents() { static const auto value = [] { pw_node_events v{}; v.version=PW_VERSION_NODE_EVENTS; v.info=nodeInfo; return v; }(); return value; }
     static const pw_port_events& portEvents() { static const auto value = [] { pw_port_events v{}; v.version=PW_VERSION_PORT_EVENTS; v.info=portInfo; return v; }(); return value; }
@@ -535,7 +557,19 @@ public:
     static const pw_metadata_events& metadataEvents() { static const auto value = [] { pw_metadata_events v{}; v.version=PW_VERSION_METADATA_EVENTS; v.property=metadataProperty; return v; }(); return value; }
     static const pw_registry_events& registryEvents() { static const auto value = [] { pw_registry_events v{}; v.version=PW_VERSION_REGISTRY_EVENTS; v.global=global; v.global_remove=globalRemove; return v; }(); return value; }
     static const pw_core_events& coreEvents() { static const auto value = [] { pw_core_events v{}; v.version=PW_VERSION_CORE_EVENTS; v.done=coreDone; v.error=coreError; return v; }(); return value; }
-    static const pw_filter_events& filterEvents() { static const auto value = [] { pw_filter_events v{}; v.version=PW_VERSION_FILTER_EVENTS; v.state_changed=filterState; v.process=process; return v; }(); return value; }
+    static const pw_filter_events& filterEvents()
+    {
+        static const auto value = [] {
+            pw_filter_events events{};
+            events.version = PW_VERSION_FILTER_EVENTS;
+            events.state_changed = filterState;
+            events.add_buffer = addOutputBuffer;
+            events.remove_buffer = removeOutputBuffer;
+            events.process = process;
+            return events;
+        }();
+        return value;
+    }
 
     RoutingSnapshot collectRouting() const
     {
@@ -919,7 +953,7 @@ public:
         const bool rateValid = position && clock.rateNum &&
             std::uint64_t(clock.rateDenom) == std::uint64_t(clock.rateNum) * RenderCore::sampleRate;
         const bool canRetain = rateValid && frames && frames <= scratchFrames;
-        if (canRetain && callbackExpired(position->clock, clock)) {
+        if (durationValid && callbackExpired(position->clock, clock)) {
             const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now() - began).count();
             self.timing_.observe(static_cast<std::uint64_t>(elapsed), 0, &clock);
             return;
@@ -938,30 +972,45 @@ public:
             auto& plane = buffer->buffer->datas[0];
             if (frames && plane.data && plane.chunk && frames <= plane.maxsize / sizeof(float) &&
                 reinterpret_cast<std::uintptr_t>(plane.data) % alignof(float) == 0) {
+                if (frames <= scratchFrames) {
+                    outputs[index] = self.publishScratch_[index].data();
+                } else {
+                    auto* staged = static_cast<std::vector<float>*>(buffer->user_data);
+                    if (!staged || frames > staged->size()) continue;
+                    outputs[index] = staged->data();
+                }
                 mapped[index] = static_cast<float*>(plane.data);
-                outputs[index] = canRetain ? self.publishScratch_[index].data() : mapped[index];
                 valid[index] = true;
                 std::fill_n(outputs[index], frames, 0.F);
             }
         }
         const bool masterValid = valid[0] && valid[1];
+        const bool cueValid = valid[2] && valid[3];
         if (masterValid) self.masterBuffersReady_.store(true, std::memory_order_release);
         bool cue = self.cueRouteOpen();
-        if (cue && self.ready() && rateValid && masterValid && (!valid[2] || !valid[3])) {
+        // A ready graph can temporarily lose its buffers while PipeWire
+        // renegotiates the quantum. One missing block uses the allowance
+        // until the required buffers are seen again.
+        const bool readyForQuantum = durationValid && rateValid && self.ready();
+        const bool changingQuantum = readyForQuantum &&
+            self.lastUsableQuantum_ && self.lastUsableQuantum_ != frames;
+        if (readyForQuantum)
+            self.lastUsableQuantum_ = masterValid && (!cue || cueValid) ? frames : 0;
+        if (cue && self.ready() && rateValid && masterValid && !cueValid) {
             // Initial link allocation can precede the first usable cue pair.
             // Only a pair that was actually usable can subsequently be lost.
-            if (self.cueBuffersReady_.load(std::memory_order_acquire)) {
+            if (!changingQuantum && self.cueBuffersReady_.load(std::memory_order_acquire)) {
                 self.cueGate_.store(CueGate::BufferFault, std::memory_order_release);
             }
             cue = false;
         }
-        if (cue && valid[2] && valid[3]) self.cueBuffersReady_.store(true, std::memory_order_release);
+        if (cue && cueValid) self.cueBuffersReady_.store(true, std::memory_order_release);
         std::uint64_t rendered = 0;
         bool capturedCue = false;
         const bool resumed = canRetain && self.ready() && masterValid &&
             self.restoreOutput(clock, frames, outputs, cue, replacementPending);
         if (!resumed) self.retained_.valid = false;
-        if (!durationValid || (self.ready() && !masterValid)) {
+        if (!durationValid || (self.ready() && !masterValid && !changingQuantum)) {
             ++self.invalidBuffers_; self.bufferFault_.store(true, std::memory_order_relaxed);
         } else if (!resumed && self.ready() && rateValid && masterValid) {
             self.consumeCommands(); self.meters_ = {};
@@ -1075,8 +1124,8 @@ public:
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
 
-        const bool expired = canRetain && callbackExpired(position->clock, clock);
-        if (expired && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
+        const bool expired = durationValid && callbackExpired(position->clock, clock);
+        if (expired && canRetain && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
             // The recorder and source clocks already own this render. Reuse
             // its samples at the next valid callback without advancing them.
             self.retained_.clock = clock;
@@ -1097,7 +1146,7 @@ public:
                     chunk->flags = SPA_CHUNK_FLAG_NONE;
                     chunk->size = 0;
                     if (valid[index] && !expired) {
-                        if (canRetain) std::copy_n(outputs[index], frames, mapped[index]);
+                        std::copy_n(outputs[index], frames, mapped[index]);
                         chunk->size = frames * sizeof(float);
                         buffer->size = frames;
                     }
@@ -1289,6 +1338,7 @@ public:
     RenderCore::Meters meters_{};
     std::array<float,scratchFrames*2> masterScratch_{},cueScratch_{};
     RetainedOutput retained_;
+    std::uint32_t lastUsableQuantum_ = 0; // Real-time callback owned.
     // Keep the previous mapped payload intact until the new PCM is ready.
     std::array<std::array<float, scratchFrames>, 4> publishScratch_{};
     bool readersStopped_=false, detached_=false, startFailed_=false;
