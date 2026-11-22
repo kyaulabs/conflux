@@ -1097,6 +1097,34 @@ ApplicationWindow {
             const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(function(key) { return key.length > 0 })
             return keys.every(function(key, index) { return keys.indexOf(key) === index })
         }
+        readonly property bool selectedPortsAvailable: optionIndex(masterOptions, masterLeft) >= 0
+                                                      && optionIndex(masterOptions, masterRight) >= 0
+                                                      && optionIndex(cueOptions, cueLeft) >= 0
+                                                      && optionIndex(cueOptions, cueRight) >= 0
+        component OutputPortPicker: ComboBox {
+            id: picker
+            Layout.fillWidth: true
+            Layout.minimumHeight: 40
+            textRole: "label"
+            delegate: Component {
+                ItemDelegate {
+                    id: option
+                    required property int index
+                    required property var modelData
+                    width: picker.width
+                    highlighted: picker.highlightedIndex === index
+                    text: modelData.label
+                    contentItem: Text {
+                        text: option.text
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        verticalAlignment: Text.AlignVCenter
+                        font: picker.font
+                        color: option.highlighted ? option.palette.highlightedText : option.palette.text
+                    }
+                }
+            }
+        }
         function optionIndex(options, key) {
             for (let i = 0; i < options.length; ++i)
                 if (options[i].key === key) return i
@@ -1166,44 +1194,32 @@ ApplicationWindow {
                         rowSpacing: 8
                         Layout.fillWidth: true
                         Label { text: "MASTER LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "masterLeftPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.masterOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.masterLeft)
                             onActivated: function(index) { audioSettings.masterLeft = model[index].key }
                             Accessible.name: "Master left playback port"
                         }
                         Label { text: "MASTER RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "masterRightPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.masterOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.masterRight)
                             onActivated: function(index) { audioSettings.masterRight = model[index].key }
                             Accessible.name: "Master right playback port"
                         }
                         Label { text: "CUE LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "cueLeftPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.cueOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.cueLeft)
                             onActivated: function(index) { audioSettings.cueLeft = model[index].key }
                             Accessible.name: "Headphone cue left playback port"
                         }
                         Label { text: "CUE RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "cueRightPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.cueOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.cueRight)
                             onActivated: function(index) { audioSettings.cueRight = model[index].key }
@@ -1212,9 +1228,10 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "routingValidation"
-                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts
+                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts || !audioSettings.selectedPortsAvailable
                         text: !audioSettings.completePairs ? "Select both channels of each pair, or leave both empty."
-                                                          : "Master and cue must use distinct playback ports."
+                             : !audioSettings.distinctPorts ? "Master and cue must use distinct playback ports."
+                                                          : "An output is unavailable. Select another playback port."
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.accent
                         Layout.fillWidth: true
@@ -1234,7 +1251,7 @@ ApplicationWindow {
                             text: "APPLY OUTPUTS"
                             Layout.minimumHeight: 44
                             enabled: !deckController.busy && !deckController.recording.active
-                                     && audioSettings.completePairs && audioSettings.distinctPorts
+                                     && audioSettings.completePairs && audioSettings.distinctPorts && audioSettings.selectedPortsAvailable
                             onClicked: deckController.configureAudioRouting(audioSettings.masterLeft, audioSettings.masterRight,
                                                                            audioSettings.cueLeft, audioSettings.cueRight)
                             Accessible.name: "Apply master and headphone cue outputs"

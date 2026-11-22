@@ -423,9 +423,9 @@ void runStemController(const std::filesystem::path& output, const QString& fixtu
     wait([&] {
         for (const auto& value : controller.audioRouting()["ports"].toList()) {
             const auto port = value.toMap();
-            const auto prefix = QString::fromStdString(sink.name()) + " · input_";
-            if (port["label"].toString() == prefix + "0 [FL]") left = port["key"].toString();
-            if (port["label"].toString() == prefix + "1 [FR]") right = port["key"].toString();
+            if (port["nodeName"].toString() != QString::fromStdString(sink.name())) continue;
+            if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
+            if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
         }
         return !left.isEmpty() && !right.isEmpty() && controller.libraryReady();
     }, "Stem controller private routing/library discovery timed out");
@@ -983,9 +983,9 @@ void runScratchController(const std::filesystem::path& output, const QString& a,
     wait([&] {
         for (const auto& value : controller.audioRouting()["ports"].toList()) {
             const auto port = value.toMap();
-            const auto prefix = QString::fromStdString(sink.name()) + " · input_";
-            if (port["label"].toString() == prefix + "0 [FL]") left = port["key"].toString();
-            if (port["label"].toString() == prefix + "1 [FR]") right = port["key"].toString();
+            if (port["nodeName"].toString() != QString::fromStdString(sink.name())) continue;
+            if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
+            if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
         }
         return !left.isEmpty() && !right.isEmpty();
     }, "Scratch controller private routing discovery timed out");
@@ -1148,9 +1148,10 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             const auto port = value.toMap();
             for (std::size_t bus = 0; bus < 2; ++bus)
                 for (std::size_t channel = 0; channel < 2; ++channel) {
-                    const auto label = QString::fromStdString(bus ? cue.name() : master.name()) +
-                        QString(" · input_%1 [%2]").arg(int(channel)).arg(channel ? "FR" : "FL");
-                    if (port["label"].toString() == label) ports[bus * 2 + channel] = port["key"].toString();
+                    if (port["nodeName"].toString() == QString::fromStdString(bus ? cue.name() : master.name()) &&
+                        port["portName"].toString() == QString("input_%1").arg(channel) &&
+                        port["channel"].toString() == (channel ? "FR" : "FL"))
+                        ports[bus * 2 + channel] = port["key"].toString();
                 }
         }
         return std::all_of(ports.begin(), ports.end(), [](const auto& port) { return !port.isEmpty(); });
@@ -1513,9 +1514,9 @@ void privateLivePair(conflux::DeckController& controller, Sink& sink, QString& l
     wait([&] {
         for (const auto& value : controller.audioRouting()["ports"].toList()) {
             const auto port = value.toMap();
-            const auto prefix = QString::fromStdString(sink.name()) + " · input_";
-            if (port["label"].toString() == prefix + "0 [FL]") left = port["key"].toString();
-            if (port["label"].toString() == prefix + "1 [FR]") right = port["key"].toString();
+            if (port["nodeName"].toString() != QString::fromStdString(sink.name())) continue;
+            if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
+            if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
         }
         return !left.isEmpty() && !right.isEmpty() && controller.libraryReady();
     }, "Live controller private routing/library did not become ready");
@@ -3393,10 +3394,9 @@ int main(int argc, char** argv)
         wait([&] {
             for (const auto& value : controller.audioRouting()["ports"].toList()) {
                 const auto port = value.toMap();
-                const auto label = port["label"].toString();
-                const auto prefix = QString::fromStdString(sink.name()) + " · input_";
-                if (label == prefix + "0 [FL]") left = port["key"].toString();
-                if (label == prefix + "1 [FR]") right = port["key"].toString();
+                if (port["nodeName"].toString() != QString::fromStdString(sink.name())) continue;
+                if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
+                if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
             }
             return !left.isEmpty() && !right.isEmpty();
         }, "Private stereo sink discovery timed out");
