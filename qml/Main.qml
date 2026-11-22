@@ -1106,6 +1106,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.minimumHeight: 40
             textRole: "label"
+            Accessible.description: currentIndex < 0 ? qsTr("Selected playback port is unavailable") : currentText
             delegate: Component {
                 ItemDelegate {
                     id: option
