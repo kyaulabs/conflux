@@ -899,6 +899,41 @@ private slots:
             QVERIFY(!library::localTempoAt(estimate, frame));
         QCOMPARE(*estimate.bpm, 120.); // Local lookup must not rewrite the summary.
     }
+    void localBarUsesClosedMeasuredDownbeatRanges()
+    {
+        library::BpmEstimate estimate;
+        estimate.analysisFrames = 384000;
+        estimate.beats = {{16000, false}, {24000, true}, {48000, false}, {71000, false}, {93000, false},
+            {114000, true}, {132000, false}, {149000, false}, {167000, true},
+            {187000, false, true}, {207000, false}, {227000, true},
+            {230000, false}, {248000, false}, {270000, true}, {292000, true},
+            {312000, false}, {336000, true}, {356000, false}};
+        const auto timing = library::BpmTiming(estimate);
+        struct Expected {
+            std::uint32_t frame, first, end, beat, beats;
+        };
+        for (const auto row : {Expected{335999, 292000, 336000, 2, 2}, Expected{24000, 24000, 114000, 1, 4},
+                               Expected{71000, 24000, 114000, 3, 4}, Expected{113999, 24000, 114000, 4, 4},
+                               Expected{114000, 114000, 167000, 1, 3}, Expected{149000, 114000, 167000, 3, 3},
+                               Expected{292000, 292000, 336000, 1, 2}}) {
+            const auto bar = timing.barAt(row.frame);
+            QVERIFY(bar);
+            QCOMPARE(bar->firstFrame, row.first);
+            QCOMPARE(bar->endFrame, row.end);
+            QCOMPARE(bar->beat, row.beat);
+            QCOMPARE(bar->beats, row.beats);
+        }
+        for (const auto frame : {0U, 23999U, 167000U, 187000U, 226999U, 227000U, 230000U,
+                                 270000U, 291999U, 336000U, 384000U})
+            QVERIFY(!timing.barAt(frame));
+        // A measured beat can still be usable when the enclosing bar is unknown.
+        QVERIFY(timing.at(187000));
+        QVERIFY(timing.at(230000));
+        QVERIFY(timing.at(336000));
+        estimate.beats.back().frame = estimate.beats.front().frame;
+        QVERIFY(!library::BpmTiming(std::move(estimate)).barAt(24000));
+    }
+
     void localTempoReportsUnknownWhereTheWorkerWithholdsSupport()
     {
         Fixture fixture("support-good", 172800);

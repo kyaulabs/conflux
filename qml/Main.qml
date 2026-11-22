@@ -399,6 +399,9 @@ ApplicationWindow {
                     sourceBpm = "Estimated source BPM " + estimate.toFixed(1)
                 if (surface.localKeyText)
                     estimates.push(surface.deckName + " playback " + surface.localKeyText)
+                const bar = (surface.deck.localTiming || ({})).bar
+                estimates.push(surface.deckName + (bar && bar.beat > 0
+                    ? " bar estimate, beat " + bar.beat + " of " + bar.beats : " bar unknown"))
             }
             if (sourceBpm)
                 estimates.unshift(sourceBpm)

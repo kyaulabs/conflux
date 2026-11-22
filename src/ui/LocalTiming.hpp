@@ -40,7 +40,8 @@ inline QVariantMap localTimingForDisplay(const library::BpmTiming& timing, doubl
     const auto& estimate = timing.estimate();
     QVariantMap result{{"status", "Unknown"}, {"bpm", 0.}, {"confidence", "Unknown"},
         {"positionKnown", false}, {"sourceFrame", qulonglong(0)},
-        {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(0)}, {"resident", hold.active}};
+        {"firstFrame", qulonglong(0)}, {"endFrame", qulonglong(0)}, {"resident", hold.active},
+        {"bar", QVariantMap{}}};
     if ((estimate.status != "Estimated" && estimate.status != "Unknown") ||
         estimate.pcmSha256.size() != 64 || !estimate.analysisFrames ||
         estimate.analysisFrames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U)
@@ -54,6 +55,10 @@ inline QVariantMap localTimingForDisplay(const library::BpmTiming& timing, doubl
         result["bpm"] = interval->bpm;
         result["firstFrame"] = QVariant::fromValue<qulonglong>(interval->firstFrame);
         result["endFrame"] = QVariant::fromValue<qulonglong>(interval->endFrame);
+        if (const auto bar = timing.barAt(*frame)) {
+            result["bar"] = QVariantMap{{"firstFrame", bar->firstFrame}, {"endFrame", bar->endFrame},
+                {"beat", bar->beat}, {"beats", bar->beats}};
+        }
     }
     return result;
 }
