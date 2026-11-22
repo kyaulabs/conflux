@@ -152,6 +152,35 @@ class AnalyzeBpmTest(unittest.TestCase):
         tail[:, 0] = 0.
         self.assertEqual(cores(), [])
 
+    def test_dither_padding_at_either_edge_preserves_quiet_music(self):
+        import numpy as np
+
+        edge = bpm.MIN_INTERIOR_SILENCE + 131
+        rng = np.random.default_rng(882149)
+        signal = np.zeros((2 * edge + bpm.RATE, 2), dtype="<f4")
+        for padding in (signal[:edge], signal[-edge:]):
+            padding[:] = bpm.DITHER_FLOOR * (rng.random(padding.shape) - rng.random(padding.shape))
+        # Activity begins in different channels on the two sides.
+        signal[edge, 0] = .035
+        signal[edge + 1:-edge - 1, :] = .035
+        signal[-edge - 1, 1] = -.035
+        self.assertEqual(bpm.dither_edge_length(signal), edge)
+        self.assertEqual(bpm.dither_edge_length(signal[::-1]), edge)
+
+        # A sub-floor but coherent stereo fade is still music.
+        t = np.arange(edge) / bpm.RATE
+        fade = .7 * bpm.DITHER_FLOOR * np.sin(2 * np.pi * 73 * t) * ((t + .25) / (t[-1] + .25))
+        signal[:edge, 0] = fade
+        self.assertEqual(bpm.dither_edge_length(signal), 0)
+        self.assertEqual(bpm.dither_edge_length(signal[::-1]), edge)
+
+        # Sparse spikes cannot validate an adjacent dither-like prefix.
+        candidate = np.zeros((edge + bpm.RATE, 2), dtype="<f4")
+        candidate[:edge] = signal[-edge:]
+        candidate[edge, 0] = .8
+        self.assertEqual(bpm.dither_edge_length(candidate), 0)
+        self.assertEqual(bpm.dither_edge_length(candidate[:edge]), 0)
+
     def test_unknown_and_median_of_adjacent_bpms(self):
         self.assertEqual(bpm.summarize_beats([], 144000), (None, 0))
         self.assertEqual(bpm.summarize_beats([.5], 144000), (None, 1))
