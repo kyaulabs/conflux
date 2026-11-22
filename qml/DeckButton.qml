@@ -24,6 +24,7 @@ Item {
     property int pendingCancelGeneration: -1
     property bool available: true
     property bool round: false
+    property bool accessibleToggle: false
     property bool indicatorOn: false
     property color indicatorColor: "transparent"
     property int fontPixelSize: round ? 14 : 11
@@ -32,6 +33,12 @@ Item {
     signal released()
     signal canceled()
 
+    function activateAccessibleToggle() {
+        if (!available || physicalPress)
+            return
+        beginPress()
+        finishPress(false)
+    }
     function finishPendingCancel() {
         if (physicalPress && pendingCancelGeneration === pressGeneration)
             finishPress(true)
@@ -95,7 +102,7 @@ Item {
     implicitWidth: round ? 56 : 64
     implicitHeight: round ? 56 : 44
 
-    Button {
+    CheckBox {
         id: face
         anchors.fill: parent
         objectName: control.buttonObjectName
@@ -103,8 +110,20 @@ Item {
         enabled: control.available
         hoverEnabled: true
         opacity: enabled ? 1 : 0.46
+        indicator: null
+        checkable: control.accessibleToggle
+        Accessible.checkable: control.accessibleToggle
+        checked: control.accessibleToggle && control.indicatorOn
+        // The engine acknowledges changes through indicatorOn.
+        nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
+        // Qt 6.4's default accessibility action writes checked directly.
+        Connections {
+            target: control.accessibleToggle ? face.Accessible : null
+            function onPressAction() { control.activateAccessibleToggle() }
+            function onToggleAction() { control.activateAccessibleToggle() }
+        }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
         onReleased: { if (control.touchContactId < 0) control.finishPress(false) }

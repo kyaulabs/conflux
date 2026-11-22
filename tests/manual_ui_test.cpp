@@ -4200,7 +4200,9 @@ private slots:
             QVERIFY(!lock->parentItem()->property("indicatorOn").toBool());
             auto* accessibleLock = QAccessible::queryAccessibleInterface(lock);
             QVERIFY(accessibleLock);
-            QCOMPARE(accessibleLock->role(), QAccessible::Button);
+            QCOMPARE(accessibleLock->role(), QAccessible::CheckBox);
+            QVERIFY(accessibleLock->state().checkable);
+            QVERIFY(!accessibleLock->state().checked);
             const QString lockName = deck == 0 ? "Deck A Master Tempo" : "Deck B Master Tempo";
             QCOMPARE(accessibleLock->text(QAccessible::Name), lockName + ", off");
             QVERIFY(reset->isEnabled());
@@ -4221,12 +4223,14 @@ private slots:
             verifyCueCall(count, "masterTempo", deck);
             QVERIFY(!lock->parentItem()->property("indicatorOn").toBool());
             QCOMPARE(accessibleLock->text(QAccessible::Name), lockName + ", off");
+            QVERIFY(!accessibleLock->state().checked);
             QCOMPARE(ui_->endpoint.decks(), before);
             tempo["percent"] = -2.0; tempo["keyLock"] = true; tempo["pending"] = true;
             ui_->endpoint.snapshotTempo(deck, tempo);
             QTRY_COMPARE(rail->property("value").toDouble(), 117.6);
             QVERIFY(lock->parentItem()->property("indicatorOn").toBool());
             QTRY_COMPARE(accessibleLock->text(QAccessible::Name), lockName + ", on");
+            QVERIFY(accessibleLock->state().checked);
             QCOMPARE(status->property("text").toString(), QString("PENDING"));
             QVERIFY(rail->isEnabled() && lock->isEnabled()); // Pending input configuration accepts another request.
             rail->forceActiveFocus();
@@ -4251,8 +4255,26 @@ private slots:
             QCOMPARE(value->property("text").toString(), QString("120.0"));
             QVERIFY(lock->parentItem()->property("indicatorOn").toBool());
             QTRY_COMPARE(accessibleLock->text(QAccessible::Name), lockName + ", on");
+            QVERIFY(accessibleLock->state().checked);
             QCOMPARE(status->property("text").toString(), QString("ORIGINAL"));
             QCOMPARE(ui_->endpoint.decks()[deck].toMap()["bpm"], beforeReset[deck].toMap()["bpm"]);
+
+            auto* lockAction = accessibleLock->actionInterface();
+            QVERIFY(lockAction);
+            const auto toggle = QAccessibleActionInterface::toggleAction();
+            const auto press = QAccessibleActionInterface::pressAction();
+            for (const auto& action : {toggle, press}) {
+                QVERIFY(lockAction->actionNames().contains(action));
+                const bool acknowledged = tempo["keyLock"].toBool();
+                count = ui_->endpoint.calls.size();
+                lockAction->doAction(action);
+                QTRY_COMPARE(ui_->endpoint.calls.size(), count + 1);
+                verifyCueCall(count, "masterTempo", deck);
+                QCOMPARE(bool(accessibleLock->state().checked), acknowledged);
+                tempo["keyLock"] = !acknowledged;
+                ui_->endpoint.snapshotTempo(deck, tempo);
+                QTRY_COMPARE(bool(accessibleLock->state().checked), !acknowledged);
+            }
         }
         for (const auto& value : ui_->endpoint.calls) {
             const auto action = value.toMap()["action"].toString();
