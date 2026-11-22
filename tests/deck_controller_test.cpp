@@ -1327,6 +1327,62 @@ private slots:
         QCOMPARE(reopened.submittedCommands(), commands);
     }
 
+    void manualBpmFollowsSavedContentAcrossDecksAndRestart()
+    {
+        QTemporaryDir directory, runtime;
+        QVERIFY(directory.isValid() && runtime.isValid());
+        RestoreEnvironment restore;
+        isolateLiveController(directory.path(), runtime.path());
+        const auto path = directory.filePath("bpm-reference.wav");
+        QVERIFY(writeWave(path, 2, 48000, 24000));
+        QString sourceId;
+        const auto bpm = [](const conflux::DeckController& controller, int deck) {
+            return controller.decks()[deck].toMap()["bpm"].toMap();
+        };
+        {
+            conflux::DeckController controller;
+            QTRY_VERIFY_WITH_TIMEOUT(controller.libraryReady(), 5000);
+            controller.importTrack(QUrl::fromLocalFile(path));
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QCOMPARE(controller.libraryTracks().size(), qsizetype(1));
+            sourceId = controller.libraryTracks().front().toMap()["id"].toString();
+            controller.loadLibraryTrack(0, sourceId);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QVERIFY(controller.decks()[0].toMap()["loaded"].toBool());
+            const auto before = controller.submittedCommands();
+            controller.setBpmOverride(0, 128.4);
+            QTRY_VERIFY_WITH_TIMEOUT(!controller.busy(), 5000);
+            QVERIFY2(controller.libraryError().isEmpty(), qPrintable(controller.libraryError()));
+            QCOMPARE(bpm(controller, 0)["reference"].toDouble(), 128.4);
+            QCOMPARE(controller.submittedCommands(), before);
+        }
+        {
+            conflux::DeckController reopened;
+            QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+            reopened.loadLibraryTrack(1, sourceId);
+            QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+            QVERIFY(reopened.decks()[1].toMap()["loaded"].toBool());
+            QCOMPARE(bpm(reopened, 1)["reference"].toDouble(), 128.4);
+            QVERIFY(bpm(reopened, 1)["manual"].toBool());
+            reopened.loadDeck(0, QUrl::fromLocalFile(path));
+            QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+            QCOMPARE(bpm(reopened, 0)["reference"].toDouble(), 128.4);
+            const auto before = reopened.submittedCommands();
+            reopened.clearBpmOverride(0);
+            QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+            QVERIFY2(reopened.libraryError().isEmpty(), qPrintable(reopened.libraryError()));
+            QVERIFY(!bpm(reopened, 0)["manual"].toBool());
+            QVERIFY(!bpm(reopened, 1)["manual"].toBool());
+            QCOMPARE(reopened.submittedCommands(), before);
+        }
+        conflux::DeckController reopened;
+        QTRY_VERIFY_WITH_TIMEOUT(reopened.libraryReady(), 5000);
+        reopened.loadLibraryTrack(0, sourceId);
+        QTRY_VERIFY_WITH_TIMEOUT(!reopened.busy(), 5000);
+        QVERIFY(reopened.decks()[0].toMap()["loaded"].toBool());
+        QVERIFY(!bpm(reopened, 0)["manual"].toBool());
+    }
+
     void legacyLevelsStayUnknownOnLoadAndRefreshOnReimport()
     {
         QTemporaryDir directory, runtime;
