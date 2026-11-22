@@ -901,16 +901,25 @@ public:
             return false;
 
         std::array<RenderCore::Command, TransportQueue::capacity> pending;
-        const auto count = commands_.pending(pending);
+        const auto queued = std::span(pending).first(commands_.pending(pending));
         const bool sendCue = cue && retained_.includesCue;
+        const bool remixCue = sendCue && !queued.empty();
         const auto fullCue = std::span(cueScratch_).first(frames * 2U);
-        if (count && (!sendCue || !renderer_.remixCue(retained_.cueBlock, std::span(pending).first(count), fullCue)))
+        if (remixCue && !renderer_.remixCue(retained_.cueBlock, queued, fullCue))
+            return false;
+        if (!sendCue && std::ranges::any_of(queued, [](const auto& command) {
+            using Type = RenderCore::Command::Type;
+            return command.type != Type::CueOn && command.type != Type::CueOff && command.type != Type::CueGain;
+        }))
             return false;
 
+        // A cue-only adjustment cannot change these master samples. With no
+        // retained cue to remix, deliver master now and apply the queued
+        // adjustment with the next fresh render.
         for (std::size_t channel = 0; channel < 2; ++channel)
             std::copy_n(retained_.samples[channel].data(), frames, outputs[channel]);
         if (sendCue) {
-            if (count) {
+            if (remixCue) {
                 for (std::size_t frame = 0; frame < frames; ++frame) {
                     outputs[2][frame] = fullCue[frame * 2];
                     outputs[3][frame] = fullCue[frame * 2 + 1];
@@ -920,10 +929,10 @@ public:
                     std::copy_n(retained_.samples[channel].data(), frames, outputs[channel]);
             }
         }
-        if (count) {
-            commands_.consumePending(static_cast<std::uint32_t>(count));
-            applied_ += count;
-            lastCommandId_ = pending[count - 1].id;
+        if (remixCue) {
+            commands_.consumePending(static_cast<std::uint32_t>(queued.size()));
+            applied_ += queued.size();
+            lastCommandId_ = queued.back().id;
             meters_.cue = renderer_.meters().cue;
         }
         return true;
