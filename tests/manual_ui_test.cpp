@@ -145,6 +145,7 @@ public:
     void snapshotMasterGain(double value) { master_ = value; emit stateChanged(); }
     void snapshotCueGain(double value) { cue_ = value; emit stateChanged(); }
     void setNumericAcknowledgement(bool value) { acknowledgeNumeric_ = value; }
+    void deferCueAcknowledgement() { acknowledgeCue_ = false; }
     QVariantMap meters() const { return meters_; }
     QVariantMap audioRouting() const { return routing_; }
     QVariantMap recording() const { return recording_; }
@@ -443,6 +444,7 @@ public:
     Q_INVOKABLE void setCueSelected(int deck, bool selected)
     {
         calls.append(QVariantMap{{"action", "cueSelected"}, {"deck", deck}, {"value", selected}});
+        if (!acknowledgeCue_) return;
         auto state = decks_[deck].toMap();
         state["cueSelected"] = selected;
         decks_[deck] = state;
@@ -519,6 +521,7 @@ private:
     bool libraryReady_ = true;
     bool acceptCue_ = true, acceptJog_ = true;
     bool acknowledgeNumeric_ = true;
+    bool acknowledgeCue_ = true;
     bool acceptScratchBegin_ = true, acceptScratchMove_ = true;
     quint64 scratchSerial_ = 0;
     std::array<QString, 2> scratchTokens_{};
@@ -5459,6 +5462,64 @@ private slots:
         QCOMPARE(ui_->endpoint.calls.last().toMap()["action"].toString(), QString("cueGain"));
         QVERIFY(ui_->endpoint.cueGain() > .5);
         QCOMPARE(gain->property("value").toDouble(), ui_->endpoint.cueGain());
+    }
+
+    void headphoneCueReportsAcknowledgedSelection_data()
+    {
+        QTest::addColumn<QString>("input");
+        QTest::newRow("keyboard") << QString("keyboard");
+        QTest::newRow("pointer") << QString("pointer");
+        QTest::newRow("accessible-press") << QAccessibleActionInterface::pressAction();
+        QTest::newRow("accessible-toggle") << QAccessibleActionInterface::toggleAction();
+    }
+
+    void headphoneCueReportsAcknowledgedSelection()
+    {
+        QFETCH(QString, input);
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        ui_->endpoint.deferCueAcknowledgement();
+        for (int deck = 0; deck < 2; ++deck) {
+            const auto name = QString("deck%1CueSelect").arg(deck).toUtf8();
+            auto* cue = ui_->item(name.constData());
+            QTRY_VERIFY(cue->isEnabled());
+            auto* accessible = QAccessible::queryAccessibleInterface(cue);
+            QVERIFY(accessible && accessible->actionInterface());
+            auto* action = accessible->actionInterface();
+            QVERIFY(accessible->state().checkable);
+            for (const bool selected : {true, false}) {
+                QCOMPARE(accessible->state().checked, !selected);
+                const auto before = ui_->endpoint.calls.size();
+                if (input == QStringLiteral("keyboard")) {
+                    cue->forceActiveFocus();
+                    QTRY_VERIFY(cue->hasActiveFocus());
+                    QTest::keyClick(ui_->window, Qt::Key_Space);
+                } else if (input == QStringLiteral("pointer")) {
+                    QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+                } else {
+                    QVERIFY(action->actionNames().contains(input));
+                    action->doAction(input);
+                }
+                QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+                const auto call = ui_->endpoint.calls.last().toMap();
+                QCOMPARE(call["action"].toString(), QString("cueSelected"));
+                QCOMPARE(call["deck"].toInt(), deck);
+                QCOMPARE(call["value"].toBool(), selected);
+                QCOMPARE(cue->property("checked").toBool(), !selected);
+                QCOMPARE(accessible->state().checked, !selected);
+                ui_->endpoint.snapshotDeck(deck, {{"cueSelected", selected}});
+                QTRY_COMPARE(cue->property("checked").toBool(), selected);
+                QCOMPARE(accessible->state().checked, selected);
+            }
+            ui_->endpoint.snapshotDeck(deck, {{"loaded", false}});
+            QTRY_VERIFY(!cue->isEnabled());
+            const auto before = ui_->endpoint.calls.size();
+            action->doAction(QAccessibleActionInterface::pressAction());
+            action->doAction(QAccessibleActionInterface::toggleAction());
+            QCOMPARE(ui_->endpoint.calls.size(), before);
+            QVERIFY(!cue->property("checked").toBool());
+        }
     }
 
     void actualMetersFollowSnapshotsAndShowOverrange()

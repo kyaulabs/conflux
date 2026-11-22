@@ -162,19 +162,28 @@ Rectangle {
                             }
                         }
 
-                        Button {
+                        CheckBox {
                             id: headphoneCue
                             objectName: strip.audioDeck >= 0 ? "deck" + strip.audioDeck + "CueSelect" : "reserved" + strip.modelData.name + "CueSelect"
                             Layout.fillWidth: true
                             Layout.preferredHeight: 25
                             text: "CUE"
-                            checkable: true
+                            indicator: null
                             checked: strip.audioDeck >= 0 && Boolean(strip.deck.cueSelected)
+                            // Only a controller snapshot changes the checked state.
+                            nextCheckState: function() { return checkState }
                             enabled: strip.available
                             focusPolicy: Qt.StrongFocus
-                            onClicked: root.controller.setCueSelected(strip.audioDeck, !Boolean(strip.deck.cueSelected))
+                            function requestSelection() {
+                                if (enabled)
+                                    root.controller.setCueSelected(strip.audioDeck, !Boolean(strip.deck.cueSelected))
+                            }
+                            onClicked: requestSelection()
+                            Accessible.checkable: true
                             Accessible.name: "Deck " + strip.modelData.name + " headphone cue"
                             Accessible.description: "Select the pre-fader deck for the separate headphone output."
+                            Accessible.onPressAction: requestSelection()
+                            Accessible.onToggleAction: requestSelection()
                             contentItem: Text {
                                 text: headphoneCue.text
                                 horizontalAlignment: Text.AlignHCenter
