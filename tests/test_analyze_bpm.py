@@ -18,6 +18,21 @@ spec.loader.exec_module(bpm)
 
 
 class AnalyzeBpmTest(unittest.TestCase):
+    def test_summary_averages_quantized_intervals_on_a_steady_track(self):
+        # The 122 BPM positions alternate between 480 ms and 500 ms gaps at
+        # the detector's 50 Hz resolution. The old single-gap median is 120.
+        beats = [round(index * 60 / 122 * bpm.FPS) / bpm.FPS for index in range(169)]
+        frames = int(beats[-1] * bpm.RATE) + bpm.RATE
+        self.assertEqual(bpm.summarize_beats(beats, frames), (122., 169))
+        self.assertEqual(bpm.summarize_beats(beats[:17], frames), (120., 17))
+
+    def test_summary_preserves_per_beat_median_on_tempo_changes(self):
+        beats = [index * .5 for index in range(105)]
+        end_of_first_section = beats[-1]
+        beats.extend(end_of_first_section + index * .625 for index in range(1, 97))
+        frames = int(beats[-1] * bpm.RATE) + bpm.RATE
+        self.assertEqual(bpm.summarize_beats(beats, frames), (120., 201))
+
     def test_pcm_geometry_and_exact_stream_extent(self):
         raw = struct.pack("<ffff", .25, -.5, .75, -1)
         self.assertEqual(bpm.read_pcm(io.BytesIO(raw), 2), raw)
