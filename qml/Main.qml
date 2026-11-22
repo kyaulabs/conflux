@@ -1106,20 +1106,22 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.minimumHeight: 40
             textRole: "label"
-            delegate: ItemDelegate {
-                id: option
-                required property int index
-                required property var modelData
-                width: picker.width
-                highlighted: picker.highlightedIndex === index
-                text: modelData.label
-                contentItem: Text {
-                    text: option.text
-                    textFormat: Text.PlainText
-                    wrapMode: Text.Wrap
-                    verticalAlignment: Text.AlignVCenter
-                    font: picker.font
-                    color: option.highlighted ? option.palette.highlightedText : option.palette.text
+            delegate: Component {
+                ItemDelegate {
+                    id: option
+                    required property int index
+                    required property var modelData
+                    width: picker.width
+                    highlighted: picker.highlightedIndex === index
+                    text: modelData.label
+                    contentItem: Text {
+                        text: option.text
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        verticalAlignment: Text.AlignVCenter
+                        font: picker.font
+                        color: option.highlighted ? option.palette.highlightedText : option.palette.text
+                    }
                 }
             }
         }
