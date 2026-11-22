@@ -4201,6 +4201,7 @@ private slots:
             auto* accessibleLock = QAccessible::queryAccessibleInterface(lock);
             QVERIFY(accessibleLock);
             QCOMPARE(accessibleLock->role(), QAccessible::CheckBox);
+            QVERIFY(accessibleLock->state().checkable);
             QVERIFY(!accessibleLock->state().checked);
             const QString lockName = deck == 0 ? "Deck A Master Tempo" : "Deck B Master Tempo";
             QCOMPARE(accessibleLock->text(QAccessible::Name), lockName + ", off");

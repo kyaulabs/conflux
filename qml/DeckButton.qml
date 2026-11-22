@@ -96,7 +96,7 @@ Item {
     implicitWidth: round ? 56 : 64
     implicitHeight: round ? 56 : 44
 
-    Button {
+    CheckBox {
         id: face
         anchors.fill: parent
         objectName: control.buttonObjectName
@@ -104,10 +104,11 @@ Item {
         enabled: control.available
         hoverEnabled: true
         opacity: enabled ? 1 : 0.46
-        // Report the accepted audio setting through the button. Leave its automatic
-        // toggling disabled so a press cannot publish an unacknowledged setting.
+        indicator: null
+        checkable: control.accessibleToggle
         checked: control.accessibleToggle && control.indicatorOn
-        Accessible.role: control.accessibleToggle ? Accessible.CheckBox : Accessible.Button
+        // The engine acknowledges changes through indicatorOn.
+        nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
         onClicked: control.clicked()
