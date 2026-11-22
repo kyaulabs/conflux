@@ -3516,7 +3516,8 @@ private slots:
         QVERIFY(control && control->actionInterface());
         auto* actions = control->actionInterface();
         const auto press = QAccessibleActionInterface::pressAction();
-        QVERIFY(actions->actionNames().contains(press));
+        QCOMPARE(actions->actionNames().count(press), 1);
+        QVERIFY(!actions->actionNames().contains(QAccessibleActionInterface::toggleAction()));
         const auto peer = ui_->endpoint.decks()[1 - deck];
 
         actions->doAction(press);

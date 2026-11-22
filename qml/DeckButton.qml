@@ -118,15 +118,19 @@ Item {
         nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
-        // Route assistive actions through the control's hold ownership. Qt's
-        // default press can release a CUE preview held by another input.
+        // Override the built-in Press without advertising a second action.
+        function accessiblePressAction() {
+            if (!enabled || control.physicalPress)
+                return
+            control.activateAccessiblePress()
+            if (!control.accessibleToggle && !control.holdAction)
+                control.clicked()
+        }
+        // Qt 6.4's default toggle writes checked directly.
         Connections {
-            target: control.holdAction || control.accessibleToggle ? face.Accessible : null
+            target: control.accessibleToggle ? face.Accessible : null
             function onPressAction() { control.activateAccessiblePress() }
-            function onToggleAction() {
-                if (control.accessibleToggle)
-                    control.activateAccessiblePress()
-            }
+            function onToggleAction() { control.activateAccessiblePress() }
         }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
