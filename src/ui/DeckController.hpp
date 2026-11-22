@@ -243,6 +243,7 @@ private:
         std::vector<library::LibraryTrack> tracks;
         QString error;
         bool saving = false;
+        QString editedBpmSource{};
     };
     struct InstallResult {
         std::unique_ptr<audio::LiveSession> session;
@@ -259,6 +260,9 @@ private:
     };
     void loaded();
     void catalogFinished();
+    const library::LibraryTrack* cataloguedDeck(std::size_t deck) const;
+    void setDeckSource(std::size_t deck, const QString& sourceId);
+    void updateBpmOverride(int deck, std::optional<double> bpm);
     QString deckCueUnavailable(int deck, bool saving) const;
     QVariantMap savedDeckCue(std::size_t deck) const;
     void beginPreparation(int deck, const QUrl& url, bool importOnly,

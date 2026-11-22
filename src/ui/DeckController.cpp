@@ -312,6 +312,7 @@ QVariantList DeckController::decks() const
     for (std::size_t deck = 0; deck < clips_.size(); ++deck) {
         const bool loading = preparationActive() && !pendingImport_ && int(deck) == pendingDeck_;
         const auto& bpm = bpmTiming_[deck].estimate();
+        const auto& manual = bpmOverrides_[deck];
         const auto position = clips_[deck] && !replacing_[deck] ? state_.sourcePosition[deck] : -1.;
         const auto& hold = state_.residentHold[deck];
         const auto recoveryRange = clips_[deck] && clips_[deck]->live() ? clips_[deck]->residentHold :
@@ -323,8 +324,8 @@ QVariantList DeckController::decks() const
             {"album", presentations_[deck].album}, {"artworkDataUrl", presentations_[deck].artworkDataUrl},
             {"bpm", QVariantMap{
                 {"estimated", bpm.bpm.value_or(0.)},
-                {"reference", bpmOverrides_[deck].value_or(bpm.bpm.value_or(0.))},
-                {"manual", bpmOverrides_[deck].has_value()},
+                {"reference", manual.value_or(bpm.bpm.value_or(0.))},
+                {"manual", manual.has_value()},
                 {"status", bpm.status}, {"error", bpm.error}}},
             {"localTiming", ui::localTimingForDisplay(bpmTiming_[deck], position, hold, recoveryRange)},
             {"harmony", [&]() -> QVariantMap {
@@ -631,6 +632,11 @@ void DeckController::catalogFinished()
     libraryError_ = result.error;
     if (result.error.isEmpty()) {
         libraryEntries_ = std::move(result.tracks);
+        for (std::size_t deck = 0; deck < sourceIds_.size(); ++deck) {
+            const auto* track = cataloguedDeck(deck);
+            if (track && (track->sourceSha256 == result.editedBpmSource || !bpmOverrides_[deck]))
+                bpmOverrides_[deck] = track->manualBpm;
+        }
         libraryTracks_.clear();
         libraryTracks_.reserve(qsizetype(libraryEntries_.size()));
         for (const auto& track : libraryEntries_) {
@@ -1735,8 +1741,7 @@ void DeckController::loaded()
     resetResidentAuthorization(std::size_t(pendingDeck_));
     continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
-    if (sourceIds_[pendingDeck_] != result.prepared->sourceId) bpmOverrides_[pendingDeck_].reset();
-    sourceIds_[pendingDeck_] = result.prepared->sourceId;
+    setDeckSource(std::size_t(pendingDeck_), result.prepared->sourceId);
     presentations_[pendingDeck_] = std::move(result.prepared->presentation);
     bpmTiming_[pendingDeck_] = library::BpmTiming(std::move(result.prepared->bpm));
     harmonyTiming_[pendingDeck_] = library::HarmonyTiming(std::move(result.prepared->harmony));
@@ -1903,8 +1908,7 @@ void DeckController::settleReplacement(bool stopped)
     resetResidentAuthorization(std::size_t(pendingDeck_));
     continuationEpisodes_[pendingDeck_] = {};
     names_[pendingDeck_] = pendingName_;
-    if (sourceIds_[pendingDeck_] != pendingLoad_->sourceId) bpmOverrides_[pendingDeck_].reset();
-    sourceIds_[pendingDeck_] = pendingLoad_->sourceId;
+    setDeckSource(std::size_t(pendingDeck_), pendingLoad_->sourceId);
     scratchGestures_[pendingDeck_].reset();
     scratchEnds_[pendingDeck_].reset();
     presentations_[pendingDeck_] = std::move(pendingLoad_->presentation);
@@ -2541,10 +2545,7 @@ void DeckController::setBpmOverride(int deck, double bpm)
         fail("Original BPM must be between 20 and 400 for a loaded track.");
         return;
     }
-    // A source reference is metadata. Changing it never changes playback speed
-    // or issues a render command; the acknowledged ratio remains authoritative.
-    bpmOverrides_[deck] = bpm;
-    notifyStateChanged();
+    updateBpmOverride(deck, bpm);
 }
 
 void DeckController::clearBpmOverride(int deck)
@@ -2553,7 +2554,55 @@ void DeckController::clearBpmOverride(int deck)
         fail("Load a track before selecting automatic BPM.");
         return;
     }
-    bpmOverrides_[deck].reset();
+    updateBpmOverride(deck, std::nullopt);
+}
+
+const library::LibraryTrack* DeckController::cataloguedDeck(std::size_t deck) const
+{
+    if (!clips_[deck]) return nullptr;
+    const auto found = std::ranges::find_if(libraryEntries_, [&](const auto& track) {
+        return track.sourceSha256 == sourceIds_[deck] && track.frames == clips_[deck]->frames();
+    });
+    return found == libraryEntries_.end() ? nullptr : &*found;
+}
+
+void DeckController::setDeckSource(std::size_t deck, const QString& sourceId)
+{
+    if (sourceIds_[deck] == sourceId) return;
+    sourceIds_[deck] = sourceId;
+    const auto* track = cataloguedDeck(deck);
+    bpmOverrides_[deck] = track ? track->manualBpm : std::nullopt;
+}
+
+void DeckController::updateBpmOverride(int deck, std::optional<double> bpm)
+{
+    // A BPM reference is source metadata. The acknowledged audio ratio still
+    // governs playback, and ad-hoc tracks can use a temporary deck reference.
+    const auto* track = cataloguedDeck(std::size_t(deck));
+    if (!track) {
+        bpmOverrides_[deck] = bpm;
+        notifyStateChanged();
+        return;
+    }
+    if (busy_) {
+        fail("Wait for the current operation to finish before saving BPM.");
+        return;
+    }
+    const auto sourceId = track->sourceSha256;
+    const auto frames = track->frames;
+    busy_ = true;
+    error_.clear(); libraryError_.clear();
+    pendingImport_ = true; pendingStems_ = false; pendingDeck_ = deck;
+    pendingName_ = names_[deck]; pendingPath_.clear();
+    pendingPresentation_ = {}; pendingWaveform_.clear();
+    preparationStatus_ = "Saving"; preparationPhase_ = "library";
+    preparationCompletedStages_ = 0; preparationTotalStages_ = 1;
+    preparationCacheHit_ = false;
+    catalogJob_.setFuture(QtConcurrent::run([path = libraryPath_, sourceId, frames, bpm]() -> CatalogResult {
+        try { return {library::LibraryCatalog(path).updateManualBpm(sourceId, frames, bpm), {}, true, sourceId}; }
+        catch (const std::exception& error) { return {{}, QString::fromUtf8(error.what()), true}; }
+        catch (...) { return {{}, "Cannot save the reference BPM.", true}; }
+    }));
     notifyStateChanged();
 }
 
