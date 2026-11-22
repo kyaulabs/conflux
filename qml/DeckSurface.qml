@@ -1466,9 +1466,10 @@ Item {
             indicatorOn: Boolean(surface.deck.playing) && !surface.atTrackEnd
             available: surface.canControl
             unavailableReason: "Load a track and wait for audio output to use playback."
-            actionDescription: !available ? unavailableReason
-                : stoppingAtEnd ? "Clear the play request and leave the cursor at the end of the track."
-                : surface.deck.playing ? "Pause playback." : "Start playback."
+            actionDescription: "Playback status is " + surface.transportStatus.toLowerCase() + ". "
+                + (!available ? unavailableReason
+                   : stoppingAtEnd ? "Clear the play request and leave the cursor at the end of the track."
+                   : surface.deck.playing ? "Pause playback." : "Start playback.")
             onPressed: surface.controller.setPlaying(surface.deckIndex, !surface.deck.playing)
         }
         Label { anchors.horizontalCenter: parent.horizontalCenter; text: "PLAY / PAUSE"; color: Brand.ConfluxTheme.muted; font.family: Brand.ConfluxTheme.displayFont; font.pixelSize: Brand.ConfluxTheme.textPixels(9) }
