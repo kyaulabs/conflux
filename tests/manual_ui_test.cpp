@@ -201,6 +201,8 @@ public:
         decks_[0] = state;
         emit stateChanged();
     }
+    void setPlaybackPorts(const QVariantList& ports)
+    { routing_["ports"] = ports; emit stateChanged(); }
     void setRoutingError(const QString& error)
     { routing_["cueError"] = error; emit stateChanged(); }
     void setRecording(const QString& status, bool active, const QString& error = {})
@@ -5723,6 +5725,13 @@ private slots:
         QCOMPARE(call["masterRight"].toString(), QString("port2"));
         QCOMPARE(call["cueLeft"].toString(), QString("port3"));
         QCOMPARE(call["cueRight"].toString(), QString("port4"));
+        // A hot-unplug can remove a chosen port before the next Apply.
+        auto availablePorts = ui_->endpoint.audioRouting()["ports"].toList();
+        availablePorts.removeLast();
+        ui_->endpoint.setPlaybackPorts(availablePorts);
+        QTRY_VERIFY(!apply->isEnabled());
+        QTRY_COMPARE(ui_->item("routingValidation")->property("text").toString(),
+                     QString("An output is unavailable. Select another playback port."));
         ui_->endpoint.setRoutingError("Cue device disconnected");
         QTRY_COMPARE(ui_->item("routingError")->property("text").toString(), QString("Cue device disconnected"));
         const QString cueError = "CUE command <b>invalid & unsafe</b> <img src='file:///tmp/private'>";

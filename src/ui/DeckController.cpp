@@ -474,10 +474,17 @@ QVariantMap DeckController::meters() const
 QVariantMap DeckController::audioRouting() const
 {
     QVariantList ports;
+    QString defaultSink = QString::fromStdString(routingSnapshot_.defaultSinkName);
     for (const auto& port : routingSnapshot_.playbackPorts) {
         if (!audio::isPlaybackPort(port)) continue;
-        ports.append(QVariantMap{{"key", portKey(port)},
-            {"label", QString::fromStdString(port.nodeName + " · " + port.portName + " [" + port.channel + "]")}});
+        const auto name = QString::fromStdString(port.nodeDescription.empty() ? port.nodeName : port.nodeDescription);
+        if (port.nodeName == routingSnapshot_.defaultSinkName) defaultSink = name;
+        if (port.unavailable) continue;
+        auto channel = QString::fromStdString(port.portName);
+        if (port.channel == "FL") channel = tr("Left");
+        else if (port.channel == "FR") channel = tr("Right");
+        else if (!port.channel.empty()) channel += " [" + QString::fromStdString(port.channel) + "]";
+        ports.append(QVariantMap{{"key", portKey(port)}, {"label", channel + " · " + name}});
     }
     return {{"ports", ports}, {"masterReady", ready_ && routingSnapshot_.masterReady},
         {"cueReady", ready_ && state_.cueReady},
@@ -485,7 +492,7 @@ QVariantMap DeckController::audioRouting() const
         {"masterRight", routingConfig_.master ? portKey(routingConfig_.master->right) : QString{}},
         {"cueLeft", routingConfig_.cue ? portKey(routingConfig_.cue->left) : QString{}},
         {"cueRight", routingConfig_.cue ? portKey(routingConfig_.cue->right) : QString{}},
-        {"defaultSink", QString::fromStdString(routingSnapshot_.defaultSinkName)},
+        {"defaultSink", defaultSink},
         {"masterError", QString::fromStdString(routingSnapshot_.masterError)},
         {"cueError", QString::fromStdString(routingSnapshot_.cueError)}};
 }
@@ -2727,7 +2734,7 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
     else if (discovery_) routingSnapshot_ = discovery_->routingSnapshot();
     auto find = [&](const QString& key) -> std::optional<audio::PortIdentity> {
         for (const auto& port : routingSnapshot_.playbackPorts)
-            if (audio::isPlaybackPort(port) && portKey(port) == key) return port;
+            if (audio::isPlaybackPort(port) && !port.unavailable && portKey(port) == key) return port;
         return std::nullopt;
     };
     audio::RoutingConfig config;
@@ -2739,7 +2746,7 @@ void DeckController::configureAudioRouting(const QString& masterLeft, const QStr
         return true;
     };
     if (!pair(masterLeft, masterRight, config.master) || !pair(cueLeft, cueRight, config.cue)) {
-        fail("An output port is missing. Refresh and select both channels again.");
+        fail("An output port is unavailable. Refresh and select both channels again.");
         return;
     }
     const auto resolved = audio::resolveAudioRouting(routingSnapshot_, config);

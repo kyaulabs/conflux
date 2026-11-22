@@ -1097,6 +1097,10 @@ ApplicationWindow {
             const keys = [masterLeft, masterRight, cueLeft, cueRight].filter(function(key) { return key.length > 0 })
             return keys.every(function(key, index) { return keys.indexOf(key) === index })
         }
+        readonly property bool selectedPortsAvailable: optionIndex(masterOptions, masterLeft) >= 0
+                                                      && optionIndex(masterOptions, masterRight) >= 0
+                                                      && optionIndex(cueOptions, cueLeft) >= 0
+                                                      && optionIndex(cueOptions, cueRight) >= 0
         function optionIndex(options, key) {
             for (let i = 0; i < options.length; ++i)
                 if (options[i].key === key) return i
@@ -1212,9 +1216,10 @@ ApplicationWindow {
                     }
                     Label {
                         objectName: "routingValidation"
-                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts
+                        visible: !audioSettings.completePairs || !audioSettings.distinctPorts || !audioSettings.selectedPortsAvailable
                         text: !audioSettings.completePairs ? "Select both channels of each pair, or leave both empty."
-                                                          : "Master and cue must use distinct playback ports."
+                             : !audioSettings.distinctPorts ? "Master and cue must use distinct playback ports."
+                                                          : "An output is unavailable. Select another playback port."
                         wrapMode: Text.WordWrap
                         color: Brand.ConfluxTheme.accent
                         Layout.fillWidth: true
@@ -1234,7 +1239,7 @@ ApplicationWindow {
                             text: "APPLY OUTPUTS"
                             Layout.minimumHeight: 44
                             enabled: !deckController.busy && !deckController.recording.active
-                                     && audioSettings.completePairs && audioSettings.distinctPorts
+                                     && audioSettings.completePairs && audioSettings.distinctPorts && audioSettings.selectedPortsAvailable
                             onClicked: deckController.configureAudioRouting(audioSettings.masterLeft, audioSettings.masterRight,
                                                                            audioSettings.cueLeft, audioSettings.cueRight)
                             Accessible.name: "Apply master and headphone cue outputs"

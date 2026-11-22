@@ -9,6 +9,8 @@
 #include <pipewire/pipewire.h>
 #include <pipewire/filter.h>
 #include <pipewire/extensions/metadata.h>
+#include <spa/param/route.h>
+#include <spa/pod/parser.h>
 
 #include <algorithm>
 #include <array>
@@ -208,10 +210,40 @@ public:
         Impl* self = nullptr;
         std::uint32_t id = invalidId;
         std::uint64_t serial = 0;
-        std::string name, mediaClass;
+        std::string name, description, mediaClass;
+        std::uint32_t device = invalidId, profileDevice = invalidId;
         pw_node_state state = PW_NODE_STATE_CREATING;
         pw_node* proxy = nullptr;
         spa_hook hook{};
+    };
+    struct DeviceWatch {
+        struct Route {
+            std::vector<std::int32_t> devices;
+            std::uint32_t availability = SPA_PARAM_AVAILABILITY_unknown;
+        };
+        Impl* self = nullptr;
+        pw_device* proxy = nullptr;
+        spa_hook hook{};
+        std::map<std::int32_t, Route> routes;
+        std::map<std::int32_t, std::int32_t> active;
+
+        bool unavailable(std::int32_t profileDevice) const
+        {
+            if (const auto selected = active.find(profileDevice); selected != active.end()) {
+                if (const auto route = routes.find(selected->second); route != routes.end())
+                    return route->second.availability == SPA_PARAM_AVAILABILITY_no;
+            }
+            // Some profiles expose nodes for unplugged ports without selecting a
+            // route. Hide the node only if every reported route says unavailable.
+            bool known = false;
+            for (const auto& [index, route] : routes) {
+                (void)index;
+                if (std::ranges::find(route.devices, profileDevice) == route.devices.end()) continue;
+                if (route.availability != SPA_PARAM_AVAILABILITY_no) return false;
+                known = true;
+            }
+            return known;
+        }
     };
     struct PortWatch {
         Impl* self = nullptr;
@@ -301,6 +333,9 @@ public:
     {
         if (const auto* value = property(properties, PW_KEY_OBJECT_SERIAL)) node.serial = number(value);
         updateString(node.name, properties, PW_KEY_NODE_NAME);
+        updateString(node.description, properties, PW_KEY_NODE_DESCRIPTION);
+        if (const auto* value = property(properties, PW_KEY_DEVICE_ID)) node.device = objectId(value);
+        if (const auto* value = property(properties, "card.profile.device")) node.profileDevice = objectId(value);
         updateString(node.mediaClass, properties, PW_KEY_MEDIA_CLASS);
     }
     static void updatePort(PortWatch& port, const spa_dict* properties)
@@ -323,6 +358,43 @@ public:
             updateNode(node, info->props);
             node.state = info->state;
             node.self->routingChanged();
+        });
+    }
+    static void deviceParam(void* data, int, std::uint32_t id, std::uint32_t index, std::uint32_t,
+                            const spa_pod* param) noexcept
+    {
+        auto& device = *static_cast<DeviceWatch*>(data);
+        device.self->control([&] {
+            if (id != SPA_PARAM_EnumRoute && id != SPA_PARAM_Route) return;
+            if (index == 0) {
+                if (id == SPA_PARAM_EnumRoute) device.routes.clear();
+                else device.active.clear();
+            }
+            if (!param) return;
+            std::int32_t route = -1, profileDevice = -1;
+            std::uint32_t direction = SPA_DIRECTION_INPUT, availability = SPA_PARAM_AVAILABILITY_unknown;
+            const spa_pod* devices = nullptr;
+            if (spa_pod_parse_object(param, SPA_TYPE_OBJECT_ParamRoute, nullptr,
+                    SPA_PARAM_ROUTE_index, SPA_POD_Int(&route),
+                    SPA_PARAM_ROUTE_direction, SPA_POD_Id(&direction),
+                    SPA_PARAM_ROUTE_device, SPA_POD_OPT_Int(&profileDevice),
+                    SPA_PARAM_ROUTE_available, SPA_POD_OPT_Id(&availability),
+                    SPA_PARAM_ROUTE_devices, SPA_POD_OPT_Pod(&devices)) < 0 ||
+                direction != SPA_DIRECTION_OUTPUT || route < 0) return;
+            if (id == SPA_PARAM_Route) {
+                if (profileDevice >= 0) device.active[profileDevice] = route;
+                return;
+            }
+            DeviceWatch::Route detail;
+            detail.availability = availability;
+            if (devices && spa_pod_is_array(devices) && devices->size >= sizeof(spa_pod_array_body) &&
+                SPA_POD_ARRAY_VALUE_TYPE(devices) == SPA_TYPE_Int &&
+                SPA_POD_ARRAY_VALUE_SIZE(devices) == sizeof(std::int32_t)) {
+                const auto* ids = static_cast<const std::int32_t*>(SPA_POD_ARRAY_VALUES(devices));
+                detail.devices.assign(ids, ids + SPA_POD_ARRAY_N_VALUES(devices));
+            }
+            if (profileDevice >= 0) detail.devices.push_back(profileDevice);
+            device.routes[route] = std::move(detail);
         });
     }
     static void portInfo(void* data, const pw_port_info* info) noexcept
@@ -400,6 +472,17 @@ public:
                 auto* record = node.get();
                 self.nodes_.emplace(id, std::move(node));
                 pw_node_add_listener(record->proxy, &record->hook, &nodeEvents(), record);
+            } else if (std::strcmp(type, PW_TYPE_INTERFACE_Device) == 0) {
+                auto device = std::make_unique<DeviceWatch>();
+                device->self = &self;
+                device->proxy = static_cast<pw_device*>(pw_registry_bind(self.registry_, id, type,
+                    std::min(version, std::uint32_t(PW_VERSION_DEVICE)), 0));
+                if (!device->proxy) return;
+                auto* record = device.get();
+                self.devices_.emplace(id, std::move(device));
+                pw_device_add_listener(record->proxy, &record->hook, &deviceEvents(), record);
+                std::uint32_t params[] = {SPA_PARAM_EnumRoute, SPA_PARAM_Route};
+                pw_device_subscribe_params(record->proxy, params, std::size(params));
             } else if (std::strcmp(type, PW_TYPE_INTERFACE_Port) == 0) {
                 auto port = std::make_unique<PortWatch>();
                 port->self = &self; port->identity.globalId = id;
@@ -445,6 +528,9 @@ public:
         self.control([&] {
             if (const auto found = self.nodes_.find(id); found != self.nodes_.end()) {
                 destroyWatch(*found->second); self.nodes_.erase(found);
+            }
+            if (const auto found = self.devices_.find(id); found != self.devices_.end()) {
+                destroyWatch(*found->second); self.devices_.erase(found);
             }
             if (const auto found = self.ports_.find(id); found != self.ports_.end()) {
                 destroyWatch(*found->second); self.ports_.erase(found);
@@ -550,6 +636,7 @@ public:
 
     // Event tables must outlive listener registration.
     static const pw_node_events& nodeEvents() { static const auto value = [] { pw_node_events v{}; v.version=PW_VERSION_NODE_EVENTS; v.info=nodeInfo; return v; }(); return value; }
+    static const pw_device_events& deviceEvents() { static const auto value = [] { pw_device_events v{}; v.version=PW_VERSION_DEVICE_EVENTS; v.param=deviceParam; return v; }(); return value; }
     static const pw_port_events& portEvents() { static const auto value = [] { pw_port_events v{}; v.version=PW_VERSION_PORT_EVENTS; v.info=portInfo; return v; }(); return value; }
     static const pw_link_events& observedLinkEvents() { static const auto value = [] { pw_link_events v{}; v.version=PW_VERSION_LINK_EVENTS; v.info=observedLinkInfo; return v; }(); return value; }
     static const pw_link_events& ownedLinkEvents() { static const auto value = [] { pw_link_events v{}; v.version=PW_VERSION_LINK_EVENTS; v.info=ownedLinkInfo; return v; }(); return value; }
@@ -582,6 +669,11 @@ public:
             if (node == nodes_.end()) continue;
             identity.nodeSerial = node->second->serial;
             identity.nodeName = node->second->name;
+            identity.nodeDescription = node->second->description;
+            if (node->second->profileDevice <= std::uint32_t(std::numeric_limits<std::int32_t>::max())) {
+                if (const auto device = devices_.find(node->second->device); device != devices_.end())
+                    identity.unavailable = device->second->unavailable(static_cast<std::int32_t>(node->second->profileDevice));
+            }
             identity.audioSink = node->second->mediaClass == "Audio/Sink" && node->second->state != PW_NODE_STATE_ERROR;
             identity.monitor |= watch->control;
             if (isPlaybackPort(identity)) snapshot.playbackPorts.push_back(std::move(identity));
@@ -1285,6 +1377,7 @@ public:
             for (auto& [id,record]:links_) { (void)id; destroyWatch(*record); } links_.clear();
             for (auto& [id,record]:ports_) { (void)id; destroyWatch(*record); } ports_.clear();
             for (auto& [id,record]:nodes_) { (void)id; destroyWatch(*record); } nodes_.clear();
+            for (auto& [id,record]:devices_) { (void)id; destroyWatch(*record); } devices_.clear();
             if (metadata_) { spa_hook_remove(&metadataHook_); pw_proxy_destroy(reinterpret_cast<pw_proxy*>(metadata_)); metadata_=nullptr; }
             metadataId_=invalidId; pw_proxy_destroy(reinterpret_cast<pw_proxy*>(registry_)); registry_=nullptr;
         }
@@ -1356,6 +1449,7 @@ public:
     pw_metadata* metadata_=nullptr; std::uint32_t metadataId_=invalidId;
     spa_hook coreHook_{},registryHook_{},metadataHook_{};
     std::map<std::uint32_t,std::unique_ptr<NodeWatch>> nodes_;
+    std::map<std::uint32_t,std::unique_ptr<DeviceWatch>> devices_;
     std::map<std::uint32_t,std::unique_ptr<PortWatch>> ports_;
     std::map<std::uint32_t,std::unique_ptr<LinkWatch>> links_;
     std::array<OwnedLink,4> owned_{}; std::array<void*,4> portData_{};
