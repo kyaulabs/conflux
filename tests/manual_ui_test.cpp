@@ -1059,6 +1059,9 @@ private slots:
             const auto name = QString("deck%1Play").arg(deck).toUtf8();
             auto* button = ui_->item(name.constData());
             QTRY_VERIFY(button->isEnabled());
+            auto* accessible = QAccessible::queryAccessibleInterface(button);
+            QVERIFY(accessible);
+            QCOMPARE(accessible->text(QAccessible::Description), QStringLiteral("Start playback."));
             button->forceActiveFocus();
             QTRY_VERIFY(button->hasActiveFocus());
             const auto before = ui_->endpoint.calls.size();
@@ -1069,12 +1072,14 @@ private slots:
             QCOMPARE(call.value("deck").toInt(), deck);
             QVERIFY(call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Pause"));
+            QCOMPARE(accessible->text(QAccessible::Description), QStringLiteral("Pause playback."));
             QTest::keyClick(ui_->window, Qt::Key_Space);
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
             call = ui_->endpoint.calls.last().toMap();
             QCOMPARE(call.value("deck").toInt(), deck);
             QVERIFY(!call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Play"));
+            QCOMPARE(accessible->text(QAccessible::Description), QStringLiteral("Start playback."));
         }
     }
 
