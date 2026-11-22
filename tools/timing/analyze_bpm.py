@@ -9,8 +9,8 @@ and its LICENSE; no third-party code or weights are bundled here.
 
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
-Timing rows retain source-aligned beat and downbeat estimates. Exact zero
-padding at the edges or a long break in the source does not supply evidence
+Timing rows retain source-aligned beat and downbeat estimates. Confirmed padding
+at the edges or a long break in the source does not supply evidence
 for a continuous beat grid. Source validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
@@ -39,8 +39,8 @@ MIN_INTERIOR_SILENCE = 3 * RATE + 2 * SILENCE_MARGIN_FRAMES
 # Local intervals need audible support even when the detector continues to
 # predict a musical grid through a break. Leave shorter musical rests alone.
 MIN_LOCAL_SILENCE = 2 * RATE + 2 * SILENCE_MARGIN_FRAMES
-# Look for dither-sized samples only between two clearly active passages.
-# At least 5% of each 250 ms side must exceed 256 steps of the digital floor.
+# Confirm dither-sized samples only next to clearly active music. At least
+# 5% of each required 250 ms side must exceed 256 steps of the digital floor.
 DITHER_FLOOR = 2 ** -15
 DITHER_CONTEXT_FRAMES = RATE // 4
 DITHER_CONTEXT_FLOOR = DITHER_FLOOR * 256
@@ -116,14 +116,15 @@ def source_mask(frames, resampled_lengths, logit_frames):
     return tuple(k * RATE < frames * FPS for k in range(logit_frames))
 
 
-def first_nonzero_frame(stereo):
+def first_nonzero_frame(stereo, noise_floor=0):
     import numpy as np
 
     # Find nonzero PCM in either channel without allocating a mask for the
-    # entire track. Signed zeros are silent. This is not a loudness threshold.
+    # entire track. Signed zeros are silent in the default exact check.
     block_frames = 1 << 16
     for start in range(0, len(stereo), block_frames):
-        present = np.any(stereo[start:start + block_frames], axis=1)
+        block = stereo[start:start + block_frames]
+        present = np.any(np.abs(block) > noise_floor if noise_floor else block, axis=1)
         if present.any():
             return start + int(present.argmax())
     return None
@@ -180,10 +181,27 @@ def has_signal_structure(stereo):
     return full_frames != len(stereo) and structured_windows(stereo[-width:])
 
 
-def interior_silence_cores(stereo, first, last, minimum_frames=MIN_INTERIOR_SILENCE):
-    """Return source ranges of prolonged exact silence or dither-like activity."""
+def has_dither_context(stereo):
     import numpy as np
 
+    return np.count_nonzero(np.any(np.abs(stereo) >= DITHER_CONTEXT_FLOOR, axis=1)) >= DITHER_CONTEXT_FRAMES // 20
+
+
+def dither_edge_length(stereo):
+    # Use one adjoining passage at a file edge. Check the whole low-level
+    # core for structure so quiet fades and rhythmic effects stay eligible.
+    boundary = first_nonzero_frame(stereo, DITHER_FLOOR)
+    if boundary is None or boundary < MIN_INTERIOR_SILENCE:
+        return 0
+    if not has_dither_context(stereo[boundary:boundary + DITHER_CONTEXT_FRAMES]):
+        return 0
+    if has_signal_structure(stereo[:boundary - SILENCE_MARGIN_FRAMES]):
+        return 0
+    return boundary
+
+
+def interior_silence_cores(stereo, first, last, minimum_frames=MIN_INTERIOR_SILENCE):
+    """Return source ranges of prolonged exact silence or dither-like activity."""
     if last - first <= minimum_frames:
         return []
     margin = SILENCE_MARGIN_FRAMES
@@ -194,8 +212,7 @@ def interior_silence_cores(stereo, first, last, minimum_frames=MIN_INTERIOR_SILE
             continue
         sides = (stereo[max(first, begin - context):begin],
                  stereo[end:min(last + 1, end + context)])
-        if all(np.count_nonzero(np.any(np.abs(side) >= DITHER_CONTEXT_FLOOR, axis=1)) >= context // 20
-               for side in sides) and not has_signal_structure(stereo[begin + margin:end - margin]):
+        if all(map(has_dither_context, sides)) and not has_signal_structure(stereo[begin + margin:end - margin]):
             spans.add((begin, end))
 
     cores = []
@@ -452,8 +469,11 @@ def run(source_dir, model_path, frames, stream):
     # stays exactly where the detector put it. Do not infer tempo across a break.
     gaps = interior_silence_cores(stereo, first, last)
     gap_starts = tuple(begin for begin, _ in gaps)
-    seconds = filter_silent_events(seconds, frames, first, last, gaps, gap_starts)
-    down_seconds = filter_silent_events(down_seconds, frames, first, last, gaps, gap_starts)
+    span = stereo[first:last + 1]
+    signal_first = first + dither_edge_length(span)
+    signal_last = last - dither_edge_length(span[::-1])
+    seconds = filter_silent_events(seconds, frames, signal_first, signal_last, gaps, gap_starts)
+    down_seconds = filter_silent_events(down_seconds, frames, signal_first, signal_last, gaps, gap_starts)
     bpm, _beat_count = summarize_beats(seconds, frames, gap_starts)
     local_silence = interior_silence_cores(stereo, first, last, MIN_LOCAL_SILENCE)
     return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds, local_silence)
