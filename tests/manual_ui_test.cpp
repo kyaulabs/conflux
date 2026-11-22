@@ -942,6 +942,58 @@ private slots:
         QTRY_VERIFY(status->property("text").toString().startsWith("END OF TRACK"));
     }
 
+    void playAccessibleDescriptionFollowsDeckStatus_data()
+    {
+        QTest::addColumn<QSize>("viewport");
+        QTest::addColumn<bool>("lcdStatusVisible");
+        QTest::newRow("compact") << QSize(1180, 760) << false;
+        QTest::newRow("wide") << QSize(1680, 1020) << true;
+    }
+
+    void playAccessibleDescriptionFollowsDeckStatus()
+    {
+        QFETCH(QSize, viewport);
+        QFETCH(bool, lcdStatusVisible);
+        ui_->window->resize(viewport);
+        QTRY_COMPARE(ui_->window->size(), viewport);
+        auto* const a = ui_->item("deck0Play");
+        auto* const b = ui_->item("deck1Play");
+        auto* const lcd = ui_->item("deck0TransportStatus");
+        QVERIFY(a && b && lcd);
+        QTRY_COMPARE(lcd->isVisible(), lcdStatusVisible);
+        auto* const a11y = QAccessible::queryAccessibleInterface(a);
+        auto* const b11y = QAccessible::queryAccessibleInterface(b);
+        QVERIFY(a11y && b11y);
+        QTRY_VERIFY(a11y->text(QAccessible::Description).startsWith(QStringLiteral("Playback status is empty. ")));
+        QVERIFY(!a->isEnabled());
+
+        ui_->endpoint.loadState(0, 4.0);
+        ui_->endpoint.loadState(1, 2.0);
+        ui_->endpoint.setReady(true);
+        QTRY_COMPARE(a11y->text(QAccessible::Name), QStringLiteral("Play Deck A"));
+        QTRY_COMPARE(a11y->text(QAccessible::Description), QStringLiteral("Playback status is paused. Start playback."));
+        QTRY_COMPARE(b11y->text(QAccessible::Description), QStringLiteral("Playback status is paused. Start playback."));
+
+        ui_->endpoint.snapshotDeck(0, {{"playing", true}});
+        QTRY_COMPARE(a11y->text(QAccessible::Name), QStringLiteral("Pause Deck A"));
+        QTRY_COMPARE(a11y->text(QAccessible::Description), QStringLiteral("Playback status is playing. Pause playback."));
+        ui_->endpoint.snapshotDeck(0, {{"buffering", true}});
+        QTRY_COMPARE(a11y->text(QAccessible::Name), QStringLiteral("Pause Deck A"));
+        QTRY_COMPARE(a11y->text(QAccessible::Description), QStringLiteral("Playback status is buffering. Pause playback."));
+        ui_->endpoint.snapshotDeck(0, {{"playing", false}, {"buffering", false}, {"cuePreview", true}});
+        QTRY_COMPARE(a11y->text(QAccessible::Description), QStringLiteral("Playback status is cue preview. Start playback."));
+        ui_->endpoint.snapshotDeck(0, {{"playing", true}, {"cuePreview", false}, {"positionSeconds", 10.0}});
+        QTRY_COMPARE(a11y->text(QAccessible::Name), QStringLiteral("Stop Deck A at end of track"));
+        QTRY_COMPARE(a11y->text(QAccessible::Description),
+            QStringLiteral("Playback status is end of track. Clear the play request and leave the cursor at the end of the track."));
+        ui_->endpoint.snapshotDeck(0, {{"sourceReadError", true}});
+        QTRY_VERIFY(a11y->text(QAccessible::Description).startsWith(QStringLiteral("Playback status is read error. ")));
+        QCOMPARE(b11y->text(QAccessible::Name), QStringLiteral("Play Deck B"));
+        QCOMPARE(b11y->text(QAccessible::Description), QStringLiteral("Playback status is paused. Start playback."));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void keyboardTraversalReachesEnabledControlsWithoutCommands_data()
     {
         QTest::addColumn<int>("fontPixels");
@@ -1064,7 +1116,7 @@ private slots:
             QTRY_VERIFY(button->isEnabled());
             auto* accessible = QAccessible::queryAccessibleInterface(button);
             QVERIFY(accessible);
-            QCOMPARE(accessible->text(QAccessible::Description), QStringLiteral("Start playback."));
+            QTRY_VERIFY(accessible->text(QAccessible::Description).endsWith(QStringLiteral("Start playback.")));
             button->forceActiveFocus();
             QTRY_VERIFY(button->hasActiveFocus());
             const auto before = ui_->endpoint.calls.size();
@@ -1075,14 +1127,14 @@ private slots:
             QCOMPARE(call.value("deck").toInt(), deck);
             QVERIFY(call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Pause"));
-            QCOMPARE(accessible->text(QAccessible::Description), QStringLiteral("Pause playback."));
+            QTRY_VERIFY(accessible->text(QAccessible::Description).endsWith(QStringLiteral("Pause playback.")));
             QTest::keyClick(ui_->window, Qt::Key_Space);
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 2);
             call = ui_->endpoint.calls.last().toMap();
             QCOMPARE(call.value("deck").toInt(), deck);
             QVERIFY(!call.value("value").toBool());
             QTRY_COMPARE(button->property("text").toString(), QString("Play"));
-            QCOMPARE(accessible->text(QAccessible::Description), QStringLiteral("Start playback."));
+            QTRY_VERIFY(accessible->text(QAccessible::Description).endsWith(QStringLiteral("Start playback.")));
         }
     }
 
