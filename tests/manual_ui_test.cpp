@@ -5706,7 +5706,14 @@ private slots:
         auto* apply = ui_->item("audioRoutingApply");
         QVERIFY(apply);
         QTRY_VERIFY(apply->isEnabled());
+        const auto portDescription = [this](const char* name) {
+            const auto* accessible = QAccessible::queryAccessibleInterface(ui_->item(name));
+            return accessible ? accessible->text(QAccessible::Description) : QString{};
+        };
+        QCOMPARE(portDescription("masterLeftPort"), QString("Default master"));
+        QCOMPARE(portDescription("cueLeftPort"), QString("Cue disabled"));
         choosePort("masterLeftPort", 1);
+        QTRY_COMPARE(portDescription("masterLeftPort"), QString("Interface output 1"));
         QTRY_VERIFY(!apply->isEnabled());
         QVERIFY(ui_->item("routingValidation")->isVisible());
         choosePort("masterRightPort", 2);
@@ -5716,6 +5723,7 @@ private slots:
         choosePort("cueRightPort", 2);
         QVERIFY(!apply->isEnabled());
         choosePort("cueRightPort", 4);
+        QTRY_COMPARE(portDescription("cueRightPort"), QString("Interface output 4"));
         QTRY_VERIFY(apply->isEnabled());
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(apply));
         QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
@@ -5729,6 +5737,7 @@ private slots:
         auto availablePorts = ui_->endpoint.audioRouting()["ports"].toList();
         availablePorts.removeLast();
         ui_->endpoint.setPlaybackPorts(availablePorts);
+        QTRY_COMPARE(portDescription("cueRightPort"), QString("Selected playback port is unavailable"));
         QTRY_VERIFY(!apply->isEnabled());
         QTRY_COMPARE(ui_->item("routingValidation")->property("text").toString(),
                      QString("An output is unavailable. Select another playback port."));
