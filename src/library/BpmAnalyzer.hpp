@@ -25,6 +25,7 @@ struct BpmEngine {
 struct BpmBeat {
     std::uint32_t frame = 0;
     bool downbeat = false;
+    bool unmeasuredBefore = false; // The preceding interval intersects confirmed source silence.
 };
 
 struct BpmEstimate {
@@ -49,7 +50,7 @@ struct BpmTempoInterval {
 // the containing [firstFrame, endFrame) interval in original stereo48k frames;
 // a shared beat selects the following interval. No extrapolation before the
 // first beat or from the last beat. Missing/malformed timing or a selected
-// interval outside 20..400 BPM returns Unknown (nullopt). Whole-track summary,
+// interval outside 20..400 BPM or marked unmeasured returns Unknown (nullopt). Whole-track summary,
 // downbeat flags and cacheHit do not change the measured interval. This is an
 // unqualified interbeat estimate, not confidence, meter or a sync contract.
 [[nodiscard]] std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate&,

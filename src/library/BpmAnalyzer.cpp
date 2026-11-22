@@ -109,7 +109,7 @@ Producer producer(const BpmEngine& engine, std::uint64_t frames, const QByteArra
         } else detail::ioError("Cannot inspect BPM interpreter configuration");
     }
     result.identity = {{"schema", 1}, {"recipe", QString::fromLatin1(bpmAnalysisRecipe)},
-        {"wire_schema", 2}, {"frames", double(frames)}, {"pcm_sha256", QString::fromLatin1(digest)},
+        {"wire_schema", 3}, {"frames", double(frames)}, {"pcm_sha256", QString::fromLatin1(digest)},
         {"format", QStringLiteral("stereo-f32le-48000")}, {"source_directory", source},
         {"files", rows}, {"absent_venv", missing}};
     if (QJsonDocument(result.identity).toJson(QJsonDocument::Compact).size() + 256 > maximumManifest)
@@ -356,7 +356,7 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
                          Clock::time_point end, std::stop_token stop)
 {
     // Keep actual JSONL boundaries. No implicit final LF, blank records or
-    // newline-flattening repair is permitted by schema 2.
+    // newline-flattening repair is permitted by either supported schema.
     const auto newline = bytes.indexOf('\n');
     if (newline < 0 || newline + 1 > maximumHeader)
         throw std::runtime_error("BPM timing header exceeds its line budget or lacks LF");
@@ -373,7 +373,9 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
         return *parsed.object;
     };
     const auto result = next();
-    if (result.size() != 6 || result.value("schema") != QJsonValue(2) ||
+    const auto schema = result.value("schema");
+    const bool hasIntervalSupport = schema == QJsonValue(3);
+    if (result.size() != 6 || (!hasIntervalSupport && schema != QJsonValue(2)) ||
         result.value("recipe") != QJsonValue(QString::fromLatin1(bpmAnalysisRecipe)) ||
         !result.value("frames").isDouble() || result.value("frames").toDouble() != double(frames) ||
         result.value("pcm_sha256").toString().toLatin1() != digest ||
@@ -401,13 +403,16 @@ BpmEstimate timingResult(const QByteArray& bytes, std::uint64_t frames, const QB
     for (std::size_t index = 0; index < std::size_t(count); ++index) {
         const auto event = next();
         const auto frameValue = event.value("frame");
-        if (event.size() != 2 || !frameValue.isDouble() || !event.value("downbeat").isBool())
+        const auto unmeasured = event.value("unmeasured_before");
+        if (event.size() != (hasIntervalSupport ? 3 : 2) || !frameValue.isDouble() ||
+            !event.value("downbeat").isBool() ||
+            (hasIntervalSupport && (!unmeasured.isBool() || (!index && unmeasured.toBool()))))
             throw std::runtime_error("BPM timing record schema differs");
         const double frame = frameValue.toDouble();
         if (!std::isfinite(frame) || frame < 0 || frame >= double(frames) || std::floor(frame) != frame ||
             (!estimate.beats.empty() && frame <= double(estimate.beats.back().frame)))
             throw std::runtime_error("BPM timing frames must be distinct, increasing and inside the source");
-        estimate.beats.push_back({std::uint32_t(frame), event.value("downbeat").toBool()});
+        estimate.beats.push_back({std::uint32_t(frame), event.value("downbeat").toBool(), unmeasured.toBool()});
     }
     if (offset != bytes.size())
         throw std::runtime_error("BPM timing stream has extra records or bytes");
@@ -558,7 +563,7 @@ bool validTimingGeometry(const BpmEstimate& estimate) noexcept
     const auto& beats = estimate.beats;
     if (!frames || frames > audio::PreparedAudio::defaultMaxPreparedBytes / 8U ||
         beats.size() < 2 || beats.size() > std::min(maximumEvents, frames * 50U / 48000U + 1U) ||
-        beats.back().frame >= frames)
+        beats.front().unmeasuredBefore || beats.back().frame >= frames)
         return false;
     return std::adjacent_find(beats.begin(), beats.end(), [](const BpmBeat& left, const BpmBeat& right) {
         return left.frame >= right.frame;
@@ -570,7 +575,7 @@ std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, 
     const auto& beats = estimate.beats;
     const auto next = std::upper_bound(beats.begin(), beats.end(), frame,
         [](std::uint64_t value, const BpmBeat& beat) { return value < beat.frame; });
-    if (next == beats.begin() || next == beats.end()) return {};
+    if (next == beats.begin() || next == beats.end() || next->unmeasuredBefore) return {};
     const auto first = (next - 1)->frame;
     const double bpm = 60. * 48000. / (next->frame - first);
     if (bpm < 20 || bpm > 400) return {};

@@ -182,7 +182,7 @@ class AnalyzeBpmTest(unittest.TestCase):
                 header, *events = [json.loads(line) for line in wire.splitlines()]
                 self.assertEqual(header["bpm"], expected)
                 self.assertEqual(events, [
-                    {"frame": round(time * 48000), "downbeat": index == len(seconds) - 1}
+                    {"frame": round(time * 48000), "downbeat": index == len(seconds) - 1, "unmeasured_before": False}
                     for index, time in enumerate(seconds)
                 ])
 
@@ -209,7 +209,7 @@ class AnalyzeBpmTest(unittest.TestCase):
         frames = 120 * 48000
         self.assertEqual(len(bpm.source_mask(frames, [120 * 22050] * 2, 6001)), 6001)
 
-    def test_schema2_keeps_summary_and_exact_source_frame_events(self):
+    def test_schema3_keeps_summary_and_exact_source_frame_events(self):
         digest = hashlib.sha256(b"fixture").hexdigest()
         seconds = [0, .5, .75, 1.25]
         estimate, count = bpm.summarize_beats(seconds, 96000)
@@ -218,16 +218,40 @@ class AnalyzeBpmTest(unittest.TestCase):
         self.assertLessEqual(len(raw), bpm.MAX_OUTPUT_BYTES)
         lines = raw.splitlines()
         header, *events = [json.loads(line) for line in lines]
-        self.assertEqual(header, {"schema": 2, "recipe": "beat-this-final0-linear-mel-v1",
+        self.assertEqual(header, {"schema": 3, "recipe": "beat-this-final0-linear-mel-v1",
                          "frames": 96000, "pcm_sha256": digest, "bpm": 120.0, "beat_count": count})
         self.assertEqual(set(header), {"schema", "recipe", "frames", "pcm_sha256", "bpm", "beat_count"})
         self.assertEqual(len(events), header["beat_count"])
-        self.assertEqual(events, [{"frame": 0, "downbeat": True},
-                                 {"frame": 24000, "downbeat": False},
-                                 {"frame": 36000, "downbeat": True},
-                                 {"frame": 60000, "downbeat": False}])
+        self.assertEqual(events, [{"frame": 0, "downbeat": True, "unmeasured_before": False},
+                                 {"frame": 24000, "downbeat": False, "unmeasured_before": False},
+                                 {"frame": 36000, "downbeat": True, "unmeasured_before": False},
+                                 {"frame": 60000, "downbeat": False, "unmeasured_before": False}])
         self.assertTrue(all(type(event["frame"]) is int and type(event["downbeat"]) is bool for event in events))
         self.assertTrue(all(len(line) + 1 <= 64 for line in lines[1:]))
+
+    def test_confirmed_short_silence_withholds_intervals_and_keeps_beats(self):
+        import numpy as np
+
+        rate = bpm.RATE
+        stereo = np.zeros((10 * rate, 2), dtype="<f4")
+        stereo[:3 * rate, 0] = .1
+        stereo[11 * rate // 2:, 0] = .1
+        beats = [i / 2 for i in range(19)]
+        core = [(3 * rate + bpm.SILENCE_MARGIN_FRAMES,
+                 11 * rate // 2 - bpm.SILENCE_MARGIN_FRAMES)]
+        self.assertEqual(bpm.interior_silence_cores(stereo, 0, len(stereo) - 1), [])
+        self.assertEqual(bpm.interior_silence_cores(stereo, 0, len(stereo) - 1,
+                                                    bpm.MIN_LOCAL_SILENCE), core)
+        raw = bpm.encode_result(len(stereo), "a" * 64, 120., beats, [0, 4, 8], core)
+        header, *events = map(json.loads, raw.splitlines())
+        self.assertEqual(header["bpm"], 120.)
+        self.assertEqual([row["frame"] for row in events], [int(beat * rate) for beat in beats])
+        self.assertEqual([row["frame"] for row in events if row["downbeat"]], [0, 4*rate, 8*rate])
+        self.assertEqual([row["frame"] for row in events if row["unmeasured_before"]],
+                         [i*rate//2 for i in range(7, 12)])
+        # The same geometry is not a missing interval at 24 BPM.
+        slow = [i*120000 for i in range(10)]
+        self.assertFalse(any(bpm.unmeasured_intervals(slow, [(390000,508000)])))
 
     def test_unknown_summary_preserves_zero_one_and_outlier_timing(self):
         digest = hashlib.sha256(b"fixture").hexdigest()
@@ -279,7 +303,7 @@ class AnalyzeBpmTest(unittest.TestCase):
         header, *events = [json.loads(line) for line in raw.splitlines()]
         self.assertEqual(header["beat_count"], 34953)
         self.assertEqual(len(events), 34953)
-        self.assertEqual(events[-1], {"frame": (bpm.MAX_EVENTS - 1) * 960, "downbeat": True})
+        self.assertEqual(events[-1], {"frame": (bpm.MAX_EVENTS - 1) * 960, "downbeat": True, "unmeasured_before": False})
         self.assertLess(events[-1]["frame"], bpm.MAX_FRAMES)
         self.assertLessEqual(len(raw), 4 * 1024**2)
         self.assertTrue(all(len(line) + 1 <= 64 for line in raw.splitlines()[1:]))
