@@ -33,7 +33,7 @@ Item {
     signal released()
     signal canceled()
 
-    function activateAccessibleToggle() {
+    function activateAccessiblePress() {
         if (!available || physicalPress)
             return
         beginPress()
@@ -118,11 +118,15 @@ Item {
         nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
-        // Qt 6.4's default accessibility action writes checked directly.
+        // Route assistive actions through the control's hold ownership. Qt's
+        // default press can release a CUE preview held by another input.
         Connections {
-            target: control.accessibleToggle ? face.Accessible : null
-            function onPressAction() { control.activateAccessibleToggle() }
-            function onToggleAction() { control.activateAccessibleToggle() }
+            target: control.holdAction || control.accessibleToggle ? face.Accessible : null
+            function onPressAction() { control.activateAccessiblePress() }
+            function onToggleAction() {
+                if (control.accessibleToggle)
+                    control.activateAccessiblePress()
+            }
         }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
