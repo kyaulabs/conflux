@@ -9,14 +9,14 @@ and its LICENSE; no third-party code or weights are bundled here.
 
 The summary is a median of estimated adjacent beat intervals, not calibrated
 confidence, a constant-tempo assertion, or permission to synchronize decks.
-Timing rows retain source-aligned beat and downbeat estimates. Exact zero
-padding at the edges or a long break in the source does not supply evidence
+Timing rows retain source-aligned beat and downbeat estimates. Confirmed padding
+at the edges or a long break in the source does not supply evidence
 for a continuous beat grid. Source validation does not establish musical accuracy.
 The parent owns cancellation, process-group cleanup and the wall/output/address-space budget.
 """
 
 import argparse
-from bisect import bisect_right
+from bisect import bisect_left, bisect_right
 import hashlib
 import json
 import math
@@ -36,8 +36,11 @@ SILENCE_MARGIN_FRAMES = 70 * RATE // 1000
 # The longest local tempo interval is 3 seconds (20 BPM). Leave a longer
 # hole after allowing the same margin as at the track edges.
 MIN_INTERIOR_SILENCE = 3 * RATE + 2 * SILENCE_MARGIN_FRAMES
-# Look for dither-sized samples only between two clearly active passages.
-# At least 5% of each 250 ms side must exceed 256 steps of the digital floor.
+# Local intervals need audible support even when the detector continues to
+# predict a musical grid through a break. Leave shorter musical rests alone.
+MIN_LOCAL_SILENCE = 2 * RATE + 2 * SILENCE_MARGIN_FRAMES
+# Confirm dither-sized samples only next to clearly active music. At least
+# 5% of each required 250 ms side must exceed 256 steps of the digital floor.
 DITHER_FLOOR = 2 ** -15
 DITHER_CONTEXT_FRAMES = RATE // 4
 DITHER_CONTEXT_FLOOR = DITHER_FLOOR * 256
@@ -113,20 +116,21 @@ def source_mask(frames, resampled_lengths, logit_frames):
     return tuple(k * RATE < frames * FPS for k in range(logit_frames))
 
 
-def first_nonzero_frame(stereo):
+def first_nonzero_frame(stereo, noise_floor=0):
     import numpy as np
 
     # Find nonzero PCM in either channel without allocating a mask for the
-    # entire track. Signed zeros are silent. This is not a loudness threshold.
+    # entire track. Signed zeros are silent in the default exact check.
     block_frames = 1 << 16
     for start in range(0, len(stereo), block_frames):
-        present = np.any(stereo[start:start + block_frames], axis=1)
+        block = stereo[start:start + block_frames]
+        present = np.any(np.abs(block) > noise_floor if noise_floor else block, axis=1)
         if present.any():
             return start + int(present.argmax())
     return None
 
 
-def interior_inactive_spans(stereo, first, last, noise_floor=0):
+def interior_inactive_spans(stereo, first, last, noise_floor=0, minimum_frames=MIN_INTERIOR_SILENCE):
     import numpy as np
 
     # A qualifying gap cannot fit inside one block. Only the first and last
@@ -143,7 +147,7 @@ def interior_inactive_spans(stereo, first, last, noise_floor=0):
         if not present.any():
             continue
         active_start = start + int(present.argmax())
-        if active_start - previous_end >= MIN_INTERIOR_SILENCE:
+        if active_start - previous_end >= minimum_frames:
             spans.append((previous_end, active_start))
         previous_end = start + len(present) - int(present[::-1].argmax())
     return spans
@@ -177,22 +181,38 @@ def has_signal_structure(stereo):
     return full_frames != len(stereo) and structured_windows(stereo[-width:])
 
 
-def interior_silence_cores(stereo, first, last):
-    """Return source ranges of prolonged exact silence or dither-like activity."""
+def has_dither_context(stereo):
     import numpy as np
 
-    if last - first <= MIN_INTERIOR_SILENCE:
+    return np.count_nonzero(np.any(np.abs(stereo) >= DITHER_CONTEXT_FLOOR, axis=1)) >= DITHER_CONTEXT_FRAMES // 20
+
+
+def dither_edge_length(stereo):
+    # Use one adjoining passage at a file edge. Check the whole low-level
+    # core for structure so quiet fades and rhythmic effects stay eligible.
+    boundary = first_nonzero_frame(stereo, DITHER_FLOOR)
+    if boundary is None or boundary < MIN_INTERIOR_SILENCE:
+        return 0
+    if not has_dither_context(stereo[boundary:boundary + DITHER_CONTEXT_FRAMES]):
+        return 0
+    if has_signal_structure(stereo[:boundary - SILENCE_MARGIN_FRAMES]):
+        return 0
+    return boundary
+
+
+def interior_silence_cores(stereo, first, last, minimum_frames=MIN_INTERIOR_SILENCE):
+    """Return source ranges of prolonged exact silence or dither-like activity."""
+    if last - first <= minimum_frames:
         return []
     margin = SILENCE_MARGIN_FRAMES
-    spans = set(interior_inactive_spans(stereo, first, last))
+    spans = set(interior_inactive_spans(stereo, first, last, minimum_frames=minimum_frames))
     context = DITHER_CONTEXT_FRAMES
-    for begin, end in interior_inactive_spans(stereo, first, last, DITHER_FLOOR):
+    for begin, end in interior_inactive_spans(stereo, first, last, DITHER_FLOOR, minimum_frames):
         if (begin, end) in spans:
             continue
         sides = (stereo[max(first, begin - context):begin],
                  stereo[end:min(last + 1, end + context)])
-        if all(np.count_nonzero(np.any(np.abs(side) >= DITHER_CONTEXT_FLOOR, axis=1)) >= context // 20
-               for side in sides) and not has_signal_structure(stereo[begin + margin:end - margin]):
+        if all(map(has_dither_context, sides)) and not has_signal_structure(stereo[begin + margin:end - margin]):
             spans.add((begin, end))
 
     cores = []
@@ -254,7 +274,28 @@ def summarize_beats(seconds, frames, gap_starts=()):
     return (round(statistics.median(bpms), 1) if bpms else None), len(beat_frames)
 
 
-def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
+def unmeasured_intervals(beat_frames, silent_cores):
+    """Identify adjacent predicted intervals without source-local tempo support."""
+    unmeasured = [False] * len(beat_frames)
+    for begin, end in silent_cores:
+        first = bisect_left(beat_frames, begin)
+        last = bisect_left(beat_frames, end)
+        left = beat_frames[max(0, first - 4):first]
+        right = beat_frames[last:last + 4]
+        if len(left) < 3 or len(right) < 3:
+            continue
+        periods = [statistics.median(b - a for a, b in zip(side, side[1:]))
+                   for side in (left, right)]
+        # Sparse material can have near-silence between actual beats. Require
+        # at least two periods at the slower side before withholding estimates.
+        if not all(7200 <= period <= 144000 for period in periods) or end - begin < 2 * max(periods):
+            continue
+        for index in range(first, min(last + 1, len(beat_frames))):
+            unmeasured[index] = True
+    return unmeasured
+
+
+def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds, silent_cores=()):
     # Keep the existing source-time validation, including rejection of a
     # timestamp that rounds to EOF. Never sort, filter, or repair detector output.
     beat_frames = source_beat_frames(beat_seconds, frames)
@@ -267,14 +308,14 @@ def encode_result(frames, pcm_sha256, bpm, beat_seconds, downbeat_seconds):
             (bpm is not None and (type(bpm) not in (int, float) or not 20 <= bpm <= 400 or
                                  not math.isfinite(bpm) or beat_count < 2 or round(bpm, 1) != bpm))):
         raise ValueError("invalid BPM summary output")
-    value = {"schema": 2, "recipe": RECIPE, "frames": frames,
+    value = {"schema": 3, "recipe": RECIPE, "frames": frames,
              "pcm_sha256": pcm_sha256, "bpm": bpm, "beat_count": beat_count}
     raw = bytearray((json.dumps(value, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii"))
     if len(raw) > MAX_OUTPUT_BYTES:
         raise ValueError("BPM timing output exceeds output limit")
     downbeats = set(downbeat_frames)
-    for frame in beat_frames:
-        event = {"frame": frame, "downbeat": frame in downbeats}
+    for frame, unsupported in zip(beat_frames, unmeasured_intervals(beat_frames, silent_cores), strict=True):
+        event = {"frame": frame, "downbeat": frame in downbeats, "unmeasured_before": unsupported}
         raw.extend((json.dumps(event, allow_nan=False, separators=(",", ":")) + "\n").encode("ascii"))
         if len(raw) > MAX_OUTPUT_BYTES:
             raise ValueError("BPM timing output exceeds output limit")
@@ -428,10 +469,14 @@ def run(source_dir, model_path, frames, stream):
     # stays exactly where the detector put it. Do not infer tempo across a break.
     gaps = interior_silence_cores(stereo, first, last)
     gap_starts = tuple(begin for begin, _ in gaps)
-    seconds = filter_silent_events(seconds, frames, first, last, gaps, gap_starts)
-    down_seconds = filter_silent_events(down_seconds, frames, first, last, gaps, gap_starts)
+    span = stereo[first:last + 1]
+    signal_first = first + dither_edge_length(span)
+    signal_last = last - dither_edge_length(span[::-1])
+    seconds = filter_silent_events(seconds, frames, signal_first, signal_last, gaps, gap_starts)
+    down_seconds = filter_silent_events(down_seconds, frames, signal_first, signal_last, gaps, gap_starts)
     bpm, _beat_count = summarize_beats(seconds, frames, gap_starts)
-    return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds)
+    local_silence = interior_silence_cores(stereo, first, last, MIN_LOCAL_SILENCE)
+    return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds, local_silence)
 
 
 def main():
