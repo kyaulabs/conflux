@@ -24,6 +24,7 @@ Item {
     property int pendingCancelGeneration: -1
     property bool available: true
     property bool round: false
+    property bool accessibleToggle: false
     property bool indicatorOn: false
     property color indicatorColor: "transparent"
     property int fontPixelSize: round ? 14 : 11
@@ -103,6 +104,10 @@ Item {
         enabled: control.available
         hoverEnabled: true
         opacity: enabled ? 1 : 0.46
+        // Report the accepted audio setting through the button. Leave its automatic
+        // toggling disabled so a press cannot publish an unacknowledged setting.
+        checked: control.accessibleToggle && control.indicatorOn
+        Accessible.role: control.accessibleToggle ? Accessible.CheckBox : Accessible.Button
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
         onClicked: control.clicked()
