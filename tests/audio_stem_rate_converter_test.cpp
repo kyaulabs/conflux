@@ -204,7 +204,8 @@ void countCancellationAfterStart()
     std::jthread counter([&] {
         entered.store(true, std::memory_order_release);
         try {
-            (void)Converter::countFrames(8 * 1024 * 1024, 16 * 1024 * 1024, cancellation.get_token());
+            // The input is beyond the verified constant-time range.
+            (void)Converter::countFrames(64 * 1024 * 1024, 128 * 1024 * 1024, cancellation.get_token());
         } catch (const std::runtime_error& error) {
             cancelled.store(std::string(error.what()).find("cancel") != std::string::npos, std::memory_order_relaxed);
         } catch (...) { failure = std::current_exception(); }
