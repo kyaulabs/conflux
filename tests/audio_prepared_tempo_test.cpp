@@ -519,6 +519,53 @@ void preparedContinuationModeAndCursor()
     }
 }
 
+void masterTempoContinuationStartsWithSettledAudio()
+{
+    constexpr std::uint64_t frames = 24000;
+    constexpr double position = 8000.375;
+    constexpr std::array<float, 2> bass{.125F, -.0625F};
+    std::vector<float> pcm(frames * 2);
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+        pcm[2 * frame] = bass[0];
+        pcm[2 * frame + 1] = bass[1];
+    }
+    const auto leaf = rawFile(pcm);
+    const std::array<int, 4> files{fileno(leaf.get()), fileno(leaf.get()), fileno(leaf.get()), fileno(leaf.get())};
+    for (const double percent : {-6., 6.}) {
+        PreparedPlayback prepared(files, frames);
+        AudioTempoState tempo;
+        tempo.active = tempo.supported = tempo.keyLock = true;
+        tempo.percent = percent;
+        require(prepared.primeContinuation(position, tempo, 2s), "Master Tempo continuation did not prime");
+        const auto source = prepared.sourceRef();
+        for (std::size_t role : {0, 2, 3})
+            require(source.setStemGain(source.context, role, 0), "Could not select only bass");
+        const auto initial = source.read(source.context, std::uint64_t(position), {});
+        require(initial.positionValid && initial.nominalPosition == position,
+                "Preroll changed the resumed source position");
+        double cursor = position;
+        std::size_t inspected = 0;
+        while (inspected < 2048) {
+            AudioReadResult part;
+            std::array<float, 256> output{};
+            wait([&] {
+                part = source.read(source.context, std::uint64_t(cursor), output);
+                return part.frames || part.failed;
+            }, "Master Tempo continuation did not supply primed audio");
+            require(!part.failed && part.positionValid && part.frames && part.frames <= output.size() / 2,
+                    "Master Tempo continuation lost output or cursor metadata");
+            inspected += part.frames;
+            cursor = part.nominalPosition;
+            require(std::abs(cursor - (position + inspected * (1 + percent / 100))) < 1e-8,
+                    "Hidden preroll advanced the audible transport");
+            for (std::size_t frame = 0; frame < part.frames; ++frame)
+                for (std::size_t channel = 0; channel < bass.size(); ++channel)
+                    require(std::abs(output[frame * 2 + channel] - bass[channel]) < .001F,
+                            "Fresh Master Tempo processor attenuated sound at continuation");
+        }
+    }
+}
+
 void preparedControlsAndSharedRenderSideGains()
 {
     for (const bool bank : {false, true}) {
@@ -654,6 +701,7 @@ int main()
         inFlightSupersessionAndSameFrameGeneration();
         actualDspPacketsAndTailBeforeFinished();
         preparedContinuationModeAndCursor();
+        masterTempoContinuationStartsWithSettledAudio();
         preparedControlsAndSharedRenderSideGains();
         return 0;
     } catch (const std::exception& error) {

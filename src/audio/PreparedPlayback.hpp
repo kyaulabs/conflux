@@ -114,7 +114,8 @@ private:
     std::unique_ptr<PreparedTempoSource> makeResidentTempoSource();
     void createLiveTempoSource() noexcept;
     bool primeTempo(double position, double percent, bool keyLock,
-                    std::chrono::steady_clock::time_point deadline, std::stop_token stop);
+                    std::chrono::steady_clock::time_point deadline, std::stop_token stop,
+                    bool continuation = false);
     void createScratchSource(std::span<const int> fds) noexcept;
     AudioReadResult readPrepared(std::uint64_t frame, std::span<float> output) noexcept;
     AudioReadResult readTempo(std::span<float> output) noexcept;
