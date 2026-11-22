@@ -3495,6 +3495,65 @@ private slots:
         }
     }
 
+    void accessibleCuePressFollowsTheDeckHoldLifecycle_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::newRow("deckA") << 0;
+        QTest::newRow("deckB") << 1;
+    }
+
+    void accessibleCuePressFollowsTheDeckHoldLifecycle()
+    {
+        QFETCH(int, deck);
+        ui_->endpoint.loadState(0, 1);
+        ui_->endpoint.loadState(1, 2);
+        ui_->endpoint.setReady(true);
+        const auto objectName = QString("deck%1Cue").arg(deck).toUtf8();
+        auto* cue = ui_->item(objectName.constData());
+        QVERIFY(cue);
+        QTRY_VERIFY(cue->isEnabled());
+        auto* control = QAccessible::queryAccessibleInterface(cue);
+        QVERIFY(control && control->actionInterface());
+        auto* actions = control->actionInterface();
+        const auto press = QAccessibleActionInterface::pressAction();
+        QCOMPARE(actions->actionNames().count(press), 1);
+        QVERIFY(!actions->actionNames().contains(QAccessibleActionInterface::toggleAction()));
+        const auto peer = ui_->endpoint.decks()[1 - deck];
+
+        actions->doAction(press);
+        QTRY_COMPARE_WITH_TIMEOUT(ui_->endpoint.calls.size(), 2, 500);
+        verifyCueCall(0, "cuePress", deck);
+        verifyCueCall(1, "cueRelease", deck);
+        QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+        QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cuePreview"].toBool());
+
+        ui_->endpoint.setCueAccepted(false);
+        actions->doAction(press);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 3);
+        verifyCueCall(2, "cuePress", deck);
+        ui_->endpoint.setCueAccepted(true);
+
+        const auto point = ui_->center(cue);
+        QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 4);
+        actions->doAction(press);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 4);
+        QVERIFY(ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+        QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 5);
+        verifyCueCall(3, "cuePress", deck);
+        verifyCueCall(4, "cueRelease", deck);
+
+        ui_->endpoint.setReplacing(deck, true);
+        QTRY_VERIFY(!cue->isEnabled());
+        actions->doAction(press);
+        QCoreApplication::processEvents();
+        QCOMPARE(ui_->endpoint.calls.size(), 5);
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peer);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void bothDecksHoldCueWithIndependentTouchContacts()
     {
         ui_->window->resize(1180, 760);

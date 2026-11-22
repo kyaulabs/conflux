@@ -33,7 +33,7 @@ Item {
     signal released()
     signal canceled()
 
-    function activateAccessibleToggle() {
+    function activateAccessiblePress() {
         if (!available || physicalPress)
             return
         beginPress()
@@ -118,11 +118,19 @@ Item {
         nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
-        // Qt 6.4's default accessibility action writes checked directly.
+        // Override the built-in Press without advertising a second action.
+        function accessiblePressAction() {
+            if (!enabled || control.physicalPress)
+                return
+            control.activateAccessiblePress()
+            if (!control.accessibleToggle && !control.holdAction)
+                control.clicked()
+        }
+        // Qt 6.4's default toggle writes checked directly.
         Connections {
             target: control.accessibleToggle ? face.Accessible : null
-            function onPressAction() { control.activateAccessibleToggle() }
-            function onToggleAction() { control.activateAccessibleToggle() }
+            function onPressAction() { control.activateAccessiblePress() }
+            function onToggleAction() { control.activateAccessiblePress() }
         }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
