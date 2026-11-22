@@ -261,17 +261,51 @@ def filter_silent_events(seconds, frames, first, last, gaps, gap_starts):
     return events
 
 
+def steady_tempo_period(periods, typical, measured):
+    """Estimate one period from long, consistent runs of measured beats."""
+    # The model places events on a 50 Hz grid. Averaging eight adjacent
+    # intervals reduces the effect of that timestamp quantization.
+    width = 8
+    agreement = max(RATE // FPS, typical * .05)
+    windows, block = [], []
+    for period in periods:
+        if period is None or abs(period - typical) > agreement:
+            block.clear()
+            continue
+        block.append(period)
+        if len(block) == width:
+            windows.append(statistics.mean(block))
+            block.clear()
+    # Require a well-supported steady clock before replacing the per-beat
+    # median, which remains useful for short or changing-tempo sources.
+    if len(windows) < 12 or len(windows) * width < .75 * measured:
+        return None
+    deciles = statistics.quantiles(windows, n=10, method="inclusive")
+    low, high = deciles[0], deciles[-1]
+    if high - low > .02 * statistics.median(windows):
+        return None
+    body = [period for period in windows if low <= period <= high]
+    return statistics.mean(body) if body else None
+
+
 def summarize_beats(seconds, frames, gap_starts=()):
     beat_frames = source_beat_frames(seconds, frames)
-    bpms = []
+    periods = []
     for first, last in zip(beat_frames, beat_frames[1:]):
-        if gap_starts and bisect_right(gap_starts, first) != bisect_right(gap_starts, last):
-            continue
-        bpm = 60 * RATE / (last - first)
+        period = last - first
         # Use the same supported range as the deck's source-local tempo.
-        if 20 <= bpm <= 400:
-            bpms.append(bpm)
-    return (round(statistics.median(bpms), 1) if bpms else None), len(beat_frames)
+        # Store an explicit gap so a window cannot bridge a silent break.
+        if (not RATE * 15 // 100 <= period <= RATE * 3 or
+                (gap_starts and bisect_right(gap_starts, first) != bisect_right(gap_starts, last))):
+            periods.append(None)
+        else:
+            periods.append(period)
+    measured = [period for period in periods if period is not None]
+    if not measured:
+        return None, len(beat_frames)
+    steady = steady_tempo_period(periods, statistics.median(measured), len(measured))
+    summary = 60 * RATE / steady if steady is not None else statistics.median(60 * RATE / period for period in measured)
+    return round(summary, 1), len(beat_frames)
 
 
 def unmeasured_intervals(beat_frames, silent_cores):
