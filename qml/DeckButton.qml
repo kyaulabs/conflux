@@ -33,6 +33,12 @@ Item {
     signal released()
     signal canceled()
 
+    function activateAccessibleToggle() {
+        if (!available || physicalPress)
+            return
+        beginPress()
+        finishPress(false)
+    }
     function finishPendingCancel() {
         if (physicalPress && pendingCancelGeneration === pressGeneration)
             finishPress(true)
@@ -106,11 +112,18 @@ Item {
         opacity: enabled ? 1 : 0.46
         indicator: null
         checkable: control.accessibleToggle
+        Accessible.checkable: control.accessibleToggle
         checked: control.accessibleToggle && control.indicatorOn
         // The engine acknowledges changes through indicatorOn.
         nextCheckState: function() { return checkState }
         Accessible.name: control.accessibleName
         Accessible.description: control.actionDescription
+        // Qt 6.4's default accessibility action writes checked directly.
+        Connections {
+            target: control.accessibleToggle ? face.Accessible : null
+            function onPressAction() { control.activateAccessibleToggle() }
+            function onToggleAction() { control.activateAccessibleToggle() }
+        }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
         onReleased: { if (control.touchContactId < 0) control.finishPress(false) }
