@@ -1101,6 +1101,28 @@ ApplicationWindow {
                                                       && optionIndex(masterOptions, masterRight) >= 0
                                                       && optionIndex(cueOptions, cueLeft) >= 0
                                                       && optionIndex(cueOptions, cueRight) >= 0
+        component OutputPortPicker: ComboBox {
+            id: picker
+            Layout.fillWidth: true
+            Layout.minimumHeight: 40
+            textRole: "label"
+            delegate: ItemDelegate {
+                id: option
+                required property int index
+                required property var modelData
+                width: picker.width
+                highlighted: picker.highlightedIndex === index
+                text: modelData.label
+                contentItem: Text {
+                    text: option.text
+                    textFormat: Text.PlainText
+                    wrapMode: Text.Wrap
+                    verticalAlignment: Text.AlignVCenter
+                    font: picker.font
+                    color: option.highlighted ? option.palette.highlightedText : option.palette.text
+                }
+            }
+        }
         function optionIndex(options, key) {
             for (let i = 0; i < options.length; ++i)
                 if (options[i].key === key) return i
@@ -1170,44 +1192,32 @@ ApplicationWindow {
                         rowSpacing: 8
                         Layout.fillWidth: true
                         Label { text: "MASTER LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "masterLeftPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.masterOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.masterLeft)
                             onActivated: function(index) { audioSettings.masterLeft = model[index].key }
                             Accessible.name: "Master left playback port"
                         }
                         Label { text: "MASTER RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "masterRightPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.masterOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.masterRight)
                             onActivated: function(index) { audioSettings.masterRight = model[index].key }
                             Accessible.name: "Master right playback port"
                         }
                         Label { text: "CUE LEFT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "cueLeftPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.cueOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.cueLeft)
                             onActivated: function(index) { audioSettings.cueLeft = model[index].key }
                             Accessible.name: "Headphone cue left playback port"
                         }
                         Label { text: "CUE RIGHT"; color: Brand.ConfluxTheme.text; font.family: Brand.ConfluxTheme.displayFont }
-                        ComboBox {
+                        OutputPortPicker {
                             objectName: "cueRightPort"
-                            Layout.fillWidth: true
-                            Layout.minimumHeight: 40
-                            textRole: "label"
                             model: audioSettings.cueOptions
                             currentIndex: audioSettings.optionIndex(model, audioSettings.cueRight)
                             onActivated: function(index) { audioSettings.cueRight = model[index].key }

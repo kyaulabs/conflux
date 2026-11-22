@@ -442,9 +442,10 @@ int livePlayback(QGuiApplication& app, int argc, char** argv)
             controller.refreshAudioRouting();
             wait([&] {
                 for (const auto& entry : controller.audioRouting()["ports"].toList()) {
-                    const auto port = entry.toMap(); const auto label = port["label"].toString();
-                    if (label == "conflux-short-live-test-sink · input_0 [FL]") left = port["key"].toString();
-                    if (label == "conflux-short-live-test-sink · input_1 [FR]") right = port["key"].toString();
+                    const auto port = entry.toMap();
+                    if (port["nodeName"].toString() != "conflux-short-live-test-sink") continue;
+                    if (port["portName"] == "input_0" && port["channel"] == "FL") left = port["key"].toString();
+                    if (port["portName"] == "input_1" && port["channel"] == "FR") right = port["key"].toString();
                 }
                 return !left.isEmpty() && !right.isEmpty();
             });

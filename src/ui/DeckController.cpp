@@ -484,7 +484,9 @@ QVariantMap DeckController::audioRouting() const
         if (port.channel == "FL") channel = tr("Left");
         else if (port.channel == "FR") channel = tr("Right");
         else if (!port.channel.empty()) channel += " [" + QString::fromStdString(port.channel) + "]";
-        ports.append(QVariantMap{{"key", portKey(port)}, {"label", channel + " · " + name}});
+        ports.append(QVariantMap{{"key", portKey(port)}, {"label", channel + " · " + name},
+            {"nodeName", QString::fromStdString(port.nodeName)}, {"portName", QString::fromStdString(port.portName)},
+            {"channel", QString::fromStdString(port.channel)}});
     }
     return {{"ports", ports}, {"masterReady", ready_ && routingSnapshot_.masterReady},
         {"cueReady", ready_ && state_.cueReady},
