@@ -251,6 +251,10 @@ ApplicationWindow {
                     border.color: parent.activeFocus ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.controlBorder
                 }
                 Accessible.name: "Switch color theme (F6)"
+                Accessible.onPressAction: clicked()
+                Accessible.description: Brand.ConfluxTheme.dark
+                    ? "Dark theme is active. Switch to light theme."
+                    : "Light theme is active. Switch to dark theme."
             }
             WindowActions { targetWindow: window }
         }

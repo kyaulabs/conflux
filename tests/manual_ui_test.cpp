@@ -1220,11 +1220,23 @@ private slots:
 
         auto* theme = ui_->item("themeToggle");
         QVERIFY(theme);
+        auto* accessibleTheme = QAccessible::queryAccessibleInterface(theme);
+        QVERIFY(accessibleTheme);
         const auto originalText = theme->property("text").toString();
+        const auto darkDescription = QStringLiteral("Dark theme is active. Switch to light theme.");
+        const auto lightDescription = QStringLiteral("Light theme is active. Switch to dark theme.");
+        const auto originalDescription = originalText == QStringLiteral("LIGHT") ? darkDescription : lightDescription;
+        const auto switchedDescription = originalText == QStringLiteral("LIGHT") ? lightDescription : darkDescription;
+        QTRY_COMPARE(accessibleTheme->text(QAccessible::Description), originalDescription);
         QTest::keyClick(ui_->window, Qt::Key_F6);
         QTRY_VERIFY(theme->property("text").toString() != originalText);
-        QTest::keyClick(ui_->window, Qt::Key_F6);
+        QTRY_COMPARE(accessibleTheme->text(QAccessible::Description), switchedDescription);
+        auto* themeActions = accessibleTheme->actionInterface();
+        QVERIFY(themeActions);
+        QVERIFY(themeActions->actionNames().contains(QAccessibleActionInterface::pressAction()));
+        themeActions->doAction(QAccessibleActionInterface::pressAction());
         QTRY_COMPARE(theme->property("text").toString(), originalText);
+        QTRY_COMPARE(accessibleTheme->text(QAccessible::Description), originalDescription);
         QCOMPARE(ui_->endpoint.calls.size(), 1); // Only opening Audio requested discovery.
         QCOMPARE(ui_->endpoint.decks(), decks);
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
