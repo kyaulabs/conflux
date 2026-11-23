@@ -3803,6 +3803,55 @@ private slots:
         QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
     }
 
+    void nativeCueReleaseDoesNotEndASeparateKeyHold_data()
+    {
+        QTest::addColumn<int>("deck");
+        QTest::addColumn<int>("ownerKey");
+        QTest::addColumn<bool>("useMouse");
+        for (int deck = 0; deck < 2; ++deck)
+            for (const auto key : {Qt::Key_Return, Qt::Key_Enter})
+                for (const auto useMouse : {false, true})
+                    QTest::newRow(qPrintable(QString("deck%1-key%2-%3").arg(deck).arg(int(key))
+                                                   .arg(useMouse ? "mouse" : "space")))
+                        << deck << int(key) << useMouse;
+    }
+
+    void nativeCueReleaseDoesNotEndASeparateKeyHold()
+    {
+        QFETCH(int, deck);
+        QFETCH(int, ownerKey);
+        QFETCH(bool, useMouse);
+        ui_->endpoint.loadState(0);
+        ui_->endpoint.loadState(1);
+        ui_->endpoint.setReady(true);
+        auto* cue = ui_->item(QString("deck%1Cue").arg(deck).toUtf8().constData());
+        QVERIFY(cue);
+        QTRY_VERIFY(cue->isEnabled());
+        cue->forceActiveFocus();
+        QTRY_VERIFY(cue->hasActiveFocus());
+        const auto peer = ui_->endpoint.decks()[1 - deck];
+
+        QTest::keyPress(ui_->window, Qt::Key(ownerKey));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        verifyCueCall(0, "cuePress", deck);
+        if (useMouse)
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+        else
+            QTest::keyClick(ui_->window, Qt::Key_Space);
+        QCoreApplication::processEvents();
+        const auto callsWhileHeld = ui_->endpoint.calls.size();
+        const auto keptHolding = ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool();
+
+        QTest::keyRelease(ui_->window, Qt::Key(ownerKey));
+        QCOMPARE(callsWhileHeld, 1);
+        QVERIFY(keptHolding);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        verifyCueCall(1, "cueRelease", deck);
+        QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
+        QCOMPARE(ui_->endpoint.decks()[1 - deck], peer);
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void cueCancellation_data()
     {
         QTest::addColumn<int>("deck");
