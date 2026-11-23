@@ -6033,6 +6033,53 @@ private slots:
         QVERIFY(ui_->closeAudioSettings());
     }
 
+    void matchingOutputDescriptionsKeepRoutesDistinguishableAcrossRefresh()
+    {
+        const auto port = [](const char* key, const char* label, const char* node, const char* channel) {
+            return QVariantMap{{"key", QString::fromLatin1(key)}, {"label", QString::fromLatin1(label)},
+                               {"nodeName", QString::fromLatin1(node)}, {"portName", QString::fromLatin1(channel)}};
+        };
+        const auto masterLeft = port("port1", "Left output", "master-node", "playback_FL");
+        const auto masterRight = port("port2", "Right output", "master-node", "playback_FR");
+        const auto cueLeft = port("port3", "Left output", "cue-node", "playback_FL");
+        const auto cueRight = port("port4", "Right output", "cue-node", "playback_FR");
+        ui_->endpoint.setPlaybackPorts({masterLeft, masterRight, cueLeft, cueRight});
+        QVERIFY(ui_->openAudioSettings());
+        ui_->endpoint.calls.clear();
+
+        choosePort("masterLeftPort", 1);
+        choosePort("masterRightPort", 2);
+        choosePort("cueLeftPort", 3);
+        choosePort("cueRightPort", 4);
+        const auto description = [this](const char* name) {
+            const auto* accessible = QAccessible::queryAccessibleInterface(ui_->item(name));
+            return accessible ? accessible->text(QAccessible::Description) : QString{};
+        };
+        QTRY_COMPARE(description("masterLeftPort"), QString("Left output (master-node / playback_FL)"));
+        QTRY_COMPARE(description("cueLeftPort"), QString("Left output (cue-node / playback_FL)"));
+        QTRY_COMPARE(description("masterRightPort"), QString("Right output (master-node / playback_FR)"));
+        QTRY_COMPARE(description("cueRightPort"), QString("Right output (cue-node / playback_FR)"));
+
+        // A fresh enumeration can reorder identical device descriptions.
+        ui_->endpoint.setPlaybackPorts({cueRight, cueLeft, masterRight, masterLeft});
+        auto* leftPicker = ui_->item("masterLeftPort");
+        QTRY_COMPARE(leftPicker->property("currentIndex").toInt(), 4);
+        QTRY_COMPARE(description("masterLeftPort"), QString("Left output (master-node / playback_FL)"));
+        QTRY_COMPARE(description("cueRightPort"), QString("Right output (cue-node / playback_FR)"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        auto* apply = ui_->item("audioRoutingApply");
+        QTRY_VERIFY(apply && apply->isEnabled());
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(apply));
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        const auto request = ui_->endpoint.calls.last().toMap();
+        QCOMPARE(request["action"].toString(), QString("routing"));
+        QCOMPARE(request["masterLeft"].toString(), QString("port1"));
+        QCOMPARE(request["masterRight"].toString(), QString("port2"));
+        QCOMPARE(request["cueLeft"].toString(), QString("port3"));
+        QCOMPARE(request["cueRight"].toString(), QString("port4"));
+        QVERIFY(ui_->warnings.isEmpty());
+    }
+
     void recordingHeaderIndicatorIsCentered_data()
     {
         QTest::addColumn<QSize>("viewport");
