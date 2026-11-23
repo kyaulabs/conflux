@@ -413,6 +413,8 @@ if(CONFLUX_BUILD_UI)
     endif()
     install(TARGETS conflux RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     install(FILES tools/timing/analyze_bpm.py tools/timing/analyze_harmony.py DESTINATION ${CMAKE_INSTALL_DATADIR}/conflux)
+    install(FILES tools/stems/export.py tools/stems/service.py tools/stems/worker.py
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/conflux/tools/stems)
     install(FILES packaging/com.kyaulabs.conflux.desktop
         DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     install(FILES brand/assets/app-icons/conflux-app-dark.svg
