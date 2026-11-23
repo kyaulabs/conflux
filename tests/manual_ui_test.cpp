@@ -5609,6 +5609,8 @@ private slots:
             auto* accessible = QAccessible::queryAccessibleInterface(cue);
             QVERIFY(accessible && accessible->actionInterface());
             auto* action = accessible->actionInterface();
+            QCOMPARE(action->actionNames().count(QAccessibleActionInterface::pressAction()), 1);
+            QCOMPARE(action->actionNames().count(QAccessibleActionInterface::toggleAction()), 1);
             QVERIFY(accessible->state().checkable);
             for (const bool selected : {true, false}) {
                 QCOMPARE(accessible->state().checked, !selected);
@@ -5620,7 +5622,6 @@ private slots:
                 } else if (input == QStringLiteral("pointer")) {
                     QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
                 } else {
-                    QVERIFY(action->actionNames().contains(input));
                     action->doAction(input);
                 }
                 QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);

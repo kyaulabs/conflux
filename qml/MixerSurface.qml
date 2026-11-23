@@ -182,8 +182,9 @@ Rectangle {
                             Accessible.checkable: true
                             Accessible.name: "Deck " + strip.modelData.name + " headphone cue"
                             Accessible.description: "Select the pre-fader deck for the separate headphone output."
-                            Accessible.onPressAction: requestSelection()
-                            Accessible.onToggleAction: requestSelection()
+                            // Route the built-in actions through the acknowledged selection.
+                            function accessiblePressAction() { requestSelection() }
+                            function accessibleToggleAction() { requestSelection() }
                             contentItem: Text {
                                 text: headphoneCue.text
                                 horizontalAlignment: Text.AlignHCenter
