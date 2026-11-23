@@ -1195,6 +1195,29 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 clip: true
                 contentWidth: availableWidth
+
+                function revealFocusedControl() {
+                    const focusItem = window.activeFocusItem
+                    const view = contentItem
+                    if (!audioSettings.opened || !focusItem || !view) return
+                    let parent = focusItem.parent
+                    while (parent && parent !== view.contentItem)
+                        parent = parent.parent
+                    if (!parent) return
+
+                    const bounds = focusItem.mapToItem(view, 0, 0, focusItem.width, focusItem.height)
+                    const delta = bounds.y < 0 ? bounds.y : Math.max(0, bounds.y + bounds.height - view.height)
+                    if (delta === 0) return
+                    const end = view.originY + Math.max(0, view.contentHeight - view.height)
+                    view.contentY = Math.max(view.originY, Math.min(end, view.contentY + delta))
+                }
+
+                Connections {
+                    target: window
+                    enabled: audioSettings.opened
+                    function onActiveFocusItemChanged() { Qt.callLater(audioScroll.revealFocusedControl) }
+                }
+
                 ColumnLayout {
                     width: audioScroll.availableWidth
                     spacing: 12

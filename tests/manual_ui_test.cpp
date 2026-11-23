@@ -996,6 +996,88 @@ private slots:
         QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
     }
 
+    void audioDrawerKeyboardFocusStaysInView()
+    {
+        const auto originalFont = QGuiApplication::font();
+        const auto restoreFont = qScopeGuard([this, originalFont] {
+            ui_.reset();
+            QGuiApplication::setFont(originalFont);
+        });
+        ui_.reset();
+        auto platformFont = originalFont;
+        platformFont.setPixelSize(19);
+        QGuiApplication::setFont(platformFont);
+        ui_ = std::make_unique<UiFixture>();
+        ui_->load();
+        QVERIFY2(ui_->window, qPrintable(ui_->warnings.join('\n')));
+        QVERIFY(QTest::qWaitForWindowExposed(ui_->window));
+        ui_->window->resize(1180, 760);
+        QTRY_COMPARE(ui_->window->size(), QSize(1180, 760));
+        ui_->endpoint.setReady(true);
+        // A routing diagnostic adds enough wrapped content to put the
+        // recording controls below the fold at the supported font size.
+        ui_->endpoint.setRoutingError(
+            "The selected headphone device disconnected while applying the new route. "
+            "Both headphone links were removed. Refresh the playback port list and reselect "
+            "both headphone channels before applying the outputs again. Your master output "
+            "is still available. Check the device connection before retrying.");
+
+        auto* opener = ui_->item("audioSettingsOpen");
+        auto* drawer = ui_->object("audioSettingsDrawer");
+        QVERIFY(opener && drawer);
+        opener->forceActiveFocus();
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(drawer->property("opened").toBool());
+        auto* firstPicker = ui_->item("masterLeftPort");
+        auto* path = ui_->item("recordingPath");
+        auto* stop = ui_->item("recordingStop");
+        QVERIFY(firstPicker && path && stop);
+        QQuickItem* viewport = path->parentItem();
+        while (viewport && !viewport->property("contentY").isValid())
+            viewport = viewport->parentItem();
+        QVERIFY(viewport);
+        QTRY_VERIFY(viewport->property("contentHeight").toReal() > viewport->height());
+        QCOMPARE(viewport->property("contentY").toReal(), viewport->property("originY").toReal());
+
+        const auto frame = [](QQuickItem* item) {
+            return item->mapRectToScene(QRectF(QPointF(0, 0), item->size()));
+        };
+        const auto fullyVisible = [&](QQuickItem* item) {
+            return frame(viewport).adjusted(-.5, -.5, .5, .5).contains(frame(item));
+        };
+        const auto walk = [&](QQuickItem* target, Qt::Key key) {
+            for (int step = 0; step < 32; ++step) {
+                for (auto* item = ui_->window->activeFocusItem(); item; item = item->parentItem()) {
+                    if (item == target)
+                        return true;
+                }
+                QTest::keyClick(ui_->window, key);
+                QCoreApplication::processEvents();
+            }
+            return false;
+        };
+
+        firstPicker->forceActiveFocus();
+        QVERIFY(fullyVisible(firstPicker));
+        QVERIFY2(!fullyVisible(path), "The test fixture must put the recording path below the fold");
+        QVERIFY2(walk(path, Qt::Key_Tab), "Tab did not reach the recording path");
+        QTRY_VERIFY2(fullyVisible(path), "Tab reached the recording path outside the visible scroll area");
+        QVERIFY(viewport->property("contentY").toReal() > viewport->property("originY").toReal());
+
+        ui_->endpoint.setRecording("Recording", true);
+        QTRY_VERIFY(stop->isEnabled());
+        QVERIFY2(walk(stop, Qt::Key_Tab), "Tab did not reach Stop / Save during recording");
+        QTRY_VERIFY2(fullyVisible(stop), "Tab reached Stop / Save outside the visible scroll area");
+        QVERIFY2(walk(firstPicker, Qt::Key_Backtab), "Backtab did not return to the first output picker");
+        QTRY_VERIFY2(fullyVisible(firstPicker), "Backtab left the first output picker outside the visible scroll area");
+        QTest::keyClick(ui_->window, Qt::Key_Escape);
+        QTRY_VERIFY(!drawer->property("visible").toBool());
+        QTRY_VERIFY(opener->hasActiveFocus());
+        QCOMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls.first().toMap()["action"].toString(), QString("refreshRouting"));
+        QVERIFY2(ui_->warnings.isEmpty(), qPrintable(ui_->warnings.join('\n')));
+    }
+
     void keyboardTraversalReachesEnabledControlsWithoutCommands_data()
     {
         QTest::addColumn<int>("fontPixels");
