@@ -380,6 +380,7 @@ ApplicationWindow {
         id: library
         objectName: "libraryDrawer"
         property int selectedDeck: 0
+        onOpened: importedCues.preferredDeck = selectedDeck
         property string selectedId: ""
         property string cuePathSourceId: ""
         property string recoverySourceId: ""
@@ -1023,46 +1024,70 @@ ApplicationWindow {
                         clip: true
                         model: library.selectedCues
                         spacing: 4
+                        property int preferredDeck: 0
+                        readonly property var matchingDecks: [library.canJumpCue(0), library.canJumpCue(1)]
+                        readonly property int keyboardDeck: matchingDecks[preferredDeck] ? preferredDeck : matchingDecks.indexOf(true)
+                        activeFocusOnTab: count > 0 && keyboardDeck >= 0
+                        Accessible.name: "Imported cues"
+                        Accessible.description: "Use Up and Down to move through the cues, and Left and Right to choose a deck."
+                        Keys.onLeftPressed: { if (matchingDecks[0]) preferredDeck = 0 }
+                        Keys.onRightPressed: { if (matchingDecks[1]) preferredDeck = 1 }
                         ScrollBar.vertical: ScrollBar { }
-                        delegate: RowLayout {
+                        delegate: FocusScope {
+                            id: cueRow
                             required property var modelData
                             required property int index
                             width: importedCues.width
                             height: 56
-                            spacing: 8
-                            Label {
-                                objectName: "libraryCue" + index + "Name"
-                                text: modelData.trackNumber + ". " + modelData.label
-                                textFormat: Text.PlainText
-                                elide: Text.ElideRight
-                                color: Brand.ConfluxTheme.text
-                                Layout.fillWidth: true
-                                Accessible.name: text
-                            }
-                            Label {
-                                objectName: "libraryCue" + index + "Time"
-                                text: library.cueTime(modelData.seconds)
-                                textFormat: Text.PlainText
-                                color: Brand.ConfluxTheme.muted
-                                font.family: Brand.ConfluxTheme.monoFont
-                            }
-                            Button {
-                                objectName: "libraryCue" + index + "JumpA"
-                                text: "JUMP A"
-                                enabled: library.canJumpCue(0)
-                                Layout.minimumWidth: 88
-                                Layout.minimumHeight: 44
-                                onClicked: deckController.jumpToImportedCue(0, library.selectedId, index)
-                                Accessible.name: "Jump Deck A to cue " + modelData.trackNumber + ": " + modelData.label
-                            }
-                            Button {
-                                objectName: "libraryCue" + index + "JumpB"
-                                text: "JUMP B"
-                                enabled: library.canJumpCue(1)
-                                Layout.minimumWidth: 88
-                                Layout.minimumHeight: 44
-                                onClicked: deckController.jumpToImportedCue(1, library.selectedId, index)
-                                Accessible.name: "Jump Deck B to cue " + modelData.trackNumber + ": " + modelData.label
+                            RowLayout {
+                                anchors.fill: parent
+                                spacing: 8
+                                Label {
+                                    objectName: "libraryCue" + cueRow.index + "Name"
+                                    text: cueRow.modelData.trackNumber + ". " + cueRow.modelData.label
+                                    textFormat: Text.PlainText
+                                    elide: Text.ElideRight
+                                    color: Brand.ConfluxTheme.text
+                                    Layout.fillWidth: true
+                                    Accessible.name: text
+                                }
+                                Label {
+                                    objectName: "libraryCue" + cueRow.index + "Time"
+                                    text: library.cueTime(cueRow.modelData.seconds)
+                                    color: Brand.ConfluxTheme.muted
+                                    font.family: Brand.ConfluxTheme.monoFont
+                                }
+                                Repeater {
+                                    model: ["A", "B"]
+                                    Button {
+                                        required property int index
+                                        required property string modelData
+                                        objectName: "libraryCue" + cueRow.index + "Jump" + modelData
+                                        text: "JUMP " + modelData
+                                        enabled: importedCues.matchingDecks[index]
+                                        focusPolicy: Qt.ClickFocus
+                                        focus: importedCues.keyboardDeck === index
+                                        Layout.minimumWidth: 88
+                                        Layout.minimumHeight: 44
+                                        onClicked: {
+                                            importedCues.preferredDeck = index
+                                            importedCues.currentIndex = cueRow.index
+                                            deckController.jumpToImportedCue(index, library.selectedId, cueRow.index)
+                                        }
+                                        Keys.onReturnPressed: clicked()
+                                        Keys.onEnterPressed: clicked()
+                                        Accessible.focusable: enabled
+                                        Accessible.name: "Jump Deck " + modelData + " to cue " + cueRow.modelData.trackNumber + ": " + cueRow.modelData.label
+                                        Rectangle {
+                                            objectName: parent.objectName + "Focus"
+                                            anchors.fill: parent
+                                            visible: parent.activeFocus
+                                            color: "transparent"
+                                            border.width: 2
+                                            border.color: Brand.ConfluxTheme.primary
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
