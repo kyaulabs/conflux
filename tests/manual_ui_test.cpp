@@ -1923,16 +1923,16 @@ private slots:
         QVERIFY(detail);
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
         QTRY_COMPARE(detail->property("text").toString(),
-                     QString("Estimated source BPM 124.5 · Deck A playback KEY EST. D MIN"));
+                     QString("Estimated source BPM 124.5 · Deck A SOURCE KEY EST. D MIN"));
 
         ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
         QTRY_COMPARE(detail->property("text").toString(), QString("Analysis unavailable"));
         ui_->endpoint.snapshotDeck(1, {{"sourceId", selected}});
         QTRY_COMPARE(detail->property("text").toString(),
-                     QString("Estimated source BPM 149.0 · Deck B playback KEY AMBIGUOUS"));
+                     QString("Estimated source BPM 149.0 · Deck B SOURCE KEY AMBIGUOUS"));
         ui_->endpoint.snapshotDeck(1, {{"bpm", QVariantMap{{"estimated", 0.0}, {"reference", 142.0},
                                                            {"manual", true}, {"status", "Unavailable"}}}});
-        QTRY_COMPARE(detail->property("text").toString(), QString("Deck B playback KEY AMBIGUOUS"));
+        QTRY_COMPARE(detail->property("text").toString(), QString("Deck B SOURCE KEY AMBIGUOUS"));
         QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
@@ -5084,14 +5084,28 @@ private slots:
         ui_->endpoint.loadState(0);
         auto* label = ui_->item("deck0LocalTempo");
         QVERIFY(label);
+        auto* accessible = QAccessible::queryAccessibleInterface(label);
+        QVERIFY(accessible);
+        auto tempo = UiEndpoint::tempoState(true);
+        tempo["active"] = true;
+        tempo["percent"] = 6.0;
+        tempo["appliedPercent"] = 6.0;
+        tempo["keyLock"] = false;
+        ui_->endpoint.snapshotTempo(0, tempo);
+
         const auto before = ui_->endpoint.calls.size();
         auto harmony = QVariantMap{{"status", "Estimated"},
             {"candidates", QVariantList{QVariantMap{{"tonic", 3}, {"mode", "Minor"}}}}};
         ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
-        QTRY_VERIFY(label->property("text").toString().endsWith("KEY EST. E♭ MIN"));
+        QTRY_VERIFY(label->property("text").toString().endsWith("SOURCE KEY EST. E♭ MIN"));
+        QVERIFY(accessible->text(QAccessible::Description).contains("original recording"));
+        QVERIFY(accessible->text(QAccessible::Description).contains("key confidence is unknown"));
+        tempo["keyLock"] = true;
+        ui_->endpoint.snapshotTempo(0, tempo);
+        QTRY_VERIFY(label->property("text").toString().endsWith("SOURCE KEY EST. E♭ MIN"));
         harmony["status"] = "Ambiguous";
         ui_->endpoint.snapshotDeck(0, {{"harmony", harmony}});
-        QTRY_VERIFY(label->property("text").toString().endsWith("KEY AMBIGUOUS"));
+        QTRY_VERIFY(label->property("text").toString().endsWith("SOURCE KEY AMBIGUOUS"));
         ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
         QTRY_COMPARE(label->property("text").toString(), QString("LOCAL UNKNOWN"));
         ui_->endpoint.snapshotDeck(0, {{"replacing", false}});

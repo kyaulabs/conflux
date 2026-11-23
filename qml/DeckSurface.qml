@@ -38,12 +38,12 @@ Item {
         + (residentHold.errorCode ? " Live stems reported an error." : "")
     readonly property var bpmState: deck.bpm || ({})
     readonly property var localTiming: deck.localTiming || ({})
-    readonly property string localKeyText: {
+    readonly property string localSourceKeyText: {
         const harmony = deck.harmony || ({})
         if (!deck.loaded || deck.replacing || showingPreparation)
             return ""
         if (harmony.status === "Ambiguous")
-            return "KEY AMBIGUOUS"
+            return "SOURCE KEY AMBIGUOUS"
         if (harmony.status !== "Estimated" || !harmony.candidates || !harmony.candidates.length)
             return ""
         const key = harmony.candidates[0]
@@ -51,7 +51,7 @@ Item {
         if (!Number.isInteger(key.tonic) || key.tonic < 0 || key.tonic >= names.length
                 || (key.mode !== "Major" && key.mode !== "Minor"))
             return ""
-        return "KEY EST. " + names[key.tonic] + (key.mode === "Major" ? " MAJ" : " MIN")
+        return "SOURCE KEY EST. " + names[key.tonic] + (key.mode === "Major" ? " MAJ" : " MIN")
     }
     readonly property real localBpm: Number(localTiming.bpm) || 0
     readonly property bool hasLocalTiming: Boolean(deck.loaded) && !showingPreparation
@@ -472,7 +472,7 @@ Item {
             height: Math.max(12, implicitHeight)
             text: (surface.showingPreparation ? "LOCAL PREPARING"
                 : surface.hasLocalTiming ? "LOCAL SOURCE EST. " + surface.localBpm.toFixed(1) + " BPM" : "LOCAL UNKNOWN")
-                + (surface.localKeyText ? "  ·  " + surface.localKeyText : "")
+                + (surface.localSourceKeyText ? "  ·  " + surface.localSourceKeyText : "")
             textFormat: Text.PlainText
             elide: Text.ElideRight
             color: "#8EAAA7"
@@ -487,7 +487,7 @@ Item {
                     + (Number(surface.localTiming.endFrame) / 48000).toFixed(3)
                     + " source seconds. Confidence is unknown. Reference BPM and playback are unchanged."
                 : "Local tempo is unknown. Reference BPM and playback are unchanged.")
-                + (surface.localKeyText ? " Local key confidence is unknown." : "")
+                + (surface.localSourceKeyText ? " Source key analysis uses the original recording before tempo or pitch processing. Local key confidence is unknown." : "")
         }
         Label {
             id: trackStatus

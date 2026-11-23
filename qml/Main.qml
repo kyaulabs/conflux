@@ -425,8 +425,8 @@ ApplicationWindow {
                 if (!sourceBpm && surface.bpmState.status === "Estimated"
                         && Number.isFinite(estimate) && estimate >= 20 && estimate <= 400)
                     sourceBpm = "Estimated source BPM " + estimate.toFixed(1)
-                if (surface.localKeyText)
-                    estimates.push(surface.deckName + " playback " + surface.localKeyText)
+                if (surface.localSourceKeyText)
+                    estimates.push(surface.deckName + " " + surface.localSourceKeyText)
             }
             if (sourceBpm)
                 estimates.unshift(sourceBpm)
