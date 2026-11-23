@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 """Behavior tests for the M0 supervisor, requiring neither model nor GPU."""
 
+from contextlib import ExitStack
 import hashlib
 import io
 import json
@@ -23,6 +24,7 @@ import warnings
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.stems.export import _PinnedFile
 from tools.stems.worker import (CHANNELS, HOP, OVERLAP, RATE, STEMS, WINDOW,
                                 NativeRuntime, StemWorker)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "benchmarks"))
@@ -243,6 +245,53 @@ class WorkerTest(unittest.TestCase):
                 if event["event"] == name and (generation is None or event["generation"] == generation):
                     return event
         self.fail(f"no {name} event for generation {generation}")
+
+    def test_verified_model_pin_is_reused_and_rejects_replacement(self):
+        with ExitStack() as stack:
+            model_pin = _PinnedFile(self.model, 1024, stack, None, time.monotonic() + 3)
+            worker, backend = self.worker(_model_pin=model_pin)
+            try:
+                with patch("tools.stems.worker._open_model",
+                           side_effect=AssertionError("verified pin must avoid a duplicate model scan")):
+                    generation = worker.load(self.path)
+                    ready = self.event(worker, "runtime_ready", generation)
+                    self.assertEqual(ready["model_id"], hashlib.sha256(self.model.read_bytes()).hexdigest())
+                    self.assertEqual(ready["model_id"], model_pin.digest)
+            finally:
+                worker.close()
+            self.assertEqual(backend.starts, 1)
+            self.assertTrue(backend.closed)
+
+            replacement = self.root / "replacement.gguf"
+            replacement.write_bytes(self.model.read_bytes())
+            replacement.replace(self.model)
+            worker, backend = self.worker(_model_pin=model_pin)
+            try:
+                generation = worker.load(self.path)
+                failure = self.event(worker, "error", generation)
+                self.assertIn("model changed", failure["message"])
+                self.assertEqual(backend.starts, 0)
+            finally:
+                worker.close()
+
+    def test_pinned_model_change_during_native_start_fails_and_closes_backend(self):
+        with ExitStack() as stack:
+            model_pin = _PinnedFile(self.model, 1024, stack, None, time.monotonic() + 3)
+
+            class ChangingRuntime(FakeRuntime):
+                def start(backend):
+                    self.model.write_bytes(b"changed during native startup")
+                    return super().start()
+
+            worker, backend = self.worker(ChangingRuntime(), _model_pin=model_pin)
+            try:
+                generation = worker.load(self.path)
+                failure = self.event(worker, "error", generation)
+                self.assertIn("model changed during runtime loading", failure["message"])
+            finally:
+                worker.close()
+            self.assertEqual(backend.starts, 1)
+            self.assertTrue(backend.closed)
 
     def collect(self, worker, generation):
         chunks = []

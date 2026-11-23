@@ -354,7 +354,7 @@ class StemWorker:
     """
 
     def __init__(self, runtime, model, backend="vulkan", threads=4, max_ready=2,
-                 request_timeout=30, *, _backend_factory=NativeRuntime):
+                 request_timeout=30, *, _backend_factory=NativeRuntime, _model_pin=None):
         if (backend not in ("cpu", "vulkan") or isinstance(threads, bool)
                 or not isinstance(threads, int) or threads < 1 or threads > 64
                 or isinstance(max_ready, bool) or not isinstance(max_ready, int)
@@ -362,6 +362,9 @@ class StemWorker:
             raise ValueError("invalid stem worker configuration")
         self.runtime = Path(runtime).absolute()
         self.model = Path(model).absolute()
+        if _model_pin is not None and _model_pin.path != self.model:
+            raise ValueError("verified stem model pin must match the runtime model path")
+        self._model_pin = _model_pin
         self.backend = backend
         self.threads = threads
         self.max_ready = max_ready
@@ -556,8 +559,15 @@ class StemWorker:
     def _ensure_runtime(self, command):
         if self._native is not None:
             return
+        model_pin = self._model_pin
         signature = _signature(self.model)
-        if self._model_id is None or signature != self._model_signature:
+        if model_pin is not None:
+            # The service/exporter has hashed this descriptor and owns it
+            # until close. Check both the path and descriptor before reusing it.
+            if signature != model_pin.signature or not model_pin.matches_signature():
+                raise RuntimeError("stem model changed after verified pinning")
+            self._model_id = model_pin.digest
+        elif self._model_id is None or signature != self._model_signature:
             with _open_model(self.model, signature) as stream:
                 digest = hashlib.sha256()
                 remaining = signature[2]
@@ -579,7 +589,8 @@ class StemWorker:
             self._native = native
             self._native_shutdown = None
         ready = native.start()
-        if _signature(self.model) != signature:
+        if (_signature(self.model) != signature
+                or (model_pin is not None and not model_pin.matches_signature())):
             raise RuntimeError("stem model changed during runtime loading")
         with self._condition:
             self._backend_starts += 1

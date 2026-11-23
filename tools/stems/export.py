@@ -99,8 +99,12 @@ class _PinnedFile:
         self.size = info.st_size
         self.digest = self.hash(cancel, deadline)
 
+    def matches_signature(self):
+        return (_signature(self.path.lstat()) == self.signature
+                and _signature(os.fstat(self.fd)) == self.signature)
+
     def hash(self, cancel, deadline):
-        if _signature(self.path.lstat()) != self.signature or _signature(os.fstat(self.fd)) != self.signature:
+        if not self.matches_signature():
             raise RuntimeError("export input or tool changed")
         digest = hashlib.sha256()
         os.lseek(self.fd, 0, os.SEEK_SET)
@@ -112,7 +116,7 @@ class _PinnedFile:
                 raise RuntimeError("export input or tool was truncated")
             digest.update(block)
             remaining -= len(block)
-        if _signature(self.path.lstat()) != self.signature or _signature(os.fstat(self.fd)) != self.signature:
+        if not self.matches_signature():
             raise RuntimeError("export input or tool changed")
         return digest.hexdigest()
 
@@ -226,7 +230,7 @@ def export_f32(source_f32, destination, runtime, model, *, backend="vulkan", thr
             factory = _worker_factory or StemWorker
             worker = factory(runtime_pin.path, model_pin.path, backend=backend, threads=threads,
                              max_ready=2, request_timeout=limits.request_timeout,
-                             _backend_factory=native_factory)
+                             _backend_factory=native_factory, _model_pin=model_pin)
             generation = worker.load_f32(source.path)
             frames = source.size // (CHANNELS * 4)
             offset = 0

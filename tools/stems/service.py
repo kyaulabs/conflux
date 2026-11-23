@@ -204,8 +204,7 @@ class _Session:
 
     def verify_signatures(self):
         for pinned in self.pins:
-            if (exporter._signature(pinned.path.lstat()) != pinned.signature
-                    or exporter._signature(os.fstat(pinned.fd)) != pinned.signature):
+            if not pinned.matches_signature():
                 raise RuntimeError("service source, model or tool changed")
 
     def drops(self):
@@ -465,7 +464,8 @@ def serve_f32(source_f32, directory, runtime, model, *, backend="vulkan", thread
             native_factory = lambda *args: NativeRuntime(*args, spool_directory=directory / "native",
                                                          max_stderr_bytes=limits.max_diagnostic_bytes)
             worker = (_worker_factory or StemWorker)(runtime_pin.path, model_pin.path, backend=backend,
-                threads=threads, max_ready=1, request_timeout=limits.request_timeout, _backend_factory=native_factory)
+                threads=threads, max_ready=1, request_timeout=limits.request_timeout,
+                _backend_factory=native_factory, _model_pin=model_pin)
             session = _Session(source, model_pin, runtime_pin, directory, wire, worker, pins)
             wire.emit({"event": "ready", "generation": 0, "describe": description,
                        "source": {"format": "f32le", "sample_rate": RATE, "channels": CHANNELS,
