@@ -489,7 +489,7 @@ QVariantMap DeckController::audioRouting() const
             {"channel", QString::fromStdString(port.channel)}});
     }
     return {{"ports", ports}, {"masterReady", ready_ && routingSnapshot_.masterReady},
-        {"cueReady", ready_ && state_.cueReady},
+        {"cueReady", ready_ && state_.cueReady && routingSnapshot_.cueReady},
         {"masterLeft", routingConfig_.master ? portKey(routingConfig_.master->left) : QString{}},
         {"masterRight", routingConfig_.master ? portKey(routingConfig_.master->right) : QString{}},
         {"cueLeft", routingConfig_.cue ? portKey(routingConfig_.cue->left) : QString{}},
