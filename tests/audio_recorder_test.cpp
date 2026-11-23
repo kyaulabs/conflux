@@ -173,6 +173,39 @@ bool orderWrapAndDrain(const std::filesystem::path& directory)
     return passed;
 }
 
+bool liveHeaderCheckpoints(const std::filesystem::path& directory)
+{
+    const auto path = directory / "live-header.wav";
+    StereoRecorder recorder(path);
+    constexpr std::size_t blockFrames = 4000;
+    static_assert(StereoRecorder::sampleRate % blockFrames == 0);
+    std::vector<float> expected;
+    std::vector<float> block(blockFrames * StereoRecorder::channels);
+    auto pushBlock = [&](float value) {
+        for (std::size_t sample = 0; sample < block.size(); sample += StereoRecorder::channels) {
+            block[sample] = value;
+            block[sample + 1] = -value;
+        }
+        expected.insert(expected.end(), block.begin(), block.end());
+        return require(recorder.push(block) && waitWritten(recorder, expected.size() / StereoRecorder::channels) &&
+                           recorder.running(),
+                       "Recording did not make bounded progress while checking the WAV header");
+    };
+    if (!pushBlock(0.125F) ||
+        !require(exactSamples(readWave(path), expected), "First written audio has no readable WAV header"))
+        return false;
+    for (std::size_t frame = 0; frame < StereoRecorder::sampleRate; frame += blockFrames) {
+        if (!pushBlock(0.25F))
+            return false;
+    }
+    if (!require(exactSamples(readWave(path), expected), "Live WAV header did not advance as audio was written") ||
+        !pushBlock(0.375F))
+        return false;
+    recorder.stop();
+    return require(!recorder.failed() && exactSamples(readWave(path), expected),
+                   "Final WAV header did not include audio after the last checkpoint");
+}
+
 bool terminalInputAndOverflow(const std::filesystem::path& directory)
 {
     bool passed = true;
@@ -300,10 +333,11 @@ int main()
     try {
         TemporaryDirectory directory;
         const bool order = orderWrapAndDrain(directory.path);
+        const bool checkpoints = liveHeaderCheckpoints(directory.path);
         const bool terminal = terminalInputAndOverflow(directory.path);
         const bool targets = targetErrors(directory.path);
         const bool writeFailure = actualWriteFailure(directory.path);
-        return order && terminal && targets && writeFailure ? 0 : 1;
+        return order && checkpoints && terminal && targets && writeFailure ? 0 : 1;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;
