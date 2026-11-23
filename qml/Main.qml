@@ -177,6 +177,29 @@ ApplicationWindow {
                 onClicked: audioSettings.open()
                 Accessible.name: "Audio outputs and stereo recording"
                 Accessible.description: deckController.recording.active ? "Stereo master recording is active." : "Configure outputs or record the stereo master."
+                readonly property string recordingState: deckController.recording.status || ""
+                onRecordingStateChanged: {
+                    const announcer = audioSettings.opened ? recordingStatusLabel : audioSettingsButton
+                    if (!announcer || typeof announcer.Accessible.announce !== "function")
+                        return
+                    let message
+                    switch (recordingState) {
+                    case "Recording":
+                        message = "Master recording started."
+                        break
+                    case "Complete":
+                        message = "Master recording saved."
+                        break
+                    case "Failed":
+                        message = "Master recording failed."
+                        if (deckController.recording.error)
+                            message += " " + deckController.recording.error
+                        break
+                    default:
+                        return
+                    }
+                    announcer.Accessible.announce(message, Accessible.Polite)
+                }
                 contentItem: Item {
                     implicitWidth: recordingHeaderRow.implicitWidth
                     implicitHeight: recordingHeaderRow.height
@@ -1323,6 +1346,7 @@ ApplicationWindow {
                         }
                     }
                     Label {
+                        id: recordingStatusLabel
                         objectName: "recordingStatus"
                         text: "Recording: " + deckController.recording.status
                         color: deckController.recording.active ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.text
