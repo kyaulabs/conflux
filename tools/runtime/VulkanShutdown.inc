@@ -2,6 +2,14 @@
 
 #include <cstdio>
 
+extern "C" void ggml_vk_conflux_checkpoint_pipeline_cache() noexcept {
+    for (const auto & device : vk_instance.devices) {
+        if (device && device->device)
+            device->pipeline_cache.checkpointIfCold(static_cast<VkDevice>(device->device),
+                static_cast<const VkPhysicalDeviceProperties&>(device->properties));
+    }
+}
+
 extern "C" bool ggml_vk_conflux_shutdown() {
     if (!vk_instance.instance) {
         return true;
