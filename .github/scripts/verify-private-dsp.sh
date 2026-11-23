@@ -19,6 +19,8 @@ mv -- "$prefix" "$installed"
 
 unset LD_LIBRARY_PATH LD_PRELOAD LD_AUDIT
 python3 - "$installed" <<'PY'
+from hashlib import sha256
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -32,6 +34,19 @@ for target in ("conflux", "conflux-audio-probe"):
         paths = re.findall(rf"(?m)^\s*{re.escape(name)}\s+=> (.+?)\s+\(0x[0-9a-f]+\)$", dependencies)
         if len(paths) != 1 or Path(paths[0]).resolve() != (private / name).resolve(strict=True):
             raise SystemExit(f"{target} did not load its packaged {name}")
+
+stem_dir = install / "share/conflux/tools/stems"
+source = Path("tools/stems")
+expected = {
+    field: sha256((source / name).read_bytes()).hexdigest()
+    for field, name in (("helper_sha256", "export.py"), ("worker_sha256", "worker.py"),
+                        ("service_sha256", "service.py"))
+}
+for script, fields in (("export.py", ("helper_sha256", "worker_sha256")), ("service.py", tuple(expected))):
+    description = json.loads(subprocess.check_output(
+        [sys.executable, "-I", "-B", stem_dir / script, "--describe"], cwd=install, timeout=10))
+    if any(description.get(field) != expected[field] for field in fields):
+        raise SystemExit(f"{script} did not load its packaged stem sources")
 PY
 QT_QPA_PLATFORM=offscreen QT_QUICK_CONTROLS_STYLE=Basic QT_QUICK_BACKEND=software \
     "$installed/bin/conflux" --smoke-test
