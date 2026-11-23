@@ -26,6 +26,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QtEndian>
 
+#include "PipeWireInputSamples.hpp"
 #include <pipewire/filter.h>
 #include <pipewire/pipewire.h>
 #include <algorithm>
@@ -200,18 +201,6 @@ private:
         if (started_) { pw_thread_loop_unlock(loop_); pw_thread_loop_stop(loop_); }
         pw_thread_loop_destroy(loop_); loop_ = nullptr; started_ = false;
     }
-    static const float* inputSamples(const spa_data* plane, std::uint32_t frames) noexcept
-    {
-        if (!plane || !plane->data || !plane->chunk || !plane->maxsize) return nullptr;
-        const auto& chunk = *plane->chunk;
-        const auto offset = chunk.offset % plane->maxsize;
-        const auto bytes = frames * sizeof(float);
-        if (chunk.stride != sizeof(float) || chunk.size < bytes || bytes > plane->maxsize - offset ||
-            (chunk.flags & (SPA_CHUNK_FLAG_CORRUPTED | SPA_CHUNK_FLAG_EMPTY))) return nullptr;
-        const auto* start = static_cast<const char*>(plane->data) + offset;
-        return reinterpret_cast<std::uintptr_t>(start) % alignof(float) == 0 ?
-            reinterpret_cast<const float*>(start) : nullptr;
-    }
     void saveMismatch(std::uint64_t graphFrame, std::uint64_t graphNsec,
                       std::size_t channel, std::uint32_t frame, std::uint32_t frames,
                       bool bufferPresent, const spa_data* plane, const float* samples, float sample) noexcept
@@ -248,7 +237,7 @@ private:
             if (!buffer && !bounded) continue;
             const auto* view = buffer ? buffer->buffer : nullptr;
             const auto* plane = view && view->n_datas == 1 ? view->datas : nullptr;
-            const auto* samples = inputSamples(plane, frames);
+            const auto* samples = conflux::experiments::pipeWireInputSamples(plane, frames);
             if (samples) processed[channel] = frames;
             const auto checked = armed ? std::min<std::uint64_t>(frames, self.remaining_[channel]) : 0;
             if (checked && bounded) {

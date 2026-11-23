@@ -4,6 +4,7 @@
 #include "audio/LiveSession.hpp"
 #include "audio/LiveStemBuffer.hpp"
 #include "audio/StereoRecorder.hpp"
+#include "PipeWireInputSamples.hpp"
 #include <pipewire/filter.h>
 #include <pipewire/pipewire.h>
 #include <sndfile.h>
@@ -178,6 +179,13 @@ public:
     const std::string& name() const { return name_; }
     std::uint64_t received(std::size_t channel) const { return received_[channel].load(); }
     std::uint64_t zerosAfterSignal(std::size_t channel) const { return zerosAfterSignal_[channel].load(); }
+    std::uint64_t unreadableAfterSignal(std::size_t channel) const { return unreadableAfterSignal_[channel].load(); }
+    bool continuousAfterSignal() const
+    {
+        for (std::size_t channel = 0; channel < channels_; ++channel)
+            if (zerosAfterSignal(channel) || unreadableAfterSignal(channel)) return false;
+        return true;
+    }
     std::uint64_t maxSignalCallbackGapNs(std::size_t channel) const { return maxSignalGapNs_[channel].load(); }
     std::uint64_t wrong() const { return wrong_.load(); }
     void validateSamples(bool armed) { validationArmed_.store(armed, std::memory_order_release); }
@@ -190,6 +198,7 @@ public:
             const auto bits = firstWrongBits_[channel].load(std::memory_order_acquire);
             output << "{\"received_nonzero\":" << received(channel)
                    << ",\"zeros_after_signal\":" << zerosAfterSignal(channel)
+                   << ",\"unreadable_frames_after_signal\":" << unreadableAfterSignal(channel)
                    << ",\"first_wrong\":";
             if (!bits) output << "null";
             else output << "{\"expected_f32_bits\":" << (bits >> 32)
@@ -205,14 +214,23 @@ private:
     static void process(void* data, spa_io_position* position) noexcept
     {
         auto& self = *static_cast<Sink*>(data);
-        if (!position || position->clock.duration > 65536) return;
+        if (!position || !position->clock.duration || position->clock.duration > 65536) return;
         const auto frames = std::uint32_t(position->clock.duration);
         const bool validate = self.validationArmed_.load(std::memory_order_acquire);
         for (std::size_t channel = 0; channel < self.channels_; ++channel) {
-            const auto* samples = static_cast<const float*>(pw_filter_get_dsp_buffer(self.ports_[channel], frames));
-            if (!samples || !validate) continue;
-            std::uint64_t nonzero = 0, wrong = 0, zeros = 0;
+            auto* port = self.ports_[channel];
+            auto* buffer = pw_filter_dequeue_buffer(port);
+            const auto* view = buffer ? buffer->buffer : nullptr;
+            const auto* plane = view && view->n_datas == 1 ? view->datas : nullptr;
+            const auto* samples = conflux::experiments::pipeWireInputSamples(plane, frames);
             bool signalObserved = self.received_[channel].load(std::memory_order_relaxed) != 0;
+            if (!validate || !samples) {
+                if (validate && signalObserved)
+                    self.unreadableAfterSignal_[channel].fetch_add(frames, std::memory_order_relaxed);
+                if (buffer) (void)pw_filter_queue_buffer(port, buffer);
+                continue;
+            }
+            std::uint64_t nonzero = 0, wrong = 0, zeros = 0;
             for (std::size_t frame = 0; frame < frames; ++frame) {
                 const float sample = samples[frame];
                 // Constant-sample validation is armed only after startup
@@ -234,6 +252,7 @@ private:
                     }
                 }
             }
+            (void)pw_filter_queue_buffer(port, buffer);
             // Publish the error latch before fresh delivery. An acquire of a
             // new received count must also observe that block's wrong samples.
             self.wrong_.fetch_add(wrong, std::memory_order_relaxed);
@@ -260,7 +279,8 @@ private:
     std::array<float, 4> expected_{};
     std::array<void*, 4> ports_{};
     std::array<std::atomic<std::uint64_t>, 4> received_{};
-    std::array<std::atomic<std::uint64_t>, 4> zerosAfterSignal_{}, lastSignalNs_{}, maxSignalGapNs_{};
+    std::array<std::atomic<std::uint64_t>, 4> zerosAfterSignal_{}, unreadableAfterSignal_{},
+        lastSignalNs_{}, maxSignalGapNs_{};
     std::array<std::atomic<std::uint64_t>, 4> firstWrongBits_{}, firstWrongPosition_{};
     std::array<std::atomic<std::uint32_t>, 4> firstWrongQuantum_{}, firstWrongIndex_{};
     std::atomic<std::uint64_t> wrong_{0};
@@ -851,10 +871,12 @@ HandoffResult runSourceHandoff(const std::filesystem::path& directory, std::span
         // Every recorded frame above stays an exact functional oracle. Keep
         // nonzero routing errors strict; downstream zero delivery also depends
         // on virtual graph execution deadlines, which instrumentation excludes.
-        require(!result.wrongSamples && (!executionDeadlineGate || (!result.zeroSamples[0] && !result.zeroSamples[1])),
-            "source-handoff: nonzero peer samples remain exact; virtual zero gate follows execution mode (wrong=" +
+        require(!result.wrongSamples && (!executionDeadlineGate || master.continuousAfterSignal()),
+            "source-handoff: nonzero peer samples remain exact; virtual delivery gate follows execution mode (wrong=" +
                 std::to_string(result.wrongSamples) + ", zeros=[" + std::to_string(result.zeroSamples[0]) + "," +
-                std::to_string(result.zeroSamples[1]) + "])");
+                std::to_string(result.zeroSamples[1]) + "], unreadable=[" +
+                std::to_string(master.unreadableAfterSignal(0)) + "," +
+                std::to_string(master.unreadableAfterSignal(1)) + "])");
         master.validateSamples(false);
         session.stop();
         const auto final = session.stoppedState();
@@ -1171,8 +1193,8 @@ void runSourceContinuation(const std::filesystem::path& directory)
             "source-continuation: continuously attached master recording drains with no overflow or lost frame");
         verifyRecording(recordingPath, recorded);
         require(!master.wrong() && (!executionDeadlineGate ||
-                (!master.zerosAfterSignal(0) && !master.zerosAfterSignal(1))),
-            "source-continuation: peer receiver remains exact; zero delivery gate follows existing execution mode");
+                master.continuousAfterSignal()),
+            "source-continuation: peer receiver remains exact; delivery gate follows existing execution mode");
         if (executionDeadlineGate) require(!state.deadlineMisses, "source-continuation: no callback execution deadline misses");
         save(true);
     } catch (const std::exception& error) {
@@ -1414,7 +1436,7 @@ void runResidentSourceContinuation(const std::filesystem::path& directory, std::
         require(recorded && written == recorded && !recorder->failed() && !recorder->overflowCount(),
             prefix + ": complete peer master recording drains without omitted frames");
         verifyRecording(recordingPath, recorded);
-        require(!master.wrong() && (!executionDeadlineGate || (!master.zerosAfterSignal(0) && !master.zerosAfterSignal(1))),
+        require(!master.wrong() && (!executionDeadlineGate || master.continuousAfterSignal()),
             prefix + ": original exact peer receiver oracle remains strict");
         if (executionDeadlineGate) require(!state.deadlineMisses, prefix + ": no callback execution deadline misses");
         save(true);
@@ -1786,7 +1808,7 @@ void runProcessedResidentContinuation(const std::filesystem::path& directory, st
                 prefix + ": complete master recording drains");
         verifyRecording(path, recorded);
         require(!master.wrong() &&
-                    (!executionDeadlineGate || (!master.zerosAfterSignal(0) && !master.zerosAfterSignal(1))),
+                    (!executionDeadlineGate || master.continuousAfterSignal()),
                 prefix + ": exact peer receiver remains strict");
         if (executionDeadlineGate)
             require(!state.deadlineMisses, prefix + ": no callback deadline misses");
