@@ -52,8 +52,10 @@ public:
                 info.pInitialData = nullptr;
                 status = vkCreatePipelineCache(device, &info, nullptr, &created);
             }
-            if (status == VK_SUCCESS)
+            if (status == VK_SUCCESS) {
                 cache_ = created;
+                acceptedSeed_ = info.initialDataSize != 0;
+            }
         });
         return cache_;
     }
@@ -73,6 +75,12 @@ public:
             // Leave the existing cache in place if the optional save failed.
         }
         (void)flock(directory_, LOCK_UN);
+    }
+
+    void checkpointIfCold(VkDevice device, const VkPhysicalDeviceProperties& properties) const noexcept
+    {
+        if (!acceptedSeed_)
+            save(device, properties);
     }
 
     void destroy(VkDevice device) noexcept
@@ -245,6 +253,7 @@ private:
 
     std::once_flag initialize_;
     Record opened_{};
+    bool acceptedSeed_ = false;
     VkPipelineCache cache_ = VK_NULL_HANDLE;
     int directory_ = -1;
     char name_[64]{};

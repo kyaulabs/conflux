@@ -81,6 +81,7 @@ void write_samples(const std::filesystem::path& path, const std::vector<float>& 
 } // namespace
 
 extern "C" bool ggml_vk_conflux_shutdown();
+extern "C" void ggml_vk_conflux_checkpoint_pipeline_cache() noexcept;
 
 static int run_runtime(int argc, char** argv, bool& vulkan_used) {
     try {
@@ -161,6 +162,7 @@ static int run_runtime(int argc, char** argv, bool& vulkan_used) {
 
         std::vector<float> planar(static_cast<std::size_t>(config.segment_samples * config.audio_channels));
         std::vector<float> output(planar.size() * config.sources.size());
+        bool checkpoint_pending = vulkan_used;
         std::string line;
         while (std::getline(std::cin, line)) {
             std::int64_t id = -1;
@@ -235,6 +237,11 @@ static int run_runtime(int argc, char** argv, bool& vulkan_used) {
                     {"graph_readback_ms", json::Value::make_number(timing.graph_readback_ms)},
                     {"postprocess_ms", json::Value::make_number(timing.postprocess_ms)},
                     {"graph_rebuild_ms", json::Value::make_number(timing.graph_rebuild_ms)}}, id);
+                if (checkpoint_pending) {
+                    checkpoint_pending = false;
+                    // Publish only after a complete result has been flushed to the caller.
+                    ggml_vk_conflux_checkpoint_pipeline_cache();
+                }
             } catch (const std::exception& error) {
                 emit({{"event", json::Value::make_string("error")},
                     {"message", json::Value::make_string(error.what())}}, id);
