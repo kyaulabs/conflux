@@ -133,9 +133,13 @@ Item {
         }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
-        onReleased: { if (control.touchContactId < 0) control.finishPress(false) }
+        // The native button cannot release a hold owned by Enter, Return or touch.
+        onReleased: {
+            if (control.touchContactId < 0 && control.heldKey === 0)
+                control.finishPress(false)
+        }
         onCanceled: {
-            if (control.touchContactId < 0)
+            if (control.touchContactId < 0 && control.heldKey === 0)
                 control.requestCancel(control.holdAction && !control.available)
         }
         onEnabledChanged: {
