@@ -288,14 +288,15 @@ def steady_tempo_period(periods, typical, measured):
     return statistics.mean(body) if body else None
 
 
-def summarize_beats(seconds, frames, gap_starts=()):
+def summarize_beats(seconds, frames, gap_starts=(), *, silent_cores=()):
     beat_frames = source_beat_frames(seconds, frames)
+    unmeasured = unmeasured_intervals(beat_frames, silent_cores)
     periods = []
-    for first, last in zip(beat_frames, beat_frames[1:]):
+    for index, (first, last) in enumerate(zip(beat_frames, beat_frames[1:]), 1):
         period = last - first
         # Use the same supported range as the deck's source-local tempo.
         # Store an explicit gap so a window cannot bridge a silent break.
-        if (not RATE * 15 // 100 <= period <= RATE * 3 or
+        if (unmeasured[index] or not RATE * 15 // 100 <= period <= RATE * 3 or
                 (gap_starts and bisect_right(gap_starts, first) != bisect_right(gap_starts, last))):
             periods.append(None)
         else:
@@ -508,8 +509,8 @@ def run(source_dir, model_path, frames, stream):
     signal_last = last - dither_edge_length(span[::-1])
     seconds = filter_silent_events(seconds, frames, signal_first, signal_last, gaps, gap_starts)
     down_seconds = filter_silent_events(down_seconds, frames, signal_first, signal_last, gaps, gap_starts)
-    bpm, _beat_count = summarize_beats(seconds, frames, gap_starts)
     local_silence = interior_silence_cores(stereo, first, last, MIN_LOCAL_SILENCE)
+    bpm, _beat_count = summarize_beats(seconds, frames, gap_starts, silent_cores=local_silence)
     return encode_result(frames, pcm_sha256, bpm, seconds, down_seconds, local_silence)
 
 

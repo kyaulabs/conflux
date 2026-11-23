@@ -297,6 +297,18 @@ class AnalyzeBpmTest(unittest.TestCase):
         slow = [i*120000 for i in range(10)]
         self.assertFalse(any(bpm.unmeasured_intervals(slow, [(390000,508000)])))
 
+    def test_summary_excludes_intervals_withheld_from_local_tempo(self):
+        # Both audible passages are 120 BPM. The 200 BPM pulses in the rest
+        # would otherwise outnumber the source-supported intervals.
+        frames = 5 * bpm.RATE
+        beats = [0, .5, 1, 1.34, 1.64, 1.94, 2.24, 2.54, 2.84, 3.14, 3.44, 3.56, 4.06, 4.56]
+        silence = [(51360, 167040)]
+        tempo, count = bpm.summarize_beats(beats, frames, silent_cores=silence)
+        self.assertEqual((tempo, count), (120.0, len(beats)))
+        _, *events = map(json.loads, bpm.encode_result(frames, 'a' * 64, tempo, beats, [0, 3.56], silence).splitlines())
+        self.assertEqual([event['frame'] for event in events], bpm.source_beat_frames(beats, frames))
+        self.assertEqual(sum(event['unmeasured_before'] for event in events), 9)
+
     def test_unknown_summary_preserves_zero_one_and_outlier_timing(self):
         digest = hashlib.sha256(b"fixture").hexdigest()
         for seconds, downbeats in (([], []), ([.5], [.5]), ([0, 3.01], [0])):
