@@ -972,6 +972,51 @@ class WorkerTest(unittest.TestCase):
         self.assertEqual(fake.calls, 3)  # stale call + exact-grid prior/current.
         self.assertEqual(fake.starts, 1)
 
+    def test_seek_supersedes_window_after_read_before_native_submission(self):
+        path = self.root / "direct-submit.f32"
+        audio = fixture(self.root / "direct-submit.wav", 2 * HOP + OVERLAP + 137)
+        audio.astype("<f4").tofile(path)
+        reference, _ = self.worker()
+        expected = self.collect(reference, reference.load_f32(path))[-1]["samples"]
+
+        worker, fake = self.worker()
+        read_window = worker._read_window
+        check = worker._check
+        prepared = threading.Event()
+        resume = threading.Event()
+        after_read = False
+
+        def read(source, start):
+            nonlocal after_read
+            window = read_window(source, start)
+            after_read = start == 0
+            return window
+
+        def stop_after_validation(command):
+            nonlocal after_read
+            check(command)
+            if after_read:
+                after_read = False
+                prepared.set()
+                if not resume.wait(3):
+                    raise TimeoutError("test did not release prepared window")
+
+        with (patch.object(worker, "_read_window", side_effect=read),
+              patch.object(worker, "_check", side_effect=stop_after_validation)):
+            worker.load_f32(path)
+            try:
+                self.assertTrue(prepared.wait(3), "first window never passed validation")
+                latest = worker.seek(2 * HOP + OVERLAP)
+            finally:
+                resume.set()
+            chunk, = self.collect(worker, latest)
+
+        self.assertEqual(chunk["frame_start"], 2 * HOP + OVERLAP)
+        np.testing.assert_array_equal(chunk["samples"], expected[:, OVERLAP:])
+        self.assertEqual(chunk["request_id"], 1)
+        self.assertEqual(fake.calls, 1)
+        self.assertEqual(worker.statistics()["discarded_count"], 0)
+
     def test_cancel_running_idle_and_pending_then_seek(self):
         worker, fake = self.worker(FakeRuntime(blocked=True))
         idle = worker.cancel()

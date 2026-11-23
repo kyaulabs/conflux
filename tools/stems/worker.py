@@ -800,19 +800,21 @@ class StemWorker:
         samples = self._read_window(source, start)
         source_read_ms = (time.monotonic() - read_started) * 1000
         self._check(command)
-        self._request_id += 1
-        request_id = self._request_id
-        started = time.monotonic()
-        self._emit("started", command.generation, request_id=request_id,
-                   source_id=source.identity, window_start_frame=start, preroll=preroll,
-                   timestamp=started)
         with self._condition:
+            # A control can arrive after the input has been checked. Validate
+            # and enqueue under the same lock used to publish that control.
+            if self._closed or self._command != command:
+                raise _Superseded
+            self._request_id += 1
+            request_id = self._request_id
+            started = time.monotonic()
             event = {"generation": command.generation, "request_id": request_id,
                      "window_start_frame": start, "source_id": source.identity,
                      "timestamp": started, "preroll": preroll}
             future = self._executor.submit(self._exchange, self._native, samples, request_id, started)
             self._inflight = event
             self._pending_inference = _PendingInference(command, source, event, future, source_read_ms)
+            self._emit_locked("started", **event)
             future.add_done_callback(self._notify_inference)
         output, metrics, elapsed = self._wait_inference(command, keep_pending=keep_pending)
         return output, metrics, elapsed, request_id, source_read_ms
