@@ -126,11 +126,10 @@ Item {
             if (!control.accessibleToggle && !control.holdAction)
                 control.clicked()
         }
-        // Qt 6.4's default toggle writes checked directly.
-        Connections {
-            target: control.accessibleToggle ? face.Accessible : null
-            function onPressAction() { control.activateAccessiblePress() }
-            function onToggleAction() { control.activateAccessiblePress() }
+        // Route the built-in Toggle through the engine too.
+        function accessibleToggleAction() {
+            if (enabled && control.accessibleToggle)
+                control.activateAccessiblePress()
         }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
