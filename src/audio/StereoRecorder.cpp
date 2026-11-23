@@ -138,6 +138,7 @@ public:
 
     void write() noexcept
     {
+        std::uint64_t headerFrames = 0;
         for (;;) {
             // Observe terminal publication before loading the final head so a
             // queue failure/stop cannot hide an earlier accepted prefix.
@@ -164,7 +165,22 @@ public:
                     written_.store(position + static_cast<std::uint64_t>(count), std::memory_order_release);
                 break;
             }
-            written_.store(position + frames, std::memory_order_release);
+            const auto next = position + frames;
+            // Publish an early header, then update it roughly once per second
+            // of written audio so an abrupt exit leaves a readable prefix.
+            if (!headerFrames || next - headerFrames >= sampleRate) {
+                errno = 0;
+                sf_command(file_, SFC_UPDATE_HEADER_NOW, nullptr, 0);
+                const int headerSystemError = errno;
+                const int headerSndfileError = sf_error(file_);
+                if (headerSndfileError != SF_ERR_NO_ERROR || headerSystemError) {
+                    failWrite(Failure::Write, headerSndfileError, headerSystemError);
+                    written_.store(next, std::memory_order_release);
+                    break;
+                }
+                headerFrames = next;
+            }
+            written_.store(next, std::memory_order_release);
         }
         errno = 0;
         const int closeError = sf_close(file_);
