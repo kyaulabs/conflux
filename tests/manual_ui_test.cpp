@@ -4380,7 +4380,7 @@ private slots:
             const auto toggle = QAccessibleActionInterface::toggleAction();
             const auto press = QAccessibleActionInterface::pressAction();
             for (const auto& action : {toggle, press}) {
-                QVERIFY(lockAction->actionNames().contains(action));
+                QCOMPARE(lockAction->actionNames().count(action), 1);
                 const bool acknowledged = tempo["keyLock"].toBool();
                 count = ui_->endpoint.calls.size();
                 lockAction->doAction(action);
@@ -5049,12 +5049,21 @@ private slots:
             QCOMPARE(accessible->valueInterface()->currentValue().toDouble(), 118.5);
             QVERIFY(accessible->valueInterface()->minimumValue().toDouble() <= 112.8);
             QVERIFY(accessible->valueInterface()->maximumValue().toDouble() >= 127.2);
-            QVERIFY(accessible->actionInterface());
+            auto* actions = accessible->actionInterface();
+            QVERIFY(actions);
+            QCOMPARE(actions->actionNames().count(QAccessibleActionInterface::increaseAction()), 1);
+            QCOMPARE(actions->actionNames().count(QAccessibleActionInterface::decreaseAction()), 1);
             auto before = ui_->endpoint.calls.size();
-            accessible->actionInterface()->doAction(QAccessibleActionInterface::increaseAction());
+            actions->doAction(QAccessibleActionInterface::increaseAction());
             QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
             verifyCueCall(before, "tempoBpm", deck);
             QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() - 118.6) < 1e-9);
+            QCOMPARE(rail->property("value").toDouble(), 118.5);
+            before = ui_->endpoint.calls.size();
+            actions->doAction(QAccessibleActionInterface::decreaseAction());
+            QTRY_COMPARE(ui_->endpoint.calls.size(), before + 1);
+            verifyCueCall(before, "tempoBpm", deck);
+            QVERIFY(std::abs(ui_->endpoint.calls.last().toMap()["value"].toDouble() - 118.4) < 1e-9);
             QCOMPARE(rail->property("value").toDouble(), 118.5);
             auto* reset = ui_->item((prefix + "TempoReset").toUtf8().constData());
             auto* resetAccessible = QAccessible::queryAccessibleInterface(reset);

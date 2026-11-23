@@ -1505,8 +1505,6 @@ Item {
             Accessible.name: surface.deckName + " tempo BPM"
             Accessible.description: surface.residentHold.active ? tempoRail.recoveryHint
                                     : "BPM within six percent of the reference. Down increases speed; up decreases it. Arrows change 0.1 BPM, Shift changes 1 BPM. Master Tempo keeps musical pitch; Reset restores reference BPM."
-            Accessible.onIncreaseAction: requestStep(.1)
-            Accessible.onDecreaseAction: requestStep(-.1)
             property bool restoringAcknowledgement: false
             property real acknowledgedValue: 0
             function sameBpm(a, b) {
