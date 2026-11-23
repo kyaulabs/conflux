@@ -2847,6 +2847,54 @@ private slots:
         QTRY_VERIFY(cueList->property("contentY").toDouble() > cueBefore);
     }
 
+    void libraryKeyboardReachesOffscreenSavedTracks()
+    {
+        QVariantList tracks;
+        for (int index = 0; index < 40; ++index)
+            tracks.append(QVariantMap{{"id", QString::number(index)}, {"name", QString("Track %1").arg(index)},
+                                      {"path", QString("/home/demo/track-%1.wav").arg(index)},
+                                      {"durationSeconds", 60.0}, {"available", true}});
+        ui_->endpoint.setLibrary(tracks);
+        ui_->window->resize(1180, 760);
+        QVERIFY(ui_->openLibrary(0));
+        auto* list = ui_->item("libraryTracks");
+        auto* status = ui_->item("libraryCueStatus");
+        QVERIFY(list && status);
+        QTRY_VERIFY(ui_->item("deck0Path")->hasActiveFocus());
+        for (int step = 0; step < 16 && !list->hasActiveFocus(); ++step)
+            QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(list->hasActiveFocus());
+        QTRY_VERIFY(ui_->item("libraryTrack0")->hasActiveFocus());
+
+        const auto initialScroll = list->property("contentY").toDouble();
+        for (int index = 1; index < tracks.size(); ++index)
+            QTest::keyClick(ui_->window, Qt::Key_Down);
+        QTRY_VERIFY(ui_->item("libraryTrack39") && ui_->item("libraryTrack39")->hasActiveFocus());
+        QTRY_VERIFY(list->property("contentY").toDouble() > initialScroll);
+        auto* last = QAccessible::queryAccessibleInterface(ui_->item("libraryTrack39"));
+        QVERIFY(last && last->state().focusable && last->state().selectable);
+        QVERIFY(!last->state().selected);
+        QVERIFY(!status->property("text").toString().startsWith("Cue target:"));
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_VERIFY(status->property("text").toString().startsWith("Cue target: Track 39."));
+        QVERIFY(last->state().selected);
+
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(!list->hasActiveFocus());
+        QVERIFY(QMetaObject::invokeMethod(list, "positionViewAtBeginning"));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        QTRY_VERIFY(status->property("text").toString().startsWith("Cue target: Track 0."));
+        QCOMPARE(list->property("currentIndex").toInt(), 0);
+        QTest::keyClick(ui_->window, Qt::Key_Down);
+        QTRY_VERIFY(ui_->item("libraryTrack1") && ui_->item("libraryTrack1")->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Return);
+        QTRY_VERIFY(status->property("text").toString().startsWith("Cue target: Track 1."));
+        QCOMPARE(ui_->item("deck0Path")->property("text").toString(), QString("/home/demo/track-1.wav"));
+        QCOMPARE(ui_->item("deck1Path")->property("text").toString(), QString("/home/demo/track-1.wav"));
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+    }
+
     void jogKeyboardAndWheelUseRelativeRenderCommands()
     {
         ui_->endpoint.loadState(0);

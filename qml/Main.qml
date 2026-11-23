@@ -881,6 +881,8 @@ ApplicationWindow {
                     Layout.minimumHeight: 100
                     clip: true
                     model: deckController.libraryTracks
+                    activeFocusOnTab: count > 0
+                    Accessible.name: "Saved tracks"
                     spacing: 4
                     ScrollBar.vertical: ScrollBar { }
                     delegate: ItemDelegate {
@@ -890,13 +892,23 @@ ApplicationWindow {
                         width: savedTracks.width
                         height: 56
                         highlighted: library.selectedId === modelData.id
-                        onClicked: library.selectTrack(modelData)
+                        focusPolicy: Qt.ClickFocus
+                        onClicked: {
+                            savedTracks.currentIndex = index
+                            library.selectTrack(modelData)
+                        }
+                        Keys.onReturnPressed: clicked()
+                        Keys.onEnterPressed: clicked()
+                        Accessible.focusable: true
+                        Accessible.selectable: true
+                        Accessible.selected: highlighted
                         Accessible.onPressAction: clicked()
                         Accessible.name: modelData.name + (modelData.available ? "" : ", source missing")
                         Accessible.description: "Select this track for Load A, Load B or cue-sheet import. Track details show levels and available analysis."
                         background: Rectangle {
                             radius: 3
                             color: parent.highlighted ? Brand.ConfluxTheme.raised : Brand.ConfluxTheme.canvas
+                            border.width: parent.activeFocus ? 2 : 1
                             border.color: parent.activeFocus || parent.highlighted
                                           ? Brand.ConfluxTheme.primary : Brand.ConfluxTheme.divider
                         }
