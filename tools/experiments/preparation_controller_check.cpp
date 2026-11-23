@@ -168,6 +168,7 @@ public:
     Sink(const Sink&) = delete;
     Sink& operator=(const Sink&) = delete;
     const std::string& name() const { return name_; }
+    void disconnect() noexcept { stop(); }
     void validate(bool value) { armed_.store(value, std::memory_order_release); }
     bool observingValidation() const { return observedArmed_.load(std::memory_order_acquire); }
     std::uint64_t received(std::size_t channel) const { return received_[channel].load(); }
@@ -1316,6 +1317,21 @@ void runEqController(const std::filesystem::path& output, const QString& a, cons
             {"checked_right_frames", qint64(cue.received(1) - negativeRight)},
             {"wrong_samples", qint64(cue.wrong())}, {"zero_samples", qint64(cue.zeros())},
             {"first_mismatch", cue.firstMismatch()}};
+        // A UI Refresh can observe endpoint removal before its next audio-state drain.
+        const auto beforeCueRemoval = controller.audioState();
+        cue.disconnect();
+        QVariantMap route;
+        wait([&] {
+            controller.refreshAudioRouting();
+            route = controller.audioRouting();
+            return !route["cueError"].toString().isEmpty();
+        }, "Cue endpoint removal was not observed", false, std::chrono::seconds(2));
+        const auto queuedAudioState = controller.audioState();
+        require(beforeCueRemoval.cueReady && queuedAudioState.cueReady &&
+                queuedAudioState.outputFrame == beforeCueRemoval.outputFrame &&
+                route["masterReady"].toBool() && !route["cueReady"].toBool(),
+                "Refreshing the removed headphone route clears cue readiness before the queued audio state drains");
+        detail["cue_unrouted_before_audio_state_drain"] = true;
         require(save(detailPath, detail), "Bounded EQ controller/sample evidence is retained");
         controller.shutdown(); observations["eq_controller"] = detail;
     } catch (const std::exception& error) {
