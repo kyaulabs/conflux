@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <linux/fs.h>
 #include <memory>
+#include <new>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -570,16 +571,28 @@ bool validTimingGeometry(const BpmEstimate& estimate) noexcept
     }) == beats.end();
 }
 
+std::optional<double> measuredBeatRate(const BpmBeat& first, const BpmBeat& next) noexcept
+{
+    if (next.unmeasuredBefore) return {};
+    const double bpm = 60. * 48000. / (next.frame - first.frame);
+    if (bpm < 20 || bpm > 400) return {};
+    return bpm;
+}
+
+bool beforeBeat(std::uint64_t frame, const BpmBeat& beat) noexcept
+{
+    return frame < beat.frame;
+}
+
 std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, std::uint64_t frame) noexcept
 {
     const auto& beats = estimate.beats;
-    const auto next = std::upper_bound(beats.begin(), beats.end(), frame,
-        [](std::uint64_t value, const BpmBeat& beat) { return value < beat.frame; });
-    if (next == beats.begin() || next == beats.end() || next->unmeasuredBefore) return {};
-    const auto first = (next - 1)->frame;
-    const double bpm = 60. * 48000. / (next->frame - first);
-    if (bpm < 20 || bpm > 400) return {};
-    return BpmTempoInterval{first, next->frame, bpm};
+    const auto next = std::upper_bound(beats.begin(), beats.end(), frame, beforeBeat);
+    if (next == beats.begin() || next == beats.end()) return {};
+    const auto& first = *(next - 1);
+    const auto bpm = measuredBeatRate(first, *next);
+    if (!bpm) return {};
+    return BpmTempoInterval{first.frame, next->frame, *bpm};
 }
 } // namespace
 
@@ -592,12 +605,44 @@ std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate& estimate, std::u
 BpmTiming::BpmTiming(BpmEstimate estimate) noexcept
     : estimate_(std::move(estimate)), valid_(validTimingGeometry(estimate_))
 {
+    if (!valid_) return;
+    const auto& beats = estimate_.beats;
+    std::uint32_t first = 0;
+    bool measured = false;
+    try {
+        for (std::uint32_t index = 0; index < beats.size(); ++index) {
+            if (index && measured && !measuredBeatRate(beats[index - 1], beats[index]))
+                measured = false;
+            if (!beats[index].downbeat) continue;
+            if (measured && index - first >= 2)
+                bars_.push_back({first, index});
+            first = index;
+            measured = true;
+        }
+    } catch (const std::bad_alloc&) {
+        // Local tempo remains available if the optional bar index cannot be built.
+        bars_.clear();
+    }
 }
 
 std::optional<BpmTempoInterval> BpmTiming::at(std::uint64_t sourceFrame) const noexcept
 {
     if (!valid_ || sourceFrame >= estimate_.analysisFrames) return {};
     return findTimingInterval(estimate_, sourceFrame);
+}
+
+std::optional<BpmBarEstimate> BpmTiming::barAt(std::uint64_t sourceFrame) const noexcept
+{
+    const auto& beats = estimate_.beats;
+    const auto next = std::upper_bound(bars_.begin(), bars_.end(), sourceFrame,
+        [&beats](std::uint64_t frame, const BarSpan& bar) { return beforeBeat(frame, beats[bar.firstBeat]); });
+    if (next == bars_.begin()) return {};
+    const auto& bar = *(next - 1);
+    const auto first = beats.begin() + bar.firstBeat;
+    const auto end = beats.begin() + bar.endBeat;
+    if (sourceFrame >= end->frame) return {};
+    const auto nextBeat = std::upper_bound(first, end, sourceFrame, beforeBeat);
+    return BpmBarEstimate{first->frame, end->frame, std::uint32_t(nextBeat - first), bar.endBeat - bar.firstBeat};
 }
 
 std::optional<double> tempoPercentForBpm(double reference, double target) noexcept

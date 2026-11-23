@@ -1910,6 +1910,7 @@ private slots:
         ui_->endpoint.snapshotDeck(0, {{"loaded", true}, {"sourceId", selected},
             {"bpm", QVariantMap{{"estimated", 124.5}, {"reference", 138.0},
                                  {"manual", true}, {"status", "Estimated"}}},
+            {"localTiming", QVariantMap{{"bar", QVariantMap{{"beat", 2}, {"beats", 4}}}}},
             {"harmony", QVariantMap{{"status", "Estimated"},
                 {"candidates", QVariantList{QVariantMap{{"tonic", 2}, {"mode", "Minor"}}}}}}});
         ui_->endpoint.snapshotDeck(1, {{"loaded", true}, {"sourceId", other},
@@ -1923,16 +1924,18 @@ private slots:
         QVERIFY(detail);
         QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(row));
         QTRY_COMPARE(detail->property("text").toString(),
-                     QString("Estimated source BPM 124.5 · Deck A playback KEY EST. D MIN"));
+                     QString("Estimated source BPM 124.5 · Deck A playback KEY EST. D MIN · Deck A bar estimate, beat 2 of 4"));
+        ui_->endpoint.snapshotDeck(0, {{"localTiming", QVariantMap{{"bar", QVariantMap{{"beat", 1}, {"beats", 3}}}}}});
+        QTRY_VERIFY(detail->property("text").toString().endsWith("Deck A bar estimate, beat 1 of 3"));
 
         ui_->endpoint.snapshotDeck(0, {{"replacing", true}});
         QTRY_COMPARE(detail->property("text").toString(), QString("Analysis unavailable"));
         ui_->endpoint.snapshotDeck(1, {{"sourceId", selected}});
         QTRY_COMPARE(detail->property("text").toString(),
-                     QString("Estimated source BPM 149.0 · Deck B playback KEY AMBIGUOUS"));
+                     QString("Estimated source BPM 149.0 · Deck B playback KEY AMBIGUOUS · Deck B bar unknown"));
         ui_->endpoint.snapshotDeck(1, {{"bpm", QVariantMap{{"estimated", 0.0}, {"reference", 142.0},
                                                            {"manual", true}, {"status", "Unavailable"}}}});
-        QTRY_COMPARE(detail->property("text").toString(), QString("Deck B playback KEY AMBIGUOUS"));
+        QTRY_COMPARE(detail->property("text").toString(), QString("Deck B playback KEY AMBIGUOUS · Deck B bar unknown"));
         QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 

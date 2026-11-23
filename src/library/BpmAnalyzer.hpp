@@ -45,6 +45,11 @@ struct BpmTempoInterval {
     double bpm = 0;
 };
 
+struct BpmBarEstimate {
+    std::uint32_t firstFrame = 0, endFrame = 0;
+    std::uint32_t beat = 0, beats = 0; // One-based beat and observed beat count.
+};
+
 // Off-callback only: validates all timing geometry in a bounded O(beats) scan
 // (at most 34953 events), without allocation or a second stored map. Returns
 // the containing [firstFrame, endFrame) interval in original stereo48k frames;
@@ -65,10 +70,15 @@ public:
 
     [[nodiscard]] const BpmEstimate& estimate() const noexcept { return estimate_; }
     [[nodiscard]] std::optional<BpmTempoInterval> at(std::uint64_t sourceFrame) const noexcept;
+    // Between two detected downbeats with at least two measured beats.
+    // Bounds are half-open in source frames. No time signature is inferred.
+    [[nodiscard]] std::optional<BpmBarEstimate> barAt(std::uint64_t sourceFrame) const noexcept;
 
 private:
+    struct BarSpan { std::uint32_t firstBeat, endBeat; };
     BpmEstimate estimate_;
     bool valid_ = false;
+    std::vector<BarSpan> bars_;
 };
 
 class BpmSourceError : public std::runtime_error {

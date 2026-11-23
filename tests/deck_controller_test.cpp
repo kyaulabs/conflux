@@ -2202,6 +2202,13 @@ private slots:
         QCOMPARE(resident["sourceFrame"].toULongLong(), qulonglong(70800));
         QCOMPARE(resident["bpm"].toDouble(), 180.);
         QVERIFY(resident["resident"].toBool()); // Producer health does not erase independent timing.
+        const auto bar = resident["bar"].toMap();
+        QCOMPARE(bar["beat"].toUInt(), 2U);
+        QCOMPARE(bar["beats"].toUInt(), 3U);
+        QCOMPARE(bar["firstFrame"].toUInt(), 52800U);
+        QCOMPARE(bar["endFrame"].toUInt(), 101200U);
+        // No closing downbeat exists after the resumed linear playback position.
+        QVERIFY(localTimingForDisplay(timing, 105000)["bar"].toMap().isEmpty());
         hold.linearFrame = estimate.analysisFrames;
         QCOMPARE(localTimingForDisplay(timing, double(estimate.analysisFrames), hold, range)["bpm"].toDouble(), 180.);
         hold.linearFrame = 128000;
@@ -2213,7 +2220,9 @@ private slots:
         QCOMPARE(localTimingForDisplay(timing, 127999.75, hold, range)["status"].toString(), QString("Unknown"));
         QCOMPARE(localTimingForDisplay(timing, 128001.25, hold, range)["status"].toString(), QString("Unknown"));
         hold.audibleFrame = range.outFrame;
-        QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["status"].toString(), QString("Unknown"));
+        const auto atOut = localTimingForDisplay(timing, 128000, hold, range);
+        QCOMPARE(atOut["status"].toString(), QString("Unknown"));
+        QVERIFY(atOut["bar"].toMap().isEmpty());
         hold.audibleFrame = range.inFrame;
         QCOMPARE(localTimingForDisplay(timing, 128000, hold, range)["bpm"].toDouble(), 160.);
         ++hold.rangeId;
