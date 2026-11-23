@@ -1153,8 +1153,20 @@ ApplicationWindow {
         property string masterRight: ""
         property string cueLeft: ""
         property string cueRight: ""
-        readonly property var masterOptions: [{key: "", label: "Default master"}].concat(deckController.audioRouting.ports)
-        readonly property var cueOptions: [{key: "", label: "Cue disabled"}].concat(deckController.audioRouting.ports)
+        readonly property var playbackOptions: {
+            if (!visible)
+                return []
+            const ports = deckController.audioRouting.ports
+            const counts = new Map()
+            for (const port of ports)
+                counts.set(port.label, (counts.get(port.label) || 0) + 1)
+            return ports.map(port => counts.get(port.label) === 1 ? port : ({
+                key: port.key,
+                label: qsTr("%1 (%2 / %3)").arg(port.label).arg(port.nodeName).arg(port.portName)
+            }))
+        }
+        readonly property var masterOptions: [{key: "", label: "Default master"}].concat(playbackOptions)
+        readonly property var cueOptions: [{key: "", label: "Cue disabled"}].concat(playbackOptions)
         readonly property bool completePairs: (masterLeft.length === 0) === (masterRight.length === 0)
                                              && (cueLeft.length === 0) === (cueRight.length === 0)
         readonly property bool distinctPorts: {
