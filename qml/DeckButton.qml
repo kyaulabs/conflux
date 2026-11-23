@@ -133,7 +133,7 @@ Item {
         }
         onClicked: control.clicked()
         onPressed: { if (control.touchContactId < 0) control.beginPress() }
-        // The native button cannot release a hold owned by Enter, Return or touch.
+        // The native button cannot release a keyboard or touch hold.
         onReleased: {
             if (control.touchContactId < 0 && control.heldKey === 0)
                 control.finishPress(false)
@@ -155,34 +155,19 @@ Item {
             if (control.holdAction && !activeFocus && control.touchContactId < 0)
                 control.requestCancel(!control.available)
         }
-        // Space keeps the native Button press/release path. Enter/Return get
-        // matching hold semantics for CUE instead of an immediate activation.
+        // Hold keys keep their own release while the native button handles the pointer.
+        function isHoldKey(key) {
+            return control.holdAction && (key === Qt.Key_Space || key === Qt.Key_Return || key === Qt.Key_Enter)
+        }
         Keys.priority: Keys.BeforeItem
         Keys.onPressed: function(event) {
-            if (control.holdAction && event.key === Qt.Key_Space && event.isAutoRepeat) {
-                event.accepted = true
-                return
-            }
-            if (!control.holdAction || (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter)) {
-                event.accepted = false
-                return
-            }
-            event.accepted = true
-            if (!event.isAutoRepeat && !control.physicalPress) {
+            event.accepted = face.isHoldKey(event.key)
+            if (event.accepted && !event.isAutoRepeat && !control.physicalPress)
                 control.beginPress(event.key)
-            }
         }
         Keys.onReleased: function(event) {
-            if (control.holdAction && event.key === Qt.Key_Space && event.isAutoRepeat) {
-                event.accepted = true
-                return
-            }
-            if (!control.holdAction || (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter)) {
-                event.accepted = false
-                return
-            }
-            event.accepted = true
-            if (!event.isAutoRepeat && control.heldKey === event.key)
+            event.accepted = face.isHoldKey(event.key)
+            if (event.accepted && !event.isAutoRepeat && control.heldKey === event.key)
                 control.finishPress(false)
         }
 
