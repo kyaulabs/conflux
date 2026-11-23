@@ -2895,6 +2895,74 @@ private slots:
         QVERIFY(ui_->endpoint.calls.isEmpty());
     }
 
+    void libraryKeyboardJumpsToOffscreenCues()
+    {
+        const QString source(64, QLatin1Char('c'));
+        QVariantList cues;
+        for (int index = 0; index < 40; ++index)
+            cues.append(QVariantMap{{"trackNumber", index + 1}, {"label", QString("Cue %1").arg(index)},
+                                    {"frame", qint64(index) * 48000}, {"seconds", double(index)}});
+        ui_->endpoint.setLibrary({QVariantMap{{"id", source}, {"name", "Cue source"},
+                                {"path", "/home/demo/cues.wav"}, {"durationSeconds", 60.0},
+                                {"available", true}, {"cues", cues}}});
+        for (int deck = 0; deck < 2; ++deck) {
+            ui_->endpoint.loadState(deck);
+            ui_->endpoint.setSourceId(deck, source);
+        }
+        ui_->endpoint.setReady(true);
+        ui_->window->resize(1180, 760);
+        QVERIFY(ui_->openLibrary(0));
+        QTRY_VERIFY(ui_->item("libraryTrack0"));
+        QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(ui_->item("libraryTrack0")));
+        auto* list = ui_->item("libraryCues");
+        auto* path = ui_->item("libraryCuePath");
+        QVERIFY(list && path);
+        path->forceActiveFocus();
+        QTRY_VERIFY(path->hasActiveFocus());
+        for (int step = 0; step < 12 && !list->hasActiveFocus(); ++step)
+            QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(list->hasActiveFocus());
+        QTRY_VERIFY(ui_->item("libraryCue0JumpA") && ui_->item("libraryCue0JumpA")->hasActiveFocus());
+
+        const auto initialScroll = list->property("contentY").toDouble();
+        for (int index = 1; index < cues.size(); ++index)
+            QTest::keyClick(ui_->window, Qt::Key_Down);
+        QTRY_VERIFY(ui_->item("libraryCue39JumpA") && ui_->item("libraryCue39JumpA")->hasActiveFocus());
+        QTRY_VERIFY(list->property("contentY").toDouble() > initialScroll);
+        QTest::keyClick(ui_->window, Qt::Key_Right);
+        QTRY_VERIFY(ui_->item("libraryCue39JumpB")->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Up);
+        QTRY_VERIFY(ui_->item("libraryCue38JumpB") && ui_->item("libraryCue38JumpB")->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Down);
+        QTRY_VERIFY(ui_->item("libraryCue39JumpB")->hasActiveFocus());
+        auto* focusA = ui_->item("libraryCue39JumpAFocus");
+        auto* focusB = ui_->item("libraryCue39JumpBFocus");
+        QVERIFY(focusA && focusB);
+        QTRY_VERIFY(!focusA->isVisible() && focusB->isVisible());
+
+        QVERIFY(ui_->endpoint.calls.isEmpty());
+        QTest::keyClick(ui_->window, Qt::Key_Return);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
+        QCOMPARE(ui_->endpoint.calls[0].toMap(), (QVariantMap{
+            {"action", "cueJump"}, {"deck", 1}, {"id", source}, {"index", 39}}));
+
+        QTest::keyClick(ui_->window, Qt::Key_Left);
+        QTRY_VERIFY(ui_->item("libraryCue39JumpA")->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Space);
+        QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
+        QCOMPARE(ui_->endpoint.calls[1].toMap(), (QVariantMap{
+            {"action", "cueJump"}, {"deck", 0}, {"id", source}, {"index", 39}}));
+
+        ui_->endpoint.setSourceId(0, QString(64, QLatin1Char('d')));
+        QTRY_VERIFY(!ui_->item("libraryCue39JumpA")->isEnabled());
+        QTRY_VERIFY(ui_->item("libraryCue39JumpB")->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Left);
+        QTRY_VERIFY(ui_->item("libraryCue39JumpB")->hasActiveFocus());
+        QTest::keyClick(ui_->window, Qt::Key_Tab);
+        QTRY_VERIFY(!list->hasActiveFocus());
+        QCOMPARE(ui_->endpoint.calls.size(), 2);
+    }
+
     void jogKeyboardAndWheelUseRelativeRenderCommands()
     {
         ui_->endpoint.loadState(0);
