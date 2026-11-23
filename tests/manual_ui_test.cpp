@@ -3803,20 +3803,25 @@ private slots:
         QVERIFY(!ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool());
     }
 
-    void nativeCueReleaseDoesNotEndASeparateKeyHold_data()
+    void cueHoldIgnoresCompetingInputRelease_data()
     {
         QTest::addColumn<int>("deck");
         QTest::addColumn<int>("ownerKey");
         QTest::addColumn<bool>("useMouse");
-        for (int deck = 0; deck < 2; ++deck)
+        for (int deck = 0; deck < 2; ++deck) {
             for (const auto key : {Qt::Key_Return, Qt::Key_Enter})
                 for (const auto useMouse : {false, true})
                     QTest::newRow(qPrintable(QString("deck%1-key%2-%3").arg(deck).arg(int(key))
                                                    .arg(useMouse ? "mouse" : "space")))
                         << deck << int(key) << useMouse;
+            QTest::newRow(qPrintable(QString("deck%1-space-first").arg(deck)))
+                << deck << int(Qt::Key_Space) << true;
+            QTest::newRow(qPrintable(QString("deck%1-pointer-first").arg(deck)))
+                << deck << 0 << false;
+        }
     }
 
-    void nativeCueReleaseDoesNotEndASeparateKeyHold()
+    void cueHoldIgnoresCompetingInputRelease()
     {
         QFETCH(int, deck);
         QFETCH(int, ownerKey);
@@ -3831,18 +3836,25 @@ private slots:
         QTRY_VERIFY(cue->hasActiveFocus());
         const auto peer = ui_->endpoint.decks()[1 - deck];
 
-        QTest::keyPress(ui_->window, Qt::Key(ownerKey));
+        const auto point = ui_->center(cue);
+        if (ownerKey)
+            QTest::keyPress(ui_->window, Qt::Key(ownerKey));
+        else
+            QTest::mousePress(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
         QTRY_COMPARE(ui_->endpoint.calls.size(), 1);
         verifyCueCall(0, "cuePress", deck);
         if (useMouse)
-            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, ui_->center(cue));
+            QTest::mouseClick(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
         else
             QTest::keyClick(ui_->window, Qt::Key_Space);
         QCoreApplication::processEvents();
         const auto callsWhileHeld = ui_->endpoint.calls.size();
         const auto keptHolding = ui_->endpoint.decks()[deck].toMap()["cueHeld"].toBool();
 
-        QTest::keyRelease(ui_->window, Qt::Key(ownerKey));
+        if (ownerKey)
+            QTest::keyRelease(ui_->window, Qt::Key(ownerKey));
+        else
+            QTest::mouseRelease(ui_->window, Qt::LeftButton, Qt::NoModifier, point);
         QCOMPARE(callsWhileHeld, 1);
         QVERIFY(keptHolding);
         QTRY_COMPARE(ui_->endpoint.calls.size(), 2);
