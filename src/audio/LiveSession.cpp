@@ -1225,7 +1225,14 @@ public:
             for (std::size_t index = 2; index < 4; ++index)
                 if (valid[index]) std::fill_n(outputs[index], frames, 0.F);
 
-        const bool expired = durationValid && callbackExpired(position->clock, clock);
+        bool expired = durationValid && callbackExpired(position->clock, clock);
+        if (!expired) {
+            for (std::size_t index = 0; index < outputs.size(); ++index)
+                if (valid[index]) std::copy_n(outputs[index], frames, mapped[index]);
+            // The graph can advance during those copies. Only publish extents
+            // once the mapped samples are ready and the clock is still current.
+            expired = durationValid && callbackExpired(position->clock, clock);
+        }
         if (expired && canRetain && self.ready() && masterValid && !replacementPending && (resumed || rendered == frames)) {
             // The recorder and source clocks already own this render. Reuse
             // its samples at the next valid callback without advancing them.
@@ -1258,7 +1265,6 @@ public:
                     chunk->flags = SPA_CHUNK_FLAG_NONE;
                     chunk->size = 0;
                     if (valid[index] && !expired) {
-                        std::copy_n(outputs[index], frames, mapped[index]);
                         chunk->size = frames * sizeof(float);
                         buffer->size = frames;
                     }
