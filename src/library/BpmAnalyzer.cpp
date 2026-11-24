@@ -570,16 +570,55 @@ bool validTimingGeometry(const BpmEstimate& estimate) noexcept
     }) == beats.end();
 }
 
+constexpr double framesPerMinute = 60. * 48000.;
+constexpr std::uint32_t minimumTempoPeriod = 7200;
+constexpr std::uint32_t maximumTempoPeriod = 144000;
+
+double steadyLocalPeriod(const std::vector<BpmBeat>& beats, std::size_t interval, double adjacent) noexcept
+{
+    constexpr std::size_t intervals = 10, before = 4;
+    constexpr std::uint32_t modelTick = 48000U / 50U;
+    if (beats.size() <= intervals) return adjacent;
+
+    const std::size_t start = std::min(interval > before ? interval - before : 0, beats.size() - intervals - 1);
+    const auto* first = beats.data() + start;
+    for (std::size_t i = 1; i <= intervals; ++i) {
+        const auto period = first[i].frame - first[i - 1].frame;
+        if (first[i].unmeasuredBefore || period < minimumTempoPeriod || period > maximumTempoPeriod ||
+            (first[i].frame - first[0].frame) % modelTick != 0)
+            return adjacent;
+    }
+
+    // Two rounded beat positions can disagree with their exact span by one
+    // model tick. Only use a common period if every pair supports it.
+    double low = minimumTempoPeriod, high = maximumTempoPeriod;
+    for (std::size_t separation = 1; separation <= intervals; ++separation) {
+        auto shortest = first[separation].frame - first[0].frame;
+        auto longest = shortest;
+        for (std::size_t i = 1; i + separation <= intervals; ++i) {
+            const auto span = first[i + separation].frame - first[i].frame;
+            shortest = std::min(shortest, span);
+            longest = std::max(longest, span);
+        }
+        low = std::max(low, (double(longest) - modelTick) / separation);
+        high = std::min(high, (double(shortest) + modelTick) / separation);
+        if (high <= low) return adjacent;
+    }
+    const auto middle = (low + high) / 2.;
+    return high - low <= .01 * middle ? middle : adjacent;
+}
+
 std::optional<BpmTempoInterval> findTimingInterval(const BpmEstimate& estimate, std::uint64_t frame) noexcept
 {
     const auto& beats = estimate.beats;
     const auto next = std::upper_bound(beats.begin(), beats.end(), frame,
         [](std::uint64_t value, const BpmBeat& beat) { return value < beat.frame; });
     if (next == beats.begin() || next == beats.end() || next->unmeasuredBefore) return {};
-    const auto first = (next - 1)->frame;
-    const double bpm = 60. * 48000. / (next->frame - first);
-    if (bpm < 20 || bpm > 400) return {};
-    return BpmTempoInterval{first, next->frame, bpm};
+    const auto first = next - 1;
+    const auto adjacent = next->frame - first->frame;
+    if (adjacent < minimumTempoPeriod || adjacent > maximumTempoPeriod) return {};
+    const auto period = steadyLocalPeriod(beats, std::size_t(first - beats.begin()), adjacent);
+    return BpmTempoInterval{first->frame, next->frame, framesPerMinute / period};
 }
 } // namespace
 

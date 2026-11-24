@@ -50,14 +50,16 @@ struct BpmTempoInterval {
 // the containing [firstFrame, endFrame) interval in original stereo48k frames;
 // a shared beat selects the following interval. No extrapolation before the
 // first beat or from the last beat. Missing/malformed timing or a selected
-// interval outside 20..400 BPM or marked unmeasured returns Unknown (nullopt). Whole-track summary,
-// downbeat flags and cacheHit do not change the measured interval. This is an
-// unqualified interbeat estimate, not confidence, meter or a sync contract.
+// interval outside 20..400 BPM or marked unmeasured returns Unknown (nullopt).
+// A nearby measured run can refine BPM when its timestamps support one steady
+// period to model-grid precision. The original interval boundaries remain the
+// same. Whole-track summary, downbeat flags and cacheHit do not affect the estimate.
+// This lookup provides an unqualified source-local BPM estimate.
 [[nodiscard]] std::optional<BpmTempoInterval> localTempoAt(const BpmEstimate&,
                                                         std::uint64_t sourceFrame) noexcept;
 
 // Own the validated timing map at deck load. Queries never mutate the stored
-// estimate and only search the relevant beat interval.
+// estimate and examine only a bounded neighborhood of the selected interval.
 class BpmTiming {
 public:
     BpmTiming() = default;
