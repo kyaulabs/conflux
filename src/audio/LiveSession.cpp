@@ -1254,6 +1254,7 @@ public:
             }
             self.retained_.valid = true;
         }
+        const bool renderedPlayback = resumed || rendered != 0;
         for (std::size_t index = 0; index < 4; ++index) {
             if (!buffers[index]) continue;
             auto* buffer = buffers[index];
@@ -1267,7 +1268,9 @@ public:
                     // A link notification can close the gate while master
                     // buffers are being returned. Check each cue extent
                     // immediately before handing that buffer to PipeWire.
-                    if (valid[index] && !expired && (index < 2 || !cue || self.cueRouteOpen())) {
+                    // A master fault can arrive after rendering or during an earlier return.
+                    if (valid[index] && !expired && (!renderedPlayback || self.ready()) &&
+                        (index < 2 || !cue || self.cueRouteOpen())) {
                         chunk->size = frames * sizeof(float);
                         buffer->size = frames;
                     }
