@@ -875,14 +875,17 @@ class StemWorker:
                 or command.source_generation != pending.command.source_generation):
             return
         with self._condition:
-            if (self._closed or self._command != command or self._weighted_window_locked(start) is not None
+            # The next seek can share this window while validation runs
+            # outside the condition lock.
+            if (self._closed or self._source_generation != pending.command.source_generation
+                    or self._weighted_window_locked(start) is not None
                     or (start and len(self._weighted_windows) >= _SEEK_CACHE_WINDOWS)):
                 return
         if output.shape != (len(STEMS), WINDOW, CHANNELS) or not np.isfinite(output).all():
             return
         weighted = output * _WEIGHT[None, :, None]
         with self._condition:
-            if self._closed or self._command != command:
+            if self._closed or self._source_generation != pending.command.source_generation:
                 return
             self._remember_window_locked(start, source, pending.event["request_id"], weighted)
             # Unpublished work can use spare space, but should be the first

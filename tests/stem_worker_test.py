@@ -813,6 +813,61 @@ class WorkerTest(unittest.TestCase):
         np.testing.assert_array_equal(np.concatenate([first["samples"], tail["samples"]], axis=1),
                                       expected[:, frame:])
 
+    def test_return_seek_preserves_completed_window_during_superseded_cache_insertion(self):
+        raw = self.root / "superseded-cache-insertion.f32"
+        audio = fixture(self.root / "superseded-cache-insertion.wav", 3 * HOP + 137)
+        audio.astype("<f4").tofile(raw)
+        reference, _ = self.worker()
+        continuous = self.collect(reference, reference.load_f32(raw))
+        expected = continuous[1]["samples"][:, OVERLAP:]
+
+        for edge in ("before_validation", "during_validation"):
+            with self.subTest(edge=edge):
+                worker, backend = self.worker(FakeRuntime(blocked=True), max_ready=1)
+                try:
+                    opened = worker.load_f32(raw)
+                    self.assertTrue(backend.wait_call(1))
+                    backend.release()
+                    self.event(worker, "chunk", opened)
+                    self.assertTrue(backend.wait_call(2))
+
+                    entered, resume = threading.Event(), threading.Event()
+                    remember = worker._remember_superseded_seek_window
+                    isfinite = np.isfinite
+
+                    def wait_for_seek():
+                        entered.set()
+                        if not resume.wait(3):
+                            raise TimeoutError("test did not release obsolete window validation")
+
+                    def during_validation(samples):
+                        wait_for_seek()
+                        return isfinite(samples)
+
+                    def handoff(command, pending, output):
+                        if edge == "before_validation":
+                            wait_for_seek()
+                            return remember(command, pending, output)
+                        with patch("tools.stems.worker.np.isfinite", during_validation):
+                            return remember(command, pending, output)
+
+                    with patch.object(worker, "_remember_superseded_seek_window", side_effect=handoff):
+                        try:
+                            worker.seek(2 * HOP + OVERLAP)
+                            backend.release()
+                            self.assertTrue(entered.wait(3), "obsolete request did not enter the cache")
+                            frame = HOP + OVERLAP
+                            generation = worker.seek(frame)
+                        finally:
+                            resume.set()
+                        chunk = self.event(worker, "chunk", generation, timeout=1)
+
+                    self.assertEqual((chunk["request_id"], chunk["frame_start"]), (2, frame))
+                    self.assertIs(chunk["inference_reused"], True)
+                    np.testing.assert_array_equal(chunk["samples"], expected)
+                finally:
+                    worker.close(timeout=0.05)
+
     def test_seek_retains_active_target_while_filling_missing_preroll(self):
         raw = self.root / "seek-active-target-uncached-preroll.f32"
         self.audio.astype("<f4").tofile(raw)
