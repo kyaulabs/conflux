@@ -109,6 +109,35 @@ void invalidSelectionsFailClosed()
     }
 }
 
+void unavailableEndpointsFailClosed()
+{
+    const auto initial=topology();
+    const RoutingConfig selected{pair(initial,0,1),pair(initial,4,5)};
+    auto disconnected=initial;
+    // The node, port IDs and serials are unchanged when PipeWire's active
+    // device route goes unavailable.
+    disconnected.playbackPorts[5].unavailable=true;
+    auto result=resolveAudioRouting(disconnected,selected);
+    require(result.master && samePortIdentity(result.master->left,selected.master->left) &&
+            !result.cue && result.cueStatus==CueRouteStatus::MissingEndpoint && !result.cueError.empty(),
+        "An unavailable cue channel kept cue active or disrupted the valid master");
+
+    disconnected=initial;
+    disconnected.playbackPorts[1].unavailable=true;
+    result=resolveAudioRouting(disconnected,selected);
+    require(!result.master && !result.cue && !result.masterError.empty(),
+        "An unavailable pinned master kept audio active");
+    result=resolveAudioRouting(disconnected,{});
+    require(!result.master && !result.masterError.empty(),
+        "An unavailable channel completed the system default stereo pair");
+
+    auto alternative=port(10,105,"interface","FR");
+    disconnected.playbackPorts.push_back(alternative);
+    result=resolveAudioRouting(disconnected,{});
+    require(result.master && samePortIdentity(result.master->right,alternative),
+        "An unavailable port made a unique available default pair ambiguous");
+}
+
 void missingAndAmbiguousMetadata()
 {
     auto snapshot=topology();
@@ -143,6 +172,7 @@ int main()
     try {
         validTopologiesAndDefaultPolicy();
         invalidSelectionsFailClosed();
+        unavailableEndpointsFailClosed();
         missingAndAmbiguousMetadata();
         return 0;
     } catch(const std::exception& error) {
